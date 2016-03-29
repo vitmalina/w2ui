@@ -136,7 +136,7 @@ public class W2uiGridExample extends W2uiGridData implements Servlet {
 		// apply offset and limit
 		int offset = 0;
 		if (reqParams.has("offset")) {
-			reqParams.getInt("offset");
+			offset = reqParams.getInt("offset");
 			if (offset < 0) {
 				offset = 0;
 			}
@@ -196,7 +196,7 @@ public class W2uiGridExample extends W2uiGridData implements Servlet {
     }
 
 	protected void processSaveRecords(JSONObject reqParams) throws Exception {
-		JSONArray changed = reqParams.getJSONArray("changed");
+		JSONArray changed = reqParams.getJSONArray("changes");
 		for (int cnt=0; cnt < changed.length(); cnt++) {
 			JSONObject change = changed.getJSONObject(cnt);
 			int recid = change.getInt("recid");

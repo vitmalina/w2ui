@@ -40,6 +40,7 @@ var w2utils = (function ($) {
             "locale"            : "en-us",
             "dateFormat"        : "m/d/yyyy",
             "timeFormat"        : "hh:mi pm",
+            "datetimeFormat"    : "m/d/yyyy|hh:mi pm",
             "currencyPrefix"    : "$",
             "currencySuffix"    : "",
             "currencyPrecision" : 2,
@@ -247,7 +248,7 @@ var w2utils = (function ($) {
     }
 
     function isDateTime (val, format, retDate) {
-        if (format == null) format = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
+        if (format == null) format = w2utils.settings.datetimeFormat;
         var formats = format.split('|');
         if (typeof val.getUTCFullYear === 'function') { // date object
             if (retDate !== true) return true;
@@ -1628,7 +1629,7 @@ w2utils.formatters = {
     },
 
     'datetime': function (value, params) {
-        if (params == '') params = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
+        if (params == '') params = w2utils.settings.datetimeFormat;
         if (value == null || value == 0) return '';
         var dt = w2utils.isDateTime(value, params, true);
         if (dt == '') dt = w2utils.isDate(value, params, true);
@@ -1646,7 +1647,7 @@ w2utils.formatters = {
     },
 
     'timestamp': function (value, params) {
-        if (params == '') params = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
+        if (params == '') params = w2utils.settings.datetimeFormat;
         if (value == null || value == 0) return '';
         var dt = w2utils.isDateTime(value, params, true);
         if (dt == '') dt = w2utils.isDate(value, params, true);
@@ -1654,7 +1655,7 @@ w2utils.formatters = {
     },
 
     'gmt': function (value, params) {
-        if (params == '') params = w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat;
+        if (params == '') params = w2utils.settings.datetimeFormat;
         if (value == null || value == 0) return '';
         var dt = w2utils.isDateTime(value, params, true);
         if (dt == '') dt = w2utils.isDate(value, params, true);
@@ -1675,6 +1676,14 @@ w2utils.formatters = {
 
     'toggle': function (value, params) {
         return (value ? 'Yes' : '');
+    },
+
+	'password': function (value, params) {
+    	var ret = "";
+		for (var i=0; i < value.length; i++) {
+			ret += "*";
+		}
+		return ret;
     }
 };
 
@@ -2000,25 +2009,25 @@ w2utils.event = {
                 setTimeout(checkIfMoved, 100);
                 // monitor if moved
                 var posClass = 'w2ui-tag-right';
-                var posLeft  = parseInt($(el).offset().left + el.offsetWidth + (options.left ? options.left : 0));
-                var posTop   = parseInt($(el).offset().top + (options.top ? options.top : 0));
+                var posLeft  = parseInt(offset.left + el.offsetWidth + (options.left ? options.left : 0));
+                var posTop   = parseInt(offset.top + (options.top ? options.top : 0));
                 var tagBody  = $tags.find('.w2ui-tag-body');
                 var width    = tagBody[0].offsetWidth;
                 var height   = tagBody[0].offsetHeight;
                 if (options.position == 'top') {
                     posClass  = 'w2ui-tag-top';
-                    posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - 14;
-                    posTop    = parseInt($(el).offset().top + (options.top ? options.top : 0)) - height - 10;
+                    posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - 14;
+                    posTop    = parseInt(offset.top + (options.top ? options.top : 0)) - height - 10;
                 }
-                if (options.position == 'bottom') {
+                else if (options.position == 'bottom') {
                     posClass  = 'w2ui-tag-bottom';
-                    posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - 14;
-                    posTop    = parseInt($(el).offset().top + el.offsetHeight + (options.top ? options.top : 0)) + 10;
+                    posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - 14;
+                    posTop    = parseInt(offset.top + el.offsetHeight + (options.top ? options.top : 0)) + 10;
                 }
-                if (options.position == 'left') {
+                else if (options.position == 'left') {
                     posClass  = 'w2ui-tag-left';
-                    posLeft   = parseInt($(el).offset().left + (options.left ? options.left : 0)) - width - 20;
-                    posTop    = parseInt($(el).offset().top + (options.top ? options.top : 0));
+                    posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - width - 20;
+                    posTop    = parseInt(offset.top + (options.top ? options.top : 0));
                 }
                 if ($tags.data('position') !== posLeft + 'x' + posTop && skipTransition !== true) {
                     $tags.css(w2utils.cssPrefix({ 'transition': '.2s' })).css({
@@ -2201,7 +2210,7 @@ w2utils.event = {
                         if ($div.css('overflow-y') != 'auto') $div.css('overflow-y', 'auto');
                     }, 10);
                 }
-                if (options.tmp.contentWidth) {
+                if (options.tmp.contentWidth && options.align != 'both') {
                     w = parseInt(options.tmp.contentWidth);
                     div2.width(w);
                     setTimeout(function () {
@@ -2214,26 +2223,27 @@ w2utils.event = {
                     }, 10);
                 }
                 // adjust position
-                var tmp = (w - 17) / 2;
                 var boxLeft  = options.left;
                 var boxWidth = options.width;
                 var tipLeft  = options.tipLeft;
                 // alignment
                 switch (options.align) {
                     case 'both':
-                        boxLeft = 17 + parseInt(options.left);
+                        boxLeft = 17;
                         if (options.width === 0) options.width = w2utils.getSize($(obj), 'width');
                         if (options.maxWidth && options.width > options.maxWidth) options.width = options.maxWidth;
                         break;
                     case 'left':
-                        boxLeft = 17 + parseInt(options.left);
+                        boxLeft = 17;
                         break;
                     case 'right':
-                        boxLeft = w2utils.getSize($(obj), 'width') - w + 14 + parseInt(options.left);
+                        boxLeft = w2utils.getSize($(obj), 'width') - w + 10;
                         tipLeft = w - 40;
                         break;
                 }
                 if (w === 30 && !boxWidth) boxWidth = 30; else boxWidth = (options.width ? options.width : 'auto');
+                var tmp = (w - 17) / 2;
+                if (boxWidth != 'auto') tmp = (boxWidth - 17) / 2;
                 if (tmp < 25) {
                     boxLeft = 25 - tmp;
                     tipLeft = Math.floor(tmp);
@@ -2414,17 +2424,19 @@ w2utils.event = {
             $.fn.w2menuDown = function (event, index) {
                 var $el  = $(event.target).parents('tr');
                 var tmp  = $el.find('.w2ui-icon');
-                var item = options.items[index];
-                item.checked = !item.checked;
-                if (item.checked) {
-                    if (options.type == 'radio') {
-                        tmp.parents('table').find('.w2ui-icon')
-                            .removeClass('w2ui-icon-check')
-                            .addClass('w2ui-icon-empty');
-                    }
-                    tmp.removeClass('w2ui-icon-empty').addClass('w2ui-icon-check');
-                } else if (options.type == 'check') {
-                    tmp.removeClass('w2ui-icon-check').addClass('w2ui-icon-empty');
+                if ((options.type == 'check') || (options.type == 'radio')) {
+                   var item = options.items[index];
+                   item.checked = !item.checked;
+                   if (item.checked) {
+                       if (options.type == 'radio') {
+                           tmp.parents('table').find('.w2ui-icon')
+                               .removeClass('w2ui-icon-check')
+                               .addClass('w2ui-icon-empty');
+                       }
+                       tmp.removeClass('w2ui-icon-empty').addClass('w2ui-icon-check');
+                   } else if (options.type == 'check') {
+                       tmp.removeClass('w2ui-icon-check').addClass('w2ui-icon-empty');
+                   }
                 }
                 // highlight record
                 $el.parent().find('tr').removeClass('w2ui-selected');
@@ -2569,7 +2581,7 @@ w2utils.event = {
                     if (img  == null) img  = null; // img might be undefined
                     if (icon == null) icon = null; // icon might be undefined
                 }
-                if (['radio', 'check'].indexOf(options.type) != -1 && icon == null) {
+                if (['radio', 'check'].indexOf(options.type) != -1) {
                     if (mitem.checked === true) icon = 'w2ui-icon-check'; else icon = 'w2ui-icon-empty';
                 }
                 if (mitem.hidden !== true) {

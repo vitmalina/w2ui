@@ -7,6 +7,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2utils.formatters">formatters</a> <span>- Object</span>
+</div>
+<div class="obj-property-desc">
+    An object with formatting functions.
+</div>
+
+<div class="obj-property">
     <a href="w2utils.isIE">isIE</a> <span>- Boolean, read only</span>
 </div>
 <div class="obj-property-desc">

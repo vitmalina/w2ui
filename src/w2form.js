@@ -25,6 +25,7 @@
 *   - added ability to generate radio and select html in generateHTML()
 *   - refresh(field) - would refresh only one field
 *   - form.message
+*   - added field.html.column
 *
 ************************************************************************/
 
@@ -744,13 +745,15 @@
             var pages = []; // array for each page
             var group = '';
             var page;
+            var column;
             for (var f = 0; f < this.fields.length; f++) {
                 var html = '';
                 var field = this.fields[f];
                 if (field.html == null) field.html = {};
                 if (field.options == null) field.options = {};
-                field.html = $.extend(true, { caption: '', span: 6, attr: '', text: '', style: '', page: 0 }, field.html);
+                field.html = $.extend(true, { caption: '', span: 6, attr: '', text: '', style: '', page: 0, column: 0 }, field.html);
                 if (page == null) page = field.html.page;
+                if (column == null) column = field.html.column;
                 if (field.html.caption == '') field.html.caption = field.name;
                 // input control
                 var input = '<input name="'+ field.name +'" class="w2ui-input" type="text" '+ field.html.attr +'/>';
@@ -797,28 +800,30 @@
                         input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +' class="w2ui-input w2ui-toggle"/><div><div></div></div>';
                         break;
                 }
-                if (field.html.group) {
-                    if (group != '') html += '\n   </div>';
+                if (group != ''){
+                    if(page != field.html.page || column != field.html.column || (field.html.group && (group != field.html.group))){
+                       pages[page][column]  += '\n   </div>';
+                       group = '';
+                    }
+                }
+                if (field.html.group && (group != field.html.group)) {
                     html += '\n   <div class="w2ui-group-title">'+ field.html.group + '</div>\n   <div class="w2ui-group">';
                     group = field.html.group;
-                }
-                if (field.html.page != page && group != '') {
-                    pages[pages.length-1] += '\n   </div>';
-                    group = '';
                 }
                 html += '\n      <div class="w2ui-field '+ (field.html.span != null ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+
                         '\n         <label>' + w2utils.lang(field.html.caption) +'</label>'+
                         '\n         <div>'+ input + w2utils.lang(field.html.text) + '</div>'+
-                        '\n      </div>';
-                if (pages[field.html.page] == null) pages[field.html.page] = '';
-                pages[field.html.page] += html;
+                        '\n      </div>'; 
+                if (pages[field.html.page] == null) pages[field.html.page] = [];
+                if (pages[field.html.page][field.html.column] == null) pages[field.html.page][field.html.column] = '';
+                pages[field.html.page][field.html.column] += html;
                 page = field.html.page;
+                column = field.html.column;
             }
-            if (group != '') pages[pages.length-1] += '\n   </div>';
+            if (group != '') pages[page][column] += '\n   </div>';
             if (this.tabs.tabs) {
-                for (var i = 0; i < this.tabs.tabs.length; i++) if (pages[i] == null) pages[i] = '';
+                for (var i = 0; i < this.tabs.tabs.length; i++) if (pages[i] == null) pages[i] = [];
             }
-            for (var p = 0; p < pages.length; p++) pages[p] = '<div class="w2ui-page page-'+ p +'">' + pages[p] + '\n</div>';
             // buttons if any
             var buttons = '';
             if (!$.isEmptyObject(this.actions)) {
@@ -840,7 +845,16 @@
                 }
                 buttons += '\n</div>';
             }
-            return pages.join('') + buttons;
+            html = '';
+            for (var p = 0; p < pages.length; p++){
+                html += '<div class="w2ui-page page-'+ p +'"><div class="w2ui-column-container" style="display: flex;">';
+                for (var c = 0; c < pages[p].length; c++){
+                    html += '<div class="w2ui-column col-'+ c +'">' + (pages[p][c] || '') + '\n</div>';
+                }
+                html += '\n</div></div>';
+            }
+            html += buttons;
+            return html;
         },
 
         action: function (action, event) {
