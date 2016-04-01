@@ -107,6 +107,7 @@
 *   - added noReset option to localSort()
 *   - onColumnSelect
 *   - need to update PHP example
+*   - added scrollToColumn(field)
 *
 ************************************************************************/
 
@@ -5103,6 +5104,28 @@
             }
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
+        },
+
+        scrollToColumn: function (field) {
+            if (field == null)
+                return;
+            var sWidth = 0;
+            var found = false;
+            for (var i = 0; i < this.columns.length; i++) {
+                var col = this.columns[i];
+                if (col.field == field) {
+                    found = true;
+                    break;
+                }
+                if (col.frozen || col.hidden)
+                    continue;
+                var cSize = parseInt(col.sizeCalculated ? col.sizeCalculated : col.size);
+                sWidth += cSize;
+            }
+            if (!found)
+                return;
+            this.last.scrollLeft = sWidth+1;
+            this.scroll();
         },
 
         initToolbar: function () {
