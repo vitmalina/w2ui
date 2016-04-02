@@ -723,7 +723,7 @@
             return null;
         },
 
-        localSort: function (silent, noReset) {
+        localSort: function (silent, noResetRefresh) {
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (url) {
                 console.log('ERROR: grid.localSort can only be used on local data source, grid.url should be empty.');
@@ -735,7 +735,7 @@
             // process date fields
             obj.selectionSave();
             obj.prepareData();
-            if (!noReset) {
+            if (!noResetRefresh) {
                 obj.reset();
             }
             // process sortData
@@ -760,7 +760,7 @@
             });
             cleanupPaths();
 
-            obj.selectionRestore();
+            obj.selectionRestore(noResetRefresh);
             time = (new Date()).getTime() - time;
             if (silent !== true && obj.show.statusSort) {
                 setTimeout(function () {
