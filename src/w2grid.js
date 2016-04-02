@@ -4228,43 +4228,9 @@
                 el.val(val);
             }
 
-            // -- separate summary
-            var tmp = this.find({ 'w2ui.summary': true }, true);
-            if (tmp.length > 0) {
-                this.summary = [];
-                for (var t = 0; t < tmp.length; t++) this.summary.push(this.records[tmp[t]]);
-                for (var t = tmp.length-1; t >= 0; t--) this.records.splice(tmp[t], 1);
-            }
-
             // -- body
-            obj.scroll(); // need to calculate virtual scolling for columns
-            var recHTML  = this.getRecordsHTML();
-            var colHTML  = this.getColumnsHTML();
-            var bodyHTML =
-                '<div id="grid_'+ this.name +'_frecords" class="w2ui-grid-frecords" style="margin-bottom: '+ (w2utils.scrollBarSize() - 1) +'px;">'+
-                    recHTML[0] +
-                '</div>'+
-                '<div id="grid_'+ this.name +'_records" class="w2ui-grid-records" onscroll="w2ui[\''+ this.name +'\'].scroll(event);">' +
-                    recHTML[1] +
-                '</div>'+
-                '<div id="grid_'+ this.name +'_scroll1" class="w2ui-grid-scroll1" style="height: '+ w2utils.scrollBarSize() +'px"></div>'+
-                // Columns need to be after to be able to overlap
-                '<div id="grid_'+ this.name +'_fcolumns" class="w2ui-grid-fcolumns">'+
-                '    <table><tbody>'+ colHTML[0] +'</tbody></table>'+
-                '</div>'+
-                '<div id="grid_'+ this.name +'_columns" class="w2ui-grid-columns">'+
-                '    <table><tbody>'+ colHTML[1] +'</tbody></table>'+
-                '</div>';
-            $('#grid_'+ this.name +'_body').html(bodyHTML);
-            // show summary records
-            if (this.summary.length > 0) {
-                var sumHTML = this.getSummaryHTML();
-                $('#grid_'+ this.name +'_fsummary').html(sumHTML[0]).show();
-                $('#grid_'+ this.name +'_summary').html(sumHTML[1]).show();
-            } else {
-                $('#grid_'+ this.name +'_fsummary').hide();
-                $('#grid_'+ this.name +'_summary').hide();
-            }
+            obj.refreshBody();
+            
             // -- footer
             if (this.show.footer) {
                 $('#grid_'+ this.name +'_footer').html(this.getFooterHTML()).show();
@@ -4329,6 +4295,47 @@
                 obj.last.columnDrag.remove();
             }
             return (new Date()).getTime() - time;
+        },
+
+        // private API
+        refreshBody: function () {
+            // -- separate summary
+            var tmp = this.find({ 'w2ui.summary': true }, true);
+            if (tmp.length > 0) {
+                this.summary = [];
+                for (var t = 0; t < tmp.length; t++) this.summary.push(this.records[tmp[t]]);
+                for (var t = tmp.length-1; t >= 0; t--) this.records.splice(tmp[t], 1);
+            }
+
+            // -- body
+            this.scroll(); // need to calculate virtual scolling for columns
+            var recHTML  = this.getRecordsHTML();
+            var colHTML  = this.getColumnsHTML();
+            var bodyHTML =
+                '<div id="grid_'+ this.name +'_frecords" class="w2ui-grid-frecords" style="margin-bottom: '+ (w2utils.scrollBarSize() - 1) +'px;">'+
+                    recHTML[0] +
+                '</div>'+
+                '<div id="grid_'+ this.name +'_records" class="w2ui-grid-records" onscroll="w2ui[\''+ this.name +'\'].scroll(event);">' +
+                    recHTML[1] +
+                '</div>'+
+                '<div id="grid_'+ this.name +'_scroll1" class="w2ui-grid-scroll1" style="height: '+ w2utils.scrollBarSize() +'px"></div>'+
+                // Columns need to be after to be able to overlap
+                '<div id="grid_'+ this.name +'_fcolumns" class="w2ui-grid-fcolumns">'+
+                '    <table><tbody>'+ colHTML[0] +'</tbody></table>'+
+                '</div>'+
+                '<div id="grid_'+ this.name +'_columns" class="w2ui-grid-columns">'+
+                '    <table><tbody>'+ colHTML[1] +'</tbody></table>'+
+                '</div>';
+            $('#grid_'+ this.name +'_body').html(bodyHTML);
+            // show summary records
+            if (this.summary.length > 0) {
+                var sumHTML = this.getSummaryHTML();
+                $('#grid_'+ this.name +'_fsummary').html(sumHTML[0]).show();
+                $('#grid_'+ this.name +'_summary').html(sumHTML[1]).show();
+            } else {
+                $('#grid_'+ this.name +'_fsummary').hide();
+                $('#grid_'+ this.name +'_summary').hide();
+            }
         },
 
         render: function (box) {
