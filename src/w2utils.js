@@ -29,6 +29,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 * == 1.5
 *   - added message
 *   - w2utils.keyboard is removed
+*   - w2tag can be positioned with an array of valid values
 *
 ************************************************/
 
@@ -2028,6 +2029,44 @@ w2utils.event = {
                     posClass  = 'w2ui-tag-left';
                     posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - width - 20;
                     posTop    = parseInt(offset.top + (options.top ? options.top : 0));
+                }
+                else if (Array.isArray(options.position)) {
+                    // try to fit the tag on screen in the order defined in the array
+                    var maxWidth  = window.innerWidth;
+                    var maxHeight = window.innerHeight
+                    for( var i=0; i<options.position.length; i++ ){
+                        var pos = options.position[i];
+                        if(pos == 'right'){
+                            posClass = 'w2ui-tag-right';
+                            posLeft  = parseInt(offset.left + el.offsetWidth + (options.left ? options.left : 0));
+                            posTop   = parseInt(offset.top + (options.top ? options.top : 0));
+                            if(posLeft+width <= maxWidth) break;
+                        }
+                        else if(pos == 'left'){
+                            posClass  = 'w2ui-tag-left';
+                            posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - width - 20;
+                            posTop    = parseInt(offset.top + (options.top ? options.top : 0));
+                            if(posLeft >= 0) break;
+                        }
+                        else if(pos == 'top'){
+                            posClass  = 'w2ui-tag-top';
+                            posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - 14;
+                            posTop    = parseInt(offset.top + (options.top ? options.top : 0)) - height - 10;
+                            // check if tag fits on screen
+                            if(posLeft+width <= maxWidth && posTop >= 0) break;
+                        }
+                        else if(pos == 'bottom'){
+                            posClass  = 'w2ui-tag-bottom';
+                            posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - 14;
+                            posTop    = parseInt(offset.top + el.offsetHeight + (options.top ? options.top : 0)) + 10;
+                            if(posLeft+width <= maxWidth && posTop+height <= maxHeight) break;
+                        }
+                    }
+                    if (tagBody.data('posClass') !== posClass && skipTransition !== true) {
+                        tagBody.removeClass('w2ui-tag-right w2ui-tag-left w2ui-tag-top w2ui-tag-bottom')
+                            .addClass(posClass)
+                            .data('posClass', posClass);
+                    }
                 }
                 if ($tags.data('position') !== posLeft + 'x' + posTop && skipTransition !== true) {
                     $tags.css(w2utils.cssPrefix({ 'transition': '.2s' })).css({
