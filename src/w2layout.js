@@ -9,6 +9,8 @@
 *   - onResize for the panel
 *   - add more panel title positions (left=rotated, right=rotated, bottom)
 *   - bug: when you assign content before previous transition completed.
+* 1.5 changes
+*   - message method
 *
 ************************************************************************/
 
@@ -199,6 +201,44 @@
             obj.resize();
             if (window.navigator.userAgent.indexOf('MSIE') != -1) setTimeout(function () { obj.resize(); }, 100);
             return true;
+        },
+
+        message: function(panel, options) {
+            var obj = this;
+            if (typeof options == 'string') {
+                options = {
+                    width   : (options.length < 300 ? 350 : 550),
+                    height  : (options.length < 300 ? 170: 250),
+                    body    : '<div class="w2ui-centered">' + options + '</div>',
+                    buttons : '<button class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message(\''+ panel +'\')">Ok</button>',
+                    onOpen  : function (event) {
+                        setTimeout(function () {
+                            $(this.box).find('.w2ui-btn').focus();
+                        }, 25);
+                    }
+                };
+            }
+            var p   = this.get(panel);
+            var $el = $('#layout_'+ this.name + '_panel_'+ p.type);
+            var oldOverflow = $el.css('overflow');
+            var oldOnClose;
+            if (options) {
+                if (options.onClose) oldOnClose = options.onClose;
+                options.onClose = function (event) {
+                    if (typeof oldOnClose == 'function') oldOnClose(event);
+                    event.done(function () {
+                        $('#layout_'+ obj.name + '_panel_'+ p.type).css('overflow', oldOverflow);
+                    });
+                }
+            }
+            $('#layout_'+ this.name + '_panel_'+ p.type).css('overflow', 'hidden');
+            w2utils.message.call(this, {
+                box   : $('#layout_'+ this.name + '_panel_'+ p.type),
+                param : panel,
+                path  : 'w2ui.' + this.name,
+                title : '.w2ui-panel-title:visible',
+                body  : '.w2ui-panel-content'
+            }, options);
         },
 
         load: function (panel, url, transition, onLoad) {
