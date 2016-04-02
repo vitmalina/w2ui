@@ -21,6 +21,7 @@ $(function () {
             selectColumn : false
         },
         selectType: 'cell',
+        textSearch: 'contains',
         columns: [
             { field: 'a', caption: '<div style="text-align: center">A</div>', size: '95px', searchable: true, editable: { type: 'div' }, frozen: true },
             { field: 'b', caption: '<div style="text-align: center">B</div>', size: '95px', editable: { type: 'div' }, frozen: true},
@@ -74,6 +75,23 @@ $(function () {
             k: 'text'
         });
     }
+    // add toolbar button, appending one record every second.
+    w2ui['grid'].toolbar.add([
+        { type: 'break',  id: 'autoload-break' },
+        { type: 'check',  id: 'autoload', caption: 'Add 1 Record/sec' },
+    ]);
+    var autoId = 0;
+    setInterval(function() {
+        if (!w2ui['grid'].toolbar.get('autoload').checked)
+            return;
+        ++autoId;
+        w2ui['grid'].add({
+            recid: autoId + 10000,
+            a: 'some ',
+            b: 'automatic',
+            c: 'text: '+autoId
+        });
+    }, 1000);
     w2ui.grid.records[1].a = 'A1';
     w2ui.grid.records[5].a = 'A1';
     w2ui.grid.records[1].b = 'BBB1';
