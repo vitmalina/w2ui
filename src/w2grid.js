@@ -108,6 +108,7 @@
 *   - onColumnSelect
 *   - need to update PHP example
 *   - added scrollToColumn(field)
+*   - textSearch: 'begins' (default), 'contains', 'is', ...
 *
 ************************************************************************/
 
@@ -177,6 +178,7 @@
         this.markSearch      = true;
         this.columnTooltip   = 'normal'; // can be normal, top, bottom, left, right
         this.disableCVS      = false;    // disable Column Virtual Scroll
+        this.textSearch      = 'begins'; // default search type for text
 
         this.total   = 0;     // server total
         this.limit   = 100;
@@ -1835,7 +1837,7 @@
                                     var tmp = {
                                         field    : search.field,
                                         type     : search.type,
-                                        operator : (search.operator != null ? search.operator : (search.type == 'text' ? 'begins' : 'is')),
+                                        operator : (search.operator != null ? search.operator : (search.type == 'text' ? this.textSearch : 'is')),
                                         value    : value
                                     };
                                     if ($.trim(value) != '') searchData.push(tmp);
@@ -1879,7 +1881,7 @@
                                 var tmp = {
                                     field    : this.columns[i].field,
                                     type     : 'text',
-                                    operator : 'begins',
+                                    operator : this.textSearch,
                                     value    : value
                                 };
                                 searchData.push(tmp);
@@ -1891,7 +1893,7 @@
                         if (search == null) search = { field: field, type: 'text' };
                         if (search.field == field) this.last.caption = search.caption;
                         if (value !== '') {
-                            var op  = 'begins';
+                            var op  = this.textSearch;
                             var val = value;
                             if (['date', 'time', 'datetime'].indexOf(search.type) != -1) op = 'is';
                             if (['list', 'enum'].indexOf(search.type) != -1) {
@@ -4235,7 +4237,7 @@
 
             // -- body
             obj.refreshBody();
-            
+
             // -- footer
             if (this.show.footer) {
                 $('#grid_'+ this.name +'_footer').html(this.getFooterHTML()).show();
