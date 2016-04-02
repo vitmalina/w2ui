@@ -152,8 +152,8 @@
             statusRecordID  : true,
             statusSelection : true,
             statusResponse  : true,
-            statusSort      : true,
-            statusSearch    : true,
+            statusSort      : false,
+            statusSearch    : false,
             recordTitles    : true,
             selectionBorder : true,
             skipRecords     : true
@@ -315,17 +315,42 @@
         },
 
         operators: { // for search fields
-            "text"    : ['is', 'begins', 'contains', 'ends'],
-            "number"  : ['is', 'between', 'less:less than', 'more:more than'],
-            "date"    : ['is', 'between', 'less:before', 'more:after'],
-            "list"    : ['is'],
-            "enum"    : ['in', 'not in']
+            "text"    : [['is'], ['begins'], ['contains'], ['ends']],
+            "number"  : [['is'], ['between'], ['less', 'less than'], ['more', 'more than']],
+            "date"    : [['is'], ['between'], ['less', 'before'], ['more', 'after']],
+            "list"    : [['is']],
+            "hex"     : [['is'], ['between']],
+            "enum"    : [['in'], ['not in']]
             // -- all posible
             // "text"    : ['is', 'begins', 'contains', 'ends'],
             // "number"  : ['is', 'between', 'less:less than', 'more:more than', 'null:is null', 'not null:is not null'],
             // "list"    : ['is', 'null:is null', 'not null:is not null'],
             // "enum"    : ['in', 'not in', 'null:is null', 'not null:is not null']
         },
+
+        operatorsMap: {
+            "text"         : "text",
+            "int"          : "number",
+            "float"        : "number",
+            "money"        : "number",
+            "currency"     : "number",
+            "percent"      : "number",
+            "hex"          : "hex",
+            "alphanumeric" : "number",
+            "color"        : "list",
+            "date"         : "date",
+            "time"         : "date",
+            "datetime"     : "date",
+            "list"         : "list",
+            "combo"        : "text",
+            "enum"         : "enum",
+            "file"         : "enum",
+            "select"       : "list",
+            "radio"        : "list",
+            "checkbox"     : "list",
+            "toggle"       : "list"
+        },
+
         // events
         onAdd              : null,
         onEdit             : null,
@@ -706,8 +731,9 @@
             // process date fields
             obj.selectionSave();
             obj.prepareData();
-            if (!noReset)
+            if (!noReset) {
                 obj.reset();
+            }
             // process sortData
             for (var i = 0; i < this.sortData.length; i++) {
                 var column = this.getColumn(this.sortData[i].field);
@@ -922,18 +948,22 @@
                     switch (sdata.operator) {
                     case 'is':
                         if (obj.parseField(rec, search.field) == sdata.value) fl++; // do not hide record
-                        // only increment "fl" once -> use "else if"
                         else if (search.type == 'date') {
                             var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
                             var val1 = w2utils.formatDate(tmp, 'yyyy-mm-dd');
-                            var val2 = w2utils.formatDate(w2utils.isDate(val2, w2utils.settings.dateFormat, true),  'yyyy-mm-dd');
+                            var val2 = w2utils.formatDate(w2utils.isDate(val2, w2utils.settings.dateFormat, true), 'yyyy-mm-dd');
                             if (val1 == val2) fl++;
                         }
-                        // only increment "fl" once -> use "else if"
                         else if (search.type == 'time') {
                             var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
                             var val1 = w2utils.formatTime(tmp, 'hh24:mi');
                             var val2 = w2utils.formatTime(val2, 'hh24:mi');
+                            if (val1 == val2) fl++;
+                        }
+                        else if (search.type == 'datetime') {
+                            var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
+                            var val1 = w2utils.formatDateTime(tmp, 'yyyy-mm-dd|hh24:mm:ss');
+                            var val2 = w2utils.formatDateTime(w2utils.isDateTime(val2, w2utils.settings.datetimeFormat, true), 'yyyy-mm-dd|hh24:mm:ss');
                             if (val1 == val2) fl++;
                         }
                         break;
@@ -941,19 +971,26 @@
                         if (['int', 'float', 'money', 'currency', 'percent'].indexOf(search.type) != -1) {
                             if (parseFloat(obj.parseField(rec, search.field)) >= parseFloat(val2) && parseFloat(obj.parseField(rec, search.field)) <= parseFloat(val3)) fl++;
                         }
-                        if (search.type == 'date') {
+                        else if (search.type == 'date') {
                             var val1 = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
                             var val2 = w2utils.isDate(val2, w2utils.settings.dateFormat, true);
                             var val3 = w2utils.isDate(val3, w2utils.settings.dateFormat, true);
                             if (val3 != null) val3 = new Date(val3.getTime() + 86400000); // 1 day
                             if (val1 >= val2 && val1 < val3) fl++;
                         }
-                        if (search.type == 'time') {
+                        else if (search.type == 'time') {
                             var val1 = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
                             var val2 = w2utils.isTime(val2, true);
                             var val3 = w2utils.isTime(val3, true);
                             val2 = (new Date()).setHours(val2.hours, val2.minutes, val2.seconds ? val2.seconds : 0, 0);
                             val3 = (new Date()).setHours(val3.hours, val3.minutes, val3.seconds ? val3.seconds : 0, 0);
+                            if (val1 >= val2 && val1 < val3) fl++;
+                        }
+                        else if (search.type == 'datetime') {
+                            var val1 = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
+                            var val2 = w2utils.isDateTime(val2, w2utils.settings.datetimeFormat, true);
+                            var val3 = w2utils.isDateTime(val3, w2utils.settings.datetimeFormat, true);
+                            if (val3) val3 = new Date(val3.getTime() + 86400000); // 1 day
                             if (val1 >= val2 && val1 < val3) fl++;
                         }
                         break;
@@ -964,7 +1001,7 @@
                         else if (search.type == 'date') {
                             var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
                             var val1 = w2utils.formatDate(tmp, 'yyyy-mm-dd');
-                            var val2 = w2utils.formatDate(w2utils.isDate(val2, w2utils.settings.dateFormat, true),  'yyyy-mm-dd');
+                            var val2 = w2utils.formatDate(w2utils.isDate(val2, w2utils.settings.dateFormat, true), 'yyyy-mm-dd');
                             if (val1 <= val2) fl++;
                         }
                         else if (search.type == 'time') {
@@ -972,6 +1009,12 @@
                             var val1 = w2utils.formatTime(tmp, 'hh24:mi');
                             var val2 = w2utils.formatTime(val2, 'hh24:mi');
                             if (val1 <= val2) fl++;
+                        }
+                        else if (search.type == 'datetime') {
+                            var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
+                            var val1 = w2utils.formatDateTime(tmp, 'yyyy-mm-dd|hh24:mm:ss');
+                            var val2 = w2utils.formatDateTime(w2utils.isDateTime(val2, w2utils.settings.datetimeFormat, true), 'yyyy-mm-dd|hh24:mm:ss');
+                            if ( (val1.length == val2.length) && (val1 <= val2) ) fl++;
                         }
                         break;
                     case 'more':
@@ -981,7 +1024,7 @@
                         else if (search.type == 'date') {
                             var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
                             var val1 = w2utils.formatDate(tmp, 'yyyy-mm-dd');
-                            var val2 = w2utils.formatDate(w2utils.isDate(val2, w2utils.settings.dateFormat, true),  'yyyy-mm-dd');
+                            var val2 = w2utils.formatDate(w2utils.isDate(val2, w2utils.settings.dateFormat, true), 'yyyy-mm-dd');
                             if (val1 >= val2) fl++;
                         }
                         else if (search.type == 'time') {
@@ -989,6 +1032,12 @@
                             var val1 = w2utils.formatTime(tmp, 'hh24:mi');
                             var val2 = w2utils.formatTime(val2, 'hh24:mi');
                             if (val1 >= val2) fl++;
+                        }
+                        else if (search.type == 'datetime') {
+                            var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
+                            var val1 = w2utils.formatDateTime(tmp, 'yyyy-mm-dd|hh24:mm:ss');
+                            var val2 = w2utils.formatDateTime(w2utils.isDateTime(val2, w2utils.settings.datetimeFormat, true), 'yyyy-mm-dd|hh24:mm:ss');
+                            if ( (val1.length == val2.length) && (val1 >= val2) ) fl++;
                         }
                         break;
                     case 'in':
@@ -1772,11 +1821,12 @@
                         if (this.searches.length > 0) {
                             for (var i = 0; i < this.searches.length; i++) {
                                 var search = this.searches[i];
-                                if (search.type == 'text' || (search.type == 'alphanumeric' && w2utils.isAlphaNumeric(value))
+                                if (    search.type == 'text' || (search.type == 'alphanumeric' && w2utils.isAlphaNumeric(value))
                                         || (search.type == 'int' && w2utils.isInt(value)) || (search.type == 'float' && w2utils.isFloat(value))
                                         || (search.type == 'percent' && w2utils.isFloat(value)) || (search.type == 'hex' && w2utils.isHex(value))
                                         || (search.type == 'currency' && w2utils.isMoney(value)) || (search.type == 'money' && w2utils.isMoney(value))
-                                        || (search.type == 'date' && w2utils.isDate(value)) ) {
+                                        || (search.type == 'date' && w2utils.isDate(value)) || (search.type == 'datetime' && w2utils.isDateTime(value))
+                                    ) {
                                     var tmp = {
                                         field    : search.field,
                                         type     : search.type,
@@ -1838,7 +1888,7 @@
                         if (value !== '') {
                             var op  = 'begins';
                             var val = value;
-                            if (['date', 'time'].indexOf(search.type) != -1) op = 'is';
+                            if (['date', 'time', 'datetime'].indexOf(search.type) != -1) op = 'is';
                             if (['list', 'enum'].indexOf(search.type) != -1) {
                                 op = 'is';
                                 var tmp = el.data('selected');
@@ -2045,7 +2095,7 @@
                 var st = search.type;
                 if (['enum', 'select'].indexOf(st) != -1) st = 'list';
                 el.w2field(st, $.extend({}, search.options, { suffix: '', autoFormat: false, selected: value }));
-                if (['list', 'enum', 'date', 'time'].indexOf(search.type) != -1) {
+                if (['list', 'enum', 'date', 'time', 'datetime'].indexOf(search.type) != -1) {
                     this.last.search = '';
                     this.last.item   = '';
                     el.val('');
@@ -3852,8 +3902,11 @@
             // if local
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (!url) {
-                this.localSort();
+                this.localSort(true, true);
                 if (this.searchData.length > 0) this.localSearch(true);
+                // reset vertical scroll
+                this.last.scrollTop = 0;
+                $('#grid_'+ this.name +'_records').prop('scrollTop',  0);
                 // event after
                 this.trigger($.extend(edata, { phase: 'after' }));
                 this.refresh();
@@ -5567,8 +5620,8 @@
                         if (ind == 'start') {
                             var width = 0;
                             for (var i = 0; i < obj.last.colStart; i++) {
-                                if (obj.columns[i].frozen || obj.columns[i].hidden) continue;
-                                width += obj.columns[i] ? parseInt(obj.columns[i].sizeCalculated) : 0;
+                                if (!obj.columns[i] || obj.columns[i].frozen || obj.columns[i].hidden) continue;
+                                width += parseInt(obj.columns[i].sizeCalculated);
                             }
                             $(el).css('width', width + 'px');
                         }
@@ -5579,8 +5632,8 @@
                         if (obj.last.colEnd + 1 < obj.columns.length) {
                             var width = 0;
                             for (var i = obj.last.colEnd + 1; i < obj.columns.length; i++) {
-                                if (obj.columns[i].frozen || obj.columns[i].hidden) continue;
-                                width += obj.columns[i] ? parseInt(obj.columns[i].sizeCalculated) : 0;
+                                if (!obj.columns[i] || obj.columns[i].frozen || obj.columns[i].hidden) continue;
+                                width += parseInt(obj.columns[i].sizeCalculated);
                             }
                             $(el).css('width', width + 'px');
                         } else {
@@ -5613,8 +5666,8 @@
                         if (ind == 'start') {
                             var width = 0;
                             for (var i = 0; i < obj.last.colStart; i++) {
-                                if (obj.columns[i].frozen || obj.columns[i].hidden) continue;
-                                width += obj.columns[i] ? parseInt(obj.columns[i].sizeCalculated) : 0;
+                                if (!obj.columns[i] || obj.columns[i].frozen || obj.columns[i].hidden) continue;
+                                width += parseInt(obj.columns[i].sizeCalculated);
                             }
                             $(el).css('width', width + 'px');
                         }
@@ -5625,8 +5678,8 @@
                         if (obj.last.colEnd + 1 < obj.columns.length) {
                             var width = 0;
                             for (var i = obj.last.colEnd + 1; i < obj.columns.length; i++) {
-                                if (obj.columns[i].frozen || obj.columns[i].hidden) continue;
-                                width += obj.columns[i] ? parseInt(obj.columns[i].sizeCalculated) : 0;
+                                if (!obj.columns[i] || obj.columns[i].frozen || obj.columns[i].hidden) continue;
+                                width += parseInt(obj.columns[i].sizeCalculated);
                             }
                             $(el).css('width', width + 'px');
                         } else {
@@ -5648,8 +5701,8 @@
                         if (ind == 'start') {
                             var width = 0;
                             for (var i = 0; i < obj.last.colStart; i++) {
-                                if (obj.columns[i].frozen || obj.columns[i].hidden) continue;
-                                width += obj.columns[i] ? parseInt(obj.columns[i].sizeCalculated) : 0;
+                                if (!obj.columns[i] || obj.columns[i].frozen || obj.columns[i].hidden) continue;
+                                width += parseInt(obj.columns[i].sizeCalculated);
                             }
                             $(el).css('width', width + 'px');
                         }
@@ -5688,34 +5741,12 @@
                 if (s.style   == null) s.style = '';
                 if (s.type    == null) s.type   = 'text';
 
-                if (['text', 'alphanumeric', 'combo'].indexOf(s.type) != -1) {
-                    var operator =
-                        '<select id="grid_'+ this.name +'_operator_'+ i +'" class="w2ui-input" onclick="event.stopPropagation();"' +
-                        '   onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +')">' +
-                            getOpearators('text') +
-                        '</select>';
-                }
-                if (['int', 'float', 'money', 'currency', 'percent', 'date', 'time'].indexOf(s.type) != -1) {
-                    var operator =
-                        '<select id="grid_'+ this.name +'_operator_'+ i +'" class="w2ui-input" onclick="event.stopPropagation();"' +
-                        '   onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +')">' +
-                            (['date', 'time'].indexOf(s.type) != -1 ? getOpearators('date') : getOpearators('number')) +
-                        '</select>';
-                }
-                if (['select', 'list', 'hex'].indexOf(s.type) != -1) {
-                    var operator =
-                        '<select id="grid_'+ this.name +'_operator_'+ i +'" class="w2ui-input" onclick="event.stopPropagation();"'+
-                        '        onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +')">'+
-                            getOpearators('list') +
-                        '</select>';
-                }
-                if (['enum'].indexOf(s.type) != -1) {
-                    var operator =
-                        '<select id="grid_'+ this.name +'_operator_'+ i +'" class="w2ui-input" onclick="event.stopPropagation();"'+
-                        '   onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +')">'+
-                            getOpearators('enum') +
-                        '</select>';
-                }
+                var operator =
+                    '<select id="grid_'+ this.name +'_operator_'+ i +'" class="w2ui-input" onclick="event.stopPropagation();"' +
+                    '   onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +')">' +
+                        getOpearators(s.type, s.operators) +
+                    '</select>';
+
                 html += '<tr>'+
                         '    <td class="close-btn">'+ btn +'</td>' +
                         '    <td class="caption">'+ (s.caption || '') +'</td>' +
@@ -5739,6 +5770,7 @@
                     case 'percent':
                     case 'date':
                     case 'time':
+                    case 'datetime':
                         html += '<input rel="search" type="text" size="12" class="w2ui-input" style="'+ s.style +'" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'/>'+
                                 '<span id="grid_'+ this.name +'_range_'+ i +'" style="display: none">'+
                                 '&#160;-&#160;&#160;<input rel="search" type="text" class="w2ui-input" style="width: 90px" id="grid_'+ this.name +'_field2_'+i+'" name="'+ s.field +'" '+ s.inTag +'/>'+
@@ -5765,16 +5797,14 @@
                     '</tr></tbody></table>';
             return html;
 
-            function getOpearators(type) {
+            function getOpearators(type, fieldOperators) {
                 var html = '';
-                for (var i = 0; i < obj.operators[type].length; i++) {
-                    var oper = obj.operators[type][i];
+                var operators = obj.operators[obj.operatorsMap[type]];
+                if (fieldOperators != null) operators = fieldOperators;
+                for (var i = 0; i < operators.length; i++) {
+                    var oper = operators[i][0];
                     var text = oper;
-                    var tmp  = oper.split(':');
-                    if (tmp.length == 2) {
-                        oper = tmp[0];
-                        text = tmp[1];
-                    }
+                    if (operators[i][1]) text = operators[i][1];
                     html += '<option value="'+ oper +'">'+ w2utils.lang(text) +'</option>';
                 }
                 return html;
@@ -5791,10 +5821,10 @@
             range.hide();
             // fld1.w2field(search.type);
             switch ($(el).val()) {
-                case 'in':
-                case 'not in':
-                    fld1.w2field('clear');
-                    break;
+//                case 'in':
+//                case 'not in':
+//                    fld1.w2field('clear');
+//                    break;
                 case 'between':
                     range.show();
                     fld2.w2field(search.type);
@@ -5814,30 +5844,31 @@
             for (var s = 0; s < this.searches.length; s++) {
                 var search   = this.searches[s];
                 var sdata    = this.getSearchData(search.field);
-                var operator = null;
                 search.type = String(search.type).toLowerCase();
+                var operator = obj.operators[obj.operatorsMap[search.type]][0][0];
                 if (typeof search.options != 'object') search.options = {};
+                for (var i = 0; i < obj.operators[obj.operatorsMap[search.type]].length; i++) {
+                    if (search.operator == obj.operators[obj.operatorsMap[search.type]][i][0] || search.operator == 'null' ||  search.operator == 'not null') {
+                        operator = search.operator;
+                        break;
+                    }
+                }
                 // init types
                 switch (search.type) {
                     case 'text':
                     case 'alphanumeric':
-                        operator = 'begins';
-                        if (search.operator && ['is', 'begins', 'contains', 'ends'].indexOf(search.operator) != -1) operator = search.operator;
-                        if (['alphanumeric', 'hex'].indexOf(search.type) != -1) {
-                            $('#grid_'+ this.name +'_field_' + s).w2field(search.type, search.options);
-                        }
+                        $('#grid_'+ this.name +'_field_' + s).w2field(search.type, search.options);
                         break;
 
                     case 'int':
                     case 'float':
+                    case 'hex':
                     case 'money':
                     case 'currency':
                     case 'percent':
                     case 'date':
                     case 'time':
-                        if (sdata && sdata.type == 'int' && ['in', 'not in'].indexOf(sdata.operator) != -1) break;
-                        operator = 'is';
-                        if (search.operator && ['is', 'between', 'less', 'more'].indexOf(search.operator) != -1) operator = search.operator;
+                    case 'datetime':
                         $('#grid_'+ this.name +'_field_'+s).w2field(search.type, search.options);
                         $('#grid_'+ this.name +'_field2_'+s).w2field(search.type, search.options);
                         setTimeout(function () { // convert to date if it is number
@@ -5846,23 +5877,9 @@
                         }, 1);
                         break;
 
-                    case 'hex':
-                        operator = 'is';
-                        if (search.operator && ['is', 'between'].indexOf(search.operator) != -1) operator = search.operator;
-                        break;
-
                     case 'list':
                     case 'combo':
                     case 'enum':
-                        if (search.type == 'list') operator = 'is';
-                        if (search.type == 'combo') {
-                            operator = 'begins';
-                            if (search.operator && ['is', 'begins', 'contains', 'ends'].indexOf(search.operator) != -1) operator = search.operator;
-                        }
-                        if (search.type == 'enum') {
-                            operator = 'in';
-                            if (search.operator && ['in', 'not in'].indexOf(search.operator) != -1) operator = search.operator;
-                        }
                         var options = search.options;
                         if (search.type == 'list') options.selected = {};
                         if (search.type == 'enum') options.selected = [];
@@ -5872,7 +5889,6 @@
                         break;
 
                     case 'select':
-                        operator = 'is';
                         // build options
                         var options = '<option value="">--</option>';
                         for (var i = 0; i < search.options.items.length; i++) {
