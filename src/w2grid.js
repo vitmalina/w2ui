@@ -7256,7 +7256,7 @@
             return this.last._selection;
         },
 
-        selectionRestore: function () {
+        selectionRestore: function (noRefresh) {
             var time = (new Date()).getTime();
             this.last.selection = { indexes: [], columns: {} };
             var sel = this.last.selection;
@@ -7277,7 +7277,7 @@
                 }
             }
             delete this.last._selection;
-            this.refresh();
+            if (noRefresh !== true) this.refresh();
             return (new Date()).getTime() - time;
         },
 
