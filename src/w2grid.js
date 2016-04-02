@@ -406,8 +406,12 @@
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (!url) {
                 this.total = this.records.length;
-                this.localSort(false, !first);
+                this.localSort(false, true);
                 this.localSearch();
+                // do not call this.refresh(), this is unnecessary, heavy, and messes with the toolbar.
+                this.refreshBody();
+                this.resizeRecords();
+                return added;
             }
             this.refresh(); // ??  should it be reload?
             return added;
@@ -514,7 +518,7 @@
             }
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (!url) {
-                this.localSort();
+                this.localSort(false, true);
                 this.localSearch();
             }
             this.refresh();
