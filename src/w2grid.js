@@ -109,6 +109,7 @@
 *   - need to update PHP example
 *   - added scrollToColumn(field)
 *   - textSearch: 'begins' (default), 'contains', 'is', ...
+*   - added refreshBody
 *
 ************************************************************************/
 
@@ -4304,7 +4305,6 @@
             return (new Date()).getTime() - time;
         },
 
-        // private API
         refreshBody: function () {
             // -- separate summary
             var tmp = this.find({ 'w2ui.summary': true }, true);
