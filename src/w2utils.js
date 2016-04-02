@@ -1243,6 +1243,8 @@ var w2utils = (function ($) {
         var pWidth  = parseInt($(where.box).width());
         var pHeight = parseInt($(where.box).height());
         var titleHeight = parseInt($(where.box).find(where.title).css('height') || 0);
+        if (options.width > pWidth) options.width = pWidth - 10;
+        if (options.height > pHeight - titleHeight) options.height = pHeight - 10 - titleHeight;
         options.originalWidth  = options.width;
         options.originalHeight = options.height;
         if (parseInt(options.width) < 0)   options.width  = pWidth + options.width;
@@ -1265,6 +1267,7 @@ var w2utils = (function ($) {
         var msgCount = $(where.box).find('.w2ui-message').length;
         // remove message
         if ($.trim(options.html) == '' && $.trim(options.body) == '' && $.trim(options.buttons) == '') {
+            if (msgCount == 0) return; // no messages at all
             var $msg = $(where.box).find('#w2ui-message'+ (msgCount-1));
             var options = $msg.data('options') || {};
             // before event
@@ -1276,7 +1279,9 @@ var w2utils = (function ($) {
                 'transform': 'translateY(-' + options.height + 'px)'
             }));
             if (msgCount == 1) {
-                if (this.unlock) this.unlock(150);
+                if (this.unlock) {
+                    if (where.param) this.unlock(where.param, 150); else this.unlock(150);
+                }
             } else {
                 $(where.box).find('#w2ui-message'+ (msgCount-2)).css('z-index', 1500);
             }
@@ -1311,7 +1316,11 @@ var w2utils = (function ($) {
                             (options.width  != null ? 'width: ' + options.width + 'px; left: ' + ((pWidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
                             (options.height != null ? 'height: ' + options.height + 'px;' : 'bottom: 6px;') +
                             w2utils.cssPrefix('transition', '.3s', true) + '"' +
-                            (options.hideOnClick === true ? 'onclick="'+ where.path +'.message();"' : '') + '>' +
+                            (options.hideOnClick === true
+                                ? where.param
+                                    ? 'onclick="'+ where.path +'.message(\''+ where.param +'\');"'
+                                    : 'onclick="'+ where.path +'.message();"'
+                                : '') + '>' +
                         '</div>');
             $(where.box).find('#w2ui-message'+ msgCount).data('options', options).data('prev_focus', $(':focus'));
             var display = $(where.box).find('#w2ui-message'+ msgCount).css('display');
@@ -1335,7 +1344,9 @@ var w2utils = (function ($) {
                     }));
                 }, 1);
                 // timer for lock
-                if (msgCount == 0 && this.lock) this.lock();
+                if (msgCount == 0 && this.lock) {
+                    if (where.param) this.lock(where.param); else this.lock();
+                }
                 setTimeout(function() {
                     // has to be on top of lock
                     $(where.box).find('#w2ui-message'+ msgCount).css(w2utils.cssPrefix({ 'transition': '0s' }));
@@ -1436,7 +1447,6 @@ var w2utils = (function ($) {
         if (String(navigator.userAgent).indexOf('MSIE') >= 0) tmp.scrollBarSize  = tmp.scrollBarSize / 2; // need this for IE9+
         return tmp.scrollBarSize;
     }
-
 
     function checkName (params, component) { // was w2checkNameParam
         if (!params || params.name == null) {
