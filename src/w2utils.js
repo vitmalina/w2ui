@@ -2062,7 +2062,6 @@ w2utils.event = {
                             posClass  = 'w2ui-tag-top';
                             posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - 14;
                             posTop    = parseInt(offset.top + (options.top ? options.top : 0)) - height - 10;
-                            // check if tag fits on screen
                             if(posLeft+width <= maxWidth && posTop >= 0) break;
                         }
                         else if(pos == 'bottom'){
@@ -2072,7 +2071,7 @@ w2utils.event = {
                             if(posLeft+width <= maxWidth && posTop+height <= maxHeight) break;
                         }
                     }
-                    if (tagBody.data('posClass') !== posClass && skipTransition !== true) {
+                    if (tagBody.data('posClass') !== posClass) {
                         tagBody.removeClass('w2ui-tag-right w2ui-tag-left w2ui-tag-top w2ui-tag-bottom')
                             .addClass(posClass)
                             .data('posClass', posClass);
