@@ -1584,6 +1584,10 @@ button.w2ui-btn-small:focus:before {
   z-index: 120;
 }
 .w2ui-layout > div .w2ui-panel .w2ui-panel-title {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  right: 0px;
   padding: 5px;
   background-image: -webkit-linear-gradient(#dae6f3, #c2d5ed);
   background-image: -moz-linear-gradient(#dae6f3, #c2d5ed);
