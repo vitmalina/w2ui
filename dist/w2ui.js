@@ -30,6 +30,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 * == 1.5
 *   - added message
 *   - w2utils.keyboard is removed
+*   - w2tag can be positioned with an array of valid values
 *
 ************************************************/
 
@@ -1243,6 +1244,8 @@ var w2utils = (function ($) {
         var pWidth  = parseInt($(where.box).width());
         var pHeight = parseInt($(where.box).height());
         var titleHeight = parseInt($(where.box).find(where.title).css('height') || 0);
+        if (options.width > pWidth) options.width = pWidth - 10;
+        if (options.height > pHeight - titleHeight) options.height = pHeight - 10 - titleHeight;
         options.originalWidth  = options.width;
         options.originalHeight = options.height;
         if (parseInt(options.width) < 0)   options.width  = pWidth + options.width;
@@ -1265,6 +1268,7 @@ var w2utils = (function ($) {
         var msgCount = $(where.box).find('.w2ui-message').length;
         // remove message
         if ($.trim(options.html) == '' && $.trim(options.body) == '' && $.trim(options.buttons) == '') {
+            if (msgCount == 0) return; // no messages at all
             var $msg = $(where.box).find('#w2ui-message'+ (msgCount-1));
             var options = $msg.data('options') || {};
             // before event
@@ -1276,7 +1280,9 @@ var w2utils = (function ($) {
                 'transform': 'translateY(-' + options.height + 'px)'
             }));
             if (msgCount == 1) {
-                if (this.unlock) this.unlock(150);
+                if (this.unlock) {
+                    if (where.param) this.unlock(where.param, 150); else this.unlock(150);
+                }
             } else {
                 $(where.box).find('#w2ui-message'+ (msgCount-2)).css('z-index', 1500);
             }
@@ -1311,7 +1317,11 @@ var w2utils = (function ($) {
                             (options.width  != null ? 'width: ' + options.width + 'px; left: ' + ((pWidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
                             (options.height != null ? 'height: ' + options.height + 'px;' : 'bottom: 6px;') +
                             w2utils.cssPrefix('transition', '.3s', true) + '"' +
-                            (options.hideOnClick === true ? 'onclick="'+ where.path +'.message();"' : '') + '>' +
+                            (options.hideOnClick === true
+                                ? where.param
+                                    ? 'onclick="'+ where.path +'.message(\''+ where.param +'\');"'
+                                    : 'onclick="'+ where.path +'.message();"'
+                                : '') + '>' +
                         '</div>');
             $(where.box).find('#w2ui-message'+ msgCount).data('options', options).data('prev_focus', $(':focus'));
             var display = $(where.box).find('#w2ui-message'+ msgCount).css('display');
@@ -1335,7 +1345,9 @@ var w2utils = (function ($) {
                     }));
                 }, 1);
                 // timer for lock
-                if (msgCount == 0 && this.lock) this.lock();
+                if (msgCount == 0 && this.lock) {
+                    if (where.param) this.lock(where.param); else this.lock();
+                }
                 setTimeout(function() {
                     // has to be on top of lock
                     $(where.box).find('#w2ui-message'+ msgCount).css(w2utils.cssPrefix({ 'transition': '0s' }));
@@ -1436,7 +1448,6 @@ var w2utils = (function ($) {
         if (String(navigator.userAgent).indexOf('MSIE') >= 0) tmp.scrollBarSize  = tmp.scrollBarSize / 2; // need this for IE9+
         return tmp.scrollBarSize;
     }
-
 
     function checkName (params, component) { // was w2checkNameParam
         if (!params || params.name == null) {
@@ -2029,6 +2040,44 @@ w2utils.event = {
                     posClass  = 'w2ui-tag-left';
                     posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - width - 20;
                     posTop    = parseInt(offset.top + (options.top ? options.top : 0));
+                }
+                else if (Array.isArray(options.position)) {
+                    // try to fit the tag on screen in the order defined in the array
+                    var maxWidth  = window.innerWidth;
+                    var maxHeight = window.innerHeight
+                    for( var i=0; i<options.position.length; i++ ){
+                        var pos = options.position[i];
+                        if(pos == 'right'){
+                            posClass = 'w2ui-tag-right';
+                            posLeft  = parseInt(offset.left + el.offsetWidth + (options.left ? options.left : 0));
+                            posTop   = parseInt(offset.top + (options.top ? options.top : 0));
+                            if(posLeft+width <= maxWidth) break;
+                        }
+                        else if(pos == 'left'){
+                            posClass  = 'w2ui-tag-left';
+                            posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - width - 20;
+                            posTop    = parseInt(offset.top + (options.top ? options.top : 0));
+                            if(posLeft >= 0) break;
+                        }
+                        else if(pos == 'top'){
+                            posClass  = 'w2ui-tag-top';
+                            posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - 14;
+                            posTop    = parseInt(offset.top + (options.top ? options.top : 0)) - height - 10;
+                            // check if tag fits on screen
+                            if(posLeft+width <= maxWidth && posTop >= 0) break;
+                        }
+                        else if(pos == 'bottom'){
+                            posClass  = 'w2ui-tag-bottom';
+                            posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - 14;
+                            posTop    = parseInt(offset.top + el.offsetHeight + (options.top ? options.top : 0)) + 10;
+                            if(posLeft+width <= maxWidth && posTop+height <= maxHeight) break;
+                        }
+                    }
+                    if (tagBody.data('posClass') !== posClass && skipTransition !== true) {
+                        tagBody.removeClass('w2ui-tag-right w2ui-tag-left w2ui-tag-top w2ui-tag-bottom')
+                            .addClass(posClass)
+                            .data('posClass', posClass);
+                    }
                 }
                 if ($tags.data('position') !== posLeft + 'x' + posTop && skipTransition !== true) {
                     $tags.css(w2utils.cssPrefix({ 'transition': '.2s' })).css({
@@ -2878,6 +2927,9 @@ w2utils.event = {
 *   - added noReset option to localSort()
 *   - onColumnSelect
 *   - need to update PHP example
+*   - added scrollToColumn(field)
+*   - textSearch: 'begins' (default), 'contains', 'is', ...
+*   - added refreshBody
 *
 ************************************************************************/
 
@@ -2947,6 +2999,7 @@ w2utils.event = {
         this.markSearch      = true;
         this.columnTooltip   = 'normal'; // can be normal, top, bottom, left, right
         this.disableCVS      = false;    // disable Column Virtual Scroll
+        this.textSearch      = 'begins'; // default search type for text
 
         this.total   = 0;     // server total
         this.limit   = 100;
@@ -3098,7 +3151,7 @@ w2utils.event = {
             // "list"    : ['is', 'null:is null', 'not null:is not null'],
             // "enum"    : ['in', 'not in', 'null:is null', 'not null:is not null']
         },
-        
+
         operatorsMap: {
             "text"         : "text",
             "int"          : "number",
@@ -3121,7 +3174,7 @@ w2utils.event = {
             "checkbox"     : "list",
             "toggle"       : "list"
         },
-        
+
         // events
         onAdd              : null,
         onEdit             : null,
@@ -3177,8 +3230,12 @@ w2utils.event = {
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (!url) {
                 this.total = this.records.length;
-                this.localSort(false, !first);
+                this.localSort(false, true);
                 this.localSearch();
+                // do not call this.refresh(), this is unnecessary, heavy, and messes with the toolbar.
+                this.refreshBody();
+                this.resizeRecords();
+                return added;
             }
             this.refresh(); // ??  should it be reload?
             return added;
@@ -3285,7 +3342,7 @@ w2utils.event = {
             }
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (!url) {
-                this.localSort();
+                this.localSort(false, true);
                 this.localSearch();
             }
             this.refresh();
@@ -3490,7 +3547,7 @@ w2utils.event = {
             return null;
         },
 
-        localSort: function (silent, noReset) {
+        localSort: function (silent, noResetRefresh) {
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (url) {
                 console.log('ERROR: grid.localSort can only be used on local data source, grid.url should be empty.');
@@ -3502,12 +3559,8 @@ w2utils.event = {
             // process date fields
             obj.selectionSave();
             obj.prepareData();
-            if (!noReset) {
+            if (!noResetRefresh) {
                 obj.reset();
-            } else {
-                // still reset vertical scroll
-                this.last.scrollTop   = 0;
-                $('#grid_'+ this.name +'_records').prop('scrollTop',  0);
             }
             // process sortData
             for (var i = 0; i < this.sortData.length; i++) {
@@ -3531,7 +3584,7 @@ w2utils.event = {
             });
             cleanupPaths();
 
-            obj.selectionRestore();
+            obj.selectionRestore(noResetRefresh);
             time = (new Date()).getTime() - time;
             if (silent !== true && obj.show.statusSort) {
                 setTimeout(function () {
@@ -4605,7 +4658,7 @@ w2utils.event = {
                                     var tmp = {
                                         field    : search.field,
                                         type     : search.type,
-                                        operator : (search.operator != null ? search.operator : (search.type == 'text' ? 'begins' : 'is')),
+                                        operator : (search.operator != null ? search.operator : (search.type == 'text' ? this.textSearch : 'is')),
                                         value    : value
                                     };
                                     if ($.trim(value) != '') searchData.push(tmp);
@@ -4649,7 +4702,7 @@ w2utils.event = {
                                 var tmp = {
                                     field    : this.columns[i].field,
                                     type     : 'text',
-                                    operator : 'begins',
+                                    operator : this.textSearch,
                                     value    : value
                                 };
                                 searchData.push(tmp);
@@ -4661,7 +4714,7 @@ w2utils.event = {
                         if (search == null) search = { field: field, type: 'text' };
                         if (search.field == field) this.last.caption = search.caption;
                         if (value !== '') {
-                            var op  = 'begins';
+                            var op  = this.textSearch;
                             var val = value;
                             if (['date', 'time', 'datetime'].indexOf(search.type) != -1) op = 'is';
                             if (['list', 'enum'].indexOf(search.type) != -1) {
@@ -6679,6 +6732,9 @@ w2utils.event = {
             if (!url) {
                 this.localSort(true, true);
                 if (this.searchData.length > 0) this.localSearch(true);
+                // reset vertical scroll
+                this.last.scrollTop = 0;
+                $('#grid_'+ this.name +'_records').prop('scrollTop',  0);
                 // event after
                 this.trigger($.extend(edata, { phase: 'after' }));
                 this.refresh();
@@ -7000,43 +7056,9 @@ w2utils.event = {
                 el.val(val);
             }
 
-            // -- separate summary
-            var tmp = this.find({ 'w2ui.summary': true }, true);
-            if (tmp.length > 0) {
-                this.summary = [];
-                for (var t = 0; t < tmp.length; t++) this.summary.push(this.records[tmp[t]]);
-                for (var t = tmp.length-1; t >= 0; t--) this.records.splice(tmp[t], 1);
-            }
-
             // -- body
-            obj.scroll(); // need to calculate virtual scolling for columns
-            var recHTML  = this.getRecordsHTML();
-            var colHTML  = this.getColumnsHTML();
-            var bodyHTML =
-                '<div id="grid_'+ this.name +'_frecords" class="w2ui-grid-frecords" style="margin-bottom: '+ (w2utils.scrollBarSize() - 1) +'px;">'+
-                    recHTML[0] +
-                '</div>'+
-                '<div id="grid_'+ this.name +'_records" class="w2ui-grid-records" onscroll="w2ui[\''+ this.name +'\'].scroll(event);">' +
-                    recHTML[1] +
-                '</div>'+
-                '<div id="grid_'+ this.name +'_scroll1" class="w2ui-grid-scroll1" style="height: '+ w2utils.scrollBarSize() +'px"></div>'+
-                // Columns need to be after to be able to overlap
-                '<div id="grid_'+ this.name +'_fcolumns" class="w2ui-grid-fcolumns">'+
-                '    <table><tbody>'+ colHTML[0] +'</tbody></table>'+
-                '</div>'+
-                '<div id="grid_'+ this.name +'_columns" class="w2ui-grid-columns">'+
-                '    <table><tbody>'+ colHTML[1] +'</tbody></table>'+
-                '</div>';
-            $('#grid_'+ this.name +'_body').html(bodyHTML);
-            // show summary records
-            if (this.summary.length > 0) {
-                var sumHTML = this.getSummaryHTML();
-                $('#grid_'+ this.name +'_fsummary').html(sumHTML[0]).show();
-                $('#grid_'+ this.name +'_summary').html(sumHTML[1]).show();
-            } else {
-                $('#grid_'+ this.name +'_fsummary').hide();
-                $('#grid_'+ this.name +'_summary').hide();
-            }
+            obj.refreshBody();
+
             // -- footer
             if (this.show.footer) {
                 $('#grid_'+ this.name +'_footer').html(this.getFooterHTML()).show();
@@ -7101,6 +7123,46 @@ w2utils.event = {
                 obj.last.columnDrag.remove();
             }
             return (new Date()).getTime() - time;
+        },
+
+        refreshBody: function () {
+            // -- separate summary
+            var tmp = this.find({ 'w2ui.summary': true }, true);
+            if (tmp.length > 0) {
+                this.summary = [];
+                for (var t = 0; t < tmp.length; t++) this.summary.push(this.records[tmp[t]]);
+                for (var t = tmp.length-1; t >= 0; t--) this.records.splice(tmp[t], 1);
+            }
+
+            // -- body
+            this.scroll(); // need to calculate virtual scolling for columns
+            var recHTML  = this.getRecordsHTML();
+            var colHTML  = this.getColumnsHTML();
+            var bodyHTML =
+                '<div id="grid_'+ this.name +'_frecords" class="w2ui-grid-frecords" style="margin-bottom: '+ (w2utils.scrollBarSize() - 1) +'px;">'+
+                    recHTML[0] +
+                '</div>'+
+                '<div id="grid_'+ this.name +'_records" class="w2ui-grid-records" onscroll="w2ui[\''+ this.name +'\'].scroll(event);">' +
+                    recHTML[1] +
+                '</div>'+
+                '<div id="grid_'+ this.name +'_scroll1" class="w2ui-grid-scroll1" style="height: '+ w2utils.scrollBarSize() +'px"></div>'+
+                // Columns need to be after to be able to overlap
+                '<div id="grid_'+ this.name +'_fcolumns" class="w2ui-grid-fcolumns">'+
+                '    <table><tbody>'+ colHTML[0] +'</tbody></table>'+
+                '</div>'+
+                '<div id="grid_'+ this.name +'_columns" class="w2ui-grid-columns">'+
+                '    <table><tbody>'+ colHTML[1] +'</tbody></table>'+
+                '</div>';
+            $('#grid_'+ this.name +'_body').html(bodyHTML);
+            // show summary records
+            if (this.summary.length > 0) {
+                var sumHTML = this.getSummaryHTML();
+                $('#grid_'+ this.name +'_fsummary').html(sumHTML[0]).show();
+                $('#grid_'+ this.name +'_summary').html(sumHTML[1]).show();
+            } else {
+                $('#grid_'+ this.name +'_fsummary').hide();
+                $('#grid_'+ this.name +'_summary').hide();
+            }
         },
 
         render: function (box) {
@@ -7875,6 +7937,28 @@ w2utils.event = {
             }
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
+        },
+
+        scrollToColumn: function (field) {
+            if (field == null)
+                return;
+            var sWidth = 0;
+            var found = false;
+            for (var i = 0; i < this.columns.length; i++) {
+                var col = this.columns[i];
+                if (col.field == field) {
+                    found = true;
+                    break;
+                }
+                if (col.frozen || col.hidden)
+                    continue;
+                var cSize = parseInt(col.sizeCalculated ? col.sizeCalculated : col.size);
+                sWidth += cSize;
+            }
+            if (!found)
+                return;
+            this.last.scrollLeft = sWidth+1;
+            this.scroll();
         },
 
         initToolbar: function () {
@@ -10017,7 +10101,7 @@ w2utils.event = {
             return this.last._selection;
         },
 
-        selectionRestore: function () {
+        selectionRestore: function (noRefresh) {
             var time = (new Date()).getTime();
             this.last.selection = { indexes: [], columns: {} };
             var sel = this.last.selection;
@@ -10038,7 +10122,7 @@ w2utils.event = {
                 }
             }
             delete this.last._selection;
-            this.refresh();
+            if (noRefresh !== true) this.refresh();
             return (new Date()).getTime() - time;
         },
 
@@ -10080,6 +10164,8 @@ w2utils.event = {
 *   - onResize for the panel
 *   - add more panel title positions (left=rotated, right=rotated, bottom)
 *   - bug: when you assign content before previous transition completed.
+* 1.5 changes
+*   - message method
 *
 ************************************************************************/
 
@@ -10270,6 +10356,44 @@ w2utils.event = {
             obj.resize();
             if (window.navigator.userAgent.indexOf('MSIE') != -1) setTimeout(function () { obj.resize(); }, 100);
             return true;
+        },
+
+        message: function(panel, options) {
+            var obj = this;
+            if (typeof options == 'string') {
+                options = {
+                    width   : (options.length < 300 ? 350 : 550),
+                    height  : (options.length < 300 ? 170: 250),
+                    body    : '<div class="w2ui-centered">' + options + '</div>',
+                    buttons : '<button class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message(\''+ panel +'\')">Ok</button>',
+                    onOpen  : function (event) {
+                        setTimeout(function () {
+                            $(this.box).find('.w2ui-btn').focus();
+                        }, 25);
+                    }
+                };
+            }
+            var p   = this.get(panel);
+            var $el = $('#layout_'+ this.name + '_panel_'+ p.type);
+            var oldOverflow = $el.css('overflow');
+            var oldOnClose;
+            if (options) {
+                if (options.onClose) oldOnClose = options.onClose;
+                options.onClose = function (event) {
+                    if (typeof oldOnClose == 'function') oldOnClose(event);
+                    event.done(function () {
+                        $('#layout_'+ obj.name + '_panel_'+ p.type).css('overflow', oldOverflow);
+                    });
+                }
+            }
+            $('#layout_'+ this.name + '_panel_'+ p.type).css('overflow', 'hidden');
+            w2utils.message.call(this, {
+                box   : $('#layout_'+ this.name + '_panel_'+ p.type),
+                param : panel,
+                path  : 'w2ui.' + this.name,
+                title : '.w2ui-panel-title:visible',
+                body  : '.w2ui-panel-content'
+            }, options);
         },
 
         load: function (panel, url, transition, onLoad) {
