@@ -112,6 +112,7 @@
 *   - added refreshBody
 *   - added response.total = -1 (or not present) to indicate that number of records is unknown
 *   - message(.., callBack) - added callBack
+*   - grid.msgEmpty
 *
 ************************************************************************/
 
@@ -305,6 +306,7 @@
         msgAJAXerror    : 'AJAX error. See console for more details.',
         msgRefresh      : 'Refreshing...',
         msgNeedReload   : 'Your remote data source record count has changed, reloading from the first record.',
+        msgEmpty        : '', // if not blank, then it is message when server returns no records
 
         buttons: {
             'reload'   : { type: 'button', id: 'w2ui-reload', icon: 'w2ui-icon-reload', tooltip: 'Reload data in the list' },
@@ -4351,6 +4353,12 @@
                 '    <table><tbody>'+ colHTML[1] +'</tbody></table>'+
                 '</div>';
             $('#grid_'+ this.name +'_body').html(bodyHTML);
+            if (this.records.length == 0 && this.msgEmpty) {
+                $('#grid_'+ this.name +'_body')
+                    .append('<div id="grid_'+ this.name + '_empty_msg" class="w2ui-grid-empty-msg"><div>'+ this.msgEmpty +'</div></div>');
+            } else if ($('#grid_'+ this.name +'_empty_msg').length > 0) {
+                $('#grid_'+ this.name +'_empty_msg').remove();
+            }
             // show summary records
             if (this.summary.length > 0) {
                 var sumHTML = this.getSummaryHTML();
@@ -6213,7 +6221,7 @@
             var buffered = this.records.length;
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length;
-            // larget number works better with chrome, smaller with FF.
+            // larger number works better with chrome, smaller with FF.
             if (buffered > this.vs_start) this.last.show_extra = this.vs_extra; else this.last.show_extra = this.vs_start;
             var records  = $('#grid_'+ this.name +'_records');
             var limit    = Math.floor(records.height() / this.recordHeight) + this.last.show_extra + 1;
@@ -7017,14 +7025,23 @@
         },
 
         lock: function (msg, showSpinner) {
+            var obj  = this;
             var args = Array.prototype.slice.call(arguments, 0);
             args.unshift(this.box);
-            setTimeout(function () { w2utils.lock.apply(window, args); }, 10);
+            setTimeout(function () {
+                // hide empty msg if any
+                $(obj.box).find('#grid_'+ obj.name +'_empty_msg').remove();
+                w2utils.lock.apply(window, args);
+            }, 10);
         },
 
         unlock: function (speed) {
             var box = this.box;
-            setTimeout(function () { w2utils.unlock(box, speed); }, 25); // needed timer so if server fast, it will not flash
+            setTimeout(function () {
+                // do not unlock if there is a message
+                if ($(box).find('.w2ui-message').not('.w2ui-closing').length > 0) return;
+                w2utils.unlock(box, speed);
+            }, 25); // needed timer so if server fast, it will not flash
         },
 
         stateSave: function (returnOnly) {
