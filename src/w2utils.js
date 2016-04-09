@@ -145,7 +145,7 @@ var w2utils = (function ($) {
     }
 
     function isEmail (val) {
-        var email = /^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+        var email = /^[a-zA-Z0-9._%-+]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
         return email.test(val);
     }
 
@@ -1277,7 +1277,7 @@ var w2utils = (function ($) {
             $msg.css(w2utils.cssPrefix({
                 'transition': '0.15s',
                 'transform': 'translateY(-' + options.height + 'px)'
-            }));
+            })).addClass('w2ui-closing');
             if (msgCount == 1) {
                 if (this.unlock) {
                     if (where.param) this.unlock(where.param, 150); else this.unlock(150);
