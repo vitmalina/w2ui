@@ -131,7 +131,7 @@
                             'in w2toolbar.add() method.');
                     return;
                 }
-                if (items[o].id == null) {
+                if (items[o].id == null && items[o].type != 'break' && items[o].type != 'spacer') {
                     console.log('ERROR: The parameter "id" is required but not supplied in w2toolbar.add() method.');
                     return;
                 }
