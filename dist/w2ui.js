@@ -6429,13 +6429,15 @@ w2utils.event = {
                     if (instant === true) {
                         records.prop({ 'scrollTop': records.scrollTop() - records.height() / 1.3 });
                     } else {
+                        records.stop();
                         records.animate({ 'scrollTop': records.scrollTop() - records.height() / 1.3 }, 250, 'linear');
                     }
                 }
                 if (ind == t2) {
                     if (instant === true) {
-                         records.prop({ 'scrollTop': records.scrollTop() + records.height() / 1.3 });
+                        records.prop({ 'scrollTop': records.scrollTop() + records.height() / 1.3 });
                     } else {
+                        records.stop();
                         records.animate({ 'scrollTop': records.scrollTop() + records.height() / 1.3 }, 250, 'linear');
                     }
                 }
@@ -6443,6 +6445,7 @@ w2utils.event = {
                     if (instant === true) {
                         records.prop({ 'scrollTop': (ind - 1) * this.recordHeight });
                     } else {
+                        records.stop();
                         records.animate({ 'scrollTop': (ind - 1) * this.recordHeight }, 250, 'linear');
                     }
                 }
