@@ -2136,9 +2136,7 @@
             this.summary          = [];
             this.last.searchIds   = [];
             this.last.xhr_offset  = 0;   // need this for reload button to work on remote data set
-            this.reset(true);
-            // refresh
-            if (!noRefresh) this.refresh();
+            this.reset(noRefresh);
         },
 
         // clears scroll position, selection, ranges
