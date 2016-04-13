@@ -603,7 +603,8 @@
                     }
                 }
             }
-            this.refresh();
+            this.refreshBody();
+            this.resizeRecords();
             return effected;
         },
 
@@ -619,7 +620,8 @@
                     }
                 }
             }
-            this.refresh();
+            this.refreshBody();
+            this.resizeRecords();
             return shown;
         },
 
@@ -634,7 +636,8 @@
                     }
                 }
             }
-            this.refresh();
+            this.refreshBody();
+            this.resizeRecords();
             return hidden;
         },
 
@@ -5128,7 +5131,8 @@
                 } else {
                     $el.addClass('w2ui-icon-empty').removeClass('w2ui-icon-check');
                 }
-                this.refresh();
+                this.refreshBody();
+                this.resizeRecords();
             } else {
                 var col = this.getColumn(field);
                 if (col.hidden) {
