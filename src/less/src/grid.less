@@ -688,24 +688,27 @@
 // === Global Search slide down
 
 .w2ui-overlay .w2ui-select-field {
-    padding: 8px 5px;
+    padding: 4px 0px;
     cursor: default;
     table {
         font-size: 11px;
         font-family: @main-font-family;
         border-spacing: 0px;
         border-collapse: border-collapse;
-        tr:hover {
-            background-color: @grid-row-selected-background-color;
-        }
-        td:nth-child(1) {
-            padding: 3px 3px 3px 6px;
-            input {
-                margin: 3px 2px 2px 2px;
+        tr {
+            height: 27px;
+            &:hover {
+                background-color: @grid-row-selected-background-color;
             }
-        }
-        td:nth-child(2) {
-            padding: 3px 15px 3px 3px;
+            td:nth-child(1) {
+                width: 26px;
+                padding-right: 6px;
+                text-align: right;
+                color: #888;
+            }
+            td:nth-child(2) {
+                padding: 3px 20px 3px 0px;
+            }
         }
     }
 }
