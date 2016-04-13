@@ -2297,7 +2297,7 @@ button.w2ui-btn-small:focus:before {
   padding: 2px;
 }
 .w2ui-overlay .w2ui-select-field {
-  padding: 8px 5px;
+  padding: 4px 0px;
   cursor: default;
 }
 .w2ui-overlay .w2ui-select-field table {
@@ -2306,17 +2306,20 @@ button.w2ui-btn-small:focus:before {
   border-spacing: 0px;
   border-collapse: border-collapse;
 }
+.w2ui-overlay .w2ui-select-field table tr {
+  height: 27px;
+}
 .w2ui-overlay .w2ui-select-field table tr:hover {
   background-color: #292f3c;
 }
-.w2ui-overlay .w2ui-select-field table td:nth-child(1) {
-  padding: 3px 3px 3px 6px;
+.w2ui-overlay .w2ui-select-field table tr td:nth-child(1) {
+  width: 26px;
+  padding-right: 6px;
+  text-align: right;
+  color: #888;
 }
-.w2ui-overlay .w2ui-select-field table td:nth-child(1) input {
-  margin: 3px 2px 2px 2px;
-}
-.w2ui-overlay .w2ui-select-field table td:nth-child(2) {
-  padding: 3px 15px 3px 3px;
+.w2ui-overlay .w2ui-select-field table tr td:nth-child(2) {
+  padding: 3px 20px 3px 0px;
 }
 .w2ui-overlay .w2ui-col-on-off {
   padding: 4px 0px;

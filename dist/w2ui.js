@@ -3423,7 +3423,8 @@ w2utils.event = {
                     }
                 }
             }
-            this.refresh();
+            this.refreshBody();
+            this.resizeRecords();
             return effected;
         },
 
@@ -3439,7 +3440,8 @@ w2utils.event = {
                     }
                 }
             }
-            this.refresh();
+            this.refreshBody();
+            this.resizeRecords();
             return shown;
         },
 
@@ -3454,7 +3456,8 @@ w2utils.event = {
                     }
                 }
             }
-            this.refresh();
+            this.refreshBody();
+            this.resizeRecords();
             return hidden;
         },
 
@@ -4905,8 +4908,10 @@ w2utils.event = {
                 }
                 html += '<tr '+ (w2utils.isIOS ? 'onTouchStart' : 'onClick') +'="w2ui[\''+ this.name +'\'].initAllField(\''+ search.field +'\');'+
                         '      event.stopPropagation(); jQuery(\'#grid_'+ this.name +'_search_all\').w2overlay({ name: \''+ this.name +'-searchFields\' });">'+
-                        '    <td><input type="radio" tabIndex="-1" '+ (search.field == this.last.field ? 'checked="checked"' : '') +'/></td>'+
-                        '    <td>'+ search.caption +'</td>'+
+                        '   <td>'+
+                        '       <span class="w2ui-column-check w2ui-icon-'+ (search.field == this.last.field ? 'check' : 'empty') +'"></span>'+
+                        '   </td>'+
+                        '   <td>'+ search.caption +'</td>'+
                         '</tr>';
             }
             html += "</tbody></table></div>";
@@ -7948,7 +7953,8 @@ w2utils.event = {
                 } else {
                     $el.addClass('w2ui-icon-empty').removeClass('w2ui-icon-check');
                 }
-                this.refresh();
+                this.refreshBody();
+                this.resizeRecords();
             } else {
                 var col = this.getColumn(field);
                 if (col.hidden) {
@@ -9103,9 +9109,9 @@ w2utils.event = {
 
         getSummaryHTML: function () {
             if (this.summary.length == 0) return;
-            var rec_html = '';
-            var html1 = '<table><tbody>';
-            var html2 = '<table><tbody>';
+            var rec_html = this.getRecordHTML(-1, 0); // need this in summary too for colspan to work properly
+            var html1 = '<table><tbody>' + rec_html[0];
+            var html2 = '<table><tbody>' + rec_html[1];
             for (var i = 0; i < this.summary.length; i++) {
                 rec_html = this.getRecordHTML(i, i+1, true);
                 html1 += rec_html[0];
