@@ -6289,9 +6289,9 @@
 
         getSummaryHTML: function () {
             if (this.summary.length == 0) return;
-            var rec_html = '';
-            var html1 = '<table><tbody>';
-            var html2 = '<table><tbody>';
+            var rec_html = this.getRecordHTML(-1, 0); // need this in summary too for colspan to work properly
+            var html1 = '<table><tbody>' + rec_html[0];
+            var html2 = '<table><tbody>' + rec_html[1];
             for (var i = 0; i < this.summary.length; i++) {
                 rec_html = this.getRecordHTML(i, i+1, true);
                 html1 += rec_html[0];
