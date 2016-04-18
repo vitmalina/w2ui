@@ -193,7 +193,8 @@ input.w2ui-input:-ms-input-placeholder {
 }
 select.w2ui-input {
   color: #000000;
-  padding: 4px 15px 4px 7px;
+  padding: 0px 15px 0px 7px;
+  line-height: 1.8;
   border-radius: 3px;
   border: 1px solid #cacaca;
   -webkit-appearance: none;
@@ -1680,7 +1681,7 @@ button.w2ui-btn-small:focus:before {
   border-bottom: 1px solid #c0c0c0;
   background-color: #eaeaea;
   height: 38px;
-  padding: 7px 3px 4px 3px;
+  padding: 6px 1px 4px 1px;
   margin: 0px;
   box-shadow: 0px 1px 2px #dddddd;
 }
@@ -1691,19 +1692,20 @@ button.w2ui-btn-small:focus:before {
 .w2ui-grid .w2ui-toolbar-search .w2ui-search-all {
   outline: none !important;
   width: 160px !important;
-  border-radius: 10px !important;
+  border-radius: 3px !important;
   line-height: normal !important;
-  height: 22px !important;
+  height: 23px !important;
   border: 1px solid #b9b9b9 !important;
   color: #000000 !important;
   background-color: #ffffff !important;
-  padding: 3px 18px 3px 23px !important;
+  padding: 3px 18px 3px 21px !important;
   margin: 0px !important;
+  margin-top: 1px !important;
 }
 .w2ui-grid .w2ui-toolbar-search .w2ui-search-down {
   position: absolute;
   margin-top: -7px;
-  margin-left: 6px;
+  margin-left: 4px;
 }
 .w2ui-grid .w2ui-toolbar-search .w2ui-search-clear {
   position: absolute;
@@ -1720,7 +1722,7 @@ button.w2ui-btn-small:focus:before {
 }
 .w2ui-grid .w2ui-toolbar-search .w2ui-search-clear:before {
   position: relative;
-  top: 1px;
+  top: 2px;
   left: 5px;
   opacity: 0.6;
   color: inherit;
@@ -2066,6 +2068,24 @@ button.w2ui-btn-small:focus:before {
   border-right: 1px solid #ddd;
   background-color: #FAFAFA;
 }
+.w2ui-grid .w2ui-grid-empty-msg {
+  position: absolute;
+  top: 27px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.65);
+}
+.w2ui-grid .w2ui-grid-empty-msg > div {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 45%;
+  transform: translateY(-45%);
+  text-align: center;
+  font-size: 13px;
+  color: #666;
+}
 .w2ui-grid .w2ui-changed {
   background: url(data:image/gif;base64,R0lGODlhCgAKAJEAALAABf///wAAAAAAACH5BAEAAAIALAAAAAAKAAoAAAIPlI8Hy8mbxIsSUnup3rQAADs=) no-repeat top right;
 }
@@ -2263,7 +2283,7 @@ button.w2ui-btn-small:focus:before {
   padding: 2px;
 }
 .w2ui-overlay .w2ui-select-field {
-  padding: 8px 5px;
+  padding: 4px 0px;
   cursor: default;
 }
 .w2ui-overlay .w2ui-select-field table {
@@ -2272,17 +2292,20 @@ button.w2ui-btn-small:focus:before {
   border-spacing: 0px;
   border-collapse: border-collapse;
 }
+.w2ui-overlay .w2ui-select-field table tr {
+  height: 27px;
+}
 .w2ui-overlay .w2ui-select-field table tr:hover {
   background-color: #b6d5ff;
 }
-.w2ui-overlay .w2ui-select-field table td:nth-child(1) {
-  padding: 3px 3px 3px 6px;
+.w2ui-overlay .w2ui-select-field table tr td:nth-child(1) {
+  width: 26px;
+  padding-right: 6px;
+  text-align: right;
+  color: #888;
 }
-.w2ui-overlay .w2ui-select-field table td:nth-child(1) input {
-  margin: 3px 2px 2px 2px;
-}
-.w2ui-overlay .w2ui-select-field table td:nth-child(2) {
-  padding: 3px 15px 3px 3px;
+.w2ui-overlay .w2ui-select-field table tr td:nth-child(2) {
+  padding: 3px 20px 3px 0px;
 }
 .w2ui-overlay .w2ui-col-on-off {
   padding: 4px 0px;

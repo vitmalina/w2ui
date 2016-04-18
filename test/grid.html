@@ -91,9 +91,10 @@ jQuery(function () {
         },
 
         // possible values: text, alphanumeric, int, float, money, currency, percent, hex, list, combo, enum, select, date, time
-        searches: [                
-            { field: 'personid', caption: 'ID', type: 'int', value: [1,10], operator: 'less' },
-            { field: 'email', caption: 'Email', type: 'text', operator: 'not null', operators : [['is'],['null'], ['not null']] },
+        searches: [
+            { field: 'personid', caption: 'ID', type: 'int', value: [1, 10], operator: 'more' },
+            { field: 'email', caption: 'Email', type: 'text', operator1: 'null', operators1: ['is', 'null', 'not null'] },
+            { field: 'fname', caption: 'First Name', type: 'text' },
             { field: 'fname', caption: 'First Name', type: 'list', options: { items: ['Cuban', 'Rene'] } },
             { field: 'lname', caption: 'Last Name', type: 'enum', options: { items: ['Cuban', 'Rene'] }}
         ],
