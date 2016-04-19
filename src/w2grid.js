@@ -5886,7 +5886,6 @@
                     }
                     html += '<option value="'+ oper +'">'+ w2utils.lang(text) +'</option>\n';
                 }
-                console.log(html);
                 return html;
             }
         },
