@@ -59,7 +59,7 @@ $(function () {
                 nodes: [
                     { id: 'grid-1', text: 'Simple Grid', icon: 'fa-table' },
                     { id: 'grid-3', text: 'Grid Elements', icon: 'fa-table' },
-                    { id: 'grid-2', text: 'Row Formating', icon: 'fa-table' },
+                    { id: 'grid-2', text: 'Row Formatting', icon: 'fa-table' },
                     { id: 'grid-23',text: 'Cell Formatting', icon: 'fa-table' },
                     { id: 'grid-4', text: 'Data Source', icon: 'fa-table' },
                     { id: 'grid-5', text: 'Load Data Once', icon: 'fa-table' },
@@ -68,7 +68,7 @@ $(function () {
                     { id: 'grid-8', text: 'Show/Hide Columns', icon: 'fa-table' },
                     { id: 'grid-9', text: 'Add/Remove Records', icon: 'fa-table' },
                     { id: 'grid-10', text: 'Select/Unselect Records', icon: 'fa-table' },
-                    { id: 'grid-11', text: 'Fixed/Resisable', icon: 'fa-table' },
+                    { id: 'grid-11', text: 'Fixed/Resizable', icon: 'fa-table' },
                     { id: 'grid-12', text: 'Column Sort', icon: 'fa-table' },
                     { id: 'grid-13', text: 'Column Groups', icon: 'fa-table' },
                     { id: 'grid-14', text: 'Summary Records', icon: 'fa-table' },
@@ -96,7 +96,7 @@ $(function () {
                     { id: 'toolbar-6', text: 'Menu Buttons (1.5+)', icon: 'fa-hand-up' },
                     { id: 'toolbar-7', text: 'Color Buttons (1.5+)', icon: 'fa-hand-up' },
                     { id: 'toolbar-8', text: 'Tooltips (1.5+)', icon: 'fa-hand-up' },
-                    { id: 'toolbar-9', text: 'Custom Butons (1.5+)', icon: 'fa-hand-up' },
+                    { id: 'toolbar-9', text: 'Custom Buttons (1.5+)', icon: 'fa-hand-up' },
                     { id: 'toolbar-10', text: 'Toolbar Overflow (1.5+)', icon: 'fa-hand-up' }
                 ]
             },
@@ -127,7 +127,7 @@ $(function () {
                 nodes: [
                     { id: 'tabs-1', text: 'Simple Tabs', icon: 'fa-folder-close-alt' },
                     { id: 'tabs-2', text: 'Set a Tab Active', icon: 'fa-folder-close-alt' },
-                    { id: 'tabs-3', text: 'Closable Tabs', icon: 'fa-folder-close-alt' },
+                    { id: 'tabs-3', text: 'Closeable Tabs', icon: 'fa-folder-close-alt' },
                     { id: 'tabs-4', text: 'Add/Remove Tabs', icon: 'fa-folder-close-alt' },
                     { id: 'tabs-5', text: 'Enable/Disabled Tabs', icon: 'fa-folder-close-alt' },
                     { id: 'tabs-6', text: 'Show/Hide Tabs', icon: 'fa-folder-close-alt' },
