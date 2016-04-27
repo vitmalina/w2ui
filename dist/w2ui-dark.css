@@ -2695,6 +2695,7 @@ button.w2ui-btn-small:focus:before {
   bottom: 2px;
   left: 2px;
   right: 2px;
+  pointer-events: none;
 }
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-selected.w2ui-inactive:before {
   border: 1px dashed transparent !important;
