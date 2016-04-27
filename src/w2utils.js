@@ -2785,7 +2785,7 @@ w2utils.event = {
 
         function getColorHTML(options) {
             var color = options.color;
-            var html  = '<div class="w2ui-color" onmousedown="event.stopPropagation()">'+
+            var html  = '<div class="w2ui-color" onmousedown="event.stopPropagation(); event.preventDefault()">'+ // prevent default is needed otherwiser selection gets unselected
                         '<table cellspacing="5"><tbody>';
             for (var i = 0; i < pal.length - 1; i++) {
                 html += '<tr>';
