@@ -7,7 +7,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2popup.resizeMessages">resizeMessages</a> <span>- resizeMessage()</span>
+    <a href="w2popup.resizeMessages">resizeMessages</a> <span>- resizeMessages()</span>
 </div>
 <div class="obj-property-desc">
     Resized opened messages within popup.

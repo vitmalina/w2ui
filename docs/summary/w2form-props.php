@@ -87,7 +87,7 @@
     <a href="w2form.original">original</a> <span>- Object, default = {}</span>
 </div>
 <div class="obj-property-desc">
-    Original fileds as they were loaded from data source.
+    Original fields as they were loaded from data source.
 </div>
 
 <div class="obj-property">
