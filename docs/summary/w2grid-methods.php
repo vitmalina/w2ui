@@ -346,14 +346,14 @@
     <a href="w2grid.parseField">parseField</a> <span>- parseField(obj, field)</span>
 </div>
 <div class="obj-property-desc">
-    Paste tab-delimmited text into the grid.
+    Paste tab-delimited text into the grid.
 </div>
 
 <div class="obj-property">
     <a href="w2grid.paste">paste</a> <span>- paste(text)</span>
 </div>
 <div class="obj-property-desc">
-    Paste tab-delimmited text into the grid.
+    Paste tab-delimited text into the grid.
 </div>
 
 <div class="obj-property">

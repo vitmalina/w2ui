@@ -26,6 +26,7 @@
 *   - refresh(field) - would refresh only one field
 *   - form.message
 *   - added field.html.column
+*   - added field types html, empty, custom
 *
 ************************************************************************/
 
@@ -799,6 +800,12 @@
                     case 'toggle':
                         input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +' class="w2ui-input w2ui-toggle"/><div><div></div></div>';
                         break;
+                    case 'html':
+                    case 'custom':
+                    case 'empty':
+                        input = '';
+                        break;
+
                 }
                 if (group != ''){
                     if(page != field.html.page || column != field.html.column || (field.html.group && (group != field.html.group))){
@@ -813,7 +820,7 @@
                 html += '\n      <div class="w2ui-field '+ (field.html.span != null ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+
                         '\n         <label>' + w2utils.lang(field.html.caption) +'</label>'+
                         '\n         <div>'+ input + w2utils.lang(field.html.text) + '</div>'+
-                        '\n      </div>'; 
+                        '\n      </div>';
                 if (pages[field.html.page] == null) pages[field.html.page] = [];
                 if (pages[field.html.page][field.html.column] == null) pages[field.html.page][field.html.column] = '';
                 pages[field.html.page][field.html.column] += html;
@@ -1163,6 +1170,10 @@
                         break;
                     case 'checkbox':
                         $(field.el).prop('checked', value ? true : false);
+                        break;
+                    case 'html':
+                    case 'custom':
+                    case 'empty':
                         break;
                     default:
                         $(field.el).val(value);

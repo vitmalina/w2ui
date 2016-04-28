@@ -56,7 +56,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2layout.load">load</a> <span>- load(type, url, [transtion], [onLoad])</span>
+    <a href="w2layout.load">load</a> <span>- load(type, url, [transition], [onLoad])</span>
 </div>
 <div class="obj-property-desc">
     Loads content and renders it inside the panel.

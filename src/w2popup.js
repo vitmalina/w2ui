@@ -994,7 +994,7 @@ var w2confirm = function (msg, title, callBack) {
 
 var w2prompt = function (label, title, callBack) {
     var $ = jQuery;
-        
+
     var options  = {};
     var defaults = {
         label       : '',
@@ -1002,11 +1002,11 @@ var w2prompt = function (label, title, callBack) {
         title       : w2utils.lang('Notification'),
         ok_text     : w2utils.lang('Ok'),
         cancel_text : w2utils.lang('Cancel'),
-        width       : ($('#w2ui-popup').length > 0 ? 400 : 450),
+        width       : ($('#w2ui-popup').lengtvalueh > 0 ? 400 : 450),
         height      : ($('#w2ui-popup').length > 0 ? 170 : 220),
         callBack    : null
     }
-    
+
     if (arguments.length == 1 && typeof label == 'object') {
         $.extend(options, defaults, label);
     } else {
@@ -1023,7 +1023,7 @@ var w2prompt = function (label, title, callBack) {
             })
         }
     }
-    
+
     if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing' && w2popup.get()) {
         if (options.width > w2popup.get().width) options.width = w2popup.get().width;
         if (options.height > (w2popup.get().height - 50)) options.height = w2popup.get().height - 50;
@@ -1042,6 +1042,8 @@ var w2prompt = function (label, title, callBack) {
                     w2popup._prompt_value = null;
                     w2popup.message();
                 });
+                // set focus
+                setTimeout(function () { $('#w2prompt').focus(); }, 100);
             },
             onClose: function () {
                 // needed this because there might be other messages
@@ -1080,7 +1082,9 @@ var w2prompt = function (label, title, callBack) {
                         w2popup.close();
                         if (typeof options.callBack == 'function') options.callBack(w2popup._prompt_value);
                     });
-                    $('#w2ui-popup .w2ui-popup-btn#Ok').focus();
+                    $('#w2ui-popup .w2ui-popup-btn#Ok');
+                    // set focus
+                    setTimeout(function () { $('#w2prompt').focus(); }, 100);
                 }, 1);
             },
             onKeydown: function (event) {

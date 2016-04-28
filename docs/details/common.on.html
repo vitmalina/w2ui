@@ -62,7 +62,7 @@ w2ui['layout'].on('refresh', function (event) {
 });
 </textarea>
 
-Or to execure at the end of event cycle:
+Or to execute at the end of event cycle:
 
 <textarea class="javascript">
 w2ui['layout'].on('refresh:after', function (event) {
@@ -82,7 +82,7 @@ The first way is simple, but the second and third way provides additional functi
 to <span class="argument">event</span> object and all of them will be passed to the event handlers function as
 the part of the <span class="argument">event</span> argument. The <span class="argument">event</span> object
 may also contain additional parameters, for example when to trigger event before or after, you can specify
-<span class="argument">onComplete</span> function that will be called at the end of the evert.
+<span class="argument">onComplete</span> function that will be called at the end of the event.
 <div style="height: 10px"></div>
 
 Below is the list of properties of event object:

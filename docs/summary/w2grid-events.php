@@ -24,7 +24,7 @@
     <a href="w2grid.onCollapse">onCollapse</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">
-    Called when user collapses epxandable record.
+    Called when user collapses expandable record.
 </div>
 
 <div class="obj-property">
@@ -115,7 +115,7 @@
     <a href="w2grid.onKeydown">onKeydown</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">
-    Called when user presess a keyboard key and grid is active.
+    Called when user presses a keyboard key and grid is active.
 </div>
 
 <div class="obj-property">
@@ -185,7 +185,7 @@
     <a href="w2grid.onSelectionExtend">onSelectionExtend</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">
-    Called when user extends selection by draggind small dot at the bottom right cornder of selection.
+    Called when user extends selection by dragging small dot at the bottom right corner of selection.
 </div>
 
 <div class="obj-property">

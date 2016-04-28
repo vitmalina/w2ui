@@ -52,7 +52,7 @@
     <a href="w2grid.last">last</a> <span>- Object, default see below</span>
 </div>
 <div class="obj-property-desc">
-    Internal grid's vairables.
+    Internal grid's variables.
 </div>
 
 <div class="obj-property">
@@ -136,7 +136,7 @@
     <a href="w2grid.offset">offset</a> <span>- Integer, default = 0</span>
 </div>
 <div class="obj-property-desc">
-    Number of records to skip when retriving records from remote source.
+    Number of records to skip when retrieving records from remote source.
 </div>
 
 <div class="obj-property">
