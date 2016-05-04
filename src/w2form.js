@@ -434,6 +434,7 @@
             // add list params
             params['cmd']   = 'get';
             params['recid'] = this.recid;
+            params['name']  = this.name;
             // append other params
             $.extend(params, this.postData);
             $.extend(params, postData);
