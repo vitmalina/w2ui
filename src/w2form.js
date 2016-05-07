@@ -1254,9 +1254,7 @@
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (url && this.recid != 0 && this.recid != null) {
                 this.request();
-            } else {
-                this.refresh();
-            }
+            } 
             // attach to resize event
             if ($('.w2ui-layout').length == 0) { // if there is layout, it will send a resize event
                 this.tmp_resize = function (event) { w2ui[obj.name].resize(); };
