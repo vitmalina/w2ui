@@ -434,6 +434,7 @@
             // add list params
             params['cmd']   = 'get';
             params['recid'] = this.recid;
+            params['name']  = this.name;
             // append other params
             $.extend(params, this.postData);
             $.extend(params, postData);
@@ -586,6 +587,7 @@
                 // add list params
                 params['cmd']   = 'save';
                 params['recid'] = obj.recid;
+                params['name']  = obj.name;
                 // append other params
                 $.extend(params, obj.postData);
                 $.extend(params, postData);
