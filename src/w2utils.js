@@ -30,6 +30,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - added message
 *   - w2utils.keyboard is removed
 *   - w2tag can be positioned with an array of valid values
+*   - decodeTags
 *
 ************************************************/
 
@@ -77,6 +78,7 @@ var w2utils = (function ($) {
         formatDateTime  : formatDateTime,
         stripTags       : stripTags,
         encodeTags      : encodeTags,
+        decodeTags      : decodeTags,
         escapeId        : escapeId,
         base64encode    : base64encode,
         base64decode    : base64decode,
@@ -513,6 +515,28 @@ var w2utils = (function ($) {
                 }  else {
                     html = $.extend(true, {}, html);
                     for (var i in html) html[i] = this.encodeTags(html[i]);
+                }
+                break;
+        }
+        return html;
+    }
+
+    function decodeTags (html) {
+        if (html == null) return html;
+        switch (typeof html) {
+            case 'number':
+                break;
+            case 'string':
+                html = String(html).replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/&quot;/g, '"').replace(/&amp;/g, "&");
+                break;
+            case 'object':
+                // does not modify original object, but creates a copy
+                if (Array.isArray(html)) {
+                    html = $.extend(true, [], html);
+                    for (var i = 0; i < html.length; i++) html[i] = this.decodeTags(html[i]);
+                }  else {
+                    html = $.extend(true, {}, html);
+                    for (var i in html) html[i] = this.decodeTags(html[i]);
                 }
                 break;
         }
