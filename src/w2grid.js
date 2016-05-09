@@ -2438,7 +2438,7 @@
             } else {
                 data = {
                     status       : 'error',
-                    message      : this.msgAJAXerror,
+                    message      : w2utils.lang(this.msgAJAXerror),
                     responseText : responseText
                 };
                 obj.error(w2utils.lang(this.msgAJAXerror));

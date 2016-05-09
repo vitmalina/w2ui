@@ -174,7 +174,7 @@
         onToolbar     : null,
         onError       : null,
 
-        msgNotJSON    : 'Return data is not in JSON format.',
+        msgNotJSON    : 'Returned data is not in valid JSON format.',
         msgAJAXerror  : 'AJAX error. See console for more details.',
         msgRefresh    : 'Refreshing...',
         msgSaving     : 'Saving...',
@@ -512,7 +512,7 @@
                             if (data == null) {
                                 data = {
                                     status       : 'error',
-                                    message      : obj.msgNotJSON,
+                                    message      : w2utils.lang(obj.msgNotJSON),
                                     responseText : responseText
                                 }
                             }
@@ -527,7 +527,7 @@
                         obj.error('AJAX Error ' + xhr.status + ': '+ xhr.statusText);
                         data = {
                             status       : 'error',
-                            message      : obj.msgAJAXerror,
+                            message      : w2utils.lang(obj.msgAJAXerror),
                             responseText : responseText
                         };
                     }
@@ -684,7 +684,7 @@
                                 if (data == null) {
                                     data = {
                                         status       : 'error',
-                                        message      : obj.msgNotJSON,
+                                        message      : w2utils.lang(obj.msgNotJSON),
                                         responseText : responseText
                                     }
                                 }
@@ -698,7 +698,7 @@
                             obj.error('AJAX Error ' + xhr.status + ': '+ xhr.statusText);
                             data = {
                                 status       : 'error',
-                                message      : obj.msgAJAXerror,
+                                message      : w2utils.lang(obj.msgAJAXerror),
                                 responseText : responseText
                             };
                         }
@@ -930,49 +930,49 @@
             var obj = this;
             if (!this.box) return;
             if (!this.isGenerated || $(this.box).html() == null) return;
-			// event before
-			var edata = this.trigger({ phase: 'before', target: this.name, type: 'refresh', page: this.page, field: field })
-			if (edata.isCancelled === true) return;
+            // event before
+            var edata = this.trigger({ phase: 'before', target: this.name, type: 'refresh', page: this.page, field: field })
+            if (edata.isCancelled === true) return;
             if (field != null) {
                 var from_field = obj.get(field, true);
                 var to_field = from_field + 1;
             } else {
-				// update what page field belongs
-				$(this.box).find('input, textarea, select').each(function (index, el) {
-					var name  = ($(el).attr('name') != null ? $(el).attr('name') : $(el).attr('id'));
-					var field = obj.get(name);
-					if (field) {
-						// find page
-						var div = $(el).parents('.w2ui-page');
-						if (div.length > 0) {
-							for (var i = 0; i < 100; i++) {
-								if (div.hasClass('page-'+i)) { field.page = i; break; }
-							}
-						}
-					}
-				});
-				// default action
-				$(this.box).find('.w2ui-page').hide();
-				$(this.box).find('.w2ui-page.page-' + this.page).show();
-				$(this.box).find('.w2ui-form-header').html(this.header);
-				// refresh tabs if needed
-				if (typeof this.tabs === 'object' && $.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) {
-					$('#form_'+ this.name +'_tabs').show();
-					this.tabs.active = this.tabs.tabs[this.page].id;
-					this.tabs.refresh();
-				} else {
-					$('#form_'+ this.name +'_tabs').hide();
-				}
-				// refresh tabs if needed
-				if (typeof this.toolbar == 'object' && $.isArray(this.toolbar.items) && this.toolbar.items.length > 0) {
-					$('#form_'+ this.name +'_toolbar').show();
-					this.toolbar.refresh();
-				} else {
-					$('#form_'+ this.name +'_toolbar').hide();
-				}
+                // update what page field belongs
+                $(this.box).find('input, textarea, select').each(function (index, el) {
+                    var name  = ($(el).attr('name') != null ? $(el).attr('name') : $(el).attr('id'));
+                    var field = obj.get(name);
+                    if (field) {
+                        // find page
+                        var div = $(el).parents('.w2ui-page');
+                        if (div.length > 0) {
+                            for (var i = 0; i < 100; i++) {
+                                if (div.hasClass('page-'+i)) { field.page = i; break; }
+                            }
+                        }
+                    }
+                });
+                // default action
+                $(this.box).find('.w2ui-page').hide();
+                $(this.box).find('.w2ui-page.page-' + this.page).show();
+                $(this.box).find('.w2ui-form-header').html(this.header);
+                // refresh tabs if needed
+                if (typeof this.tabs === 'object' && $.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) {
+                    $('#form_'+ this.name +'_tabs').show();
+                    this.tabs.active = this.tabs.tabs[this.page].id;
+                    this.tabs.refresh();
+                } else {
+                    $('#form_'+ this.name +'_tabs').hide();
+                }
+                // refresh tabs if needed
+                if (typeof this.toolbar == 'object' && $.isArray(this.toolbar.items) && this.toolbar.items.length > 0) {
+                    $('#form_'+ this.name +'_toolbar').show();
+                    this.toolbar.refresh();
+                } else {
+                    $('#form_'+ this.name +'_toolbar').hide();
+                }
                 var from_field = 0;
                 var to_field = this.fields.length;
-			}
+            }
             // refresh values of fields
             for (var f = from_field; f < to_field; f++) {
                 var field = this.fields[f];
