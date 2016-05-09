@@ -214,12 +214,13 @@ var w2utils = (function ($) {
     function isTime (val, retTime) {
         // Both formats 10:20pm and 22:20
         if (val == null) return false;
-        var max, pm;
+        var max, am, pm;
         // -- process american format
         val = String(val);
         val = val.toUpperCase();
+        am = val.indexOf('AM') >= 0;
         pm = val.indexOf('PM') >= 0;
-        var ampm = (pm || val.indexOf('AM') >= 0);
+        var ampm = (pm || am);
         if (ampm) max = 12; else max = 24;
         val = val.replace('AM', '').replace('PM', '');
         val = $.trim(val);
@@ -237,8 +238,8 @@ var w2utils = (function ($) {
         if (ampm && tmp.length === 1 && h === 0) { return false; }
 
         if (retTime === true) {
-            if (pm && h !== 12)  h += 12;   // 12:00pm - is noon
-            if (!pm && h === 12) h += 12;   // 12:00am - is midnight
+            if (pm && h !== 12) h += 12;   // 12:00pm - is noon
+            if (am && h === 12) h += 12;   // 12:00am - is midnight
             return {
                 hours: h,
                 minutes: m,
