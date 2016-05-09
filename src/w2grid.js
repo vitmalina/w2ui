@@ -2138,7 +2138,7 @@
                 this.last.field   = search.field;
                 this.last.caption = search.caption;
             }
-            el.attr('placeholder', search.caption);
+            el.attr('placeholder', w2utils.lang(search.caption));
             $().w2overlay({ name: this.name + '-searchFields' });
         },
 
@@ -4262,7 +4262,7 @@
             if (this.last.multi) {
                 el.attr('placeholder', '[' + w2utils.lang('Multiple Fields') + ']');
             } else {
-                el.attr('placeholder', this.last.caption);
+                el.attr('placeholder', w2utils.lang(this.last.caption));
             }
             if (el.val() != this.last.search) {
                 var val = this.last.search;
@@ -5211,7 +5211,7 @@
                         '    <td>'+ this.buttons['search'].html +'</td>'+
                         '    <td>'+
                         '        <input type="text" id="grid_'+ this.name +'_search_all" class="w2ui-search-all" tabindex="-1" '+
-                        '            placeholder="'+ this.last.caption +'" value="'+ this.last.search +'"'+
+                        '            placeholder="'+ w2utils.lang(this.last.caption) +'" value="'+ this.last.search +'"'+
                         '            onfocus="clearTimeout(w2ui[\''+ this.name +'\'].last.kbd_timer);"'+
                         '            onkeydown="if (event.keyCode == 13 &amp;&amp; w2utils.isIE) this.onchange();"'+
                         '            onchange="'+
