@@ -351,7 +351,7 @@
 
         unselect: function (id) {
             // if no arguments provided, unselect selected node
-            if (arguments.length == 0) {
+            if (arguments.length === 0) {
                 id = this.selected;
             }
             var current = this.get(id);
@@ -720,7 +720,7 @@
             if (this.flatButton == true) {
                 flatHTML = '<div class="w2ui-flat-'+ (this.flat ? 'right' : 'left') +'" onclick="w2ui[\''+ this.name +'\'].goFlat()"></div>';
             }
-            if (this.topHTML !== '' || flatHTML != '') {
+            if (this.topHTML !== '' || flatHTML !== '') {
                 $(this.box).find('.w2ui-sidebar-top').html(this.topHTML + flatHTML);
                 $(this.box).find('.w2ui-sidebar-div')
                     .css('top', $(this.box).find('.w2ui-sidebar-top').height() + 'px');

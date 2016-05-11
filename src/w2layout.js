@@ -147,53 +147,52 @@
             if (p == null) return false;
             if (data == null) {
                 return p.content;
-            } else {
-                // event before
-                var edata = this.trigger({ phase: 'before', type: 'content', target: panel, object: p, content: data, transition: transition });
-                if (edata.isCancelled === true) return;
+            }
+            // event before
+            var edata = this.trigger({ phase: 'before', type: 'content', target: panel, object: p, content: data, transition: transition });
+            if (edata.isCancelled === true) return;
 
-                if (data instanceof jQuery) {
-                    console.log('ERROR: You can not pass jQuery object to w2layout.content() method');
-                    return false;
-                }
-                var pname    = '#layout_'+ this.name + '_panel_'+ p.type;
-                var current  = $(pname + '> .w2ui-panel-content');
-                var panelTop = 0;
-                if (current.length > 0) {
-                    $(pname).scrollTop(0);
-                    panelTop = $(current).position().top;
-                }
-                if (p.content === '') {
-                    p.content = data;
-                    this.refresh(panel);
-                } else {
-                    p.content = data;
-                    if (!p.hidden) {
-                        if (transition != null && transition !== '') {
-                            // apply transition
-                            var div1 = $(pname + '> .w2ui-panel-content');
-                            div1.after('<div class="w2ui-panel-content new-panel" style="'+ div1[0].style.cssText +'"></div>');
-                            var div2 = $(pname + '> .w2ui-panel-content.new-panel');
-                            div1.css('top', panelTop);
-                            div2.css('top', panelTop);
-                            if (typeof data == 'object') {
-                                data.box = div2[0]; // do not do .render(box);
-                                data.render();
-                            } else {
-                                div2.html(data);
-                            }
-                            w2utils.transition(div1[0], div2[0], transition, function () {
-                                div1.remove();
-                                div2.removeClass('new-panel');
-                                div2.css('overflow', p.overflow);
-                                // IE Hack
-                                obj.resize();
-                                if (window.navigator.userAgent.indexOf('MSIE') != -1) setTimeout(function () { obj.resize(); }, 100);
-                            });
+            if (data instanceof jQuery) {
+                console.log('ERROR: You can not pass jQuery object to w2layout.content() method');
+                return false;
+            }
+            var pname    = '#layout_'+ this.name + '_panel_'+ p.type;
+            var current  = $(pname + '> .w2ui-panel-content');
+            var panelTop = 0;
+            if (current.length > 0) {
+                $(pname).scrollTop(0);
+                panelTop = $(current).position().top;
+            }
+            if (p.content === '') {
+                p.content = data;
+                this.refresh(panel);
+            } else {
+                p.content = data;
+                if (!p.hidden) {
+                    if (transition != null && transition !== '') {
+                        // apply transition
+                        var div1 = $(pname + '> .w2ui-panel-content');
+                        div1.after('<div class="w2ui-panel-content new-panel" style="'+ div1[0].style.cssText +'"></div>');
+                        var div2 = $(pname + '> .w2ui-panel-content.new-panel');
+                        div1.css('top', panelTop);
+                        div2.css('top', panelTop);
+                        if (typeof data == 'object') {
+                            data.box = div2[0]; // do not do .render(box);
+                            data.render();
+                        } else {
+                            div2.html(data);
                         }
+                        w2utils.transition(div1[0], div2[0], transition, function () {
+                            div1.remove();
+                            div2.removeClass('new-panel');
+                            div2.css('overflow', p.overflow);
+                            // IE Hack
+                            obj.resize();
+                            if (window.navigator.userAgent.indexOf('MSIE') != -1) setTimeout(function () { obj.resize(); }, 100);
+                        });
                     }
-                    this.refresh(panel);
                 }
+                this.refresh(panel);
             }
             // event after
             obj.trigger($.extend(edata, { phase: 'after' }));
@@ -229,7 +228,7 @@
                     event.done(function () {
                         $('#layout_'+ obj.name + '_panel_'+ p.type).css('overflow', oldOverflow);
                     });
-                }
+                };
             }
             $('#layout_'+ this.name + '_panel_'+ p.type).css('overflow', 'hidden');
             w2utils.message.call(this, {
@@ -352,7 +351,7 @@
             if (ind == null) return false;
             $.extend(this.panels[ind], options);
             // refresh only when content changed
-            if (options['content'] != null || options['resizable'] != null) {
+            if (options.content != null || options.resizable != null) {
                 this.refresh(panel);
             }
             // show/hide resizer
@@ -746,7 +745,7 @@
                     tmp.html('').hide();
                 }
             } else {
-                if ($('#layout_'+ obj.name +'_panel_main').length == 0) {
+                if ($('#layout_'+ obj.name +'_panel_main').length === 0) {
                     obj.render();
                     return;
                 }
@@ -794,7 +793,7 @@
             // calculate %
             for (var p = 0; p < w2panels.length; p++) {
                 if (w2panels[p] === 'main') continue;
-                var tmp = this.get(w2panels[p]);
+                tmp = this.get(w2panels[p]);
                 if (!tmp) continue;
                 var str = String(tmp.size || 0);
                 if (str.substr(str.length-1) == '%') {
