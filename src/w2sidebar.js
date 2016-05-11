@@ -11,6 +11,9 @@
 *   - reorder with dgrag and drop
 *   - node.style is misleading - should be there to apply color for example
 *   - add multiselect
+* == 1.5 changes
+*   - allow context menu on groups
+*   - allowOnDisabled
 *
 ************************************************************************/
 
@@ -635,10 +638,10 @@
             var nd  = obj.get(id);
             if (id != obj.selected) obj.click(id);
             // event before
-            var edata = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, originalEvent: event, object: nd });
+            var edata = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, originalEvent: event, object: nd, allowOnDisabled: false });
             if (edata.isCancelled === true) return;
             // default action
-            if (nd.group || nd.disabled) return;
+            if (nd.disabled && !edata.allowOnDisabled) return;
             if (obj.menu.length > 0) {
                 $(obj.box).find('#node_'+ w2utils.escapeId(id))
                     .w2menu({
@@ -846,9 +849,10 @@
                 if (nd.group) {
                     html =
                         '<div class="w2ui-node-group" id="node_'+ nd.id +'"'+
-                        '        onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
-                        '        onmouseout="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
-                        '        onmouseover="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
+                        '   onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
+                        '   oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
+                        '   onmouseout="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
+                        '   onmouseover="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
                         ((nd.groupShowHide && nd.collapsible) ? '<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>' : '<span></span>') +
                         (typeof nd.text == 'function' ? nd.text.call(obj, nd) : '<span>'+ nd.text +'</span>') +
                         '</div>'+
