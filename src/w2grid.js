@@ -6862,7 +6862,7 @@
             // various renderers
             if (col.render != null) {
                 if (typeof col.render == 'function') {
-                    data = $.trim(col.render.call(this, record, ind, col_ind));
+                    data = $.trim(col.render.call(this, record, ind, col_ind, data));
                     if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') {
                         data = '<div style="'+ style +'">' + infoBubble + String(data) + '</div>';
                     }
