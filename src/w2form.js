@@ -113,18 +113,18 @@
             }
             if (obj.length > 0) object.box = obj[0];
             // render if necessary
-            if (object.formURL != '') {
+            if (object.formURL !== '') {
                 $.get(object.formURL, function (data) { // should always be $.get as it is template
                     object.formHTML = data;
                     object.isGenerated = true;
-                    if ($(object.box).length != 0 || data.length != 0) {
+                    if ($(object.box).length !== 0 || data.length !== 0) {
                         $(object.box).html(data);
                         object.render(object.box);
                     }
                 });
-            } else if (object.formHTML != '') {
+            } else if (object.formHTML !== '') {
                 // it is already loaded into formHTML
-            } else if ($(this).length != 0 && $.trim($(this).html()) != '') {
+            } else if ($(this).length !== 0 && $.trim($(this).html()) !== '') {
                 object.formHTML = $(this).html();
             }  else { // try to generate it
                 object.formHTML = object.generateHTML();
@@ -132,7 +132,7 @@
             // register new object
             w2ui[object.name] = object;
             // render if not loaded from url
-            if (object.formURL == '') {
+            if (object.formURL === '') {
                 if (String(object.formHTML).indexOf('w2ui-page') == -1) {
                     object.formHTML = '<div class="w2ui-page page-0">'+ object.formHTML +'</div>';
                 }
@@ -261,7 +261,7 @@
 
         reload: function (callBack) {
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
-            if (url && this.recid != 0 && this.recid != null) {
+            if (url && this.recid !== 0 && this.recid != null) {
                 // this.clear();
                 this.request(callBack);
             } else {
@@ -368,7 +368,7 @@
                 }
                 // === check required - if field is '0' it should be considered not empty
                 var val = this.record[field.name];
-                if (field.required && (val === '' || ($.isArray(val) && val.length == 0) || ($.isPlainObject(val) && $.isEmptyObject(val)))) {
+                if (field.required && (val === '' || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val)))) {
                     errors.push({ field: field, error: w2utils.lang('Required field') });
                 }
                 if (field.equalto && this.record[field.name] != this.record[field.equalto]) {
@@ -499,7 +499,7 @@
                     var responseText = obj.last.xhr.responseText;
                     if (status != 'error') {
                         // default action
-                        if (responseText != null && responseText != '') {
+                        if (responseText != null && responseText !== '') {
                             // check if the onLoad handler has not already parsed the data
                             if (typeof responseText == "object") {
                                 data = responseText;
@@ -514,7 +514,7 @@
                                     status       : 'error',
                                     message      : w2utils.lang(obj.msgNotJSON),
                                     responseText : responseText
-                                }
+                                };
                             }
                             if (data['status'] == 'error') {
                                 obj.error(w2utils.lang(data['message']));
@@ -545,7 +545,7 @@
                     // default behavior
                     if (status != 'abort') {
                         var data;
-                        try { data = $.parseJSON(xhr.responseText) } catch (e) {}
+                        try { data = $.parseJSON(xhr.responseText); } catch (e) {}
                         console.log('ERROR: Server communication failed.',
                             '\n   EXPECTED:', { status: 'success', items: [{ id: 1, text: 'item' }] },
                             '\n         OR:', { status: 'error', message: 'error message' },
@@ -646,11 +646,11 @@
                     ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
                 }
                 if (w2utils.settings.dataType == 'RESTFULL') {
-                    if (obj.recid != 0 && obj.recid != null) ajaxOptions.type = 'PUT';
+                    if (obj.recid !== 0 && obj.recid != null) ajaxOptions.type = 'PUT';
                     ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
                 }
                 if (w2utils.settings.dataType == 'RESTFULLJSON') {
-                    if (obj.recid != 0 && obj.recid != null) ajaxOptions.type = 'PUT';
+                    if (obj.recid !== 0 && obj.recid != null) ajaxOptions.type = 'PUT';
                     ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
                     ajaxOptions.contentType = 'application/json';
                 }
@@ -671,7 +671,7 @@
                         var responseText = xhr.responseText;
                         if (status != 'error') {
                             // default action
-                            if (responseText != null && responseText != '') {
+                            if (responseText != null && responseText !== '') {
                                 // check if the onLoad handler has not already parsed the data
                                 if (typeof responseText == "object") {
                                     data = responseText;
@@ -686,7 +686,7 @@
                                         status       : 'error',
                                         message      : w2utils.lang(obj.msgNotJSON),
                                         responseText : responseText
-                                    }
+                                    };
                                 }
                                 if (data['status'] == 'error') {
                                     obj.error(w2utils.lang(data['message']));
@@ -749,15 +749,16 @@
             var group = '';
             var page;
             var column;
+            var html;
             for (var f = 0; f < this.fields.length; f++) {
-                var html = '';
+                html = '';
                 var field = this.fields[f];
                 if (field.html == null) field.html = {};
                 if (field.options == null) field.options = {};
                 field.html = $.extend(true, { caption: '', span: 6, attr: '', text: '', style: '', page: 0, column: 0 }, field.html);
                 if (page == null) page = field.html.page;
                 if (column == null) column = field.html.column;
-                if (field.html.caption == '') field.html.caption = field.name;
+                if (field.html.caption === '') field.html.caption = field.name;
                 // input control
                 var input = '<input name="'+ field.name +'" class="w2ui-input" type="text" '+ field.html.attr +'/>';
                 switch (field.type) {
@@ -809,7 +810,7 @@
                         break;
 
                 }
-                if (group != ''){
+                if (group !== ''){
                     if(page != field.html.page || column != field.html.column || (field.html.group && (group != field.html.group))){
                        pages[page][column]  += '\n   </div>';
                        group = '';
@@ -829,7 +830,7 @@
                 page = field.html.page;
                 column = field.html.column;
             }
-            if (group != '') pages[page][column] += '\n   </div>';
+            if (group !== '') pages[page][column] += '\n   </div>';
             if (this.tabs.tabs) {
                 for (var i = 0; i < this.tabs.tabs.length; i++) if (pages[i] == null) pages[i] = [];
             }
@@ -867,7 +868,6 @@
         },
 
         action: function (action, event) {
-            var click = null;
             var act   = this.actions[action];
             var click = act;
             if ($.isPlainObject(act) && act.onClick) click = act.onClick;
@@ -896,7 +896,7 @@
             var buttons = $(this.box).find('> div .w2ui-buttons');
             // if no height, calculate it
             resizeElements();
-            if (parseInt($(this.box).height()) == 0 || $(this.box).data('auto-size') === true) {
+            if (parseInt($(this.box).height()) === 0 || $(this.box).data('auto-size') === true) {
                 $(this.box).height(
                     (header.length > 0 ? w2utils.getSize(header, 'height') : 0) +
                     ((typeof this.tabs === 'object' && $.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) ? w2utils.getSize(tabs, 'height') : 0) +
@@ -915,10 +915,10 @@
             function resizeElements() {
                 // resize elements
                 main.width($(obj.box).width()).height($(obj.box).height());
-                toolbar.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0));
-                tabs.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0)
+                toolbar.css('top', (obj.header !== '' ? w2utils.getSize(header, 'height') : 0));
+                tabs.css('top', (obj.header !== '' ? w2utils.getSize(header, 'height') : 0)
                               + ((typeof obj.toolbar == 'object' && $.isArray(obj.toolbar.items) && obj.toolbar.items.length > 0) ? w2utils.getSize(toolbar, 'height') : 0));
-                page.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0)
+                page.css('top', (obj.header !== '' ? w2utils.getSize(header, 'height') : 0)
                               + ((typeof obj.toolbar == 'object' && $.isArray(obj.toolbar.items) && obj.toolbar.items.length > 0) ? w2utils.getSize(toolbar, 'height') + 5 : 0)
                               + ((typeof obj.tabs === 'object' && $.isArray(obj.tabs.tabs) && obj.tabs.tabs.length > 0) ? w2utils.getSize(tabs, 'height') + 5 : 0));
                 page.css('bottom', (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0));
@@ -931,7 +931,7 @@
             if (!this.box) return;
             if (!this.isGenerated || $(this.box).html() == null) return;
             // event before
-            var edata = this.trigger({ phase: 'before', target: this.name, type: 'refresh', page: this.page, field: field })
+            var edata = this.trigger({ phase: 'before', target: this.name, type: 'refresh', page: this.page, field: field });
             if (edata.isCancelled === true) return;
             if (field != null) {
                 var from_field = obj.get(field, true);
@@ -1041,7 +1041,7 @@
                             $(fld).removeClass('w2ui-error');
                         }
                     }
-                    if (val === '' || val == null || ($.isArray(val) && val.length == 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) {
+                    if (val === '' || val == null || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) {
                         val = null;
                     }
                     obj.record[this.name] = val;
@@ -1216,7 +1216,7 @@
                 this.original = $.extend(true, {}, this.record);
             }
             var html =  '<div class="w2ui-form-box">' +
-                        (this.header != '' ? '<div class="w2ui-form-header">' + this.header + '</div>' : '') +
+                        (this.header !== '' ? '<div class="w2ui-form-header">' + this.header + '</div>' : '') +
                         '    <div id="form_'+ this.name +'_toolbar" class="w2ui-form-toolbar" style="display: none"></div>' +
                         '    <div id="form_'+ this.name +'_tabs" class="w2ui-form-tabs" style="display: none"></div>' +
                             this.formHTML +
@@ -1254,13 +1254,13 @@
             // after render actions
             this.resize();
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
-            if (url && this.recid != 0 && this.recid != null) {
+            if (url && this.recid !== 0 && this.recid != null) {
                 this.request();
             } else {
                 this.refresh();
             }
             // attach to resize event
-            if ($('.w2ui-layout').length == 0) { // if there is layout, it will send a resize event
+            if ($('.w2ui-layout').length === 0) { // if there is layout, it will send a resize event
                 this.tmp_resize = function (event) { w2ui[obj.name].resize(); };
                 $(window).off('resize', 'body').on('resize', 'body', this.tmp_resize);
             }
@@ -1273,7 +1273,7 @@
             if (this.focus >= 0) {
                 setTimeout(function () {
                     // if not rendered in 10ms, then wait 500ms
-                    if ($(obj.box).find('input, select, textarea').length == 0) {
+                    if ($(obj.box).find('input, select, textarea').length === 0) {
                         setTimeout(focusEl, 500); // need timeout to allow form to render
                     } else {
                         focusEl();
