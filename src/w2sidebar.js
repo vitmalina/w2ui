@@ -786,7 +786,7 @@
                     .css('bottom', $(this.box).find('.w2ui-sidebar-bottom').height() + 'px');
             }
             // default action
-            $(this.box).find('> div').css({
+            $(this.box).find('> div').removeClass('w2ui-sidebar-flat').addClass(this.flat ? 'w2ui-sidebar-flat' : '').css({
                 width : $(this.box).width() + 'px',
                 height: $(this.box).height() + 'px'
             });

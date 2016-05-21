@@ -1970,7 +1970,7 @@
             }
             // event before
             var edata = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: searchData,
-                    searchField: (field ? field : 'multi'), searchValue: (value ? value : 'multi') });
+                    searchField: (field ? field : 'multi'), searchValue: (field ? value : 'multi') });
             if (edata.isCancelled === true) return;
             // default action
             this.searchData  = edata.searchData;
