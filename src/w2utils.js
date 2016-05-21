@@ -653,7 +653,7 @@ var w2utils = (function ($) {
     }
 
     function md5(input) {
-		/*
+        /*
          * Based on http://pajhome.org.uk/crypt/md5
          */
 
@@ -1037,7 +1037,7 @@ var w2utils = (function ($) {
 
         return __pj_crypt_hex_md5(input);
 
-	}
+    }
 
     function transition (div_old, div_new, type, callBack) {
         var width  = $(div_old).width();
@@ -1713,12 +1713,12 @@ w2utils.formatters = {
         return (value ? 'Yes' : '');
     },
 
-	'password': function (value, params) {
-    	var ret = "";
-		for (var i=0; i < value.length; i++) {
-			ret += "*";
-		}
-		return ret;
+    'password': function (value, params) {
+        var ret = "";
+        for (var i=0; i < value.length; i++) {
+            ret += "*";
+        }
+        return ret;
     }
 };
 
@@ -1989,7 +1989,7 @@ w2utils.event = {
 
             // need time out to allow tag to be rendered
             setTimeout(function () {
-            	$tags.css('display', 'block');
+                $tags.css('display', 'block');
                 if (!$(el).offset()) return;
                 var pos = checkIfMoved(true);
                 if (pos == null) return;
