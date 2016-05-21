@@ -115,6 +115,7 @@
 *   - added response.total = -1 (or not present) to indicate that number of records is unknown
 *   - message(.., callBack) - added callBack
 *   - grid.msgEmpty
+*   - field.render(..., data) -- added last argument which is what grid thinks should be there
 *
 ************************************************************************/
 
