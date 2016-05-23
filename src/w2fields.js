@@ -44,6 +44,7 @@
 *   - remote data is not compatible with grid
 *   - options.recId, options.recText - to define custom id and text for remove data, can be string or function
 *   - options.readContent - for file type
+*   - added support for 'accept' attribute for file type
 *
 ************************************************************************/
 
@@ -2295,14 +2296,14 @@
             if (obj.type == 'file') {
                 html =  '<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box">'+
                         '   <div style="position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px;">'+
-                        '       <input class="file-input" type="file" style="width: 100%; height: 100%; opacity: 0;" name="attachment" multiple tabindex="-1"' + ($(obj.el).prop('readonly') ? ' readonly="readonly"': '') + ($(obj.el).prop('disabled') ? ' disabled="disabled"': '') + '/>'+
+                        '       <input class="file-input" type="file" style="width: 100%; height: 100%; opacity: 0;" name="attachment" multiple tabindex="-1"' + ($(obj.el).prop('readonly') ? ' readonly="readonly"': '') + ($(obj.el).prop('disabled') ? ' disabled="disabled"': '') + ($(obj.el).attr('accept') ? ' accept="'+ $(obj.el).attr('accept') +'"': '') + '/>'+
                         '   </div>'+
                         '    <div style="position: absolute; padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">'+
                         '        <ul><li style="padding-left: 0px; padding-right: 0px" class="nomouse"></li></ul>'+
                         '    </div>'+
                         '</div>';
             }
-            // old bg and boder
+            // old bg and border
             var tmp = $(obj.el).data('tmp') || {};
             tmp['old-background-color'] = $(obj.el).css('background-color');
             tmp['old-border-color']     = $(obj.el).css('border-color');

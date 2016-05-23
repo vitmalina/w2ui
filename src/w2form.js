@@ -1264,7 +1264,6 @@
                 this.tmp_resize = function (event) { w2ui[obj.name].resize(); };
                 $(window).off('resize', 'body').on('resize', 'body', this.tmp_resize);
             }
-            setTimeout(function () { obj.resize(); obj.refresh(); }, 150); // need timer because resize is on timer
             // focus on load
             function focusEl() {
                 var inputs = $(obj.box).find('input, select, textarea');
