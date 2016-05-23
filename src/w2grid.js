@@ -115,6 +115,7 @@
 *   - added response.total = -1 (or not present) to indicate that number of records is unknown
 *   - message(.., callBack) - added callBack
 *   - grid.msgEmpty
+*   - field.render(..., data) -- added last argument which is what grid thinks should be there
 *
 ************************************************************************/
 
@@ -775,8 +776,7 @@
             // prepare paths and process sort
             preparePaths();
             this.records.sort(function (a, b) {
-                var ret = compareRecordPaths(a, b);
-                return ret;
+                return compareRecordPaths(a, b);
             });
             cleanupPaths();
 
@@ -810,43 +810,38 @@
 
             // compare two paths, from root of tree to given records
             function compareRecordPaths(a, b) {
-                if ((!a.w2ui || a.w2ui.parent_recid == null) &&
-                    (!b.w2ui || b.w2ui.parent_recid == null))
+                if ((!a.w2ui || a.w2ui.parent_recid == null) && (!b.w2ui || b.w2ui.parent_recid == null)) {
                     return compareRecords(a, b);    // no tree, fast path
+                }
                 var pa = getRecordPath(a);
                 var pb = getRecordPath(b);
                 for (var i = 0; i < Math.min(pa.length, pb.length); i++) {
                     var diff = compareRecords(pa[i], pb[i]);
-                    if (diff !== 0)
-                        return diff;                // different subpath
+                    if (diff !== 0) return diff;     // different subpath
                 }
-                if (pa.length > pb.length)
-                    return 1;
-                if (pa.length < pb.length)
-                    return -1;
+                if (pa.length > pb.length) return 1;
+                if (pa.length < pb.length) return -1;
                 console.log('ERROR: two paths should not be equal.');
                 return 0;
             }
 
             // return an array of all records from root to and including 'rec'
             function getRecordPath(rec) {
-                if (!rec.w2ui || rec.w2ui.parent_recid == null)
-                    return [ rec ];
+                if (!rec.w2ui || rec.w2ui.parent_recid == null) return [rec];
                 if (rec.w2ui._path)
                     return rec.w2ui._path;
                 // during actual sort, we should never reach this point
                 var subrec = obj.get(rec.w2ui.parent_recid);
                 if (!subrec) {
                     console.log('ERROR: no parent record: '+rec.w2ui.parent_recid);
-                    return [ rec ];
+                    return [rec];
                 }
                 return (getRecordPath(subrec).concat(rec));
             }
 
             // compare two records according to sortData and finally recid
             function compareRecords(a, b) {
-                if (a === b)
-                    return 0;   // optimize, same object
+                if (a === b) return 0; // optimize, same object
                 for (var i = 0; i < obj.sortData.length; i++) {
                     var fld = obj.sortData[i].field;
                     if (obj.sortData[i].field_) fld = obj.sortData[i].field_;
@@ -856,15 +851,18 @@
                         aa = obj.parseField(a, fld);
                         bb = obj.parseField(b, fld);
                     }
+                    var col = obj.getColumn(fld);
+                    if (col && col.editable != null) { // for drop editable fields and drop downs
+                        if ($.isPlainObject(aa) && aa.text) aa = aa.text;
+                        if ($.isPlainObject(bb) && bb.text) bb = bb.text;
+                    }
                     var ret = compareCells(aa, bb, i, obj.sortData[i].direction);
-                    if (ret !== 0)
-                        return ret;
+                    if (ret !== 0) return ret;
                 }
                 // break tie for similar records,
                 // required to have consistent ordering for tree paths
                 var ret = compareCells(a.recid, b.recid, -1, 'asc');
-                if (ret !== 0)
-                    return ret;
+                if (ret !== 0) return ret;
                 return 0;
             }
 
@@ -1971,7 +1969,7 @@
             }
             // event before
             var edata = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: searchData,
-                    searchField: (field ? field : 'multi'), searchValue: (value ? value : 'multi') });
+                    searchField: (field ? field : 'multi'), searchValue: (field ? value : 'multi') });
             if (edata.isCancelled === true) return;
             // default action
             this.searchData  = edata.searchData;
@@ -6146,7 +6144,7 @@
                             '            onclick="var grid = w2ui[\''+ obj.name +'\'];'+
                             '               if (this.checked) grid.selectAll(); else grid.selectNone();'+
                             '               if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;'+
-                            '                clearTimeout(grid.last.kbd_timer); jQuery(grid.box).find(\'#grid_'+ this.name + '_focus\').focus();/* keep focus */' +
+                            '               clearTimeout(grid.last.kbd_timer); jQuery(grid.box).find(\'#grid_'+ this.name + '_focus\').focus();/* keep focus */' +
                             '            "/>'+
                             '    </div>'+
                             '</td>';
@@ -6666,10 +6664,10 @@
                     (record.w2ui && record.w2ui.expanded === true ? ' w2ui-expanded' : '') + '" ' +
                 (summary !== true ?
                     (w2utils.isIOS ?
-                        '    onclick  = "w2ui[\''+ this.name +'\'].dblClick($(this).attr(\'recid\'), event);"'
+                        '    onclick  = "w2ui[\''+ this.name +'\'].dblClick(jQuery(this).attr(\'recid\'), event);"'
                         :
-                        '    onclick  = "w2ui[\''+ this.name +'\'].click($(this).attr(\'recid\'), event);"'+
-                        '    oncontextmenu = "w2ui[\''+ this.name +'\'].contextMenu($(this).attr(\'recid\'), null, event);"'
+                        '    onclick  = "w2ui[\''+ this.name +'\'].click(jQuery(this).attr(\'recid\'), event);"'+
+                        '    oncontextmenu = "w2ui[\''+ this.name +'\'].contextMenu(jQuery(this).attr(\'recid\'), null, event);"'
                      )
                     : ''
                 ) +
@@ -6718,10 +6716,10 @@
                             '    <div>'+
                             '        <input class="w2ui-grid-select-check" type="checkbox" tabindex="-1" '+ (isRowSelected ? 'checked="checked"' : '') +
                             '           onmousedown="if (event.stopPropagation) event.stopPropagation();"'+
-                            '           onclick="var grid = w2ui[\''+ this.name +'\'];'+
+                            '           onclick="var grid = w2ui[\''+ this.name +'\']; var isChecked = this.checked; '+
                             '                var recid = jQuery(this).parents(\'tr\').attr(\'recid\'); '+
                             '                if (!grid.multiSelect) { grid.selectNone(); }'+
-                            '                if (this.checked) grid.select(recid); else grid.unselect(recid);'+
+                            '                if (isChecked) grid.select(recid); else grid.unselect(recid);'+
                             '                clearTimeout(grid.last.kbd_timer); jQuery(grid.box).find(\'#grid_'+ this.name + '_focus\').focus(); /* keep focus */' +
                             '           "/>'+
                             '    </div>'
@@ -6863,7 +6861,7 @@
             // various renderers
             if (col.render != null) {
                 if (typeof col.render == 'function') {
-                    data = $.trim(col.render.call(this, record, ind, col_ind));
+                    data = $.trim(col.render.call(this, record, ind, col_ind, data));
                     if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') {
                         data = '<div style="'+ style +'">' + infoBubble + String(data) + '</div>';
                     }

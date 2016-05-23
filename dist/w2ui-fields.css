@@ -651,6 +651,7 @@ button.w2ui-btn:focus:before {
   bottom: 2px;
   left: 2px;
   right: 2px;
+  pointer-events: none;
 }
 button.w2ui-btn::-moz-focus-inner {
   border: 0;
