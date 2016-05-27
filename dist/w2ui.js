@@ -3087,8 +3087,8 @@ w2utils.event = {
 
         operators: { // for search fields
             "text"    : [['is'], ['begins'], ['contains'], ['ends']],
-            "number"  : [['is'], ['between'], ['less', 'less than'], ['more', 'more than']],
-            "date"    : [['is'], ['between'], ['less', 'before'], ['more', 'after']],
+            "number"  : [['between'], ['is'], ['less', 'less than'], ['more', 'more than']],
+            "date"    : [['between'], ['is'], ['less', 'before'], ['more', 'after']],
             "list"    : [['is']],
             "hex"     : [['is'], ['between']],
             "enum"    : [['in'], ['not in']]
@@ -3098,7 +3098,7 @@ w2utils.event = {
             // "list"    : ['is', 'null:is null', 'not null:is not null'],
             // "enum"    : ['in', 'not in', 'null:is null', 'not null:is not null']
         },
-        
+
         operatorsMap: {
             "text"         : "text",
             "int"          : "number",
@@ -3121,7 +3121,7 @@ w2utils.event = {
             "checkbox"     : "list",
             "toggle"       : "list"
         },
-        
+
         // events
         onAdd              : null,
         onEdit             : null,
@@ -3504,10 +3504,6 @@ w2utils.event = {
             obj.prepareData();
             if (!noReset) {
                 obj.reset();
-            } else {
-                // still reset vertical scroll
-                this.last.scrollTop   = 0;
-                $('#grid_'+ this.name +'_records').prop('scrollTop',  0);
             }
             // process sortData
             for (var i = 0; i < this.sortData.length; i++) {
@@ -5683,8 +5679,8 @@ w2utils.event = {
                     width   : 350,
                     height  : 170,
                     body    : '<div class="w2ui-centered">' + w2utils.lang(obj.msgDelete) + '</div>',
-                    buttons : '<button class="w2ui-btn w2ui-btn-red" onclick="w2ui[\''+ this.name +'\'].delete(true)"">Yes</button>'+
-                              '<button class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message()">No</button>',
+                    buttons : '<button class="w2ui-btn w2ui-btn-red" onclick="w2ui[\''+ this.name +'\'].delete(true)"">' + w2utils.lang('Yes') + '</button>'+
+                              '<button class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('No') + '</button>',
                     onOpen: function (event) {
                         var inputs = $(this.box).find('input, textarea, select, button');
                         inputs.off('.message')
@@ -6679,6 +6675,9 @@ w2utils.event = {
             if (!url) {
                 this.localSort(true, true);
                 if (this.searchData.length > 0) this.localSearch(true);
+                // reset vertical scroll
+                this.last.scrollTop = 0;
+                $('#grid_'+ this.name +'_records').prop('scrollTop',  0);
                 // event after
                 this.trigger($.extend(edata, { phase: 'after' }));
                 this.refresh();
@@ -7898,7 +7897,7 @@ w2utils.event = {
                     this.toolbar.items.push({ type: 'break', id: 'w2ui-break0' });
                 }
                 if (this.show.toolbarInput) {
-                    var html =
+                    var html = '';
                         '<div class="w2ui-toolbar-search">'+
                         '<table cellpadding="0" cellspacing="0"><tbody><tr>'+
                         '    <td>'+ this.buttons['search'].html +'</td>'+
@@ -8019,7 +8018,7 @@ w2utils.event = {
                 });
             } else {
                 var pos1, pos2;
-                var search = this.toolbar.get('w2ui-search');
+                var search = null;this.toolbar.get('w2ui-search');
                 if (search != null) {
                     var tmp = search.html;
                     pos1 = tmp.indexOf('placeholder="');
@@ -8497,17 +8496,13 @@ w2utils.event = {
 
         getSearchesHTML: function () {
             var obj  = this;
-            var html = '<table cellspacing="0" onclick="event.stopPropagation()"><tbody>';
+            var btn = '<div style="text-align: right; padding: 5px 9px 0px;"><i class="fa fa-times text-error" style="cursor: pointer" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) obj.searchClose()"></i></div>';
+            var html = btn + '<table cellspacing="0" onclick="event.stopPropagation()"><tbody>';
             var showBtn = false;
             for (var i = 0; i < this.searches.length; i++) {
                 var s = this.searches[i];
                 s.type = String(s.type).toLowerCase();
                 if (s.hidden) continue;
-                var btn = '';
-                if (showBtn == false) {
-                    btn = '<button class="w2ui-btn close-btn" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) obj.searchClose()">X</button>';
-                    showBtn = true;
-                }
                 if (s.inTag   == null) s.inTag  = '';
                 if (s.outTag  == null) s.outTag = '';
                 if (s.style   == null) s.style = '';
@@ -8520,9 +8515,8 @@ w2utils.event = {
                     '</select>';
 
                 html += '<tr>'+
-                        '    <td class="close-btn">'+ btn +'</td>' +
                         '    <td class="caption">'+ (s.caption || '') +'</td>' +
-                        '    <td class="operator">'+ operator +'</td>'+
+                        '    <td class="operator" style="display: none;">'+ operator +'</td>'+
                         '    <td class="value">';
 
                 switch (s.type) {
@@ -13797,7 +13791,7 @@ var w2prompt = function (label, title, callBack) {
                     if (nodes != null) {
                         this.add(parent.nodes[i], nodes);
                     }
-                    this.refresh(id);
+                    //this.refresh(id);
                     return true;
                 } else {
                     var rv = this.set(parent.nodes[i], id, node);
@@ -13980,6 +13974,7 @@ var w2prompt = function (label, title, callBack) {
         expand: function (id) {
             var obj = this;
             var nd  = this.get(id);
+            if (nd == null) return false;
             // event before
             var edata = this.trigger({ phase: 'before', type: 'expand', target: id, object: nd });
             if (edata.isCancelled === true) return;
@@ -14009,8 +14004,7 @@ var w2prompt = function (label, title, callBack) {
             if (node == null) return false;
             if (node.parent) {
                 if (!node.parent.expanded) {
-                    node.parent.expanded = true;
-                    this.refresh(node.parent.id);
+                    this.expand(node.parent.id);
                 }
                 this.expandParents(node.parent.id);
             }
@@ -15474,7 +15468,7 @@ var w2prompt = function (label, title, callBack) {
             }
             // file
             if (obj.type == 'file') {
-                $(obj.helpers.multi).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
+                //$(obj.helpers.multi).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
             }
         },
 
@@ -16758,7 +16752,7 @@ var w2prompt = function (label, title, callBack) {
                 })
                 .on('focus', function (event) {
                     pholder = $(obj.el).attr('placeholder');
-                    $(obj.el).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
+                    //$(obj.el).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
                     $(this).val('');
                     $(obj.el).triggerHandler('focus');
                     if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
@@ -16846,7 +16840,7 @@ var w2prompt = function (label, title, callBack) {
                         $(obj.el).triggerHandler('click');
                     })
                     .on('focus', function (event) {
-                        $(div).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
+                        //$(div).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
                         $(obj.el).triggerHandler('focus');
                         if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
                     })

@@ -223,7 +223,7 @@
                     if (nodes != null) {
                         this.add(parent.nodes[i], nodes);
                     }
-                    this.refresh(id);
+                    //this.refresh(id);
                     return true;
                 } else {
                     var rv = this.set(parent.nodes[i], id, node);
@@ -406,6 +406,7 @@
         expand: function (id) {
             var obj = this;
             var nd  = this.get(id);
+            if (nd == null) return false;
             // event before
             var edata = this.trigger({ phase: 'before', type: 'expand', target: id, object: nd });
             if (edata.isCancelled === true) return;
@@ -435,8 +436,7 @@
             if (node == null) return false;
             if (node.parent) {
                 if (!node.parent.expanded) {
-                    node.parent.expanded = true;
-                    this.refresh(node.parent.id);
+                    this.expand(node.parent.id);
                 }
                 this.expandParents(node.parent.id);
             }
