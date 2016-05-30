@@ -5550,7 +5550,7 @@
             frecords.css({ overflow: 'hidden', top: records.css('top') });
             if (this.show.emptyRecords && !bodyOverflowY) {
                 var max      = Math.floor(records.height() / this.recordHeight) - 1;
-                var leftover = records[0].scrollHeight - max * this.recordHeight;
+                if (records[0]) var leftover = records[0].scrollHeight - max * this.recordHeight;
                 if (leftover >= this.recordHeight) {
                     leftover -= this.recordHeight;
                     max++;
