@@ -116,6 +116,8 @@
 *   - message(.., callBack) - added callBack
 *   - grid.msgEmpty
 *   - field.render(..., data) -- added last argument which is what grid thinks should be there
+*   - col.editable can be a function which will be called with the same args as col.render()
+*   - getCellEditable(index, col_ind) -- return an 'editable' descriptor if cell is really editable
 *
 ************************************************************************/
 
@@ -2539,13 +2541,11 @@
         editField: function (recid, column, value, event) {
             var obj    = this;
             var index  = obj.get(recid, true);
+            var edit   = obj.getCellEditable(index, column);
+            if (!edit) return;
             var rec    = obj.records[index];
             var col    = obj.columns[column];
             var prefix = (col.frozen === true ? '_f' : '_');
-            var edit   = (rec && rec.w2ui ? rec.w2ui.editable : null);
-            if (edit == null || edit === true) edit = (col ? col.editable : null);
-            if (!rec || !col || !edit || (rec.w2ui && rec.w2ui.editable === false)) return;
-
             if (['enum', 'file'].indexOf(edit.type) != -1) {
                 console.log('ERROR: input types "enum" and "file" are not supported in inline editing.');
                 return;
@@ -2729,8 +2729,8 @@
                                             next_rec = obj.records[tmp].recid;
                                             // find first editable row
                                             for (var c = 0; c < obj.columns.length; c++) {
-                                                var tmp = obj.columns[c].editable;
-                                                if (tmp != null && ['checkbox', 'check'].indexOf(tmp.type) == -1) {
+                                                var edit = obj.getCellEditable(index, c);
+                                                if (edit != null && ['checkbox', 'check'].indexOf(edit.type) == -1) {
                                                     next_col = parseInt(c);
                                                     if (!event.shiftKey) break;
                                                 }
@@ -3269,7 +3269,8 @@
                         cancel = true;
                     } else { // or enter edit
                         for (var c = 0; c < this.columns.length; c++) {
-                            if (this.columns[c].editable) {
+                            var edit = this.getCellEditable(ind, c);
+                            if (edit) {
                                 columns.push(parseInt(c));
                                 break;
                             }
@@ -3684,14 +3685,15 @@
                 if (tmp.tagName.toUpperCase() != 'TD') tmp = $(tmp).parents('td')[0];
                 column = parseInt($(tmp).attr('col'));
             }
-            var rec = this.get(recid);
+            var index = this.get(recid, true);
+            var rec = this.records[index];
             // event before
             var edata = this.trigger({ phase: 'before', target: this.name, type: 'dblClick', recid: recid, column: column, originalEvent: event });
             if (edata.isCancelled === true) return;
             // default action
             this.selectNone();
-            var col = this.columns[column];
-            if (col && $.isPlainObject(col.editable)) {
+            var edit = this.getCellEditable(index, column);
+            if (edit) {
                 this.editField(recid, column, null, event);
             } else {
                 this.select({ recid: recid, column: column });
@@ -6819,7 +6821,7 @@
             if (col == null) return '';
             var record        = (summary !== true ? this.records[ind] : this.summary[ind]);
             var data          = this.getCellValue(ind, col_ind, summary);
-            var edit          = col.editable;
+            var edit          = this.getCellEditable(ind, col_ind);
             var style         = 'max-height: '+ parseInt(this.recordHeight) +'px;';
             var isChanged     = !summary && record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null;
             var addStyle      = '';
@@ -7020,6 +7022,24 @@
             }, info.options || {}));
         },
 
+        // return null or the editable object if the given cell is editable
+        getCellEditable: function (ind, col_ind) {
+            var col = this.columns[col_ind];
+            var rec = this.records[ind];
+            if (!rec || !col) return null;
+            var edit = (rec.w2ui ? rec.w2ui.editable : null);
+            if (edit == false) return null;
+            if (edit == null || edit === true) {
+                edit = (col ? col.editable : null);
+                if (typeof(edit) === 'function') {
+                    var data = this.getCellValue(ind, col_ind, false);
+                    // same arguments as col.render()
+                    edit = edit.call(this, rec, ind, col_ind, data);
+                }
+            }
+            return edit;
+        },
+
         getCellValue: function (ind, col_ind, summary) {
             var col    = this.columns[col_ind];
             var record = (summary !== true ? this.records[ind] : this.summary[ind]);
@@ -7027,7 +7047,7 @@
             if (record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null) {
                 data = record.w2ui.changes[col.field];
             }
-            if ($.isPlainObject(data) && col.editable && col.editable.type == 'list') {
+            if ($.isPlainObject(data) && col.editable) {
                 if (data.text != null) data = data.text;
                 if (data.id != null) data = data.id;
             }
@@ -7284,17 +7304,19 @@
 
         nextCell: function (index, col_ind, editable) {
             var check = col_ind + 1;
-            if (this.columns.length == check) return null;
+            if (check >= this.columns.length) return null;
             var tmp  = this.records[index].w2ui;
             var ccol = this.columns[col_ind];
             // if (tmp && tmp.colspan[ccol.field]) check += parseInt(tmp.colspan[ccol.field]) -1; // colspan of a column
             var col  = this.columns[check];
             var span = (tmp && tmp.colspan && !isNaN(tmp.colspan[col.field]) ? parseInt(tmp.colspan[col.field]) : 1);
-            var edit = col ? col.editable : null;
             if (col == null) return null;
-            if (col && col.hidden || span === 0
-                    || (editable == true && (edit == null ||  ['checkbox', 'check'].indexOf(edit.type) != -1))) {
-                return this.nextCell(index, check, editable);
+            if (col && col.hidden || span === 0) return this.nextCell(index, check, editable);
+            if (editable) {
+                var edit = this.getCellEditable(index, col_ind);
+                if (edit == null || ['checkbox', 'check'].indexOf(edit.type) != -1) {
+                    return this.nextCell(index, check, editable);
+                }
             }
             return check;
         },
@@ -7305,11 +7327,13 @@
             var tmp  = this.records[index].w2ui;
             var col  = this.columns[check];
             var span = (tmp && tmp.colspan && !isNaN(tmp.colspan[col.field]) ? parseInt(tmp.colspan[col.field]) : 1);
-            var edit = col ? col.editable : null;
             if (col == null) return null;
-            if (col && col.hidden || span === 0
-                    || (editable == true && (edit == null ||  ['checkbox', 'check'].indexOf(edit.type) != -1))) {
-                return this.prevCell(index, check, editable);
+            if (col && col.hidden || span === 0) return this.prevCell(index, check, editable);
+            if (editable) {
+                var edit = this.getCellEditable(index, col_ind);
+                if (edit == null || ['checkbox', 'check'].indexOf(edit.type) != -1) {
+                    return this.prevCell(index, check, editable);
+                }
             }
             return check;
         },
