@@ -7028,7 +7028,7 @@
             var rec = this.records[ind];
             if (!rec || !col) return null;
             var edit = (rec.w2ui ? rec.w2ui.editable : null);
-            if (edit == false) return null;
+            if (edit === false) return null;
             if (edit == null || edit === true) {
                 edit = (col ? col.editable : null);
                 if (typeof(edit) === 'function') {
