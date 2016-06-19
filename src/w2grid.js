@@ -116,6 +116,8 @@
 *   - message(.., callBack) - added callBack
 *   - grid.msgEmpty
 *   - field.render(..., data) -- added last argument which is what grid thinks should be there
+*   - onSearchOpen (onSearch will have mutli and reset flags)
+*   - added httpHeaders
 *
 ************************************************************************/
 
@@ -136,6 +138,7 @@
         this.searchData   = [];
         this.sortData     = [];
         this.postData     = {};
+        this.httpHeaders  = {};
         this.toolbar      = {};       // if not empty object; then it is toolbar object
 
         this.show = {
@@ -244,10 +247,11 @@
             var searchData   = method.searchData;
             var sortData     = method.sortData;
             var postData     = method.postData;
+            var httpHeaders  = method.httpHeaders;
             var toolbar      = method.toolbar;
             // extend items
             var object = new w2grid(method);
-            $.extend(object, { postData: {}, records: [], columns: [], searches: [], toolbar: {}, sortData: [], searchData: [], handlers: [] });
+            $.extend(object, { postData: {}, httpHeaders: {}, records: [], columns: [], searches: [], toolbar: {}, sortData: [], searchData: [], handlers: [] });
             if (object.onExpand != null) object.show.expandColumn = true;
             $.extend(true, object.toolbar, toolbar);
             // reassign variables
@@ -258,6 +262,7 @@
             if (searchData)   for (p = 0; p < searchData.length; p++)   object.searchData[p]    = $.extend(true, {}, searchData[p]);
             if (sortData)     for (p = 0; p < sortData.length; p++)     object.sortData[p]      = $.extend(true, {}, sortData[p]);
             object.postData = $.extend(true, {}, postData);
+            object.httpHeaders = $.extend(true, {}, httpHeaders);
 
             // check if there are records without recid
             if (records) for (var r = 0; r < records.length; r++) {
@@ -382,6 +387,7 @@
         onColumnResize     : null,
         onSort             : null,
         onSearch           : null,
+        onSearchOpen       : null,
         onChange           : null,        // called when editable record is changed
         onRestore          : null,        // called when editable record is restored
         onExpand           : null,
@@ -1968,7 +1974,7 @@
                 }
             }
             // event before
-            var edata = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: searchData,
+            var edata = this.trigger({ phase: 'before', type: 'search', multi: (arguments.length === 0 ? true : false), target: this.name, searchData: searchData,
                     searchField: (field ? field : 'multi'), searchValue: (field ? value : 'multi') });
             if (edata.isCancelled === true) return;
             // default action
@@ -2000,6 +2006,12 @@
             if (!this.box) return;
             if (this.searches.length === 0) return;
             var obj = this;
+            // event before
+            var edata = this.trigger({ phase: 'before', type: 'searchOpen', target: this.name });
+            if (edata.isCancelled === true) {
+                setTimeout(function () { obj.toolbar.uncheck('w2ui-search-advanced'); }, 1);
+                return;
+            }
             // show search
             $('#tb_'+ this.name +'_toolbar_item_w2ui-search-advanced').w2overlay({
                 html    : this.getSearchesHTML(),
@@ -2011,11 +2023,14 @@
                     $('#w2ui-overlay-'+ obj.name +'-searchOverlay .w2ui-grid-searches').data('grid-name', obj.name);
                     var sfields = $('#w2ui-overlay-'+ this.name +'-searchOverlay .w2ui-grid-searches *[rel=search]');
                     if (sfields.length > 0) sfields[0].focus();
+                    // event after
+                    obj.trigger($.extend(edata, { phase: 'after' }));
                 }
             });
         },
 
         searchClose: function () {
+            var obj = this;
             if (!this.box) return;
             if (this.searches.length === 0) return;
             if (this.toolbar) this.toolbar.uncheck('w2ui-search-advanced');
@@ -2039,7 +2054,7 @@
                 hasHiddenSearches = true;
             }
             // event before
-            var edata = this.trigger({ phase: 'before', type: 'search', target: this.name, searchData: searchData });
+            var edata = this.trigger({ phase: 'before', type: 'search', reset: true, target: this.name, searchData: searchData });
             if (edata.isCancelled === true) return;
             // default action
             this.searchData  = edata.searchData;
@@ -2235,10 +2250,10 @@
             $.extend(params, add_params);
             // event before
             if (cmd == 'get') {
-                var edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params });
+                var edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params, httpHeaders: this.httpHeaders });
                 if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
             } else {
-                var edata = { url: url, postData: params };
+                var edata = { url: url, postData: params, httpHeaders: httpHeaders };
             }
             // call server to get data
             var obj = this;
@@ -2272,6 +2287,7 @@
                 type     : 'POST',
                 url      : url,
                 data     : edata.postData,
+                headers  : edata.httpHeaders,
                 dataType : 'text'  // expected data type from server
             };
            if (w2utils.settings.dataType == 'HTTP') {
@@ -3079,8 +3095,11 @@
             } else {
                 var last = this.last.selection;
                 var flag = (last.indexes.indexOf(ind) != -1 ? true : false);
+                var fselect = false;
+                // if clicked on the checkbox
+                if ($(event.target).parents('td').hasClass('w2ui-col-select')) fselect = true;
                 // clear other if necessary
-                if (((!event.ctrlKey && !event.shiftKey && !event.metaKey) || !this.multiSelect) && !this.showSelectColumn) {
+                if (((!event.ctrlKey && !event.shiftKey && !event.metaKey && !fselect) || !this.multiSelect) && !this.showSelectColumn) {
                     if (this.selectType != 'row' && $.inArray(column, last.columns[ind]) == -1) flag = false;
                     if (sel.length > 300) this.selectNone(); else this.unselect.apply(this, sel);
                     if (flag === true && sel.length == 1) {
@@ -4199,10 +4218,11 @@
                     var tr2 = $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
                     tr1.attr('custom_style', st);
                     tr2.attr('custom_style', st);
-                    if (!tr1.hasClass('w2ui-selected')) {
-                        tr1[0].style.cssText = 'height: '+ this.recordHeight + 'px;' + st;
-                        tr2[0].style.cssText = 'height: '+ this.recordHeight + 'px;' +st;
+                    if (tr1.hasClass('w2ui-selected')) {
+                        st = st.replace('background-color', 'none');
                     }
+                    tr1[0].style.cssText = 'height: '+ this.recordHeight + 'px;' + st;
+                    tr2[0].style.cssText = 'height: '+ this.recordHeight + 'px;' + st;
                 }
                 if (isSummary) {
                     this.resize();
@@ -4505,8 +4525,7 @@
                     obj.selectNone();
                     obj.last.move = { type: 'text-select' };
                     obj.last.userSelect = 'text';
-                }
-                else if (obj.multiSelect || obj.reorderRows) {
+                } else if (obj.multiSelect || obj.reorderRows) {
                     var tmp = event.target;
                     var pos = {
                         x: event.offsetX - 10,
@@ -4539,21 +4558,32 @@
                     if (obj.last.move.recid == null) obj.last.move.type = 'select-column';
                     // set focus to grid
                     var target = event.target;
-                    setTimeout(function () {
-                        var $input = $(obj.box).find('#grid_'+ obj.name + '_focus');
-                        if (!$input.is(':focus')) $input.focus(); // keep focus
-                        // move input next to cursor so screen does not jump
-                        if (obj.last.move) {
-                            $input.css({
-                                left: obj.last.move.focusX - $(obj.box).find('#grid_'+ obj.name +'_records').scrollLeft(),
-                                top : obj.last.move.focusY - $(obj.box).find('#grid_'+ obj.name +'_records').scrollTop()
-                            });
+                    var $input = $(obj.box).find('#grid_'+ obj.name + '_focus');
+                    // move input next to cursor so screen does not jump
+                    if (obj.last.move) {
+                        var sLeft = obj.last.move.focusX;
+                        var sTop  = obj.last.move.focusY;
+                        var $owner = $(target).parents('table').parent();
+                        if ($owner.hasClass('w2ui-grid-records') || $owner.hasClass('w2ui-grid-frecords')) {
+                            sLeft = obj.last.move.focusX - $(obj.box).find('#grid_'+ obj.name +'_records').scrollLeft();
+                            sTop  = obj.last.move.focusY - $(obj.box).find('#grid_'+ obj.name +'_records').scrollTop();
                         }
-                        // if toolbar input is clicked
-                        setTimeout(function () {
-                            if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(target.tagName.toUpperCase()) != -1) $(target).focus();
-                        }, 50);
-                    }, 1);
+                        if ($(target).hasClass('w2ui-grid-footer') || $(target).parents('div.w2ui-grid-footer').length > 0) {
+                            sTop = $(obj.box).find('#grid_'+ obj.name +'_footer').position().top;
+                        }
+                        $input.css({
+                            left: sLeft + 20,
+                            top : sTop
+                        });
+                    }
+                    // if toolbar input is clicked
+                    setTimeout(function () {
+                        if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(target.tagName.toUpperCase()) != -1) {
+                            $(target).focus();
+                        } else {
+                            if (!$input.is(':focus')) $input.focus();
+                        }
+                    }, 50);
                 }
                 if (obj.reorderRows == true) {
                     var el = event.target;
@@ -6154,7 +6184,7 @@
                             '            onclick="var grid = w2ui[\''+ obj.name +'\'];'+
                             '               if (this.checked) grid.selectAll(); else grid.selectNone();'+
                             '               if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;'+
-                            '               clearTimeout(grid.last.kbd_timer); jQuery(grid.box).find(\'#grid_'+ this.name + '_focus\').focus();/* keep focus */' +
+                            '               clearTimeout(grid.last.kbd_timer); /* keep focus */' +
                             '            "/>'+
                             '    </div>'+
                             '</td>';
@@ -6686,7 +6716,7 @@
                     ' onmouseout ="jQuery(\'#grid_'+ this.name +'_rec_\'+ w2utils.escapeId(jQuery(this).attr(\'recid\'))).removeClass(\'w2ui-record-hover\')"'
                     :
                     '') +
-                ' style="height: '+ this.recordHeight +'px; '+ (!isRowSelected && rec_style != '' ? rec_style : '') +'" '+
+                ' style="height: '+ this.recordHeight +'px; '+ (!isRowSelected && rec_style != '' ? rec_style : rec_style.replace('background-color', 'none')) +'" '+
                     (rec_style != '' ? 'custom_style="'+ rec_style +'"' : '') +
                 '>';
             rec_html2 += '<tr id="grid_'+ this.name +'_rec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" index="'+ ind +'" '+
@@ -6708,7 +6738,7 @@
                     ' onmouseout ="jQuery(\'#grid_'+ this.name +'_frec_\' + w2utils.escapeId(jQuery(this).attr(\'recid\'))).removeClass(\'w2ui-record-hover\')"'
                     :
                     '') +
-                ' style="height: '+ this.recordHeight +'px; '+ (!isRowSelected && rec_style != '' ? rec_style : '') +'" '+
+                ' style="height: '+ this.recordHeight +'px; '+ (!isRowSelected && rec_style != '' ? rec_style : rec_style.replace('background-color', 'none')) +'" '+
                     (rec_style != '' ? 'custom_style="'+ rec_style +'"' : '') +
                 '>';
             if (this.show.lineNumbers) {
@@ -6720,18 +6750,11 @@
             }
             if (this.show.selectColumn) {
                 rec_html1 +=
-                        '<td id="grid_'+ this.name +'_cell_'+ ind +'_select' + (summary ? '_s' : '') + '" class="w2ui-grid-data w2ui-col-select" '+
-                        '        onclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
+                        '<td id="grid_'+ this.name +'_cell_'+ ind +'_select' + (summary ? '_s' : '') + '" class="w2ui-grid-data w2ui-col-select">'+
                             (summary !== true ?
                             '    <div>'+
-                            '        <input class="w2ui-grid-select-check" type="checkbox" tabindex="-1" '+ (isRowSelected ? 'checked="checked"' : '') +
-                            '           onmousedown="if (event.stopPropagation) event.stopPropagation();"'+
-                            '           onclick="var grid = w2ui[\''+ this.name +'\']; var isChecked = this.checked; '+
-                            '                var recid = jQuery(this).parents(\'tr\').attr(\'recid\'); '+
-                            '                if (!grid.multiSelect) { grid.selectNone(); }'+
-                            '                if (isChecked) grid.select(recid); else grid.unselect(recid);'+
-                            '                clearTimeout(grid.last.kbd_timer); jQuery(grid.box).find(\'#grid_'+ this.name + '_focus\').focus(); /* keep focus */' +
-                            '           "/>'+
+                            '        <input class="w2ui-grid-select-check" type="checkbox" tabindex="-1" '+
+                                        (isRowSelected ? 'checked="checked"' : '') + ' style="pointer-events: none"/>'+
                             '    </div>'
                             :
                             '' ) +

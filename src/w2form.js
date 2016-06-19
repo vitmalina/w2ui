@@ -27,6 +27,7 @@
 *   - form.message
 *   - added field.html.column
 *   - added field types html, empty, custom
+*   - httpHeaders
 *
 ************************************************************************/
 
@@ -34,25 +35,25 @@
 (function ($) {
     var w2form = function(options) {
         // public properties
-        this.name      = null;
-        this.header    = '';
-        this.box       = null;     // HTML element that hold this element
-        this.url       = '';
-        this.routeData = {};       // data for dynamic routes
-        this.formURL   = '';       // url where to get form HTML
-        this.formHTML  = '';       // form HTML (might be loaded from the url)
-        this.page      = 0;        // current page
-        this.recid     = 0;        // can be null or 0
-        this.fields    = [];
-        this.actions   = {};
-        this.record    = {};
-        this.original  = {};
-        this.postData  = {};
-        this.toolbar   = {};       // if not empty, then it is toolbar
-        this.tabs      = {};       // if not empty, then it is tabs object
-
-        this.style         = '';
-        this.focus         = 0;    // focus first or other element
+        this.name        = null;
+        this.header      = '';
+        this.box         = null;     // HTML element that hold this element
+        this.url         = '';
+        this.routeData   = {};       // data for dynamic routes
+        this.formURL     = '';       // url where to get form HTML
+        this.formHTML    = '';       // form HTML (might be loaded from the url)
+        this.page        = 0;        // current page
+        this.recid       = 0;        // can be null or 0
+        this.fields      = [];
+        this.actions     = {};
+        this.record      = {};
+        this.original    = {};
+        this.postData    = {};
+        this.httpHeaders = {};
+        this.toolbar     = {};       // if not empty, then it is toolbar
+        this.tabs        = {};       // if not empty, then it is tabs object
+        this.style       = '';
+        this.focus       = 0;        // focus first or other element
 
         // internal
         this.isGenerated = false;
@@ -439,7 +440,7 @@
             $.extend(params, this.postData);
             $.extend(params, postData);
             // event before
-            var edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: this.url, postData: params });
+            var edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: this.url, postData: params, httpHeaders: this.httpHeaders });
             if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
             // default action
             this.record   = {};
@@ -463,27 +464,30 @@
                 type     : 'POST',
                 url      : url,
                 data     : edata.postData,
+                headers  : edata.httpHeaders,
                 dataType : 'text'   // expected from server
-            };
-            if (w2utils.settings.dataType == 'HTTP') {
-                ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
             }
-            if (w2utils.settings.dataType == 'HTTPJSON') {
-                ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
-            }
-            if (w2utils.settings.dataType == 'RESTFULL') {
-                ajaxOptions.type = 'GET';
-                ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
-            }
-            if (w2utils.settings.dataType == 'RESTFULLJSON') {
-                ajaxOptions.type = 'GET';
-                ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
-                ajaxOptions.contentType = 'application/json';
-            }
-            if (w2utils.settings.dataType == 'JSON') {
-                ajaxOptions.type        = 'POST';
-                ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
-                ajaxOptions.contentType = 'application/json';
+            switch (w2utils.settings.dataType) {
+                case 'HTTP':
+                    ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+                    break
+                case 'HTTPJSON':
+                    ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
+                    break;
+                case 'RESTFULL':
+                    ajaxOptions.type = 'GET';
+                    ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+                    break;
+                case 'RESTFULLJSON':
+                    ajaxOptions.type = 'GET';
+                    ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                    ajaxOptions.contentType = 'application/json';
+                    break;
+                case 'JSON':
+                    ajaxOptions.type        = 'POST';
+                    ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                    ajaxOptions.contentType = 'application/json';
+                    break;
             }
             this.last.xhr = $.ajax(ajaxOptions)
                 .done(function (data, status, xhr) {
@@ -601,7 +605,7 @@
                 });
                 params.record = $.extend(true, {}, obj.record);
                 // event before
-                var edata = obj.trigger({ phase: 'before', type: 'submit', target: obj.name, url: obj.url, postData: params });
+                var edata = obj.trigger({ phase: 'before', type: 'submit', target: obj.name, url: obj.url, postData: params, httpHeaders: obj.httpHeaders });
                 if (edata.isCancelled === true) return;
                 // default action
                 var url = edata.url;
@@ -621,6 +625,7 @@
                     type     : 'POST',
                     url      : url,
                     data     : edata.postData,
+                    headers  : edata.httpHeaders,
                     dataType : 'text',   // expected from server
                     xhr : function() {
                         var xhr = new window.XMLHttpRequest();
@@ -639,27 +644,28 @@
                         return xhr;
                     }
                 };
-                if (w2utils.settings.dataType == 'HTTP') {
-                    ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+                switch (w2utils.settings.dataType) {
+                    case 'HTTP':
+                        ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+                        break;
+                    case 'HTTPJSON':
+                        ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
+                        break;
+                    case 'RESTFULL':
+                        if (obj.recid !== 0 && obj.recid != null) ajaxOptions.type = 'PUT';
+                        ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+                        break;
+                    case 'RESTFULLJSON':
+                        if (obj.recid !== 0 && obj.recid != null) ajaxOptions.type = 'PUT';
+                        ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                        ajaxOptions.contentType = 'application/json';
+                        break;
+                    case 'JSON':
+                        ajaxOptions.type        = 'POST';
+                        ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                        ajaxOptions.contentType = 'application/json';
+                        break;
                 }
-                if (w2utils.settings.dataType == 'HTTPJSON') {
-                    ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
-                }
-                if (w2utils.settings.dataType == 'RESTFULL') {
-                    if (obj.recid !== 0 && obj.recid != null) ajaxOptions.type = 'PUT';
-                    ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
-                }
-                if (w2utils.settings.dataType == 'RESTFULLJSON') {
-                    if (obj.recid !== 0 && obj.recid != null) ajaxOptions.type = 'PUT';
-                    ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
-                    ajaxOptions.contentType = 'application/json';
-                }
-                if (w2utils.settings.dataType == 'JSON') {
-                    ajaxOptions.type        = 'POST';
-                    ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
-                    ajaxOptions.contentType = 'application/json';
-                }
-
                 obj.last.xhr = $.ajax(ajaxOptions)
                     .done(function (data, status, xhr) {
                         obj.unlock();
