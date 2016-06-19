@@ -1601,14 +1601,17 @@ var w2utils = (function ($) {
         }
         if (el == null) return;
         if (pos > el.length) pos = el.length;
-        range.setStart(el, pos);
-        if (posEnd) {
-            range.setEnd(el, posEnd);
-        } else {
-            range.collapse(true);
+        try { // sometimes range becomes not in document
+            range.setStart(el, pos);
+            if (posEnd) {
+                range.setEnd(el, posEnd);
+            } else {
+                range.collapse(true);
+            }
+            sel.removeAllRanges();
+            sel.addRange(range);
+        } catch (e) {
         }
-        sel.removeAllRanges();
-        sel.addRange(range);
     }
 
 })(jQuery);
