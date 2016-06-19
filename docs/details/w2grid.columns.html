@@ -44,7 +44,9 @@ column = {
     style          : '',     // additional style for the td tag
     render         : null,   // string or render function
     title          : null,   // string or function for the title property for the column cells
-    editable       : {}      // editable object if column fields are editable
+    editable       : {},     // editable object if column fields are editable
+    frozen         : false,  // indicates if the column is fixed to the left
+    info           : null    // info bubble, can be bool/object
 }
 </textarea>
 
@@ -120,7 +122,7 @@ editable = {
 }
 </textarea>
 With this object you can supply other properties that will be passed to <span class="property">$('input').w2field(column.editable)</span> so you can
-use any field type supported by <span class="property">w2field</span> object.The type of the filed can be one of the following:
+use any field type supported by <span class="property">w2field</span> object. The type of the field can be one of the following:
 <ul>
     <li>text</li>
     <li>int</li>
@@ -132,6 +134,7 @@ use any field type supported by <span class="property">w2field</span> object.The
     <li>alphanumeric</li>
     <li>date</li>
     <li>time</li>
+    <li>datetime</li>
     <li>color</li>
     <li>list</li>
     <li>combo</li>
