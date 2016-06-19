@@ -29,7 +29,7 @@ $(function () {
             toolbar: true,
             footer: true,
             header: true,
-            emptyRecords: true,
+            emptyRecords: false,
             selectColumn: true,
             expandColumn: false,
             columnHeaders: true,
@@ -41,7 +41,11 @@ $(function () {
         // selectType: 'cell',
         columns: [                
             { field: 'recid', caption: 'ID', size: '80px', sortable: true, searchable: 'int', frozen: true },
-            { field: 'int', caption: 'int', size: '80px', sortable: true, resizable: true, editable: { type: 'int', min: 0, max: 100 } },
+            { field: 'int', caption: 'int', size: '80px', sortable: true, resizable: true,
+              editable: function (record, index, col_index, data) {
+                  // only odd 'recid' records are editable
+                  if (record.recid % 2) return { type: 'int', min: 0, max: 100 };
+              } },
             { field: 'money', caption: 'money', size: '80px', sortable: true, resizable: true, editable: { type: 'money' }, render: 'money' },
             { field: 'percent', caption: 'percent', size: '80px', sortable: true, resizable: true, editable: { type: 'percent' }, render: 'percent' },
             { field: 'hex', caption: 'hex', size: '80px', sortable: true, resizable: true, editable: { type: 'hex' } },
@@ -62,7 +66,11 @@ $(function () {
                     return html;
                 }
             },
-            { field: 'check', caption: 'check', size: '40px', sortable: true, resizable: true, editable: { type: 'checkbox' } }
+            { field: 'check', caption: 'check', size: '40px', sortable: true, resizable: true,
+                editable: function (record, index, col_index, data) {
+                  // only odd 'recid' records are editable
+                  if (record.recid % 2) return { type: 'checkbox' }
+               } },
             // { field: 'enum', caption: 'enum', size: '380px', sortable: true, resizable: true, editable: { type: 'enum', items: people } },
             // { field: 'file', caption: 'file', size: '80px', sortable: true, resizable: true, editable: { type: 'file' } },
             // { field: 'radio', caption: 'radio', size: '80px', sortable: true, resizable: true, editable: { type: 'radio' } },
