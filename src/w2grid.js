@@ -5549,30 +5549,40 @@
             }
             frecords.css({ overflow: 'hidden', top: records.css('top') });
             if (this.show.emptyRecords && !bodyOverflowY) {
-                var max = Math.floor(records.height() / this.recordHeight) + 1;
-                if (this.fixedBody) {
-                    for (var di = buffered; di <= max; di++) {
-                        var html1 = '';
-                        var html2 = '';
-                        var htmlp = '';
-                        html1 += '<tr class="'+ (di % 2 ? 'w2ui-even' : 'w2ui-odd') + ' w2ui-empty-record" style="height: '+ this.recordHeight +'px">';
-                        html2 += '<tr class="'+ (di % 2 ? 'w2ui-even' : 'w2ui-odd') + ' w2ui-empty-record" style="height: '+ this.recordHeight +'px">';
-                        if (this.show.lineNumbers)  html1 += '<td class="w2ui-col-number"></td>';
-                        if (this.show.selectColumn) html1 += '<td class="w2ui-grid-data w2ui-col-select"></td>';
-                        if (this.show.expandColumn) html1 += '<td class="w2ui-grid-data w2ui-col-expand"></td>';
-                        html2 += '<td class="w2ui-grid-data-spacer" col="start" style="border-right: 0"></td>';
-                        for (var j = 0; j < this.columns.length; j++) {
-                            var col = this.columns[j];
-                            if ((col.hidden || j < this.last.colStart || j > this.last.colEnd) && !col.frozen) continue;
-                            htmlp = '<td class="w2ui-grid-data" '+ (col.attr != null ? col.attr : '') +' col="'+ j +'"></td>';
-                            if (col.frozen) html1 += htmlp; else html2 += htmlp;
-                        }
-                        html1 += '<td class="w2ui-grid-data-last"></td> </tr>';
-                        html2 += '<td class="w2ui-grid-data-last" col="end"></td> </tr>';
-                        $('#grid_'+ this.name +'_frecords > table').append(html1);
-                        $('#grid_'+ this.name +'_records > table').append(html2);
-                    }
+                var max      = Math.floor(records.height() / this.recordHeight) - 1;
+                var leftover = records[0].scrollHeight - max * this.recordHeight;
+                if (leftover >= this.recordHeight) {
+                    leftover -= this.recordHeight;
+                    max++;
                 }
+                if (this.fixedBody) {
+                    for (var di = buffered; di < max; di++) {
+                        addEmptyRow(di, this.recordHeight, this);
+                    }
+                    addEmptyRow(max, leftover, this);
+                }
+            }
+
+            function addEmptyRow(row, height, grid) {
+                var html1 = '';
+                var html2 = '';
+                var htmlp = '';
+                html1 += '<tr class="'+ (row % 2 ? 'w2ui-even' : 'w2ui-odd') + ' w2ui-empty-record" style="height: '+ height +'px">';
+                html2 += '<tr class="'+ (row % 2 ? 'w2ui-even' : 'w2ui-odd') + ' w2ui-empty-record" style="height: '+ height +'px">';
+                if (grid.show.lineNumbers)  html1 += '<td class="w2ui-col-number"></td>';
+                if (grid.show.selectColumn) html1 += '<td class="w2ui-grid-data w2ui-col-select"></td>';
+                if (grid.show.expandColumn) html1 += '<td class="w2ui-grid-data w2ui-col-expand"></td>';
+                html2 += '<td class="w2ui-grid-data-spacer" col="start" style="border-right: 0"></td>';
+                for (var j = 0; j < grid.columns.length; j++) {
+                    var col = grid.columns[j];
+                    if ((col.hidden || j < grid.last.colStart || j > grid.last.colEnd) && !col.frozen) continue;
+                    htmlp = '<td class="w2ui-grid-data" '+ (col.attr != null ? col.attr : '') +' col="'+ j +'"></td>';
+                    if (col.frozen) html1 += htmlp; else html2 += htmlp;
+                }
+                html1 += '<td class="w2ui-grid-data-last"></td> </tr>';
+                html2 += '<td class="w2ui-grid-data-last" col="end"></td> </tr>';
+                $('#grid_'+ grid.name +'_frecords > table').append(html1);
+                $('#grid_'+ grid.name +'_records > table').append(html2);
             }
             if (body.length > 0) {
                 var width_max = parseInt(body.width())
