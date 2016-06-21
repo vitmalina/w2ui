@@ -16,7 +16,7 @@ import com.w2ui.servlets.W2uiGridData;
  * Recorda are stored in a database but only into an array in memory; you should
  * adjust (or rewrite) functions to interact with your favorite DBMS (Postgres, MySql, etc.)
  * 
- * Code of this class is not optimized and does not wanto to be: it is intended only as example
+ * Code of this class is not optimized and does not want to be: it is intended only as example
  */
 public class W2uiGridExample extends W2uiGridData implements Servlet {
 	private static final long serialVersionUID = 7163093252884618719L;
