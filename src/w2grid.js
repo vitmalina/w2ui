@@ -142,6 +142,7 @@
         this.postData     = {};
         this.httpHeaders  = {};
         this.toolbar      = {};       // if not empty object; then it is toolbar object
+        this.stateId      = null;     // Custom state name for satateSave, stateRestore and stateReset
 
         this.show = {
             header          : false,
@@ -7172,7 +7173,7 @@
                     var savedState = $.parseJSON(localStorage.w2ui || '{}');
                     if (!savedState) savedState = {};
                     if (!savedState.states) savedState.states = {};
-                    savedState.states[this.name] = state;
+                    savedState.states[(this.stateId || this.name)] = state;
                     localStorage.w2ui = JSON.stringify(savedState);
                 } catch (e) {
                     delete localStorage.w2ui;
@@ -7194,7 +7195,7 @@
                     var tmp = $.parseJSON(localStorage.w2ui || '{}');
                     if (!tmp) tmp = {};
                     if (!tmp.states) tmp.states = {};
-                    newState = tmp.states[this.name];
+                    newState = tmp.states[(this.stateId || this.name)];
                 } catch (e) {
                     delete localStorage.w2ui;
                     return null;
@@ -7247,8 +7248,8 @@
             if (localStorage) {
                 try {
                     var tmp = $.parseJSON(localStorage.w2ui || '{}');
-                    if (tmp.states && tmp.states[this.name]) {
-                        delete tmp.states[this.name];
+                    if (tmp.states && tmp.states[(this.stateId || this.name)]) {
+                        delete tmp.states[(this.stateId || this.name)];
                     }
                     localStorage.w2ui = JSON.stringify(tmp);
                 } catch (e) {
