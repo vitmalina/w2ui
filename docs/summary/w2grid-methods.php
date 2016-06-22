@@ -133,6 +133,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.getCellValue">getCellValue</a> <span>- getCellValue(index, column_index, [summary])</span>
+</div>
+<div class="obj-property-desc">
+    Returns parse value for the cell.
+</div>
+
+<div class="obj-property">
     <a href="w2grid.getChanges">getChanges</a> <span>- getChanges()</span>
 </div>
 <div class="obj-property-desc">
@@ -339,14 +346,14 @@
     <a href="w2grid.parseField">parseField</a> <span>- parseField(obj, field)</span>
 </div>
 <div class="obj-property-desc">
-    Paste tab-delimmited text into the grid.
+    Paste tab-delimited text into the grid.
 </div>
 
 <div class="obj-property">
     <a href="w2grid.paste">paste</a> <span>- paste(text)</span>
 </div>
 <div class="obj-property-desc">
-    Paste tab-delimmited text into the grid.
+    Paste tab-delimited text into the grid.
 </div>
 
 <div class="obj-property">
@@ -445,6 +452,13 @@
 </div>
 <div class="obj-property-desc">
     Called to resize grid's elements.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.resizeRecords">resizeRecords</a> <span>- resizeRecords()</span>
+</div>
+<div class="obj-property-desc">
+    Called to resize grid's records.
 </div>
 
 <div class="obj-property">

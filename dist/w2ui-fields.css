@@ -72,6 +72,45 @@
   background-color: #f1f1f1 !important;
   color: #777 !important;
 }
+.w2ui-message {
+  font-size: 12px;
+  position: absolute;
+  z-index: 250;
+  background-color: #f9f9f9;
+  border: 1px solid #999999;
+  box-shadow: 0px 0px 15px #aaaaaa;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+  border-top: 0px;
+  border-radius: 0px 0px 6px 6px;
+  overflow: auto;
+}
+.w2ui-message .w2ui-message-body {
+  position: absolute;
+  top: 0px;
+  bottom: 45px;
+  left: 0px;
+  right: 0px;
+  overflow: auto;
+  line-height: 1.5;
+  font-size: 14px;
+}
+.w2ui-message .w2ui-message-body .w2ui-centered {
+  line-height: 1.5;
+}
+.w2ui-message .w2ui-message-buttons {
+  position: absolute;
+  height: 45px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  border-top: 1px solid #e5e5e5;
+  text-align: center;
+  padding: 8px;
+}
 /*************************************************
 * ---- Input Controls ----
 */
@@ -105,7 +144,8 @@ input.w2ui-input:-ms-input-placeholder {
 }
 select.w2ui-input {
   color: #000000;
-  padding: 4px 15px 4px 7px;
+  padding: 0px 15px 0px 7px;
+  line-height: 1.8;
   border-radius: 3px;
   border: 1px solid #bbbbbb;
   -webkit-appearance: none;
@@ -611,6 +651,7 @@ button.w2ui-btn:focus:before {
   bottom: 2px;
   left: 2px;
   right: 2px;
+  pointer-events: none;
 }
 button.w2ui-btn::-moz-focus-inner {
   border: 0;

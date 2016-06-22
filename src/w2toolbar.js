@@ -48,7 +48,7 @@
                         }
                     }
                 }
-                if (object.items[i].type == 'menu-radio') {
+                else if (object.items[i].type == 'menu-radio') {
                     var item = object.items[i];
                     if (Array.isArray(item.items)) {
                         for (var j = 0; j < item.items.length; j++) {
@@ -131,7 +131,7 @@
                             'in w2toolbar.add() method.');
                     return;
                 }
-                if (items[o].id == null) {
+                if (items[o].id == null && items[o].type != 'break' && items[o].type != 'spacer') {
                     console.log('ERROR: The parameter "id" is required but not supplied in w2toolbar.add() method.');
                     return;
                 }
@@ -174,7 +174,7 @@
         },
 
         get: function (id, returnIndex) {
-            if (arguments.length == 0) {
+            if (arguments.length === 0) {
                 var all = [];
                 for (var i1 = 0; i1 < this.items.length; i1++) if (this.items[i1].id != null) all.push(this.items[i1].id);
                 return all;
@@ -223,7 +223,7 @@
                 it.hidden = true;
                 tmp.push(String(arguments[a]).split(':')[0]);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); obj.resize(); }, 15); // needs timeout
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) { obj.refresh(tmp[t]); obj.tooltipHide(tmp[t]); } obj.resize(); }, 15); // needs timeout
             return items;
         },
 
@@ -253,7 +253,7 @@
                 it.disabled = true;
                 tmp.push(String(arguments[a]).split(':')[0]);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
+            setTimeout(function () { for (var t=0; t<tmp.length; t++) { obj.refresh(tmp[t]); obj.tooltipHide(tmp[t]); } }, 15); // needs timeout
             return items;
         },
 
@@ -526,7 +526,7 @@
             }
             var el = $(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id));
             var html  = this.getItemHTML(it);
-            if (el.length == 0) {
+            if (el.length === 0) {
                 // does not exist - create it
                 if (it.type == 'spacer') {
                     html = '<td width="100%" id="tb_'+ this.name +'_item_'+ it.id +'" align="right"></td>';
@@ -614,7 +614,7 @@
             if (item.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ item.img +'"></div></td>';
             if (item.icon) img = '<td><div class="w2ui-tb-image"><span class="'+ item.icon +'"></span></div></td>';
 
-            if (html == '') switch (item.type) {
+            if (html === '') switch (item.type) {
                 case 'color':
                 case 'text-color':
                     if (typeof item.color == 'string' && item.color.substr(0,1) == '#') item.color = item.color.substr(1);
@@ -724,7 +724,7 @@
                 var item = this.get(event.item.id);
                 if (item.type == 'menu-radio') {
                     item.selected = it.id;
-                    event.item.items.forEach(function (item) { item.checked = false });
+                    event.item.items.forEach(function (item) { item.checked = false; });
                     it.checked = true;
                 }
                 if (item.type == 'menu-check') {

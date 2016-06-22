@@ -92,9 +92,11 @@ jQuery(function () {
 
         // possible values: text, alphanumeric, int, float, money, currency, percent, hex, list, combo, enum, select, date, time
         searches: [
-            { field: 'personid', caption: 'ID', type: 'int', value: [1,10], operator: 'less', value: '4' },
-            { field: 'fname', caption: 'First Name', type: 'text', hidden1: true, value: 'Peter' },
-            { field: 'lname', caption: 'Last Name', type: 'text', options: { items: ['Cuban', 'Rene'] }}
+            { field: 'personid', caption: 'ID', type: 'int', value: [1, 10], operator: 'more' },
+            { field: 'email', caption: 'Email', type: 'text', operator1: 'null', operators1: ['is', 'null', 'not null'] },
+            { field: 'fname', caption: 'First Name', type: 'text' },
+            { field: 'fname', caption: 'First Name', type: 'list', options: { items: ['Cuban', 'Rene'] } },
+            { field: 'lname', caption: 'Last Name', type: 'enum', options: { items: ['Cuban', 'Rene'] }}
         ],
         // sortData: [ { field: 'personid', direction: 'asc' } ],
         columnGroups1: [
@@ -254,17 +256,17 @@ jQuery(function () {
             sdate: t,
             stime: dt,
             style1: 'background-color: #efefef',
-            w2ui: { children: [] },
+            w2ui: { children: [], colspan: { personid: 2 } },
         });
     }
 
-    w2ui.grid.records[0].w2ui = { children: w2ui.grid.records.splice(10, 5), colspan: { personid: 2 } };
-    w2ui.grid.records[2].w2ui = { children: w2ui.grid.records.splice(10, 3), colspan: { personid: 5 } };
-    w2ui.grid.records[6].w2ui = { children: w2ui.grid.records.splice(10, 10), colspan: { personid: 7 } };
-    w2ui.grid.records[6].w2ui.children[1].w2ui = { children: w2ui.grid.records.splice(10, 4) };
-    w2ui.grid.records[6].w2ui.children[1].w2ui.children[2].w2ui = { children: w2ui.grid.records.splice(10, 4) };
-    w2ui.grid.records[6].w2ui.children[1].w2ui.children[3].w2ui = { children: w2ui.grid.records.splice(10, 4) };
-    w2ui.grid.records[6].w2ui.children[9].w2ui = { children: w2ui.grid.records.splice(10, 4) };
+    // w2ui.grid.records[0].w2ui = { children: w2ui.grid.records.splice(10, 5), colspan: { personid: 2 } };
+    // w2ui.grid.records[2].w2ui = { children: w2ui.grid.records.splice(10, 3), colspan: { personid: 5 } };
+    // w2ui.grid.records[6].w2ui = { children: w2ui.grid.records.splice(10, 10), colspan: { personid: 7 } };
+    // w2ui.grid.records[6].w2ui.children[1].w2ui = { children: w2ui.grid.records.splice(10, 4) };
+    // w2ui.grid.records[6].w2ui.children[1].w2ui.children[2].w2ui = { children: w2ui.grid.records.splice(10, 4) };
+    // w2ui.grid.records[6].w2ui.children[1].w2ui.children[3].w2ui = { children: w2ui.grid.records.splice(10, 4) };
+    // w2ui.grid.records[6].w2ui.children[9].w2ui = { children: w2ui.grid.records.splice(10, 4) };
 
     // w2ui.grid.records[4].w2ui.style = { fname: 'background-color: red' };
     w2ui.grid.records[10].w2ui.summary = true;

@@ -35,13 +35,6 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.getCellValue">getCellValue</a> <span>- getCellValueL(index, column_index, [summary])</span>
-</div>
-<div class="obj-property-desc">
-    Returns parse value for the cell.
-</div>
-
-<div class="obj-property">
     <a href="w2grid.header">header</a> <span>- String, default = ''</span>
 </div>
 <div class="obj-property-desc">
@@ -59,7 +52,7 @@
     <a href="w2grid.last">last</a> <span>- Object, default see below</span>
 </div>
 <div class="obj-property-desc">
-    Internal grid's vairables.
+    Internal grid's variables.
 </div>
 
 <div class="obj-property">
@@ -143,7 +136,7 @@
     <a href="w2grid.offset">offset</a> <span>- Integer, default = 0</span>
 </div>
 <div class="obj-property-desc">
-    Number of records to skip when retriving records from remote source.
+    Number of records to skip when retrieving records from remote source.
 </div>
 
 <div class="obj-property">
@@ -200,13 +193,6 @@
 </div>
 <div class="obj-property-desc">
     Indicates if reordering of rows is allowed.
-</div>
-
-<div class="obj-property">
-    <a href="w2grid.resizeRecords">resizeRecords</a> <span>- requestRecords()</span>
-</div>
-<div class="obj-property-desc">
-    Called to resize grid's records.
 </div>
 
 <div class="obj-property">

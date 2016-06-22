@@ -121,6 +121,45 @@
   background-color: #f1f1f1 !important;
   color: #777 !important;
 }
+.w2ui-message {
+  font-size: 12px;
+  position: absolute;
+  z-index: 250;
+  background-color: #f9f9f9;
+  border: 1px solid #999999;
+  box-shadow: 0px 0px 15px #aaaaaa;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+  border-top: 0px;
+  border-radius: 0px 0px 6px 6px;
+  overflow: auto;
+}
+.w2ui-message .w2ui-message-body {
+  position: absolute;
+  top: 0px;
+  bottom: 45px;
+  left: 0px;
+  right: 0px;
+  overflow: auto;
+  line-height: 1.5;
+  font-size: 14px;
+}
+.w2ui-message .w2ui-message-body .w2ui-centered {
+  line-height: 1.5;
+}
+.w2ui-message .w2ui-message-buttons {
+  position: absolute;
+  height: 45px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  border-top: 1px solid #e5e5e5;
+  text-align: center;
+  padding: 8px;
+}
 /*************************************************
 * ---- Input Controls ----
 */
@@ -154,7 +193,8 @@ input.w2ui-input:-ms-input-placeholder {
 }
 select.w2ui-input {
   color: #000000;
-  padding: 4px 15px 4px 7px;
+  padding: 0px 15px 0px 7px;
+  line-height: 1.8;
   border-radius: 3px;
   border: 1px solid #cacaca;
   -webkit-appearance: none;
@@ -660,6 +700,7 @@ button.w2ui-btn:focus:before {
   bottom: 2px;
   left: 2px;
   right: 2px;
+  pointer-events: none;
 }
 button.w2ui-btn::-moz-focus-inner {
   border: 0;
@@ -1545,6 +1586,10 @@ button.w2ui-btn-small:focus:before {
   z-index: 120;
 }
 .w2ui-layout > div .w2ui-panel .w2ui-panel-title {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  right: 0px;
   padding: 5px;
   background-image: -webkit-linear-gradient(#dae6f3, #c2d5ed);
   background-image: -moz-linear-gradient(#dae6f3, #c2d5ed);
@@ -1637,7 +1682,7 @@ button.w2ui-btn-small:focus:before {
   border-bottom: 1px solid #c0c0c0;
   background-color: #eaeaea;
   height: 38px;
-  padding: 7px 3px 4px 3px;
+  padding: 6px 1px 4px 1px;
   margin: 0px;
   box-shadow: 0px 1px 2px #dddddd;
 }
@@ -1648,19 +1693,20 @@ button.w2ui-btn-small:focus:before {
 .w2ui-grid .w2ui-toolbar-search .w2ui-search-all {
   outline: none !important;
   width: 160px !important;
-  border-radius: 10px !important;
+  border-radius: 3px !important;
   line-height: normal !important;
-  height: 22px !important;
+  height: 23px !important;
   border: 1px solid #b9b9b9 !important;
   color: #000000 !important;
   background-color: #ffffff !important;
-  padding: 3px 18px 3px 23px !important;
+  padding: 3px 18px 3px 21px !important;
   margin: 0px !important;
+  margin-top: 1px !important;
 }
 .w2ui-grid .w2ui-toolbar-search .w2ui-search-down {
   position: absolute;
   margin-top: -7px;
-  margin-left: 6px;
+  margin-left: 4px;
 }
 .w2ui-grid .w2ui-toolbar-search .w2ui-search-clear {
   position: absolute;
@@ -1677,7 +1723,7 @@ button.w2ui-btn-small:focus:before {
 }
 .w2ui-grid .w2ui-toolbar-search .w2ui-search-clear:before {
   position: relative;
-  top: 1px;
+  top: 2px;
   left: 5px;
   opacity: 0.6;
   color: inherit;
@@ -2023,6 +2069,24 @@ button.w2ui-btn-small:focus:before {
   border-right: 1px solid #ddd;
   background-color: #FAFAFA;
 }
+.w2ui-grid .w2ui-grid-empty-msg {
+  position: absolute;
+  top: 27px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.65);
+}
+.w2ui-grid .w2ui-grid-empty-msg > div {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 45%;
+  transform: translateY(-45%);
+  text-align: center;
+  font-size: 13px;
+  color: #666;
+}
 .w2ui-grid .w2ui-changed {
   background: url(data:image/gif;base64,R0lGODlhCgAKAJEAALAABf///wAAAAAAACH5BAEAAAIALAAAAAAKAAoAAAIPlI8Hy8mbxIsSUnup3rQAADs=) no-repeat top right;
 }
@@ -2220,7 +2284,7 @@ button.w2ui-btn-small:focus:before {
   padding: 2px;
 }
 .w2ui-overlay .w2ui-select-field {
-  padding: 8px 5px;
+  padding: 4px 0px;
   cursor: default;
 }
 .w2ui-overlay .w2ui-select-field table {
@@ -2229,17 +2293,20 @@ button.w2ui-btn-small:focus:before {
   border-spacing: 0px;
   border-collapse: border-collapse;
 }
+.w2ui-overlay .w2ui-select-field table tr {
+  height: 27px;
+}
 .w2ui-overlay .w2ui-select-field table tr:hover {
   background-color: #b6d5ff;
 }
-.w2ui-overlay .w2ui-select-field table td:nth-child(1) {
-  padding: 3px 3px 3px 6px;
+.w2ui-overlay .w2ui-select-field table tr td:nth-child(1) {
+  width: 26px;
+  padding-right: 6px;
+  text-align: right;
+  color: #888;
 }
-.w2ui-overlay .w2ui-select-field table td:nth-child(1) input {
-  margin: 3px 2px 2px 2px;
-}
-.w2ui-overlay .w2ui-select-field table td:nth-child(2) {
-  padding: 3px 15px 3px 3px;
+.w2ui-overlay .w2ui-select-field table tr td:nth-child(2) {
+  padding: 3px 20px 3px 0px;
 }
 .w2ui-overlay .w2ui-col-on-off {
   padding: 4px 0px;
@@ -2357,7 +2424,7 @@ button.w2ui-btn-small:focus:before {
   -o-box-sizing: border-box;
   box-sizing: border-box;
 }
-.w2ui-popup .w2ui-msg-title {
+.w2ui-popup .w2ui-popup-title {
   padding: 6px;
   border-radius: 6px 6px 0px 0px;
   background-image: -webkit-linear-gradient(#ececec, #dfdfdf);
@@ -2385,7 +2452,7 @@ button.w2ui-btn-small:focus:before {
   color: #555555;
   z-index: 300;
 }
-.w2ui-popup .w2ui-msg-button {
+.w2ui-popup .w2ui-popup-button {
   float: right;
   width: 18px;
   height: 18px;
@@ -2399,18 +2466,18 @@ button.w2ui-btn-small:focus:before {
   border-radius: 3px;
   border: 1px solid transparent;
 }
-.w2ui-popup .w2ui-msg-close {
+.w2ui-popup .w2ui-popup-close {
   margin-top: 0px;
   background-position: -32px 0px;
 }
-.w2ui-popup .w2ui-msg-close:hover {
+.w2ui-popup .w2ui-popup-close:hover {
   background-color: #cccccc;
   border: 1px solid #aaaaaa;
 }
-.w2ui-popup .w2ui-msg-max {
+.w2ui-popup .w2ui-popup-max {
   background-position: -16px 0px;
 }
-.w2ui-popup .w2ui-msg-max:hover {
+.w2ui-popup .w2ui-popup-max:hover {
   background-color: #cccccc;
   border: 1px solid #aaaaaa;
 }
@@ -2423,7 +2490,7 @@ button.w2ui-btn-small:focus:before {
   bottom: 52px;
   z-index: 100;
 }
-.w2ui-popup .w2ui-msg-body {
+.w2ui-popup .w2ui-popup-body {
   font-size: 12px;
   line-height: 130%;
   padding: 0px 7px 7px 7px;
@@ -2434,41 +2501,7 @@ button.w2ui-btn-small:focus:before {
   width: 100%;
   height: 100%;
 }
-.w2ui-popup .w2ui-popup-message {
-  font-size: 12px;
-  position: absolute;
-  z-index: 250;
-  background-color: #f9f9f9;
-  border: 1px solid #999999;
-  box-shadow: 0px 0px 15px #aaaaaa;
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -ms-box-sizing: border-box;
-  -o-box-sizing: border-box;
-  box-sizing: border-box;
-  border-top: 0px;
-  border-radius: 0px 0px 6px 6px;
-  overflow: auto;
-}
-.w2ui-popup .w2ui-popup-message .w2ui-popup-message-body {
-  position: absolute;
-  top: 0px;
-  bottom: 45px;
-  left: 0px;
-  right: 0px;
-  overflow: auto;
-}
-.w2ui-popup .w2ui-popup-message .w2ui-popup-message-buttons {
-  position: absolute;
-  height: 45px;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
-  border-top: 1px solid #e5e5e5;
-  text-align: center;
-  padding: 8px;
-}
-.w2ui-popup .w2ui-msg-buttons {
+.w2ui-popup .w2ui-popup-buttons {
   padding: 12px;
   border-radius: 0px 0px 6px 6px;
   border-top: 1px solid #d5d8d8;
@@ -2482,12 +2515,12 @@ button.w2ui-btn-small:focus:before {
   bottom: 0px;
   z-index: 200;
 }
-.w2ui-popup .w2ui-msg-no-title {
+.w2ui-popup .w2ui-popup-no-title {
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
   top: 0px !important;
 }
-.w2ui-popup .w2ui-msg-no-buttons {
+.w2ui-popup .w2ui-popup-no-buttons {
   border-bottom-left-radius: 6px;
   border-bottom-right-radius: 6px;
   bottom: 0px !important;
@@ -2654,6 +2687,7 @@ button.w2ui-btn-small:focus:before {
   bottom: 2px;
   left: 2px;
   right: 2px;
+  pointer-events: none;
 }
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-selected.w2ui-inactive:before {
   border: 1px dashed transparent !important;

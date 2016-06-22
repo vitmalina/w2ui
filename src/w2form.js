@@ -3,7 +3,7 @@
 *   - Following objects defined
 *        - w2form      - form widget
 *        - $().w2form  - jQuery wrapper
-*   - Dependencies: jQuery, w2utils, w2fields, w2tabs, w2toolbar, w2alert
+*   - Dependencies: jQuery, w2utils, w2fields, w2tabs, w2toolbar
 *
 * == NICE TO HAVE ==
 *   - include delta on save
@@ -24,6 +24,10 @@
 *   - action: { caption: 'Limpiar', style: '', class: '', onClick: function () {} }
 *   - added ability to generate radio and select html in generateHTML()
 *   - refresh(field) - would refresh only one field
+*   - form.message
+*   - added field.html.column
+*   - added field types html, empty, custom
+*   - httpHeaders
 *
 ************************************************************************/
 
@@ -31,25 +35,25 @@
 (function ($) {
     var w2form = function(options) {
         // public properties
-        this.name      = null;
-        this.header    = '';
-        this.box       = null;     // HTML element that hold this element
-        this.url       = '';
-        this.routeData = {};       // data for dynamic routes
-        this.formURL   = '';       // url where to get form HTML
-        this.formHTML  = '';       // form HTML (might be loaded from the url)
-        this.page      = 0;        // current page
-        this.recid     = 0;        // can be null or 0
-        this.fields    = [];
-        this.actions   = {};
-        this.record    = {};
-        this.original  = {};
-        this.postData  = {};
-        this.toolbar   = {};       // if not empty, then it is toolbar
-        this.tabs      = {};       // if not empty, then it is tabs object
-
-        this.style         = '';
-        this.focus         = 0;    // focus first or other element
+        this.name        = null;
+        this.header      = '';
+        this.box         = null;     // HTML element that hold this element
+        this.url         = '';
+        this.routeData   = {};       // data for dynamic routes
+        this.formURL     = '';       // url where to get form HTML
+        this.formHTML    = '';       // form HTML (might be loaded from the url)
+        this.page        = 0;        // current page
+        this.recid       = 0;        // can be null or 0
+        this.fields      = [];
+        this.actions     = {};
+        this.record      = {};
+        this.original    = {};
+        this.postData    = {};
+        this.httpHeaders = {};
+        this.toolbar     = {};       // if not empty, then it is toolbar
+        this.tabs        = {};       // if not empty, then it is tabs object
+        this.style       = '';
+        this.focus       = 0;        // focus first or other element
 
         // internal
         this.isGenerated = false;
@@ -81,7 +85,14 @@
                 $.extend(true, object.tabs, { tabs: [] });
                 for (var t = 0; t < tabs.length; t++) {
                     var tmp = tabs[t];
-                    if (typeof tmp === 'object') object.tabs.tabs.push(tmp); else object.tabs.tabs.push({ id: tmp, caption: tmp });
+                    if (typeof tmp === 'object') {
+                        object.tabs.tabs.push(tmp);
+                        if(tmp.active === true) {
+                            object.tabs.active = tmp.id;
+                        }
+                    } else {
+                        object.tabs.tabs.push({ id: tmp, caption: tmp });
+                    }
                 }
             } else {
                 $.extend(true, object.tabs, tabs);
@@ -110,18 +121,18 @@
             }
             if (obj.length > 0) object.box = obj[0];
             // render if necessary
-            if (object.formURL != '') {
+            if (object.formURL !== '') {
                 $.get(object.formURL, function (data) { // should always be $.get as it is template
                     object.formHTML = data;
                     object.isGenerated = true;
-                    if ($(object.box).length != 0 || data.length != 0) {
+                    if ($(object.box).length !== 0 || data.length !== 0) {
                         $(object.box).html(data);
                         object.render(object.box);
                     }
                 });
-            } else if (object.formHTML != '') {
+            } else if (object.formHTML !== '') {
                 // it is already loaded into formHTML
-            } else if ($(this).length != 0 && $.trim($(this).html()) != '') {
+            } else if ($(this).length !== 0 && $.trim($(this).html()) !== '') {
                 object.formHTML = $(this).html();
             }  else { // try to generate it
                 object.formHTML = object.generateHTML();
@@ -129,7 +140,7 @@
             // register new object
             w2ui[object.name] = object;
             // render if not loaded from url
-            if (object.formURL == '') {
+            if (object.formURL === '') {
                 if (String(object.formHTML).indexOf('w2ui-page') == -1) {
                     object.formHTML = '<div class="w2ui-page page-0">'+ object.formHTML +'</div>';
                 }
@@ -171,7 +182,7 @@
         onToolbar     : null,
         onError       : null,
 
-        msgNotJSON    : 'Return data is not in JSON format.',
+        msgNotJSON    : 'Returned data is not in valid JSON format.',
         msgAJAXerror  : 'AJAX error. See console for more details.',
         msgRefresh    : 'Refreshing...',
         msgSaving     : 'Saving...',
@@ -258,7 +269,7 @@
 
         reload: function (callBack) {
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
-            if (url && this.recid != 0 && this.recid != null) {
+            if (url && this.recid !== 0 && this.recid != null) {
                 // this.clear();
                 this.request(callBack);
             } else {
@@ -283,9 +294,31 @@
                 return;
             }
             // need a time out because message might be already up)
-            setTimeout(function () { w2alert(msg, w2utils.lang('Error'));    }, 1);
+            setTimeout(function () { obj.message(msg); }, 1);
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
+        },
+
+        message: function(options) {
+            if (typeof options == 'string') {
+                options = {
+                    width   : (options.length < 300 ? 350 : 550),
+                    height  : (options.length < 300 ? 170: 250),
+                    body    : '<div class="w2ui-centered">' + options + '</div>',
+                    buttons : '<button class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message()">Ok</button>',
+                    onOpen  : function (event) {
+                        setTimeout(function () {
+                            $(event.box).find('.w2ui-btn').focus();
+                        }, 25);
+                    }
+                };
+            }
+            w2utils.message.call(this, {
+                box   : this.box,
+                path  : 'w2ui.' + this.name,
+                title : '.w2ui-form-header:visible',
+                body  : '.w2ui-form-box'
+            }, options);
         },
 
         validate: function (showErrors) {
@@ -343,7 +376,7 @@
                 }
                 // === check required - if field is '0' it should be considered not empty
                 var val = this.record[field.name];
-                if (field.required && (val === '' || ($.isArray(val) && val.length == 0) || ($.isPlainObject(val) && $.isEmptyObject(val)))) {
+                if (field.required && (val === '' || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val)))) {
                     errors.push({ field: field, error: w2utils.lang('Required field') });
                 }
                 if (field.equalto && this.record[field.name] != this.record[field.equalto]) {
@@ -409,11 +442,12 @@
             // add list params
             params['cmd']   = 'get';
             params['recid'] = this.recid;
+            params['name']  = this.name;
             // append other params
             $.extend(params, this.postData);
             $.extend(params, postData);
             // event before
-            var edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: this.url, postData: params });
+            var edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: this.url, postData: params, httpHeaders: this.httpHeaders });
             if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
             // default action
             this.record   = {};
@@ -437,27 +471,30 @@
                 type     : 'POST',
                 url      : url,
                 data     : edata.postData,
+                headers  : edata.httpHeaders,
                 dataType : 'text'   // expected from server
-            };
-            if (w2utils.settings.dataType == 'HTTP') {
-                ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
             }
-            if (w2utils.settings.dataType == 'HTTPJSON') {
-                ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
-            }
-            if (w2utils.settings.dataType == 'RESTFULL') {
-                ajaxOptions.type = 'GET';
-                ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
-            }
-            if (w2utils.settings.dataType == 'RESTFULLJSON') {
-                ajaxOptions.type = 'GET';
-                ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
-                ajaxOptions.contentType = 'application/json';
-            }
-            if (w2utils.settings.dataType == 'JSON') {
-                ajaxOptions.type        = 'POST';
-                ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
-                ajaxOptions.contentType = 'application/json';
+            switch (w2utils.settings.dataType) {
+                case 'HTTP':
+                    ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+                    break
+                case 'HTTPJSON':
+                    ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
+                    break;
+                case 'RESTFULL':
+                    ajaxOptions.type = 'GET';
+                    ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+                    break;
+                case 'RESTFULLJSON':
+                    ajaxOptions.type = 'GET';
+                    ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                    ajaxOptions.contentType = 'application/json';
+                    break;
+                case 'JSON':
+                    ajaxOptions.type        = 'POST';
+                    ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                    ajaxOptions.contentType = 'application/json';
+                    break;
             }
             this.last.xhr = $.ajax(ajaxOptions)
                 .done(function (data, status, xhr) {
@@ -473,7 +510,7 @@
                     var responseText = obj.last.xhr.responseText;
                     if (status != 'error') {
                         // default action
-                        if (responseText != null && responseText != '') {
+                        if (responseText != null && responseText !== '') {
                             // check if the onLoad handler has not already parsed the data
                             if (typeof responseText == "object") {
                                 data = responseText;
@@ -486,9 +523,9 @@
                             if (data == null) {
                                 data = {
                                     status       : 'error',
-                                    message      : obj.msgNotJSON,
+                                    message      : w2utils.lang(obj.msgNotJSON),
                                     responseText : responseText
-                                }
+                                };
                             }
                             if (data['status'] == 'error') {
                                 obj.error(w2utils.lang(data['message']));
@@ -501,7 +538,7 @@
                         obj.error('AJAX Error ' + xhr.status + ': '+ xhr.statusText);
                         data = {
                             status       : 'error',
-                            message      : obj.msgAJAXerror,
+                            message      : w2utils.lang(obj.msgAJAXerror),
                             responseText : responseText
                         };
                     }
@@ -519,7 +556,7 @@
                     // default behavior
                     if (status != 'abort') {
                         var data;
-                        try { data = $.parseJSON(xhr.responseText) } catch (e) {}
+                        try { data = $.parseJSON(xhr.responseText); } catch (e) {}
                         console.log('ERROR: Server communication failed.',
                             '\n   EXPECTED:', { status: 'success', items: [{ id: 1, text: 'item' }] },
                             '\n         OR:', { status: 'error', message: 'error message' },
@@ -561,6 +598,7 @@
                 // add list params
                 params['cmd']   = 'save';
                 params['recid'] = obj.recid;
+                params['name']  = obj.name;
                 // append other params
                 $.extend(params, obj.postData);
                 $.extend(params, postData);
@@ -574,7 +612,7 @@
                 });
                 params.record = $.extend(true, {}, obj.record);
                 // event before
-                var edata = obj.trigger({ phase: 'before', type: 'submit', target: obj.name, url: obj.url, postData: params });
+                var edata = obj.trigger({ phase: 'before', type: 'submit', target: obj.name, url: obj.url, postData: params, httpHeaders: obj.httpHeaders });
                 if (edata.isCancelled === true) return;
                 // default action
                 var url = edata.url;
@@ -594,6 +632,7 @@
                     type     : 'POST',
                     url      : url,
                     data     : edata.postData,
+                    headers  : edata.httpHeaders,
                     dataType : 'text',   // expected from server
                     xhr : function() {
                         var xhr = new window.XMLHttpRequest();
@@ -612,27 +651,28 @@
                         return xhr;
                     }
                 };
-                if (w2utils.settings.dataType == 'HTTP') {
-                    ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+                switch (w2utils.settings.dataType) {
+                    case 'HTTP':
+                        ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+                        break;
+                    case 'HTTPJSON':
+                        ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
+                        break;
+                    case 'RESTFULL':
+                        if (obj.recid !== 0 && obj.recid != null) ajaxOptions.type = 'PUT';
+                        ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+                        break;
+                    case 'RESTFULLJSON':
+                        if (obj.recid !== 0 && obj.recid != null) ajaxOptions.type = 'PUT';
+                        ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                        ajaxOptions.contentType = 'application/json';
+                        break;
+                    case 'JSON':
+                        ajaxOptions.type        = 'POST';
+                        ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                        ajaxOptions.contentType = 'application/json';
+                        break;
                 }
-                if (w2utils.settings.dataType == 'HTTPJSON') {
-                    ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
-                }
-                if (w2utils.settings.dataType == 'RESTFULL') {
-                    if (obj.recid != 0 && obj.recid != null) ajaxOptions.type = 'PUT';
-                    ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
-                }
-                if (w2utils.settings.dataType == 'RESTFULLJSON') {
-                    if (obj.recid != 0 && obj.recid != null) ajaxOptions.type = 'PUT';
-                    ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
-                    ajaxOptions.contentType = 'application/json';
-                }
-                if (w2utils.settings.dataType == 'JSON') {
-                    ajaxOptions.type        = 'POST';
-                    ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
-                    ajaxOptions.contentType = 'application/json';
-                }
-
                 obj.last.xhr = $.ajax(ajaxOptions)
                     .done(function (data, status, xhr) {
                         obj.unlock();
@@ -644,7 +684,7 @@
                         var responseText = xhr.responseText;
                         if (status != 'error') {
                             // default action
-                            if (responseText != null && responseText != '') {
+                            if (responseText != null && responseText !== '') {
                                 // check if the onLoad handler has not already parsed the data
                                 if (typeof responseText == "object") {
                                     data = responseText;
@@ -657,9 +697,9 @@
                                 if (data == null) {
                                     data = {
                                         status       : 'error',
-                                        message      : obj.msgNotJSON,
+                                        message      : w2utils.lang(obj.msgNotJSON),
                                         responseText : responseText
-                                    }
+                                    };
                                 }
                                 if (data['status'] == 'error') {
                                     obj.error(w2utils.lang(data['message']));
@@ -671,7 +711,7 @@
                             obj.error('AJAX Error ' + xhr.status + ': '+ xhr.statusText);
                             data = {
                                 status       : 'error',
-                                message      : obj.msgAJAXerror,
+                                message      : w2utils.lang(obj.msgAJAXerror),
                                 responseText : responseText
                             };
                         }
@@ -721,14 +761,17 @@
             var pages = []; // array for each page
             var group = '';
             var page;
+            var column;
+            var html;
             for (var f = 0; f < this.fields.length; f++) {
-                var html = '';
+                html = '';
                 var field = this.fields[f];
                 if (field.html == null) field.html = {};
                 if (field.options == null) field.options = {};
-                field.html = $.extend(true, { caption: '', span: 6, attr: '', text: '', style: '', page: 0 }, field.html);
+                field.html = $.extend(true, { caption: '', span: 6, attr: '', text: '', style: '', page: 0, column: 0 }, field.html);
                 if (page == null) page = field.html.page;
-                if (field.html.caption == '') field.html.caption = field.name;
+                if (column == null) column = field.html.column;
+                if (field.html.caption === '') field.html.caption = field.name;
                 // input control
                 var input = '<input name="'+ field.name +'" class="w2ui-input" type="text" '+ field.html.attr +'/>';
                 switch (field.type) {
@@ -773,29 +816,37 @@
                     case 'toggle':
                         input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +' class="w2ui-input w2ui-toggle"/><div><div></div></div>';
                         break;
+                    case 'html':
+                    case 'custom':
+                    case 'empty':
+                        input = '';
+                        break;
+
                 }
-                if (field.html.group) {
-                    if (group != '') html += '\n   </div>';
+                if (group !== ''){
+                    if(page != field.html.page || column != field.html.column || (field.html.group && (group != field.html.group))){
+                       pages[page][column]  += '\n   </div>';
+                       group = '';
+                    }
+                }
+                if (field.html.group && (group != field.html.group)) {
                     html += '\n   <div class="w2ui-group-title">'+ field.html.group + '</div>\n   <div class="w2ui-group">';
                     group = field.html.group;
-                }
-                if (field.html.page != page && group != '') {
-                    pages[pages.length-1] += '\n   </div>';
-                    group = '';
                 }
                 html += '\n      <div class="w2ui-field '+ (field.html.span != null ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+
                         '\n         <label>' + w2utils.lang(field.html.caption) +'</label>'+
                         '\n         <div>'+ input + w2utils.lang(field.html.text) + '</div>'+
                         '\n      </div>';
-                if (pages[field.html.page] == null) pages[field.html.page] = '';
-                pages[field.html.page] += html;
+                if (pages[field.html.page] == null) pages[field.html.page] = [];
+                if (pages[field.html.page][field.html.column] == null) pages[field.html.page][field.html.column] = '';
+                pages[field.html.page][field.html.column] += html;
                 page = field.html.page;
+                column = field.html.column;
             }
-            if (group != '') pages[pages.length-1] += '\n   </div>';
+            if (group !== '') pages[page][column] += '\n   </div>';
             if (this.tabs.tabs) {
-                for (var i = 0; i < this.tabs.tabs.length; i++) if (pages[i] == null) pages[i] = '';
+                for (var i = 0; i < this.tabs.tabs.length; i++) if (pages[i] == null) pages[i] = [];
             }
-            for (var p = 0; p < pages.length; p++) pages[p] = '<div class="w2ui-page page-'+ p +'">' + pages[p] + '\n</div>';
             // buttons if any
             var buttons = '';
             if (!$.isEmptyObject(this.actions)) {
@@ -817,11 +868,19 @@
                 }
                 buttons += '\n</div>';
             }
-            return pages.join('') + buttons;
+            html = '';
+            for (var p = 0; p < pages.length; p++){
+                html += '<div class="w2ui-page page-'+ p +'" ' + ((p===0)?'':'style="display: none;"') + '><div class="w2ui-column-container" style="display: flex;">';
+                for (var c = 0; c < pages[p].length; c++){
+                    html += '<div class="w2ui-column col-'+ c +'">' + (pages[p][c] || '') + '\n</div>';
+                }
+                html += '\n</div></div>';
+            }
+            html += buttons;
+            return html;
         },
 
         action: function (action, event) {
-            var click = null;
             var act   = this.actions[action];
             var click = act;
             if ($.isPlainObject(act) && act.onClick) click = act.onClick;
@@ -840,7 +899,7 @@
             var edata = this.trigger({ phase: 'before', target: this.name, type: 'resize' });
             if (edata.isCancelled === true) return;
             // default behaviour
-            var main    = $(this.box).find('> div:not(.w2ui-lock-msg)');
+            var main    = $(this.box).find('> div.w2ui-form-box');
             var header  = $(this.box).find('> div .w2ui-form-header');
             var toolbar = $(this.box).find('> div .w2ui-form-toolbar');
             var tabs    = $(this.box).find('> div .w2ui-form-tabs');
@@ -850,7 +909,7 @@
             var buttons = $(this.box).find('> div .w2ui-buttons');
             // if no height, calculate it
             resizeElements();
-            if (parseInt($(this.box).height()) == 0 || $(this.box).data('auto-size') === true) {
+            if (parseInt($(this.box).height()) === 0 || $(this.box).data('auto-size') === true) {
                 $(this.box).height(
                     (header.length > 0 ? w2utils.getSize(header, 'height') : 0) +
                     ((typeof this.tabs === 'object' && $.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) ? w2utils.getSize(tabs, 'height') : 0) +
@@ -861,16 +920,18 @@
                 $(this.box).data('auto-size', true);
             }
             resizeElements();
+            if (this.toolbar && this.toolbar.resize) this.toolbar.resize();
+            if (this.tabs && this.tabs.resize) this.tabs.resize();
             // event after
             obj.trigger($.extend(edata, { phase: 'after' }));
 
             function resizeElements() {
                 // resize elements
                 main.width($(obj.box).width()).height($(obj.box).height());
-                toolbar.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0));
-                tabs.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0)
+                toolbar.css('top', (obj.header !== '' ? w2utils.getSize(header, 'height') : 0));
+                tabs.css('top', (obj.header !== '' ? w2utils.getSize(header, 'height') : 0)
                               + ((typeof obj.toolbar == 'object' && $.isArray(obj.toolbar.items) && obj.toolbar.items.length > 0) ? w2utils.getSize(toolbar, 'height') : 0));
-                page.css('top', (obj.header != '' ? w2utils.getSize(header, 'height') : 0)
+                page.css('top', (obj.header !== '' ? w2utils.getSize(header, 'height') : 0)
                               + ((typeof obj.toolbar == 'object' && $.isArray(obj.toolbar.items) && obj.toolbar.items.length > 0) ? w2utils.getSize(toolbar, 'height') + 5 : 0)
                               + ((typeof obj.tabs === 'object' && $.isArray(obj.tabs.tabs) && obj.tabs.tabs.length > 0) ? w2utils.getSize(tabs, 'height') + 5 : 0));
                 page.css('bottom', (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0));
@@ -882,49 +943,49 @@
             var obj = this;
             if (!this.box) return;
             if (!this.isGenerated || $(this.box).html() == null) return;
-			// event before
-			var edata = this.trigger({ phase: 'before', target: this.name, type: 'refresh', page: this.page, field: field })
-			if (edata.isCancelled === true) return;
+            // event before
+            var edata = this.trigger({ phase: 'before', target: this.name, type: 'refresh', page: this.page, field: field });
+            if (edata.isCancelled === true) return;
             if (field != null) {
                 var from_field = obj.get(field, true);
                 var to_field = from_field + 1;
             } else {
-				// update what page field belongs
-				$(this.box).find('input, textarea, select').each(function (index, el) {
-					var name  = ($(el).attr('name') != null ? $(el).attr('name') : $(el).attr('id'));
-					var field = obj.get(name);
-					if (field) {
-						// find page
-						var div = $(el).parents('.w2ui-page');
-						if (div.length > 0) {
-							for (var i = 0; i < 100; i++) {
-								if (div.hasClass('page-'+i)) { field.page = i; break; }
-							}
-						}
-					}
-				});
-				// default action
-				$(this.box).find('.w2ui-page').hide();
-				$(this.box).find('.w2ui-page.page-' + this.page).show();
-				$(this.box).find('.w2ui-form-header').html(this.header);
-				// refresh tabs if needed
-				if (typeof this.tabs === 'object' && $.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) {
-					$('#form_'+ this.name +'_tabs').show();
-					this.tabs.active = this.tabs.tabs[this.page].id;
-					this.tabs.refresh();
-				} else {
-					$('#form_'+ this.name +'_tabs').hide();
-				}
-				// refresh tabs if needed
-				if (typeof this.toolbar == 'object' && $.isArray(this.toolbar.items) && this.toolbar.items.length > 0) {
-					$('#form_'+ this.name +'_toolbar').show();
-					this.toolbar.refresh();
-				} else {
-					$('#form_'+ this.name +'_toolbar').hide();
-				}
+                // update what page field belongs
+                $(this.box).find('input, textarea, select').each(function (index, el) {
+                    var name  = ($(el).attr('name') != null ? $(el).attr('name') : $(el).attr('id'));
+                    var field = obj.get(name);
+                    if (field) {
+                        // find page
+                        var div = $(el).parents('.w2ui-page');
+                        if (div.length > 0) {
+                            for (var i = 0; i < 100; i++) {
+                                if (div.hasClass('page-'+i)) { field.page = i; break; }
+                            }
+                        }
+                    }
+                });
+                // default action
+                $(this.box).find('.w2ui-page').hide();
+                $(this.box).find('.w2ui-page.page-' + this.page).show();
+                $(this.box).find('.w2ui-form-header').html(this.header);
+                // refresh tabs if needed
+                if (typeof this.tabs === 'object' && $.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) {
+                    $('#form_'+ this.name +'_tabs').show();
+                    this.tabs.active = this.tabs.tabs[this.page].id;
+                    this.tabs.refresh();
+                } else {
+                    $('#form_'+ this.name +'_tabs').hide();
+                }
+                // refresh tabs if needed
+                if (typeof this.toolbar == 'object' && $.isArray(this.toolbar.items) && this.toolbar.items.length > 0) {
+                    $('#form_'+ this.name +'_toolbar').show();
+                    this.toolbar.refresh();
+                } else {
+                    $('#form_'+ this.name +'_toolbar').hide();
+                }
                 var from_field = 0;
                 var to_field = this.fields.length;
-			}
+            }
             // refresh values of fields
             for (var f = from_field; f < to_field; f++) {
                 var field = this.fields[f];
@@ -941,7 +1002,7 @@
                 if (tmp) tmp.clear();
                 $(field.$el).off('change').on('change', function () {
                     var value_new      = this.value;
-                    var value_previous = obj.record[this.name] ? obj.record[this.name] : '';
+                    var value_previous = obj.record[this.name] !== undefined ? obj.record[this.name] : '';
                     var field          = obj.get(this.name);
                     if (['list', 'enum', 'file'].indexOf(field.type) != -1 && $(this).data('selected')) {
                         var nv = $(this).data('selected');
@@ -993,7 +1054,7 @@
                             $(fld).removeClass('w2ui-error');
                         }
                     }
-                    if (val === '' || val == null || ($.isArray(val) && val.length == 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) {
+                    if (val === '' || val == null || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) {
                         val = null;
                     }
                     obj.record[this.name] = val;
@@ -1125,6 +1186,10 @@
                     case 'checkbox':
                         $(field.el).prop('checked', value ? true : false);
                         break;
+                    case 'html':
+                    case 'custom':
+                    case 'empty':
+                        break;
                     default:
                         $(field.el).val(value);
                         $(field.el).w2field($.extend({}, field.options, { type: field.type }));
@@ -1163,8 +1228,8 @@
             if ($.isEmptyObject(this.original) && !$.isEmptyObject(this.record)) {
                 this.original = $.extend(true, {}, this.record);
             }
-            var html =  '<div>' +
-                        (this.header != '' ? '<div class="w2ui-form-header">' + this.header + '</div>' : '') +
+            var html =  '<div class="w2ui-form-box">' +
+                        (this.header !== '' ? '<div class="w2ui-form-header">' + this.header + '</div>' : '') +
                         '    <div id="form_'+ this.name +'_toolbar" class="w2ui-form-toolbar" style="display: none"></div>' +
                         '    <div id="form_'+ this.name +'_tabs" class="w2ui-form-tabs" style="display: none"></div>' +
                             this.formHTML +
@@ -1189,36 +1254,45 @@
             }
             // init tabs regardless it is defined or not
             if (typeof this.tabs.render !== 'function') {
-                this.tabs = $().w2tabs($.extend({}, this.tabs, { name: this.name +'_tabs', owner: this }));
+                this.tabs = $().w2tabs($.extend({}, this.tabs, { name: this.name +'_tabs', owner: this, active: this.tabs.active }));
                 this.tabs.on('click', function (event) {
                     obj.goto(this.get(event.target, true));
                 });
             }
             if (typeof this.tabs == 'object' && typeof this.tabs.render == 'function') {
                 this.tabs.render($('#form_'+ this.name +'_tabs')[0]);
+                if(this.tabs.active) this.tabs.click(this.tabs.active);
             }
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
             // after render actions
             this.resize();
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
-            if (url && this.recid != 0 && this.recid != null) {
+            if (url && this.recid !== 0 && this.recid != null) {
                 this.request();
             } else {
                 this.refresh();
             }
             // attach to resize event
-            if ($('.w2ui-layout').length == 0) { // if there is layout, it will send a resize event
+            if ($('.w2ui-layout').length === 0) { // if there is layout, it will send a resize event
                 this.tmp_resize = function (event) { w2ui[obj.name].resize(); };
                 $(window).off('resize', 'body').on('resize', 'body', this.tmp_resize);
             }
-            setTimeout(function () { obj.resize(); obj.refresh(); }, 150); // need timer because resize is on timer
             // focus on load
             function focusEl() {
                 var inputs = $(obj.box).find('input, select, textarea');
                 if (inputs.length > obj.focus) inputs[obj.focus].focus();
             }
-            if (this.focus >= 0) setTimeout(focusEl, 500); // need timeout to allow form to render
+            if (this.focus >= 0) {
+                setTimeout(function () {
+                    // if not rendered in 10ms, then wait 500ms
+                    if ($(obj.box).find('input, select, textarea').length === 0) {
+                        setTimeout(focusEl, 500); // need timeout to allow form to render
+                    } else {
+                        focusEl();
+                    }
+                }, 10);
+            }
             return (new Date()).getTime() - time;
         },
 

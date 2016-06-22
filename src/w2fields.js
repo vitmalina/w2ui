@@ -43,6 +43,8 @@
 *   - options.transarent = t/f for color
 *   - remote data is not compatible with grid
 *   - options.recId, options.recText - to define custom id and text for remove data, can be string or function
+*   - options.readContent - for file type
+*   - added support for 'accept' attribute for file type
 *
 ************************************************************************/
 
@@ -87,14 +89,14 @@
 
     $.fn.w2field = function (method, options) {
         // call direct
-        if (this.length == 0) {
+        if (this.length === 0) {
             var pr = w2field.prototype;
             if (pr[method]) {
                 return pr[method].apply(pr, Array.prototype.slice.call(arguments, 1));
             }
         } else {
             // if without arguments - return the object
-            if (arguments.length == 0) {
+            if (arguments.length === 0) {
                 var obj = $(this).data('w2field');
                 return obj;
             }
@@ -240,7 +242,7 @@
                     this.addSuffix();    // only will add if needed
                     // additional checks
                     $(this.el).attr('maxlength', 6);
-                    if ($(this.el).val() != '') setTimeout(function () { obj.change(); }, 1);
+                    if ($(this.el).val() !== '') setTimeout(function () { obj.change(); }, 1);
                     break;
 
                 case 'date':
@@ -281,7 +283,7 @@
                         start       : '',       // string or jquery object or Date object
                         end         : '',       // string or jquery object or Date object
                         blocked     : [],       // [ '4/11/2011', '4/12/2011' ] or [ new Date(2011, 4, 11), new Date(2011, 4, 12) ]
-                        colored     : {},       // { '12/17/2014': 'blue:green', '12/18/2014': 'gray:white'  }; // key has be be formatted with w2utils.settings.dateFormat
+                        colored     : {},       // { '12/17/2014': 'blue:green', '12/18/2014': 'gray:white'  }; // key has to be formatted with w2utils.settings.dateFormat
                         placeholder : null,     // optional. will fall back to this.format if not specified. Only used if this.el has no placeholder attribute.
                         btn_now     : true,     // show/hide the use-current-date-and-time button
                         noMinutes   : false
@@ -426,6 +428,7 @@
                         maxHeight     : 350,      // max height for input control to grow
                         maxDropHeight : 350,      // max height for drop down menu
                         maxDropWidth  : null,     // if null then auto set
+                        readContent   : true,     // if true, it will readAsDataURL content of the file
                         silent        : true,
                         renderItem    : null,     // render selected item
                         style         : '',       // style for container div
@@ -462,13 +465,13 @@
             $(this.el)
                 .addClass('w2field w2ui-input')
                 .data('w2field', this)
-                .on('change',   this.tmp.onChange)
-                .on('click',    this.tmp.onClick)         // ignore click because it messes overlays
-                .on('focus',    this.tmp.onFocus)
-                .on('blur',     this.tmp.onBlur)
-                .on('keydown',  this.tmp.onKeydown)
-                .on('keyup',    this.tmp.onKeyup)
-                .on('keypress', this.tmp.onKeypress)
+                .on('change.w2field',   this.tmp.onChange)
+                .on('click.w2field',    this.tmp.onClick)         // ignore click because it messes overlays
+                .on('focus.w2field',    this.tmp.onFocus)
+                .on('blur.w2field',     this.tmp.onBlur)
+                .on('keydown.w2field',  this.tmp.onKeydown)
+                .on('keyup.w2field',    this.tmp.onKeyup)
+                .on('keypress.w2field', this.tmp.onKeypress)
                 .css(w2utils.cssPrefix('box-sizing', 'border-box'));
             // format initial value
             this.change($.Event('change'));
@@ -549,14 +552,8 @@
             $(this.el)
                 .val(this.clean($(this.el).val()))
                 .removeClass('w2field')
-                .removeData() // removes all attached data
-                .off('change',   this.tmp.onChange)
-                .off('click',    this.tmp.onClick)
-                .off('focus',    this.tmp.onFocus)
-                .off('blur',     this.tmp.onBlur)
-                .off('keydown',  this.tmp.onKeydown)
-                .off('keyup',    this.tmp.onKeyup)
-                .off('keypress', this.tmp.onKeypress);
+                .removeData()       // removes all attached data
+                .off('.w2field');   // remove only events added by w2field
             // remove helpers
             for (var h in this.helpers) $(this.helpers[h]).remove();
             this.helpers = {};
@@ -586,7 +583,7 @@
                     }
                     // focus helper
                     var focus = obj.helpers.focus.find('input');
-                    if ($(focus).val() == '') {
+                    if ($(focus).val() === '') {
                         $(focus).css('text-indent', '-9999em').prev().css('opacity', 0);
                         $(obj.el).val(selected && selected.text != null ? selected.text : '');
                     } else {
@@ -620,17 +617,19 @@
             }
             if (['enum', 'file'].indexOf(this.type) != -1) {
                 var html = '';
-                for (var s in selected) {
-                    var it  = selected[s];
-                    var ren = '';
-                    if (typeof options.renderItem == 'function') {
-                        ren = options.renderItem(it, s, '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&#160;&#160;</div>');
-                    } else {
-                        ren = '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&#160;&#160;</div>'+
-                              (obj.type == 'enum' ? it.text : it.name + '<span class="file-size"> - '+ w2utils.formatSize(it.size) +'</span>');
-                    }
-                    html += '<li index="'+ s +'" style="max-width: '+ parseInt(options.maxWidth) + 'px; '+ (it.style ? it.style : '') +'">'+
-                            ren +'</li>';
+                if (selected) {
+                   for (var s = 0; s < selected.length; s++) {
+                       var it  = selected[s];
+                       var ren = '';
+                       if (typeof options.renderItem == 'function') {
+                           ren = options.renderItem(it, s, '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&#160;&#160;</div>');
+                       } else {
+                           ren = '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&#160;&#160;</div>'+
+                                 (obj.type == 'enum' ? it.text : it.name + '<span class="file-size"> - '+ w2utils.formatSize(it.size) +'</span>');
+                       }
+                       html += '<li index="'+ s +'" style="max-width: '+ parseInt(options.maxWidth) + 'px; '+ (it.style ? it.style : '') +'">'+
+                               ren +'</li>';
+                   }
                 }
                 var div = obj.helpers.multi;
                 var ul  = div.find('ul');
@@ -661,9 +660,9 @@
                 div.find('.w2ui-enum-placeholder').remove();
                 ul.find('li').not('li.nomouse').remove();
                 // add new list
-                if (html != '') {
+                if (html !== '') {
                     ul.prepend(html);
-                } else if ($(obj.el).attr('placeholder') != null && div.find('input').val() == '') {
+                } else if ($(obj.el).attr('placeholder') != null && div.find('input').val() === '') {
                     var style =
                         'padding-top: ' + $(this.el).css('padding-top') + ';'+
                         'padding-left: ' + $(this.el).css('padding-left') + '; ' +
@@ -687,12 +686,9 @@
                         var item   = selected[$(target).attr('index')];
                         if ($(target).hasClass('nomouse')) return;
                         event.stopPropagation();
-                        // trigger event
-                        var edata = obj.trigger({ phase: 'before', type: 'click', target: obj.el, originalEvent: event.originalEvent, item: item });
-                        if (edata.isCancelled === true) return;
                         // default behavior
                         if ($(event.target).hasClass('w2ui-list-remove')) {
-                            if ($(obj.el).attr('readonly') || $(obj.el).attr('disabled')) return;
+                            if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                             // trigger event
                             var edata = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
                             if (edata.isCancelled === true) return;
@@ -706,37 +702,41 @@
                                 // event after
                                 obj.trigger($.extend(edata, { phase: 'after' }));
                             }, 300);
-                        }
-                        if (obj.type == 'file' && !$(event.target).hasClass('w2ui-list-remove')) {
-                            var preview = '';
-                            if ((/image/i).test(item.type)) { // image
-                                preview = '<div style="padding: 3px;">'+
-                                    '    <img src="'+ (item.content ? 'data:'+ item.type +';base64,'+ item.content : '') +'" style="max-width: 300px;" '+
-                                    '        onload="var w = $(this).width(); var h = $(this).height(); '+
-                                    '            if (w < 300 & h < 300) return; '+
-                                    '            if (w >= h && w > 300) $(this).width(300);'+
-                                    '            if (w < h && h > 300) $(this).height(300);"'+
-                                    '        onerror="this.style.display = \'none\'"'+
-                                    '    >'+
+                        } else {
+                            // trigger event
+                            var edata = obj.trigger({ phase: 'before', type: 'click', target: obj.el, originalEvent: event.originalEvent, item: item });
+                            if (edata.isCancelled === true) return;
+                            // if file - show image preview
+                            if (obj.type == 'file') {
+                                var preview = '';
+                                if ((/image/i).test(item.type)) { // image
+                                    preview = '<div style="padding: 3px;">'+
+                                        '    <img src="'+ (item.content ? 'data:'+ item.type +';base64,'+ item.content : '') +'" style="max-width: 300px;" '+
+                                        '        onload="var w = jQuery(this).width(); var h = jQuery(this).height(); '+
+                                        '            if (w < 300 & h < 300) return; '+
+                                        '            if (w >= h && w > 300) jQuery(this).width(300);'+
+                                        '            if (w < h && h > 300) jQuery(this).height(300);"'+
+                                        '        onerror="this.style.display = \'none\'"'+
+                                        '    >'+
+                                        '</div>';
+                                }
+                                var td1 = 'style="padding: 3px; text-align: right; color: #777;"';
+                                var td2 = 'style="padding: 3px"';
+                                preview += '<div style="padding: 8px;">'+
+                                    '    <table cellpadding="2"><tbody>'+
+                                    '    <tr><td '+ td1 +'>'+ w2utils.lang('Name') +':</td><td '+ td2 +'>'+ item.name +'</td></tr>'+
+                                    '    <tr><td '+ td1 +'>'+ w2utils.lang('Size') +':</td><td '+ td2 +'>'+ w2utils.formatSize(item.size) +'</td></tr>'+
+                                    '    <tr><td '+ td1 +'>'+ w2utils.lang('Type') +':</td><td '+ td2 +'>' +
+                                    '        <span style="width: 200px; display: block-inline; overflow: hidden; text-overflow: ellipsis; white-space: nowrap="nowrap";">'+ item.type +'</span>'+
+                                    '    </td></tr>'+
+                                    '    <tr><td '+ td1 +'>'+ w2utils.lang('Modified') +':</td><td '+ td2 +'>'+ w2utils.date(item.modified) +'</td></tr>'+
+                                    '    </tbody></table>'+
                                     '</div>';
-                            }
-                            var td1 = 'style="padding: 3px; text-align: right; color: #777;"';
-                            var td2 = 'style="padding: 3px"';
-                            preview += '<div style="padding: 8px;">'+
-                                '    <table cellpadding="2"><tbody>'+
-                                '    <tr><td '+ td1 +'>'+ w2utils.lang('Name') +':</td><td '+ td2 +'>'+ item.name +'</td></tr>'+
-                                '    <tr><td '+ td1 +'>'+ w2utils.lang('Size') +':</td><td '+ td2 +'>'+ w2utils.formatSize(item.size) +'</td></tr>'+
-                                '    <tr><td '+ td1 +'>'+ w2utils.lang('Type') +':</td><td '+ td2 +'>' +
-                                '        <span style="width: 200px; display: block-inline; overflow: hidden; text-overflow: ellipsis; white-space: nowrap="nowrap";">'+ item.type +'</span>'+
-                                '    </td></tr>'+
-                                '    <tr><td '+ td1 +'>'+ w2utils.lang('Modified') +':</td><td '+ td2 +'>'+ w2utils.date(item.modified) +'</td></tr>'+
-                                '    </tbody></table>'+
-                                '</div>';
-                            $('#w2ui-overlay').remove();
-                            $(target).w2overlay(preview);
+                                $('#w2ui-overlay').remove();
+                                $(target).w2overlay(preview);
+                            }                            // event after
+                            obj.trigger($.extend(edata, { phase: 'after' }));
                         }
-                        // event after
-                        obj.trigger($.extend(edata, { phase: 'after' }));
                     })
                     .on('mouseover', function (event) {
                         var target = (event.target.tagName.toUpperCase() == 'LI' ? event.target : $(event.target).parents('LI'));
@@ -788,7 +788,6 @@
         },
 
         reset: function () {
-            var obj  = this;
             var type = this.type;
             this.clear();
             this.type = type;
@@ -841,7 +840,7 @@
                     if (options.autoFormat && ['money', 'currency'].indexOf(this.type) != -1) val = String(val).replace(options.moneyRE, '');
                     if (options.autoFormat && this.type == 'percent') val = String(val).replace(options.percentRE, '');
                     if (options.autoFormat && ['int', 'float'].indexOf(this.type) != -1) val = String(val).replace(options.numberRE, '');
-					val = val.replace(/\s+/g, '').replace(w2utils.settings.groupSymbol, '').replace(w2utils.settings.decimalSymbol, '.');
+                    val = val.replace(/\s+/g, '').replace(w2utils.settings.groupSymbol, '').replace(w2utils.settings.decimalSymbol, '.');
                 }
                 if (parseFloat(val) == val) {
                     if (options.min != null && val < options.min) { val = options.min; $(this.el).val(options.min); }
@@ -855,16 +854,16 @@
         format: function (val) {
             var options = this.options;
             // autoformat numbers or money
-            if (options.autoFormat && val != '') {
+            if (options.autoFormat && val !== '') {
                 switch (this.type) {
                     case 'money':
                     case 'currency':
                         val = w2utils.formatNumber(val, options.currencyPrecision, options.groupSymbol);
-                        if (val != '') val = options.currencyPrefix + val + options.currencySuffix;
+                        if (val !== '') val = options.currencyPrefix + val + options.currencySuffix;
                         break;
                     case 'percent':
                         val = w2utils.formatNumber(val, options.precision, options.groupSymbol);
-                        if (val != '') val += '%';
+                        if (val !== '') val += '%';
                         break;
                     case 'float':
                         val = w2utils.formatNumber(val, options.precision, options.groupSymbol);
@@ -886,7 +885,7 @@
                 var val     =  $(this.el).val();
                 var new_val = this.format(this.clean($(this.el).val()));
                 // if was modified
-                if (val != '' && val != new_val) {
+                if (val !== '' && val != new_val) {
                     $(this.el).val(new_val).change();
                     // cancel event
                     event.stopPropagation();
@@ -936,13 +935,13 @@
             var options = this.options;
             // color, date, time
             if (['color', 'date', 'time', 'datetime'].indexOf(obj.type) !== -1) {
-                if ($(obj.el).attr('readonly') || $(obj.el).attr('disabled')) return;
+                if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
                 setTimeout(function () { obj.updateOverlay(); }, 150);
             }
             // menu
             if (['list', 'combo', 'enum'].indexOf(obj.type) != -1) {
-                if ($(obj.el).attr('readonly') || $(obj.el).attr('disabled')) return;
+                if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
                 obj.resize();
                 setTimeout(function () {
@@ -1046,7 +1045,7 @@
             var key     = event.keyCode || (extra && extra.keyCode);
             // numeric
             if (['int', 'float', 'money', 'currency', 'percent'].indexOf(obj.type) != -1) {
-                if (!options.keyboard || $(obj.el).attr('readonly')) return;
+                if (!options.keyboard || $(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 var cancel = false;
                 var val = parseFloat($(obj.el).val().replace(options.moneyRE, '')) || 0;
                 var inc = options.step;
@@ -1073,7 +1072,7 @@
             }
             // date
             if (obj.type == 'date') {
-                if (!options.keyboard || $(obj.el).attr('readonly')) return;
+                if (!options.keyboard || $(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 var cancel  = false;
                 var daymil  = 24*60*60*1000;
                 var inc     = 1;
@@ -1107,7 +1106,7 @@
             }
             // time
             if (obj.type == 'time') {
-                if (!options.keyboard || $(obj.el).attr('readonly')) return;
+                if (!options.keyboard || $(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 var cancel  = false;
                 var inc     = (event.ctrlKey || event.metaKey ? 60 : 1);
                 var val     = $(obj.el).val();
@@ -1135,7 +1134,7 @@
             }
             // datetime
             if (obj.type == 'datetime') {
-                if (!options.keyboard || $(obj.el).attr('readonly')) return;
+                if (!options.keyboard || $(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 var cancel  = false;
                 var daymil  = 24*60*60*1000;
                 var inc     = 1;
@@ -1170,7 +1169,7 @@
             }
             // color
             if (obj.type == 'color') {
-                if ($(obj.el).attr('readonly')) return;
+                if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 // paste
                 if (event.keyCode == 86 && (event.ctrlKey || event.metaKey)) {
                     $(obj.el).prop('maxlength', 7);
@@ -1207,7 +1206,7 @@
             }
             // list/select/combo
             if (['list', 'combo', 'enum'].indexOf(obj.type) != -1) {
-                if ($(obj.el).attr('readonly')) return;
+                if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 var selected  = $(obj.el).data('selected');
                 var focus     = $(obj.el);
                 var indexOnly = false;
@@ -1235,7 +1234,7 @@
                 switch (key) {
                     case 27: // escape
                         if (obj.type == 'list') {
-                            if (focus.val() != '') focus.val('');
+                            if (focus.val() !== '') focus.val('');
                             event.stopPropagation(); // escape in field should not close popup
                         }
                         break;
@@ -1244,7 +1243,7 @@
                         // indexOnly = true;
                         break;
                     case 13: // enter
-                        if ($('#w2ui-overlay').length == 0) break; // no action if overlay not open
+                        if ($('#w2ui-overlay').length === 0) break; // no action if overlay not open
                         var item  = options.items[options.index];
                         if (obj.type == 'enum') {
                             if (item != null) {
@@ -1282,7 +1281,7 @@
                             }
                         } else {
                             if (item) $(obj.el).data('selected', item).val(item.text).change();
-                            if ($(obj.el).val() == '' && $(obj.el).data('selected')) $(obj.el).removeData('selected').val('').change();
+                            if ($(obj.el).val() === '' && $(obj.el).data('selected')) $(obj.el).removeData('selected').val('').change();
                             if (obj.type == 'list') {
                                 focus.val('');
                                 obj.refresh();
@@ -1294,7 +1293,7 @@
                     case 8:  // backspace
                     case 46: // delete
                         if (obj.type == 'enum' && key == 8) {
-                            if (focus.val() == '' && selected.length > 0) {
+                            if (focus.val() === '' && selected.length > 0) {
                                 var item = selected[selected.length - 1];
                                 // trigger event
                                 var edata = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item });
@@ -1307,7 +1306,7 @@
                                 obj.trigger($.extend(edata, { phase: 'after' }));
                             }
                         }
-                        if (obj.type == 'list' && focus.val() == '') {
+                        if (obj.type == 'list' && focus.val() === '') {
                             $(obj.el).data('selected', {}).change();
                             obj.refresh();
                         }
@@ -1316,7 +1315,7 @@
                         options.index = w2utils.isInt(options.index) ? parseInt(options.index) : 0;
                         options.index--;
                         while (options.index > 0 && options.items[options.index].hidden) options.index--;
-                        if (options.index == 0 && options.items[options.index].hidden) {
+                        if (options.index === 0 && options.items[options.index].hidden) {
                             while (options.items[options.index] && options.items[options.index].hidden) options.index++;
                         }
                         indexOnly = true;
@@ -1329,7 +1328,7 @@
                             while (options.items[options.index] && options.items[options.index].hidden) options.index--;
                         }
                         // show overlay if not shown
-                        if (focus.val() == '' && $('#w2ui-overlay').length == 0) {
+                        if (focus.val() === '' && $('#w2ui-overlay').length === 0) {
                             obj.tmp.force_open = true;
                         } else {
                             indexOnly = true;
@@ -1371,17 +1370,18 @@
                 }
             }
             if (['list', 'combo', 'enum'].indexOf(this.type) != -1) {
+                if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 // need to be here for ipad compa
                 if ([16, 17, 18, 20, 37, 39, 91].indexOf(event.keyCode) == -1) { // no refreah on crtl, shift, left/right arrows, etc
                     var input = $(this.helpers.focus).find('input');
-                    if (input.length == 0) input = $(this.el); // for combo list
+                    if (input.length === 0) input = $(this.el); // for combo list
                     // trigger event
                     var edata = this.trigger({ phase: 'before', type: 'search', originalEvent: event, target: input, search: input.val() });
                     if (edata.isCancelled === true) return;
                     // regular
                     if (!this.tmp.force_hide) this.request();
-                    if (input.val().length == 1) this.refresh()
-                    if ($('#w2ui-overlay').length == 0 || [38, 40].indexOf(event.keyCode) == -1) { // no search on arrows
+                    if (input.val().length == 1) this.refresh();
+                    if ($('#w2ui-overlay').length === 0 || [38, 40].indexOf(event.keyCode) == -1) { // no search on arrows
                         this.search();
                     }
                     // event after
@@ -1407,13 +1407,13 @@
             // --
             if (obj.type == 'enum') {
                 var tmp = $(obj.helpers.multi).find('input');
-                if (tmp.length == 0) search = ''; else search = tmp.val();
+                if (tmp.length === 0) search = ''; else search = tmp.val();
             }
             if (obj.type == 'list') {
                 var tmp = $(obj.helpers.focus).find('input');
-                if (tmp.length == 0) search = ''; else search = tmp.val();
+                if (tmp.length === 0) search = ''; else search = tmp.val();
             }
-            if (options.minLength != 0 && search.length < options.minLength) {
+            if (options.minLength !== 0 && search.length < options.minLength) {
                 options.items = []; // need to empty the list
                 this.updateOverlay();
                 return;
@@ -1422,7 +1422,7 @@
             if (obj.tmp.xhr_search == null) obj.tmp.xhr_search = '';
             if (obj.tmp.xhr_total == null) obj.tmp.xhr_total = -1;
             // check if need to search
-            if (options.url && $(obj.el).prop('readonly') != true && (
+            if (options.url && $(obj.el).prop('readonly') !== true && $(obj.el).prop('disabled') !== true && (
                     (options.items.length === 0 && obj.tmp.xhr_total !== 0) ||
                     (obj.tmp.xhr_total == options.cacheMax && search.length > obj.tmp.xhr_search.length) ||
                     (search.length >= obj.tmp.xhr_search.length && search.substr(0, obj.tmp.xhr_search.length) != obj.tmp.xhr_search) ||
@@ -1496,7 +1496,7 @@
                             obj.tmp.xhr_search  = search;
                             obj.tmp.xhr_total   = data.records.length;
                             options.items       = obj.normMenu(data.records);
-                            if (search == '' && data.records.length == 0) obj.tmp.emptySet = true; else obj.tmp.emptySet = false;
+                            if (search === '' && data.records.length === 0) obj.tmp.emptySet = true; else obj.tmp.emptySet = false;
                             obj.search();
                             // event after
                             obj.trigger($.extend(edata2, { phase: 'after' }));
@@ -1539,12 +1539,12 @@
                 search = target.val();
                 for (var s in selected) { if (selected[s]) ids.push(selected[s].id); }
             }
-            if (obj.type == 'list') {
+            else if (obj.type == 'list') {
                 target = $(obj.helpers.focus).find('input');
                 search = target.val();
                 for (var s in selected) { if (selected[s]) ids.push(selected[s].id); }
             }
-            if (obj.tmp.xhr_loading !== true) {
+            else if (obj.tmp.xhr_loading !== true) {
                 var shown = 0;
                 for (var i = 0; i < options.items.length; i++) {
                     var item = options.items[i];
@@ -1591,7 +1591,7 @@
             var options = this.options;
             // color
             if (this.type == 'color') {
-                if ($(obj.el).attr('readonly')) return;
+                if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 $(this.el).w2color({ color: $(this.el).val(), transparent: options.transparent }, function (color) {
                     if (color == null) return;
                     $(obj.el).val(color).change();
@@ -1599,8 +1599,8 @@
             }
             // date
             if (this.type == 'date') {
-                if ($(obj.el).attr('readonly')) return;
-                if ($('#w2ui-overlay').length == 0) {
+                if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
+                if ($('#w2ui-overlay').length === 0) {
                     $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar" onclick="event.stopPropagation();"></div>', {
                         css: { "background-color": "#f5f5f5" }
                     });
@@ -1666,8 +1666,8 @@
             }
             // time
             if (this.type == 'time') {
-                if ($(obj.el).attr('readonly')) return;
-                if ($('#w2ui-overlay').length == 0) {
+                if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
+                if ($('#w2ui-overlay').length === 0) {
                     $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time" onclick="event.stopPropagation();"></div>', {
                         css: { "background-color": "#fff" }
                     });
@@ -1679,7 +1679,7 @@
                         $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
                         var hour = $(this).attr('hour');
                         $(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
-                    })
+                    });
                     if (this.options.noMinutes == null || this.options.noMinutes === false) {
                         $('#w2ui-overlay .w2ui-time')
                             .on('mouseup', function () {
@@ -1706,16 +1706,16 @@
             }
             // datetime
             if (this.type == 'datetime') {
-                if ($(obj.el).attr('readonly')) return;
+                if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 // hide overlay if we are in the time selection
                 if ($("#w2ui-overlay .w2ui-time").length > 0) $('#w2ui-overlay')[0].hide();
-                if ($('#w2ui-overlay').length == 0) {
+                if ($('#w2ui-overlay').length === 0) {
                     $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar" onclick="event.stopPropagation();"></div>', {
                         css: { "background-color": "#f5f5f5" }
                     });
                 }
                 var month, year;
-                var dt = w2utils.isDate($(obj.el).val(), obj.options.format, true);
+                var dt = w2utils.isDateTime($(obj.el).val(), obj.options.format, true);
                 if (dt) { month = dt.getMonth() + 1; year = dt.getFullYear(); }
                 var selDate = null;
                 (function refreshCalendar(month, year) {
@@ -1849,7 +1849,7 @@
                     input = $(this.helpers.focus).find('input');
                 }
                 if ($(input).is(':focus')) {
-                    if (options.openOnFocus === false && $(input).val() == '' && obj.tmp.force_open !== true) {
+                    if (options.openOnFocus === false && $(input).val() === '' && obj.tmp.force_open !== true) {
                         $().w2overlay();
                         return;
                     }
@@ -1860,11 +1860,11 @@
                         }, 1);
                         return;
                     }
-                    if ($(input).val() != '') delete obj.tmp.force_open;
+                    if ($(input).val() !== '') delete obj.tmp.force_open;
                     var msgNoItems = w2utils.lang('No matches');
                     if (options.url != null && $(input).val().length < options.minLength && obj.tmp.emptySet !== true) msgNoItems = options.minLength + ' ' + w2utils.lang('letters or more...');
-                    if (options.url != null && $(input).val() == '' && obj.tmp.emptySet !== true) msgNoItems = w2utils.lang('Type to search...');
-                    if (options.url == null && options.items.length == 0) msgNoItems = w2utils.lang('Empty list');
+                    if (options.url != null && $(input).val() === '' && obj.tmp.emptySet !== true) msgNoItems = w2utils.lang('Type to search...');
+                    if (options.url == null && options.items.length === 0) msgNoItems = w2utils.lang('Empty list');
                     $(el).w2menu((!indexOnly ? 'refresh' : 'refresh-index'), $.extend(true, {}, options, {
                         search     : false,
                         render     : options.renderDrop,
@@ -1957,7 +1957,7 @@
                             start = this.options.start;
                         } else {
                             var st = (typeof this.options.start == 'string' ? this.options.start : $(this.options.start).val());
-                            if (st.trim() != '') {
+                            if (st.trim() !== '') {
                                 start = w2utils.isDateTime(st, this.options.format, true);
                             } else {
                                 start = '';
@@ -1967,7 +1967,7 @@
                             end = this.options.end;
                         } else {
                             var en = (typeof this.options.end == 'string' ? this.options.end : $(this.options.end).val());
-                            if (en.trim() != '') {
+                            if (en.trim() !== '') {
                                 end = w2utils.isDateTime(en, this.options.format, true);
                             } else {
                                 end = '';
@@ -2025,7 +2025,7 @@
                     if (loose && ['-', obj.options.decimalSymbol, obj.options.groupSymbol, obj.options.currencyPrefix, obj.options.currencySuffix].indexOf(ch) != -1) return true;
                     return w2utils.isFloat(ch.replace(obj.options.moneyRE, ''));
                 case 'bin':
-					return w2utils.isBin(ch);
+                    return w2utils.isBin(ch);
                 case 'hex':
                 case 'color':
                     return w2utils.isHex(ch);
@@ -2104,7 +2104,7 @@
                 $(obj.el).data('tmp', tmp);
                 pr = parseInt($(obj.el).css('padding-right'), 10);
                 if (obj.options.arrows) {
-                    // remove if already displaed
+                    // remove if already displayed
                     if (obj.helpers.arrows) $(obj.helpers.arrows).remove();
                     // add fresh
                     $(obj.el).after(
@@ -2234,7 +2234,7 @@
             // INPUT events
             helper.find('input')
                 .on('click', function (event) {
-                    if ($('#w2ui-overlay').length == 0) obj.focus(event);
+                    if ($('#w2ui-overlay').length === 0) obj.focus(event);
                     event.stopPropagation();
                 })
                 .on('focus', function (event) {
@@ -2256,7 +2256,7 @@
                     var el = this;
                     obj.keyDown(event);
                     setTimeout(function () {
-                        if (el.value == '') $(obj.el).attr('placeholder', pholder); else $(obj.el).attr('placeholder', '');
+                        if (el.value === '') $(obj.el).attr('placeholder', pholder); else $(obj.el).attr('placeholder', '');
                     }, 10);
                 })
                 .on('keyup', function (event) { obj.keyUp(event); })
@@ -2287,7 +2287,7 @@
                         '    <div style="padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">'+
                         '    <ul>'+
                         '        <li style="padding-left: 0px; padding-right: 0px" class="nomouse">'+
-                        '            <input type="text" style="width: 20px; margin: -3px 0 0; padding: 2px 0; border-color: white" autocomplete="off" '+ ($(obj.el).attr('readonly') ? 'readonly': '') + '/>'+
+                        '            <input type="text" style="width: 20px; margin: -3px 0 0; padding: 2px 0; border-color: white" autocomplete="off"' + ($(obj.el).prop('readonly') ? ' readonly="readonly"': '') + ($(obj.el).prop('disabled') ? ' disabled="disabled"': '') + '/>'+
                         '        </li>'+
                         '    </ul>'+
                         '    </div>'+
@@ -2296,14 +2296,14 @@
             if (obj.type == 'file') {
                 html =  '<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box">'+
                         '   <div style="position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px;">'+
-                        '       <input class="file-input" type="file" style="width: 100%; height: 100%; opacity: 0;" name="attachment" multiple tabindex="-1"/>'+
+                        '       <input class="file-input" type="file" style="width: 100%; height: 100%; opacity: 0;" name="attachment" multiple tabindex="-1"' + ($(obj.el).prop('readonly') ? ' readonly="readonly"': '') + ($(obj.el).prop('disabled') ? ' disabled="disabled"': '') + ($(obj.el).attr('accept') ? ' accept="'+ $(obj.el).attr('accept') +'"': '') + '/>'+
                         '   </div>'+
                         '    <div style="position: absolute; padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">'+
                         '        <ul><li style="padding-left: 0px; padding-right: 0px" class="nomouse"></li></ul>'+
                         '    </div>'+
                         '</div>';
             }
-            // old bg and boder
+            // old bg and border
             var tmp = $(obj.el).data('tmp') || {};
             tmp['old-background-color'] = $(obj.el).css('background-color');
             tmp['old-border-color']     = $(obj.el).css('border-color');
@@ -2323,7 +2323,7 @@
                 // INPUT events
                 div.find('input')
                     .on('click', function (event) {
-                        if ($('#w2ui-overlay').length == 0) obj.focus(event);
+                        if ($('#w2ui-overlay').length === 0) obj.focus(event);
                         $(obj.el).triggerHandler('click');
                     })
                     .on('focus', function (event) {
@@ -2346,22 +2346,22 @@
                 $(obj.el).css('outline', 'none');
                 div.on('click', function (event) {
                         $(obj.el).focus();
-                        if ($(obj.el).attr('readonly')) return;
+                        if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                         obj.blur(event);
                         obj.resize();
                         setTimeout(function () { div.find('input').click(); }, 10); // needed this when clicked on items div
                     })
                     .on('dragenter', function (event) {
-                        if ($(obj.el).attr('readonly')) return;
+                        if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                         $(div).addClass('w2ui-file-dragover');
                     })
                     .on('dragleave', function (event) {
-                        if ($(obj.el).attr('readonly')) return;
+                        if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                         var tmp = $(event.target).parents('.w2ui-field-helper');
-                        if (tmp.length == 0) $(div).removeClass('w2ui-file-dragover');
+                        if (tmp.length === 0) $(div).removeClass('w2ui-file-dragover');
                     })
                     .on('drop', function (event) {
-                        if ($(obj.el).attr('readonly')) return;
+                        if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                         $(div).removeClass('w2ui-file-dragover');
                         var files = event.originalEvent.dataTransfer.files;
                         for (var i = 0, l = files.length; i < l; i++) obj.addFile.call(obj, files[i]);
@@ -2404,10 +2404,13 @@
             var size = 0;
             var cnt  = 0;
             var err;
-            for (var s in selected) {
-                // check for dups
-                if (selected[s].name == file.name && selected[s].size == file.size) return;
-                size += selected[s].size; cnt++;
+            if (selected) {
+                for (var s = 0; s < selected.length; s++) {
+                   // check for dups
+                   if (selected[s].name == file.name && selected[s].size == file.size) return;
+                   size += selected[s].size;
+                   cnt++;
+               }
             }
             // trigger event
             var edata = obj.trigger({ phase: 'before', type: 'add', target: obj.el, file: newItem, total: cnt, totalSize: size });
@@ -2433,7 +2436,7 @@
             }
             selected.push(newItem);
             // read file as base64
-            if (typeof FileReader !== "undefined") {
+            if (typeof FileReader !== "undefined" && options.readContent === true) {
                 var reader = new FileReader();
                 // need a closure
                 reader.onload = (function () {
@@ -2532,8 +2535,8 @@
                 var dt  = year + '/' + month + '/' + day;
                 var DT  = new Date(dt);
                 var className = '';
-                if (DT.getDay() == 6) className  = ' w2ui-saturday';
-                if (DT.getDay() == 0) className  = ' w2ui-sunday';
+                if (DT.getDay() === 6) className  = ' w2ui-saturday';
+                if (DT.getDay() === 0) className  = ' w2ui-sunday';
                 if (dt == today) className += ' w2ui-today';
 
                 var dspDay  = day;
@@ -2631,7 +2634,7 @@
             }
             var html =
                 '<div class="w2ui-calendar">'+
-                '   <div class="w2ui-calendar-title">Select Minute</div>'+
+                '   <div class="w2ui-calendar-title">'+ w2utils.lang('Select Minute') +'</div>'+
                 '   <div class="w2ui-calendar-time"><table><tbody><tr>'+
                 '       <td>'+ tmp[0] +'</td>' +
                 '       <td>'+ tmp[1] +'</td>' +
@@ -2644,7 +2647,7 @@
         toMin: function (str) {
             if (typeof str != 'string') return null;
             var tmp = str.split(':');
-            if (tmp.length == 2) {
+            if (tmp.length === 2) {
                 tmp[0] = parseInt(tmp[0]);
                 tmp[1] = parseInt(tmp[1]);
                 if (str.indexOf('pm') != -1 && tmp[0] != 12) tmp[0] += 12;

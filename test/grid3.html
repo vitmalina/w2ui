@@ -21,6 +21,7 @@ $(function () {
             selectColumn : false
         },
         selectType: 'cell',
+        textSearch: 'contains',
         columns: [
             { field: 'a', caption: '<div style="text-align: center">A</div>', size: '95px', searchable: true, editable: { type: 'div' }, frozen: true },
             { field: 'b', caption: '<div style="text-align: center">B</div>', size: '95px', editable: { type: 'div' }, frozen: true},
@@ -44,6 +45,22 @@ $(function () {
         menu: ['some', 'other'],
         onContextMenu: function (event) {
             // console.log('context', event);
+        },
+        onSelectionExtend: function (event) {
+            console.log('extend', event);
+        },
+        onColumnSelect: function (event) {
+            console.log('column', event);
+            // event.preventDefault();
+        },
+        onSelect: function (event) {
+            console.log('select', event);
+        },
+        onFocus: function (event) {
+            console.log('focus');
+        },
+        onBlur: function (event) {
+            console.log('blur');
         }
     });
     w2ui.grid.on('onContextMenu', function (event) {
@@ -58,19 +75,36 @@ $(function () {
             k: 'text'
         });
     }
+    // add toolbar button, appending one record every second.
+    w2ui['grid'].toolbar.add([
+        { type: 'break',  id: 'autoload-break' },
+        { type: 'check',  id: 'autoload', caption: 'Add 1 Record/sec' },
+    ]);
+    var autoId = 0;
+    setInterval(function() {
+        if (!w2ui['grid'].toolbar.get('autoload').checked)
+            return;
+        ++autoId;
+        w2ui['grid'].add({
+            recid: autoId + 10000,
+            a: 'some ',
+            b: 'automatic',
+            c: 'text: '+autoId
+        });
+    }, 1000);
     w2ui.grid.records[1].a = 'A1';
     w2ui.grid.records[5].a = 'A1';
     w2ui.grid.records[1].b = 'BBB1';
     w2ui.grid.records[1].d = 'This is some long text in cell C and some and event more then this';
     // w2ui.grid.records[1].e = '0';
     // w2ui.grid.records[1].f = '1';
-    w2ui.grid.records[1].w2ui = { colspan: { d: 1 }, softspan: { d: 3 } };
+    w2ui.grid.records[1].w2ui = { colspan: { d: 3 } };
     w2ui.grid.records[1].c = 'CC1';
-    // w2ui.grid.records[2].w2ui = { colspan: { e: 4 } };
+    w2ui.grid.records[2].w2ui = { colspan: { e: 4 } };
     w2ui.grid.records[2].e = 'This is some long text in cell E';
-    // w2ui.grid.records[3].w2ui = { colspan: { e: 3 } };
+    w2ui.grid.records[3].w2ui = { colspan: { e: 3 } };
+    w2ui.grid.records[6].w2ui = { colspan: { e: 2 } };
     w2ui.grid.records[3].e = 'This is some long text in cell E';
-    w2ui.grid.records[3].w2ui = { softspan: { e: 3 } };
     w2ui.grid.records[4].w2ui = { summary: true };
     w2ui.grid.records[1].w2ui = { style: { 1: 'background-color: red !important' }};
     w2ui.grid.refresh();

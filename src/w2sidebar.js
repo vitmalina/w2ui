@@ -11,6 +11,9 @@
 *   - reorder with dgrag and drop
 *   - node.style is misleading - should be there to apply color for example
 *   - add multiselect
+* == 1.5 changes
+*   - allow context menu on groups
+*   - allowOnDisabled
 *
 ************************************************************************/
 
@@ -348,7 +351,7 @@
 
         unselect: function (id) {
             // if no arguments provided, unselect selected node
-            if (arguments.length == 0) {
+            if (arguments.length === 0) {
                 id = this.selected;
             }
             var current = this.get(id);
@@ -635,10 +638,10 @@
             var nd  = obj.get(id);
             if (id != obj.selected) obj.click(id);
             // event before
-            var edata = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, originalEvent: event, object: nd });
+            var edata = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, originalEvent: event, object: nd, allowOnDisabled: false });
             if (edata.isCancelled === true) return;
             // default action
-            if (nd.group || nd.disabled) return;
+            if (nd.disabled && !edata.allowOnDisabled) return;
             if (obj.menu.length > 0) {
                 $(obj.box).find('#node_'+ w2utils.escapeId(id))
                     .w2menu({
@@ -700,8 +703,7 @@
                 .attr('name', this.name)
                 .addClass('w2ui-reset w2ui-sidebar')
                 .html('<div>'+
-                        '<input id="sidebar_'+ this.name +'_focus" style="position: absolute; top: -10px; right: 0px; z-index: 1; '+
-                        '       width: 1px; height: 1px; border: 0px; padding: 0px; opacity: 0"/>'+
+                        '<input id="sidebar_'+ this.name +'_focus" style="position: absolute; top: 0; right: 0; width: 1px; z-index: -1; opacity: 0"/>'+
                         '<div class="w2ui-sidebar-top"></div>' +
                         '<div class="w2ui-sidebar-div"></div>'+
                         '<div class="w2ui-sidebar-bottom"></div>'+
@@ -717,7 +719,7 @@
             if (this.flatButton == true) {
                 flatHTML = '<div class="w2ui-flat-'+ (this.flat ? 'right' : 'left') +'" onclick="w2ui[\''+ this.name +'\'].goFlat()"></div>';
             }
-            if (this.topHTML !== '' || flatHTML != '') {
+            if (this.topHTML !== '' || flatHTML !== '') {
                 $(this.box).find('.w2ui-sidebar-top').html(this.topHTML + flatHTML);
                 $(this.box).find('.w2ui-sidebar-div')
                     .css('top', $(this.box).find('.w2ui-sidebar-top').height() + 'px');
@@ -750,7 +752,13 @@
                     // if input then do not focus
                     if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName.toUpperCase()) == -1) {
                         var $input = $(obj.box).find('#sidebar_'+ obj.name + '_focus');
-                        if (!$input.is(':focus')) $input.focus();
+                        if (!$input.is(':focus')) {
+                            if ($(event.target).hasClass('w2ui-node')) {
+                                var top = $(event.target).position().top + $(obj.box).find('.w2ui-sidebar-top').height() + event.offsetY;
+                                $input.css({ top: top + 'px', left: '0px' });
+                            }
+                            $input.focus();
+                        }
                     }
                 }, 1);
             });
@@ -783,7 +791,7 @@
                     .css('bottom', $(this.box).find('.w2ui-sidebar-bottom').height() + 'px');
             }
             // default action
-            $(this.box).find('> div').css({
+            $(this.box).find('> div').removeClass('w2ui-sidebar-flat').addClass(this.flat ? 'w2ui-sidebar-flat' : '').css({
                 width : $(this.box).width() + 'px',
                 height: $(this.box).height() + 'px'
             });
@@ -846,9 +854,10 @@
                 if (nd.group) {
                     html =
                         '<div class="w2ui-node-group" id="node_'+ nd.id +'"'+
-                        '        onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
-                        '        onmouseout="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
-                        '        onmouseover="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
+                        '   onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
+                        '   oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
+                        '   onmouseout="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
+                        '   onmouseover="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
                         ((nd.groupShowHide && nd.collapsible) ? '<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>' : '<span></span>') +
                         (typeof nd.text == 'function' ? nd.text.call(obj, nd) : '<span>'+ nd.text +'</span>') +
                         '</div>'+

@@ -90,9 +90,15 @@
             openOnFocus: true,
             items: items,
             selected: [],
-            renderItem1: function (item, options, del) {
-                console.log('render', arguments);
-                return 'some' + del;
+            renderItem: function (item, options, del) {
+                return item.text + del;
+            },
+            renderDrop: function (item) {
+                return '<div style="border: 1px solid red; padding: 10px;" onclick="event.stopPropagation()">' +item.text + '</div>';
+            },
+            select: function (event) {
+                console.log(event);
+                event.preventDefault();
             },
             // items: items
             onRequest: function (event) {

@@ -61,6 +61,45 @@
     color: #777 !important;
 }
 
+.w2ui-message { // slide down message
+    font-size: 12px;
+    position: absolute;
+    z-index: 250;
+    background-color: @message-background-color;
+    border: @message-border;
+    box-shadow: @message-shadow;
+    .box-sizing;
+    border-top: 0px;
+    border-radius: 0px 0px 6px 6px;
+    overflow: auto;
+
+    .w2ui-message-body {
+        position: absolute;
+        top: 0px;
+        bottom: 45px;
+        left: 0px;
+        right: 0px;
+        overflow: auto;
+        line-height: 1.5;
+        font-size: 14px;
+        & .w2ui-centered {
+            line-height: 1.5
+        }
+    }
+
+    .w2ui-message-buttons {
+        position: absolute;
+        height: 45px;
+        bottom: 0px;
+        left: 0px;
+        right: 0px;
+        border-top: 1px solid #e5e5e5;
+        text-align: center;
+        padding: 8px;
+    }
+}
+
+
 /*************************************************
 * ---- Input Controls ----
 */
@@ -100,7 +139,8 @@ input.w2ui-input:-ms-input-placeholder {
 
 select.w2ui-input {
     color: @input-color;
-    padding: 4px 15px 4px 7px;
+    padding: 0px 15px 0px 7px;
+    line-height: 1.8;
     border-radius: 3px;
     border: @input-border;
     -webkit-appearance: none;
@@ -422,6 +462,7 @@ input[type=checkbox].w2ui-toggle:focus {
         width: 20px;
         > span {
             height: 20px;
+            width: 18px;
         }
     }
     // caption
