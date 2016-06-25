@@ -6,7 +6,6 @@
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2fields
 *
 * == NICE TO HAVE ==
-*   - allow this.total to be unknown (-1)
 *   - column autosize based on largest content
 *   - reorder columns/records
 *   - problem with .set() and arrays, array get extended too, but should be replaced
@@ -120,6 +119,7 @@
 *   - added httpHeaders
 *   - col.editable can be a function which will be called with the same args as col.render()
 *   - getCellEditable(index, col_ind) -- return an 'editable' descriptor if cell is really editable
+*   - added stateId
 *
 ************************************************************************/
 
