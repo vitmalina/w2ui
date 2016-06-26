@@ -1256,7 +1256,7 @@ var w2utils = (function ($) {
     */
 
     function message(where, options) {
-        var obj = this;
+        var obj = this, closeTimer, edata;
         // var where.path    = 'w2popup';
         // var where.title   = '.w2ui-popup-title';
         // var where.body    = '.w2ui-box';
@@ -1287,8 +1287,14 @@ var w2utils = (function ($) {
         // negative value means margin
         if (options.originalHeight < 0) options.height = pHeight + options.originalHeight - titleHeight;
         if (options.originalWidth < 0) options.width = pWidth + options.originalWidth * 2; // x 2 because there is left and right margin
+        var head = $(where.box).find(where.title);
 
-        var head     = $(where.box).find(where.title);
+        // if some messages are closing, insta close them
+        var $tmp = $(where.box).find('.w2ui-message.w2ui-closing');
+        if ($(where.box).find('.w2ui-message.w2ui-closing').length > 0) {
+            clearTimeout(closeTimer);
+            closeCB($tmp, $tmp.data('options') || {});
+        }
         var msgCount = $(where.box).find('.w2ui-message').length;
         // remove message
         if ($.trim(options.html) === '' && $.trim(options.body) === '' && $.trim(options.buttons) === '') {
@@ -1296,7 +1302,7 @@ var w2utils = (function ($) {
             var $msg = $(where.box).find('#w2ui-message'+ (msgCount-1));
             var options = $msg.data('options') || {};
             // before event
-            var edata = options.trigger({ phase: 'before', type: 'close', target: 'self' });
+            edata = options.trigger({ phase: 'before', type: 'close', target: 'self' });
             if (edata.isCancelled === true) return;
             // default behavior
             $msg.css(w2utils.cssPrefix({
@@ -1310,18 +1316,7 @@ var w2utils = (function ($) {
             } else {
                 $(where.box).find('#w2ui-message'+ (msgCount-2)).css('z-index', 1500);
             }
-            setTimeout(function () {
-                var $focus = $msg.data('prev_focus');
-                $msg.remove();
-                if ($focus && $focus.length > 0) {
-                    $focus.focus();
-                } else {
-                    if (obj && obj.focus) obj.focus();
-                }
-                head.css('z-index', head.data('old-z-index'));
-                // event after
-                options.trigger($.extend(edata, { phase: 'after' }));
-            }, 150);
+            closeTimer = setTimeout(function () { closeCB($msg, options) }, 150);
 
         } else {
 
@@ -1347,7 +1342,9 @@ var w2utils = (function ($) {
                                     : 'onclick="'+ where.path +'.message();"'
                                 : '') + '>' +
                         '</div>');
-            $(where.box).find('#w2ui-message'+ msgCount).data('options', options).data('prev_focus', $(':focus'));
+            $(where.box).find('#w2ui-message'+ msgCount)
+                .data('options', options)
+                .data('prev_focus', $(':focus'));
             var display = $(where.box).find('#w2ui-message'+ msgCount).css('display');
             $(where.box).find('#w2ui-message'+ msgCount).css(w2utils.cssPrefix({
                 'transform': (display == 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)')
@@ -1356,7 +1353,7 @@ var w2utils = (function ($) {
                 $(where.box).find('#w2ui-message'+ msgCount).show().html(options.html);
                 options.box = $(where.box).find('#w2ui-message'+ msgCount);
                 // before event
-                var edata = options.trigger({ phase: 'before', type: 'open', target: 'self' });
+                edata = options.trigger({ phase: 'before', type: 'open', target: 'self' });
                 if (edata.isCancelled === true) {
                     head.css('z-index', head.data('old-z-index'));
                     $(where.box).find('#w2ui-message'+ msgCount).remove();
@@ -1379,6 +1376,28 @@ var w2utils = (function ($) {
                     options.trigger($.extend(edata, { phase: 'after' }));
                 }, 350);
             }
+        }
+
+        function closeCB($msg, options) {
+            if (edata == null) {
+                // before event
+                edata = options.trigger({ phase: 'before', type: 'open', target: 'self' });
+                if (edata.isCancelled === true) {
+                    head.css('z-index', head.data('old-z-index'));
+                    $(where.box).find('#w2ui-message'+ msgCount).remove();
+                    return;
+                }
+            }
+            var $focus = $msg.data('prev_focus');
+            $msg.remove();
+            if ($focus && $focus.length > 0) {
+                $focus.focus();
+            } else {
+                if (obj && obj.focus) obj.focus();
+            }
+            head.css('z-index', head.data('old-z-index'));
+            // event after
+            options.trigger($.extend(edata, { phase: 'after' }));
         }
     }
 
