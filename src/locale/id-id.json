@@ -1,5 +1,5 @@
 {
-    "locale"         : "az-ID",
+    "locale"         : "id-ID",
     "dateFormat"     : "dd/mm/yyyy",
     "timeFormat"     : "h24",
     "currency"       : "^[\\$]?[-+]?[0-9]*[\\.]?[0-9]+$",
