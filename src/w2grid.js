@@ -83,6 +83,7 @@
 *   - move events into prototype
 *   - move rec.summary, rec.style, rec.editable -> into rec.w2ui.summary, rec.w2ui.style, rec.w2ui.editable
 *   - record: {
+        recid
         field1
         ...
         fieldN
@@ -100,6 +101,7 @@
             parent_recid: (internally set, id of the parent record, when children are copied to records array)
             summary: true/false
             style: 'string' - for entire row OR { field: 'string', ...} - per field
+            class: 'string' - for entire row OR { field: 'string', ...} - per field
         }
     }
 *   - added this.show.toolbarInput
@@ -120,6 +122,7 @@
 *   - col.editable can be a function which will be called with the same args as col.render()
 *   - getCellEditable(index, col_ind) -- return an 'editable' descriptor if cell is really editable
 *   - added stateId
+*   - rec.w2ui.class (and rec.w2ui.class { fname: '...' })
 *
 ************************************************************************/
 
@@ -4129,12 +4132,14 @@
                     var rec = this.records[index] || {};
                     if (!rec.w2ui) rec.w2ui = {};
                     for (var column = 0; column < this.columns.length; column++) {
+                        var row  = $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid));
                         var cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ column);
                         cell.replaceWith(this.getCellHTML(index, column, false));
+                        cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ column); // need to reselect as it was replaced
                         // assign style
                         if (rec.w2ui.style != null && !$.isEmptyObject(rec.w2ui.style)) {
                             if (typeof rec.w2ui.style == 'string') {
-                                $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid)).attr('style', rec.w2ui.style);
+                                row.attr('style', rec.w2ui.style);
                             }
                             if ($.isPlainObject(rec.w2ui.style) && typeof rec.w2ui.style[column] == 'string') {
                                 cell.attr('style', rec.w2ui.style[column]);
@@ -4142,9 +4147,20 @@
                         } else {
                             cell.attr('style', '');
                         }
+                        // assign class
+                        if (rec.w2ui.class != null && !$.isEmptyObject(rec.w2ui.class)) {
+                            if (typeof rec.w2ui.class == 'string') {
+                                row.addClass(rec.w2ui.class);
+                            }
+                            if ($.isPlainObject(rec.w2ui.class) && typeof rec.w2ui.class[column] == 'string') {
+                                cell.addClass(rec.w2ui.class[column]);
+                            }
+                        }
                     }
                 }
+
             } else {
+
                 for (var i = 0; i < cells.length; i++) {
                     var index  = cells[i].index;
                     var column = cells[i].column;
@@ -4154,13 +4170,15 @@
                         continue;
                     }
                     var rec  = this.records[index] || {};
+                    var row  = $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid));
                     var cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ column);
                     if (!rec.w2ui) rec.w2ui = {};
                     cell.replaceWith(this.getCellHTML(index, column, false));
+                    cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ column); // need to reselect as it was replaced
                     // assign style
                     if (rec.w2ui.style != null && !$.isEmptyObject(rec.w2ui.style)) {
                         if (typeof rec.w2ui.style == 'string') {
-                            $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid)).attr('style', rec.w2ui.style);
+                            row.attr('style', rec.w2ui.style);
                         }
                         if ($.isPlainObject(rec.w2ui.style) && typeof rec.w2ui.style[column] == 'string') {
                             cell.attr('style', rec.w2ui.style[column]);
@@ -4168,6 +4186,16 @@
                     } else {
                         cell.attr('style', '');
                     }
+                    // assign class
+                    if (rec.w2ui.class != null && !$.isEmptyObject(rec.w2ui.class)) {
+                        if (typeof rec.w2ui.class == 'string') {
+                            row.addClass(rec.w2ui.class);
+                        }
+                        if ($.isPlainObject(rec.w2ui.class) && typeof rec.w2ui.class[column] == 'string') {
+                            cell.addClass(rec.w2ui.class[column]);
+                        }
+                    }
+
                 }
             }
             return (new Date()).getTime() - time;
@@ -4183,6 +4211,7 @@
             if (rec == null) return false;
             // set cell html and changed flag
             cell.replaceWith(this.getCellHTML(index, col_ind, isSummary));
+            cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ col_ind); // need to recelect as it was replaced
             if (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes[col.field] != null) {
                 cell.addClass('w2ui-changed');
             } else {
@@ -4198,6 +4227,15 @@
                 }
             } else {
                 cell.attr('style', '');
+            }
+            // assign class
+            if (rec.w2ui && rec.w2ui.class != null && !$.isEmptyObject(rec.w2ui.class)) {
+                if (typeof rec.w2ui.class == 'string') {
+                    $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid)).addClass(rec.w2ui.class);
+                }
+                if ($.isPlainObject(rec.w2ui.class) && typeof rec.w2ui.class[col_ind] == 'string') {
+                    cell.addClass(rec.w2ui.class[col_ind]);
+                }
             }
         },
 
@@ -6700,9 +6738,11 @@
             if (sel.indexes.indexOf(ind) != -1) isRowSelected = true;
             var rec_style = (record.w2ui ? record.w2ui.style : '');
             if (rec_style == null || typeof rec_style != 'string') rec_style = '';
+            var rec_class = (record.w2ui ? record.w2ui.class : '');
+            if (rec_class == null || typeof rec_class != 'string') rec_class = '';
             // render TR
             rec_html1 += '<tr id="grid_'+ this.name +'_frec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" index="'+ ind +'" '+
-                ' class="'+ (lineNum % 2 === 0 ? 'w2ui-even' : 'w2ui-odd') +
+                ' class="'+ (lineNum % 2 === 0 ? 'w2ui-even' : 'w2ui-odd') + ' ' + rec_class +
                     (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') +
                     (record.w2ui && record.w2ui.editable === false ? ' w2ui-no-edit' : '') +
                     (record.w2ui && record.w2ui.expanded === true ? ' w2ui-expanded' : '') + '" ' +
@@ -6850,6 +6890,7 @@
             var style         = 'max-height: '+ parseInt(this.recordHeight) +'px;';
             var isChanged     = !summary && record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null;
             var addStyle      = '';
+            var addClass      = '';
             var sel           = this.last.selection;
             var isRowSelected = false;
             var infoBubble    = '';
@@ -6947,14 +6988,20 @@
                 var tmp = col.render.toLowerCase().split(':');
                 if (['number', 'int', 'float', 'money', 'currency', 'percent', 'size'].indexOf(tmp[0]) != -1) addStyle += 'text-align: right;';
             }
-            if (record && record.w2ui && typeof record.w2ui.style == 'object') {
-                if (typeof record.w2ui.style[col_ind] == 'string') addStyle += record.w2ui.style[col_ind] + ';';
-                if (typeof record.w2ui.style[col.field] == 'string') addStyle += record.w2ui.style[col.field] + ';';
+            if (record && record.w2ui) {
+                if (typeof record.w2ui.style == 'object') {
+                    if (typeof record.w2ui.style[col_ind] == 'string') addStyle += record.w2ui.style[col_ind] + ';';
+                    if (typeof record.w2ui.style[col.field] == 'string') addStyle += record.w2ui.style[col.field] + ';';
+                }
+                if (typeof record.w2ui.class == 'object') {
+                    if (typeof record.w2ui.class[col_ind] == 'string') addClass += record.w2ui.class[col_ind] + ' ';
+                    if (typeof record.w2ui.class[col.field] == 'string') addClass += record.w2ui.class[col.field] + ' ';
+                }
             }
             var isCellSelected = false;
             if (isRowSelected && $.inArray(col_ind, sel.columns[ind]) != -1) isCellSelected = true;
             // data
-            data =  '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') +
+            data =  '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') + ' ' + addClass +
                         (isChanged ? ' w2ui-changed' : '') +
                         '" '+
                     '   id="grid_'+ this.name +'_data_'+ ind +'_'+ col_ind +'" col="'+ col_ind +'" '+
