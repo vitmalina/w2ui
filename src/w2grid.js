@@ -2259,7 +2259,7 @@
                 var edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params, httpHeaders: this.httpHeaders });
                 if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
             } else {
-                var edata = { url: url, postData: params, httpHeaders: httpHeaders };
+                var edata = { url: url, postData: params, httpHeaders: this.httpHeaders };
             }
             // call server to get data
             var obj = this;
