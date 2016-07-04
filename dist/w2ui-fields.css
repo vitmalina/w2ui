@@ -425,6 +425,7 @@ input[type=checkbox].w2ui-toggle:focus {
 }
 .w2ui-overlay table.w2ui-drop-menu td.menu-icon > span {
   height: 20px;
+  width: 18px;
 }
 .w2ui-overlay table.w2ui-drop-menu td.menu-text {
   padding: 8px 10px 8px 5px;
