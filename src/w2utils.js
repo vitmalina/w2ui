@@ -1623,17 +1623,14 @@ var w2utils = (function ($) {
         }
         if (el == null) return;
         if (pos > el.length) pos = el.length;
-        try { // sometimes range becomes not in document
-            range.setStart(el, pos);
-            if (posEnd) {
-                range.setEnd(el, posEnd);
-            } else {
-                range.collapse(true);
-            }
-            sel.removeAllRanges();
-            sel.addRange(range);
-        } catch (e) {
+        range.setStart(el, pos);
+        if (posEnd) {
+            range.setEnd(el, posEnd);
+        } else {
+            range.collapse(true);
         }
+        sel.removeAllRanges();
+        sel.addRange(range);
     }
 
     function testLocalStorage() {

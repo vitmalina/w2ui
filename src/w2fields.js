@@ -45,6 +45,7 @@
 *   - options.recId, options.recText - to define custom id and text for remove data, can be string or function
 *   - options.readContent - for file type
 *   - added support for 'accept' attribute for file type
+*   - options.msgNoItems
 *
 ************************************************************************/
 
@@ -1442,7 +1443,7 @@
                         max    : options.cacheMax
                     };
                     $.extend(postData, options.postData);
-                    var edata = obj.trigger({ phase: 'before', type: 'request', target: obj.el, url: url, postData: postData });
+                    var edata = obj.trigger({ phase: 'before', type: 'request', search: search, target: obj.el, url: url, postData: postData });
                     if (edata.isCancelled === true) return;
                     url      = edata.url;
                     postData = edata.postData;
@@ -1865,6 +1866,8 @@
                     if (options.url != null && $(input).val().length < options.minLength && obj.tmp.emptySet !== true) msgNoItems = options.minLength + ' ' + w2utils.lang('letters or more...');
                     if (options.url != null && $(input).val() === '' && obj.tmp.emptySet !== true) msgNoItems = w2utils.lang('Type to search...');
                     if (options.url == null && options.items.length === 0) msgNoItems = w2utils.lang('Empty list');
+                    if (options.msgNoItems != null) msgNoItems = options.msgNoItems;
+                    if (msgNoItems == 'function') msgNoItems = msgNoItems(options);
                     $(el).w2menu((!indexOnly ? 'refresh' : 'refresh-index'), $.extend(true, {}, options, {
                         search     : false,
                         render     : options.renderDrop,
