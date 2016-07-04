@@ -32,6 +32,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - w2utils.keyboard is removed
 *   - w2tag can be positioned with an array of valid values
 *   - decodeTags
+*   - added w2utils.testLocalStorage(), w2utils.hasLocalStorage
 *
 ************************************************/
 
@@ -99,6 +100,8 @@ var w2utils = (function ($) {
         cssPrefix       : cssPrefix,
         getCursorPosition : getCursorPosition,
         setCursorPosition : setCursorPosition,
+        testLocalStorage  : testLocalStorage,
+        hasLocalStorage   : testLocalStorage(),
         // some internal variables
         isIOS : ((navigator.userAgent.toLowerCase().indexOf('iphone') != -1 ||
                  navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
@@ -1631,6 +1634,19 @@ var w2utils = (function ($) {
         sel.addRange(range);
     }
 
+    function testLocalStorage() {
+        // test if localStorage is available, see issue #1282
+        // original code: https://github.com/Modernizr/Modernizr/blob/master/feature-detects/storage/localstorage.js
+        var str = 'w2ui_test';
+        try {
+          localStorage.setItem(str, str);
+          localStorage.removeItem(str);
+          return true;
+        } catch (e) {
+          return false;
+        }
+    }
+
 })(jQuery);
 
 /***********************************************************
@@ -2932,7 +2948,7 @@ w2utils.event = {
 *   - added hasFocus, refactored w2utils.keyboard
 *   - do not clear selection when clicked and it was not in focus
 *   - added record.w2ui.colspan
-*   - editable area extands with typing
+*   - editable area extends with typing
 *   - removed onSubmit and onDeleted - now it uses onSave and onDelete
 *   - column.seachable - can be an object, which will create search
 *   - added null, not null filters
@@ -5124,7 +5140,7 @@ w2utils.event = {
                 var edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params, httpHeaders: this.httpHeaders });
                 if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
             } else {
-                var edata = { url: url, postData: params, httpHeaders: httpHeaders };
+                var edata = { url: url, postData: params, httpHeaders: this.httpHeaders };
             }
             // call server to get data
             var obj = this;
@@ -10049,7 +10065,7 @@ w2utils.event = {
 
         stateSave: function (returnOnly) {
             var obj = this;
-            if (!localStorage) return null;
+            if (!w2utils.hasLocalStorage) return null;
             var state = {
                 columns     : [],
                 show        : $.extend({}, this.show),
@@ -10106,7 +10122,7 @@ w2utils.event = {
             if (!newState) {
                 // read it from local storage
                 try {
-                    if (!localStorage) return false;
+                    if (!w2utils.hasLocalStorage) return false;
                     var tmp = $.parseJSON(localStorage.w2ui || '{}');
                     if (!tmp) tmp = {};
                     if (!tmp.states) tmp.states = {};
@@ -10160,7 +10176,7 @@ w2utils.event = {
             var obj = this;
             this.stateRestore(this.last.state);
             // remove from local storage
-            if (localStorage) {
+            if (w2utils.hasLocalStorage) {
                 try {
                     var tmp = $.parseJSON(localStorage.w2ui || '{}');
                     if (tmp.states && tmp.states[(this.stateId || this.name)]) {
@@ -16333,7 +16349,7 @@ var w2prompt = function (label, title, callBack) {
                         max    : options.cacheMax
                     };
                     $.extend(postData, options.postData);
-                    var edata = obj.trigger({ phase: 'before', type: 'request', target: obj.el, url: url, postData: postData });
+                    var edata = obj.trigger({ phase: 'before', type: 'request', search: search, target: obj.el, url: url, postData: postData });
                     if (edata.isCancelled === true) return;
                     url      = edata.url;
                     postData = edata.postData;
@@ -16435,7 +16451,7 @@ var w2prompt = function (label, title, callBack) {
                 search = target.val();
                 for (var s in selected) { if (selected[s]) ids.push(selected[s].id); }
             }
-            else if (obj.tmp.xhr_loading !== true) {
+            if (obj.tmp.xhr_loading !== true) {
                 var shown = 0;
                 for (var i = 0; i < options.items.length; i++) {
                     var item = options.items[i];
@@ -18576,7 +18592,7 @@ var w2prompt = function (label, title, callBack) {
                 if (tmp) tmp.clear();
                 $(field.$el).off('change').on('change', function () {
                     var value_new      = this.value;
-                    var value_previous = obj.record[this.name] !== undefined ? obj.record[this.name] : '';
+                    var value_previous = obj.record[this.name] != null ? obj.record[this.name] : '';
                     var field          = obj.get(this.name);
                     if (['list', 'enum', 'file'].indexOf(field.type) != -1 && $(this).data('selected')) {
                         var nv = $(this).data('selected');
