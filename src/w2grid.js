@@ -123,6 +123,7 @@
 *   - getCellEditable(index, col_ind) -- return an 'editable' descriptor if cell is really editable
 *   - added stateId
 *   - rec.w2ui.class (and rec.w2ui.class { fname: '...' })
+*   - columnTooltip
 *
 ************************************************************************/
 
@@ -2818,12 +2819,13 @@
                     if (tmp.length > 0) {
                         tmp.focus();
                         clearTimeout(obj.last.kbd_timer); // keep focus
+                        var len = $(tmp).text().length;
                         if (value != null) {
                             // set cursor to the end
-                            w2utils.setCursorPosition(tmp[0], $(tmp).text().length);
+                            w2utils.setCursorPosition(tmp[0], len);
                         } else {
                             // select entire text
-                            w2utils.setCursorPosition(tmp[0], 0, $(tmp).text().length);
+                            w2utils.setCursorPosition(tmp[0], 0, len);
                         }
                         expand.call(el.find('div.w2ui-input')[0], null);
                     }
@@ -4022,7 +4024,9 @@
                 for (var c = 0; c < this.columns.length; c++) {
                     var col = this.columns[c];
                     if (col.hidden === true) continue;
-                    text += '"' + w2utils.stripTags(col.caption ? col.caption : col.field) + '"\t';
+                    var colName = (col.caption ? col.caption : col.field);
+                    if (col.caption && col.caption.length < 3 && col.tooltip) colName = col.tooltip; // if column name is less then 3 char and there is tooltip - use it
+                    text += '"' + w2utils.stripTags(colName) + '"\t';
                 }
                 text = text.substr(0, text.length-1); // remove last \t
                 text += '\n';

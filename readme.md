@@ -1,7 +1,7 @@
 ## W2UI 1.4 - MIT License
 
 W2UI is modern, intuitive JavaScript UI library for building rich data-driven web application. The library has
-a small footprint and no dependencies except jQuery. The library has the following widgets:
+a small footprint and no dependencies except jQuery (1.8+). The library has the following widgets:
 
 * w2layout
 * w2grid
@@ -24,25 +24,25 @@ If you're using w2ui I'd love to hear about it, please email to vitmalina@gmail.
 
 ## Quick Start
 
-Current stable version is 1.4. 
+Current stable version is 1.4.
 
 You can:
-- Download from here: [http://w2ui.com](http://w2ui.com) 
+- Download from here: [http://w2ui.com](http://w2ui.com)
 - Install using bower
 
 ```
 bower install w2ui
 ```
 
-To start using the library you need to include into your page: 
+To start using the library you need to include into your page:
 
-- w2ui-1.4.js (or w2ui-1.4.min.js) 
-- w2ui-1.4.css (or w2ui-1.4.min.css) 
+- w2ui-1.4.js (or w2ui-1.4.min.js)
+- w2ui-1.4.css (or w2ui-1.4.min.css)
 
 All the widgets and their css classes are defined inside of these two files. There is no image dependencies, some images
 are embedded into CSS file.
 
-There is no requirement for a server side language. Node, Java, PHP, ASP, Perl or .NET all will work, as long as you can 
+There is no requirement for a server side language. Node, Java, PHP, ASP, Perl or .NET all will work, as long as you can
 return JSON format from the server (or write a converter into JSON format on the client).
 
 [Getting Started Guide](http://w2ui.com/web/get-started)
@@ -58,19 +58,19 @@ You can find documentation and demos here:
 
 ## Bug Tracking
 
-Have a bug or a feature request? Please open an issue here [https://github.com/vitmalina/w2ui/issues](https://github.com/vitmalina/w2ui/issues). 
+Have a bug or a feature request? Please open an issue here [https://github.com/vitmalina/w2ui/issues](https://github.com/vitmalina/w2ui/issues).
 Please make sure that the same issue was not previously submitted by someone else.
 
 
 ## Building
 
 I have switched to Grunt as a build tool. You will find Gruntfile.js in the root. You still can build with ANT if you are more comfortable with it.
-Both processes will produces same w2ui.js and w2ui.css files. Grunt has a few more tasks, such as watch, to auto compiles less and js files as you 
+Both processes will produces same w2ui.js and w2ui.css files. Grunt has a few more tasks, such as watch, to auto compiles less and js files as you
 develop. Both tools will do the following:
 
 - Compile LESS files
 - Concatenate and minify CSS files
-- Concatenate, uglify and minify JS files 
+- Concatenate, uglify and minify JS files
 
 To use ANT, you will need to install NodeJS and NPM, then run the following command to install dependencies
 
@@ -90,7 +90,7 @@ npm install
 ## File Structure
 
 ```
-- dist           - compiled JS and CSS files 
+- dist           - compiled JS and CSS files
 - src            - source JS files
   - kickstart    - copy of another project used with the demos (not part of w2ui itself)
   - less         - LESS files (source for css)

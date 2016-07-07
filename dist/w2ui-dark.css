@@ -488,6 +488,7 @@ input[type=checkbox].w2ui-toggle:focus {
 }
 .w2ui-overlay table.w2ui-drop-menu td.menu-icon > span {
   height: 20px;
+  width: 18px;
 }
 .w2ui-overlay table.w2ui-drop-menu td.menu-text {
   padding: 8px 10px 8px 5px;
@@ -1968,7 +1969,7 @@ button.w2ui-btn-small:focus:before {
 }
 .w2ui-grid .w2ui-grid-body table td {
   border-right: 1px solid #3d4563;
-  border-bottom: 0px solid transparent;
+  border-bottom: 1px solid transparent;
   cursor: default;
   overflow: hidden;
 }
@@ -2221,6 +2222,7 @@ button.w2ui-btn-small:focus:before {
   background-color: inherit;
 }
 .w2ui-ss .w2ui-grid-body .w2ui-grid-records table tr:first-child td {
+  border-top: 0px;
   border-bottom: 0px;
 }
 .w2ui-ss .w2ui-grid-body .w2ui-grid-frecords table tr td.w2ui-selected {
@@ -2933,11 +2935,11 @@ button.w2ui-btn-small:focus:before {
   background-color: transparent;
 }
 .w2ui-toolbar table.w2ui-button .w2ui-tb-image {
-  width: 16px;
+  width: 22px;
   height: 16px;
-  padding: 0px;
-  margin: 5px 1px 3px 3px !important;
-  border: 0px !important;
+  padding: 0;
+  margin: 5px 1px 3px 1px!important;
+  border: 0!important;
   text-align: center;
 }
 .w2ui-toolbar table.w2ui-button .w2ui-tb-image > span {
