@@ -4618,7 +4618,7 @@
                             sTop = $(obj.box).find('#grid_'+ obj.name +'_footer').position().top;
                         }
                         $input.css({
-                            left: sLeft + 20,
+                            left: sLeft - 10,
                             top : sTop
                         });
                     }
