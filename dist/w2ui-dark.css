@@ -2927,7 +2927,7 @@ button.w2ui-btn-small:focus:before {
   border: 0px !important;
 }
 .w2ui-toolbar table.w2ui-button {
-  margin: 0px 1px;
+  margin: 0 1px 0 0;
   border-radius: 4px;
   height: 24px;
   min-width: 24px;
