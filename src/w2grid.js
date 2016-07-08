@@ -4603,32 +4603,33 @@
                     if (obj.last.move.recid == null) obj.last.move.type = 'select-column';
                     // set focus to grid
                     var target = event.target;
-                    var $input = $(obj.box).find('#grid_'+ obj.name + '_focus');
-                    // move input next to cursor so screen does not jump
-                    if (obj.last.move) {
-                        var sLeft = obj.last.move.focusX;
-                        var sTop  = obj.last.move.focusY;
-                        var $owner = $(target).parents('table').parent();
-                        if ($owner.hasClass('w2ui-grid-records') || $owner.hasClass('w2ui-grid-frecords')) {
-                            sLeft = obj.last.move.focusX - $(obj.box).find('#grid_'+ obj.name +'_records').scrollLeft();
-                            sTop  = obj.last.move.focusY - $(obj.box).find('#grid_'+ obj.name +'_records').scrollTop();
-                        }
-                        if ($(target).hasClass('w2ui-grid-footer') || $(target).parents('div.w2ui-grid-footer').length > 0) {
-                            sTop = $(obj.box).find('#grid_'+ obj.name +'_footer').position().top;
-                        }
-                        $input.css({
-                            left: sLeft + 20,
-                            top : sTop
-                        });
-                    }
-                    // if toolbar input is clicked
                     setTimeout(function () {
-                        if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(target.tagName.toUpperCase()) != -1) {
-                            $(target).focus();
-                        } else {
-                            if (!$input.is(':focus')) $input.focus();
+                        var $input = $(obj.box).find('#grid_'+ obj.name + '_focus');
+                        if (!$input.is(':focus')) $input.focus();
+                        // move input next to cursor so screen does not jump
+                        if (obj.last.move) {
+                            var sLeft = obj.last.move.focusX;
+                            var sTop  = obj.last.move.focusY;
+                            var $owner = $(target).parents('table').parent();
+                            if ($owner.hasClass('w2ui-grid-records') || $owner.hasClass('w2ui-grid-frecords')) {
+                                sLeft = obj.last.move.focusX - $(obj.box).find('#grid_'+ obj.name +'_records').scrollLeft();
+                                sTop  = obj.last.move.focusY - $(obj.box).find('#grid_'+ obj.name +'_records').scrollTop();
+                            }
+                            if ($(target).hasClass('w2ui-grid-footer') || $(target).parents('div.w2ui-grid-footer').length > 0) {
+                                sTop = $(obj.box).find('#grid_'+ obj.name +'_footer').position().top;
+                            }
+                            $input.css({
+                                left: sLeft + 20,
+                                top : sTop
+                            });
                         }
-                    }, 50);
+                        // if toolbar input is clicked
+                        setTimeout(function () {
+                            if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(target.tagName.toUpperCase()) != -1) {
+                                $(target).focus();
+                            }
+                        }, 50);
+                    }, 1);
                 }
                 if (obj.reorderRows == true) {
                     var el = event.target;
