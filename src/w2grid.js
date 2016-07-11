@@ -3842,7 +3842,7 @@
 
                 // event before
                 var edata = this.trigger({ phase: 'before', type: 'expand', target: this.name, recid: recid,
-                    box_id: 'grid_'+ this.name +'_rec_'+ recid +'_expanded' });
+                    box_id: 'grid_'+ this.name +'_rec_'+ recid +'_expanded', fbox_id: 'grid_'+ this.name +'_frec_'+ id +'_expanded' });
                 if (edata.isCancelled === true) {
                     $('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').remove();
                     $('#grid_'+ this.name +'_frec_'+ id +'_expanded_row').remove();
@@ -3854,6 +3854,8 @@
                 var innerHeight = row1.find('> div:first-child').height();
                 if (row1.height() < innerHeight) {
                     row1.css({ height: innerHeight + 'px' });
+                }
+                if (row2.height() < innerHeight) {
                     row2.css({ height: innerHeight + 'px' });
                 }
                 // default action
@@ -3908,7 +3910,7 @@
                 if ($('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').length === 0 || this.show.expandColumn !== true) return false;
                 // event before
                 var edata = this.trigger({ phase: 'before', type: 'collapse', target: this.name, recid: recid,
-                    box_id: 'grid_'+ this.name +'_rec_'+ id +'_expanded' });
+                    box_id: 'grid_'+ this.name +'_rec_'+ id +'_expanded', fbox_id: 'grid_'+ this.name +'_frec_'+ id +'_expanded' });
                 if (edata.isCancelled === true) return false;
                 // default action
                 $('#grid_'+ this.name +'_rec_'+ id).removeAttr('expanded').removeClass('w2ui-expanded');
@@ -4672,6 +4674,8 @@
                 }
                 $(document).on('mousemove', mouseMove);
                 $(document).on('mouseup', mouseStop);
+                // needed when grid grids are nested, see issue #1275
+                event.stopPropagation();
             }
 
             function mouseMove (event) {
@@ -4805,8 +4809,12 @@
                     } else {
                         if (obj.multiSelect) {
                             var sel = obj.getSelection();
-                            for (var ns = 0; ns < newSel.length; ns++) if (sel.indexOf(newSel[ns]) == -1) obj.select(newSel[ns]); // add more items
-                            for (var s = 0; s < sel.length; s++) if (newSel.indexOf(sel[s]) == -1) obj.unselect(sel[s]); // remove items
+                            for (var ns = 0; ns < newSel.length; ns++) {
+                                if (sel.indexOf(newSel[ns]) == -1) obj.select(newSel[ns]); // add more items
+                            }
+                            for (var s = 0; s < sel.length; s++) {
+                                if (newSel.indexOf(sel[s]) == -1) obj.unselect(sel[s]); // remove items
+                            }
                         }
                     }
                 }
