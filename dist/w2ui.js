@@ -4740,7 +4740,8 @@ w2utils.event = {
                                         || (search.type == 'int' && w2utils.isInt(value)) || (search.type == 'float' && w2utils.isFloat(value))
                                         || (search.type == 'percent' && w2utils.isFloat(value)) || (search.type == 'hex' && w2utils.isHex(value))
                                         || (search.type == 'currency' && w2utils.isMoney(value)) || (search.type == 'money' && w2utils.isMoney(value))
-                                        || (search.type == 'date' && w2utils.isDate(value)) || (search.type == 'datetime' && w2utils.isDateTime(value))
+                                        || (search.type == 'date' && w2utils.isDate(value)) || (search.type == 'time' && w2utils.isTime(value))
+                                        || (search.type == 'datetime' && w2utils.isDateTime(value))
                                     ) {
                                     var tmp = {
                                         field    : search.field,
@@ -7497,7 +7498,7 @@ w2utils.event = {
                             sTop = $(obj.box).find('#grid_'+ obj.name +'_footer').position().top;
                         }
                         $input.css({
-                            left: sLeft + 20,
+                            left: sLeft - 10,
                             top : sTop
                         });
                     }
@@ -8815,9 +8816,10 @@ w2utils.event = {
                     case 'date':
                     case 'time':
                     case 'datetime':
-                        html += '<input rel="search" type="text" size="12" class="w2ui-input" style="'+ s.style +'" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'/>'+
+                        var size = (s.type === 'datetime') ? 17 : 12;
+                        html += '<input rel="search" type="text" size="'+ size +'" class="w2ui-input" style="'+ s.style +'" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'/>'+
                                 '<span id="grid_'+ this.name +'_range_'+ i +'" style="display: none">'+
-                                '&#160;-&#160;&#160;<input rel="search" type="text" class="w2ui-input" style="width: 90px" id="grid_'+ this.name +'_field2_'+i+'" name="'+ s.field +'" '+ s.inTag +'/>'+
+                                '&#160;-&#160;&#160;<input rel="search" type="text" class="w2ui-input" size="'+ size +'" style="'+ s.style +'" id="grid_'+ this.name +'_field2_'+i+'" name="'+ s.field +'" '+ s.inTag +'/>'+
                                 '</span>';
                         break;
 

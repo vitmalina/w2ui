@@ -4,13 +4,13 @@
 **/
 
 var kickStart = (function () {
-    // public scope    
+    // public scope
 
     var app = {
         _conf   : {
             name    : 'unnamed',
             baseURL : '',
-            cache   : false, 
+            cache   : false,
             modules : {}
         },
         define    : define,
@@ -26,7 +26,7 @@ var kickStart = (function () {
     function define(mod) {
         // if string - it is path to the file
         if (typeof mod == 'string') {
-            $.ajax({ 
+            $.ajax({
                 url      : app._conf.baseURL + mod,
                 dataType : 'text',
                 cache    : app._conf.cache,
@@ -36,11 +36,11 @@ var kickStart = (function () {
                         console.log('ERROR: error while loading module definition from "'+ mod +'".');
                         return;
                     }
-                    try { 
-                        mod = JSON.parse(data); 
+                    try {
+                        mod = JSON.parse(data);
                     } catch (e) {
                         console.log('ERROR: not valid JSON file  "'+ mod +'".\n'+ e);
-                        return;                        
+                        return;
                     }
                 },
                 error : function (data, err, errData) {
@@ -111,9 +111,9 @@ var kickStart = (function () {
                 if (typeof app[name] != 'undefined') {
                     modCount--;
                     isFinished();
-                } else if (typeof app._conf.modules[name] == 'undefined') { 
+                } else if (typeof app._conf.modules[name] == 'undefined') {
                     console.log('ERROR: module ' + name + ' is not defined.');
-                } else { 
+                } else {
                     (function (name) { // need closure
                         // load dependencies
                         getFiles(app._conf.modules[name].assets.concat([app._conf.modules[name].start]), function (files) {
@@ -123,9 +123,9 @@ var kickStart = (function () {
                             app._conf.modules[name].files  = files;
                             app._conf.modules[name].ready  = true;
                             // execute start file
-                            try { 
-                                eval(start); 
-                            } catch (e) { 
+                            try {
+                                eval(start);
+                            } catch (e) {
                                 failed = true;
                                 // find error line
                                 var err = e.stack.split('\n');
@@ -169,41 +169,49 @@ var kickStart = (function () {
     }
 
     // ===========================================
-    // -- Loads a set of files and returns 
+    // -- Loads a set of files and returns
     // -- its contents to the callBack function
 
     function getFiles (files, callBack) {
         var bufferObj = {};
         var bufferLen = files.length;
-        
+
         for (var i in files) {
             // need a closure
             (function () {
                 var index = i;
                 var path  = files[i];
-                $.ajax({
-                    url      : app._conf.baseURL + path,
-                    dataType : 'text',
-                    cache    : app._conf.cache,
-                    success  : function (data, success, xhr) {
-                        if (success != 'success') {
-                            console.log('ERROR: error while getting a file '+ path +'.');
-                            return;
-                        }
-                        bufferObj[path] = xhr.responseText;
-                        loadDone();
-
-                    },
-                    error : function (data, err, errData) {
-                        if (err == 'error') {
-                            console.log('ERROR: failed to load '+ files[i] +'.');
-                        } else {
-                            console.log('ERROR: file "'+ files[i] + '" is loaded, but with a parsing error(s) in line '+ errData.line +': '+ errData.message);
+                // check if file is loaded in script tag
+                var tmp = $('script[path="'+ path +'"]');
+                if (tmp.length > 0) {
+                    bufferObj[path] = tmp.html();
+                    loadDone();
+                } else {
+                    // load from url source
+                    $.ajax({
+                        url      : app._conf.baseURL + path,
+                        dataType : 'text',
+                        cache    : app._conf.cache,
+                        success  : function (data, success, xhr) {
+                            if (success != 'success') {
+                                console.log('ERROR: error while getting a file '+ path +'.');
+                                return;
+                            }
                             bufferObj[path] = xhr.responseText;
                             loadDone();
+
+                        },
+                        error : function (data, err, errData) {
+                            if (err == 'error') {
+                                console.log('ERROR: failed to load '+ files[i] +'.');
+                            } else {
+                                console.log('ERROR: file "'+ files[i] + '" is loaded, but with a parsing error(s) in line '+ errData.line +': '+ errData.message);
+                                bufferObj[path] = xhr.responseText;
+                                loadDone();
+                            }
                         }
-                    }
-                });
+                    });
+                }
             })();
         }
         // internal counter

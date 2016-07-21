@@ -12,17 +12,72 @@ $(function () {
 	app.define({
 		"main": {
 		 	"start": "app/main/main.js",
+            "route": "/main",
 		 	"assets": [
 		 		"app/main/config.js",
-		 		"app/main/main-config.js",
-		 		"app/main/formula-config.js",
-		 		"app/main/panel.js",
-		 		"app/main/formula.js"
+		 		"app/main/formula.html"
 		 	]
-		}
-	})
+		},
+        "some-module": {
+            "start": "app/some/some.js",
+            "route": "/some*",
+            "assets": []
+        }
+	});
+    app.require(['route', 'main'], function (files) {
+        app.route.init('/some');
+        console.log('loaded');
+    });
 });
 //]]>
 </script>
+
+<script type="text/file" path="app/main/config.js">
+    some: {
+        a: 1,
+        b: 2
+    }
+</script>
+
+<script type="text/file" path="app/main/main.js">
+app.register('main', function (files) {
+    init();
+    return {};
+
+    function init() {
+        app.route.add({
+            "/main*": function (param) {
+                console.log('MAIN', param);
+            },
+            "/main/1": function (param) {
+                console.log('route 1');
+            },
+            "/main/2": function (param) {
+                console.log('route 2');
+            }
+        })
+        console.log(files);
+    }
+});
+</script>
+
+<script type="text/file" path="app/main/formula.html">
+    some html file
+</script>
+
+<script type="text/file" path="app/some/some.js">
+app.register('some-module', function (files) {
+    console.log("LOADED \"some-module\"");
+    app.route.add({
+        "/some": function () {
+            console.log('+++SOME');
+        },
+        "/some/1": function () {
+            console.log('+++SOME 1');
+        }
+    });
+});
+</script>
+
 </body>
 </html>
