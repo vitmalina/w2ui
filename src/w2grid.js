@@ -6778,7 +6778,7 @@
                     (rec_style != '' ? 'custom_style="'+ rec_style +'"' : '') +
                 '>';
             rec_html2 += '<tr id="grid_'+ this.name +'_rec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" index="'+ ind +'" '+
-                ' class="'+ (lineNum % 2 === 0 ? 'w2ui-even' : 'w2ui-odd') +
+                ' class="'+ (lineNum % 2 === 0 ? 'w2ui-even' : 'w2ui-odd') + ' ' + rec_class +
                     (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') +
                     (record.w2ui && record.w2ui.editable === false ? ' w2ui-no-edit' : '') +
                     (record.w2ui && record.w2ui.expanded === true ? ' w2ui-expanded' : '') + '" ' +
