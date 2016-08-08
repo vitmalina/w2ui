@@ -124,6 +124,7 @@
 *   - added stateId
 *   - rec.w2ui.class (and rec.w2ui.class { fname: '...' })
 *   - columnTooltip
+*   - expendable grids are still working
 *
 ************************************************************************/
 
@@ -2616,84 +2617,91 @@
             if (edit.items.length > 0 && !$.isPlainObject(edit.items[0])) {
                 edit.items = w2obj.field.prototype.normMenu(edit.items);
             }
-            if (edit.type == 'select') {
-                var html = '';
-                for (var i = 0; i < edit.items.length; i++) {
-                    html += '<option value="'+ edit.items[i].id +'"'+ (edit.items[i].id == val ? ' selected="selected"' : '') +'>'+ edit.items[i].text +'</option>';
-                }
-                el.addClass('w2ui-editable')
-                    .html('<select id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" column="'+ column +'" class="w2ui-input"'+
-                        '    style="width: 100%; pointer-events: auto; padding: 0 0 0 3px; margin: 0px; border-left: 0; border-right: 0; border-radius: 0px; '+
-                        '           outline: none; font-family: inherit;'+ addStyle + edit.style +'" '+
-                        '    field="'+ col.field +'" recid="'+ recid +'" '+
-                        '    '+ edit.inTag +
-                        '>'+ html +'</select>' + edit.outTag);
-                setTimeout(function () {
-                    el.find('select').focus()
-                        .on('change', function (event) {
-                            delete obj.last.move;
-                        })
-                        .on('blur', function (event) {
+            switch (edit.type) {
+
+                case 'select':
+                    var html = '';
+                    for (var i = 0; i < edit.items.length; i++) {
+                        html += '<option value="'+ edit.items[i].id +'"'+ (edit.items[i].id == val ? ' selected="selected"' : '') +'>'+ edit.items[i].text +'</option>';
+                    }
+                    el.addClass('w2ui-editable')
+                        .html('<select id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" column="'+ column +'" class="w2ui-input"'+
+                            '    style="width: 100%; pointer-events: auto; padding: 0 0 0 3px; margin: 0px; border-left: 0; border-right: 0; border-radius: 0px; '+
+                            '           outline: none; font-family: inherit;'+ addStyle + edit.style +'" '+
+                            '    field="'+ col.field +'" recid="'+ recid +'" '+
+                            '    '+ edit.inTag +
+                            '>'+ html +'</select>' + edit.outTag);
+                    setTimeout(function () {
+                        el.find('select')
+                            .on('change', function (event) {
+                                delete obj.last.move;
+                            })
+                            .on('blur', function (event) {
+                                if ($(this).data('keep-open') == true) return;
+                                obj.editChange.call(obj, this, index, column, event);
+                            });
+                    }, 10);
+                    break;
+
+                case 'div':
+                    var $tmp = tr.find('[col='+ column +'] > div');
+                    var font = 'font-family: '+ $tmp.css('font-family') + '; font-size: '+ $tmp.css('font-size') + ';';
+                    el.addClass('w2ui-editable')
+                        .html('<div id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" class="w2ui-input"'+
+                            '    contenteditable style="'+ font + addStyle + edit.style +'" autocorrect="off" autocomplete="off" spellcheck="false" '+
+                            '    field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" '+ edit.inTag +
+                            '></div>' + edit.outTag);
+                    if (value == null) el.find('div.w2ui-input').text(typeof val != 'object' ? val : '');
+                    // add blur listener
+                    var input = el.find('div.w2ui-input').get(0);
+                    setTimeout(function () {
+                        var tmp = input;
+                        $(tmp).on('blur', function (event) {
                             if ($(this).data('keep-open') == true) return;
-                            obj.editChange.call(obj, this, index, column, event);
+                            obj.editChange.call(obj, tmp, index, column, event);
                         });
-                }, 10);
-            } else if (edit.type == 'div') {
-                var $tmp = tr.find('[col='+ column +'] > div');
-                var font = 'font-family: '+ $tmp.css('font-family') + '; font-size: '+ $tmp.css('font-size') + ';';
-                el.addClass('w2ui-editable')
-                    .html('<div id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" class="w2ui-input"'+
-                        '    contenteditable style="white-space: nowrap; '+ font + addStyle + edit.style +'" autocorrect="off" autocomplete="off" spellcheck="false" '+
-                        '    field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" '+ edit.inTag +
-                        '></div>' + edit.outTag);
-                if (value == null) el.find('div.w2ui-input').text(typeof val != 'object' ? val : '');
-                // add blur listener
-                var input = el.find('div.w2ui-input').get(0);
-                setTimeout(function () {
-                    var tmp = input;
-                    $(tmp).on('blur', function (event) {
-                        if ($(this).data('keep-open') == true) return;
-                        obj.editChange.call(obj, tmp, index, column, event);
-                    });
-                }, 10);
-                if (value != null) $(input).text(typeof val != 'object' ? val : '');
-            } else {
-                var $tmp = tr.find('[col='+ column +'] > div');
-                var font = 'font-family: '+ $tmp.css('font-family') + '; font-size: '+ $tmp.css('font-size');
-                el.addClass('w2ui-editable')
-                    .html('<input id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" autocorrect="off" autocomplete="off" spellcheck="false" type="text" '+
-                        '    style="'+ font +'; width: 100%; height: 100%; padding: 3px; border-color: transparent; outline: none; border-radius: 0; '+
-                        '       pointer-events: auto; '+ addStyle + edit.style +'" '+
-                        '    field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" class="w2ui-input"'+ edit.inTag +
-                        '/>' + edit.outTag);
-                // issue #499
-                if (edit.type == 'number') {
-                    val = w2utils.formatNumber(val);
-                }
-                if (edit.type == 'date') {
-                    val = w2utils.formatDate(w2utils.isDate(val, edit.format, true), edit.format);
-                }
-                if (value == null) el.find('input').val(typeof val != 'object' ? val : '');
-                // init w2field
-                var input = el.find('input').get(0);
-                $(input).w2field(edit.type, $.extend(edit, { selected: val }));
-                // add blur listener
-                setTimeout(function () {
-                    var tmp = input;
-                    if (edit.type == 'list') {
-                        tmp = $($(input).data('w2field').helpers.focus).find('input');
-                        if (typeof val != 'object' && val != '') tmp.val(val).css({ opacity: 1 }).prev().css({ opacity: 1 });
-                        el.find('input').on('change', function (event) {
+                    }, 10);
+                    if (value != null) $(input).text(typeof val != 'object' ? val : '');
+                    break;
+
+                default:
+                    var $tmp = tr.find('[col='+ column +'] > div');
+                    var font = 'font-family: '+ $tmp.css('font-family') + '; font-size: '+ $tmp.css('font-size');
+                    el.addClass('w2ui-editable')
+                        .html('<input id="grid_'+ obj.name +'_edit_'+ recid +'_'+ column +'" autocorrect="off" autocomplete="off" spellcheck="false" type="text" '+
+                            '    style="'+ font +'; width: 100%; height: 100%; padding: 3px; border-color: transparent; outline: none; border-radius: 0; '+
+                            '       pointer-events: auto; '+ addStyle + edit.style +'" '+
+                            '    field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" class="w2ui-input"'+ edit.inTag +
+                            '/>' + edit.outTag);
+                    // issue #499
+                    if (edit.type == 'number') {
+                        val = w2utils.formatNumber(val);
+                    }
+                    if (edit.type == 'date') {
+                        val = w2utils.formatDate(w2utils.isDate(val, edit.format, true), edit.format);
+                    }
+                    if (value == null) el.find('input').val(typeof val != 'object' ? val : '');
+                    // init w2field
+                    var input = el.find('input').get(0);
+                    $(input).w2field(edit.type, $.extend(edit, { selected: val }));
+                    // add blur listener
+                    setTimeout(function () {
+                        var tmp = input;
+                        if (edit.type == 'list') {
+                            tmp = $($(input).data('w2field').helpers.focus).find('input');
+                            if (typeof val != 'object' && val != '') tmp.val(val).css({ opacity: 1 }).prev().css({ opacity: 1 });
+                            el.find('input').on('change', function (event) {
+                                obj.editChange.call(obj, input, index, column, event);
+                            });
+                        }
+                        $(tmp).on('blur', function (event) {
+                            if ($(this).data('keep-open') == true) return;
                             obj.editChange.call(obj, input, index, column, event);
                         });
-                    }
-                    $(tmp).on('blur', function (event) {
-                        if ($(this).data('keep-open') == true) return;
-                        obj.editChange.call(obj, input, index, column, event);
-                    });
-                }, 10);
-                if (value != null) $(input).val(typeof val != 'object' ? val : '');
+                    }, 10);
+                    if (value != null) $(input).val(typeof val != 'object' ? val : '');
             }
+
             setTimeout(function () {
                 el.find('input, select, div.w2ui-input')
                     .data('old_value', old_value)
@@ -2815,36 +2823,18 @@
                         expand.call(this, event);
                     });
                 // focus and select
-                if (edit.type == 'div') {
-                    var tmp = el.find('div.w2ui-input');
+                setTimeout(function () {
+                    var tmp = el.find('.w2ui-input');
+                    var len = $(tmp).val().length;
+                    if (edit.type == 'div') len = $(tmp).text().length;
                     if (tmp.length > 0) {
                         tmp.focus();
                         clearTimeout(obj.last.kbd_timer); // keep focus
-                        var len = $(tmp).text().length;
-                        if (value != null) {
-                            // set cursor to the end
-                            w2utils.setCursorPosition(tmp[0], len);
-                        } else {
-                            // select entire text
-                            w2utils.setCursorPosition(tmp[0], 0, len);
-                        }
-                        expand.call(el.find('div.w2ui-input')[0], null);
+                        if (tmp[0].tagName != 'SELECT') w2utils.setCursorPosition(tmp[0], len);
+                        tmp[0].resize = expand;
+                        expand.call(tmp[0], null);
                     }
-                } else {
-                    var tmp = el.find('input, select');
-                    if (tmp.length > 0) {
-                        tmp[0].focus();
-                        clearTimeout(obj.last.kbd_timer); // keep focus
-                        if (value != null) {
-                            // set cursor to the end
-                            tmp[0].setSelectionRange(tmp.val().length, tmp.val().length);
-                        } else {
-                            if (tmp[0].select) tmp[0].select();
-                        }
-                        expand.call(el.find('input, select')[0], null);
-                    }
-                }
-                if (tmp.length > 0) tmp[0].resize = expand;
+                }, 50);
                 // event after
                 obj.trigger($.extend(edata, { phase: 'after', input: el.find('input, select, div.w2ui-input') }));
             }, 5); // needs to be 5-10
@@ -4610,10 +4600,12 @@
                     var $input = $(obj.box).find('#grid_'+ obj.name + '_focus');
                     // move input next to cursor so screen does not jump
                     if (obj.last.move) {
-                        var sLeft = obj.last.move.focusX;
-                        var sTop  = obj.last.move.focusY;
+                        var sLeft  = obj.last.move.focusX;
+                        var sTop   = obj.last.move.focusY;
                         var $owner = $(target).parents('table').parent();
-                        if ($owner.hasClass('w2ui-grid-records') || $owner.hasClass('w2ui-grid-frecords')) {
+                        if ($owner.hasClass('w2ui-grid-records') || $owner.hasClass('w2ui-grid-frecords')
+                                || $owner.hasClass('w2ui-grid-columns') || $owner.hasClass('w2ui-grid-fcolumns')
+                                || $owner.hasClass('w2ui-grid-summary')) {
                             sLeft = obj.last.move.focusX - $(obj.box).find('#grid_'+ obj.name +'_records').scrollLeft();
                             sTop  = obj.last.move.focusY - $(obj.box).find('#grid_'+ obj.name +'_records').scrollTop();
                         }
