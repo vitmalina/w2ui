@@ -377,7 +377,13 @@ kickStart.register('route', function () {
             }
         }
         // path not found
+        if (typeof app.route.trigger == 'function') {
+            var eventData = app.route.trigger({ phase: 'before', type: 'error', target: 'self', hash: hash});
+            if (eventData.isCancelled === true) return false;
+        }
         console.log('ERROR: route "' + hash + '" not found');
+        // if events are available
+        if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
     }
 
     /*
