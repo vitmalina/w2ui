@@ -144,7 +144,8 @@ input.w2ui-input:-ms-input-placeholder {
 }
 select.w2ui-input {
   color: #000000;
-  padding: 4px 15px 4px 7px;
+  padding: 0px 15px 0px 7px;
+  line-height: 1.8;
   border-radius: 3px;
   border: 1px solid #bbbbbb;
   -webkit-appearance: none;
@@ -424,6 +425,7 @@ input[type=checkbox].w2ui-toggle:focus {
 }
 .w2ui-overlay table.w2ui-drop-menu td.menu-icon > span {
   height: 20px;
+  width: 18px;
 }
 .w2ui-overlay table.w2ui-drop-menu td.menu-text {
   padding: 8px 10px 8px 5px;
@@ -650,6 +652,7 @@ button.w2ui-btn:focus:before {
   bottom: 2px;
   left: 2px;
   right: 2px;
+  pointer-events: none;
 }
 button.w2ui-btn::-moz-focus-inner {
   border: 0;

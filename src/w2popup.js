@@ -65,8 +65,8 @@ var w2popup = {};
                 dlgOptions['title'] = '&#160;';
                 dlgOptions['body']  = $(this).html();
             }
-            if (parseInt($(this).css('width')) != 0)  dlgOptions['width']  = parseInt($(this).css('width'));
-            if (parseInt($(this).css('height')) != 0) dlgOptions['height'] = parseInt($(this).css('height'));
+            if (parseInt($(this).css('width')) !== 0)  dlgOptions['width']  = parseInt($(this).css('width'));
+            if (parseInt($(this).css('height')) !== 0) dlgOptions['height'] = parseInt($(this).css('height'));
         }
         // show popup
         return w2popup[method]($.extend({}, dlgOptions, options));
@@ -114,7 +114,7 @@ var w2popup = {};
             // need timer because popup might not be open
             setTimeout(function () { $('#w2ui-popup').data('options', options); }, 100);
             // if new - reset event handlers
-            if ($('#w2ui-popup').length == 0) {
+            if ($('#w2ui-popup').length === 0) {
                 // w2popup.handlers  = []; // if commented, allows to add w2popup.on() for all
                 w2popup.onMax     = null;
                 w2popup.onMin     = null;
@@ -147,7 +147,7 @@ var w2popup = {};
             var left = (maxW - options.width) / 2;
 
             // check if message is already displayed
-            if ($('#w2ui-popup').length == 0) {
+            if ($('#w2ui-popup').length === 0) {
                 // trigger event
                 var edata = this.trigger({ phase: 'before', type: 'open', target: 'popup', options: options, present: false });
                 if (edata.isCancelled === true) return;
@@ -183,7 +183,7 @@ var w2popup = {};
                 var msg = '<div class="w2ui-popup-title" style="'+ (!options.title ? 'display: none' : '') +'">' + btn + '</div>'+
                           '<div class="w2ui-box" style="'+ (!options.title ? 'top: 0px !important;' : '') +
                                     (!options.buttons ? 'bottom: 0px !important;' : '') + '">'+
-                          '    <div class="w2ui-popup-body' + (!options.title != '' ? ' w2ui-popup-no-title' : '') +
+                          '    <div class="w2ui-popup-body' + (!options.title !== '' ? ' w2ui-popup-no-title' : '') +
                                     (!options.buttons ? ' w2ui-popup-no-buttons' : '') + '" style="' + options.style + '">' +
                           '    </div>'+
                           '</div>'+
@@ -376,7 +376,7 @@ var w2popup = {};
         close: function (options) {
             var obj = this;
             var options = $.extend({}, $('#w2ui-popup').data('options'), options);
-            if ($('#w2ui-popup').length == 0 || this.status == 'closed') return;
+            if ($('#w2ui-popup').length === 0 || this.status == 'closed') return;
             if (this.status == 'opening') {
                 setTimeout(function () { w2popup.close(); }, 100);
                 return;
@@ -517,7 +517,7 @@ var w2popup = {};
                 // link styles
                 if ($('#w2ui-tmp > style').length > 0) {
                     var style = $('<div>').append($('#w2ui-tmp > style').clone()).html();
-                    if ($('#w2ui-popup #div-style').length == 0) {
+                    if ($('#w2ui-popup #div-style').length === 0) {
                         $('#w2ui-popup').append('<div id="div-style" style="position: absolute; left: -100; width: 1px"></div>');
                     }
                     $('#w2ui-popup #div-style').html(style);
@@ -552,7 +552,7 @@ var w2popup = {};
             var head     = $('#w2ui-popup .w2ui-popup-title');
             var msgCount = $('#w2ui-popup .w2ui-message').length;
             // remove message
-            if ($.trim(options.html) == '' && $.trim(options.body) == '' && $.trim(options.buttons) == '') {
+            if ($.trim(options.html) === '' && $.trim(options.body) === '' && $.trim(options.buttons) === '') {
                 var $msg = $('#w2ui-popup #w2ui-message'+ (msgCount-1));
                 var options = $msg.data('options') || {};
                 $msg.css(w2utils.cssPrefix({
@@ -575,7 +575,7 @@ var w2popup = {};
                     if (typeof options.onClose == 'function') options.onClose();
                 }, 150);
             } else {
-                if ($.trim(options.body) != '' || $.trim(options.buttons) != '') {
+                if ($.trim(options.body) !== '' || $.trim(options.buttons) !== '') {
                     options.html = '<div class="w2ui-message-body">'+ options.body +'</div>'+
                         '<div class="w2ui-message-buttons">'+ options.buttons +'</div>';
                 }
@@ -585,7 +585,7 @@ var w2popup = {};
                 // add message
                 $('#w2ui-popup .w2ui-box')
                     .before('<div id="w2ui-message' + msgCount + '" class="w2ui-message" style="display: none; z-index: 1500; ' +
-                                (head.length == 0 ? 'top: 0px;' : 'top: ' + w2utils.getSize(head, 'height') + 'px;') +
+                                (head.length === 0 ? 'top: 0px;' : 'top: ' + w2utils.getSize(head, 'height') + 'px;') +
                                 (options.width  != null ? 'width: ' + options.width + 'px; left: ' + ((pWidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
                                 (options.height != null ? 'height: ' + options.height + 'px;' : 'bottom: 6px;') +
                                 w2utils.cssPrefix('transition', '.3s', true) + '"' +
@@ -605,7 +605,7 @@ var w2popup = {};
                         }));
                     }, 1);
                     // timer for lock
-                    if (msgCount == 0) w2popup.lock();
+                    if (msgCount === 0) w2popup.lock();
                     setTimeout(function() {
                         obj.focus();
                         // has to be on top of lock
@@ -696,7 +696,7 @@ var w2popup = {};
         },
 
         unlockScreen: function (options) {
-            if ($('#w2ui-lock').length == 0) return false;
+            if ($('#w2ui-lock').length === 0) return false;
             if (options == null) options = $('#w2ui-popup').data('options');
             if (options == null) options = {};
             options = $.extend({}, w2popup.defaults, options);
@@ -804,7 +804,7 @@ var w2popup = {};
             }
             if (template != null) {
                 var $tmp = $(template);
-                if ($tmp.length == 0) return;
+                if ($tmp.length === 0) return;
                 if ($(body).attr('rel') == 'body') {
                     if (title) $tmp.append(title);
                     if (body) $tmp.append(body);
@@ -964,7 +964,7 @@ var w2confirm = function (msg, title, callBack) {
             },
             onKeydown: function (event) {
                 // if there are no messages
-                if ($('#w2ui-popup .w2ui-message').length == 0) {
+                if ($('#w2ui-popup .w2ui-message').length === 0) {
                     switch (event.originalEvent.keyCode) {
                         case 13: // enter
                             $('#w2ui-popup .w2ui-popup-btn#Yes').focus().addClass('clicked'); // no need fo click as enter will do click
@@ -994,7 +994,7 @@ var w2confirm = function (msg, title, callBack) {
 
 var w2prompt = function (label, title, callBack) {
     var $ = jQuery;
-        
+
     var options  = {};
     var defaults = {
         label       : '',
@@ -1002,11 +1002,11 @@ var w2prompt = function (label, title, callBack) {
         title       : w2utils.lang('Notification'),
         ok_text     : w2utils.lang('Ok'),
         cancel_text : w2utils.lang('Cancel'),
-        width       : ($('#w2ui-popup').length > 0 ? 400 : 450),
+        width       : ($('#w2ui-popup').lengtvalueh > 0 ? 400 : 450),
         height      : ($('#w2ui-popup').length > 0 ? 170 : 220),
         callBack    : null
     }
-    
+
     if (arguments.length == 1 && typeof label == 'object') {
         $.extend(options, defaults, label);
     } else {
@@ -1023,7 +1023,7 @@ var w2prompt = function (label, title, callBack) {
             })
         }
     }
-    
+
     if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing' && w2popup.get()) {
         if (options.width > w2popup.get().width) options.width = w2popup.get().width;
         if (options.height > (w2popup.get().height - 50)) options.height = w2popup.get().height - 50;
@@ -1042,6 +1042,8 @@ var w2prompt = function (label, title, callBack) {
                     w2popup._prompt_value = null;
                     w2popup.message();
                 });
+                // set focus
+                setTimeout(function () { $('#w2prompt').focus(); }, 100);
             },
             onClose: function () {
                 // needed this because there might be other messages
@@ -1080,12 +1082,14 @@ var w2prompt = function (label, title, callBack) {
                         w2popup.close();
                         if (typeof options.callBack == 'function') options.callBack(w2popup._prompt_value);
                     });
-                    $('#w2ui-popup .w2ui-popup-btn#Ok').focus();
+                    $('#w2ui-popup .w2ui-popup-btn#Ok');
+                    // set focus
+                    setTimeout(function () { $('#w2prompt').focus(); }, 100);
                 }, 1);
             },
             onKeydown: function (event) {
                 // if there are no messages
-                if ($('#w2ui-popup .w2ui-message').length == 0) {
+                if ($('#w2ui-popup .w2ui-message').length === 0) {
                     switch (event.originalEvent.keyCode) {
                         case 13: // enter
                             $('#w2ui-popup .w2ui-popup-btn#Ok').focus().addClass('clicked'); // no need fo click as enter will do click

@@ -11,7 +11,7 @@ button.w2ui-btn {
     color: #666;
     font-size: 12px !important;
     border: 1px solid #B6B6B6;
-    .linear-gradient-vertical4(#FFF, 0%, #E7E7E7, 100%); 
+    .linear-gradient-vertical4(#FFF, 0%, #E7E7E7, 100%);
     outline: none;
     box-shadow: 0px 1px 0px white;
     cursor: default;
@@ -49,6 +49,7 @@ button.w2ui-btn {
         bottom: 2px;
         left: 2px;
         right: 2px;
+        pointer-events: none; // needed for safari
     }
 
     &::-moz-focus-inner {

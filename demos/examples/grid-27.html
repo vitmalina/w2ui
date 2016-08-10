@@ -1,0 +1,38 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Locked Columns</h1>
+        You can have multiple locked columns, that will stay fixed to the left of the grid when scrolling.<br />
+        To lock a column, add a <b>frozen: true</b> property.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="grid" style="max-width: 350px; height: 350px;"></div>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#grid').w2grid({ 
+        name: 'grid', 
+        columns: [                
+            { field: 'fname', caption: 'First Name', size: '150px', frozen: true },
+            { field: 'lname', caption: 'Last Name', size: '150px' },
+            { field: 'email', caption: 'Email', size: '200px' },
+            { field: 'sdate', caption: 'Start Date', size: '200px' }
+        ],
+        "records": [
+            { "recid": 1, "fname": "John", "lname": "Doe", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+            { "recid": 2, "fname": "Stuart", "lname": "Motzart", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+            { "recid": 3, "fname": "Jin", "lname": "Franson", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+            { "recid": 4, "fname": "Susan", "lname": "Ottie", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+            { "recid": 5, "fname": "Kelly", "lname": "Silver", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+            { "recid": 6, "fname": "Francis", "lname": "Gatos", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+            { "recid": 7, "fname": "Mark", "lname": "Welldo", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+            { "recid": 8, "fname": "Thomas", "lname": "Bahh", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+            { "recid": 9, "fname": "Sergei", "lname": "Rachmaninov", "email": "jdoe@gmail.com", "sdate": "4/3/2012" }
+        ]
+    });    
+});
+</script>

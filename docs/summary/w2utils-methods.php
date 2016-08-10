@@ -28,7 +28,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2utils.checkUniqueId">checkUniqueId</a> <span>- checkUniqueId(id, items, itemsDecription, objName)</span>
+    <a href="w2utils.checkUniqueId">checkUniqueId</a> <span>- checkUniqueId(id, items, itemsDescription, objName)</span>
 </div>
 <div class="obj-property-desc">
     Verifies if specified id is unique within the set.
@@ -122,7 +122,7 @@
     <a href="w2utils.interval">interval</a> <span>- interval(intStr)</span>
 </div>
 <div class="obj-property-desc">
-    Returns inteval value in  human readable format.
+    Returns interval value in  human readable format.
 </div>
 
 <div class="obj-property">
@@ -255,7 +255,7 @@
     <a href="w2utils.transition">transition</a> <span>- transition(div_old, div_new, type, [callBack])</span>
 </div>
 <div class="obj-property-desc">
-    Transitions two absolute divs.
+    Transitions two absolute DIVs.
 </div>
 
 <div class="obj-property">

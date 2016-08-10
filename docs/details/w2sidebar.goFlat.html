@@ -8,7 +8,7 @@ Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
-This method is called when user clicks on the flat button. It is used internally, but you can use to to emulate clicking the flat button.
+This method is called when user clicks on the flat button. It is used internally, but you can use it to emulate clicking the flat button.
 This method emits <a class="method" href="w2sidebar.onFlat">.onFlat</a> event.
 <div style="height: 10px"></div>
 
@@ -26,9 +26,9 @@ $('#sidebar').w2sidebar({
     ],
     onFlat: function(event) {
         if (event.goFlat) {
-            $(this.box).css({ widht: '35px' });
+            $(this.box).css({ width: '35px' });
         } else {
-            $(this.box).css({ widht: '200px' });
+            $(this.box).css({ width: '200px' });
         }
     }
 });

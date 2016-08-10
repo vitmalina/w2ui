@@ -49,7 +49,7 @@ kickStart.register('route', function () {
         // if events are available
         if (typeof app.route.trigger == 'function') {
             var eventData = app.route.trigger({ phase: 'before', type: 'add', target: 'self', route: route, handler: handler });
-            if (eventData.isCancelled === true) return false;           
+            if (eventData.isCancelled === true) return false;
         }
         // default behavior
         routes[route] = handler;
@@ -63,7 +63,7 @@ kickStart.register('route', function () {
         // if events are available
         if (typeof app.route.trigger == 'function') {
             var eventData = app.route.trigger({ phase: 'before', type: 'remove', target: 'self', route: route, handler: handler });
-            if (eventData.isCancelled === true) return false;           
+            if (eventData.isCancelled === true) return false;
         }
         // default behavior
         delete routes[route];
@@ -76,7 +76,7 @@ kickStart.register('route', function () {
     function go(route) {
         route = String('/'+route).replace(/\/{2,}/g, '/');
         setTimeout(function () { window.location.hash = route; }, 1);
-        return app.route;       
+        return app.route;
     }
 
     function set(route) {
@@ -85,7 +85,7 @@ kickStart.register('route', function () {
         route = String('/'+route).replace(/\/{2,}/g, '/');
         window.location.hash = route;
         setTimeout(function () { silent = false }, 1);
-        return app.route;       
+        return app.route;
     }
 
     function get() {
@@ -110,43 +110,56 @@ kickStart.register('route', function () {
         // match routes
         var hash = window.location.hash.substr(1).replace(/\/{2,}/g, '/');
         if (hash == '') hash = '/';
-        var tmp  = hash.split('/');
-        // check if modules is loaed
-        if (tmp[1] && typeof app[tmp[1]] == 'undefined') {
-            // if events are available
-            if (typeof app.route.trigger == 'function') {
-                var eventData = app.route.trigger({ phase: 'before', type: 'route', target: 'self', route: hash });
-                if (eventData.isCancelled === true) return false;           
+        // process route
+        var isFound = false;
+        for (var r in routeRE) {
+            var params = {};
+            var tmp = routeRE[r].path.exec(hash);
+            if (tmp) { // match
+                isFound = true;
+                var i = 1;
+                for (var p in routeRE[r].keys) {
+                    params[routeRE[r].keys[p].name] = tmp[i];
+                    i++;
+                }
+                // if events are available
+                if (typeof app.route.trigger == 'function') {
+                    var eventData = app.route.trigger({ phase: 'before', type: 'route', target: 'self', route: r, params: params });
+                    if (eventData.isCancelled === true) return false;
+                }
+                // default handler
+                routes[r]($.extend({ name: r, path: hash }, params));
+                // if events are available
+                if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
             }
-            // load module
-            app.require(tmp[1]).done(function () {
-                if (app._conf.modules[tmp[1]]) process();
-            });
-            // if events are available
-            if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
-        } else {
-            // process route
-            for (var r in routeRE) {
-                var params = {};
-                var tmp = routeRE[r].path.exec(hash);
-                if (tmp) { // match
-                    var i = 1;
-                    for (var p in routeRE[r].keys) {
-                        params[routeRE[r].keys[p].name] = tmp[i];
-                        i++;
-                    }
-                    // if events are available
-                    if (typeof app.route.trigger == 'function') {
-                        var eventData = app.route.trigger({ phase: 'before', type: 'route', target: 'self', route: r, params: params });
-                        if (eventData.isCancelled === true) return false;           
-                    }
-                    // default handler
-                    routes[r]($.extend({ name: r, path: hash }, params));
-                    // if events are available
-                    if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
+        }
+        // if route is not registered, see if it is in module definitions
+        if (!isFound) {
+            // find if a route mataches a module route
+            var mods = app._conf.modules;
+            for (var name in mods) {
+                var mod = mods[name];
+                var rt  = mod.route;
+                if (typeof rt == 'string') {
+                    rt = rt.replace(/\/{2,}/g, '/'); // remove double slashes
+                    if (rt[rt.length - 1] == '*') rt = rt.substr(0, rt.length - 1); // remove trailign *
+                }
+                if (!mod.ready && mod.route && hash.indexOf(rt) === 0) { // only when not yet loaded
+                    app.require(name).done(function () {
+                        if (app._conf.modules[name]) process();
+                    });
+                    return;
                 }
             }
         }
+        // path not found
+        if (typeof app.route.trigger == 'function') {
+            var eventData = app.route.trigger({ phase: 'before', type: 'error', target: 'self', hash: hash});
+            if (eventData.isCancelled === true) return false;
+        }
+        console.log('ERROR: route "' + hash + '" not found');
+        // if events are available
+        if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
     }
 
     /*
@@ -173,7 +186,7 @@ kickStart.register('route', function () {
                 path    : new RegExp('^' + path + '$', 'i'),
                 keys    : keys
             }
-        }       
+        }
     }
 
     function addListener() {

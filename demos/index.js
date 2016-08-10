@@ -59,16 +59,16 @@ $(function () {
                 nodes: [
                     { id: 'grid-1', text: 'Simple Grid', icon: 'fa-table' },
                     { id: 'grid-3', text: 'Grid Elements', icon: 'fa-table' },
-                    { id: 'grid-2', text: 'Row Formating', icon: 'fa-table' },
+                    { id: 'grid-2', text: 'Row Formatting', icon: 'fa-table' },
                     { id: 'grid-23',text: 'Cell Formatting', icon: 'fa-table' },
                     { id: 'grid-4', text: 'Data Source', icon: 'fa-table' },
                     { id: 'grid-5', text: 'Load Data Once', icon: 'fa-table' },
                     { id: 'grid-6', text: 'Single or Multi Select', icon: 'fa-table' },
-                    { id: 'grid-7', text: 'Tree-Like Grid', icon: 'fa-table' },
+                    { id: 'grid-7', text: 'Tree-Like Grid (1.5+)', icon: 'fa-table' },
                     { id: 'grid-8', text: 'Show/Hide Columns', icon: 'fa-table' },
                     { id: 'grid-9', text: 'Add/Remove Records', icon: 'fa-table' },
                     { id: 'grid-10', text: 'Select/Unselect Records', icon: 'fa-table' },
-                    { id: 'grid-11', text: 'Fixed/Resisable', icon: 'fa-table' },
+                    { id: 'grid-11', text: 'Fixed/Resizable', icon: 'fa-table' },
                     { id: 'grid-12', text: 'Column Sort', icon: 'fa-table' },
                     { id: 'grid-13', text: 'Column Groups', icon: 'fa-table' },
                     { id: 'grid-14', text: 'Summary Records', icon: 'fa-table' },
@@ -82,8 +82,9 @@ $(function () {
                     { id: 'grid-22', text: 'Resizable Columns', icon: 'fa-table' },
                     { id: 'grid-24', text: 'Lock/Unlock Grid', icon: 'fa-table' },
                     { id: 'grid-25', text: 'Re-Order Columns', icon: 'fa-table' },
-                    { id: 'grid-26', text: 'Re-Order Records', icon: 'fa-table' }
-                    //{ id: 'grid-27', text: 'Locked Columns', icon: 'fa-table' }
+                    { id: 'grid-26', text: 'Re-Order Records', icon: 'fa-table' },
+                    { id: 'grid-27', text: 'Locked Columns (1.5+)', icon: 'fa-table' },
+                    { id: 'grid-28', text: 'Info Bubble (1.5+)', icon: 'fa-table' }
                 ]
             },
             { id: 'toolbar', text: 'Toolbar', img: 'icon-folder', group1: true,
@@ -96,7 +97,7 @@ $(function () {
                     { id: 'toolbar-6', text: 'Menu Buttons (1.5+)', icon: 'fa-hand-up' },
                     { id: 'toolbar-7', text: 'Color Buttons (1.5+)', icon: 'fa-hand-up' },
                     { id: 'toolbar-8', text: 'Tooltips (1.5+)', icon: 'fa-hand-up' },
-                    { id: 'toolbar-9', text: 'Custom Butons (1.5+)', icon: 'fa-hand-up' },
+                    { id: 'toolbar-9', text: 'Custom Buttons (1.5+)', icon: 'fa-hand-up' },
                     { id: 'toolbar-10', text: 'Toolbar Overflow (1.5+)', icon: 'fa-hand-up' }
                 ]
             },
@@ -127,7 +128,7 @@ $(function () {
                 nodes: [
                     { id: 'tabs-1', text: 'Simple Tabs', icon: 'fa-folder-close-alt' },
                     { id: 'tabs-2', text: 'Set a Tab Active', icon: 'fa-folder-close-alt' },
-                    { id: 'tabs-3', text: 'Closable Tabs', icon: 'fa-folder-close-alt' },
+                    { id: 'tabs-3', text: 'Closeable Tabs', icon: 'fa-folder-close-alt' },
                     { id: 'tabs-4', text: 'Add/Remove Tabs', icon: 'fa-folder-close-alt' },
                     { id: 'tabs-5', text: 'Enable/Disabled Tabs', icon: 'fa-folder-close-alt' },
                     { id: 'tabs-6', text: 'Show/Hide Tabs', icon: 'fa-folder-close-alt' },
@@ -146,13 +147,13 @@ $(function () {
                     { id: 'forms-9', text: 'Form Toolbar', icon: 'fa-edit' },
                     { id: 'forms-8', text: 'Form in a Popup', icon: 'fa-edit' },
                     { id: 'forms-6', text: 'Events', icon: 'fa-edit' },
-                    { id: 'forms-11', text: 'Form Columns', icon: 'fa-edit' }
+                    { id: 'forms-11', text: 'Form Columns (1.5+)', icon: 'fa-edit' }
                 ]
             },
             { id: 'fields', text: 'Fields', img: 'icon-folder', group1: true,
                 nodes: [
                     { id: 'fields-1', text: 'Numeric', icon: 'fa-edit' },
-                    { id: 'fields-2', text: 'Date & Time', icon: 'fa-edit' },
+                    { id: 'fields-2', text: 'Date, Time & Datetime', icon: 'fa-edit' },
                     { id: 'fields-3', text: 'Drop Down Lists', icon: 'fa-edit' },
                     { id: 'fields-4', text: 'Multi Selects', icon: 'fa-edit' },
                     { id: 'fields-5', text: 'File Upload', icon: 'fa-edit' },
@@ -208,14 +209,16 @@ $(function () {
                     console.log('ERROR: cannot parse example.', data);
                     return;
                 }
-                var html = tmp[1] ? $.trim(tmp[1]) : '';
-                var js   = tmp[2] ? $.trim(tmp[2]) : '';
-                var css  = tmp[3] ? $.trim(tmp[3]) : '';
-                var json = tmp[4] ? $.trim(tmp[4]) : '';
-                js = js.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '');
-                js = $.trim(js);
-                css = css.replace(/^<style[^>]*>/, '').replace(/<\/style>$/, '');
-                css = $.trim(css);
+                var w2ui_js  = 'http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.js';
+                var w2ui_css = 'http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css';
+                var html     = tmp[1] ? $.trim(tmp[1]) : '';
+                var js       = tmp[2] ? $.trim(tmp[2]) : '';
+                var css      = tmp[3] ? $.trim(tmp[3]) : '';
+                var json     = tmp[4] ? $.trim(tmp[4]) : '';
+                js   = js.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '');
+                js   = $.trim(js);
+                css  = css.replace(/^<style[^>]*>/, '').replace(/<\/style>$/, '');
+                css  = $.trim(css);
                 json = json.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '');
                 json = $.trim(json);
                 w2ui['main_layout'].content('main', tmp[0]);
@@ -227,9 +230,9 @@ $(function () {
                            '<html>\n'+
                            '<head>\n'+
                            '    <title>W2UI Demo: '+ cmd +'</title>\n'+
-                           '    <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.4.2.min.css" />\n'+
                            '    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>\n'+
-                           '    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.4.2.min.js"></script>\n'+
+                           '    <script type="text/javascript" src="'+ w2ui_js +'"></script>\n'+
+                           '    <link rel="stylesheet" type="text/css" href="'+ w2ui_css +'" />\n'+
                            '</head>\n'+
                            '<body>\n\n'+
                            html + '\n\n'+
@@ -253,7 +256,7 @@ $(function () {
                     '<div style="display: none">'+
                     '<form id="fiddleForm" target="_blank" action="http://jsfiddle.net/api/post/jquery/2.1/" method="post">'+
                     '    <textarea name="title">W2UI Demo: '+ cmd +'</textarea>'+
-                    '    <textarea name="resources">http://w2ui.com/src/w2ui-1.4.2.min.js,http://w2ui.com/src/w2ui-1.4.2.min.css</textarea>'+
+                    '    <textarea name="resources">'+ w2ui_js +','+ w2ui_css +'</textarea>'+
                     '    <textarea name="html">'+ html.replace(/<textarea/gi, '&lt;textarea').replace(/<\/textarea>/gi, '&lt;/textarea&gt;') +'</textarea>'+
                     '    <textarea name="js">'+ js +'</textarea>'+
                     '    <textarea name="css">'+ css +'</textarea>'+
