@@ -1,28 +1,28 @@
 /**
 *  Module that helps to work with mongodb DB
 *  DEPENDENCIES: mongodb
-*  
+*
 *    Setting recid to 0  should create a new document unless record._id is given
-*     
+*
 *     Note that mongo uses _id to uniquely identify documents.
-*     This code tries to set the _id to recid unless given from the record._id  
-*       
+*     This code tries to set the _id to recid unless given from the record._id
+*
 *     The code is not so fast but can get you started quickly
-*       
-*       
+*
+*
 *  To get a new correct recid you can use add-record to get a new recid for the next record
 *   i.e. for a grid
-*    
+*
 *   Example of how to add a new record in a grid for later save.
    onAdd: function (event) {
-           
+
         var ajaxOptions = {
             type     : 'POST',
             url      : '/api/whatever',
             data     : {
                   cmd: "add-record"
             },
-            dataType : 'text'  
+            dataType : 'text'
          };
 
          $.ajax(ajaxOptions)
@@ -33,24 +33,24 @@
                .fail(function(jqXHR, textStatus, errorThrown) {
                     // Handle error
         });
-  
+
   }
 *
 *
-*  TODO: Needs more error texts on errors from database. 
+*  TODO: Needs more error texts on errors from database.
 *  Smarter generation of the recid. Could use a counter collection,
-*  i.e. like this, http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/ 
+*  i.e. like this, http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/
 */
 
 /*
  In kickstart call the driver like this,
 '/api/whatever': function (req, res, next) {
       w2mdb.serveDBMongo(req,res,"whatever-collection");
-              
+
    },
 '/api/whatever/enum': function (req, res, next) {
       w2mdb.enumDBMongo(req,res,"whatever-collection","property-to-enum");
-              
+
    },
 
 */
@@ -69,8 +69,8 @@ event.setMaxListeners(20);
 
 
 var mydb;
-// Leave the connection open and reuse it. 
-new mc.connect(dbs, function(err, db) { 
+// Leave the connection open and reuse it.
+new mc.connect(dbs, function(err, db) {
   if (!err) {
     db.on('close', function() {
          console.log('database CLOSED!, how to reopen???');
@@ -99,11 +99,11 @@ getDB = function(fn) {
 exports.initCounters=function(collname) {
  // Counters collection.
     getDB( function(db) {
- 
+
         var counter = db.collection('counter');
 
         // Document to be inserted.
-        var document =  { 
+        var document =  {
             _id : collname,
             seq: 0
         };
@@ -111,10 +111,10 @@ exports.initCounters=function(collname) {
         counter.find({_id : collname}).count(function(err, count) {
             if(err) throw err;
 
-            if (count === 0) {          
+            if (count === 0) {
                 console.log("Creating counter...",collname);
                 counter.save(document, {w: 1}, function(err, docs) {
-                    if(err) throw err;                
+                    if(err) throw err;
                 });
             }
         });
@@ -122,10 +122,10 @@ exports.initCounters=function(collname) {
 };
 
 // gets the next sequence number from the counters collection. Also increases the counter
-function getNextSequence(name,cb) {    
-    getDB(function(db) { 
-        //console.log("getNextSequence",name);        
-        db.collection('counter', function(err, collection) {        
+function getNextSequence(name,cb) {
+    getDB(function(db) {
+        //console.log("getNextSequence",name);
+        db.collection('counter', function(err, collection) {
             var ret = collection.findAndModify(
                      { _id: name },
                      [['_id','asc']],
@@ -134,13 +134,13 @@ function getNextSequence(name,cb) {
                      ,function (err, result) {
                        if (err)
                        {
-                          console.log("errror",err); 
+                          console.log("errror",err);
                        }
                         //console.log("res===",result);
                         var toRet=result.seq;
                         // TODO, different results depending on mongodb version???
                         if (toRet)
-                        {                            
+                        {
                            cb(toRet);
                         }
                         else
@@ -148,9 +148,9 @@ function getNextSequence(name,cb) {
                            toRet=result.value.seq;
                            cb(toRet);
                         }
-                       
+
                     });
-        });        
+        });
     });
 }
 
@@ -158,9 +158,9 @@ function getNextSequence(name,cb) {
 // dataitem, contains the document item to extract from the collection
 exports.enumDBMongo = function(req, res, collectionName,dataitem)
 {
-    //console.log("enumDBMongo ", collectionName,dataitem);    
-    getDB(function(db) {     
-                
+    //console.log("enumDBMongo ", collectionName,dataitem);
+    getDB(function(db) {
+
          db.collection(collectionName, function(err, collection) {
 
              var array = new Array();
@@ -187,12 +187,12 @@ exports.enumDBMongo = function(req, res, collectionName,dataitem)
                          var resultData=
                          {
                             status : "success",
-                            items :  array          
+                            items :  array
                          };
 
                          //console.log(resultData);
                          res.send(resultData);
-                         
+
                      }
                  });
              });
@@ -227,7 +227,7 @@ getRecords = function(req,res,collectionName)
         searchFor = tmp;
     }
     //console.log("Getting records");
-    getDB(function(db) {     
+    getDB(function(db) {
         var collection = db.collection(collectionName, function(err, collection) {
             var array = new Array();
             collection.find(function(err, cursor) {
@@ -287,14 +287,14 @@ customConvert = function(myId)
             }
             else if (typeof myId === 'number') {
                 // Store id as a number
-            }                       
+            }
         }
    return (myId);
 };
 
 saveRecord = function(req,res,collectionName,autoIncVarName,newRecId)
 {
-    
+
     // We try to use these to identify our object
     // req.body.recid;
     // req.body.record["_id"];
@@ -303,10 +303,10 @@ saveRecord = function(req,res,collectionName,autoIncVarName,newRecId)
         mc.connect(dbs, function(err, db) {
             if (err)
                 throw(err);
-            
+
               if (autoIncVarName)
               {
-		  //console.log("Autoinc",collectionName,autoIncVarName);                
+		  //console.log("Autoinc",collectionName,autoIncVarName);
                 req.body.record[autoIncVarName]=newRecId;
                 req.body.record.recid=newRecId;
                 if (autoIncVarName!="recid")
@@ -315,20 +315,20 @@ saveRecord = function(req,res,collectionName,autoIncVarName,newRecId)
                 }
               }
 
-            
+
             db.collection(collectionName, function(err, collection) {
             collection.find().toArray(function(err, docs) {
 
-              
+
                 var myRecId=req.body.recid;
-                // We use the _id received as our _id if it exists. :-P 
+                // We use the _id received as our _id if it exists. :-P
                 var myId=req.body.record["_id"];
                 //console.log("got _id",myId);
-                
-                // Prevent using "3" and 3 as same _id                                
+
+                // Prevent using "3" and 3 as same _id
                 myId=customConvert(myId);
-                
-                // Check if we need a new recid 
+
+                // Check if we need a new recid
                 if (Number(myRecId)==0)
                 {
                     myRecId=newRecId;
@@ -384,7 +384,7 @@ saveRecord = function(req,res,collectionName,autoIncVarName,newRecId)
 
 getRecord = function(req,res,collectionName)
 {
-    getDB(function(db) {     
+    getDB(function(db) {
         db.collection(collectionName, function(err, collection) {
 
             var array = new Array();
@@ -394,7 +394,7 @@ getRecord = function(req,res,collectionName)
                     if (item)
                     {
                         if (item.recid==req.body.recid)
-                        {   
+                        {
                             item._id=item._id.toString();
                             array.push(item);
                         }
@@ -407,7 +407,7 @@ getRecord = function(req,res,collectionName)
                             record: array[0]
                         };
 
-                        //res.send(job);         
+                        //res.send(job);
                         //console.log("result",result_data);
 
                         res.send(result_data);
@@ -415,7 +415,7 @@ getRecord = function(req,res,collectionName)
                 });
             });
         });
-    });           
+    });
 };
 
 saveRecords = function(req,res,collectionName){
@@ -446,7 +446,7 @@ saveRecords = function(req,res,collectionName){
             }
         });
 
-    getDB(function(db) {     
+    getDB(function(db) {
          db.collection(collectionName, function(err, collection) {
                 collection.find().toArray(function(err, docs) {
                     if (err)
@@ -456,7 +456,7 @@ saveRecords = function(req,res,collectionName){
                             message: err.errmsg
                         };
                         res.send(err_response);
-                        throw(err);                                        
+                        throw(err);
                     }
 
                     var maxId = 0;
@@ -568,7 +568,7 @@ saveRecords = function(req,res,collectionName){
 
     }
 };
-            
+
 
 exports.serveDBMongo = function(req, res, collectionName,autoIncVarName)
 {
@@ -581,7 +581,7 @@ exports.serveDBMongo = function(req, res, collectionName,autoIncVarName)
         // Only returns a record with the next usable recid
         case 'add-record':
             {
-                //console.log("add-record");                
+                //console.log("add-record");
                 getNextSequence(collectionName,function(newNum) {
                     var doc = {
                         recid : newNum
@@ -591,23 +591,23 @@ exports.serveDBMongo = function(req, res, collectionName,autoIncVarName)
                         record: doc
                     };
                     //console.log(result_data);
-                    res.send(result_data);                                        
-                }); 
-           }            
+                    res.send(result_data);
+                });
+           }
         break;
         case 'get-record':
             {
                 //console.log("--- Get record --- with",req.body.recid);
                 getRecord(req,res,collectionName);
            }
-        
+
           break;
-        case 'get-records':
+        case 'get':
             {
                 getRecords(req,res,collectionName);
             }
             break;
-            
+
         case  'save-records':
             //console.log("save-records");
             {
@@ -615,17 +615,17 @@ exports.serveDBMongo = function(req, res, collectionName,autoIncVarName)
                 saveRecords(req,res,collectionName);
             }
            break;
-            
-        case 'save-record':
+
+        case 'save':
             {
                 //console.log("save-record");
-                
+
                 var recid=req.body.recid;
-                
+
                 // We have a rec id, try to use it!
                 if (req.body && req.body.recid && req.body.recid!=0)
                 {
-                    saveRecord(req,res,collectionName);                    
+                    saveRecord(req,res,collectionName);
                 }
                 else
                 {
@@ -636,14 +636,14 @@ exports.serveDBMongo = function(req, res, collectionName,autoIncVarName)
                         if (req.body.recid==0) {
                             getNextSequence(collectionName,function(newNum) {
                                saveRecord(req,res,collectionName,"recid",newNum);
-                            }); 
+                            });
                         }
                         else
                         {
                            // We have _id and recid
-                           saveRecord(req,res,collectionName);                            
+                           saveRecord(req,res,collectionName);
                         }
-                        
+
                     }
                     else
                     {
@@ -658,14 +658,14 @@ exports.serveDBMongo = function(req, res, collectionName,autoIncVarName)
                         {
                             getNextSequence(collectionName,function(newNum) {
                                saveRecord(req,res,collectionName,"recid",newNum);
-                            }); 
+                            });
                         }
                     }
                 }
             }
 
             break;
-        case 'delete-records':
+        case 'delete':
             var delsel = req.body.selected;
             //console.log("delete-records=", Number(delsel[0]));
             // Note Only first selected record is deleted

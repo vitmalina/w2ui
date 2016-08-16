@@ -8,27 +8,27 @@ $db->connect("127.0.0.1", "root", "", "test", "3306");
 
 switch ($_REQUEST['cmd']) {
 
-    case 'get-records':
+    case 'get':
         $sql  = "SELECT * FROM users
                  WHERE ~search~ ORDER BY ~sort~";
         $res = $w2grid->getRecords($sql, null, $_REQUEST);
         $w2grid->outputJSON($res);
         break;
 
-    case 'delete-records':
+    case 'delete':
         $res = $w2grid->deleteRecords("users", "userid", $_REQUEST);
         $w2grid->outputJSON($res);
         break;
 
     case 'get-record':
         $sql = "SELECT userid, fname, lname, email, login, password
-                FROM users 
+                FROM users
                 WHERE userid = ".$_REQUEST['recid'];
         $res = $w2grid->getRecord($sql);
         $w2grid->outputJSON($res);
         break;
 
-    case 'save-record':
+    case 'save':
         $res = $w2grid->saveRecord('users', 'userid', $_REQUEST);
         $w2grid->outputJSON($res);
         break;

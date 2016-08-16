@@ -7,13 +7,13 @@ def php_querystring(querystring):
   for k,v in [ p.split('=',1) for p in querystring.split('&') if p != '' ]:
     k = urllib.unquote_plus(k)
     v = urllib.unquote_plus(v)
-    while True: 
+    while True:
       i = k.find('[]')
       if i == -1: break
       kk = k[:i]
       to_fix.setdefault(kk,0)
       k = '%s[%d]%s' % (kk,to_fix[kk],k[(i+2):])
-      to_fix[kk] += 1 
+      to_fix[kk] += 1
     k = k.replace(']','').split('[')
     if len(k) == 1:
       data[k[0]] = v
@@ -33,7 +33,7 @@ def php_querystring(querystring):
           if keys == set(map(str,rng)):
             struct[k] = [ d2l(v[str(i)]) for i in rng ]
     return struct
-  data = d2l(data) 
+  data = d2l(data)
   return data
 
 if __name__ == '__main__':
@@ -42,7 +42,7 @@ if __name__ == '__main__':
   pp = pprint.PrettyPrinter(indent=4)
 
   querystring  = ""
-  querystring += "&cmd=get-records"
+  querystring += "&cmd=get"
   querystring += "&limit=50"
   querystring += "&offset=0"
   querystring += "&selected[]=1"
