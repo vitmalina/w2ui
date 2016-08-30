@@ -2191,6 +2191,19 @@ button.w2ui-btn-small:focus:before {
   color: #000000;
   background-color: #aec8ff;
 }
+.w2ui-grid .w2ui-grid-focus-input {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: -1;
+  opacity: 0;
+  padding: 0px;
+  margin: 0px;
+  width: 1px;
+  height: 1px;
+  resize: none;
+  border: 0px;
+}
 /* SpeadSheet */
 .w2ui-ss .w2ui-grid-body .w2ui-grid-records table tr td.w2ui-selected {
   background-color: #EEF4FE !important;
