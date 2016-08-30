@@ -28,6 +28,7 @@
 *   - added field.html.column
 *   - added field types html, empty, custom
 *   - httpHeaders
+*   - method
 *
 ************************************************************************/
 
@@ -50,6 +51,7 @@
         this.original    = {};
         this.postData    = {};
         this.httpHeaders = {};
+        this.method      = null;     // only used when not null, otherwise set based on w2utils.settings.dataType
         this.toolbar     = {};       // if not empty, then it is toolbar
         this.tabs        = {};       // if not empty, then it is tabs object
         this.style       = '';
@@ -496,6 +498,7 @@
                     ajaxOptions.contentType = 'application/json';
                     break;
             }
+            if (this.method) ajaxOptions.type = this.method;
             this.last.xhr = $.ajax(ajaxOptions)
                 .done(function (data, status, xhr) {
                     obj.unlock();
@@ -673,6 +676,7 @@
                         ajaxOptions.contentType = 'application/json';
                         break;
                 }
+                if (this.method) ajaxOptions.type = this.method;
                 obj.last.xhr = $.ajax(ajaxOptions)
                     .done(function (data, status, xhr) {
                         obj.unlock();
