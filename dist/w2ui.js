@@ -4742,7 +4742,8 @@ w2utils.event = {
                                         || (search.type == 'percent' && w2utils.isFloat(value)) || (search.type == 'hex' && w2utils.isHex(value))
                                         || (search.type == 'currency' && w2utils.isMoney(value)) || (search.type == 'money' && w2utils.isMoney(value))
                                         || (search.type == 'date' && w2utils.isDate(value)) || (search.type == 'time' && w2utils.isTime(value))
-                                        || (search.type == 'datetime' && w2utils.isDateTime(value))
+                                        || (search.type == 'datetime' && w2utils.isDateTime(value)) || (search.type == 'enum' && w2utils.isAlphaNumeric(value))
+                                        || (search.type == 'list' && w2utils.isAlphaNumeric(value))
                                     ) {
                                     var tmp = {
                                         field    : search.field,
@@ -9650,7 +9651,7 @@ w2utils.event = {
                     (rec_style != '' ? 'custom_style="'+ rec_style +'"' : '') +
                 '>';
             rec_html2 += '<tr id="grid_'+ this.name +'_rec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" index="'+ ind +'" '+
-                ' class="'+ (lineNum % 2 === 0 ? 'w2ui-even' : 'w2ui-odd') +
+                ' class="'+ (lineNum % 2 === 0 ? 'w2ui-even' : 'w2ui-odd') + ' ' + rec_class +
                     (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') +
                     (record.w2ui && record.w2ui.editable === false ? ' w2ui-no-edit' : '') +
                     (record.w2ui && record.w2ui.expanded === true ? ' w2ui-expanded' : '') + '" ' +
@@ -17620,6 +17621,7 @@ var w2prompt = function (label, title, callBack) {
 *   - added field.html.column
 *   - added field types html, empty, custom
 *   - httpHeaders
+*   - method
 *
 ************************************************************************/
 
@@ -17642,6 +17644,7 @@ var w2prompt = function (label, title, callBack) {
         this.original    = {};
         this.postData    = {};
         this.httpHeaders = {};
+        this.method      = null;     // only used when not null, otherwise set based on w2utils.settings.dataType
         this.toolbar     = {};       // if not empty, then it is toolbar
         this.tabs        = {};       // if not empty, then it is tabs object
         this.style       = '';
@@ -18088,6 +18091,7 @@ var w2prompt = function (label, title, callBack) {
                     ajaxOptions.contentType = 'application/json';
                     break;
             }
+            if (this.method) ajaxOptions.type = this.method;
             this.last.xhr = $.ajax(ajaxOptions)
                 .done(function (data, status, xhr) {
                     obj.unlock();
@@ -18265,6 +18269,7 @@ var w2prompt = function (label, title, callBack) {
                         ajaxOptions.contentType = 'application/json';
                         break;
                 }
+                if (this.method) ajaxOptions.type = this.method;
                 obj.last.xhr = $.ajax(ajaxOptions)
                     .done(function (data, status, xhr) {
                         obj.unlock();
