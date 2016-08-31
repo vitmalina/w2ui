@@ -2,7 +2,7 @@
 <html>
 <head>
     <link rel="stylesheet" type="text/css" href="../../dist/w2ui.min.css" />
-    <script type="text/javascript" src="../../libs/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="../../libs/jquery/jquery-2.1.4.min.js"></script>
     <script type="text/javascript" src="../../dist/w2ui.min.js"></script>
 </head>
 <body>
@@ -41,7 +41,7 @@ $(function () {
         name     : 'user_edit',
         url     : 'users.php',
         style     : 'border: 0px; background-color: transparent;',
-        formHTML: 
+        formHTML:
             '<div class="w2ui-page page-0">'+
             '    <div class="w2ui-label">First Name:</div>'+
             '    <div class="w2ui-field">'+
@@ -76,20 +76,20 @@ $(function () {
             { name: 'password', type: 'text', required: false },
         ],
         actions: {
-            "save": function () { 
+            "save": function () {
                 this.save(function (data) {
                     if (data.status == 'success') {
                         w2ui['users'].reload();
                         $().w2popup('close');
                     }
                     // if error, it is already displayed by w2form
-                }); 
+                });
             },
-            "cancel": function () { 
+            "cancel": function () {
                 $().w2popup('close');
             },
         }
-    });    
+    });
 });
 
 function editUser(recid) {
@@ -98,7 +98,7 @@ function editUser(recid) {
         body    : '<div id="user_edit" style="width: 100%; height: 100%"></div>',
         style   : 'padding: 15px 0px 0px 0px',
         width   : 500,
-        height  : 300, 
+        height  : 300,
         onOpen  : function (event) {
             event.onComplete = function () {
                 w2ui['user_edit'].clear();

@@ -93,7 +93,7 @@ class W2uiBaseView(View):
         if cmd:
             response = getattr(self,cmd)(self.data)
         else:
-            response = self.error('unknown command "%s"' % self.data.get('cmd',''))            
+            response = self.error('unknown command "%s"' % self.data.get('cmd',''))
         return HttpResponse(json.dumps(response, cls=DjangoJSONEncoderMod),mimetype=JSON_MIMETYPE)
     def response(self,status, message, data):
         resp = {
@@ -107,12 +107,12 @@ class W2uiBaseView(View):
         return self.response('success',message,data)
     def error(self,message="",data=None):
         return self.response('error',message,data)
-    
+
 class W2uiGridView(MultipleObjectMixin, W2uiBaseView):
     commands = {
-      'get-records':    'get_records',
-      'save-records':   'save_records',
-      'delete-records': 'delete_records',           
+      'get':    'get_records',
+      'save':   'save_records',
+      'delete': 'delete_records',
     }
     def get_records(self,data):
         # TODO: convalida data
@@ -149,7 +149,7 @@ class W2uiGridView(MultipleObjectMixin, W2uiBaseView):
             else:
                 searchLogic = or_
             qs = qs.filter(reduce(searchLogic, filters))
-        
+
         # sort
         sort = data.get('sort',[])
         order = []
@@ -178,10 +178,10 @@ class W2uiGridView(MultipleObjectMixin, W2uiBaseView):
                 "total"   : page.paginator.count,
                 "records" : list(page.object_list),
         })
-        
+
     def save_records(self,data):
         return self.error('method not implemented') # TODO:
-    
+
     def delete_records(self,data):
         try:
             for obj in self.get_queryset().in_bulk(data['selected']).itervalues():
@@ -190,7 +190,7 @@ class W2uiGridView(MultipleObjectMixin, W2uiBaseView):
         except Exception as e:
             response = self.error('error deleting records',{ 'exception': e })
         return response
-    
+
     def get_data(self):
         return self.data
 class W2uiFormView (SingleObjectMixin, W2uiBaseView):
@@ -204,7 +204,7 @@ class W2uiFormView (SingleObjectMixin, W2uiBaseView):
         if len(record) == 1:
             response = self.success(data={ 'record': record[0] })
         else:
-            response = self.error('record ID "%s" not found' % pk) 
+            response = self.error('record ID "%s" not found' % pk)
         return response
     def save_record(self,data):
         Form = modelform_factory(self.model, fields=self.fields)
@@ -216,5 +216,5 @@ class W2uiFormView (SingleObjectMixin, W2uiBaseView):
             obj.save()
             response = self.success()
         else:
-            response = self.error('errori nella form',form.errors) 
+            response = self.error('errori nella form',form.errors)
         return response

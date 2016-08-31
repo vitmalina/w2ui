@@ -25,10 +25,10 @@ def users():
   cmd = req.get('cmd','')
   res = {}
   w2grid = w2Grid(conn)
-  if cmd == 'get-records':
+  if cmd == 'get':
     sql = "SELECT * FROM users WHERE ~search~ ORDER BY ~sort~"
     res = w2grid.getRecords(sql, req)
-  elif cmd == 'delete-records':
+  elif cmd == 'delete':
     res = w2grid.deleteRecords("users", "userid", req)
   elif cmd == 'get-record':
     sql = "SELECT userid, fname, lname, email, login, password FROM users WHERE userid = ?"

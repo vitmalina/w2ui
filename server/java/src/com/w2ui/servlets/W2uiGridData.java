@@ -17,7 +17,7 @@ import org.json.JSONObject;
  */
 public abstract class W2uiGridData extends HttpServlet {
     /**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 5393402328979043064L;
 
@@ -27,29 +27,29 @@ public abstract class W2uiGridData extends HttpServlet {
     public W2uiGridData() {
         super();
     }
-    
+
     /**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doPost(request, response);
 	}
-	
+
 	protected void checkUserRights(HttpServletRequest request) throws Exception {
 		// to be overridden
 		// implement here authentication or user rights for cmd execution
 		// and generate exception in case user rights is not valid
 	}
-	
+
 	protected void logException(Exception ex) {
 		// overridable for logging
 	}
-	
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {		
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		JSONObject jsobj = new JSONObject();
 		try {
 			checkUserRights(request);
-			
+
 			JSONObject reqParams = requestToJson(request);
 			if ( !reqParams.has("cmd") ) {
 				throw new Exception("cmd not set");
@@ -59,7 +59,7 @@ public abstract class W2uiGridData extends HttpServlet {
 				processSaveRecords(reqParams);
 			} else if ( cmd.equals("save-record") || cmd.equals("save") ) {
 				processSaveRecord(reqParams);
-			} else if ( cmd.equals("delete-records") ) {
+			} else if ( cmd.equals("delete-records") || cmd.equals("delete") ) {
 				int[] ids = paramToIntVector(reqParams, "selected");
 				processDeleteRecords(ids);
 			} else if (cmd.equals("get-records") || cmd.equals("get")) {
@@ -78,13 +78,13 @@ public abstract class W2uiGridData extends HttpServlet {
 			jsobj.put("message", ex.getMessage());
 			logException(ex);
 		}
-		
+
 		String jsonText = jsobj.toString();
 		response.setContentLength(jsonText.length());
 		response.setContentType("application/json");
 		response.getWriter().write(jsonText);
 	}
-	
+
 	private JSONArray readArray(HttpServletRequest request, String arrayName) {
 		int cnt=0;
 		JSONArray ret = new JSONArray();
@@ -127,7 +127,7 @@ public abstract class W2uiGridData extends HttpServlet {
 		}
 		return ret;
 	}
-	
+
 	protected int[] paramToIntVector(JSONObject reqParams, String paramName) throws Exception{
 		Object selected = reqParams.get(paramName);
 		int[] ids;
@@ -145,7 +145,7 @@ public abstract class W2uiGridData extends HttpServlet {
 		}
 		return ids;
 	}
-    
+
 	private JSONObject requestToJson(HttpServletRequest request) {
 		// first it checks if the parameter request has been passed with a valid json
 		String reqJson = request.getParameter("request");
@@ -162,7 +162,7 @@ public abstract class W2uiGridData extends HttpServlet {
 		Enumeration<String> names = request.getParameterNames();
 		while (names.hasMoreElements()) {
 			String name = names.nextElement();
-			if ( name.startsWith("search") || name.startsWith("sort") || 
+			if ( name.startsWith("search") || name.startsWith("sort") ||
 				name.startsWith("changes") ) {
 				// these are treated later
 				continue;
@@ -216,14 +216,14 @@ public abstract class W2uiGridData extends HttpServlet {
 					} else {
 						jsobj1.put(fieldName1, value);
 					}
-					jsobResult.put(objName1, jsobj1);					
+					jsobResult.put(objName1, jsobj1);
 					continue;
 				}
 			}
-			
+
 			jsobResult.put(localName, value);
 		}
-		
+
 		JSONArray arr = readArray(request, "sort");
 		if (arr != null) {
 			jsobResult.put("sort", arr);
@@ -233,15 +233,15 @@ public abstract class W2uiGridData extends HttpServlet {
 		if (arr != null) {
 			jsobResult.put("search", arr);
 		}
-				
+
 		arr = readArray(request, "changes");
 		if (arr != null) {
 			jsobResult.put("changes", arr);
 		}
-		
+
 		return jsobResult;
     }
-  
+
     /**
      * processGetRecords: retrieve records from database in case command is "get-records"
      * Implement this function in child class
@@ -249,7 +249,7 @@ public abstract class W2uiGridData extends HttpServlet {
      * @throws Exception
      */
     protected abstract JSONArray processGetRecords(JSONObject reqParams) throws Exception;
-    
+
     /**
      * processGetRecord: retrieve a single from database in case command is "get-record"
      * If you need to get a single record implement this function in child class
@@ -259,7 +259,7 @@ public abstract class W2uiGridData extends HttpServlet {
     protected JSONObject processGetRecord(JSONObject reqParams) throws Exception {
     	throw new Exception ("GetRecord not implemented");
     }
-    
+
     /**
      * processSaveRecords: save records on database in case command is "save-records"
      * If you need to save records implement this function in child class
@@ -269,7 +269,7 @@ public abstract class W2uiGridData extends HttpServlet {
 	protected void processSaveRecords(JSONObject reqParams) throws Exception {
 		throw new Exception ("Save not implemented");
     }
-	
+
 	/**
      * processSaveRecord: save record on database in case command is "save-record"
      * If you need to save records implement this function in child class
@@ -279,7 +279,7 @@ public abstract class W2uiGridData extends HttpServlet {
 	protected void processSaveRecord(JSONObject reqParams) throws Exception {
 		throw new Exception ("Save not implemented");
     }
-	
+
 	/**
      * processSaveRecords: delete records from database in case command is "delete-records"
      * If you need to delete records implement this function in child class

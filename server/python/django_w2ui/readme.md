@@ -43,9 +43,9 @@ A class that handle w2uiGrid component:
 W2uiGridView
 
 This class/view handle the following actions:
-- get-records
-- save-records
-- delete-records
+- get
+- save
+- delete
 
 And provide backend for:
 - sorting
