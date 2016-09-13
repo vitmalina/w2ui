@@ -117,6 +117,7 @@
             content   : '',        // can be String or Object with .render(box) method
             tabs      : null,
             toolbar   : null,
+            tbanchor  : 'top',       //left,right,top,bottom
             width     : null,        // read only
             height    : null,        // read only
             show : {
@@ -431,7 +432,7 @@
                 var html =  '<div id="layout_'+ obj.name + '_panel_'+ p1 +'" class="w2ui-panel">'+
                             '    <div class="w2ui-panel-title"></div>'+
                             '    <div class="w2ui-panel-tabs"></div>'+
-                            '    <div class="w2ui-panel-toolbar"></div>'+
+                            '    <div class="w2ui-panel-toolbar w2ui-panel-toolbar-' + pan.tbanchor + '"></div>'+
                             '    <div class="w2ui-panel-content"></div>'+
                             '</div>'+
                             '<div id="layout_'+ obj.name + '_resizer_'+ p1 +'" class="w2ui-resizer"></div>';
@@ -688,7 +689,12 @@
                 }
                 tmp = $(obj.box).find(pname +'> .w2ui-panel-toolbar');
                 if (p.show.toolbar) {
-                    if (tmp.find('[name='+ p.toolbar.name +']').length === 0 && p.toolbar !== null) tmp.w2render(p.toolbar); else p.toolbar.refresh();
+                    if (tmp.find('[name=' + p.toolbar.name + ']').length === 0 && p.toolbar !== null){
+                        p.toolbar.portrait = (p.tbanchor == 'top' || p.tbanchor == 'bottom') ? false : true;
+                        tmp.w2render(p.toolbar);
+                    } else {
+                        p.toolbar.refresh();
+                    }
                 } else {
                     tmp.html('').removeClass('w2ui-toolbar').hide();
                 }
@@ -1010,10 +1016,26 @@
                     }
                     if (pan.show.toolbar) {
                         if (pan.toolbar !== null && w2ui[this.name +'_'+ p1 +'_toolbar']) w2ui[this.name +'_'+ p1 +'_toolbar'].resize();
-                        tabHeight += w2utils.getSize($(tmp2 + 'toolbar').css({ top: tabHeight + 'px', display: 'block' }), 'height');
+                        switch (pan.tbanchor) {
+                            case 'top':
+                                tabHeight += w2utils.getSize($(tmp2 + 'toolbar').css({ top: tabHeight + 'px', display: 'block' }), 'height');
+                                break;
+                            case 'left':
+                                w2utils.getSize($(tmp2 + 'toolbar').css({ top: tabHeight + 'px', display: 'block' }), 'height');
+                                $(tmp2 + 'content').css({ left:  w2utils.getSize($(tmp2 + 'toolbar'), 'width')});
+                                break;
+                            case 'right':
+                                w2utils.getSize($(tmp2 + 'toolbar').css({ top: tabHeight + 'px', display: 'block' }), 'height');
+                                $(tmp2 + 'content').css({ right:  w2utils.getSize($(tmp2 + 'toolbar'), 'width')});
+                                break;
+                            case 'bottom':
+                                w2utils.getSize($(tmp2 + 'toolbar').css({ display: 'block' }), 'height');
+                                $(tmp2 + 'content').css({ bottom:  w2utils.getSize($(tmp2 + 'toolbar'), 'height')});
+                                break;
+                        }
                     }
+                    $(tmp2 + 'content').css({ display: 'block' }).css({ top: tabHeight + 'px' });
                 }
-                $(tmp2 + 'content').css({ display: 'block' }).css({ top: tabHeight + 'px' });
             }
             // send resize to all objects
             clearTimeout(this._resize_timer);

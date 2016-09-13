@@ -61,6 +61,7 @@
     // -- Implementation of core functionality
 
     w2toolbar.prototype = {
+        portrait   :  false,        //true=Portrait,false=Lateral
         item: {
             id       : null,        // command to be sent to all event handlers
             type     : 'button',    // button, check, radio, drop, menu, break, html, spacer
@@ -259,12 +260,17 @@
             }
             if (!this.box) return;
             // render all buttons
-            var html = '<table cellspacing="0" cellpadding="0" width="100%">'+
-                       '<tr>';
+            var html = '<table cellspacing="0" cellpadding="0" width="100%">';
+            if(!this.portrait) {
+                html += '<tr>';
+            }
             for (var i = 0; i < this.items.length; i++) {
                 var it = this.items[i];
+                if (it === null) continue;
+                if(this.portrait) {
+                    html += '<tr>';
+                }
                 if (it.id == null) it.id = "item_" + i;
-                if (it === null)  continue;
                 if (it.type === 'spacer') {
                     html += '<td width="100%" id="tb_'+ this.name +'_item_'+ it.id +'" align="right"></td>';
                 } else {
@@ -272,10 +278,15 @@
                             '    class="'+ (it.disabled ? 'disabled' : '') +'" valign="middle">'+ this.getItemHTML(it) +
                             '</td>';
                 }
+                if(this.portrait) {
+                    html += '</tr>';
+                }
             }
-            html += '<td width="100%" id="tb_'+ this.name +'_right" align="right">'+ this.right +'</td>';
-            html += '</tr>'+
-                    '</table>';
+            if(!this.portrait) {
+                html += '<td width="100%" id="tb_'+ this.name +'_right" align="right">'+ this.right +'</td>';
+                html += '</tr>';
+            }
+            html += '</table>';
             $(this.box)
                 .attr('name', this.name)
                 .addClass('w2ui-reset w2ui-toolbar')

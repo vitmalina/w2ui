@@ -49,15 +49,39 @@
 
             .w2ui-panel-toolbar {
                 position: absolute;
-                left: 0px;
-                top: 0px;
-                right: 0px;
                 z-index: 2;
                 display: none;
                 overflow: hidden;
                 background-color: @layout-toolbar-background-color;
-                border-bottom: 1px solid silver;
                 padding: 4px;
+            }
+
+            .w2ui-panel-toolbar-top {
+                left: 0px;
+                top: 0px;
+                right: 0px;
+                border-bottom: 1px solid silver;
+            }
+
+            .w2ui-panel-toolbar-left {
+                left: 0px;
+                top: 0px;
+                bottom: 0px;
+                border-right: 1px solid silver;
+            }
+
+            .w2ui-panel-toolbar-right {
+                right: 0px;
+                top: 0px;
+                bottom: 0px;
+                border-left: 1px solid silver;
+            }
+
+            .w2ui-panel-toolbar-bottom {
+                left: 0px;
+                right: 0px;
+                bottom: 0px;
+                border-top: 1px solid silver;
             }
 
             .w2ui-panel-content {
