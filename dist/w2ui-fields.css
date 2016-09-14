@@ -593,9 +593,9 @@ button.w2ui-btn {
   display: inline-block;
   border-radius: 4px;
   margin: 0px 5px;
-  padding: 6px 12px 6px 12px !important;
+  padding: 6px 12px;
   color: #666;
-  font-size: 12px !important;
+  font-size: 12px;
   border: 1px solid #B6B6B6;
   background-image: -webkit-linear-gradient(#ffffff 0%, #e7e7e7 100%);
   background-image: -moz-linear-gradient(#ffffff 0%, #e7e7e7 100%);
@@ -607,7 +607,7 @@ button.w2ui-btn {
   box-shadow: 0px 1px 0px white;
   cursor: default;
   min-width: 75px;
-  line-height: 110% !important;
+  line-height: 110%;
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;

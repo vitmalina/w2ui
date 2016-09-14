@@ -1984,7 +1984,10 @@ w2utils.event = {
             $('.w2ui-tag').each(function (index, el) {
                 var opt = $(el).data('options');
                 if (opt == null) opt = {};
-                $($(el).data('taged-el')).removeClass(opt.inputClass);
+                $($(el).data('taged-el'))
+                    .removeClass(opt.inputClass)
+                    .removeData('w2tag')
+                    .removeData('checkIfMoved');
                 clearInterval($(el).data('timer'));
                 $(el).remove();
             });
@@ -2009,6 +2012,7 @@ w2utils.event = {
                     .attr('style', options.style)
                     .addClass(options.className)
                     .html(options.html);
+                checkIfMoved(true);
             } else {
                 var originalCSS = '';
                 if ($(el).length > 0) originalCSS = $(el)[0].style.cssText;
@@ -2021,7 +2025,7 @@ w2utils.event = {
                     '   </div>' +
                     '</div>');
                 $tags = $('#w2ui-tag-'+tagID);
-                $(el).data('w2tag', $tags.get(0));
+                $(el).data('w2tag', $tags.get(0)).data('checkIfMoved', checkIfMoved);
             }
 
             // need time out to allow tag to be rendered
@@ -2066,12 +2070,13 @@ w2utils.event = {
                 $(document).off('.w2tag');
                 $(el).off('.w2tag', hideTag)
                     .removeClass(options.inputClass)
-                    .removeData('w2tag');
+                    .removeData('w2tag')
+                    .removeData('checkIfMoved');
                 if ($(el).length > 0) $(el)[0].style.cssText = originalCSS;
                 if (typeof options.onHide === 'function') options.onHide();
             }
 
-            function checkIfMoved(skipTransition) {
+            function checkIfMoved(checkOnly, instant) {
                 // monitor if destroyed
                 var offset = $(el).offset();
                 if ($(el).length === 0 || (offset.left === 0 && offset.top === 0) || $tags.find('.w2ui-tag-body').length === 0) {
@@ -2079,7 +2084,7 @@ w2utils.event = {
                     hideTag();
                     return;
                 }
-                setTimeout(checkIfMoved, 100);
+                if (!instant) setTimeout(checkIfMoved, 100);
                 // monitor if moved
                 var posClass = 'w2ui-tag-right';
                 var posLeft  = parseInt(offset.left + el.offsetWidth + (options.left ? options.left : 0));
@@ -2139,8 +2144,8 @@ w2utils.event = {
                             .data('posClass', posClass);
                     }
                 }
-                if ($tags.data('position') !== posLeft + 'x' + posTop && skipTransition !== true) {
-                    $tags.css(w2utils.cssPrefix({ 'transition': '.2s' })).css({
+                if ($tags.data('position') !== posLeft + 'x' + posTop && checkOnly !== true) {
+                    $tags.css(w2utils.cssPrefix({ 'transition': (instant ? '0s' : '.2s') })).css({
                         left: posLeft + 'px',
                         top : posTop + 'px'
                     }).data('position', posLeft + 'x' + posTop);
@@ -2459,6 +2464,10 @@ w2utils.event = {
                 ...
             }
         */
+        // if items is a function
+        if (options && typeof options.items == 'function') {
+            options.items = options.items();
+        }
         var defaults = {
             type       : 'normal',    // can be normal, radio, check
             index      : null,        // current selected
@@ -3005,6 +3014,7 @@ w2utils.event = {
 *   - rec.w2ui.class (and rec.w2ui.class { fname: '...' })
 *   - columnTooltip
 *   - expendable grids are still working
+*   - added search.type = 'color'
 *
 ************************************************************************/
 
@@ -3226,6 +3236,7 @@ w2utils.event = {
             "date"    : ['is', 'between', { oper: 'less', text: 'before'}, { oper: 'more', text: 'after' }],
             "list"    : ['is'],
             "hex"     : ['is', 'between'],
+            "color"   : ['is', 'begins', 'contains', 'ends'],
             "enum"    : ['in', 'not in']
             // -- all posible
             // "text"    : ['is', 'begins', 'contains', 'ends'],
@@ -3243,7 +3254,7 @@ w2utils.event = {
             "percent"      : "number",
             "hex"          : "hex",
             "alphanumeric" : "text",
-            "color"        : "text",
+            "color"        : "color",
             "date"         : "date",
             "time"         : "date",
             "datetime"     : "date",
@@ -4739,7 +4750,7 @@ w2utils.event = {
                                 var search = this.searches[i];
                                 if (    search.type == 'text' || (search.type == 'alphanumeric' && w2utils.isAlphaNumeric(value))
                                         || (search.type == 'int' && w2utils.isInt(value)) || (search.type == 'float' && w2utils.isFloat(value))
-                                        || (search.type == 'percent' && w2utils.isFloat(value)) || (search.type == 'hex' && w2utils.isHex(value))
+                                        || (search.type == 'percent' && w2utils.isFloat(value)) || ((search.type == 'hex' || search.type == 'color') && w2utils.isHex(value))
                                         || (search.type == 'currency' && w2utils.isMoney(value)) || (search.type == 'money' && w2utils.isMoney(value))
                                         || (search.type == 'date' && w2utils.isDate(value)) || (search.type == 'time' && w2utils.isTime(value))
                                         || (search.type == 'datetime' && w2utils.isDateTime(value)) || (search.type == 'enum' && w2utils.isAlphaNumeric(value))
@@ -8803,10 +8814,14 @@ w2utils.event = {
                     case 'text':
                     case 'alphanumeric':
                     case 'hex':
+                    case 'color':
                     case 'list':
                     case 'combo':
                     case 'enum':
-                        html += '<input rel="search" type="text" size="40" class="w2ui-input" style="'+ s.style +'" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'/>';
+                        var tmpStyle = 'width: 250px;';
+                        if (['hex', 'color'].indexOf(s.type) != -1) tmpStyle = 'width: 90px;';
+                        html += '<input rel="search" type="text" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+
+                                '   class="w2ui-input" style="'+ tmpStyle + s.style +'" '+ s.inTag +'/>';
                         break;
 
                     case 'int':
@@ -8817,10 +8832,11 @@ w2utils.event = {
                     case 'date':
                     case 'time':
                     case 'datetime':
-                        var size = (s.type === 'datetime') ? 17 : 12;
-                        html += '<input rel="search" type="text" size="'+ size +'" class="w2ui-input" style="'+ s.style +'" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'/>'+
-                                '<span id="grid_'+ this.name +'_range_'+ i +'" style="display: none">'+
-                                '&#160;-&#160;&#160;<input rel="search" type="text" class="w2ui-input" size="'+ size +'" style="'+ s.style +'" id="grid_'+ this.name +'_field2_'+i+'" name="'+ s.field +'" '+ s.inTag +'/>'+
+                        var tmpStyle = 'width: 90px';
+                        if (s.type == 'datetime') tmpStyle = 'width: 140px;';
+                        html += '<input rel="search" type="text" class="w2ui-input" style="'+ tmpStyle + s.style +'" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'/>'+
+                                '<span id="grid_'+ this.name +'_range_'+ i +'" style="display: none">&#160;-&#160;&#160;'+
+                                '<input rel="search" type="text" class="w2ui-input" style="'+ tmpStyle + s.style +'" id="grid_'+ this.name +'_field2_'+ i +'" name="'+ s.field +'" '+ s.inTag +'/>'+
                                 '</span>';
                         break;
 
@@ -8924,6 +8940,7 @@ w2utils.event = {
                     case 'int':
                     case 'float':
                     case 'hex':
+                    case 'color':
                     case 'money':
                     case 'currency':
                     case 'percent':
@@ -12543,6 +12560,7 @@ var w2prompt = function (label, title, callBack) {
     var defaults = {
         label       : '',
         value       : '',
+        attrs       : '',
         title       : w2utils.lang('Notification'),
         ok_text     : w2utils.lang('Ok'),
         cancel_text : w2utils.lang('Cancel'),
@@ -12574,7 +12592,10 @@ var w2prompt = function (label, title, callBack) {
           w2popup.message({
             width   : options.width,
             height  : options.height,
-            body    : '<div class="w2ui-centered" style="font-size: 13px;"><label style="margin-right: 10px;">' + options.label + ':</label><input id="w2prompt"></div>',
+            body    : '<div class="w2ui-centered" style="font-size: 13px;">'+
+                      '   <label style="margin-right: 10px;">' + options.label + ':</label>'+
+                      '   <input id="w2prompt" '+ options.attrs +'>'+
+                      '</div>',
             buttons : '<button id="Ok" class="w2ui-popup-btn w2ui-btn">' + options.ok_text + '</button><button id="Cancel" class="w2ui-popup-btn w2ui-btn">' + options.cancel_text + '</button>',
             onOpen: function () {
                 $('#w2prompt').val(options.value);
@@ -14153,7 +14174,7 @@ var w2prompt = function (label, title, callBack) {
                 }
                 var ind  = this.get(tmp.parent, arguments[a], true);
                 if (ind == null) continue;
-                if (tmp.parent.nodes[ind].selected)    tmp.sidebar.unselect(tmp.id);
+                if (tmp.parent.nodes[ind].selected) tmp.sidebar.unselect(tmp.id);
                 tmp.parent.nodes.splice(ind, 1);
                 deleted++;
             }
