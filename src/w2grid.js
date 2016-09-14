@@ -125,6 +125,7 @@
 *   - rec.w2ui.class (and rec.w2ui.class { fname: '...' })
 *   - columnTooltip
 *   - expendable grids are still working
+*   - added search.type = 'color'
 *
 ************************************************************************/
 
