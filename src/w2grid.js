@@ -4515,10 +4515,11 @@
                 if (this.searches[i].hidden) { hasHiddenSearches = true; break; }
             }
             if (hasHiddenSearches) {
-                this.searchReset(false);
+                this.searchReset(false); // will call reload
                 if (!url) setTimeout(function () { obj.searchReset(); }, 1);
+            } else {
+                this.reload();
             }
-            this.reload();
             // focus
             $(this.box).find('#grid_'+ this.name + '_focus')
                 .on('focus', function (event) {
@@ -7057,7 +7058,8 @@
                         continue;
                     }
                     var col = this.getColumn(tmp[0]);
-                    var val = this.parseField(rec, col.field);
+                    if (col == null) col = { field: tmp[0], caption: tmp[0] }; // if not found in columns
+                    var val = (col ? this.parseField(rec, col.field) : '');
                     if (tmp.length > 1) {
                         if (w2utils.formatters[tmp[1]]) {
                             val = w2utils.formatters[tmp[1]](val, tmp[2] || null);
