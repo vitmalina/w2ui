@@ -200,7 +200,7 @@
                 }
                 var ind  = this.get(tmp.parent, arguments[a], true);
                 if (ind == null) continue;
-                if (tmp.parent.nodes[ind].selected)    tmp.sidebar.unselect(tmp.id);
+                if (tmp.parent.nodes[ind].selected) tmp.sidebar.unselect(tmp.id);
                 tmp.parent.nodes.splice(ind, 1);
                 deleted++;
             }
