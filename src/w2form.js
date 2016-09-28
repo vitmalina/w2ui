@@ -1284,7 +1284,7 @@
             }
             // focus on load
             function focusEl() {
-                var inputs = $(obj.box).find('input, select, textarea');
+                var inputs = $(obj.box).find('div:not(.w2ui-field-helper) > input, select, textarea').not('.file-input');
                 if (inputs.length > obj.focus) inputs[obj.focus].focus();
             }
             if (this.focus >= 0) {

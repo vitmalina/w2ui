@@ -2205,6 +2205,7 @@
             var tabIndex = $(obj.el).attr('tabIndex');
             if (tabIndex && tabIndex != -1) obj.el._tabIndex = tabIndex;
             if (obj.el._tabIndex) tabIndex = obj.el._tabIndex;
+            if(tabIndex == null) tabIndex = -1;
             // build helper
             var html =
                 '<div class="w2ui-field-helper">'+
