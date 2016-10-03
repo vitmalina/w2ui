@@ -7035,7 +7035,6 @@
             var rec  = this.records[ind];
             var el   = $(this.box).find('#grid_'+ this.name +'_data_'+ ind +'_'+ col_ind + ' .w2ui-info');
             if (this.last.bubbleEl) $(this.last.bubbleEl).w2tag();
-            if (info.fields == null && typeof info.render == 'function') info.fields = info.render;
             this.last.bubbleEl = el;
             // if no fields defined - show all
             if (info.fields == null) {
@@ -7045,14 +7044,19 @@
                     info.fields.push(col.field + (typeof col.render == 'string' ? ':' + col.render : ''));
                 }
             }
+            var fields = info.fields;
+            if (typeof fields == 'function') {
+                fields = fields(rec, ind, col_ind); // custom renderer
+            }
             // generate html
-            if (typeof info.fields == 'function') {
-                html = info.fields(rec, ind, col_ind); // custom renderer
-            } else if ($.isArray(info.fields)) {
+            if (typeof info.render == 'function') {
+                html = info.render(rec, ind, col_ind);
+
+            } else if ($.isArray(fields)) {
                 // display mentioned fields
                 html = '<table cellpadding="0" cellspacing="0">';
-                for (var i = 0; i < info.fields.length; i++) {
-                    var tmp = String(info.fields[i]).split(':');
+                for (var i = 0; i < fields.length; i++) {
+                    var tmp = String(fields[i]).split(':');
                     if (tmp[0] == '' || tmp[0] == '-' || tmp[0] == '--' || tmp[0] == '---') {
                         html += '<tr><td colspan=2><div style="border-top: '+ (tmp[0] == '' ? '0' : '1') +'px solid #C1BEBE; margin: 6px 0px;"></div></td></tr>';
                         continue;
@@ -7072,11 +7076,11 @@
                     html += '<tr><td>' + col.caption + '</td><td>' + ((val === 0 ? '0' : val) || '') + '</td></tr>';
                 }
                 html += '</table>';
-            } else if ($.isPlainObject(info.fields)) {
+            } else if ($.isPlainObject(fields)) {
                 // display some fields
                 html = '<table cellpadding="0" cellspacing="0">';
-                for (var caption in info.fields) {
-                    var fld = info.fields[caption];
+                for (var caption in fields) {
+                    var fld = fields[caption];
                     if (fld == '' || fld == '-' || fld == '--' || fld == '---') {
                         html += '<tr><td colspan=2><div style="border-top: '+ (fld == '' ? '0' : '1') +'px solid #C1BEBE; margin: 6px 0px;"></div></td></tr>';
                         continue;
