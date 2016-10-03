@@ -9924,7 +9924,6 @@ w2utils.event = {
             var rec  = this.records[ind];
             var el   = $(this.box).find('#grid_'+ this.name +'_data_'+ ind +'_'+ col_ind + ' .w2ui-info');
             if (this.last.bubbleEl) $(this.last.bubbleEl).w2tag();
-            if (info.fields == null && typeof info.render == 'function') info.fields = info.render;
             this.last.bubbleEl = el;
             // if no fields defined - show all
             if (info.fields == null) {
@@ -9934,14 +9933,19 @@ w2utils.event = {
                     info.fields.push(col.field + (typeof col.render == 'string' ? ':' + col.render : ''));
                 }
             }
+            var fields = info.fields;
+            if (typeof fields == 'function') {
+                fields = fields(rec, ind, col_ind); // custom renderer
+            }
             // generate html
-            if (typeof info.fields == 'function') {
-                html = info.fields(rec, ind, col_ind); // custom renderer
-            } else if ($.isArray(info.fields)) {
+            if (typeof info.render == 'function') {
+                html = info.render(rec, ind, col_ind);
+
+            } else if ($.isArray(fields)) {
                 // display mentioned fields
                 html = '<table cellpadding="0" cellspacing="0">';
-                for (var i = 0; i < info.fields.length; i++) {
-                    var tmp = String(info.fields[i]).split(':');
+                for (var i = 0; i < fields.length; i++) {
+                    var tmp = String(fields[i]).split(':');
                     if (tmp[0] == '' || tmp[0] == '-' || tmp[0] == '--' || tmp[0] == '---') {
                         html += '<tr><td colspan=2><div style="border-top: '+ (tmp[0] == '' ? '0' : '1') +'px solid #C1BEBE; margin: 6px 0px;"></div></td></tr>';
                         continue;
@@ -9961,11 +9965,11 @@ w2utils.event = {
                     html += '<tr><td>' + col.caption + '</td><td>' + ((val === 0 ? '0' : val) || '') + '</td></tr>';
                 }
                 html += '</table>';
-            } else if ($.isPlainObject(info.fields)) {
+            } else if ($.isPlainObject(fields)) {
                 // display some fields
                 html = '<table cellpadding="0" cellspacing="0">';
-                for (var caption in info.fields) {
-                    var fld = info.fields[caption];
+                for (var caption in fields) {
+                    var fld = fields[caption];
                     if (fld == '' || fld == '-' || fld == '--' || fld == '---') {
                         html += '<tr><td colspan=2><div style="border-top: '+ (fld == '' ? '0' : '1') +'px solid #C1BEBE; margin: 6px 0px;"></div></td></tr>';
                         continue;
@@ -11574,6 +11578,7 @@ w2utils.event = {
 *
 * == 1.5 changes
 *   - w2prompt
+*   - w2popup and w2alert return promise now (ok, done, change)
 ************************************************************************/
 
 var w2popup = {};
@@ -12424,6 +12429,16 @@ var w2alert = function (msg, title, callBack) {
             }
         });
     }
+    return {
+        ok: function (fun) {
+            callBack = fun;
+            return this;
+        },
+        done: function (fun) {
+            callBack = fun;
+            return this;
+        }
+    };
 };
 
 var w2confirm = function (msg, title, callBack) {
@@ -12566,7 +12581,7 @@ var w2prompt = function (label, title, callBack) {
         title       : w2utils.lang('Notification'),
         ok_text     : w2utils.lang('Ok'),
         cancel_text : w2utils.lang('Cancel'),
-        width       : ($('#w2ui-popup').lengtvalueh > 0 ? 400 : 450),
+        width       : ($('#w2ui-popup').length > 0 ? 400 : 450),
         height      : ($('#w2ui-popup').length > 0 ? 170 : 220),
         callBack    : null
     }
@@ -12670,6 +12685,20 @@ var w2prompt = function (label, title, callBack) {
             }
         });
     }
+    return {
+        change: function (fun) {
+            $('#w2prompt').on('keyup', fun).keyup();
+            return this;
+        },
+        ok: function (fun) {
+            options.callBack = fun;
+            return this;
+        },
+        done: function (fun) {
+            options.callBack = fun;
+            return this;
+        }
+    };
 };
 
 /************************************************************************
@@ -14829,7 +14858,7 @@ var w2prompt = function (label, title, callBack) {
                 if (nd.caption != null) nd.text = nd.caption;
                 if (nd.group) {
                     html =
-                        '<div class="w2ui-node-group" id="node_'+ nd.id +'"'+
+                        '<div class="w2ui-node-group w2ui-level-'+ level +'" id="node_'+ nd.id +'"'+
                         '   onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
                         '   oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
                         '   onmouseout="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
@@ -14849,7 +14878,7 @@ var w2prompt = function (label, title, callBack) {
                     if (icon) tmp = '<div class="w2ui-node-image"><span class="'+ icon +'"></span></div>';
                     var text = nd.text;
                     if (typeof nd.text == 'function') text = nd.text.call(obj, nd);
-                    html =  '<div class="w2ui-node '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
+                    html =  '<div class="w2ui-node w2ui-level-'+ level +' '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
                             '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
                             '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
                             '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
@@ -14867,7 +14896,7 @@ var w2prompt = function (label, title, callBack) {
                             '</div>'+
                             '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
                     if (obj.flat) {
-                        html =  '<div class="w2ui-node '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
+                        html =  '<div class="w2ui-node w2ui-level-'+ level +' '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
                                 '    onmouseover="jQuery(this).find(\'.w2ui-node-data\').w2tag(w2utils.base64decode(\''+
                                                 w2utils.base64encode(text + (nd.count || nd.count === 0 ? ' - <span class="w2ui-node-count">'+ nd.count +'</span>' : '')) + '\'), '+
                                 '               { id: \'' + nd.id + '\', left: -5 })"'+
