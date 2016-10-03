@@ -6935,8 +6935,10 @@
                         break;
                     }
                 }
-                for (var i = 0; i < level; i++) {
-                    infoBubble += '<span class="w2ui-show-children w2ui-icon-empty"></span>';
+                if (record.w2ui.parent_recid){
+                        for (var i = 0; i < level; i++) {
+                        infoBubble += '<span class="w2ui-show-children w2ui-icon-empty"></span>';
+                        }
                 }
                 infoBubble += '<span class="w2ui-show-children '+
                         (record.w2ui.children.length > 0
