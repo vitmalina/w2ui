@@ -3475,7 +3475,7 @@ w2utils.event = {
                     var focus = obj.helpers.focus.find('input');
                     if ($(focus).val() === '') {
                         $(focus).css('text-indent', '-9999em').prev().css('opacity', 0);
-                        $(obj.el).val(selected && selected.text != null ? selected.text : '');
+                        $(obj.el).val(selected && selected.text != null ? w2utils.lang(selected.text) : '');
                     } else {
                         $(focus).css('text-indent', 0).prev().css('opacity', 1);
                         $(obj.el).val('');
@@ -5094,6 +5094,7 @@ w2utils.event = {
             var tabIndex = $(obj.el).attr('tabIndex');
             if (tabIndex && tabIndex != -1) obj.el._tabIndex = tabIndex;
             if (obj.el._tabIndex) tabIndex = obj.el._tabIndex;
+            if(tabIndex == null) tabIndex = -1;
             // build helper
             var html =
                 '<div class="w2ui-field-helper">'+

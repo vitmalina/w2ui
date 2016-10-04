@@ -9824,8 +9824,10 @@ w2utils.event = {
                         break;
                     }
                 }
-                for (var i = 0; i < level; i++) {
-                    infoBubble += '<span class="w2ui-show-children w2ui-icon-empty"></span>';
+                if (record.w2ui.parent_recid){
+                        for (var i = 0; i < level; i++) {
+                        infoBubble += '<span class="w2ui-show-children w2ui-icon-empty"></span>';
+                        }
                 }
                 infoBubble += '<span class="w2ui-show-children '+
                         (record.w2ui.children.length > 0
@@ -15548,7 +15550,7 @@ var w2prompt = function (label, title, callBack) {
                     var focus = obj.helpers.focus.find('input');
                     if ($(focus).val() === '') {
                         $(focus).css('text-indent', '-9999em').prev().css('opacity', 0);
-                        $(obj.el).val(selected && selected.text != null ? selected.text : '');
+                        $(obj.el).val(selected && selected.text != null ? w2utils.lang(selected.text) : '');
                     } else {
                         $(focus).css('text-indent', 0).prev().css('opacity', 1);
                         $(obj.el).val('');
@@ -17167,6 +17169,7 @@ var w2prompt = function (label, title, callBack) {
             var tabIndex = $(obj.el).attr('tabIndex');
             if (tabIndex && tabIndex != -1) obj.el._tabIndex = tabIndex;
             if (obj.el._tabIndex) tabIndex = obj.el._tabIndex;
+            if(tabIndex == null) tabIndex = -1;
             // build helper
             var html =
                 '<div class="w2ui-field-helper">'+
@@ -18930,7 +18933,7 @@ var w2prompt = function (label, title, callBack) {
             }
             // focus on load
             function focusEl() {
-                var inputs = $(obj.box).find('input, select, textarea');
+                var inputs = $(obj.box).find('div:not(.w2ui-field-helper) > input, select, textarea').not('.file-input');
                 if (inputs.length > obj.focus) inputs[obj.focus].focus();
             }
             if (this.focus >= 0) {
