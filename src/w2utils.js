@@ -1693,7 +1693,7 @@ w2utils.formatters = {
 
     'date': function (value, params) {
         if (params === '') params = w2utils.settings.dateFormat;
-        if (value == null || value === 0) return '';
+        if (value == null || value === 0 || value === '') return '';
         var dt = w2utils.isDateTime(value, params, true);
         if (dt === '') dt = w2utils.isDate(value, params, true);
         return '<span title="'+ dt +'">' + w2utils.formatDate(dt, params) + '</span>';
@@ -1701,7 +1701,7 @@ w2utils.formatters = {
 
     'datetime': function (value, params) {
         if (params === '') params = w2utils.settings.datetimeFormat;
-        if (value == null || value === 0) return '';
+        if (value == null || value === 0 || value === '') return '';
         var dt = w2utils.isDateTime(value, params, true);
         if (dt === '') dt = w2utils.isDate(value, params, true);
         return '<span title="'+ dt +'">' + w2utils.formatDateTime(dt, params) + '</span>';
@@ -1711,7 +1711,7 @@ w2utils.formatters = {
         if (params === '') params = w2utils.settings.timeFormat;
         if (params === 'h12') params = 'hh:mi pm';
         if (params === 'h24') params = 'h24:mi';
-        if (value == null || value === 0) return '';
+        if (value == null || value === 0 || value === '') return '';
         var dt = w2utils.isDateTime(value, params, true);
         if (dt === '') dt = w2utils.isDate(value, params, true);
         return '<span title="'+ dt +'">' + w2utils.formatTime(value, params) + '</span>';
@@ -1719,7 +1719,7 @@ w2utils.formatters = {
 
     'timestamp': function (value, params) {
         if (params === '') params = w2utils.settings.datetimeFormat;
-        if (value == null || value === 0) return '';
+        if (value == null || value === 0 || value === '') return '';
         var dt = w2utils.isDateTime(value, params, true);
         if (dt === '') dt = w2utils.isDate(value, params, true);
         return dt.toString ? dt.toString() : '';
@@ -1727,21 +1727,21 @@ w2utils.formatters = {
 
     'gmt': function (value, params) {
         if (params === '') params = w2utils.settings.datetimeFormat;
-        if (value == null || value === 0) return '';
+        if (value == null || value === 0 || value === '') return '';
         var dt = w2utils.isDateTime(value, params, true);
         if (dt === '') dt = w2utils.isDate(value, params, true);
         return dt.toUTCString ? dt.toUTCString() : '';
     },
 
     'age': function (value, params) {
-        if (value == null || value === 0) return '';
+        if (value == null || value === 0 || value === '') return '';
         var dt = w2utils.isDateTime(value, null, true);
         if (dt === '') dt = w2utils.isDate(value, null, true);
         return '<span title="'+ dt +'">' + w2utils.age(value) + (params ? (' ' + params) : '') + '</span>';
     },
 
     'interval': function (value, params) {
-        if (value == null || value === 0) return '';
+        if (value == null || value === 0 || value === '') return '';
         return w2utils.interval(value) + (params ? (' ' + params) : '');
     },
 
