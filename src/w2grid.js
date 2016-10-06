@@ -2515,7 +2515,7 @@
                     $('body').append('<textarea id="_tmp_copy_data" '+
                         '   onpaste="var obj = this; setTimeout(function () { w2ui[\''+ obj.name + '\'].paste(obj.value); }, 1);" '+
                         '   onkeydown="w2ui[\''+ obj.name +'\'].keydown(event)"'+
-                        '   style="position: absolute; top: -100px; height: 1px; width: 1px">'+ text +'</textarea>');
+                        '   style="position: absolute; top: -100px; height: 25px; width: 60px">'+ text +'</textarea>'); // width/height needed for Safari 10
                     $('#_tmp_copy_data').focus().select();
                     // remove _tmp_copy_data textarea
                     $(document).on('keyup', tmp_key_down);

@@ -1025,7 +1025,7 @@ w2utils.keyboard = (function (obj) {
 
     function keydown (event) {
         var tag = event.target.tagName;
-        if ($.inArray(tag, ['INPUT', 'SELECT', 'TEXTAREA']) !== -1) return;
+        if ($.inArray(tag, ['INPUT', 'SELECT', 'TEXTAREA', 'BUTTON']) !== -1) return;
         if ($(event.target).prop('contenteditable') === 'true') return;
         if (!w2ui_name) return;
         // pass to appropriate widget
@@ -4165,7 +4165,7 @@ w2utils.keyboard = (function (obj) {
                     $('body').append('<textarea id="_tmp_copy_data" '+
                         '   onpaste="var obj = this; setTimeout(function () { w2ui[\''+ obj.name + '\'].paste(obj.value); }, 1);" '+
                         '   onkeydown="w2ui[\''+ obj.name +'\'].keydown(event)"'+
-                        '   style="position: absolute; top: -100px; height: 1px; width: 1px">'+ text +'</textarea>');
+                        '   style="position: absolute; top: -100px; height: 25px; width: 60px">'+ text +'</textarea>'); // width/height needed for Safari 10
                     $('#_tmp_copy_data').focus().select();
                     // remove _tmp_copy_data textarea
                     $(document).on('keyup', tmp_key_down);
