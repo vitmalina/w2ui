@@ -1,7 +1,7 @@
 Returns true if <span class="argument">str</span> is a date.
 
 <div class="definition">
-    isDate(str, [format])
+    isDate(str, [format], [returnDateObj])
 </div>
 
 <div class="arguments">
@@ -14,15 +14,22 @@ Returns true if <span class="argument">str</span> is a date.
         <td>format</td>
         <td><b>string</b>, <i>optional</i>, format to check</td>
     </tr>
+    <tr>
+        <td>returnDateObj</td>
+        <td><b>boolean</b>, <i>optional</i>, if true then returns JS Date object</td>
+    </tr>
     </table>
 </div>
 
-You can specify date <span class="method">format</span>. The <span class="method">format</span> can contain following elements: mm, dd, yyyy, 
-mon in any order with any formatting characters. For example 'mm.dd.yyyy', 'dd-mm-yyyy', 'mon dd, yyyy'.
-If <span class="method">format</span> is not specified, then 
-the format will be taken from <span class="method">w2utils.settings.date_format</span>. 
+You can specify date <span class="method">format</span>. The <span class="method">format</span> can contain following
+elements: mm, dd, yyyy, mon in any order with any formatting characters. For example 'mm.dd.yyyy', 'dd-mm-yyyy', 'mon dd, yyyy'.
+If <span class="method">format</span> is not specified, then the format will be taken
+from <span class="method">w2utils.settings.dateFormat</span>.
+<div style="height: 10px"></div>
+
+If the third argument <span class="method">format</span> is true, then the method will return JavaScritp Date object is the date is valid
 
 <textarea class="javascript">
-var a = w2utils.isDate('1/1/2013');
-console.log(a);
+var a = w2utils.isDate('1/1/2013'); // return true or false
+var a = w2utils.isDate('1/1/2013', null, true); // return JS date object
 </textarea>

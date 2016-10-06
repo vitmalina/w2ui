@@ -9,7 +9,7 @@ This event is triggered when validation of the form is called. The event handler
 
 You can add event listener during the object creation:
 <textarea class="javascript">
-$('#form').w2form({ 
+$('#form').w2form({
     name     : 'form',
     url      : 'server/post',
     record: {
@@ -22,7 +22,7 @@ $('#form').w2form({
     ],
     onValidate: function(event) {
         console.log(event);
-    }        
+    }
 });
 </textarea>
 
@@ -34,7 +34,23 @@ w2ui.form.on('validate', function(event) {
 </textarea>
 
 The event handler is called before the default action of the event is triggered. You can cancel the default action by calling
-<span class="method">event.preventDefault()</span>. To perform an action 
-after the event is fully processed, define <span class="method">event.onComplete</span> function. 
+<span class="method">event.preventDefault()</span>. To perform an action
+after the event is fully processed, define <span class="method">event.onComplete</span> function.
 <div style="height: 10px;"></div>
 See <a href="utils/events">events</a> page in utilities for more details.
+
+<h4>Example of Custom Validation</h4>
+
+Lets say you want to make sure that registration date user provided is before the submission date. The following function will do this check and display error message if needed.
+
+<textarea class="javascript">
+onValidate: function(event) {
+    var date1 = w2utils.isDate(this.record.date1, null, true); // returns JS Date object
+    var date2 = w2utils.isDate(this.record.date2, null, true); // returns JS Date object
+    if (date1 > date2) {
+        event.errors.push({
+            field: this.get('date1'),
+            error: 'Registration date should be prior to submission date'
+        });
+    }
+</textarea>
