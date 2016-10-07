@@ -1452,9 +1452,12 @@ var w2utils = (function ($) {
         if (translation == null) return phrase; else return translation;
     }
 
-    function locale (locale) {
+    function locale (locale, cache) {
         if (!locale) locale = 'en-us';
-
+        if (typeof (cache) === 'undefined') {
+            cache = false;   
+        }
+        
         // if the locale is an object, not a string, than we assume it's a
         if(typeof locale !== "string" ) {
             w2utils.settings = $.extend(true, w2utils.settings, locale);
@@ -1472,7 +1475,7 @@ var w2utils = (function ($) {
             type     : "GET",
             dataType : "JSON",
             async    : false,
-            cache    : false,
+            cache    : cache,
             success  : function (data, status, xhr) {
                 w2utils.settings = $.extend(true, w2utils.settings, data);
             },
