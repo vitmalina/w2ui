@@ -4546,8 +4546,10 @@
             this.trigger($.extend(edata, { phase: 'after' }));
             // attach to resize event
             if ($('.w2ui-layout').length === 0) { // if there is layout, it will send a resize event
-                this.tmp_resize = function (event) { w2ui[obj.name].resize(); };
-                $(window).off('resize', this.tmp_resize).on('resize', this.tmp_resize);
+                $(window).off('resize.w2ui-'+ this.name)
+                    .on('resize.w2ui-'+ this.name, function (event) {
+                        w2ui[obj.name].resize();
+                    });
             }
             return (new Date()).getTime() - time;
 
@@ -4871,7 +4873,7 @@
             var edata = this.trigger({ phase: 'before', target: this.name, type: 'destroy' });
             if (edata.isCancelled === true) return;
             // remove events
-            if (this.tmp_resize) $(window).off('resize', this.tmp_resize);
+            $(window).off('resize.w2ui-'+ this.name);
             // clean up
             if (typeof this.toolbar == 'object' && this.toolbar.destroy) this.toolbar.destroy();
             if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
