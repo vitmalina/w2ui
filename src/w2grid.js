@@ -331,7 +331,7 @@
             'reload'   : { type: 'button', id: 'w2ui-reload', icon: 'w2ui-icon-reload', tooltip: 'Reload data in the list' },
             'columns'  : { type: 'drop', id: 'w2ui-column-on-off', icon: 'w2ui-icon-columns', tooltip: 'Show/hide columns', arrow: false, html: '' },
             'search'   : { type: 'html',   id: 'w2ui-search',
-                            html: '<div class="w2ui-icon icon-search-down w2ui-search-down" title="'+ w2utils.lang('Select Search Field') +'" '+
+                            html: '<div class="w2ui-icon icon-search-down w2ui-search-down" '+
                                   'onclick="var obj = w2ui[jQuery(this).parents(\'div.w2ui-grid\').attr(\'name\')]; obj.searchShowFields();"></div>'
                           },
             'search-go': { type: 'drop',  id: 'w2ui-search-advanced', icon: 'w2ui-icon-search', text: 'Search', tooltip: 'Open Search Fields' },
@@ -5307,7 +5307,7 @@
                         '            "/>'+
                         '    </td>'+
                         '    <td>'+
-                        '        <div title="'+ w2utils.lang('Clear Search') +'" class="w2ui-search-clear" id="grid_'+ this.name +'_searchClear"  '+
+                        '        <div class="w2ui-search-clear" id="grid_'+ this.name +'_searchClear"  '+
                         '             onclick="var obj = w2ui[\''+ this.name +'\']; obj.searchReset();" style="display: none"'+
                         '        >&#160;&#160;</div>'+
                         '    </td>'+
