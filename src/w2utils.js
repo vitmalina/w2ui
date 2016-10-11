@@ -32,6 +32,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - w2tag can be positioned with an array of valid values
 *   - decodeTags
 *   - added w2utils.testLocalStorage(), w2utils.hasLocalStorage
+*   - w2tag options.position can be an array or 'bottom|top'
 *
 ************************************************/
 
@@ -1958,7 +1959,7 @@ w2utils.event = {
         options = $.extend({
             id              : null,     // id for the tag, otherwise input id is used
             html            : text,     // or html
-            position        : 'right',  // can be left, right, top, bottom
+            position        : 'right|top',  // can be left, right, top, bottom
             align           : 'none',   // can be none, left, right (only works for potision: top | bottom)
             left            : 0,        // delta for left coordinate
             top             : 0,        // delta for top coordinate
@@ -2090,6 +2091,9 @@ w2utils.event = {
                 var tagBody  = $tags.find('.w2ui-tag-body');
                 var width    = tagBody[0].offsetWidth;
                 var height   = tagBody[0].offsetHeight;
+                if (typeof options.position == 'string' && options.position.indexOf('|') != -1) {
+                    options.position = options.position.split('|');
+                }
                 if (options.position == 'top') {
                     posClass  = 'w2ui-tag-top';
                     posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - 14;
@@ -2111,25 +2115,25 @@ w2utils.event = {
                     var maxHeight = window.innerHeight
                     for( var i=0; i<options.position.length; i++ ){
                         var pos = options.position[i];
-                        if(pos == 'right'){
+                        if (pos == 'right') {
                             posClass = 'w2ui-tag-right';
                             posLeft  = parseInt(offset.left + el.offsetWidth + (options.left ? options.left : 0));
                             posTop   = parseInt(offset.top + (options.top ? options.top : 0));
                             if(posLeft+width <= maxWidth) break;
                         }
-                        else if(pos == 'left'){
+                        else if (pos == 'left') {
                             posClass  = 'w2ui-tag-left';
                             posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - width - 20;
                             posTop    = parseInt(offset.top + (options.top ? options.top : 0));
                             if(posLeft >= 0) break;
                         }
-                        else if(pos == 'top'){
+                        else if (pos == 'top') {
                             posClass  = 'w2ui-tag-top';
                             posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - 14;
                             posTop    = parseInt(offset.top + (options.top ? options.top : 0)) - height - 10;
                             if(posLeft+width <= maxWidth && posTop >= 0) break;
                         }
-                        else if(pos == 'bottom'){
+                        else if (pos == 'bottom') {
                             posClass  = 'w2ui-tag-bottom';
                             posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - 14;
                             posTop    = parseInt(offset.top + el.offsetHeight + (options.top ? options.top : 0)) + 10;

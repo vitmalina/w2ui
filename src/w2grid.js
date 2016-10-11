@@ -6011,7 +6011,7 @@
 //                    break;
                 case 'between':
                     range.show();
-                    fld2.w2field(search.type);
+                    fld2.w2field(search.type, search.options);
                     break;
                 case 'not null':
                 case 'null':
@@ -7112,7 +7112,7 @@
             $(el).w2tag($.extend({
                 html        : html,
                 left        : -4,
-                position    : 'bottom',
+                position    : 'bottom|top',
                 className   : 'w2ui-info-bubble',
                 style       : '',
                 hideOnClick : true
