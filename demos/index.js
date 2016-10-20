@@ -64,7 +64,6 @@ $(function () {
                     { id: 'grid-4', text: 'Data Source', icon: 'fa-table' },
                     { id: 'grid-5', text: 'Load Data Once', icon: 'fa-table' },
                     { id: 'grid-6', text: 'Single or Multi Select', icon: 'fa-table' },
-                    { id: 'grid-7', text: 'Tree-Like Grid (1.5+)', icon: 'fa-table' },
                     { id: 'grid-8', text: 'Show/Hide Columns', icon: 'fa-table' },
                     { id: 'grid-9', text: 'Add/Remove Records', icon: 'fa-table' },
                     { id: 'grid-10', text: 'Select/Unselect Records', icon: 'fa-table' },
@@ -83,7 +82,8 @@ $(function () {
                     { id: 'grid-24', text: 'Lock/Unlock Grid', icon: 'fa-table' },
                     { id: 'grid-25', text: 'Re-Order Columns', icon: 'fa-table' },
                     { id: 'grid-26', text: 'Re-Order Records', icon: 'fa-table' },
-                    { id: 'grid-27', text: 'Locked Columns (1.5+)', icon: 'fa-table' },
+                    { id: 'grid-7',  text: 'Tree-Like Grid (1.5+)', icon: 'fa-table' },
+                    { id: 'grid-27', text: 'Frozen Columns (1.5+)', icon: 'fa-table' },
                     { id: 'grid-28', text: 'Info Bubble (1.5+)', icon: 'fa-table' }
                 ]
             },
@@ -170,7 +170,7 @@ $(function () {
                     { id: 'popup-6', text: 'Transitions', icon: 'fa-list-alt' },
                     { id: 'popup-7', text: 'Slide a Message', icon: 'fa-list-alt' },
                     { id: 'popup-9', text: 'Lock Content', icon: 'fa-list-alt' },
-                    { id: 'popup-8', text: 'Dialogs', icon: 'fa-list-alt' },
+                    { id: 'popup-8', text: 'Dialogs (1.5+)', icon: 'fa-list-alt' },
                     { id: 'popup-10', text: 'Keyboard (1.5+)', icon: 'fa-list-alt' },
                     { id: 'popup-11', text: 'Messages (1.5+)', icon: 'fa-list-alt' }
                 ]

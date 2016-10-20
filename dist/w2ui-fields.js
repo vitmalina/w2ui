@@ -27,13 +27,6 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - subitems for w2menus()
 *   - add w2utils.lang wrap for all captions in all buttons.
 *   - $().w2date(), $().w2dateTime()
-* == 1.5
-*   - added message
-*   - w2utils.keyboard is removed
-*   - w2tag can be positioned with an array of valid values
-*   - decodeTags
-*   - added w2utils.testLocalStorage(), w2utils.hasLocalStorage
-*   - w2tag options.position can be an array or 'bottom|top'
 *
 ************************************************/
 
@@ -2114,19 +2107,19 @@ w2utils.event = {
                     // try to fit the tag on screen in the order defined in the array
                     var maxWidth  = window.innerWidth;
                     var maxHeight = window.innerHeight
-                    for( var i=0; i<options.position.length; i++ ){
+                    for (var i=0; i<options.position.length; i++) {
                         var pos = options.position[i];
                         if (pos == 'right') {
                             posClass = 'w2ui-tag-right';
                             posLeft  = parseInt(offset.left + el.offsetWidth + (options.left ? options.left : 0));
                             posTop   = parseInt(offset.top + (options.top ? options.top : 0));
-                            if(posLeft+width <= maxWidth) break;
+                            if (posLeft+width <= maxWidth) break;
                         }
                         else if (pos == 'left') {
                             posClass  = 'w2ui-tag-left';
                             posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - width - 20;
                             posTop    = parseInt(offset.top + (options.top ? options.top : 0));
-                            if(posLeft >= 0) break;
+                            if (posLeft >= 0) break;
                         }
                         else if (pos == 'top') {
                             posClass  = 'w2ui-tag-top';
@@ -2138,7 +2131,7 @@ w2utils.event = {
                             posClass  = 'w2ui-tag-bottom';
                             posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - 14;
                             posTop    = parseInt(offset.top + el.offsetHeight + (options.top ? options.top : 0)) + 10;
-                            if(posLeft+width <= maxWidth && posTop+height <= maxHeight) break;
+                            if (posLeft+width <= maxWidth && posTop+height <= maxHeight) break;
                         }
                     }
                     if (tagBody.data('posClass') !== posClass) {

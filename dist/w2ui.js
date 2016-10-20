@@ -27,13 +27,6 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - subitems for w2menus()
 *   - add w2utils.lang wrap for all captions in all buttons.
 *   - $().w2date(), $().w2dateTime()
-* == 1.5
-*   - added message
-*   - w2utils.keyboard is removed
-*   - w2tag can be positioned with an array of valid values
-*   - decodeTags
-*   - added w2utils.testLocalStorage(), w2utils.hasLocalStorage
-*   - w2tag options.position can be an array or 'bottom|top'
 *
 ************************************************/
 
@@ -2114,19 +2107,19 @@ w2utils.event = {
                     // try to fit the tag on screen in the order defined in the array
                     var maxWidth  = window.innerWidth;
                     var maxHeight = window.innerHeight
-                    for( var i=0; i<options.position.length; i++ ){
+                    for (var i=0; i<options.position.length; i++) {
                         var pos = options.position[i];
                         if (pos == 'right') {
                             posClass = 'w2ui-tag-right';
                             posLeft  = parseInt(offset.left + el.offsetWidth + (options.left ? options.left : 0));
                             posTop   = parseInt(offset.top + (options.top ? options.top : 0));
-                            if(posLeft+width <= maxWidth) break;
+                            if (posLeft+width <= maxWidth) break;
                         }
                         else if (pos == 'left') {
                             posClass  = 'w2ui-tag-left';
                             posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - width - 20;
                             posTop    = parseInt(offset.top + (options.top ? options.top : 0));
-                            if(posLeft >= 0) break;
+                            if (posLeft >= 0) break;
                         }
                         else if (pos == 'top') {
                             posClass  = 'w2ui-tag-top';
@@ -2138,7 +2131,7 @@ w2utils.event = {
                             posClass  = 'w2ui-tag-bottom';
                             posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - 14;
                             posTop    = parseInt(offset.top + el.offsetHeight + (options.top ? options.top : 0)) + 10;
-                            if(posLeft+width <= maxWidth && posTop+height <= maxHeight) break;
+                            if (posLeft+width <= maxWidth && posTop+height <= maxHeight) break;
                         }
                     }
                     if (tagBody.data('posClass') !== posClass) {
@@ -5031,7 +5024,6 @@ w2utils.event = {
                 var search = { field: 'all', caption: w2utils.lang('All Fields') };
                 el.w2field('clear');
                 el.change();
-                if (value != null) el.focus();
             } else {
                 var search = this.getSearch(field);
                 if (search == null) return;
@@ -5043,10 +5035,6 @@ w2utils.event = {
                     this.last.item   = '';
                     el.val('');
                 }
-                // set focus
-                setTimeout(function () {
-                    if (value != null) el.focus(); /* do not do el.change() as it will refresh grid and pull from server */
-                }, 1);
             }
             // update field
             if (this.last.search != '') {
@@ -6166,12 +6154,6 @@ w2utils.event = {
                     cancel = true;
                     break;
 
-                case 70: // cmd + F
-                    if (!event.metaKey && !event.ctrlKey) break;
-                    $('#grid_'+ obj.name + '_search_all').focus();
-                    cancel = true;
-                    break;
-
                 case 13: // enter
                     // if expandable columns - expand it
                     if (this.selectType == 'row' && obj.show.expandColumn === true) {
@@ -7213,6 +7195,7 @@ w2utils.event = {
             }
             if (this.last.multi) {
                 el.attr('placeholder', '[' + w2utils.lang('Multiple Fields') + ']');
+                el.w2field('clear');
             } else {
                 el.attr('placeholder', w2utils.lang(this.last.caption));
             }
@@ -7233,11 +7216,15 @@ w2utils.event = {
                 $('#grid_'+ this.name +'_footer').hide();
             }
             // show/hide clear search link
-             if (this.searchData.length > 0) {
-                $('#grid_'+ this.name +'_searchClear').show();
-            } else {
-                $('#grid_'+ this.name +'_searchClear').hide();
-            }
+            var $clear = $('#grid_'+ this.name +'_searchClear');
+            $clear.hide();
+            this.searchData.some(function (item) {
+                var tmp = obj.getSearch(item.field);
+                if (obj.last.multi || (tmp && !tmp.hidden && tmp.type != 'list')) {
+                    $clear.show();
+                    return true;
+                }
+            });
             // all selected?
             var sel = this.last.selection,
                 areAllSelected = (this.records.length > 0 && sel.indexes.length == this.records.length),
@@ -7814,14 +7801,18 @@ w2utils.event = {
                     '   </td>'+
                     '</tr>';
             }
-            // other items
-            col_html += '<tr style="pointer-events: none"><td colspan="2"><div style="border-top: 1px solid #ddd;"></div></td></tr>';
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
+            // devider
+            if ((url && obj.show.skipRecords) || obj.show.saveRestoreState) {
+                col_html += '<tr style="pointer-events: none"><td colspan="2"><div style="border-top: 1px solid #ddd;"></div></td></tr>';
+            }
+            // skip records
             if (url && obj.show.skipRecords) {
                 col_html +=
                         '<tr><td colspan="2" style="padding: 0px">'+
                         '    <div style="cursor: pointer; padding: 2px 8px; cursor: default">'+ w2utils.lang('Skip') +
-                        '        <input type="text" style="width: 45px" value="'+ this.offset +'" '+
+                        '        <input type="text" style="width: 60px" value="'+ this.offset +'" '+
+                        '            onkeydown="if ([48,49,50,51,52,53,54,55,56,57,58,13,8,46,37,39].indexOf(event.keyCode) == -1) { event.preventDefault() }"'+
                         '            onkeypress="if (event.keyCode == 13) { '+
                         '               w2ui[\''+ obj.name +'\'].skip(this.value); '+
                         '               jQuery(\'.w2ui-overlay\')[0].hide(); '+
@@ -7829,6 +7820,7 @@ w2utils.event = {
                         '    </div>'+
                         '</td></tr>';
             }
+            // save/restore state
             if (obj.show.saveRestoreState) {
                 col_html += '<tr><td colspan="2" onclick="var obj = w2ui[\''+ obj.name +'\']; obj.toolbar.uncheck(\'w2ui-column-on-off\'); obj.stateSave();">'+
                             '    <div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Save Grid State') + '</div>'+
@@ -8297,26 +8289,7 @@ w2utils.event = {
                     // no default action
                     obj.trigger($.extend(edata, { phase: 'after' }));
                 });
-            } else {
-                var pos1, pos2;
-                var search = this.toolbar.get('w2ui-search');
-                if (search != null) {
-                    var tmp = search.html;
-                    pos1 = tmp.indexOf('placeholder="');
-                    pos2 = tmp.indexOf('"', pos1+13);
-                    tmp  = tmp.substr(0, pos1+13) + w2utils.lang('All Fields') + tmp.substr(pos2);
-                    pos1 = tmp.indexOf('title="');
-                    pos2 = tmp.indexOf('"', pos1+7);
-                    tmp  = tmp.substr(0, pos1+7) + w2utils.lang('Select Search Field') + tmp.substr(pos2);
-                    pos1 = tmp.indexOf('title="', pos2);
-                    pos2 = tmp.indexOf('"', pos1+7);
-                    tmp  = tmp.substr(0, pos1+7) + w2utils.lang('Clear Search') + tmp.substr(pos2);
-                    setTimeout(function () {
-                        obj.toolbar.set('w2ui-search', { html: tmp });
-                    }, 1);
-                }
             }
-            return;
         },
 
         initResize: function () {
@@ -11583,9 +11556,6 @@ w2utils.event = {
 *   - hide overlay on esc
 *   - make popup width/height in %
 *
-* == 1.5 changes
-*   - w2prompt
-*   - w2popup and w2alert return promise now (ok, done, change)
 ************************************************************************/
 
 var w2popup = {};
