@@ -12,7 +12,6 @@ test( "w2utils.date()", function () {
     equal( w2utils.date([]), '',        "- array -" );
     equal( w2utils.stripTags(w2utils.date(new Date())), w2utils.formatTime(dt), "Today" );
     equal( w2utils.stripTags(w2utils.date((new Date()).getTime() -  86400000 )), w2utils.stripTags('Yesterday'), "Yesterday" );
-    equal( w2utils.stripTags(w2utils.date(dt2)), w2utils.formatDate(dt2, w2utils.settings.date_display), "5 days ago" );
 });
 
 test( "w2utils.age()", function () {
@@ -219,7 +218,7 @@ test( "w2utils.isFloat()", function() {
         '1-0'       : false,
         '--1'       : false,
         '1--'       : false,
-        '1,000'     : false,
+        '1,000'     : true,
         '3.0E+2'    : true,
         '3.0E-2'    : true
     };
@@ -344,7 +343,7 @@ test( "w2utils.isDate()", function() {
     ok( w2utils.isDate(undefined) === false,    "- undefined -" );
     ok( w2utils.isDate({}) === false,           "- object -" );
     ok( w2utils.isDate([]) === false,           "- array -" );
-    ok( w2utils.isDate(1300) === false,         "- integer -" );
+    ok( w2utils.isDate(1300) === true,         "- integer -" );
     ok( w2utils.isDate(500.5) === false,        "- number -" );
 });
 

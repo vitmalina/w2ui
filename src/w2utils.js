@@ -279,10 +279,10 @@ var w2utils = (function ($) {
     }
 
     function age(dateStr) {
-        var dt1;
+        var d1;
         if (dateStr === '' || dateStr == null) return '';
         if (typeof dateStr.getUTCFullYear === 'function') { // date object
-            dt1 = dateStr;
+            d1 = dateStr;
         } else if (parseInt(dateStr) == dateStr && parseInt(dateStr) > 0) {
             d1 = new Date(parseInt(dateStr));
         } else {
@@ -295,8 +295,8 @@ var w2utils = (function ($) {
         var amount = '';
         var type   = '';
         if (sec < 0) {
-            amount = '<span style="color: #aaa">0 sec</span>';
-            type   = '';
+            amount = 0;
+            type   = 'sec';
         } else if (sec < 60) {
             amount = Math.floor(sec);
             type   = 'sec';
@@ -378,6 +378,7 @@ var w2utils = (function ($) {
     }
 
     function formatNumber (val, fraction, useGrouping) {
+        if (val == null || val === '' || typeof val == 'object') return '';
         var options = {
             minimumFractionDigits : fraction,
             maximumFractionDigits : fraction,
