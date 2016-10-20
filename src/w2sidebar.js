@@ -11,9 +11,6 @@
 *   - reorder with dgrag and drop
 *   - node.style is misleading - should be there to apply color for example
 *   - add multiselect
-* == 1.5 changes
-*   - allow context menu on groups
-*   - allowOnDisabled
 *
 ************************************************************************/
 
