@@ -28,9 +28,13 @@ p + p {
     margin-top: 1em;
 }
 
+input[type=text] {
+    padding: 4px !important;
+}
+
 #main_layout {
-    position: absolute; 
-    width: 100%; 
+    position: absolute;
+    width: 100%;
     height: 100%;
 }
 

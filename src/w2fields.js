@@ -8,44 +8,18 @@
 * == NICE TO HAVE ==
 *   - upload (regular files)
 *   - BUG with prefix/postfix and arrows (test in different contexts)
-*   - prefix and suffix are slow (100ms or so)
 *   - multiple date selection
 *   - month selection, year selections
 *   - arrows no longer work (for int)
 *   - form to support custom types
 *   - rewrite suffix and prefix positioning with translateY()
+*   - prefix and suffix are slow (100ms or so)
 *   - MultiSelect - Allow Copy/Paste for single and multi values
 *   - add routeData to list/enum
 *   - for type: list -> read value from attr('value')
-*   - ENUM, LIST: should be able to define which is ID field and which is TEXT
-*   - ENUM, LIST: same data structure as grid
 *   - ENUM, LIST: should have same as grid (limit, offset, search, sort)
-*   - ENUM, LIST: should support wild cars
+*   - ENUM, LIST: should support wild chars
 *   - add selection of predefined times (used for appointments)
-*
-* == 1.5 changes
-*   - added support decimalSymbol (added options.decimalSymbol)
-*   - $('#id').w2field() - will return w2field object (same as $('#id').data('w2field'))
-*   - added resize() function and automatic watching for size
-*   - bug: if input is hidden and then enum is applied, then when it becomes visible, it will be 110px
-*   - deprecate placeholder, read it from input
-*   - added get(), set(), setIndex() for fields
-*   - added options.compare function for list, combo, enum
-*   - added options.filter for list, combo, enum
-*   - added selection for the current date in the calendar
-*   - added for enum options.onScroll
-*   - modified clearCache()
-*   - changed onSearch - happens when search input changes
-*   - added options.method - for combo/list/enum if url is defined
-*   - options.items can be a function now
-*   - options.maxDropWidth
-*   - options.noMinutes - for time field
-*   - options.transarent = t/f for color
-*   - remote data is not compatible with grid
-*   - options.recId, options.recText - to define custom id and text for remove data, can be string or function
-*   - options.readContent - for file type
-*   - added support for 'accept' attribute for file type
-*   - options.msgNoItems
 *
 ************************************************************************/
 
@@ -501,21 +475,37 @@
             return ret;
         },
 
-        set: function (val) {
+        set: function (val, append) {
             if (['list', 'enum', 'file'].indexOf(this.type) != -1) {
-                $(this.el).data('selected', val).change();
+                if (this.type != 'list' && append) {
+                    if ($(this.el).data('selected') == null) $(this.el).data('selected', []);
+                    $(this.el).data('selected').push(val);
+                    $(this.el).change();
+                } else {
+                    var it = (this.type == 'enum' ? [val] : val);
+                    $(this.el).data('selected', it).change();
+                }
                 this.refresh();
             } else {
                 $(this.el).val(val);
             }
         },
 
-        setIndex: function (ind) {
-            var items = this.options.items;
-            if (items && items[ind]) {
-                $(this.el).data('selected', items[ind]).change();
-                this.refresh();
-                return true;
+        setIndex: function (ind, append) {
+            if (['list', 'enum'].indexOf(this.type) != -1) {
+                var items = this.options.items;
+                if (items && items[ind]) {
+                    if (this.type != 'list' && append) {
+                        if ($(this.el).data('selected') == null) $(this.el).data('selected', []);
+                        $(this.el).data('selected').push(items[ind]);
+                        $(this.el).change();
+                    } else {
+                        var it = (this.type == 'enum' ? [items[ind]] : items[ind]);
+                        $(this.el).data('selected', it).change();
+                    }
+                    this.refresh();
+                    return true;
+                }
             }
             return false;
         },
