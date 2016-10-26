@@ -2261,8 +2261,8 @@
         },
 
         addMulti: function () {
-            var obj         = this;
-            var options     = this.options;
+            var obj     = this;
+            var options = this.options;
             // clean up & init
             $(obj.helpers.multi).remove();
             // build helper
@@ -2277,11 +2277,17 @@
                                     - parseInt($(obj.el).css('margin-right'), 10))
                                     + 'px;';
             if (obj.type == 'enum') {
+                // remember original tabindex
+                var tabIndex = $(obj.el).attr('tabIndex');
+                if (tabIndex && tabIndex != -1) obj.el._tabIndex = tabIndex;
+                if (obj.el._tabIndex) tabIndex = obj.el._tabIndex;
+                if (tabIndex == null) tabIndex = -1;
+
                 html =  '<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box">'+
                         '    <div style="padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">'+
                         '    <ul>'+
                         '        <li style="padding-left: 0px; padding-right: 0px" class="nomouse">'+
-                        '            <input type="text" style="width: 20px; margin: -3px 0 0; padding: 2px 0; border-color: white" autocomplete="off"' + ($(obj.el).prop('readonly') ? ' readonly="readonly"': '') + ($(obj.el).prop('disabled') ? ' disabled="disabled"': '') + '/>'+
+                        '            <input type="text" style="width: 20px; margin: -3px 0 0; padding: 2px 0; border-color: white" autocomplete="off"' + ($(obj.el).prop('readonly') ? ' readonly="readonly"': '') + ($(obj.el).prop('disabled') ? ' disabled="disabled"': '') + ' tabindex="'+ tabIndex +'"/>'+
                         '        </li>'+
                         '    </ul>'+
                         '    </div>'+
