@@ -4459,20 +4459,22 @@
             // reset needed if grid existed
             this.reset(true);
             // --- default search field
-            if (!this.multiSearch || !this.show.searchAll) {
-                var tmp = 0;
-                while (tmp < this.searches.length && (this.searches[tmp].hidden || this.searches[tmp].simple === false)) tmp++;
-                if (tmp >= this.searches.length) {
-                    // all searches are hidden
-                    this.last.field   = '';
-                    this.last.caption = '';
+            if (!this.last.field) {
+                if (!this.multiSearch || !this.show.searchAll) {
+                    var tmp = 0;
+                    while (tmp < this.searches.length && (this.searches[tmp].hidden || this.searches[tmp].simple === false)) tmp++;
+                    if (tmp >= this.searches.length) {
+                        // all searches are hidden
+                        this.last.field   = '';
+                        this.last.caption = '';
+                    } else {
+                        this.last.field   = this.searches[tmp].field;
+                        this.last.caption = this.searches[tmp].caption;
+                    }
                 } else {
-                    this.last.field   = this.searches[tmp].field;
-                    this.last.caption = this.searches[tmp].caption;
+                    this.last.field   = 'all';
+                    this.last.caption = w2utils.lang('All Fields');
                 }
-            } else {
-                this.last.field   = 'all';
-                this.last.caption = w2utils.lang('All Fields');
             }
             // insert elements
             $(this.box)
