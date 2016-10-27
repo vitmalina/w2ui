@@ -2256,12 +2256,8 @@
             $.extend(params, this.postData);
             $.extend(params, add_params);
             // event before
-            if (cmd == 'get') {
-                var edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params, httpHeaders: this.httpHeaders });
-                if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
-            } else {
-                var edata = { url: url, postData: params, httpHeaders: this.httpHeaders };
-            }
+            var edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params, httpHeaders: this.httpHeaders });
+            if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
             // call server to get data
             var obj = this;
             if (this.last.xhr_offset === 0) {
@@ -2347,10 +2343,8 @@
                     // event after
                     obj.trigger($.extend(edata2, { phase: 'after' }));
                 });
-            if (cmd == 'get') {
-                // event after
-                this.trigger($.extend(edata, { phase: 'after' }));
-            }
+            // event after
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         requestComplete: function(status, cmd, callBack) {
