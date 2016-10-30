@@ -10,8 +10,8 @@
     "float"          : "^[-]?[0-9\\.]*[\\,]?[0-9]+$",
     "shortmonths"    : ["Sau", "Vas", "Kov", "Bal", "Geg", "Bir", "Lie", "Rgp", "Rgs", "Spa", "Lap", "Gru"],
     "fullmonths"     : ["Sausis", "Vasaris", "Kovas", "Balandis", "Gegužė", "Birželis", "Liepa", "Rugpjūtis", "Rugsėjis", "Spalis", "Lapkritis", "Gruodis"],
-    "shortdays"      : ["P", "A", "T", "K", "P", "Š","S"],
-    "fulldays"       : ["Pirmadienis", "Antradienis", "Trečiadienis", "Ketvirtadienis", "Penktadienis", "Šeštadienis", "Sekmadienis"],
+    "shortdays"      : ["S", "P", "A", "T", "K", "P", "Š"],
+    "fulldays"       : ["Sekmadienis", "Pirmadienis", "Antradienis", "Trečiadienis", "Ketvirtadienis", "Penktadienis", "Šeštadienis"],
     "phrases" : {
         "Add new record": "Pridėti naują įrašą",
         "Add New": "Papildyti",

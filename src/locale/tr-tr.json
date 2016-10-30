@@ -10,8 +10,8 @@
     "float"          : "^[-+]?[0-9]*[\\.,]?[0-9]+$",
     "shortmonths"    : ["Oca","Şub","Mar","May","Nis","Haz","Tem","Ağu","Eyl","Ekm","Kas","Ara"],
     "fullmonths"     : ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"],
-    "shortdays"      : ["Pts","Sa","Ça","Pe","Cu","Ct","Pz"],
-    "fulldays"       : ["Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi","Pazar"],
+    "shortdays"      : ["Pz","Pts","Sa","Ça","Pe","Cu","Ct"],
+    "fulldays"       : ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"],
     "phrases" : {
         "Add new record": "Yeni kayıt ekle",
         "Add New": "Yeni Ekle",

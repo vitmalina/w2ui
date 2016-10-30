@@ -9,8 +9,8 @@
     "float"          : "^[-]?[0-9]*[\\,]?[0-9]+NOK",
     "shortmonths"    : ["Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Des"],
     "fullmonths"     : ["Januar", "Februar", "Mars", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Desember"],
-    "shortdays"      : ["M", "T", "O", "T", "F", "L","S"],
-    "fulldays"       : ["Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag", "Lørdag", "Søndag"],
+    "shortdays"      : ["S", "M", "T", "O", "T", "F", "L"],
+    "fulldays"       : ["Søndag", "Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag", "Lørdag"],
     "phrases" : {
         "Add new record": "Legg til ny",
         "Add New": "Ny",

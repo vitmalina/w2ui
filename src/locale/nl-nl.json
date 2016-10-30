@@ -9,8 +9,8 @@
     "float"          : "^[-+]?[0-9]*[\\.,]?[0-9]+$",
     "shortmonths"    : ["Jan","Feb","Mrt","Apr","Mei","Jun","Jul","Aug","Sep","Okt","Nov","Dec"],
     "fullmonths"     : ["Januari","Februari","Maart","April","Mei","Juni","Juli","Augustus","September","Oktober","November","December"],
-    "shortdays"      : ["Ma","Di","Wo","Do","Vr","Za","Zo"],
-    "fulldays"       : ["Maandag","Dinsdag","Woensdag","Donderdag","Vrijdag","Zaterdag","Zondag"],
+    "shortdays"      : ["Zo", "Ma","Di","Wo","Do","Vr","Za"],
+    "fulldays"       : ["Zondag", "Maandag","Dinsdag","Woensdag","Donderdag","Vrijdag","Zaterdag"],
     "phrases" : {
         "Add new record": "Voeg nieuw record toe",
         "Add New": "Voeg toe",

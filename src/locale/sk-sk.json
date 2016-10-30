@@ -10,8 +10,8 @@
     "float"          : "^[-+]?[0-9]*[\\.,]?[0-9]+$",
     "shortmonths"    : ["Jan","Feb","Mar","Apr","Máj","Jún","Júl","Aug","Sep","Okt","Nov","Dec"],
     "fullmonths"     : ["Január","Február","Marec","Apríl","Máj","Jún","Júl","August","September","Október","November","December"],
-    "shortdays"      : ["Po","Ut","St","Št","Pi","So","Ne"],
-    "fulldays"       : ["Pondelok","Utorok","Streda","Štvrtok","Piatok","Sobota","Nedeľa"],
+    "shortdays"      : ["Ne","Po","Ut","St","Št","Pi","So"],
+    "fulldays"       : ["Nedeľa","Pondelok","Utorok","Streda","Štvrtok","Piatok","Sobota"],
     "phrases" : {
         "Add new record": "Pridať nový záznam",
         "Add New": "Pridať nové",

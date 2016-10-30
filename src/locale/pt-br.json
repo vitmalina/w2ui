@@ -9,8 +9,8 @@
     "float"          : "^[-+]?[0-9]*[\\.,]?[0-9]+$",
     "shortmonths"    : ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],
     "fullmonths"     : ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agostos","Setembro","Outubro","Novembro","Dezembro"],
-    "shortdays"      : ["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"],
-    "fulldays"       : ["Segunda","Terça","Quarta","Quinta","Sexta","Sábado","Domingo"],
+    "shortdays"      : ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"],
+    "fulldays"       : ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"],
     "phrases" : {
         "Add new record": "Adicionar novo registro",
         "Add New": "Adicionar novo",

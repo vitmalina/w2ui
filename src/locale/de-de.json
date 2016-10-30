@@ -11,8 +11,8 @@
     "float"          : "^[-+]?[0-9]*[\\.,]?[0-9]+$",
     "shortmonths"    : ["Jan", "Feb", "Mrz", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],
     "fullmonths"     : ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
-    "shortdays"      : ["Mo", "Di", "Mi", "Do", "Fr", "Sa" ,"So"],
-    "fulldays"       : ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"],
+    "shortdays"      : ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
+    "fulldays"       : ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"],
     "phrases" : {
         "Add new record": "Neues Element hinzufügen",
         "Add New": "Neu",
