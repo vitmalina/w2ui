@@ -11,6 +11,7 @@
 *
 * == 1.5 changes
 *   - w2prompt
+*   - w2popup and w2alert return promise now (ok, done, change)
 ************************************************************************/
 
 var w2popup = {};
@@ -861,6 +862,16 @@ var w2alert = function (msg, title, callBack) {
             }
         });
     }
+    return {
+        ok: function (fun) {
+            callBack = fun;
+            return this;
+        },
+        done: function (fun) {
+            callBack = fun;
+            return this;
+        }
+    };
 };
 
 var w2confirm = function (msg, title, callBack) {
@@ -1003,7 +1014,7 @@ var w2prompt = function (label, title, callBack) {
         title       : w2utils.lang('Notification'),
         ok_text     : w2utils.lang('Ok'),
         cancel_text : w2utils.lang('Cancel'),
-        width       : ($('#w2ui-popup').lengtvalueh > 0 ? 400 : 450),
+        width       : ($('#w2ui-popup').length > 0 ? 400 : 450),
         height      : ($('#w2ui-popup').length > 0 ? 170 : 220),
         callBack    : null
     }
@@ -1054,7 +1065,9 @@ var w2prompt = function (label, title, callBack) {
                 $('#w2ui-popup .w2ui-message .w2ui-btn').off('click.w2prompt');
                 // need to wait for message to slide up
                 setTimeout(function () {
-                    if (typeof options.callBack == 'function') options.callBack(w2popup._prompt_value);
+                    if (typeof options.callBack == 'function' && w2popup._prompt_value != null) {
+                        options.callBack(w2popup._prompt_value);
+                    }
                 }, 300);
             }
             // onKeydown will not work here
@@ -1084,7 +1097,6 @@ var w2prompt = function (label, title, callBack) {
                     $('#w2ui-popup .w2ui-popup-btn#Cancel').on('click', function (event) {
                         w2popup._prompt_value = null;
                         w2popup.close();
-                        if (typeof options.callBack == 'function') options.callBack(w2popup._prompt_value);
                     });
                     $('#w2ui-popup .w2ui-popup-btn#Ok');
                     // set focus
@@ -1107,4 +1119,14 @@ var w2prompt = function (label, title, callBack) {
             }
         });
     }
+    return {
+        change: function (fun) {
+            $('#w2prompt').on('keyup', fun).keyup();
+            return this;
+        },
+        ok: function (fun) {
+            options.callBack = fun;
+            return this;
+        }
+    };
 };

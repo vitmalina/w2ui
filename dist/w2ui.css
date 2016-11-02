@@ -2197,6 +2197,7 @@ button.w2ui-btn-small:focus:before {
   right: 0;
   z-index: -1;
   opacity: 0;
+  overflow: hidden;
   padding: 0px;
   margin: 0px;
   width: 1px;
