@@ -2472,10 +2472,6 @@
                 this.localSearch();
             }
             this.total = parseInt(this.total);
-            // call back
-            if (typeof callBack == 'function') callBack(data); // need to be befor event:after
-            // after event
-            this.trigger($.extend(edata, { phase: 'after' }));
             // do not refresh if loading on infinite scroll
             if (this.last.xhr_offset === 0) {
                 this.refresh();
@@ -2483,6 +2479,10 @@
                 this.scroll();
                 this.resize();
             }
+            // call back
+            if (typeof callBack == 'function') callBack(data); // need to be befor event:after
+            // after event
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         error: function (msg) {
