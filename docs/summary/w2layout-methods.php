@@ -70,6 +70,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2layout.message">message</a> <span>- message(panel, msgOptions);</span>
+</div>
+<div class="obj-property-desc">
+    Displays a message at the top of panel.
+</div>
+
+<div class="obj-property">
     <a href="w2layout.set">set</a> <span>- set(type, panel)</span>
 </div>
 <div class="obj-property-desc">

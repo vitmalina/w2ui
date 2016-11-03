@@ -38,7 +38,7 @@
     <a href="w2form.getChanges">getChanges</a> <span>- getChanges()</span>
 </div>
 <div class="obj-property-desc">
-    Compares current record object to original and returns diff.
+    Compares current record object to original and returns difference.
 </div>
 
 <div class="obj-property">
