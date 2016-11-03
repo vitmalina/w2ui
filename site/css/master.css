@@ -1,0 +1,261 @@
+body {
+	padding-top: 41px !important;
+	font-size: 16px;
+	line-height: 1.5;
+}
+
+h3 {
+	margin-top: 30px !important;
+}
+
+h3:first-child {
+	margin-top: 10px !important
+}
+
+h4 {
+	margin-top: 25px !important;
+}
+
+li {
+	line-height: 1.5;
+}
+
+.obj-desc ul, ul.general  {
+    margin: 12px 10px 25px 40px;
+}
+
+.large-preview {
+	padding: 20px 50px 0px 20px;
+	margin: 0px;
+	text-align: center;
+	color: white;
+	background-color: #1C1D1F;
+	background-image: -webkit-linear-gradient(top, #404F59 0%, #1C1D1F 100%);
+	background-image: -moz-linear-gradient(top, #404F59 0%, #1C1D1F 100%);
+	background-image: -ms-linear-gradient(top, #404F59 0%, #1C1D1F 100%);
+	background-image: -o-linear-gradient(top, #404F59 0%, #1C1D1F 100%);
+	filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff404F59', endColorstr='#ff1C1D1F', GradientType=0);
+	line-height: 200%;
+	box-shadow: inset #000 0px 0px 7px;
+}
+
+.main-unit {
+	box-sizing: border-box;
+	padding: 50px;
+	//background-color: #595030;
+	border-radius: 2px;
+}
+
+.large-preview h1 {
+	font-size: 140px;
+}
+
+.large-preview p {
+	margin: 60px 0px;
+}
+
+.large-preview p.sub-title {
+	font-size: 60px;
+	margin-top: 80px;
+}
+
+.large-preview ul {
+	list-style: none;
+	text-align: center;
+}
+
+.large-preview ul li {
+	display: inline-block;
+	margin-right: 20px;
+}
+
+.spacer5 {
+	display: block;
+	height: 5px;
+}
+
+.spacer10 {
+	display: block;
+	height: 10px;
+}
+
+.spacer15 {
+	display: block;
+	height: 15px;
+}
+
+.spacer20 {
+	display: block;
+	height: 20px;
+}
+
+.spacer25, .spacer {
+	display: block;
+	height: 25px;
+}
+
+.date {
+	color: gray;
+	font-size: 13px;
+	margin-top: 5px;
+	margin-bottom: 15px;
+}
+
+/* FOOTER */
+
+.footer {
+	padding: 30px 0;
+	margin-top: 30px;
+	border-top: 1px solid #E5E5E5;
+	background-color: whiteSmoke;
+}
+
+/* Code Mirror */
+
+textarea.javascript, textarea.html {
+	width: 100%;
+	min-height: 200px;
+}
+
+.CodeMirror {
+	border: 1px solid silver;
+	border-radius: 4px;
+	background-color: #fafafa;
+	font-size: 12px;
+	overflow: auto;
+	margin-top: 10px;
+	margin-bottom: 20px;
+}
+
+input[type=button] {
+	-webkit-appearance: normal !important;
+	cursor: default !important;
+	background-color: none !important;
+}
+
+/* Documentation */
+
+.obj-property {
+	font-size: 16px;
+	font-weight: bold;
+	color: #176092;
+}
+
+.obj-property > a {
+	color: #176092 !important;
+}
+
+.obj-property > span {
+	font-weight: normal;
+	color: #555;
+}
+
+.obj-property-desc {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	margin: 5px 0px 10px 0px;
+	padding: 5px 0px 15px 20px;
+	border-bottom: 1px solid #efefef
+}
+
+.obj-desc {
+	line-height: 160%;
+}
+
+.obj-desc h4 {
+	margin-top: 20px;
+}
+
+.obj-desc .definition {
+	background-color: #fafafa;
+	border: 1px solid silver;
+	padding: 5px;
+	border-radius: 4px;
+	margin: 15px 0px;
+	font-weight: bold;
+	color: #304E77;
+	font-family: Monaco, "Courier New";
+}
+
+.obj-desc .arguments {
+	border: 1px solid silver;
+	border-radius: 4px;
+	margin: 15px 0px;
+	padding: 1px;
+	margin-left: 50px;
+}
+
+.obj-desc .arguments table {
+	border-collapse: collapse;
+	width: 100%;
+	background-color: #fafafa;
+}
+
+.obj-desc table td {
+	padding: 5px 10px;
+	border-radius: 4px;
+	border-bottom: 1px solid silver;
+	width: 80%;
+}
+
+.obj-desc table tr td:first-child {
+	width: 20%;
+	color: #304E77;
+	border-right: 1px solid silver;
+	font-family: Monaco, "Courier New";
+}
+
+.obj-desc table tr:last-child td {
+	border-bottom: 0px;
+}
+
+.method, .property, .argument {
+	display: inline-block;
+	background-color: #f1f1f1;
+	border-radius: 4px;
+	margin: 0px;
+	padding: 0px 5px;
+	min-height: 17px;
+	font-family: Courier;
+	color: #176092;
+}
+
+a.method, a.property, a.argument {
+	color: blue;
+}
+
+/* replace bootstrap css */
+select, .w2ui-form input[type=text] {
+	width: auto !important;
+}
+
+.w2ui-form input[type=text] {
+	height: auto;
+	padding: 4px;
+	margin: 3px 0px;
+	font-size: 12px !important;
+	line-height: 120% !important;
+}
+
+.w2ui-grid-footer input[type=text] {
+	font-size: 11px !important;
+	height: 20px !important;
+}
+
+.w2ui-grid-searches input[type=text] {
+  width: 220px !important;
+}
+
+.alert-quote {
+	border-radius: 0px !important;
+	border: 0px !important;
+	border-left: 3px solid #EAEAEA !important;
+	background-color: #FCFCFC !important;
+	color: #000 !important;
+	margin-left: -13px !important;
+}
+
+.alert-quote-author {
+	font-style: italic;
+	color: #999;
+}

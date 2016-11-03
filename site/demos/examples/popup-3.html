@@ -1,0 +1,30 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Popup Elements</h1>
+        Each popup consists of 3 elements: title, body, and buttons. Each panel can contain any HTML. You can also have two buttons in the 
+        title: max and close.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<button class="btn" onclick="popup1()">Popup With all Elements</button>
+<button class="btn" onclick="popup2()">Popup Without Elements</button>
+
+<!--CODE-->
+<script>
+function popup1() {
+    w2popup.open({
+        title: 'Popup Title',
+        body: '<div class="w2ui-centered">This is text inside the popup</div>',
+        buttons: 'buttons',
+        showMax: true
+    });
+}
+function popup2() {
+    w2popup.open({
+        body: '<div class="w2ui-centered">Click anywhere outside the popup to hide it.</div>',
+    });
+}
+</script>

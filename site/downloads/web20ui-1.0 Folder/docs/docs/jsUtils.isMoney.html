@@ -1,0 +1,46 @@
+<div id="help_main">
+
+<h1>jsUtils.isMoney()</h1>
+
+Checks if the variable is an number compatible with money format.
+<br><br>
+
+<pre class="code params">
+<b>jsUtils.isMoney( str )</b>
+  str - any javascript variable
+</pre>
+<br>
+Returns true if the variable is in money format or false otherwise.
+<br><br>
+Any input variable is treated as a string. The function will test if the variable is a float number with an exception that it can contain a
+dollar sign ($) and commas as separators. Dollar sign and commas need to be removed when inserting into a database table.
+
+<h2>Example</h2>
+<pre class="code html">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;script src="system/libs/jsUtils.js" type="text/javascript"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript"&gt;
+        window.onload = function() {
+            alert(jsUtils.isMoney('10.44'));
+            alert(jsUtils.isMoney('$100,203.24'));
+        }
+    &lt;/script&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+<h2>See Also</h2>
+<ul style="padding-top: 0px; margin-top: 0px">
+	<li><a href="javascript: load('jsUtils.isInt.html')">jsUtils.isInt()</a></li>
+	<li><a href="javascript: load('jsUtils.isFloat.html')">jsUtils.isFloat()</a></li>
+	<li><a href="javascript: load('jsUtils.isMoney.html')">jsUtils.isMoney()</a></li>
+	<li><a href="javascript: load('jsUtils.isHex.html')">jsUtils.isHex()</a></li>
+	<li><a href="javascript: load('jsUtils.isDate.html')">jsUtils.isDate()</a></li>
+	<li><a href="javascript: load('jsUtils.isTime.html')">jsUtils.isTime()</a></li>
+	<li><a href="javascript: load('jsUtils.isEmail.html')">jsUtils.isEmail()</a></li>
+</ul>
+
+</div>

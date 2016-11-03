@@ -1,0 +1,31 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Enable/Disable Buttons</h1>
+        It is easy to enable and disable buttons during the run time. The example below demonstrates how to do this.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="toolbar" style="padding: 4px; border: 1px solid silver; border-radius: 3px"></div>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#toolbar').w2toolbar({
+        name: 'toolbar',
+        items: [
+            { type: 'button', id: 'disable', caption: 'Disable', icon: 'w2ui-icon-cross' },
+            { type: 'button', id: 'enable', caption: 'Enable', icon: 'w2ui-icon-check' },
+            { type: 'break',  id: 'break0' },
+            { type: 'button', id: 'btn', caption: 'Action Button', img: 'icon-page' },
+            { type: 'button', id: 'btn2', caption: 'Other Button', img: 'icon-page' }
+        ],
+        onClick: function (event) {
+            if (event.target == 'enable') this.enable('btn');
+            if (event.target == 'disable') this.disable('btn');
+        }
+    });
+});
+</script>

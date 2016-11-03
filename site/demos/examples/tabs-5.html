@@ -1,0 +1,30 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Enable/Disable Tabs</h1>
+        It is easy to enable and disabled tabs
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="tabs" style="width: 100%;"></div>
+<br><br>
+<button class="btn" onclick="w2ui.tabs.disable('tab2')">Disable Tab 2</button>
+<button class="btn" onclick="w2ui.tabs.enable('tab2')">Enable Tab 2</button>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#tabs').w2tabs({
+        name: 'tabs',
+        active: 'tab1',
+        tabs: [
+            { id: 'tab1', caption: 'Tab 1' },
+            { id: 'tab2', caption: 'Tab 2' },
+            { id: 'tab3', caption: 'Tab 3' },
+            { id: 'tab4', caption: 'Tab 4' }
+        ]
+    });
+});
+</script>

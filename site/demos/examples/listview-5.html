@@ -1,0 +1,38 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Table view type</h1>
+        Listview can represent items in table view. An example below show you how to customize columns.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="listview" style="width: 100%;"></div>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#listview').w2listview({
+        name: 'listview',
+        viewType: 'table',
+        extraCols: [
+            { name: 'description', width: 150 },
+            { name: 'prop1', width: 150, align: 'right', paddingRight: 20 },
+            { name: 'second_prop' }
+        ],
+        items: [
+            { id: 'item1', caption: "Item 1 with a large caption, that doesn't fit on one line.", description: 'Item 1 description', prop1: '123.99', second_prop: 'item one second prop', icon: 'fa-star-empty' },
+            { id: 'item2', caption: 'Item 2', description: 'Item 2 description', prop1: '10.00', icon: 'fa-film' },
+            { id: 'item3', caption: 'Item 3', description: 'Item 3 description', prop1: '1.50', icon: 'fa-envelope' },
+            { id: 'item4', caption: 'Item 4', description: 'Item 4 description', prop1: '0.01', icon: 'fa-bell' },
+            { id: 'item5', caption: 'Item 5', description: 'Item 5 description', prop1: '9,999,999.00', second_prop: 'item five second prop', icon: 'fa-comment-alt' },
+            { id: 'item6', caption: 'Item 6', description: 'Item 6 description', prop1: '500.33', icon: 'fa-lightbulb' },
+            { id: 'item7', caption: 'Item 7', description: 'Item 7 description', prop1: '0.00', icon: 'fa-reply' },
+            { id: 'item8', caption: 'Item 8 without icon', description: 'Item 8 description', prop1: '55.00' },
+            { id: 'item9', caption: 'Item 9', description: 'Item 9 description', prop1: '1,124.00', icon: 'fa-hand-right' },
+            { id: 'item10', caption: 'Item 10', description: 'Item 10 description', prop1: '17,870.00', icon: 'fa-money' }
+        ]
+    });
+});
+</script>

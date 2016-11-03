@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns	= "http://www.w3.org/ns/widgets"
+	xmlns:gap	= "http://phonegap.com/ns/1.0"
+	id			= "w20touch"
+	version 	= "1.0.0">
+
+	<name>Web 2.0 Touch Demo</name>
+
+	<description>
+		A demo application for Web 2.0 Touch framework. You can fork it on github 
+		https://github.com/web20boom/Web-2.0-Touch
+	</description>
+
+	<author href="http://web20boom.com"	email="vitmalina@gmail.com">
+		Vitali Malinouski
+	</author>
+
+	<icon src="images/iphone_icon.png" gap:role="default" />
+	<gap:splash src="images/iphone_startup.png" gap:role="default" />
+
+</widget>

@@ -1,0 +1,38 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Selecting items</h1>
+                An example below show you how to select/deselect items by it's id.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<input type="button" value="Select Item 1" onclick="w2ui.listview.select('item1')">
+<input type="button" value="Deselect Item 1" onclick="w2ui.listview.unselect('item1')">
+<input type="button" value="Select Item 5 &amp; Item 7" onclick="w2ui.listview.select('item5'); w2ui.listview.select('item7', true);">
+<input type="button" value="Deselect Item 5 &amp; Item 7" onclick="w2ui.listview.unselect('item5', 'item7');">
+<br><br>
+<div id="listview" style="width: 100%;"></div>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#listview').w2listview({
+        name: 'listview',
+        viewType: 'icon-tile',
+        items: [
+            { id: 'item1', caption: "Item 1 with a large caption, that doesn't fit on one line.", description: 'Item 1 description', icon: 'fa-star-empty' },
+            { id: 'item2', caption: 'Item 2', description: 'Item 2 description', icon: 'fa-film' },
+            { id: 'item3', caption: 'Item 3', description: 'Item 3 description', icon: 'fa-envelope' },
+            { id: 'item4', caption: 'Item 4', description: 'Item 4 description', icon: 'fa-bell' },
+            { id: 'item5', caption: 'Item 5', description: 'Item 5 description', icon: 'fa-comment-alt' },
+            { id: 'item6', caption: 'Item 6', description: 'Item 6 description', icon: 'fa-lightbulb' },
+            { id: 'item7', caption: 'Item 7', description: 'Item 7 description', icon: 'fa-reply' },
+            { id: 'item8', caption: 'Item 8 without icon', description: 'Item 8 description' },
+            { id: 'item9', caption: 'Item 9', description: 'Item 9 description', icon: 'fa-hand-right' },
+            { id: 'item10', caption: 'Item 10', description: 'Item 10 description', icon: 'fa-money' }
+        ]
+    });
+});
+</script>

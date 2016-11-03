@@ -1,0 +1,414 @@
+body {
+	margin: 0px; 
+	padding: 0px;
+	overflow: hidden;
+	//-webkit-user-select: none;
+	box-sizing: border-box;
+}
+.icon {
+	padding: 0px; 
+	margin: -5px 10px -5px 0px; 
+	width: 30px; 
+	height: 30px;
+	float: left; 
+}
+.icon.greenbox {
+	background-color: rgba(113, 175, 63, 0.7);
+	border-radius: 5px;
+	border: 2px solid #d1d3d4;
+}
+
+div.progress {
+	position: absolute;
+	margin: 100px 80px;
+	text-align: center;
+	padding: 30px 40px;
+	background: rgba(40,40,40,0.6);
+	font-family: "Helvetica Neue", Helvetica;
+	color: white;
+	font-weight: bold;
+	border-radius: 8px;
+	border: 2px solid rgba(230,230,230,0.7);
+	width: 100px;
+	z-index: 6;
+}
+
+/* Bottom Footer & Tabs */
+
+div.jsTouch div.footer {
+	color: white;
+	text-align: center;
+	-webkit-box-sizing: border-box;
+	border-top: 1px solid #2d3642;
+	padding: 3px;
+	height: 50px;
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, 
+		color-stop(0,#cccccc), 
+		color-stop(.02,#353535), 
+		color-stop(.5,#2b2b2b), 
+		color-stop(.55,#222222), 
+		color-stop(1,#222222));
+	overflow: hidden;
+	position: absolute;
+	z-index: 5;
+	width: auto;
+	left: 0px;
+	bottom: 0px; 
+}
+
+div.jsTouch div.footer ul.tabs{ 
+	text-align: center;
+	color: white;
+    font: bold 10px "Helvetica Neue", Helvetica;
+    padding: 0px;
+    margin: 0px;
+	margin-top: 1px;
+	-webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+}
+
+div.jsTouch div.footer ul.tabs li, div.jsTouch div.footer ul.tabs li a {
+	display: inline-block;
+	-webkit-box-sizing: border-box;
+	overflow: hidden;
+	width: 60px; 
+	height: 40px;
+    color: #fff;
+    list-style-type: none;
+	text-shadow: 1px 1px 0px #222222;
+}
+
+div.jsTouch div.footer ul.tabs a img{
+	width: 40px;
+	height: 40px;
+	opacity: 0.4;
+}
+
+div.jsTouch div.footer ul.tabs a.clicked {
+	border-radius: 3px;
+	background: rgba(255,255,255,0.3);
+}
+
+div.jsTouch div.footer ul.tabs a.clicked img{
+	opacity: 1;
+}
+
+/* Overlays */
+
+div.overlay {
+	margin: 0px;
+	padding: 0px;
+	position: absolute;
+	z-index: 10;
+	border: 1px solid #1d263e;	
+	background: rgba(10, 18, 38, 0.8);
+	-webkit-border-radius: 5px;
+	-webkit-box-shadow: 0px 0px 30px #333333;
+	-webkit-box-sizing: border-box;
+	font-family: helvetica;
+	overflow: hidden;
+}
+
+div.overlay .toolbar {
+    -webkit-box-sizing: border-box;
+	-webkit-border-top-left-radius: 5px;
+	-webkit-border-top-right-radius: 5px;
+	background: -webkit-gradient(linear, 0% 0%, 0% 35, 
+		from(rgba(220, 220, 220, 0.8)), 
+		color-stop(0.02, rgba(145, 148, 157, 0.8)),
+		color-stop(0.5, rgba(70, 78, 93, 0.8)),
+		color-stop(0.6, rgba(58, 65, 82, 0.8)),
+		to(rgba(10, 18, 38, 0.8)) );
+	margin: 0px; 
+    padding: 10px;
+    height: 45px;
+    -border-bottom: 1px solid #2d3642;
+	-webkit-box-shadow: 0px 0px 10px black;
+	position: relative;
+	z-index: 5;
+}
+
+div.overlay .toolbar > h1 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+	display: block;
+    height: 40px;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: rgba(0, 0, 0, 0.4) 0px -1px 0;
+    text-align: center;
+	padding: 0px; 
+	margin: 0px;
+    white-space: nowrap;
+    color: #fff;
+}
+
+div.overlay .toolbar > span.arrow {
+	display: block;
+	margin-top: -20px;
+	position: absolute;
+	width: 30px;
+	height: 30px;
+	background: -webkit-gradient(linear, left top, right bottom, from(rgba(220, 220, 220, 0.9)), 
+		to(rgba(10, 18, 38, 0.9))); /* rgba(145, 148, 157, 0.9); */
+	border-left: 1px solid #303c5b;
+	border-top: 1px solid #303c5b;
+	-webkit-border-top-right-radius: 5px;
+	-webkit-border-bottom-left-radius: 5px;
+	-webkit-transform: rotate(45deg);
+	-webkit-mask-image: -webkit-gradient(linear, left top, right bottom, from(#000000), color-stop(0.40,#000000), color-stop(0.40, transparent), to(transparent));
+}
+
+div.overlay .toolbar .button {
+	border: 1px solid #222;
+	box-shadow: 0px 1px 0px #888;
+}
+
+div.overlay .footer {
+	left: 5px;
+	right: 5px;
+	bottom: 5px;
+	width: auto;
+	height: 50px;
+	position: absolute;
+	overflow: hidden;
+	text-align: center;
+	color: white;
+}
+
+div.overlay .content {
+    -webkit-box-sizing: border-box;
+	margin: 0px;
+    padding: 5px;
+	width: auto;
+	left: 5px; 
+	right: 5px;
+	top: 5px;
+	bottom: 5px;
+	background-color: white;
+	-webkit-border-radius: 5px;
+	position: absolute;
+}
+
+div.overlay div.content ul.simple { 
+	color: black;
+    font: bold 17px "Helvetica Neue", Helvetica;
+    padding: 0px;
+    margin: 0px;
+	margin-top: -10px;
+	margin-bottom: 10px;
+}
+
+div.overlay div.content ul.simple li {
+    color: #333;
+    border-top: 1px solid #ccc;
+    list-style-type: none;
+    padding: 10px;
+	margin: 0px;
+	background-color: #fff;
+}
+div.overlay div.content ul.simple li a{
+    color: #333;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
+    padding: 12px 10px 12px 10px;
+    margin: -10px;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.5);
+}
+
+div.overlay div.content ul.simple li a.clicked {
+	color: white;
+	text-shadow: 1px 1px 0px #555;
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#1faeef), to(#187bc8));
+}
+
+/* List Elements */
+
+div.overlay div.content ul li span.count {
+	float: right;
+	border: 2px solid #efefef;
+	background-color: #6c8aaf;
+	border-radius: 20px;
+	padding: 2px 5px;
+	font-size: 12px;
+	width: 15px;
+	text-align: center;
+	color: white;
+	text-shadow: 1px 1px 0px #888888;
+	-webkit-box-shadow: 0 0 4px #777777
+}
+
+div.overlay div.content ul li span.arrow {
+	float: right;
+	border-top: 3px solid #999999;
+	border-right: 3px solid #999999;
+	-webkit-transform: rotate(45deg);
+	width: 7px;
+	height: 7px;
+	margin-top: 5px;
+	margin-right: 5px;
+}
+
+div.overlay div.content div.simple-title {
+	margin-top: -10px;
+	margin-bottom: 10px;
+	padding: 4px;
+	padding-left: 10px;
+	font-weight: bold;
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#6E87A6), to(#6E87A6), color-stop(.5,#82A0C4));
+	border-top: 1px solid #647A96;
+	border-bottom: 1px solid #647A96;
+	color: #ffffff;
+	text-shadow: 1px 1px 0px #333333;
+}
+
+/* Buttons */
+
+.button-black {
+	display: inline-block;
+	-webkit-border-radius: 10px;
+	-webkit-box-shadow: 0px 0px 6px #ddd; 
+	border: solid 3px rgb(90,90,90);
+	background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(104,104,104,1)), color-stop(0.5, rgba(40,40,40,1)), color-stop(0.5, rgba(20,20,20,1)), to(rgba(40,40,40,1))); 
+	color: #fff;
+	text-shadow: #000000 1px 1px 1px;
+	font: bold 16px Helvetica, Sans-serif;
+	margin: 4px;
+	padding: 8px;
+	text-align: center;
+	text-decoration: none;
+	opacity: 1;
+}
+
+.button-black:hover, .button-gray:hover, .button-navy:hover, .button-blue:hover, .button-red:hover, .button-green:hover {
+	-webkit-box-shadow: 0px 0px 8px #eee; 
+	border: solid 3px rgb(100,100,100);
+	opacity: 0.7;
+}
+
+.button-gray {
+	display: inline-block;
+	-webkit-border-radius: 10px;
+	-webkit-box-shadow: 0px 0px 6px #ddd; 
+	border: solid 3px rgb(90,90,90);
+	background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(234,234,234,1)), color-stop(0.5, rgba(185,185,185,1)), color-stop(0.5, rgba(166,166,166,1)), to(rgba(167,167,167,1))); 
+	color: #000;
+	text-shadow: #cccccc 1px 1px 1px;
+	font: bold 16px Helvetica, Sans-serif;
+	margin: 4px;
+	padding: 8px;
+	text-align: center;
+	text-decoration: none;
+	opacity: 1;
+}
+
+.button-navy {
+	display: inline-block;
+	-webkit-border-radius: 10px;
+	-webkit-box-shadow: 0px 0px 6px #ddd; 
+	border: solid 3px rgb(90,90,90);
+	background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(29,103,186,1)), color-stop(0.5, rgba(13,70,134,1)), color-stop(0.5, rgba(12,58,110,1)), to(rgba(13,65,120,1))); 
+	color: #fff;
+	text-shadow: #000000 1px 1px 1px;
+	font: bold 16px Helvetica, Sans-serif;
+	margin: 4px;
+	padding: 8px;
+	text-align: center;
+	text-decoration: none;
+	opacity: 1;
+}
+
+.button-red {
+	display: inline-block;
+	-webkit-border-radius: 10px;
+	-webkit-box-shadow: 0px 0px 6px #ddd; 
+	border: solid 3px rgb(90,90,90);
+	background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(250,50,50,1)), color-stop(0.5, rgba(202,34,38,1)), color-stop(0.5, rgba(184,20,20,1)), to(rgba(230,20,20,1))); 
+	color: #fff;
+	text-shadow: #000000 1px 1px 1px;
+	font: bold 16px Helvetica, Sans-serif;
+	margin: 4px;
+	padding: 8px;
+	text-align: center;
+	text-decoration: none;
+	opacity: 1;
+}
+
+.button-green {
+	display: inline-block;
+	-webkit-border-radius: 10px;
+	-webkit-box-shadow: 0px 0px 6px #ddd; 
+	border: solid 3px rgb(90,90,90);
+	background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(55,200,55,1)), color-stop(0.5, rgba(23,130,14,1)), color-stop(0.5, rgba(0,113,0,1)), to(rgba(0,150,0,1))); 
+	color: #fff;
+	text-shadow: #000000 1px 1px 1px;
+	font: bold 16px Helvetica, Sans-serif;
+	margin: 4px;
+	padding: 8px;
+	text-align: center;
+	text-decoration: none;
+	opacity: 1;
+}
+
+.button-blue {
+	display: inline-block;
+	-webkit-border-radius: 10px;
+	-webkit-box-shadow: 0px 0px 6px #ddd; 
+	border: solid 3px rgb(90,90,90);
+	background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(86,213,255,1)), color-stop(0.5, rgba(39,125,255,1)), color-stop(0.5, rgba(0,114,255,1)), to(rgba(0,133,255,1))); 
+	color: #fff;
+	text-shadow: #000000 1px 1px 1px;
+	font: bold 16px Helvetica, Sans-serif;
+	margin: 4px;
+	padding: 8px;
+	text-align: center;
+	text-decoration: none;
+	opacity: 1;
+}
+
+/* INPUT CONTROLS */
+
+div.jsTouch div.content input {
+	border: 0px;
+	width: 100%;
+	font-size: 20px;
+	margin: 0px;
+	padding: 6px 0px 0px 0px !important; 
+	-webkit-appearance: none !important;
+	-webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+	color: black;
+	background-color: transparent;
+}
+
+div.jsTouch div.content span.toggle {
+	width: 70px;
+	height: 27px;
+	display: block;
+	overflow: hidden;
+	float: right;
+	margin: 0px -3px;
+	-webkit-border-radius: 20px;
+	-moz-border-radius: 20px;
+}
+
+div.jsTouch div.content span.toggle input[type=checkbox]:checked {
+	margin-left: -2px;
+}
+
+div.jsTouch div.content span.toggle input[type=checkbox] {
+	background: #fff url(../images/on_off_ios5.png) 0 0 no-repeat;
+	height: 28px;
+	margin: 0;
+	margin-left: -48px;
+	width: 120px;
+	-moz-appearance: none;
+	-moz-border-radius: 20px;
+	-moz-tap-highlight-color: rgba(0,0,0,0);
+	-moz-transition: margin .15s;
+	-webkit-appearance: textarea;
+	-webkit-border-radius: 20px;
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+	-webkit-transition: margin .15s;
+}

@@ -1,0 +1,28 @@
+Options +FollowSymlinks
+Options -Indexes
+RewriteEngine on
+
+# -- remove www
+RewriteCond %{HTTP_HOST} ^www.w2ui.com$
+RewriteRule (.*) http://w2ui.com/$1 [R,L]
+
+RewriteRule ^pgadmin\.php$ pgadmin
+RewriteRule ^fm\.php$ fm
+RewriteRule ^touch\.php$ mobile
+RewriteRule ^touch_docs\.php$ mobile/tutorial
+
+# -- redirect all so SSL
+# RewriteCond %{SERVER_PORT} !443
+# RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [R,L]
+
+# -- If file or directoy exists, rewrtie to it
+RewriteCond %{REQUEST_FILENAME} -f [NC,OR] 				# NC - no case (case insensitive)
+RewriteCond %{REQUEST_FILENAME} -d [NC]    				# OR - logical condition, implicit is AND
+RewriteRule .* - [L]									# L - means last rule, will exit
+
+# -- rewrite common extensions (shows up red in firebug)
+RewriteCond %{REQUEST_URI} \.(php||png|jpg|gif|bmp|swf|css|js)$ [NC]
+RewriteRule .* - [L]
+
+# -- All other requests go to index.php?page=&s1=&s2=&s3=&s4= and other params
+RewriteRule ^([^/]*)?/?([^/]*)?/?([^/]*)?/?([^/]*)?/?([^/]*)?/?$ ?page=$1&s1=$2&s2=$3&s3=$4&s4=$5&%{QUERY_STRING}

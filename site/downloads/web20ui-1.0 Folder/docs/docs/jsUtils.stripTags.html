@@ -1,0 +1,40 @@
+<div id="help_main">
+
+<h1>jsUtils.stripTags()</h1>
+
+stripTags
+<br><br>
+
+<pre class="code params">
+<b>jsUtils.stripTags( str )</b>
+  str - string variable
+</pre>
+<br>
+Returns string without HTML or XML tags.
+<br><br>
+Allowing uses to input HTML into text and saving it into the database might be a security rist. This function allows to clean user generated
+text and remove all tags.
+
+<h2>Example</h2>
+<pre class="code html">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;script src="system/libs/jsUtils.js" type="text/javascript"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript"&gt;
+        window.onload = function() {
+            alert(jsUtils.stripTags('&lt;b&gt;some html&lt;/b&gt;'));
+        }
+    &lt;/script&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+<h2>See Also</h2>
+<ul style="padding-top: 0px; margin-top: 0px">
+	<li><a href="javascript: load('jsUtils.trim.html')">jsUtils.trim()</a></li>
+	<li><a href="javascript: load('jsUtils.stripTags.html')">jsUtils.stripTags()</a></li>
+</ul>
+
+</div>

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+<channel>
+	<title>W2UI: New JavaScript UI Library</title>
+	<link>http://w2ui.com</link>
+	<description>
+		The w2ui library is a complete set jQuery plugins for data-driven web applications.
+		It contains most common UI widgets: Layout, Grid, Sidebar, Tabs, Toolbar, Popup, Field Controls and Forms.
+	</description>
+	<language>en-us</language>
+	<image>
+		<url>http://w2ui.com/web/img/w2ui.png</url>
+		<title>JavaScript UI Library</title>
+		<link>http://w2ui.com</link>
+	</image>
+	<item>
+		<title>Info Bubbles in the Grid</title>
+		<link>http://w2ui.com/web/blog/13/Info-Bubbles-in-the-Grid</link>
+		<pubDate>December 12, 2015</pubDate>
+		<description>
+			It has been over a year since 1.4 release and I've heard from many people who are anxious to get new version. Though, it is still in development (getting really close), I decided to write a couple of articles about new features that are coming out. One of such features is info bubbles in the grid.
+		</description>
+	</item>
+	<item>
+		<title>W2UI 1.4 Released</title>
+		<link>http://w2ui.com/web/blog/12/W2UI-1.4-Released</link>
+		<pubDate>July 21, 2014</pubDate>
+		<description>
+			I am happy to announce the release of W2UI 1.4. This release has many improvements and bug fixes. New 1.4 version is not fully
+			backward compatible with 1.3, however, the migration should be easy as there were only few changes that would break your previous
+			code.
+		</description>
+	</item>
+	<item>
+		<title>HTML5 Input Types Alternative (Part 2)</title>
+		<link>http://w2ui.com/web/blog/11/HTML5-Input-Types-Alternative-(Part-2)</link>
+		<pubDate>July 17, 2014</pubDate>
+		<description>
+			Some time back, I wrote a post - HTML5 Input Types Alternative - where I suggested that since implementation in various
+            browsers of new HTML5 input types is inconsistent, we should not yet use them, but rather use controls implemented in
+            JavaScript. I have suggested w2ui-fields library. As I have gotten feedback and suggestions from many people, I have improved
+            and updated the library which is now ready for its second release.
+		</description>
+	</item>
+	<item>
+		<title>Folder Structure for Single Page Applications</title>
+		<link>http://w2ui.com/web/blog/10/Folder-Structure-for-Single-Page-Applications</link>
+		<pubDate>July 7, 2014</pubDate>
+		<description>
+			It makes me sad to see so many people still use old, archaic folder structure for their projects. It seems that while
+			front-end development has moved light years ahead, the structure people use did not change since the 90x. The general principle of
+			folder structure in 90x was organization by type.
+		</description>
+	</item>
+	<item>
+		<title>HTML5 Input Types Alternative</title>
+		<link>http://davidwalsh.name/html5-input-types-alternative</link>
+		<pubDate>January 22, 2014</pubDate>
+		<description>
+			As you may know, HTML5 has introduced several new input types: number, date, color, range, etc. The question is: should you
+			start using these controls or not? As much as I want to say "Yes", I think they are not yet ready for any real life project.
+			The main reason is inconsistent implementation by different browsers.
+		</description>
+	</item>
+	<item>
+		<title>Nested CSS Rules</title>
+		<link>http://w2ui.com/web/blog/9/Nested-CSS-Rules</link>
+		<pubDate>November 22, 2013</pubDate>
+		<description>
+			What feature is the more important in LESS? For me it is a no-brainer. I think nested rules is the single most important feature in
+			LESS (or SASS). However, when I asked my colleges, I got various answers. Some said, it's got to be variables, others could not
+			decide. So, I have created a little poll of what is the most coveted feature of LESS.
+		</description>
+	</item>
+	<item>
+		<title>W2UI 1.3 Released: Goodbye Pagination, Hello Infinite Scroll</title>
+		<link>http://w2ui.com/web/blog/8/W2UI-1.3-Released-Goodbye-Pagination-Hello-Infinite-Scroll</link>
+		<pubDate>October 29, 2013</pubDate>
+		<description>
+			One of the major changes in 1.3 is deprecation of pagination in favor of infinite scroll. My goal was to make the grid present
+			records in a natural way so that you would not even think that there is any other way. You scroll, you see more records (if any).
+			You engage the scroll bar, you get the records you were hoping to get. And I think it turned out to be an awesome feature.
+		</description>
+	</item>
+	<item>
+		<title>JavaScript Grid with One Million Records</title>
+		<link>http://w2ui.com/web/blog/7/JavaScript-Grid-with-One-Million-Records</link>
+		<pubDate>July 5, 2013</pubDate>
+		<description>
+			Can JavaScript grid handle large number of records? Is it fast to sort and search a large JavaScript array? How many
+			records can a browser handle? In this article I try to answer all these questions.
+		</description>
+	</item>
+	<item>
+		<title>W2UI 1.2 Released</title>
+		<link>http://w2ui.com/web/blog/6/w2ui-1.2-released</link>
+		<pubDate>May 4, 2013</pubDate>
+		<description>
+			I am happy to announce the release of w2ui ver 1.2. This is the first release with contributions from the community. Since the
+			previous release, I have received a lot of positive comments and am very excited to see that w2ui has been well accepted by so
+			many people. I would like to express many thanks and kudos to everyone who contributed to this release.
+		</description>
+	</item>
+	<item>
+		<title>JavaScript W2UI 1.1 Released</title>
+		<link>http://w2ui.com/web/blog/5/w2ui-1.1-released</link>
+		<pubDate>Feb 9, 2013</pubDate>
+		<description>
+			The w2ui is a complete set of UI widgets for data-driven web applications. It consists of: layout,
+			grid, toolbar, sidebar, tabs, popup, form, fields, utilities.
+			All major browsers are supported: Chrome, FireFox, IE9+, Safari, Opera. Chrome is my personal browser of choice and the
+			first browser I test in, so with Chrome the experience should be superb.
+		</description>
+	</item>
+	<item>
+		<title>Using ANT to Build and Deploy JavaScript Projects</title>
+		<link>http://w2ui.com/web/blog/4/Using-And-to-Build-and-Deploy-JavaScript-Projects</link>
+		<pubDate>Oct 27, 2012</pubDate>
+		<description>
+			Any serios project should have a clear, consistent and automated build process. Having to build a project is not new for
+			JAVA or C developers but for the long time it was pretty much neglected by front-end developers who spent most of their
+			development time writing JavaScript, CSS and HTML.
+		</description>
+	</item>
+	<item>
+		<title>CSS Scoping</title>
+		<link>http://w2ui.com/web/blog/3/CSS-Scoping</link>
+		<pubDate>Aug 27, 2012</pubDate>
+		<description>
+			The biggest problem with CSS is absence of scoping. For simple HTML pages scoping has little sense, however modern web
+			applications are far from simple pages. Modern web applications widely use ajax techniques refreshing portions of the page
+			and often the entire page never fully reloads. Imaging you are developing a web application where you insert a block of
+			HTML code into the page, then you apply some CSS rules to the inserted section. However, the browser will apply all applicable
+			CSS fules from all included CSS files and all style blocks present on the page to the newly inserted HTML section. And
+			there is no way to prevent browser from doing so.
+		</description>
+	</item>
+	<item>
+		<title>Speach Bubble in Pure CSS</title>
+		<link>http://w2ui.com/web/blog/2/Speech-Bubble-in-Pure-CSS</link>
+		<pubDate>Jun 2, 2012</pubDate>
+		<description>
+			Not so long ago, I have discovered two new CSS3 pseudo elements - :before and :after (They are actually CSS2 features, but
+			lets discuss it in the context of CSS3). I have read about them long ago but was uninterested due to lack of practical use
+			until recently I came across this blog post by Nicolas Gallagher, where he shows how to use them to create a speech bubble.
+		</description>
+	</item>
+	<item>
+		<title>A Variation of JavaScript Module Pattern</title>
+		<link>http://w2ui.com/web/blog/1/A-Variation-of-JavaScript-Module-Pattern</link>
+		<pubDate>May 25, 2012</pubDate>
+		<description>
+			Module Pattern is one of the most popular JavaScript design patterns today. It has a number of flavors in existence but all of
+			them are based on the same desire to encapsulate and protect the private state of an object. As you know, vanilla JavaScript
+			does not have private or protected keyword that would make a property of an object private. All of the properties and methods
+			of any JavaScript object are inherently public and anyone can change, overwrite or even delete them. This is where the module
+			pattern comes in.
+		</description>
+	</item>
+</channel>
+</rss>

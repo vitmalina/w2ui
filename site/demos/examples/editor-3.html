@@ -1,0 +1,49 @@
+<div class="content">
+    
+    <div id="example_title">
+        <h1>Show/Hide Buttons</h1>
+        If you need to hide some buttons from the toolbar, you need to set <span class="property">.showButtons</span> property which is an object where you
+        specify what buttons are hidden. 
+        <br><br>
+        The names of the buttons are: btn-undo, btn-redo, btn-break1, btn-paragraph, btn-font, btn-size, btn-break2, btn-bold, 
+        btn-italic, btn-formating, btn-break3, btn-color, btn-bgcolor, btn-break4, btn-paste, btn-clear, btn-source, btn-break5, btn-align, btn-spacing, btn-lists, 
+        btn-break6, btn-indent, btn-outdent, btn-break7, btn-link, btn-unlink, btn-break8, btn-fullscreen.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+    
+<!--CODE-->
+<div id="emailEditor" style="width: 100%; height: 200px; width: 400px;"></div>
+
+<!--CODE-->
+<script>
+$(document).ready(function () {
+    if ($.w2ui['emailEditor']) $.w2ui['emailEditor'].destroy();
+    $('#emailEditor').w2editor({ 
+        name: 'emailEditor', 
+        smallToolbar: false,
+        showButtons: {
+            "btn-break1": false,
+            "btn-paragraph": false,
+            "btn-font": false,
+            "btn-size": false,
+            "btn-formating": false,
+            "btn-source": false,
+            "btn-break5": false,
+            "btn-align": false,
+            "btn-spacing": false,
+            "btn-lists": false,
+            "btn-break6": false,
+            "btn-indent": false,
+            "btn-outdent": false,
+            "btn-break7": false,
+            "btn-link": false,
+            "btn-unlink": false,
+            "btn-break8": false,
+            "btn-fullscreen": false            
+        }
+    });
+    $.w2ui['emailEditor'].content('Some predefined content...');
+});
+</script>

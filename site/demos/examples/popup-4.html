@@ -1,0 +1,56 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Based on Markup</h1>
+        You can load popup completely from a markup. It will read title, body, buttons, as well as width and height of the new
+        popup content. See example below how it works. The div that contains markup should have style="display: none", so it would not
+        be visible on the page, if you include it into the same page.
+        <div style="height: 10px"></div>
+        Use <i>rel=title, rel=body, rel=buttons</i> to defined popup parts and <i>style="width: XXpx; height: XXpx; overflow: AA;"</i> 
+        of the initial div to define size and overflow.
+        outside of the popup will close it.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<button class="btn" onclick="$('#popup1').w2popup()">Popup 1</button>
+<button class="btn" onclick="$('#popup2').w2popup()">Popup 2</button>
+
+<div id="popup1" style="display: none; width: 600px; height: 400px; overflow: hidden">
+    <div rel="title">
+        Popup #1 Title
+    </div>
+    <div rel="body" style="padding: 10px; line-height: 150%">
+        <div style="float: left; background-color: white; width: 150px; height: 80px; border: 1px solid silver; margin: 5px;"> </div>
+        This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+        This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+        This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+        This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+        This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+        This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+        This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+        This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+        This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+        This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+        This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+    </div>
+    <div rel="buttons">
+        <button class="btn" onclick="$('#popup2').w2popup()">Switch to Popup 2</button>
+    </div>
+</div>
+
+<div id="popup2" style="display: none; width: 400px; height: 200px; overflow: hidden">
+    <div rel="title">
+        Popup #2
+    </div>
+    <div rel="body" style="padding: 10px; line-height: 150%">
+        Some other popup text. Some other popup text. Some other popup text. Some other popup text. Some other popup text. 
+        Some other popup text. Some other popup text. Some other popup text. Some other popup text. Some other popup text. 
+    </div>
+    <div rel="buttons">
+        <button class="btn" onclick="$('#popup1').w2popup()">Switch to Popup 1</button>
+    </div>
+</div>
+
+<!--CODE-->

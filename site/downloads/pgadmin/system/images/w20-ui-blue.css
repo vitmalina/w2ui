@@ -1,0 +1,417 @@
+a {
+	color: blue;
+	text-decoration: none;
+}
+
+a:hover {
+	color: blue;
+	text-decoration: underline;
+}
+
+/* ===== Text Classes ===== */
+
+.sText {
+    font-family: verdana;
+    font-size: 10px;
+}
+
+.rText {
+    font-family: verdana;
+    font-size: 11px;
+}
+
+.rInput {
+	border: 1px solid silver;
+	padding: 2px;
+	height: 20px;
+}
+
+.rTextArea {
+	float: left;
+}
+
+.rHTMLArea {
+	overflow: auto;
+}
+
+.lText {
+    font-family: verdana;
+    font-size: 12px;
+}
+
+.rButton {
+	padding: 1px;
+    font-family: verdana;
+    font-size: 11px;
+	font-weight: 600;
+	color: #333333;
+	width: 80px;
+}
+
+.pTitle {
+	font-family: verdana;
+	font-size: 11px;
+	font-weight: bold;
+	padding: 4px;
+	border: 1px solid #99bbe8;
+	border-bottom: 0px;
+    background-repeat: repeat-x;
+    background-position: left top;
+    background-image: url(../images/bl_title_bg.png);
+}
+
+.pBody{
+	font-family: verdana;
+	font-size: 11px;
+	border: 1px solid #99bbe8;
+	background-color: white;
+	color: black;
+	padding: 2px;
+}
+
+
+/* ===== HEADER ===== */
+.lst_div {	border: 1px solid silver;
+}
+
+.lstHeader_div {
+	border-bottom: 1px solid #99bbe8;
+}
+
+.lstHeader_tbl {
+	padding-top: 0px;
+	padding-bottom: 0px;
+    font-family: verdana;
+    font-size: 12px;
+    font-weight: 700;
+    background-image: url(../images/bl_title_bg.png);
+}
+
+.lstHeader_td1 {
+}
+
+.lstHeader_td2 {
+}
+
+.lstButton {
+	padding: 2px; 
+	background-color: ebf2fa; 
+	border: 1px solid #c9d9ea; 
+	-moz-border-radius: 4px; 
+	-webkit-border-radius: 4px;
+}
+/* ===== Search ===== */
+
+.lstSearch_div {
+    padding: 0px;
+    margin-top: 0px;
+    background-color: #f3f1d9;
+    border: 1px solid silver;
+	border-top: 0px;
+}
+
+.lstSearch_tbl {
+    padding: 4px;
+}
+
+.lstSearch_caption {
+    font-family: verdana;
+    font-size: 11px;
+    border-right: 1px solid silver;
+    text-align: right;
+    padding-right: 5px;
+}
+
+.lstSearch_value {
+	font-family: verdana;
+	font-size: 11px;
+    padding-right: 5px;
+    padding-left: 5px;
+    background-color: #f7f6f0;
+}
+
+/* ===== Body ===== */
+
+.lstBody_div {	padding: 1px;
+	background-color: white;
+}
+
+.lstBody_tbl {
+    font-family: verdana;
+    font-size: 11px;
+}
+
+.lstBody_number{
+	font-size: 10px;
+	color: gray;
+}
+
+.lstBody_head {
+	padding: 2px;
+    background-color: #f1f1f1;
+    background-image: url(../images/toolbar_bg.png);
+    border-right: 1px solid silver;
+    border-bottom: 1px solid silver;
+}
+
+.lstBody_td {
+	padding: 1px;
+    border-right: 1px solid #e5ede4;
+    border-bottom: 1px solid #e5ede4;
+}
+
+.lstBody_odd {
+    background-color: white;
+}
+
+.lstBody_odd_hover {
+    background-color: #dfe8f6;
+}
+
+.lstBody_even {
+    background-color: #f4f4fe;
+}
+
+.lstBody_even_hover {
+    background-color: #dfe8f6;
+}
+
+.lstBody_selected {
+    background-color: #cedae4;
+}
+
+/* ===== Footer ===== */
+
+.lstFooter_div {
+	border-top: 1px solid silver;
+}
+
+.lstFooter_tbl {	padding: 2px;
+    font-family: verdana;
+    font-size: 11px;
+    background-image: url('../images/bl_title_bg.png');
+}
+
+.lstFooter_td1 {
+}
+
+.lstFooter_td2 {
+}
+
+.lstFooter_page {
+    font-family: verdana;
+    font-size: 11px;
+    color: black;
+    padding: 2px;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+.lstFooter_current_page {
+    font-family: verdana;
+    font-size: 11px;
+    color: white;
+    background-color: #629cfc;
+    padding: 2px;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+.lstFooter_selected_page {
+    font-family: verdana;
+    font-size: 11px;
+    color: white;
+    background-color: #808080;
+    padding: 2px;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+/* ===== Controls & Groups ===== */
+
+.edit_div {
+    background-color: #f4f4fe;
+	border: 1px solid silver;
+}
+
+.editHeader_tbl {
+	border-bottom: 1px solid #99bbe8;
+    font-family: verdana;
+    font-size: 12px;
+    font-weight: 700;
+    background-image: url(../images/bl_title_bg.png);
+}
+
+.editFooter_tbl {
+	border-top: 1px solid #d5e1f1;
+	background-color: #e0e7f4;
+	padding: 5px;
+}
+
+.group {
+    border: 1px solid silver;
+    padding: 2px;
+	margin: 5px;
+	padding-bottom: 7px;
+    background-color: #f4f4fe;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+}
+
+.groupTitle {
+    float: left;
+    position: relative;
+    top: -10;
+    margin-left: 5px;
+    margin-bottom: -5;
+    font-weight: 700;
+    font-family: verdana;
+    font-size: 11px;
+    color: black;
+    padding: 2px;
+    padding-left: 4px;
+    padding-right: 4px;
+    background-color: #f4f4fe;
+}
+
+.fieldTitle {
+	font-family: verdana;
+	font-size: 11px;
+}
+
+.fieldControl {
+	font-family: verdana;
+	font-size: 11px;
+	padding-left: 5px;
+}
+
+/* ===== Tabs ===== */
+
+.tabs_tbl {
+}
+
+.tabs_td {
+}
+
+.tabs_body {
+	padding: 0px;
+}
+
+.tabs_header_tbl {
+	margin-top: 2px;
+	cursor: default;
+	font-family: verdana;
+    font-size: 11px;
+}
+
+.tabs_active {
+	border: 1px solid #5A8CDC;
+    border-top: 2px solid #5A8CDC;
+    border-bottom: 3px solid #f3f3f3;
+	background-color: #f3f3f3;
+	-moz-border-radius-topleft: 4px;
+	-moz-border-radius-topright: 4px;
+	-webkit-border-top-left-radius: 4px;
+	-webkit-border-top-right-radius: 4px;
+}
+
+.tabs_inactive {
+	padding-top: 2px;
+    border-bottom: 2px solid #5A8CDC;
+}
+
+.tabs_disabled {
+	padding-top: 2px;
+	margin: 2px;
+    border-bottom: 2px solid #5A8CDC;
+    text-align: center;
+    color: silver;
+}
+
+.tabs_td_active {
+    padding: 4px;
+    text-align: center;
+    color: black;
+}
+
+.tabs_td_inactive {
+    padding: 3px;
+	border: 1px solid #aaaaaa;
+	--background-color: #e6eaef;
+    border-bottom: 0px;
+	-moz-border-radius-topleft: 4px;
+	-moz-border-radius-topright: 4px;
+	-webkit-border-top-left-radius: 4px;
+	-webkit-border-top-right-radius: 4px;
+    color: #777777;
+    text-align: center;
+}
+
+.tabs_empty {
+	border-bottom: 2px solid #5A8CDC;
+}
+
+.tabs_toolbar {
+	background-color: #f3f3f3;
+    background-image: url(../images/toolbar_bg.png);
+	padding: 1px;
+}
+
+.tabs_toolbar_links {
+	padding: 5px;
+	font-family: verdana;
+	font-size: 11px;
+	border-top: 1px solid #c7c7c7;
+    background-color: #f9f6c5;
+}
+
+.tabs_toolbar_drop {
+	padding: 5px; 
+	border: 1px solid silver; 
+	background-color: #f4f4fe;
+    background-color: #f4f4fe;
+}
+
+/* ============ TREE ================= */
+
+.tree_table {
+	cursor:	default;
+	font-family: verdana;
+	font-size: 11px;
+	color: black;
+	background-color: transparent;
+	border:	0px;
+}
+
+.tree_nodeImg {
+	padding-left: 1px;
+	padding-right: 1px;
+}
+
+.tree_nodeTxt {
+	padding-bottom: 1px;
+	padding-left: 2px;
+	padding-right: 2px;
+}
+
+.tree_node {
+	margin: 0px;
+	margin-bottom: 1px;
+	cursor: default;
+	font-family: verdana;
+	font-size: 11px;
+	color: black;
+	background-color: transparent;
+	border:	1px solid transparent;
+}
+
+.tree_nodeSelected {
+	margin: 0px;
+	margin-bottom: 1px;
+	cursor: default;
+	font-family: verdana;
+	font-size: 11px;
+	color: white;
+	background-color: #6fa2b0;
+	border: 1px solid transparent;
+}

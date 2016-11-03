@@ -1,0 +1,46 @@
+<div id="help_main">
+
+<h1>jsUtils.isTime()</h1>
+
+Checks if the variable is a valid time (hh:mi). 
+<br><br>
+
+<pre class="code params">
+<b>jsUtils.isTime( str )</b>
+  str - any javascript variable
+</pre>
+<br>
+Returns true if the variable is a valid time or false otherwise.
+<br><br>
+The input variable is treated as a string representing time in the US time format (hh:mm am). This string is tested to be a real time
+and will return true if the time is valid. More date formats will be added.
+
+<h2>Example</h2>
+<pre class="code html">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;script src="system/libs/jsUtils.js" type="text/javascript"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript"&gt;
+        window.onload = function() {
+            alert(jsUtils.isTime('10:00 am'));
+            alert(jsUtils.isTime('25:30 pm'));
+        }
+    &lt;/script&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+<h2>See Also</h2>
+<ul style="padding-top: 0px; margin-top: 0px">
+	<li><a href="javascript: load('jsUtils.isInt.html')">jsUtils.isInt()</a></li>
+	<li><a href="javascript: load('jsUtils.isFloat.html')">jsUtils.isFloat()</a></li>
+	<li><a href="javascript: load('jsUtils.isMoney.html')">jsUtils.isMoney()</a></li>
+	<li><a href="javascript: load('jsUtils.isHex.html')">jsUtils.isHex()</a></li>
+	<li><a href="javascript: load('jsUtils.isDate.html')">jsUtils.isDate()</a></li>
+	<li><a href="javascript: load('jsUtils.isTime.html')">jsUtils.isTime()</a></li>
+	<li><a href="javascript: load('jsUtils.isEmail.html')">jsUtils.isEmail()</a></li>
+</ul>
+
+</div>

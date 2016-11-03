@@ -1,0 +1,60 @@
+<div id="help_main">
+
+<h1>class: jsEdit</h1>
+Edit form control.
+
+<h2>Example</h2>
+Below is an example of typical jsEdit class. 
+<br><br>
+
+<pre class="code html">
+var projectEdit = new top.jsEdit('projectEdit', {
+	box: document.getElementById('list_demo'),
+	header: "Add/Edit Project",
+	tmpl: "&lt;table cellpadding=\"3\" cellspacing=\"0\" style=\"width: 100%\" class=\"rText\"&gt;"+
+		  "	&lt;tr&gt;"+
+		  "		&lt;td valign=\"top\" style=\"width: 50%\"&gt;~group1~&lt;/td&gt;"+
+		  "		&lt;td valign=\"top\" style=\"width: 50%\"&gt;~group2~&lt;/td&gt;"+
+		  "	&lt;/tr&gt;"+
+		  "&lt;/table&gt;",
+	onComplete: 'projects',
+	srvFile: 'index_srv.php',
+	controls: [	
+		{ type: 'save', caption: 'Save' },
+		{ type: 'back', caption: 'Cancel' }
+	],
+	groups: [{
+		name: 'group1',
+		caption: 'General',
+		inLabel: 'width="90px"',
+		height: 220,
+		fields: [
+			{ caption: 'Project Name', type: 'Text', fieldName: 'proj_name', inTag: 'style="width: 260px" maxlength=200', required: true },
+			{ caption: 'Description', type: 'TextArea', fieldName: 'proj_desc', inTag: 'style="width: 260px; height: 100px"', required: false },
+			{ caption: 'Location', type: 'Text', fieldName: 'proj_location', inTag: 'style="width: 260px" maxlength=200', required: true },
+			{ caption: 'Approved', type: 'Radio', fieldName: 'proj_active', items: ['t::Yes', 'f::No'], required: true },
+		]
+	},{
+		name: 'group2',
+		caption: 'Additional',
+		inLabel: 'width="90px"',
+		height: 220,
+		fields: [
+			{ caption: 'Band Name', type: 'Lookup', fieldName: 'bandid', inTag: 'width: 260px', required: true },
+			{ caption: 'Amount', type: 'Float', fieldName: 'proj_price', inTag: 'size=10', required: false },
+			{ type: 'break', height: 10 },
+			{ caption: 'Start', type: 'Date', fieldName: 'proj_start', required: false },
+			{ caption: 'End', type: 'Date', fieldName: 'proj_end', required: false },
+			{ type: 'break', height: 10 },
+			{ caption: 'Submitted On', type: 'ReadOnly', fieldName: '', required: true }
+		]
+	}]
+});
+</pre>
+
+<h2>See Also</h2>
+<ul style="padding-top: 0px; margin-top: 0px">
+	<li><a href="javascript: load('jsEdit.html')">jsEdit</a></li>
+</ul>
+
+</div>

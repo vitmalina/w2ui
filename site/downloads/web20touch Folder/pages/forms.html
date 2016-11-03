@@ -1,0 +1,56 @@
+<div class="toolbar">
+	<h1>Forms</h1>
+	<a class="button back" onclick="jsTouch.loadPage('pages/home.html', { transition: 'slide-right' });">Back</a>
+</div>
+<div class="content">
+	<form id="lform" name="lform" method="post" target="lframe" action="pages/forms_save.php">
+		<ul class="rounded">
+				<li>
+					<div class="label">Status</div>
+					<div class="field"> <span class="toggle"> <input name="status" type="checkbox"> </span> </div>
+					<div class="clear"></div>
+				</li>
+				<li>
+					<div class="label">Active</div>
+					<div class="field"> <span class="toggle"> <input name="active" type="checkbox" checked> </span> </div>
+					<div class="clear"></div>
+				</li>
+				<li>
+					<div class="label">First Name</div>
+					<div class="field"><input type="text" name="fname" value="11"></div>
+					<div class="clear"></div>
+				</li>
+				<li>
+					<div class="label">Last Name</div>
+					<div class="field"><input type="text" name="lname" value="22"></div>
+					<div class="clear"></div>
+				</li>
+				<li>
+					<div class="label">URL</div>
+					<div class="field"><input type="url" name="url" value="33" autocapitalize="off"></div>
+					<div class="clear"></div>
+				</li>
+				<li>
+					<div class="label">Email</div>
+					<div class="field"><input type="email" name="email" value="" autocapitalize="off"></div>
+					<div class="clear"></div>
+				</li>
+				<li>
+					<div class="label">Login</div>
+					<div class="field"><input type="text" name="login" value="" autocapitalize="off"></div>
+					<div class="clear"></div>
+				</li>
+				<li>
+					<div class="label">Password</div>
+					<div class="field"><input type="password" name="password" value="" autocapitalize="off"></div>
+					<div class="clear"></div>
+				</li>
+		</ul>
+		<div style="text-align: center">
+			<a href="javascript: document.getElementById('lform').submit();" class="button-green" style="width: 270px">Save Record</a>
+			<br><br>
+			<iframe name="lframe" style="width: 1px; height: 1px;" frameborder="0"></iframe>
+			<br><br>
+		</div>
+	</form>
+</div>

@@ -1,0 +1,57 @@
+<div id="popup1" style="display: none; width: 600px; height: 400px; overflow: hidden">
+    <div rel="title">
+        Transitions
+    </div>
+    <div rel="body" style="padding: 10px; line-height: 150%">
+        <div style="float: left; background-color: white; width: 150px; height: 80px; border: 1px solid silver; margin: 5px;"> </div>
+        If you click the "Load Another Page" button the same page will be loaded again with the transition that you specify. It uses 
+        transition from w2utils library. 
+        If you click the "Load Another Page" button the same page will be loaded again with the transition that you specify. It uses 
+        transition from w2utils library. 
+        If you click the "Load Another Page" button the same page will be loaded again with the transition that you specify. It uses 
+        transition from w2utils library. 
+        If you click the "Load Another Page" button the same page will be loaded again with the transition that you specify. It uses 
+        transition from w2utils library. 
+        If you click the "Load Another Page" button the same page will be loaded again with the transition that you specify. It uses 
+        transition from w2utils library. 
+        If you click the "Load Another Page" button the same page will be loaded again with the transition that you specify. It uses 
+        transition from w2utils library. 
+    </div>
+    <div rel="buttons">
+        <select id="trans" style="height: 28px">
+            <option value="">- random -</option>
+            <option value="flip-left">flip-left</option>
+            <option value="flip-right">flip-right</option>
+            <option value="flip-up">flip-up</option>
+            <option value="flip-down">flip-down</option>
+            <option value="slide-left">slide-left</option>
+            <option value="slide-right">slide-right</option>
+            <option value="slide-up">slide-up</option>
+            <option value="slide-down">slide-down</option>
+            <option value="pop-in">pop-in</option>
+            <option value="pop-out">pop-out</option>
+        </select>
+        <button class="btn" onclick="load()">Load Another Page</button>
+    </div>
+    <script> 
+        var last_index, last_trans;
+        if (typeof last_trans == 'undefined') {
+            last_index = 2;
+            last_trans = ''; 
+        } 
+
+        function load() {
+            var trans = (last_trans == "" ? $('#trans option:nth-child('+ last_index +')').val() : $('#trans').val());
+            last_trans = $('#trans').val();
+            $().w2popup({ 
+                url: 'data/popup3.html', 
+                transition: trans, 
+                onChange: function () {
+                    $('#trans').val(last_trans); 
+                } 
+            });
+            last_index++; 
+            if (last_index > 11) last_index = 2; 
+        }
+    </script>
+</div>
