@@ -70,3 +70,20 @@ All listeners for all events:
 <textarea class="javascript">
 w2ui['layout'].off('*');
 </textarea>
+
+<h4>Event Namespace</h4>
+While adding an event listener, you can provide a namespace for the event:
+<textarea class="javascript">
+w2ui['layout'].on('render.myplugin', function (event) {
+    console.log(event.target, event);
+});
+w2ui['layout'].on('refresh.myplugin', function (event) {
+    console.log(event.target, event);
+});
+</textarea>
+
+It provides you with a convenience to remove events listener in an easy way without specifying all events and functions
+they were registered with:
+<textarea class="javascript">
+w2ui['layout'].off('.myplugin')
+</textarea>

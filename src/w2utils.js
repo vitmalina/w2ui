@@ -1763,6 +1763,13 @@ w2utils.event = {
 
     on: function (edata, handler) {
         var $ = jQuery;
+        var scope;
+        // allow 'eventName.scope' syntax
+        if (typeof edata == 'string' && edata.indexOf('.') != -1) {
+            var tmp = edata.split('.');
+            edata = tmp[0];
+            scope = tmp[1];
+        }
         // allow 'eventName:after' syntax
         if (typeof edata == 'string' && edata.indexOf(':') != -1) {
             var tmp = edata.split(':');
@@ -1772,17 +1779,25 @@ w2utils.event = {
                 execute : tmp[1]
             };
         }
-        if (!$.isPlainObject(edata)) edata = { type: edata };
+        if (!$.isPlainObject(edata)) edata = { type: edata, scope: scope };
         edata = $.extend({ type: null, execute: 'before', target: null, onComplete: null }, edata);
         // errors
         if (!edata.type) { console.log('ERROR: You must specify event type when calling .on() method of '+ this.name); return; }
         if (!handler) { console.log('ERROR: You must specify event handler function when calling .on() method of '+ this.name); return; }
         if (!$.isArray(this.handlers)) this.handlers = [];
+        console.log('add', edata);
         this.handlers.push({ edata: edata, handler: handler });
     },
 
     off: function (edata, handler) {
         var $ = jQuery;
+        var scope;
+        // allow 'eventName.scope' syntax
+        if (typeof edata == 'string' && edata.indexOf('.') != -1) {
+            var tmp = edata.split('.');
+            edata = tmp[0];
+            scope = tmp[1];
+        }
         // allow 'eventName:after' syntax
         if (typeof edata == 'string' && edata.indexOf(':') != -1) {
             var tmp = edata.split(':');
@@ -1795,16 +1810,16 @@ w2utils.event = {
         if (!$.isPlainObject(edata)) edata = { type: edata };
         edata = $.extend({}, { type: null, execute: 'before', target: null, onComplete: null }, edata);
         // errors
-        if (!edata.type) { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return; }
+        if (!edata.type && !scope) { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return; }
         if (!handler) { handler = null; }
         // remove handlers
         var newHandlers = [];
         for (var h = 0, len = this.handlers.length; h < len; h++) {
             var t = this.handlers[h];
-            if ((t.edata.type === edata.type || edata.type === '*') &&
+            if ((t.edata.type === edata.type || edata.type === '*' || (t.edata.scope != null && edata.type == '')) &&
                 (t.edata.target === edata.target || edata.target == null) &&
                 (t.edata.execute === edata.execute || edata.execute == null) &&
-                (t.handler === handler || handler == null))
+                (t.handler === handler || handler == null || (scope != null && t.edata.scope == scope)))
             {
                 // match
             } else {

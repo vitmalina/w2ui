@@ -4184,7 +4184,6 @@
                             cell.addClass(rec.w2ui.class[column]);
                         }
                     }
-
                 }
             }
             return (new Date()).getTime() - time;
