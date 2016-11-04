@@ -16,7 +16,7 @@
         this.name      = null;      // unique name for w2ui
         this.active    = null;
         this.flow      = 'down';    // can be down or up
-        this.tooltip   = 'top';     // can be top, bottom, left, right
+        this.tooltip   = 'top|left';     // can be top, bottom, left, right
         this.tabs      = [];
         this.routeData = {};        // data for dynamic routes
         this.right     = '';

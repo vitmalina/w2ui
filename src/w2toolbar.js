@@ -17,7 +17,7 @@
         this.routeData = {};        // data for dynamic routes
         this.items     = [];
         this.right     = '';        // HTML text on the right of toolbar
-        this.tooltip   = 'top';     // can be top, bottom, left, right
+        this.tooltip   = 'top|left';// can be top, bottom, left, right
 
         $.extend(true, this, w2obj.toolbar, options);
     };

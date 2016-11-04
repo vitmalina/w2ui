@@ -50,7 +50,6 @@ You can provide various options for numeric fields as second argument. The struc
 <textarea class="javascript">
 options = {
     selected        : [],       // selected array
-    placeholder     : '',       // placeholder if empty
     max             : 0,        // max number of selected items, 0 - unlim
     maxSize         : 0,        // max size of all files, 0 - unlim
     maxFileSize     : 0,        // max size of a single file, 0 -unlim
@@ -59,11 +58,13 @@ options = {
     maxDropHeight   : 350,      // max height for drop down menu
     silent          : true,     // indicates if to display error tag
     renderItem      : null,     // render selected item
+    readContent     : true,     // read content of the file
     style           : '',       // style for container div
     onClick         : null,     // when an item is clicked
     onAdd           : null,     // when an item is added
     onRemove        : null,     // when an item is removed
     onMouseOver     : null,     // when an item is mouse over
-    onMouseOut      : null      // when an item is mouse out
+    onMouseOut      : null,     // when an item is mouse out
+    onScroll        : null,     // when drop down is scrolled
 }
 </textarea>

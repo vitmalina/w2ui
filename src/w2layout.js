@@ -9,8 +9,6 @@
 *   - onResize for the panel
 *   - add more panel title positions (left=rotated, right=rotated, bottom)
 *   - bug: when you assign content before previous transition completed.
-* 1.5 changes
-*   - message method
 *
 ************************************************************************/
 

@@ -101,7 +101,6 @@ $(function () {
         'w2grid.isIOS', 'w2grid.editChange', 'w2grid.initColumnDrag', 'w2grid.prepareData',
         'w2toolbar.item',
         'w2sidebar.node',
-        // 'w2listview.item', 'w2listview.vType', 'w2listview.itemExtra', 'w2listview.itemNode', 'w2listview.itemNodeId', 'w2listview.itemNodeOffsetInfo',
         'w2tabs.tab'
     );
 

@@ -62,14 +62,15 @@ You can provide various options for numeric fields as second argument. The struc
 
 <textarea class="javascript">
 options = {
-    items           : [],           // array of item objects
+    items           : [],           // array of item objects, can be a function
     selected        : {},           // selected object
-    placeholder     : '',           // placeholder if empty
-    url             : null,         // url to pull data from
+    url             : null,         // url to pull data from (can support similar format as w2grid)
+    method          : null,         // default comes from w2utils.settings.dataType
     postData        : {},           // additional data to submit to URL
     minLength       : 1,            // min search length to trigger reload from URL
     cacheMax        : 250,          // number of items to cache if retrieved from URL
     maxDropHeight   : 350,          // max height for drop down menu
+    maxDropWidth    : null,         // max width for drop down menu
     match           : 'begins',     // ['contains', 'is', 'begins', 'ends']
     silent          : true,         // indicates if to display error tag
     icon            : null,         // icon class for selected item
@@ -80,10 +81,15 @@ options = {
     onError         : null,         // when data fails to load due to server error or other failure modes
     onIconClick     : null,         // when icon is clicked
     renderDrop      : null,         // render function for drop down item
+    compare         : null,         // compare functtion while searching
+    filter          : true,         // filter as user types
     prefix          : '',           // prefix for control
     suffix          : '',           // suffix for control
+    msgNoItems      : '',           // message when nothing found, can be a function
     openOnFocus     : false,        // if to show overlay onclick or when typing
-    markSearch      : false         // indicated if to mark search string in the drop down
+    markSearch      : false,        // indicated if to mark search string in the drop down
+    recId           : null,         // map retrieved data from url to id, can be string or function
+    recText         : null,         // map retrieved data from url to text, can be string or function
 };
 </textarea>
 
@@ -91,7 +97,7 @@ options = {
 
 <textarea class="javascript">
 options = {
-    id       : '',      // unique id 
+    id       : '',      // unique id
     text     : '',      // item text
     icon     : '',      // icon class if any
     img      : '',      // image class if any
@@ -105,6 +111,8 @@ options = {
 To set a different value from JavaScript you need to change $('#id').data('selected') and refresh the field:
 <textarea class="javascript">
 $('input[type=combo]').data('selected', { id: 1, text: 'Some text'}).change();
+// or
+$('input[type=combo]').w2field().set({ id: 1, text: 'Some text'});
 </textarea>
 In 1.4.0, you should be able to do it with
 <textarea class="javascript">

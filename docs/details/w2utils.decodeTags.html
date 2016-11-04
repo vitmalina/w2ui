@@ -1,0 +1,22 @@
+Decodes HTML tags.
+
+<div class="definition">
+    decodeTags(str)
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>str</td>
+        <td><b>string</b>, string to decode</td>
+    </tr>
+    </table>
+</div>
+
+The first <span class="argument">str</span> argument should be a string. The method will decode HTML tags (from &amp;gt; &amp;lt; &amp;amp; etc.) and
+return new string.
+
+<textarea class="javascript">
+var a = w2utils.decodeTags('&lt;b&gt;some tags&lt;/b&gt;');
+console.log(a);
+</textarea>

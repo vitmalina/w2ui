@@ -777,14 +777,14 @@
                 if (column == null) column = field.html.column;
                 if (field.html.caption === '') field.html.caption = field.name;
                 // input control
-                var input = '<input name="'+ field.name +'" class="w2ui-input" type="text" '+ field.html.attr +'/>';
+                var input = '<input name="'+ field.name +'" class="w2ui-input" type="text" '+ field.html.attr +' tabindex="'+ (f+1) +'"/>';
                 switch (field.type) {
                     case 'pass':
                     case 'password':
-                        input = '<input name="' + field.name + '" class="w2ui-input" type = "password" ' + field.html.attr + '/>';
+                        input = '<input name="' + field.name + '" class="w2ui-input" type = "password" ' + field.html.attr + ' tabindex="'+ (f+1) +'"/>';
                         break;
                     case 'checkbox':
-                        input = '<input name="'+ field.name +'" class="w2ui-input" type="checkbox" '+ field.html.attr +'/>';
+                        input = '<input name="'+ field.name +'" class="w2ui-input" type="checkbox" '+ field.html.attr +' tabindex="'+ (f+1) +'"/>';
                         break;
                     case 'radio':
                         input = '';
@@ -801,7 +801,7 @@
                         }
                         break;
                     case 'select':
-                        input = '<select name="' + field.name + '" class="w2ui-input" ' + field.html.attr + '>';
+                        input = '<select name="' + field.name + '" class="w2ui-input" ' + field.html.attr + ' tabindex="'+ (f+1) +'">';
                         // normalized options
                         var items =  field.options.items ? field.options.items : field.html.items;
                         if (!$.isArray(items)) items = [];
@@ -815,10 +815,10 @@
                         input += '</select>';
                         break;
                     case 'textarea':
-                        input = '<textarea name="'+ field.name +'" class="w2ui-input" '+ field.html.attr +'></textarea>';
+                        input = '<textarea name="'+ field.name +'" class="w2ui-input" '+ field.html.attr +' tabindex="'+ (f+1) +'"></textarea>';
                         break;
                     case 'toggle':
-                        input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +' class="w2ui-input w2ui-toggle"/><div><div></div></div>';
+                        input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr +' class="w2ui-input w2ui-toggle" tabindex="'+ (f+1) +'"/><div><div></div></div>';
                         break;
                     case 'html':
                     case 'custom':

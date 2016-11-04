@@ -2139,7 +2139,6 @@
                 var search = { field: 'all', caption: w2utils.lang('All Fields') };
                 el.w2field('clear');
                 el.change();
-                if (value != null) el.focus();
             } else {
                 var search = this.getSearch(field);
                 if (search == null) return;
@@ -2151,10 +2150,6 @@
                     this.last.item   = '';
                     el.val('');
                 }
-                // set focus
-                setTimeout(function () {
-                    if (value != null) el.focus(); /* do not do el.change() as it will refresh grid and pull from server */
-                }, 1);
             }
             // update field
             if (this.last.search != '') {
@@ -3274,12 +3269,6 @@
                     cancel = true;
                     break;
 
-                case 70: // cmd + F
-                    if (!event.metaKey && !event.ctrlKey) break;
-                    $('#grid_'+ obj.name + '_search_all').focus();
-                    cancel = true;
-                    break;
-
                 case 13: // enter
                     // if expandable columns - expand it
                     if (this.selectType == 'row' && obj.show.expandColumn === true) {
@@ -4321,6 +4310,7 @@
             }
             if (this.last.multi) {
                 el.attr('placeholder', '[' + w2utils.lang('Multiple Fields') + ']');
+                el.w2field('clear');
             } else {
                 el.attr('placeholder', w2utils.lang(this.last.caption));
             }
@@ -4341,11 +4331,15 @@
                 $('#grid_'+ this.name +'_footer').hide();
             }
             // show/hide clear search link
-             if (this.searchData.length > 0) {
-                $('#grid_'+ this.name +'_searchClear').show();
-            } else {
-                $('#grid_'+ this.name +'_searchClear').hide();
-            }
+            var $clear = $('#grid_'+ this.name +'_searchClear');
+            $clear.hide();
+            this.searchData.some(function (item) {
+                var tmp = obj.getSearch(item.field);
+                if (obj.last.multi || (tmp && !tmp.hidden && tmp.type != 'list')) {
+                    $clear.show();
+                    return true;
+                }
+            });
             // all selected?
             var sel = this.last.selection,
                 areAllSelected = (this.records.length > 0 && sel.indexes.length == this.records.length),
@@ -4465,20 +4459,22 @@
             // reset needed if grid existed
             this.reset(true);
             // --- default search field
-            if (!this.multiSearch || !this.show.searchAll) {
-                var tmp = 0;
-                while (tmp < this.searches.length && (this.searches[tmp].hidden || this.searches[tmp].simple === false)) tmp++;
-                if (tmp >= this.searches.length) {
-                    // all searches are hidden
-                    this.last.field   = '';
-                    this.last.caption = '';
+            if (!this.last.field) {
+                if (!this.multiSearch || !this.show.searchAll) {
+                    var tmp = 0;
+                    while (tmp < this.searches.length && (this.searches[tmp].hidden || this.searches[tmp].simple === false)) tmp++;
+                    if (tmp >= this.searches.length) {
+                        // all searches are hidden
+                        this.last.field   = '';
+                        this.last.caption = '';
+                    } else {
+                        this.last.field   = this.searches[tmp].field;
+                        this.last.caption = this.searches[tmp].caption;
+                    }
                 } else {
-                    this.last.field   = this.searches[tmp].field;
-                    this.last.caption = this.searches[tmp].caption;
+                    this.last.field   = 'all';
+                    this.last.caption = w2utils.lang('All Fields');
                 }
-            } else {
-                this.last.field   = 'all';
-                this.last.caption = w2utils.lang('All Fields');
             }
             // insert elements
             $(this.box)
@@ -4922,14 +4918,18 @@
                     '   </td>'+
                     '</tr>';
             }
-            // other items
-            col_html += '<tr style="pointer-events: none"><td colspan="2"><div style="border-top: 1px solid #ddd;"></div></td></tr>';
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
+            // devider
+            if ((url && obj.show.skipRecords) || obj.show.saveRestoreState) {
+                col_html += '<tr style="pointer-events: none"><td colspan="2"><div style="border-top: 1px solid #ddd;"></div></td></tr>';
+            }
+            // skip records
             if (url && obj.show.skipRecords) {
                 col_html +=
                         '<tr><td colspan="2" style="padding: 0px">'+
                         '    <div style="cursor: pointer; padding: 2px 8px; cursor: default">'+ w2utils.lang('Skip') +
-                        '        <input type="text" style="width: 45px" value="'+ this.offset +'" '+
+                        '        <input type="text" style="width: 60px" value="'+ this.offset +'" '+
+                        '            onkeydown="if ([48,49,50,51,52,53,54,55,56,57,58,13,8,46,37,39].indexOf(event.keyCode) == -1) { event.preventDefault() }"'+
                         '            onkeypress="if (event.keyCode == 13) { '+
                         '               w2ui[\''+ obj.name +'\'].skip(this.value); '+
                         '               jQuery(\'.w2ui-overlay\')[0].hide(); '+
@@ -4937,6 +4937,7 @@
                         '    </div>'+
                         '</td></tr>';
             }
+            // save/restore state
             if (obj.show.saveRestoreState) {
                 col_html += '<tr><td colspan="2" onclick="var obj = w2ui[\''+ obj.name +'\']; obj.toolbar.uncheck(\'w2ui-column-on-off\'); obj.stateSave();">'+
                             '    <div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Save Grid State') + '</div>'+
@@ -5405,26 +5406,7 @@
                     // no default action
                     obj.trigger($.extend(edata, { phase: 'after' }));
                 });
-            } else {
-                var pos1, pos2;
-                var search = this.toolbar.get('w2ui-search');
-                if (search != null) {
-                    var tmp = search.html;
-                    pos1 = tmp.indexOf('placeholder="');
-                    pos2 = tmp.indexOf('"', pos1+13);
-                    tmp  = tmp.substr(0, pos1+13) + w2utils.lang('All Fields') + tmp.substr(pos2);
-                    pos1 = tmp.indexOf('title="');
-                    pos2 = tmp.indexOf('"', pos1+7);
-                    tmp  = tmp.substr(0, pos1+7) + w2utils.lang('Select Search Field') + tmp.substr(pos2);
-                    pos1 = tmp.indexOf('title="', pos2);
-                    pos2 = tmp.indexOf('"', pos1+7);
-                    tmp  = tmp.substr(0, pos1+7) + w2utils.lang('Clear Search') + tmp.substr(pos2);
-                    setTimeout(function () {
-                        obj.toolbar.set('w2ui-search', { html: tmp });
-                    }, 1);
-                }
             }
-            return;
         },
 
         initResize: function () {
@@ -6011,7 +5993,7 @@
 //                    break;
                 case 'between':
                     range.show();
-                    fld2.w2field(search.type);
+                    fld2.w2field(search.type, search.options);
                     break;
                 case 'not null':
                 case 'null':
@@ -7112,7 +7094,7 @@
             $(el).w2tag($.extend({
                 html        : html,
                 left        : -4,
-                position    : 'bottom',
+                position    : 'bottom|top',
                 className   : 'w2ui-info-bubble',
                 style       : '',
                 hideOnClick : true

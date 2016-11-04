@@ -52,7 +52,8 @@ $(function () {
                     { id: 'layout-7', text: 'Nested Layouts', icon: 'fa-columns' },
                     { id: 'layout-8', text: 'Panel With Tabs', icon: 'fa-columns' },
                     { id: 'layout-9', text: 'Panel With Toolbar', icon: 'fa-columns' },
-                    { id: 'layout-10', text: 'Panel With Title', icon: 'fa-columns' }
+                    { id: 'layout-10', text: 'Panel With Title', icon: 'fa-columns' },
+                    { id: 'layout-11', text: 'Panel Messages (1.5+)', icon: 'fa-columns' }
                 ]
             },
             { id: 'grid', text: 'Grid', img: 'icon-folder', group1: true,
@@ -64,7 +65,6 @@ $(function () {
                     { id: 'grid-4', text: 'Data Source', icon: 'fa-table' },
                     { id: 'grid-5', text: 'Load Data Once', icon: 'fa-table' },
                     { id: 'grid-6', text: 'Single or Multi Select', icon: 'fa-table' },
-                    { id: 'grid-7', text: 'Tree-Like Grid (1.5+)', icon: 'fa-table' },
                     { id: 'grid-8', text: 'Show/Hide Columns', icon: 'fa-table' },
                     { id: 'grid-9', text: 'Add/Remove Records', icon: 'fa-table' },
                     { id: 'grid-10', text: 'Select/Unselect Records', icon: 'fa-table' },
@@ -83,7 +83,8 @@ $(function () {
                     { id: 'grid-24', text: 'Lock/Unlock Grid', icon: 'fa-table' },
                     { id: 'grid-25', text: 'Re-Order Columns', icon: 'fa-table' },
                     { id: 'grid-26', text: 'Re-Order Records', icon: 'fa-table' },
-                    { id: 'grid-27', text: 'Locked Columns (1.5+)', icon: 'fa-table' },
+                    { id: 'grid-7',  text: 'Tree-Like Grid (1.5+)', icon: 'fa-table' },
+                    { id: 'grid-27', text: 'Frozen Columns (1.5+)', icon: 'fa-table' },
                     { id: 'grid-28', text: 'Info Bubble (1.5+)', icon: 'fa-table' }
                 ]
             },
@@ -115,15 +116,6 @@ $(function () {
                     { id: 'sidebar-10', text: 'In/Out of Focus (1.5+)', icon: 'fa-hand-up' }
                 ]
             },
-            // { id: 'listview', text: 'ListView', img: 'icon-folder', group1: true,
-            //     nodes: [
-            //         { id: 'listview-1', text: 'Simple ListView', icon: 'fa-folder-close-alt' },
-            //         { id: 'listview-2', text: 'Different view types', icon: 'fa-folder-close-alt' },
-            //         { id: 'listview-5', text: 'Table view type', icon: 'fa-folder-close-alt' },
-            //         { id: 'listview-3', text: 'Selecting items', icon: 'fa-folder-close-alt' },
-            //         { id: 'listview-4', text: 'Add/Remove items', icon: 'fa-folder-close-alt' }
-            //     ]
-            // },
             { id: 'tabs', text: 'Tabs', img: 'icon-folder', group1: true,
                 nodes: [
                     { id: 'tabs-1', text: 'Simple Tabs', icon: 'fa-folder-close-alt' },
@@ -157,7 +149,8 @@ $(function () {
                     { id: 'fields-3', text: 'Drop Down Lists', icon: 'fa-edit' },
                     { id: 'fields-4', text: 'Multi Selects', icon: 'fa-edit' },
                     { id: 'fields-5', text: 'File Upload', icon: 'fa-edit' },
-                    { id: 'fields-6', text: 'Remote Source', icon: 'fa-edit' }
+                    { id: 'fields-6', text: 'Remote Source', icon: 'fa-edit' },
+                    { id: 'fields-7', text: 'Get/Set Value (1.5+)', icon: 'fa-edit' }
                 ]
             },
             { id: 'popup', text: 'Popup', img: 'icon-folder', group1: true,
@@ -170,7 +163,7 @@ $(function () {
                     { id: 'popup-6', text: 'Transitions', icon: 'fa-list-alt' },
                     { id: 'popup-7', text: 'Slide a Message', icon: 'fa-list-alt' },
                     { id: 'popup-9', text: 'Lock Content', icon: 'fa-list-alt' },
-                    { id: 'popup-8', text: 'Dialogs', icon: 'fa-list-alt' },
+                    { id: 'popup-8', text: 'Dialogs (1.5+)', icon: 'fa-list-alt' },
                     { id: 'popup-10', text: 'Keyboard (1.5+)', icon: 'fa-list-alt' },
                     { id: 'popup-11', text: 'Messages (1.5+)', icon: 'fa-list-alt' }
                 ]

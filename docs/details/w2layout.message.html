@@ -1,0 +1,55 @@
+Displays a message at the top of panel.
+
+<div class="definition">
+    message(panel, msgOptions);
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>panel</td>
+        <td><b>string</b>, name of the panel</td>
+    </tr>
+    <tr>
+        <td>msgOptions</td>
+        <td><b>object</b>, message parameters</td>
+    </tr>
+    </table>
+</div>
+
+<h4>Description</h4>
+
+Occasionally, you need to lock a panel and display a short message. The <span class="argument">message</span> method allows you to do just that. The method will slide an overlay at the top of the panel.
+<div style="height: 10px"></div>
+
+The second argument <span class="argument">msgOptions</span> is a map
+of properties as follows:
+
+<textarea class="javascript">
+options: {
+    html        : '',   // html of the message
+    body        : '',   // similar to body in w2popup, can be used instead of options.html
+    buttons     : '',   // similar to buttons in w2popup, can be used instead of options.html
+    width       : 10,   // width in px (if negative, then it is 100% of popup in message.width)
+    height      : 10,   // height in px (if negative, then it is 100% of popup in message.height)
+    hideOnClick : true, // if true, hide message if user clicks on it
+    onOpen      : null, // function to execute when message opens
+    onClose     : null  // function to execute when message closes
+}
+</textarea>
+
+To display the message
+<textarea class="javascript">
+w2layout.message('main', {
+    width  : 200,
+    height : 60,
+    html   : '<div class="w2ui-centered"><div style="padding: 10px;">'+
+             '        message '+
+             '</div></div>'
+});
+</textarea>
+
+Call it again to close the message
+<textarea class="javascript">
+w2layout.message('main');
+</textarea>
