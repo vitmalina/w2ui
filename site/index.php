@@ -62,6 +62,7 @@ switch ($page) {
         $part    = $_REQUEST["s3"];
         if (floatval($version) == 0) { // not a version
             if ($_SESSION['version']) $version = $_SESSION['version'];
+            if ($version == '') $version = '1.5';
             $url = "/web/docs/$version/".$_REQUEST["s1"];
             if ($section != '') $url .= "/".$_REQUEST["s2"];
             if ($part != '') $url .= "/".$_REQUEST["s2"];

@@ -1,5 +1,5 @@
-<? 
-global $site_root; global $page; 
+<?
+global $site_root; global $page;
 $ip = explode(".", $_SERVER['REMOTE_ADDR']);
 // filter out some IPs
 ?>
@@ -26,9 +26,11 @@ $ip = explode(".", $_SERVER['REMOTE_ADDR']);
           <li <?=$page == "docs" ? 'class="active"' : ''?>>
             <a href="<?=$site_root?>/docs">Docs</a>
           </li>
+          <?/*
           <li <?=$page == "mobile" ? 'class="active"' : ''?>>
             <a href="<?=$site_root?>/mobile">Mobile</a>
           </li>
+          */?>
           <? if ($ip[0] != '17') { ?>
 				  <li <?=$page == "support" ? 'class="active"' : ''?>>
 					<a href="<?=$site_root?>/support">Training</a>
