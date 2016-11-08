@@ -729,13 +729,33 @@
                 }
                 if (item.type == 'menu-check') {
                     if (!$.isArray(item.selected)) item.selected = [];
-                    var ind = item.selected.indexOf(it.id);
-                    if (ind == -1) {
-                        item.selected.push(it.id);
-                        it.checked = true;
+                    if (it.group == null) {
+                        var ind = item.selected.indexOf(it.id);
+                        if (ind == -1) {
+                            item.selected.push(it.id);
+                            it.checked = true;
+                        } else {
+                            item.selected.splice(ind, 1);
+                            it.checked = false;
+                        }
                     } else {
-                        item.selected.splice(ind, 1);
-                        it.checked = false;
+                        // find all items in the same group
+                        var unchecked = [];
+                        item.items.forEach(function (sub) {
+                            if (sub.group === it.group) {
+                                var ind = item.selected.indexOf(sub.id);
+                                if (ind != -1) {
+                                    if (sub.id != it.id) unchecked.push(sub.id);
+                                    item.selected.splice(ind, 1);
+                                }
+                            }
+                        });
+                        var ind = item.selected.indexOf(it.id);
+                        if (ind == -1) {
+                            item.selected.push(it.id);
+                            it.checked = true;
+                        }
+                        console.log(unchecked);
                     }
                 }
                 if (typeof it.route == 'string') {

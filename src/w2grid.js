@@ -2019,6 +2019,8 @@
             if (!this.box) return;
             if (this.searches.length === 0) return;
             var obj = this;
+            var it  = obj.toolbar.get('w2ui-search-advanced');
+            var btn = '#tb_'+ obj.toolbar.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button';
             // event before
             var edata = this.trigger({ phase: 'before', type: 'searchOpen', target: this.name });
             if (edata.isCancelled === true) {
@@ -2036,8 +2038,16 @@
                     $('#w2ui-overlay-'+ obj.name +'-searchOverlay .w2ui-grid-searches').data('grid-name', obj.name);
                     var sfields = $('#w2ui-overlay-'+ this.name +'-searchOverlay .w2ui-grid-searches *[rel=search]');
                     if (sfields.length > 0) sfields[0].focus();
+                    if (!it.checked) {
+                        it.checked = true;
+                        $(btn).addClass('checked');
+                    }
                     // event after
                     obj.trigger($.extend(edata, { phase: 'after' }));
+                },
+                onHide  : function () {
+                    it.checked = false;
+                    $(btn).removeClass('checked');
                 }
             });
         },
@@ -5363,20 +5373,11 @@
                             obj.resize();
                             break;
                         case 'w2ui-search-advanced':
-                            var tb = this;
                             var it = this.get(id);
                             if (it.checked) {
                                 obj.searchClose();
-                                setTimeout(function () { tb.uncheck(id); }, 1);
                             } else {
                                 obj.searchOpen();
-                                event.originalEvent.stopPropagation();
-                                function tmp_close() {
-                                    if ($('#w2ui-overlay-'+ obj.name + '-searchOverlay').data('keepOpen') === true) return;
-                                    tb.uncheck(id);
-                                    $(document).off('click', 'body', tmp_close);
-                                }
-                                $(document).on('click', 'body', tmp_close);
                             }
                             break;
                         case 'w2ui-add':
