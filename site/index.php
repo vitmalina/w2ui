@@ -27,6 +27,11 @@ $feedback = "
 <div id=\"disqus_thread\"></div>
 <script type=\"text/javascript\">
 	var disqus_shortname = 'w2ui';
+    var disqus_config = function () {
+        var loc = String(document.location).replace(/\/web\/docs\/[0-9].[0-9]\//gi, \"/web/docs/\"); // comments for documents
+        this.page.url = loc;
+        // this.page.identifier = PAGE_IDENTIFIER;
+    };
 	(function() {
 		var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
 		dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
@@ -62,7 +67,7 @@ switch ($page) {
         $part    = $_REQUEST["s3"];
         if (floatval($version) == 0) { // not a version
             if ($_SESSION['version']) $version = $_SESSION['version'];
-            if ($version == '') $version = '1.5';
+            if ($version == '' || floatval($version) == 0) $version = '1.5';
             $url = "/web/docs/$version/".$_REQUEST["s1"];
             if ($section != '') $url .= "/".$_REQUEST["s2"];
             if ($part != '') $url .= "/".$_REQUEST["s2"];
