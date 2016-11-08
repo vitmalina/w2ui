@@ -1,4 +1,4 @@
-/* w2ui 1.5.x (nightly) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 1.5.rc1 (nightly) (c) http://w2ui.com, vitmalina@gmail.com */
 var w2ui  = w2ui  || {};
 var w2obj = w2obj || {}; // expose object to be able to overwrite default functions
 
