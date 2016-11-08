@@ -23,8 +23,8 @@ console.log('    DONE. Removed '+ cnt + ' files');
 console.log('==> Generating New Summary Files');
 process.stdout.write('    ');
 // generate files
-var text1 = '<link rel="stylesheet" type="text/css" href="../summary.css"/> \n'+
-    '<div class="container">';
+var text1 = (rPath == '' ? '<link rel="stylesheet" type="text/css" href="../summary.css"/> \n' : '' ) +
+    '<div class="container">\n';
 var text2 = '</div>';
 var html  = {};
 var cnt   = 0;
