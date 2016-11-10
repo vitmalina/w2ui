@@ -18,7 +18,7 @@ $(function () {
             footer      : true,
             lineNumbers : true,
             toolbarDelete: true,
-            selectColumn : false
+            selectColumn : true
         },
         selectType: 'cell',
         textSearch: 'contains',
@@ -54,7 +54,7 @@ $(function () {
             // event.preventDefault();
         },
         onSelect: function (event) {
-            console.log('select', event);
+            // console.log('select', event);
         },
         onFocus: function (event) {
             console.log('focus');

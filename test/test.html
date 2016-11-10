@@ -8,53 +8,65 @@
     <script type="text/javascript" src="../dist/w2ui.min.js"></script>
     <script type="text/javascript" src="../src/w2utils.js"></script>
     <script type="text/javascript" src="../src/w2sidebar.js"></script>
+    <script type="text/javascript" src="../src/w2tabs.js"></script>
+    <script type="text/javascript" src="../src/w2toolbar.js"></script>
+    <script type="text/javascript" src="../src/w2layout.js"></script>
     <script type="text/javascript" src="../src/w2popup.js"></script>
     <script type="text/javascript" src="../src/w2grid.js"></script>
     <script type="text/javascript" src="../src/w2fields.js"></script>
 </head>
 <body>
 
-<div style="padding: 100px; top: 100px; border: 1px solid red; height: 500px; left: 0px; right: 0px; position: absolute; overflow: auto;">
-    <div style="padding: 100px; height: 1000px;">
-        <input id="some-input1"><br><br>
-        <input id="some-input2"><br><br>
-        <input id="some-input3"><br><br>
-        <button class="w2ui-btn" onclick="validate()">Validate</button>
-    </div>
+<div id="main" style="height: 500px; width: 500px;">
 </div>
 
 <script type="text/javascript">
-
-$().w2field('addType', 'myType', function (options) {
-    $(this.el)
-        .on('focus keyup', function (event) {
-            if ($(this).data('w2tag') == null) {
-                // already there
-            } 
-            if (this.value.length < 5) {
-                $(this).w2tag({ 
-                    html: 'Need to be at least 5 chars long, currently '+ this.value.length + ' chars', 
-                    hideOnKeyPress: false,
-                    hideOnBlur: true
-                });
-            } else {
-                $(this).w2tag();
+$(function () {
+    var pstyle = 'border: 1px solid #dfdfdf; padding: 5px;';
+   $().w2layout({
+        name: 'layout2',
+        panels: [
+            {type: 'top',content: 'inner layout'},
+            { type: 'main', style: 'border: 1px solid #dfdfdf; padding: 5px;border-top: 0px;', content: 'Nested',
+                toolbar: [
+                    { type: 'button', caption: 'Button 1' },
+                    { type: 'button', caption: 'Button 2' }
+                ],
+                tabs: {
+                    active: 'tab1',
+                    tabs: [
+                        { id: 'tab1', caption: 'Tab 11' },
+                        { id: 'tab2', caption: 'Tab 22' },
+                        { id: 'tab3', caption: 'Tab 33' },
+                    ],
+                    onClick: function (event) {
+                        this.owner.content('main', event.target);
+                    }
+                }
             }
-        }
-    );
-});
-
-$("#some-input1").w2field("myType");
-$("#some-input2").w2field("myType");
-$("#some-input3").w2field("myType");
-
-function validate() {
-    $("#some-input1").w2tag("Invalid");
-    $("#some-input2").w2tag("Invalid");
-    $("#some-input3").w2tag("Invalid");
-}
-
-</script>
+        ]
+    });
+    $('#main').w2layout({
+        name: 'layout1',
+        panels: [
+            { type: 'top', size: 50, resizable: true, style: pstyle, content: 'top' },
+            { type: 'left', size: 300, resizable: true, style: pstyle, content: w2ui['layout2'] },
+            { type: 'main', style: pstyle + 'border-top: 0px;', content: 'Tab 1',
+                tabs: {
+                    active: 'tab1',
+                    tabs: [
+                        { id: 'tab1', caption: 'Tab 1' },
+                        { id: 'tab2', caption: 'Tab 2' },
+                        { id: 'tab3', caption: 'Tab 3' },
+                    ],
+                    onClick: function (event) {
+                        this.owner.content('main', event.target);
+                    }
+                }
+            }
+        ]
+    });
+});</script>
 
 </body>
 </html>

@@ -2,7 +2,7 @@
 <head>
 <link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
 <link rel="stylesheet" type="text/css" media="screen" href="../libs/font-awesome/font-awesome.css" />
-<script type="text/javascript" src="../libs/jquery/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="../libs/jquery/jquery-3.1.1.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2tabs.js"></script>
 <script type="text/javascript" src="../src/w2toolbar.js"></script>
@@ -23,7 +23,7 @@ jQuery(function () {
     jQuery('#grid').w2grid({
         name      : 'grid',
         header    : 'List of Names',
-        // url : '//w2ui.com/web/pages/demo/infinite/index.php',
+        url : '//w2ui.com/web/pages/demo/infinite/index2.php',
         // routeData : { id: 4 },
         // url       : '/1/:id/grid.json',
         // url     : {
@@ -187,11 +187,20 @@ jQuery(function () {
                 //console.log('done', range);
             }
         },
+        onClick: function (event) {
+            var sel = this.getSelection();
+            if (sel.length >= 1 && sel[0] == event.recid) {
+                event.preventDefault();
+            }
+        },
         onSelect: function (event) {
             // console.log('select -->', event);
         },
-        onUnselect: function (event) {
-            // console.log('unselect -->', event);
+        onUnselect1: function (event) {
+            var sel = this.getSelection();
+            if (sel.length > 1 && sel[0] == event.recid) {
+                event.preventDefault();
+            }
         },
         onDelete: function (event) {
             //event.force = true;
@@ -241,6 +250,9 @@ jQuery(function () {
         ]
         //getFooterHTML: function () { console.log(this); return 'My Own Footer'; }
     });
+
+    return;
+
     w2ui.grid.on('change', function(event) {
         console.log('change', event.value_new, event.value_previous, event.value_original);
         //event.preventDefault();
