@@ -8,6 +8,9 @@
 * == NICE TO HAVE ==
 *   - vertical toolbar
 *
+* == 1.5 changes ==
+*   - menu drop down can have groups now
+*
 ************************************************************************/
 
 (function ($) {
@@ -755,7 +758,6 @@
                             item.selected.push(it.id);
                             it.checked = true;
                         }
-                        console.log(unchecked);
                     }
                 }
                 if (typeof it.route == 'string') {

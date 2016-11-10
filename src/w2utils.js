@@ -1785,7 +1785,6 @@ w2utils.event = {
         if (!edata.type) { console.log('ERROR: You must specify event type when calling .on() method of '+ this.name); return; }
         if (!handler) { console.log('ERROR: You must specify event handler function when calling .on() method of '+ this.name); return; }
         if (!$.isArray(this.handlers)) this.handlers = [];
-        console.log('add', edata);
         this.handlers.push({ edata: edata, handler: handler });
     },
 
@@ -2554,18 +2553,29 @@ w2utils.event = {
             $.fn.w2menuDown = function (event, index) {
                 var $el  = $(event.target).parents('tr');
                 var tmp  = $el.find('.w2ui-icon');
-                if ((options.type == 'check') || (options.type == 'radio')) {
+                if (options.type == 'check' || options.type == 'radio') {
                    var item = options.items[index];
                    item.checked = !item.checked;
                    if (item.checked) {
-                       if (options.type == 'radio') {
+                        if (options.type == 'radio') {
                            tmp.parents('table').find('.w2ui-icon')
                                .removeClass('w2ui-icon-check')
                                .addClass('w2ui-icon-empty');
-                       }
-                       tmp.removeClass('w2ui-icon-empty').addClass('w2ui-icon-check');
-                   } else if (options.type == 'check') {
-                       tmp.removeClass('w2ui-icon-check').addClass('w2ui-icon-empty');
+                        }
+                        // groups of checkboxes
+                        if (options.type == 'check' && item.group != null) {
+                            options.items.forEach(function (sub, ind) {
+                                if (sub.group === item.group && sub.checked) {
+                                    tmp.parents('table').find('tr[index='+ ind +'] .w2ui-icon')
+                                       .removeClass('w2ui-icon-check')
+                                       .addClass('w2ui-icon-empty');
+                                    sub.checked = false;
+                                }
+                            });
+                        }
+                        tmp.removeClass('w2ui-icon-empty').addClass('w2ui-icon-check');
+                   } else if (options.type == 'check' && item.group == null) {
+                        tmp.removeClass('w2ui-icon-check').addClass('w2ui-icon-empty');
                    }
                 }
                 // highlight record
