@@ -1,4 +1,4 @@
-/* w2ui 1.5.rc1 (nightly) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 1.5 (nightly) (c) http://w2ui.com, vitmalina@gmail.com */
 var w2ui  = w2ui  || {};
 var w2obj = w2obj || {}; // expose object to be able to overwrite default functions
 
@@ -1786,7 +1786,6 @@ w2utils.event = {
         if (!edata.type) { console.log('ERROR: You must specify event type when calling .on() method of '+ this.name); return; }
         if (!handler) { console.log('ERROR: You must specify event handler function when calling .on() method of '+ this.name); return; }
         if (!$.isArray(this.handlers)) this.handlers = [];
-        console.log('add', edata);
         this.handlers.push({ edata: edata, handler: handler });
     },
 
@@ -2555,18 +2554,29 @@ w2utils.event = {
             $.fn.w2menuDown = function (event, index) {
                 var $el  = $(event.target).parents('tr');
                 var tmp  = $el.find('.w2ui-icon');
-                if ((options.type == 'check') || (options.type == 'radio')) {
+                if (options.type == 'check' || options.type == 'radio') {
                    var item = options.items[index];
                    item.checked = !item.checked;
                    if (item.checked) {
-                       if (options.type == 'radio') {
+                        if (options.type == 'radio') {
                            tmp.parents('table').find('.w2ui-icon')
                                .removeClass('w2ui-icon-check')
                                .addClass('w2ui-icon-empty');
-                       }
-                       tmp.removeClass('w2ui-icon-empty').addClass('w2ui-icon-check');
-                   } else if (options.type == 'check') {
-                       tmp.removeClass('w2ui-icon-check').addClass('w2ui-icon-empty');
+                        }
+                        // groups of checkboxes
+                        if (options.type == 'check' && item.group != null) {
+                            options.items.forEach(function (sub, ind) {
+                                if (sub.group === item.group && sub.checked) {
+                                    tmp.parents('table').find('tr[index='+ ind +'] .w2ui-icon')
+                                       .removeClass('w2ui-icon-check')
+                                       .addClass('w2ui-icon-empty');
+                                    sub.checked = false;
+                                }
+                            });
+                        }
+                        tmp.removeClass('w2ui-icon-empty').addClass('w2ui-icon-check');
+                   } else if (options.type == 'check' && item.group == null) {
+                        tmp.removeClass('w2ui-icon-check').addClass('w2ui-icon-empty');
                    }
                 }
                 // highlight record
@@ -4919,6 +4929,8 @@ w2utils.event = {
             if (!this.box) return;
             if (this.searches.length === 0) return;
             var obj = this;
+            var it  = obj.toolbar.get('w2ui-search-advanced');
+            var btn = '#tb_'+ obj.toolbar.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button';
             // event before
             var edata = this.trigger({ phase: 'before', type: 'searchOpen', target: this.name });
             if (edata.isCancelled === true) {
@@ -4936,8 +4948,16 @@ w2utils.event = {
                     $('#w2ui-overlay-'+ obj.name +'-searchOverlay .w2ui-grid-searches').data('grid-name', obj.name);
                     var sfields = $('#w2ui-overlay-'+ this.name +'-searchOverlay .w2ui-grid-searches *[rel=search]');
                     if (sfields.length > 0) sfields[0].focus();
+                    if (!it.checked) {
+                        it.checked = true;
+                        $(btn).addClass('checked');
+                    }
                     // event after
                     obj.trigger($.extend(edata, { phase: 'after' }));
+                },
+                onHide  : function () {
+                    it.checked = false;
+                    $(btn).removeClass('checked');
                 }
             });
         },
@@ -6004,7 +6024,8 @@ w2utils.event = {
                         this.select({ recid: recid, column: column });
                     }
                 } else {
-                    if (this.selectType != 'row' && $.inArray(column, last.columns[ind]) == -1) flag = false;
+                    var isChecked = $(event.target).parents('tr').find('.w2ui-grid-select-check').is(':checked');
+                    if (this.selectType != 'row' && $.inArray(column, last.columns[ind]) == -1 && !isChecked) flag = false;
                     if (flag === true) {
                         this.unselect({ recid: recid, column: column });
                     } else {
@@ -8263,20 +8284,11 @@ w2utils.event = {
                             obj.resize();
                             break;
                         case 'w2ui-search-advanced':
-                            var tb = this;
                             var it = this.get(id);
                             if (it.checked) {
                                 obj.searchClose();
-                                setTimeout(function () { tb.uncheck(id); }, 1);
                             } else {
                                 obj.searchOpen();
-                                event.originalEvent.stopPropagation();
-                                function tmp_close() {
-                                    if ($('#w2ui-overlay-'+ obj.name + '-searchOverlay').data('keepOpen') === true) return;
-                                    tb.uncheck(id);
-                                    $(document).off('click', 'body', tmp_close);
-                                }
-                                $(document).on('click', 'body', tmp_close);
                             }
                             break;
                         case 'w2ui-add':
@@ -13222,6 +13234,9 @@ var w2prompt = function (label, title, callBack) {
 * == NICE TO HAVE ==
 *   - vertical toolbar
 *
+* == 1.5 changes ==
+*   - menu drop down can have groups now
+*
 ************************************************************************/
 
 (function ($) {
@@ -13943,13 +13958,32 @@ var w2prompt = function (label, title, callBack) {
                 }
                 if (item.type == 'menu-check') {
                     if (!$.isArray(item.selected)) item.selected = [];
-                    var ind = item.selected.indexOf(it.id);
-                    if (ind == -1) {
-                        item.selected.push(it.id);
-                        it.checked = true;
+                    if (it.group == null) {
+                        var ind = item.selected.indexOf(it.id);
+                        if (ind == -1) {
+                            item.selected.push(it.id);
+                            it.checked = true;
+                        } else {
+                            item.selected.splice(ind, 1);
+                            it.checked = false;
+                        }
                     } else {
-                        item.selected.splice(ind, 1);
-                        it.checked = false;
+                        // find all items in the same group
+                        var unchecked = [];
+                        item.items.forEach(function (sub) {
+                            if (sub.group === it.group) {
+                                var ind = item.selected.indexOf(sub.id);
+                                if (ind != -1) {
+                                    if (sub.id != it.id) unchecked.push(sub.id);
+                                    item.selected.splice(ind, 1);
+                                }
+                            }
+                        });
+                        var ind = item.selected.indexOf(it.id);
+                        if (ind == -1) {
+                            item.selected.push(it.id);
+                            it.checked = true;
+                        }
                     }
                 }
                 if (typeof it.route == 'string') {
