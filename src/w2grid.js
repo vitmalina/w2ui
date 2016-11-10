@@ -3114,7 +3114,8 @@
                         this.select({ recid: recid, column: column });
                     }
                 } else {
-                    if (this.selectType != 'row' && $.inArray(column, last.columns[ind]) == -1) flag = false;
+                    var isChecked = $(event.target).parents('tr').find('.w2ui-grid-select-check').is(':checked');
+                    if (this.selectType != 'row' && $.inArray(column, last.columns[ind]) == -1 && !isChecked) flag = false;
                     if (flag === true) {
                         this.unselect({ recid: recid, column: column });
                     } else {
