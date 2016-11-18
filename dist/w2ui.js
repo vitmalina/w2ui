@@ -3921,7 +3921,8 @@ w2utils.event = {
                             if (parseFloat(obj.parseField(rec, search.field)) >= parseFloat(val2) && parseFloat(obj.parseField(rec, search.field)) <= parseFloat(val3)) fl++;
                         }
                         else if (search.type == 'date') {
-                            var val1 = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
+                            var tmp = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
+                            var val1 = w2utils.isDate(tmp, w2utils.settings.dateFormat, true);
                             var val2 = w2utils.isDate(val2, w2utils.settings.dateFormat, true);
                             var val3 = w2utils.isDate(val3, w2utils.settings.dateFormat, true);
                             if (val3 != null) val3 = new Date(val3.getTime() + 86400000); // 1 day
@@ -3949,7 +3950,7 @@ w2utils.event = {
                         }
                         else if (search.type == 'date') {
                             var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
-                            var val1 = w2utils.formatDate(tmp, 'yyyy-mm-dd');
+                            var val1 = w2utils.formatDate(w2utils.isDate(tmp, w2utils.settings.dateFormat, true), 'yyyy-mm-dd');
                             var val2 = w2utils.formatDate(w2utils.isDate(val2, w2utils.settings.dateFormat, true), 'yyyy-mm-dd');
                             if (val1 <= val2) fl++;
                         }
@@ -3972,7 +3973,7 @@ w2utils.event = {
                         }
                         else if (search.type == 'date') {
                             var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
-                            var val1 = w2utils.formatDate(tmp, 'yyyy-mm-dd');
+                            var val1 = w2utils.formatDate(w2utils.isDate(tmp, w2utils.settings.dateFormat, true), 'yyyy-mm-dd');
                             var val2 = w2utils.formatDate(w2utils.isDate(val2, w2utils.settings.dateFormat, true), 'yyyy-mm-dd');
                             if (val1 >= val2) fl++;
                         }
@@ -18054,19 +18055,20 @@ var w2prompt = function (label, title, callBack) {
             if (showErrors) {
                 for (var e = 0; e < edata.errors.length; e++) {
                     var err = edata.errors[e];
+                    var opt = $.extend({ "class": 'w2ui-error' }, err.options);                    
                     if (err.field == null) continue;
                     if (err.field.type == 'radio') { // for radio and checkboxes
-                        $($(err.field.el).parents('div')[0]).w2tag(err.error, { "class": 'w2ui-error' });
+                        $($(err.field.el).parents('div')[0]).w2tag(err.error, opt);
                     } else if (['enum', 'file'].indexOf(err.field.type) != -1) {
                         (function (err) {
                             setTimeout(function () {
                                 var fld = $(err.field.el).data('w2field').helpers.multi;
-                                $(err.field.el).w2tag(err.error);
+                                $(err.field.el).w2tag(err.error,err.options);
                                 $(fld).addClass('w2ui-error');
                             }, 1);
                         })(err);
                     } else {
-                        $(err.field.el).w2tag(err.error, { "class": 'w2ui-error' });
+                        $(err.field.el).w2tag(err.error, opt);
                     }
                     this.goto(errors[0].field.page);
                 }
