@@ -2003,6 +2003,9 @@ w2utils.event = {
         return $(this).each(function (index, el) {
             // show or hide tag
             var origID = (options.id ? options.id : el.id);
+            if (origID=='') {   //search for an id
+                origID=$(el).find('input').attr('id');
+            }
             var tagID  = w2utils.escapeId(origID);
             var $tags  = $('#w2ui-tag-'+tagID);
             if (text === '' || text == null) {
