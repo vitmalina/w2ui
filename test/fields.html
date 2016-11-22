@@ -150,6 +150,7 @@
 
         // off screen
         jQuery('.screen').w2field('date');
+        jQuery('.screenc').w2field('color');
 
     });
 //]]>
@@ -168,12 +169,14 @@
     <br/>
     <div style="position: absolute; top: 5px; right: 5px; width: 80px; height: 24px; background-color: #efefef; padding: 5px;">
         <input id="screen1" class="w2ui-input screen" style="width: 80px"/>
+        <input id="screen2" class="w2ui-input screenc" style="width: 80px"/>
     </div>
     <div style="position: absolute; bottom: 5px; right: 5px; width: 80px; height: 24px; background-color: #efefef; padding: 5px;">
         <input id="screen2" class="w2ui-input screen" style="width: 80px"/>
     </div>
     <div style="position: absolute; bottom: 5px; left: 5px; width: 80px; height: 24px; background-color: #efefef; padding: 5px;">
         <input id="screen3" class="w2ui-input screen" style="width: 80px"/>
+        <input id="screen4" class="w2ui-input screenc" style="width: 80px"/>
     </div>
     <div id="extra" style="display: none">
         <div style="border: 1px solid silver; background-color: #eee; width: 50%; padding: 20px; margin-top: 5px; border-radius: 2px">
@@ -196,7 +199,7 @@
         <div class="w2ui-field">
             <label>color:</label>
             <div>
-                <input class="w2ui-input color" type="text" style="width: 100px;"
+                <input class="w2ui-input color" type="text" style="width: 140px;"
                     onchange1="console.log('field change: ', this.value)" value="d84"/>
             </div>
         </div>

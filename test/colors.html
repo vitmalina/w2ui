@@ -1,0 +1,71 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
+<link rel="stylesheet" type="text/css" media="screen" href="../libs/font-awesome/font-awesome.css" />
+<script type="text/javascript" src="../libs/jquery/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="../src/w2utils.js"></script>
+<script type="text/javascript" src="../src/w2fields.js"></script>
+<script type="text/javascript" src="../src/w2popup.js"></script>
+<script>
+    $(function () {
+        $('.color').w2field('color');
+    });
+</script>
+<style>
+.div {
+    margin-left: 20px;
+    margin-top: 5px;
+}
+.preview {
+    display: inline-block;
+    width: 23px;
+    height: 23px;
+    float: left;
+}
+.color {
+    width: 150px;
+    margin-left: 10px;
+}
+.first {
+    float: left;
+    }
+.left {
+    float: left;
+}
+</style>
+<body>
+    <div class="first">
+        <img src="colors.png" style="width: 300px">
+    </div>
+    <div class="left">
+        <div class="div">
+            <div class="preview"></div>
+            <input class="color" onchange="$(this).prev().css('background-color', this.value)">
+        </div>
+        <div class="div">
+            <div class="preview"></div>
+            <input class="color" onchange="$(this).prev().css('background-color', this.value)">
+        </div>
+        <div class="div">
+            <div class="preview"></div>
+            <input class="color" onchange="$(this).prev().css('background-color', this.value)">
+        </div>
+        <div class="div">
+            <div class="preview"></div>
+            <input class="color" onchange="$(this).prev().css('background-color', this.value)">
+        </div>
+        <div class="div">
+            <div class="preview"></div>
+            <input class="color" onchange="$(this).prev().css('background-color', this.value)">
+        </div>
+        <div class="div">
+            <div class="preview"></div>
+            <input class="color" onchange="$(this).prev().css('background-color', this.value)">
+        </div>
+        <div class="div">
+            <div class="preview"></div>
+            <input class="color" onchange="$(this).prev().css('background-color', this.value)">
+        </div>
+    </div>
+</body>
+</html>
