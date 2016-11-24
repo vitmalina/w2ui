@@ -892,7 +892,7 @@
                     return 1;
                 if ((aa != null && aa !== "") && (bb == null || bb === ""))
                     return -1;
-                var dir = (direction == 'asc') ? 1 : -1;
+                var dir = (direction.toLowerCase() === 'asc') ? 1 : -1;
                 // for different kind of objects, sort by object type
                 if (typeof aa != typeof bb)
                     return (typeof aa > typeof bb) ? dir : -dir;
@@ -3949,7 +3949,10 @@
                     if (this.sortData[sortIndex] == null) {
                         direction = 'asc';
                     } else {
-                        switch (String(this.sortData[sortIndex].direction)) {
+                        if(this.sortData[sortIndex].direction == null) {
+                            this.sortData[sortIndex].direction = '';
+                        }
+                        switch (this.sortData[sortIndex].direction.toLowerCase()) {
                             case 'asc'  : direction = 'desc'; break;
                             case 'desc' : direction = 'asc';  break;
                             default     : direction = 'asc';  break;
@@ -6172,8 +6175,6 @@
                         var sortStyle = '';
                         for (var si = 0; si < obj.sortData.length; si++) {
                             if (obj.sortData[si].field == col.field) {
-                                if (new RegExp('asc', 'i').test(obj.sortData[si].direction))  sortStyle = 'w2ui-sort-up';
-                                if (new RegExp('desc', 'i').test(obj.sortData[si].direction)) sortStyle = 'w2ui-sort-down';
                             }
                         }
                         var resizer = "";
@@ -6274,8 +6275,6 @@
             var sortStyle = '';
             for (var si = 0; si < this.sortData.length; si++) {
                 if (this.sortData[si].field == col.field) {
-                    if (new RegExp('asc', 'i').test(this.sortData[si].direction))  sortStyle = 'w2ui-sort-up';
-                    if (new RegExp('desc', 'i').test(this.sortData[si].direction)) sortStyle = 'w2ui-sort-down';
                 }
             }
             // col selected
