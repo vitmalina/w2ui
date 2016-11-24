@@ -6175,6 +6175,8 @@
                         var sortStyle = '';
                         for (var si = 0; si < obj.sortData.length; si++) {
                             if (obj.sortData[si].field == col.field) {
+                                if ((obj.sortData[si].direction || '').toLowerCase() === 'asc')  sortStyle = 'w2ui-sort-up';
+                                if ((obj.sortData[si].direction || '').toLowerCase() === 'desc') sortStyle = 'w2ui-sort-down';
                             }
                         }
                         var resizer = "";
@@ -6275,6 +6277,8 @@
             var sortStyle = '';
             for (var si = 0; si < this.sortData.length; si++) {
                 if (this.sortData[si].field == col.field) {
+                    if ((this.sortData[si].direction || '').toLowerCase() === 'asc')  sortStyle = 'w2ui-sort-up';
+                    if ((this.sortData[si].direction || '').toLowerCase() === 'desc') sortStyle = 'w2ui-sort-down';
                 }
             }
             // col selected
