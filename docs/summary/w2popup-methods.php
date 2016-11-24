@@ -1,5 +1,6 @@
 <link rel="stylesheet" type="text/css" href="../summary.css"/> 
-<div class="container"><div class="obj-property">
+<div class="container">
+<div class="obj-property">
     <a href="w2popup.clear">clear</a> <span>- clear()</span>
 </div>
 <div class="obj-property-desc">
@@ -95,6 +96,13 @@
 </div>
 <div class="obj-property-desc">
     Resizes existing popup.
+</div>
+
+<div class="obj-property">
+    <a href="w2popup.resizeMessages">resizeMessages</a> <span>- resizeMessages()</span>
+</div>
+<div class="obj-property-desc">
+    Resized opened messages within popup.
 </div>
 
 <div class="obj-property">

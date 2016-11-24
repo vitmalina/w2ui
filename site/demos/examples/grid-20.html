@@ -1,0 +1,42 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Render to a New Box</h1>
+        When you create a grid it is not required to provide a container, thus it creates a grid in memory.
+        The example below illustrates how to create a grid in memory and render it when needed and where needed.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div style="position: relative; height: 300px;">
+    <div id="grid1" style="position: absolute; left: 0px; width: 49.9%; height: 300px; border: 2px solid green;"></div>
+    <div id="grid2" style="position: absolute; right: 0px; width: 49.9%; height: 300px; border: 2px solid red;"></div>
+</div>
+<br>
+<button class="btn" onclick="$('#grid1').w2render('grid');">Render into Green Box</button>
+<button class="btn" onclick="$('#grid2').w2render('grid');">Render into Red Box</button>
+
+<!--CODE-->
+<script>
+$(function () {
+    $().w2grid({ 
+        name: 'grid', 
+        columns: [                
+            { field: 'recid', caption: 'ID', size: '50px', sortable: true, attr: 'align=center' },
+            { field: 'lname', caption: 'Last Name', size: '30%', sortable: true },
+            { field: 'fname', caption: 'First Name', size: '30%', sortable: true },
+            { field: 'email', caption: 'Email', size: '40%' },
+            { field: 'sdate', caption: 'Start Date', size: '120px' },
+        ],
+        records: [
+            { recid: 1, fname: 'Jane', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+            { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+            { recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+            { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+            { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+            { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
+        ]
+    });
+});
+</script>

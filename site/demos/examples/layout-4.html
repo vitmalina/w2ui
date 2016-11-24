@@ -1,0 +1,42 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Load Content</h1>
+        You can set (or get) the content of the panel with the .content() method. You can also load content from external url with .load() 
+        method. If the content property of the panel is an object and has .render(box) method, it will be called to render the content when 
+        needed. When layout is resized, it will call .resize(width, height) of all panels where content is an object.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="layout" style="width: 100%; height: 400px;"></div>
+
+<div style="height: 20px;"></div>
+
+<span style="display: inline-block; width: 50px;"> Left: </span>
+<button class="btn" onclick="w2ui['layout'].content('left', 'This is some content set manually')">Set Content</button>
+<button class="btn" onclick="w2ui['layout'].load('left', 'data/content1.html')">Load Content 1</button>
+<button class="btn" onclick="w2ui['layout'].load('left', 'data/content2.html')">Load Content 2</button>
+
+<div style="height: 10px;"></div>
+
+<span style="display: inline-block; width: 50px;"> Main: </span>
+<button class="btn" onclick="w2ui['layout'].content('main', 'This is some content set manually')">Set Content</button>
+<button class="btn" onclick="w2ui['layout'].load('main', 'data/content1.html')">Load Content 1</button>
+<button class="btn" onclick="w2ui['layout'].load('main', 'data/content2.html')">Load Content 2</button>
+
+<!--CODE-->
+<script>
+$(function () {    
+    var pstyle = 'border: 1px solid #dfdfdf; padding: 5px;';
+    $('#layout').w2layout({
+        name: 'layout',
+        panels: [
+            { type: 'top', size: 50, style: pstyle, content: 'top', resizable: true },
+            { type: 'left', size: 300, style: pstyle, content: 'left', resizable: true },
+            { type: 'main', style: pstyle, content: 'main' }
+        ]
+    });
+});
+</script>

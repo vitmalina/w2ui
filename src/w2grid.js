@@ -1010,7 +1010,8 @@
                             if (parseFloat(obj.parseField(rec, search.field)) >= parseFloat(val2) && parseFloat(obj.parseField(rec, search.field)) <= parseFloat(val3)) fl++;
                         }
                         else if (search.type == 'date') {
-                            var val1 = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
+                            var tmp = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
+                            var val1 = w2utils.isDate(tmp, w2utils.settings.dateFormat, true);
                             var val2 = w2utils.isDate(val2, w2utils.settings.dateFormat, true);
                             var val3 = w2utils.isDate(val3, w2utils.settings.dateFormat, true);
                             if (val3 != null) val3 = new Date(val3.getTime() + 86400000); // 1 day
@@ -1038,7 +1039,7 @@
                         }
                         else if (search.type == 'date') {
                             var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
-                            var val1 = w2utils.formatDate(tmp, 'yyyy-mm-dd');
+                            var val1 = w2utils.formatDate(w2utils.isDate(tmp, w2utils.settings.dateFormat, true), 'yyyy-mm-dd');
                             var val2 = w2utils.formatDate(w2utils.isDate(val2, w2utils.settings.dateFormat, true), 'yyyy-mm-dd');
                             if (val1 <= val2) fl++;
                         }
@@ -1061,7 +1062,7 @@
                         }
                         else if (search.type == 'date') {
                             var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
-                            var val1 = w2utils.formatDate(tmp, 'yyyy-mm-dd');
+                            var val1 = w2utils.formatDate(w2utils.isDate(tmp, w2utils.settings.dateFormat, true), 'yyyy-mm-dd');
                             var val2 = w2utils.formatDate(w2utils.isDate(val2, w2utils.settings.dateFormat, true), 'yyyy-mm-dd');
                             if (val1 >= val2) fl++;
                         }
@@ -2018,6 +2019,8 @@
             if (!this.box) return;
             if (this.searches.length === 0) return;
             var obj = this;
+            var it  = obj.toolbar.get('w2ui-search-advanced');
+            var btn = '#tb_'+ obj.toolbar.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button';
             // event before
             var edata = this.trigger({ phase: 'before', type: 'searchOpen', target: this.name });
             if (edata.isCancelled === true) {
@@ -2035,8 +2038,16 @@
                     $('#w2ui-overlay-'+ obj.name +'-searchOverlay .w2ui-grid-searches').data('grid-name', obj.name);
                     var sfields = $('#w2ui-overlay-'+ this.name +'-searchOverlay .w2ui-grid-searches *[rel=search]');
                     if (sfields.length > 0) sfields[0].focus();
+                    if (!it.checked) {
+                        it.checked = true;
+                        $(btn).addClass('checked');
+                    }
                     // event after
                     obj.trigger($.extend(edata, { phase: 'after' }));
+                },
+                onHide  : function () {
+                    it.checked = false;
+                    $(btn).removeClass('checked');
                 }
             });
         },
@@ -3103,7 +3114,8 @@
                         this.select({ recid: recid, column: column });
                     }
                 } else {
-                    if (this.selectType != 'row' && $.inArray(column, last.columns[ind]) == -1) flag = false;
+                    var isChecked = $(event.target).parents('tr').find('.w2ui-grid-select-check').is(':checked');
+                    if (this.selectType != 'row' && $.inArray(column, last.columns[ind]) == -1 && !isChecked) flag = false;
                     if (flag === true) {
                         this.unselect({ recid: recid, column: column });
                     } else {
@@ -5362,20 +5374,11 @@
                             obj.resize();
                             break;
                         case 'w2ui-search-advanced':
-                            var tb = this;
                             var it = this.get(id);
                             if (it.checked) {
                                 obj.searchClose();
-                                setTimeout(function () { tb.uncheck(id); }, 1);
                             } else {
                                 obj.searchOpen();
-                                event.originalEvent.stopPropagation();
-                                function tmp_close() {
-                                    if ($('#w2ui-overlay-'+ obj.name + '-searchOverlay').data('keepOpen') === true) return;
-                                    tb.uncheck(id);
-                                    $(document).off('click', 'body', tmp_close);
-                                }
-                                $(document).on('click', 'body', tmp_close);
                             }
                             break;
                         case 'w2ui-add':

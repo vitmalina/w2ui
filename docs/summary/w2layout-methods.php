@@ -1,5 +1,6 @@
 <link rel="stylesheet" type="text/css" href="../summary.css"/> 
-<div class="container"><div class="obj-property">
+<div class="container">
+<div class="obj-property">
     <a href="w2layout.assignToolbar">assignToolbar</a> <span>- assignToolbar(panel, toolbar)</span>
 </div>
 <div class="obj-property-desc">
@@ -67,6 +68,13 @@
 </div>
 <div class="obj-property-desc">
     Locks layout panel.
+</div>
+
+<div class="obj-property">
+    <a href="w2layout.message">message</a> <span>- message(panel, msgOptions);</span>
+</div>
+<div class="obj-property-desc">
+    Displays a message at the top of panel.
 </div>
 
 <div class="obj-property">

@@ -1,0 +1,41 @@
+<div id="help_main">
+
+<h1>jsUtils.hideMsg()</h1>
+
+Hides the message dialog.
+<br><br>
+
+<pre class="code params">
+<b>jsUtils.hideMsg()</b>
+</pre>
+<br>
+Returns null
+<br><br>
+This function will hide the message dialog displayed with jsUtils.showMsg().
+
+<h2>Example</h2>
+<pre class="code html">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;script src="system/libs/jsUtils.js" type="text/javascript"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript"&gt;
+        window.onload = function() {
+            jsUtils.showMsg('This is my message', { 
+                title: 'A Title', 
+                buttons: '&lt;input type=button value="close" onclick="jsUtils.hideMsg()"&gt;' 
+            });
+        }
+    &lt;/script&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+<h2>See Also</h2>
+<ul style="padding-top: 0px; margin-top: 0px">
+	<li><a href="javascript: load('jsUtils.showMsg.html')">jsUtils.showMsg()</a></li>
+	<li><a href="javascript: load('jsUtils.hideMsg.html')">jsUtils.hideMsg()</a></li>
+</ul>
+
+</div>

@@ -1,5 +1,6 @@
 <link rel="stylesheet" type="text/css" href="../summary.css"/> 
-<div class="container"><div class="obj-property">
+<div class="container">
+<div class="obj-property">
     <a href="w2utils.age">age</a> <span>- age(dateStr)</span>
 </div>
 <div class="obj-property-desc">
@@ -46,6 +47,13 @@
 </div>
 <div class="obj-property-desc">
     Returns date in human readable format.
+</div>
+
+<div class="obj-property">
+    <a href="w2utils.decodeTags">decodeTags</a> <span>- decodeTags(str)</span>
+</div>
+<div class="obj-property-desc">
+    Decodes HTML tags.
 </div>
 
 <div class="obj-property">
@@ -140,14 +148,14 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2utils.isDate">isDate</a> <span>- isDate(str, [format])</span>
+    <a href="w2utils.isDate">isDate</a> <span>- isDate(str, [format], [returnDateObj])</span>
 </div>
 <div class="obj-property-desc">
     Returns true if <span class="argument">str</span> is a date.
 </div>
 
 <div class="obj-property">
-    <a href="w2utils.isDateTime">isDateTime</a> <span>- isDateTime(str, [format])</span>
+    <a href="w2utils.isDateTime">isDateTime</a> <span>- isDateTime(str, [format], [returnDateObj])</span>
 </div>
 <div class="obj-property-desc">
     Returns true if <span class="argument">str</span> is a date and time.
@@ -221,6 +229,13 @@
 </div>
 <div class="obj-property-desc">
     Calculated md5 hash
+</div>
+
+<div class="obj-property">
+    <a href="w2utils.message">message</a> <span>- message(where, [options])</span>
+</div>
+<div class="obj-property-desc">
+    Slides down a dialog <span class="argument">str</span> is a date.
 </div>
 
 <div class="obj-property">

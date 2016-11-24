@@ -1,7 +1,7 @@
 module.exports = function (grunt) {
 
-    var w2ui    = '/* w2ui 1.5.x (nightly) (c) http://w2ui.com, vitmalina@gmail.com */\n';
-    var fields  = '/* w2ui-fields.js 1.5.x (nightly), part of w2ui (c) http://w2ui.com, vitmalina@gmail.com */\n';
+    var w2ui    = '/* w2ui 1.5 (nightly) (c) http://w2ui.com, vitmalina@gmail.com */\n';
+    var fields  = '/* w2ui-fields.js 1.5 (nightly), part of w2ui (c) http://w2ui.com, vitmalina@gmail.com */\n';
     var ks      = '/* kicstart 0.2.x (nightly) (c) http://w2ui.com/kickstart, vitmalina@gmail.com */\n';
 
     grunt.initConfig({
@@ -43,7 +43,7 @@ module.exports = function (grunt) {
                 files: {
                     "dist/w2ui.min.css": "dist/w2ui.css",
                     "dist/w2ui-dark.min.css": "dist/w2ui-dark.css"
-                }                
+                }
             },
             fields: {
                 files: {
@@ -67,14 +67,14 @@ module.exports = function (grunt) {
                     banner: w2ui
                 },
                 src: [
-                    'src/w2utils.js', 
-                    'src/w2grid.js', 
-                    'src/w2layout.js', 
-                    'src/w2popup.js', 
-                    'src/w2tabs.js', 
-                    'src/w2toolbar.js', 
-                    'src/w2sidebar.js', 
-                    'src/w2fields.js', 
+                    'src/w2utils.js',
+                    'src/w2grid.js',
+                    'src/w2layout.js',
+                    'src/w2popup.js',
+                    'src/w2tabs.js',
+                    'src/w2toolbar.js',
+                    'src/w2sidebar.js',
+                    'src/w2fields.js',
                     'src/w2form.js'
                 ],
                 dest: 'dist/w2ui.js'
@@ -84,7 +84,7 @@ module.exports = function (grunt) {
                     banner: fields
                 },
                 src: [
-                    'src/w2utils.js', 
+                    'src/w2utils.js',
                     'src/w2fields.js'
                 ],
                 dest: 'dist/w2ui-fields.js'
@@ -129,7 +129,7 @@ module.exports = function (grunt) {
         },
 
         uglify: {
-            w2ui: { 
+            w2ui: {
                 options: {
                     banner: w2ui
                 },
@@ -137,7 +137,7 @@ module.exports = function (grunt) {
                     'dist/w2ui.min.js': 'dist/w2ui.js'
                 }
             },
-            fields: { 
+            fields: {
                 options: {
                     banner: fields
                 },
@@ -145,7 +145,7 @@ module.exports = function (grunt) {
                     'dist/w2ui-fields.min.js': 'dist/w2ui-fields.js'
                 }
             },
-            ks: { 
+            ks: {
                 options: {
                     banner: ks
                 },
@@ -159,10 +159,10 @@ module.exports = function (grunt) {
             docs: {
                 options: {
                     stdout: true
-                },                
+                },
                 command: 'cd docs; node generate.js;'
             }
-        },    
+        },
 
         watch: {
             "w2ui" : {
@@ -171,8 +171,8 @@ module.exports = function (grunt) {
             },
             "w2ui-less" : {
                 files: ['src/less/*.less', 'src/less/src/*.less'],
-                tasks: ['less:w2ui', 'less:w2ui-min', 'less:fields', 'less:fields-min', 
-                    'concat:banner-w2ui-1', 'concat:banner-w2ui-2', 'concat:banner-w2ui-3', 'concat:banner-w2ui-4', 
+                tasks: ['less:w2ui', 'less:w2ui-min', 'less:fields', 'less:fields-min',
+                    'concat:banner-w2ui-1', 'concat:banner-w2ui-2', 'concat:banner-w2ui-3', 'concat:banner-w2ui-4',
                     'concat:banner-fields-1', 'concat:banner-fields-2']
             },
             "ks" : {
@@ -195,7 +195,7 @@ module.exports = function (grunt) {
                     syntax  : 'bootstrap',
                     types   : 'woff',
                     embed   : true
-                }           
+                }
             }
         }
 
@@ -211,10 +211,10 @@ module.exports = function (grunt) {
 
     grunt.registerTask('default', ['clean', 'less', 'concat', 'uglify']);
     grunt.registerTask('docs', ['shell:docs']);
-    grunt.registerTask('w2ui', ['clean:w2ui', 'less:w2ui', 'less:w2ui-min', 'concat:w2ui', 'uglify:w2ui', 
+    grunt.registerTask('w2ui', ['clean:w2ui', 'less:w2ui', 'less:w2ui-min', 'concat:w2ui', 'uglify:w2ui',
         'concat:banner-w2ui-1', 'concat:banner-w2ui-2', 'concat:banner-w2ui-3', 'concat:banner-w2ui-4']);
-    grunt.registerTask('fields', ['clean:fields', 'less:fields', 'less:fields-min', 'concat:fields', 'uglify:fields', 
+    grunt.registerTask('fields', ['clean:fields', 'less:fields', 'less:fields-min', 'concat:fields', 'uglify:fields',
         'concat:banner-fields-1', 'concat:banner-fields-2']);
-    grunt.registerTask('ks', ['clean:ks', 'less:ks', 'less:ks-min', 'concat:ks', 'uglify:ks', 
+    grunt.registerTask('ks', ['clean:ks', 'less:ks', 'less:ks-min', 'concat:ks', 'uglify:ks',
         'concat:banner-ks-1', 'concat:banner-ks-2']);
 };

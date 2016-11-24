@@ -1,0 +1,54 @@
+/* BUTTONS and DROPDOWN  */
+
+input[type=text], textarea, select {
+	border: 1px solid #b7b7b7;
+	padding: 2px;
+	background-color: white;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+}
+
+input[type=file]{
+	margin-top: 3px;
+}
+
+select {
+}
+
+option {
+}
+
+input[disabled], textarea[disabled], select[disabled], option[disabled]{
+	color: gray;
+	background-color: #efefef;
+}
+
+input[readonly], textarea[readonly], select[readonly], option[readonly] {
+	background-color: #efefef;
+}
+
+button, input[type=button], input[type=submit] {
+	color: #444444;
+	padding: 1px 5px 2px 5px; 
+	border: 1px solid #888888;
+	background: url(mac_bg.png) center center;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+}
+
+button:hover, input[type=button]:hover, input[type=submit]:hover{
+	color: navy;
+	background: url(mac_bg2.png) center center;
+}
+
+button:active, input[type=button]:active, input[type=submit]:active{
+	color: #444444;
+	background: url(mac_bg3.png) center center;
+}
+
+button[disabled], button[disabled]:hover, button[disabled]:active,
+input[type=button][disabled], input[type=button][disabled]:hover, input[type=button][disabled]:active,
+input[type=submit][disabled], input[type=submit][disabled]:hover, input[type=submit][disabled]:active {
+	color: #d7d7d7;
+	background: #f7f7f7;
+}

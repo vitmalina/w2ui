@@ -1,0 +1,91 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Remote Source</h1>
+        This example demonstrates how to pull remote data into list and enum fields. Please note, that compare funtion was added since 1.5, but in previous versions it is ignored. It will still work, but a bit different.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div style="height: 20px"></div>
+<div class="w2ui-field">
+    <label>List:</label>
+    <div> <input id="list"> </div>
+</div>
+<br>
+<div class="w2ui-field">
+    <label>Multi:</label>
+    <div> <input id="enum"> </div>
+</div>
+<div style="height: 20px"></div>
+
+<style>
+.w2ui-field input {
+    width: 400px;
+}
+.w2ui-field > div > span {
+    margin-left: 20px;
+}
+</style>
+
+<!--CODE-->
+<script>
+$('#list').w2field('list', {
+    url: 'http://w2ui.com/web/pages/demo/infinite/enum.php',
+    renderItem: function (item) {
+        return item.fname + ' ' + item.lname;
+    },
+    renderDrop: function (item) {
+        return item.fname + ' ' + item.lname;
+    },
+    compare: function (item, search) {
+        var fname = search, 
+            lname = search;
+        if (search.indexOf(' ') != -1) {
+            fname = search.split(' ')[0];
+            lname = search.split(' ')[1];
+        }
+        var match = false;
+        var re1 = new RegExp(fname, 'i');
+        var re2 = new RegExp(lname, 'i');
+        if (fname == lname) {
+            if (re1.test(item.fname) || re2.test(item.lname)) match = true;
+        } else {
+            if (re1.test(item.fname) && re2.test(item.lname)) match = true;
+        }
+        return match;
+    }
+});
+
+$('#enum').w2field('enum', {
+    url: 'http://w2ui.com/web/pages/demo/infinite/enum.php',
+    renderItem: function (item) {
+        return item.fname + ' ' + item.lname;
+    },
+    renderDrop: function (item) {
+        return item.fname + ' ' + item.lname;
+    },
+    compare: function (item, search) {
+        var fname = search, 
+            lname = search;
+        if (search.indexOf(' ') != -1) {
+            fname = search.split(' ')[0];
+            lname = search.split(' ')[1];
+        }
+        var match = false;
+        var re1 = new RegExp(fname, 'i');
+        var re2 = new RegExp(lname, 'i');
+        if (fname == lname) {
+            if (re1.test(item.fname) || re2.test(item.lname)) match = true;
+        } else {
+            if (re1.test(item.fname) && re2.test(item.lname)) match = true;
+        }
+        return match;
+    },
+    onNew: function (event) {
+        console.log('++ New Item: Do not forget to submit it to the server too', event);
+        $.extend(event.item, { fname: '', lname : event.item.text });
+    }
+});
+</script>

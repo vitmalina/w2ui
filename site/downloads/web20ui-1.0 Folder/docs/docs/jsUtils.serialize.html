@@ -1,0 +1,44 @@
+<div id="help_main">
+
+<h1>jsUtils.serialize()</h1>
+
+Returns serialized representation of a JavaScript object. 
+<br><br>
+
+<pre class="code params">
+<b>jsUtils.serialize( obj )</b>
+  obj - JavaScript object
+</pre>
+<br>
+An input object will be converted to a serialized string reperenting this object. The object can be an array or any other JavaScript
+object and can be nested. The serialized representation is not serialized in PHP or any other format. It is used to convert an object
+into a string to be transmitted as a GET or POST parameter. You will need to unserialize this object on the server side. The object
+is serialized in url safe way.
+<br><br>
+Both jsList and jsEdit use jsUtils.serialize() before they transfer parameters to the server.
+
+<h2>Example</h2>
+<pre class="code html">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;script src="system/libs/jsUtils.js" type="text/javascript"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript"&gt;
+        var arr = [1, 2, 'string', {}];
+        window.onload = function() {
+            alert(jsUtils.serialize(arr));
+        }
+    &lt;/script&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+<h2>See Also</h2>
+<ul style="padding-top: 0px; margin-top: 0px">
+	<li><a href="javascript: load('jsUtils.serialize.html')">jsUtils.serialize()</a></li>
+	<li><a href="javascript: load('jsUtils.base64encode.html')">jsUtils.base64encode()</a></li>
+	<li><a href="javascript: load('jsUtils.base64decode.html')">jsUtils.base64decode()</a></li>
+</ul>
+
+</div>

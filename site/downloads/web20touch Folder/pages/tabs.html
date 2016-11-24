@@ -1,0 +1,30 @@
+<div class="toolbar">
+	<h1>Tabs</h1>
+	<a class="button back" onclick="jsTouch.loadPage('pages/home.html', { transition: 'slide-right' });">Back</a>
+</div>
+
+<div class="content">
+</div>
+
+<div class="footer">
+	<ul class="tabs">
+		<li>
+			<a onclick="jsTouch.loadContent('pages/tabs-tab1.html')" class="clicked"> <img src="images/tabs/aim.png"> </a>
+		</li>
+		<li>
+			<a onclick="jsTouch.loadContent('pages/tabs-tab2.html')"> <img src="images/tabs/cloud.png"> </a>
+		</li>
+		<li>
+			<a onclick="jsTouch.loadContent('pages/tabs-tab3.html')"> <img src="images/tabs/camera.png">	</a>
+		</li>
+		<li>
+			<a onclick="jsTouch.loadContent('pages/tabs-tab4.html')"> <img src="images/tabs/note.png"> </a>
+		</li>
+		<li>
+			<a onclick="jsTouch.loadContent('pages/tabs-tab5.html')"> <img src="images/tabs/person.png"> </a>
+		</li>
+	</ul>
+</div>
+<script>
+	jsTouch.loadContent('pages/tabs-tab1.html'); 
+</script>

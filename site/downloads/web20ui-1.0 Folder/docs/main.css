@@ -1,0 +1,72 @@
+h1 {
+	font-family: helvetica;
+	font-size: 22px;
+	color: darkblue;
+	line-height: 150%;
+}
+
+h2 {
+	font-family: helvetica;
+	font-size: 18px;
+	padding-top: 15px;
+}
+
+h3 {
+	font-family: helvetica;
+	font-size: 16px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	margin: 0px;
+}
+
+body {
+	font-family: helvetica;
+	font-size: 13px;
+	line-height: 140%;
+}
+
+a {
+	color: blue;
+}
+
+#help_main {
+	width: 750px;
+	line-height: 150%;
+	font-family: helvetica;
+	font-size: 13px;
+}
+
+table {
+	font-family: helvetica;
+	font-size: 13px;
+}
+
+table.main {
+	line-height: 140%;
+	border-collapse: collapse;
+}
+
+table.main td {
+	padding: 4px;
+	border: 1px solid silver;
+}
+
+pre.code {
+	padding: 10px;
+	background-color: #eff5dd;
+	border: 1px solid #dbdfcf;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre.params {
+	padding: 10px;
+	background-color: #efefef;
+	border: 1px solid #dfdcdc;
+	border-radius: 3px;
+}
+
+div.separator {
+	margin: 10px 0px;
+	border-bottom: 1px solid #efefef
+}

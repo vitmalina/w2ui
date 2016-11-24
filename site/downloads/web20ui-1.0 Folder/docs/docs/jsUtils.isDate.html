@@ -1,0 +1,46 @@
+<div id="help_main">
+
+<h1>jsUtils.isDate()</h1>
+
+Checks if the variable is a valid date (mm/dd/yyyy).
+<br><br>
+
+<pre class="code params">
+<b>jsUtils.isDate( str )</b>
+  str - any javascript variable
+</pre>
+<br>
+Returns true if the variable is a valid date or false otherwise.
+<br><br>
+The input variable is treated as a string representing date in the US date format (mm/dd/yyyy). This string is tested to be a real calendar 
+date and will return true is the date is valid. The function correctly interprets leap years. More date formats will be added.
+
+<h2>Example</h2>
+<pre class="code html">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;script src="system/libs/jsUtils.js" type="text/javascript"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript"&gt;
+        window.onload = function() {
+            alert(jsUtils.isDate('5/11/2011'));
+            alert(jsUtils.isDate('2/30/2011'));
+        }
+    &lt;/script&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+<h2>See Also</h2>
+<ul style="padding-top: 0px; margin-top: 0px">
+	<li><a href="javascript: load('jsUtils.isInt.html')">jsUtils.isInt()</a></li>
+	<li><a href="javascript: load('jsUtils.isFloat.html')">jsUtils.isFloat()</a></li>
+	<li><a href="javascript: load('jsUtils.isMoney.html')">jsUtils.isMoney()</a></li>
+	<li><a href="javascript: load('jsUtils.isHex.html')">jsUtils.isHex()</a></li>
+	<li><a href="javascript: load('jsUtils.isDate.html')">jsUtils.isDate()</a></li>
+	<li><a href="javascript: load('jsUtils.isTime.html')">jsUtils.isTime()</a></li>
+	<li><a href="javascript: load('jsUtils.isEmail.html')">jsUtils.isEmail()</a></li>
+</ul>
+
+</div>

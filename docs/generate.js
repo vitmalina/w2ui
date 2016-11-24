@@ -7,7 +7,7 @@ var fs    = require('fs');
 var files = fs.readdirSync('details');
 
 var rPath = ''; // for website should be '<?=$site_root?>/docs/'
-// var rPath = '<?=$site_root?>/docs/';
+// var rPath = '/web/docs/1.5/';
 
 // clear folder
 console.log('==> Removing Current Files');
@@ -23,8 +23,8 @@ console.log('    DONE. Removed '+ cnt + ' files');
 console.log('==> Generating New Summary Files');
 process.stdout.write('    ');
 // generate files
-var text1 = '<link rel="stylesheet" type="text/css" href="../summary.css"/> \n'+
-    '<div class="container">';
+var text1 = (rPath == '' ? '<link rel="stylesheet" type="text/css" href="../summary.css"/> \n' : '' ) +
+    '<div class="container">\n';
 var text2 = '</div>';
 var html  = {};
 var cnt   = 0;
@@ -39,7 +39,7 @@ for (var f in files) {
     var pos1 = data.indexOf('\n');
     var desc = data.substr(0, pos1);
 
-    // definition 
+    // definition
     var pos1 = data.indexOf('<div class="definition">');
     var pos2 = data.indexOf('</div>', pos1);
     var deff = data.substr(pos1, pos2-pos1).replace(/(<([^>]+)>)/ig, "").replace(/^\s+|\s+$/g, '');
@@ -48,9 +48,9 @@ for (var f in files) {
     if (prop.length > 2 && prop.substr(0, 2) == 'on') {
         type = 'events';
         if (!html.hasOwnProperty(wid + '-' + type)) {
-            html[wid + '-' + type] = '';    
+            html[wid + '-' + type] = '';
         }
-        html[wid + '-' + type] += 
+        html[wid + '-' + type] +=
             '<div class="obj-property">\n'+
             '    <a href="'+ rPath + wid +'.'+ prop +'">'+ prop +'</a> <span>- function (event)</span>\n'+
             '</div>\n'+
@@ -60,9 +60,9 @@ for (var f in files) {
     } else if (deff.indexOf(prop + '(') != -1) { // methods
         type = 'methods';
         if (!html.hasOwnProperty(wid + '-' + type)) {
-            html[wid + '-' + type] = '';    
+            html[wid + '-' + type] = '';
         }
-        html[wid + '-' + type] += 
+        html[wid + '-' + type] +=
             '<div class="obj-property">\n'+
             '    <a href="'+ rPath + wid +'.'+ prop +'">'+ prop +'</a> <span>- '+ deff +'</span>\n'+
             '</div>\n'+
@@ -72,9 +72,9 @@ for (var f in files) {
     } else {
         type = 'props';
         if (!html.hasOwnProperty(wid + '-' + type)) {
-            html[wid + '-' + type] = '';    
+            html[wid + '-' + type] = '';
         }
-        html[wid + '-' + type] += 
+        html[wid + '-' + type] +=
             '<div class="obj-property">\n'+
             '    <a href="'+ rPath + wid +'.'+ prop +'">'+ prop +'</a> <span>- '+ deff +'</span>\n'+
             '</div>\n'+

@@ -1,0 +1,43 @@
+<div id="help_main">
+
+<h1>jsUtils.base64encode()</h1>
+
+Encodes string into base 64 encoding.
+<br><br>
+
+<pre class="code params">
+<b>jsUtils.base64encode( str )</b>
+  str - string to be encoded into base 64 format
+</pre>
+<br>
+Returns encoded string.
+<br><br>
+The input string will be encoded into base 64 format. This format is very useful to pass data between browser and server and do not worry 
+what kinf of data is being passed. The url parameters have many restrictions and this is one of the way to overcome it. This is the standard
+base 64 encoding. All modern languages have functions to encode/decode into base 64. Normally, the size of the data increases by 30%.
+
+<h2>Example</h2>
+<pre class="code html">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;script src="system/libs/jsUtils.js" type="text/javascript"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript"&gt;
+        var arr = [1, 2, 'string', {}];
+        window.onload = function() {
+            alert(jsUtils.base64encode(jsUtils.serialize(arr)));
+        }
+    &lt;/script&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+<h2>See Also</h2>
+<ul style="padding-top: 0px; margin-top: 0px">
+	<li><a href="javascript: load('jsUtils.serialize.html')">jsUtils.serialize()</a></li>
+	<li><a href="javascript: load('jsUtils.base64encode.html')">jsUtils.base64encode()</a></li>
+	<li><a href="javascript: load('jsUtils.base64decode.html')">jsUtils.base64decode()</a></li>
+</ul>
+
+</div>

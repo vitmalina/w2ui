@@ -1,0 +1,53 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Panel with Tabs</h1>
+        <p>
+        A layout panel may be created with tabs. It uses w2tabs object, therefore, you can use anything w2tabs support. There
+        is no need to define a name of the tabs, because it will be overwritten with layout.name + '_tabs'. It will also add tabs.owner
+        attribute that is a reference to the layout.
+        </p>
+        
+        <p>
+        You can dynamically load content into the main panel; this is done so you can observe the overflow behaviour of the panel (scrollbars).
+        </p>
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="layout" style="width: 100%; height: 400px;"></div>
+
+<div style="height: 20px;"></div>
+
+<span style="display: inline-block; width: 50px;"> Main: </span>
+<button class="btn" onclick="w2ui['layout'].content('main', 'This is some content set manually')">Set Content</button>
+<button class="btn" onclick="w2ui['layout'].load('main', 'data/content1.html')">Load Content 1</button>
+<button class="btn" onclick="w2ui['layout'].load('main', 'data/content2.html')">Load Content 2</button>
+
+<!--CODE-->
+<script>
+$(function () {    
+    var pstyle = 'border: 1px solid #dfdfdf; padding: 5px;';
+    $('#layout').w2layout({
+        name: 'layout',
+        panels: [
+            { type: 'top', size: 50, resizable: true, style: pstyle, content: 'top' },
+            { type: 'left', size: 200, resizable: true, style: pstyle, content: 'left' },
+            { type: 'main', style: pstyle + 'border-top: 0px;', content: 'main', 
+                tabs: {
+                    active: 'tab1',
+                    tabs: [
+                        { id: 'tab1', caption: 'Tab 1' },
+                        { id: 'tab2', caption: 'Tab 2' },
+                        { id: 'tab3', caption: 'Tab 3' },
+                    ],
+                    onClick: function (event) {
+                        this.owner.content('main', event);
+                    }
+                }
+            }
+        ]
+    });
+});
+</script>

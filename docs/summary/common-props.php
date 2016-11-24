@@ -1,5 +1,6 @@
 <link rel="stylesheet" type="text/css" href="../summary.css"/> 
-<div class="container"><div class="obj-property">
+<div class="container">
+<div class="obj-property">
     <a href="common.box">box</a> <span>- DOM Element, default = null</span>
 </div>
 <div class="obj-property-desc">

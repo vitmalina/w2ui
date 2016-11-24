@@ -1,0 +1,30 @@
+<div class="content">
+    <div id="example_title">
+        <h1>File Upload</h1>
+        This controls provides an easy way to upload files as part of the form you submit. It encodes file with base64 encoding, same as email attachments. This method simplifies file uploads, but become inefficient if file size grows over 50mb or so.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div style="height: 20px"></div>
+<div class="w2ui-field">
+    <label>Attach Files:</label>
+    <div> <input id="file"> </div>
+</div>
+<div style="height: 20px"></div>
+
+<style>
+.w2ui-field input {
+    width: 400px;
+}
+.w2ui-field > div > span {
+    margin-left: 20px;
+}
+</style>
+
+<!--CODE-->
+<script>
+$('#file').w2field('file', {});
+</script>

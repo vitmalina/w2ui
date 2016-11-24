@@ -1,0 +1,60 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Lock/Unlock Grid</h1>
+        There are several utility functions of the grid that allow to lock/unlock content, display error message and change status. The
+        example below demonstrates some of this functions.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="grid" style="width: 100%; height: 400px;"></div>
+<br>
+<button class="btn" onclick="w2ui.grid.lock('Message', true);">Lock</button>
+<button class="btn" onclick="w2ui.grid.unlock();">Unlock</button>
+<button class="btn" onclick="w2ui.grid.lock('', true);">Just a Spinner</button>
+<button class="btn" onclick="w2ui.grid.error('Error message '+ (new Date()).getTime());">Error</button>
+<button class="btn" onclick="w2ui.grid.status('Status message '+ (new Date()).getTime());">Status</button>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#grid').w2grid({ 
+        name: 'grid',
+        show: {
+            footer: true
+        },
+        columns: [                
+            { field: 'fname', caption: 'Full Name', size: '200px',
+                render: function (record, index, column_index) {
+                    var html = '<div>'+ record.fname + ' ' + record.lname + '</div>';
+                    return html;
+                } 
+            },
+            { field: 'email', caption: 'Email', size: '100%' },
+            { field: 'profit',caption: 'Profit', size: '120px', render: 'money' },
+            { field: 'sdate', caption: 'Start Date', size: '120px', render: 'date' }
+        ],
+        records: [
+            { recid: 1, fname: 'John', lname: 'Doe', email: 'john@gmail.com', profit: 2500, sdate: '1/3/2012' },
+            { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'stuart@gmail.com', profit: 1004, sdate: '4/13/2012' },
+            { recid: 3, fname: 'Jin', lname: 'Franson', email: 'jin@gmail.com', profit: 473, sdate: '3/3/2012' },
+            { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'susan@gmail.com', profit: 304, sdate: '5/3/2012' },
+            { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'kelly@gmail.com', profit: 9300, sdate: '8/19/2012' },
+            { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'francis@gmail.com', sdate: '6/12/2012' },
+            { recid: 7, fname: 'Mark', lname: 'Welldo', email: 'mark@gmail.com', profit: 3400, sdate: '8/13/2012' },
+            { recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'thomas@gmail.com', profit: 2030, sdate: '4/31/2012' },
+            { recid: 10, fname: 'John', lname: 'Doe', email: 'john@gmail.com', profit: 13004, sdate: '1/3/2012' },
+            { recid: 12, fname: 'Stuart', lname: 'Motzart', email: 'stuart@gmail.com', sdate: '4/13/2012' },
+            { recid: 13, fname: 'Jin', lname: 'Franson', email: 'jin@gmail.com', profit: 4043, sdate: '3/3/2012' },
+            { recid: 14, fname: 'Susan', lname: 'Ottie', email: 'susan@gmail.com', profit: 474, sdate: '5/3/2012' },
+            { recid: 15, fname: 'Kelly', lname: 'Silver', email: 'kelly@gmail.com', profit: 1704, sdate: '8/19/2012' },
+            { recid: 16, fname: 'Francis', lname: 'Gatos', email: 'francis@gmail.com', sdate: '6/12/2012' },
+            { recid: 17, fname: 'Mark', lname: 'Welldo', email: 'mark@gmail.com', profit: 7065, sdate: '8/13/2012' },
+            { recid: 18, fname: 'Thomas', lname: 'Bahh', email: 'thomas@gmail.com', profit: 609, sdate: '4/31/2012' },
+            { recid: 19, fname: 'Sergei', lname: 'Rachmaninov', email: 'sergei@gmail.com', profit: 777, sdate: '2/23/2012' }
+        ]
+    });    
+});
+</script>

@@ -8,6 +8,9 @@
 * == NICE TO HAVE ==
 *   - vertical toolbar
 *
+* == 1.5 changes ==
+*   - menu drop down can have groups now
+*
 ************************************************************************/
 
 (function ($) {
@@ -105,7 +108,8 @@
             arrow       : true,        // arrow down for drop/menu types
             style       : null,        // extre css style for caption
             color       : null,        // color value - used in color pickers
-            transparent : null,        // transparent t/f - used in color pickers
+            transparent : null,        // transparent t/f - used in color picker
+            advanced    : null,        // advanced picker t/f - user in color picker
             group       : null,        // used for radio buttons
             items       : null,        // for type menu* it is an array of items in the menu
             selected    : null,        // used for menu-check, menu-radio
@@ -383,11 +387,23 @@
                             }
                             if (['color', 'text-color'].indexOf(it.type) != -1) {
                                 if (it.transparent == null) it.transparent = true;
-                                $(el).w2color({ color: it.color, transparent: it.transparent }, function (color, index) {
-                                    if (color != null) {
-                                        obj.colorClick({ name: obj.name, item: it, color: color, originalEvent: event.originalEvent });
+                                $(el).w2color({
+                                    color: it.color,
+                                    transparent: it.transparent,
+                                    advanced: it.advanced,
+                                    onHide: function (event) {
+                                        hideDrop();
+                                        if (obj._tmpColor) {
+                                            obj.colorClick({ name: obj.name, item: it, color: obj._tmpColor, final: true });
+                                        }
+                                        delete obj._tmpColor;
+                                    },
+                                    onSelect: function (color) {
+                                        if (color != null) {
+                                            obj.colorClick({ name: obj.name, item: it, color: color });
+                                            obj._tmpColor = color;
+                                        }
                                     }
-                                    hideDrop();
                                 });
                             }
                             function hideDrop(event) {
@@ -617,14 +633,17 @@
             if (html === '') switch (item.type) {
                 case 'color':
                 case 'text-color':
-                    if (typeof item.color == 'string' && item.color.substr(0,1) == '#') item.color = item.color.substr(1);
+                    if (typeof item.color == 'string') {
+                        if (item.color.substr(0,1) == '#') item.color = item.color.substr(1);
+                        if (item.color.length == 3 || item.color.length == 6) item.color = '#' + item.color;
+                    }
                     if (item.type == 'color') {
                         text = '<div style="height: 12px; width: 12px; margin-top: 1px; border: 1px solid #8A8A8A; border-radius: 1px; box-shadow: 0px 0px 1px #fff; '+
-                               '        background-color: #'+ (item.color != null ? item.color : 'fff') +'; float: left;"></div>'+
+                               '        background-color: '+ (item.color != null ? item.color : '#fff') +'; float: left;"></div>'+
                                (item.text ? '<div style="margin-left: 17px;">' + w2utils.lang(item.text) + '</div>' : '');
                     }
                     if (item.type == 'text-color') {
-                        text = '<div style="color: #'+ (item.color != null ? item.color : '444') +';">'+
+                        text = '<div style="color: '+ (item.color != null ? item.color : '#444') +';">'+
                                     (item.text ? w2utils.lang(item.text) : '<b>Aa</b>') +
                                '</div>';
                     }
@@ -729,13 +748,32 @@
                 }
                 if (item.type == 'menu-check') {
                     if (!$.isArray(item.selected)) item.selected = [];
-                    var ind = item.selected.indexOf(it.id);
-                    if (ind == -1) {
-                        item.selected.push(it.id);
-                        it.checked = true;
+                    if (it.group == null) {
+                        var ind = item.selected.indexOf(it.id);
+                        if (ind == -1) {
+                            item.selected.push(it.id);
+                            it.checked = true;
+                        } else {
+                            item.selected.splice(ind, 1);
+                            it.checked = false;
+                        }
                     } else {
-                        item.selected.splice(ind, 1);
-                        it.checked = false;
+                        // find all items in the same group
+                        var unchecked = [];
+                        item.items.forEach(function (sub) {
+                            if (sub.group === it.group) {
+                                var ind = item.selected.indexOf(sub.id);
+                                if (ind != -1) {
+                                    if (sub.id != it.id) unchecked.push(sub.id);
+                                    item.selected.splice(ind, 1);
+                                }
+                            }
+                        });
+                        var ind = item.selected.indexOf(it.id);
+                        if (ind == -1) {
+                            item.selected.push(it.id);
+                            it.checked = true;
+                        }
                     }
                 }
                 if (typeof it.route == 'string') {
@@ -760,7 +798,7 @@
             if (event.item && !event.item.disabled) {
                 // event before
                 var edata = this.trigger({ phase: 'before', type: 'click', target: event.item.id, item: event.item,
-                    color: event.color, originalEvent: event.originalEvent });
+                    color: event.color, final: event.final, originalEvent: event.originalEvent });
                 if (edata.isCancelled === true) return;
 
                 // default behavior
