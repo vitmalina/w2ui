@@ -508,7 +508,7 @@
             var edata = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
             if (edata.isCancelled === true) return;
             // clean up
-            if ($(this.box).find('#series_'+ this.name + '_body').length > 0) {
+            if ($(this.box).find('#chart_'+ this.name + '_body').length > 0) {
                 $(this.box)
                     .removeAttr('name')
                     .removeClass('w2ui-reset w2ui-chart')
