@@ -6134,7 +6134,8 @@ w2utils.keyboard = (function (obj) {
             // larget number works better with chrome, smaller with FF.
             if (buffered > 300) this.show_extra = 30; else this.show_extra = 300;
             var records  = $('#grid_'+ this.name +'_records');
-            var limit    = Math.floor(records.height() / this.recordHeight) + this.show_extra + 1;
+            var limit    = Math.floor((records.height() || 0) / this.recordHeight) + this.show_extra + 1;
+            console.log('limit')
             if (!this.fixedBody || limit > buffered) limit = buffered;
             // always need first record for resizing purposes
             var html = '<table>' + this.getRecordHTML(-1, 0);
