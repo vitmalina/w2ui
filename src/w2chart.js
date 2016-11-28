@@ -38,7 +38,7 @@
             height          : null,
             svg             : null,     // d3 svg object
             g               : null,     // group in svg for generate graph
-            g               : null,     // group in svg for generate top level elements
+            g1              : null,     // group in svg for generate top level elements
             gxAxis          : null,
             xScale          : null,
             yScaleLeft      : null,
