@@ -91,11 +91,13 @@
         onDestroy : null,
 
         ser : {
-            id        : null,
-            field     : '',
-            caption   : '',
-            yAxis     : 'yLeftAxis',     
-            style     : {color: 'black', width: '1px'}
+            id          : null,
+            field       : '',
+            filterField : null,
+            filterValue : null,
+            caption     : '',
+            yAxis       : 'yLeftAxis',     
+            style       : {color: 'black', width: '1px'}
         },
 
         add: function (ser) {
@@ -258,12 +260,13 @@
             } else {
                 var ser = this.get(id);
                 var parseDate = d3.timeParse(obj.xAxis.dateFormat);
+                var data = (!ser.filterField) ? obj.records : obj.records.filter(function(d) { return d[ser.filterField] == ser.filterValue;});
                 switch (ser.type) {
                     case 'line': 
                         var line = d3.line()
                             .x(function(d) { return (obj.xAxis.type === 'date') ? obj.last.xScale(parseDate(d[obj.xAxis.field])) : obj.last.xScale(d[obj.xAxis.field]); })
                             .y(function(d) { return (ser.yAxis === 'yLeftAxis') ? obj.last.yScaleLeft(d[ser.field]) : obj.last.yScaleRight(d[ser.field]); });
-                        obj.last.g1.append("path").datum(obj.records)
+                        obj.last.g1.append("path").datum(data)
                             .attr("d", line).style("fill", "none")
                             .style("stroke", ser.style.color)
                             .style("stroke-width", ser.style.width);
@@ -273,12 +276,12 @@
                             .x(function(d) { return (obj.xAxis.type === 'date') ? obj.last.xScale(parseDate(d[obj.xAxis.field])) : obj.last.xScale(d[obj.xAxis.field]); })
                             .y0(obj.last.height)
                             .y1(function(d) { return (ser.yAxis === 'yLeftAxis') ? obj.last.yScaleLeft(d[ser.field]) : obj.last.yScaleRight(d[ser.field]); });
-                        obj.last.g.append("path").datum(obj.records)
+                        obj.last.g.append("path").datum(data)
                             .attr("d", area).style("fill", ser.style.color)
                             .style("stroke", "none");
                         break;
                     case 'dot':
-                        obj.last.g1.selectAll(".dot").data(obj.records).enter().append("circle")
+                        obj.last.g1.selectAll(".dot").data(data).enter().append("circle")
                             .attr("cx", function(d) { return (obj.xAxis.type === 'date') ? obj.last.xScale(parseDate(d[obj.xAxis.field])) : obj.last.xScale(d[obj.xAxis.field]); })
                             .attr("cy", function(d) { return (ser.yAxis === 'yLeftAxis') ? obj.last.yScaleLeft(d[ser.field]) : obj.last.yScaleRight(d[ser.field]); })
                             .attr("r", ser.style.width)
@@ -296,11 +299,11 @@
             var obj = this;
             var legend = obj.last.svg.append("g").attr("height", 40).attr("width", 200)
                 .attr("transform","translate(20,20)");   
-            legend.selectAll('rect').data(obj.series).enter()
+            legend.selectAll('rect').data(obj.series.filter(function(d) { return d.caption.length>0;})).enter()
                   .append("rect").attr("y", 0 - (obj.margin.top / 2)).attr("x", function(d, i){ return i *  90;})
                   .attr("width", 10).attr("height", 10)
                   .style("fill", function(d) {return d.style.color; });
-            legend.selectAll('text').data(obj.series).enter()
+            legend.selectAll('text').data(obj.series.filter(function(d) { return d.caption.length>0;})).enter()
                   .append("text").attr("y", 0 - (obj.margin.top / 2)+10).attr("x", function(d, i){ return i *  90 + 11;})
                   .text(function(d) { return d.caption; });
         },
@@ -338,21 +341,21 @@
                         if (tmpVal > obj.yLeftAxis.max) { obj.yLeftAxis.max = tmpVal; };
                     };
                 };
-                if (obj.series[i].yAxis === 'yRigthAxis') {
+                if (obj.series[i].yAxis === 'yRightAxis') {
                     obj.last.yRightAxisEnable = true;
-                    if (obj.yRigthAxis.minAuto || !obj.yRigthAxis.min) {
+                    if (obj.yRightAxis.minAuto || !obj.yRightAxis.min) {
                         tmpVal = d3.min(obj.records, function(d) { return d[obj.series[i].field]; });
-                        if (!obj.yRigthAxis.min || tmpVal < obj.yRigthAxis.min) { obj.yRigthAxis.min = tmpVal; };
+                        if (!obj.yRightAxis.min || tmpVal < obj.yRightAxis.min) { obj.yRightAxis.min = tmpVal; };
                     };
-                    if (obj.yRigthAxis.maxAuto || !obj.yRigthAxis.max) {
+                    if (obj.yRightAxis.maxAuto || !obj.yRightAxis.max) {
                         tmpVal = d3.max(obj.records, function(d) { return d[obj.series[i].field]; });
-                        if (tmpVal > obj.yRigthAxis.max) { obj.yRigthAxis.max = tmpVal; };
+                        if (tmpVal > obj.yRightAxis.max) { obj.yRightAxis.max = tmpVal; };
                     };
                 };
             };
             obj.last.xScale.domain([obj.xAxis.min,obj.xAxis.max]);
             if (obj.last.yLeftAxisEnable) { obj.last.yScaleLeft.domain([obj.yLeftAxis.min,obj.yLeftAxis.max]); };
-            if (obj.last.yRightAxisEnable) { obj.last.yScaleRight.domain([obj.yRigthAxis.min,obj.yRigthAxis.max]); };
+            if (obj.last.yRightAxisEnable) { obj.last.yScaleRight.domain([obj.yRightAxis.min,obj.yRightAxis.max]); };
             // set chart axis
             if (obj.xAxis.type === 'date') {
                 var xAxisD3 = d3.axisBottom(obj.last.xScale)
