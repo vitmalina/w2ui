@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>W2UI Demo: chart-1</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css" />
+    <script type="text/javascript" src="http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.js"></script>
+    <script src="w2chart.js"></script>
+</head>
+<body>
+
+<div id="myGridDiv" style="width: 50%; height: 350px; float: left; display: block;"></div>
+<div id="myChartDiv" style="width: 50%; height: 350px; float: left; display: block;"></div>
+
+<script type="text/javascript">
+$(function () {
+    var data = [
+        { recid:1, date: '4/8/2016', sales: 583.90 ,profit: 1100.77 },
+        { recid:2, date: '9/6/2014', sales: 490.04 ,profit: 763.84 },
+        { recid:3, date: '2/11/2016', sales: 994.17 ,profit: 265.70 },
+        { recid:4, date: '5/6/2016', sales: 738.63 ,profit: 232.89 },
+        { recid:5, date: '12/28/2015', sales: 626.44 ,profit: 1981.38 },
+        { recid:6, date: '9/30/2015', sales: 642.69 ,profit: 821.12 },
+        { recid:7, date: '4/3/2016', sales: 978.84 ,profit: 1067.91 },
+        { recid:8, date: '6/10/2015', sales: 371.64 ,profit: 781.29 },
+        { recid:9, date: '9/2/2015', sales: 182.71 ,profit: 1526.72 },
+        { recid:10, date: '8/26/2016', sales: 334.66 ,profit: 990.06 }
+    ];
+
+    $('#myGridDiv').w2grid({ 
+        name: 'myGrid', 
+        header: 'Test',
+        show: {header: false},
+        columns: [                
+            { field: 'recid', caption: 'ID', size: '50px', sortable: true },
+            { field: 'date', caption: 'Sale Date', size: '30%', sortable: true, render: 'date:m/d/yyyy' },
+            { field: 'sales', caption: 'Sales $', size: '30%', sortable: true },
+            { field: 'profit', caption: 'Profit $', size: '30%', sortable: true }
+        ],
+        records: data
+    }); 
+    w2ui.myGrid.sort('date', 'asc');   
+
+    $('#myChartDiv').w2chart({
+        name: 'myChart',
+        header: 'Sales and Profit',
+        show: {header: true},
+        xAxis: {visible: true, field: 'date', caption: 'Sale Date', type: 'date', dateFormat: '%m/%d/%Y'},
+        yLeftAxis: {visible: true, caption: '$', type: 'number'},
+        series: [
+            {id: 'ser1', type: 'line', field: 'sales', caption: 'Sales', yAxis: 'yLeftAxis', style: {color: 'blue', width: '1px'} },
+            {id: 'ser2', type: 'line', field: 'profit', caption: 'Profit', yAxis: 'yLeftAxis', style: {color: 'red', width: '2px'} }
+        ],
+        records: w2ui.myGrid.records
+    });
+
+    w2ui.myGrid.on('sort', function(event) {
+        event.onComplete = function () {
+            w2ui.myChart.records = w2ui.myGrid.records;
+            w2ui.myChart.refresh();
+        };
+    });
+
+});
+</script>
+
+</body>
+</html>
