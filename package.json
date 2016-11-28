@@ -7,7 +7,7 @@
   "repository": "https://github.com/vitmalina/w2ui",
   "dependencies" : {
     "jquery": ">=1.9"
-  }
+  },
   "devDependencies": {
     "grunt": "~0.4.2",
     "grunt-contrib-clean": "~0.5.0",
