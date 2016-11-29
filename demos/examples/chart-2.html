@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>W2UI Demo: chart-2</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css" />
+    <script type="text/javascript" src="http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.js"></script>
+    <script src="w2chart.js"></script>
+</head>
+<body>
+
+<div id="layout" style="width: 100%; height: 300px;"></div>
+<br><br>
+<button class="w2ui-btn" onclick="addChart('area')">Add Area Chart</button>
+<button class="w2ui-btn" onclick="addChart('dot')">Add Dot Chart</button>
+
+<div style="height: 15px"></div>
+<button class="w2ui-btn" onclick="removeChart()">Remove Last added Chart</button>
+
+<script type="text/javascript">
+$(function () {
+    var data = [
+        { recid:1, date: '4/8/2016', sales1: 583.90 ,sales2: 1100.77 },
+        { recid:2, date: '9/6/2014', sales1: 490.04 ,sales2: 763.84 },
+        { recid:3, date: '2/11/2016', sales1: 994.17 ,sales2: 265.70 },
+        { recid:4, date: '5/6/2016', sales1: 738.63 ,sales2: 232.89 },
+        { recid:5, date: '12/28/2015', sales1: 626.44 ,sales2: 1981.38 },
+        { recid:6, date: '9/30/2015', sales1: 642.69 ,sales2: 821.12 },
+        { recid:7, date: '4/3/2016', sales1: 978.84 ,sales2: 1067.91 },
+        { recid:8, date: '6/10/2015', sales1: 371.64 ,sales2: 781.29 },
+        { recid:9, date: '9/2/2015', sales1: 182.71 ,sales2: 1526.72 },
+        { recid:10, date: '8/26/2016', sales1: 334.66 ,sales2: 990.06 }
+    ];
+
+    $('#layout').w2layout({
+        name: 'layout',
+        padding: 4,
+        panels: [
+            { type: 'top', size: 30, resizable: true, content: 'top' },
+            { type: 'main', content: 'main' },
+            { type: 'right', size: '50%', resizable: true,  content: 'right' }
+        ]
+    });
+
+
+    $().w2grid({ 
+        name: 'myGrid', 
+        header: 'Test',
+        show: {header: false},
+        columns: [                
+            { field: 'recid', caption: 'ID', size: '50px', sortable: true },
+            { field: 'date', caption: 'Sale Date', size: '30%', sortable: true, render: 'date:m/d/yyyy' },
+            { field: 'sales1', caption: 'Sales1 $', size: '30%', sortable: true },
+            { field: 'sales2', caption: 'sales2 $', size: '30%', sortable: true }
+        ],
+        records: data
+    }); 
+    w2ui.myGrid.sort('date', 'asc');   
+
+    $().w2chart({
+        name: 'myChart',
+        header: 'Sales1 and sales2',
+        show: {header: true, legend: true},
+        xAxis: {visible: true, field: 'date', caption: 'Sale Date', type: 'date', dateFormat: '%m/%d/%Y'},
+        yLeftAxis: {visible: true, caption: '$', type: 'number'},
+        series: [
+            {id: 'serA', type: 'line', field: 'sales1', caption: 'Sales1', yAxis: 'yLeftAxis', style: {color: 'blue', width: '1px'} },
+            {id: 'serB', type: 'line', field: 'sales2', caption: 'sales2', yAxis: 'yLeftAxis', style: {color: 'red', width: '2px'} }
+        ],
+        records: w2ui.myGrid.records
+    });
+
+    w2ui['layout'].content('main', w2ui['myGrid']);
+    w2ui['layout'].content('right', w2ui['myChart']);
+
+    w2ui.myGrid.on('sort', function(event) {
+        event.onComplete = function () {
+            w2ui.myChart.records = w2ui.myGrid.records;
+            w2ui.myChart.refresh();
+        };
+    });
+});
+
+var ind = 1;
+
+function addChart(type) {
+    switch (type) {
+        case 'area': 
+            w2ui.myChart.add({id: 'ser'+ ind, type: 'area', field: 'sales2', caption: 'Sales2', yAxis: 'yLeftAxis', style: {color: 'green'} });
+            break;
+        case 'dot': 
+            w2ui.myChart.add({id: 'ser'+ ind, type: 'dot', field: 'sales2', caption: 'Sales2', yAxis: 'yLeftAxis', style: {color: 'yellow', width: '5px'} });
+            break;
+    };
+    ind++;
+}
+
+function removeChart() {
+    if (ind == 1) return;
+    ind--;
+    w2ui.myChart.remove('ser'+ ind);
+}
+</script>
+
+</body>
+</html>
