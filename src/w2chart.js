@@ -371,7 +371,7 @@
                             .tickSize(2);
             } else {
                 var xAxisD3 = d3.axisBottom(obj.last.xScale);
-                if (obj.last.width<300) xAxis.ticks(5);
+                if (obj.last.width<300) xAxisD3.ticks(5);
             };
             var yAxisLeftD3 = d3.axisLeft(obj.last.yScaleLeft);
             if (obj.last.height<100) yAxisLeftD3.ticks(5);
