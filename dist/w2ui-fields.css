@@ -905,21 +905,27 @@ button.w2ui-btn-small:focus:before {
 *    COLOR overlay
 */
 .w2ui-color {
-  padding: 5px;
-  padding-top: 8px;
+  padding: 8px 5px 0px 5px;
   background-color: white;
   border-radius: 3px;
 }
-.w2ui-color > table {
+.w2ui-color input:focus {
+  outline: none;
+  border: 1px solid #999 !important;
+}
+.w2ui-color .w2ui-color-palette {
+  width: 242px;
+}
+.w2ui-color .w2ui-color-palette table {
   table-layout: fixed;
   width: 160px;
 }
-.w2ui-color > table td {
+.w2ui-color .w2ui-color-palette table td {
   width: 20px;
   height: 20px;
   text-align: center;
 }
-.w2ui-color > table td div {
+.w2ui-color .w2ui-color-palette table td div {
   cursor: pointer;
   display: inline-block;
   width: 16px;
@@ -929,9 +935,141 @@ button.w2ui-btn-small:focus:before {
   color: white;
   text-shadow: 0px 0px 2px #000;
 }
-.w2ui-color > table td div:hover {
+.w2ui-color .w2ui-color-palette table td div:hover {
   outline: 1px solid #666;
   border: 1px solid #fff;
+}
+.w2ui-color .w2ui-color-palette table td div.no-color {
+  border: 1px solid #efefef;
+}
+.w2ui-color .w2ui-color-advanced {
+  height: 176px;
+  padding: 1px 2px;
+}
+.w2ui-color .w2ui-color-advanced .palette {
+  position: relative;
+  width: 150px;
+  height: 125px;
+  outline: 1px solid #d2d2d2;
+  box-sizing: content-box;
+}
+.w2ui-color .w2ui-color-advanced .palette .palette-bg {
+  height: 100%;
+  background-image: linear-gradient(0deg, #000000, rgba(204, 154, 129, 0));
+  pointer-events: none;
+}
+.w2ui-color .w2ui-color-advanced .rainbow {
+  position: relative;
+  width: 150px;
+  height: 12px;
+  margin: 10px 0px 0px 0px;
+  background: linear-gradient(90deg, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);
+}
+.w2ui-color .w2ui-color-advanced .alpha {
+  position: relative;
+  width: 150px;
+  height: 12px;
+  margin: 10px 0px 0px 0px;
+  background-color: #fff;
+  background-image: linear-gradient(45deg, #bbbbbb 25%, transparent 25%, transparent 75%, #bbbbbb 75%, #bbbbbb), linear-gradient(45deg, #bbbbbb 25%, transparent 25%, transparent 75%, #bbbbbb 75%, #bbbbbb);
+  background-size: 12px 12px;
+  background-position: 0 0, 6px 6px;
+}
+.w2ui-color .w2ui-color-advanced .alpha .alpha-bg {
+  height: 100%;
+  background-image: linear-gradient(90deg, rgba(80, 80, 80, 0) 0%, #505050 100%);
+  pointer-events: none;
+}
+.w2ui-color .w2ui-color-advanced .value1 {
+  pointer-events: none;
+  position: absolute;
+  top: 0px;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 10px;
+  border: 1px solid #999;
+  background-color: transparent;
+  box-shadow: 0px 0px 1px white;
+  transform: translateX(-1px) translateY(-1px);
+}
+.w2ui-color .w2ui-color-advanced .value2 {
+  pointer-events: none;
+  position: absolute;
+  top: -2px;
+  display: inline-block;
+  width: 8px;
+  height: 16px;
+  border-radius: 2px;
+  border: 1px solid #696969;
+  background-color: #ffffff;
+  box-shadow: 0px 0px 1px white;
+  transform: translateX(-1px);
+}
+.w2ui-color .w2ui-color-advanced .color-info {
+  float: right;
+  width: 80px;
+  margin-left: 158px;
+  margin-top: 0px;
+}
+.w2ui-color .w2ui-color-advanced .color-info .color-preview-bg {
+  box-shadow: 0 0 1px #c3c3c3;
+  height: 40px;
+  background-color: #fff;
+  background-image: linear-gradient(45deg, #bbbbbb 25%, transparent 25%, transparent 75%, #bbbbbb 75%, #bbbbbb), linear-gradient(45deg, #bbbbbb 25%, transparent 25%, transparent 75%, #bbbbbb 75%, #bbbbbb);
+  background-size: 16px 16px;
+  background-position: 0 0, 8px 8px;
+  margin-bottom: 10px;
+}
+.w2ui-color .w2ui-color-advanced .color-info .color-preview,
+.w2ui-color .w2ui-color-advanced .color-info .color-original {
+  height: 40px;
+  width: 40px;
+  float: left;
+}
+.w2ui-color .w2ui-color-advanced .color-info .color-part {
+  padding-top: 5px;
+}
+.w2ui-color .w2ui-color-advanced .color-info .color-part span {
+  display: inline-block;
+  width: 7px;
+  margin-left: 1px;
+  color: #666;
+}
+.w2ui-color .w2ui-color-advanced .color-info .color-part input {
+  font-size: 10px!important;
+  border-radius: 2px;
+  border: 1px solid #ccc;
+  width: 26px !important;
+  padding: 2px !important;
+  color: #333;
+}
+.w2ui-color .w2ui-color-tabs {
+  background-color: #f7f7f7;
+  height: 30px;
+  margin: 10px -5px 0px -5px;
+  border-top: 1px solid #d6d6d6;
+}
+.w2ui-color .w2ui-color-tabs .w2ui-color-tab {
+  float: left;
+  display: inline-block;
+  width: 34px;
+  height: 25px;
+  border: 1px solid transparent;
+  border-radius: 1px;
+  margin: -1px -3px 0px 8px;
+  text-align: center;
+  font-size: 15px;
+  padding-top: 1px;
+  color: #7b7b7b;
+}
+.w2ui-color .w2ui-color-tabs .w2ui-color-tab.selected {
+  color: #555;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-top: 1px solid transparent;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
 }
 /*
 *    DATE overlay

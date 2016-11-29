@@ -253,6 +253,7 @@ $(function () {
                     '    <textarea name="html">'+ html.replace(/<textarea/gi, '&lt;textarea').replace(/<\/textarea>/gi, '&lt;/textarea&gt;') +'</textarea>'+
                     '    <textarea name="js">'+ js +'</textarea>'+
                     '    <textarea name="css">'+ css +'</textarea>'+
+                    '    <textarea name="wrap">l</textarea>'+
                     '</form>'+
                     '</div>');
             });
