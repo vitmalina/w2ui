@@ -51,7 +51,7 @@
 </div>
 
 <div class="obj-property">
-    show <span>- Object, default - see below</span>
+    <a href="w2chart.show">show</a> <span>- Object, default - see below</span>
 </div>
 <div class="obj-property-desc">
     Map of indicators which elements of the chart are visible.
