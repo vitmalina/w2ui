@@ -1,0 +1,23 @@
+Array of record objects. 
+
+<div class="definition">
+    Array, default = []
+</div>
+
+<div style="height: 10px"></div>
+
+<h4>The record object</h4>
+
+Each record object must have a <span class="property">recid</span> property that uniquely identifies the record
+<div style="height: 10px"></div>
+
+The following is the structure of the record object:
+<textarea class="javascript">
+record = {
+    recid      : null,   // unique record id
+    [field-1]  : '',     // field 1
+    [field-2]  : '',     // field 2
+    ...
+    [field-N]  : ''     // field N
+}
+</textarea>
