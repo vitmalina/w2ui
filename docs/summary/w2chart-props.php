@@ -19,21 +19,21 @@
     <a href="w2chart.xAxis">xAxis</a> <span>- Object, default - see below</span>
 </div>
 <div class="obj-property-desc">
-    Map of parameter x axis. 
+    Object with parameter of x axis. 
 </div>
 
 <div class="obj-property">
     <a href="w2chart.yLeftAxis">yLeftAxis</a> <span>- Object, default - see below</span>
 </div>
 <div class="obj-property-desc">
-    Map of parameter left y axis. 
+    Object with parameter of left y axis. 
 </div>
 
 <div class="obj-property">
     <a href="w2chart.yRightAxis">yRightAxis</a> <span>- Object, default - see below</span>
 </div>
 <div class="obj-property-desc">
-    Map of parameter right y axis. 
+   Object with parameter of right y axis. 
 </div>
 
 <div class="obj-property">
