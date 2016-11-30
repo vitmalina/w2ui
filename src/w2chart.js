@@ -92,6 +92,7 @@
 
         ser : {
             id          : null,
+            type        : 'line',
             field       : '',
             filterField : null,
             filterValue : null,
