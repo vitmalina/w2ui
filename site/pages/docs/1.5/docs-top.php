@@ -11,6 +11,7 @@
 	if ($tmp[0] == 'w2form') 	$check_section = 'form';
 	if ($tmp[0] == 'w2popup') 	$check_section = 'popup';
 	if ($tmp[0] == 'w2utils') 	$check_section = 'utils';
+	if ($tmp[0] == 'w2chart') 	$check_section = 'chart';
 
     $ver_url = "/web/$page/~VERSION~";
     if ($_REQUEST['s2'] != '') $ver_url .= "/".$_REQUEST['s2'];
@@ -30,6 +31,7 @@
 				  <li <?=($check_section == 'form' ? 'class="active"' : '')?>><a href="<?=$site_root?>/docs/1.5/form">Form</a></li>
 				  <li <?=($check_section == 'popup' ? 'class="active"' : '')?>><a href="<?=$site_root?>/docs/1.5/popup">Popup</a></li>
 				  <li <?=($check_section == 'utils' ? 'class="active"' : '')?>><a href="<?=$site_root?>/docs/1.5/utils">Utilities</a></li>
+				  <li <?=($check_section == 'chart' ? 'class="active"' : '')?>><a href="<?=$site_root?>/docs/1.5/chart">Chart</a></li>
 				</ul>
 				<ul class="nav pull-right">
 				  <li id="version">

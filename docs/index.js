@@ -52,6 +52,11 @@ $(function () {
             { id: 'w2utils', text: 'w2utils', img: 'icon-folder', group1: true, nodes: [
                 { id: 'w2utils-props', text: 'Properties', icon: 'fa-star-empty' },
                 { id: 'w2utils-methods', text: 'Methods', icon: 'fa-cog' }
+            ] },
+            { id: 'w2chart', text: 'w2chart', img: 'icon-folder', group1: true, nodes: [
+                { id: 'w2chart-events', text: 'Events', icon: 'fa-tag' },
+                { id: 'w2chart-props', text: 'Properties', icon: 'fa-star-empty' },
+                { id: 'w2chart-methods', text: 'Methods', icon: 'fa-cog' }
             ] }
         ],
         onClick: function(id, data) {

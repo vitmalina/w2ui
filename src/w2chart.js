@@ -19,7 +19,7 @@
         this.yLeftAxis    = {visible: true, caption: '', type: ''/* 'number', 'date', 'time' */, minAuto: true, maxAuto: true, min: null, max: null},
         this.yRightAxis   = {visible: false, caption: '', type: ''/* 'number', 'date', 'time' */, minAuto: true, maxAuto: true, min: null, max: null},
 
-        this.series       = [];       // TODO: Id need? { id, type: 'line', field: 'value', caption: 'string', yAxis: 'yLeftAxis' or 'yRightAxis', style: {color: 'black', width: '1px'} }
+        this.series       = [];       // { id, type: 'line', field: 'value', caption: 'string', yAxis: 'yLeftAxis' or 'yRightAxis', style: {color: 'black', width: '1px'} }
         this.records      = [];       // { recid: int(requied), field1: 'value1', ... fieldN: 'valueN', style: 'string',  changes: object }
 
         this.show = {
@@ -92,6 +92,7 @@
 
         ser : {
             id          : null,
+            type        : 'line',
             field       : '',
             filterField : null,
             filterValue : null,
