@@ -2,14 +2,14 @@
 <link rel="stylesheet" type="text/css" href="../summary.css"/> 
 <div class="container">
 <div class="obj-property">
-    <a href="w2chart.header">header</a> <span>- String, default = ''</span>
+    header <span>- String, default = ''</span>
 </div>
 <div class="obj-property-desc">
     The header of the chart. 
 </div>
 
 <div class="obj-property">
-    <a href="w2chart.margin">margin</a> <span>- Object, default - see below</span>
+    margin <span>- Object, default - see below</span>
 </div>
 <div class="obj-property-desc">
     Padding from edges of the chart. 
@@ -51,7 +51,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2chart.show">show</a> <span>- Object, default - see below</span>
+    show <span>- Object, default - see below</span>
 </div>
 <div class="obj-property-desc">
     Map of indicators which elements of the chart are visible.
