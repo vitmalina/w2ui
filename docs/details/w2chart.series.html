@@ -1,0 +1,32 @@
+Array of series objects. 
+
+<div class="definition">
+    Array, default = []
+</div>
+
+This array should be defined during the object creation, but it can be changed anytime thereafter.
+<div style="height: 10px"></div>
+
+During object creation: 
+
+Each series is an object with properties listed below: 
+<textarea class="javascript">
+series = {
+    id           : null,          // unique (for chart) id of series
+    type         : 'line'         // type of series, set 'line' or 'area' or 'dot'
+    field        : '',            // name of field for series values
+    filterField  : null,          // name of field for filtering records
+    filterValue  : null,          // value for filtering records
+    caption      : '',            // caption of series. If '' then series dont show in legend
+    yAxis        : 'yLeftAxis',   // y axis for series, set 'yLeftAxis' or 'yRightAxis'  
+    style        : {},            // style of series
+}
+</textarea>
+
+<h4>Style</h4>
+<textarea class="javascript">
+style = {
+    color    : 'text',  // color of series, for 'dot' - color of dot
+    width    : '1px'    // with line for 'line' series or radius of dot for 'dot' series 
+}
+</textarea>
