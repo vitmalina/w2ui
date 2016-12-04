@@ -1008,6 +1008,7 @@ var w2prompt = function (label, title, callBack) {
         label       : '',
         value       : '',
         attrs       : '',
+        textarea    : false,
         title       : w2utils.lang('Notification'),
         ok_text     : w2utils.lang('Ok'),
         cancel_text : w2utils.lang('Cancel'),
@@ -1039,10 +1040,16 @@ var w2prompt = function (label, title, callBack) {
           w2popup.message({
             width   : options.width,
             height  : options.height,
-            body    : '<div class="w2ui-centered" style="font-size: 13px;">'+
-                      '   <label style="margin-right: 10px;">' + options.label + ':</label>'+
-                      '   <input id="w2prompt" '+ options.attrs +'>'+
-                      '</div>',
+            body    : (options.textarea
+                     ?  '<div class="w2ui-prompt" style="font-size: 13px; padding: 15px 10px 0 10px;">'+
+                        '  <div style="padding-bottom: 5px">' + options.label + '</div>'+
+                        '  <textarea id="w2prompt" '+ options.attrs +'></textarea>'+
+                        '</div>'
+                     :  '<div class="w2ui-prompt w2ui-centered" style="font-size: 13px;">'+
+                        '  <label style="margin-right: 10px;">' + options.label + '</label>'+
+                        '  <input id="w2prompt" '+ options.attrs +'>'+
+                        '</div>'
+                    ),
             buttons : '<button id="Ok" class="w2ui-popup-btn w2ui-btn">' + options.ok_text + '</button><button id="Cancel" class="w2ui-popup-btn w2ui-btn">' + options.cancel_text + '</button>',
             onOpen: function () {
                 $('#w2prompt').val(options.value);
@@ -1079,8 +1086,18 @@ var w2prompt = function (label, title, callBack) {
             title      : options.title,
             modal      : true,
             showClose  : false,
-            body       : '<div class="w2ui-centered" style="font-size: 13px;"><label style="margin-right: 10px;">' + options.label + ':</label><input id="w2prompt"></div>',
-            buttons    : '<button id="Ok" class="w2ui-popup-btn w2ui-btn">' + options.ok_text + '</button><button id="Cancel" class="w2ui-popup-btn w2ui-btn">' + options.cancel_text + '</button>',
+            body       : (options.textarea
+                         ?  '<div class="w2ui-prompt" style="font-size: 13px; padding: 15px 10px 0 10px;">'+
+                            '  <div style="padding-bottom: 5px">' + options.label + '</div>'+
+                            '  <textarea id="w2prompt" '+ options.attrs +'></textarea>'+
+                            '</div>'
+                         :  '<div class="w2ui-prompt w2ui-centered" style="font-size: 13px;">'+
+                            '  <label style="margin-right: 10px;">' + options.label + '</label>'+
+                            '  <input id="w2prompt" '+ options.attrs +'>'+
+                            '</div>'
+                        ),
+            buttons    : '<button id="Ok" class="w2ui-popup-btn w2ui-btn">' + options.ok_text + '</button>'+
+                         '<button id="Cancel" class="w2ui-popup-btn w2ui-btn">' + options.cancel_text + '</button>',
             onOpen: function (event) {
                 // do not use onComplete as it is slower
                 setTimeout(function () {
