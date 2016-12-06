@@ -1,7 +1,7 @@
 <h3>Dialogs</h3>
-Two most frequent dialogs are alert and confirm. In the case of a alert you just need to display a message to the user and require no feedback
-besides user acknowledgement. Confirm dialog has similar purpose, but expects from the user a response by accepting or declining the message.
-The w2ui library includes these dialogs for your convenience.
+The most frequent dialogs are alert, confirm and prompt. In the case of a alert you just need to display a message to the user
+and require no feedback besides user acknowledgement. Confirm dialog has similar purpose, but expects from the user a response
+by accepting or declining the message. Prompot waits for user input. The w2ui library includes these dialogs for your convenience.
 <div style="height: 20px"></div>
 
 <h4>w2alert (msg, [title], [callBack])</h4>
@@ -15,6 +15,13 @@ w2alert('This is an alert');
 First argument, msg, is a message to display. Second optional argument, title, is the title for the dialog. The third optional argument,
 callBack, is a call back function when dialog is closed.
 <div style="height: 20px"></div>
+
+<textarea class="javascript">
+w2alert('This is an alert').done(function () {
+    // call back when alert closed
+});
+</textarea>
+
 
 <h4>w2confirm (msg, [title], [callBack])</h4>
 
@@ -30,7 +37,7 @@ The method takes up to three arguments <span class="method">w2confirm(msg, [titl
 You can optionally supply title for the message and a call back function.
 <div style="height: 20px"></div>
 
-<h4>w2confirm (options)</h4>
+<h4>w2confirm(options)</h4>
 
 You can optionally call w2confirm passing an object with options. This options object has following structure:
 
@@ -65,4 +72,41 @@ w2confirm('Are you sure?')
     .no(function () {
         console.log("user clicked NO")
     });
+</textarea>
+
+
+<h4>w2prompt(label, [title], [callBack])</h4>
+
+Prompts user to enter value. Instead of passing label, title, and callBack, you can call w2prompt in the following way:
+
+<textarea class="javascript">
+w2confirm({
+        label : 'Enter value',
+        value : '0',
+        attrs : 'size=6'
+    })
+    .change(function () {
+        console.log('Input value changed.');
+    })
+    .ok(function () {
+        console.log("User clicked ok.")
+    });
+</textarea>
+
+<h4>w2prompt(options)</h4>
+
+Following properties are supported:
+
+<textarea class="javascript">
+options = {
+    label       : '',               // label for the input control
+    value       : '',               // initial value of input
+    attrs       : '',               // attributes for input control
+    title       : 'Notification',   // title of dialog
+    ok_text     : 'Ok',             // text of Ok button
+    cancel_text : 'Cancel',         // text of Cancel button
+    width       : 400,              // width of the dialog
+    height      : 220,              // height of dialog
+    callBack    : null              // callBack function, if any
+}
 </textarea>
