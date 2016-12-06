@@ -2082,7 +2082,8 @@ w2utils.event = {
             onHide          : null,     // callBack when hidden
             hideOnKeyPress  : true,     // hide tag if key pressed
             hideOnBlur      : false,    // hide tag on blur
-            hideOnClick     : false     // hide tag on document click
+            hideOnClick     : false,    // hide tag on document click
+            hideOnChange    : true
         }, options);
         if (options.name != null && options.id == null) options.id = options.name;
 
@@ -2106,6 +2107,9 @@ w2utils.event = {
         return $(this).each(function (index, el) {
             // show or hide tag
             var origID = (options.id ? options.id : el.id);
+            if (origID=='') {   //search for an id
+                origID=$(el).find('input').attr('id');
+            }
             var tagID  = w2utils.escapeId(origID);
             var $tags  = $('#w2ui-tag-'+tagID);
             if (text === '' || text == null) {
@@ -2159,6 +2163,10 @@ w2utils.event = {
                     .off('.w2tag')
                     .addClass(options.inputClass);
 
+                if (options.hideOnChange) {
+                    if (el.nodeName=='INPUT') $(el).on('change',hideTag);
+                    else $(el).find('input').on('click',hideTag);                    
+                }
                 if (options.hideOnKeyPress) {
                     $(el).on('keypress.w2tag', hideTag);
                 }

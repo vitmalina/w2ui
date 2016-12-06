@@ -64,7 +64,8 @@ module.exports = function (grunt) {
         concat: {
             w2ui: {
                 options: {
-                    banner: w2ui
+                    banner: w2ui,
+		    sourceMap: true
                 },
                 src: [
                     'src/w2utils.js',
