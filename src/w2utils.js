@@ -1979,7 +1979,8 @@ w2utils.event = {
             onHide          : null,     // callBack when hidden
             hideOnKeyPress  : true,     // hide tag if key pressed
             hideOnBlur      : false,    // hide tag on blur
-            hideOnClick     : false     // hide tag on document click
+            hideOnClick     : false,    // hide tag on document click
+            hideOnChange    : true
         }, options);
         if (options.name != null && options.id == null) options.id = options.name;
 
@@ -2059,6 +2060,10 @@ w2utils.event = {
                     .off('.w2tag')
                     .addClass(options.inputClass);
 
+                if (options.hideOnChange) {
+                    if (el.nodeName=='INPUT') $(el).on('change',hideTag);
+                    else $(el).find('input').on('click',hideTag);                    
+                }
                 if (options.hideOnKeyPress) {
                     $(el).on('keypress.w2tag', hideTag);
                 }

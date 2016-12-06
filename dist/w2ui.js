@@ -1980,7 +1980,8 @@ w2utils.event = {
             onHide          : null,     // callBack when hidden
             hideOnKeyPress  : true,     // hide tag if key pressed
             hideOnBlur      : false,    // hide tag on blur
-            hideOnClick     : false     // hide tag on document click
+            hideOnClick     : false,    // hide tag on document click
+            hideOnChange    : true
         }, options);
         if (options.name != null && options.id == null) options.id = options.name;
 
@@ -2060,6 +2061,10 @@ w2utils.event = {
                     .off('.w2tag')
                     .addClass(options.inputClass);
 
+                if (options.hideOnChange) {
+                    if (el.nodeName=='INPUT') $(el).on('change',hideTag);
+                    else $(el).find('input').on('click',hideTag);                    
+                }
                 if (options.hideOnKeyPress) {
                     $(el).on('keypress.w2tag', hideTag);
                 }
@@ -17408,15 +17413,15 @@ var w2prompt = function (label, title, callBack) {
                 return;
             }
             if (options.maxSize !== 0 && size + newItem.size > options.maxSize) {
-                err = 'Maximum total size is '+ w2utils.formatSize(options.maxSize);
+                err = w2utils.lang('Maximum total size is') + ' ' + w2utils.formatSize(options.maxSize);
                 if (options.silent === false) $(obj.el).w2tag(err);
-                console.log('ERROR: '+ err);
+                else console.log('ERROR: '+ err);
                 return;
             }
             if (options.max !== 0 && cnt >= options.max) {
-                err = 'Maximum number of files is '+ options.max;
+                err = w2utils.lang('Maximum number of files is') + ' '+ options.max;
                 if (options.silent === false) $(obj.el).w2tag(err);
-                console.log('ERROR: '+ err);
+                else console.log('ERROR: '+ err);
                 return;
             }
             selected.push(newItem);
@@ -17439,6 +17444,7 @@ var w2prompt = function (label, title, callBack) {
             } else {
                 obj.refresh();
                 $(obj.el).trigger('change');
+                obj.trigger($.extend(edata, { phase: 'after' }));
             }
         },
 
