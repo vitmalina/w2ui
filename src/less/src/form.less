@@ -155,7 +155,11 @@
         margin-top: 5px;
         margin-left: -9px;
         color: @form-required-color;
-    }             
+    }
+    &.w2ui-span0 {
+        > label { display: none; }
+        > div { margin-left: 0; }
+    }
     &.w2ui-span1 { 
         > label { width: (@form-step-label * 1); }
         > div { margin-left: ((@form-step-label * 1) + @form-step-field); }

@@ -591,7 +591,7 @@
             // submit save
             if (postData == null) postData = {};
             if (!obj.url || (typeof obj.url == 'object' && !obj.url.save)) {
-                console.log("ERROR: Form cannot be saved because no url is defined.");
+                console.log('ERROR: Form cannot be saved because no url is defined.');
                 return;
             }
             obj.lock(w2utils.lang(obj.msgSaving) + ' <span id="'+ obj.name +'_progress"></span>');

@@ -206,17 +206,17 @@
 
                 case 'color':
                     defaults = {
-                        prefix      : '#',
+                        prefix      : '',
                         suffix      : '<div style="width: '+ (parseInt($(this.el).css('font-size')) || 12) +'px">&#160;</div>',
                         arrows      : false,
                         keyboard    : false,
+                        advanced    : null, // open advanced by default
                         transparent : true
                     };
                     $.extend(options, defaults);
                     this.addPrefix();    // only will add if needed
                     this.addSuffix();    // only will add if needed
                     // additional checks
-                    $(this.el).attr('maxlength', 6);
                     if ($(this.el).val() !== '') setTimeout(function () { obj.change(); }, 1);
                     break;
 
@@ -519,9 +519,6 @@
             }
             if (this.type == 'percent') {
                 $(this.el).val($(this.el).val().replace(/%/g, ''));
-            }
-            if (this.type == 'color') {
-                $(this.el).removeAttr('maxlength');
             }
             if (this.type == 'list') {
                 $(this.el).removeClass('w2ui-select');
@@ -1162,15 +1159,6 @@
             if (obj.type == 'color') {
                 if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 // paste
-                if (event.keyCode == 86 && (event.ctrlKey || event.metaKey)) {
-                    $(obj.el).prop('maxlength', 7);
-                    setTimeout(function () {
-                        var val = $(obj).val();
-                        if (val.substr(0, 1) == '#') val = val.substr(1);
-                        if (!w2utils.isHex(val)) val = '';
-                        $(obj).val(val).prop('maxlength', 6).change();
-                    }, 20);
-                }
                 if ((event.ctrlKey || event.metaKey) && !event.shiftKey) {
                     var dir      = null;
                     var newColor = null;
@@ -1355,11 +1343,6 @@
 
         keyUp: function (event) {
             var obj = this;
-            if (this.type == 'color') {
-                if (event.keyCode == 86 && (event.ctrlKey || event.metaKey)) {
-                    $(this).prop('maxlength', 6);
-                }
-            }
             if (['list', 'combo', 'enum'].indexOf(this.type) != -1) {
                 if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 // need to be here for ipad compa
@@ -1583,7 +1566,12 @@
             // color
             if (this.type == 'color') {
                 if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
-                $(this.el).w2color({ color: $(this.el).val(), transparent: options.transparent }, function (color) {
+                $(this.el).w2color({
+                    color       : $(this.el).val(),
+                    transparent : options.transparent,
+                    advanced    : options.advanced
+                },
+                function (color) {
                     if (color == null) return;
                     $(obj.el).val(color).change();
                 });
@@ -2020,7 +2008,6 @@
                 case 'bin':
                     return w2utils.isBin(ch);
                 case 'hex':
-                case 'color':
                     return w2utils.isHex(ch);
                 case 'alphanumeric':
                     return w2utils.isAlphaNumeric(ch);
