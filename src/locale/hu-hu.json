@@ -46,6 +46,17 @@
       "Confirmation": "Megerősítés",
       "No matches": "Nincs találat",
       "Maximum total size is": "A csatolmányok maximális összmérete",
-      "Maximum number of files is": "A csatolmányok maximális száma"
+      "Maximum number of files is": "A csatolmányok maximális száma",
+      "Search": "Keresés",
+      "Reset": "Alaphelyzet",
+      "is": "egyenlő",
+      "between": "között",
+      "less than": "kevesebb mint",
+      "more than": "több mint",
+      "Multiple Fields": "Több mező",
+      "contains": "tartalmaz",
+      "begins": "kezdődik",
+      "ends": "végződik",
+      "Open Search Fields": "Kereső megnyitása"
     }
 }
