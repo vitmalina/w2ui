@@ -56,6 +56,9 @@
         this.tabs        = {};       // if not empty, then it is tabs object
         this.style       = '';
         this.focus       = 0;        // focus first or other element
+        // When w2utils.settings.dataType is JSON, then we can convert the save request to multipart/form-data. So we can upload large files with the form
+        // The original body is JSON.stringified to __body
+        this.multipart   = false;
 
         // internal
         this.isGenerated = false;
@@ -607,13 +610,14 @@
                 $.extend(params, obj.postData);
                 $.extend(params, postData);
                 // clear up files
-                obj.fields.forEach(function (item) {
-                    if (item.type == 'file' && Array.isArray(obj.record[item.field])) {
-                        obj.record[item.field].forEach(function (fitem) {
-                            delete fitem.file;
+                if (!obj.multipart)
+                        obj.fields.forEach(function (item) {
+                            if (item.type == 'file' && Array.isArray(obj.record[item.field])) {
+                                obj.record[item.field].forEach(function (fitem) {
+                                    delete fitem.file;
+                                });
+                            }
                         });
-                    }
-                });
                 params.record = $.extend(true, {}, obj.record);
                 // event before
                 var edata = obj.trigger({ phase: 'before', type: 'submit', target: obj.name, url: obj.url, postData: params, httpHeaders: obj.httpHeaders });
@@ -671,10 +675,39 @@
                         ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
                         ajaxOptions.contentType = 'application/json';
                         break;
-                    case 'JSON':
-                        ajaxOptions.type        = 'POST';
-                        ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
-                        ajaxOptions.contentType = 'application/json';
+                    case 'JSON':                    
+                        ajaxOptions.type        = 'POST';                        
+                        ajaxOptions.contentType = 'application/json';                         
+                        if (!obj.multipart) {
+                                ajaxOptions.data = JSON.stringify(ajaxOptions.data);
+                        } else {
+                                function apnd(fd, dob, fob = null, p = ''){
+                                        function isObj(dob, fob, p){
+                                            if (typeof dob == 'object' && dob instanceof File) fd.append(p, dob);
+                                            if (typeof dob == "object"){
+                                                if(!!dob && dob.constructor === Array){
+                                                    for(let i = 0; i < dob.length; i++){
+                                                        let aux_fob = !!fob ? fob[i] : fob;
+                                                        isObj(dob[i], aux_fob, p+'['+i+']');
+                                                    }
+                                                } else {
+                                                    apnd(fd, dob, fob, p);
+                                                }
+                                            }
+                                        }
+                                        for(let prop in dob){
+                                            let aux_p = p == '' ? prop : `${p}[${prop}]`;
+                                            let aux_fob = !!fob ? fob[prop] : fob;
+                                            isObj(dob[prop], aux_fob, aux_p);
+                                        }
+                                }                        
+                                var fdata = new FormData();
+                                fdata.append('__body', JSON.stringify(ajaxOptions.data));
+                                apnd(fdata,ajaxOptions.data)
+                                ajaxOptions.data = fdata;
+                                ajaxOptions.contentType = false;
+                                ajaxOptions.processData = false;
+                        }
                         break;
                 }
                 if (this.method) ajaxOptions.type = this.method;
