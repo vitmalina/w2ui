@@ -10364,9 +10364,15 @@ w2utils.event = {
             if (record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null) {
                 data = record.w2ui.changes[col.field];
             }
-            if ($.isPlainObject(data) && col.editable) {
-                if (data.text != null) data = data.text;
-                if (data.id != null) data = data.id;
+            if ($.isPlainObject(data) /*&& col.editable*/) {    //It can be an object btw
+                if (col.options && col.options.items) {
+                        val=col.options.items.find(function(item){ return item.id==data.id});
+                        if (val) data=val.text;
+                        else data=data.id;
+                } else {
+                        if (data.text != null) data = data.text;
+                        if (data.id != null) data = data.id;
+                }
             }
             if (data == null) data = '';
             return data;
