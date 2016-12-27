@@ -81,7 +81,7 @@
             if (typeof method == 'string' && options == null) {
                 method = { type: method };
             }
-            method.type = String(method.type).toLowerCase();
+            if (method) method.type = String(method.type).toLowerCase();
             return this.each(function (index, el) {
                 var obj = $(el).data('w2field');
                 // if object is not defined, define it
