@@ -126,6 +126,7 @@
 *   - columnTooltip
 *   - expendable grids are still working
 *   - added search.type = 'color'
+*   - added getFirst
 *
 ************************************************************************/
 
@@ -538,6 +539,14 @@
                 }
                 return null;
             }
+        },
+
+        getFirst: function () {
+            if (this.records.length == 0) return null;
+            var recid = this.records[0].recid;
+            var tmp   = this.last.searchIds;
+            if (Array.isArray(tmp) && tmp.length > 0) recid = this.records[tmp[0]].recid;
+            return recid;
         },
 
         remove: function () {
@@ -1389,8 +1398,10 @@
                     originalRange : [{ recid: sel[0].recid, column: sel[0].column }, { recid: sel[sel.length-1].recid, column: sel[sel.length-1].column }],
                     newRange      : [{ recid: sel[0].recid, column: sel[0].column }, { recid: sel[sel.length-1].recid, column: sel[sel.length-1].column }]
                 };
-                $(document).off('mousemove', mouseMove).on('mousemove', mouseMove);
-                $(document).off('mouseup', mouseStop).on('mouseup', mouseStop);
+                $(document)
+                    .off('.w2ui-' + obj.name)
+                    .on('mousemove.w2ui-' + obj.name, mouseMove)
+                    .on('mouseup.w2ui-' + obj.name, mouseStop);
                 // do not blur grid
                 event.preventDefault();
             }
@@ -1432,8 +1443,7 @@
                 // default behavior
                 obj.removeRange('grid-selection-expand');
                 delete obj.last.move;
-                $(document).off('mousemove', mouseMove);
-                $(document).off('mouseup', mouseStop);
+                $(document).off('.w2ui-' + obj.name);
                 // event after
                 obj.trigger($.extend(edata, { phase: 'after' }));
             }
@@ -4579,7 +4589,7 @@
                     obj.selectNone();
                     obj.last.move = { type: 'text-select' };
                     obj.last.userSelect = 'text';
-                } else if (obj.multiSelect || obj.reorderRows) {
+                } else {
                     var tmp = event.target;
                     var pos = {
                         x: event.offsetX - 10,
@@ -4640,6 +4650,10 @@
                             if (!$input.is(':focus')) $input.focus();
                         }
                     }, 50);
+                    // disable click select for this condition
+                    if (!obj.multiSelect && !obj.reorderRows && obj.last.move.type == 'drag') {
+                        delete obj.last.move;
+                    }
                 }
                 if (obj.reorderRows == true) {
                     var el = event.target;
@@ -4680,8 +4694,9 @@
                         obj.last.move.reorder = false;
                     }
                 }
-                $(document).on('mousemove', mouseMove);
-                $(document).on('mouseup', mouseStop);
+                $(document)
+                    .on('mousemove.w2ui-' + obj.name, mouseMove)
+                    .on('mouseup.w2ui-' + obj.name, mouseStop);
                 // needed when grid grids are nested, see issue #1275
                 event.stopPropagation();
             }
@@ -4873,8 +4888,7 @@
                     }
                 }
                 delete obj.last.move;
-                $(document).off('mousemove', mouseMove);
-                $(document).off('mouseup', mouseStop);
+                $(document).off('.w2ui-' + obj.name);
             }
         },
 
