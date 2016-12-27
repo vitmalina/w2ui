@@ -1,0 +1,32 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Color Picker</h1>
+        There is a color dialog that is part of w2ui.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div style="height: 20px"></div>
+<div class="w2ui-field">
+    <label>Color:</label>
+    <div>
+        <input id="color" style="width: 150px;">
+    </div>
+</div>
+<div style="height: 20px"></div>
+
+<style>
+.w2ui-field input {
+    width: 400px;
+}
+.w2ui-field > div > span {
+    margin-left: 20px;
+}
+</style>
+
+<!--CODE-->
+<script>
+$('#color').w2field('color');
+</script>

@@ -1,4 +1,4 @@
-/* w2ui-fields.js 1.5 (nightly), part of w2ui (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui-fields.js 1.5.x (nightly), part of w2ui (c) http://w2ui.com, vitmalina@gmail.com */
 var w2ui  = w2ui  || {};
 var w2obj = w2obj || {}; // expose object to be able to overwrite default functions
 
@@ -38,7 +38,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 var w2utils = (function ($) {
     var tmp = {}; // for some temp variables
     var obj = {
-        version  : '1.5.RC1',
+        version  : '1.5.x',
         settings : {
             "locale"            : "en-us",
             "dateFormat"        : "m/d/yyyy",
@@ -2931,6 +2931,7 @@ w2utils.event = {
         }
         if (options.color) options.color = String(options.color).toUpperCase();
         if (options.color.substr(0,1) == '#') options.color = options.color.substr(1);
+        if (options.fireChange == null) options.fireChange = true;
 
         if ($('#w2ui-overlay').length === 0) {
             $(el).w2overlay(getColorHTML(options), options);
@@ -2945,12 +2946,13 @@ w2utils.event = {
                 if (color == '#') color = '';
                 index = $(event.originalEvent.target).attr('index').split(':');
                 if (el.tagName == 'INPUT') {
-                    $(el).val(color).data('skipInit', true).change();
+                    $(el).val(color).data('skipInit', true);
+                    if (options.fireChange) $(el).change();
                     $(el).next().find('>div').css('background-color', color);
                 } else {
                     $(el).data('_color', color);
-                    if (typeof options.onSelect == 'function') options.onSelect($(el).data('_color'));
                 }
+                if (typeof options.onSelect == 'function') options.onSelect(color);
             })
             .on('mouseup.w2color', function () {
                 setTimeout(function () {
@@ -3038,12 +3040,13 @@ w2utils.event = {
             });
             if (!silent) {
                 if (el.tagName == 'INPUT') {
-                    $(el).val(newColor).data('skipInit', true).change();
+                    $(el).val(newColor).data('skipInit', true);
+                    if (options.fireOnchange) $(el).change();
                     $(el).next().find('>div').css('background-color', newColor);
                 } else {
                     $(el).data('_color', newColor);
-                    if (typeof options.onSelect == 'function') options.onSelect($(el).data('_color'));
                 }
+                if (typeof options.onSelect == 'function') options.onSelect(newColor);
             } else {
                 $('#w2ui-overlay .color-original').css('background-color', newColor);
             }
@@ -3321,7 +3324,7 @@ w2utils.event = {
             if (typeof method == 'string' && options == null) {
                 method = { type: method };
             }
-            method.type = String(method.type).toLowerCase();
+            if (method) method.type = String(method.type).toLowerCase();
             return this.each(function (index, el) {
                 var obj = $(el).data('w2field');
                 // if object is not defined, define it
