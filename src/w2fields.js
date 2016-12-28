@@ -2410,15 +2410,21 @@
                 return;
             }
             if (options.maxSize !== 0 && size + newItem.size > options.maxSize) {
-                err = 'Maximum total size is '+ w2utils.formatSize(options.maxSize);
-                if (options.silent === false) $(obj.el).w2tag(err);
-                console.log('ERROR: '+ err);
+                err = w2utils.lang('Maximum total size is') + ' ' + w2utils.formatSize(options.maxSize);
+                if (options.silent === false) {
+                    $(obj.el).w2tag(err);
+                } else {
+                    console.log('ERROR: '+ err);
+                }
                 return;
             }
             if (options.max !== 0 && cnt >= options.max) {
-                err = 'Maximum number of files is '+ options.max;
-                if (options.silent === false) $(obj.el).w2tag(err);
-                console.log('ERROR: '+ err);
+                err = w2utils.lang('Maximum number of files is') + ' '+ options.max;
+                if (options.silent === false) {
+                    $(obj.el).w2tag(err);
+                } else {
+                    console.log('ERROR: '+ err);
+                }
                 return;
             }
             selected.push(newItem);
@@ -2441,6 +2447,7 @@
             } else {
                 obj.refresh();
                 $(obj.el).trigger('change');
+                obj.trigger($.extend(edata, { phase: 'after' }));
             }
         },
 

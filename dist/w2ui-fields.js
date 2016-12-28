@@ -2083,7 +2083,8 @@ w2utils.event = {
             onHide          : null,     // callBack when hidden
             hideOnKeyPress  : true,     // hide tag if key pressed
             hideOnBlur      : false,    // hide tag on blur
-            hideOnClick     : false     // hide tag on document click
+            hideOnClick     : false,    // hide tag on document click
+            hideOnChange    : true
         }, options);
         if (options.name != null && options.id == null) options.id = options.name;
 
@@ -2102,6 +2103,9 @@ w2utils.event = {
             // main object
             var tag;
             var origID = (options.id ? options.id : el.id);
+            if (origID == '') { // search for an id
+                origID = $(el).find('input').attr('id');
+            }
             var tmpID  = w2utils.escapeId(origID);
             if ($(this).data('w2tag') != null) {
                 tag = $(this).data('w2tag');
@@ -2168,6 +2172,13 @@ w2utils.event = {
 
                 if (tag.options.hideOnKeyPress) {
                     $(tag.attachedTo).on('keypress.w2tag', tag.hide);
+                }
+                if (options.hideOnChange) {
+                    if (el.nodeName == 'INPUT') {
+                        $(el).on('change.w2tag', tag.hide);
+                    } else {
+                        $(el).find('input').on('change.w2tag', tag.hide);
+                    }
                 }
                 if (tag.options.hideOnBlur) {
                     $(tag.attachedTo).on('blur.w2tag', tag.hide);
@@ -5653,15 +5664,21 @@ w2utils.event = {
                 return;
             }
             if (options.maxSize !== 0 && size + newItem.size > options.maxSize) {
-                err = 'Maximum total size is '+ w2utils.formatSize(options.maxSize);
-                if (options.silent === false) $(obj.el).w2tag(err);
-                console.log('ERROR: '+ err);
+                err = w2utils.lang('Maximum total size is') + ' ' + w2utils.formatSize(options.maxSize);
+                if (options.silent === false) {
+                    $(obj.el).w2tag(err);
+                } else {
+                    console.log('ERROR: '+ err);
+                }
                 return;
             }
             if (options.max !== 0 && cnt >= options.max) {
-                err = 'Maximum number of files is '+ options.max;
-                if (options.silent === false) $(obj.el).w2tag(err);
-                console.log('ERROR: '+ err);
+                err = w2utils.lang('Maximum number of files is') + ' '+ options.max;
+                if (options.silent === false) {
+                    $(obj.el).w2tag(err);
+                } else {
+                    console.log('ERROR: '+ err);
+                }
                 return;
             }
             selected.push(newItem);
@@ -5684,6 +5701,7 @@ w2utils.event = {
             } else {
                 obj.refresh();
                 $(obj.el).trigger('change');
+                obj.trigger($.extend(edata, { phase: 'after' }));
             }
         },
 
