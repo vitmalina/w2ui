@@ -2083,7 +2083,8 @@ w2utils.event = {
             onHide          : null,     // callBack when hidden
             hideOnKeyPress  : true,     // hide tag if key pressed
             hideOnBlur      : false,    // hide tag on blur
-            hideOnClick     : false     // hide tag on document click
+            hideOnClick     : false,    // hide tag on document click
+            hideOnChange    : true
         }, options);
         if (options.name != null && options.id == null) options.id = options.name;
 
@@ -2102,6 +2103,9 @@ w2utils.event = {
             // main object
             var tag;
             var origID = (options.id ? options.id : el.id);
+            if (origID == '') { // search for an id
+                origID = $(el).find('input').attr('id');
+            }
             var tmpID  = w2utils.escapeId(origID);
             if ($(this).data('w2tag') != null) {
                 tag = $(this).data('w2tag');
@@ -2168,6 +2172,13 @@ w2utils.event = {
 
                 if (tag.options.hideOnKeyPress) {
                     $(tag.attachedTo).on('keypress.w2tag', tag.hide);
+                }
+                if (options.hideOnChange) {
+                    if (el.nodeName == 'INPUT') {
+                        $(el).on('change.w2tag', tag.hide);
+                    } else {
+                        $(el).find('input').on('change.w2tag', tag.hide);
+                    }
                 }
                 if (tag.options.hideOnBlur) {
                     $(tag.attachedTo).on('blur.w2tag', tag.hide);
@@ -10388,9 +10399,15 @@ w2utils.event = {
             if (record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null) {
                 data = record.w2ui.changes[col.field];
             }
-            if ($.isPlainObject(data) && col.editable) {
-                if (data.text != null) data = data.text;
-                if (data.id != null) data = data.id;
+            if ($.isPlainObject(data) /*&& col.editable*/) {    //It can be an object btw
+                if (col.options && col.options.items) {
+                        val=col.options.items.find(function(item){ return item.id==data.id});
+                        if (val) data=val.text;
+                        else data=data.id;
+                } else {
+                        if (data.text != null) data = data.text;
+                        if (data.id != null) data = data.id;
+                }
             }
             if (data == null) data = '';
             return data;
@@ -17774,15 +17791,21 @@ var w2prompt = function (label, title, callBack) {
                 return;
             }
             if (options.maxSize !== 0 && size + newItem.size > options.maxSize) {
-                err = 'Maximum total size is '+ w2utils.formatSize(options.maxSize);
-                if (options.silent === false) $(obj.el).w2tag(err);
-                console.log('ERROR: '+ err);
+                err = w2utils.lang('Maximum total size is') + ' ' + w2utils.formatSize(options.maxSize);
+                if (options.silent === false) {
+                    $(obj.el).w2tag(err);
+                } else {
+                    console.log('ERROR: '+ err);
+                }
                 return;
             }
             if (options.max !== 0 && cnt >= options.max) {
-                err = 'Maximum number of files is '+ options.max;
-                if (options.silent === false) $(obj.el).w2tag(err);
-                console.log('ERROR: '+ err);
+                err = w2utils.lang('Maximum number of files is') + ' '+ options.max;
+                if (options.silent === false) {
+                    $(obj.el).w2tag(err);
+                } else {
+                    console.log('ERROR: '+ err);
+                }
                 return;
             }
             selected.push(newItem);
@@ -17805,6 +17828,7 @@ var w2prompt = function (label, title, callBack) {
             } else {
                 obj.refresh();
                 $(obj.el).trigger('change');
+                obj.trigger($.extend(edata, { phase: 'after' }));
             }
         },
 
@@ -18088,6 +18112,9 @@ var w2prompt = function (label, title, callBack) {
         this.tabs        = {};       // if not empty, then it is tabs object
         this.style       = '';
         this.focus       = 0;        // focus first or other element
+        // When w2utils.settings.dataType is JSON, then we can convert the save request to multipart/form-data. So we can upload large files with the form
+        // The original body is JSON.stringified to __body
+        this.multipart   = false;
 
         // internal
         this.isGenerated = false;
@@ -18424,19 +18451,20 @@ var w2prompt = function (label, title, callBack) {
             if (showErrors) {
                 for (var e = 0; e < edata.errors.length; e++) {
                     var err = edata.errors[e];
+                    var opt = $.extend({ "class": 'w2ui-error' }, err.options);
                     if (err.field == null) continue;
                     if (err.field.type == 'radio') { // for radio and checkboxes
-                        $($(err.field.el).parents('div')[0]).w2tag(err.error, { "class": 'w2ui-error' });
+                        $($(err.field.el).parents('div')[0]).w2tag(err.error, opt);
                     } else if (['enum', 'file'].indexOf(err.field.type) != -1) {
                         (function (err) {
                             setTimeout(function () {
                                 var fld = $(err.field.el).data('w2field').helpers.multi;
-                                $(err.field.el).w2tag(err.error);
+                                $(err.field.el).w2tag(err.error,err.options);
                                 $(fld).addClass('w2ui-error');
                             }, 1);
                         })(err);
                     } else {
-                        $(err.field.el).w2tag(err.error, { "class": 'w2ui-error' });
+                        $(err.field.el).w2tag(err.error, opt);
                     }
                     this.goto(errors[0].field.page);
                 }
@@ -18638,13 +18666,14 @@ var w2prompt = function (label, title, callBack) {
                 $.extend(params, obj.postData);
                 $.extend(params, postData);
                 // clear up files
-                obj.fields.forEach(function (item) {
-                    if (item.type == 'file' && Array.isArray(obj.record[item.field])) {
-                        obj.record[item.field].forEach(function (fitem) {
-                            delete fitem.file;
+                if (!obj.multipart)
+                        obj.fields.forEach(function (item) {
+                            if (item.type == 'file' && Array.isArray(obj.record[item.field])) {
+                                obj.record[item.field].forEach(function (fitem) {
+                                    delete fitem.file;
+                                });
+                            }
                         });
-                    }
-                });
                 params.record = $.extend(true, {}, obj.record);
                 // event before
                 var edata = obj.trigger({ phase: 'before', type: 'submit', target: obj.name, url: obj.url, postData: params, httpHeaders: obj.httpHeaders });
@@ -18704,8 +18733,38 @@ var w2prompt = function (label, title, callBack) {
                         break;
                     case 'JSON':
                         ajaxOptions.type        = 'POST';
-                        ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
                         ajaxOptions.contentType = 'application/json';
+                        if (!obj.multipart) {
+                            ajaxOptions.data = JSON.stringify(ajaxOptions.data);
+                        } else {
+                            function apend(fd, dob, fob, p){
+                                if (p == null) p = '';
+                                function isObj(dob, fob, p){
+                                    if (typeof dob == 'object' && dob instanceof File) fd.append(p, dob);
+                                    if (typeof dob == "object"){
+                                        if (!!dob && dob.constructor === Array) {
+                                            for (var i = 0; i < dob.length; i++) {
+                                                var aux_fob = !!fob ? fob[i] : fob;
+                                                isObj(dob[i], aux_fob, p+'['+i+']');
+                                            }
+                                        } else {
+                                            apend(fd, dob, fob, p);
+                                        }
+                                    }
+                                }
+                                for(var prop in dob){
+                                    var aux_p = p == '' ? prop : '${p}[${prop}]';
+                                    var aux_fob = !!fob ? fob[prop] : fob;
+                                    isObj(dob[prop], aux_fob, aux_p);
+                                }
+                            }
+                            var fdata = new FormData();
+                            fdata.append('__body', JSON.stringify(ajaxOptions.data));
+                            apend(fdata,ajaxOptions.data)
+                            ajaxOptions.data = fdata;
+                            ajaxOptions.contentType = false;
+                            ajaxOptions.processData = false;
+                        }
                         break;
                 }
                 if (this.method) ajaxOptions.type = this.method;

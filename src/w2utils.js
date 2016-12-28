@@ -2082,7 +2082,8 @@ w2utils.event = {
             onHide          : null,     // callBack when hidden
             hideOnKeyPress  : true,     // hide tag if key pressed
             hideOnBlur      : false,    // hide tag on blur
-            hideOnClick     : false     // hide tag on document click
+            hideOnClick     : false,    // hide tag on document click
+            hideOnChange    : true
         }, options);
         if (options.name != null && options.id == null) options.id = options.name;
 
@@ -2101,6 +2102,9 @@ w2utils.event = {
             // main object
             var tag;
             var origID = (options.id ? options.id : el.id);
+            if (origID == '') { // search for an id
+                origID = $(el).find('input').attr('id');
+            }
             var tmpID  = w2utils.escapeId(origID);
             if ($(this).data('w2tag') != null) {
                 tag = $(this).data('w2tag');
@@ -2167,6 +2171,13 @@ w2utils.event = {
 
                 if (tag.options.hideOnKeyPress) {
                     $(tag.attachedTo).on('keypress.w2tag', tag.hide);
+                }
+                if (options.hideOnChange) {
+                    if (el.nodeName == 'INPUT') {
+                        $(el).on('change.w2tag', tag.hide);
+                    } else {
+                        $(el).find('input').on('change.w2tag', tag.hide);
+                    }
                 }
                 if (tag.options.hideOnBlur) {
                     $(tag.attachedTo).on('blur.w2tag', tag.hide);
