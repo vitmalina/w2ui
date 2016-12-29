@@ -2105,6 +2105,9 @@ w2utils.event = {
             if (origID == '') { // search for an id
                 origID = $(el).find('input').attr('id');
             }
+            if (!origID) {
+                origID = 'noid';
+            }
             var tmpID  = w2utils.escapeId(origID);
             if ($(this).data('w2tag') != null) {
                 tag = $(this).data('w2tag');
@@ -2153,7 +2156,7 @@ w2utils.event = {
 
             function init() {
                 tag.box.css('display', 'block');
-                if (!$(tag.attachedTo).offset()) return;
+                if (!tag || !tag.box || !$(tag.attachedTo).offset()) return;
                 var pos = tag.getPos();
                 tag.box.css({
                         opacity : '1',
