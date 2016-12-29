@@ -3054,7 +3054,7 @@ w2utils.event = {
             if (!silent) {
                 if (el.tagName == 'INPUT') {
                     $(el).val(newColor).data('skipInit', true);
-                    if (options.fireOnchange) $(el).change();
+                    if (options.fireChange) $(el).change();
                     $(el).next().find('>div').css('background-color', newColor);
                 } else {
                     $(el).data('_color', newColor);
