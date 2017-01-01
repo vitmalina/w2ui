@@ -476,7 +476,7 @@ var w2utils = (function ($) {
         } else {
             fmt = format.split('|');
             fmt[0] = fmt[0].trim();
-            fmt[1] = fmt[1].trim();
+            fmt[1] = (fmt.length > 1 ? fmt[1].trim() : this.settings.timeFormat);
         }
         // older formats support
         if (fmt[1] == 'h12') fmt[1] = 'h:m pm';
