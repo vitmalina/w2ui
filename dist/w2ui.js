@@ -477,7 +477,7 @@ var w2utils = (function ($) {
         } else {
             fmt = format.split('|');
             fmt[0] = fmt[0].trim();
-            fmt[1] = fmt[1].trim();
+            fmt[1] = (fmt.length > 1 ? fmt[1].trim() : this.settings.timeFormat);
         }
         // older formats support
         if (fmt[1] == 'h12') fmt[1] = 'h:m pm';
@@ -3254,6 +3254,25 @@ w2utils.event = {
     };
 
 })(jQuery);
+
+/***********************************************************
+*  Compatibility with CommonJS and AMD modules
+*
+*********************************************************/
+
+(function(global, w2ui) {
+    if (typeof define=='function' && define.amd) {
+        return define(function(){ return w2ui; });
+    }
+    if (typeof exports!='undefined') {
+        if (typeof module!='undefined' && module.exports)
+            return exports = module.exports = w2ui;
+        global = exports;
+    }
+    for (var m in w2ui) {
+        global[m] = w2ui[m];
+    }
+})(this, { w2ui: w2ui, w2obj: w2obj, w2utils: w2utils });
 
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
@@ -15222,6 +15241,12 @@ var w2prompt = function (label, title, callBack) {
                 width : $(this.box).width() + 'px',
                 height: $(this.box).height() + 'px'
             });
+            // if no parent - reset nodes
+            if (this.nodes.length > 0 && this.nodes[0].parent == null) {
+                var tmp = this.nodes;
+                this.nodes = [];
+                this.add(this, tmp);
+            }
             var obj = this;
             var node, nd;
             var nm;
@@ -15307,7 +15332,7 @@ var w2prompt = function (label, title, callBack) {
                             '<table cellpadding="0" cellspacing="0" style="margin-left:'+ (level*18) +'px; padding-right:'+ (level*18) +'px"><tbody><tr>'+
                             '<td class="w2ui-node-dots" nowrap="nowrap" onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\'); '+
                             '        if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
-                            '    <div class="w2ui-expand">'    + (nd.nodes.length > 0 ? (nd.expanded ? '-' : '+') : (nd.plus ? '+' : '')) + '</div>' +
+                            '    <div class="w2ui-expand">' + (nd.nodes.length > 0 ? (nd.expanded ? '-' : '+') : (nd.plus ? '+' : '')) + '</div>' +
                             '</td>'+
                             '<td class="w2ui-node-data" nowrap="nowrap">'+
                                     tmp +
