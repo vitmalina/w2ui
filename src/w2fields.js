@@ -1580,8 +1580,20 @@
             if (this.type == 'date') {
                 if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 if ($('#w2ui-overlay').length === 0) {
-                    $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar" onclick="event.stopPropagation();"></div>', {
-                        css: { "background-color": "#f5f5f5" }
+                    $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar"></div>', {
+                        css: { "background-color": "#f5f5f5" },
+                        onShow: function (event) {
+                            // this needed for IE 11 compatibility
+                            if (w2utils.isIE) {
+                                console.log("IE");
+                                $('.w2ui-calendar').on('mousedown', function (event) {
+                                    var $tg = $(event.target);
+                                    if ($tg.length == 1 && $tg[0].id == 'w2ui-jump-year') {
+                                        $('#w2ui-overlay').data('keepOpen', true);
+                                    }
+                                });
+                            }
+                        }
                     });
                 }
                 var month, year;
@@ -1690,7 +1702,19 @@
                 if ($("#w2ui-overlay .w2ui-time").length > 0) $('#w2ui-overlay')[0].hide();
                 if ($('#w2ui-overlay').length === 0) {
                     $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar" onclick="event.stopPropagation();"></div>', {
-                        css: { "background-color": "#f5f5f5" }
+                        css: { "background-color": "#f5f5f5" },
+                        onShow: function (event) {
+                            // this needed for IE 11 compatibility
+                            if (w2utils.isIE) {
+                                console.log("IE");
+                                $('.w2ui-calendar').on('mousedown', function (event) {
+                                    var $tg = $(event.target);
+                                    if ($tg.length == 1 && $tg[0].id == 'w2ui-jump-year') {
+                                        $('#w2ui-overlay').data('keepOpen', true);
+                                    }
+                                });
+                            }
+                        }
                     });
                 }
                 var month, year;
@@ -2574,7 +2598,7 @@
             for (var y = start_year; y <= end_year; y++) {
                 yhtml += '<div class="w2ui-jump-year" name="'+ y +'">'+ y + '</div>';
             }
-            return '<div>'+ mhtml +'</div><div>'+ yhtml +'</div>';
+            return '<div id="w2ui-jump-month">'+ mhtml +'</div><div id="w2ui-jump-year">'+ yhtml +'</div>';
         },
 
         getHourHTML: function () {
