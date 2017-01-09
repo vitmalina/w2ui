@@ -31,6 +31,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - parseColor(str) returns rgb
 *   - rgb2hsv, hsv2rgb
 *   - color.onSelect
+*   - refactored w2tag object, it has more potential with $().data('w2tag')
 *
 ************************************************/
 
@@ -2352,7 +2353,7 @@ w2utils.event = {
         // hide previous if any
         if ($('#w2ui-overlay'+ name).length > 0) {
             tmp_hide = $('#w2ui-overlay'+ name)[0].hide;
-            $(document).off('.w2overlayHide');
+            $(document).off('.w2overlay'+ name);
             if (typeof tmp_hide === 'function') tmp_hide();
         }
         if (obj.length > 0 && (obj[0].tagName == null || obj[0].tagName.toUpperCase() == 'BODY')) options.contextMenu = true;
@@ -2385,12 +2386,13 @@ w2utils.event = {
             .data('position', offset.left + 'x' + offset.top)
             .fadeIn('fast')
             .on('click', function (event) {
+                $('#w2ui-overlay'+ name).data('keepOpen', true);
                 // if there is label for input, it will produce 2 click events
                 if (event.target.tagName.toUpperCase() == 'LABEL') event.stopPropagation();
             })
             .on('mousedown', function (event) {
-                $('#w2ui-overlay'+ name).data('keepOpen', true);
-                if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName.toUpperCase()) == -1 && !options.selectable) {
+                var tmp = event.target.tagName.toUpperCase();
+                if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(tmp) == -1 && !options.selectable) {
                     event.preventDefault();
                 }
             });
@@ -2400,7 +2402,7 @@ w2utils.event = {
         // need time to display
         setTimeout(function () {
             resize();
-            $(document).off('.w2overlayHide').on('click.w2overlayHide', hide);
+            $(document).off('.w2overlay'+ name).on('click.w2overlay'+ name, hide);
             if (typeof options.onShow === 'function') options.onShow();
         }, 10);
 
@@ -2433,11 +2435,11 @@ w2utils.event = {
             if (typeof options.onHide === 'function') result = options.onHide();
             if (result === false) return;
             div1.remove();
-            $(document).off('click', hide);
+            $(document).off('.w2overlay'+ name);
             clearInterval(div1.data('timer'));
         }
 
-        function resize () {
+        function resize() {
             var div1 = $('#w2ui-overlay'+ name);
             var div2 = div1.find(' > div');
             var menu = $('#w2ui-overlay'+ name +' div.menu');
@@ -2666,8 +2668,8 @@ w2utils.event = {
                     // need time so that menu first hides
                     setTimeout(function () {
                         options.onSelect({
-                            index: index,
-                            item: options.items[index],
+                            index   : index,
+                            item    : options.items[index],
                             keepOpen: keepOpen,
                             originalEvent: event
                         });

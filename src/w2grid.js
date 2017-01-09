@@ -2055,7 +2055,7 @@
                     // event after
                     obj.trigger($.extend(edata, { phase: 'after' }));
                 },
-                onHide  : function () {
+                onHide: function () {
                     it.checked = false;
                     $(btn).removeClass('checked');
                 }
@@ -2069,7 +2069,6 @@
             if (this.toolbar) this.toolbar.uncheck('w2ui-search-advanced');
             // hide search
             $().w2overlay({ name: this.name + '-searchOverlay' });
-            $().w2overlay({ name: this.name + '-searchOverlay' }); // need to call twice as first ignored after click
         },
 
         searchReset: function (noRefresh) {
@@ -5397,6 +5396,9 @@
                             } else {
                                 obj.searchOpen();
                             }
+                            // need to cancel event in order to user custom searchOpen/close functions
+                            obj.toolbar.tooltipHide('w2ui-search-advanced');
+                            event.preventDefault();
                             break;
                         case 'w2ui-add':
                             // events
@@ -5897,7 +5899,7 @@
 
         getSearchesHTML: function () {
             var obj  = this;
-            var html = '<table cellspacing="0" onclick="event.stopPropagation()"><tbody>';
+            var html = '<table cellspacing="0"><tbody>';
             var showBtn = false;
             for (var i = 0; i < this.searches.length; i++) {
                 var s = this.searches[i];
@@ -5914,7 +5916,7 @@
                 if (s.type    == null) s.type   = 'text';
 
                 var operator =
-                    '<select id="grid_'+ this.name +'_operator_'+ i +'" class="w2ui-input" onclick="event.stopPropagation();"' +
+                    '<select id="grid_'+ this.name +'_operator_'+ i +'" class="w2ui-input" ' +
                     '   onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +')">' +
                         getOperators(s.type, s.operators) +
                     '</select>';
@@ -5957,7 +5959,7 @@
 
                     case 'select':
                         html += '<select rel="search" class="w2ui-input" style="'+ s.style +'" id="grid_'+ this.name +'_field_'+ i +'" '+
-                                ' name="'+ s.field +'" '+ s.inTag +'  onclick="event.stopPropagation();"></select>';
+                                ' name="'+ s.field +'" '+ s.inTag +'></select>';
                         break;
 
                 }
