@@ -32,6 +32,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - parseColor(str) returns rgb
 *   - rgb2hsv, hsv2rgb
 *   - color.onSelect
+*   - refactored w2tag object, it has more potential with $().data('w2tag')
 *
 ************************************************/
 
@@ -2353,7 +2354,7 @@ w2utils.event = {
         // hide previous if any
         if ($('#w2ui-overlay'+ name).length > 0) {
             tmp_hide = $('#w2ui-overlay'+ name)[0].hide;
-            $(document).off('.w2overlayHide');
+            $(document).off('.w2overlay'+ name);
             if (typeof tmp_hide === 'function') tmp_hide();
         }
         if (obj.length > 0 && (obj[0].tagName == null || obj[0].tagName.toUpperCase() == 'BODY')) options.contextMenu = true;
@@ -2386,12 +2387,13 @@ w2utils.event = {
             .data('position', offset.left + 'x' + offset.top)
             .fadeIn('fast')
             .on('click', function (event) {
+                $('#w2ui-overlay'+ name).data('keepOpen', true);
                 // if there is label for input, it will produce 2 click events
                 if (event.target.tagName.toUpperCase() == 'LABEL') event.stopPropagation();
             })
             .on('mousedown', function (event) {
-                $('#w2ui-overlay'+ name).data('keepOpen', true);
-                if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName.toUpperCase()) == -1 && !options.selectable) {
+                var tmp = event.target.tagName.toUpperCase();
+                if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(tmp) == -1 && !options.selectable) {
                     event.preventDefault();
                 }
             });
@@ -2401,7 +2403,7 @@ w2utils.event = {
         // need time to display
         setTimeout(function () {
             resize();
-            $(document).off('.w2overlayHide').on('click.w2overlayHide', hide);
+            $(document).off('.w2overlay'+ name).on('click.w2overlay'+ name, hide);
             if (typeof options.onShow === 'function') options.onShow();
         }, 10);
 
@@ -2434,11 +2436,11 @@ w2utils.event = {
             if (typeof options.onHide === 'function') result = options.onHide();
             if (result === false) return;
             div1.remove();
-            $(document).off('click', hide);
+            $(document).off('.w2overlay'+ name);
             clearInterval(div1.data('timer'));
         }
 
-        function resize () {
+        function resize() {
             var div1 = $('#w2ui-overlay'+ name);
             var div2 = div1.find(' > div');
             var menu = $('#w2ui-overlay'+ name +' div.menu');
@@ -2667,8 +2669,8 @@ w2utils.event = {
                     // need time so that menu first hides
                     setTimeout(function () {
                         options.onSelect({
-                            index: index,
-                            item: options.items[index],
+                            index   : index,
+                            item    : options.items[index],
                             keepOpen: keepOpen,
                             originalEvent: event
                         });
@@ -4856,8 +4858,20 @@ w2utils.event = {
             if (this.type == 'date') {
                 if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 if ($('#w2ui-overlay').length === 0) {
-                    $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar" onclick="event.stopPropagation();"></div>', {
-                        css: { "background-color": "#f5f5f5" }
+                    $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar"></div>', {
+                        css: { "background-color": "#f5f5f5" },
+                        onShow: function (event) {
+                            // this needed for IE 11 compatibility
+                            if (w2utils.isIE) {
+                                console.log("IE");
+                                $('.w2ui-calendar').on('mousedown', function (event) {
+                                    var $tg = $(event.target);
+                                    if ($tg.length == 1 && $tg[0].id == 'w2ui-jump-year') {
+                                        $('#w2ui-overlay').data('keepOpen', true);
+                                    }
+                                });
+                            }
+                        }
                     });
                 }
                 var month, year;
@@ -4966,7 +4980,19 @@ w2utils.event = {
                 if ($("#w2ui-overlay .w2ui-time").length > 0) $('#w2ui-overlay')[0].hide();
                 if ($('#w2ui-overlay').length === 0) {
                     $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar" onclick="event.stopPropagation();"></div>', {
-                        css: { "background-color": "#f5f5f5" }
+                        css: { "background-color": "#f5f5f5" },
+                        onShow: function (event) {
+                            // this needed for IE 11 compatibility
+                            if (w2utils.isIE) {
+                                console.log("IE");
+                                $('.w2ui-calendar').on('mousedown', function (event) {
+                                    var $tg = $(event.target);
+                                    if ($tg.length == 1 && $tg[0].id == 'w2ui-jump-year') {
+                                        $('#w2ui-overlay').data('keepOpen', true);
+                                    }
+                                });
+                            }
+                        }
                     });
                 }
                 var month, year;
@@ -5850,7 +5876,7 @@ w2utils.event = {
             for (var y = start_year; y <= end_year; y++) {
                 yhtml += '<div class="w2ui-jump-year" name="'+ y +'">'+ y + '</div>';
             }
-            return '<div>'+ mhtml +'</div><div>'+ yhtml +'</div>';
+            return '<div id="w2ui-jump-month">'+ mhtml +'</div><div id="w2ui-jump-year">'+ yhtml +'</div>';
         },
 
         getHourHTML: function () {
