@@ -111,7 +111,7 @@
 *   - onColumnSelect
 *   - need to update PHP example
 *   - added scrollToColumn(field)
-*   - textSearch: 'begins' (default), 'contains', 'is', ...
+*   - textSearch: 'begins', 'contains' (default), 'is', ...
 *   - added refreshBody
 *   - added response.total = -1 (or not present) to indicate that number of records is unknown
 *   - message(.., callBack) - added callBack
@@ -199,7 +199,7 @@
         this.markSearch      = true;
         this.columnTooltip   = 'normal'; // can be normal, top, bottom, left, right
         this.disableCVS      = false;    // disable Column Virtual Scroll
-        this.textSearch      = 'begins'; // default search type for text
+        this.textSearch      = 'contains'; // default search type for text
 
         this.total   = 0;     // server total
         this.limit   = 100;
