@@ -31,13 +31,14 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - parseColor(str) returns rgb
 *   - rgb2hsv, hsv2rgb
 *   - color.onSelect
+*   - refactored w2tag object, it has more potential with $().data('w2tag')
 *
 ************************************************/
 
 var w2utils = (function ($) {
     var tmp = {}; // for some temp variables
     var obj = {
-        version  : '1.5.RC1',
+        version  : '1.5.x',
         settings : {
             "locale"            : "en-us",
             "dateFormat"        : "m/d/yyyy",
@@ -476,7 +477,7 @@ var w2utils = (function ($) {
         } else {
             fmt = format.split('|');
             fmt[0] = fmt[0].trim();
-            fmt[1] = fmt[1].trim();
+            fmt[1] = (fmt.length > 1 ? fmt[1].trim() : this.settings.timeFormat);
         }
         // older formats support
         if (fmt[1] == 'h12') fmt[1] = 'h:m pm';
@@ -2082,7 +2083,8 @@ w2utils.event = {
             onHide          : null,     // callBack when hidden
             hideOnKeyPress  : true,     // hide tag if key pressed
             hideOnBlur      : false,    // hide tag on blur
-            hideOnClick     : false     // hide tag on document click
+            hideOnClick     : false,    // hide tag on document click
+            hideOnChange    : true
         }, options);
         if (options.name != null && options.id == null) options.id = options.name;
 
@@ -2092,162 +2094,196 @@ w2utils.event = {
         // remove all tags
         if ($(this).length === 0) {
             $('.w2ui-tag').each(function (index, el) {
-                var opt = $(el).data('options');
-                if (opt == null) opt = {};
-                $($(el).data('taged-el'))
-                    .removeClass(opt.inputClass)
-                    .removeData('w2tag')
-                    .removeData('checkIfMoved');
-                clearInterval($(el).data('timer'));
-                $(el).remove();
+                var tag = $(el).data('w2tag');
+                if (tag) tag.hide();
             });
             return;
         }
         return $(this).each(function (index, el) {
-            // show or hide tag
+            // main object
+            var tag;
             var origID = (options.id ? options.id : el.id);
-            var tagID  = w2utils.escapeId(origID);
-            var $tags  = $('#w2ui-tag-'+tagID);
-            if (text === '' || text == null) {
-                // remmove element
-                $tags.css('opacity', 0);
-                clearInterval($tags.data('timer'));
-                $tags.remove();
-                return;
-            } else if ($tags.length !== 0) {
-                // if already present
-                options = $.extend($tags.data('options'), options);
-                $tags.data('options', options);
-                $tags.find('.w2ui-tag-body')
-                    .attr('style', options.style)
-                    .addClass(options.className)
-                    .html(options.html);
-                checkIfMoved(true);
+            if (origID == '') { // search for an id
+                origID = $(el).find('input').attr('id');
+            }
+            if (!origID) {
+                origID = 'noid';
+            }
+            var tmpID  = w2utils.escapeId(origID);
+            if ($(this).data('w2tag') != null) {
+                tag = $(this).data('w2tag');
+                $.extend(tag.options, options);
             } else {
-                var originalCSS = '';
-                if ($(el).length > 0) originalCSS = $(el)[0].style.cssText;
+                tag = {
+                    id        : origID,
+                    attachedTo: el,          // element attached to
+                    box       : $('#w2ui-tag-' + tmpID), // tag itself
+                    options   : $.extend({}, options),
+                    // methods
+                    init      : init,      // attach events
+                    hide      : hide,      // hide tag
+                    getPos    : getPos,    // gets position of tag
+                    isMoved   : isMoved,   // if called, will adjust position
+                    // internal
+                    tmp       : {}         // for temp variables
+                }
+            }
+            // show or hide tag
+            if (text === '' || text == null) {
+                tag.hide();
+            } else if (tag.box.length !== 0) {
+                // if already present
+                tag.box.find('.w2ui-tag-body')
+                    .css(tag.options.css)
+                    .attr('style', tag.options.style)
+                    .addClass(tag.options.className)
+                    .html(tag.options.html);
+            } else {
+                tag.tmp.originalCSS = '';
+                if ($(tag.attachedTo).length > 0) tag.tmp.originalCSS = $(tag.attachedTo)[0].style.cssText;
                 // insert
                 $('body').append(
-                    '<div onclick="event.stopPropagation()" style="display:none;" id="w2ui-tag-'+ origID +'" '+
-                    '       class="w2ui-tag '+ ($(el).parents('.w2ui-popup, .w2ui-overlay-popup, .w2ui-message').length > 0 ? 'w2ui-tag-popup' : '') + '">'+
+                    '<div onclick="event.stopPropagation()" style="display: none;" id="w2ui-tag-'+ tag.id +'" '+
+                    '       class="w2ui-tag '+ ($(tag.attachedTo).parents('.w2ui-popup, .w2ui-overlay-popup, .w2ui-message').length > 0 ? 'w2ui-tag-popup' : '') + '">'+
                     '   <div style="margin: -2px 0px 0px -2px; white-space: nowrap;">'+
-                    '      <div class="w2ui-tag-body '+ options.className +'" style="'+ (options.style || '') +'">'+ text +'</div>'+
+                    '      <div class="w2ui-tag-body '+ tag.options.className +'" style="'+ (tag.options.style || '') +'">'+ text +'</div>'+
                     '   </div>' +
                     '</div>');
-                $tags = $('#w2ui-tag-'+tagID);
-                $(el).data('w2tag', $tags.get(0)).data('checkIfMoved', checkIfMoved);
+                tag.box = $('#w2ui-tag-' + tmpID);
+                $(tag.attachedTo).data('w2tag', tag); // make available to element tag attached to
+                setTimeout(init, 1);
             }
+            return;
 
-            // need time out to allow tag to be rendered
-            setTimeout(function () {
-                $tags.css('display', 'block');
-                if (!$(el).offset()) return;
-                var pos = checkIfMoved(true);
-                if (pos == null) return;
-                $tags.css({
+            function init() {
+                tag.box.css('display', 'block');
+                if (!tag || !tag.box || !$(tag.attachedTo).offset()) return;
+                var pos = tag.getPos();
+                tag.box.css({
                         opacity : '1',
                         left    : pos.left + 'px',
                         top     : pos.top + 'px'
                     })
-                    .data('options', options)
-                    .data('taged-el', el)
-                    .data('position', pos.left + 'x' + pos.top)
-                    .data('timer', setTimeout(checkIfMoved, 100))
+                    .data('w2tag', tag)
                     .find('.w2ui-tag-body').addClass(pos['posClass']);
+                tag.tmp.pos = pos.left + 'x' + pos.top;
 
-                $(el).css(options.css)
+                $(tag.attachedTo)
                     .off('.w2tag')
-                    .addClass(options.inputClass);
+                    .css(tag.options.css)
+                    .addClass(tag.options.inputClass);
 
-                if (options.hideOnKeyPress) {
-                    $(el).on('keypress.w2tag', hideTag);
+                if (tag.options.hideOnKeyPress) {
+                    $(tag.attachedTo).on('keypress.w2tag', tag.hide);
                 }
-                if (options.hideOnBlur) {
-                    $(el).on('blur.w2tag', hideTag);
+                if (options.hideOnChange) {
+                    if (el.nodeName == 'INPUT') {
+                        $(el).on('change.w2tag', tag.hide);
+                    } else {
+                        $(el).find('input').on('change.w2tag', tag.hide);
+                    }
                 }
-                if (options.hideOnClick) {
-                    $(document).on('click.w2tag', hideTag)
+                if (tag.options.hideOnBlur) {
+                    $(tag.attachedTo).on('blur.w2tag', tag.hide);
                 }
-                if (typeof options.onShow === 'function') options.onShow();
-            }, 1);
-
-            // bind event to hide it
-            function hideTag() {
-                $tags = $('#w2ui-tag-'+tagID);
-                if ($tags.length <= 0) return;
-                clearInterval($tags.data('timer'));
-                $tags.remove();
-                $(document).off('.w2tag');
-                $(el).off('.w2tag', hideTag)
-                    .removeClass(options.inputClass)
-                    .removeData('w2tag')
-                    .removeData('checkIfMoved');
-                if ($(el).length > 0) $(el)[0].style.cssText = originalCSS;
-                if (typeof options.onHide === 'function') options.onHide();
+                if (tag.options.hideOnClick) {
+                    $(document).on('click.w2tag', tag.hide)
+                }
+                if (typeof tag.options.onShow === 'function') {
+                    tag.options.onShow();
+                }
+                isMoved();
             }
 
-            function checkIfMoved(checkOnly, instant) {
+            // bind event to hide it
+            function hide() {
+                if (tag.box.length <= 0) return;
+                if (tag.tmp.timer) clearTimeout(tag.tmp.timer);
+                tag.box.remove();
+                if (tag.options.hideOnClick) {
+                    $(document).off('.w2tag');
+                }
+                $(tag.attachedTo).off('.w2tag')
+                    .removeClass(tag.options.inputClass)
+                    .removeData('w2tag');
+                // restore original CSS
+                if ($(tag.attachedTo).length > 0) {
+                    $(tag.attachedTo)[0].style.cssText = tag.tmp.originalCSS;
+                }
+                if (typeof tag.options.onHide === 'function') {
+                    tag.options.onHide();
+                }
+            }
+
+            function isMoved(instant) {
                 // monitor if destroyed
-                var offset = $(el).offset();
-                if ($(el).length === 0 || (offset.left === 0 && offset.top === 0) || $tags.find('.w2ui-tag-body').length === 0) {
-                    clearInterval($tags.data('timer'));
-                    hideTag();
+                var offset = $(tag.attachedTo).offset();
+                if ($(tag.attachedTo).length === 0 || (offset.left === 0 && offset.top === 0) || tag.box.find('.w2ui-tag-body').length === 0) {
+                    tag.hide();
                     return;
                 }
-                if (!instant) setTimeout(checkIfMoved, 100);
-                // monitor if moved
+                var pos = getPos();
+                if (tag.tmp.pos !== pos.left + 'x' + pos.top) {
+                    tag.box
+                        .css(w2utils.cssPrefix({ 'transition': (instant ? '0s' : '.2s') }))
+                        .css({
+                            left: pos.left + 'px',
+                            top : pos.top + 'px'
+                        });
+                    tag.tmp.pos = pos.left + 'x' + pos.top;
+                }
+                if (tag.tmp.timer) clearTimeout(tag.tmp.timer);
+                tag.tmp.timer = setTimeout(isMoved, 100);
+            }
+
+            function getPos() {
+                var offset   = $(tag.attachedTo).offset();
                 var posClass = 'w2ui-tag-right';
-                var posLeft  = parseInt(offset.left + el.offsetWidth + (options.left ? options.left : 0));
-                var posTop   = parseInt(offset.top + (options.top ? options.top : 0));
-                var tagBody  = $tags.find('.w2ui-tag-body');
+                var posLeft  = parseInt(offset.left + tag.attachedTo.offsetWidth + (tag.options.left ? tag.options.left : 0));
+                var posTop   = parseInt(offset.top + (tag.options.top ? tag.options.top : 0));
+                var tagBody  = tag.box.find('.w2ui-tag-body');
                 var width    = tagBody[0].offsetWidth;
                 var height   = tagBody[0].offsetHeight;
-                if (typeof options.position == 'string' && options.position.indexOf('|') != -1) {
-                    options.position = options.position.split('|');
+                if (typeof tag.options.position == 'string' && tag.options.position.indexOf('|') != -1) {
+                    tag.options.position = tag.options.position.split('|');
                 }
-                if (options.position == 'top') {
+                if (tag.options.position == 'top') {
                     posClass  = 'w2ui-tag-top';
-                    posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - 14;
-                    posTop    = parseInt(offset.top + (options.top ? options.top : 0)) - height - 10;
-                }
-                else if (options.position == 'bottom') {
+                    posLeft   = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - 14;
+                    posTop    = parseInt(offset.top + (tag.options.top ? tag.options.top : 0)) - height - 10;
+                } else if (tag.options.position == 'bottom') {
                     posClass  = 'w2ui-tag-bottom';
-                    posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - 14;
-                    posTop    = parseInt(offset.top + el.offsetHeight + (options.top ? options.top : 0)) + 10;
-                }
-                else if (options.position == 'left') {
+                    posLeft   = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - 14;
+                    posTop    = parseInt(offset.top + tag.attachedTo.offsetHeight + (tag.options.top ? tag.options.top : 0)) + 10;
+                } else if (tag.options.position == 'left') {
                     posClass  = 'w2ui-tag-left';
-                    posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - width - 20;
-                    posTop    = parseInt(offset.top + (options.top ? options.top : 0));
-                }
-                else if (Array.isArray(options.position)) {
+                    posLeft   = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - width - 20;
+                    posTop    = parseInt(offset.top + (tag.options.top ? tag.options.top : 0));
+                } else if (Array.isArray(tag.options.position)) {
                     // try to fit the tag on screen in the order defined in the array
                     var maxWidth  = window.innerWidth;
                     var maxHeight = window.innerHeight
-                    for (var i=0; i<options.position.length; i++) {
-                        var pos = options.position[i];
+                    for (var i = 0; i < tag.options.position.length; i++) {
+                        var pos = tag.options.position[i];
                         if (pos == 'right') {
                             posClass = 'w2ui-tag-right';
-                            posLeft  = parseInt(offset.left + el.offsetWidth + (options.left ? options.left : 0));
-                            posTop   = parseInt(offset.top + (options.top ? options.top : 0));
+                            posLeft  = parseInt(offset.left + tag.attachedTo.offsetWidth + (tag.options.left ? tag.options.left : 0));
+                            posTop   = parseInt(offset.top + (tag.options.top ? tag.options.top : 0));
                             if (posLeft+width <= maxWidth) break;
-                        }
-                        else if (pos == 'left') {
+                        } else if (pos == 'left') {
                             posClass  = 'w2ui-tag-left';
-                            posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - width - 20;
-                            posTop    = parseInt(offset.top + (options.top ? options.top : 0));
+                            posLeft   = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - width - 20;
+                            posTop    = parseInt(offset.top + (tag.options.top ? tag.options.top : 0));
                             if (posLeft >= 0) break;
-                        }
-                        else if (pos == 'top') {
+                        } else if (pos == 'top') {
                             posClass  = 'w2ui-tag-top';
-                            posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - 14;
-                            posTop    = parseInt(offset.top + (options.top ? options.top : 0)) - height - 10;
+                            posLeft   = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - 14;
+                            posTop    = parseInt(offset.top + (tag.options.top ? tag.options.top : 0)) - height - 10;
                             if(posLeft+width <= maxWidth && posTop >= 0) break;
-                        }
-                        else if (pos == 'bottom') {
+                        } else if (pos == 'bottom') {
                             posClass  = 'w2ui-tag-bottom';
-                            posLeft   = parseInt(offset.left + (options.left ? options.left : 0)) - 14;
-                            posTop    = parseInt(offset.top + el.offsetHeight + (options.top ? options.top : 0)) + 10;
+                            posLeft   = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - 14;
+                            posTop    = parseInt(offset.top + tag.attachedTo.offsetHeight + (tag.options.top ? tag.options.top : 0)) + 10;
                             if (posLeft+width <= maxWidth && posTop+height <= maxHeight) break;
                         }
                     }
@@ -2256,12 +2292,6 @@ w2utils.event = {
                             .addClass(posClass)
                             .data('posClass', posClass);
                     }
-                }
-                if ($tags.data('position') !== posLeft + 'x' + posTop && checkOnly !== true) {
-                    $tags.css(w2utils.cssPrefix({ 'transition': (instant ? '0s' : '.2s') })).css({
-                        left: posLeft + 'px',
-                        top : posTop + 'px'
-                    }).data('position', posLeft + 'x' + posTop);
                 }
                 return { left: posLeft, top: posTop, posClass: posClass };
             }
@@ -2323,7 +2353,7 @@ w2utils.event = {
         // hide previous if any
         if ($('#w2ui-overlay'+ name).length > 0) {
             tmp_hide = $('#w2ui-overlay'+ name)[0].hide;
-            $(document).off('.w2overlayHide');
+            $(document).off('.w2overlay'+ name);
             if (typeof tmp_hide === 'function') tmp_hide();
         }
         if (obj.length > 0 && (obj[0].tagName == null || obj[0].tagName.toUpperCase() == 'BODY')) options.contextMenu = true;
@@ -2356,12 +2386,13 @@ w2utils.event = {
             .data('position', offset.left + 'x' + offset.top)
             .fadeIn('fast')
             .on('click', function (event) {
+                $('#w2ui-overlay'+ name).data('keepOpen', true);
                 // if there is label for input, it will produce 2 click events
                 if (event.target.tagName.toUpperCase() == 'LABEL') event.stopPropagation();
             })
             .on('mousedown', function (event) {
-                $('#w2ui-overlay'+ name).data('keepOpen', true);
-                if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName.toUpperCase()) == -1 && !options.selectable) {
+                var tmp = event.target.tagName.toUpperCase();
+                if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(tmp) == -1 && !options.selectable) {
                     event.preventDefault();
                 }
             });
@@ -2371,7 +2402,7 @@ w2utils.event = {
         // need time to display
         setTimeout(function () {
             resize();
-            $(document).off('.w2overlayHide').on('click.w2overlayHide', hide);
+            $(document).off('.w2overlay'+ name).on('click.w2overlay'+ name, hide);
             if (typeof options.onShow === 'function') options.onShow();
         }, 10);
 
@@ -2404,11 +2435,11 @@ w2utils.event = {
             if (typeof options.onHide === 'function') result = options.onHide();
             if (result === false) return;
             div1.remove();
-            $(document).off('click', hide);
+            $(document).off('.w2overlay'+ name);
             clearInterval(div1.data('timer'));
         }
 
-        function resize () {
+        function resize() {
             var div1 = $('#w2ui-overlay'+ name);
             var div2 = div1.find(' > div');
             var menu = $('#w2ui-overlay'+ name +' div.menu');
@@ -2637,8 +2668,8 @@ w2utils.event = {
                     // need time so that menu first hides
                     setTimeout(function () {
                         options.onSelect({
-                            index: index,
-                            item: options.items[index],
+                            index   : index,
+                            item    : options.items[index],
                             keepOpen: keepOpen,
                             originalEvent: event
                         });
@@ -2915,6 +2946,7 @@ w2utils.event = {
         }
         if (options.color) options.color = String(options.color).toUpperCase();
         if (options.color.substr(0,1) == '#') options.color = options.color.substr(1);
+        if (options.fireChange == null) options.fireChange = true;
 
         if ($('#w2ui-overlay').length === 0) {
             $(el).w2overlay(getColorHTML(options), options);
@@ -2929,12 +2961,13 @@ w2utils.event = {
                 if (color == '#') color = '';
                 index = $(event.originalEvent.target).attr('index').split(':');
                 if (el.tagName == 'INPUT') {
-                    $(el).val(color).data('skipInit', true).change();
+                    $(el).val(color).data('skipInit', true);
+                    if (options.fireChange) $(el).change();
                     $(el).next().find('>div').css('background-color', color);
                 } else {
                     $(el).data('_color', color);
-                    if (typeof options.onSelect == 'function') options.onSelect($(el).data('_color'));
                 }
+                if (typeof options.onSelect == 'function') options.onSelect(color);
             })
             .on('mouseup.w2color', function () {
                 setTimeout(function () {
@@ -3022,12 +3055,13 @@ w2utils.event = {
             });
             if (!silent) {
                 if (el.tagName == 'INPUT') {
-                    $(el).val(newColor).data('skipInit', true).change();
+                    $(el).val(newColor).data('skipInit', true);
+                    if (options.fireChange) $(el).change();
                     $(el).next().find('>div').css('background-color', newColor);
                 } else {
                     $(el).data('_color', newColor);
-                    if (typeof options.onSelect == 'function') options.onSelect($(el).data('_color'));
                 }
+                if (typeof options.onSelect == 'function') options.onSelect(newColor);
             } else {
                 $('#w2ui-overlay .color-original').css('background-color', newColor);
             }
@@ -3221,3 +3255,22 @@ w2utils.event = {
     };
 
 })(jQuery);
+
+/***********************************************************
+*  Compatibility with CommonJS and AMD modules
+*
+*********************************************************/
+
+(function(global, w2ui) {
+    if (typeof define=='function' && define.amd) {
+        return define(function(){ return w2ui; });
+    }
+    if (typeof exports!='undefined') {
+        if (typeof module!='undefined' && module.exports)
+            return exports = module.exports = w2ui;
+        global = exports;
+    }
+    for (var m in w2ui) {
+        global[m] = w2ui[m];
+    }
+})(this, { w2ui: w2ui, w2obj: w2obj, w2utils: w2utils });

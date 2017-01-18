@@ -295,7 +295,9 @@
                 it.checked = false;
                 tmp.push(String(arguments[a]).split(':')[0]);
             }
-            setTimeout(function () { for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]); }, 15); // needs timeout
+            setTimeout(function () {
+                for (var t=0; t<tmp.length; t++) obj.refresh(tmp[t]);
+            }, 15); // needs timeout
             return items;
         },
 
