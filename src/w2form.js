@@ -1042,7 +1042,7 @@
                     var value_new      = this.value;
                     var value_previous = obj.record[this.name] != null ? obj.record[this.name] : '';
                     var field          = obj.get(this.name);
-                    if (['list', 'enum', 'file'].indexOf(field.type) != -1 && $(this).data('selected')) {
+                    if (['list', 'enum', 'file', 'combo'].indexOf(field.type) != -1 && Object.getOwnPropertyNames($(this).data('selected')).length > 0) {
                         var nv = $(this).data('selected');
                         var cv = obj.record[this.name];
                         if ($.isArray(nv)) {
