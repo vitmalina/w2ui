@@ -395,7 +395,7 @@
             if (showErrors) {
                 for (var e = 0; e < edata.errors.length; e++) {
                     var err = edata.errors[e];
-                    var opt = $.extend({ "class": 'w2ui-error' }, err.options);                    
+                    var opt = $.extend({ "class": 'w2ui-error' }, err.options);
                     if (err.field == null) continue;
                     if (err.field.type == 'radio') { // for radio and checkboxes
                         $($(err.field.el).parents('div')[0]).w2tag(err.error, opt);
@@ -675,38 +675,39 @@
                         ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
                         ajaxOptions.contentType = 'application/json';
                         break;
-                    case 'JSON':                    
-                        ajaxOptions.type        = 'POST';                        
-                        ajaxOptions.contentType = 'application/json';                         
+                    case 'JSON':
+                        ajaxOptions.type        = 'POST';
+                        ajaxOptions.contentType = 'application/json';
                         if (!obj.multipart) {
-                                ajaxOptions.data = JSON.stringify(ajaxOptions.data);
+                            ajaxOptions.data = JSON.stringify(ajaxOptions.data);
                         } else {
-                                function apnd(fd, dob, fob = null, p = ''){
-                                        function isObj(dob, fob, p){
-                                            if (typeof dob == 'object' && dob instanceof File) fd.append(p, dob);
-                                            if (typeof dob == "object"){
-                                                if(!!dob && dob.constructor === Array){
-                                                    for(let i = 0; i < dob.length; i++){
-                                                        let aux_fob = !!fob ? fob[i] : fob;
-                                                        isObj(dob[i], aux_fob, p+'['+i+']');
-                                                    }
-                                                } else {
-                                                    apnd(fd, dob, fob, p);
-                                                }
+                            function apend(fd, dob, fob, p){
+                                if (p == null) p = '';
+                                function isObj(dob, fob, p){
+                                    if (typeof dob == 'object' && dob instanceof File) fd.append(p, dob);
+                                    if (typeof dob == "object"){
+                                        if (!!dob && dob.constructor === Array) {
+                                            for (var i = 0; i < dob.length; i++) {
+                                                var aux_fob = !!fob ? fob[i] : fob;
+                                                isObj(dob[i], aux_fob, p+'['+i+']');
                                             }
+                                        } else {
+                                            apend(fd, dob, fob, p);
                                         }
-                                        for(let prop in dob){
-                                            let aux_p = p == '' ? prop : `${p}[${prop}]`;
-                                            let aux_fob = !!fob ? fob[prop] : fob;
-                                            isObj(dob[prop], aux_fob, aux_p);
-                                        }
-                                }                        
-                                var fdata = new FormData();
-                                fdata.append('__body', JSON.stringify(ajaxOptions.data));
-                                apnd(fdata,ajaxOptions.data)
-                                ajaxOptions.data = fdata;
-                                ajaxOptions.contentType = false;
-                                ajaxOptions.processData = false;
+                                    }
+                                }
+                                for(var prop in dob){
+                                    var aux_p = p == '' ? prop : '${p}[${prop}]';
+                                    var aux_fob = !!fob ? fob[prop] : fob;
+                                    isObj(dob[prop], aux_fob, aux_p);
+                                }
+                            }
+                            var fdata = new FormData();
+                            fdata.append('__body', JSON.stringify(ajaxOptions.data));
+                            apend(fdata,ajaxOptions.data)
+                            ajaxOptions.data = fdata;
+                            ajaxOptions.contentType = false;
+                            ajaxOptions.processData = false;
                         }
                         break;
                 }

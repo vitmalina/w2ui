@@ -78,13 +78,6 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.onDeleted">onDeleted</a> <span>- function (event)</span>
-</div>
-<div class="obj-property-desc">
-    Called when server responds back after delete request.
-</div>
-
-<div class="obj-property">
     <a href="w2grid.onEdit">onEdit</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">

@@ -1,7 +1,7 @@
 <?
 /**************************************************
 *	This class helps streamline w2ui requests
-* 
+*
 *	Global Variables (it is assumed that there are several global variables)
 *	- $db - connection to the database
 * 	- $dbType - type of the db, can be mysql or postgres
@@ -93,12 +93,12 @@ class w2grid_class {
 
 		$sql .= " LIMIT ".$request['limit']." OFFSET ".$request['offset'];
 
-		$data = Array();		
+		$data = Array();
 
 		// count records
 		$rs = $db->execute($cql);
 		$data['status'] = 'success';
-		$data['total']  = $rs->fields[0];
+		$data['total']  = intval($rs->fields[0]);
 
 		// execute sql
 		$rs = $db->execute($sql);
@@ -248,8 +248,8 @@ class w2grid_class {
 		} else {
 			$res['status']  = 'success';
 		}
-		return $res;	
-	}	
+		return $res;
+	}
 
 	public function getItems($sql) {
 		global $db;

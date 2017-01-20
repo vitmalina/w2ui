@@ -126,6 +126,7 @@
 *   - columnTooltip
 *   - expendable grids are still working
 *   - added search.type = 'color'
+*   - added getFirst
 *
 ************************************************************************/
 
@@ -538,6 +539,14 @@
                 }
                 return null;
             }
+        },
+
+        getFirst: function () {
+            if (this.records.length == 0) return null;
+            var recid = this.records[0].recid;
+            var tmp   = this.last.searchIds;
+            if (Array.isArray(tmp) && tmp.length > 0) recid = this.records[tmp[0]].recid;
+            return recid;
         },
 
         remove: function () {
@@ -1389,8 +1398,10 @@
                     originalRange : [{ recid: sel[0].recid, column: sel[0].column }, { recid: sel[sel.length-1].recid, column: sel[sel.length-1].column }],
                     newRange      : [{ recid: sel[0].recid, column: sel[0].column }, { recid: sel[sel.length-1].recid, column: sel[sel.length-1].column }]
                 };
-                $(document).off('mousemove', mouseMove).on('mousemove', mouseMove);
-                $(document).off('mouseup', mouseStop).on('mouseup', mouseStop);
+                $(document)
+                    .off('.w2ui-' + obj.name)
+                    .on('mousemove.w2ui-' + obj.name, mouseMove)
+                    .on('mouseup.w2ui-' + obj.name, mouseStop);
                 // do not blur grid
                 event.preventDefault();
             }
@@ -1432,8 +1443,7 @@
                 // default behavior
                 obj.removeRange('grid-selection-expand');
                 delete obj.last.move;
-                $(document).off('mousemove', mouseMove);
-                $(document).off('mouseup', mouseStop);
+                $(document).off('.w2ui-' + obj.name);
                 // event after
                 obj.trigger($.extend(edata, { phase: 'after' }));
             }
@@ -2045,7 +2055,7 @@
                     // event after
                     obj.trigger($.extend(edata, { phase: 'after' }));
                 },
-                onHide  : function () {
+                onHide: function () {
                     it.checked = false;
                     $(btn).removeClass('checked');
                 }
@@ -2059,7 +2069,6 @@
             if (this.toolbar) this.toolbar.uncheck('w2ui-search-advanced');
             // hide search
             $().w2overlay({ name: this.name + '-searchOverlay' });
-            $().w2overlay({ name: this.name + '-searchOverlay' }); // need to call twice as first ignored after click
         },
 
         searchReset: function (noRefresh) {
@@ -3557,8 +3566,6 @@
                             $('#grid_'+ obj.name + '_focus').val(obj.last.copy_event.text).select();
                             obj.copy(obj.last.copy_event, event);
                         }
-                        // clear
-                        setTimeout(function () { obj["delete"](true); }, 100);
                     }
                     break;
             }
@@ -4046,7 +4053,8 @@
             // if called without params
             if (flag == null) {
                 // before event
-                var edata = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text, originalEvent: oEvent });
+                var edata = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text,
+                    cut: (oEvent.keyCode == 88 ? true : false), originalEvent: oEvent });
                 if (edata.isCancelled === true) return '';
                 text = edata.text;
                 // event after
@@ -4054,7 +4062,8 @@
                 return text;
             } else if (flag === false) { // only before event
                 // before event
-                var edata = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text, originalEvent: oEvent });
+                var edata = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text,
+                    cut: (oEvent.keyCode == 88 ? true : false), originalEvent: oEvent });
                 if (edata.isCancelled === true) return '';
                 text = edata.text;
                 return edata;
@@ -4579,7 +4588,7 @@
                     obj.selectNone();
                     obj.last.move = { type: 'text-select' };
                     obj.last.userSelect = 'text';
-                } else if (obj.multiSelect || obj.reorderRows) {
+                } else {
                     var tmp = event.target;
                     var pos = {
                         x: event.offsetX - 10,
@@ -4640,6 +4649,10 @@
                             if (!$input.is(':focus')) $input.focus();
                         }
                     }, 50);
+                    // disable click select for this condition
+                    if (!obj.multiSelect && !obj.reorderRows && obj.last.move.type == 'drag') {
+                        delete obj.last.move;
+                    }
                 }
                 if (obj.reorderRows == true) {
                     var el = event.target;
@@ -4680,8 +4693,9 @@
                         obj.last.move.reorder = false;
                     }
                 }
-                $(document).on('mousemove', mouseMove);
-                $(document).on('mouseup', mouseStop);
+                $(document)
+                    .on('mousemove.w2ui-' + obj.name, mouseMove)
+                    .on('mouseup.w2ui-' + obj.name, mouseStop);
                 // needed when grid grids are nested, see issue #1275
                 event.stopPropagation();
             }
@@ -4873,8 +4887,7 @@
                     }
                 }
                 delete obj.last.move;
-                $(document).off('mousemove', mouseMove);
-                $(document).off('mouseup', mouseStop);
+                $(document).off('.w2ui-' + obj.name);
             }
         },
 
@@ -5383,6 +5396,9 @@
                             } else {
                                 obj.searchOpen();
                             }
+                            // need to cancel event in order to user custom searchOpen/close functions
+                            obj.toolbar.tooltipHide('w2ui-search-advanced');
+                            event.preventDefault();
                             break;
                         case 'w2ui-add':
                             // events
@@ -5883,7 +5899,7 @@
 
         getSearchesHTML: function () {
             var obj  = this;
-            var html = '<table cellspacing="0" onclick="event.stopPropagation()"><tbody>';
+            var html = '<table cellspacing="0"><tbody>';
             var showBtn = false;
             for (var i = 0; i < this.searches.length; i++) {
                 var s = this.searches[i];
@@ -5900,7 +5916,7 @@
                 if (s.type    == null) s.type   = 'text';
 
                 var operator =
-                    '<select id="grid_'+ this.name +'_operator_'+ i +'" class="w2ui-input" onclick="event.stopPropagation();"' +
+                    '<select id="grid_'+ this.name +'_operator_'+ i +'" class="w2ui-input" ' +
                     '   onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +')">' +
                         getOperators(s.type, s.operators) +
                     '</select>';
@@ -5943,7 +5959,7 @@
 
                     case 'select':
                         html += '<select rel="search" class="w2ui-input" style="'+ s.style +'" id="grid_'+ this.name +'_field_'+ i +'" '+
-                                ' name="'+ s.field +'" '+ s.inTag +'  onclick="event.stopPropagation();"></select>';
+                                ' name="'+ s.field +'" '+ s.inTag +'></select>';
                         break;
 
                 }
