@@ -1067,8 +1067,9 @@
                     // clean extra chars
                     if (['int', 'float', 'percent', 'money', 'currency'].indexOf(field.type) != -1) {
                         value_new = $(this).data('w2field').clean(value_new);
-                    }
-                    if (value_new === value_previous) return;
+                    }                    
+                    if ($.isPlainObject(value_new) && $.isPlainObject(value_previous) && (JSON.stringify(value_new) === JSON.stringify(value_previous))) return;
+                    else if (value_new === value_previous) return;
                     // event before
                     var edata2 = obj.trigger({ phase: 'before', target: this.name, type: 'change', value_new: value_new, value_previous: value_previous });
                     if (edata2.isCancelled === true) {
