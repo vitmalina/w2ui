@@ -2104,13 +2104,6 @@ w2utils.event = {
             // main object
             var tag;
             var origID = (options.id ? options.id : el.id);
-<<<<<<< HEAD
-            if (origID=='') {   //search for an id
-                origID=$(el).find('input').attr('id');
-            }
-            var tagID  = w2utils.escapeId(origID);
-            var $tags  = $('#w2ui-tag-'+tagID);
-=======
             if (origID == '') { // search for an id
                 origID = $(el).find('input').attr('id');
             }
@@ -2137,7 +2130,6 @@ w2utils.event = {
                 }
             }
             // show or hide tag
->>>>>>> upstream/master
             if (text === '' || text == null) {
                 tag.hide();
             } else if (tag.box.length !== 0) {
@@ -2182,17 +2174,8 @@ w2utils.event = {
                     .css(tag.options.css)
                     .addClass(tag.options.inputClass);
 
-<<<<<<< HEAD
-                if (options.hideOnChange) {
-                    if (el.nodeName=='INPUT') $(el).on('change',hideTag);
-                    else $(el).find('input').on('click',hideTag);                    
-                }
-                if (options.hideOnKeyPress) {
-                    $(el).on('keypress.w2tag', hideTag);
-=======
                 if (tag.options.hideOnKeyPress) {
                     $(tag.attachedTo).on('keypress.w2tag', tag.hide);
->>>>>>> upstream/master
                 }
                 if (options.hideOnChange) {
                     if (el.nodeName == 'INPUT') {
@@ -17867,30 +17850,20 @@ var w2prompt = function (label, title, callBack) {
             }
             if (options.maxSize !== 0 && size + newItem.size > options.maxSize) {
                 err = w2utils.lang('Maximum total size is') + ' ' + w2utils.formatSize(options.maxSize);
-<<<<<<< HEAD
-                if (options.silent === false) $(obj.el).w2tag(err);
-                else console.log('ERROR: '+ err);
-=======
                 if (options.silent === false) {
                     $(obj.el).w2tag(err);
                 } else {
                     console.log('ERROR: '+ err);
                 }
->>>>>>> upstream/master
                 return;
             }
             if (options.max !== 0 && cnt >= options.max) {
                 err = w2utils.lang('Maximum number of files is') + ' '+ options.max;
-<<<<<<< HEAD
-                if (options.silent === false) $(obj.el).w2tag(err);
-                else console.log('ERROR: '+ err);
-=======
                 if (options.silent === false) {
                     $(obj.el).w2tag(err);
                 } else {
                     console.log('ERROR: '+ err);
                 }
->>>>>>> upstream/master
                 return;
             }
             selected.push(newItem);
@@ -18536,11 +18509,7 @@ var w2prompt = function (label, title, callBack) {
             if (showErrors) {
                 for (var e = 0; e < edata.errors.length; e++) {
                     var err = edata.errors[e];
-<<<<<<< HEAD
-                    var opt = $.extend({ "class": 'w2ui-error' }, err.options);                    
-=======
                     var opt = $.extend({ "class": 'w2ui-error' }, err.options);
->>>>>>> upstream/master
                     if (err.field == null) continue;
                     if (err.field.type == 'radio') { // for radio and checkboxes
                         $($(err.field.el).parents('div')[0]).w2tag(err.error, opt);
@@ -18820,40 +18789,6 @@ var w2prompt = function (label, title, callBack) {
                         ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
                         ajaxOptions.contentType = 'application/json';
                         break;
-<<<<<<< HEAD
-                    case 'JSON':                    
-                        ajaxOptions.type        = 'POST';                        
-                        ajaxOptions.contentType = 'application/json';                         
-                        if (!obj.multipart) {
-                                ajaxOptions.data = JSON.stringify(ajaxOptions.data);
-                        } else {
-                                function apnd(fd, dob, fob = null, p = ''){
-                                        function isObj(dob, fob, p){
-                                            if (typeof dob == 'object' && dob instanceof File) fd.append(p, dob);
-                                            if (typeof dob == "object"){
-                                                if(!!dob && dob.constructor === Array){
-                                                    for(let i = 0; i < dob.length; i++){
-                                                        let aux_fob = !!fob ? fob[i] : fob;
-                                                        isObj(dob[i], aux_fob, p+'['+i+']');
-                                                    }
-                                                } else {
-                                                    apnd(fd, dob, fob, p);
-                                                }
-                                            }
-                                        }
-                                        for(let prop in dob){
-                                            let aux_p = p == '' ? prop : `${p}[${prop}]`;
-                                            let aux_fob = !!fob ? fob[prop] : fob;
-                                            isObj(dob[prop], aux_fob, aux_p);
-                                        }
-                                }                        
-                                var fdata = new FormData();
-                                fdata.append('__body', JSON.stringify(ajaxOptions.data));
-                                apnd(fdata,ajaxOptions.data)
-                                ajaxOptions.data = fdata;
-                                ajaxOptions.contentType = false;
-                                ajaxOptions.processData = false;
-=======
                     case 'JSON':
                         ajaxOptions.type        = 'POST';
                         ajaxOptions.contentType = 'application/json';
@@ -18887,7 +18822,6 @@ var w2prompt = function (label, title, callBack) {
                             ajaxOptions.data = fdata;
                             ajaxOptions.contentType = false;
                             ajaxOptions.processData = false;
->>>>>>> upstream/master
                         }
                         break;
                 }
@@ -19223,7 +19157,7 @@ var w2prompt = function (label, title, callBack) {
                     var value_new      = this.value;
                     var value_previous = obj.record[this.name] != null ? obj.record[this.name] : '';
                     var field          = obj.get(this.name);
-                    if (['list', 'enum', 'file'].indexOf(field.type) != -1 && $(this).data('selected')) {
+                    if (['list', 'enum', 'file', 'combo'].indexOf(field.type) != -1 && Object.getOwnPropertyNames($(this).data('selected')).length > 0) {
                         var nv = $(this).data('selected');
                         var cv = obj.record[this.name];
                         if ($.isArray(nv)) {

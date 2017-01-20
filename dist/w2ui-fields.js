@@ -2104,13 +2104,6 @@ w2utils.event = {
             // main object
             var tag;
             var origID = (options.id ? options.id : el.id);
-<<<<<<< HEAD
-            if (origID=='') {   //search for an id
-                origID=$(el).find('input').attr('id');
-            }
-            var tagID  = w2utils.escapeId(origID);
-            var $tags  = $('#w2ui-tag-'+tagID);
-=======
             if (origID == '') { // search for an id
                 origID = $(el).find('input').attr('id');
             }
@@ -2137,7 +2130,6 @@ w2utils.event = {
                 }
             }
             // show or hide tag
->>>>>>> upstream/master
             if (text === '' || text == null) {
                 tag.hide();
             } else if (tag.box.length !== 0) {
@@ -2182,17 +2174,8 @@ w2utils.event = {
                     .css(tag.options.css)
                     .addClass(tag.options.inputClass);
 
-<<<<<<< HEAD
-                if (options.hideOnChange) {
-                    if (el.nodeName=='INPUT') $(el).on('change',hideTag);
-                    else $(el).find('input').on('click',hideTag);                    
-                }
-                if (options.hideOnKeyPress) {
-                    $(el).on('keypress.w2tag', hideTag);
-=======
                 if (tag.options.hideOnKeyPress) {
                     $(tag.attachedTo).on('keypress.w2tag', tag.hide);
->>>>>>> upstream/master
                 }
                 if (options.hideOnChange) {
                     if (el.nodeName == 'INPUT') {
@@ -5730,30 +5713,20 @@ w2utils.event = {
             }
             if (options.maxSize !== 0 && size + newItem.size > options.maxSize) {
                 err = w2utils.lang('Maximum total size is') + ' ' + w2utils.formatSize(options.maxSize);
-<<<<<<< HEAD
-                if (options.silent === false) $(obj.el).w2tag(err);
-                else console.log('ERROR: '+ err);
-=======
                 if (options.silent === false) {
                     $(obj.el).w2tag(err);
                 } else {
                     console.log('ERROR: '+ err);
                 }
->>>>>>> upstream/master
                 return;
             }
             if (options.max !== 0 && cnt >= options.max) {
                 err = w2utils.lang('Maximum number of files is') + ' '+ options.max;
-<<<<<<< HEAD
-                if (options.silent === false) $(obj.el).w2tag(err);
-                else console.log('ERROR: '+ err);
-=======
                 if (options.silent === false) {
                     $(obj.el).w2tag(err);
                 } else {
                     console.log('ERROR: '+ err);
                 }
->>>>>>> upstream/master
                 return;
             }
             selected.push(newItem);
