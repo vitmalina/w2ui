@@ -2535,7 +2535,7 @@
                 var record = this.get(changes[c].recid);
                 for (var s in changes[c]) {
                     if (s == 'recid') continue; // do not allow to change recid
-                    if (typeof changes[c][s] === "object") changes[c][s] = changes[c][s].text;
+                    //if (typeof changes[c][s] === "object") changes[c][s] = changes[c][s].text; I think we need to preserve objects
                     try {
                         if (s.indexOf('.') != -1) {
                             eval("record['" + s.replace(/\./g, "']['") + "'] = changes[c][s]")
@@ -2889,7 +2889,7 @@
             var old_val = this.parseField(rec, col.field);
             var tmp = $(el).data('w2field');
             if (tmp) {
-                if (tmp.type == 'list') new_val = $(el).data('selected');
+                if (['list', 'combo'].indexOf(col.editable.type) != -1 && $(el).data('selected').text == new_val) new_val = $(el).data('selected');
                 if ($.isEmptyObject(new_val) || new_val == null) new_val = '';
                 if (!$.isPlainObject(new_val)) new_val = tmp.clean(new_val);
             }

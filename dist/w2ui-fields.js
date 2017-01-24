@@ -2629,6 +2629,19 @@ w2utils.event = {
             if ($('#w2ui-overlay'+ name).length > 0) {
                 options = $.extend($.fn.w2menuOptions, options);
                 var scrTop = $('#w2ui-overlay'+ name +' div.menu').scrollTop();
+
+                if (options.msgNoItems===false && !options.spinner) {
+                    var count=0;
+                    for (var i = 0; i < options.items.length; i++) {
+                        if (!options.items[i].hidden) count++;
+                    }
+                    if (count==0) {
+                        $('#w2ui-overlay'+ name).hide();
+                        return;
+                    } else 
+                        $('#w2ui-overlay'+ name).show();
+                }           
+                
                 $('#w2ui-overlay'+ name +' div.menu').html(getMenuHTML());
                 $('#w2ui-overlay'+ name +' div.menu').scrollTop(scrTop);
                 mresize();
@@ -2728,6 +2741,7 @@ w2utils.event = {
                 options.index = 0;
                 for (var i = 0; i < options.items.length; i++) options.items[i].hidden = false;
             }
+
             html += '<div class="menu" style="position: absolute; top: '+ (options.search ? 40 : 0) + 'px; bottom: 0px; width: 100%;">' +
                         getMenuHTML() +
                     '</div>';

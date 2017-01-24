@@ -5827,7 +5827,7 @@ w2utils.event = {
                 var record = this.get(changes[c].recid);
                 for (var s in changes[c]) {
                     if (s == 'recid') continue; // do not allow to change recid
-                    if (typeof changes[c][s] === "object") changes[c][s] = changes[c][s].text;
+                    //if (typeof changes[c][s] === "object") changes[c][s] = changes[c][s].text; I think we need to preserve objects
                     try {
                         if (s.indexOf('.') != -1) {
                             eval("record['" + s.replace(/\./g, "']['") + "'] = changes[c][s]")
@@ -6181,7 +6181,7 @@ w2utils.event = {
             var old_val = this.parseField(rec, col.field);
             var tmp = $(el).data('w2field');
             if (tmp) {
-                if (tmp.type == 'list') new_val = $(el).data('selected');
+                if (['list', 'combo'].indexOf(col.editable.type) != -1 && $(el).data('selected').text == new_val) new_val = $(el).data('selected');
                 if ($.isEmptyObject(new_val) || new_val == null) new_val = '';
                 if (!$.isPlainObject(new_val)) new_val = tmp.clean(new_val);
             }
@@ -19171,7 +19171,7 @@ var w2prompt = function (label, title, callBack) {
                     var value_new      = this.value;
                     var value_previous = obj.record[this.name] != null ? obj.record[this.name] : '';
                     var field          = obj.get(this.name);
-                    if (['list', 'enum', 'file', 'combo'].indexOf(field.type) != -1 && Object.getOwnPropertyNames($(this).data('selected')).length > 0) {
+                    if ((['enum', 'file'].indexOf(field.type) != -1) || (['list', 'combo'].indexOf(field.type) != -1 && $(this).data('selected').text == value_new)) {
                         var nv = $(this).data('selected');
                         var cv = obj.record[this.name];
                         if ($.isArray(nv)) {
