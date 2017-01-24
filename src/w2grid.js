@@ -477,7 +477,7 @@
         },
 
         set: function (recid, record, noRefresh) { // does not delete existing, but overrides on top of it
-            if (typeof recid == 'object') {
+            if ((typeof recid == 'object') && (recid !== null)) {
                 noRefresh = record;
                 record    = recid;
                 recid     = null;
@@ -3037,7 +3037,7 @@
             var column = null;
             var obj    = this;
             if (this.last.cancelClick == true || (event && event.altKey)) return;
-            if (typeof recid == 'object') {
+            if ((typeof recid == 'object') && (recid !== null)) {
                 column = recid.column;
                 recid  = recid.recid;
             }
@@ -3701,7 +3701,7 @@
         dblClick: function (recid, event) {
             // find columns
             var column = null;
-            if (typeof recid == 'object') {
+            if ((typeof recid == 'object') && (recid !== null)) {
                 column = recid.column;
                 recid  = recid.recid;
             }
