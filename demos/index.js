@@ -104,14 +104,14 @@ $(function () {
             },
             { id: 'sidebar', text: 'Sidebar', img: 'icon-folder', group1: true,
                 nodes: [
-                    { id: 'sidebar-1', text: 'Simple Sidebar', icon: 'fa fa-hand-left' },
-                    { id: 'sidebar-2', text: 'Add/Remove', icon: 'fa fa-hand-left' },
-                    { id: 'sidebar-3', text: 'Show/Hide', icon: 'fa fa-hand-left' },
-                    { id: 'sidebar-4', text: 'Enable/Disable', icon: 'fa fa-hand-left' },
-                    { id: 'sidebar-5', text: 'Expand/Collapse', icon: 'fa fa-hand-left' },
-                    { id: 'sidebar-6', text: 'Select/Unselect', icon: 'fa fa-hand-left' },
-                    { id: 'sidebar-8', text: 'Top & Bottom HTML', icon: 'fa fa-hand-left' },
-                    { id: 'sidebar-7', text: 'Events', icon: 'fa fa-hand-left' },
+                    { id: 'sidebar-1', text: 'Simple Sidebar', icon: 'fa fa-hand-o-left' },
+                    { id: 'sidebar-2', text: 'Add/Remove', icon: 'fa fa-hand-o-left' },
+                    { id: 'sidebar-3', text: 'Show/Hide', icon: 'fa fa-hand-o-left' },
+                    { id: 'sidebar-4', text: 'Enable/Disable', icon: 'fa fa-hand-o-left' },
+                    { id: 'sidebar-5', text: 'Expand/Collapse', icon: 'fa fa-hand-o-left' },
+                    { id: 'sidebar-6', text: 'Select/Unselect', icon: 'fa fa-hand-o-left' },
+                    { id: 'sidebar-8', text: 'Top & Bottom HTML', icon: 'fa fa-hand-o-left' },
+                    { id: 'sidebar-7', text: 'Events', icon: 'fa fa-hand-o-left' },
                     { id: 'sidebar-9', text: 'Flat Sidebar (1.5+)', icon: 'fa fa-hand-up' },
                     { id: 'sidebar-10', text: 'In/Out of Focus (1.5+)', icon: 'fa fa-hand-up' }
                 ]
