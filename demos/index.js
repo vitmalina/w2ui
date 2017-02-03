@@ -130,28 +130,28 @@ $(function () {
             },
             { id: 'forms', text: 'Forms', img: 'icon-folder', group1: true,
                 nodes: [
-                    { id: 'forms-1', text: 'Simple Form', icon: 'fa fa-edit' },
-                    { id: 'forms-10',text: 'Auto Templates', icon: 'fa fa-edit' },
-                    { id: 'forms-2', text: 'Field Types', icon: 'fa fa-edit' },
-                    { id: 'forms-3', text: 'Large Form', icon: 'fa fa-edit' },
-                    { id: 'forms-4', text: 'Multi Page Form', icon: 'fa fa-edit' },
-                    { id: 'forms-5', text: 'Form Tabs', icon: 'fa fa-edit' },
-                    { id: 'forms-9', text: 'Form Toolbar', icon: 'fa fa-edit' },
-                    { id: 'forms-8', text: 'Form in a Popup', icon: 'fa fa-edit' },
-                    { id: 'forms-6', text: 'Events', icon: 'fa fa-edit' },
-                    { id: 'forms-11', text: 'Form Columns (1.5+)', icon: 'fa fa-edit' }
+                    { id: 'forms-1', text: 'Simple Form', icon: 'fa fa-pencil-square-o' },
+                    { id: 'forms-10',text: 'Auto Templates', icon: 'fa fa-pencil-square-o' },
+                    { id: 'forms-2', text: 'Field Types', icon: 'fa fa-pencil-square-o' },
+                    { id: 'forms-3', text: 'Large Form', icon: 'fa fa-pencil-square-o' },
+                    { id: 'forms-4', text: 'Multi Page Form', icon: 'fa fa-pencil-square-o' },
+                    { id: 'forms-5', text: 'Form Tabs', icon: 'fa fa-pencil-square-o' },
+                    { id: 'forms-9', text: 'Form Toolbar', icon: 'fa fa-pencil-square-o' },
+                    { id: 'forms-8', text: 'Form in a Popup', icon: 'fa fa-pencil-square-o' },
+                    { id: 'forms-6', text: 'Events', icon: 'fa fa-pencil-square-o' },
+                    { id: 'forms-11', text: 'Form Columns (1.5+)', icon: 'fa fa-pencil-square-o' }
                 ]
             },
             { id: 'fields', text: 'Fields', img: 'icon-folder', group1: true,
                 nodes: [
-                    { id: 'fields-1', text: 'Numeric', icon: 'fa fa-edit' },
-                    { id: 'fields-2', text: 'Date, Time & Datetime', icon: 'fa fa-edit' },
-                    { id: 'fields-3', text: 'Drop Down Lists', icon: 'fa fa-edit' },
-                    { id: 'fields-4', text: 'Multi Selects', icon: 'fa fa-edit' },
-                    { id: 'fields-5', text: 'File Upload', icon: 'fa fa-edit' },
-                    { id: 'fields-6', text: 'Remote Source', icon: 'fa fa-edit' },
-                    { id: 'fields-7', text: 'Get/Set Value (1.5+)', icon: 'fa fa-edit' },
-                    { id: 'fields-8', text: 'Color Picker (1.5+)', icon: 'fa fa-edit' }
+                    { id: 'fields-1', text: 'Numeric', icon: 'fa fa-pencil-square-o' },
+                    { id: 'fields-2', text: 'Date, Time & Datetime', icon: 'fa fa-pencil-square-o' },
+                    { id: 'fields-3', text: 'Drop Down Lists', icon: 'fa fa-pencil-square-o' },
+                    { id: 'fields-4', text: 'Multi Selects', icon: 'fa fa-pencil-square-o' },
+                    { id: 'fields-5', text: 'File Upload', icon: 'fa fa-pencil-square-o' },
+                    { id: 'fields-6', text: 'Remote Source', icon: 'fa fa-pencil-square-o' },
+                    { id: 'fields-7', text: 'Get/Set Value (1.5+)', icon: 'fa fa-pencil-square-o' },
+                    { id: 'fields-8', text: 'Color Picker (1.5+)', icon: 'fa fa-pencil-square-o' }
                 ]
             },
             { id: 'popup', text: 'Popup', img: 'icon-folder', group1: true,
