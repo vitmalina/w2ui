@@ -951,20 +951,9 @@
             var obj     = this;
             var options = obj.options;
             var val     = $(obj.el).val().trim();
-            var $overlay = $("#w2ui-overlay");
-
             // hide overlay
             if (['color', 'date', 'time', 'list', 'combo', 'enum', 'datetime'].indexOf(obj.type) != -1) {
-                var closeTimeout = window.setTimeout(function() {
-                    $overlay.hide();
-                }, 0);
-                
-                $(".menu", $overlay).one('focus', function() {
-                    clearTimeout(closeTimeout);
-                    $(this).one('focusout', function(event) {
-                        $overlay.hide();
-                    })
-                });
+                if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
             }
             if (['int', 'float', 'money', 'currency', 'percent'].indexOf(obj.type) != -1) {
                 if (val !== '' && !obj.checkType(val)) {
