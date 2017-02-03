@@ -90,16 +90,16 @@ $(function () {
             },
             { id: 'toolbar', text: 'Toolbar', img: 'icon-folder', group1: true,
                 nodes: [
-                    { id: 'toolbar-1', text: 'Simple Toolbar', icon: 'fa fa-hand-up' },
-                    { id: 'toolbar-2', text: 'More Buttons Type', icon: 'fa fa-hand-up' },
-                    { id: 'toolbar-3', text: 'Add/Remove Buttons', icon: 'fa fa-hand-up' },
-                    { id: 'toolbar-4', text: 'Show/Hide Buttons', icon: 'fa fa-hand-up' },
-                    { id: 'toolbar-5', text: 'Enable/Disable Buttons', icon: 'fa fa-hand-up' },
-                    { id: 'toolbar-6', text: 'Menu Buttons (1.5+)', icon: 'fa fa-hand-up' },
-                    { id: 'toolbar-7', text: 'Color Buttons (1.5+)', icon: 'fa fa-hand-up' },
-                    { id: 'toolbar-8', text: 'Tooltips (1.5+)', icon: 'fa fa-hand-up' },
-                    { id: 'toolbar-9', text: 'Custom Buttons (1.5+)', icon: 'fa fa-hand-up' },
-                    { id: 'toolbar-10', text: 'Toolbar Overflow (1.5+)', icon: 'fa fa-hand-up' }
+                    { id: 'toolbar-1', text: 'Simple Toolbar', icon: 'fa fa-hand-o-up' },
+                    { id: 'toolbar-2', text: 'More Buttons Type', icon: 'fa fa-hand-o-up' },
+                    { id: 'toolbar-3', text: 'Add/Remove Buttons', icon: 'fa fa-hand-o-up' },
+                    { id: 'toolbar-4', text: 'Show/Hide Buttons', icon: 'fa fa-hand-o-up' },
+                    { id: 'toolbar-5', text: 'Enable/Disable Buttons', icon: 'fa fa-hand-o-up' },
+                    { id: 'toolbar-6', text: 'Menu Buttons (1.5+)', icon: 'fa fa-hand-o-up' },
+                    { id: 'toolbar-7', text: 'Color Buttons (1.5+)', icon: 'fa fa-hand-o-up' },
+                    { id: 'toolbar-8', text: 'Tooltips (1.5+)', icon: 'fa fa-hand-o-up' },
+                    { id: 'toolbar-9', text: 'Custom Buttons (1.5+)', icon: 'fa fa-hand-o-up' },
+                    { id: 'toolbar-10', text: 'Toolbar Overflow (1.5+)', icon: 'fa fa-hand-o-up' }
                 ]
             },
             { id: 'sidebar', text: 'Sidebar', img: 'icon-folder', group1: true,
@@ -112,8 +112,8 @@ $(function () {
                     { id: 'sidebar-6', text: 'Select/Unselect', icon: 'fa fa-hand-o-left' },
                     { id: 'sidebar-8', text: 'Top & Bottom HTML', icon: 'fa fa-hand-o-left' },
                     { id: 'sidebar-7', text: 'Events', icon: 'fa fa-hand-o-left' },
-                    { id: 'sidebar-9', text: 'Flat Sidebar (1.5+)', icon: 'fa fa-hand-up' },
-                    { id: 'sidebar-10', text: 'In/Out of Focus (1.5+)', icon: 'fa fa-hand-up' }
+                    { id: 'sidebar-9', text: 'Flat Sidebar (1.5+)', icon: 'fa fa-hand-o-up' },
+                    { id: 'sidebar-10', text: 'In/Out of Focus (1.5+)', icon: 'fa fa-hand-o-up' }
                 ]
             },
             { id: 'tabs', text: 'Tabs', img: 'icon-folder', group1: true,
