@@ -1,0 +1,30 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Improved Keyboard Support (new in 1.5)</h1>
+        Since the content behind popup is locked it is logical to keep keyboard focus inside the popup. If user clicks tab key, it will loop through the input controls inside popup and not come outside of it.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<button class="w2ui-btn" onclick="popup()">Open Popup</button>
+
+<!--CODE-->
+<script>
+function popup() {
+    w2popup.open({
+        width   : 580,
+        height  : 350,
+        title   : 'Title',
+        body    : '<div class="w2ui-centered" style="line-height: 1.8">'+
+                  '     Use tab key to loop through the input controls. <br>The focus will not leave popup. <br><br>'+
+                  '     Text 1: <input class="w2ui-input" style="margin-bottom: 5px"><br>'+
+                  '     Text 2: <input class="w2ui-input" style="margin-bottom: 5px"><br>'+
+                  '     Text 3: <input class="w2ui-input" style="margin-bottom: 5px"><br>'+
+                  '</div>',
+        buttons : '<button class="w2ui-btn" onclick="w2popup.close()">Ok</button>'+
+                  '<button class="w2ui-btn" onclick="w2popup.close()">Cancel</button>'
+    });
+}
+</script>

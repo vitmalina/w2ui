@@ -9,21 +9,21 @@
 }
 
 .w2ui-field-helper {
-    position: absolute; 
-    display: inline-block; 
+    position: absolute;
+    display: inline-block;
     line-height: 100%;
     /* pointer-events: none; - do not use as IE does not support it */
     .user-select(none);
 
     .w2ui-field-up {
-        position: absolute; 
-        top: 0px; 
+        position: absolute;
+        top: 0px;
         padding: 2px 3px;
     }
-    
+
     .w2ui-field-down {
-        position: absolute; 
-        bottom: 0px; 
+        position: absolute;
+        bottom: 0px;
         padding: 2px 3px;
     }
 
@@ -38,13 +38,13 @@
 }
 
 /*
-*    ARROWS 
+*    ARROWS
 */
 
 .arrow-up {
     background: none;
-    width: 0; 
-    height: 0; 
+    width: 0;
+    height: 0;
     border-left: 4px solid transparent;  /* left arrow slant */
     border-right: 4px solid transparent; /* right arrow slant */
     border-bottom: 5px solid #777; /* bottom, add background color here */
@@ -54,8 +54,8 @@
 
 .arrow-down {
     background: none;
-    width: 0; 
-    height: 0; 
+    width: 0;
+    height: 0;
     border-left: 4px solid transparent;
     border-right: 4px solid transparent;
     border-top: 5px solid #777;
@@ -65,8 +65,8 @@
 
 .arrow-left {
     background: none;
-    width: 0; 
-    height: 0; 
+    width: 0;
+    height: 0;
     border-bottom: 4px solid transparent;  /* left arrow slant */
     border-top: 4px solid transparent; /* right arrow slant */
     border-right: 5px solid #777; /* bottom, add background color here */
@@ -76,8 +76,8 @@
 
 .arrow-right {
     background: none;
-    width: 0; 
-    height: 0; 
+    width: 0;
+    height: 0;
     border-bottom: 4px solid transparent;  /* left arrow slant */
     border-top: 4px solid transparent; /* right arrow slant */
     border-left: 5px solid #777; /* bottom, add background color here */
@@ -90,39 +90,196 @@
 */
 
 .w2ui-color {
-    padding: 5px; 
-    padding-top: 8px;
-    background-color: white; 
+    padding: 8px 5px 0px 5px;
+    background-color: white;
     border-radius: 3px;
 
-    > table {
-        table-layout: fixed;
-        width: 160px;
+    input:focus {
+        outline: none;
+        border: 1px solid #999 !important;
+    }
 
-        td {
-            width: 20px; 
-            height: 20px;
-            text-align: center;
+    .w2ui-color-palette {
+        width: 242px;
 
-            div {
-                cursor: pointer;
-                display: inline-block; 
-                width: 16px; 
-                height: 17px; 
-                padding: 1px 4px;
-                border: 1px solid transparent;
-                color: white;
-                text-shadow: 0px 0px 2px #000;
-                &:hover {
-                    outline: 1px solid #666;
-                    border: 1px solid #fff;
+        table {
+            table-layout: fixed;
+            width: 160px;
+
+            td {
+                width: 20px;
+                height: 20px;
+                text-align: center;
+
+                div {
+                    cursor: pointer;
+                    display: inline-block;
+                    width: 16px;
+                    height: 17px;
+                    padding: 1px 4px;
+                    border: 1px solid transparent;
+                    color: white;
+                    text-shadow: 0px 0px 2px #000;
+                    &:hover {
+                        outline: 1px solid #666;
+                        border: 1px solid #fff;
+                    }
+                    &.no-color {
+                        border: 1px solid #efefef;
+                    }
                 }
+            }
+        }
+    }
+
+    .w2ui-color-advanced {
+        height: 176px;
+        padding: 1px 2px;
+
+        .palette {
+            position: relative;
+            width: 150px;
+            height: 125px;
+            outline: 1px solid #d2d2d2;
+            box-sizing: content-box;
+
+            .palette-bg {
+                height: 100%;
+                background-image: linear-gradient(0deg, #000000, rgba(204, 154, 129, 0));
+                pointer-events: none;
+            }
+        }
+
+        .rainbow {
+            position: relative;
+            width: 150px;
+            height: 12px;
+            margin: 10px 0px 0px 0px;
+            background: linear-gradient(90deg, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);
+        }
+
+        .alpha {
+            position: relative;
+            width: 150px;
+            height: 12px;
+            margin: 10px 0px 0px 0px;
+            background-color: #fff;
+            background-image: linear-gradient(45deg, #bbb 25%, transparent 25%, transparent 75%, #bbb 75%, #bbb),
+                              linear-gradient(45deg, #bbb 25%, transparent 25%, transparent 75%, #bbb 75%, #bbb);
+            background-size: 12px 12px;
+            background-position:0 0, 6px 6px;
+
+            .alpha-bg {
+                height: 100%;
+                background-image: linear-gradient(90deg, rgba(80, 80, 80, 0) 0%, rgba(80, 80, 80, 1) 100%);
+                pointer-events: none;
+            }
+        }
+
+        .value1 {
+            pointer-events: none;
+            position: absolute;
+            top: 0px;
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 10px;
+            border: 1px solid #999;
+            background-color: transparent;
+            box-shadow: 0px 0px 1px white;
+            transform: translateX(-1px) translateY(-1px);
+        }
+
+        .value2 {
+            pointer-events: none;
+            position: absolute;
+            top: -2px;
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            border-radius: 2px;
+            border: 1px solid rgb(105, 105, 105);
+            background-color: rgb(255, 255, 255);
+            box-shadow: 0px 0px 1px white;
+            transform: translateX(-1px);
+        }
+
+        .color-info {
+            float: right;
+            width: 80px;
+            margin-left: 158px;
+            margin-top: 0px;
+
+            .color-preview-bg {
+                box-shadow: 0 0 1px #c3c3c3;
+                height: 40px;
+                background-color: #fff;
+                background-image: linear-gradient(45deg, #bbb 25%, transparent 25%, transparent 75%, #bbb 75%, #bbb),
+                                  linear-gradient(45deg, #bbb 25%, transparent 25%, transparent 75%, #bbb 75%, #bbb);
+                background-size: 16px 16px;
+                background-position:0 0, 8px 8px;
+                margin-bottom: 10px;
+            }
+
+            .color-preview, .color-original {
+                height: 40px;
+                width: 40px;
+                float: left;
+            }
+
+            .color-part {
+                padding-top: 5px;
+                span {
+                    display: inline-block;
+                    width: 7px;
+                    margin-left: 1px;
+                    color: #666;
+                }
+                input {
+                    font-size: 10px!important;
+                    border-radius: 2px;
+                    border: 1px solid #ccc;
+                    width: 26px !important;
+                    padding: 2px !important;
+                    color: #333;
+                }
+            }
+
+        }
+    }
+
+    .w2ui-color-tabs {
+        background-color: #f7f7f7;
+        height: 30px;
+        margin: 10px -5px 0px -5px;
+        border-top: 1px solid #d6d6d6;
+
+        .w2ui-color-tab {
+            float: left;
+            display: inline-block;
+            width: 34px;
+            height: 25px;
+            border: 1px solid transparent;
+            border-radius: 1px;
+            margin: -1px -3px 0px 8px;
+            text-align: center;
+            font-size: 15px;
+            padding-top: 1px;
+            color: #7b7b7b;
+
+            &.selected {
+                color: #555;
+                background-color: white;
+                border: 1px solid #e0e0e0;
+                border-top: 1px solid transparent;
+                border-bottom-left-radius: 5px;
+                border-bottom-right-radius: 5px;
             }
         }
     }
 }
 
-/* 
+/*
 *    DATE overlay
 */
 
@@ -138,20 +295,20 @@
         border-bottom: @calendar-title-border-bottom;
         color: @calendar-title-color;
         text-align: center;
-        text-shadow: @calendar-title-text-shadow; 
+        text-shadow: @calendar-title-text-shadow;
         cursor: pointer;
     }
 
     .w2ui-calendar-jump {
-        position: absolute; 
-        top: 27px; 
-        left: 0px; 
-        right: 0px; 
+        position: absolute;
+        top: 27px;
+        left: 0px;
+        right: 0px;
         bottom: 0px;
         background-color: #FaFaFa;
         >:first-child {
             position: absolute;
-            top: 0px; 
+            top: 0px;
             left: 0px;
             bottom: 0px;
             width: 110px;
@@ -161,7 +318,7 @@
         }
         >:last-child {
             position: absolute;
-            top: 0px; 
+            top: 0px;
             right: 0px;
             bottom: 0px;
             width: 88px;
@@ -194,9 +351,9 @@
             border: @calendar-day-hover-border;
             color: @calendar-day-hover-color;
             background-color: #dadada;
-        }    
+        }
     }
-    
+
     .w2ui-calendar-previous, .w2ui-calendar-next {
         width: 24px;
         height: 20px;
@@ -211,13 +368,13 @@
             background-color: @calendar-button-hover-background-color;
         }
         & > div {
-            position: absolute; 
-            border-left: 4px solid #888; 
+            position: absolute;
+            border-left: 4px solid #888;
             border-top: 4px solid #888;
-            border-right: 4px solid transparent; 
-            border-bottom: 4px solid transparent; 
-            width: 0px; 
-            height: 0px; 
+            border-right: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+            width: 0px;
+            height: 0px;
             padding: 0px;
             margin: 3px 0px 0px 0px;
         }
@@ -239,7 +396,17 @@
             margin-right: 2px;
         }
     }
-    
+
+    .w2ui-calendar-now {
+        cursor: pointer;
+        margin-bottom: 10px;
+        text-align: center;
+
+        &:hover {
+            color: #0A96DE;
+        }
+    }
+
     table {
         &.w2ui-calendar-days {
             padding: 0px;
@@ -250,7 +417,7 @@
                 padding: 6px;
                 cursor: default;
                 text-align: right;
-                &.w2ui-saturday, 
+                &.w2ui-saturday,
                 &.w2ui-sunday {
                     border: 1px solid @calendar-background-color;
                     color: @calendar-day-weekend-color;
@@ -297,7 +464,7 @@
                 text-align: center;
                 padding: 6px;
             }
-            
+
         }
     }
 }
@@ -333,10 +500,23 @@
     }
 }
 
+.w2ui-select-background (@a, @b, @c, @d, @e, @f, @g, @h, @i) {
+    background-image: @a, -webkit-linear-gradient(top, @b @c,@d @e,@f @g,@h @i);
+    background-image: @a, -moz-linear-gradient(top, @b @c,@d @e,@f @g,@h @i);
+    background-image: @a, -ms-linear-gradient(top, @b @c,@d @e,@f @g,@h @i);
+    background-image: @a, -o-linear-gradient(top, @b @c,@d @e,@f @g,@h @i);
+    background-image: @a, linear-gradient(top, @b @c,@d @e,@f @g,@h @i);
+}
+
 .w2ui-select {
     cursor: default;
     color: black !important;
-    .linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
+	.w2ui-select-background(url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAALCAQAAACnzwd+AAAAcklEQVR4AcXMsQFBQQDG4P9tAgC0gJYRQJZgKQMwCqCku6vVAAAA+NJHP4KHOk0aV2pRw61n4BBmyOxKQ8I4ehZeuhd3HTx6DQEGZ7sBfr2OOOOj3Yi43kMKs9sZknofOexqZ8npMygwWZTX51CipP+YA1OiZJbYYg9lAAAAAElFTkSuQmCC'),
+                            #fff, 20%, #f6f6f6, 50%, #EEE, 52%, #f4f4f4, 100%);
+    background-size: 17px 6px, 100% 100%;
+    background-position: right center, left top;
+    background-repeat: no-repeat, no-repeat;
+
     &[readonly], &[disabled] {
         background-image: none;
         background-color: #f1f1f1 !important;
@@ -351,17 +531,17 @@
 
 .w2ui-list {
     color: @list-color;
-    position: absolute; 
+    position: absolute;
     padding: 0px;
-    margin: 0px; 
-    min-height: 25px; 
-    overflow: auto; 
-    border: @list-border; 
+    margin: 0px;
+    min-height: 25px;
+    overflow: auto;
+    border: @list-border;
     border-radius: 3px;
     font-size: 6px;    // need to be small for list
     line-height: 100%;
     .box-sizing;
-    background-color: @list-background-color; // Needed for IE9+ 
+    background-color: @list-background-color; // Needed for IE9+
 
     input[type=text] {
         .box-shadow;
@@ -444,7 +624,7 @@
             }
         }
     }
-    
+
     // file
 
     .w2ui-enum-placeholder { // this a DROP ZONE message, will be remove when first file dropped

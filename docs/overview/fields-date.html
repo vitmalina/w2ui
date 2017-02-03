@@ -7,8 +7,8 @@
 <h5>Preview</h5>
 <style>
     .block {
-        padding-top: 20px; 
-        padding-bottom: 10px; 
+        padding-top: 20px;
+        padding-bottom: 10px;
         color: #999;
         font-size: 14px;
     }
@@ -189,13 +189,14 @@ You can provide various options for numeric fields as second argument. The struc
 
 <textarea class="javascript">
 options = {
-    format      : w2utils.settings.date_format, // date format
-    placeholder : '',        // placeholder if not empty
-    keyboard    : true,      // indicates if keyboard should be supported
-    silent      : true,      // indicate if to correct silently or display error tag
-    start       : '',        // string or jquery object
-    end         : '',        // string or jquery object
-    blocked     : {},        // { '4/11/2011': 'yes' }
-    colored     : {}         // { '4/11/2011': 'red:white' }
+    format      : w2utils.settings.dateFormat, // date format
+    keyboard    : true,     // indicates if keyboard should be supported
+    silent      : true,     // indicate if to correct silently or display error tag
+    noMinutes   : false,    // do not display minutes
+    btn_now     : true,     // show/hide the use-current-date-and-time button
+    start       : '',       // string or jquery object
+    end         : '',       // string or jquery object
+    blocked     : {},       // { '4/11/2011': 'yes' }
+    colored     : {}        // { '4/11/2011': 'red:white' }
 };
 </textarea>

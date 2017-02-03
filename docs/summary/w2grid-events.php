@@ -1,5 +1,6 @@
 <link rel="stylesheet" type="text/css" href="../summary.css"/> 
-<div class="container"><div class="obj-property">
+<div class="container">
+<div class="obj-property">
     <a href="w2grid.onAdd">onAdd</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">
@@ -24,7 +25,7 @@
     <a href="w2grid.onCollapse">onCollapse</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">
-    Called when user collapses epxandable record.
+    Called when user collapses expandable record.
 </div>
 
 <div class="obj-property">
@@ -77,13 +78,6 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.onDeleted">onDeleted</a> <span>- function (event)</span>
-</div>
-<div class="obj-property-desc">
-    Called when server responds back after delete request.
-</div>
-
-<div class="obj-property">
     <a href="w2grid.onEdit">onEdit</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">
@@ -115,7 +109,7 @@
     <a href="w2grid.onKeydown">onKeydown</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">
-    Called when user presess a keyboard key and grid is active.
+    Called when user presses a keyboard key and grid is active.
 </div>
 
 <div class="obj-property">
@@ -161,7 +155,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.onSaved">onSaved</a> <span>- function (event)</span>
+    <a href="w2grid.onSave">onSave</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">
     Called when server responds back after save request.
@@ -185,7 +179,7 @@
     <a href="w2grid.onSelectionExtend">onSelectionExtend</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">
-    Called when user extends selection by draggind small dot at the bottom right cornder of selection.
+    Called when user extends selection by dragging small dot at the bottom right corner of selection.
 </div>
 
 <div class="obj-property">

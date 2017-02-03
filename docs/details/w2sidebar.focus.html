@@ -1,0 +1,42 @@
+Called when sidebar gets focus.
+
+<div class="definition">
+    focus([event])
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>event</td>
+        <td><b>object</b>, DOM Event object</td>
+    </tr>
+    </table>
+</div>
+
+Returns <i>undefined</i>.
+
+<h4>Description</h4>
+
+This method is called when sidebar gets focus either by user clicking on it with the mouse or using tab key to. It is used internally, but you can use it to emulate
+getting focus. This method emits <a class="method" href="w2sidebar.onFocus">.onFocus</a> event.
+<div style="height: 10px"></div>
+
+If you have sidebar defined in the following way:
+<textarea class="javascript">
+$('#sidebar').w2sidebar({
+    name : 'sidebar',
+    nodes: [
+        { id: 'id-1', text: 'Level 1', hidden: true },
+        { id: 'id-2', text: 'Level 2', expanded: true, nodes: [
+            { id: 'id-2-1', text: 'Level 2.1' },
+            { id: 'id-2-2', text: 'Level 2.2' }
+        ]},
+        { id: 'id-3', text: 'Level 3' }
+    ]
+});
+</textarea>
+
+You can click on the node:
+<textarea class="javascript">
+w2ui['sidebar'].focus();
+</textarea>

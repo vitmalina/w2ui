@@ -1,5 +1,6 @@
 <link rel="stylesheet" type="text/css" href="../summary.css"/> 
-<div class="container"><div class="obj-property">
+<div class="container">
+<div class="obj-property">
     <a href="w2form.action">action</a> <span>- action(action, [event])</span>
 </div>
 <div class="obj-property-desc">
@@ -38,7 +39,7 @@
     <a href="w2form.getChanges">getChanges</a> <span>- getChanges()</span>
 </div>
 <div class="obj-property-desc">
-    Compares current record object to original and returnes diff.
+    Compares current record object to original and returns difference.
 </div>
 
 <div class="obj-property">

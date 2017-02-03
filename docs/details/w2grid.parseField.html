@@ -1,4 +1,4 @@
-Paste tab-delimmited text into the grid.
+Paste tab-delimited text into the grid.
 
 <div class="definition">
     parseField(obj, field)
@@ -38,11 +38,11 @@ record = {
 </textarea>
 However, when you define <a class="property" href="w2grid.columns">.columns</a> or 
 <a class="property" href="w2grid.searches">.searches</a> for the grid, you need to define field as a string.
-The grid will interanlly call <a class="property" href="w2grid.parseField">.parseField</a> method to parse data structure 
+The grid will internally call <a class="property" href="w2grid.parseField">.parseField</a> method to parse data structure 
 and resolve the field value. 
 <div style="height: 10px"></div>
 
-This method can be used to parse any object that you supply, not necessarely the record object. For the example above, you can parse
+This method can be used to parse any object that you supply, not necessarily the record object. For the example above, you can parse
 fields in the following way (assuming there is grid with name grid): 
 <textarea class="javascript">
 var val = w2ui.grid.parseField(record, 'person.lname');

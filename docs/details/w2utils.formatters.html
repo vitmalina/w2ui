@@ -1,0 +1,46 @@
+An object with formatting functions.
+
+<div class="definition">
+    Object
+</div>
+
+This object provides formatters for all widgets (especially in the grid). You can extend formatters with your custom formatters:
+
+<textarea class="javascript">
+	w2utils.formatters['myFormatter'] = function (val, params) {
+		return 'format: ' + val;
+	}
+</textarea>
+
+Below is the list of formatters that are already implemented:
+<ul>
+	<li>number</li>
+	<li>float</li>
+	<li>int</li>
+	<li>money</li>
+	<li>currency</li>
+	<li>percent</li>
+	<li>size</li>
+	<li>date</li>
+	<li>datetime</li>
+	<li>time</li>
+	<li>timestamp</li>
+	<li>gmt</li>
+	<li>age</li>
+	<li>toggle</li>
+</ul>
+
+You can use them in grid when you define columns in the following way:
+<textarea class="javascript">
+$('#grid').w2grid({
+    name           : 'grid',
+    columns: [
+        { field: 'recid', caption: 'ID', size: '50px' },
+        { field: 'name', caption: 'Name', size: '30%' },
+        { field: 'email', caption: 'Email', size: '40%', render: 'myformatter'},
+        { field: 'sdate', caption: 'Start Date', size: '120px', render:'date' },
+        { field: 'sdate', caption: 'End Date', size: '120px', render:'date|dd/mm/yyyy' }
+    ],
+});
+</textarea>
+Note that you can pass params after pipe (|).

@@ -1,0 +1,51 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Tooltips (new in 1.5)</h1>
+        There are two more
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="toolbar" style="padding: 4px; border: 1px solid #dfdfdf; border-radius: 3px"></div>
+
+<div style="height: 40px"></div>
+Tooltip position:<br>
+<div style="padding: 10px">
+    <label><input type="radio" name="position" onclick="w2ui.toolbar.tooltip = 'top'; w2ui.toolbar.refresh()" checked>&nbsp;&nbsp;Top</label><br>
+    <label><input type="radio" name="position" onclick="w2ui.toolbar.tooltip = 'bottom'; w2ui.toolbar.refresh()">&nbsp;&nbsp;Bottom</label><br>
+    <label><input type="radio" name="position" onclick="w2ui.toolbar.tooltip = 'left'; w2ui.toolbar.refresh()">&nbsp;&nbsp;Left</label><br>
+    <label><input type="radio" name="position" onclick="w2ui.toolbar.tooltip = 'right'; w2ui.toolbar.refresh()">&nbsp;&nbsp;Right</label><br>
+</div>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#toolbar').w2toolbar({
+        name: 'toolbar',
+        tooltip: 'top',
+        items: [
+            { type: 'check',  id: 'item1', text: 'Check', icon: 'fa-check', checked: true, tooltip: 'Tooltip text' },
+            { type: 'break',  id: 'break0' },
+            { type: 'menu',   id: 'item2', text: 'Menu', icon: 'fa-table', count: 17, tooltip: 'Tooltip text can be very very long',
+                items: [
+                    { text: 'Item 1', icon: 'fa-camera', count: 5 },
+                    { text: 'Item 2', icon: 'fa-picture', disabled: true },
+                    { text: 'Item 3', icon: 'fa-glass', count: 12 }
+                ]
+            },
+            { type: 'break', id: 'break1' },
+            { type: 'radio',  id: 'item3',  group: '1', text: 'Radio 1', icon: 'fa-star', checked: true, tooltip: 'Tooltip text can also be<br>in multiple lines' },
+            { type: 'radio',  id: 'item4',  group: '1', text: 'Radio 2', icon: 'fa-heart',
+                tooltip: function (item) {
+                    return 'Can also be result of a function: ' + item.text;
+                }
+            },
+        ],
+        onClick: function (event) {
+            console.log('Selected:', event.item.selected);
+        }
+    });
+});
+</script>

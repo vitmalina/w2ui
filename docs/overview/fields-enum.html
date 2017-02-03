@@ -32,19 +32,19 @@
 <script>
 $(function () {
     var pstyle = 'padding-right: 3px; color: #828AA7; text-shadow: 1px 1px 3px white;';
-    var people = ['George Washington', 'John Adams', 'Thomas Jefferson', 'James Buchanan', 'James Madison', 'Abraham Lincoln', 'James Monroe', 'Andrew Johnson', 'John Adams', 'Ulysses Grant', 'Andrew Jackson', 'Rutherford Hayes', 'Martin VanBuren', 'James Garfield', 'William Harrison', 'Chester Arthur', 'John Tyler', 'Grover Cleveland', 'James Polk', 'Benjamin Harrison', 'Zachary Taylor', 'Grover Cleveland', 'Millard Fillmore', 'William McKinley', 'Franklin Pierce', 'Theodore Roosevelt', 'John Kennedy', 'William Howard', 'Lyndon Johnson', 'Woodrow Wilson', 'Richard Nixon', 'Warren Harding', 'Gerald Ford', 'Calvin Coolidge', 'James Carter', 'Herbert Hoover', 'Ronald Reagan', 'Franklin Roosevelt', 'George Bush', 'Harry Truman', 'William Clinton', 'Dwight Eisenhower', 'George W. Bush', 'Barack Obama'];
-    $('#enum').w2field('enum', { 
+    var people = ['George Washington', 'John Adams', 'Thomas Jefferson', 'James Buchanan', 'James Madison', 'Abraham Lincoln', 'James Monroe', 'Andrew Johnson', 'John Adams', 'Ulysses Grant', 'Andrew Jackson', 'Rutherford Hayes', 'Martin Van Buren', 'James Garfield', 'William Harrison', 'Chester Arthur', 'John Tyler', 'Grover Cleveland', 'James Polk', 'Benjamin Harrison', 'Zachary Taylor', 'Grover Cleveland', 'Millard Fillmore', 'William McKinley', 'Franklin Pierce', 'Theodore Roosevelt', 'John Kennedy', 'William Howard', 'Lyndon Johnson', 'Woodrow Wilson', 'Richard Nixon', 'Warren Harding', 'Gerald Ford', 'Calvin Coolidge', 'James Carter', 'Herbert Hoover', 'Ronald Reagan', 'Franklin Roosevelt', 'George Bush', 'Harry Truman', 'William Clinton', 'Dwight Eisenhower', 'George W. Bush', 'Barack Obama'];
+    $('#enum').w2field('enum', {
         items: people,
         openOnFocus: true,
         selected: [{ id: 0, text: 'John Adams' }, { id: 0, text: 'Thomas Jefferson' }]
     });
-    $('#enum-max').w2field('enum', { 
-        items: people, 
+    $('#enum-max').w2field('enum', {
+        items: people,
         openOnFocus: true,
-        max: 2 
+        max: 2
     });
-    $('#enum-custom').w2field('enum', { 
-        items: people, 
+    $('#enum-custom').w2field('enum', {
+        items: people,
         openOnFocus: true,
         onAdd: function (event) {
             if (Math.random() > 0.8) {
@@ -86,19 +86,19 @@ $(function () {
 &lt;script>
 $(function () {
     var pstyle = 'padding-right: 3px; color: #828AA7; text-shadow: 1px 1px 3px white;';
-    var people = ['George Washington', 'John Adams', 'Thomas Jefferson', 'James Buchanan', 'James Madison', 'Abraham Lincoln', 'James Monroe', 'Andrew Johnson', 'John Adams', 'Ulysses Grant', 'Andrew Jackson', 'Rutherford Hayes', 'Martin VanBuren', 'James Garfield', 'William Harrison', 'Chester Arthur', 'John Tyler', 'Grover Cleveland', 'James Polk', 'Benjamin Harrison', 'Zachary Taylor', 'Grover Cleveland', 'Millard Fillmore', 'William McKinley', 'Franklin Pierce', 'Theodore Roosevelt', 'John Kennedy', 'William Howard', 'Lyndon Johnson', 'Woodrow Wilson', 'Richard Nixon', 'Warren Harding', 'Gerald Ford', 'Calvin Coolidge', 'James Carter', 'Herbert Hoover', 'Ronald Reagan', 'Franklin Roosevelt', 'George Bush', 'Harry Truman', 'William Clinton', 'Dwight Eisenhower', 'George W. Bush', 'Barack Obama'];
-    $('#enum').w2field('enum', { 
+    var people = ['George Washington', 'John Adams', 'Thomas Jefferson', 'James Buchanan', 'James Madison', 'Abraham Lincoln', 'James Monroe', 'Andrew Johnson', 'John Adams', 'Ulysses Grant', 'Andrew Jackson', 'Rutherford Hayes', 'Martin Van Buren', 'James Garfield', 'William Harrison', 'Chester Arthur', 'John Tyler', 'Grover Cleveland', 'James Polk', 'Benjamin Harrison', 'Zachary Taylor', 'Grover Cleveland', 'Millard Fillmore', 'William McKinley', 'Franklin Pierce', 'Theodore Roosevelt', 'John Kennedy', 'William Howard', 'Lyndon Johnson', 'Woodrow Wilson', 'Richard Nixon', 'Warren Harding', 'Gerald Ford', 'Calvin Coolidge', 'James Carter', 'Herbert Hoover', 'Ronald Reagan', 'Franklin Roosevelt', 'George Bush', 'Harry Truman', 'William Clinton', 'Dwight Eisenhower', 'George W. Bush', 'Barack Obama'];
+    $('#enum').w2field('enum', {
         items: people,
         openOnFocus: true,
         selected: [{ id: 0, text: 'John Adams' }, { id: 0, text: 'Thomas Jefferson' }]
     });
-    $('#enum-max').w2field('enum', { 
-        items: people, 
+    $('#enum-max').w2field('enum', {
+        items: people,
         openOnFocus: true,
-        max: 2 
+        max: 2
     });
-    $('#enum-custom').w2field('enum', { 
-        items: people, 
+    $('#enum-custom').w2field('enum', {
+        items: people,
         openOnFocus: true,
         onAdd: function (event) {
             if (Math.random() > 0.8) {
@@ -124,17 +124,17 @@ You can provide various options for numeric fields as second argument. The struc
 
 <textarea class="javascript">
 options = {
-    items           : [],           // array of item objects
-    selected        : [],           // selected array
-    placeholder     : '',           // placeholder if empty
-    max             : 0,            // max number of selected items, 0 - unlim
-    url             : null,         // url to pull data from
+    items           : [],           // array of item objects, can be a function
+    selected        : {},           // selected object
+    url             : null,         // url to pull data from (can support similar format as w2grid)
+    method          : null,         // default comes from w2utils.settings.dataType
     postData        : {},           // additional data to submit to URL
     minLength       : 1,            // min search length to trigger reload from URL
     cacheMax        : 250,          // number of items to cache if retrieved from URL
     maxWidth        : 250,          // max width for a single item
     maxHeight       : 350,          // max height for input control to grow
     maxDropHeight   : 350,          // max height for drop down menu
+    maxDropWidth    : null,         // max width for drop down menu
     match           : 'begins',     // ['contains', 'is', 'begins', 'ends']
     silent          : true,         // indicates if to display error tag
     icon            : null,         // icon class for selected item
@@ -145,7 +145,12 @@ options = {
     prefix          : '',           // prefix for control
     suffix          : '',           // suffix for control
     openOnFocus     : false,        // if to show overlay onclick or when typing
+    msgNoItems      : '',           // message when nothing found, can be a function
     markSearch      : false,        // indicated if to mark search string in the drop down
+    compare         : null,         // compare functtion while searching
+    filter          : true,         // filter as user types
+    recId           : null,         // map retrieved data from url to id, can be string or function
+    recText         : null,         // map retrieved data from url to text, can be string or function
     onSearch        : null,         // when search needs to be performed
     onRequest       : null,         // when request is submitted
     onLoad          : null,         // when data is received
@@ -156,7 +161,8 @@ options = {
     onNew           : null,         // when new item should be added
     onRemove        : null,         // when an item is removed
     onMouseOver     : null,         // when an item is mouse over
-    onMouseOut      : null          // when an item is mouse out
+    onMouseOut      : null,         // when an item is mouse out
+    onScroll        : null,         // when drop down is scrolled
 };
 </textarea>
 
@@ -164,7 +170,7 @@ options = {
 
 <textarea class="javascript">
 options = {
-    id       : '',      // unique id 
+    id       : '',      // unique id
     text     : '',      // item text
     icon     : '',      // icon class if any
     img      : '',      // image class if any
@@ -172,4 +178,16 @@ options = {
     hidden   : false,   // indicates if hidden
     count    : null     // count to display on the right
 };
+</textarea>
+
+<h3>Set Value From JavaScript</h3>
+To set a different value from JavaScript you need to change $('#id').data('selected') and refresh the field:
+<textarea class="javascript">
+$('input[type=combo]').data('selected', { id: 1, text: 'Some text'}).change();
+// or
+$('input[type=combo]').w2field().set({ id: 1, text: 'Some text'});
+</textarea>
+In 1.4.0, you should be able to do it with
+<textarea class="javascript">
+$('input[type=combo]').data('selected', { id: 1, text: 'Some text'}).data('w2field').refresh();
 </textarea>

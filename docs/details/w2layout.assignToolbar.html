@@ -1,0 +1,57 @@
+Assigned new w2toolbar object to a panel
+
+<div class="definition">
+    assignToolbar(panel, toolbar)
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>panel</td>
+        <td><b>string</b>, name of the panel</td>
+    </tr>
+    <tr>
+        <td>toolbar</td>
+        <td><b>string</b> or <b>object</b>, toolbar to assign</td>
+    </tr>
+    </table>
+</div>
+
+<h4>Description</h4>
+
+The first argument <span class="argument">panel</span> is the name of the panel. It can be one of the following:
+<ul style="margin-left: 50px">
+    <li>top
+    <li>left
+    <li>main
+    <li>right
+    <li>preview
+    <li>bottom
+</ul>
+
+Initially you can set a toolbar object for the panel when you initialize it in the following way:
+<textarea class="javascript">
+$('#layout').w2layout({
+    name    : 'layout',
+    panels  : [
+        { type: 'top', size: 40 },
+        { type: 'main', content: 'This is main panel',
+            toolbar: {
+                items: [
+                    { type: 'button', caption: 'Some button'}
+                ],
+                onClick: function (event) {
+                    ...
+                }
+            }
+        },
+        { type: 'preview', size: 200 }
+    ]
+});
+</textarea>
+
+However, if you already have a w2toolbar object created, you can assign it to the panel with assignToolbar methods. If second
+argument <span class=argument>toolbar</span> is a string, it will look for toolbar in the global w2ui object.
+<textarea class="javascript">
+layout.assignToolbar('main', 'myToolbar');
+</textarea>

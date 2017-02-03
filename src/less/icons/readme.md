@@ -6,14 +6,18 @@ Icons are used in the grid. They are generated from svn files in src/less/icons/
 grunt webfont
 ```
 
-After font and css classes are created copy css from 
+After font and css classes are created  from
 
 ```
 src/less/icons/icon-font.css
-``` 
+```
 
-into 
+into
 
 ```
 src/less/src/icons.less
 ```
+
+Then,
+- rename font to w2ui-font
+- prepend icons with w2ui-

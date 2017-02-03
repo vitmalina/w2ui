@@ -1,0 +1,55 @@
+Slides down a dialog <span class="argument">str</span> is a date.
+
+<div class="definition">
+    message(where, [options])
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>where</td>
+        <td><b>object</b>, where to display</td>
+    </tr>
+    <tr>
+        <td>options</td>
+        <td><b>object</b>, <i>optional</i>, additional parametes</td>
+    </tr>
+    </table>
+</div>
+
+This method is used internally to show message in w2grid and w2form. It will lock the content of specified div and will slide down a message. First argument <span class="method">where</span> is a object of the following structure
+
+<textarea class="javascript">
+{
+    box   : null,  // html element where it will display message
+    path  : null,  // path to a w2ui object that is locked
+    title : null,  // css selector for a title (if any)
+    body  : null   // css selector for a body
+ }
+</textarea>
+
+For example, in w2grid it is called in the following way
+
+<textarea class="javascript">
+w2utils.message.call(this, {
+    box   : this.box,
+    path  : 'w2ui.' + this.name,
+    title : '.w2ui-grid-header:visible',
+    body  : '.w2ui-grid-box'
+}, options);
+</textarea>
+
+The second argument <span class="method">options</span> is the same as for <span class="method">w2popup.message()</span> method and can have following options
+
+<textarea class="javascript">
+options: {
+    html        : '',   // html of the message
+    body        : '',   // similar to body in w2popup, can be used instead of options.html
+    buttons     : '',   // similar to buttons in w2popup, can be used instead of options.html
+    width       : 10,   // width in px (if negative, then it is 100% of popup in message.width)
+    height      : 10,   // height in px (if negative, then it is 100% of popup in message.height)
+    hideOnClick : true, // if true, hide message if user clicks on it
+    onOpen      : null, // function to execute when message opens
+    onClose     : null  // function to execute when message closes
+}
+</textarea>

@@ -1,7 +1,7 @@
 <div class="content">
     <div id="example_title">
-        <h1>Date & Time</h1>
-        For DATE and TIME controls you can use keyboard to increment by a day (or a minute) if you click up/down arrow keys. You can also use ctr + up/down (command + up/down on mac) to increment by a month (or an hour).
+        <h1>Date, Time & Datetime</h1>
+        For DATE, TIME and DATETIME controls you can use keyboard to increment by a day (or a minute) if you click up/down arrow keys. You can also use ctr + up/down (command + up/down on mac) to increment by a month (or an hour).
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -36,6 +36,10 @@
     <label>From-To:</label>
     <div> <input type="us-timeA"> <span class="legend">(from 8:00 am to 4:30 pm)</span> </div>
 </div>
+<div class="w2ui-field dt">
+    <label>Datetime:</label>
+    <div> <input type="us-datetime"> </div>
+</div>
 
 <div class="block">
     <b>EU Common Format</b>
@@ -64,6 +68,10 @@
     <label>From-To:</label>
     <div> <input type="eu-timeA"> <span class="legend">(from 8:00 am to 4:30 pm)</span> </div>
 </div>
+<div class="w2ui-field dt">
+    <label>Datetime:</label>
+    <div> <input type="eu-datetime"> </div>
+</div>
 
 <style>
 .block {
@@ -73,6 +81,9 @@
 }
 .w2ui-field input {
     width: 90px;
+}
+.w2ui-field.dt input {
+    width: 140px;
 }
 .w2ui-field > div > span {
     margin-left: 20px;
@@ -92,6 +103,7 @@ $('input[type=us-date1]').w2field('date', { format: 'm/d/yyyy', end: $('input[ty
 $('input[type=us-date2]').w2field('date', { format: 'm/d/yyyy', start: $('input[type=us-date1]') });
 $('input[type=us-time]').w2field('time',  { format: 'h12' });
 $('input[type=us-timeA]').w2field('time', { format: 'h12', start: '8:00 am', end: '4:30 pm' });
+$('input[type=us-datetime]').w2field('datetime');
 
 // EU Common Format
 $('input[type=eu-date]').w2field('date',  { format: 'd.m.yyyy' });
@@ -101,4 +113,5 @@ $('input[type=eu-date1]').w2field('date', { format: 'd.m.yyyy', end: $('input[ty
 $('input[type=eu-date2]').w2field('date', { format: 'd.m.yyyy', start: $('input[type=eu-date1]') });
 $('input[type=eu-time]').w2field('time',  { format: 'h24' });
 $('input[type=eu-timeA]').w2field('time', { format: 'h24', start: '8:00 am', end: '4:30 pm' });
+$('input[type=eu-datetime]').w2field('datetime', { format: 'dd.mm.yyyy|h24:mm' });
 </script>

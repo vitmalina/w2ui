@@ -4,14 +4,14 @@
 
 .w2ui-layout {
     overflow: hidden !important;
-    .box-sizing;    
+    .box-sizing;
 
     & * {
         .box-sizing;
     }
-    
+
     > div {
-        position: absolute; 
+        position: absolute;
         overflow: hidden;
         border: 0px;
         margin: 0px;
@@ -21,10 +21,14 @@
 
         .w2ui-panel {
             display: none;
-            position: absolute; 
-            z-index: 120; 
+            position: absolute;
+            z-index: 120;
 
             .w2ui-panel-title {
+                position: absolute;
+                left: 0px;
+                top: 0px;
+                right: 0px;
                 padding: 5px;
                 .linear-gradient-vertical(@layout-title-linear-gradient-start, @layout-title-linear-gradient-end);
                 border: @layout-title-border;
@@ -71,13 +75,13 @@
                 background-color : @layout-background-color;
             }
         }
-        
+
         .w2ui-resizer {
             display: none;
-            position: absolute; 
+            position: absolute;
             z-index: 121;
             background-color: @layout-resizer-background-color;
-            
+
             &:hover, &.active {
                 background-color: @layout-resizer-hover-background-color;
             }

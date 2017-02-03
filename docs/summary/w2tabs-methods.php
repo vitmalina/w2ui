@@ -1,5 +1,6 @@
 <link rel="stylesheet" type="text/css" href="../summary.css"/> 
-<div class="container"><div class="obj-property">
+<div class="container">
+<div class="obj-property">
     <a href="w2tabs.add">add</a> <span>- add(tabs)</span>
 </div>
 <div class="obj-property-desc">
@@ -70,17 +71,24 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2tabs.scroll">scroll</a> <span>- scroll(direction)</span>
+</div>
+<div class="obj-property-desc">
+    Scrolls tabs if they overflow.
+</div>
+
+<div class="obj-property">
     <a href="w2tabs.select">select</a> <span>- select(id)</span>
 </div>
 <div class="obj-property-desc">
-    Finds tab with <span class="argument">id</span> and makes it active. 
+    Finds tab with <span class="argument">id</span> and makes it active.
 </div>
 
 <div class="obj-property">
     <a href="w2tabs.set">set</a> <span>- set(id, tab)</span>
 </div>
 <div class="obj-property-desc">
-    Finds tab with <span class="argument">id</span> and extends it with <span class="argument">tab</span> object. 
+    Finds tab with <span class="argument">id</span> and extends it with <span class="argument">tab</span> object.
 </div>
 
 <div class="obj-property">
@@ -88,6 +96,20 @@
 </div>
 <div class="obj-property-desc">
     Shows tab or tabs with <span class="argument">id</span>.
+</div>
+
+<div class="obj-property">
+    <a href="w2tabs.tooltipHide">tooltipHide</a> <span>- tooltipHide(id)</span>
+</div>
+<div class="obj-property-desc">
+    Hides tooltip of the tab with <span class="argument">id</span>.
+</div>
+
+<div class="obj-property">
+    <a href="w2tabs.tooltipShow">tooltipShow</a> <span>- tooltipShow(id, [event], [forceRefresh])</span>
+</div>
+<div class="obj-property-desc">
+    Shows tooltip of the tab with <span class="argument">id</span>.
 </div>
 
 </div>

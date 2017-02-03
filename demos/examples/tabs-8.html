@@ -1,0 +1,54 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Tooltips (new in 1.5)</h1>
+        Below is an example of how to define tooltips for the tabs.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="tabs" style="width: 100%;"></div>
+<div id="selected-tab" style="padding: 10px 0px">tab1</div>
+<br>
+Tooltip position:<br>
+<div style="padding: 10px">
+    <label><input type="radio" name="position" onclick="w2ui.tabs.tooltip = 'top'; w2ui.tabs.refresh()" checked>&nbsp;&nbsp;Top</label><br>
+    <label><input type="radio" name="position" onclick="w2ui.tabs.tooltip = 'bottom'; w2ui.tabs.refresh()">&nbsp;&nbsp;Bottom</label><br>
+    <label><input type="radio" name="position" onclick="w2ui.tabs.tooltip = 'left'; w2ui.tabs.refresh()">&nbsp;&nbsp;Left</label><br>
+    <label><input type="radio" name="position" onclick="w2ui.tabs.tooltip = 'right'; w2ui.tabs.refresh()">&nbsp;&nbsp;Right</label><br>
+</div>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#tabs').w2tabs({
+        name: 'tabs',
+        active: 'tab1',
+        tabs: [
+            { id: 'tab1', text: 'Tab 1', tooltip: 'Tab 1 tooltip text' },
+            { id: 'tab2', tooltip: 'Tab 2 tooltip text<br>Can be multi line',
+                count: 0,
+                text: function (item) {
+                    return 'Click me '+ item.count;
+                }
+            },
+            { id: 'tab3', text: 'Tab 4',
+                tooltip: function (item) {
+                    return 'Can be result of a function ' + (new Date()).getTime();
+                }
+            }
+        ],
+        onClick: function (event) {
+            $('#selected-tab').html(event.target);
+            if (event.target == 'tab2') {
+                event.tab.count++;
+                this.refresh(event.target);
+            }
+            if (event.target == 'tab3') {
+                this.tooltipShow('tab3', null, true);
+            }
+        }
+    });
+});
+</script>

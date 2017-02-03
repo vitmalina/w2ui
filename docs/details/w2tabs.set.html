@@ -1,4 +1,4 @@
-Finds tab with <span class="argument">id</span> and extends it with <span class="argument">tab</span> object. 
+Finds tab with <span class="argument">id</span> and extends it with <span class="argument">tab</span> object.
 
 <div class="definition">
     set(id, tab)
@@ -21,10 +21,10 @@ Returns boolean.
 
 <h4>Description</h4>
 
-The first argument <span class="argument">id</span> is the id of the tab object you used when you created tabs. The 
-<a class="method" href="w2tabs.tabs">.tabs</a> array holds all created tab objects. The tab object is not replaced with 
-<span class="argument">tab</span>, but extended by it. If you call this method it during run-time, you will need to call 
-<a class="method" href="w2tabs.refresh">.refresh()</a> method. If tab object was successfully extended the method will 
+The first argument <span class="argument">id</span> is the id of the tab object you used when you created tabs. The
+<a class="method" href="w2tabs.tabs">.tabs</a> array holds all created tab objects. The tab object is not replaced with
+<span class="argument">tab</span>, but extended by it. If you call this method it during run-time, you will need to call
+<a class="method" href="w2tabs.refresh">.refresh()</a> method. If tab object was successfully extended the method will
 return true, otherwise false.
 <div style="height: 10px"></div>
 
@@ -34,10 +34,10 @@ $('#tabs').w2tabs({
     name: 'tabs',
     active: 'tab1',
     tabs: [
-        { id: 'tab1', caption: 'Tab 1' },
-        { id: 'tab2', caption: 'Tab 2' },
-        { id: 'tab3', caption: 'Tab 3' },
-        { id: 'tab4', caption: 'Tab 4' }
+        { id: 'tab1', text: 'Tab 1' },
+        { id: 'tab2', text: 'Tab 2' },
+        { id: 'tab3', text: 'Tab 3' },
+        { id: 'tab4', text: 'Tab 4' }
     ]
 });
 </textarea>

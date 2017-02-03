@@ -1,6 +1,6 @@
 <html>
 <head>
-<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
+<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
 <script type="text/javascript" src="../libs/jquery/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2tabs.js"></script>
@@ -11,17 +11,18 @@
 <script>
 //<![CDATA[
 $(function () {
-    $('#grid').w2grid({ 
-        name : 'grid', 
-        show : { 
+    $('#grid').w2grid({
+        name : 'grid',
+        show : {
             toolbar     : true,
             footer      : true,
             lineNumbers : true,
             toolbarDelete: true,
-            selectColumn : false
+            selectColumn : true
         },
         selectType: 'cell',
-        columns: [                
+        textSearch: 'contains',
+        columns: [
             { field: 'a', caption: '<div style="text-align: center">A</div>', size: '95px', searchable: true, editable: { type: 'div' }, frozen: true },
             { field: 'b', caption: '<div style="text-align: center">B</div>', size: '95px', editable: { type: 'div' }, frozen: true},
             { field: 'c', caption: '<div style="text-align: center">C</div>', size: '95px', editable: { type: 'div' }},
@@ -44,6 +45,22 @@ $(function () {
         menu: ['some', 'other'],
         onContextMenu: function (event) {
             // console.log('context', event);
+        },
+        onSelectionExtend: function (event) {
+            console.log('extend', event);
+        },
+        onColumnSelect: function (event) {
+            console.log('column', event);
+            // event.preventDefault();
+        },
+        onSelect: function (event) {
+            // console.log('select', event);
+        },
+        onFocus: function (event) {
+            console.log('focus');
+        },
+        onBlur: function (event) {
+            console.log('blur');
         }
     });
     w2ui.grid.on('onContextMenu', function (event) {
@@ -51,28 +68,45 @@ $(function () {
     });
     // add 10k records
     for (var i = 0; i < 3000; i++) {
-        w2ui['grid'].records.push({ 
+        w2ui['grid'].records.push({
             recid : (i + 10),
             a: 'some',
             b: 'sample',
             k: 'text'
         });
     }
+    // add toolbar button, appending one record every second.
+    w2ui['grid'].toolbar.add([
+        { type: 'break',  id: 'autoload-break' },
+        { type: 'check',  id: 'autoload', caption: 'Add 1 Record/sec' },
+    ]);
+    var autoId = 0;
+    setInterval(function() {
+        if (!w2ui['grid'].toolbar.get('autoload').checked)
+            return;
+        ++autoId;
+        w2ui['grid'].add({
+            recid: autoId + 10000,
+            a: 'some ',
+            b: 'automatic',
+            c: 'text: '+autoId
+        });
+    }, 1000);
     w2ui.grid.records[1].a = 'A1';
     w2ui.grid.records[5].a = 'A1';
     w2ui.grid.records[1].b = 'BBB1';
     w2ui.grid.records[1].d = 'This is some long text in cell C and some and event more then this';
     // w2ui.grid.records[1].e = '0';
     // w2ui.grid.records[1].f = '1';
-    w2ui.grid.records[1].w2ui = { colspan: { d: 1 }, softspan: { d: 3 } };
+    w2ui.grid.records[1].w2ui = { colspan: { d: 3 } };
     w2ui.grid.records[1].c = 'CC1';
-    // w2ui.grid.records[2].w2ui = { colspan: { e: 4 } };
+    w2ui.grid.records[2].w2ui = { colspan: { e: 4 } };
     w2ui.grid.records[2].e = 'This is some long text in cell E';
-    // w2ui.grid.records[3].w2ui = { colspan: { e: 3 } };
+    w2ui.grid.records[3].w2ui = { colspan: { e: 3 } };
+    w2ui.grid.records[6].w2ui = { colspan: { e: 2 } };
     w2ui.grid.records[3].e = 'This is some long text in cell E';
-    w2ui.grid.records[3].w2ui = { softspan: { e: 3 } };
-    w2ui.grid.records[4].summary = true;
-    w2ui.grid.records[1].style = { 1: 'background-color: red !important' };
+    w2ui.grid.records[4].w2ui = { summary: true };
+    w2ui.grid.records[1].w2ui = { style: { 1: 'background-color: red !important' }};
     w2ui.grid.refresh();
 });
 //]]>

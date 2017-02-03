@@ -1,7 +1,7 @@
 <h3>Popup Overview</h3>
-The w2popup object allows you to create popup dialogs with any HTML inside it. The w2popup is a jQuery plugin so it should be 
-called in the jQuery plugin way <span class="property">$().w2popup(options)</span>. If the jQuery object returns an element, 
-the element content will be displayed inside the popup. 
+The w2popup object allows you to create popup dialogs with any HTML inside it. The w2popup is a jQuery plugin so it should be
+called in the jQuery plugin way <span class="property">$().w2popup(options)</span>. If the jQuery object returns an element,
+the element content will be displayed inside the popup.
 <div style="height: 10px"></div>
 A popup can be created in any of the following ways:
 
@@ -44,13 +44,13 @@ options: {
     transition      : null,    // transition for changing content
     showClose       : true,    // close button indicator
     showMax         : false,   // max button indicator
-    keyboard        : true,    // will close on esc if not modal
+    keyboard        : true,    // will close on ESC if not modal
     // events
     onOpen          : null,    // event when dialog finished appearing
     onClose         : null,    // event when closed
     onMax           : null,    // event when maximized
     onMin           : null,    // event when minimized
     onToggle        : null,    // event when maximized/minimized
-    onKeyboard      : null     // event when keyboard button is clicked
+    onKeydown       : null     // event when keyboard button is clicked
 }
 </textarea>

@@ -1,0 +1,26 @@
+Indicates if sidebar has keyboard focus. Read Only.
+
+<div class="definition">
+    Boolean, default = false
+</div>
+
+You can navigate sidebar with keyboard using arrow keys. You can expand and collapse nodes with enter or right/left arrow keys, but it will only
+work if sidebar has focus.
+<div style="height: 10px"></div>
+
+If you define sidebar in the following way:
+<textarea class="javascript">
+$('#sidebar').w2sidebar({
+    name : 'sidebar',
+    nodes: [
+        { id: 'id-1', text: 'Level 1' },
+        { id: 'id-2', text: 'Level 2' },
+        { id: 'id-3', text: 'Level 3' }
+    ]
+});
+</textarea>
+
+You can find if sidebar has focus by:
+<textarea class="javascript">
+console.log(w2ui['sidebar'].hasFocus);
+</textarea>

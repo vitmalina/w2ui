@@ -37,7 +37,7 @@ $('#form').w2form({
 });
 </textarea>
 
-Or you can defined different URL for retrividng and saving the record:
+Or you can defined different URL for retrieving and saving the record:
 <textarea class="javascript">
 $('#form').w2form({
     name     : 'form',
@@ -70,11 +70,11 @@ $('#form').w2form({
 
 You can change this property during run-time
 <textarea class="javascript">
-w2ui['form'].url = 'anoter/server/url';
+w2ui['form'].url = 'another/server/url';
 w2ui['form'].reload();
 </textarea>
 
-<h3>JSON Structrues</h3>
+<h3>JSON Structures</h3>
 
 If the <a class="argument" href="w2form.recid">.recid</a> property is not set, no request will be made. Otherwise, the form will submit the 
 following JSON structure;
@@ -101,7 +101,7 @@ JSON structure in the following format:
 where field1 should match the names in <a href="w2form.fields" class="property">.fields</a> property.
 <div style="height: 10px"></div>
 
-If you want to return an eror, you can return it in the following format:
+If you want to return an error, you can return it in the following format:
 <textarea class="javascript">
 {
     status: 'error',

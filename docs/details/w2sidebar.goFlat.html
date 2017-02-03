@@ -1,0 +1,40 @@
+Called when flat button is clicked.
+
+<div class="definition">
+    goFlat()
+</div>
+
+Returns <i>undefined</i>.
+
+<h4>Description</h4>
+
+This method is called when user clicks on the flat button. It is used internally, but you can use it to emulate clicking the flat button.
+This method emits <a class="method" href="w2sidebar.onFlat">.onFlat</a> event.
+<div style="height: 10px"></div>
+
+If you have sidebar defined in the following way:
+<textarea class="javascript">
+$('#sidebar').w2sidebar({
+    name : 'sidebar',
+    nodes: [
+        { id: 'id-1', text: 'Level 1', hidden: true },
+        { id: 'id-2', text: 'Level 2', expanded: true, nodes: [
+            { id: 'id-2-1', text: 'Level 2.1' },
+            { id: 'id-2-2', text: 'Level 2.2' }
+        ]},
+        { id: 'id-3', text: 'Level 3' }
+    ],
+    onFlat: function(event) {
+        if (event.goFlat) {
+            $(this.box).css({ width: '35px' });
+        } else {
+            $(this.box).css({ width: '200px' });
+        }
+    }
+});
+</textarea>
+
+You can click on the node:
+<textarea class="javascript">
+w2ui['sidebar'].goFlat();
+</textarea>

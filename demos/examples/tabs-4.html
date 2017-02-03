@@ -1,6 +1,6 @@
 <div class="content">
     <div id="example_title">
-        <h1>Add/Remove Tas</h1>
+        <h1>Add/Remove Tabs</h1>
         You can add remove tabs quickly or with animation.
     </div>
     <div id="example_view"></div>
@@ -25,7 +25,7 @@ $(function () {
         name: 'tabs',
         active: 'first',
         tabs: [
-            { id: 'first', caption: 'First Tab' }
+            { id: 'first', text: 'First Tab' }
         ]
     });
 });
@@ -33,24 +33,21 @@ $(function () {
 var ind = 1;
 
 function addTab() {
-    if (ind > 12) return;
-    w2ui.tabs.add({ id: 'tab'+ind, caption: 'Tab '+ ind });
+    w2ui.tabs.add({ id: 'tab'+ind, text: 'Tab '+ ind });
     ind++;
 }
 
 function addTabs() {
-    if (ind > 9) return;
     w2ui.tabs.add([
-        { id: 'tab'+ind, caption: 'Tab '+ ind },
-        { id: 'tab'+(ind+1), caption: 'Tab '+ (ind+1) },
-        { id: 'tab'+(ind+2), caption: 'Tab '+ (ind+2) }
+        { id: 'tab'+ind, text: 'Tab '+ ind },
+        { id: 'tab'+(ind+1), text: 'Tab '+ (ind+1) },
+        { id: 'tab'+(ind+2), text: 'Tab '+ (ind+2) }
     ]);
     ind += 3;
 }
 
 function insertTab() {
-    if (ind > 12) return;
-    w2ui.tabs.animateInsert('first', { id: 'tab'+ ind, caption: 'Tab '+ ind });
+    w2ui.tabs.animateInsert('first', { id: 'tab'+ ind, text: 'Tab '+ ind });
     ind++;
 }
 
@@ -62,6 +59,9 @@ function removeTab() {
 
 function removeTabs() {
     ind = 1;
-    w2ui.tabs.remove('tab1', 'tab2', 'tab3', 'tab4', 'tab5', 'tab6', 'tab7', 'tab8', 'tab9', 'tab10', 'tab11', 'tab12');
+    var tb = w2ui.tabs;
+    var tabs = tb.get();
+    tabs.splice(tabs.indexOf('first'), 1);
+    tb.remove.apply(tb, tabs);
 }
 </script>

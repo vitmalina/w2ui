@@ -11,21 +11,10 @@
 *   - reorder with dgrag and drop
 *   - node.style is misleading - should be there to apply color for example
 *   - add multiselect
-*   - add renderer for the node
-*
-* == 1.5 changes
-*   - $('#sidebar').w2sidebar() - if called w/o argument then it returns sidebar object
-*   - add route property that would navigate to a #route
-*   - return ids of all subitems
-*   - added w2sidebar.flat
-*   - added focus(), blur(), onFocus, onBlur
-*   - unselect w/o arguments will unselect selected node
-*   - added hasFocus property
-*   - nd.render deprecated, nd.text can be a function (where this word is the item)
 *
 ************************************************************************/
 
-(function () {
+(function ($) {
     var w2sidebar = function (options) {
         this.name          = null;
         this.box           = null;
@@ -40,22 +29,10 @@
         this.style         = '';
         this.topHTML       = '';
         this.bottomHTML    = '';
+        this.flatButton    = false;
         this.keyboard      = true;
         this.flat          = false;
         this.hasFocus      = false;
-        this.onClick       = null;      // Fire when user click on Node Text
-        this.onDblClick    = null;      // Fire when user dbl clicks
-        this.onContextMenu = null;
-        this.onMenuClick   = null;      // when context menu item selected
-        this.onExpand      = null;      // Fire when node Expands
-        this.onCollapse    = null;      // Fire when node Colapses
-        this.onKeydown     = null;
-        this.onRender      = null;
-        this.onRefresh     = null;
-        this.onResize      = null;
-        this.onDestroy     = null;
-        this.onFocus       = null;
-        this.onBlur        = null;
 
         $.extend(true, this, w2obj.sidebar, options);
     };
@@ -99,6 +76,21 @@
 
     w2sidebar.prototype = {
 
+        onClick       : null,      // Fire when user click on Node Text
+        onDblClick    : null,      // Fire when user dbl clicks
+        onContextMenu : null,
+        onMenuClick   : null,      // when context menu item selected
+        onExpand      : null,      // Fire when node Expands
+        onCollapse    : null,      // Fire when node Colapses
+        onKeydown     : null,
+        onRender      : null,
+        onRefresh     : null,
+        onResize      : null,
+        onDestroy     : null,
+        onFocus       : null,
+        onBlur        : null,
+        onFlat        : null,
+
         node: {
             id              : null,
             text            : '',
@@ -114,6 +106,7 @@
             disabled        : false,
             group           : false,        // if true, it will build as a group
             groupShowHide   : true,
+            collapsible     : true,
             plus            : false,        // if true, plus will be shown even if there is no sub nodes
             // events
             onClick         : null,
@@ -123,8 +116,7 @@
             onCollapse      : null,
             // internal
             parent          : null,         // node object
-            sidebar         : null,
-            render          : null          // custom render function(node)
+            sidebar         : null
         },
 
         add: function (parent, nodes) {
@@ -205,7 +197,7 @@
                 }
                 var ind  = this.get(tmp.parent, arguments[a], true);
                 if (ind == null) continue;
-                if (tmp.parent.nodes[ind].selected)    tmp.sidebar.unselect(tmp.id);
+                if (tmp.parent.nodes[ind].selected) tmp.sidebar.unselect(tmp.id);
                 tmp.parent.nodes.splice(ind, 1);
                 deleted++;
             }
@@ -356,7 +348,7 @@
 
         unselect: function (id) {
             // if no arguments provided, unselect selected node
-            if (arguments.length == 0) {
+            if (arguments.length === 0) {
                 id = this.selected;
             }
             var current = this.get(id);
@@ -379,6 +371,7 @@
                 return;
             }
             if (nd.nodes.length === 0) return false;
+            if (!nd.collapsible) return false;
             if (this.get(id).expanded) return this.collapse(id); else return this.expand(id);
         },
 
@@ -386,14 +379,14 @@
             var obj = this;
             var nd  = this.get(id);
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'collapse', target: id, object: nd });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'collapse', target: id, object: nd });
+            if (edata.isCancelled === true) return;
             // default action
             $(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideUp(200);
             $(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">+</div>');
             nd.expanded = false;
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             setTimeout(function () { obj.refresh(id); }, 200);
             return true;
         },
@@ -414,14 +407,14 @@
             var obj = this;
             var nd  = this.get(id);
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'expand', target: id, object: nd });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'expand', target: id, object: nd });
+            if (edata.isCancelled === true) return;
             // default action
             $(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideDown(200);
             $(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">-</div>');
             nd.expanded = true;
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             setTimeout(function () { obj.refresh(id); }, 200);
             return true;
         },
@@ -469,8 +462,8 @@
             // need timeout to allow rendering
             setTimeout(function () {
                 // event before
-                var eventData = obj.trigger({ phase: 'before', type: 'click', target: id, originalEvent: event, node: nd, object: nd });
-                if (eventData.isCancelled === true) {
+                var edata = obj.trigger({ phase: 'before', type: 'click', target: id, originalEvent: event, node: nd, object: nd });
+                if (edata.isCancelled === true) {
                     // restore selection
                     newNode.removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected');
                     oldNode.addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected');
@@ -493,15 +486,15 @@
                     setTimeout(function () { window.location.hash = route; }, 1);
                 }
                 // event after
-                obj.trigger($.extend(eventData, { phase: 'after' }));
+                obj.trigger($.extend(edata, { phase: 'after' }));
             }, 1);
         },
 
         focus: function (event) {
             var obj = this;
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'focus', target: this.name, originalEvent: event });
-            if (eventData.isCancelled === true) return false;
+            var edata = this.trigger({ phase: 'before', type: 'focus', target: this.name, originalEvent: event });
+            if (edata.isCancelled === true) return false;
             // default behaviour
             this.hasFocus = true;
             $(this.box).find('.w2ui-selected').removeClass('w2ui-inactive');
@@ -510,18 +503,18 @@
                 if (!$input.is(':focus')) $input.focus();
             }, 10);
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         blur: function (event) {
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'blur', target: this.name, originalEvent: event });
-            if (eventData.isCancelled === true) return false;
+            var edata = this.trigger({ phase: 'before', type: 'blur', target: this.name, originalEvent: event });
+            if (edata.isCancelled === true) return false;
             // default behaviour
             this.hasFocus = false;
             $(this.box).find('.w2ui-selected').addClass('w2ui-inactive');
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         keydown: function (event) {
@@ -530,8 +523,8 @@
             if (obj.keyboard !== true) return;
             if (!nd) nd = obj.nodes[0];
             // trigger event
-            var eventData = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });
-            if (eventData.isCancelled === true) return;
+            var edata = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event });
+            if (edata.isCancelled === true) return;
             // default behaviour
             if (event.keyCode == 13 || event.keyCode == 32) { // enter or space
                 if (nd.nodes.length > 0) obj.toggle(obj.selected);
@@ -559,7 +552,7 @@
                 if (event.stopPropagation) event.stopPropagation();
             }
             // event after
-            obj.trigger($.extend(eventData, { phase: 'after' }));
+            obj.trigger($.extend(edata, { phase: 'after' }));
 
             function selectNode (node, event) {
                 if (node != null && !node.hidden && !node.disabled && !node.group) {
@@ -629,12 +622,12 @@
         dblClick: function (id, event) {
             var nd = this.get(id);
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'dblClick', target: id, originalEvent: event, object: nd });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'dblClick', target: id, originalEvent: event, object: nd });
+            if (edata.isCancelled === true) return;
             // default action
             this.toggle(id);
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         contextMenu: function (id, event) {
@@ -642,18 +635,18 @@
             var nd  = obj.get(id);
             if (id != obj.selected) obj.click(id);
             // event before
-            var eventData = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, originalEvent: event, object: nd });
-            if (eventData.isCancelled === true) return;
+            var edata = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, originalEvent: event, object: nd, allowOnDisabled: false });
+            if (edata.isCancelled === true) return;
             // default action
-            if (nd.group || nd.disabled) return;
+            if (nd.disabled && !edata.allowOnDisabled) return;
             if (obj.menu.length > 0) {
                 $(obj.box).find('#node_'+ w2utils.escapeId(id))
                     .w2menu({
                         items: obj.menu,
                         contextMenu: true,
                         originalEvent: event,
-                        onSelect: function (event) { 
-                            obj.menuClick(id, parseInt(event.index), event.originalEvent); 
+                        onSelect: function (event) {
+                            obj.menuClick(id, parseInt(event.index), event.originalEvent);
                         }
                     }
                 );
@@ -661,26 +654,37 @@
             // cancel event
             if (event.preventDefault) event.preventDefault();
             // event after
-            obj.trigger($.extend(eventData, { phase: 'after' }));
+            obj.trigger($.extend(edata, { phase: 'after' }));
         },
 
         menuClick: function (itemId, index, event) {
             var obj = this;
             // event before
-            var eventData = obj.trigger({ phase: 'before', type: 'menuClick', target: itemId, originalEvent: event, menuIndex: index, menuItem: obj.menu[index] });
-            if (eventData.isCancelled === true) return;
+            var edata = obj.trigger({ phase: 'before', type: 'menuClick', target: itemId, originalEvent: event, menuIndex: index, menuItem: obj.menu[index] });
+            if (edata.isCancelled === true) return;
             // default action
             // -- empty
             // event after
-            obj.trigger($.extend(eventData, { phase: 'after' }));
+            obj.trigger($.extend(edata, { phase: 'after' }));
+        },
+
+        goFlat: function () {
+            // event before
+            var edata = this.trigger({ phase: 'before', type: 'flat', goFlat: !this.flat });
+            if (edata.isCancelled === true) return;
+            // default action
+            this.flat = !this.flat;
+            this.refresh();
+            // event after
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         render: function (box) {
             var time = (new Date()).getTime();
             var obj  = this;
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box });
+            if (edata.isCancelled === true) return;
             // default action
             if (box != null) {
                 if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
@@ -696,8 +700,7 @@
                 .attr('name', this.name)
                 .addClass('w2ui-reset w2ui-sidebar')
                 .html('<div>'+
-                        '<input id="sidebar_'+ this.name +'_focus" style="position: absolute; top: 0px; right: 0px; z-index: 1; '+
-                        '       width: 0px; border: 0px; padding: 0px; opacity: 0"/>'+
+                        '<input id="sidebar_'+ this.name +'_focus" style="position: absolute; top: 0; right: 0; width: 1px; z-index: -1; opacity: 0"/>'+
                         '<div class="w2ui-sidebar-top"></div>' +
                         '<div class="w2ui-sidebar-div"></div>'+
                         '<div class="w2ui-sidebar-bottom"></div>'+
@@ -709,8 +712,12 @@
             });
             if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
             // adjust top and bottom
-            if (this.topHTML !== '') {
-                $(this.box).find('.w2ui-sidebar-top').html(this.topHTML);
+            var flatHTML = '';
+            if (this.flatButton == true) {
+                flatHTML = '<div class="w2ui-flat-'+ (this.flat ? 'right' : 'left') +'" onclick="w2ui[\''+ this.name +'\'].goFlat()"></div>';
+            }
+            if (this.topHTML !== '' || flatHTML !== '') {
+                $(this.box).find('.w2ui-sidebar-top').html(this.topHTML + flatHTML);
                 $(this.box).find('.w2ui-sidebar-div')
                     .css('top', $(this.box).find('.w2ui-sidebar-top').height() + 'px');
             }
@@ -722,19 +729,19 @@
             // focus
             var kbd_timer;
             $(this.box).find('#sidebar_'+ this.name + '_focus')
-                .on('focus', function (event) { 
+                .on('focus', function (event) {
                     clearTimeout(kbd_timer);
-                    if (!obj.hasFocus) obj.focus();
+                    if (!obj.hasFocus) obj.focus(event);
                 })
-                .on('blur', function (event) { 
-                    kbd_timer = setTimeout(function () { 
-                        if (obj.hasFocus) { obj.blur(); }
+                .on('blur', function (event) {
+                    kbd_timer = setTimeout(function () {
+                        if (obj.hasFocus) { obj.blur(event); }
                     }, 100);
                 })
                 .on('keydown', function (event) {
                     if (event.keyCode != 9) { // not tab
                         w2ui[obj.name].keydown.call(w2ui[obj.name], event);
-                    } 
+                    }
                 });
             $(this.box).off('mousedown').on('mousedown', function (event) {
                 // set focus to grid
@@ -742,12 +749,18 @@
                     // if input then do not focus
                     if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName.toUpperCase()) == -1) {
                         var $input = $(obj.box).find('#sidebar_'+ obj.name + '_focus');
-                        if (!$input.is(':focus')) $input.focus();
+                        if (!$input.is(':focus')) {
+                            if ($(event.target).hasClass('w2ui-node')) {
+                                var top = $(event.target).position().top + $(obj.box).find('.w2ui-sidebar-top').height() + event.offsetY;
+                                $input.css({ top: top + 'px', left: '0px' });
+                            }
+                            $input.focus();
+                        }
                     }
                 }, 1);
             });
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             // ---
             this.refresh();
             return (new Date()).getTime() - time;
@@ -756,12 +769,16 @@
         refresh: function (id) {
             var time = (new Date()).getTime();
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'refresh', target: (id != null ? id : this.name), 
+            var edata = this.trigger({ phase: 'before', type: 'refresh', target: (id != null ? id : this.name),
                 fullRefresh: (id != null ? false : true) });
-            if (eventData.isCancelled === true) return;
+            if (edata.isCancelled === true) return;
             // adjust top and bottom
-            if (this.topHTML !== '') {
-                $(this.box).find('.w2ui-sidebar-top').html(this.topHTML);
+            var flatHTML = '';
+            if (this.flatButton == true) {
+                flatHTML = '<div class="w2ui-flat-'+ (this.flat ? 'right' : 'left') +'" onclick="w2ui[\''+ this.name +'\'].goFlat()"></div>';
+            }
+            if (this.topHTML !== '' || flatHTML !== '') {
+                $(this.box).find('.w2ui-sidebar-top').html(this.topHTML + flatHTML);
                 $(this.box).find('.w2ui-sidebar-div')
                     .css('top', $(this.box).find('.w2ui-sidebar-top').height() + 'px');
             }
@@ -771,10 +788,16 @@
                     .css('bottom', $(this.box).find('.w2ui-sidebar-bottom').height() + 'px');
             }
             // default action
-            $(this.box).find('> div').css({
+            $(this.box).find('> div').removeClass('w2ui-sidebar-flat').addClass(this.flat ? 'w2ui-sidebar-flat' : '').css({
                 width : $(this.box).width() + 'px',
                 height: $(this.box).height() + 'px'
             });
+            // if no parent - reset nodes
+            if (this.nodes.length > 0 && this.nodes[0].parent == null) {
+                var tmp = this.nodes;
+                this.nodes = [];
+                this.add(this, tmp);
+            }
             var obj = this;
             var node, nd;
             var nm;
@@ -802,18 +825,18 @@
                 nd = node.nodes[i];
                 nodeHTML = getNodeHTML(nd);
                 $(this.box).find(nm).append(nodeHTML);
-                if (nd.nodes.length !== 0) { 
-                    this.refresh(nd.id); 
+                if (nd.nodes.length !== 0) {
+                    this.refresh(nd.id);
                 } else {
                     // trigger event
-                    var eventData2 = this.trigger({ phase: 'before', type: 'refresh', target: nd.id });
-                    if (eventData2.isCancelled === true) return;
+                    var edata2 = this.trigger({ phase: 'before', type: 'refresh', target: nd.id });
+                    if (edata2.isCancelled === true) return;
                     // event after
-                    this.trigger($.extend(eventData2, { phase: 'after' }));
+                    this.trigger($.extend(edata2, { phase: 'after' }));
                 }
             }
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
 
             function getNodeHTML(nd) {
@@ -833,12 +856,13 @@
                 if (nd.caption != null) nd.text = nd.caption;
                 if (nd.group) {
                     html =
-                        '<div class="w2ui-node-group" id="node_'+ nd.id +'"'+
-                        '        onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
-                        '        onmouseout="$(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
-                        '        onmouseover="$(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
-                        (nd.groupShowHide ? '<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>' : '<span></span>') +
-                        (typeof nd.text == 'function' ? nd.text.call(nd) : '<span>'+ nd.text +'</span>') +
+                        '<div class="w2ui-node-group w2ui-level-'+ level +'" id="node_'+ nd.id +'"'+
+                        '   onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
+                        '   oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
+                        '   onmouseout="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
+                        '   onmouseover="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
+                        ((nd.groupShowHide && nd.collapsible) ? '<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>' : '<span></span>') +
+                        (typeof nd.text == 'function' ? nd.text.call(obj, nd) : '<span>'+ nd.text +'</span>') +
                         '</div>'+
                         '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
                     if (obj.flat) {
@@ -851,15 +875,15 @@
                     if (img) tmp  = '<div class="w2ui-node-image w2ui-icon '+ img +    (nd.selected && !nd.disabled ? " w2ui-icon-selected" : "") +'"></div>';
                     if (icon) tmp = '<div class="w2ui-node-image"><span class="'+ icon +'"></span></div>';
                     var text = nd.text;
-                    if (typeof nd.text == 'function') text = nd.text.call(nd);
-                    html =  '<div class="w2ui-node '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
+                    if (typeof nd.text == 'function') text = nd.text.call(obj, nd);
+                    html =  '<div class="w2ui-node w2ui-level-'+ level +' '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
                             '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
                             '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
                             '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
                             '<table cellpadding="0" cellspacing="0" style="margin-left:'+ (level*18) +'px; padding-right:'+ (level*18) +'px"><tbody><tr>'+
                             '<td class="w2ui-node-dots" nowrap="nowrap" onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\'); '+
                             '        if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
-                            '    <div class="w2ui-expand">'    + (nd.nodes.length > 0 ? (nd.expanded ? '-' : '+') : (nd.plus ? '+' : '')) + '</div>' +
+                            '    <div class="w2ui-expand">' + (nd.nodes.length > 0 ? (nd.expanded ? '-' : '+') : (nd.plus ? '+' : '')) + '</div>' +
                             '</td>'+
                             '<td class="w2ui-node-data" nowrap="nowrap">'+
                                     tmp +
@@ -870,11 +894,11 @@
                             '</div>'+
                             '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
                     if (obj.flat) {
-                        html =  '<div class="w2ui-node '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
-                                '    onmouseover="$(this).find(\'.w2ui-node-data\').w2tag(w2utils.base64decode(\''+ 
+                        html =  '<div class="w2ui-node w2ui-level-'+ level +' '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
+                                '    onmouseover="jQuery(this).find(\'.w2ui-node-data\').w2tag(w2utils.base64decode(\''+
                                                 w2utils.base64encode(text + (nd.count || nd.count === 0 ? ' - <span class="w2ui-node-count">'+ nd.count +'</span>' : '')) + '\'), '+
                                 '               { id: \'' + nd.id + '\', left: -5 })"'+
-                                '    onmouseout="$(this).find(\'.w2ui-node-data\').w2tag(null, { id: \'' + nd.id + '\' })"'+ 
+                                '    onmouseout="jQuery(this).find(\'.w2ui-node-data\').w2tag(null, { id: \'' + nd.id + '\' })"'+
                                 '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
                                 '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
                                 '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
@@ -890,8 +914,8 @@
         resize: function () {
             var time = (new Date()).getTime();
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'resize', target: this.name });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'resize', target: this.name });
+            if (edata.isCancelled === true) return;
             // default action
             $(this.box).css('overflow', 'hidden');    // container should have no overflow
             $(this.box).find('> div').css({
@@ -899,14 +923,14 @@
                 height : $(this.box).height() + 'px'
             });
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
         },
 
         destroy: function () {
             // event before
-            var eventData = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
-            if (eventData.isCancelled === true) return;
+            var edata = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
+            if (edata.isCancelled === true) return;
             // clean up
             if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
                 $(this.box)
@@ -916,7 +940,7 @@
             }
             delete w2ui[this.name];
             // event after
-            this.trigger($.extend(eventData, { phase: 'after' }));
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         lock: function (msg, showSpinner) {
@@ -932,4 +956,4 @@
 
     $.extend(w2sidebar.prototype, w2utils.event);
     w2obj.sidebar = w2sidebar;
-})();
+})(jQuery);

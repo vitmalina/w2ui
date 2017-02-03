@@ -1,0 +1,29 @@
+Adds browser specific prefixes and returns resulting css.
+
+<div class="definition">
+    w2utils.cssPrefix(prop, val, returnString)
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>prop</td>
+        <td><b>string</b>, css property</td>
+    </tr>
+    <tr>
+        <td>val</td>
+        <td><b>string</b>, property value</td>
+    </tr>
+    <tr>
+        <td>returnString</td>
+        <td><b>boolean</b>, return as string instead of object</td>
+    </tr>
+    </table>
+</div>
+
+This method is used internally in grid, popup, etc. But you can use it as well. It will add prefixes "-webkit", "-moz", "-ms", "-o" and return resulting object.
+
+<textarea class="javascript">
+var style = w2utils.cssPrefix('transition', '1s')
+console.log(style); // shows {transition: "1s", -webkit-transition: "1s", -moz-transition: "1s", -ms-transition: "1s", -o-transition: "1s"}
+</textarea>

@@ -1,0 +1,30 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Color Pickers (new in 1.5)</h1>
+        There are two more button types. They are "color" and "text-color".
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="toolbar" style="padding: 4px; border: 1px solid #dfdfdf; border-radius: 3px"></div>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#toolbar').w2toolbar({
+        name: 'toolbar',
+        items: [
+            { id: 'item1', type: 'color' },
+            { id: 'item3', type: 'text-color', transparent: false }
+        ],
+        onClick: function (event) {
+            if (event.color == null) return;
+            event.done(function () {
+                console.log(event.item.type, ':', event.item.color);
+            });
+        }
+    });
+});
+</script>

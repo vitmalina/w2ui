@@ -1,5 +1,13 @@
 <link rel="stylesheet" type="text/css" href="../summary.css"/> 
-<div class="container"><div class="obj-property">
+<div class="container">
+<div class="obj-property">
+    <a href="w2sidebar.onBlur">onBlur</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when sidebar looses focus.
+</div>
+
+<div class="obj-property">
     <a href="w2sidebar.onClick">onClick</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">
@@ -32,6 +40,20 @@
 </div>
 <div class="obj-property-desc">
     Called when user expands sub-nodes of the node.
+</div>
+
+<div class="obj-property">
+    <a href="w2sidebar.onFlat">onFlat</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when sidebar flat button is clicked.
+</div>
+
+<div class="obj-property">
+    <a href="w2sidebar.onFocus">onFocus</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when sidebar gets focus.
 </div>
 
 <div class="obj-property">

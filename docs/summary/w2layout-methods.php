@@ -1,5 +1,13 @@
 <link rel="stylesheet" type="text/css" href="../summary.css"/> 
-<div class="container"><div class="obj-property">
+<div class="container">
+<div class="obj-property">
+    <a href="w2layout.assignToolbar">assignToolbar</a> <span>- assignToolbar(panel, toolbar)</span>
+</div>
+<div class="obj-property-desc">
+    Assigned new w2toolbar object to a panel
+</div>
+
+<div class="obj-property">
     <a href="w2layout.content">content</a> <span>- content(type, [content], [transition])</span>
 </div>
 <div class="obj-property-desc">
@@ -21,7 +29,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2layout.hide">hide</a> <span>- hide(type, [immediate])</span>
+    <a href="w2layout.hide">hide</a> <span>- hide(panel, [immediate])</span>
 </div>
 <div class="obj-property-desc">
     Hides the panel.
@@ -49,7 +57,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2layout.load">load</a> <span>- load(type, url, [transtion], [onLoad])</span>
+    <a href="w2layout.load">load</a> <span>- load(type, url, [transition], [onLoad])</span>
 </div>
 <div class="obj-property-desc">
     Loads content and renders it inside the panel.
@@ -63,6 +71,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2layout.message">message</a> <span>- message(panel, msgOptions);</span>
+</div>
+<div class="obj-property-desc">
+    Displays a message at the top of panel.
+</div>
+
+<div class="obj-property">
     <a href="w2layout.set">set</a> <span>- set(type, panel)</span>
 </div>
 <div class="obj-property-desc">
@@ -70,7 +85,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2layout.show">show</a> <span>- show(type, [immediate])</span>
+    <a href="w2layout.show">show</a> <span>- show(panel, [immediate])</span>
 </div>
 <div class="obj-property-desc">
     Shows the panel.
@@ -91,7 +106,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2layout.sizeTo">sizeTo</a> <span>- sizeTo(type, size)</span>
+    <a href="w2layout.sizeTo">sizeTo</a> <span>- sizeTo(type, size, [instant])</span>
 </div>
 <div class="obj-property-desc">
     Resizes the panel with animation

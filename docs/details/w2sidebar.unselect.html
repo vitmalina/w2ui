@@ -1,14 +1,14 @@
 Unselects sidebar node with <span class="argument">id</span>.
 
 <div class="definition">
-    unselect(id)
+    unselect([id])
 </div>
 
 <div class="arguments">
     <table>
     <tr>
         <td>id</td>
-        <td><b>string</b>, id of the sidebar node</td>
+        <td><b>string</b>, id of the sidebar node (<i>optional</i>)</td>
     </tr>
     </table>
 </div>
@@ -17,9 +17,12 @@ Returns boolean.
 
 <h4>Description</h4>
 
-The node must exists in the <a class="method" href="w2sidebar.nodes">.nodes</a> array of the sidebar or its nested nodes. The node is 
-identified by the <span class="property">.id</span> property. The method will set <span class="property">.selected</span> property of the node to false 
-and will set <a class="method" href="w2sidebar.selected">.selected</a> property of the sidebar to null.
+The node must exists in the <a class="property" href="w2sidebar.nodes">.nodes</a> array of the sidebar or its nested nodes. The node is
+identified by the <span class="argumnet">.id</span> property. The method will set <span class="property">.selected</span> property of the node to false
+and will set <a class="property" href="w2sidebar.selected">.selected</a> property of the sidebar to null.
+<div style="height: 10px"></div>
+
+If you do not provide <span class="argument">.id</span> argument, then currently selected node will be unselected.
 <div style="height: 10px"></div>
 
 If you have defined object in the following way:
@@ -27,7 +30,7 @@ If you have defined object in the following way:
 $('#sidebar').w2sidebar({
     name : 'sidebar',
     img  : 'icon-page',
-    nodes: [ 
+    nodes: [
         { id: 'id-1', text: 'Level 1', selected: true },
         { id: 'id-2', text: 'Level 2' },
         { id: 'id-3', text: 'Level 3' }

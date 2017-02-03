@@ -1,6 +1,7 @@
 <link rel="stylesheet" type="text/css" href="../summary.css"/> 
-<div class="container"><div class="obj-property">
-    <a href="w2grid.add">add</a> <span>- add(record)</span>
+<div class="container">
+<div class="obj-property">
+    <a href="w2grid.add">add</a> <span>- add(record, [first])</span>
 </div>
 <div class="obj-property-desc">
     Adds a record or records to the grid.
@@ -60,6 +61,13 @@
 </div>
 <div class="obj-property-desc">
     Called when user opens grid settings (on grids toolbar) and selects an item.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.contextMenu">contextMenu</a> <span>- contextMenu(recid, [event])</span>
+</div>
+<div class="obj-property-desc">
+    Displays context menu under specified record.
 </div>
 
 <div class="obj-property">
@@ -123,6 +131,13 @@
 </div>
 <div class="obj-property-desc">
     Returns final HTML for the cell.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.getCellValue">getCellValue</a> <span>- getCellValue(index, column_index, [summary])</span>
+</div>
+<div class="obj-property-desc">
+    Returns parse value for the cell.
 </div>
 
 <div class="obj-property">
@@ -332,14 +347,14 @@
     <a href="w2grid.parseField">parseField</a> <span>- parseField(obj, field)</span>
 </div>
 <div class="obj-property-desc">
-    Paste tab-delimmited text into the grid.
+    Paste tab-delimited text into the grid.
 </div>
 
 <div class="obj-property">
     <a href="w2grid.paste">paste</a> <span>- paste(text)</span>
 </div>
 <div class="obj-property-desc">
-    Paste tab-delimmited text into the grid.
+    Paste tab-delimited text into the grid.
 </div>
 
 <div class="obj-property">
@@ -431,6 +446,20 @@
 </div>
 <div class="obj-property-desc">
     Resets the grid to the initial state. 
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.resizeBoxes">resizeBoxes</a> <span>- resizeBoxes()</span>
+</div>
+<div class="obj-property-desc">
+    Called to resize grid's elements.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.resizeRecords">resizeRecords</a> <span>- resizeRecords()</span>
+</div>
+<div class="obj-property-desc">
+    Called to resize grid's records.
 </div>
 
 <div class="obj-property">

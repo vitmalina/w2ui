@@ -9,8 +9,8 @@
 </div>
 
 <!--CODE-->
-<textarea id="encode" style="width: 100%; height: 90px; border: 1px solid silver">
-    This <a href="http://link">is some</a> HTML <b>text</b> to be encoded.
+<textarea id="encode" style="width: 100%; height: 60px; border: 1px solid silver; padding: 10px; font-size: 16px">
+This <a href="http://link">is some</a> HTML <b>text</b> to be encoded.
 </textarea>
 <br><br>
 <button class="w2ui-btn" onclick="$('#encode').val(w2utils.base64encode($('#encode')[0].value))">Encode base64</button>
@@ -18,5 +18,7 @@
 &nbsp;&nbsp;&nbsp;
 <button class="w2ui-btn" onclick="w2alert(w2utils.encodeTags($('#encode')[0].value))">Encode HTML Tags</button>
 <button class="w2ui-btn" onclick="w2alert(w2utils.stripTags($('#encode')[0].value))">Strip HTML Tags</button>
+&nbsp;&nbsp;&nbsp;
+<button class="w2ui-btn" onclick="w2alert(w2utils.md5($('#encode')[0].value))">Calculate md5</button>
 
 <!--CODE-->

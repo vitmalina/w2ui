@@ -1,0 +1,69 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Custom Buttons (new in 1.5)</h1>
+        Some toolbar item's properties that normally defined as a string can be defined as a function that returns a string. This approach allows you to create custom toolbar items.
+        <div style="height: 20px"></div>
+        Following properties can be defined as functions:
+        <ul>
+            <li>text</li>
+            <li>html</li>
+            <li>tooltip</li>
+        </ul>
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="toolbar" style="padding: 4px; border: 1px solid #dfdfdf; border-radius: 3px"></div>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#toolbar').w2toolbar({
+        name: 'toolbar',
+        items: [
+            { type: 'button', id: 'item1', icon: 'fa-star', text: 'Click Me',
+                counter: 0,
+                tooltip: function (item) {
+                    return 'Number of clicks: ' + item.counter;
+                },
+                onClick: function (event) {
+                    event.item.counter++;
+                }
+            },
+            { type: 'break' },
+            { type: 'menu-radio', id: 'item2', icon: 'fa-star',
+                text: function (item) {
+                    var text = item.selected;
+                    var el   = this.get('item2:' + item.selected);
+                    return 'Radio: ' + el.text;
+                },
+                selected: 'id1',
+                items: [
+                    { id: 'id1', text: 'Item 1', icon: 'fa-camera' },
+                    { id: 'id2', text: 'Item 2', icon: 'fa-picture' },
+                    { id: 'id3', text: 'Item 3', icon: 'fa-glass', count: 12 }
+                ]
+            },
+            { type: 'break' },
+            { type: 'html',  id: 'item5',
+                html: function (item) {
+                    var html =
+                      '<div style="padding: 3px 10px;">'+
+                      ' Field:'+
+                      '    <input size="20" placeholder="Change me" onchange="var el = w2ui.toolbar.set(\'item5\', { value: this.value });" '+
+                      '         style="padding: 3px; border-radius: 2px; border: 1px solid silver" value="'+ (item.value || '') +'"/>'+
+                      '</div>';
+                    return html;
+                }
+            },
+            { type: 'break' },
+            { type: 'button', id: 'item6', icon: 'fa-star-empty', text: 'Refresh',
+                tooltip: 'Click to refresh entire toolbar.<br>Note, input value is preserved.',
+                onClick: function (event) { this.refresh(); }
+            }
+        ]
+    });
+});
+</script>

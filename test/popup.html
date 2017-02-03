@@ -1,6 +1,6 @@
 <html>
 <head>
-<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
+<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
 <script type="text/javascript" src="../libs/jquery/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="../dist/w2ui.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
@@ -8,6 +8,7 @@
 <script type="text/javascript" src="../src/w2popup.js"></script>
 <script type="text/javascript" src="../src/w2grid.js"></script>
 <script>
+    jQuery.noConflict();
 //<![CDATA[
     var items = [{"id":1,"fname":"Katsia","lname":"Yadav","email":"vm@gmail.com","manager":"--","snumber":7958936,"sdate":893300000000,"text":"Katsia Yadav"},{"id":2,"fname":"Katsia","lname":"Johnson","email":"vm@gmail.com","manager":"--","snumber":5233710,"sdate":1890000000000,"text":"Katsia Johnson"},{"id":3,"fname":"John","lname":"Johnson","email":"vm@gmail.com","manager":"--","snumber":9588870,"sdate":1387700000000,"text":"John Johnson"},{"id":4,"fname":"Snehal","lname":"Rene","email":"vm@gmail.com","manager":"--","snumber":559456,"sdate":23300000000,"text":"Snehal Rene"},{"id":5,"fname":"Katsia","lname":"Rene","email":"vm@gmail.com","manager":"--","snumber":2688870,"sdate":42800000000,"text":"Katsia Rene"},{"id":6,"fname":"Olivia","lname":"Vaishnav","email":"vm@gmail.com","manager":"--","snumber":4256597,"sdate":1819500000000,"text":"Olivia Vaishnav"},{"id":7,"fname":"John","lname":"Vaishnav","email":"vm@gmail.com","manager":"--","snumber":8736615,"sdate":1031500000000,"text":"John Vaishnav"},{"id":8,"fname":"Peter","lname":"Rene","email":"vm@gmail.com","manager":"--","snumber":3843721,"sdate":756700000000,"text":"Peter Rene"},{"id":9,"fname":"Thomas","lname":"Sidorov","email":"vm@gmail.com","manager":"--","snumber":425232,"sdate":1939300000000,"text":"Thomas Sidorov"},{"id":10,"fname":"Olivia","lname":"Yadav","email":"vm@gmail.com","manager":"--","snumber":3354272,"sdate":919700000000,"text":"Olivia Yadav"},{"id":11,"fname":"Thomas","lname":"Johnson","email":"vm@gmail.com","manager":"--","snumber":1952237,"sdate":400400000000,"text":"Thomas Johnson"},{"id":12,"fname":"Olivia","lname":"Yadav","email":"vm@gmail.com","manager":"--","snumber":3255552,"sdate":851000000000,"text":"Olivia Yadav"},{"id":13,"fname":"Thomas","lname":"Rene","email":"vm@gmail.com","manager":"--","snumber":8584320,"sdate":588400000000,"text":"Thomas Rene"},{"id":14,"fname":"Sergei","lname":"Sidorov","email":"vm@gmail.com","manager":"--","snumber":2627941,"sdate":87400000000,"text":"Sergei Sidorov"},{"id":15,"fname":"Thomas","lname":"Johnson","email":"vm@gmail.com","manager":"--","snumber":6673430,"sdate":1046300000000,"text":"Thomas Johnson"},{"id":16,"fname":"John","lname":"Sidorov","email":"vm@gmail.com","manager":"--","snumber":2497066,"sdate":41700000000,"text":"John Sidorov"},{"id":17,"fname":"Vitali","lname":"Yadav","email":"vm@gmail.com","manager":"--","snumber":5692213,"sdate":1096300000000,"text":"Vitali Yadav"},{"id":18,"fname":"Divia","lname":"Yadav","email":"vm@gmail.com","manager":"--","snumber":7819398,"sdate":487200000000,"text":"Divia Yadav"},{"id":19,"fname":"Avinash","lname":"Johnson","email":"vm@gmail.com","manager":"--","snumber":8941140,"sdate":132000000000,"text":"Avinash Johnson"},{"id":20,"fname":"John","lname":"Johnson","email":"vm@gmail.com","manager":"--","snumber":8133699,"sdate":976000000000,"text":"John Johnson"},{"id":21,"fname":"Peter","lname":"Sidorov","email":"vm@gmail.com","manager":"--","snumber":7125464,"sdate":1508400000000,"text":"Peter Sidorov"},{"id":22,"fname":"Avinash","lname":"Cuban","email":"vm@gmail.com","manager":"--","snumber":2706137,"sdate":1920100000000,"text":"Avinash Cuban"},{"id":23,"fname":"Thomas","lname":"Vasiliev","email":"vm@gmail.com","manager":"--","snumber":5294190,"sdate":1147300000000,"text":"Thomas Vasiliev"},{"id":24,"fname":"Olivia","lname":"Sidorov","email":"vm@gmail.com","manager":"--","snumber":6656162,"sdate":707900000000,"text":"Olivia Sidorov"},{"id":25,"fname":"Vitali","lname":"Cuban","email":"vm@gmail.com","manager":"--","snumber":2285937,"sdate":662100000000,"text":"Vitali Cuban"},{"id":26,"fname":"Olivia","lname":"Yadav","email":"vm@gmail.com","manager":"--","snumber":5547711,"sdate":722600000000,"text":"Olivia Yadav"},{"id":27,"fname":"Katsia","lname":"Rene","email":"vm@gmail.com","manager":"--","snumber":6941307,"sdate":1111400000000,"text":"Katsia Rene"},{"id":28,"fname":"Olivia","lname":"Yadav","email":"vm@gmail.com","manager":"--","snumber":5386227,"sdate":1158600000000,"text":"Olivia Yadav"},{"id":29,"fname":"Vitali","lname":"Yadav","email":"vm@gmail.com","manager":"--","snumber":9961690,"sdate":481800000000,"text":"Vitali Yadav"},{"id":30,"fname":"Avinash","lname":"Johnson","email":"vm@gmail.com","manager":"--","snumber":4428523,"sdate":1595300000000,"text":"Avinash Johnson"},{"id":31,"fname":"Sue","lname":"Johnson","email":"vm@gmail.com","manager":"--","snumber":2673901,"sdate":915600000000,"text":"Sue Johnson"},{"id":32,"fname":"John","lname":"Peterson","email":"vm@gmail.com","manager":"--","snumber":4740847,"sdate":1994700000000,"text":"John Peterson"},{"id":33,"fname":"Katsia","lname":"Cuban","email":"vm@gmail.com","manager":"--","snumber":1917820,"sdate":1648000000000,"text":"Katsia Cuban"},{"id":34,"fname":"Peter","lname":"Vasiliev","email":"vm@gmail.com","manager":"--","snumber":6593386,"sdate":1809900000000,"text":"Peter Vasiliev"},{"id":35,"fname":"Peter","lname":"Vasiliev","email":"vm@gmail.com","manager":"--","snumber":1401708,"sdate":863700000000,"text":"Peter Vasiliev"},{"id":36,"fname":"Thomas","lname":"Vaishnav","email":"vm@gmail.com","manager":"--","snumber":4612052,"sdate":1510300000000,"text":"Thomas Vaishnav"},{"id":37,"fname":"Katsia","lname":"Vaishnav","email":"vm@gmail.com","manager":"--","snumber":1497013,"sdate":77700000000,"text":"Katsia Vaishnav"},{"id":38,"fname":"Snehal","lname":"Vaishnav","email":"vm@gmail.com","manager":"--","snumber":8596229,"sdate":859800000000,"text":"Snehal Vaishnav"},{"id":39,"fname":"Sue","lname":"Vasiliev","email":"vm@gmail.com","manager":"--","snumber":1865468,"sdate":974200000000,"text":"Sue Vasiliev"},{"id":40,"fname":"Peter","lname":"Vasiliev","email":"vm@gmail.com","manager":"--","snumber":512986,"sdate":953200000000,"text":"Peter Vasiliev"},{"id":41,"fname":"John","lname":"Peterson","email":"vm@gmail.com","manager":"--","snumber":2480910,"sdate":1598300000000,"text":"John Peterson"},{"id":42,"fname":"Katsia","lname":"Twist","email":"vm@gmail.com","manager":"--","snumber":7820813,"sdate":1033900000000,"text":"Katsia Twist"},{"id":43,"fname":"Snehal","lname":"Vasiliev","email":"vm@gmail.com","manager":"--","snumber":5173687,"sdate":1181700000000,"text":"Snehal Vasiliev"},{"id":44,"fname":"Thomas","lname":"Yadav","email":"vm@gmail.com","manager":"--","snumber":444415,"sdate":1093500000000,"text":"Thomas Yadav"},{"id":45,"fname":"Olivia","lname":"Vaishnav","email":"vm@gmail.com","manager":"--","snumber":9915039,"sdate":9400000000,"text":"Olivia Vaishnav"},{"id":46,"fname":"Vitali","lname":"Vaishnav","email":"vm@gmail.com","manager":"--","snumber":2802999,"sdate":1311300000000,"text":"Vitali Vaishnav"},{"id":47,"fname":"Sergei","lname":"Cuban","email":"vm@gmail.com","manager":"--","snumber":9298839,"sdate":526800000000,"text":"Sergei Cuban"},{"id":48,"fname":"Olivia","lname":"Vasiliev","email":"vm@gmail.com","manager":"--","snumber":3020811,"sdate":232900000000,"text":"Olivia Vasiliev"},{"id":49,"fname":"Thomas","lname":"Cuban","email":"vm@gmail.com","manager":"--","snumber":4161736,"sdate":1210100000000,"text":"Thomas Cuban"},{"id":50,"fname":"Divia","lname":"Johnson","email":"vm@gmail.com","manager":"--","snumber":1014931,"sdate":1127100000000,"text":"Divia Johnson"}];
     // w2popup.load({
@@ -22,7 +23,7 @@
     //     onOpen: function (event) {
     //         console.log('open', event);
     //         event.onComplete = function () {
-    //             $('#w2ui-popup #date').w2field('color', {
+    //             jQuery('#w2ui-popup #date').w2field('color', {
     //                 items: items
     //             });
     //         }
@@ -39,25 +40,25 @@
     // });
 
 function showOverlay(el) {
-    $(el).w2overlay({ 
+    jQuery(el).w2overlay({
         html: '<div style="padding: 10px;">Some html</div>',
-        css: { width: '200px', padding: '10px' } 
+        css: { width: '200px', padding: '10px' }
     });
 }
 
 function showOverlayGrid(el) {
-    $(el).w2overlay({ 
+    jQuery(el).w2overlay({
         html: '<div id="grid" style="padding: 0px; border: 0px; width: 320px; height: 400px;"></div>',
         css: { width: '200px', padding: '10px' },
         name: 'grid-overlay',
         onShow: function (event) {
-            $('#w2ui-overlay-grid-overlay #grid').w2render('grid');
+            jQuery('#w2ui-overlay-grid-overlay #grid').w2render('grid');
         }
     });
 }
 
 function showMenu(el) {
-    $(el).w2menu({
+    jQuery(el).w2menu({
         items: [
             { id: 1, text: 'Edit', img: 'icon-folder', hint: 'edit' },
             { id: 2, text: '--'},
@@ -67,14 +68,14 @@ function showMenu(el) {
             { id: 6, text: '--'},
             { id: 7, text: 'Delete Item', img: 'icon-page' },
         ],
-        onSelect: function (event) { 
-            console.log(event); 
+        onSelect: function (event) {
+            console.log(event);
         }
     });
 }
 
 function checkMenu(el) {
-    $(el).w2menu({
+    jQuery(el).w2menu({
         type: 'radio',
         items: [
             { id: 1, text: 'Iten A', checked: true },
@@ -86,21 +87,21 @@ function checkMenu(el) {
             { id: 7, text: '--' },
             { id: 8, text: 'Item 5' },
         ],
-        onSelect: function (event) { 
-            console.log(event); 
+        onSelect: function (event) {
+            console.log(event);
         }
     });
 }
 
 function myConfirm () {
-    w2confirm({ 
+    w2confirm({
             title: 'Title',
-            msg: 'Message', 
+            msg: 'Message',
             width: 500,
             height: 250,
             yes_text: 'Yes',
             no_text: 'No',
-            callBack: function (btn) { 
+            callBack: function (btn) {
                 console.log('Common call back '+ btn);
             }
         })
@@ -119,15 +120,15 @@ function popup3 () {
         width   : 600,
         height  : 400,
         onOpen  : function (event) {
-            event.onComplete = function () { 
+            event.onComplete = function () {
                 _tmp();
-                $('#w2ui-popup #btnConfirm').on('click', _tmp);
+                jQuery('#w2ui-popup #btnConfirm').on('click', _tmp);
             };
             function _tmp() {
                 w2confirm('Click "NO" to open an w2alert.')
                     .no(function () {
                         w2alert('You clicked "NO" button.');
-                    });                
+                    });
             }
         }
     });
@@ -143,8 +144,8 @@ function popupGrid() {
                   '<div id="form" style="position: absolute; left: 10px; right: 10px; bottom: 10px; height: 50%;"></div>',
         onOpen  : function (event) {
             event.onComplete = function () {
-                $('#w2ui-popup #grid').w2render('grid');
-                $('#w2ui-popup #form').w2render('form');
+                jQuery('#w2ui-popup #grid').w2render('grid');
+                jQuery('#w2ui-popup #form').w2render('form');
             }
         }
     })
@@ -160,14 +161,14 @@ function popupLayout() {
         buttons : '<button class="w2ui-btn" onclick="w2alert(22)">Message</button>',
         onOpen  : function (event) {
             event.onComplete = function () {
-                $('#w2ui-popup #layout').w2render('layout');
+                jQuery('#w2ui-popup #layout').w2render('layout');
             }
         }
     })
 }
 
 function contextMenu2(event) {
-    $('body').w2menu({
+    jQuery('body').w2menu({
         items: [
             { id: 1, text: 'First item' },
             { id: 2, text: 'Second item' },
@@ -180,12 +181,12 @@ function contextMenu2(event) {
     event.preventDefault();
 }
 
-$(function () {
-    $().w2grid({ name: 'grid', 
+jQuery(function () {
+    jQuery().w2grid({ name: 'grid',
         show: { toolbar: true },
         // selectType: 'cell',
         columns: [
-            { caption: 'First', field: 'fname', size: '100%', editable: { type: 'text' }, searchable: true }, 
+            { caption: 'First', field: 'fname', size: '100%', editable: { type: 'text' }, searchable: true },
             { caption: 'Second', field: 'lname', size: '100%', editable: { type: 'text' }, searchable: true }
         ],
         records: [
@@ -193,21 +194,21 @@ $(function () {
             { recid: 2, fname: 'Jane', lname: 'Doe' }
         ]
     });
-    $().w2form({ 
-        name: 'form', 
+    jQuery().w2form({
+        name: 'form',
         fields: [
-            { field: 'fname', html: { caption: 'First Name' }}, 
+            { field: 'fname', html: { caption: 'First Name' }},
             { field: 'lname', html: { caption: 'Last Name' }}
-        ] 
+        ]
     });
-    $().w2layout({ name: 'layout', panels: [
+    jQuery().w2layout({ name: 'layout', panels: [
         { type: 'top', style: 'border: 1px solid silver', size: '100px', resizable: true,
             toolbar: {
                 items: [
                     { id: 'btn1', type: 'menu', caption: 'Menu', items: [{ id: 1, text: 'Item 1'}, { id: 2, text: 'item 2'}] }
                 ]
             }
-        }, 
+        },
         { type: 'right', style: 'border-left: 1px solid silver', size: '100px', resizable: true }
     ]});
 })
@@ -216,8 +217,8 @@ $(function () {
 </head>
 <body>
     <div style="padding: 10px; border: 1px solid gray" oncontextmenu="contextMenu2(event)">
-        <button class="w2ui-btn" value="Popup"   onclick="$().w2popup('open', { url: 'popup-template.html' })">Popup from File</button>
-        <button class="w2ui-btn" value="Popup2"  onclick="$('#popup1').w2popup({ showMax: true })">Popup from HTML</button>
+        <button class="w2ui-btn" value="Popup"   onclick="jQuery().w2popup('open', { url: 'popup-template.html' })">Popup from File</button>
+        <button class="w2ui-btn" value="Popup2"  onclick="jQuery('#popup1').w2popup({ showMax: true })">Popup from HTML</button>
         <button class="w2ui-btn" value="Popup5"  onclick="popup3()">Popup &amp; Confirm</button>
         <button class="w2ui-btn" value="Popup3"  onclick="popupGrid()">Popup Grid</button>
         <button class="w2ui-btn" value="Popup4"  onclick="popupLayout()">Popup Layout</button>
@@ -254,8 +255,8 @@ $(function () {
            </div>
         </div>
         <div rel="buttons">
-            <button class="w2ui-btn" onclick="$('#popup2').w2popup({ transition: 'slide-left', showMax: false })" style="width: 150px">Switch to Popup 2</button>
-            <button class="w2ui-btn" onclick="$('#popup2').w2popup('message', { html: '<div class=\'w2ui-centered\'><div>some text</div></div><div style=\'position: absolute; left: 0px; right: 0px; height: 35px; bottom: 0px; text-align: center;\'><button class=\'w2ui-btn\' onclick=\'w2popup.message();\'>Close</button></div>' })">Message</button>
+            <button class="w2ui-btn" onclick="jQuery('#popup2').w2popup({ transition: 'slide-left', showMax: false })" style="width: 150px">Switch to Popup 2</button>
+            <button class="w2ui-btn" onclick="jQuery('#popup2').w2popup('message', { html: '<div class=\'w2ui-centered\'><div>some text</div></div><div style=\'position: absolute; left: 0px; right: 0px; height: 35px; bottom: 0px; text-align: center;\'><button class=\'w2ui-btn\' onclick=\'w2popup.message();\'>Close</button></div>' })">Message</button>
         </div>
     </div>
 
@@ -266,12 +267,12 @@ $(function () {
         </div>
         <div rel="body">
             <div style="padding: 10; font-size: 11px; line-height: 150%;">
-                Some other popup text. Some other popup text. Some other popup text. Some other popup text. Some other popup text. 
-                Some other popup text. Some other popup text. Some other popup text. Some other popup text. Some other popup text. 
+                Some other popup text. Some other popup text. Some other popup text. Some other popup text. Some other popup text.
+                Some other popup text. Some other popup text. Some other popup text. Some other popup text. Some other popup text.
             </div>
         </div>
         <div rel="buttons">
-            <button class="w2ui-btn" onclick="$('#popup1').w2popup({ transition: 'slide-right', showMax: true })">Switch to Popup 1</button>
+            <button class="w2ui-btn" onclick="jQuery('#popup1').w2popup({ transition: 'slide-right', showMax: true })">Switch to Popup 1</button>
         </div>
     </div>
 

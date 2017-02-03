@@ -8,7 +8,7 @@
 </div>
 
 <!--CODE-->
-<div id="toolbar" style="padding: 4px; border: 1px solid silver; border-radius: 3px"></div>
+<div id="toolbar" style="padding: 4px; border: 1px solid #dfdfdf; border-radius: 3px"></div>
 
 <!--CODE-->
 <script>
@@ -16,11 +16,11 @@ $(function () {
     $('#toolbar').w2toolbar({
         name: 'toolbar',
         items: [
-            { type: 'button', id: 'disable', caption: 'Disable', icon: 'w2ui-icon-cross' },
-            { type: 'button', id: 'enable', caption: 'Enable', icon: 'w2ui-icon-check' },
+            { type: 'button', id: 'disable', text: 'Disable', icon: 'w2ui-icon-cross' },
+            { type: 'button', id: 'enable', text: 'Enable', icon: 'w2ui-icon-check' },
             { type: 'break',  id: 'break0' },
-            { type: 'button', id: 'btn', caption: 'Action Button', img: 'icon-page' },
-            { type: 'button', id: 'btn2', caption: 'Other Button', img: 'icon-page' }
+            { type: 'button', id: 'btn', text: 'Action Button', img: 'icon-page' },
+            { type: 'button', id: 'btn2', text: 'Other Button', img: 'icon-page' }
         ],
         onClick: function (event) {
             if (event.target == 'enable') this.enable('btn');

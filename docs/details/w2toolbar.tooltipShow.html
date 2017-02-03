@@ -1,0 +1,49 @@
+Shows tooltip of the item with <span class="argument">id</span>.
+
+<div class="definition">
+    tooltipShow(id, [event], [forceRefresh])
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>id</td>
+        <td><b>string</b>, id of the toolbar item</td>
+    </tr>
+    <tr>
+        <td>event</td>
+        <td><b>DOM event</b>, event object (<i>optional</i>)</td>
+    </tr>
+    <tr>
+        <td>forceRefresh</td>
+        <td><b>boolean</b>, indicates if to force tooltip show (<i>optional</i>)</td>
+    </tr>
+    </table>
+</div>
+
+Returns <i>undefined</i>.
+
+<h4>Description</h4>
+
+The item must exists in the <a class="method" href="w2toolbar.items">.items</a> array of the toolbar. The toolbar item is
+identified by the <span class="property">.id</span> property.
+<div style="height: 10px"></div>
+
+If you have toolbar defined in the following way:
+<textarea class="javascript">
+$('#toolbar').w2toolbar({
+    name  : 'toolbar',
+    items : [
+        { type: 'check',  id: 'item1', text: 'Check', img: 'icon-page', checked: true,
+            tooltip: 'Check button'
+        },
+        { type: 'radio',  id: 'item3',  group: '1', text: 'R-1', img: 'icon-add', hidden: true },
+        { type: 'radio',  id: 'item4',  group: '1', text: 'R-2', img: 'icon-add' }
+    ]
+});
+</textarea>
+
+You can show toolbar item's tooltip:
+<textarea class="javascript">
+w2ui['toolbar'].tooltipShow('item1');
+</textarea>

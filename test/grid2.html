@@ -1,6 +1,6 @@
 <html>
 <head>
-<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
+<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
 <script type="text/javascript" src="../libs/jquery/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2tabs.js"></script>
@@ -22,14 +22,14 @@ $(function () {
         { id: 8, text: 'Nicolas Cage' }
     ];
 
-    $('#grid').w2grid({ 
-        name    : 'grid', 
+    $('#grid').w2grid({
+        name    : 'grid',
         header    : 'List of Names',
-        show: { 
+        show: {
             toolbar: true,
             footer: true,
             header: true,
-            emptyRecords: true,
+            emptyRecords: false,
             selectColumn: true,
             expandColumn: false,
             columnHeaders: true,
@@ -39,25 +39,25 @@ $(function () {
             toolbarAdd: true
         },
         // selectType: 'cell',
-        columns: [                
+        columns: [
             { field: 'recid', caption: 'ID', size: '80px', sortable: true, searchable: 'int', frozen: true },
-            { field: 'int', caption: 'int', size: '80px', sortable: true, resizable: true, editable: { type: 'int', min: 0, max: 100 } },
+            { field: 'int', caption: 'int', size: '80px', sortable: true, resizable: true,
+              editable: function (record, index, col_index, data) {
+                  // only odd 'recid' records are editable
+                  if (record.recid % 2) return { type: 'int', min: 0, max: 100 };
+              } },
             { field: 'money', caption: 'money', size: '80px', sortable: true, resizable: true, editable: { type: 'money' }, render: 'money' },
             { field: 'percent', caption: 'percent', size: '80px', sortable: true, resizable: true, editable: { type: 'percent' }, render: 'percent' },
             { field: 'hex', caption: 'hex', size: '80px', sortable: true, resizable: true, editable: { type: 'hex' } },
             { field: 'color', caption: 'color', size: '80px', sortable: true, resizable: true, editable: { type: 'color' } },
             { field: 'date', caption: 'date', size: '80px', sortable: true, resizable: true, editable: { type: 'date' } },
             { field: 'time', caption: 'time', size: '80px', sortable: true, resizable: true, editable: { type: 'time' } },
-            { field: 'list', caption: 'list', size: '50%', sortable: true, resizable: true, 
-                editable: { type: 'list', items: people },
-                render: function (record, index, col_index) {
-                    var html = this.getCellValue(index, col_index);
-                    return html.text || '';
-                }
+            { field: 'list', caption: 'list', size: '50%', sortable: true, resizable: true,
+                editable: { type: 'list', items: people }
             },
             { field: 'combo', caption: 'combo', size: '50%', sortable: true, resizable: true, editable: { type: 'combo', items: people } },
-            { field: 'select', caption: 'select', size: '100px', sortable: true, resizable: true, 
-                editable: { type: 'select', items: people }, 
+            { field: 'select', caption: 'select', size: '100px', sortable: true, resizable: true,
+                editable: { type: 'select', items: people },
                 render: function (record, index, col_index) {
                     var html = '';
                     for (var p in people) {
@@ -66,7 +66,11 @@ $(function () {
                     return html;
                 }
             },
-            { field: 'check', caption: 'check', size: '40px', sortable: true, resizable: true, editable: { type: 'checkbox' } }
+            { field: 'check', caption: 'check', size: '40px', sortable: true, resizable: true,
+                editable: function (record, index, col_index, data) {
+                  // only odd 'recid' records are editable
+                  if (record.recid % 2) return { type: 'checkbox' }
+               } },
             // { field: 'enum', caption: 'enum', size: '380px', sortable: true, resizable: true, editable: { type: 'enum', items: people } },
             // { field: 'file', caption: 'file', size: '80px', sortable: true, resizable: true, editable: { type: 'file' } },
             // { field: 'radio', caption: 'radio', size: '80px', sortable: true, resizable: true, editable: { type: 'radio' } },
@@ -76,7 +80,7 @@ $(function () {
     var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
     // add 10k records
     for (var i = 0; i < 15; i++) {
-        w2ui['grid'].records.push({ 
+        w2ui['grid'].records.push({
             recid : (i + 10),
             list1 : { id: 1, text: 'some' },
             int: 4,

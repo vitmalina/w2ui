@@ -9,11 +9,11 @@
     overflow: hidden !important;
 
     > div {
-        position: absolute; 
+        position: absolute;
         overflow: hidden;
     }
 
-    // ===== Grid Header ===== 
+    // ===== Grid Header =====
 
     .w2ui-grid-header {
         position: absolute;
@@ -29,41 +29,43 @@
         border-top-right-radius: 2px;
     }
 
-    // ===== Grid Toolbar ===== 
+    // ===== Grid Toolbar =====
 
     .w2ui-grid-toolbar {
         position: absolute;
         border-bottom: @grid-toolbar-border;
         background-color: @grid-toolbar-background-color;
         height: 38px;
-        padding: 7px 3px 4px 3px;
+        padding: 6px 1px 4px 1px;
         margin: 0px;
         box-shadow: @grid-toolbar-shadow;
     }
 
-    // ===== Grid Search ===== 
+    // ===== Grid Search =====
 
     .w2ui-toolbar-search {
+        position: relative;
         width: 160px;
         margin-right: 3px;
 
         .w2ui-search-all {
             outline: none !important;
             width: 160px !important;
-            border-radius: 10px !important;
+            border-radius: 3px !important;
             line-height: normal !important;
-            height: 22px !important;
+            height: 23px !important;
             border: @grid-search-all-border !important;
             color: @grid-search-all-color !important;
             background-color: @grid-search-all-background-color !important;
-            padding: 3px 18px 3px 23px !important;
+            padding: 3px 18px 3px 21px !important;
             margin: 0px !important;
+            margin-top: 1px !important;
         }
 
         .w2ui-search-down {
             position: absolute;
-            margin-top: -7px; 
-            margin-left: 6px;
+            margin-top: -7px;
+            margin-left: 4px;
         }
 
         .w2ui-search-clear {
@@ -80,7 +82,7 @@
             }
             &:before {
                 position: relative;
-                top: 1px;
+                top: 2px;
                 left: 5px;
                 opacity: 0.6;
                 color: inherit;
@@ -91,10 +93,10 @@
         }
     }
 
-    // ===== Grid Body ===== 
+    // ===== Grid Body =====
 
     .w2ui-grid-body {
-        position: absolute; 
+        position: absolute;
         overflow: hidden;
         padding: 0px;
         background-color: @grid-background-color;
@@ -108,20 +110,21 @@
             .user-select(tex);
             pointer-events: auto;
             background-color: white;
-            padding: 5px 2px;
-            border: 1px solid white;
+            padding: 4px 2px;
+            border: 1px solid transparent;
             width: 100%;
             height: 100%;
             pointer-events: auto;
             outline: none;
-            white-space: nowrap;
+            white-space: pre;
+            overflow: hidden;
         }
 
-        .w2ui-grid-columns {
-            overflow: hidden; 
-            position: absolute; 
-            left: 0px; 
-            top: 0px; 
+        .w2ui-grid-columns, .w2ui-grid-fcolumns {
+            overflow: hidden;
+            position: absolute;
+            left: 0px;
+            top: 0px;
             right: 0px;
             box-shadow: @grid-headers-shadow;
             height: auto;
@@ -131,24 +134,24 @@
             }
 
             .w2ui-resizer {
-                position: absolute; 
+                position: absolute;
                 z-index: 1000;
                 display: block;
                 background-image: none;
                 background-color: rgba(0,0,0,0); /* needed for IE */
-                padding: 0px; 
+                padding: 0px;
                 margin: 0px;
-                width: 6px; 
-                height: 12px; 
+                width: 6px;
+                height: 12px;
                 cursor: col-resize;
             }
         }
 
         .w2ui-grid-records, .w2ui-grid-frecords {
-            position: absolute; 
-            left: 0px; 
-            right: 0px; 
-            top: 0px; 
+            position: absolute;
+            left: 0px;
+            right: 0px;
+            top: 0px;
             bottom: 0px;
 
             table {
@@ -182,23 +185,19 @@
                     &.w2ui-inactive, td.w2ui-inactive {
                         background-color: @grid-row-inactive-background-color !important;
                     }
-                }                
+                }
             }
 
             .w2ui-expanded {
-                background-color: #CCDCF0 !important;
             }
 
             .w2ui-expanded1 {
-                // background-color: rgba(255, 255, 223, 0.7);
-                // background-image: -webkit-linear-gradient(left, #FFFFFF 0%, #FDFFC4 100%);
                 height: 0px;
                 border-bottom: 1px solid rgb(178, 186, 192);
-                background-color: #CCDCF0;
                 & > div {
-                    height: 100%;
-                    margin: 0px;
-                    padding: 0px;
+                    height: 0px;
+                    border: 0px;
+                    transition: height .3s, opacity .3s;
                 }
             }
 
@@ -220,7 +219,7 @@
                     text-align: center;
                     color: @grid-row-number-color;
                     background-color: @grid-row-number-background-color;
-                    padding: 10px 0px 15px 0px; 
+                    padding: 10px 0px 15px 0px;
                     border-top: 1px solid @grid-background-color;
                     &:hover {
                         color: @grid-row-hover-color;
@@ -315,6 +314,18 @@
                     margin: 0px;
                     padding: 0px;
 
+                    .w2ui-info {
+                        position: relative;
+                        top: 1px;
+                        font-size: 14px;
+                        color: #8D99A7;
+                        cursor: pointer;
+                        width: 16px;
+                        display: inline-block;
+                        margin-right: 2px;
+                        text-align: center;
+                    }
+
                     & > div {
                         padding: 3px 3px 3px 3px;
                         overflow: hidden;
@@ -323,9 +334,18 @@
                     }
 
                     & > div.flexible-record {
-                        height: auto; 
+                        height: auto;
                         overflow: visible;
                         white-space: normal;
+                    }
+
+                    .w2ui-show-children {
+                        width: 16px;
+                        height: 10px;
+                        display: inline-block;
+                        position: relative;
+                        top: -1px;
+                        cursor: pointer;
                     }
                 }
                 &:last-child {
@@ -350,7 +370,7 @@
                 width: 26px;
                 div {
                     padding: 0px 0px;
-                    text-align: center; 
+                    text-align: center;
                     overflow: hidden;
                     input[type=checkbox] {
                         //margin: 3px 1px; //* needed for Opera on Mac */
@@ -373,15 +393,15 @@
             .w2ui-col-selected {
                 background-color: #d1d1d1 !important;
             }
-            
+
             .w2ui-row-selected {
                 background-color: #d1d1d1 !important;
-            }            
+            }
         }
 
         div.w2ui-col-header { // div needed
-            height: auto !important; 
-            width: 100%; 
+            height: auto !important;
+            width: 100%;
             overflow: hidden;
             padding-right: 10px !important;
         }
@@ -401,33 +421,52 @@
             float: right;
         }
 
-        & .w2ui-col-group { 
+        & .w2ui-col-group {
             text-align: center;
         }
 
         .w2ui-grid-scroll1 {
-            position: absolute; 
-            left: 0px; 
+            position: absolute;
+            left: 0px;
             bottom: 0px;
             border-top: 1px solid #ddd;
             border-right: 1px solid #ddd;
             background-color: #FAFAFA;
         }
-    } 
+    }
+
+    .w2ui-grid-empty-msg {
+        position: absolute;
+        top: 27px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(255, 255, 255, 0.65);
+        > div {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 45%;
+            transform: translateY(-45%);
+            text-align: center;
+            font-size: 13px;
+            color: #666;
+        }
+    }
 
     .w2ui-changed {
         .background-image(@image-changed, no-repeat, top, right);
     }
-    
+
     .w2ui-edit-box {
-        position: absolute; 
+        position: absolute;
         z-index: 1001;
         border: 2px solid #6299DA;
-        pointer-events: auto; 
+        pointer-events: auto;
     }
 
     .w2ui-editable {
-        overflow: hidden; 
+        overflow: hidden;
         height: 100% !important;
         margin: 0px !important;
         padding: 0px !important;
@@ -435,8 +474,8 @@
         input {
             border: 0px;
             border-radius: 0px;
-            margin: 0px; 
-            padding: 4px 3px;            
+            margin: 0px;
+            padding: 4px 3px;
             width: 100%;
             height: 100%;
         }
@@ -461,7 +500,7 @@
         }
     }
 
-    // ===== Grid Footer ===== 
+    // ===== Grid Footer =====
 
     .w2ui-grid-footer {
         position: absolute;
@@ -495,9 +534,9 @@
             text-align: center;
 
             .w2ui-footer-nav {
-                width: 110px; 
-                margin: 0 auto; 
-                padding: 0px; 
+                width: 110px;
+                margin: 0 auto;
+                padding: 0px;
                 text-align: center;
 
                 input[type=text] {
@@ -507,26 +546,43 @@
                     text-align: center;
                 }
 
-                a.w2ui-footer-btn { 
-                    display: inline-block; 
-                    border-radius: 3px; 
-                    cursor: pointer; 
-                    font-size: 11px; 
-                    line-height: 16px; 
-                    padding: 1px 5px; 
-                    width: 30px; 
+                a.w2ui-footer-btn {
+                    display: inline-block;
+                    border-radius: 3px;
+                    cursor: pointer;
+                    font-size: 11px;
+                    line-height: 16px;
+                    padding: 1px 5px;
+                    width: 30px;
                     height: 18px;
                     margin-top: -1px;
-                    color: @grid-footer-btn-color; 
-                    background-color: @grid-footer-btn-background-color; 
+                    color: @grid-footer-btn-color;
+                    background-color: @grid-footer-btn-background-color;
 
-                    &:hover { 
-                        color: @grid-footer-btn-hover-color; 
-                        background-color: @grid-footer-btn-hover-background-color; 
-                    } 
-                }    
+                    &:hover {
+                        color: @grid-footer-btn-hover-color;
+                        background-color: @grid-footer-btn-hover-background-color;
+                    }
+                }
             }
         }
+    }
+
+    .w2ui-grid-focus-input {
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: -1;
+        opacity: 0;
+        overflow: hidden; // needed for Safari 10
+        // needed for IE11
+        padding: 0px;
+        margin: 0px;
+        width: 1px;
+        height: 1px;
+        resize: none;
+        border: 0px;
+        // --
     }
 }
 
@@ -554,6 +610,7 @@
             background-color: inherit;
         }
         table tr:first-child td {
+            border-top: 0px;
             border-bottom: 0px;
         }
     }
@@ -583,23 +640,23 @@
     }
 
     .w2ui-selection {
-        position: absolute; 
+        position: absolute;
         z-index: 1000;
         border: 2px solid #6299DA; /* #457FC2; */
-        pointer-events: none; 
-        
+        pointer-events: none;
+
         .w2ui-selection-resizer {
-            cursor: crosshair; 
-            position: absolute; 
-            bottom: 0px; 
-            right: 0px; 
-            width: 6px; 
-            height: 6px; 
-            margin-right: -3px; 
+            cursor: crosshair;
+            position: absolute;
+            bottom: 0px;
+            right: 0px;
+            width: 6px;
+            height: 6px;
+            margin-right: -3px;
             margin-bottom: -3px;
-            background-color: #457FC2; 
-            border: 0.5px solid #fff; 
-            outline: 1px solid white; 
+            background-color: #457FC2;
+            border: 0.5px solid #fff;
+            outline: 1px solid white;
             pointer-events: auto;
         }
 
@@ -612,8 +669,8 @@
     }
 
     .w2ui-soft-range  {
-        position: absolute; 
-        pointer-events: none; 
+        position: absolute;
+        pointer-events: none;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -624,33 +681,60 @@
     }
 }
 
+// === Info bubble in the grid
+
+.w2ui-info-bubble {
+    table {
+        font-size: 11px;
+        font-family: @main-font-family;
+        color: white;
+        text-shadow: 1px 1px solid #999;
+
+        tr td:first-child {
+            white-space: nowrap;
+            padding: 2px;
+            padding-right: 10px;
+            color: #ddd;
+            vertical-align: top;
+        }
+
+        tr td:last-child {
+            white-space: pre;
+            padding: 2px;
+        }
+    }
+}
+
 // === Global Search slide down
 
 .w2ui-overlay .w2ui-select-field {
-    padding: 8px 5px;
+    padding: 4px 0px;
     cursor: default;
     table {
         font-size: 11px;
         font-family: @main-font-family;
         border-spacing: 0px;
         border-collapse: border-collapse;
-        tr:hover {
-            background-color: @grid-row-selected-background-color;
-        }
-        td:nth-child(1) {
-            padding: 3px 3px 3px 6px;
-            input {
-                margin: 3px 2px 2px 2px;
+        tr {
+            height: 27px;
+            &:hover {
+                background-color: @grid-row-selected-background-color;
             }
-        }
-        td:nth-child(2) {
-            padding: 3px 15px 3px 3px;
+            td:nth-child(1) {
+                width: 26px;
+                padding-right: 6px;
+                text-align: right;
+                color: #888;
+            }
+            td:nth-child(2) {
+                padding: 3px 20px 3px 0px;
+            }
         }
     }
 }
 
 .w2ui-overlay .w2ui-col-on-off {
-    padding: 4px 0px; 
+    padding: 4px 0px;
     table {
         border-spacing: 0px;
         border-collapse: border-collapse;
@@ -662,8 +746,8 @@
                 margin: 3px 2px 2px 2px;
             }
             label {
-                display: block; 
-                padding: 3px 0px; 
+                display: block;
+                padding: 3px 0px;
                 padding-right: 10px;
             }
         }
@@ -689,10 +773,10 @@
             padding: 4px;
             &.close-btn {
                 width: 20px;
-                padding-right: 20px; 
+                padding-right: 20px;
                 button {
-                    min-width: 24px; 
-                    height: 24px; 
+                    min-width: 24px;
+                    height: 24px;
                     padding-top: 5px !important;
                 }
             }
@@ -711,18 +795,12 @@
             &.operator select {
                 width: 100%;
                 color: black;
-                padding: 0px 15px 0px 5px;
-                -webkit-appearance: none;
-                -moz-appearance: none;
-                -ms-appearance: none;
-                -o-appearance: none;
-                .linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
             }
             /* for IE */
             &.operator select::-ms-expand {
                 display: none;
             }
-            &.value {                    
+            &.value {
                 padding-right: 5px;
                 padding-left: 5px;
                 input[type=text] {
@@ -738,7 +816,7 @@
                 }
             }
             &.actions {
-                border-right: 0px; 
+                border-right: 0px;
                 > div {
                     margin: -7px;
                     margin-top: 15px;

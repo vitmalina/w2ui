@@ -108,7 +108,7 @@
 // --- It is outside of the form on purpose
 
 .w2ui-group-title {
-    padding: 5px 2px; 
+    padding: 5px 2px;
     color: #8D96A2; 
     text-shadow: 1px 1px 2px rgb(253, 253, 253); 
     font-size: 120%;
@@ -155,7 +155,11 @@
         margin-top: 5px;
         margin-left: -9px;
         color: @form-required-color;
-    }             
+    }
+    &.w2ui-span0 {
+        > label { display: none; }
+        > div { margin-left: 0; }
+    }
     &.w2ui-span1 { 
         > label { width: (@form-step-label * 1); }
         > div { margin-left: ((@form-step-label * 1) + @form-step-field); }

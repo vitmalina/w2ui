@@ -9,8 +9,8 @@
 </div>
 
 <!--CODE-->
-<div id="sidebar" style="height: 300px; width: 180px; float: left"></div>
-<div style="margin-left: 200px;">
+<div id="sidebar" style="height: 300px; width: 200px; float: left"></div>
+<div style="margin-left: 220px;">
     <button class="w2ui-btn" onclick="addItems()">Add Items</button>
     <button class="w2ui-btn" onclick="insertItems()">Insert Items</button>
     <button class="w2ui-btn" onclick="removeItem()">Remove Inserted Items</button>
@@ -22,7 +22,7 @@
 $(function () {
     $('#sidebar').w2sidebar({
         name: 'sidebar',
-        nodes: [ 
+        nodes: [
             { id: 'level-1', text: 'Level 1', img: 'icon-folder', expanded: true, group: true,
               nodes: [ { id: 'level-1-1', text: 'Level 1.1', icon: 'fa-star-empty' },
                        { id: 'level-1-2', text: 'Level 1.2', icon: 'fa-star-empty' },

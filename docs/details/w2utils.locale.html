@@ -17,7 +17,7 @@ Loads new locale
 
 The first parameter can be a string or a path to the file or an object. If it is a string (ex: ru-ru) it is the name of the locale. It will attempt
 to load file from the /locale folder. If you want to load locale file from some other folder, you need to provide full path to it.
-If it's an object than the settings object will be extende with properties of this locale object.
+If it's an object than the settings object will be extended with properties of this locale object.
 <div style="height: 10px"></div>
 
 The method will perform <b>synchronous</b> load of the locale, so it will pause until locale is loaded.
@@ -30,7 +30,7 @@ w2utils.locale('ru-ru');
 w2utils.locale('/path/to/locale/ru-ru.json');
 // or
 w2utils.locale({
-    date_format    : "dd-mm-yyyy",
+    dateFormat     : "dd-mm-yyyy",
     dataType       : 'RESTFULLJSON'
     dateStartYear  : 1990
 });

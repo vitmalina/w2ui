@@ -1,0 +1,34 @@
+Defines position of the tooltip for toolbar items.
+
+<div class="definition">
+    String, default = 'top'
+</div>
+
+By default tooltip text will appear on top of the button. However if you set <span class="property">.tooltip</span> property to another value, you can make it show
+in other position. Possible values are 'top', 'bottom', 'left', 'right'. Note, that you need to set <span class="property">.tooltip</span> for toolbar items.
+
+You can defined it during object creation:
+<textarea class="javascript">
+$('#toolbar').w2toolbar({
+    name: 'toolbar',
+    tooltip: 'bottom',
+    items: [
+        { type: 'check',  id: 'item1', text: 'Check', img: 'icon-page', checked: true,
+        	tooltip: 'Check button'
+        },
+        { type: 'radio',  id: 'item3',  group: '1', text: 'Radio 1', img: 'icon-add',
+        	tooltip: 'Check button'
+        },
+        { type: 'radio',  id: 'item4',  group: '1', text: 'Radio 2', img: 'icon-add',
+        	tooltip: function (item) { return item.id; }
+        }
+    ]
+});
+</textarea>
+
+Or any time during run-time:
+<textarea class="javascript">
+w2ui['toolbar'].tooltip = 'top';
+</textarea>
+
+There is no need to refresh, as tooltip shows up on mouse over.
