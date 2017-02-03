@@ -929,8 +929,12 @@
 
                 switch (sortMode) {
                     case 'natural':
-                        return w2utils.naturalCompare(aa,bb) * dir;
+                        sortMode = w2utils.naturalCompare;
                         break;
+                }
+
+                if (typeof sortMode == 'function') {
+                    return sortMode(aa,bb) * dir;
                 }
 
                 // compare both objects
