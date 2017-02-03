@@ -118,14 +118,14 @@ $(function () {
             },
             { id: 'tabs', text: 'Tabs', img: 'icon-folder', group1: true,
                 nodes: [
-                    { id: 'tabs-1', text: 'Simple Tabs', icon: 'fa fa-folder-close-alt' },
-                    { id: 'tabs-2', text: 'Set a Tab Active', icon: 'fa fa-folder-close-alt' },
-                    { id: 'tabs-3', text: 'Closeable Tabs', icon: 'fa fa-folder-close-alt' },
-                    { id: 'tabs-4', text: 'Add/Remove Tabs', icon: 'fa fa-folder-close-alt' },
-                    { id: 'tabs-5', text: 'Enable/Disabled Tabs', icon: 'fa fa-folder-close-alt' },
-                    { id: 'tabs-6', text: 'Show/Hide Tabs', icon: 'fa fa-folder-close-alt' },
-                    { id: 'tabs-7', text: 'Tabs Overflow (1.5+)', icon: 'fa fa-folder-close-alt' },
-                    { id: 'tabs-8', text: 'Tooltips (1.5+)', icon: 'fa fa-folder-close-alt' }
+                    { id: 'tabs-1', text: 'Simple Tabs', icon: 'fa fa-folder-o' },
+                    { id: 'tabs-2', text: 'Set a Tab Active', icon: 'fa fa-folder-o' },
+                    { id: 'tabs-3', text: 'Closeable Tabs', icon: 'fa fa-folder-o' },
+                    { id: 'tabs-4', text: 'Add/Remove Tabs', icon: 'fa fa-folder-o' },
+                    { id: 'tabs-5', text: 'Enable/Disabled Tabs', icon: 'fa fa-folder-o' },
+                    { id: 'tabs-6', text: 'Show/Hide Tabs', icon: 'fa fa-folder-o' },
+                    { id: 'tabs-7', text: 'Tabs Overflow (1.5+)', icon: 'fa fa-folder-o' },
+                    { id: 'tabs-8', text: 'Tooltips (1.5+)', icon: 'fa fa-folder-o' }
                 ]
             },
             { id: 'forms', text: 'Forms', img: 'icon-folder', group1: true,
