@@ -5500,33 +5500,6 @@
                     $(document).on('mousemove', 'body', mouseMove);
                     $(document).on('mouseup', 'body', mouseUp);
                 })
-                .off('dblclick')
-                .on('dblclick', function(event) {
-                    var colId = parseInt($(this).attr('name')),
-                        col = obj.columns[colId],
-                        maxDiff = 0;
-
-                    if (col.autoResize === false) {
-                        return true;
-                    }
-
-                    if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
-                    if (event.preventDefault) event.preventDefault();
-                    $('.w2ui-grid-records td[col="' + colId + '"] > div', obj.box).each(function() {
-                        var thisDiff = this.offsetWidth - this.scrollWidth;
-
-                        if (thisDiff < maxDiff) {
-                            maxDiff = thisDiff - 3; // 3px buffer needed for Firefox
-                        }
-                    });
-
-                    if (maxDiff <= 0) {
-                        col.size = Math.min(parseInt(col.size) + Math.abs(maxDiff), col.max || Infinity) + 'px';
-                        obj.resizeRecords();
-                        obj.resizeRecords(); // Why do we have to call it twice in order to show the scrollbar?
-                        obj.scroll();
-                    }
-                })
                 .each(function (index, el) {
                     var td  = $(el).parent();
                     $(el).css({
