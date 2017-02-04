@@ -385,13 +385,13 @@ where I need to select multiple items and now I do not have to use two bulky lis
 				'<li style="'+ (item.bgColor ? 'background-color: '+ item.bgColor + ';' : '') +
 					(item.border ? 'border: '+ item.border + ';' : '') +'" index="'+ index +'">'+
 					remove +	
-					'<span class="fa-trophy" style="'+ pstyle +'; margin-left: -4px;"></span>' + 
+					'<span class="fa fa-trophy" style="'+ pstyle +'; margin-left: -4px;"></span>' + 
 					item.text +
 				'</li>';
 			return html;
 		},
 		render: function (item, options) {
-			return '<span class="fa-star" style="'+ pstyle +'"></span>' + item.text;
+			return '<span class="fa fa-star" style="'+ pstyle +'"></span>' + item.text;
 		}
 	});
 </script>
@@ -425,13 +425,13 @@ $('#enum-custom').w2field('enum', {
 			'<li style="'+ (item.bgColor ? 'background-color: '+ item.bgColor + ';' : '') +
 				(item.border ? 'border: '+ item.border + ';' : '') +'" index="'+ index +'">'+
 				remove +
-				'<span class="fa-trophy" style="'+ pstyle +'; margin-left: -4px;"></span>' + 
+				'<span class="fa fa-trophy" style="'+ pstyle +'; margin-left: -4px;"></span>' + 
 				item.text +
 			'</li>';
 		return html;
 	},
 	render: function (item, options) {
-		return '<span class="fa-star" style="'+ pstyle +'"></span>' + item.text;
+		return '<span class="fa fa-star" style="'+ pstyle +'"></span>' + item.text;
 	}
 });
 // if you need to get to the selected items, use:
