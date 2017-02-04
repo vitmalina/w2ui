@@ -1,7 +1,7 @@
 <html>
 <head>
 <link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
-<link rel="stylesheet" type="text/css" media="screen" href="../libs/font-awesome/font-awesome.css" />
+<link rel="stylesheet" type="text/css" media="screen" href="../libs/font-awesome/css/font-awesome.css" />
 <script type="text/javascript" src="../libs/jquery/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2fields.js"></script>
@@ -54,7 +54,7 @@
             }
         });
         jQuery('.list').w2field('list', {
-            icon: 'fa-star',
+            icon: 'fa fa-star',
             onIconClick: function (event) {
                 jQuery(event.el).w2overlay('eeeee');
                 console.log(event.el);
@@ -144,9 +144,9 @@
         jQuery('#date2').w2field('date', { start: jQuery('#date1'), blocked: ['12/12/2013'] });
 
         // resiabled elements
-        jQuery('#resize_list').w2field('list', { icon: 'fa-star', items: items, selected: jQuery.parseJSON('{"id":4,"fname":"Thomas","lname":"Cuban","email":"vm@gmail.com","manager":"--","snumber":2651849,"sdate":1566800000000,"text":"Thomas Cuban","hidden":false}') });
-        jQuery('#resize_enum').w2field('enum', { icon: 'fa-star', items: items });
-        jQuery('#resize_file').w2field('file', { icon: 'fa-star', items: items });
+        jQuery('#resize_list').w2field('list', { icon: 'fa fa-star', items: items, selected: jQuery.parseJSON('{"id":4,"fname":"Thomas","lname":"Cuban","email":"vm@gmail.com","manager":"--","snumber":2651849,"sdate":1566800000000,"text":"Thomas Cuban","hidden":false}') });
+        jQuery('#resize_enum').w2field('enum', { icon: 'fa fa-star', items: items });
+        jQuery('#resize_file').w2field('file', { icon: 'fa fa-star', items: items });
 
         // off screen
         jQuery('.screen').w2field('date');

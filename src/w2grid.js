@@ -882,7 +882,7 @@
                         if ($.isPlainObject(aa) && aa.text) aa = aa.text;
                         if ($.isPlainObject(bb) && bb.text) bb = bb.text;
                     }
-                    var ret = compareCells(aa, bb, i, obj.sortData[i].direction);
+                    var ret = compareCells(aa, bb, i, obj.sortData[i].direction, col.sortMode || 'default');
                     if (ret !== 0) return ret;
                 }
                 // break tie for similar records,
@@ -893,7 +893,7 @@
             }
 
             // compare two values, aa and bb, producing consistent ordering
-            function compareCells(aa, bb, i, direction) {
+            function compareCells(aa, bb, i, direction, sortMode) {
                 // if both objects are strictly equal, we're done
                 if (aa === bb)
                     return 0;
@@ -922,11 +922,22 @@
                     aa = String(aa);
                 if (bb && typeof bb == 'object' && bb.toString != defaultToString)
                     bb = String(bb);
-                // do case-insensitive string comparaison
+                // do case-insensitive string comparison
                 if (typeof aa == 'string')
                     aa = $.trim(aa.toLowerCase());
                 if (typeof bb == 'string')
                     bb = $.trim(bb.toLowerCase());
+
+                switch (sortMode) {
+                    case 'natural':
+                        sortMode = w2utils.naturalCompare;
+                        break;
+                }
+
+                if (typeof sortMode == 'function') {
+                    return sortMode(aa,bb) * dir;
+                }
+
                 // compare both objects
                 if (aa > bb)
                     return dir;
