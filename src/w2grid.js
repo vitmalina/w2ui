@@ -396,6 +396,7 @@
         onColumnClick      : null,
         onColumnDblClick   : null,
         onColumnResize     : null,
+        onColumnAutoResize : null,
         onSort             : null,
         onSearch           : null,
         onSearchOpen       : null,
@@ -4430,7 +4431,8 @@
 
         refreshBody: function () {
             // -- separate summary
-            var tmp = this.find({ 'w2ui.summary': true }, true);
+            var obj = this,
+                tmp = this.find({ 'w2ui.summary': true }, true);
             if (tmp.length > 0) {
                 for (var t = 0; t < tmp.length; t++) this.summary.push(this.records[tmp[t]]);
                 for (var t = tmp.length-1; t >= 0; t--) this.records.splice(tmp[t], 1);
@@ -4455,7 +4457,43 @@
                 '<div id="grid_'+ this.name +'_columns" class="w2ui-grid-columns">'+
                 '    <table><tbody>'+ colHTML[1] +'</tbody></table>'+
                 '</div>';
-            $('#grid_'+ this.name +'_body').html(bodyHTML);
+
+            var gridBody = $('#grid_'+ this.name +'_body', obj.box).html(bodyHTML),
+                records = $('#grid_'+ this.name +'_records', obj.box);
+            // enable scrolling on frozen records,
+            // handle scrolling for normal records as well to have the same scrolling behaviour and eliminate synchronicity issues
+            gridBody.data('scrolldata', {lastTime: 0, lastDelta: 0, time: 0})
+            .find('.w2ui-grid-frecords, .w2ui-grid-records').on("mousewheel DOMMouseScroll ", function(event) {
+                event.preventDefault();
+
+                var e = event.originalEvent,
+                    scrolldata = gridBody.data('scrolldata'),
+                    recordsContainer = $(this).siblings('.w2ui-grid-records').addBack().filter('.w2ui-grid-records'),
+                    amount = typeof e.wheelDelta != 'undefined' ? e.wheelDelta * -1 / 120 : (e.detail || e.deltaY) / 3, // normalizing scroll speed
+                    newScrollTop = recordsContainer.scrollTop();
+
+                scrolldata.time = +new Date();
+
+                if (scrolldata.lastTime < scrolldata.time - 150) {
+                    scrolldata.lastDelta = 0;
+                }
+
+                scrolldata.lastTime = scrolldata.time;
+                scrolldata.lastDelta += amount;
+
+                if (Math.abs(scrolldata.lastDelta) < 1) {
+                    amount = 0;
+                } else {
+                    amount = Math.round(scrolldata.lastDelta);
+                }
+                gridBody.data('scrolldata', scrolldata);
+                
+                // make scroll amount dependent on visible rows
+                amount *= (Math.round(records.height() / obj.recordHeight) - 1) * obj.recordHeight / 4;
+
+                recordsContainer.stop().animate({ 'scrollTop': newScrollTop + amount }, 250, 'linear');
+            });
+
             if (this.records.length === 0 && this.msgEmpty) {
                 $('#grid_'+ this.name +'_body')
                     .append('<div id="grid_'+ this.name + '_empty_msg" class="w2ui-grid-empty-msg"><div>'+ this.msgEmpty +'</div></div>');
@@ -5494,11 +5532,46 @@
                         $(document).off('mouseup', 'body');
                         obj.resizeRecords();
                         obj.scroll();
-                        // event before
+                        // event after
                         obj.trigger($.extend(edata, { phase: 'after', originalEvent: event }));
                     };
                     $(document).on('mousemove', 'body', mouseMove);
                     $(document).on('mouseup', 'body', mouseUp);
+                })
+                .off('dblclick')
+                .on('dblclick', function(event) {
+                    var colId = parseInt($(this).attr('name')),
+                        col = obj.columns[colId],
+                        maxDiff = 0;
+
+                    if (col.autoResize === false) {
+                        return true;
+                    }
+
+                    if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
+                    if (event.preventDefault) event.preventDefault();
+                    $('.w2ui-grid-records td[col="' + colId + '"] > div', obj.box).each(function() {
+                        var thisDiff = this.offsetWidth - this.scrollWidth;
+
+                        if (thisDiff < maxDiff) {
+                            maxDiff = thisDiff - 3; // 3px buffer needed for Firefox
+                        }
+                    });
+
+                    // event before
+                    var edata = { phase: 'before', type: 'columnAutoResize', target: obj.name, column: col, field: col.field };
+                    edata = obj.trigger($.extend(edata, { resizeBy: Math.abs(maxDiff), originalEvent: event }));
+                    if (edata.isCancelled === true) { edata.isCancelled = false; return; }
+
+                    if (maxDiff < 0) {
+                        col.size = Math.min(parseInt(col.size) + Math.abs(maxDiff), col.max || Infinity) + 'px';
+                        obj.resizeRecords();
+                        obj.resizeRecords(); // Why do we have to call it twice in order to show the scrollbar?
+                        obj.scroll();
+                    }
+
+                    // event after
+                    obj.trigger($.extend(edata, { phase: 'after', originalEvent: event }));
                 })
                 .each(function (index, el) {
                     var td  = $(el).parent();

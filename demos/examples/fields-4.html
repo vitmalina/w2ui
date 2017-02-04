@@ -57,11 +57,11 @@ $('#enum-custom').w2field('enum', {
         }
     },
     renderItem: function (item, index, remove) {
-        var html = remove + '<span class="fa-trophy" style="'+ pstyle +'; margin-left: -4px;"></span>' + item.text;
+        var html = remove + '<span class="fa fa-trophy" style="'+ pstyle +'; margin-left: -4px;"></span>' + item.text;
         return html;
     },
     renderDrop: function (item, options) {
-        return '<span class="fa-star" style="'+ pstyle +'"></span>' + item.text;
+        return '<span class="fa fa-star" style="'+ pstyle +'"></span>' + item.text;
     }
 });
 // if you need to get to the selected items, use:
