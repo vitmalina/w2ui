@@ -88,10 +88,10 @@ $('#toolbar').w2toolbar({
 			{ text: 'Item 3', value: 'Item Three', icon: 'icon-page' }
 		]},
 		{ type: 'break', id: 'break1' },
-		{ type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', icon: 'fa-star', checked: true },
-		{ type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', icon: 'fa-star-empty' },
+		{ type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', icon: 'fa fa-star', checked: true },
+		{ type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', icon: 'fa fa-star-o' },
 		{ type: 'spacer' },
-		{ type: 'button',  id: 'item5',  caption: 'Item 5', icon: 'fa-home' }
+		{ type: 'button',  id: 'item5',  caption: 'Item 5', icon: 'fa fa-home' }
 	]
 });
 			</textarea>
@@ -116,10 +116,10 @@ $(function () {
 				{ text: 'Item 3', value: 'Item Three', icon: 'icon-page' }
 			]},
 			{ type: 'break', id: 'break1' },
-			{ type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', icon: 'fa-star', checked: true },
-			{ type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', icon: 'fa-star-empty' },
+			{ type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', icon: 'fa fa-star', checked: true },
+			{ type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', icon: 'fa fa-star-o' },
 			{ type: 'spacer' },
-			{ type: 'button',  id: 'item5',  caption: 'Item 5', icon: 'fa-home' }
+			{ type: 'button',  id: 'item5',  caption: 'Item 5', icon: 'fa fa-home' }
 		]
 	});
 });
