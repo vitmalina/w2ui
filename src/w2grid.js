@@ -5483,7 +5483,7 @@
                         $(document).off('mouseup', 'body');
                         obj.resizeRecords();
                         obj.scroll();
-                        // event before
+                        // event after
                         obj.trigger($.extend(edata, { phase: 'after', originalEvent: event }));
                     };
                     $(document).on('mousemove', 'body', mouseMove);
