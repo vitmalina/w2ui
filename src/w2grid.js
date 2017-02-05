@@ -2518,12 +2518,25 @@
             this.trigger($.extend(edata, { phase: 'after' }));
         },
 
-        getChanges: function () {
+        getChanges: function (recordsBase) {
             var changes = [];
-            for (var r = 0; r < this.records.length; r++) {
-                var rec = this.records[r];
-                if (rec.w2ui && rec.w2ui.changes != null) {
-                    changes.push($.extend(true, { recid: rec.recid }, rec.w2ui.changes));
+
+            if (typeof recordsBase == 'undefined') {
+                var recordsBase = this.records;
+            }
+
+            for (var r = 0; r < recordsBase.length; r++) {
+                var rec = recordsBase[r];
+
+                if (rec.w2ui) {
+                    if (rec.w2ui.changes != null) {
+                        changes.push($.extend(true, { recid: rec.recid }, rec.w2ui.changes));
+                    }
+
+                    // recursively look for changes in non-expanded children
+                    if (rec.w2ui.expanded !== true && rec.w2ui.children && rec.w2ui.children.length) {
+                        $.merge(changes, this.getChanges(rec.w2ui.children))
+                    }
                 }
             }
             return changes;
