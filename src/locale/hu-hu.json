@@ -57,6 +57,11 @@
       "contains": "tartalmaz",
       "begins": "kezdődik",
       "ends": "végződik",
-      "Open Search Fields": "Kereső megnyitása"
+      "Open Search Fields": "Kereső megnyitása",
+			"Current Date & Time": "Aktuális dátum és idő",
+			"Select Hour": "Óra kiválasztása",
+			"Select Minute": "Perc kiválasztása",
+			"before": "előtte",
+			"after": "utána"
     }
 }
