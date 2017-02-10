@@ -6986,10 +6986,10 @@
                 }
             } else {
                 // if editable checkbox
-                if (edit && ['checkbox', 'check'].indexOf(edit.type) != -1) {
+                if (edit && ['checkbox', 'check', 'radio'].indexOf(edit.type) != -1) {
                     var changeInd = summary ? -(ind + 1) : ind;
                     style += 'text-align: center;';
-                    data = '<input tabindex="-1" type="checkbox" '+ (data ? 'checked="checked"' : '') +' onclick="' +
+                    data = '<input tabindex="-1" type="'+edit.type+'" '+ (data ? 'checked="checked"' : '') +' onclick="' +
                            '    var obj = w2ui[\''+ this.name + '\']; '+
                            '    obj.editChange.call(obj, this, '+ changeInd +', '+ col_ind +', event); ' +
                            '"/>';
