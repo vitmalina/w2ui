@@ -4923,7 +4923,7 @@
                 '   <td style="width: 30px; text-align: center; padding-right: 3px; color: #888;">'+
                 '      <span class="w2ui-column-check w2ui-icon-'+ (!obj.show.lineNumbers ? 'empty' : 'check') +'"></span>'+
                 '   </td>'+
-                '   <td onclick="jQuery(\'.w2ui-overlay\')[0].hide();">'+
+                '   <td>'+
                 '      <label>'+ w2utils.lang('Line #') +'</label>'+
                 '   </td>'+
                 '</tr>';
@@ -4940,7 +4940,7 @@
                     '   <td style="width: 30px; text-align: center; padding-right: 3px; color: #888;">'+
                     '      <span class="w2ui-column-check w2ui-icon-'+ (col.hidden ? 'empty' : 'check') +'"></span>'+
                     '   </td>'+
-                    '   <td onclick="jQuery(\'.w2ui-overlay\')[0].hide();">'+
+                    '   <td>'+
                     '       <label>'+ w2utils.stripTags(tmp) +'</label>'+
                     '   </td>'+
                     '</tr>';
@@ -5232,7 +5232,8 @@
             var edata = this.trigger({ phase: 'before', target: this.name, type: 'columnOnOff', field: field, originalEvent: event });
             if (edata.isCancelled === true) return;
             // regular processing
-            var obj = this;
+            var obj  = this;
+            var hide = (!event.shiftKey && !event.metaKey && !event.ctrlKey && !$(event.target).hasClass('w2ui-column-check'));
             // collapse expanded rows
             var rows = obj.find({ 'w2ui.expanded': true }, true);
             for (var r = 0; r < rows.length; r++) {
@@ -5255,17 +5256,20 @@
                 var col = this.getColumn(field);
                 if (col.hidden) {
                     $el.addClass('w2ui-icon-check').removeClass('w2ui-icon-empty');
-                    this.showColumn(col.field);
+                    setTimeout(function () {
+                        obj.showColumn(col.field);
+                    }, hide ? 0 : 50);
                 } else {
                     $el.addClass('w2ui-icon-empty').removeClass('w2ui-icon-check');
-                    this.hideColumn(col.field);
+                    setTimeout(function () {
+                        obj.hideColumn(col.field);
+                    }, hide ? 0 : 50);
                 }
             }
-            if (!event.shiftKey && !event.metaKey && !event.ctrlKey) {
-                // timeout needed for visual delay
+            if (hide) {
                 setTimeout(function () {
                     $().w2overlay({ name: obj.name + '_toolbar' });
-                }, 150);
+                }, 40);
             }
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
