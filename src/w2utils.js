@@ -1792,7 +1792,7 @@ var w2utils = (function ($) {
             if (codeA != codeB) return (codeA < codeB) ? -1 : 1
         }
         return 0
-    };
+    }
 })(jQuery);
 
 /***********************************************************
