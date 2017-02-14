@@ -107,7 +107,9 @@ var w2utils = (function ($) {
         // some internal variables
         isIOS : ((navigator.userAgent.toLowerCase().indexOf('iphone') != -1 ||
                  navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
-                 navigator.userAgent.toLowerCase().indexOf('ipad') != -1)
+                 navigator.userAgent.toLowerCase().indexOf('ipad') != -1 ||
+                 navigator.userAgent.toLowerCase().indexOf('mobile') != -1 ||
+                 navigator.userAgent.toLowerCase().indexOf('android') != -1)
                  ? true : false),
         isIE : ((navigator.userAgent.toLowerCase().indexOf('msie') != -1 ||
                  navigator.userAgent.toLowerCase().indexOf('trident') != -1 )
