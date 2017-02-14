@@ -2842,7 +2842,7 @@
                 // focus and select
                 setTimeout(function () {
                     var tmp = el.find('.w2ui-input');
-                    var len = $(tmp).val().length;
+                    var len = ($(tmp).val()+'').length;
                     if (edit.type == 'div') len = $(tmp).text().length;
                     if (tmp.length > 0) {
                         tmp.focus();
@@ -5405,7 +5405,7 @@
                             var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'add', recid: null });
                             obj.trigger($.extend(edata, { phase: 'after' }));
                             // hide all tooltips
-                            setTimeout(function () { $().w2tag(); }, 20);
+                            //setTimeout(function () { $().w2tag(); }, 20); -- commented out, hides all tags
                             break;
                         case 'w2ui-edit':
                             var sel   = obj.getSelection();

@@ -2115,6 +2115,7 @@ w2utils.event = {
                 tag = $(this).data('w2tag');
                 $.extend(tag.options, options);
             } else {
+                if (!$(el).is(":visible")) el=$(el).parent()[0];
                 tag = {
                     id        : origID,
                     attachedTo: el,          // element attached to
@@ -2177,12 +2178,8 @@ w2utils.event = {
                 if (tag.options.hideOnKeyPress) {
                     $(tag.attachedTo).on('keypress.w2tag', tag.hide);
                 }
-                if (options.hideOnChange) {
-                    if (el.nodeName == 'INPUT') {
-                        $(el).on('change.w2tag', tag.hide);
-                    } else {
-                        $(el).find('input').on('change.w2tag', tag.hide);
-                    }
+                if (tag.options.hideOnChange) {
+                    $(tag.attachedTo).on('change.w2tag', tag.hide);
                 }
                 if (tag.options.hideOnBlur) {
                     $(tag.attachedTo).on('blur.w2tag', tag.hide);
@@ -6134,7 +6131,7 @@ w2utils.event = {
                 // focus and select
                 setTimeout(function () {
                     var tmp = el.find('.w2ui-input');
-                    var len = $(tmp).val().length;
+                    var len = ($(tmp).val()+'').length;
                     if (edit.type == 'div') len = $(tmp).text().length;
                     if (tmp.length > 0) {
                         tmp.focus();
@@ -8697,7 +8694,7 @@ w2utils.event = {
                             var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'add', recid: null });
                             obj.trigger($.extend(edata, { phase: 'after' }));
                             // hide all tooltips
-                            setTimeout(function () { $().w2tag(); }, 20);
+                            //setTimeout(function () { $().w2tag(); }, 20); -- commented out, hides all tags
                             break;
                         case 'w2ui-edit':
                             var sel   = obj.getSelection();

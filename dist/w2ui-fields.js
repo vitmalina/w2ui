@@ -2177,11 +2177,11 @@ w2utils.event = {
                 if (tag.options.hideOnKeyPress) {
                     $(tag.attachedTo).on('keypress.w2tag', tag.hide);
                 }
-                if (options.hideOnChange) {
-                    if (el.nodeName == 'INPUT') {
-                        $(el).on('change.w2tag', tag.hide);
+                if (tag.options.hideOnChange) {
+                    if (tag.attachedTo.nodeName == 'INPUT') {
+                        $(tag.attachedTo).on('change.w2tag', tag.hide);
                     } else {
-                        $(el).find('input').on('change.w2tag', tag.hide);
+                        $(tag.attachedTo).find('input').on('change.w2tag', tag.hide);
                     }
                 }
                 if (tag.options.hideOnBlur) {
