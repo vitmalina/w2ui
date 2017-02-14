@@ -395,6 +395,7 @@
         onColumnClick      : null,
         onColumnDblClick   : null,
         onColumnResize     : null,
+        onColumnAutoResize : null,
         onSort             : null,
         onSearch           : null,
         onSearchOpen       : null,
@@ -5510,11 +5511,46 @@
                         $(document).off('mouseup', 'body');
                         obj.resizeRecords();
                         obj.scroll();
-                        // event before
+                        // event after
                         obj.trigger($.extend(edata, { phase: 'after', originalEvent: event }));
                     };
                     $(document).on('mousemove', 'body', mouseMove);
                     $(document).on('mouseup', 'body', mouseUp);
+                })
+                .off('dblclick')
+                .on('dblclick', function(event) {
+                    var colId = parseInt($(this).attr('name')),
+                        col = obj.columns[colId],
+                        maxDiff = 0;
+
+                    if (col.autoResize === false) {
+                        return true;
+                    }
+
+                    if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
+                    if (event.preventDefault) event.preventDefault();
+                    $('.w2ui-grid-records td[col="' + colId + '"] > div', obj.box).each(function() {
+                        var thisDiff = this.offsetWidth - this.scrollWidth;
+
+                        if (thisDiff < maxDiff) {
+                            maxDiff = thisDiff - 3; // 3px buffer needed for Firefox
+                        }
+                    });
+
+                    // event before
+                    var edata = { phase: 'before', type: 'columnAutoResize', target: obj.name, column: col, field: col.field };
+                    edata = obj.trigger($.extend(edata, { resizeBy: Math.abs(maxDiff), originalEvent: event }));
+                    if (edata.isCancelled === true) { edata.isCancelled = false; return; }
+
+                    if (maxDiff < 0) {
+                        col.size = Math.min(parseInt(col.size) + Math.abs(maxDiff), col.max || Infinity) + 'px';
+                        obj.resizeRecords();
+                        obj.resizeRecords(); // Why do we have to call it twice in order to show the scrollbar?
+                        obj.scroll();
+                    }
+
+                    // event after
+                    obj.trigger($.extend(edata, { phase: 'after', originalEvent: event }));
                 })
                 .each(function (index, el) {
                     var td  = $(el).parent();
