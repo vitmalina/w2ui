@@ -4008,11 +4008,11 @@
                 this.last.scrollTop = 0;
                 $('#grid_'+ this.name +'_records').prop('scrollTop',  0);
                 // event after
-                this.trigger($.extend(edata, { phase: 'after' }));
+                this.trigger($.extend(edata, { phase: 'after', direction: direction }));
                 this.refresh();
             } else {
                 // event after
-                this.trigger($.extend(edata, { phase: 'after' }));
+                this.trigger($.extend(edata, { phase: 'after', direction: direction }));
                 this.last.xhr_offset = 0;
                 this.reload();
             }
