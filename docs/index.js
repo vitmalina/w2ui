@@ -15,43 +15,43 @@ $(function () {
         img: null,
         nodes: [
             { id: 'w2layout', text: 'w2layout', img: 'icon-folder', group1: true, expanded: true, nodes: [
-                { id: 'w2layout-events', text: 'Events', icon: 'fa-tag' },
-                { id: 'w2layout-props', text: 'Properties', icon: 'fa-star-empty' },
-                { id: 'w2layout-methods', text: 'Methods', icon: 'fa-cog' }
+                { id: 'w2layout-events', text: 'Events', icon: 'fa fa-tag' },
+                { id: 'w2layout-props', text: 'Properties', icon: 'fa fa-star-o' },
+                { id: 'w2layout-methods', text: 'Methods', icon: 'fa fa-cog' }
             ]},
             { id: 'w2grid', text: 'w2grid', img: 'icon-folder', group1: true, nodes: [
-                { id: 'w2grid-events', text: 'Events', icon: 'fa-tag' },
-                { id: 'w2grid-props', text: 'Properties', icon: 'fa-star-empty' },
-                { id: 'w2grid-methods', text: 'Methods', icon: 'fa-cog' }
+                { id: 'w2grid-events', text: 'Events', icon: 'fa fa-tag' },
+                { id: 'w2grid-props', text: 'Properties', icon: 'fa fa-star-o' },
+                { id: 'w2grid-methods', text: 'Methods', icon: 'fa fa-cog' }
             ] },
             { id: 'w2toolbar', text: 'w2toolbar', img: 'icon-folder', group1: true, nodes: [
-                { id: 'w2toolbar-events', text: 'Events', icon: 'fa-tag' },
-                { id: 'w2toolbar-props', text: 'Properties', icon: 'fa-star-empty' },
-                { id: 'w2toolbar-methods', text: 'Methods', icon: 'fa-cog' }
+                { id: 'w2toolbar-events', text: 'Events', icon: 'fa fa-tag' },
+                { id: 'w2toolbar-props', text: 'Properties', icon: 'fa fa-star-o' },
+                { id: 'w2toolbar-methods', text: 'Methods', icon: 'fa fa-cog' }
             ] },
             { id: 'w2sidebar', text: 'w2sidebar', img: 'icon-folder', group1: true, nodes: [
-                { id: 'w2sidebar-events', text: 'Events', icon: 'fa-tag' },
-                { id: 'w2sidebar-props', text: 'Properties', icon: 'fa-star-empty' },
-                { id: 'w2sidebar-methods', text: 'Methods', icon: 'fa-cog' }
+                { id: 'w2sidebar-events', text: 'Events', icon: 'fa fa-tag' },
+                { id: 'w2sidebar-props', text: 'Properties', icon: 'fa fa-star-o' },
+                { id: 'w2sidebar-methods', text: 'Methods', icon: 'fa fa-cog' }
             ] },
             { id: 'w2tabs', text: 'w2tabs', img: 'icon-folder', group1: true, nodes: [
-                { id: 'w2tabs-events', text: 'Events', icon: 'fa-tag' },
-                { id: 'w2tabs-props', text: 'Properties', icon: 'fa-star-empty' },
-                { id: 'w2tabs-methods', text: 'Methods', icon: 'fa-cog' }
+                { id: 'w2tabs-events', text: 'Events', icon: 'fa fa-tag' },
+                { id: 'w2tabs-props', text: 'Properties', icon: 'fa fa-star-o' },
+                { id: 'w2tabs-methods', text: 'Methods', icon: 'fa fa-cog' }
             ] },
             { id: 'w2form', text: 'w2form', img: 'icon-folder', group1: true, nodes: [
-                { id: 'w2form-events', text: 'Events', icon: 'fa-tag' },
-                { id: 'w2form-props', text: 'Properties', icon: 'fa-star-empty' },
-                { id: 'w2form-methods', text: 'Methods', icon: 'fa-cog' }
+                { id: 'w2form-events', text: 'Events', icon: 'fa fa-tag' },
+                { id: 'w2form-props', text: 'Properties', icon: 'fa fa-star-o' },
+                { id: 'w2form-methods', text: 'Methods', icon: 'fa fa-cog' }
             ]},
             { id: 'w2popup', text: 'w2popup', img: 'icon-folder', group1: true, nodes: [
-                { id: 'w2popup-events', text: 'Events', icon: 'fa-tag' },
-                { id: 'w2popup-props', text: 'Properties', icon: 'fa-star-empty' },
-                { id: 'w2popup-methods', text: 'Methods', icon: 'fa-cog' }
+                { id: 'w2popup-events', text: 'Events', icon: 'fa fa-tag' },
+                { id: 'w2popup-props', text: 'Properties', icon: 'fa fa-star-o' },
+                { id: 'w2popup-methods', text: 'Methods', icon: 'fa fa-cog' }
             ] },
             { id: 'w2utils', text: 'w2utils', img: 'icon-folder', group1: true, nodes: [
-                { id: 'w2utils-props', text: 'Properties', icon: 'fa-star-empty' },
-                { id: 'w2utils-methods', text: 'Methods', icon: 'fa-cog' }
+                { id: 'w2utils-props', text: 'Properties', icon: 'fa fa-star-o' },
+                { id: 'w2utils-methods', text: 'Methods', icon: 'fa fa-cog' }
             ] }
         ],
         onClick: function(id, data) {
@@ -88,11 +88,11 @@ $(function () {
     methods.sort();
     // properties
     var nodes = [];
-    for (var o in props) nodes.push({ id: 'w2utils.' + props[o], text: props[o], icon: 'fa-tag' });
+    for (var o in props) nodes.push({ id: 'w2utils.' + props[o], text: props[o], icon: 'fa fa-tag' });
     w2ui['docs'].add('w2utils-props', nodes);
     // methods
     var nodes = [];
-    for (var o in methods) nodes.push({ id: 'w2utils.' + methods[o], text: methods[o], icon: 'fa-cog' });
+    for (var o in methods) nodes.push({ id: 'w2utils.' + methods[o], text: methods[o], icon: 'fa fa-cog' });
     w2ui['docs'].add('w2utils-methods', nodes);
 
     // remove internal methods/props
@@ -118,7 +118,7 @@ $(function () {
         var nodes = [];
         for (var o in methods) {
             //console.log('---' + methods[o]);
-            nodes.push({ id: 'w2'+ type +'.' + methods[o], text: methods[o], icon: 'fa-cog' });
+            nodes.push({ id: 'w2'+ type +'.' + methods[o], text: methods[o], icon: 'fa fa-cog' });
         }
         // add to tree
         w2ui['docs'].add('w2'+ type +'-methods', nodes);
@@ -128,9 +128,9 @@ $(function () {
             //console.log('--->' + props[o]);
             if (w2ui['docs'].get('w2'+ type +'.' + props[o]) != null) continue;
             if (props[o].substr(0, 2) == 'on') {
-                nodes1.push({ id: 'w2'+ type +'.' + props[o], text: props[o], icon: 'fa-tag' });
+                nodes1.push({ id: 'w2'+ type +'.' + props[o], text: props[o], icon: 'fa fa-tag' });
             } else {
-                nodes2.push({ id: 'w2'+ type +'.' + props[o], text: props[o], icon: 'fa-star-empty' });
+                nodes2.push({ id: 'w2'+ type +'.' + props[o], text: props[o], icon: 'fa fa-star-o' });
             }
         }
         w2ui['docs'].add('w2'+ type +'-events', nodes1);
@@ -143,11 +143,11 @@ $(function () {
         var props   = [];
         for (var m in w2popup) {
             if (m.substr(0,2) == 'on' && m != 'on') {
-                events.push({ id: 'w2popup.' + m, text: m, icon: 'fa-tag' });
+                events.push({ id: 'w2popup.' + m, text: m, icon: 'fa fa-tag' });
             } else if (typeof w2popup[m] == 'function') {
-                methods.push({ id: 'w2popup.' + m, text: m, icon: 'fa-cog' });
+                methods.push({ id: 'w2popup.' + m, text: m, icon: 'fa fa-cog' });
             } else {
-                props.push({ id: 'w2popup.' + m, text: m, icon: 'fa-star-empty' });
+                props.push({ id: 'w2popup.' + m, text: m, icon: 'fa fa-star-o' });
             }
         }
         methods.sort(function (a, b) { return a.text > b.text ? 1 : -1 });
