@@ -108,7 +108,9 @@ var w2utils = (function ($) {
         // some internal variables
         isIOS : ((navigator.userAgent.toLowerCase().indexOf('iphone') != -1 ||
                  navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
-                 navigator.userAgent.toLowerCase().indexOf('ipad') != -1)
+                 navigator.userAgent.toLowerCase().indexOf('ipad') != -1 ||
+                 navigator.userAgent.toLowerCase().indexOf('mobile') != -1 ||
+                 navigator.userAgent.toLowerCase().indexOf('android') != -1)
                  ? true : false),
         isIE : ((navigator.userAgent.toLowerCase().indexOf('msie') != -1 ||
                  navigator.userAgent.toLowerCase().indexOf('trident') != -1 )
@@ -2666,22 +2668,19 @@ w2utils.event = {
                     if (event.shiftKey || event.metaKey || event.ctrlKey) keepOpen = true;
                 }
                 if (typeof options.onSelect === 'function') {
-                    // need time so that menu first hides
-                    setTimeout(function () {
-                        options.onSelect({
-                            index   : index,
-                            item    : options.items[index],
-                            keepOpen: keepOpen,
-                            originalEvent: event
-                        });
-                    }, 10);
+                    options.onSelect({
+                        index   : index,
+                        item    : options.items[index],
+                        keepOpen: keepOpen,
+                        originalEvent: event
+                    });
                 }
                 // do not uncomment (or enum search type is not working in grid)
                 // setTimeout(function () { $(document).click(); }, 50);
                 // -- hide
                 var div = $('#w2ui-overlay'+ name);
                 div.removeData('keepOpen');
-                if (typeof div[0].hide === 'function' && !keepOpen) {
+                if (div.length > 0 && typeof div[0].hide === 'function' && !keepOpen) {
                     div[0].hide();
                 }
             };
@@ -2946,7 +2945,7 @@ w2utils.event = {
             pal[0].pop();
         }
         if (options.color) options.color = String(options.color).toUpperCase();
-        if (options.color.substr(0,1) == '#') options.color = options.color.substr(1);
+        if (typeof options.color == 'string' && options.color.substr(0,1) == '#') options.color = options.color.substr(1);
         if (options.fireChange == null) options.fireChange = true;
 
         if ($('#w2ui-overlay').length === 0) {
@@ -3540,7 +3539,6 @@ w2utils.event = {
             // extend items
             var object = new w2grid(method);
             $.extend(object, { postData: {}, httpHeaders: {}, records: [], columns: [], searches: [], toolbar: {}, sortData: [], searchData: [], handlers: [] });
-            if (object.onExpand != null) object.show.expandColumn = true;
             $.extend(true, object.toolbar, toolbar);
             // reassign variables
             var p;
@@ -8201,7 +8199,7 @@ w2utils.event = {
                 '   <td style="width: 30px; text-align: center; padding-right: 3px; color: #888;">'+
                 '      <span class="w2ui-column-check w2ui-icon-'+ (!obj.show.lineNumbers ? 'empty' : 'check') +'"></span>'+
                 '   </td>'+
-                '   <td onclick="jQuery(\'.w2ui-overlay\')[0].hide();">'+
+                '   <td>'+
                 '      <label>'+ w2utils.lang('Line #') +'</label>'+
                 '   </td>'+
                 '</tr>';
@@ -8218,7 +8216,7 @@ w2utils.event = {
                     '   <td style="width: 30px; text-align: center; padding-right: 3px; color: #888;">'+
                     '      <span class="w2ui-column-check w2ui-icon-'+ (col.hidden ? 'empty' : 'check') +'"></span>'+
                     '   </td>'+
-                    '   <td onclick="jQuery(\'.w2ui-overlay\')[0].hide();">'+
+                    '   <td>'+
                     '       <label>'+ w2utils.stripTags(tmp) +'</label>'+
                     '   </td>'+
                     '</tr>';
@@ -8510,7 +8508,8 @@ w2utils.event = {
             var edata = this.trigger({ phase: 'before', target: this.name, type: 'columnOnOff', field: field, originalEvent: event });
             if (edata.isCancelled === true) return;
             // regular processing
-            var obj = this;
+            var obj  = this;
+            var hide = (!event.shiftKey && !event.metaKey && !event.ctrlKey && !$(event.target).hasClass('w2ui-column-check'));
             // collapse expanded rows
             var rows = obj.find({ 'w2ui.expanded': true }, true);
             for (var r = 0; r < rows.length; r++) {
@@ -8533,17 +8532,20 @@ w2utils.event = {
                 var col = this.getColumn(field);
                 if (col.hidden) {
                     $el.addClass('w2ui-icon-check').removeClass('w2ui-icon-empty');
-                    this.showColumn(col.field);
+                    setTimeout(function () {
+                        obj.showColumn(col.field);
+                    }, hide ? 0 : 50);
                 } else {
                     $el.addClass('w2ui-icon-empty').removeClass('w2ui-icon-check');
-                    this.hideColumn(col.field);
+                    setTimeout(function () {
+                        obj.hideColumn(col.field);
+                    }, hide ? 0 : 50);
                 }
             }
-            if (!event.shiftKey && !event.metaKey && !event.ctrlKey) {
-                // timeout needed for visual delay
+            if (hide) {
                 setTimeout(function () {
                     $().w2overlay({ name: obj.name + '_toolbar' });
-                }, 150);
+                }, 40);
             }
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
@@ -13973,6 +13975,7 @@ var w2prompt = function (label, title, callBack) {
 
                 if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
                     obj.tooltipHide(id);
+
                     if (it.checked) {
                         // if it was already checked, second click will hide it
                         setTimeout(function () {
@@ -14180,6 +14183,9 @@ var w2prompt = function (label, title, callBack) {
             }
             var el = $(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id));
             var html  = this.getItemHTML(it);
+            // hide tooltip
+            this.tooltipHide(id, {});
+
             if (el.length === 0) {
                 // does not exist - create it
                 if (it.type == 'spacer') {
@@ -14295,8 +14301,8 @@ var w2prompt = function (label, title, callBack) {
                     html += '<table cellpadding="0" cellspacing="0" '+
                             '       class="w2ui-button '+ (item.checked ? 'checked' : '') +'" '+
                             '       onclick     = "var el=w2ui[\''+ this.name + '\']; if (el) el.click(\''+ item.id +'\', event);" '+
-                            '       onmouseover = "' + (!item.disabled ? "jQuery(this).addClass('over'); w2ui['"+ this.name +"'].tooltipShow('"+ item.id +"', event);" : "") + '"'+
-                            '       onmouseout  = "' + (!item.disabled ? "jQuery(this).removeClass('over').removeClass('down'); w2ui['"+ this.name +"'].tooltipHide('"+ item.id +"', event);" : "") + '"'+
+                            '       onmouseenter = "' + (!item.disabled ? "jQuery(this).addClass('over'); w2ui['"+ this.name +"'].tooltipShow('"+ item.id +"', event);" : "") + '"'+
+                            '       onmouseleave = "' + (!item.disabled ? "jQuery(this).removeClass('over').removeClass('down'); w2ui['"+ this.name +"'].tooltipHide('"+ item.id +"', event);" : "") + '"'+
                             '       onmousedown = "' + (!item.disabled ? "jQuery(this).addClass('down');" : "") + '"'+
                             '       onmouseup   = "' + (!item.disabled ? "jQuery(this).removeClass('down');" : "") + '"'+
                             '><tbody>'+
@@ -14340,27 +14346,28 @@ var w2prompt = function (label, title, callBack) {
             var pos  = this.tooltip;
             var txt  = item.tooltip;
             if (typeof txt == 'function') txt = txt.call(this, item);
-            $el.prop('_mouse_over', true);
-            setTimeout(function () {
-                if ($el.prop('_mouse_over') === true && $el.prop('_mouse_tooltip') !== true) {
+            clearTimeout(this._tooltipTimer);
+            this._tooltipTimer = setTimeout(function () {
+                if ($el.prop('_mouse_tooltip') !== true) {
                     $el.prop('_mouse_tooltip', true);
                     // show tooltip
                     if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(item.type) != -1 && item.checked == true) return; // not for opened drop downs
                     $el.w2tag(w2utils.lang(txt), { position: pos });
                 }
-                if (forceRefresh == true) {
-                    $el.w2tag(w2utils.lang(txt), { position: pos });
-                }
-            }, 1);
+            }, 0);
+            // refresh only
+            if ($el.prop('_mouse_tooltip') && forceRefresh == true) {
+                $el.w2tag(w2utils.lang(txt), { position: pos });
+            }
         },
 
         tooltipHide: function (id, event) {
             if (this.tooltip == null) return;
             var $el  = $(this.box).find('#tb_'+ this.name + '_item_'+ w2utils.escapeId(id));
             var item = this.get(id);
-            $el.removeProp('_mouse_over');
+            clearTimeout(this._tooltipTimer);
             setTimeout(function () {
-                if ($el.prop('_mouse_over') !== true && $el.prop('_mouse_tooltip') === true) {
+                if ($el.prop('_mouse_tooltip') === true) {
                     $el.removeProp('_mouse_tooltip');
                     // hide tooltip
                     $el.w2tag();
@@ -19230,9 +19237,9 @@ var w2prompt = function (label, title, callBack) {
                 }
                 // hidden
                 if (field.hidden) {
-                    $(field.el).parent().parent().hide();
+                    $(field.el).parents('.w2ui-field').hide();
                 } else {
-                    $(field.el).parent().parent().show();
+                    $(field.el).parents('.w2ui-field').show();
                 }
             }
             // attach actions on buttons

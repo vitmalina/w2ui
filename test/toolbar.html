@@ -1,7 +1,7 @@
 <html>
 <head>
 <link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
-<link rel="stylesheet" type="text/css" media="screen" href="../libs/font-awesome/font-awesome.css" />
+<link rel="stylesheet" type="text/css" media="screen" href="../libs/font-awesome/css/font-awesome.css" />
 <script type="text/javascript" src="../libs/jquery/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2fields.js"></script>
@@ -17,56 +17,56 @@
             items: [
                 { type: 'check', id: 'item1.1', text: 'Check', img: 'icon-page', tooltip: function () { return (new Date()).getTime(); },
                     checked: true, route: '/project' },
-                { type: 'drop',  id: 'item12', img: 'icon-page', icon: 'fa-star', tooltip: 'Drop button',  html: 'so', route: '/project/:id/go', count: 4 },
+                { type: 'drop',  id: 'item12', img: 'icon-page', icon: 'fa fa-star', tooltip: 'Drop button',  html: 'so', route: '/project/:id/go', count: 4 },
                 { type: 'break', id: 'break0' },
-                { type: 'menu',  id: 'item2', caption: 'Drop Down', img: 'icon-folder', icon: 'fa-camera', hint: 'Menu button',
+                { type: 'menu',  id: 'item2', caption: 'Drop Down', img: 'icon-folder', icon: 'fa fa-camera', hint: 'Menu button',
                     items: [
                         { text: 'Item 1', img: 'icon-page', route: '/project/:id/item1', tooltip: 'some' },
                         { text: 'Item 2', img: 'icon-page', route: '/project/:id/item2', disabled: true },
                         { text: 'Item 3', value: 'Item Three', img: 'icon-page', route: '/project/:id/item2' }
                     ]
                 },
-                { type: 'menu',   id: 'item.2a@', img: 'icon-folder', icon: 'fa-heart', hint: 'This is some long hint',
+                { type: 'menu',   id: 'item.2a@', img: 'icon-folder', icon: 'fa fa-heart', hint: 'This is some long hint',
                      items: [
-                        { id: 'item1', text: 'First Item', count: 3, icon: 'fa-heart' },
-                        { id: 'item2', text: 'Item 2', icon: 'fa-user', count: 12 },
-                        { id: 'item3', text: 'Item 3', icon: 'fa-star-empty' },
-                        { id: 'item4', text: 'Item 4', icon: 'fa-link', hotkey: '⌘A' },
+                        { id: 'item1', text: 'First Item', count: 3, icon: 'fa fa-heart' },
+                        { id: 'item2', text: 'Item 2', icon: 'fa fa-user', count: 12 },
+                        { id: 'item3', text: 'Item 3', icon: 'fa fa-star-o' },
+                        { id: 'item4', text: 'Item 4', icon: 'fa fa-link', hotkey: '⌘A' },
                         { id: 'item5', text: 'Without Image, Just Text', hotkey: '⌘B' }
                     ], overlay: { top1: 10 }
                 },
                 { type: 'menu-check', id: 'menucheck', text: 'Menu: Check',
                      items: [
-                        { id: 'item1', text: 'Item 1.1', count: 3, icon: 'fa-heart' },
-                        { id: 'item2', text: 'Item 1.2', icon: 'fa-user', count: 12, checked: true },
-                        { id: 'item3', text: 'Item 1.3', icon: 'fa-star-empty', hotkey: '⌘S' },
+                        { id: 'item1', text: 'Item 1.1', count: 3, icon: 'fa fa-heart' },
+                        { id: 'item2', text: 'Item 1.2', icon: 'fa fa-user', count: 12, checked: true },
+                        { id: 'item3', text: 'Item 1.3', icon: 'fa fa-star-o', hotkey: '⌘S' },
                         { text: '--' },
-                        { id: 'item4', text: 'Item 2.1', group: '2', icon: 'fa-link' },
-                        { id: 'item5', text: 'Item 2.2', group: '2', icon: 'fa-link' },
-                        { id: 'item6', text: 'Item 2.3', group: '2', icon: 'fa-link' }
+                        { id: 'item4', text: 'Item 2.1', group: '2', icon: 'fa fa-link' },
+                        { id: 'item5', text: 'Item 2.2', group: '2', icon: 'fa fa-link' },
+                        { id: 'item6', text: 'Item 2.3', group: '2', icon: 'fa fa-link' }
                     ],
                 },
                 { type: 'menu-radio', id: 'menu.radio', text: 'Menu: Radio',
                      items: [
-                        { id: 'item1', text: 'First Item', count: 3, icon: 'fa-heart' },
+                        { id: 'item1', text: 'First Item', count: 3, icon: 'fa fa-heart' },
                         { text: '--' },
-                        { id: 'item2', text: 'Item 2', icon: 'fa-user', count: 12, checked: true },
-                        { id: 'item3', text: 'Item 3', icon: 'fa-star-empty', checked: true },
+                        { id: 'item2', text: 'Item 2', icon: 'fa fa-user', count: 12, checked: true },
+                        { id: 'item3', text: 'Item 3', icon: 'fa fa-star-o', checked: true },
                         { text: '--' },
-                        { id: 'item4', text: 'Item 4', icon: 'fa-link', hotkey: '⌘L' },
-                        { id: 'item1a', text: 'First Item', count: 3, icon: 'fa-heart' },
+                        { id: 'item4', text: 'Item 4', icon: 'fa fa-link', hotkey: '⌘L' },
+                        { id: 'item1a', text: 'First Item', count: 3, icon: 'fa fa-heart' },
                         { text: '--' },
-                        { id: 'item2a', text: 'Item 2', icon: 'fa-user', count: 12, checked: true },
-                        { id: 'item3a', text: 'Item 3', icon: 'fa-star-empty', checked: true },
+                        { id: 'item2a', text: 'Item 2', icon: 'fa fa-user', count: 12, checked: true },
+                        { id: 'item3a', text: 'Item 3', icon: 'fa fa-star-o', checked: true },
                         { text: '--' },
-                        { id: 'item4a', text: 'Item 4', icon: 'fa-link', hotkey: '⌘L' }
+                        { id: 'item4a', text: 'Item 4', icon: 'fa fa-link', hotkey: '⌘L' }
                     ],
                 },
                 { type: 'break', id: 'break1' },
-                { type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', icon: 'fa-user', img1: 'icon-add', checked: true,
+                { type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', icon: 'fa fa-user', img1: 'icon-add', checked: true,
                     hint: 'This is some long hint', route: '/project/:id/view/:vid', style: "width: 100px; text-align: center",
                 },
-                { type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', icon: 'fa-group', img1: 'icon-add', disabled: false, count: 55,
+                { type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', icon: 'fa fa-users', img1: 'icon-add', disabled: false, count: 55,
                     hint: 'This is some long hint', route: '/project/:id/drop down/:vid/:id', style: "width: 100px; text-align: center",
                 },
                 { type: 'break' },
@@ -76,25 +76,25 @@
                     route: 'another/project'
                 },
                 { type: 'button',  id: 'itemT',  caption: 'Just Text', count: '1', hint: 'This is some very very very very very veryt long hint' },
-                { type: 'color', id: 'item8', caption1: 'Color', icon1: 'fa-star', hint: 'Color', transparent: true, color: '888888' },
-                { type: 'text-color', id: 'item9', caption1: 'Text Color', icon1: 'fa-star', hint: 'Text Color', transparent: true, color: 'FF9838' },
+                { type: 'color', id: 'item8', caption1: 'Color', icon1: 'fa fa-star', hint: 'Color', transparent: true, color: '888888' },
+                { type: 'text-color', id: 'item9', caption1: 'Text Color', icon1: 'fa fa-star', hint: 'Text Color', transparent: true, color: 'FF9838' },
                 { type: 'spacer' },
                 { type: 'button',  id: 'item5',  caption: 'Item 5', img: 'icon-page', disabled: true, hint: 'This is some very very very very very veryt long hint' },
                 { type: 'button',  id: 'item6',  caption: 'Item 6', img: 'icon-page', hint: 'This is some very very very very very veryt long hint' },
                 { type: 'menu-radio', id: 'menu.radio2', text: 'Menu: Radio',
                      items: [
-                        { id: 'item1', text: 'First Item', count: 3, icon: 'fa-heart' },
+                        { id: 'item1', text: 'First Item', count: 3, icon: 'fa fa-heart' },
                         { text: '--' },
-                        { id: 'item2', text: 'Item 2', icon: 'fa-user', count: 12, checked: true },
-                        { id: 'item3', text: 'Item 3', icon: 'fa-star-empty', checked: true },
+                        { id: 'item2', text: 'Item 2', icon: 'fa fa-user', count: 12, checked: true },
+                        { id: 'item3', text: 'Item 3', icon: 'fa fa-star-o', checked: true },
                         { text: '--' },
-                        { id: 'item4', text: 'Item 4', icon: 'fa-link', hotkey: '⌘L' },
-                        { id: 'item1a', text: 'First Item', count: 3, icon: 'fa-heart' },
+                        { id: 'item4', text: 'Item 4', icon: 'fa fa-link', hotkey: '⌘L' },
+                        { id: 'item1a', text: 'First Item', count: 3, icon: 'fa fa-heart' },
                         { text: '--' },
-                        { id: 'item2a', text: 'Item 2', icon: 'fa-user', count: 12, checked: true },
-                        { id: 'item3a', text: 'Item 3', icon: 'fa-star-empty', checked: true },
+                        { id: 'item2a', text: 'Item 2', icon: 'fa fa-user', count: 12, checked: true },
+                        { id: 'item3a', text: 'Item 3', icon: 'fa fa-star-o', checked: true },
                         { text: '--' },
-                        { id: 'item4a', text: 'Item 4', icon: 'fa-link', hotkey: '⌘L' }
+                        { id: 'item4a', text: 'Item 4', icon: 'fa fa-link', hotkey: '⌘L' }
                     ],
                 },
 

@@ -108,7 +108,9 @@ var w2utils = (function ($) {
         // some internal variables
         isIOS : ((navigator.userAgent.toLowerCase().indexOf('iphone') != -1 ||
                  navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
-                 navigator.userAgent.toLowerCase().indexOf('ipad') != -1)
+                 navigator.userAgent.toLowerCase().indexOf('ipad') != -1 ||
+                 navigator.userAgent.toLowerCase().indexOf('mobile') != -1 ||
+                 navigator.userAgent.toLowerCase().indexOf('android') != -1)
                  ? true : false),
         isIE : ((navigator.userAgent.toLowerCase().indexOf('msie') != -1 ||
                  navigator.userAgent.toLowerCase().indexOf('trident') != -1 )
@@ -2666,22 +2668,19 @@ w2utils.event = {
                     if (event.shiftKey || event.metaKey || event.ctrlKey) keepOpen = true;
                 }
                 if (typeof options.onSelect === 'function') {
-                    // need time so that menu first hides
-                    setTimeout(function () {
-                        options.onSelect({
-                            index   : index,
-                            item    : options.items[index],
-                            keepOpen: keepOpen,
-                            originalEvent: event
-                        });
-                    }, 10);
+                    options.onSelect({
+                        index   : index,
+                        item    : options.items[index],
+                        keepOpen: keepOpen,
+                        originalEvent: event
+                    });
                 }
                 // do not uncomment (or enum search type is not working in grid)
                 // setTimeout(function () { $(document).click(); }, 50);
                 // -- hide
                 var div = $('#w2ui-overlay'+ name);
                 div.removeData('keepOpen');
-                if (typeof div[0].hide === 'function' && !keepOpen) {
+                if (div.length > 0 && typeof div[0].hide === 'function' && !keepOpen) {
                     div[0].hide();
                 }
             };
@@ -2946,7 +2945,7 @@ w2utils.event = {
             pal[0].pop();
         }
         if (options.color) options.color = String(options.color).toUpperCase();
-        if (options.color.substr(0,1) == '#') options.color = options.color.substr(1);
+        if (typeof options.color == 'string' && options.color.substr(0,1) == '#') options.color = options.color.substr(1);
         if (options.fireChange == null) options.fireChange = true;
 
         if ($('#w2ui-overlay').length === 0) {

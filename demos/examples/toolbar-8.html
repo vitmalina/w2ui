@@ -26,18 +26,18 @@ $(function () {
         name: 'toolbar',
         tooltip: 'top',
         items: [
-            { type: 'check',  id: 'item1', text: 'Check', icon: 'fa-check', checked: true, tooltip: 'Tooltip text' },
+            { type: 'check',  id: 'item1', text: 'Check', icon: 'fa fa-check-square-o', checked: true, tooltip: 'Tooltip text' },
             { type: 'break',  id: 'break0' },
-            { type: 'menu',   id: 'item2', text: 'Menu', icon: 'fa-table', count: 17, tooltip: 'Tooltip text can be very very long',
+            { type: 'menu',   id: 'item2', text: 'Menu', icon: 'fa fa-table', count: 17, tooltip: 'Tooltip text can be very very long',
                 items: [
-                    { text: 'Item 1', icon: 'fa-camera', count: 5 },
-                    { text: 'Item 2', icon: 'fa-picture', disabled: true },
-                    { text: 'Item 3', icon: 'fa-glass', count: 12 }
+                    { text: 'Item 1', icon: 'fa fa-camera', count: 5 },
+                    { text: 'Item 2', icon: 'fa fa-picture-o', disabled: true },
+                    { text: 'Item 3', icon: 'fa fa-glass', count: 12 }
                 ]
             },
             { type: 'break', id: 'break1' },
-            { type: 'radio',  id: 'item3',  group: '1', text: 'Radio 1', icon: 'fa-star', checked: true, tooltip: 'Tooltip text can also be<br>in multiple lines' },
-            { type: 'radio',  id: 'item4',  group: '1', text: 'Radio 2', icon: 'fa-heart',
+            { type: 'radio',  id: 'item3',  group: '1', text: 'Radio 1', icon: 'fa fa-star', checked: true, tooltip: 'Tooltip text can also be<br>in multiple lines' },
+            { type: 'radio',  id: 'item4',  group: '1', text: 'Radio 2', icon: 'fa fa-heart',
                 tooltip: function (item) {
                     return 'Can also be result of a function: ' + item.text;
                 }
