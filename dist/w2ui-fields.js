@@ -2115,6 +2115,7 @@ w2utils.event = {
                 tag = $(this).data('w2tag');
                 $.extend(tag.options, options);
             } else {
+                if (!$(el).is(":visible")) el=$(el).parent()[0];
                 tag = {
                     id        : origID,
                     attachedTo: el,          // element attached to
@@ -2178,11 +2179,7 @@ w2utils.event = {
                     $(tag.attachedTo).on('keypress.w2tag', tag.hide);
                 }
                 if (tag.options.hideOnChange) {
-                    if (tag.attachedTo.nodeName == 'INPUT') {
-                        $(tag.attachedTo).on('change.w2tag', tag.hide);
-                    } else {
-                        $(tag.attachedTo).find('input').on('change.w2tag', tag.hide);
-                    }
+                    $(tag.attachedTo).on('change.w2tag', tag.hide);
                 }
                 if (tag.options.hideOnBlur) {
                     $(tag.attachedTo).on('blur.w2tag', tag.hide);

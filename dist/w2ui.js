@@ -18470,6 +18470,10 @@ var w2prompt = function (label, title, callBack) {
             var errors = [];
             for (var f = 0; f < this.fields.length; f++) {
                 var field = this.fields[f];
+
+                var edata = this.trigger({ phase: 'before', target: field, type: 'validatefield', errors: errors});
+                if (edata.isCancelled === true) continue;
+
                 if (this.record[field.name] == null) this.record[field.name] = '';
                 switch (field.type) {
                     case 'int':
@@ -18524,6 +18528,8 @@ var w2prompt = function (label, title, callBack) {
                 if (field.equalto && this.record[field.name] != this.record[field.equalto]) {
                     errors.push({ field: field, error: w2utils.lang('Field should be equal to ') + field.equalto });
                 }
+
+                this.trigger($.extend(edata, { phase: 'after'}));
             }
             // event before
             var edata = this.trigger({ phase: 'before', target: this.name, type: 'validate', errors: errors });
