@@ -81,7 +81,7 @@
             if (typeof method == 'string' && options == null) {
                 method = { type: method };
             }
-            method.type = String(method.type).toLowerCase();
+            if (method) method.type = String(method.type).toLowerCase();
             return this.each(function (index, el) {
                 var obj = $(el).data('w2field');
                 // if object is not defined, define it
@@ -309,7 +309,7 @@
                         if (!$.isPlainObject(options.selected) && options.items) {
                             for (var i = 0; i< options.items.length; i++) {
                                 var item = options.items[i];
-                                if (item && item.id == options.selected) {
+                                if (item && item.id === options.selected) {
                                     options.selected = $.extend(true, {}, item);
                                     break;
                                 }
@@ -951,9 +951,20 @@
             var obj     = this;
             var options = obj.options;
             var val     = $(obj.el).val().trim();
+            var $overlay = $("#w2ui-overlay");
+
             // hide overlay
             if (['color', 'date', 'time', 'list', 'combo', 'enum', 'datetime'].indexOf(obj.type) != -1) {
-                if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
+                var closeTimeout = window.setTimeout(function() {
+                    $overlay.hide();
+                }, 0);
+                
+                $(".menu", $overlay).one('focus', function() {
+                    clearTimeout(closeTimeout);
+                    $(this).one('focusout', function(event) {
+                        $overlay.hide();
+                    })
+                });
             }
             if (['int', 'float', 'money', 'currency', 'percent'].indexOf(obj.type) != -1) {
                 if (val !== '' && !obj.checkType(val)) {
@@ -1580,8 +1591,20 @@
             if (this.type == 'date') {
                 if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 if ($('#w2ui-overlay').length === 0) {
-                    $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar" onclick="event.stopPropagation();"></div>', {
-                        css: { "background-color": "#f5f5f5" }
+                    $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar"></div>', {
+                        css: { "background-color": "#f5f5f5" },
+                        onShow: function (event) {
+                            // this needed for IE 11 compatibility
+                            if (w2utils.isIE) {
+                                console.log("IE");
+                                $('.w2ui-calendar').on('mousedown', function (event) {
+                                    var $tg = $(event.target);
+                                    if ($tg.length == 1 && $tg[0].id == 'w2ui-jump-year') {
+                                        $('#w2ui-overlay').data('keepOpen', true);
+                                    }
+                                });
+                            }
+                        }
                     });
                 }
                 var month, year;
@@ -1690,7 +1713,19 @@
                 if ($("#w2ui-overlay .w2ui-time").length > 0) $('#w2ui-overlay')[0].hide();
                 if ($('#w2ui-overlay').length === 0) {
                     $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar" onclick="event.stopPropagation();"></div>', {
-                        css: { "background-color": "#f5f5f5" }
+                        css: { "background-color": "#f5f5f5" },
+                        onShow: function (event) {
+                            // this needed for IE 11 compatibility
+                            if (w2utils.isIE) {
+                                console.log("IE");
+                                $('.w2ui-calendar').on('mousedown', function (event) {
+                                    var $tg = $(event.target);
+                                    if ($tg.length == 1 && $tg[0].id == 'w2ui-jump-year') {
+                                        $('#w2ui-overlay').data('keepOpen', true);
+                                    }
+                                });
+                            }
+                        }
                     });
                 }
                 var month, year;
@@ -1820,7 +1855,7 @@
                     var sel = $(input).data('selected');
                     if ($.isPlainObject(sel) && !$.isEmptyObject(sel) && options.index == -1) {
                         options.items.forEach(function (item, ind) {
-                            if (item.id == sel.id) {
+                            if (item.id === sel.id) {
                                 options.index = ind;
                             }
                         });
@@ -2410,15 +2445,21 @@
                 return;
             }
             if (options.maxSize !== 0 && size + newItem.size > options.maxSize) {
-                err = 'Maximum total size is '+ w2utils.formatSize(options.maxSize);
-                if (options.silent === false) $(obj.el).w2tag(err);
-                console.log('ERROR: '+ err);
+                err = w2utils.lang('Maximum total size is') + ' ' + w2utils.formatSize(options.maxSize);
+                if (options.silent === false) {
+                    $(obj.el).w2tag(err);
+                } else {
+                    console.log('ERROR: '+ err);
+                }
                 return;
             }
             if (options.max !== 0 && cnt >= options.max) {
-                err = 'Maximum number of files is '+ options.max;
-                if (options.silent === false) $(obj.el).w2tag(err);
-                console.log('ERROR: '+ err);
+                err = w2utils.lang('Maximum number of files is') + ' '+ options.max;
+                if (options.silent === false) {
+                    $(obj.el).w2tag(err);
+                } else {
+                    console.log('ERROR: '+ err);
+                }
                 return;
             }
             selected.push(newItem);
@@ -2441,6 +2482,7 @@
             } else {
                 obj.refresh();
                 $(obj.el).trigger('change');
+                obj.trigger($.extend(edata, { phase: 'after' }));
             }
         },
 
@@ -2567,7 +2609,7 @@
             for (var y = start_year; y <= end_year; y++) {
                 yhtml += '<div class="w2ui-jump-year" name="'+ y +'">'+ y + '</div>';
             }
-            return '<div>'+ mhtml +'</div><div>'+ yhtml +'</div>';
+            return '<div id="w2ui-jump-month">'+ mhtml +'</div><div id="w2ui-jump-year">'+ yhtml +'</div>';
         },
 
         getHourHTML: function () {

@@ -1,7 +1,7 @@
 Returns array of changed record objects.
 
 <div class="definition">
-    getChanges()
+    getChanges([recordsBase])
 </div>
 Returns array of objects.
 
@@ -14,7 +14,10 @@ to the server. You can also optionally enable the save button on the toolbar (se
 or call <a class="method" href="w2grid.doSave">.doSave</a> method that will submit changed records to the server.
 <div style="height: 10px"></div>
 
-If you have grid defined in the following way:
+By default, all records in the grid's <a class="argument" href="w2grid.records">.records</a> array property will be checked, but you can also supply an array of record objects via the optional <span class="argument">recordsBase</span> argument. This is mainly used internally for recursively checking records in a grid tree, but can also be used to look for changes in a specific set of records.
+<div style="height: 10px"></div>
+
+If you have a grid defined in the following way:
 <textarea class="javascript">
 $('#grid').w2grid({
     name    : 'grid',
@@ -37,7 +40,7 @@ $('#grid').w2grid({
 });
 </textarea>
 
-You can get selected records:
+You can get all the changed records:
 <textarea class="javascript">
 console.log( w2ui['grid'].getChanges() );
 </textarea>

@@ -792,6 +792,12 @@
                 width : $(this.box).width() + 'px',
                 height: $(this.box).height() + 'px'
             });
+            // if no parent - reset nodes
+            if (this.nodes.length > 0 && this.nodes[0].parent == null) {
+                var tmp = this.nodes;
+                this.nodes = [];
+                this.add(this, tmp);
+            }
             var obj = this;
             var node, nd;
             var nm;
@@ -877,7 +883,7 @@
                             '<table cellpadding="0" cellspacing="0" style="margin-left:'+ (level*18) +'px; padding-right:'+ (level*18) +'px"><tbody><tr>'+
                             '<td class="w2ui-node-dots" nowrap="nowrap" onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\'); '+
                             '        if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
-                            '    <div class="w2ui-expand">'    + (nd.nodes.length > 0 ? (nd.expanded ? '-' : '+') : (nd.plus ? '+' : '')) + '</div>' +
+                            '    <div class="w2ui-expand">' + (nd.nodes.length > 0 ? (nd.expanded ? '-' : '+') : (nd.plus ? '+' : '')) + '</div>' +
                             '</td>'+
                             '<td class="w2ui-node-data" nowrap="nowrap">'+
                                     tmp +

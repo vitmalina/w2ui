@@ -6,8 +6,8 @@
 var fs    = require('fs');
 var files = fs.readdirSync('details');
 
-var rPath = ''; // for website should be '<?=$site_root?>/docs/'
-// var rPath = '/web/docs/1.5/';
+var rPath = ''; // uncomment next line for website
+// var rPath = '../';
 
 // clear folder
 console.log('==> Removing Current Files');

@@ -1,0 +1,265 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
+<script type="text/javascript" src="../libs/jquery/jquery-3.1.1.min.js"></script>
+<script type="text/javascript" src="../src/w2utils.js"></script>
+<script>
+    $.fn.w2tag = function (text, options) {
+        // only one argument
+        if (arguments.length == 1 && typeof text == 'object') {
+            options = text;
+            if (options.html != null) text = options.html;
+        }
+        // default options
+        options = $.extend({
+            id              : null,     // id for the tag, otherwise input id is used
+            html            : text,     // or html
+            position        : 'right|top',  // can be left, right, top, bottom
+            align           : 'none',   // can be none, left, right (only works for potision: top | bottom)
+            left            : 0,        // delta for left coordinate
+            top             : 0,        // delta for top coordinate
+            style           : '',       // adition style for the tag
+            css             : {},       // add css for input when tag is shown
+            className       : '',       // add class bubble
+            inputClass      : '',       // add class for input when tag is shown
+            onShow          : null,     // callBack when shown
+            onHide          : null,     // callBack when hidden
+            hideOnKeyPress  : true,     // hide tag if key pressed
+            hideOnBlur      : false,    // hide tag on blur
+            hideOnClick     : false     // hide tag on document click
+        }, options);
+        if (options.name != null && options.id == null) options.id = options.name;
+
+        // for backward compatibility
+        if (options['class'] !== '' && options.inputClass === '') options.inputClass = options['class'];
+
+        // remove all tags
+        if ($(this).length === 0) {
+            $('.w2ui-tag').each(function (index, el) {
+                var tag = $(el).data('w2tag');
+                if (tag) tag.hide();
+            });
+            return;
+        }
+        return $(this).each(function (index, el) {
+            // main object
+            var tag;
+            if ($(this).data('w2tag') != null) {
+                tag = $(this).data('w2tag');
+                $.extend(tag.options, options);
+            } else {
+                var tmp = w2utils.escapeId(options.id ? options.id : el.id);
+                tag = {
+                    id     : tmp,
+                    el     : el,           // element attached to
+                    box    : $('#w2ui-tag-' + tmp), // tag itself
+                    options: $.extend({}, options),
+                    // methods
+                    init   : init,       // attach events
+                    hide   : hide,       // hide tag
+                    getPos : getPos,     // gets position of tag
+                    // internal
+                    tmp    : {}         // for temp variables
+                }
+            }
+            // show or hide tag
+            if (text === '' || text == null) {
+                tag.hide();
+            } else if (tag.box.length !== 0) {
+                // if already present
+                tag.box.find('.w2ui-tag-body')
+                    .css(tag.options.css)
+                    .attr('style', tag.options.style)
+                    .addClass(tag.options.className)
+                    .html(tag.options.html);
+            } else {
+                tag.tmp.originalCSS = '';
+                if ($(tag.el).length > 0) tag.tmp.originalCSS = $(tag.el)[0].style.cssText;
+                // insert
+                $('body').append(
+                    '<div onclick="event.stopPropagation()" style="display: none;" id="w2ui-tag-'+ tag.id +'" '+
+                    '       class="w2ui-tag '+ ($(tag.el).parents('.w2ui-popup, .w2ui-overlay-popup, .w2ui-message').length > 0 ? 'w2ui-tag-popup' : '') + '">'+
+                    '   <div style="margin: -2px 0px 0px -2px; white-space: nowrap;">'+
+                    '      <div class="w2ui-tag-body '+ tag.options.className +'" style="'+ (tag.options.style || '') +'">'+ text +'</div>'+
+                    '   </div>' +
+                    '</div>');
+                tag.box = $('#w2ui-tag-' + tag.id);
+                $(tag.el).data('w2tag', tag); // make available to element tag attached to
+                setTimeout(init, 1);
+            }
+            return;
+
+            function init() {
+                tag.box.css('display', 'block');
+                if (!$(tag.el).offset()) return;
+                var pos = tag.getPos();
+                tag.box.css({
+                        opacity : '1',
+                        left    : pos.left + 'px',
+                        top     : pos.top + 'px'
+                    })
+                    .data('w2tag', tag)
+                    .find('.w2ui-tag-body').addClass(pos['posClass']);
+                tag.tmp.pos = pos.left + 'x' + pos.top;
+
+                $(tag.el)
+                    .off('.w2tag')
+                    .css(tag.options.css)
+                    .addClass(tag.options.inputClass);
+
+                if (tag.options.hideOnKeyPress) {
+                    $(tag.el).on('keypress.w2tag', tag.hide);
+                }
+                if (tag.options.hideOnBlur) {
+                    $(tag.el).on('blur.w2tag', tag.hide);
+                }
+                if (tag.options.hideOnClick) {
+                    $(document).on('click.w2tag', tag.hide)
+                }
+                if (typeof tag.options.onShow === 'function') {
+                    tag.options.onShow();
+                }
+                isMoved();
+            }
+
+            // bind event to hide it
+            function hide() {
+                tag.box = $('#w2ui-tag-' + tag.id); // need to re-query
+                if (tag.box.length <= 0) return;
+                if (tag.tmp.timer) clearTimeout(tag.tmp.timer);
+                tag.box.remove();
+                if (tag.options.hideOnClick) {
+                    $(document).off('.w2tag');
+                }
+                $(tag.el).off('.w2tag')
+                    .removeClass(tag.options.inputClass)
+                    .removeData('w2tag');
+                // restore original CSS
+                if ($(tag.el).length > 0) {
+                    $(tag.el)[0].style.cssText = tag.tmp.originalCSS;
+                }
+                if (typeof tag.options.onHide === 'function') {
+                    tag.options.onHide();
+                }
+            }
+
+            function isMoved() {
+                // monitor if destroyed
+                var offset = $(tag.el).offset();
+                if ($(tag.el).length === 0 || (offset.left === 0 && offset.top === 0) || tag.box.find('.w2ui-tag-body').length === 0) {
+                    tag.hide();
+                    return;
+                }
+                var pos = getPos();
+                if (tag.tmp.pos !== pos.left + 'x' + pos.top) {
+                    tag.box
+                        .css(w2utils.cssPrefix({ 'transition': '.2s' }))
+                        .css({
+                            left: pos.left + 'px',
+                            top : pos.top + 'px'
+                        });
+                    tag.tmp.pos = pos.left + 'x' + pos.top;
+                }
+                if (tag.tmp.timer) clearTimeout(tag.tmp.timer);
+                tag.tmp.timer = setTimeout(isMoved, 100);
+            }
+
+            function getPos() {
+                var offset   = $(tag.el).offset();
+                var posClass = 'w2ui-tag-right';
+                var posLeft  = parseInt(offset.left + tag.el.offsetWidth + (tag.options.left ? tag.options.left : 0));
+                var posTop   = parseInt(offset.top + (tag.options.top ? tag.options.top : 0));
+                var tagBody  = tag.box.find('.w2ui-tag-body');
+                var width    = tagBody[0].offsetWidth;
+                var height   = tagBody[0].offsetHeight;
+                if (typeof tag.options.position == 'string' && tag.options.position.indexOf('|') != -1) {
+                    tag.options.position = tag.options.position.split('|');
+                }
+                if (tag.options.position == 'top') {
+                    posClass  = 'w2ui-tag-top';
+                    posLeft   = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - 14;
+                    posTop    = parseInt(offset.top + (tag.options.top ? tag.options.top : 0)) - height - 10;
+                } else if (tag.options.position == 'bottom') {
+                    posClass  = 'w2ui-tag-bottom';
+                    posLeft   = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - 14;
+                    posTop    = parseInt(offset.top + tag.el.offsetHeight + (tag.options.top ? tag.options.top : 0)) + 10;
+                } else if (tag.options.position == 'left') {
+                    posClass  = 'w2ui-tag-left';
+                    posLeft   = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - width - 20;
+                    posTop    = parseInt(offset.top + (tag.options.top ? tag.options.top : 0));
+                } else if (Array.isArray(tag.options.position)) {
+                    // try to fit the tag on screen in the order defined in the array
+                    var maxWidth  = window.innerWidth;
+                    var maxHeight = window.innerHeight
+                    for (var i = 0; i < tag.options.position.length; i++) {
+                        var pos = tag.options.position[i];
+                        if (pos == 'right') {
+                            posClass = 'w2ui-tag-right';
+                            posLeft  = parseInt(offset.left + tag.el.offsetWidth + (tag.options.left ? tag.options.left : 0));
+                            posTop   = parseInt(offset.top + (tag.options.top ? tag.options.top : 0));
+                            if (posLeft+width <= maxWidth) break;
+                        } else if (pos == 'left') {
+                            posClass  = 'w2ui-tag-left';
+                            posLeft   = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - width - 20;
+                            posTop    = parseInt(offset.top + (tag.options.top ? tag.options.top : 0));
+                            if (posLeft >= 0) break;
+                        } else if (pos == 'top') {
+                            posClass  = 'w2ui-tag-top';
+                            posLeft   = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - 14;
+                            posTop    = parseInt(offset.top + (tag.options.top ? tag.options.top : 0)) - height - 10;
+                            if(posLeft+width <= maxWidth && posTop >= 0) break;
+                        } else if (pos == 'bottom') {
+                            posClass  = 'w2ui-tag-bottom';
+                            posLeft   = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - 14;
+                            posTop    = parseInt(offset.top + tag.el.offsetHeight + (tag.options.top ? tag.options.top : 0)) + 10;
+                            if (posLeft+width <= maxWidth && posTop+height <= maxHeight) break;
+                        }
+                    }
+                    if (tagBody.data('posClass') !== posClass) {
+                        tagBody.removeClass('w2ui-tag-right w2ui-tag-left w2ui-tag-top w2ui-tag-bottom')
+                            .addClass(posClass)
+                            .data('posClass', posClass);
+                    }
+                }
+                return { left: posLeft, top: posTop, posClass: posClass };
+            }
+        });
+    };
+</script>
+</head>
+<body>
+    <div style="padding: 10px"> Some Input: <input id="some1" class="tags"> </div>
+    <div style="padding: 10px"> Some Input: <input id="some2" class="tags"> </div>
+    <div style="padding: 10px"> Some Input: <input id="some3" class="tags"> </div>
+    <div style="padding: 10px"> Some Input: <input id="some4" class="tags"> </div>
+    <div style="padding: 10px"> Some Input: <input id="some5" class="tags"> </div>
+    <div style="padding: 10px"> Some Input: <input id="some6" class="tags"> </div>
+    <div style="padding: 10px"> Some Input: <input id="some" class="tags"> </div>
+    <div style="padding: 10px"> Some Input: <input id="some" class="tags"> </div>
+    <div style="padding: 10px"> Some Input: <input id="some" class="tags"> </div>
+    <div style="padding: 10px"> Some Input: <input id="some" class="tags"> </div>
+    <div style="padding: 10px"> Some Input: <input id="some" class="tags"> </div>
+    <div style="padding: 10px"> Some Input: <input id="some" class="tags"> </div>
+    <div style="padding: 10px"> Some Input: <input id="some" class="tags"> </div>
+    <div style="position: absolute; left: 400px; top: 40px; height: 150px; border: 1px solid red; overflow: auto">
+        <div style="padding: 10px"> Some Input: <input id="some" class="tags"> </div>
+        <div style="padding: 10px"> Some Input: <input id="some" class="tags"> </div>
+        <div style="padding: 10px"> Some Input: <input id="some" class="tags"> </div>
+        <div style="padding: 10px"> Some Input: <input id="some" class="tags"> </div>
+        <div style="padding: 10px"> Some Input: <input id="some" class="tags"> </div>
+        <div style="padding: 10px"> Some Input: <input id="some" class="tags"> </div>
+        <div style="padding: 10px"> Some Input: <input id="some" class="tags"> </div>
+    </div>
+    <script>
+    $(function () {
+        $('.tags')
+            .on('focus', function (event) {
+                $(this).w2tag('show');
+            })
+            .on('blur', function (event) {
+                $(this).w2tag();
+            });
+    });
+    </script>
+</body>
+</html>
