@@ -698,8 +698,10 @@
                             if (obj.type == 'file') {
                                 var preview = '';
                                 if ((/image/i).test(item.type)) { // image
+                                    if (item.content) var src = 'data:'+ item.type +';base64,'+ item.content;
+                                    else if (item.file && item.file.filename) var src = item.file.filename; // -- multipart
                                     preview = '<div style="padding: 3px;">'+
-                                        '    <img src="'+ (item.content ? 'data:'+ item.type +';base64,'+ item.content : '') +'" style="max-width: 300px;" '+
+                                        '    <img src="'+ src +'" style="max-width: 300px;" '+
                                         '        onload="var w = jQuery(this).width(); var h = jQuery(this).height(); '+
                                         '            if (w < 300 & h < 300) return; '+
                                         '            if (w >= h && w > 300) jQuery(this).width(300);'+
