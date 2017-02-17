@@ -703,7 +703,7 @@
                                     }
                                 }
                                 for(var prop in dob){
-                                    var aux_p = p == '' ? prop : '${p}[${prop}]';
+                                    var aux_p = p == '' ? prop : p+'['+prop+']';
                                     var aux_fob = !!fob ? fob[prop] : fob;
                                     isObj(dob[prop], aux_fob, aux_p);
                                 }

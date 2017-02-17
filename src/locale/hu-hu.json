@@ -65,6 +65,7 @@
       "before": "előtte",
       "after": "utána",
       "Not a valid email": "Hibás emailcím",
-      "Remove":"Eltávolítás"
+      "Remove":"Eltávolítás",
+      "Empty list": "Üres lista"
     }
 }
