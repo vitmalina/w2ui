@@ -2448,6 +2448,9 @@
                     } else {
                         if (cmd == 'get') {
                             if (data.total == null) data.total = -1;
+                            if (data.records == null) {
+                                data.records = [];
+                            }
                             if (data.records.length == this.limit) {
                                 this.last.xhr_hasMore = true;
                             } else {
