@@ -1102,13 +1102,13 @@
                     case 'in':
                         var tmp = sdata.value;
                         if (sdata.svalue) tmp = sdata.svalue;
-                        if (tmp.indexOf(w2utils.isFloat(val1) ? parseFloat(val1) : val1) !== -1) fl++;
+                        if (tmp.indexOf(val1) !== -1) fl++;
                         if (tmp.indexOf(w2utils.isFloat(val1b) ? parseFloat(val1b) : val1b) !== -1) fl++;
                         break;
                     case 'not in':
                         var tmp = sdata.value;
                         if (sdata.svalue) tmp = sdata.svalue;
-                        if (tmp.indexOf(w2utils.isFloat(val1) ? parseFloat(val1) : val1) == -1) fl++;
+                        if (tmp.indexOf(val1) == -1) fl++;
                         if (tmp.indexOf(w2utils.isFloat(val1b) ? parseFloat(val1b) : val1b) == -1) fl++;
                         break;
                     case 'begins':
