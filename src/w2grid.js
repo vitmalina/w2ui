@@ -90,6 +90,7 @@
         w2ui: {
             colspan: { field: 5, ...}
             editable: true/false
+            hideCheckBox: true/false,
             changes: {
                 field: chagned_value,
                 ....
@@ -4502,7 +4503,7 @@
                     amount = Math.round(scrolldata.lastDelta);
                 }
                 gridBody.data('scrolldata', scrolldata);
-                
+
                 // make scroll amount dependent on visible rows
                 amount *= (Math.round(records.height() / obj.recordHeight) - 1) * obj.recordHeight / 4;
 
@@ -6917,9 +6918,11 @@
                             '</td>';
             }
             if (this.show.selectColumn) {
+                var hideCB = false;
+                if (record && record.w2ui && record.w2ui.hideCheckBox === true) hideCB = true;
                 rec_html1 +=
                         '<td id="grid_'+ this.name +'_cell_'+ ind +'_select' + (summary ? '_s' : '') + '" class="w2ui-grid-data w2ui-col-select">'+
-                            (summary !== true  && (!record.hasOwnProperty('w2ui') || !record.w2ui.hasOwnProperty('hidecheckbox') || !record.w2ui.hidecheckbox) ?
+                            (summary !== true && !(record.w2ui && record.w2ui.hideCheckBox === true) ?
                             '    <div>'+
                             '        <input class="w2ui-grid-select-check" type="checkbox" tabindex="-1" '+
                                         (isRowSelected ? 'checked="checked"' : '') + ' style="pointer-events: none"/>'+
