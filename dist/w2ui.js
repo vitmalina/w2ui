@@ -89,6 +89,7 @@ var w2utils = (function ($) {
         lock            : lock,
         unlock          : unlock,
         message         : message,
+        naturalCompare  : naturalCompare,
         lang            : lang,
         locale          : locale,
         getSize         : getSize,
@@ -156,7 +157,7 @@ var w2utils = (function ($) {
     }
 
     function isEmail (val) {
-        var email = /^[a-zA-Z0-9._%-+]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+        var email = /^[-a-zA-Z0-9._%-+]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
         return email.test(val);
     }
 
@@ -1747,6 +1748,54 @@ var w2utils = (function ($) {
         }
     }
 
+    /*! from litejs.com / MIT Licence
+        https://github.com/litejs/natural-compare-lite/blob/master/index.js */
+    /*
+     * @version    1.4.0
+     * @date       2015-10-26
+     * @stability  3 - Stable
+     * @author     Lauri Rooden (https://github.com/litejs/natural-compare-lite)
+     * @license    MIT License
+     */
+    function naturalCompare(a, b) {
+        var i, codeA
+        , codeB = 1
+        , posA = 0
+        , posB = 0
+        , alphabet = String.alphabet
+
+        function getCode(str, pos, code) {
+            if (code) {
+                for (i = pos; code = getCode(str, i), code < 76 && code > 65;) ++i;
+                return +str.slice(pos - 1, i)
+            }
+            code = alphabet && alphabet.indexOf(str.charAt(pos))
+            return code > -1 ? code + 76 : ((code = str.charCodeAt(pos) || 0), code < 45 || code > 127) ? code
+                : code < 46 ? 65               // -
+                : code < 48 ? code - 1
+                : code < 58 ? code + 18        // 0-9
+                : code < 65 ? code - 11
+                : code < 91 ? code + 11        // A-Z
+                : code < 97 ? code - 37
+                : code < 123 ? code + 5        // a-z
+                : code - 63
+        }
+
+
+        if ((a+="") != (b+="")) for (;codeB;) {
+            codeA = getCode(a, posA++)
+            codeB = getCode(b, posB++)
+
+            if (codeA < 76 && codeB < 76 && codeA > 66 && codeB > 66) {
+                codeA = getCode(a, posA, posA)
+                codeB = getCode(b, posB, posA = i)
+                posB = i
+            }
+
+            if (codeA != codeB) return (codeA < codeB) ? -1 : 1
+        }
+        return 0
+    }
 })(jQuery);
 
 /***********************************************************
@@ -3367,6 +3416,7 @@ w2utils.event = {
         w2ui: {
             colspan: { field: 5, ...}
             editable: true/false
+            hideCheckBox: true/false,
             changes: {
                 field: chagned_value,
                 ....
@@ -3672,6 +3722,7 @@ w2utils.event = {
         onColumnClick      : null,
         onColumnDblClick   : null,
         onColumnResize     : null,
+        onColumnAutoResize : null,
         onSort             : null,
         onSearch           : null,
         onSearchOpen       : null,
@@ -3753,7 +3804,7 @@ w2utils.event = {
         },
 
         set: function (recid, record, noRefresh) { // does not delete existing, but overrides on top of it
-            if (typeof recid == 'object') {
+            if ((typeof recid == 'object') && (recid !== null)) {
                 noRefresh = record;
                 record    = recid;
                 recid     = null;
@@ -4157,7 +4208,7 @@ w2utils.event = {
                         if ($.isPlainObject(aa) && aa.text) aa = aa.text;
                         if ($.isPlainObject(bb) && bb.text) bb = bb.text;
                     }
-                    var ret = compareCells(aa, bb, i, obj.sortData[i].direction);
+                    var ret = compareCells(aa, bb, i, obj.sortData[i].direction, col.sortMode || 'default');
                     if (ret !== 0) return ret;
                 }
                 // break tie for similar records,
@@ -4168,7 +4219,7 @@ w2utils.event = {
             }
 
             // compare two values, aa and bb, producing consistent ordering
-            function compareCells(aa, bb, i, direction) {
+            function compareCells(aa, bb, i, direction, sortMode) {
                 // if both objects are strictly equal, we're done
                 if (aa === bb)
                     return 0;
@@ -4197,11 +4248,22 @@ w2utils.event = {
                     aa = String(aa);
                 if (bb && typeof bb == 'object' && bb.toString != defaultToString)
                     bb = String(bb);
-                // do case-insensitive string comparaison
+                // do case-insensitive string comparison
                 if (typeof aa == 'string')
                     aa = $.trim(aa.toLowerCase());
                 if (typeof bb == 'string')
                     bb = $.trim(bb.toLowerCase());
+
+                switch (sortMode) {
+                    case 'natural':
+                        sortMode = w2utils.naturalCompare;
+                        break;
+                }
+
+                if (typeof sortMode == 'function') {
+                    return sortMode(aa,bb) * dir;
+                }
+
                 // compare both objects
                 if (aa > bb)
                     return dir;
@@ -4367,13 +4429,13 @@ w2utils.event = {
                     case 'in':
                         var tmp = sdata.value;
                         if (sdata.svalue) tmp = sdata.svalue;
-                        if (tmp.indexOf(w2utils.isFloat(val1) ? parseFloat(val1) : val1) !== -1) fl++;
+                        if (tmp.indexOf(val1) !== -1) fl++;
                         if (tmp.indexOf(w2utils.isFloat(val1b) ? parseFloat(val1b) : val1b) !== -1) fl++;
                         break;
                     case 'not in':
                         var tmp = sdata.value;
                         if (sdata.svalue) tmp = sdata.svalue;
-                        if (tmp.indexOf(w2utils.isFloat(val1) ? parseFloat(val1) : val1) == -1) fl++;
+                        if (tmp.indexOf(val1) == -1) fl++;
                         if (tmp.indexOf(w2utils.isFloat(val1b) ? parseFloat(val1b) : val1b) == -1) fl++;
                         break;
                     case 'begins':
@@ -5713,6 +5775,9 @@ w2utils.event = {
                     } else {
                         if (cmd == 'get') {
                             if (data.total == null) data.total = -1;
+                            if (data.records == null) {
+                                data.records = [];
+                            }
                             if (data.records.length == this.limit) {
                                 this.last.xhr_hasMore = true;
                             } else {
@@ -5794,12 +5859,25 @@ w2utils.event = {
             this.trigger($.extend(edata, { phase: 'after' }));
         },
 
-        getChanges: function () {
+        getChanges: function (recordsBase) {
             var changes = [];
-            for (var r = 0; r < this.records.length; r++) {
-                var rec = this.records[r];
-                if (rec.w2ui && rec.w2ui.changes != null) {
-                    changes.push($.extend(true, { recid: rec.recid }, rec.w2ui.changes));
+
+            if (typeof recordsBase == 'undefined') {
+                var recordsBase = this.records;
+            }
+
+            for (var r = 0; r < recordsBase.length; r++) {
+                var rec = recordsBase[r];
+
+                if (rec.w2ui) {
+                    if (rec.w2ui.changes != null) {
+                        changes.push($.extend(true, { recid: rec.recid }, rec.w2ui.changes));
+                    }
+
+                    // recursively look for changes in non-expanded children
+                    if (rec.w2ui.expanded !== true && rec.w2ui.children && rec.w2ui.children.length) {
+                        $.merge(changes, this.getChanges(rec.w2ui.children))
+                    }
                 }
             }
             return changes;
@@ -6313,7 +6391,7 @@ w2utils.event = {
             var column = null;
             var obj    = this;
             if (this.last.cancelClick == true || (event && event.altKey)) return;
-            if (typeof recid == 'object') {
+            if ((typeof recid == 'object') && (recid !== null)) {
                 column = recid.column;
                 recid  = recid.recid;
             }
@@ -6977,7 +7055,7 @@ w2utils.event = {
         dblClick: function (recid, event) {
             // find columns
             var column = null;
-            if (typeof recid == 'object') {
+            if ((typeof recid == 'object') && (recid !== null)) {
                 column = recid.column;
                 recid  = recid.recid;
             }
@@ -7260,11 +7338,11 @@ w2utils.event = {
                 this.last.scrollTop = 0;
                 $('#grid_'+ this.name +'_records').prop('scrollTop',  0);
                 // event after
-                this.trigger($.extend(edata, { phase: 'after' }));
+                this.trigger($.extend(edata, { phase: 'after', direction: direction }));
                 this.refresh();
             } else {
                 // event after
-                this.trigger($.extend(edata, { phase: 'after' }));
+                this.trigger($.extend(edata, { phase: 'after', direction: direction }));
                 this.last.xhr_offset = 0;
                 this.reload();
             }
@@ -7695,7 +7773,8 @@ w2utils.event = {
 
         refreshBody: function () {
             // -- separate summary
-            var tmp = this.find({ 'w2ui.summary': true }, true);
+            var obj = this,
+                tmp = this.find({ 'w2ui.summary': true }, true);
             if (tmp.length > 0) {
                 for (var t = 0; t < tmp.length; t++) this.summary.push(this.records[tmp[t]]);
                 for (var t = tmp.length-1; t >= 0; t--) this.records.splice(tmp[t], 1);
@@ -7720,7 +7799,43 @@ w2utils.event = {
                 '<div id="grid_'+ this.name +'_columns" class="w2ui-grid-columns">'+
                 '    <table><tbody>'+ colHTML[1] +'</tbody></table>'+
                 '</div>';
-            $('#grid_'+ this.name +'_body').html(bodyHTML);
+
+            var gridBody = $('#grid_'+ this.name +'_body', obj.box).html(bodyHTML),
+                records = $('#grid_'+ this.name +'_records', obj.box);
+            // enable scrolling on frozen records,
+            // handle scrolling for normal records as well to have the same scrolling behaviour and eliminate synchronicity issues
+            gridBody.data('scrolldata', {lastTime: 0, lastDelta: 0, time: 0})
+            .find('.w2ui-grid-frecords, .w2ui-grid-records').on("mousewheel DOMMouseScroll ", function(event) {
+                event.preventDefault();
+
+                var e = event.originalEvent,
+                    scrolldata = gridBody.data('scrolldata'),
+                    recordsContainer = $(this).siblings('.w2ui-grid-records').addBack().filter('.w2ui-grid-records'),
+                    amount = typeof e.wheelDelta != 'undefined' ? e.wheelDelta * -1 / 120 : (e.detail || e.deltaY) / 3, // normalizing scroll speed
+                    newScrollTop = recordsContainer.scrollTop();
+
+                scrolldata.time = +new Date();
+
+                if (scrolldata.lastTime < scrolldata.time - 150) {
+                    scrolldata.lastDelta = 0;
+                }
+
+                scrolldata.lastTime = scrolldata.time;
+                scrolldata.lastDelta += amount;
+
+                if (Math.abs(scrolldata.lastDelta) < 1) {
+                    amount = 0;
+                } else {
+                    amount = Math.round(scrolldata.lastDelta);
+                }
+                gridBody.data('scrolldata', scrolldata);
+
+                // make scroll amount dependent on visible rows
+                amount *= (Math.round(records.height() / obj.recordHeight) - 1) * obj.recordHeight / 4;
+
+                recordsContainer.stop().animate({ 'scrollTop': newScrollTop + amount }, 250, 'linear');
+            });
+
             if (this.records.length === 0 && this.msgEmpty) {
                 $('#grid_'+ this.name +'_body')
                     .append('<div id="grid_'+ this.name + '_empty_msg" class="w2ui-grid-empty-msg"><div>'+ this.msgEmpty +'</div></div>');
@@ -8763,11 +8878,46 @@ w2utils.event = {
                         $(document).off('mouseup', 'body');
                         obj.resizeRecords();
                         obj.scroll();
-                        // event before
+                        // event after
                         obj.trigger($.extend(edata, { phase: 'after', originalEvent: event }));
                     };
                     $(document).on('mousemove', 'body', mouseMove);
                     $(document).on('mouseup', 'body', mouseUp);
+                })
+                .off('dblclick')
+                .on('dblclick', function(event) {
+                    var colId = parseInt($(this).attr('name')),
+                        col = obj.columns[colId],
+                        maxDiff = 0;
+
+                    if (col.autoResize === false) {
+                        return true;
+                    }
+
+                    if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
+                    if (event.preventDefault) event.preventDefault();
+                    $('.w2ui-grid-records td[col="' + colId + '"] > div', obj.box).each(function() {
+                        var thisDiff = this.offsetWidth - this.scrollWidth;
+
+                        if (thisDiff < maxDiff) {
+                            maxDiff = thisDiff - 3; // 3px buffer needed for Firefox
+                        }
+                    });
+
+                    // event before
+                    var edata = { phase: 'before', type: 'columnAutoResize', target: obj.name, column: col, field: col.field };
+                    edata = obj.trigger($.extend(edata, { resizeBy: Math.abs(maxDiff), originalEvent: event }));
+                    if (edata.isCancelled === true) { edata.isCancelled = false; return; }
+
+                    if (maxDiff < 0) {
+                        col.size = Math.min(parseInt(col.size) + Math.abs(maxDiff), col.max || Infinity) + 'px';
+                        obj.resizeRecords();
+                        obj.resizeRecords(); // Why do we have to call it twice in order to show the scrollbar?
+                        obj.scroll();
+                    }
+
+                    // event after
+                    obj.trigger($.extend(edata, { phase: 'after', originalEvent: event }));
                 })
                 .each(function (index, el) {
                     var td  = $(el).parent();
@@ -10094,9 +10244,11 @@ w2utils.event = {
                             '</td>';
             }
             if (this.show.selectColumn) {
+                var hideCB = false;
+                if (record && record.w2ui && record.w2ui.hideCheckBox === true) hideCB = true;
                 rec_html1 +=
                         '<td id="grid_'+ this.name +'_cell_'+ ind +'_select' + (summary ? '_s' : '') + '" class="w2ui-grid-data w2ui-col-select">'+
-                            (summary !== true ?
+                            (summary !== true && !(record.w2ui && record.w2ui.hideCheckBox === true) ?
                             '    <div>'+
                             '        <input class="w2ui-grid-select-check" type="checkbox" tabindex="-1" '+
                                         (isRowSelected ? 'checked="checked"' : '') + ' style="pointer-events: none"/>'+
@@ -15731,7 +15883,7 @@ var w2prompt = function (label, title, callBack) {
                         if (!$.isPlainObject(options.selected) && options.items) {
                             for (var i = 0; i< options.items.length; i++) {
                                 var item = options.items[i];
-                                if (item && item.id == options.selected) {
+                                if (item && item.id === options.selected) {
                                     options.selected = $.extend(true, {}, item);
                                     break;
                                 }
@@ -16373,9 +16525,20 @@ var w2prompt = function (label, title, callBack) {
             var obj     = this;
             var options = obj.options;
             var val     = $(obj.el).val().trim();
+            var $overlay = $("#w2ui-overlay");
+
             // hide overlay
             if (['color', 'date', 'time', 'list', 'combo', 'enum', 'datetime'].indexOf(obj.type) != -1) {
-                if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
+                var closeTimeout = window.setTimeout(function() {
+                    $overlay.hide();
+                }, 0);
+                
+                $(".menu", $overlay).one('focus', function() {
+                    clearTimeout(closeTimeout);
+                    $(this).one('focusout', function(event) {
+                        $overlay.hide();
+                    })
+                });
             }
             if (['int', 'float', 'money', 'currency', 'percent'].indexOf(obj.type) != -1) {
                 if (val !== '' && !obj.checkType(val)) {
@@ -17266,7 +17429,7 @@ var w2prompt = function (label, title, callBack) {
                     var sel = $(input).data('selected');
                     if ($.isPlainObject(sel) && !$.isEmptyObject(sel) && options.index == -1) {
                         options.items.forEach(function (item, ind) {
-                            if (item.id == sel.id) {
+                            if (item.id === sel.id) {
                                 options.index = ind;
                             }
                         });
