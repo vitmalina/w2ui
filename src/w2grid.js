@@ -6916,7 +6916,7 @@
             if (this.show.selectColumn) {
                 rec_html1 +=
                         '<td id="grid_'+ this.name +'_cell_'+ ind +'_select' + (summary ? '_s' : '') + '" class="w2ui-grid-data w2ui-col-select">'+
-                            (summary !== true ?
+                            (summary !== true  && !record.w2ui.hidecheckbox ?
                             '    <div>'+
                             '        <input class="w2ui-grid-select-check" type="checkbox" tabindex="-1" '+
                                         (isRowSelected ? 'checked="checked"' : '') + ' style="pointer-events: none"/>'+
