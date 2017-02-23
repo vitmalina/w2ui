@@ -89,6 +89,7 @@ var w2utils = (function ($) {
         lock            : lock,
         unlock          : unlock,
         message         : message,
+        naturalCompare  : naturalCompare,
         lang            : lang,
         locale          : locale,
         getSize         : getSize,
@@ -156,7 +157,7 @@ var w2utils = (function ($) {
     }
 
     function isEmail (val) {
-        var email = /^[a-zA-Z0-9._%-+]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+        var email = /^[-a-zA-Z0-9._%-+]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
         return email.test(val);
     }
 
@@ -1747,6 +1748,54 @@ var w2utils = (function ($) {
         }
     }
 
+    /*! from litejs.com / MIT Licence
+        https://github.com/litejs/natural-compare-lite/blob/master/index.js */
+    /*
+     * @version    1.4.0
+     * @date       2015-10-26
+     * @stability  3 - Stable
+     * @author     Lauri Rooden (https://github.com/litejs/natural-compare-lite)
+     * @license    MIT License
+     */
+    function naturalCompare(a, b) {
+        var i, codeA
+        , codeB = 1
+        , posA = 0
+        , posB = 0
+        , alphabet = String.alphabet
+
+        function getCode(str, pos, code) {
+            if (code) {
+                for (i = pos; code = getCode(str, i), code < 76 && code > 65;) ++i;
+                return +str.slice(pos - 1, i)
+            }
+            code = alphabet && alphabet.indexOf(str.charAt(pos))
+            return code > -1 ? code + 76 : ((code = str.charCodeAt(pos) || 0), code < 45 || code > 127) ? code
+                : code < 46 ? 65               // -
+                : code < 48 ? code - 1
+                : code < 58 ? code + 18        // 0-9
+                : code < 65 ? code - 11
+                : code < 91 ? code + 11        // A-Z
+                : code < 97 ? code - 37
+                : code < 123 ? code + 5        // a-z
+                : code - 63
+        }
+
+
+        if ((a+="") != (b+="")) for (;codeB;) {
+            codeA = getCode(a, posA++)
+            codeB = getCode(b, posB++)
+
+            if (codeA < 76 && codeB < 76 && codeA > 66 && codeB > 66) {
+                codeA = getCode(a, posA, posA)
+                codeB = getCode(b, posB, posA = i)
+                posB = i
+            }
+
+            if (codeA != codeB) return (codeA < codeB) ? -1 : 1
+        }
+        return 0
+    }
 })(jQuery);
 
 /***********************************************************
@@ -3586,7 +3635,7 @@ w2utils.event = {
                         if (!$.isPlainObject(options.selected) && options.items) {
                             for (var i = 0; i< options.items.length; i++) {
                                 var item = options.items[i];
-                                if (item && item.id == options.selected) {
+                                if (item && item.id === options.selected) {
                                     options.selected = $.extend(true, {}, item);
                                     break;
                                 }
@@ -4228,9 +4277,20 @@ w2utils.event = {
             var obj     = this;
             var options = obj.options;
             var val     = $(obj.el).val().trim();
+            var $overlay = $("#w2ui-overlay");
+
             // hide overlay
             if (['color', 'date', 'time', 'list', 'combo', 'enum', 'datetime'].indexOf(obj.type) != -1) {
-                if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
+                var closeTimeout = window.setTimeout(function() {
+                    $overlay.hide();
+                }, 0);
+                
+                $(".menu", $overlay).one('focus', function() {
+                    clearTimeout(closeTimeout);
+                    $(this).one('focusout', function(event) {
+                        $overlay.hide();
+                    })
+                });
             }
             if (['int', 'float', 'money', 'currency', 'percent'].indexOf(obj.type) != -1) {
                 if (val !== '' && !obj.checkType(val)) {
@@ -5121,7 +5181,7 @@ w2utils.event = {
                     var sel = $(input).data('selected');
                     if ($.isPlainObject(sel) && !$.isEmptyObject(sel) && options.index == -1) {
                         options.items.forEach(function (item, ind) {
-                            if (item.id == sel.id) {
+                            if (item.id === sel.id) {
                                 options.index = ind;
                             }
                         });

@@ -90,6 +90,7 @@
         w2ui: {
             colspan: { field: 5, ...}
             editable: true/false
+            hideCheckBox: true/false,
             changes: {
                 field: chagned_value,
                 ....
@@ -1102,13 +1103,13 @@
                     case 'in':
                         var tmp = sdata.value;
                         if (sdata.svalue) tmp = sdata.svalue;
-                        if (tmp.indexOf(w2utils.isFloat(val1) ? parseFloat(val1) : val1) !== -1) fl++;
+                        if (tmp.indexOf(val1) !== -1) fl++;
                         if (tmp.indexOf(w2utils.isFloat(val1b) ? parseFloat(val1b) : val1b) !== -1) fl++;
                         break;
                     case 'not in':
                         var tmp = sdata.value;
                         if (sdata.svalue) tmp = sdata.svalue;
-                        if (tmp.indexOf(w2utils.isFloat(val1) ? parseFloat(val1) : val1) == -1) fl++;
+                        if (tmp.indexOf(val1) == -1) fl++;
                         if (tmp.indexOf(w2utils.isFloat(val1b) ? parseFloat(val1b) : val1b) == -1) fl++;
                         break;
                     case 'begins':
@@ -2448,6 +2449,9 @@
                     } else {
                         if (cmd == 'get') {
                             if (data.total == null) data.total = -1;
+                            if (data.records == null) {
+                                data.records = [];
+                            }
                             if (data.records.length == this.limit) {
                                 this.last.xhr_hasMore = true;
                             } else {
@@ -4499,7 +4503,7 @@
                     amount = Math.round(scrolldata.lastDelta);
                 }
                 gridBody.data('scrolldata', scrolldata);
-                
+
                 // make scroll amount dependent on visible rows
                 amount *= (Math.round(records.height() / obj.recordHeight) - 1) * obj.recordHeight / 4;
 
@@ -6914,9 +6918,11 @@
                             '</td>';
             }
             if (this.show.selectColumn) {
+                var hideCB = false;
+                if (record && record.w2ui && record.w2ui.hideCheckBox === true) hideCB = true;
                 rec_html1 +=
                         '<td id="grid_'+ this.name +'_cell_'+ ind +'_select' + (summary ? '_s' : '') + '" class="w2ui-grid-data w2ui-col-select">'+
-                            (summary !== true ?
+                            (summary !== true && !(record.w2ui && record.w2ui.hideCheckBox === true) ?
                             '    <div>'+
                             '        <input class="w2ui-grid-select-check" type="checkbox" tabindex="-1" '+
                                         (isRowSelected ? 'checked="checked"' : '') + ' style="pointer-events: none"/>'+
