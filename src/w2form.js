@@ -1123,9 +1123,9 @@
                 }
                 // hidden
                 if (field.hidden) {
-                    $(field.el).parent().parent().hide();
+                    $(field.el).parents('.w2ui-field').hide();
                 } else {
-                    $(field.el).parent().parent().show();
+                    $(field.el).parents('.w2ui-field').show();
                 }
             }
             // attach actions on buttons

@@ -37,8 +37,10 @@ column = {
     sizeCalculated : null,   // read only, size in px (see explanation below)
     hidden         : false,  // indicates if column is hidden
     sortable       : false,  // indicates if column is sortable
+    sortMode       : null,   // sort mode or custom compare function
     searchable     : false,  // indicates if column is searchable, bool/string: int,float,date,...
     resizable      : true,   // indicates if column is resizable
+    autoResize     : true,   // indicates if column can be auto-resized by double clicking on the resizer
     hideable       : true,   // indicates if column can be hidden
     attr           : '',     // string that will be inside the &lt;td ... attr&gt; tag
     style          : '',     // additional style for the td tag
@@ -58,6 +60,11 @@ The size of '10%' will define 10 percent width. You may define some columns in p
 the remaining width between the columns defined in %. If total sum of columns defined in percentage will be more then 100, it will correct its values
 and record new size in <span class="property">.sizeCorrected</span>.
 <div style="height: 10px"></div>
+
+<h4>sortMode</h4>
+If set to "natural", a compare function is used that will result in an order that feels more natural to humans. This can be useful for IP addresses,
+or when numbers are used in strings, so that "48" (as a string) comes after "9" (as a string) - whereas the default sorting would put it the other way round.
+You can also pass a compare function in the same way you would use it as argument for <span class="property">Array.prototype.sort()</span>.
 
 <h4>Render</h4>
 The render <span class="property">function(record, [index], [column_index])</span> can be used to format the column data. 

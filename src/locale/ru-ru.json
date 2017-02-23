@@ -81,6 +81,8 @@
         "Toggle Line Numbers": "Вкл/Выкл. номера строк",
         "Yes": "Да",
         "Yesterday": "Вчера",
-
+        "Line #": "Номер строки #",
+        "Save Grid State": "Сохранить состояние таблицы",
+        "Restore Default State": "Восстановить состояние таблицы"
     }
 }

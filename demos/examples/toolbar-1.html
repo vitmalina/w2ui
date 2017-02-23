@@ -26,15 +26,15 @@ $(function () {
     $('#toolbar').w2toolbar({
         name: 'toolbar',
         items: [
-            { type: 'button', id: 'item2', text: 'Button', icon: 'fa-wrench' },
+            { type: 'button', id: 'item2', text: 'Button', icon: 'fa fa-wrench' },
             { type: 'break' },
-            { type: 'check', id: 'item3', text: 'Check 1', icon: 'fa-star' },
-            { type: 'check', id: 'item4', text: 'Check 2', icon: 'fa-heart' },
+            { type: 'check', id: 'item3', text: 'Check 1', icon: 'fa fa-star' },
+            { type: 'check', id: 'item4', text: 'Check 2', icon: 'fa fa-heart' },
             { type: 'break' },
-            { type: 'radio', id: 'item5', group: '1', text: 'Radio 1', icon: 'fa-star', checked: true },
-            { type: 'radio', id: 'item6', group: '1', text: 'Radio 2', icon: 'fa-heart' },
+            { type: 'radio', id: 'item5', group: '1', text: 'Radio 1', icon: 'fa fa-star', checked: true },
+            { type: 'radio', id: 'item6', group: '1', text: 'Radio 2', icon: 'fa fa-heart' },
             { type: 'spacer' },
-            { type: 'button', id: 'item7', text: 'Button', icon: 'fa-star' }
+            { type: 'button', id: 'item7', text: 'Button', icon: 'fa fa-star' }
         ],
         onClick: function (event) {
             console.log('Target: '+ event.target, event);

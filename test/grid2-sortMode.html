@@ -1,0 +1,81 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
+<script type="text/javascript" src="../libs/jquery/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="../src/w2utils.js"></script>
+<script type="text/javascript" src="../src/w2tabs.js"></script>
+<script type="text/javascript" src="../src/w2toolbar.js"></script>
+<script type="text/javascript" src="../src/w2fields.js"></script>
+<script type="text/javascript" src="../src/w2popup.js"></script>
+<script type="text/javascript" src="../src/w2grid.js"></script>
+<script>
+//<![CDATA[
+$(function () {
+    var people = [
+        { id: 1, ip: '1.1.1.1', name: 'John Cook', text: '1' },
+        { id: 2, ip: '10.10.10.10', name: 'Steve Jobs', text: '111' },
+        { id: 3, ip: '100.100.100.100', name: 'Peter Sanders', text: '222' },
+        { id: 4, ip: '2.1.1.1', name: 'Mark Newman', text: 'a01' },
+        { id: 5, ip: '20.2.2.2', name: 'Addy Osmani', text: 'a1' },
+        { id: 6, ip: '127.0.0.1', name: 'Paul Irish', text: '9' },
+        { id: 7, ip: '192.168.2.1', name: 'Doug Crocford', text: 'b2' },
+        { id: 8, ip: '192.168.2.101', name: 'Nicolas Cage', text: 'b10' }
+    ];
+
+    $('#grid').w2grid({
+        name    : 'grid',
+        header    : 'IP Table (natural vs. default sorting)',
+        show: {
+            toolbar: true,
+            footer: true,
+            header: true,
+            emptyRecords: false,
+            selectColumn: true,
+            expandColumn: false,
+            columnHeaders: true,
+            lineNumbers: true,
+            toolbarDelete: true,
+            toolbarSave: true,
+            toolbarAdd: true
+        },
+        // selectType: 'cell',
+        columns: [
+            { field: 'recid', caption: 'ID', size: '50px', sortable: true, searchable: 'int', frozen: true },
+            { field: 'ip', caption: 'IP (default)', size: '120px', sortable: true, searchable: true, resizable: true },
+            { field: 'ipNat', caption: 'IP (natural)', size: '120px', sortable: true, sortMode: 'natural', resizable: true },
+            { field: 'name', caption: 'Name', size: '120px', sortable: true, resizable: true, searchable: true },
+            { field: 'text', caption: 'Text (default)', size: '120px', sortable: true, resizable: true },
+            { field: 'textNat', caption: 'Text (natural)', size: '120px', sortable: true, sortMode: 'natural', resizable: true }
+            // { field: 'enum', caption: 'enum', size: '380px', sortable: true, resizable: true, editable: { type: 'enum', items: people } },
+            // { field: 'file', caption: 'file', size: '80px', sortable: true, resizable: true, editable: { type: 'file' } },
+            // { field: 'radio', caption: 'radio', size: '80px', sortable: true, resizable: true, editable: { type: 'radio' } },
+        ]
+    });
+
+    for (var p in people) {
+        var person = people[p];
+        w2ui['grid'].records.push({
+            recid : p,
+            ip: person.ip,
+            ipNat: person.ip,
+            name: person.name,
+            text: person.text,
+            textNat: person.text
+        });
+    }
+    w2ui.grid.records[0].editable = false;
+    w2ui.grid.records[1].editable = false;
+    w2ui.grid.records[2].editable = false;
+    w2ui.grid.total = w2ui.grid.records.length;
+    w2ui.grid.buffered = w2ui.grid.records.length;
+    w2ui.grid.refresh();
+});
+//]]>
+</script>
+</head>
+<body>
+    <input placeholder="before" style="margin-bottom: 5px;"/>
+    <div id="grid" style="width: 1024px; height: 568px;"></div>
+    <input placeholder="after" style="margin-top: 5px;"/>
+</body>
+</html>

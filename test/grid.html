@@ -1,7 +1,7 @@
 <html>
 <head>
 <link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
-<link rel="stylesheet" type="text/css" media="screen" href="../libs/font-awesome/font-awesome.css" />
+<link rel="stylesheet" type="text/css" media="screen" href="../libs/font-awesome/css/font-awesome.css" />
 <script type="text/javascript" src="../libs/jquery/jquery-3.1.1.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2tabs.js"></script>
@@ -50,9 +50,9 @@ jQuery(function () {
             searchAll: true
         },
         menu: [
-            { id: 1, text: 'Select Item', icon: 'fa-star' },
-            { id: 2, text: 'View Item', icon: 'fa-camera' },
-            { id: 4, text: 'Delete Item', icon: 'fa-minus' }
+            { id: 1, text: 'Select Item', icon: 'fa fa-star' },
+            { id: 2, text: 'View Item', icon: 'fa fa-camera' },
+            { id: 4, text: 'Delete Item', icon: 'fa fa-minus' }
         ],
         onSave: function (event) {
             console.log('save', event);
@@ -117,7 +117,7 @@ jQuery(function () {
             { field: 'personid', caption: 'ID', size: '160px', sortable: true, resizable: true, frozen1: true, tooltip: 'User ID', info: true },
             { field: 'icon', caption: 'Icon', size: '60px', sortable: true, resizable: true, style: 'text-align: center',
                 info: {
-                    icon      : 'fa-flag',
+                    icon      : 'fa fa-flag',
                     style     : '',
                     render    : function (record) {
                         return  '<table>'+
@@ -142,7 +142,7 @@ jQuery(function () {
                 tooltip: 'Full Name', hidden1: true, info: true },
             { field: 'lname', caption: 'Last Name', size: '100px', sortable: true, resizable: true,
                 info: {
-                    icon: 'fa-user',
+                    icon: 'fa fa-user',
                     showEmpty: true,
                     maxLength: 10,
                     fields: {

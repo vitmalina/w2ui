@@ -337,6 +337,7 @@
 
                 if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
                     obj.tooltipHide(id);
+
                     if (it.checked) {
                         // if it was already checked, second click will hide it
                         setTimeout(function () {
@@ -544,6 +545,9 @@
             }
             var el = $(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id));
             var html  = this.getItemHTML(it);
+            // hide tooltip
+            this.tooltipHide(id, {});
+
             if (el.length === 0) {
                 // does not exist - create it
                 if (it.type == 'spacer') {
@@ -659,8 +663,8 @@
                     html += '<table cellpadding="0" cellspacing="0" '+
                             '       class="w2ui-button '+ (item.checked ? 'checked' : '') +'" '+
                             '       onclick     = "var el=w2ui[\''+ this.name + '\']; if (el) el.click(\''+ item.id +'\', event);" '+
-                            '       onmouseover = "' + (!item.disabled ? "jQuery(this).addClass('over'); w2ui['"+ this.name +"'].tooltipShow('"+ item.id +"', event);" : "") + '"'+
-                            '       onmouseout  = "' + (!item.disabled ? "jQuery(this).removeClass('over').removeClass('down'); w2ui['"+ this.name +"'].tooltipHide('"+ item.id +"', event);" : "") + '"'+
+                            '       onmouseenter = "' + (!item.disabled ? "jQuery(this).addClass('over'); w2ui['"+ this.name +"'].tooltipShow('"+ item.id +"', event);" : "") + '"'+
+                            '       onmouseleave = "' + (!item.disabled ? "jQuery(this).removeClass('over').removeClass('down'); w2ui['"+ this.name +"'].tooltipHide('"+ item.id +"', event);" : "") + '"'+
                             '       onmousedown = "' + (!item.disabled ? "jQuery(this).addClass('down');" : "") + '"'+
                             '       onmouseup   = "' + (!item.disabled ? "jQuery(this).removeClass('down');" : "") + '"'+
                             '><tbody>'+
@@ -704,27 +708,28 @@
             var pos  = this.tooltip;
             var txt  = item.tooltip;
             if (typeof txt == 'function') txt = txt.call(this, item);
-            $el.prop('_mouse_over', true);
-            setTimeout(function () {
-                if ($el.prop('_mouse_over') === true && $el.prop('_mouse_tooltip') !== true) {
+            clearTimeout(this._tooltipTimer);
+            this._tooltipTimer = setTimeout(function () {
+                if ($el.prop('_mouse_tooltip') !== true) {
                     $el.prop('_mouse_tooltip', true);
                     // show tooltip
                     if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(item.type) != -1 && item.checked == true) return; // not for opened drop downs
                     $el.w2tag(w2utils.lang(txt), { position: pos });
                 }
-                if (forceRefresh == true) {
-                    $el.w2tag(w2utils.lang(txt), { position: pos });
-                }
-            }, 1);
+            }, 0);
+            // refresh only
+            if ($el.prop('_mouse_tooltip') && forceRefresh == true) {
+                $el.w2tag(w2utils.lang(txt), { position: pos });
+            }
         },
 
         tooltipHide: function (id, event) {
             if (this.tooltip == null) return;
             var $el  = $(this.box).find('#tb_'+ this.name + '_item_'+ w2utils.escapeId(id));
             var item = this.get(id);
-            $el.removeProp('_mouse_over');
+            clearTimeout(this._tooltipTimer);
             setTimeout(function () {
-                if ($el.prop('_mouse_over') !== true && $el.prop('_mouse_tooltip') === true) {
+                if ($el.prop('_mouse_tooltip') === true) {
                     $el.removeProp('_mouse_tooltip');
                     // hide tooltip
                     $el.w2tag();

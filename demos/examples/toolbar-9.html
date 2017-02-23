@@ -23,7 +23,7 @@ $(function () {
     $('#toolbar').w2toolbar({
         name: 'toolbar',
         items: [
-            { type: 'button', id: 'item1', icon: 'fa-star', text: 'Click Me',
+            { type: 'button', id: 'item1', icon: 'fa fa-star', text: 'Click Me',
                 counter: 0,
                 tooltip: function (item) {
                     return 'Number of clicks: ' + item.counter;
@@ -33,7 +33,7 @@ $(function () {
                 }
             },
             { type: 'break' },
-            { type: 'menu-radio', id: 'item2', icon: 'fa-star',
+            { type: 'menu-radio', id: 'item2', icon: 'fa fa-star',
                 text: function (item) {
                     var text = item.selected;
                     var el   = this.get('item2:' + item.selected);
@@ -41,9 +41,9 @@ $(function () {
                 },
                 selected: 'id1',
                 items: [
-                    { id: 'id1', text: 'Item 1', icon: 'fa-camera' },
-                    { id: 'id2', text: 'Item 2', icon: 'fa-picture' },
-                    { id: 'id3', text: 'Item 3', icon: 'fa-glass', count: 12 }
+                    { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
+                    { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
+                    { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 }
                 ]
             },
             { type: 'break' },
@@ -59,7 +59,7 @@ $(function () {
                 }
             },
             { type: 'break' },
-            { type: 'button', id: 'item6', icon: 'fa-star-empty', text: 'Refresh',
+            { type: 'button', id: 'item6', icon: 'fa fa-star-o', text: 'Refresh',
                 tooltip: 'Click to refresh entire toolbar.<br>Note, input value is preserved.',
                 onClick: function (event) { this.refresh(); }
             }
