@@ -15,6 +15,7 @@
             routeData: { id: 5, vid: '40-43' },
             tooltip: 'top',
             items: [
+                { type: 'button', id: 'item1.0', text: 'BTN', img: 'icon-page', tooltip: function () { return (new Date()).getTime(); }},
                 { type: 'check', id: 'item1.1', text: 'Check', img: 'icon-page', tooltip: function () { return (new Date()).getTime(); },
                     checked: true, route: '/project' },
                 { type: 'drop',  id: 'item12', img: 'icon-page', icon: 'fa fa-star', tooltip: 'Drop button',  html: 'so', route: '/project/:id/go', count: 4 },
