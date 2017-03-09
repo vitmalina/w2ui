@@ -886,7 +886,9 @@
                 var color = '#' + $(this.el).val();
                 if ($(this.el).val().length != 6 && $(this.el).val().length != 3) color = '';
                 $(this.el).next().find('div').css('background-color', color);
-                if ($(obj.el).is(':focus')) this.updateOverlay();
+                if ($(this.el).is(':focus') && $(this.el).data('skipInit') !== true) {
+                    this.updateOverlay();
+                }
             }
             // list, enum
             if (['list', 'enum', 'file'].indexOf(this.type) != -1) {
@@ -956,9 +958,9 @@
             // hide overlay
             if (['color', 'date', 'time', 'list', 'combo', 'enum', 'datetime'].indexOf(obj.type) != -1) {
                 var closeTimeout = window.setTimeout(function() {
-                    $overlay.hide();
+                    if ($overlay.data('keepOpen') !== true) $overlay.hide();
                 }, 0);
-                
+
                 $(".menu", $overlay).one('focus', function() {
                     clearTimeout(closeTimeout);
                     $(this).one('focusout', function(event) {

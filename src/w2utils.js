@@ -2965,7 +2965,6 @@ w2utils.event = {
         if ($.fn.w2colorPalette == null) {
             $.fn.w2colorPalette = [
                 ['000000', '333333', '555555', '777777', '888888', '999999', 'AAAAAA', 'CCCCCC', 'DDDDDD', 'EEEEEE', 'F7F7F7', 'FFFFFF'],
-
                 ['FF011B', 'FF9838', 'FFC300',  'FFFD59', '86FF14', '14FF7A', '2EFFFC', '2693FF', '006CE7', '9B24F4', 'FF21F5', 'FF0099'],
                 ['FFEAEA', 'FCEFE1', 'FCF4DC',  'FFFECF', 'EBFFD9', 'D9FFE9', 'E0FFFF', 'E8F4FF', 'ECF4FC', 'EAE6F4', 'FFF5FE', 'FCF0F7'],
                 ['F4CCCC', 'FCE5CD', 'FFF1C2',  'FFFDA1', 'D5FCB1', 'B5F7D0', 'BFFFFF', 'D6ECFF', 'CFE2F3', 'D9D1E9', 'FFE3FD', 'FFD9F0'],
@@ -2973,8 +2972,6 @@ w2utils.event = {
                 ['E06666', 'F6B26B', 'DEB737',  'E0DE51', '8FDB48', '52D189', '4EDEDB', '76ACE3', '6FA8DC', '8E7CC3', 'E07EDA', 'F26DBD'],
                 ['CC0814', 'E69138', 'AB8816',  'B5B20E', '6BAB30', '27A85F', '1BA8A6', '3C81C7', '3D85C6', '674EA7', 'A14F9D', 'BF4990'],
                 ['99050C', 'B45F17', '80650E',  '737103', '395E14', '10783D', '13615E', '094785', '0A5394', '351C75', '780172', '782C5A']
-                // ['660205', '783F0B', '7F6011', '274E12', '0C343D', '063762', '20124D', '4C1030'],
-                // ['F2F2F2', 'F2F2F2', 'F2F2F2', 'F2F2F2', 'F2F2F2'] // custom colors (up to 4)
             ];
         }
         var pal = $.fn.w2colorPalette;
@@ -3000,16 +2997,15 @@ w2utils.event = {
             $(el).w2overlay(getColorHTML(options), options);
         } else { // only refresh contents
             $('#w2ui-overlay .w2ui-color').parent().html(getColorHTML(options));
+            $('#w2ui-overlay').show();
         }
         // bind events
         $('#w2ui-overlay .color')
             .off('.w2color')
             .on('mousedown.w2color', function (event) {
-                var color = '#' + $(event.originalEvent.target).attr('name');
-                if (color == '#') color = '';
+                var color = $(event.originalEvent.target).attr('name'); // should not have #
                 index = $(event.originalEvent.target).attr('index').split(':');
                 if (el.tagName == 'INPUT') {
-                    $(el).val(color).data('skipInit', true);
                     if (options.fireChange) $(el).change();
                     $(el).next().find('>div').css('background-color', color);
                 } else {
@@ -3091,7 +3087,7 @@ w2utils.event = {
             ];
             cl.forEach(function (item, ind) { if (item.length == 1) cl[ind] = '0' + item; });
             if (rgb.a == 1) {
-                newColor = '#' + cl[0] + cl[1] + cl[2];
+                newColor = cl[0] + cl[1] + cl[2];
             }
             $('#w2ui-overlay .color-preview').css('background-color', newColor);
             $('#w2ui-overlay input').each(function (index, el) {
@@ -3165,15 +3161,15 @@ w2utils.event = {
             if (newY > initial.height - offset) newY = initial.height - offset
             if ($el.hasClass('move-x')) $el.css({ left : newX + 'px' });
             if ($el.hasClass('move-y')) $el.css({ top : newY + 'px' });
+
             // move
+            var name = $el.parent().attr('name');
             var x = parseInt($el.css('left')) + offset;
             var y = parseInt($el.css('top')) + offset;
-            var name = $el.parent().attr('name');
-            // console.log(name, x, y, Math.round(x / $el.parent().width() * 100), Math.round(100 - (y / $el.parent().height() * 100)));
             if (name == 'palette') {
                 setColor({
-                    s: Math.round(x / $el.parent().width() * 100),
-                    v: Math.round(100 - (y / $el.parent().height() * 100))
+                    s: Math.round(x / initial.width * 100),
+                    v: Math.round(100 - (y / initial.height * 100))
                 });
             }
             if (name == 'rainbow') {
@@ -3187,6 +3183,7 @@ w2utils.event = {
         }
         if ($.fn._colorAdvanced === true || options.advanced === true) {
             $('#w2ui-overlay .w2ui-color-tabs :nth-child(2)').click();
+            $('#w2ui-overlay').removeData('keepOpen');
         }
         setColor({}, true);
         refreshPalette();
