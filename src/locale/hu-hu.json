@@ -66,6 +66,7 @@
       "after": "utána",
       "Not a valid email": "Hibás emailcím",
       "Remove":"Eltávolítás",
-      "Empty list": "Üres lista"
+      "Empty list": "Üres lista",
+      "Type to search...": "Gépeljen a kereséshez!"
     }
 }

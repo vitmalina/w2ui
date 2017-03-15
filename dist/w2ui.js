@@ -8245,6 +8245,8 @@ w2utils.event = {
             }
 
             function mouseStop (event) {
+                var mouseupevent = obj.trigger({ phase: 'before', type: 'mouseup', target: obj.name, isCancelled: false });
+                if (mouseupevent.isCancelled === true) return;
                 var mv = obj.last.move;
                 setTimeout(function () { delete obj.last.cancelClick; }, 1);
                 if ($(event.target).parents().hasClass('.w2ui-head') || $(event.target).hasClass('.w2ui-head')) return;
@@ -8290,6 +8292,7 @@ w2utils.event = {
                 }
                 delete obj.last.move;
                 $(document).off('.w2ui-' + obj.name);
+                obj.trigger($.extend(mouseupevent, { phase: 'after' }));
             }
         },
 
@@ -9050,30 +9053,33 @@ w2utils.event = {
             if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length;
             // apply overflow
             if (!this.fixedBody) { bodyOverflowY = false; }
-            if (bodyOverflowX || bodyOverflowY) {
-                columns.find('> table > tbody > tr:nth-child(1) td.w2ui-head-last').css('width', w2utils.scrollBarSize()).show();
-                records.css({
-                    top: ((this.columnGroups.length > 0 && this.show.columns ? 1 : 0) + w2utils.getSize(columns, 'height')) +'px',
-                    "-webkit-overflow-scrolling": "touch",
-                    "overflow-x": (bodyOverflowX ? 'auto' : 'hidden'),
-                    "overflow-y": (bodyOverflowY ? 'auto' : 'hidden')
-                });
-            } else {
-                columns.find('> table > tbody > tr:nth-child(1) td.w2ui-head-last').hide();
-                records.css({
-                    top: ((this.columnGroups.length > 0 && this.show.columns ? 1 : 0) + w2utils.getSize(columns, 'height')) +'px',
-                    overflow: 'hidden'
-                });
-                if (records.length > 0) { this.last.scrollTop  = 0; this.last.scrollLeft = 0; } // if no scrollbars, always show top
+            function setrecordtop() {
+                if (bodyOverflowX || bodyOverflowY) {
+                    columns.find('> table > tbody > tr:nth-child(1) td.w2ui-head-last').css('width', w2utils.scrollBarSize()).show();
+                    records.css({
+                        top: ((this.columnGroups.length > 0 && this.show.columns ? 1 : 0) + w2utils.getSize(columns, 'height')) +'px',
+                        "-webkit-overflow-scrolling": "touch",
+                        "overflow-x": (bodyOverflowX ? 'auto' : 'hidden'),
+                        "overflow-y": (bodyOverflowY ? 'auto' : 'hidden')
+                    });
+                } else {
+                    columns.find('> table > tbody > tr:nth-child(1) td.w2ui-head-last').hide();
+                    records.css({
+                        top: ((this.columnGroups.length > 0 && this.show.columns ? 1 : 0) + w2utils.getSize(columns, 'height')) +'px',
+                        overflow: 'hidden'
+                    });
+                    if (records.length > 0) { this.last.scrollTop  = 0; this.last.scrollLeft = 0; } // if no scrollbars, always show top
+                }
+                if (bodyOverflowX) {
+                    frecords.css('margin-bottom', w2utils.scrollBarSize());
+                    scroll1.show();
+                } else {
+                    frecords.css('margin-bottom', 0);
+                    scroll1.hide();
+                }
+                frecords.css({ overflow: 'hidden', top: records.css('top') });
             }
-            if (bodyOverflowX) {
-                frecords.css('margin-bottom', w2utils.scrollBarSize());
-                scroll1.show();
-            } else {
-                frecords.css('margin-bottom', 0);
-                scroll1.hide();
-            }
-            frecords.css({ overflow: 'hidden', top: records.css('top') });
+
             if (this.show.emptyRecords && !bodyOverflowY) {
                 var max      = Math.floor(records.height() / this.recordHeight) - 1;
                 var leftover = 0;
@@ -9267,6 +9273,9 @@ w2utils.event = {
                         'margin' : '0px'
                     });
             }
+
+            setrecordtop.apply(this);
+            
             // resize records
             records.find('> table > tbody > tr:nth-child(1) td')
                 .add(frecords.find('> table > tbody > tr:nth-child(1) td'))
