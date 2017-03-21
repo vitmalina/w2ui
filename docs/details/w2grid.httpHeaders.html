@@ -1,0 +1,36 @@
+Optional request headers.
+
+<div class="definition">
+    Object, default = {}
+</div>
+
+Adding properties to <span class="property">.httpHeaders</span> object will instruct the grid to submit these parameters to the remote data source
+with each remote request (pull, sort, search, save, delete).
+<br>
+This is similar to the <span class="property">.postData</span> object, however the <span class="property">.httpHeaders</span> object will be used
+for the AJAX header part, not for the data part.
+<div style="height: 10px"></div>
+
+You can defined it during object creation:
+<textarea class="javascript">
+$('#grid').w2grid({
+    name    : 'grid',
+    url        : 'url/to/server',
+    columns: [                
+        { field: 'recid', caption: 'ID', size: '50px' },
+        { field: 'lname', caption: 'Last Name', size: '30%' },
+        { field: 'fname', caption: 'First Name', size: '30%' },
+        { field: 'email', caption: 'Email', size: '40%' },
+        { field: 'sdate', caption: 'End Date', size: '120px' }
+    ],
+    httpHeaders: {
+        param1 : 'value1', 
+        param2 : 'value2'
+    }
+});
+</textarea>
+
+Or any time during the run-time:
+<textarea class="javascript">
+w2ui.grid.httpHeaders['myVar'] = 'value';
+</textarea>
