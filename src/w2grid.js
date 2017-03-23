@@ -546,7 +546,13 @@
             if (this.records.length == 0) return null;
             var recid = this.records[0].recid;
             var tmp   = this.last.searchIds;
-            if (Array.isArray(tmp) && tmp.length > 0) recid = this.records[tmp[0]].recid;
+            if (this.searchData.length > 0) {
+                if (Array.isArray(tmp) && tmp.length > 0) {
+                    recid = this.records[tmp[0]].recid;
+                } else {
+                    recid = null;
+                }
+            }
             return recid;
         },
 
@@ -4700,6 +4706,10 @@
                         }
                         if ($(target).hasClass('w2ui-grid-footer') || $(target).parents('div.w2ui-grid-footer').length > 0) {
                             sTop = $(obj.box).find('#grid_'+ obj.name +'_footer').position().top;
+                        }
+                        // if clicked on toolbar
+                        if ($owner.hasClass('w2ui-scroll-wrapper') && $owner.parent().hasClass('w2ui-toolbar')) {
+                            sLeft = obj.last.move.focusX - $owner.scrollLeft();
                         }
                         $input.css({
                             left: sLeft - 10,
