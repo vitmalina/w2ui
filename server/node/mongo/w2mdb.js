@@ -618,6 +618,7 @@ exports.serveDBMongo = function(req, res, collectionName,autoIncVarName)
            break;
 
         case 'save':
+        case 'save-record':
             {
                 //console.log("save-record");
 
@@ -667,6 +668,7 @@ exports.serveDBMongo = function(req, res, collectionName,autoIncVarName)
 
             break;
         case 'delete':
+        case 'delete-records':
             var delsel = req.body.selected;
             //console.log("delete-records=", Number(delsel[0]));
             // Note Only first selected record is deleted
