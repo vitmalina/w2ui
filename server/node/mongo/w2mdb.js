@@ -603,6 +603,7 @@ exports.serveDBMongo = function(req, res, collectionName,autoIncVarName)
 
           break;
         case 'get':
+        case 'get-records':
             {
                 getRecords(req,res,collectionName);
             }
