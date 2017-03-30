@@ -2422,6 +2422,7 @@ w2utils.event = {
         );
         // init
         var div1 = $('#w2ui-overlay'+ name);
+        div1[0].parenttag = this[0];   //to find parent overlay
         var div2 = div1.find(' > div');
         div2.html(options.html);
         // pick bg color of first div
@@ -2435,6 +2436,7 @@ w2utils.event = {
             .fadeIn('fast')
             .on('click', function (event) {
                 $('#w2ui-overlay'+ name).data('keepOpen', true);
+                $(this.parenttag).closest('.w2ui-overlay').data('keepOpen',true);   //keep open the parent overlay
                 // if there is label for input, it will produce 2 click events
                 if (event.target.tagName.toUpperCase() == 'LABEL') event.stopPropagation();
             })
