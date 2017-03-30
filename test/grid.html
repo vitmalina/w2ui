@@ -23,7 +23,7 @@ jQuery(function () {
     jQuery('#grid').w2grid({
         name      : 'grid',
         header    : 'List of Names',
-        url : '//w2ui.com/web/pages/demo/infinite/index2.php',
+        // url : '//w2ui.com/web/pages/demo/infinite/index2.php',
         // routeData : { id: 4 },
         // url       : '/1/:id/grid.json',
         // url     : {
@@ -40,7 +40,7 @@ jQuery(function () {
             header: true,
             emptyRecords: true,
             columnHeaders: true,
-            selectColumn: false,
+            selectColumn: true,
             expandColumn: false,
             lineNumbers: true,
             toolbarAdd: true,
@@ -214,7 +214,12 @@ jQuery(function () {
                 console.log('complete', event);
             }
         },
-        onExpand1: function (event) {
+        onCollapse: function (event) {
+            console.log('col', event);
+        },
+        onExpand: function (event) {
+            console.log('expand', event);
+            return;
             if (w2ui['grid-'+ event.recid]) jQuery().w2destroy('grid-'+ event.recid);
             jQuery('#'+ event.box_id).w2grid({
                 name: 'grid-' + event.recid,
@@ -251,7 +256,7 @@ jQuery(function () {
         //getFooterHTML: function () { console.log(this); return 'My Own Footer'; }
     });
 
-    return;
+    // return;
 
     w2ui.grid.on('change', function(event) {
         console.log('change', event.value_new, event.value_previous, event.value_original);
@@ -278,8 +283,8 @@ jQuery(function () {
         });
     }
 
-    // w2ui.grid.records[0].w2ui = { children: w2ui.grid.records.splice(10, 5), colspan: { personid: 2 } };
-    // w2ui.grid.records[2].w2ui = { children: w2ui.grid.records.splice(10, 3), colspan: { personid: 5 } };
+    w2ui.grid.records[0].w2ui = { children: w2ui.grid.records.splice(10, 5), colspan: { personid: 2 }, hideCheckBox: true };
+    w2ui.grid.records[2].w2ui = { children: w2ui.grid.records.splice(10, 3), colspan: { personid: 5 }, hideCheckBox: true };
     // w2ui.grid.records[6].w2ui = { children: w2ui.grid.records.splice(10, 10), colspan: { personid: 7 } };
     // w2ui.grid.records[6].w2ui.children[1].w2ui = { children: w2ui.grid.records.splice(10, 4) };
     // w2ui.grid.records[6].w2ui.children[1].w2ui.children[2].w2ui = { children: w2ui.grid.records.splice(10, 4) };
@@ -287,7 +292,7 @@ jQuery(function () {
     // w2ui.grid.records[6].w2ui.children[9].w2ui = { children: w2ui.grid.records.splice(10, 4) };
 
     // w2ui.grid.records[4].w2ui.style = { fname: 'background-color: red' };
-    w2ui.grid.records[10].w2ui.summary = true;
+    // w2ui.grid.records[10].w2ui.summary = true;
     w2ui.grid.records[0].sdate = null;
     w2ui.grid.records[3].sdate = null;
     w2ui.grid.records[7].sdate = null;

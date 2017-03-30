@@ -42,6 +42,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="../w2grid.httpHeaders">httpHeaders</a> <span>- Object, default = {}</span>
+</div>
+<div class="obj-property-desc">
+    Optional request headers.
+</div>
+
+<div class="obj-property">
     <a href="../w2grid.keyboard">keyboard</a> <span>- Boolean, default = true</span>
 </div>
 <div class="obj-property-desc">
@@ -241,7 +248,14 @@
     <a href="../w2grid.summary">summary</a> <span>- Array, default = []</span>
 </div>
 <div class="obj-property-desc">
-    Summary records that displayed on the bottom
+    Summary records that are displayed on the bottom.
+</div>
+
+<div class="obj-property">
+    <a href="../w2grid.textSearch">textSearch</a> <span>- String, default = 'begins'</span>
+</div>
+<div class="obj-property-desc">
+    Defines how the text search behaves.
 </div>
 
 <div class="obj-property">
