@@ -573,7 +573,10 @@
                     var focus = obj.helpers.focus.find('input');
                     if ($(focus).val() === '') {
                         $(focus).css('text-indent', '-9999em').prev().css('opacity', 0);
-                        $(obj.el).val(selected && selected.text != null ? w2utils.lang(selected.text) : '');
+
+                        if (options.renderItem) 
+                            $(obj.el).val(options.renderItem(selected));
+                        else $(obj.el).val(selected && selected.text != null ? w2utils.lang(selected.text) : '');
                     } else {
                         $(focus).css('text-indent', 0).prev().css('opacity', 1);
                         $(obj.el).val('');
@@ -1915,7 +1918,7 @@
                                 }
                             } else {
                                 $(obj.el).data('selected', event.item).val(event.item.text).change();
-                                if (obj.helpers.focus) obj.helpers.focus.find('input').val('');
+                                if (obj.helpers.focus) obj.helpers.focus.find('input').val('');                                
                             }
                         }
                     }));
