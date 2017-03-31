@@ -1,0 +1,9 @@
+db2 "CREATE DATABASE W2UI USING CODESET ISO8859-1 TERRITORY en_US WITH 'w2ui DATABASE for Demo'";
+
+mkdir ~/database
+
+db2 connect to W2UI;
+
+
+db2 "CREATE TABLESPACE W2UISPACE MANAGED BY SYSTEM USING ('~/database/w2ui_tbsp')";
+
