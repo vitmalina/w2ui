@@ -4,7 +4,7 @@
     "datetimeFormat" : "yyyy.mm.dd|h24",
     "currency"       : "^[\\$]?[-+]?[0-9]*[\\.]?[0-9]+$",
     "currencyPrefix" : "",
-    "currencySuffix" : "Ft",
+    "currencySuffix" : " Ft",
     "groupSymbol"    : ",",
     "decimalSymbol"  : ".",
     "float"          : "^[-]?[0-9]*[\\.]?[0-9]+$",
