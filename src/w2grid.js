@@ -7094,7 +7094,9 @@
                     }
                 }
                 if (typeof col.render == 'object') {
-                    data = '<div style="'+ style +'">' + infoBubble + (col.render[data] || '') + '</div>';
+                    var dsp = col.render[data];
+                    if (dsp == null || dsp === '') dsp = data;
+                    data = '<div style="'+ style +'">' + infoBubble + dsp + '</div>';
                 }
                 if (typeof col.render == 'string') {
                     var t   = col.render.toLowerCase().indexOf(':');
