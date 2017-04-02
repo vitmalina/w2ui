@@ -4386,7 +4386,7 @@
             $clear.hide();
             this.searchData.some(function (item) {
                 var tmp = obj.getSearch(item.field);
-                if (obj.last.multi || (tmp && !tmp.hidden && tmp.type != 'list')) {
+                if (obj.last.multi || (tmp && !tmp.hidden /*&& tmp.type != 'list'*/)) { //cant clear listed search without it
                     $clear.show();
                     return true;
                 }

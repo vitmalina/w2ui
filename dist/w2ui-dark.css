@@ -1879,7 +1879,7 @@ button.w2ui-btn-small:focus:before {
   width: 16px;
   height: 16px;
   margin-top: -8px;
-  margin-left: -20px;
+  margin-left: -30px;
   border-radius: 15px;
   cursor: default;
 }
