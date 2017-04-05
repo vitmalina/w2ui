@@ -4488,38 +4488,37 @@
             var gridBody = $('#grid_'+ this.name +'_body', obj.box).html(bodyHTML),
                 records = $('#grid_'+ this.name +'_records', obj.box);
             // enable scrolling on frozen records,
-            // handle scrolling for normal records as well to have the same scrolling behaviour and eliminate synchronicity issues
-            gridBody.data('scrolldata', {lastTime: 0, lastDelta: 0, time: 0})
-            .find('.w2ui-grid-frecords, .w2ui-grid-records').on("mousewheel DOMMouseScroll ", function(event) {
-                event.preventDefault();
+            gridBody.data('scrolldata', { lastTime: 0, lastDelta: 0, time: 0 })
+                .find('.w2ui-grid-frecords')
+                .on("mousewheel DOMMouseScroll ", function(event) {
+                    event.preventDefault();
 
-                var e = event.originalEvent,
-                    scrolldata = gridBody.data('scrolldata'),
-                    recordsContainer = $(this).siblings('.w2ui-grid-records').addBack().filter('.w2ui-grid-records'),
-                    amount = typeof e.wheelDelta != 'undefined' ? e.wheelDelta * -1 / 120 : (e.detail || e.deltaY) / 3, // normalizing scroll speed
-                    newScrollTop = recordsContainer.scrollTop();
+                    var e = event.originalEvent,
+                        scrolldata = gridBody.data('scrolldata'),
+                        recordsContainer = $(this).siblings('.w2ui-grid-records').addBack().filter('.w2ui-grid-records'),
+                        amount = typeof e.wheelDelta != null ? e.wheelDelta * -1 / 120 : (e.detail || e.deltaY) / 3, // normalizing scroll speed
+                        newScrollTop = recordsContainer.scrollTop();
 
-                scrolldata.time = +new Date();
+                    scrolldata.time = +new Date();
 
-                if (scrolldata.lastTime < scrolldata.time - 150) {
-                    scrolldata.lastDelta = 0;
-                }
+                    if (scrolldata.lastTime < scrolldata.time - 150) {
+                        scrolldata.lastDelta = 0;
+                    }
 
-                scrolldata.lastTime = scrolldata.time;
-                scrolldata.lastDelta += amount;
+                    scrolldata.lastTime = scrolldata.time;
+                    scrolldata.lastDelta += amount;
 
-                if (Math.abs(scrolldata.lastDelta) < 1) {
-                    amount = 0;
-                } else {
-                    amount = Math.round(scrolldata.lastDelta);
-                }
-                gridBody.data('scrolldata', scrolldata);
+                    if (Math.abs(scrolldata.lastDelta) < 1) {
+                        amount = 0;
+                    } else {
+                        amount = Math.round(scrolldata.lastDelta);
+                    }
+                    gridBody.data('scrolldata', scrolldata);
 
-                // make scroll amount dependent on visible rows
-                amount *= (Math.round(records.height() / obj.recordHeight) - 1) * obj.recordHeight / 4;
-
-                recordsContainer.stop().animate({ 'scrollTop': newScrollTop + amount }, 250, 'linear');
-            });
+                    // make scroll amount dependent on visible rows
+                    amount *= (Math.round(records.height() / obj.recordHeight) - 1) * obj.recordHeight / 4;
+                    recordsContainer.stop().animate({ 'scrollTop': newScrollTop + amount }, 250, 'linear');
+                });
 
             if (this.records.length === 0 && this.msgEmpty) {
                 $('#grid_'+ this.name +'_body')
