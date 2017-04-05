@@ -546,7 +546,13 @@
             if (this.records.length == 0) return null;
             var recid = this.records[0].recid;
             var tmp   = this.last.searchIds;
-            if (Array.isArray(tmp) && tmp.length > 0) recid = this.records[tmp[0]].recid;
+            if (this.searchData.length > 0) {
+                if (Array.isArray(tmp) && tmp.length > 0) {
+                    recid = this.records[tmp[0]].recid;
+                } else {
+                    recid = null;
+                }
+            }
             return recid;
         },
 
@@ -4414,14 +4420,19 @@
             if (obj.markSearch) {
                 setTimeout(function () {
                     // mark all search strings
-                    var str = [];
+                    var search = [];
                     for (var s = 0; s < obj.searchData.length; s++) {
                         var sdata = obj.searchData[s];
                         var fld = obj.getSearch(sdata.field);
                         if (!fld || fld.hidden) continue;
-                        if (str.indexOf(sdata.value) == -1) str.push(sdata.value);
+                        var ind = obj.getColumn(sdata.field, true);
+                        search.push({ field: sdata.field, search: sdata.value, col: ind });
                     }
-                    if (str.length > 0) $(obj.box).find('.w2ui-grid-data > div').w2marker(str);
+                    if (search.length > 0) {
+                        search.forEach(function (item) {
+                            $(obj.box).find('td[col="'+ item.col +'"]').not('.w2ui-head').w2marker(item.search);
+                        });
+                    }
                 }, 50);
             }
             // enable/disable toolbar search button
@@ -4700,6 +4711,10 @@
                         }
                         if ($(target).hasClass('w2ui-grid-footer') || $(target).parents('div.w2ui-grid-footer').length > 0) {
                             sTop = $(obj.box).find('#grid_'+ obj.name +'_footer').position().top;
+                        }
+                        // if clicked on toolbar
+                        if ($owner.hasClass('w2ui-scroll-wrapper') && $owner.parent().hasClass('w2ui-toolbar')) {
+                            sLeft = obj.last.move.focusX - $owner.scrollLeft();
                         }
                         $input.css({
                             left: sLeft - 10,
@@ -6799,14 +6814,19 @@
                 clearTimeout(obj.last.marker_timer);
                 obj.last.marker_timer = setTimeout(function () {
                     // mark all search strings
-                    var str = [];
+                    var search = [];
                     for (var s = 0; s < obj.searchData.length; s++) {
                         var sdata = obj.searchData[s];
                         var fld = obj.getSearch(sdata.field);
                         if (!fld || fld.hidden) continue;
-                        if (str.indexOf(sdata.value) == -1) str.push(sdata.value);
+                        var ind = obj.getColumn(sdata.field, true);
+                        search.push({ field: sdata.field, search: sdata.value, col: ind });
                     }
-                    if (str.length > 0) $(obj.box).find('.w2ui-grid-data > div').w2marker(str);
+                    if (search.length > 0) {
+                        search.forEach(function (item) {
+                            $(obj.box).find('td[col="'+ item.col +'"]').not('.w2ui-head').w2marker(item.search);
+                        });
+                    }
                 }, 50);
             }
         },
@@ -7074,7 +7094,9 @@
                     }
                 }
                 if (typeof col.render == 'object') {
-                    data = '<div style="'+ style +'">' + infoBubble + (col.render[data] || '') + '</div>';
+                    var dsp = col.render[data];
+                    if (dsp == null || dsp === '') dsp = data;
+                    data = '<div style="'+ style +'">' + infoBubble + dsp + '</div>';
                 }
                 if (typeof col.render == 'string') {
                     var t   = col.render.toLowerCase().indexOf(':');

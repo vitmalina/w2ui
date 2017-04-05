@@ -1,0 +1,30 @@
+{
+  "name": "w2ui-server",
+  "description": "W2ui node/db2 server",
+  "version": "0.0.1",
+  "main": "start.js",
+  "author": {
+    "name": "Olof Astrand",
+    "email": "olof.astrand@gmail.com"
+  },
+  "keywords": [],
+  "licenses": {
+    "type": "none"
+  },
+  "dependencies": {
+    "body-parser": "^1.5.2",
+    "express": "^4.7.2",
+    "ibm_db": "^2.0.0",
+    "mongodb": "*",
+    "morgan": "*",
+    "underscore": "^1.8.3",
+    "winston": "^2.3.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vitmalina/w2ui.git"
+  },
+  "bugs": {
+    "url": "http://github.com/vitmalina/w2ui/issues"
+  }
+}
