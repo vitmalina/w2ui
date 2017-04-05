@@ -4054,7 +4054,7 @@
                     for (var c = minCol; c <= maxCol; c++) {
                         var col = this.columns[c];
                         if (col.hidden === true) continue;
-                        text += w2utils.stripTags(this.getCellHTML(ind, c)) + '\t';
+                        text += this.getCellCopy(ind, c) + '\t';
                     }
                     text = text.substr(0, text.length-1); // remove last \t
                     text += '\n';
@@ -4076,7 +4076,7 @@
                     for (var c = 0; c < this.columns.length; c++) {
                         var col = this.columns[c];
                         if (col.hidden === true) continue;
-                        text += '"' + w2utils.stripTags(this.getCellHTML(ind, c)) + '"\t';
+                        text += '"' + this.getCellCopy(ind, c) + '"\t';
                     }
                     text = text.substr(0, text.length-1); // remove last \t
                     text += '\n';
@@ -4104,6 +4104,16 @@
             }
         },
 
+        /**
+         * Gets value to be copied to the clipboard
+         * @param ind index of the record
+         * @param col_ind index of the column
+         * @returns the displayed value of the field's record associated with the cell
+         */
+        getCellCopy: function(ind, col_ind) {
+            return w2utils.stripTags(this.getCellHTML(ind, col_ind));
+        },
+
         paste: function (text) {
             var sel = this.getSelection();
             var ind = this.get(sel[0].recid, true);
@@ -4129,10 +4139,7 @@
                 if (rec == null) continue;
                 for (var dt = 0; dt < tmp.length; dt++) {
                     if (!this.columns[col + cnt]) continue;
-                    var field = this.columns[col + cnt].field;
-                    rec.w2ui = rec.w2ui || {};
-                    rec.w2ui.changes = rec.w2ui.changes || {};
-                    rec.w2ui.changes[field] = tmp[dt];
+                    this.setCellPaste(rec, col + cnt, tmp[dt]);
                     cols.push(col + cnt);
                     cnt++;
                 }
@@ -4144,6 +4151,19 @@
             this.refresh();
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
+        },
+
+        /**
+         * Sets record field using clipboard text
+         * @param rec record
+         * @param col_ind column index
+         * @param paste sub part of the pasted text
+         */
+        setCellPaste: function(rec, col_ind, paste) {
+            var field = this.columns[col_ind].field;
+            rec.w2ui = rec.w2ui || {};
+            rec.w2ui.changes = rec.w2ui.changes || {};
+            rec.w2ui.changes[field] = paste;
         },
 
         // ==================================================
