@@ -828,8 +828,9 @@
             function preparePaths() {
                 for (var i = 0; i < obj.records.length; i++) {
                     var rec = obj.records[i];
-                    if (rec.w2ui && rec.w2ui.parent_recid != null)
+                    if (rec.w2ui && rec.w2ui.parent_recid != null) {
                         rec.w2ui._path = getRecordPath(rec);
+                    }
                 }
             }
 
@@ -837,8 +838,9 @@
             function cleanupPaths() {
                 for (var i = 0; i < obj.records.length; i++) {
                     var rec = obj.records[i];
-                    if (rec.w2ui && rec.w2ui.parent_recid != null)
+                    if (rec.w2ui && rec.w2ui.parent_recid != null) {
                         rec.w2ui._path = null;
+                    }
                 }
             }
 
@@ -896,8 +898,7 @@
                 // break tie for similar records,
                 // required to have consistent ordering for tree paths
                 var ret = compareCells(a.recid, b.recid, -1, 'asc');
-                if (ret !== 0) return ret;
-                return 0;
+                return ret;
             }
 
             // compare two values, aa and bb, producing consistent ordering
