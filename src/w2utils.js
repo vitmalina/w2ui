@@ -2642,7 +2642,7 @@ w2utils.event = {
 
             // if outer div is bigger, match the size
             if (div2.height() < div1.height()) {
-                div1.css('min-height', div2.height() + 'px');
+                div2.css('height', div1.height() + 'px');
             }
         }
     };
