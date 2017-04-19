@@ -3990,6 +3990,7 @@ w2utils.event = {
             }
             this.refreshBody();
             this.resizeRecords();
+            this.scroll(); // scroll needed because of column virtual scroll
             return shown;
         },
 
@@ -4006,6 +4007,7 @@ w2utils.event = {
             }
             this.refreshBody();
             this.resizeRecords();
+            this.scroll(); // scroll needed because of column virtual scroll
             return hidden;
         },
 
@@ -4154,8 +4156,9 @@ w2utils.event = {
             function preparePaths() {
                 for (var i = 0; i < obj.records.length; i++) {
                     var rec = obj.records[i];
-                    if (rec.w2ui && rec.w2ui.parent_recid != null)
+                    if (rec.w2ui && rec.w2ui.parent_recid != null) {
                         rec.w2ui._path = getRecordPath(rec);
+                    }
                 }
             }
 
@@ -4163,8 +4166,9 @@ w2utils.event = {
             function cleanupPaths() {
                 for (var i = 0; i < obj.records.length; i++) {
                     var rec = obj.records[i];
-                    if (rec.w2ui && rec.w2ui.parent_recid != null)
+                    if (rec.w2ui && rec.w2ui.parent_recid != null) {
                         rec.w2ui._path = null;
+                    }
                 }
             }
 
@@ -4222,8 +4226,7 @@ w2utils.event = {
                 // break tie for similar records,
                 // required to have consistent ordering for tree paths
                 var ret = compareCells(a.recid, b.recid, -1, 'asc');
-                if (ret !== 0) return ret;
-                return 0;
+                return ret;
             }
 
             // compare two values, aa and bb, producing consistent ordering
@@ -9729,6 +9732,7 @@ w2utils.event = {
                 html2 += '<td id="grid_'+ obj.name + '_column_start" class="w2ui-head" col="start" style="border-right: 0"></td>';
                 for (var i = 0; i < obj.columns.length; i++) {
                     var col  = obj.columns[i];
+                    if (col.size == null) col.size = '100%';
                     if (i == id) {      // always true on first iteration
                         colg = obj.columnGroups[ii++] || {};
                         id = id + colg.span;
@@ -15504,9 +15508,11 @@ var w2prompt = function (label, title, callBack) {
             function getNodeHTML(nd) {
                 var html = '';
                 var img  = nd.img;
-                if (img == null) img = this.img;
                 var icon = nd.icon;
-                if (icon == null) icon = this.icon;
+                if (icon == null && img == null) {
+                    if (icon == null) icon = obj.icon;
+                    if (img == null) img = obj.img;
+                }
                 // -- find out level
                 var tmp   = nd.parent;
                 var level = 0;
