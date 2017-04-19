@@ -2640,6 +2640,11 @@ w2utils.event = {
                 if (overflowY && options.align != 'both') div2.width(w + w2utils.scrollBarSize() + 2);
             }
             menu.css('overflow-y', 'auto');
+
+            // if outer div is bigger, match the size
+            if (div2.height() < div1.height()) {
+                div2.css('height', div1.height() + 'px');
+            }
         }
     };
 
@@ -2966,7 +2971,6 @@ w2utils.event = {
         if ($.fn.w2colorPalette == null) {
             $.fn.w2colorPalette = [
                 ['000000', '333333', '555555', '777777', '888888', '999999', 'AAAAAA', 'CCCCCC', 'DDDDDD', 'EEEEEE', 'F7F7F7', 'FFFFFF'],
-
                 ['FF011B', 'FF9838', 'FFC300',  'FFFD59', '86FF14', '14FF7A', '2EFFFC', '2693FF', '006CE7', '9B24F4', 'FF21F5', 'FF0099'],
                 ['FFEAEA', 'FCEFE1', 'FCF4DC',  'FFFECF', 'EBFFD9', 'D9FFE9', 'E0FFFF', 'E8F4FF', 'ECF4FC', 'EAE6F4', 'FFF5FE', 'FCF0F7'],
                 ['F4CCCC', 'FCE5CD', 'FFF1C2',  'FFFDA1', 'D5FCB1', 'B5F7D0', 'BFFFFF', 'D6ECFF', 'CFE2F3', 'D9D1E9', 'FFE3FD', 'FFD9F0'],
@@ -2974,8 +2978,6 @@ w2utils.event = {
                 ['E06666', 'F6B26B', 'DEB737',  'E0DE51', '8FDB48', '52D189', '4EDEDB', '76ACE3', '6FA8DC', '8E7CC3', 'E07EDA', 'F26DBD'],
                 ['CC0814', 'E69138', 'AB8816',  'B5B20E', '6BAB30', '27A85F', '1BA8A6', '3C81C7', '3D85C6', '674EA7', 'A14F9D', 'BF4990'],
                 ['99050C', 'B45F17', '80650E',  '737103', '395E14', '10783D', '13615E', '094785', '0A5394', '351C75', '780172', '782C5A']
-                // ['660205', '783F0B', '7F6011', '274E12', '0C343D', '063762', '20124D', '4C1030'],
-                // ['F2F2F2', 'F2F2F2', 'F2F2F2', 'F2F2F2', 'F2F2F2'] // custom colors (up to 4)
             ];
         }
         var pal = $.fn.w2colorPalette;
@@ -3001,16 +3003,15 @@ w2utils.event = {
             $(el).w2overlay(getColorHTML(options), options);
         } else { // only refresh contents
             $('#w2ui-overlay .w2ui-color').parent().html(getColorHTML(options));
+            $('#w2ui-overlay').show();
         }
         // bind events
         $('#w2ui-overlay .color')
             .off('.w2color')
             .on('mousedown.w2color', function (event) {
-                var color = '#' + $(event.originalEvent.target).attr('name');
-                if (color == '#') color = '';
+                var color = $(event.originalEvent.target).attr('name'); // should not have #
                 index = $(event.originalEvent.target).attr('index').split(':');
                 if (el.tagName == 'INPUT') {
-                    $(el).val(color).data('skipInit', true);
                     if (options.fireChange) $(el).change();
                     $(el).next().find('>div').css('background-color', color);
                 } else {
@@ -3092,7 +3093,7 @@ w2utils.event = {
             ];
             cl.forEach(function (item, ind) { if (item.length == 1) cl[ind] = '0' + item; });
             if (rgb.a == 1) {
-                newColor = '#' + cl[0] + cl[1] + cl[2];
+                newColor = cl[0] + cl[1] + cl[2];
             }
             $('#w2ui-overlay .color-preview').css('background-color', newColor);
             $('#w2ui-overlay input').each(function (index, el) {
@@ -3166,15 +3167,15 @@ w2utils.event = {
             if (newY > initial.height - offset) newY = initial.height - offset
             if ($el.hasClass('move-x')) $el.css({ left : newX + 'px' });
             if ($el.hasClass('move-y')) $el.css({ top : newY + 'px' });
+
             // move
+            var name = $el.parent().attr('name');
             var x = parseInt($el.css('left')) + offset;
             var y = parseInt($el.css('top')) + offset;
-            var name = $el.parent().attr('name');
-            // console.log(name, x, y, Math.round(x / $el.parent().width() * 100), Math.round(100 - (y / $el.parent().height() * 100)));
             if (name == 'palette') {
                 setColor({
-                    s: Math.round(x / $el.parent().width() * 100),
-                    v: Math.round(100 - (y / $el.parent().height() * 100))
+                    s: Math.round(x / initial.width * 100),
+                    v: Math.round(100 - (y / initial.height * 100))
                 });
             }
             if (name == 'rainbow') {
@@ -3188,6 +3189,7 @@ w2utils.event = {
         }
         if ($.fn._colorAdvanced === true || options.advanced === true) {
             $('#w2ui-overlay .w2ui-color-tabs :nth-child(2)').click();
+            $('#w2ui-overlay').removeData('keepOpen');
         }
         setColor({}, true);
         refreshPalette();
@@ -3872,7 +3874,13 @@ w2utils.event = {
             if (this.records.length == 0) return null;
             var recid = this.records[0].recid;
             var tmp   = this.last.searchIds;
-            if (Array.isArray(tmp) && tmp.length > 0) recid = this.records[tmp[0]].recid;
+            if (this.searchData.length > 0) {
+                if (Array.isArray(tmp) && tmp.length > 0) {
+                    recid = this.records[tmp[0]].recid;
+                } else {
+                    recid = null;
+                }
+            }
             return recid;
         },
 
@@ -7374,7 +7382,7 @@ w2utils.event = {
                     for (var c = minCol; c <= maxCol; c++) {
                         var col = this.columns[c];
                         if (col.hidden === true) continue;
-                        text += w2utils.stripTags(this.getCellHTML(ind, c)) + '\t';
+                        text += this.getCellCopy(ind, c) + '\t';
                     }
                     text = text.substr(0, text.length-1); // remove last \t
                     text += '\n';
@@ -7396,7 +7404,7 @@ w2utils.event = {
                     for (var c = 0; c < this.columns.length; c++) {
                         var col = this.columns[c];
                         if (col.hidden === true) continue;
-                        text += '"' + w2utils.stripTags(this.getCellHTML(ind, c)) + '"\t';
+                        text += '"' + this.getCellCopy(ind, c) + '"\t';
                     }
                     text = text.substr(0, text.length-1); // remove last \t
                     text += '\n';
@@ -7424,6 +7432,16 @@ w2utils.event = {
             }
         },
 
+        /**
+         * Gets value to be copied to the clipboard
+         * @param ind index of the record
+         * @param col_ind index of the column
+         * @returns the displayed value of the field's record associated with the cell
+         */
+        getCellCopy: function(ind, col_ind) {
+            return w2utils.stripTags(this.getCellHTML(ind, col_ind));
+        },
+
         paste: function (text) {
             var sel = this.getSelection();
             var ind = this.get(sel[0].recid, true);
@@ -7449,10 +7467,7 @@ w2utils.event = {
                 if (rec == null) continue;
                 for (var dt = 0; dt < tmp.length; dt++) {
                     if (!this.columns[col + cnt]) continue;
-                    var field = this.columns[col + cnt].field;
-                    rec.w2ui = rec.w2ui || {};
-                    rec.w2ui.changes = rec.w2ui.changes || {};
-                    rec.w2ui.changes[field] = tmp[dt];
+                    this.setCellPaste(rec, col + cnt, tmp[dt]);
                     cols.push(col + cnt);
                     cnt++;
                 }
@@ -7464,6 +7479,19 @@ w2utils.event = {
             this.refresh();
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
+        },
+
+        /**
+         * Sets record field using clipboard text
+         * @param rec record
+         * @param col_ind column index
+         * @param paste sub part of the pasted text
+         */
+        setCellPaste: function(rec, col_ind, paste) {
+            var field = this.columns[col_ind].field;
+            rec.w2ui = rec.w2ui || {};
+            rec.w2ui.changes = rec.w2ui.changes || {};
+            rec.w2ui.changes[field] = paste;
         },
 
         // ==================================================
@@ -7740,14 +7768,19 @@ w2utils.event = {
             if (obj.markSearch) {
                 setTimeout(function () {
                     // mark all search strings
-                    var str = [];
+                    var search = [];
                     for (var s = 0; s < obj.searchData.length; s++) {
                         var sdata = obj.searchData[s];
                         var fld = obj.getSearch(sdata.field);
                         if (!fld || fld.hidden) continue;
-                        if (str.indexOf(sdata.value) == -1) str.push(sdata.value);
+                        var ind = obj.getColumn(sdata.field, true);
+                        search.push({ field: sdata.field, search: sdata.value, col: ind });
                     }
-                    if (str.length > 0) $(obj.box).find('.w2ui-grid-data > div').w2marker(str);
+                    if (search.length > 0) {
+                        search.forEach(function (item) {
+                            $(obj.box).find('td[col="'+ item.col +'"]').not('.w2ui-head').w2marker(item.search);
+                        });
+                    }
                 }, 50);
             }
             // enable/disable toolbar search button
@@ -7803,38 +7836,37 @@ w2utils.event = {
             var gridBody = $('#grid_'+ this.name +'_body', obj.box).html(bodyHTML),
                 records = $('#grid_'+ this.name +'_records', obj.box);
             // enable scrolling on frozen records,
-            // handle scrolling for normal records as well to have the same scrolling behaviour and eliminate synchronicity issues
-            gridBody.data('scrolldata', {lastTime: 0, lastDelta: 0, time: 0})
-            .find('.w2ui-grid-frecords, .w2ui-grid-records').on("mousewheel DOMMouseScroll ", function(event) {
-                event.preventDefault();
+            gridBody.data('scrolldata', { lastTime: 0, lastDelta: 0, time: 0 })
+                .find('.w2ui-grid-frecords')
+                .on("mousewheel DOMMouseScroll ", function(event) {
+                    event.preventDefault();
 
-                var e = event.originalEvent,
-                    scrolldata = gridBody.data('scrolldata'),
-                    recordsContainer = $(this).siblings('.w2ui-grid-records').addBack().filter('.w2ui-grid-records'),
-                    amount = typeof e.wheelDelta != 'undefined' ? e.wheelDelta * -1 / 120 : (e.detail || e.deltaY) / 3, // normalizing scroll speed
-                    newScrollTop = recordsContainer.scrollTop();
+                    var e = event.originalEvent,
+                        scrolldata = gridBody.data('scrolldata'),
+                        recordsContainer = $(this).siblings('.w2ui-grid-records').addBack().filter('.w2ui-grid-records'),
+                        amount = typeof e.wheelDelta != null ? e.wheelDelta * -1 / 120 : (e.detail || e.deltaY) / 3, // normalizing scroll speed
+                        newScrollTop = recordsContainer.scrollTop();
 
-                scrolldata.time = +new Date();
+                    scrolldata.time = +new Date();
 
-                if (scrolldata.lastTime < scrolldata.time - 150) {
-                    scrolldata.lastDelta = 0;
-                }
+                    if (scrolldata.lastTime < scrolldata.time - 150) {
+                        scrolldata.lastDelta = 0;
+                    }
 
-                scrolldata.lastTime = scrolldata.time;
-                scrolldata.lastDelta += amount;
+                    scrolldata.lastTime = scrolldata.time;
+                    scrolldata.lastDelta += amount;
 
-                if (Math.abs(scrolldata.lastDelta) < 1) {
-                    amount = 0;
-                } else {
-                    amount = Math.round(scrolldata.lastDelta);
-                }
-                gridBody.data('scrolldata', scrolldata);
+                    if (Math.abs(scrolldata.lastDelta) < 1) {
+                        amount = 0;
+                    } else {
+                        amount = Math.round(scrolldata.lastDelta);
+                    }
+                    gridBody.data('scrolldata', scrolldata);
 
-                // make scroll amount dependent on visible rows
-                amount *= (Math.round(records.height() / obj.recordHeight) - 1) * obj.recordHeight / 4;
-
-                recordsContainer.stop().animate({ 'scrollTop': newScrollTop + amount }, 250, 'linear');
-            });
+                    // make scroll amount dependent on visible rows
+                    amount *= (Math.round(records.height() / obj.recordHeight) - 1) * obj.recordHeight / 4;
+                    recordsContainer.stop().animate({ 'scrollTop': newScrollTop + amount }, 250, 'linear');
+                });
 
             if (this.records.length === 0 && this.msgEmpty) {
                 $('#grid_'+ this.name +'_body')
@@ -8026,6 +8058,10 @@ w2utils.event = {
                         }
                         if ($(target).hasClass('w2ui-grid-footer') || $(target).parents('div.w2ui-grid-footer').length > 0) {
                             sTop = $(obj.box).find('#grid_'+ obj.name +'_footer').position().top;
+                        }
+                        // if clicked on toolbar
+                        if ($owner.hasClass('w2ui-scroll-wrapper') && $owner.parent().hasClass('w2ui-toolbar')) {
+                            sLeft = obj.last.move.focusX - $owner.scrollLeft();
                         }
                         $input.css({
                             left: sLeft - 10,
@@ -9950,7 +9986,7 @@ w2utils.event = {
                                 });
                                 // summary
                                 $slast.each(function (ind, el) {
-                                    var index = $(el).parent().attr('index');
+                                    var index = $(el).parent().attr('index') || -1;
                                     var td = obj.getCellHTML(parseInt(index), i, true);
                                     $(el).before(td);
                                 });
@@ -10125,14 +10161,19 @@ w2utils.event = {
                 clearTimeout(obj.last.marker_timer);
                 obj.last.marker_timer = setTimeout(function () {
                     // mark all search strings
-                    var str = [];
+                    var search = [];
                     for (var s = 0; s < obj.searchData.length; s++) {
                         var sdata = obj.searchData[s];
                         var fld = obj.getSearch(sdata.field);
                         if (!fld || fld.hidden) continue;
-                        if (str.indexOf(sdata.value) == -1) str.push(sdata.value);
+                        var ind = obj.getColumn(sdata.field, true);
+                        search.push({ field: sdata.field, search: sdata.value, col: ind });
                     }
-                    if (str.length > 0) $(obj.box).find('.w2ui-grid-data > div').w2marker(str);
+                    if (search.length > 0) {
+                        search.forEach(function (item) {
+                            $(obj.box).find('td[col="'+ item.col +'"]').not('.w2ui-head').w2marker(item.search);
+                        });
+                    }
                 }, 50);
             }
         },
@@ -10400,7 +10441,9 @@ w2utils.event = {
                     }
                 }
                 if (typeof col.render == 'object') {
-                    data = '<div style="'+ style +'">' + infoBubble + (col.render[data] || '') + '</div>';
+                    var dsp = col.render[data];
+                    if (dsp == null || dsp === '') dsp = data;
+                    data = '<div style="'+ style +'">' + infoBubble + dsp + '</div>';
                 }
                 if (typeof col.render == 'string') {
                     var t   = col.render.toLowerCase().indexOf(':');
@@ -10464,7 +10507,12 @@ w2utils.event = {
                         (col.attr != null ? col.attr : '') +
                         (col_span > 1 ? 'colspan="'+ col_span + '"' : '') +
                     '>' + data + '</td>';
-
+            // summary top row
+            if (ind === -1 && summary === true) {
+                data =  '<td class="w2ui-grid-data" col="'+ col_ind +'" style="height: 0px; '+ addStyle + '" '+
+                            (col_span > 1 ? 'colspan="'+ col_span + '"' : '') +
+                        '></td>';
+            }
             return data;
         },
 
@@ -16457,10 +16505,15 @@ var w2prompt = function (label, title, callBack) {
             }
             // color
             if (this.type == 'color') {
-                var color = '#' + $(this.el).val();
-                if ($(this.el).val().length != 6 && $(this.el).val().length != 3) color = '';
+                var color = $(this.el).val();
+                if (color.substr(0, 3).toLowerCase() != 'rgb') {
+                    color = '#' + color;
+                    if ($(this.el).val().length != 6 && $(this.el).val().length != 3) color = '';
+                }
                 $(this.el).next().find('div').css('background-color', color);
-                if ($(obj.el).is(':focus')) this.updateOverlay();
+                if ($(this.el).is(':focus') && $(this.el).data('skipInit') !== true) {
+                    this.updateOverlay();
+                }
             }
             // list, enum
             if (['list', 'enum', 'file'].indexOf(this.type) != -1) {
@@ -16530,9 +16583,9 @@ var w2prompt = function (label, title, callBack) {
             // hide overlay
             if (['color', 'date', 'time', 'list', 'combo', 'enum', 'datetime'].indexOf(obj.type) != -1) {
                 var closeTimeout = window.setTimeout(function() {
-                    $overlay.hide();
+                    if ($overlay.data('keepOpen') !== true) $overlay.hide();
                 }, 0);
-                
+
                 $(".menu", $overlay).one('focus', function() {
                     clearTimeout(closeTimeout);
                     $(this).one('focusout', function(event) {
