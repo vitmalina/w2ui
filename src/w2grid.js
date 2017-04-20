@@ -662,6 +662,7 @@
             }
             this.refreshBody();
             this.resizeRecords();
+            this.scroll(); // scroll needed because of column virtual scroll
             return shown;
         },
 
@@ -678,6 +679,7 @@
             }
             this.refreshBody();
             this.resizeRecords();
+            this.scroll(); // scroll needed because of column virtual scroll
             return hidden;
         },
 
@@ -826,8 +828,9 @@
             function preparePaths() {
                 for (var i = 0; i < obj.records.length; i++) {
                     var rec = obj.records[i];
-                    if (rec.w2ui && rec.w2ui.parent_recid != null)
+                    if (rec.w2ui && rec.w2ui.parent_recid != null) {
                         rec.w2ui._path = getRecordPath(rec);
+                    }
                 }
             }
 
@@ -835,8 +838,9 @@
             function cleanupPaths() {
                 for (var i = 0; i < obj.records.length; i++) {
                     var rec = obj.records[i];
-                    if (rec.w2ui && rec.w2ui.parent_recid != null)
+                    if (rec.w2ui && rec.w2ui.parent_recid != null) {
                         rec.w2ui._path = null;
+                    }
                 }
             }
 
@@ -894,8 +898,7 @@
                 // break tie for similar records,
                 // required to have consistent ordering for tree paths
                 var ret = compareCells(a.recid, b.recid, -1, 'asc');
-                if (ret !== 0) return ret;
-                return 0;
+                return ret;
             }
 
             // compare two values, aa and bb, producing consistent ordering
@@ -4054,7 +4057,7 @@
                     for (var c = minCol; c <= maxCol; c++) {
                         var col = this.columns[c];
                         if (col.hidden === true) continue;
-                        text += w2utils.stripTags(this.getCellHTML(ind, c)) + '\t';
+                        text += this.getCellCopy(ind, c) + '\t';
                     }
                     text = text.substr(0, text.length-1); // remove last \t
                     text += '\n';
@@ -4076,7 +4079,7 @@
                     for (var c = 0; c < this.columns.length; c++) {
                         var col = this.columns[c];
                         if (col.hidden === true) continue;
-                        text += '"' + w2utils.stripTags(this.getCellHTML(ind, c)) + '"\t';
+                        text += '"' + this.getCellCopy(ind, c) + '"\t';
                     }
                     text = text.substr(0, text.length-1); // remove last \t
                     text += '\n';
@@ -4104,6 +4107,16 @@
             }
         },
 
+        /**
+         * Gets value to be copied to the clipboard
+         * @param ind index of the record
+         * @param col_ind index of the column
+         * @returns the displayed value of the field's record associated with the cell
+         */
+        getCellCopy: function(ind, col_ind) {
+            return w2utils.stripTags(this.getCellHTML(ind, col_ind));
+        },
+
         paste: function (text) {
             var sel = this.getSelection();
             var ind = this.get(sel[0].recid, true);
@@ -4129,10 +4142,7 @@
                 if (rec == null) continue;
                 for (var dt = 0; dt < tmp.length; dt++) {
                     if (!this.columns[col + cnt]) continue;
-                    var field = this.columns[col + cnt].field;
-                    rec.w2ui = rec.w2ui || {};
-                    rec.w2ui.changes = rec.w2ui.changes || {};
-                    rec.w2ui.changes[field] = tmp[dt];
+                    this.setCellPaste(rec, col + cnt, tmp[dt]);
                     cols.push(col + cnt);
                     cnt++;
                 }
@@ -4144,6 +4154,19 @@
             this.refresh();
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
+        },
+
+        /**
+         * Sets record field using clipboard text
+         * @param rec record
+         * @param col_ind column index
+         * @param paste sub part of the pasted text
+         */
+        setCellPaste: function(rec, col_ind, paste) {
+            var field = this.columns[col_ind].field;
+            rec.w2ui = rec.w2ui || {};
+            rec.w2ui.changes = rec.w2ui.changes || {};
+            rec.w2ui.changes[field] = paste;
         },
 
         // ==================================================
@@ -4488,38 +4511,37 @@
             var gridBody = $('#grid_'+ this.name +'_body', obj.box).html(bodyHTML),
                 records = $('#grid_'+ this.name +'_records', obj.box);
             // enable scrolling on frozen records,
-            // handle scrolling for normal records as well to have the same scrolling behaviour and eliminate synchronicity issues
-            gridBody.data('scrolldata', {lastTime: 0, lastDelta: 0, time: 0})
-            .find('.w2ui-grid-frecords, .w2ui-grid-records').on("mousewheel DOMMouseScroll ", function(event) {
-                event.preventDefault();
+            gridBody.data('scrolldata', { lastTime: 0, lastDelta: 0, time: 0 })
+                .find('.w2ui-grid-frecords')
+                .on("mousewheel DOMMouseScroll ", function(event) {
+                    event.preventDefault();
 
-                var e = event.originalEvent,
-                    scrolldata = gridBody.data('scrolldata'),
-                    recordsContainer = $(this).siblings('.w2ui-grid-records').addBack().filter('.w2ui-grid-records'),
-                    amount = typeof e.wheelDelta != 'undefined' ? e.wheelDelta * -1 / 120 : (e.detail || e.deltaY) / 3, // normalizing scroll speed
-                    newScrollTop = recordsContainer.scrollTop();
+                    var e = event.originalEvent,
+                        scrolldata = gridBody.data('scrolldata'),
+                        recordsContainer = $(this).siblings('.w2ui-grid-records').addBack().filter('.w2ui-grid-records'),
+                        amount = typeof e.wheelDelta != null ? e.wheelDelta * -1 / 120 : (e.detail || e.deltaY) / 3, // normalizing scroll speed
+                        newScrollTop = recordsContainer.scrollTop();
 
-                scrolldata.time = +new Date();
+                    scrolldata.time = +new Date();
 
-                if (scrolldata.lastTime < scrolldata.time - 150) {
-                    scrolldata.lastDelta = 0;
-                }
+                    if (scrolldata.lastTime < scrolldata.time - 150) {
+                        scrolldata.lastDelta = 0;
+                    }
 
-                scrolldata.lastTime = scrolldata.time;
-                scrolldata.lastDelta += amount;
+                    scrolldata.lastTime = scrolldata.time;
+                    scrolldata.lastDelta += amount;
 
-                if (Math.abs(scrolldata.lastDelta) < 1) {
-                    amount = 0;
-                } else {
-                    amount = Math.round(scrolldata.lastDelta);
-                }
-                gridBody.data('scrolldata', scrolldata);
+                    if (Math.abs(scrolldata.lastDelta) < 1) {
+                        amount = 0;
+                    } else {
+                        amount = Math.round(scrolldata.lastDelta);
+                    }
+                    gridBody.data('scrolldata', scrolldata);
 
-                // make scroll amount dependent on visible rows
-                amount *= (Math.round(records.height() / obj.recordHeight) - 1) * obj.recordHeight / 4;
-
-                recordsContainer.stop().animate({ 'scrollTop': newScrollTop + amount }, 250, 'linear');
-            });
+                    // make scroll amount dependent on visible rows
+                    amount *= (Math.round(records.height() / obj.recordHeight) - 1) * obj.recordHeight / 4;
+                    recordsContainer.stop().animate({ 'scrollTop': newScrollTop + amount }, 250, 'linear');
+                });
 
             if (this.records.length === 0 && this.msgEmpty) {
                 $('#grid_'+ this.name +'_body')
@@ -6382,6 +6404,7 @@
                 html2 += '<td id="grid_'+ obj.name + '_column_start" class="w2ui-head" col="start" style="border-right: 0"></td>';
                 for (var i = 0; i < obj.columns.length; i++) {
                     var col  = obj.columns[i];
+                    if (col.size == null) col.size = '100%';
                     if (i == id) {      // always true on first iteration
                         colg = obj.columnGroups[ii++] || {};
                         id = id + colg.span;
@@ -6639,7 +6662,7 @@
                                 });
                                 // summary
                                 $slast.each(function (ind, el) {
-                                    var index = $(el).parent().attr('index');
+                                    var index = $(el).parent().attr('index') || -1;
                                     var td = obj.getCellHTML(parseInt(index), i, true);
                                     $(el).before(td);
                                 });
@@ -7160,7 +7183,12 @@
                         (col.attr != null ? col.attr : '') +
                         (col_span > 1 ? 'colspan="'+ col_span + '"' : '') +
                     '>' + data + '</td>';
-
+            // summary top row
+            if (ind === -1 && summary === true) {
+                data =  '<td class="w2ui-grid-data" col="'+ col_ind +'" style="height: 0px; '+ addStyle + '" '+
+                            (col_span > 1 ? 'colspan="'+ col_span + '"' : '') +
+                        '></td>';
+            }
             return data;
         },
 

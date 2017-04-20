@@ -2639,6 +2639,11 @@ w2utils.event = {
                 if (overflowY && options.align != 'both') div2.width(w + w2utils.scrollBarSize() + 2);
             }
             menu.css('overflow-y', 'auto');
+
+            // if outer div is bigger, match the size
+            if (div2.height() < div1.height()) {
+                div2.css('height', div1.height() + 'px');
+            }
         }
     };
 
