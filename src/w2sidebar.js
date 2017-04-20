@@ -842,9 +842,11 @@
             function getNodeHTML(nd) {
                 var html = '';
                 var img  = nd.img;
-                if (img == null) img = this.img;
                 var icon = nd.icon;
-                if (icon == null) icon = this.icon;
+                if (icon == null && img == null) {
+                    if (icon == null) icon = obj.icon;
+                    if (img == null) img = obj.img;
+                }
                 // -- find out level
                 var tmp   = nd.parent;
                 var level = 0;

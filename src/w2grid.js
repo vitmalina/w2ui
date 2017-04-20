@@ -662,6 +662,7 @@
             }
             this.refreshBody();
             this.resizeRecords();
+            this.scroll(); // scroll needed because of column virtual scroll
             return shown;
         },
 
@@ -678,6 +679,7 @@
             }
             this.refreshBody();
             this.resizeRecords();
+            this.scroll(); // scroll needed because of column virtual scroll
             return hidden;
         },
 
@@ -826,8 +828,9 @@
             function preparePaths() {
                 for (var i = 0; i < obj.records.length; i++) {
                     var rec = obj.records[i];
-                    if (rec.w2ui && rec.w2ui.parent_recid != null)
+                    if (rec.w2ui && rec.w2ui.parent_recid != null) {
                         rec.w2ui._path = getRecordPath(rec);
+                    }
                 }
             }
 
@@ -835,8 +838,9 @@
             function cleanupPaths() {
                 for (var i = 0; i < obj.records.length; i++) {
                     var rec = obj.records[i];
-                    if (rec.w2ui && rec.w2ui.parent_recid != null)
+                    if (rec.w2ui && rec.w2ui.parent_recid != null) {
                         rec.w2ui._path = null;
+                    }
                 }
             }
 
@@ -894,8 +898,7 @@
                 // break tie for similar records,
                 // required to have consistent ordering for tree paths
                 var ret = compareCells(a.recid, b.recid, -1, 'asc');
-                if (ret !== 0) return ret;
-                return 0;
+                return ret;
             }
 
             // compare two values, aa and bb, producing consistent ordering
@@ -6401,6 +6404,7 @@
                 html2 += '<td id="grid_'+ obj.name + '_column_start" class="w2ui-head" col="start" style="border-right: 0"></td>';
                 for (var i = 0; i < obj.columns.length; i++) {
                     var col  = obj.columns[i];
+                    if (col.size == null) col.size = '100%';
                     if (i == id) {      // always true on first iteration
                         colg = obj.columnGroups[ii++] || {};
                         id = id + colg.span;
