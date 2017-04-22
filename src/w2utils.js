@@ -3010,7 +3010,7 @@ w2utils.event = {
             .on('mousedown.w2color', function (event) {
                 var color = $(event.originalEvent.target).attr('name'); // should not have #
                 index = $(event.originalEvent.target).attr('index').split(':');
-                if (el.tagName == 'INPUT') {
+                if (el.tagName.toUpperCase() == 'INPUT') {
                     if (options.fireChange) $(el).change();
                     $(el).next().find('>div').css('background-color', color);
                 } else {
@@ -3103,7 +3103,7 @@ w2utils.event = {
                 }
             });
             if (!silent) {
-                if (el.tagName == 'INPUT') {
+                if (el.tagName.toUpperCase() == 'INPUT') {
                     $(el).val(newColor).data('skipInit', true);
                     if (options.fireChange) $(el).change();
                     $(el).next().find('>div').css('background-color', newColor);
