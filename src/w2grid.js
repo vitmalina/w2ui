@@ -7055,8 +7055,8 @@
             var col = this.columns[col_ind];
             if (col == null) return '';
             var record        = (summary !== true ? this.records[ind] : this.summary[ind]);
-            var data          = this.getCellValue(ind, col_ind, summary);
-            var edit          = this.getCellEditable(ind, col_ind);
+            var data          = (ind !== -1 ? this.getCellValue(ind, col_ind, summary) : '');
+            var edit          = (ind !== -1 ? this.getCellEditable(ind, col_ind) : '');
             var style         = 'max-height: '+ parseInt(this.recordHeight) +'px;';
             var isChanged     = !summary && record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null;
             var addStyle      = '';
@@ -7109,7 +7109,7 @@
                     ' onclick="event.stopPropagation(); w2ui[\''+ this.name + '\'].showBubble('+ ind +', '+ col_ind +')"></span>';
             }
             // various renderers
-            if (col.render != null) {
+            if (col.render != null && ind !== -1) {
                 if (typeof col.render == 'function') {
                     data = $.trim(col.render.call(this, record, ind, col_ind, data));
                     if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') {
