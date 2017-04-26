@@ -56,6 +56,7 @@
         this.tabs        = {};       // if not empty, then it is tabs object
         this.style       = '';
         this.focus       = 0;        // focus first or other element
+        this.autosize    = true;     // autosize
         // When w2utils.settings.dataType is JSON, then we can convert the save request to multipart/form-data. So we can upload large files with the form
         // The original body is JSON.stringified to __body
         this.multipart   = false;
@@ -955,17 +956,20 @@
             var buttons = $(this.box).find('> div .w2ui-buttons');
             // if no height, calculate it
             resizeElements();
-            if (parseInt($(this.box).height()) === 0 || $(this.box).data('auto-size') === true) {
-                $(this.box).height(
-                    (header.length > 0 ? w2utils.getSize(header, 'height') : 0) +
-                    ((typeof this.tabs === 'object' && $.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) ? w2utils.getSize(tabs, 'height') : 0) +
-                    ((typeof this.toolbar == 'object' && $.isArray(this.toolbar.items) && this.toolbar.items.length > 0) ? w2utils.getSize(toolbar, 'height') : 0) +
-                    (page.length > 0 ? w2utils.getSize(dpage, 'height') + w2utils.getSize(cpage, '+height') + 12 : 0) +  // why 12 ???
-                    (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0)
-                );
-                $(this.box).data('auto-size', true);
+            if (this.autosize) {    //we dont need autosize everytime
+                if (parseInt($(this.box).height()) === 0 || $(this.box).data('auto-size') === true) {
+                    $(this.box).height(
+                        (header.length > 0 ? w2utils.getSize(header, 'height') : 0) +
+                        ((typeof this.tabs === 'object' && $.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) ? w2utils.getSize(tabs, 'height') : 0) +
+                        ((typeof this.toolbar == 'object' && $.isArray(this.toolbar.items) && this.toolbar.items.length > 0) ? w2utils.getSize(toolbar, 'height') : 0) +
+                        (page.length > 0 ? w2utils.getSize(dpage, 'height') + w2utils.getSize(cpage, '+height') + 12 : 0) +  // why 12 ???
+                        (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0)
+                    );
+                    $(this.box).data('auto-size', true);
+                }
+                resizeElements();
             }
-            resizeElements();
+
             if (this.toolbar && this.toolbar.resize) this.toolbar.resize();
             if (this.tabs && this.tabs.resize) this.tabs.resize();
             // event after
