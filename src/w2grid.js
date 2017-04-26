@@ -2486,6 +2486,12 @@
                                     this.records.push(data.records[r]);
                                 }
                             }
+                            // columns
+                            if (data.columns) {
+                                for (var r = 0; r < data.columns.length; r++) {
+                                    this.columns.push(data.columns[r]);
+                                }
+                            }
                             // summary records (if any)
                             if (data.summary) {
                                 this.summary = [];
