@@ -19420,7 +19420,11 @@ var w2prompt = function (label, title, callBack) {
                     if (this.type == 'checkbox') val = this.checked ? true : false;
                     if (this.type == 'radio') {
                         field.$el.each(function (index, el) {
-                            if (el.checked) val = el.value;
+                            if (el.checked) {
+                                var item = field.options.items.find(function(item){return item.id==el.value});
+                                if (item && item.id!=item.text) val = item;
+                                else val = el.value;
+                            }
                         });
                     }
                     if (['int', 'float', 'percent', 'money', 'currency', 'list', 'combo', 'enum', 'file', 'toggle'].indexOf(field.type) != -1) {
@@ -19558,7 +19562,7 @@ var w2prompt = function (label, title, callBack) {
                         break;
                     case 'radio':
                         $(field.$el).prop('checked', false).each(function (index, el) {
-                            if ($(el).val() == value) $(el).prop('checked', true);
+                            if ($(el).val() == value || $(el).val() == value.id) $(el).prop('checked', true);
                         });
                         break;
                     case 'checkbox':
