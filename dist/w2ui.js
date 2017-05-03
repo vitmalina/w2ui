@@ -147,7 +147,7 @@ var w2utils = (function ($) {
     }
 
     function isHex (val) {
-        var re = /^[a-fA-F0-9]+$/;
+        var re = /^(0x)?[0-9a-fA-F]+$/;
         return re.test(val);
     }
 
@@ -157,7 +157,7 @@ var w2utils = (function ($) {
     }
 
     function isEmail (val) {
-        var email = /^[-a-zA-Z0-9._%-+]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+        var email = /^[a-zA-Z0-9._%-]+@[а-яА-Яa-zA-Z0-9.-]+\.[а-яА-Яa-zA-Z]+$/;
         return email.test(val);
     }
 
@@ -3011,7 +3011,7 @@ w2utils.event = {
             .on('mousedown.w2color', function (event) {
                 var color = $(event.originalEvent.target).attr('name'); // should not have #
                 index = $(event.originalEvent.target).attr('index').split(':');
-                if (el.tagName == 'INPUT') {
+                if (el.tagName.toUpperCase() == 'INPUT') {
                     if (options.fireChange) $(el).change();
                     $(el).next().find('>div').css('background-color', color);
                 } else {
@@ -3104,7 +3104,7 @@ w2utils.event = {
                 }
             });
             if (!silent) {
-                if (el.tagName == 'INPUT') {
+                if (el.tagName.toUpperCase() == 'INPUT') {
                     $(el).val(newColor).data('skipInit', true);
                     if (options.fireChange) $(el).change();
                     $(el).next().find('>div').css('background-color', newColor);
@@ -6212,7 +6212,7 @@ w2utils.event = {
                     if (tmp.length > 0) {
                         tmp.focus();
                         clearTimeout(obj.last.kbd_timer); // keep focus
-                        if (tmp[0].tagName != 'SELECT') w2utils.setCursorPosition(tmp[0], len);
+                        if (tmp[0].tagName.toUpperCase() != 'SELECT') w2utils.setCursorPosition(tmp[0], len);
                         tmp[0].resize = expand;
                         expand.call(tmp[0], null);
                     }
@@ -8325,8 +8325,8 @@ w2utils.event = {
             // event before
             var edata = this.trigger({ phase: 'before', target: this.name, type: 'destroy' });
             if (edata.isCancelled === true) return;
-            // remove events
-            $(window).off('resize.w2ui-'+ this.name);
+            // remove all events
+            $(this.box).off();
             // clean up
             if (typeof this.toolbar == 'object' && this.toolbar.destroy) this.toolbar.destroy();
             if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
@@ -19701,3 +19701,5 @@ var w2prompt = function (label, title, callBack) {
     $.extend(w2form.prototype, w2utils.event);
     w2obj.form = w2form;
 })(jQuery);
+
+//# sourceMappingURL=w2ui.js.map
