@@ -1726,6 +1726,7 @@
             if (sel.length >= 1) this.toolbar.enable('w2ui-delete'); else this.toolbar.disable('w2ui-delete');
             this.addRange('selection');
             $('#grid_'+ this.name +'_check_all').prop('checked', true);
+            this.status();
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
@@ -1757,6 +1758,7 @@
             this.toolbar.disable('w2ui-edit', 'w2ui-delete');
             this.removeRange('selection');
             $('#grid_'+ this.name +'_check_all').prop('checked', false);
+            this.status();
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
