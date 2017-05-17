@@ -2423,6 +2423,7 @@ w2utils.event = {
         );
         // init
         var div1 = $('#w2ui-overlay'+ name);
+        div1[0].parenttag = this[0];   //to find parent overlay
         var div2 = div1.find(' > div');
         div2.html(options.html);
         // pick bg color of first div
@@ -2436,6 +2437,7 @@ w2utils.event = {
             .fadeIn('fast')
             .on('click', function (event) {
                 $('#w2ui-overlay'+ name).data('keepOpen', true);
+                $(this.parenttag).closest('.w2ui-overlay').data('keepOpen',true);   //keep open the parent overlay
                 // if there is label for input, it will produce 2 click events
                 if (event.target.tagName.toUpperCase() == 'LABEL') event.stopPropagation();
             })
@@ -3907,7 +3909,10 @@ w2utils.event = {
                     var focus = obj.helpers.focus.find('input');
                     if ($(focus).val() === '') {
                         $(focus).css('text-indent', '-9999em').prev().css('opacity', 0);
-                        $(obj.el).val(selected && selected.text != null ? w2utils.lang(selected.text) : '');
+
+                        if (options.renderItem) 
+                            $(obj.el).val(options.renderItem(selected));
+                        else $(obj.el).val(selected && selected.text != null ? w2utils.lang(selected.text) : '');
                     } else {
                         $(focus).css('text-indent', 0).prev().css('opacity', 1);
                         $(obj.el).val('');
@@ -4958,9 +4963,10 @@ w2utils.event = {
                             if ($(this).next().hasClass('w2ui-calendar-jump')) {
                                 $(this).next().remove();
                             } else {
-                                var selYear, selMonth;
+                                var selYear = year;
+                                var selMonth;
                                 $(this).after('<div class="w2ui-calendar-jump" style=""></div>');
-                                $(this).next().hide().html(obj.getYearHTML()).fadeIn(200);
+                                $(this).next().hide().html(obj.getYearHTML(month,year)).fadeIn(200);
                                 setTimeout(function () {
                                     $('#w2ui-overlay .w2ui-calendar-jump')
                                         .find('.w2ui-jump-month, .w2ui-jump-year')
@@ -5083,7 +5089,8 @@ w2utils.event = {
                             if ($(this).next().hasClass('w2ui-calendar-jump')) {
                                 $(this).next().remove();
                             } else {
-                                var selYear, selMonth;
+                                var selYear = year;
+                                var selMonth;
                                 $(this).after('<div class="w2ui-calendar-jump" style=""></div>');
                                 $(this).next().hide().html(obj.getYearHTML()).fadeIn(200);
                                 setTimeout(function () {
@@ -5249,7 +5256,7 @@ w2utils.event = {
                                 }
                             } else {
                                 $(obj.el).data('selected', event.item).val(event.item.text).change();
-                                if (obj.helpers.focus) obj.helpers.focus.find('input').val('');
+                                if (obj.helpers.focus) obj.helpers.focus.find('input').val('');                                
                             }
                         }
                     }));
@@ -5938,17 +5945,17 @@ w2utils.event = {
             return html;
         },
 
-        getYearHTML: function () {
+        getYearHTML: function (month,year) {
             var months = w2utils.settings.shortmonths;
             var start_year = w2utils.settings.dateStartYear;
             var end_year = w2utils.settings.dateEndYear;
             var mhtml  = '';
             var yhtml  = '';
             for (var m = 0; m < months.length; m++) {
-                mhtml += '<div class="w2ui-jump-month" name="'+ m +'">'+ months[m] + '</div>';
+                mhtml += '<div class="w2ui-jump-month '+(month==m+1?'selected':'')+'" name="'+ m +'">'+ months[m] + '</div>';
             }
             for (var y = start_year; y <= end_year; y++) {
-                yhtml += '<div class="w2ui-jump-year" name="'+ y +'">'+ y + '</div>';
+                yhtml += '<div class="w2ui-jump-year '+(year==y?'selected':'')+'" name="'+ y +'">'+ y + '</div>';
             }
             return '<div id="w2ui-jump-month">'+ mhtml +'</div><div id="w2ui-jump-year">'+ yhtml +'</div>';
         },

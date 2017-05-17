@@ -19136,14 +19136,25 @@ var w2prompt = function (label, title, callBack) {
             var page;
             var column;
             var html;
+            var row;
             for (var f = 0; f < this.fields.length; f++) {
                 html = '';
                 var field = this.fields[f];
                 if (field.html == null) field.html = {};
                 if (field.options == null) field.options = {};
-                field.html = $.extend(true, { caption: '', span: 6, attr: '', text: '', style: '', page: 0, column: 0 }, field.html);
+                field.html = $.extend(true, { 
+                    caption: '', 
+                    span: 6, 
+                    attr: '', 
+                    text: '', 
+                    style: '', 
+                    page: 0, 
+                    column: 0,
+                    row: 0  //columns are now in rows, you can use table layout in generated forms
+                }, field.html);
                 if (page == null) page = field.html.page;
                 if (column == null) column = field.html.column;
+                if (row == null) column = field.html.row;
                 if (field.html.caption === '') field.html.caption = field.name;
                 // input control
                 var input = '<input name="'+ field.name +'" class="w2ui-input" type="text" '+ field.html.attr +' tabindex="'+ (f+1) +'"/>';
@@ -19197,9 +19208,10 @@ var w2prompt = function (label, title, callBack) {
                         break;
 
                 }
+                //Structuring page, group, column, field, columnbreak
                 if (group !== ''){
-                    if(page != field.html.page || column != field.html.column || (field.html.group && (group != field.html.group))){
-                       pages[page][column]  += '\n   </div>';
+                    if(page != field.html.page || (row == field.html.row && column != field.html.column) || row != field.html.row || (field.html.group && (group != field.html.group))){
+                       pages[page][row][column]  += '\n   </div>';
                        group = '';
                     }
                 }
@@ -19207,17 +19219,18 @@ var w2prompt = function (label, title, callBack) {
                     html += '\n   <div class="w2ui-group-title">'+ field.html.group + '</div>\n   <div class="w2ui-group">';
                     group = field.html.group;
                 }
-                html += '\n      <div class="w2ui-field '+ (field.html.span != null ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+
+                html += '\n      <div class="w2ui-field-container"><div class="w2ui-field '+ (field.html.span != null ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+
                         '\n         <label>' + w2utils.lang(field.html.caption) +'</label>'+
                         '\n         <div>'+ input + w2utils.lang(field.html.text) + '</div>'+
-                        '\n      </div>';
+                        '\n      </div></div>';
                 if (pages[field.html.page] == null) pages[field.html.page] = [];
-                if (pages[field.html.page][field.html.column] == null) pages[field.html.page][field.html.column] = '';
-                pages[field.html.page][field.html.column] += html;
+                if (pages[field.html.page][field.html.row] == null) pages[field.html.page][field.html.row] = [];
+                if (pages[field.html.page][field.html.row][field.html.column] == null) pages[field.html.page][field.html.row][field.html.column] = '';
+                pages[field.html.page][field.html.row][field.html.column] += html;
                 page = field.html.page;
                 column = field.html.column;
             }
-            if (group !== '') pages[page][column] += '\n   </div>';
+            if (group !== '') pages[page][row][column] += '\n   </div>';
             if (this.tabs.tabs) {
                 for (var i = 0; i < this.tabs.tabs.length; i++) if (pages[i] == null) pages[i] = [];
             }
@@ -19245,8 +19258,12 @@ var w2prompt = function (label, title, callBack) {
             html = '';
             for (var p = 0; p < pages.length; p++){
                 html += '<div class="w2ui-page page-'+ p +'" ' + ((p===0)?'':'style="display: none;"') + '><div class="w2ui-column-container" style="display: flex;">';
-                for (var c = 0; c < pages[p].length; c++){
-                    html += '<div class="w2ui-column col-'+ c +'">' + (pages[p][c] || '') + '\n</div>';
+                for (var r = 0; r < pages[p].length; r++){
+                    html+='<div class="w2ui-row row-'+r+'">\n';
+                    for (var c = 0; c < pages[p][r].length; c++){
+                        html += '<div class="w2ui-column col-'+ c +'"><div class="w2ui-field-group">' + (pages[p][r][c] || '') + '\n</div></div>';
+                    }
+                    html+='\n</div>';
                 }
                 html += '\n</div></div>';
             }
