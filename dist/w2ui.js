@@ -19154,7 +19154,7 @@ var w2prompt = function (label, title, callBack) {
                 }, field.html);
                 if (page == null) page = field.html.page;
                 if (column == null) column = field.html.column;
-                if (row == null) column = field.html.row;
+                if (row == null) row = field.html.row;
                 if (field.html.caption === '') field.html.caption = field.name;
                 // input control
                 var input = '<input name="'+ field.name +'" class="w2ui-input" type="text" '+ field.html.attr +' tabindex="'+ (f+1) +'"/>';
