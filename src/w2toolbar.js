@@ -570,6 +570,14 @@
                 el.html(html);
                 if (it.hidden) { el.css('display', 'none'); } else { el.css('display', ''); }
                 if (it.disabled) { el.addClass('disabled'); } else { el.removeClass('disabled'); }
+                if (it.type == 'check' || it.type == 'drop' || it.type == 'menu') {
+                    var btn = '#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button';
+                    if (it.checked) {
+                        $(btn).addClass('checked');
+                    } else {
+                        $(btn).removeClass('checked');
+                    }
+                }                
             }
             // event after
             if (typeof it.onRefresh == 'function') {
