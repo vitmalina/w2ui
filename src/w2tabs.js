@@ -123,6 +123,10 @@
             this.resize();
             return removed;
         },
+        
+        clear: function () {
+          this.tabs = [];
+        },
 
         select: function (id) {
             if (this.active == id || this.get(id) == null) return false;
