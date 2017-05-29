@@ -509,34 +509,42 @@
             // search records
             if ($.isArray(recid)) {
                 var recs = [];
-                for (var i = 0; i < this.records.length; i++) {
-                    if ($.inArray(this.records[i].recid, recid) != -1) {
-                        if (returnIndex === true) {
-                            recs.push(i);
-                        } else {
-                            recs.push(this.records[i]);
-                        }
-                    }
-                }
-                for (var i = 0; i < this.summary.length; i++) {
-                    if ($.inArray(this.summary[i].recid, recid) != -1) {
-                        if (returnIndex === true) {
-                            recs.push(i);
-                        } else {
-                            recs.push(this.summary[i]);
-                        }
-                    }
+                for (var i = 0; i < recid.length; i++) {
+                    var v = this.get(recid[i], returnIndex);
+                    if (v !== null)
+                        recs.push(v);
                 }
                 return recs;
             } else {
+                // get() must be fast, implements a cache to bypass loop over all records
+                // most of the time.
+                var idCache = this.last.idCache;
+                if (!idCache) {
+                    this.last.idCache = idCache = {};
+                }
+                var i = idCache[recid];
+                if (typeof(i) === "number") {
+                    if (i >= 0 && i < this.records.length && this.records[i].recid == recid) {
+                        if (returnIndex === true) return i; else return this.records[i];
+                    }
+                    // summary indexes are stored as negative numbers, try them now.
+                    i = ~i;
+                    if (i >= 0 && i < this.summary.length && this.summary[i].recid == recid) {
+                        if (returnIndex === true) return i; else return this.summary[i];
+                    }
+                    // wrong index returned, clear cache
+                    this.last.idCache = idCache = {};
+                }
                 for (var i = 0; i < this.records.length; i++) {
                     if (this.records[i].recid == recid) {
+                        idCache[recid] = i;
                         if (returnIndex === true) return i; else return this.records[i];
                     }
                 }
                 // search summary
                 for (var i = 0; i < this.summary.length; i++) {
                     if (this.summary[i].recid == recid) {
+                        idCache[recid] = ~i;
                         if (returnIndex === true) return i; else return this.summary[i];
                     }
                 }
@@ -2214,6 +2222,7 @@
             this.records          = [];
             this.summary          = [];
             this.last.xhr_offset  = 0;   // need this for reload button to work on remote data set
+            this.last.idCache     = {};  // optimization to free memory
             this.reset(true);
             // refresh
             if (!noRefresh) this.refresh();
