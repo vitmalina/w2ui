@@ -2734,7 +2734,7 @@
                         val = w2utils.formatNumber(val);
                     }
                     if (edit.type == 'date') {
-                        val = w2utils.formatDate(w2utils.isDate(val, edit.format, true), edit.format);
+                        val = w2utils.formatDate(w2utils.isDate(val, edit.format, true) || new Date(), edit.format);
                     }
                     if (value == null) el.find('input').val(typeof val != 'object' ? val : '');
                     // init w2field
