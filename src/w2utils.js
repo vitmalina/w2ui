@@ -1973,7 +1973,7 @@ w2utils.event = {
             if ((t.edata.type === edata.type || edata.type === '*' || (t.edata.scope != null && edata.type == '')) &&
                 (t.edata.target === edata.target || edata.target == null) &&
                 (t.edata.execute === edata.execute || edata.execute == null) &&
-                (t.handler === handler || handler == null || (scope != null && t.edata.scope == scope)))
+                ((t.handler === handler && handler != null) || (scope != null && t.edata.scope == scope)))
             {
                 // match
             } else {
