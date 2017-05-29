@@ -1,3 +1,4 @@
+<link rel="stylesheet" type="text/css" href="../summary.css"/> 
 <div class="container">
 <div class="obj-property">
     <a href="w2grid.add">add</a> <span>- add(record, [first])</span>
@@ -122,7 +123,7 @@
     <a href="w2grid.get">get</a> <span>- get(recid, [returnIndex])</span>
 </div>
 <div class="obj-property-desc">
-    Finds the record and returns its object or index in records array.
+    Finds the record and returns its object or index in records array. 
 </div>
 
 <div class="obj-property">
@@ -140,7 +141,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.getChanges">getChanges</a> <span>- getChanges()</span>
+    <a href="w2grid.getChanges">getChanges</a> <span>- getChanges([recordsBase])</span>
 </div>
 <div class="obj-property-desc">
     Returns array of changed record objects.
@@ -150,7 +151,7 @@
     <a href="w2grid.getColumn">getColumn</a> <span>- getColumn(field, [returnIndex])</span>
 </div>
 <div class="obj-property-desc">
-    Finds the column and returns its object or index in columns array.
+    Finds the column and returns its object or index in columns array. 
 </div>
 
 <div class="obj-property">
@@ -192,7 +193,7 @@
     <a href="w2grid.getSearch">getSearch</a> <span>- getSearch(field, [returnIndex])</span>
 </div>
 <div class="obj-property-desc">
-    Finds the search and returns its object or index in searches array.
+    Finds the search and returns its object or index in searches array. 
 </div>
 
 <div class="obj-property">
@@ -444,7 +445,7 @@
     <a href="w2grid.reset">reset</a> <span>- reset([noRefresh])</span>
 </div>
 <div class="obj-property-desc">
-    Resets the grid to the initial state.
+    Resets the grid to the initial state. 
 </div>
 
 <div class="obj-property">
@@ -542,7 +543,7 @@
     <a href="w2grid.set">set</a> <span>- set([recid], record, [noRefresh])</span>
 </div>
 <div class="obj-property-desc">
-    Finds the record and extends it with provided object.
+    Finds the record and extends it with provided object. 
 </div>
 
 <div class="obj-property">

@@ -1,3 +1,4 @@
+<link rel="stylesheet" type="text/css" href="../summary.css"/> 
 <div class="container">
 <div class="obj-property">
     <a href="w2grid.onAdd">onAdd</a> <span>- function (event)</span>
@@ -25,6 +26,13 @@
 </div>
 <div class="obj-property-desc">
     Called when user collapses expandable record.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.onColumnAutoResize">onColumnAutoResize</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when user triggers automatic resizing by double clicking a column resizer.
 </div>
 
 <div class="obj-property">

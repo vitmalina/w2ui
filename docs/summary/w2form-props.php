@@ -1,3 +1,4 @@
+<link rel="stylesheet" type="text/css" href="../summary.css"/> 
 <div class="container">
 <div class="obj-property">
     <a href="w2form.actions">actions</a> <span>- Object, default = {}</span>
@@ -38,7 +39,7 @@
     <a href="w2form.header">header</a> <span>- String, default = ''</span>
 </div>
 <div class="obj-property-desc">
-    The header of the form.
+    The header of the form. 
 </div>
 
 <div class="obj-property">
