@@ -1974,7 +1974,7 @@ w2utils.event = {
             if ((t.edata.type === edata.type || edata.type === '*' || (t.edata.scope != null && edata.type == '')) &&
                 (t.edata.target === edata.target || edata.target == null) &&
                 (t.edata.execute === edata.execute || edata.execute == null) &&
-                (t.handler === handler || handler == null || (scope != null && t.edata.scope == scope)))
+                ((t.handler === handler && handler != null) || (scope != null && t.edata.scope == scope)))
             {
                 // match
             } else {
@@ -5054,6 +5054,7 @@ w2utils.event = {
             if (sel.length >= 1) this.toolbar.enable('w2ui-delete'); else this.toolbar.disable('w2ui-delete');
             this.addRange('selection');
             $('#grid_'+ this.name +'_check_all').prop('checked', true);
+            this.status();
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
@@ -5085,6 +5086,7 @@ w2utils.event = {
             this.toolbar.disable('w2ui-edit', 'w2ui-delete');
             this.removeRange('selection');
             $('#grid_'+ this.name +'_check_all').prop('checked', false);
+            this.status();
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
@@ -6060,7 +6062,7 @@ w2utils.event = {
                         val = w2utils.formatNumber(val);
                     }
                     if (edit.type == 'date') {
-                        val = w2utils.formatDate(w2utils.isDate(val, edit.format, true), edit.format);
+                        val = w2utils.formatDate(w2utils.isDate(val, edit.format, true) || new Date(), edit.format);
                     }
                     if (value == null) el.find('input').val(typeof val != 'object' ? val : '');
                     // init w2field
@@ -19701,5 +19703,3 @@ var w2prompt = function (label, title, callBack) {
     $.extend(w2form.prototype, w2utils.event);
     w2obj.form = w2form;
 })(jQuery);
-
-//# sourceMappingURL=w2ui.js.map
