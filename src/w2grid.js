@@ -107,6 +107,7 @@
     }
 *   - added this.show.toolbarInput
 *   - disableCVS
+*   - added useFieldDot: use field name containing dots as separator to look into objects
 *   - grid.message
 *   - added noReset option to localSort()
 *   - onColumnSelect
@@ -201,6 +202,7 @@
         this.columnTooltip   = 'normal'; // can be normal, top, bottom, left, right
         this.disableCVS      = false;    // disable Column Virtual Scroll
         this.textSearch      = 'begins'; // default search type for text
+        this.useFieldDot     = true;     // use field name containing dots as separator to look into object
 
         this.total   = 0;     // server total
         this.limit   = 100;
@@ -7499,17 +7501,21 @@
         },
 
         parseField: function (obj, field) {
-            var val = '';
-            try { // need this to make sure no error in fields
-                val = obj;
-                var tmp = String(field).split('.');
-                for (var i = 0; i < tmp.length; i++) {
-                    val = val[tmp[i]];
+            if (this.useFieldDot) {
+                var val = '';
+                try { // need this to make sure no error in fields
+                    val = obj;
+                    var tmp = String(field).split('.');
+                    for (var i = 0; i < tmp.length; i++) {
+                        val = val[tmp[i]];
+                    }
+                } catch (event) {
+                    val = '';
                 }
-            } catch (event) {
-                val = '';
+                return val;
+            } else {
+                return obj ? obj[field] : '';
             }
-            return val;
         },
 
         prepareData: function () {
