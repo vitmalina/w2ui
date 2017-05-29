@@ -5,7 +5,7 @@ Map of indicators which elements of the grid are visible.
 </div>
 
 Some grid elements are shown by default, for example column headers, but most of them are hidden. You can set them during
-the object creation: 
+the object creation:
 
 <textarea class="javascript">
 $('#grid').w2grid({
@@ -13,9 +13,9 @@ $('#grid').w2grid({
     show : {
         header : true,
         footer : true,
-        toolbar: true        
+        toolbar: true
     },
-    columns: [                
+    columns: [
         { field: 'recid', caption: 'ID', size: '50px' },
         { field: 'lname', caption: 'Last Name', size: '30%' },
         { field: 'fname', caption: 'First Name', size: '30%' },
@@ -42,23 +42,36 @@ w2ui['grid'].refresh();
 The map and its default values are:
 <textarea class="javascript">
 show = {
-    header         : false,  // indicates if header is visible
-    toolbar        : false,  // indicates if toolbar is visible
-    footer         : false,  // indicates if footer is visible
-    columnHeaders  : true,   // indicates if columns is visible
-    lineNumbers    : false,  // indicates if line numbers column is visible
-    expandColumn   : false,  // indicates if expand column is visible
-    selectColumn   : false,  // indicates if select column is visible
-    emptyRecords   : true,   // indicates if empty records are visible
-    toolbarReload  : true,   // indicates if toolbar reload button is visible
-    toolbarColumns : true,   // indicates if toolbar columns button is visible
-    toolbarSearch  : true,   // indicates if toolbar search controls are visible
-    toolbarAdd     : true,   // indicates if toolbar add new button is visible
-    toolbarEdit    : true,   // indicates if toolbar edit button is visible
-    toolbarDelete  : true,   // indicates if toolbar delete button is visible
-    toolbarSave    : true,   // indicates if toolbar save button is visible
-    selectionBorder: true,   // display border around selection (for selectType = 'cell')
-    recordTitles   : true,   // indicates if to define titles for records
-    skipRecords    : true    // indicates if skip records should be visible
+    header           : false,  // indicates if header is visible
+    toolbar          : false,  // indicates if toolbar is visible
+    footer           : false,  // indicates if footer is visible
+    columnHeaders    : true,   // indicates if columns is visible
+    lineNumbers      : false,  // indicates if line numbers column is visible
+    expandColumn     : false,  // indicates if expand column is visible
+    selectColumn     : false,  // indicates if select column is visible
+    emptyRecords     : true,   // indicates if empty records are visible
+    toolbarReload    : true,   // indicates if toolbar reload button is visible
+    toolbarColumns   : true,   // indicates if toolbar columns button is visible
+    toolbarSearch    : true,   // indicates if toolbar search controls are visible
+    toolbarInput     : true,   // indicates if to show search input
+    toolbarAdd       : true,   // indicates if toolbar add new button is visible
+    toolbarEdit      : true,   // indicates if toolbar edit button is visible
+    toolbarDelete    : true,   // indicates if toolbar delete button is visible
+    toolbarSave      : true,   // indicates if toolbar save button is visible
+    selectionBorder  : true,   // display border around selection (for selectType = 'cell')
+    recordTitles     : true,   // indicates if to define titles for records
+    searchAll        : true,   // indiccates if to enable search by all fields
+    skipRecords      : true    // indicates if skip records should be visible,
+    statusRange      : true,
+    statusBuffered   : false,
+    statusRecordID   : true,
+    statusSelection  : true,
+    statusResponse   : true,
+    statusSort       : false,
+    statusSearch     : false,
+    saveRestoreState : false
+
+
+
 }
 </textarea>
