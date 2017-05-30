@@ -1823,7 +1823,7 @@ w2utils.formatters = {
 
     'money': function (value, params) {
         if (value == null || value === '') return '';
-        var data = w2utils.formatNumber(Number(value), w2utils.settings.currencyPrecision || 2);
+        var data = w2utils.formatNumber(Number(value), w2utils.settings.currencyPrecision===0?0:w2utils.settings.currencyPrecision || 2 );
         return (w2utils.settings.currencyPrefix || '') + data + (w2utils.settings.currencySuffix || '');
     },
 

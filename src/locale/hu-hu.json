@@ -5,6 +5,7 @@
     "currency"       : "^[\\$]?[-+]?[0-9]*[\\.]?[0-9]+$",
     "currencyPrefix" : "",
     "currencySuffix" : " Ft",
+    "currencyPrecision": 0,
     "groupSymbol"    : ",",
     "decimalSymbol"  : ".",
     "float"          : "^[-]?[0-9]*[\\.]?[0-9]+$",
