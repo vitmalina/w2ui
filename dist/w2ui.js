@@ -4691,7 +4691,7 @@ w2utils.event = {
                 if (td1.length > 0 || td2.length > 0) {
                     if ($range.length === 0) {
                         rec2.append('<div id="grid_'+ this.name +'_' + rg.name +'" class="w2ui-selection" style="'+ rg.style +'">'+
-                                        (rg.name == 'selection' ?  '<div id="grid_'+ this.name +'_resizer" class="w2ui-selection-resizer"></div>' : '')+
+                                        (rg.name == 'selection' && obj.multiSelect ?  '<div id="grid_'+ this.name +'_resizer" class="w2ui-selection-resizer"></div>' : '')+
                                     '</div>');
                         $range = $('#grid_'+ this.name +'_'+ rg.name);
                     } else {
@@ -5971,7 +5971,7 @@ w2utils.event = {
             // clear previous if any
             $(this.box).find('div.w2ui-edit-box').remove();
             // for spreadsheet - insert into selection
-            if (this.selectType != 'row') {
+            if (this.selectType == 'cell') {
                 $('#grid_'+ this.name + prefix + 'selection')
                     .attr('id', 'grid_'+ this.name + '_editable')
                     .removeClass('w2ui-selection')
@@ -7913,7 +7913,7 @@ w2utils.event = {
                       '    <div id="grid_'+ this.name +'_footer" class="w2ui-grid-footer"></div>'+
                       '    <textarea id="grid_'+ this.name +'_focus" class="w2ui-grid-focus-input"></textarea>'+
                       '</div>');
-            if (this.selectType != 'row') $(this.box).addClass('w2ui-ss');
+            if (this.selectType == 'cell') $(this.box).addClass('w2ui-ss');
             if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
             // init toolbar
             this.initToolbar();
@@ -8212,23 +8212,25 @@ w2utils.event = {
                         }
                     }
                     if (obj.selectType != 'row') {
-                        var sel = obj.getSelection();
-                        // add more items
-                        var tmp = [];
-                        for (var ns = 0; ns < newSel.length; ns++) {
-                            var flag = false;
-                            for (var s = 0; s < sel.length; s++) if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true;
-                            if (!flag) tmp.push({ recid: newSel[ns].recid, column: newSel[ns].column });
+                        if (obj.multiSelect && !obj.selectType == 'rowcell') {
+                            var sel = obj.getSelection();
+                            // add more items
+                            var tmp = [];
+                            for (var ns = 0; ns < newSel.length; ns++) {
+                                var flag = false;
+                                for (var s = 0; s < sel.length; s++) if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true;
+                                if (!flag) tmp.push({ recid: newSel[ns].recid, column: newSel[ns].column });
+                            }
+                            obj.select.apply(obj, tmp);
+                            // remove items
+                            var tmp = [];
+                            for (var s = 0; s < sel.length; s++) {
+                                var flag = false;
+                                for (var ns = 0; ns < newSel.length; ns++) if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true;
+                                if (!flag) tmp.push({ recid: sel[s].recid, column: sel[s].column });
+                            }
+                            obj.unselect.apply(obj, tmp);
                         }
-                        obj.select.apply(obj, tmp);
-                        // remove items
-                        var tmp = [];
-                        for (var s = 0; s < sel.length; s++) {
-                            var flag = false;
-                            for (var ns = 0; ns < newSel.length; ns++) if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true;
-                            if (!flag) tmp.push({ recid: sel[s].recid, column: sel[s].column });
-                        }
-                        obj.unselect.apply(obj, tmp);
                     } else {
                         if (obj.multiSelect) {
                             var sel = obj.getSelection();

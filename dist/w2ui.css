@@ -1961,7 +1961,7 @@ button.w2ui-btn-small:focus:before {
 .w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-odd,
 .w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-odd {
   color: inherit;
-  background-color: #ffffff;
+  background-color: rgb(255, 255, 255);
 }
 .w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-odd:hover,
 .w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-odd:hover,
@@ -1977,7 +1977,7 @@ button.w2ui-btn-small:focus:before {
 .w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-even,
 .w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-even {
   color: inherit;
-  background-color: #f3f6fa;
+  background-color: rgb(243, 246, 250);
 }
 .w2ui-grid .w2ui-grid-body .w2ui-grid-records table tr.w2ui-even:hover,
 .w2ui-grid .w2ui-grid-body .w2ui-grid-frecords table tr.w2ui-even:hover,
@@ -2257,6 +2257,7 @@ button.w2ui-btn-small:focus:before {
   height: 100% !important;
   margin: 0px !important;
   padding: 0px !important;
+  /* background-color: rgb(255,255,255); */
 }
 .w2ui-grid .w2ui-editable input {
   border: 0px;
