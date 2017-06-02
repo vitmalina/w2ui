@@ -5046,7 +5046,7 @@
             for (var c = 0; c < this.columns.length; c++) {
                 var col = this.columns[c];
                 var tmp = this.columns[c].caption;
-                if (col.hideable === false) continue;
+                if (col.hidden === true) continue;
                 if (!tmp && this.columns[c].tooltip) tmp = this.columns[c].tooltip;
                 if (!tmp) tmp = '- column '+ (parseInt(c) + 1) +' -';
                 col_html +=
