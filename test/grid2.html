@@ -8,6 +8,7 @@
 <script type="text/javascript" src="../src/w2fields.js"></script>
 <script type="text/javascript" src="../src/w2popup.js"></script>
 <script type="text/javascript" src="../src/w2grid.js"></script>
+<!-- <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.4.3.js"></script> -->
 <script>
 //<![CDATA[
 $(function () {
@@ -38,6 +39,15 @@ $(function () {
             toolbarSave: true,
             toolbarAdd: true
         },
+        onClick: function (event) {
+            var tg = $(event.originalEvent.target);
+            if (tg[0].tagName == 'DIV') tg = tg.parents('td');
+            if (tg.hasClass('w2ui-col-select')) {
+                console.log('clicked on select row checkbox');
+            }
+        },
+        onSelect: function () {
+        },
         // selectType: 'cell',
         columns: [
             { field: 'recid', caption: 'ID', size: '80px', sortable: true, searchable: 'int', frozen: true },
@@ -53,9 +63,9 @@ $(function () {
             { field: 'date', caption: 'date', size: '80px', sortable: true, resizable: true, editable: { type: 'date' } },
             { field: 'time', caption: 'time', size: '80px', sortable: true, resizable: true, editable: { type: 'time' } },
             { field: 'list', caption: 'list', size: '50%', sortable: true, resizable: true,
-                editable: { type: 'list', items: people }
+                editable: { type: 'list', align: 'left', items: people }
             },
-            { field: 'combo', caption: 'combo', size: '50%', sortable: true, resizable: true, editable: { type: 'combo', items: people } },
+            { field: 'combo', caption: 'combo1', size: '50%', sortable: true, resizable: true, editable: { align: 'left', type: 'combo', items: people } },
             { field: 'select', caption: 'select', size: '100px', sortable: true, resizable: true,
                 editable: { type: 'select', items: people },
                 render: function (record, index, col_index) {

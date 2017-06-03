@@ -287,6 +287,8 @@
                         silent          : true,
                         icon            : null,
                         iconStyle       : '',
+                        align           : 'both',       // same width as control
+                        altRows         : true,         // alternate row color
                         onSearch        : null,         // when search needs to be performed
                         onRequest       : null,         // when request is submitted
                         onLoad          : null,         // when data is received
@@ -317,10 +319,7 @@
                         }
                         this.watchSize();
                     }
-                    options = $.extend({}, defaults, options, {
-                        align   : 'both',      // same width as control
-                        altRows : true         // alternate row color
-                    });
+                    options = $.extend({}, defaults, options);
                     this.options = options;
                     if (!$.isPlainObject(options.selected)) options.selected = {};
                     $(this.el).data('selected', options.selected);
@@ -355,6 +354,8 @@
                         maxDropWidth    : null,          // if null then auto set
                         match           : 'contains',    // ['contains', 'is', 'begins', 'ends']
                         silent          : true,
+                        align           : 'both',        // same width as control
+                        altRows         : true,          // alternate row color
                         openOnFocus     : false,         // if to show overlay onclick or when typing
                         markSearch      : true,
                         renderDrop      : null,          // render function for drop down item
@@ -374,11 +375,7 @@
                         onMouseOut      : null,          // when an item is mouse out
                         onScroll        : null           // when div with selected items is scrolled
                     };
-                    options = $.extend({}, defaults, options, {
-                        align    : 'both',    // same width as control
-                        suffix   : '',
-                        altRows  : true       // alternate row color
-                    });
+                    options = $.extend({}, defaults, options, { suffix: '' });
                     options.items    = this.normMenu(options.items);
                     options.selected = this.normMenu(options.selected);
                     this.options = options;
@@ -405,6 +402,8 @@
                         maxDropWidth  : null,     // if null then auto set
                         readContent   : true,     // if true, it will readAsDataURL content of the file
                         silent        : true,
+                        align         : 'both',   // same width as control
+                        altRows       : true,     // alternate row color
                         renderItem    : null,     // render selected item
                         style         : '',       // style for container div
                         onClick       : null,     // when an item is clicked
@@ -413,10 +412,7 @@
                         onMouseOver   : null,     // when an item is mouse over
                         onMouseOut    : null      // when an item is mouse out
                     };
-                    options = $.extend({}, defaults, options, {
-                        align         : 'both',   // same width as control
-                        altRows        : true     // alternate row color
-                    });
+                    options = $.extend({}, defaults, options);
                     this.options = options;
                     if (!$.isArray(options.selected)) options.selected = [];
                     $(this.el).data('selected', options.selected);

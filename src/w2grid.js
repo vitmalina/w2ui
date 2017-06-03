@@ -7522,7 +7522,7 @@
                     val = '';
                 }
                 return val;
-            } else {
+            } else {
                 return obj ? obj[field] : '';
             }
         },
