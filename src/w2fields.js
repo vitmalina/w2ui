@@ -2509,15 +2509,14 @@
         },
 
         getMonthHTML: function (month, year, selected) {
-            var td          = new Date();
+            var td          = w2utils.dateCalendar();
             var months      = w2utils.settings.fullmonths;
-            var daysCount   = ['31', '28', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31'];
             var today       = td.getFullYear() + '/' + (Number(td.getMonth()) + 1) + '/' + td.getDate();
             var days        = w2utils.settings.fulldays.slice();    // creates copy of the array
             var sdays       = w2utils.settings.shortdays.slice();   // creates copy of the array
-            if (w2utils.settings.weekStarts != 'M') {
-                days.unshift(days.pop());
-                sdays.unshift(sdays.pop());
+            for (var i=0; i < w2utils.settings.weekStarts; i++) {
+                days.push(days.shift());
+                sdays.push(sdays.shift());
             }
             var options = this.options;
             if (options == null) options = {};
@@ -2526,12 +2525,12 @@
             month = w2utils.isInt(month) ? parseInt(month) : td.getMonth() + 1;
             if (month > 12) { month -= 12; year++; }
             if (month < 1 || month === 0)  { month += 12; year--; }
-            if (year/4 == Math.floor(year/4)) { daysCount[1] = '29'; } else { daysCount[1] = '28'; }
             options.current = month + '/' + year;
 
             // start with the required date
-            td = new Date(year, month-1, 1);
+            td = w2utils.dateCalendar(year, month, 1);
             var weekDay = td.getDay();
+
             var dayTitle = '';
             for (var i = 0; i < sdays.length; i++) dayTitle += '<td title="'+ days[i] +'">' + sdays[i] + '</td>';
 
@@ -2546,27 +2545,21 @@
                 '    <tr>';
 
             var day = 1;
-            if (w2utils.settings.weekStarts != 'M') weekDay++;
             if(this.type === 'datetime') {
                 var dt_sel = w2utils.isDateTime(selected, options.format, true);
                 selected = w2utils.formatDate(dt_sel, w2utils.settings.dateFormat);
             }
             for (var ci = 1; ci < 43; ci++) {
-                if (weekDay === 0 && ci == 1) {
-                    for (var ti = 0; ti < 6; ti++) html += '<td class="w2ui-day-empty">&#160;</td>';
-                    ci += 6;
-                } else {
-                    if (ci < weekDay || day > daysCount[month-1]) {
-                        html += '<td class="w2ui-day-empty">&#160;</td>';
-                        if ((ci) % 7 === 0) html += '</tr><tr>';
-                        continue;
-                    }
+                if (ci <= weekDay || day > td.getMonthDays(month)) {
+                    html += '<td class="w2ui-day-empty">&#160;</td>';
+                    if ((ci) % 7 === 0) html += '</tr><tr>';
+                    continue;
                 }
                 var dt  = year + '/' + month + '/' + day;
-                var DT  = new Date(dt);
+                wDay =  (weekDay + day - 1) % 7;
                 var className = '';
-                if (DT.getDay() === 6) className  = ' w2ui-saturday';
-                if (DT.getDay() === 0) className  = ' w2ui-sunday';
+                if (wDay === 5) className  = ' w2ui-saturday';
+                if (wDay === 6) className  = ' w2ui-sunday';
                 if (dt == today) className += ' w2ui-today';
 
                 var dspDay  = day;
@@ -2588,10 +2581,10 @@
                     col     = 'color: ' + tmp[1] + ';';
                 }
                 html += '<td class="'+ (this.inRange(tmp_dt, true) ? 'w2ui-date ' + (tmp_dt_fmt == selected ? 'w2ui-date-selected' : '') : 'w2ui-blocked') + className + '" '+
-                        '   style="'+ col + bgcol + '" date="'+ tmp_dt +'" data-date="'+ DT +'">'+
+                        '   style="'+ col + bgcol + '" date="'+ tmp_dt +'">'+
                             dspDay +
                         '</td>';
-                if (ci % 7 === 0 || (weekDay === 0 && ci == 1)) html += '</tr><tr>';
+                if (ci % 7 === 0) html += '</tr><tr>';
                 day++;
             }
             html += '</tr></tbody></table>';

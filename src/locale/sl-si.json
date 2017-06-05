@@ -10,8 +10,8 @@
     "float"          : "^[-+]?[0-9]*[\\.,]?[0-9]+$",
     "shortmonths"    : ["Jan","Feb","Mar","Apr","Maj","Jun","Jul","Avg","Sep","Okt","Nov","Dec"],
     "fullmonths"     : ["Januar","Februar","Marec","April","Maj","Junij","Julij","Avgust","September","Oktober","November","December"],
-    "shortdays"      : ["Po","To","Sr","Če","Pe","So","Ne"],
-    "fulldays"       : ["Ponedeljek","Torek","Sreda","Četrtek","Petek","Sobota","Nedelja"],
+    "shortdays"      : ["Ne","Po","To","Sr","Če","Pe","So"],
+    "fulldays"       : ["Nedelja","Ponedeljek","Torek","Sreda","Četrtek","Petek","Sobota"],
     "phrases" : {
         "Add new record": "Dodaj nov zapis",
         "Add New": "Dodaj",

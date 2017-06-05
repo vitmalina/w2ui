@@ -51,9 +51,10 @@ var w2utils = (function ($) {
             "decimalSymbol"     : ".",
             "shortmonths"       : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
             "fullmonths"        : ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-            "shortdays"         : ["M", "T", "W", "T", "F", "S", "S"],
-            "fulldays"          : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-            "weekStarts"        : "M",        // can be "M" for Monday or "S" for Sunday
+            "shortdays"         : ["S", "M", "T", "W", "T", "F", "S"],
+            "fulldays"          : ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+            "weekStarts"        : 1,          // 0 for Sunday, 1 for Monday, 2 for Tuesday, and so on
+            "calendar"          : "gregorian",
             "dataType"          : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
             "phrases"           : {},         // empty object for english phrases
             "dateStartYear"     : 1950,       // start year for date-picker
@@ -66,6 +67,7 @@ var w2utils = (function ($) {
         isHex           : isHex,
         isAlphaNumeric  : isAlphaNumeric,
         isEmail         : isEmail,
+        dateCalendar    : dateCalendar,
         isDate          : isDate,
         isTime          : isTime,
         isDateTime      : isDateTime,
@@ -158,6 +160,142 @@ var w2utils = (function ($) {
     function isEmail (val) {
         var email = /^[a-zA-Z0-9._%-]+@[а-яА-Яa-zA-Z0-9.-]+\.[а-яА-Яa-zA-Z]+$/;
         return email.test(val);
+    }
+
+    function dateCalendar() {
+        switch (w2utils.settings.calendar) {
+            case 'jalali':
+                return new dateJalali(arguments);
+                break;
+
+            default:
+                // gregorian
+                return new dateGregorian(arguments);
+        }
+    }
+
+    function dateGregorian(args) {
+        this.gdate;
+        var gMonthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        if (args.length) {
+            this.gdate = new Date(Array.from(args).join());
+        } else {
+            this.gdate = new Date();
+        }
+        // check is given date in a leap year
+        var year = parseInt(this.gdate.getFullYear());
+        this.isLeapYear = ((year%4) == 0 && ((year%100) != 0 || (year%400) == 0));
+
+        this.getFullYear = function() {
+            return this.gdate.getFullYear();
+        }
+
+        this.getMonth = function() {
+            return this.gdate.getMonth();
+        }
+
+        this.getDate = function() {
+            return this.gdate.getDate();
+        }
+
+        this.getDay = function() {
+            var weekDay = this.gdate.getDay();
+            return (7 - w2utils.settings.weekStarts + weekDay) % 7;
+        }
+
+        this.getMonthDays = function(month) {
+            return (this.isLeapYear && month == 2)? 29 : gMonthDays[month-1];
+        }
+    }
+
+    function dateJalali(args) {
+        var leapYears = [1, 5, 9, 13, 17, 22, 26, 30];
+        var gMonthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        var jMonthDays = [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29];
+
+        if (args.length) {
+            var jYear  = args[0];
+            var jMonth = args[1] - 1;
+            var jDay   = args[2];
+            // calculating Jalali calendar total days
+            var ym = Math.floor(jMonth/12);
+            var month = (jMonth + 1) - ym*12;
+            var year  = jYear + ym - 1;
+            var leap_days = Math.floor(year/33)*8 + Math.floor((year%33)/4);
+
+            var day_number =  365*year + leap_days;
+            for (var i=0; i < (month-1); ++i) {
+                day_number += jMonthDays[i];
+            }
+            day_number = day_number + jDay;
+            var jWeekDay = (day_number + 4) % 7;
+        } else {
+            var date = new Date();
+            var year  = parseInt(date.getFullYear());
+            var month = parseInt(Number(date.getMonth()) + 1);
+            var day   = parseInt(date.getDate());
+
+            year = year - 1600 - 1;
+            var day_number =  365*year + Math.floor(year/4) - Math.floor(year/100) + Math.floor(year/400);
+            year++;
+            for (var i=0; i < (month-1); ++i) {
+                day_number += gMonthDays[i];
+            }
+            if (month > 2 && ((year%4) == 0 && ((year%100) != 0 || (year%400) == 0))) {
+                day_number++;
+            }
+
+            var jDay = day_number + day - 79;
+            var jWeekDay = (jDay + 3) % 7;
+
+            var jYear = Math.floor(jDay/12053)*33; // 12053 = 33*365 + 8
+            jDay %= 12053;
+            jYear = 979 + jYear + Math.floor((jDay - 1) / 1461)*4; // 1461 = 4*365 + 1
+            jDay  = (jDay - 1) % 1461 + 1;
+
+            jYear++;
+            var isLeap = leapYears.indexOf((jYear % 33)) > -1;
+            while (jDay > (365 + isLeap)) {
+                jDay = jDay - (365 + isLeap);
+                jYear++;
+                isLeap = leapYears.indexOf((jYear % 33)) > -1;
+            }
+
+            var jMonth = 0;
+            while (jDay > jMonthDays[jMonth] + ((jMonth==11)? isLeap : 0))
+            {
+                jDay -= jMonthDays[jMonth];
+                jMonth++;
+            }
+        }
+
+        this.jYear  = jYear;
+        this.jMonth = jMonth;
+        this.jDay   = jDay;
+        this.jWeekDay = jWeekDay;
+
+        // check is given date in a leap year
+        this.isLeapYear = leapYears.indexOf((this.jYear % 33)) > -1;
+
+        this.getFullYear = function() {
+            return this.jYear;
+        }
+
+        this.getMonth = function() {
+            return this.jMonth;
+        }
+
+        this.getDate = function() {
+            return this.jDay;
+        }
+
+        this.getDay = function() {
+            return (7 - w2utils.settings.weekStarts + this.jWeekDay) % 7;
+        }
+
+        this.getMonthDays = function(month) {
+            return (this.isLeapYear && month == 12)? 30 : jMonthDays[month-1];
+        }
     }
 
     function isDate (val, format, retDate) {

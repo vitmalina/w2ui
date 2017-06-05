@@ -10,8 +10,8 @@
     "float"          : "^[-]?[0-9]*[\\.]?[0-9]+$",
     "shortmonths"    : ["Yan", "Fev", "Mar", "Apr", "May", "İyun", "İyul", "Avq", "Sen", "Okt", "Noy", "Dek"],
     "fullmonths"     : ["Yanvar", "Fevral", "Mart", "Aprel", "May", "İyun", "İyul", "Avqust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"],
-    "shortdays"      : ["BE", "ÇA", "Ç", "CA", "C", "Ş","B"],
-    "fulldays"       : ["Bazar ertəsi", "Çərşənbə axşamı", "Çərşənbə", "Cümə axşamı", "Cümə", "Şənbə", "Bazar"],
+    "shortdays"      : ["B", "BE", "ÇA", "Ç", "CA", "C", "Ş"],
+    "fulldays"       : ["Bazar", "Bazar ertəsi", "Çərşənbə axşamı", "Çərşənbə", "Cümə axşamı", "Cümə", "Şənbə"],
     "phrases" : {
         "Add new record": "Yeni məlumat əlavə et",
         "Add New": "Yeni",

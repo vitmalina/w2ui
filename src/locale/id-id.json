@@ -10,8 +10,8 @@
     "float"          : "^[-]?[0-9]*[\\.]?[0-9]+$",
     "shortmonths"    : ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agus", "Sep", "Okt", "Nov", "Des"],
     "fullmonths"     : ["Januari", "Februai", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"],
-    "shortdays"      : ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab","Ming"],
-    "fulldays"       : ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu","Minggu"],
+    "shortdays"      : ["Ming", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"],
+    "fulldays"       : ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"],
     "phrases" : {
         "Add new record": "Tambah Data",
         "Add New": "Tambah",
