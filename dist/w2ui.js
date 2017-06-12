@@ -3624,7 +3624,9 @@ w2utils.event = {
                 var search = col.searchable;
                 if (search == null || search === false || object.getSearch(col.field) != null) continue;
                 if ($.isPlainObject(search)) {
-                    object.addSearch($.extend({ field: col.field, caption: col.caption, type: 'text' }, search));
+                    var src = $.extend({ field: col.field, caption: col.caption, type: 'text' }, search);
+                    if (col.master) src.type = 'text';
+                    object.addSearch(src);
                 } else {
                     var stype = col.searchable, attr  = '';
                     if (col.searchable === true) { stype = 'text'; attr = 'size="20"'; }
@@ -9358,7 +9360,7 @@ w2utils.event = {
                 if (s.hidden) continue;
                 var btn = '';
                 if (showBtn == false) {
-                    btn = '<button class="w2ui-btn close-btn" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) obj.searchClose()">X</button>';
+                    btn = '<button class="w2ui-btn close-btn w2ui-icon-cross" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) obj.searchClose()"/>';
                     showBtn = true;
                 }
                 if (s.inTag   == null) s.inTag  = '';
