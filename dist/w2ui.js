@@ -1823,7 +1823,7 @@ w2utils.formatters = {
 
     'money': function (value, params) {
         if (value == null || value === '') return '';
-        var data = w2utils.formatNumber(Number(value), w2utils.settings.currencyPrecision===0?0:w2utils.settings.currencyPrecision || 2 );
+        var data = w2utils.formatNumber(Number(value), w2utils.settings.currencyPrecision === 0 ? 0 : w2utils.settings.currencyPrecision || 2 );
         return (w2utils.settings.currencyPrefix || '') + data + (w2utils.settings.currencySuffix || '');
     },
 
@@ -18682,7 +18682,7 @@ var w2prompt = function (label, title, callBack) {
                         }
                         break;
                     case 'money':
-                        if (this.record[field.name] && !w2utils.isMoney(this.record[field.name])) {
+                        if (this.record[field.name] && typeof this.record[field.name] === 'string' && w2utils.isMoney(this.record[field.name])) {  //Money can be stored as integer
                             errors.push({ field: field, error: w2utils.lang('Not in money format') });
                         }
                         break;

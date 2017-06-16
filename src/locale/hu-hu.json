@@ -68,6 +68,7 @@
       "Not a valid email": "Hibás emailcím",
       "Remove":"Eltávolítás",
       "Empty list": "Üres lista",
-      "Type to search...": "Gépeljen a kereséshez!"
+      "Type to search...": "Gépeljen a kereséshez!",
+      "Not in money format": "Rossz pénz formátum"
     }
 }

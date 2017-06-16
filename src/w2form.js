@@ -351,7 +351,7 @@
                         }
                         break;
                     case 'money':
-                        if (this.record[field.name] && !w2utils.isMoney(this.record[field.name])) {
+                        if (this.record[field.name] && typeof this.record[field.name] === 'string' && w2utils.isMoney(this.record[field.name])) {  //Money can be stored as integer
                             errors.push({ field: field, error: w2utils.lang('Not in money format') });
                         }
                         break;
