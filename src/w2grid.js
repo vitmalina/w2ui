@@ -2630,7 +2630,26 @@
         },
 
         editField: function (recid, column, value, event) {
-            var obj    = this;
+            var obj = this;
+            if (this.last.inEditMode === true) { // already editing
+                var index  = this.last._edit.index;
+                var column = this.last._edit.column;
+                var recid  = this.last._edit.recid;
+                this.editChange({ type: 'custom', value: this.last._edit.value }, this.get(recid, true), column, event);
+                var next = event.shiftKey ? this.prevRow(index, column) : this.nextRow(index, column);
+                if (next != null && next != index) {
+                    setTimeout(function () {
+                        if (obj.selectType != 'row') {
+                            obj.selectNone();
+                            obj.select({ recid: obj.records[next].recid, column: column });
+                        } else {
+                            obj.editField(obj.records[next].recid, column, null, event);
+                        }
+                    }, 1);
+                }
+                this.last.inEditMode = false;
+                return;
+            }
             var index  = obj.get(recid, true);
             var edit   = obj.getCellEditable(index, column);
             if (!edit) return;
@@ -2647,9 +2666,10 @@
             if (edata.isCancelled === true) return;
             value = edata.value;
             // default behaviour
+            this.last.inEditMode = true;
+            this.last._edit = { value: value, index: index, column: column, recid: recid };
             this.selectNone();
             this.select({ recid: recid, column: column });
-            this.last.edit_col = column;
             if (['checkbox', 'check'].indexOf(edit.type) != -1) return;
             // create input element
             var tr = $('#grid_'+ obj.name + prefix +'rec_' + w2utils.escapeId(recid));
@@ -2770,6 +2790,7 @@
             }
 
             setTimeout(function () {
+                if (!obj.last.inEditMode) return;
                 el.find('input, select, div.w2ui-input')
                     .data('old_value', old_value)
                     .on('mousedown', function (event) {
@@ -2891,8 +2912,9 @@
                     });
                 // focus and select
                 setTimeout(function () {
+                    if (!obj.last.inEditMode) return;
                     var tmp = el.find('.w2ui-input');
-                    var len = $(tmp).val().length;
+                    var len = ($(tmp).val() != null ? $(tmp).val().length : 0);
                     if (edit.type == 'div') len = $(tmp).text().length;
                     if (tmp.length > 0) {
                         tmp.focus();
@@ -2955,12 +2977,13 @@
                 value_previous: (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes.hasOwnProperty(col.field) ? rec.w2ui.changes[col.field]: old_val),
                 value_original: old_val
             };
+            obj.last.inEditMode = false;
             if ($(event.target).data('old_value') != null) edata.value_previous = $(event.target).data('old_value');
             // if (old_val == null) old_val = ''; -- do not uncomment, error otherwise
             while (true) {
                 new_val = edata.value_new;
                 if ((typeof new_val != 'object' && String(old_val) != String(new_val)) ||
-                    (typeof new_val == 'object' && new_val.id != old_val && (typeof old_val != 'object' || old_val == null || new_val.id != old_val.id))) {
+                    (typeof new_val == 'object' && new_val && new_val.id != old_val && (typeof old_val != 'object' || old_val == null || new_val.id != old_val.id))) {
                     // change event
                     edata = this.trigger($.extend(edata, { type: 'change', phase: 'before' }));
                     if (edata.isCancelled !== true) {
@@ -3355,9 +3378,13 @@
                             }
                         }
                         // edit last column that was edited
-                        if (this.selectType == 'row' && this.last.edit_col) columns = [this.last.edit_col];
+                        if (this.selectType == 'row' && this.last._edit.column) {
+                            columns = [this.last._edit.column];
+                        }
                         if (columns.length > 0) {
-                            obj.editField(recid, columns[0], null, event);
+                            if (!obj.last.inEditMode) {
+                                obj.editField(recid, columns[0], null, event);
+                            }
                             cancel = true;
                         }
                     }
