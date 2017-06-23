@@ -5508,8 +5508,9 @@
                             break;
                         case 'w2ui-add':
                             // events
-                            var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'add', recid: null });
-                            obj.trigger($.extend(edata, { phase: 'after' }));
+                            var edata2 = obj.trigger({ phase: 'before', target: obj.name, type: 'add', recid: null });
+                            if (edata2.isCancelled === true) return false;
+                            obj.trigger($.extend(edata2, { phase: 'after' }));
                             // hide all tooltips
                             setTimeout(function () { $().w2tag(); }, 20);
                             break;
@@ -5518,8 +5519,9 @@
                             var recid = null;
                             if (sel.length == 1) recid = sel[0];
                             // events
-                            var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'edit', recid: recid });
-                            obj.trigger($.extend(edata, { phase: 'after' }));
+                            var edata2 = obj.trigger({ phase: 'before', target: obj.name, type: 'edit', recid: recid });
+                            if (edata2.isCancelled === true) return false;
+                            obj.trigger($.extend(edata2, { phase: 'after' }));
                             // hide all tooltips
                             setTimeout(function () { $().w2tag(); }, 20);
                             break;
