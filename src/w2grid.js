@@ -107,6 +107,7 @@
     }
 *   - added this.show.toolbarInput
 *   - disableCVS
+*   - added useFieldDot: use field name containing dots as separator to look into objects
 *   - grid.message
 *   - added noReset option to localSort()
 *   - onColumnSelect
@@ -201,6 +202,7 @@
         this.columnTooltip   = 'normal'; // can be normal, top, bottom, left, right
         this.disableCVS      = false;    // disable Column Virtual Scroll
         this.textSearch      = 'begins'; // default search type for text
+        this.useFieldDot     = true;     // use field name containing dots as separator to look into object
 
         this.total   = 0;     // server total
         this.limit   = 100;
@@ -507,34 +509,42 @@
             // search records
             if ($.isArray(recid)) {
                 var recs = [];
-                for (var i = 0; i < this.records.length; i++) {
-                    if ($.inArray(this.records[i].recid, recid) != -1) {
-                        if (returnIndex === true) {
-                            recs.push(i);
-                        } else {
-                            recs.push(this.records[i]);
-                        }
-                    }
-                }
-                for (var i = 0; i < this.summary.length; i++) {
-                    if ($.inArray(this.summary[i].recid, recid) != -1) {
-                        if (returnIndex === true) {
-                            recs.push(i);
-                        } else {
-                            recs.push(this.summary[i]);
-                        }
-                    }
+                for (var i = 0; i < recid.length; i++) {
+                    var v = this.get(recid[i], returnIndex);
+                    if (v !== null)
+                        recs.push(v);
                 }
                 return recs;
             } else {
+                // get() must be fast, implements a cache to bypass loop over all records
+                // most of the time.
+                var idCache = this.last.idCache;
+                if (!idCache) {
+                    this.last.idCache = idCache = {};
+                }
+                var i = idCache[recid];
+                if (typeof(i) === "number") {
+                    if (i >= 0 && i < this.records.length && this.records[i].recid == recid) {
+                        if (returnIndex === true) return i; else return this.records[i];
+                    }
+                    // summary indexes are stored as negative numbers, try them now.
+                    i = ~i;
+                    if (i >= 0 && i < this.summary.length && this.summary[i].recid == recid) {
+                        if (returnIndex === true) return i; else return this.summary[i];
+                    }
+                    // wrong index returned, clear cache
+                    this.last.idCache = idCache = {};
+                }
                 for (var i = 0; i < this.records.length; i++) {
                     if (this.records[i].recid == recid) {
+                        idCache[recid] = i;
                         if (returnIndex === true) return i; else return this.records[i];
                     }
                 }
                 // search summary
                 for (var i = 0; i < this.summary.length; i++) {
                     if (this.summary[i].recid == recid) {
+                        idCache[recid] = ~i;
                         if (returnIndex === true) return i; else return this.summary[i];
                     }
                 }
@@ -1726,6 +1736,7 @@
             if (sel.length >= 1) this.toolbar.enable('w2ui-delete'); else this.toolbar.disable('w2ui-delete');
             this.addRange('selection');
             $('#grid_'+ this.name +'_check_all').prop('checked', true);
+            this.status();
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
@@ -1757,6 +1768,7 @@
             this.toolbar.disable('w2ui-edit', 'w2ui-delete');
             this.removeRange('selection');
             $('#grid_'+ this.name +'_check_all').prop('checked', false);
+            this.status();
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
@@ -2210,6 +2222,7 @@
             this.records          = [];
             this.summary          = [];
             this.last.xhr_offset  = 0;   // need this for reload button to work on remote data set
+            this.last.idCache     = {};  // optimization to free memory
             this.reset(true);
             // refresh
             if (!noRefresh) this.refresh();
@@ -2732,7 +2745,7 @@
                         val = w2utils.formatNumber(val);
                     }
                     if (edit.type == 'date') {
-                        val = w2utils.formatDate(w2utils.isDate(val, edit.format, true), edit.format);
+                        val = w2utils.formatDate(w2utils.isDate(val, edit.format, true) || new Date(), edit.format);
                     }
                     if (value == null) el.find('input').val(typeof val != 'object' ? val : '');
                     // init w2field
@@ -7497,17 +7510,21 @@
         },
 
         parseField: function (obj, field) {
-            var val = '';
-            try { // need this to make sure no error in fields
-                val = obj;
-                var tmp = String(field).split('.');
-                for (var i = 0; i < tmp.length; i++) {
-                    val = val[tmp[i]];
+            if (this.useFieldDot) {
+                var val = '';
+                try { // need this to make sure no error in fields
+                    val = obj;
+                    var tmp = String(field).split('.');
+                    for (var i = 0; i < tmp.length; i++) {
+                        val = val[tmp[i]];
+                    }
+                } catch (event) {
+                    val = '';
                 }
-            } catch (event) {
-                val = '';
+                return val;
+            } else {
+                return obj ? obj[field] : '';
             }
-            return val;
         },
 
         prepareData: function () {
