@@ -2632,22 +2632,31 @@
         editField: function (recid, column, value, event) {
             var obj = this;
             if (this.last.inEditMode === true) { // already editing
-                var index  = this.last._edit.index;
-                var column = this.last._edit.column;
-                var recid  = this.last._edit.recid;
-                this.editChange({ type: 'custom', value: this.last._edit.value }, this.get(recid, true), column, event);
-                var next = event.shiftKey ? this.prevRow(index, column) : this.nextRow(index, column);
-                if (next != null && next != index) {
-                    setTimeout(function () {
-                        if (obj.selectType != 'row') {
-                            obj.selectNone();
-                            obj.select({ recid: obj.records[next].recid, column: column });
-                        } else {
-                            obj.editField(obj.records[next].recid, column, null, event);
-                        }
-                    }, 1);
+                if (event.keyCode == 13) {
+                    var index  = this.last._edit.index;
+                    var column = this.last._edit.column;
+                    var recid  = this.last._edit.recid;
+                    this.editChange({ type: 'custom', value: this.last._edit.value }, this.get(recid, true), column, event);
+                    var next = event.shiftKey ? this.prevRow(index, column) : this.nextRow(index, column);
+                    if (next != null && next != index) {
+                        setTimeout(function () {
+                            if (obj.selectType != 'row') {
+                                obj.selectNone();
+                                obj.select({ recid: obj.records[next].recid, column: column });
+                            } else {
+                                obj.editField(obj.records[next].recid, column, null, event);
+                            }
+                        }, 1);
+                    }
+                    this.last.inEditMode = false;
+                } else {
+                    // when 2 chars entered fast
+                    var $input = $(this.box).find('div.w2ui-edit-box .w2ui-input');
+                    if ($input.length > 0 && $input[0].tagName == 'DIV') {
+                        $input.text($input.text() + value);
+                        w2utils.setCursorPosition($input[0], $input.text().length);
+                    }
                 }
-                this.last.inEditMode = false;
                 return;
             }
             var index  = obj.get(recid, true);
@@ -2977,7 +2986,6 @@
                 value_previous: (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes.hasOwnProperty(col.field) ? rec.w2ui.changes[col.field]: old_val),
                 value_original: old_val
             };
-            obj.last.inEditMode = false;
             if ($(event.target).data('old_value') != null) edata.value_previous = $(event.target).data('old_value');
             // if (old_val == null) old_val = ''; -- do not uncomment, error otherwise
             while (true) {
@@ -3032,6 +3040,7 @@
             if (this.show.toolbarSave) {
                 if (this.getChanges().length > 0) this.toolbar.enable('w2ui-save'); else this.toolbar.disable('w2ui-save');
             }
+            obj.last.inEditMode = false;
         },
 
         "delete": function (force) {
@@ -3382,9 +3391,7 @@
                             columns = [this.last._edit.column];
                         }
                         if (columns.length > 0) {
-                            if (!obj.last.inEditMode) {
-                                obj.editField(recid, columns[0], null, event);
-                            }
+                            obj.editField(recid, columns[0], null, event);
                             cancel = true;
                         }
                     }
