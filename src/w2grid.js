@@ -890,12 +890,12 @@
                 if (a === b) return 0; // optimize, same object
                 for (var i = 0; i < obj.sortData.length; i++) {
                     var fld = obj.sortData[i].field;
-                    if (obj.sortData[i].field_) fld = obj.sortData[i].field_;
-                    var aa = a[fld];
-                    var bb = b[fld];
+                    var sortFld = (obj.sortData[i].field_) ? obj.sortData[i].field_ : fld;
+                    var aa = a[sortFld];
+                    var bb = b[sortFld];
                     if (String(fld).indexOf('.') != -1) {
-                        aa = obj.parseField(a, fld);
-                        bb = obj.parseField(b, fld);
+                        aa = obj.parseField(a, sortFld);
+                        bb = obj.parseField(b, sortFld);
                     }
                     var col = obj.getColumn(fld);
                     if (col && col.editable != null) { // for drop editable fields and drop downs
