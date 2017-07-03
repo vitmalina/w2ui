@@ -56,6 +56,7 @@
         this.tabs        = {};       // if not empty, then it is tabs object
         this.style       = '';
         this.focus       = 0;        // focus first or other element
+        this.autosize    = true;     // autosize
         // When w2utils.settings.dataType is JSON, then we can convert the save request to multipart/form-data. So we can upload large files with the form
         // The original body is JSON.stringified to __body
         this.multipart   = false;
@@ -874,7 +875,7 @@
                 }
                 html += '\n      <div class="w2ui-field '+ (field.html.span != null ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+
                         '\n         <label>' + w2utils.lang(field.html.caption) +'</label>'+
-                        '\n         <div>'+ input + w2utils.lang(field.html.text) + '</div>'+
+                        ((field.type === 'empty') ? '' : '\n         <div>'+ input + w2utils.lang(field.html.text) + '</div>') +
                         '\n      </div>';
                 if (pages[field.html.page] == null) pages[field.html.page] = [];
                 if (pages[field.html.page][field.html.column] == null) pages[field.html.page][field.html.column] = '';
@@ -948,17 +949,19 @@
             var buttons = $(this.box).find('> div .w2ui-buttons');
             // if no height, calculate it
             resizeElements();
-            if (parseInt($(this.box).height()) === 0 || $(this.box).data('auto-size') === true) {
-                $(this.box).height(
-                    (header.length > 0 ? w2utils.getSize(header, 'height') : 0) +
-                    ((typeof this.tabs === 'object' && $.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) ? w2utils.getSize(tabs, 'height') : 0) +
-                    ((typeof this.toolbar == 'object' && $.isArray(this.toolbar.items) && this.toolbar.items.length > 0) ? w2utils.getSize(toolbar, 'height') : 0) +
-                    (page.length > 0 ? w2utils.getSize(dpage, 'height') + w2utils.getSize(cpage, '+height') + 12 : 0) +  // why 12 ???
-                    (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0)
-                );
-                $(this.box).data('auto-size', true);
+            if (this.autosize) {    //we dont need autosize everytime
+                if (parseInt($(this.box).height()) === 0 || $(this.box).data('auto-size') === true) {
+                    $(this.box).height(
+                        (header.length > 0 ? w2utils.getSize(header, 'height') : 0) +
+                        ((typeof this.tabs === 'object' && $.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) ? w2utils.getSize(tabs, 'height') : 0) +
+                        ((typeof this.toolbar == 'object' && $.isArray(this.toolbar.items) && this.toolbar.items.length > 0) ? w2utils.getSize(toolbar, 'height') : 0) +
+                        (page.length > 0 ? w2utils.getSize(dpage, 'height') + w2utils.getSize(cpage, '+height') + 12 : 0) +  // why 12 ???
+                        (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0)
+                    );
+                    $(this.box).data('auto-size', true);
+                }
+                resizeElements();
             }
-            resizeElements();
             if (this.toolbar && this.toolbar.resize) this.toolbar.resize();
             if (this.tabs && this.tabs.resize) this.tabs.resize();
             // event after
@@ -1033,8 +1036,8 @@
                 field.$el = $(this.box).find('[name="'+ String(field.name).replace(/\\/g, '\\\\') +'"]');
                 field.el  = field.$el[0];
                 if (field.el == null) {
-                    console.log('ERROR: Cannot associate field "'+ field.name + '" with html control. Make sure html control exists with the same name.');
-                    //return;
+                    if (field.type !== 'empty') console.log('ERROR: Cannot associate field "'+ field.name + '" with html control. Make sure html control exists with the same name.');
+                    continue;
                 }
                 if (field.el) field.el.id = field.name;
                 var tmp = $(field).data('w2field');
