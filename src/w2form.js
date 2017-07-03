@@ -875,7 +875,7 @@
                 }
                 html += '\n      <div class="w2ui-field '+ (field.html.span != null ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+
                         '\n         <label>' + w2utils.lang(field.html.caption) +'</label>'+
-                        '\n         <div>'+ input + w2utils.lang(field.html.text) + '</div>'+
+                        ((field.type === 'empty') ? '' : '\n         <div>'+ input + w2utils.lang(field.html.text) + '</div>') +
                         '\n      </div>';
                 if (pages[field.html.page] == null) pages[field.html.page] = [];
                 if (pages[field.html.page][field.html.column] == null) pages[field.html.page][field.html.column] = '';
@@ -1036,8 +1036,8 @@
                 field.$el = $(this.box).find('[name="'+ String(field.name).replace(/\\/g, '\\\\') +'"]');
                 field.el  = field.$el[0];
                 if (field.el == null) {
-                    console.log('ERROR: Cannot associate field "'+ field.name + '" with html control. Make sure html control exists with the same name.');
-                    //return;
+                    if (field.type !== 'empty') console.log('ERROR: Cannot associate field "'+ field.name + '" with html control. Make sure html control exists with the same name.');
+                    continue;
                 }
                 if (field.el) field.el.id = field.name;
                 var tmp = $(field).data('w2field');
