@@ -69,6 +69,9 @@
       "Remove":"Eltávolítás",
       "Empty list": "Üres lista",
       "Type to search...": "Gépeljen a kereséshez!",
-      "Not in money format": "Rossz pénz formátum"
+      "Not in money format": "Rossz pénz formátum",
+      "Return data is not in JSON format. See console for more information.":"Nem megfelelő JSON formátumú adat érkezett a kiszolgálótól. Kérjük jelezze az oldal üzemeltetőjének!",
+      "Returned data is not in valid JSON format.": "Nem megfelelő JSON formátumú adat érkezett a kiszolgálótól. Kérjük jelezze az oldal üzemeltetőjének!",
+      "Your remove data source record count has changed, reloading from the first record.": "Az adatforrás megváltozott, újratöltése az első bejegyzéstől."
     }
 }
