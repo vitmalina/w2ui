@@ -3435,6 +3435,7 @@ w2utils.event = {
     }
 *   - added this.show.toolbarInput
 *   - disableCVS
+*   - added useFieldDot: use field name containing dots as separator to look into objects
 *   - grid.message
 *   - added noReset option to localSort()
 *   - onColumnSelect
@@ -3529,6 +3530,7 @@ w2utils.event = {
         this.columnTooltip   = 'normal'; // can be normal, top, bottom, left, right
         this.disableCVS      = false;    // disable Column Virtual Scroll
         this.textSearch      = 'begins'; // default search type for text
+        this.useFieldDot     = true;     // use field name containing dots as separator to look into object
 
         this.total   = 0;     // server total
         this.limit   = 100;
@@ -3835,34 +3837,42 @@ w2utils.event = {
             // search records
             if ($.isArray(recid)) {
                 var recs = [];
-                for (var i = 0; i < this.records.length; i++) {
-                    if ($.inArray(this.records[i].recid, recid) != -1) {
-                        if (returnIndex === true) {
-                            recs.push(i);
-                        } else {
-                            recs.push(this.records[i]);
-                        }
-                    }
-                }
-                for (var i = 0; i < this.summary.length; i++) {
-                    if ($.inArray(this.summary[i].recid, recid) != -1) {
-                        if (returnIndex === true) {
-                            recs.push(i);
-                        } else {
-                            recs.push(this.summary[i]);
-                        }
-                    }
+                for (var i = 0; i < recid.length; i++) {
+                    var v = this.get(recid[i], returnIndex);
+                    if (v !== null)
+                        recs.push(v);
                 }
                 return recs;
             } else {
+                // get() must be fast, implements a cache to bypass loop over all records
+                // most of the time.
+                var idCache = this.last.idCache;
+                if (!idCache) {
+                    this.last.idCache = idCache = {};
+                }
+                var i = idCache[recid];
+                if (typeof(i) === "number") {
+                    if (i >= 0 && i < this.records.length && this.records[i].recid == recid) {
+                        if (returnIndex === true) return i; else return this.records[i];
+                    }
+                    // summary indexes are stored as negative numbers, try them now.
+                    i = ~i;
+                    if (i >= 0 && i < this.summary.length && this.summary[i].recid == recid) {
+                        if (returnIndex === true) return i; else return this.summary[i];
+                    }
+                    // wrong index returned, clear cache
+                    this.last.idCache = idCache = {};
+                }
                 for (var i = 0; i < this.records.length; i++) {
                     if (this.records[i].recid == recid) {
+                        idCache[recid] = i;
                         if (returnIndex === true) return i; else return this.records[i];
                     }
                 }
                 // search summary
                 for (var i = 0; i < this.summary.length; i++) {
                     if (this.summary[i].recid == recid) {
+                        idCache[recid] = ~i;
                         if (returnIndex === true) return i; else return this.summary[i];
                     }
                 }
@@ -5540,6 +5550,7 @@ w2utils.event = {
             this.records          = [];
             this.summary          = [];
             this.last.xhr_offset  = 0;   // need this for reload button to work on remote data set
+            this.last.idCache     = {};  // optimization to free memory
             this.reset(true);
             // refresh
             if (!noRefresh) this.refresh();
@@ -5947,7 +5958,35 @@ w2utils.event = {
         },
 
         editField: function (recid, column, value, event) {
-            var obj    = this;
+            var obj = this;
+            if (this.last.inEditMode === true) { // already editing
+                if (event.keyCode == 13) {
+                    var index  = this.last._edit.index;
+                    var column = this.last._edit.column;
+                    var recid  = this.last._edit.recid;
+                    this.editChange({ type: 'custom', value: this.last._edit.value }, this.get(recid, true), column, event);
+                    var next = event.shiftKey ? this.prevRow(index, column) : this.nextRow(index, column);
+                    if (next != null && next != index) {
+                        setTimeout(function () {
+                            if (obj.selectType != 'row') {
+                                obj.selectNone();
+                                obj.select({ recid: obj.records[next].recid, column: column });
+                            } else {
+                                obj.editField(obj.records[next].recid, column, null, event);
+                            }
+                        }, 1);
+                    }
+                    this.last.inEditMode = false;
+                } else {
+                    // when 2 chars entered fast
+                    var $input = $(this.box).find('div.w2ui-edit-box .w2ui-input');
+                    if ($input.length > 0 && $input[0].tagName == 'DIV') {
+                        $input.text($input.text() + value);
+                        w2utils.setCursorPosition($input[0], $input.text().length);
+                    }
+                }
+                return;
+            }
             var index  = obj.get(recid, true);
             var edit   = obj.getCellEditable(index, column);
             if (!edit) return;
@@ -5964,9 +6003,10 @@ w2utils.event = {
             if (edata.isCancelled === true) return;
             value = edata.value;
             // default behaviour
+            this.last.inEditMode = true;
+            this.last._edit = { value: value, index: index, column: column, recid: recid };
             this.selectNone();
             this.select({ recid: recid, column: column });
-            this.last.edit_col = column;
             if (['checkbox', 'check'].indexOf(edit.type) != -1) return;
             // create input element
             var tr = $('#grid_'+ obj.name + prefix +'rec_' + w2utils.escapeId(recid));
@@ -6087,6 +6127,7 @@ w2utils.event = {
             }
 
             setTimeout(function () {
+                if (!obj.last.inEditMode) return;
                 el.find('input, select, div.w2ui-input')
                     .data('old_value', old_value)
                     .on('mousedown', function (event) {
@@ -6208,8 +6249,9 @@ w2utils.event = {
                     });
                 // focus and select
                 setTimeout(function () {
+                    if (!obj.last.inEditMode) return;
                     var tmp = el.find('.w2ui-input');
-                    var len = $(tmp).val().length;
+                    var len = ($(tmp).val() != null ? $(tmp).val().length : 0);
                     if (edit.type == 'div') len = $(tmp).text().length;
                     if (tmp.length > 0) {
                         tmp.focus();
@@ -6277,7 +6319,7 @@ w2utils.event = {
             while (true) {
                 new_val = edata.value_new;
                 if ((typeof new_val != 'object' && String(old_val) != String(new_val)) ||
-                    (typeof new_val == 'object' && new_val.id != old_val && (typeof old_val != 'object' || old_val == null || new_val.id != old_val.id))) {
+                    (typeof new_val == 'object' && new_val && new_val.id != old_val && (typeof old_val != 'object' || old_val == null || new_val.id != old_val.id))) {
                     // change event
                     edata = this.trigger($.extend(edata, { type: 'change', phase: 'before' }));
                     if (edata.isCancelled !== true) {
@@ -6326,6 +6368,7 @@ w2utils.event = {
             if (this.show.toolbarSave) {
                 if (this.getChanges().length > 0) this.toolbar.enable('w2ui-save'); else this.toolbar.disable('w2ui-save');
             }
+            obj.last.inEditMode = false;
         },
 
         "delete": function (force) {
@@ -6672,7 +6715,9 @@ w2utils.event = {
                             }
                         }
                         // edit last column that was edited
-                        if (this.selectType == 'row' && this.last.edit_col) columns = [this.last.edit_col];
+                        if (this.selectType == 'row' && this.last._edit.column) {
+                            columns = [this.last._edit.column];
+                        }
                         if (columns.length > 0) {
                             obj.editField(recid, columns[0], null, event);
                             cancel = true;
@@ -10827,17 +10872,21 @@ w2utils.event = {
         },
 
         parseField: function (obj, field) {
-            var val = '';
-            try { // need this to make sure no error in fields
-                val = obj;
-                var tmp = String(field).split('.');
-                for (var i = 0; i < tmp.length; i++) {
-                    val = val[tmp[i]];
+            if (this.useFieldDot) {
+                var val = '';
+                try { // need this to make sure no error in fields
+                    val = obj;
+                    var tmp = String(field).split('.');
+                    for (var i = 0; i < tmp.length; i++) {
+                        val = val[tmp[i]];
+                    }
+                } catch (event) {
+                    val = '';
                 }
-            } catch (event) {
-                val = '';
+                return val;
+            } else {
+                return obj ? obj[field] : '';
             }
-            return val;
         },
 
         prepareData: function () {
@@ -15917,6 +15966,8 @@ var w2prompt = function (label, title, callBack) {
                         silent          : true,
                         icon            : null,
                         iconStyle       : '',
+                        align           : 'both',       // same width as control
+                        altRows         : true,         // alternate row color
                         onSearch        : null,         // when search needs to be performed
                         onRequest       : null,         // when request is submitted
                         onLoad          : null,         // when data is received
@@ -15947,10 +15998,7 @@ var w2prompt = function (label, title, callBack) {
                         }
                         this.watchSize();
                     }
-                    options = $.extend({}, defaults, options, {
-                        align   : 'both',      // same width as control
-                        altRows : true         // alternate row color
-                    });
+                    options = $.extend({}, defaults, options);
                     this.options = options;
                     if (!$.isPlainObject(options.selected)) options.selected = {};
                     $(this.el).data('selected', options.selected);
@@ -15985,6 +16033,8 @@ var w2prompt = function (label, title, callBack) {
                         maxDropWidth    : null,          // if null then auto set
                         match           : 'contains',    // ['contains', 'is', 'begins', 'ends']
                         silent          : true,
+                        align           : 'both',        // same width as control
+                        altRows         : true,          // alternate row color
                         openOnFocus     : false,         // if to show overlay onclick or when typing
                         markSearch      : true,
                         renderDrop      : null,          // render function for drop down item
@@ -16004,11 +16054,7 @@ var w2prompt = function (label, title, callBack) {
                         onMouseOut      : null,          // when an item is mouse out
                         onScroll        : null           // when div with selected items is scrolled
                     };
-                    options = $.extend({}, defaults, options, {
-                        align    : 'both',    // same width as control
-                        suffix   : '',
-                        altRows  : true       // alternate row color
-                    });
+                    options = $.extend({}, defaults, options, { suffix: '' });
                     options.items    = this.normMenu(options.items);
                     options.selected = this.normMenu(options.selected);
                     this.options = options;
@@ -16035,6 +16081,8 @@ var w2prompt = function (label, title, callBack) {
                         maxDropWidth  : null,     // if null then auto set
                         readContent   : true,     // if true, it will readAsDataURL content of the file
                         silent        : true,
+                        align         : 'both',   // same width as control
+                        altRows       : true,     // alternate row color
                         renderItem    : null,     // render selected item
                         style         : '',       // style for container div
                         onClick       : null,     // when an item is clicked
@@ -16043,10 +16091,7 @@ var w2prompt = function (label, title, callBack) {
                         onMouseOver   : null,     // when an item is mouse over
                         onMouseOut    : null      // when an item is mouse out
                     };
-                    options = $.extend({}, defaults, options, {
-                        align         : 'both',   // same width as control
-                        altRows        : true     // alternate row color
-                    });
+                    options = $.extend({}, defaults, options);
                     this.options = options;
                     if (!$.isArray(options.selected)) options.selected = [];
                     $(this.el).data('selected', options.selected);
