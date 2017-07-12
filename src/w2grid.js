@@ -290,6 +290,7 @@
                 if ($.isPlainObject(search)) {
                     var src = $.extend({ field: col.field, caption: col.caption, type: 'text' }, search);
                     if (col.master) src.type = 'text';
+                    if (src.type=='radio') src.type='list';
                     object.addSearch(src);
                 } else {
                     var stype = col.searchable, attr  = '';
