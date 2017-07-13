@@ -406,7 +406,7 @@
                     pan.toolbar.refresh();
                 }
                 this.showToolbar(panel);
-                this.refresh('main');
+                this.refresh(panel);
             } else {
                 tmp.html('');
                 this.hideToolbar(panel);
