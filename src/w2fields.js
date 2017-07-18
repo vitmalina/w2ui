@@ -1783,7 +1783,7 @@
                     $('#w2ui-overlay .w2ui-date')
                         .on('mousedown', function () {
                             var day = $(this).attr('date');
-                            $(obj.el).val(day).change();
+                            $(obj.el).val(w2utils.formatDate(day)).change();
                             $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
                             selDate = new Date($(this).attr('data-date'));
                         })

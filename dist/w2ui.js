@@ -3625,7 +3625,7 @@ w2utils.event = {
                 if (search == null || search === false || object.getSearch(col.field) != null) continue;
                 if ($.isPlainObject(search)) {
                     var src = $.extend({ field: col.field, caption: col.caption, type: 'text' }, search);
-                    if (col.master) src.type = 'text';
+                    
                     if (src.type=='radio') src.type='list';
                     object.addSearch(src);
                 } else {
@@ -17393,7 +17393,7 @@ var w2prompt = function (label, title, callBack) {
                     $('#w2ui-overlay .w2ui-date')
                         .on('mousedown', function () {
                             var day = $(this).attr('date');
-                            $(obj.el).val(day).change();
+                            $(obj.el).val(w2utils.formatDate(day)).change();
                             $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
                             selDate = new Date($(this).attr('data-date'));
                         })
