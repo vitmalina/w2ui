@@ -474,7 +474,7 @@
                     }
                 }
                 if (match && returnIndex !== true) recs.push(this.records[i].recid);
-                if (match && returnIndex === true) recs.push(i);
+                if (match && returnIndex === true) recs.push(this.records[i]);
             }
             return recs;
         },
