@@ -5185,7 +5185,7 @@
 
                     //start event for drag start
                     _dragData.columnHead = origColumn = $( event.originalEvent.target ).parents( '.w2ui-head' );
-                    origColumnNumber = parseInt( origColumn.attr( 'col' ), 10);
+                    _dragData.originalPos = origColumnNumber = parseInt( origColumn.attr( 'col' ), 10);
                     edata = obj.trigger({ type: 'columnDragStart', phase: 'before', originalEvent: event, origColumnNumber: origColumnNumber, target: origColumn[0] });
                     if ( edata.isCancelled === true ) return false;
 
@@ -5195,7 +5195,6 @@
                     $( document ).on( 'mouseup', dragColEnd );
                     $( document ).on( 'mousemove', dragColOver );
 
-                    _dragData.originalPos = parseInt( $( event.originalEvent.target ).parent( '.w2ui-head' ).attr( 'col' ), 10 );
                     //_dragData.columns.css({ overflow: 'visible' }).children( 'div' ).css({ overflow: 'visible' });
 
                     //configure and style ghost image
