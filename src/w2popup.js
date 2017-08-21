@@ -887,6 +887,7 @@ var w2confirm = function (msg, title, callBack) {
         no_class    : '',
         no_style    : '',
         no_callBack : null,
+        focus_to_no : false,
         callBack    : null
     };
     if (arguments.length == 1 && typeof msg == 'object') {
@@ -967,7 +968,12 @@ var w2confirm = function (msg, title, callBack) {
                         if (event.target.id == 'Yes' && typeof options.yes_callBack == 'function') options.yes_callBack();
                         if (event.target.id == 'No'  && typeof options.no_callBack == 'function') options.no_callBack();
                     });
-                    $('#w2ui-popup .w2ui-popup-btn#Yes').focus();
+                    if(options.focus_to_no){
+                        $('#w2ui-popup .w2ui-popup-btn#No').focus();
+                    }else{
+                        $('#w2ui-popup .w2ui-popup-btn#Yes').focus();
+                    }
+                    
                 }, 1);
             },
             onKeydown: function (event) {
