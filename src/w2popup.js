@@ -64,7 +64,9 @@ var w2popup = {};
                 dlgOptions['body']  = $(this).html();
             }
             if (parseInt($(this).css('width')) !== 0)  dlgOptions['width']  = parseInt($(this).css('width'));
-            if (parseInt($(this).css('height')) !== 0) dlgOptions['height'] = parseInt($(this).css('height'));
+            //if the popup will have a title bar, we must add the height of title bar to the popup height
+            var hasTitlebar = options.title || (options.showClose || options.showClose === undefined) || (options.showMax || options.showMax === undefined) ;
+            if (parseInt($(this).css('height')) !== 0) dlgOptions['height'] = parseInt($(this).css('height')) + (hasTitlebar?32:0);
         }
         // show popup
         return w2popup[method]($.extend({}, dlgOptions, options));
