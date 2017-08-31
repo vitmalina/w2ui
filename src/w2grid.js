@@ -2604,13 +2604,16 @@
         // ===================================================
         // --  Action Handlers
 
-        save: function () {
+        save: function (callBack) {
             var obj = this;
             var changes = this.getChanges();
+            var url = (typeof this.url != 'object' ? this.url : this.url.save);
             // event before
             var edata = this.trigger({ phase: 'before', target: this.name, type: 'save', changes: changes });
-            if (edata.isCancelled === true) return;
-            var url = (typeof this.url != 'object' ? this.url : this.url.save);
+            if (edata.isCancelled === true) {
+                if (url && typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' });
+                return;
+            }
             if (url) {
                 this.request('save', { 'changes' : edata.changes }, null,
                     function (data) {
@@ -2620,6 +2623,8 @@
                         }
                         // event after
                         obj.trigger($.extend(edata, { phase: 'after' }));
+                        // call back
+                        if (typeof callBack == 'function') callBack(data);
                     }
                 );
             } else {
