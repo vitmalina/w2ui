@@ -3985,7 +3985,7 @@
                     end++;
                 }
                 this.records.splice(start, end - start + 1);
-                this.total -= end - start + 1;
+                if (this.total !== -1) this.total -= end - start + 1;
                 var url = (typeof this.url != 'object' ? this.url : this.url.get);
                 if (!url) {
                     if (this.searchData.length > 0) {
