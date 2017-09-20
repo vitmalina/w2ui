@@ -146,7 +146,7 @@ var w2utils = (function ($) {
     }
 
     function isHex (val) {
-        var re = /^[a-fA-F0-9]+$/;
+        var re = /^(0x)?[0-9a-fA-F]+$/;
         return re.test(val);
     }
 
@@ -156,7 +156,7 @@ var w2utils = (function ($) {
     }
 
     function isEmail (val) {
-        var email = /^[-a-zA-Z0-9._%-+]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+        var email = /^[a-zA-Z0-9._%-]+@[а-яА-Яa-zA-Z0-9.-]+\.[а-яА-Яa-zA-Z]+$/;
         return email.test(val);
     }
 
@@ -1459,11 +1459,11 @@ var w2utils = (function ($) {
         if (translation == null) return phrase; else return translation;
     }
 
-    function locale (locale) {
+    function locale (locale, callBack) {
         if (!locale) locale = 'en-us';
 
         // if the locale is an object, not a string, than we assume it's a
-        if(typeof locale !== "string" ) {
+        if (typeof locale !== "string" ) {
             w2utils.settings = $.extend(true, w2utils.settings, locale);
             return;
         }
@@ -1478,9 +1478,9 @@ var w2utils = (function ($) {
             url      : locale,
             type     : "GET",
             dataType : "JSON",
-            async    : false,
             success  : function (data, status, xhr) {
                 w2utils.settings = $.extend(true, w2utils.settings, data);
+                if (typeof callBack == 'function') callBack();
             },
             error    : function (xhr, status, msg) {
                 console.log('ERROR: Cannot load locale '+ locale);
@@ -1973,7 +1973,7 @@ w2utils.event = {
             if ((t.edata.type === edata.type || edata.type === '*' || (t.edata.scope != null && edata.type == '')) &&
                 (t.edata.target === edata.target || edata.target == null) &&
                 (t.edata.execute === edata.execute || edata.execute == null) &&
-                (t.handler === handler || handler == null || (scope != null && t.edata.scope == scope)))
+                ((t.handler === handler && handler != null) || (scope != null && t.edata.scope == scope)))
             {
                 // match
             } else {
@@ -2638,6 +2638,11 @@ w2utils.event = {
                 if (overflowY && options.align != 'both') div2.width(w + w2utils.scrollBarSize() + 2);
             }
             menu.css('overflow-y', 'auto');
+
+            // if outer div is bigger, match the size
+            if (div2.height() < div1.height()) {
+                div2.css('height', div1.height() + 'px');
+            }
         }
     };
 
@@ -3018,7 +3023,7 @@ w2utils.event = {
             .on('mousedown.w2color', function (event) {
                 var color = $(event.originalEvent.target).attr('name'); // should not have #
                 index = $(event.originalEvent.target).attr('index').split(':');
-                if (el.tagName == 'INPUT') {
+                if (el.tagName.toUpperCase() == 'INPUT') {
                     if (options.fireChange) $(el).change();
                     $(el).next().find('>div').css('background-color', color);
                 } else {
@@ -3111,7 +3116,7 @@ w2utils.event = {
                 }
             });
             if (!silent) {
-                if (el.tagName == 'INPUT') {
+                if (el.tagName.toUpperCase() == 'INPUT') {
                     $(el).val(newColor).data('skipInit', true);
                     if (options.fireChange) $(el).change();
                     $(el).next().find('>div').css('background-color', newColor);

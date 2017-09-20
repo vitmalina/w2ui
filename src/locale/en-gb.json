@@ -1,0 +1,17 @@
+{
+    "locale"         : "en-GB",
+    "dateFormat"     : "dd/mm/yyyy",
+    "timeFormat"     : "h24",
+    "currency"       : "^[\\£]?[-+]?[0-9]*[\\.]?[0-9]+$",
+    "currencyPrefix" : "£",
+    "currencySuffix" : "",
+    "groupSymbol"    : ",",
+    "float"          : "^[-]?[0-9]*[\\.]?[0-9]+$",
+    "shortmonths"    : [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ],
+    "fullmonths"     : [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ],
+    "shortdays"      : [ "M", "T", "W", "T", "F", "S", "S" ],
+    "fulldays"       : [ "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" ],
+    "phrases" : {
+
+    }
+}

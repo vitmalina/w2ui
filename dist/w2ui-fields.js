@@ -147,7 +147,7 @@ var w2utils = (function ($) {
     }
 
     function isHex (val) {
-        var re = /^[a-fA-F0-9]+$/;
+        var re = /^(0x)?[0-9a-fA-F]+$/;
         return re.test(val);
     }
 
@@ -157,7 +157,7 @@ var w2utils = (function ($) {
     }
 
     function isEmail (val) {
-        var email = /^[-a-zA-Z0-9._%-+]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+        var email = /^[a-zA-Z0-9._%-]+@[а-яА-Яa-zA-Z0-9.-]+\.[а-яА-Яa-zA-Z]+$/;
         return email.test(val);
     }
 
@@ -1460,11 +1460,11 @@ var w2utils = (function ($) {
         if (translation == null) return phrase; else return translation;
     }
 
-    function locale (locale) {
+    function locale (locale, callBack) {
         if (!locale) locale = 'en-us';
 
         // if the locale is an object, not a string, than we assume it's a
-        if(typeof locale !== "string" ) {
+        if (typeof locale !== "string" ) {
             w2utils.settings = $.extend(true, w2utils.settings, locale);
             return;
         }
@@ -1479,9 +1479,9 @@ var w2utils = (function ($) {
             url      : locale,
             type     : "GET",
             dataType : "JSON",
-            async    : false,
             success  : function (data, status, xhr) {
                 w2utils.settings = $.extend(true, w2utils.settings, data);
+                if (typeof callBack == 'function') callBack();
             },
             error    : function (xhr, status, msg) {
                 console.log('ERROR: Cannot load locale '+ locale);
@@ -1974,7 +1974,7 @@ w2utils.event = {
             if ((t.edata.type === edata.type || edata.type === '*' || (t.edata.scope != null && edata.type == '')) &&
                 (t.edata.target === edata.target || edata.target == null) &&
                 (t.edata.execute === edata.execute || edata.execute == null) &&
-                (t.handler === handler || handler == null || (scope != null && t.edata.scope == scope)))
+                ((t.handler === handler && handler != null) || (scope != null && t.edata.scope == scope)))
             {
                 // match
             } else {
@@ -2639,6 +2639,11 @@ w2utils.event = {
                 if (overflowY && options.align != 'both') div2.width(w + w2utils.scrollBarSize() + 2);
             }
             menu.css('overflow-y', 'auto');
+
+            // if outer div is bigger, match the size
+            if (div2.height() < div1.height()) {
+                div2.css('height', div1.height() + 'px');
+            }
         }
     };
 
@@ -3019,7 +3024,7 @@ w2utils.event = {
             .on('mousedown.w2color', function (event) {
                 var color = $(event.originalEvent.target).attr('name'); // should not have #
                 index = $(event.originalEvent.target).attr('index').split(':');
-                if (el.tagName == 'INPUT') {
+                if (el.tagName.toUpperCase() == 'INPUT') {
                     if (options.fireChange) $(el).change();
                     $(el).next().find('>div').css('background-color', color);
                 } else {
@@ -3112,7 +3117,7 @@ w2utils.event = {
                 }
             });
             if (!silent) {
-                if (el.tagName == 'INPUT') {
+                if (el.tagName.toUpperCase() == 'INPUT') {
                     $(el).val(newColor).data('skipInit', true);
                     if (options.fireChange) $(el).change();
                     $(el).next().find('>div').css('background-color', newColor);
@@ -3623,6 +3628,8 @@ w2utils.event = {
                         silent          : true,
                         icon            : null,
                         iconStyle       : '',
+                        align           : 'both',       // same width as control
+                        altRows         : true,         // alternate row color
                         onSearch        : null,         // when search needs to be performed
                         onRequest       : null,         // when request is submitted
                         onLoad          : null,         // when data is received
@@ -3653,10 +3660,7 @@ w2utils.event = {
                         }
                         this.watchSize();
                     }
-                    options = $.extend({}, defaults, options, {
-                        align   : 'both',      // same width as control
-                        altRows : true         // alternate row color
-                    });
+                    options = $.extend({}, defaults, options);
                     this.options = options;
                     if (!$.isPlainObject(options.selected)) options.selected = {};
                     $(this.el).data('selected', options.selected);
@@ -3691,6 +3695,8 @@ w2utils.event = {
                         maxDropWidth    : null,          // if null then auto set
                         match           : 'contains',    // ['contains', 'is', 'begins', 'ends']
                         silent          : true,
+                        align           : 'both',        // same width as control
+                        altRows         : true,          // alternate row color
                         openOnFocus     : false,         // if to show overlay onclick or when typing
                         markSearch      : true,
                         renderDrop      : null,          // render function for drop down item
@@ -3710,11 +3716,7 @@ w2utils.event = {
                         onMouseOut      : null,          // when an item is mouse out
                         onScroll        : null           // when div with selected items is scrolled
                     };
-                    options = $.extend({}, defaults, options, {
-                        align    : 'both',    // same width as control
-                        suffix   : '',
-                        altRows  : true       // alternate row color
-                    });
+                    options = $.extend({}, defaults, options, { suffix: '' });
                     options.items    = this.normMenu(options.items);
                     options.selected = this.normMenu(options.selected);
                     this.options = options;
@@ -3741,6 +3743,8 @@ w2utils.event = {
                         maxDropWidth  : null,     // if null then auto set
                         readContent   : true,     // if true, it will readAsDataURL content of the file
                         silent        : true,
+                        align         : 'both',   // same width as control
+                        altRows       : true,     // alternate row color
                         renderItem    : null,     // render selected item
                         style         : '',       // style for container div
                         onClick       : null,     // when an item is clicked
@@ -3749,10 +3753,7 @@ w2utils.event = {
                         onMouseOver   : null,     // when an item is mouse over
                         onMouseOut    : null      // when an item is mouse out
                     };
-                    options = $.extend({}, defaults, options, {
-                        align         : 'both',   // same width as control
-                        altRows        : true     // alternate row color
-                    });
+                    options = $.extend({}, defaults, options);
                     this.options = options;
                     if (!$.isArray(options.selected)) options.selected = [];
                     $(this.el).data('selected', options.selected);
@@ -4806,6 +4807,7 @@ w2utils.event = {
                                 data.records = data.items;
                                 delete data.items;
                             }
+                            if (data.status == 'success' && data.records == null) { data.records = []; } // handles Golang marshal of empty arrays to null
                             if (data.status != 'success' || !Array.isArray(data.records)) {
                                 console.log('ERROR: server did not return proper structure. It should return', { status: 'success', records: [{ id: 1, text: 'item' }] });
                                 return;
@@ -5119,7 +5121,7 @@ w2utils.event = {
                     $('#w2ui-overlay .w2ui-date')
                         .on('mousedown', function () {
                             var day = $(this).attr('date');
-                            $(obj.el).val(day).change();
+                            $(obj.el).val(w2utils.formatDate(day)).change();
                             $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
                             selDate = new Date($(this).attr('data-date'));
                         })
