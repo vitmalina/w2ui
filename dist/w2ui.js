@@ -7239,7 +7239,7 @@ w2utils.event = {
                     if (child.w2ui.children == null) child.w2ui.children = [];
                 });
                 this.records.splice.apply(this.records, [ind + 1, 0].concat(children));
-                this.total += children.length;
+                if (this.total !== -1) this.total += children.length;
                 var url = (typeof this.url != 'object' ? this.url : this.url.get);
                 if (!url) {
                     this.localSort(true, true);
