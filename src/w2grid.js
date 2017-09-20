@@ -5014,6 +5014,7 @@
                         if (edata.isCancelled === true) {
                             $('#grid_'+ obj.name + '_ghost').remove();
                             obj.refresh();
+                            delete obj.last.move;
                             return;
                         }
                         // default behavior
