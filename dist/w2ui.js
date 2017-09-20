@@ -19341,7 +19341,7 @@ var w2prompt = function (label, title, callBack) {
                 html += '\n      <div class="w2ui-field-container"><div class="w2ui-field '+ (field.html.span != null ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+
                         '\n         <label>' + w2utils.lang(field.html.caption) +'</label>'+
                         ((field.type === 'empty') ? '' : '\n         <div>'+ input + w2utils.lang(field.html.text) + '</div>') +
-                        '\n      </div>';
+                        '\n      </div></div>';
                 if (pages[field.html.page] == null) pages[field.html.page] = [];
                 if (pages[field.html.page][field.html.row] == null) pages[field.html.page][field.html.row] = [];
                 if (pages[field.html.page][field.html.row][field.html.column] == null) pages[field.html.page][field.html.row][field.html.column] = '';
