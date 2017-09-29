@@ -5347,7 +5347,7 @@ w2utils.event = {
                 for (var i = 0; i < field.length; i++) {
                     var data   = field[i];
                     var search = this.getSearch(data.field);
-                    if (search == null) search = { type: 'text', operator: 'begins' };
+                    if (search == null) search = { type: 'text', operator: this.textSearch };
                     if ($.isArray(data.value)) {
                         for (var j = 0; j < data.value.length; j++) {
                             if (typeof data.value[j] == 'string') data.value[j] = data.value[j].toLowerCase();
@@ -8883,8 +8883,9 @@ w2utils.event = {
                             break;
                         case 'w2ui-add':
                             // events
-                            var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'add', recid: null });
-                            obj.trigger($.extend(edata, { phase: 'after' }));
+                            var edata2 = obj.trigger({ phase: 'before', target: obj.name, type: 'add', recid: null });
+                            if (edata2.isCancelled === true) return false;
+                            obj.trigger($.extend(edata2, { phase: 'after' }));
                             // hide all tooltips
                             setTimeout(function () { $().w2tag(); }, 20);
                             break;
@@ -8893,8 +8894,9 @@ w2utils.event = {
                             var recid = null;
                             if (sel.length == 1) recid = sel[0];
                             // events
-                            var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'edit', recid: recid });
-                            obj.trigger($.extend(edata, { phase: 'after' }));
+                            var edata2 = obj.trigger({ phase: 'before', target: obj.name, type: 'edit', recid: recid });
+                            if (edata2.isCancelled === true) return false;
+                            obj.trigger($.extend(edata2, { phase: 'after' }));
                             // hide all tooltips
                             setTimeout(function () { $().w2tag(); }, 20);
                             break;
@@ -9553,7 +9555,7 @@ w2utils.event = {
                 var operator  = operators[0]; // default operator
                 if ($.isPlainObject(operator)) operator = operator.oper;
                 if (typeof search.options != 'object') search.options = {};
-                if (search.type == 'text') operator = 'begins'; // default operator for text
+                if (search.type == 'text') operator = this.textSearch;
                 // only accept search.operator if it is valid
                 for (var i = 0; i < operators.length; i++) {
                     var oper = operators[i];
@@ -11493,7 +11495,7 @@ w2utils.event = {
                     pan.toolbar.refresh();
                 }
                 this.showToolbar(panel);
-                this.refresh('main');
+                this.refresh(panel);
             } else {
                 tmp.html('');
                 this.hideToolbar(panel);
@@ -17140,6 +17142,7 @@ var w2prompt = function (label, title, callBack) {
                                 data.records = data.items;
                                 delete data.items;
                             }
+                            if (data.status == 'success' && data.records == null) { data.records = []; } // handles Golang marshal of empty arrays to null
                             if (data.status != 'success' || !Array.isArray(data.records)) {
                                 console.log('ERROR: server did not return proper structure. It should return', { status: 'success', records: [{ id: 1, text: 'item' }] });
                                 return;

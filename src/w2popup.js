@@ -64,7 +64,9 @@ var w2popup = {};
                 dlgOptions['body']  = $(this).html();
             }
             if (parseInt($(this).css('width')) !== 0)  dlgOptions['width']  = parseInt($(this).css('width'));
-            if (parseInt($(this).css('height')) !== 0) dlgOptions['height'] = parseInt($(this).css('height'));
+            //if the popup will have a title bar, we must add the height of title bar to the popup height
+            var hasTitlebar = options.title || (options.showClose || options.showClose === undefined) || (options.showMax || options.showMax === undefined) ;
+            if (parseInt($(this).css('height')) !== 0) dlgOptions['height'] = parseInt($(this).css('height')) + (hasTitlebar?32:0);
         }
         // show popup
         return w2popup[method]($.extend({}, dlgOptions, options));
@@ -887,6 +889,7 @@ var w2confirm = function (msg, title, callBack) {
         no_class    : '',
         no_style    : '',
         no_callBack : null,
+        focus_to_no : false,
         callBack    : null
     };
     if (arguments.length == 1 && typeof msg == 'object') {
@@ -967,7 +970,12 @@ var w2confirm = function (msg, title, callBack) {
                         if (event.target.id == 'Yes' && typeof options.yes_callBack == 'function') options.yes_callBack();
                         if (event.target.id == 'No'  && typeof options.no_callBack == 'function') options.no_callBack();
                     });
-                    $('#w2ui-popup .w2ui-popup-btn#Yes').focus();
+                    if(options.focus_to_no){
+                        $('#w2ui-popup .w2ui-popup-btn#No').focus();
+                    }else{
+                        $('#w2ui-popup .w2ui-popup-btn#Yes').focus();
+                    }
+                    
                 }, 1);
             },
             onKeydown: function (event) {

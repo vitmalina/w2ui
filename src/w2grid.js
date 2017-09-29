@@ -1908,8 +1908,8 @@
                                         || (search.type == 'percent' && w2utils.isFloat(value)) || ((search.type == 'hex' || search.type == 'color') && w2utils.isHex(value))
                                         || (search.type == 'currency' && w2utils.isMoney(value)) || (search.type == 'money' && w2utils.isMoney(value))
                                         || (search.type == 'date' && w2utils.isDate(value)) || (search.type == 'time' && w2utils.isTime(value))
-                                        || (search.type == 'datetime' && w2utils.isDateTime(value)) || (search.type == 'enum' && w2utils.isAlphaNumeric(value))
-                                        || (search.type == 'list' && w2utils.isAlphaNumeric(value))
+                                        || (search.type == 'datetime' && w2utils.isDateTime(value)) || (search.type == 'datetime' && w2utils.isDate(value))
+                                        || (search.type == 'enum' && w2utils.isAlphaNumeric(value)) || (search.type == 'list' && w2utils.isAlphaNumeric(value))
                                     ) {
                                     var tmp = {
                                         field    : search.field,
@@ -3060,8 +3060,8 @@
                     width   : 350,
                     height  : 170,
                     body    : '<div class="w2ui-centered">' + w2utils.lang(obj.msgDelete) + '</div>',
-                    buttons : '<button class="w2ui-btn w2ui-btn-red" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang('Yes') + '</button>'+
-                              '<button class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('No') + '</button>',
+                    buttons : '<button type="button" class="w2ui-btn w2ui-btn-red" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang('Yes') + '</button>'+
+                              '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('No') + '</button>',
                     onOpen: function (event) {
                         var inputs = $(this.box).find('input, textarea, select, button');
                         inputs.off('.message')
@@ -5185,7 +5185,7 @@
 
                     //start event for drag start
                     _dragData.columnHead = origColumn = $( event.originalEvent.target ).parents( '.w2ui-head' );
-                    origColumnNumber = parseInt( origColumn.attr( 'col' ), 10);
+                    _dragData.originalPos = origColumnNumber = parseInt( origColumn.attr( 'col' ), 10);
                     edata = obj.trigger({ type: 'columnDragStart', phase: 'before', originalEvent: event, origColumnNumber: origColumnNumber, target: origColumn[0] });
                     if ( edata.isCancelled === true ) return false;
 
@@ -5195,7 +5195,6 @@
                     $( document ).on( 'mouseup', dragColEnd );
                     $( document ).on( 'mousemove', dragColOver );
 
-                    _dragData.originalPos = parseInt( $( event.originalEvent.target ).parent( '.w2ui-head' ).attr( 'col' ), 10 );
                     //_dragData.columns.css({ overflow: 'visible' }).children( 'div' ).css({ overflow: 'visible' });
 
                     //configure and style ghost image
@@ -6097,7 +6096,7 @@
                 if (s.hidden) continue;
                 var btn = '';
                 if (showBtn == false) {
-                    btn = '<button class="w2ui-btn close-btn" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) obj.searchClose()">X</button>';
+                    btn = '<button type="button" class="w2ui-btn close-btn" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) obj.searchClose()">X</button>';
                     showBtn = true;
                 }
                 if (s.inTag   == null) s.inTag  = '';
@@ -6160,8 +6159,8 @@
             html += '<tr>'+
                     '    <td colspan="4" class="actions">'+
                     '        <div>'+
-                    '        <button class="w2ui-btn" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.searchReset(); }">'+ w2utils.lang('Reset') + '</button>'+
-                    '        <button class="w2ui-btn w2ui-btn-blue" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.search(); }">'+ w2utils.lang('Search') + '</button>'+
+                    '        <button type="button" class="w2ui-btn" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.searchReset(); }">'+ w2utils.lang('Reset') + '</button>'+
+                    '        <button type="button" class="w2ui-btn w2ui-btn-blue" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.search(); }">'+ w2utils.lang('Search') + '</button>'+
                     '        </div>'+
                     '    </td>'+
                     '</tr></tbody></table>';
@@ -7735,7 +7734,7 @@
                     width   : (options.length < 300 ? 350 : 550),
                     height  : (options.length < 300 ? 170: 250),
                     body    : '<div class="w2ui-centered">' + options + '</div>',
-                    buttons : '<button class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message()">Ok</button>',
+                    buttons : '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message()">Ok</button>',
                     onOpen  : function (event) {
                         setTimeout(function () {
                             $(this.box).find('.w2ui-btn').focus();
