@@ -9,14 +9,14 @@ When is the code a high quality one? When it is
 - easy to maintain
 - easy to expand
 
-It should be maintaninable.
+It should be maintainable.
 
 I am not talking about testable, error resistabnce, etc.
 
 1. The code should be readable. The code itself, not comments, should clearly state the intent. To make code readable, it is
 very important to adopt a good coding style and follow it consistently.
 
-2. Give short, consize names to methods and properties. Naming is hard.
+2. Give short, concise names to methods and properties. Naming is hard.
 - think of context where variable or property is defined?
 - name important variables meaningfully
 - do not use redundant names

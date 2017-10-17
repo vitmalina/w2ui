@@ -42,7 +42,7 @@
 		</div>
 		<div class="span4">
 			<h3>Nested</h3>
-			If 6 default panels is not enought for you, you can nest them. A layout panel can contain another layout with 6 more panels. There is no limit
+			If 6 default panels is not enough for you, you can nest them. A layout panel can contain another layout with 6 more panels. There is no limit
 			how many layouts you can nest.
 		</div>
 	</div>
@@ -52,7 +52,7 @@
 	<div class="row">
 		<div class="span4">
 			<h3>JavaScript Control</h3>
-			A widget is good when it has clean APIs and can be manupulated from JavaScript. 
+			A widget is good when it has clean APIs and can be manipulated from JavaScript.
 		</div>
 		<div class="span4">
 			<h3>Clean Syntax</h3>

@@ -35,7 +35,7 @@
 		</div>
 		<div class="span4">
 			<h3>Nested</h3>
-			Sidebar allows to create nested menues in case you need one.
+			Sidebar allows to create nested menus in case you need one.
 		</div>
 		<div class="span4">
 			<h3>Integrated</h3>
@@ -48,7 +48,7 @@
 	<div class="row">
 		<div class="span4">
 			<h3>JavaScript APIs</h3>
-			All functionality can be accessed from JavaScript in short, human-readble commands. 
+			All functionality can be accessed from JavaScript in short, human-readable commands.
 		</div>
 		<div class="span4">
 			<h3>Clean Syntax</h3>
@@ -56,7 +56,7 @@
 		</div>
 		<div class="span4">
 			<h3>Customizable</h3>
-			If you are not satisfied with a node, you can specidy any HTML text instead of it.
+			If you are not satisfied with a node, you can specify any HTML text instead of it.
 		</div>
 	</div>
 

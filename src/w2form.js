@@ -949,7 +949,7 @@
             var buttons = $(this.box).find('> div .w2ui-buttons');
             // if no height, calculate it
             resizeElements();
-            if (this.autosize) {    //we dont need autosize everytime
+            if (this.autosize) {    //we don't need auto-size every time
                 if (parseInt($(this.box).height()) === 0 || $(this.box).data('auto-size') === true) {
                     $(this.box).height(
                         (header.length > 0 ? w2utils.getSize(header, 'height') : 0) +

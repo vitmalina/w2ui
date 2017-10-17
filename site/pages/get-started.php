@@ -11,7 +11,7 @@
 	            <h1>Get Started</h1>
 	            <p>
 	                Working knowledge of JavaScript, HTM, and CSS is required. The w2ui library is primarily a JavaScript library, hence it is
-	                important you know some JavaScirpt before starting to work with the library. You can use the library with any server
+	                important you know some JavaScript before starting to work with the library. You can use the library with any server
 	                side language (NodeJS, php, Java, .NET, perl, etc.). It can render data returned from the server or generated in the
 	                browser with JavaScript.
                 </p>
@@ -21,7 +21,7 @@
             <section id="download">
                 <h2>Download</h2>
                 <p>
-                    You can dowload either a minified version of the library or get full source code from github.com. There 2 files that you will
+                    You can download either a minified version of the library or get full source code from github.com. There 2 files that you will
                     need, w2ui.js (or w2ui-1.5.rc1.min.js) and w2ui.css (or w2ui-1.5.rc1.min.css). Those files need to be included in every page where you want to
                     use the library.
                 </p>

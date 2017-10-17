@@ -63,8 +63,8 @@
 				
 				<h4>Step 2</h4>
 				Create custom pages. In the example above, it assumes you already have pages/home.php page. This page will be loaded on 
-				initialization. This page is dynamicly loaded through $.post() and inserted into the view. This page can be any HTML markup. However,
-				to take advantange of CSS themeing it can be as follows:
+				initialization. This page is dynamically loaded through $.post() and inserted into the view. This page can be any HTML markup. However,
+				to take advantage of CSS themeing it can be as follows:
 <textarea class="html">
 <div class="toolbar">
     <h1>Web 2.0 Touch</h1>
@@ -100,11 +100,11 @@
 				</ul>
 				<h4>Step 3</h4>
 				To learn how to use other UI controls, you can open files inside /pages folder and use them as examples. The files are small 
-				and self explanatory. All pages are dynamicly loaded into the view. Each time a page is transitioned, previous page is deleted to make it 
+				and self explanatory. All pages are dynamically loaded into the view. Each time a page is transitioned, previous page is deleted to make it
 				easier for the mobile processor to operate. Mobile processors are slow, as you might have noticed already.
 				
 				<br><br>
-				Thank you for using Web 2.0 Touch. I hope it helps you. If you are interesed in participating, fork me on github.
+				Thank you for using Web 2.0 Touch. I hope it helps you. If you are interested in participating, fork me on github.
 			</div>
 		</p>
 		</div>
