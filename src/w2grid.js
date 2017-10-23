@@ -5203,7 +5203,15 @@
                 _dragData.pressed = true;
 
                 _dragData.timeout = setTimeout(function(){
-                    if ( !_dragData.pressed ) return;
+                    // When dragging a column for reordering, a quick release and a secondary
+                    // click may result in a bug where the column is ghosted to the screen,
+                    // but can no longer be docked back into the header.  It simply floats and you
+                    // can no longer interact with it.
+                    // The erronius event thats fired will have _dragData.numberPreColumnsPresent === 0
+                    // populated, wheras a valid event will not.
+                    // if we see the erronius event, dont allow that second click to register, which results
+                    // in the floating column remaining under the mouse's control.
+                    if ( !_dragData.pressed || _dragData.numberPreColumnsPresent === 0 ) return;
 
                     var edata,
                         columns,
