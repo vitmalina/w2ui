@@ -198,6 +198,7 @@
         this.multiSort       = true;
         this.reorderColumns  = false;
         this.reorderRows     = false;
+        this.searchContextRows = 0;
         this.markSearch      = true;
         this.columnTooltip   = 'normal'; // can be normal, top, bottom, left, right
         this.disableCVS      = false;    // disable Column Virtual Scroll
@@ -990,7 +991,43 @@
                     if (match) {
                         if (rec && rec.w2ui)
                             addParent(rec.w2ui.parent_recid);
-                        this.last.searchIds.push(i);
+
+                        if (this.searchContextRows && this.searchContextRows > 0)
+                        {
+                            var beforeItemCount = this.searchContextRows;
+                            var afterItemCount = this.searchContextRows;
+
+                            if (i < beforeItemCount)
+                                beforeItemCount = i;
+
+                            if (i + afterItemCount > this.records.length)
+                                afterItemCount = this.records.length - i;
+
+                            if (beforeItemCount > 0)
+                            {
+                                for (var j = i - beforeItemCount; j < i; j++)
+                                {
+                                    if (this.last.searchIds.indexOf(j) < 0)
+                                        this.last.searchIds.push(j);
+                                }
+                            }
+
+                            if (this.last.searchIds.indexOf(i) < 0)
+                                this.last.searchIds.push(i);
+
+                            if (afterItemCount > 0)
+                            {
+                                for (var j = (i + 1) ; j <= (i + afterItemCount) ; j++)
+                                {
+                                    if (this.last.searchIds.indexOf(j) < 0)
+                                        this.last.searchIds.push(j);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            this.last.searchIds.push(i);
+                        }
                     }
                 }
                 this.total = this.last.searchIds.length;
@@ -5166,7 +5203,15 @@
                 _dragData.pressed = true;
 
                 _dragData.timeout = setTimeout(function(){
-                    if ( !_dragData.pressed ) return;
+                    // When dragging a column for reordering, a quick release and a secondary
+                    // click may result in a bug where the column is ghosted to the screen,
+                    // but can no longer be docked back into the header.  It simply floats and you
+                    // can no longer interact with it.
+                    // The erronius event thats fired will have _dragData.numberPreColumnsPresent === 0
+                    // populated, wheras a valid event will not.
+                    // if we see the erronius event, dont allow that second click to register, which results
+                    // in the floating column remaining under the mouse's control.
+                    if ( !_dragData.pressed || _dragData.numberPreColumnsPresent === 0 ) return;
 
                     var edata,
                         columns,

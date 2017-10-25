@@ -66,6 +66,7 @@ var w2utils = (function ($) {
         isHex           : isHex,
         isAlphaNumeric  : isAlphaNumeric,
         isEmail         : isEmail,
+        isIpAddress     : isIpAddress,
         isDate          : isDate,
         isTime          : isTime,
         isDateTime      : isDateTime,
@@ -158,6 +159,14 @@ var w2utils = (function ($) {
     function isEmail (val) {
         var email = /^[a-zA-Z0-9._%-]+@[а-яА-Яa-zA-Z0-9.-]+\.[а-яА-Яa-zA-Z]+$/;
         return email.test(val);
+    }
+    
+    function isIpAddress (val) {
+        var re = new RegExp('^' +
+                            '((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}' +
+                            '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' + 
+                            '$');
+        return re.test(val);
     }
 
     function isDate (val, format, retDate) {
