@@ -275,10 +275,12 @@ var w2utils = (function ($) {
         if (typeof val.getUTCFullYear === 'function') { // date object
             if (retDate !== true) return true;
             return val;
-        } else if (parseInt(val) == val && parseInt(val) > 0) {
+        } else if (parseInt(val) === val && parseInt(val) >= 0) {
             val = new Date(parseInt(val));
             if (retDate !== true) return true;
             return val;
+        } else if (parseInt(val) === val && parseInt(val) < 0) {
+            return false;
         } else {
             var tmp = String(val).indexOf(' ');
             var values  = [val.substr(0, tmp), val.substr(tmp).trim()];
