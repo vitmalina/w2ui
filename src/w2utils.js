@@ -2927,7 +2927,7 @@ w2utils.event = {
                     if (img)  imgd = '<td class="menu-icon"><div class="w2ui-tb-image w2ui-icon '+ img +'"></div></td>';
                     if (icon) imgd = '<td class="menu-icon" align="center"><span class="w2ui-icon '+ icon +'"></span></td>';
                     // render only if non-empty
-                    if (txt != null && txt !== '' && !(/^-+$/.test(txt))) {
+                    if (mitem.type !== 'break' && txt != null && txt !== '' && !(/^-+$/.test(txt))) {
                         var bg = (count % 2 === 0 ? 'w2ui-item-even' : 'w2ui-item-odd');
                         if (options.altRows !== true) bg = '';
                         var colspan = 1;
