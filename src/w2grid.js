@@ -1852,6 +1852,14 @@
                             value1 = value1.id || '';
                         }
                     }
+
+                    if (['checkbox'].indexOf(search.type) != -1) {
+                        value2 = null;
+                        if (field1.prop('checked')) value1 = true;
+                        else if (field2.prop('checked')) value1 = false;
+                        else value1 = null;
+                    }
+
                     if ((value1 !== '' && value1 != null) || (value2 != null && value2 !== '')) {
                         var tmp = {
                             field    : search.field,
@@ -6164,6 +6172,10 @@
                         html += '<select rel="search" class="w2ui-input" style="'+ s.style +'" id="grid_'+ this.name +'_field_'+ i +'" '+
                                 ' name="'+ s.field +'" '+ s.inTag +'></select>';
                         break;
+                    case 'checkbox':
+                        html += '<input type="radio" name="'+ s.field +'" id="grid_'+ this.name +'_field_'+ i +'" value="1"/>'+w2utils.lang('Yes') + ' ' +
+                                '<input type="radio" name="'+ s.field +'" id="grid_'+ this.name +'_field2_'+ i +'" value="0"/>'+w2utils.lang('No');
+                        break;
 
                 }
                 html += s.outTag +
@@ -6303,6 +6315,10 @@
                             }
                         }
                         $('#grid_'+ this.name +'_field_'+s).html(options);
+                        break;
+                   case 'checkbox':
+                        if (sdata && sdata.value) $('#grid_'+ this.name +'_field_'+s).prop('checked', true);
+                        else if (sdata) $('#grid_'+ this.name +'_field2_'+s).prop('checked', true);
                         break;
                 }
                 if (sdata != null) {
