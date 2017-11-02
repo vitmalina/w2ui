@@ -3278,6 +3278,10 @@
                     }
                 }
             } else {
+                if (event.altKey){
+                    var column = this.getColumn(field);
+                    if (column && column.sortable) this.sort(field, null, (event && (event.ctrlKey || event.metaKey) ? true : false) );
+                }
                 // select entire column
                 if (edata.field == 'line-number') {
                     if (this.getSelection().length >= this.records.length) {
