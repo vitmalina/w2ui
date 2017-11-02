@@ -6153,6 +6153,7 @@ w2utils.event = {
 
             switch (key) {
                 case 8:  // backspace
+                    obj.editField(obj.getSelection()[0].recid, obj.getSelection()[0].column, '');
                 case 46: // delete
                     if (this.show.toolbarDelete || this.onDelete) obj["delete"]();
                     cancel = true;
@@ -6169,6 +6170,10 @@ w2utils.event = {
                     obj.selectAll();
                     cancel = true;
                     break;
+
+                case 0: // start of Japanese IME
+
+                case 229: // Japanese IME
 
                 case 13: // enter
                     // if expandable columns - expand it
@@ -6451,7 +6456,7 @@ w2utils.event = {
                     }
                     break;
             }
-            var tmp = [32, 187, 189, 192, 219, 220, 221, 186, 222, 188, 190, 191]; // other typable chars
+            var tmp = [32, 187, 189, 192, 219, 220, 221, 186, 222, 229, 188, 190, 191]; // other typable chars
             for (var i=48; i<=111; i++) tmp.push(i); // 0-9,a-z,A-Z,numpad
             if (tmp.indexOf(key) != -1 && !event.ctrlKey && !event.metaKey && !cancel) {
                 if (columns.length === 0) columns.push(0);
