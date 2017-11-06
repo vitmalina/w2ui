@@ -6272,6 +6272,7 @@ w2utils.event = {
                     cancel = true;
                     break;
 
+                case 9:
                 case 39: // right
                     if (empty) {
                         selectTopRecord();
