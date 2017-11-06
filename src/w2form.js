@@ -789,6 +789,28 @@
             setTimeout(function () { w2utils.unlock(box, speed); }, 25); // needed timer so if server fast, it will not flash
         },
 
+        lockPage: function(page, msg){
+            var $page = $(this.box).find(".page-" + page);
+            if($page.length){
+                // page found
+                w2utils.lock($page, msg);
+                return true;
+            }
+            // page with this id not found!
+            return false;
+        },
+
+        unlockPage: function(page, speed){
+            var $page = $(this.box).find(".page-" + page);
+            if($page.length){
+                // page found
+                w2utils.unlock($page, speed);
+                return true;
+            }
+            // page with this id not found!
+            return false;
+        },
+
         goto: function (page) {
             if (this.page === page) return; // already on this page
             if (page != null) this.page = page;
