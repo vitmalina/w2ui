@@ -107,14 +107,14 @@ var w2utils = (function ($) {
         testLocalStorage  : testLocalStorage,
         hasLocalStorage   : testLocalStorage(),
         // some internal variables
-        isIOS : ((navigator.userAgent.toLowerCase().indexOf('iphone') != -1 ||
-                 navigator.userAgent.toLowerCase().indexOf('ipod') != -1 ||
-                 navigator.userAgent.toLowerCase().indexOf('ipad') != -1 ||
-                 navigator.userAgent.toLowerCase().indexOf('mobile') != -1 ||
-                 navigator.userAgent.toLowerCase().indexOf('android') != -1)
+        isIOS : ((navigator.userAgent.toLowerCase().indexOf('iphone') !== -1 ||
+                 navigator.userAgent.toLowerCase().indexOf('ipod') !== -1 ||
+                 navigator.userAgent.toLowerCase().indexOf('ipad') !== -1 ||
+                 navigator.userAgent.toLowerCase().indexOf('mobile') !== -1 ||
+                 navigator.userAgent.toLowerCase().indexOf('android') !== -1)
                  ? true : false),
-        isIE : ((navigator.userAgent.toLowerCase().indexOf('msie') != -1 ||
-                 navigator.userAgent.toLowerCase().indexOf('trident') != -1 )
+        isIE : ((navigator.userAgent.toLowerCase().indexOf('msie') !== -1 ||
+                 navigator.userAgent.toLowerCase().indexOf('trident') !== -1 )
                  ? true : false)
     };
     return obj;
@@ -130,7 +130,7 @@ var w2utils = (function ($) {
     }
 
     function isFloat (val) {
-        if (typeof val == 'string') val = val.replace(/\s+/g, '').replace(w2utils.settings.groupSymbol, '').replace(w2utils.settings.decimalSymbol, '.');
+        if (typeof val === 'string') val = val.replace(/\s+/g, '').replace(w2utils.settings.groupSymbol, '').replace(w2utils.settings.decimalSymbol, '.');
         return (typeof val === 'number' || (typeof val === 'string' && val !== '')) && !isNaN(Number(val));
     }
 
@@ -226,7 +226,7 @@ var w2utils = (function ($) {
         dt    = new Date(year, month - 1, day);
         // do checks
         if (month == null) return false;
-        if (String(dt) == 'Invalid Date') return false;
+        if (String(dt) === 'Invalid Date') return false;
         if ((dt.getMonth() + 1 !== month) || (dt.getDate() !== day) || (dt.getFullYear() !== year)) return false;
         if (retDate === true) return dt; else return true;
     }
@@ -309,7 +309,7 @@ var w2utils = (function ($) {
         } else {
             d1 = new Date(dateStr);
         }
-        if (String(d1) == 'Invalid Date') return '';
+        if (String(d1) === 'Invalid Date') return '';
 
         var d2  = new Date();
         var sec = (d2.getTime() - d1.getTime()) / 1000;
@@ -366,10 +366,10 @@ var w2utils = (function ($) {
     }
 
     function date (dateStr) {
-        if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
+        if (dateStr === '' || dateStr == null || (typeof dateStr === 'object' && !dateStr.getMonth)) return '';
         var d1 = new Date(dateStr);
         if (w2utils.isInt(dateStr)) d1 = new Date(Number(dateStr)); // for unix timestamps
-        if (String(d1) == 'Invalid Date') return '';
+        if (String(d1) === 'Invalid Date') return '';
 
         var months = w2utils.settings.shortmonths;
         var d2   = new Date(); // today
@@ -399,7 +399,7 @@ var w2utils = (function ($) {
     }
 
     function formatNumber (val, fraction, useGrouping) {
-        if (val == null || val === '' || typeof val == 'object') return '';
+        if (val == null || val === '' || typeof val === 'object') return '';
         var options = {
             minimumFractionDigits : fraction,
             maximumFractionDigits : fraction,
@@ -414,11 +414,11 @@ var w2utils = (function ($) {
 
     function formatDate (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
         if (!format) format = this.settings.dateFormat;
-        if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
+        if (dateStr === '' || dateStr == null || (typeof dateStr === 'object' && !dateStr.getMonth)) return '';
 
         var dt = new Date(dateStr);
         if (w2utils.isInt(dateStr)) dt = new Date(Number(dateStr)); // for unix timestamps
-        if (String(dt) == 'Invalid Date') return '';
+        if (String(dt) === 'Invalid Date') return '';
 
         var year  = dt.getFullYear();
         var month = dt.getMonth();
@@ -443,7 +443,7 @@ var w2utils = (function ($) {
         var months = w2utils.settings.shortmonths;
         var fullMonths = w2utils.settings.fullmonths;
         if (!format) format = this.settings.timeFormat;
-        if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
+        if (dateStr === '' || dateStr == null || (typeof dateStr === 'object' && !dateStr.getMonth)) return '';
 
         var dt = new Date(dateStr);
         if (w2utils.isInt(dateStr)) dt  = new Date(Number(dateStr)); // for unix timestamps
@@ -453,7 +453,7 @@ var w2utils = (function ($) {
             dt.setHours(tmp.hours);
             dt.setMinutes(tmp.minutes);
         }
-        if (String(dt) == 'Invalid Date') return '';
+        if (String(dt) === 'Invalid Date') return '';
 
         var type = 'am';
         var hour = dt.getHours();
@@ -483,7 +483,7 @@ var w2utils = (function ($) {
 
     function formatDateTime(dateStr, format) {
         var fmt;
-        if (dateStr === '' || dateStr == null || (typeof dateStr == 'object' && !dateStr.getMonth)) return '';
+        if (dateStr === '' || dateStr == null || (typeof dateStr === 'object' && !dateStr.getMonth)) return '';
         if (typeof format !== 'string') {
             fmt = [this.settings.dateFormat, this.settings.timeFormat];
         } else {
@@ -492,8 +492,8 @@ var w2utils = (function ($) {
             fmt[1] = (fmt.length > 1 ? fmt[1].trim() : this.settings.timeFormat);
         }
         // older formats support
-        if (fmt[1] == 'h12') fmt[1] = 'h:m pm';
-        if (fmt[1] == 'h24') fmt[1] = 'h24:m';
+        if (fmt[1] === 'h12') fmt[1] = 'h:m pm';
+        if (fmt[1] === 'h24') fmt[1] = 'h24:m';
         return this.formatDate(dateStr, fmt[0]) + ' ' + this.formatTime(dateStr, fmt[1]);
     }
 
@@ -1247,7 +1247,7 @@ var w2utils = (function ($) {
         if (!options.msg) mess.css({ 'background-color': 'transparent', 'border': '0px' });
         if (options.spinner === true) options.msg = '<div class="w2ui-spinner" '+ (!options.msg ? 'style="width: 35px; height: 35px"' : '') +'></div>' + options.msg;
         if (options.opacity != null) $lock.css('opacity', options.opacity);
-        if (typeof $lock.fadeIn == 'function') {
+        if (typeof $lock.fadeIn === 'function') {
             $lock.fadeIn(200);
             mess.html(options.msg).fadeIn(200);
         } else {
@@ -1328,14 +1328,14 @@ var w2utils = (function ($) {
                 'transition': '0.15s',
                 'transform': 'translateY(-' + options.height + 'px)'
             })).addClass('w2ui-closing');
-            if (msgCount == 1) {
+            if (msgCount === 1) {
                 if (this.unlock) {
                     if (where.param) this.unlock(where.param, 150); else this.unlock(150);
                 }
             } else {
                 $(where.box).find('#w2ui-message'+ (msgCount-2)).css('z-index', 1500);
             }
-            closeTimer = setTimeout(function () { closeCB($msg, options) }, 150);
+            closeTimer = setTimeout(function () { closeCB($msg, options); }, 150);
 
         } else {
 
@@ -1366,9 +1366,9 @@ var w2utils = (function ($) {
                 .data('prev_focus', $(':focus'));
             var display = $(where.box).find('#w2ui-message'+ msgCount).css('display');
             $(where.box).find('#w2ui-message'+ msgCount).css(w2utils.cssPrefix({
-                'transform': (display == 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)')
+                'transform': (display === 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)')
             }));
-            if (display == 'none') {
+            if (display === 'none') {
                 $(where.box).find('#w2ui-message'+ msgCount).show().html(options.html);
                 options.box = $(where.box).find('#w2ui-message'+ msgCount);
                 // before event
@@ -1381,7 +1381,7 @@ var w2utils = (function ($) {
                 // timer needs to animation
                 setTimeout(function () {
                     $(where.box).find('#w2ui-message'+ msgCount).css(w2utils.cssPrefix({
-                        'transform': (display == 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)')
+                        'transform': (display === 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)')
                     }));
                 }, 1);
                 // timer for lock
@@ -1489,7 +1489,7 @@ var w2utils = (function ($) {
             dataType : "JSON",
             success  : function (data, status, xhr) {
                 w2utils.settings = $.extend(true, w2utils.settings, data);
-                if (typeof callBack == 'function') callBack();
+                if (typeof callBack === 'function') callBack();
             },
             error    : function (xhr, status, msg) {
                 console.log('ERROR: Cannot load locale '+ locale);
@@ -1589,7 +1589,7 @@ var w2utils = (function ($) {
         var doc = input.ownerDocument || input.document;
         var win = doc.defaultView || doc.parentWindow;
         var sel;
-        if (input.tagName && input.tagName.toUpperCase() == 'INPUT' && input.selectionStart) {
+        if (input.tagName && input.tagName.toUpperCase() === 'INPUT' && input.selectionStart) {
             // standards browser
             caretOffset = input.selectionStart;
         } else {
@@ -1602,7 +1602,7 @@ var w2utils = (function ($) {
                     preCaretRange.setEnd(range.endContainer, range.endOffset);
                     caretOffset = preCaretRange.toString().length;
                 }
-            } else if ( (sel = doc.selection) && sel.type != "Control") {
+            } else if ( (sel = doc.selection) && sel.type !== "Control") {
                 var textRange = sel.createRange();
                 var preCaretTextRange = doc.body.createTextRange();
                 preCaretTextRange.moveToElementText(input);
@@ -1662,39 +1662,39 @@ var w2utils = (function ($) {
     }
 
     function parseColor(str) {
-        if (typeof str != 'string') return null; else str = str.trim().toUpperCase();
-        if (str[0] == '#') str = str.substr(1);
+        if (typeof str !== 'string') return null; else str = str.trim().toUpperCase();
+        if (str[0] === '#') str = str.substr(1);
         var color = {};
-        if (str.length == 3) {
+        if (str.length === 3) {
             color = {
                 r: parseInt(str[0] + str[0], 16),
                 g: parseInt(str[1] + str[1], 16),
                 b: parseInt(str[2] + str[2], 16),
                 a: 1
-            }
-        } else if (str.length == 6) {
+            };
+        } else if (str.length === 6) {
             color = {
                 r: parseInt(str.substr(0, 2), 16),
                 g: parseInt(str.substr(2, 2), 16),
                 b: parseInt(str.substr(4, 2), 16),
                 a: 1
-            }
-        } else if (str.length > 4 && str.substr(0, 4) == 'RGB(') {
+            };
+        } else if (str.length > 4 && str.substr(0, 4) === 'RGB(') {
             var tmp = str.replace('RGB', '').replace(/\(/g, '').replace(/\)/g, '').split(',');
             color = {
                 r: parseInt(tmp[0], 10),
                 g: parseInt(tmp[1], 10),
                 b: parseInt(tmp[2], 10),
                 a: 1
-            }
-        } else if (str.length > 5 && str.substr(0, 5) == 'RGBA(') {
+            };
+        } else if (str.length > 5 && str.substr(0, 5) === 'RGBA(') {
             var tmp = str.replace('RGBA', '').replace(/\(/g, '').replace(/\)/g, '').split(',');
             color = {
                 r: parseInt(tmp[0], 10),
                 g: parseInt(tmp[1], 10),
                 b: parseInt(tmp[2], 10),
                 a: parseFloat(tmp[3])
-            }
+            };
         } else {
             // word color
             return null;
@@ -1729,7 +1729,7 @@ var w2utils = (function ($) {
             g: Math.round(g * 255),
             b: Math.round(b * 255),
             a: (a != null ? a : 1)
-        }
+        };
     }
 
     // r=0..255, g=0..255, b=0..255
@@ -1770,14 +1770,14 @@ var w2utils = (function ($) {
         , codeB = 1
         , posA = 0
         , posB = 0
-        , alphabet = String.alphabet
+        , alphabet = String.alphabet;
 
         function getCode(str, pos, code) {
             if (code) {
                 for (i = pos; code = getCode(str, i), code < 76 && code > 65;) ++i;
-                return +str.slice(pos - 1, i)
+                return +str.slice(pos - 1, i);
             }
-            code = alphabet && alphabet.indexOf(str.charAt(pos))
+            code = alphabet && alphabet.indexOf(str.charAt(pos));
             return code > -1 ? code + 76 : ((code = str.charCodeAt(pos) || 0), code < 45 || code > 127) ? code
                 : code < 46 ? 65               // -
                 : code < 48 ? code - 1
@@ -1786,23 +1786,23 @@ var w2utils = (function ($) {
                 : code < 91 ? code + 11        // A-Z
                 : code < 97 ? code - 37
                 : code < 123 ? code + 5        // a-z
-                : code - 63
+                : code - 63;
         }
 
 
         if ((a+="") != (b+="")) for (;codeB;) {
-            codeA = getCode(a, posA++)
-            codeB = getCode(b, posB++)
+            codeA = getCode(a, posA++);
+            codeB = getCode(b, posB++);
 
             if (codeA < 76 && codeB < 76 && codeA > 66 && codeB > 66) {
-                codeA = getCode(a, posA, posA)
-                codeB = getCode(b, posB, posA = i)
-                posB = i
+                codeA = getCode(a, posA, posA);
+                codeB = getCode(b, posB, posA = i);
+                posB = i;
             }
 
-            if (codeA != codeB) return (codeA < codeB) ? -1 : 1
+            if (codeA != codeB) return (codeA < codeB) ? -1 : 1;
         }
-        return 0
+        return 0;
     }
 })(jQuery);
 
@@ -1929,15 +1929,15 @@ w2utils.event = {
         var $ = jQuery;
         var scope;
         // allow 'eventName.scope' syntax
-        if (typeof edata == 'string' && edata.indexOf('.') != -1) {
+        if (typeof edata === 'string' && edata.indexOf('.') !== -1) {
             var tmp = edata.split('.');
             edata = tmp[0];
             scope = tmp[1];
         }
         // allow 'eventName:after' syntax
-        if (typeof edata == 'string' && edata.indexOf(':') != -1) {
+        if (typeof edata === 'string' && edata.indexOf(':') !== -1) {
             var tmp = edata.split(':');
-            if (['complete', 'done'].indexOf(edata[1]) != -1) edata[1] = 'after';
+            if (['complete', 'done'].indexOf(edata[1]) !== -1) edata[1] = 'after';
             edata = {
                 type    : tmp[0],
                 execute : tmp[1]
@@ -1956,19 +1956,19 @@ w2utils.event = {
         var $ = jQuery;
         var scope;
         // allow 'eventName.scope' syntax
-        if (typeof edata == 'string' && edata.indexOf('.') != -1) {
+        if (typeof edata === 'string' && edata.indexOf('.') !== -1) {
             var tmp = edata.split('.');
             edata = tmp[0];
             scope = tmp[1];
         }
         // allow 'eventName:after' syntax
-        if (typeof edata == 'string' && edata.indexOf(':') != -1) {
+        if (typeof edata === 'string' && edata.indexOf(':') !== -1) {
             var tmp = edata.split(':');
-            if (['complete', 'done'].indexOf(edata[1]) != -1) edata[1] = 'after';
+            if (['complete', 'done'].indexOf(edata[1]) !== -1) edata[1] = 'after';
             edata = {
                 type    : tmp[0],
                 execute : tmp[1]
-            }
+            };
         }
         if (!$.isPlainObject(edata)) edata = { type: edata };
         edata = $.extend({}, { type: null, execute: 'before', target: null, onComplete: null }, edata);
@@ -2060,7 +2060,7 @@ w2utils.event = {
         if (edata.phase === 'after') {
             if (typeof edata.onComplete === 'function') edata.onComplete.call(this, edata);
             for (var i = 0; i < edata.doneHandlers.length; i++) {
-                if (typeof edata.doneHandlers[i] == 'function') {
+                if (typeof edata.doneHandlers[i] === 'function') {
                     edata.doneHandlers[i].call(this, edata);
                 }
             }
@@ -2113,7 +2113,7 @@ w2utils.event = {
         }
 
         function clearMarkedText(index, el) {
-            while (el.innerHTML.indexOf('<span class="w2ui-marker">') != -1) {
+            while (el.innerHTML.indexOf('<span class="w2ui-marker">') !== -1) {
                 el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"\>((.|\n|\r)*)\<\/span\>/ig, '$1'); // unmark
             }
         }
@@ -2123,7 +2123,7 @@ w2utils.event = {
 
     $.fn.w2tag = function (text, options) {
         // only one argument
-        if (arguments.length == 1 && typeof text == 'object') {
+        if (arguments.length === 1 && typeof text === 'object') {
             options = text;
             if (options.html != null) text = options.html;
         }
@@ -2186,7 +2186,7 @@ w2utils.event = {
                     isMoved   : isMoved,   // if called, will adjust position
                     // internal
                     tmp       : {}         // for temp variables
-                }
+                };
             }
             // show or hide tag
             if (text === '' || text == null) {
@@ -2237,7 +2237,7 @@ w2utils.event = {
                     $(tag.attachedTo).on('keypress.w2tag', tag.hide);
                 }
                 if (options.hideOnChange) {
-                    if (el.nodeName == 'INPUT') {
+                    if (el.nodeName === 'INPUT') {
                         $(el).on('change.w2tag', tag.hide);
                     } else {
                         $(el).find('input').on('change.w2tag', tag.hide);
@@ -2247,7 +2247,7 @@ w2utils.event = {
                     $(tag.attachedTo).on('blur.w2tag', tag.hide);
                 }
                 if (tag.options.hideOnClick) {
-                    $(document).on('click.w2tag', tag.hide)
+                    $(document).on('click.w2tag', tag.hide);
                 }
                 if (typeof tag.options.onShow === 'function') {
                     tag.options.onShow();
@@ -2304,43 +2304,43 @@ w2utils.event = {
                 var tagBody  = tag.box.find('.w2ui-tag-body');
                 var width    = tagBody[0].offsetWidth;
                 var height   = tagBody[0].offsetHeight;
-                if (typeof tag.options.position == 'string' && tag.options.position.indexOf('|') != -1) {
+                if (typeof tag.options.position === 'string' && tag.options.position.indexOf('|') !== -1) {
                     tag.options.position = tag.options.position.split('|');
                 }
-                if (tag.options.position == 'top') {
+                if (tag.options.position === 'top') {
                     posClass  = 'w2ui-tag-top';
                     posLeft   = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - 14;
                     posTop    = parseInt(offset.top + (tag.options.top ? tag.options.top : 0)) - height - 10;
-                } else if (tag.options.position == 'bottom') {
+                } else if (tag.options.position === 'bottom') {
                     posClass  = 'w2ui-tag-bottom';
                     posLeft   = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - 14;
                     posTop    = parseInt(offset.top + tag.attachedTo.offsetHeight + (tag.options.top ? tag.options.top : 0)) + 10;
-                } else if (tag.options.position == 'left') {
+                } else if (tag.options.position === 'left') {
                     posClass  = 'w2ui-tag-left';
                     posLeft   = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - width - 20;
                     posTop    = parseInt(offset.top + (tag.options.top ? tag.options.top : 0));
                 } else if (Array.isArray(tag.options.position)) {
                     // try to fit the tag on screen in the order defined in the array
                     var maxWidth  = window.innerWidth;
-                    var maxHeight = window.innerHeight
+                    var maxHeight = window.innerHeight;
                     for (var i = 0; i < tag.options.position.length; i++) {
                         var pos = tag.options.position[i];
-                        if (pos == 'right') {
+                        if (pos === 'right') {
                             posClass = 'w2ui-tag-right';
                             posLeft  = parseInt(offset.left + tag.attachedTo.offsetWidth + (tag.options.left ? tag.options.left : 0));
                             posTop   = parseInt(offset.top + (tag.options.top ? tag.options.top : 0));
                             if (posLeft+width <= maxWidth) break;
-                        } else if (pos == 'left') {
+                        } else if (pos === 'left') {
                             posClass  = 'w2ui-tag-left';
                             posLeft   = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - width - 20;
                             posTop    = parseInt(offset.top + (tag.options.top ? tag.options.top : 0));
                             if (posLeft >= 0) break;
-                        } else if (pos == 'top') {
+                        } else if (pos === 'top') {
                             posClass  = 'w2ui-tag-top';
                             posLeft   = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - 14;
                             posTop    = parseInt(offset.top + (tag.options.top ? tag.options.top : 0)) - height - 10;
                             if(posLeft+width <= maxWidth && posTop >= 0) break;
-                        } else if (pos == 'bottom') {
+                        } else if (pos === 'bottom') {
                             posClass  = 'w2ui-tag-bottom';
                             posLeft   = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - 14;
                             posTop    = parseInt(offset.top + tag.attachedTo.offsetHeight + (tag.options.top ? tag.options.top : 0)) + 10;
@@ -2388,14 +2388,14 @@ w2utils.event = {
             openAbove   : false,             // show above control
             tmp         : {}
         };
-        if (arguments.length == 1) {
-            if (typeof html == 'object') {
+        if (arguments.length === 1) {
+            if (typeof html === 'object') {
                 options = html;
             } else {
                 options = { html: html };
             }
         }
-        if (arguments.length == 2) options.html = html;
+        if (arguments.length === 2) options.html = html;
         if (!$.isPlainObject(options)) options = {};
         options = $.extend({}, defaults, options);
         if (options.name) name = '-' + options.name;
@@ -2416,7 +2416,7 @@ w2utils.event = {
             $(document).off('.w2overlay'+ name);
             if (typeof tmp_hide === 'function') tmp_hide();
         }
-        if (obj.length > 0 && (obj[0].tagName == null || obj[0].tagName.toUpperCase() == 'BODY')) options.contextMenu = true;
+        if (obj.length > 0 && (obj[0].tagName == null || obj[0].tagName.toUpperCase() === 'BODY')) options.contextMenu = true;
         if (options.contextMenu && options.originalEvent) {
             options.pageX = options.originalEvent.pageX;
             options.pageY = options.originalEvent.pageY;
@@ -2448,11 +2448,11 @@ w2utils.event = {
             .on('click', function (event) {
                 $('#w2ui-overlay'+ name).data('keepOpen', true);
                 // if there is label for input, it will produce 2 click events
-                if (event.target.tagName.toUpperCase() == 'LABEL') event.stopPropagation();
+                if (event.target.tagName.toUpperCase() === 'LABEL') event.stopPropagation();
             })
             .on('mousedown', function (event) {
                 var tmp = event.target.tagName.toUpperCase();
-                if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(tmp) == -1 && !options.selectable) {
+                if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(tmp) === -1 && !options.selectable) {
                     event.preventDefault();
                 }
             });
@@ -2526,10 +2526,10 @@ w2utils.event = {
                     }, 1);
                     setTimeout(function () {
                         var $div = div2.find('div.menu');
-                        if ($div.css('overflow-y') != 'auto') $div.css('overflow-y', 'auto');
+                        if ($div.css('overflow-y') !== 'auto') $div.css('overflow-y', 'auto');
                     }, 10);
                 }
-                if (options.tmp.contentWidth && options.align != 'both') {
+                if (options.tmp.contentWidth && options.align !== 'both') {
                     w = parseInt(options.tmp.contentWidth);
                     div2.width(w);
                     setTimeout(function () {
@@ -2562,7 +2562,7 @@ w2utils.event = {
                 }
                 if (w === 30 && !boxWidth) boxWidth = 30; else boxWidth = (options.width ? options.width : 'auto');
                 var tmp = (w - 17) / 2;
-                if (boxWidth != 'auto') tmp = (boxWidth - 17) / 2;
+                if (boxWidth !== 'auto') tmp = (boxWidth - 17) / 2;
                 if (tmp < 25) {
                     boxLeft = 25 - tmp;
                     tipLeft = Math.floor(tmp);
@@ -2645,7 +2645,7 @@ w2utils.event = {
                     );
                 }
                 // check scroll bar (needed to avoid horizontal scrollbar)
-                if (overflowY && options.align != 'both') div2.width(w + w2utils.scrollBarSize() + 2);
+                if (overflowY && options.align !== 'both') div2.width(w + w2utils.scrollBarSize() + 2);
             }
             menu.css('overflow-y', 'auto');
 
@@ -2674,7 +2674,7 @@ w2utils.event = {
             }
         */
         // if items is a function
-        if (options && typeof options.items == 'function') {
+        if (options && typeof options.items === 'function') {
             options.items = options.items();
         }
         var defaults = {
@@ -2726,7 +2726,7 @@ w2utils.event = {
             // since only one overlay can exist at a time
             $.fn.w2menuClick = function (event, index) {
                 var keepOpen = false;
-                if (['radio', 'check'].indexOf(options.type) != -1) {
+                if (['radio', 'check'].indexOf(options.type) !== -1) {
                     if (event.shiftKey || event.metaKey || event.ctrlKey) keepOpen = true;
                 }
                 if (typeof options.onSelect === 'function') {
@@ -2749,17 +2749,17 @@ w2utils.event = {
             $.fn.w2menuDown = function (event, index) {
                 var $el  = $(event.target).parents('tr');
                 var tmp  = $el.find('.w2ui-icon');
-                if (options.type == 'check' || options.type == 'radio') {
+                if (options.type === 'check' || options.type === 'radio') {
                    var item = options.items[index];
                    item.checked = !item.checked;
                    if (item.checked) {
-                        if (options.type == 'radio') {
+                        if (options.type === 'radio') {
                            tmp.parents('table').find('.w2ui-icon')
                                .removeClass('w2ui-icon-check')
                                .addClass('w2ui-icon-empty');
                         }
                         // groups of checkboxes
-                        if (options.type == 'check' && item.group != null) {
+                        if (options.type === 'check' && item.group != null) {
                             options.items.forEach(function (sub, ind) {
                                 if (sub.group === item.group && sub.checked) {
                                     tmp.parents('table').find('tr[index='+ ind +'] .w2ui-icon')
@@ -2770,7 +2770,7 @@ w2utils.event = {
                             });
                         }
                         tmp.removeClass('w2ui-icon-empty').addClass('w2ui-icon-check');
-                   } else if (options.type == 'check' && item.group == null) {
+                   } else if (options.type === 'check' && item.group == null) {
                         tmp.removeClass('w2ui-icon-check').addClass('w2ui-icon-empty');
                    }
                 }
@@ -2801,7 +2801,7 @@ w2utils.event = {
                         if (event.keyCode === 9) { event.stopPropagation(); event.preventDefault(); }
                     });
                 if (options.search) {
-                    if (['text', 'password'].indexOf($(obj)[0].type) != -1 || $(obj)[0].tagName.toUpperCase() == 'TEXTAREA') return;
+                    if (['text', 'password'].indexOf($(obj)[0].type) !== -1 || $(obj)[0].tagName.toUpperCase() === 'TEXTAREA') return;
                     $('#w2ui-overlay'+ name +' #menu-search').focus();
                 }
                 mresize();
@@ -2989,7 +2989,7 @@ w2utils.event = {
             ];
         }
         var pal = $.fn.w2colorPalette;
-        if (typeof options == 'string') options = {
+        if (typeof options === 'string') options = {
             color: options,
             transparent: true
         };
@@ -3004,7 +3004,7 @@ w2utils.event = {
             pal[0].pop();
         }
         if (options.color) options.color = String(options.color).toUpperCase();
-        if (typeof options.color == 'string' && options.color.substr(0,1) == '#') options.color = options.color.substr(1);
+        if (typeof options.color === 'string' && options.color.substr(0,1) === '#') options.color = options.color.substr(1);
         if (options.fireChange == null) options.fireChange = true;
 
         if ($('#w2ui-overlay').length === 0) {
@@ -3019,13 +3019,13 @@ w2utils.event = {
             .on('mousedown.w2color', function (event) {
                 var color = $(event.originalEvent.target).attr('name'); // should not have #
                 index = $(event.originalEvent.target).attr('index').split(':');
-                if (el.tagName.toUpperCase() == 'INPUT') {
+                if (el.tagName.toUpperCase() === 'INPUT') {
                     if (options.fireChange) $(el).change();
                     $(el).next().find('>div').css('background-color', color);
                 } else {
                     $(el).data('_color', color);
                 }
-                if (typeof options.onSelect == 'function') options.onSelect(color);
+                if (typeof options.onSelect === 'function') options.onSelect(color);
             })
             .on('mouseup.w2color', function () {
                 setTimeout(function () {
@@ -3068,10 +3068,10 @@ w2utils.event = {
                 }
                 var name  = $el.attr('name');
                 var color = {};
-                if (['r', 'g', 'b', 'a'].indexOf(name) != -1) {
+                if (['r', 'g', 'b', 'a'].indexOf(name) !== -1) {
                     rgb[name] = val;
                     hsv = w2utils.rgb2hsv(rgb);
-                } else if (['h', 's', 'v'].indexOf(name) != -1) {
+                } else if (['h', 's', 'v'].indexOf(name) !== -1) {
                     color[name] = val;
                 }
                 setColor(color);
@@ -3099,8 +3099,8 @@ w2utils.event = {
                 Number(rgb.g).toString(16).toUpperCase(),
                 Number(rgb.b).toString(16).toUpperCase()
             ];
-            cl.forEach(function (item, ind) { if (item.length == 1) cl[ind] = '0' + item; });
-            if (rgb.a == 1) {
+            cl.forEach(function (item, ind) { if (item.length === 1) cl[ind] = '0' + item; });
+            if (rgb.a === 1) {
                 newColor = cl[0] + cl[1] + cl[2];
             }
             $('#w2ui-overlay .color-preview').css('background-color', newColor);
@@ -3108,18 +3108,18 @@ w2utils.event = {
                 if (el.name) {
                     if (rgb[el.name] != null) el.value = rgb[el.name];
                     if (hsv[el.name] != null) el.value = hsv[el.name];
-                    if (el.name == 'a') el.value = rgb.a;
+                    if (el.name === 'a') el.value = rgb.a;
                 }
             });
             if (!silent) {
-                if (el.tagName.toUpperCase() == 'INPUT') {
+                if (el.tagName.toUpperCase() === 'INPUT') {
                     $(el).val(newColor).data('skipInit', true);
                     if (options.fireChange) $(el).change();
                     $(el).next().find('>div').css('background-color', newColor);
                 } else {
                     $(el).data('_color', newColor);
                 }
-                if (typeof options.onSelect == 'function') options.onSelect(newColor);
+                if (typeof options.onSelect === 'function') options.onSelect(newColor);
             } else {
                 $('#w2ui-overlay .color-original').css('background-color', newColor);
             }
@@ -3180,18 +3180,18 @@ w2utils.event = {
             var name = $el.parent().attr('name');
             var x = parseInt($el.css('left')) + offset;
             var y = parseInt($el.css('top')) + offset;
-            if (name == 'palette') {
+            if (name === 'palette') {
                 setColor({
                     s: Math.round(x / initial.width * 100),
                     v: Math.round(100 - (y / initial.height * 100))
                 });
             }
-            if (name == 'rainbow') {
+            if (name === 'rainbow') {
                 var h = Math.round(360 / 150 * x);
                 setColor({ h: h });
                 refreshPalette();
             }
-            if (name == 'alpha') {
+            if (name === 'alpha') {
                 setColor({ a: parseFloat(Number(x / 150).toFixed(2)) });
             }
         }
@@ -3256,7 +3256,7 @@ w2utils.event = {
             for (var i = 0; i < pal.length; i++) {
                 html += '<tr>';
                 for (var j = 0; j < pal[i].length; j++) {
-                    if (pal[i][j] == 'FFFFFF') bor = ';border: 1px solid #efefef'; else bor = '';
+                    if (pal[i][j] === 'FFFFFF') bor = ';border: 1px solid #efefef'; else bor = '';
                     html += '<td>'+
                             '    <div class="color '+ (pal[i][j] === '' ? 'no-color' : '') +'" style="background-color: #'+ pal[i][j] + bor +';" ' +
                             '       name="'+ pal[i][j] +'" index="'+ i + ':' + j +'">'+ (options.color == pal[i][j] ? '&#149;' : '&#160;') +
