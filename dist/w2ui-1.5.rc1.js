@@ -1,4 +1,5 @@
 /* w2ui 1.5.rc1 (nightly) (c) http://w2ui.com, vitmalina@gmail.com */
+/* -This is a modified version of Vitmalina's w2ui JS Library by JijiiMac, fit primarily for Japanese inputs on grid and other UI widgets. */
 var w2ui  = w2ui  || {};
 var w2obj = w2obj || {}; // expose object to be able to overwrite default functions
 
@@ -5404,7 +5405,14 @@ w2utils.event = {
             for (var r = 0; r < this.records.length; r++) {
                 var rec = this.records[r];
                 if (rec.w2ui && rec.w2ui.changes != null) {
-                    changes.push($.extend(true, { recid: rec.recid }, rec.w2ui.changes));
+                    // 最後のセルだけ、changesオブジェクトに格納されないため
+                    // セルに仕込んでおいたlast_columnの有無をみて、changesオブジェクトにカラム名をkeyにして空文字を代入
+                    if (rec.w2ui.changes.hasOwnProperty('last_column') == true) {
+                      changes.push($.extend(true, { 'recid': rec.recid }, {[rec.w2ui.changes.last_column]: ''}));
+                    }
+                    else {
+                      changes.push($.extend(true, { 'recid': rec.recid }, rec.w2ui.changes));
+                    }
                 }
             }
             return changes;
@@ -5412,6 +5420,11 @@ w2utils.event = {
 
         mergeChanges: function () {
             var changes = this.getChanges();
+            for(var i=0; i<changes.length; i++){
+              if(Object.keys(changes[i]).length == 1){
+                $.extend(changes[i], {url: ''})
+              }
+            }
             for (var c = 0; c < changes.length; c++) {
                 var record = this.get(changes[c].recid);
                 for (var s in changes[c]) {
@@ -6153,7 +6166,7 @@ w2utils.event = {
 
             switch (key) {
                 case 8:  // backspace
-                    obj.editField(obj.getSelection()[0].recid, obj.getSelection()[0].column, '');
+                    // obj.editField(obj.getSelection()[0].recid, obj.getSelection()[0].column, '');
                 case 46: // delete
                     if (this.show.toolbarDelete || this.onDelete) obj["delete"]();
                     cancel = true;
