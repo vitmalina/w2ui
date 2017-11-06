@@ -1353,7 +1353,7 @@
             if (['list', 'combo', 'enum'].indexOf(this.type) !== -1) {
                 if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                 // need to be here for ipad compa
-                if ([16, 17, 18, 20, 37, 39, 91].indexOf(event.keyCode) == -1) { // no refreah on crtl, shift, left/right arrows, etc
+                if ([16, 17, 18, 20, 37, 39, 91].indexOf(event.keyCode) == -1) { // no refresh on crtl, shift, left/right arrows, etc
                     var input = $(this.helpers.focus).find('input');
                     if (input.length === 0) input = $(this.el); // for combo list
                     // trigger event
@@ -2056,7 +2056,7 @@
                 if (tmp['old-padding-left']) $(obj.el).css('padding-left', tmp['old-padding-left']);
                 tmp['old-padding-left'] = $(obj.el).css('padding-left');
                 $(obj.el).data('tmp', tmp);
-                // remove if already displaed
+                // remove if already displayed
                 if (obj.helpers.prefix) $(obj.helpers.prefix).remove();
                 if (obj.options.prefix !== '') {
                     // add fresh

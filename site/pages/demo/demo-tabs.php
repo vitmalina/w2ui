@@ -8,7 +8,7 @@
 		<div class="span10">
 			<h2>Tabs</h2>
 			Tabs are a less frequent but sill an important UI element of your application. Usually, you do not need more then one set of tabs, but it is often 
-			required to be able to add/remove, enable/disable, show/hide tabs dynamically. The tabs objects provides this funcitonality.
+			required to be able to add/remove, enable/disable, show/hide tabs dynamically. The tabs objects provides this functionality.
 		</div>
 		<div class="span2">
 			<br>
