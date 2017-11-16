@@ -1896,7 +1896,7 @@ w2utils.formatters = {
     },
 
     'toggle': function (value, params) {
-        return (value ? w2utils.lang('Yes') : w2utils.lang('No'));
+        return (value ? w2utils.lang('Yes') : value === false ? w2utils.lang('No') : '');
     },
 
     'password': function (value, params) {
