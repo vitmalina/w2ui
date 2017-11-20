@@ -18014,6 +18014,7 @@ var w2prompt = function (label, title, callBack) {
                 })
                 .on('blur', function (event) {
                     $(obj.el).css('outline', 'none');
+                    obj.lastvalue = $(this).val();
                     $(this).val('');
                     obj.refresh();
                     $(obj.el).triggerHandler('blur');
