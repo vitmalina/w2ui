@@ -41,7 +41,7 @@
 			<div class="row" style="height: 15px">&nbsp;</div>
 
 			<h2>Other Books</h2>
-			If you need something on a more basic level, I recomment these two books:
+			If you need something on a more basic level, I recommend these two books:
 
 			<ul style="margin: 15px 40px;">
 				<li>

@@ -6,7 +6,7 @@
 <? require("blog-social.php"); ?>
 
 Finally, after many sleepless nights and lots of re-writes and re-thinking the w2ui 1.1 is out. This is an 
-important milestone for me. I am releasing a JavaScript UI library that is very small, hight quality and I believe
+important milestone for me. I am releasing a JavaScript UI library that is very small, high quality and I believe
 it is simply amazing. 37Kb of pure poetry!
 <div class="spacer10"></div>
 

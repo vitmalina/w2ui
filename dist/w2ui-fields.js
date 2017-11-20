@@ -4789,6 +4789,7 @@ w2utils.event = {
                                 data.records = data.items;
                                 delete data.items;
                             }
+                            if (data.status == 'success' && data.records == null) { data.records = []; } // handles Golang marshal of empty arrays to null
                             if (data.status != 'success' || !Array.isArray(data.records)) {
                                 console.log('ERROR: server did not return proper structure. It should return', { status: 'success', records: [{ id: 1, text: 'item' }] });
                                 return;

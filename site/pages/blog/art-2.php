@@ -1,4 +1,4 @@
-<? $theme->assign("page-name", "Spearch Bubble in Pure CSS"); ?>
+<? $theme->assign("page-name", "Speech Bubble in Pure CSS"); ?>
 
 <h2>Speech Bubble in Pure CSS</h2>
 <div class="date">June 2, 2012</div>
@@ -163,10 +163,10 @@ position absolute. I have found it useful in form validation. I display an error
 some more examples:
 
 <div style="margin: 20px 0px;">
-	<div class="my-tooltip left-top">Multiline tooltop<br> Has two lines</div>
-	<div class="my-tooltip left-bottom">Multiline tooltop<br> Has two lines</div>
-	<div class="my-tooltip top">Multiline tooltop<br> Has two lines</div>
-	<div class="my-tooltip bottom">Multiline tooltop<br> Has two lines</div>
+	<div class="my-tooltip left-top">Multiline tooltip<br> Has two lines</div>
+	<div class="my-tooltip left-bottom">Multiline tooltip<br> Has two lines</div>
+	<div class="my-tooltip top">Multiline tooltip<br> Has two lines</div>
+	<div class="my-tooltip bottom">Multiline tooltip<br> Has two lines</div>
 </div>
 
 To achieve the corner effect, is uses border trick. What will happen if you define a border for TOP as a 5px solid line and border for LEFT
