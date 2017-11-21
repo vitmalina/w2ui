@@ -1896,7 +1896,7 @@ w2utils.formatters = {
     },
 
     'toggle': function (value, params) {
-        return (value ? 'Yes' : '');
+        return (value ? w2utils.lang('Yes') : value === false ? w2utils.lang('No') : '');
     },
 
     'password': function (value, params) {
@@ -5612,6 +5612,7 @@ w2utils.event = {
                 })
                 .on('blur', function (event) {
                     $(obj.el).css('outline', 'none');
+                    obj.lastvalue = $(this).val();
                     $(this).val('');
                     obj.refresh();
                     $(obj.el).triggerHandler('blur');

@@ -3136,7 +3136,7 @@
             }
             if (event == null) event = {};
             // check for double click
-            if (time - parseInt(this.last.click_time) < 350 && this.last.click_recid == recid && event.type == 'click') {
+            if (obj.editOnClick || (time - parseInt(this.last.click_time) < 350 && this.last.click_recid == recid) && event.type == 'click') {
                 this.dblClick(recid, event);
                 return;
             }

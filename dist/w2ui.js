@@ -6477,7 +6477,7 @@ w2utils.event = {
             }
             if (event == null) event = {};
             // check for double click
-            if (time - parseInt(this.last.click_time) < 350 && this.last.click_recid == recid && event.type == 'click') {
+            if (obj.editOnClick || (time - parseInt(this.last.click_time) < 350 && this.last.click_recid == recid) && event.type == 'click') {
                 this.dblClick(recid, event);
                 return;
             }
@@ -16159,9 +16159,10 @@ var w2prompt = function (label, title, callBack) {
                     this.options = options;
                     if (!$.isArray(options.selected)) options.selected = [];
                     $(this.el).data('selected', options.selected);
-                    if ($(this.el).attr('placeholder') == null) {
+                    //Wrong solution: in file type input is not used for typeing, so placeholder will always shown
+                    /*if ($(this.el).attr('placeholder') == null) {
                         $(this.el).attr('placeholder', w2utils.lang('Attach files by dragging and dropping or Click to Select'));
-                    }
+                    }*/
                     this.addMulti();
                     this.watchSize();
                     break;
@@ -16392,7 +16393,7 @@ var w2prompt = function (label, title, callBack) {
                 // add new list
                 if (html !== '') {
                     ul.prepend(html);
-                } else if ($(obj.el).attr('placeholder') != null && div.find('input').val() === '') {
+                } else /*if ($(obj.el).attr('placeholder') != null && div.find('input').val() === '')*/ {   //for file type there is a fixed placeholder
                     var style =
                         'padding-top: ' + $(this.el).css('padding-top') + ';'+
                         'padding-left: ' + $(this.el).css('padding-left') + '; ' +
@@ -16400,7 +16401,8 @@ var w2prompt = function (label, title, callBack) {
                         'line-height: ' + $(this.el).css('line-height') + '; ' +
                         'font-size: ' + $(this.el).css('font-size') + '; ' +
                         'font-family: ' + $(this.el).css('font-family') + '; ';
-                    div.prepend('<div class="w2ui-enum-placeholder" style="'+ style +'">'+ $(obj.el).attr('placeholder') +'</div>');
+                    if (this.type=='file') div.prepend('<div class="w2ui-enum-placeholder" style="'+ style +'">' + w2utils.lang('Attach files by dragging and dropping or Click to Select') + '</div>');
+                    else if ($(obj.el).attr('placeholder') != null && div.find('input').val() === '') div.prepend('<div class="w2ui-enum-placeholder" style="'+ style +'">' + $(obj.el).attr('placeholder') + '</div>');
                 }
                 // ITEMS events
                 div.off('scroll.w2field').on('scroll.w2field', function (event) {
