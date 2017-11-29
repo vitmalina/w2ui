@@ -534,7 +534,7 @@ input[type=checkbox].w2ui-toggle:focus {
   color: inherit;
 }
 .w2ui-overlay table.w2ui-drop-menu tr.w2ui-disabled {
-  opacity: 0.4;
+  /* opacity: 0.4; */
   background-color: white !important;
 }
 .w2ui-overlay table.w2ui-drop-menu .w2ui-icon {
