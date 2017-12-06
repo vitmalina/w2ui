@@ -203,6 +203,7 @@
         this.disableCVS      = false;    // disable Column Virtual Scroll
         this.textSearch      = 'begins'; // default search type for text
         this.useFieldDot     = true;     // use field name containing dots as separator to look into object
+        this.selectDuplicates = false;   // select duplicated recids
 
         this.total   = 0;     // server total
         this.limit   = 100;
@@ -1517,7 +1518,8 @@
                     var recEl2 = null;
                     if (this.searchData.length !== 0 || (index + 1 >= this.last.range_start && index + 1 <= this.last.range_end)) {
                         recEl1 = $('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid));
-                        recEl2 = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
+                        if (this.selectDuplicates) recEl2 = $('[id="grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid)+'"]');
+                        else recEl2 = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
                     }
                     if (this.selectType == 'row') {
                         if (sel.indexes.indexOf(index) != -1) continue;
@@ -1617,7 +1619,8 @@
                 if (record == null) continue;
                 var index  = this.get(record.recid, true);
                 var recEl1 = $('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid));
-                var recEl2 = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
+                if (this.selectDuplicates) recEl2 = $('[id="grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid)+'"]');
+                else var recEl2 = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
                 if (this.selectType == 'row') {
                     if (sel.indexes.indexOf(index) == -1) continue;
                     // event before
