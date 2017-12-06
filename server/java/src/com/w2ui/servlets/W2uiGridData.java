@@ -45,6 +45,11 @@ public abstract class W2uiGridData extends HttpServlet {
 		// overridable for logging
 	}
 
+	protected void processCommand(String cmd, JSONObject reqParams) throws Exception {
+		// overridable to manage other commands
+		throw new Exception("Unknown command ["+cmd+"]");
+	}
+	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		JSONObject jsobj = new JSONObject();
 		try {
@@ -70,7 +75,8 @@ public abstract class W2uiGridData extends HttpServlet {
 				JSONObject record = processGetRecord(reqParams);
 				jsobj.put("record", record);
 			} else {
-				throw new Exception("Unknown command ["+cmd+"]");
+				// normally this causes an exception but the processCommand can be overridden
+				processCommand(cmd, reqParams);
 			}
 			jsobj.put("status", "success");
 		} catch (Exception ex) {

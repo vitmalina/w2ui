@@ -186,6 +186,14 @@ var w2utils = (function ($) {
             year  = val.getUTCFullYear();
             month = val.getUTCMonth() + 1;
             day   = val.getUTCDate();
+		} else if (String(new Date(val)) != 'Invalid Date') {
+            val = new Date(val);
+            if (retDate !== true) return true;
+            return val;
+            val = new Date(val);
+            year  = val.getUTCFullYear();
+            month = val.getUTCMonth() + 1;
+            day   = val.getUTCDate();
         } else {
             val = String(val);
             // convert month formats
@@ -281,6 +289,10 @@ var w2utils = (function ($) {
             return val;
         } else if (parseInt(val) === val && parseInt(val) < 0) {
             return false;
+		} else if (String(new Date(val)) != 'Invalid Date') {
+            val = new Date(val);
+            if (retDate !== true) return true;
+            return val;
         } else {
             var tmp = String(val).indexOf(' ');
             var values  = [val.substr(0, tmp), val.substr(tmp).trim()];
