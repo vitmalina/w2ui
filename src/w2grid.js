@@ -7491,15 +7491,6 @@
                 searchData  : []
             };
             for (var i = 0; i < this.columns.length; i++) {
-                var col = this.columns[i];
-                state.columns.push({
-                    field           : col.field,
-                    hidden          : col.hidden ? true : false,
-                    frozen          : col.frozen ? true : false,
-                    size            : col.size ? col.size : null,
-                    sizeCalculated  : col.sizeCalculated ? col.sizeCalculated : null,
-                    sizeOriginal    : col.sizeOriginal ? col.sizeOriginal : null,
-                    sizeType        : col.sizeType ? col.sizeType : null
                 });
             }
             for (var i = 0; i < this.sortData.length; i++) state.sortData.push($.extend({}, this.sortData[i]));
