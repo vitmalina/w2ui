@@ -8,7 +8,7 @@ The example uses Users and positions to demonstrate
 Note that a user can only be at one posision, but there might be posisions without locataions
 
 The example is not yet finnished but can serve as a starting point and example.
-I have tried to reuse and look at the postgress node implementation foud here,
+I have tried to reuse and look at the postgress node implementation found here,
 http://w2ui.com/kickstart/
 
 ## Installation
@@ -19,7 +19,7 @@ To run the server with example client public/index.html
 
 npm install
 
-node server.js
+node start.js
 
 http://localhost:8080
 
@@ -48,8 +48,6 @@ In the top part you can generate users and later use them in the
 ## Test data
 
 When you have entered some data you can test the api with,
-
-http://localhost:8080/api/enum/position
 
 http://localhost:8080/api/enum/user
 
