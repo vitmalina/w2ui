@@ -1,5 +1,5 @@
 /**
-*  Module that helps wo work with W2UI
+*  Module that helps to work with W2UI & db2
 *
 *  DEPENDENCIES: underscore
 */
@@ -201,8 +201,6 @@ function serveDB2(req, res, collectionName)
                     var val = obj[key];
                     fields.push(key);
                     values.push(val);
-                    // use val
-                    console.log("Olle", key, val);
                 });
 
                 sql = sql + '(' ;
@@ -249,8 +247,8 @@ function serveDB2(req, res, collectionName)
             break;
         default:
             {
-                  console.log("Unknown cmd",evaluated.cmd)
-                  var err_response = {
+                console.log("Unknown cmd",evaluated.cmd)
+                var err_response = {
                                         status: "error",
                                         message: "Command not recognized"
                                      };
@@ -460,6 +458,11 @@ function getRecords (sql, req, res, options) {
                     if (options.master && record[options.master] != null) {
                         if (master == null) master = record[options.master];
                         delete record[options.master];
+                    }
+                    if (record.RECID) {
+                        record.recid = record.RECID
+                        delete record.RECID;
+                        console.log(record.recid)                        
                     }
                     data.push(record);
                 }
