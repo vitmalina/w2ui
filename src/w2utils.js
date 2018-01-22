@@ -2521,7 +2521,7 @@ w2utils.event = {
                 }
                 if (options.tmp.contentWidth && options.align != 'both') {
                     w = parseInt(options.tmp.contentWidth);
-                    div2.width(w);
+                    div2.width(w+10);
                     setTimeout(function () {
                         if (w > div2.find('div.menu > table').width()) {
                             div2.find('div.menu > table').css('overflow-x', 'hidden');
