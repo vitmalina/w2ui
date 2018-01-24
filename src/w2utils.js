@@ -160,11 +160,11 @@ var w2utils = (function ($) {
         var email = /^[a-zA-Z0-9._%-]+@[а-яА-Яa-zA-Z0-9.-]+\.[а-яА-Яa-zA-Z]+$/;
         return email.test(val);
     }
-    
+
     function isIpAddress (val) {
         var re = new RegExp('^' +
                             '((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}' +
-                            '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' + 
+                            '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' +
                             '$');
         return re.test(val);
     }
@@ -465,6 +465,7 @@ var w2utils = (function ($) {
         if (format.indexOf('am') !== -1 || format.indexOf('pm') !== -1) {
             if (hour >= 12) type = 'pm';
             if (hour > 12)  hour = hour - 12;
+            if (hour === 0) hour = 12;
         }
         return format.toLowerCase()
             .replace('am', type)
