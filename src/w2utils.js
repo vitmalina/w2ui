@@ -2833,7 +2833,7 @@ w2utils.event = {
                 var scrTop = $('#w2ui-overlay'+ name +' div.menu').scrollTop();
                 cur.addClass('w2ui-selected');
                 if (options.tmp) options.tmp.contentHeight = $('#w2ui-overlay'+ name +' table').height() + (options.search ? 50 : 10);
-                if (options.tmp) options.tmp.contentWidth  = $('#w2ui-overlay'+ name +' table').width();
+                if (options.tmp) options.tmp.contentWidth  = $('#w2ui-overlay'+ name +' table').width() + 1;
                 if ($('#w2ui-overlay'+ name).length > 0) $('#w2ui-overlay'+ name)[0].resize();
                 // scroll into view
                 if (cur.length > 0) {
