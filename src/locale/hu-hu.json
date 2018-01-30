@@ -25,7 +25,7 @@
       "Skip": "Kihagy",
       "Line #": "Sorszám #",
       "Record ID": "Belső azonosító",
-      "Records": "bekegyzést",
+      "Records": "bejegyzést",
       "Modified": "Módosítva",
       "Type": "Típus",
       "Name": "Név",
@@ -74,6 +74,7 @@
       "Returned data is not in valid JSON format.": "Nem megfelelő JSON formátumú adat érkezett a kiszolgálótól. Kérjük jelezze az oldal üzemeltetőjének!",
       "Your remove data source record count has changed, reloading from the first record.": "Az adatforrás megváltozott, újratöltése az első bejegyzéstől.",
       "Save changed records": "Módosítások mentése",
-      "Save": "Mentés"
+      "Save": "Mentés",
+      "Cancel": "Mégse"
     }
 }
