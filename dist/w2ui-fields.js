@@ -5084,9 +5084,20 @@ w2utils.event = {
                 if (dt) { month = dt.getMonth() + 1; year = dt.getFullYear(); }
                 var selDate = null;
                 (function refreshCalendar(month, year) {
+                    //Special dates
+                    var specials = '';
+                    if (options.specials) {
+                        if (Array.isArray(options.specials)) options.specials.forEach(spec=>{
+                            if (spec.id) specials += '<div class="w2ui-calendar-now now special" id="' + spec.id + '">' + (spec.text ? spec.text : spec.id) + '</div>';
+                            else specials += '<div class="w2ui-calendar-now now special" id="' + spec + '">' + spec + '</div>';
+                        })
+                        else specials = '<div class="w2ui-calendar-now now special" id="' + spec + '">' + options.specials + '</div>';
+                    }
+
                     $('#w2ui-overlay > div > div').html(
                         obj.getMonthHTML(month, year, $(obj.el).val())
                         + (options.btn_now ? '<div class="w2ui-calendar-now now">'+ w2utils.lang('Current Date & Time') + '</div>' : '')
+                        + specials
                     );
                     $('#w2ui-overlay .w2ui-calendar-title')
                         .on('mousedown', function () {
@@ -5184,7 +5195,8 @@ w2utils.event = {
                     $('#w2ui-overlay .now')
                         .on('mousedown', function () {
                             // this currently ignores blocked days or start / end dates!
-                            var tmp = w2utils.formatDateTime(new Date(), obj.options.format);
+                            if ($(this).hasClass('special')) var tmp = $(this).attr('id');
+                            else var tmp = w2utils.formatDateTime(new Date(), obj.options.format);
                             $(obj.el).val(tmp).change();
                             return false;
                         })
