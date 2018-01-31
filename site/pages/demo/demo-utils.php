@@ -7,7 +7,7 @@
 	<div class="row">
 		<div class="span10">
 			<h2>Utilities</h2>
-			Utilities contain most common functions that are used accross w2ui library. These functions can also be utilized in your applications for data 
+			Utilities contain most common functions that are used across w2ui library. These functions can also be utilized in your applications for data
 			validation, data encoding, transitions, etc. Type anything in the field below to see example of data validation.
 		</div>
 		<div class="span2">
@@ -48,7 +48,7 @@
 		</div>
 		<div class="span4">
 			<h3>Encoding</h3>
-			JavaScript function for based64 encoding/decoding, special HTML charector encoding/decoding. 
+			JavaScript function for based64 encoding/decoding, special HTML character encoding/decoding.
 		</div>
 	</div>
 

@@ -1,0 +1,28 @@
+Indicates the tabindex base value for generated form fields.
+
+<div class="definition">
+    Integer, default = 0
+</div>
+
+Setting this value can be useful if you have multiple auto-generated forms on the same page.
+<br>
+The value of <span class="argument">.tabindexBase</span> will be added to the "normal" tabindex value of the generated field.
+<br>
+Note that setting the tabindex of a field in the field atribute still has priority over the genrated tabindex value.
+<br><br>
+In this example, the first field will have a tabindex value of 101:
+<textarea class="javascript">
+var form = $('#form').w2form({
+    name   : 'form',
+    header : 'Form with modified tabindex base',
+    tabindexBase: 100,
+    fields : [
+        { field: 'first_name', type: 'text', html: { caption: 'First Name',} },
+        { field: 'zip', type: 'int', html: { caption: 'Zip' } },
+        { field: 'short_bio', type: 'text', html: { caption: 'Short Bio' } },
+        // for talk_name tabindex "502" will be used instead of "104"
+        { field: 'talk_name', type: 'text', html: { caption: 'Talk Name', attr:'tabindex=502' } },
+        { field: 'description', type: 'text', html: { caption: 'Talk Description' } }
+    ]
+});
+</textarea>

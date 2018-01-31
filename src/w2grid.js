@@ -50,8 +50,8 @@
 *   - added focus(), blur(), onFocus, onBlur
 *   - search.simple - if false, will not show up in simple search
 *   - search.operator - default operator to use with search field
-*   - search.operators - array of operators for the serach
-*   - search.hidden - could not be clearned by the user
+*   - search.operators - array of operators for the search
+*   - search.hidden - could not be cleared by the user
 *   - search.value - only for hidden searches
 *   - if .search(val) - search all fields
 *   - refactor reorderRow (not finished)
@@ -129,6 +129,8 @@
 *   - expendable grids are still working
 *   - added search.type = 'color'
 *   - added getFirst
+*   - added stateSaveColumnProperties
+*   - added stateSaveColumnFallbackValues
 *
 ************************************************************************/
 
@@ -151,7 +153,7 @@
         this.postData     = {};
         this.httpHeaders  = {};
         this.toolbar      = {};       // if not empty object; then it is toolbar object
-        this.stateId      = null;     // Custom state name for satateSave, stateRestore and stateReset
+        this.stateId      = null;     // Custom state name for stateSave, stateRestore and stateReset
 
         this.show = {
             header          : false,
@@ -241,6 +243,58 @@
             sel_type    : null,
             edit_col    : null,
             isSafari    : (/^((?!chrome|android).)*safari/i).test(navigator.userAgent)
+        };
+
+        // these column properties will be saved in stateSave()
+        this.stateSaveColumnProperties = {
+            caption         : false,
+            field           : true,
+            size            : true,
+            min             : false,
+            max             : false,
+            gridMinWidth    : false,
+            sizeCorrected   : false,
+            sizeCalculated  : true,
+            sizeOriginal    : true,
+            sizeType        : true,
+            hidden          : true,
+            sortable        : false,
+            searchable      : false,
+            resizable       : false,
+            hideable        : false,
+            attr            : false,
+            style           : false,
+            render          : false,
+            title           : false,
+            editable        : false,
+            frozen          : true,
+            info            : false,
+        };
+
+        // these are the stateSave() fallback values if the property to save is not a property of the column object
+        this.stateSaveColumnFallbackValues = {
+            caption         : '',     // column caption
+            field           : '',     // field name to map column to a record
+            size            : null,   // size of column in px or %
+            min             : 20,     // minimum width of column in px
+            max             : null,   // maximum width of column in px
+            gridMinWidth    : null,   // minimum width of the grid when column is visible
+            sizeCorrected   : null,   // read only, corrected size (see explanation below)
+            sizeCalculated  : null,   // read only, size in px (see explanation below)
+            sizeOriginal    : null,
+            sizeType        : null,
+            hidden          : false,  // indicates if column is hidden
+            sortable        : false,  // indicates if column is sortable
+            searchable      : false,  // indicates if column is searchable, bool/string: int,float,date,...
+            resizable       : true,   // indicates if column is resizable
+            hideable        : true,   // indicates if column can be hidden
+            attr            : '',     // string that will be inside the <td ... attr> tag
+            style           : '',     // additional style for the td tag
+            render          : null,   // string or render function
+            title           : null,   // string or function for the title property for the column cells
+            editable        : {},     // editable object if column fields are editable
+            frozen          : false,  // indicates if the column is fixed to the left
+            info            : null    // info bubble, can be bool/object
         };
 
         $.extend(true, this, w2obj.grid, options);
@@ -353,7 +407,7 @@
             "hex"     : ['is', 'between'],
             "color"   : ['is', 'begins', 'contains', 'ends'],
             "enum"    : ['in', 'not in']
-            // -- all posible
+            // -- all possible
             // "text"    : ['is', 'begins', 'contains', 'ends'],
             // "number"  : ['is', 'between', 'less:less than', 'more:more than', 'null:is null', 'not null:is not null'],
             // "list"    : ['is', 'null:is null', 'not null:is not null'],
@@ -2380,7 +2434,7 @@
                     }
                 }
             }
-            // ajax ptions
+            // ajax options
             var ajaxOptions = {
                 type     : 'POST',
                 url      : url,
@@ -3278,6 +3332,10 @@
                     }
                 }
             } else {
+                if (event.altKey){
+                    var column = this.getColumn(field);
+                    if (column && column.sortable) this.sort(field, null, (event && (event.ctrlKey || event.metaKey) ? true : false) );
+                }
                 // select entire column
                 if (edata.field == 'line-number') {
                     if (this.getSelection().length >= this.records.length) {
@@ -5919,7 +5977,7 @@
                     - 1; // left is 1xp due to border width
                 var width_box = width_max;
                 var percent = 0;
-                // gridMinWidth processiong
+                // gridMinWidth processing
                 var restart = false;
                 for (var i = 0; i < this.columns.length; i++) {
                     var col = this.columns[i];
@@ -7486,17 +7544,24 @@
                 sortData    : [],
                 searchData  : []
             };
+            var prop_val;
             for (var i = 0; i < this.columns.length; i++) {
-                var col = this.columns[i];
-                state.columns.push({
-                    field           : col.field,
-                    hidden          : col.hidden ? true : false,
-                    frozen          : col.frozen ? true : false,
-                    size            : col.size ? col.size : null,
-                    sizeCalculated  : col.sizeCalculated ? col.sizeCalculated : null,
-                    sizeOriginal    : col.sizeOriginal ? col.sizeOriginal : null,
-                    sizeType        : col.sizeType ? col.sizeType : null
+                var col = obj.columns[i];
+                var col_save_obj = {};
+                // iterate properties to save
+                Object.keys(obj.stateSaveColumnProperties).forEach(function(prop, idx) {
+                    if(obj.stateSaveColumnProperties[prop]){
+                        // check if the property is defined on the column
+                        if(col[prop] !== undefined){
+                            prop_val = col[prop];
+                        } else {
+                            // use fallback or null
+                            prop_val = obj.stateSaveColumnFallbackValues[prop] || null;
+                        }
+                        col_save_obj[prop] = prop_val;
+                    }
                 });
+                state.columns.push(col_save_obj);
             }
             for (var i = 0; i < this.sortData.length; i++) state.sortData.push($.extend({}, this.sortData[i]));
             for (var i = 0; i < this.searchData.length; i++) state.searchData.push($.extend({}, this.searchData[i]));

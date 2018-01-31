@@ -84,7 +84,7 @@
 	<div class="row">
 		<div class="span4">
 			<h3>JavaScript APIs</h3>
-			All functionality can be accessed from JavaScript in short, human-readble commands. Clicks, double clicks and other events can
+			All functionality can be accessed from JavaScript in short, human-readable commands. Clicks, double clicks and other events can
 			be emulated.
 		</div>
 		<div class="span4">
