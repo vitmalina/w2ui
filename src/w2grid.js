@@ -6248,7 +6248,12 @@
             // init searches
             for (var s = 0; s < this.searches.length; s++) {
                 var search    = this.searches[s];
-                var sdata     = this.getSearchData(search.field);
+                //var sdata     = this.getSearchData(search.field);
+                //Multiple searchData with same field
+                var ditems = this.searchData.filter(ditem=>ditem.field==search.field);
+                var srcs = this.searches.filter(src=>src.field==search.field);
+                var sdata = ditems[srcs.indexOf(search)];
+
                 search.type   = String(search.type).toLowerCase();
                 var operators = obj.operators[obj.operatorsMap[search.type]];
                 if (search.operators) operators = search.operators;

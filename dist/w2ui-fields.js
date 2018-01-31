@@ -2522,7 +2522,7 @@ w2utils.event = {
                 }
                 if (options.tmp.contentWidth && options.align != 'both') {
                     w = parseInt(options.tmp.contentWidth);
-                    div2.width(w);
+                    div2.width(w+10);
                     setTimeout(function () {
                         if (w > div2.find('div.menu > table').width()) {
                             div2.find('div.menu > table').css('overflow-x', 'hidden');
@@ -2942,10 +2942,10 @@ w2utils.event = {
                         menu_html +=
                             '<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+ (mitem.tooltip ? 'title="'+ w2utils.lang(mitem.tooltip) +'"' : '') +
                             '        class="'+ bg +' '+ (options.index === f ? 'w2ui-selected' : '') + ' ' + (mitem.disabled === true ? 'w2ui-disabled' : '') +'"'+
-                            '        onmousedown="if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
+                            '        onmousedown="if ('+ ((mitem.disabled === true || mitem.focus === true) ? 'true' : 'false') + ') return;'+
                             '               jQuery.fn.w2menuDown(event, \''+ f +'\');"'+
                             '        onclick="event.stopPropagation(); '+
-                            '               if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
+                            '               if ('+ ((mitem.disabled === true || mitem.focus === true)  ? 'true' : 'false') + ') return;'+
                             '               jQuery.fn.w2menuClick(event, \''+ f +'\');">'+
                                 imgd +
                             '   <td class="menu-text" colspan="'+ colspan +'">'+ w2utils.lang(txt) +'</td>'+
@@ -3757,9 +3757,10 @@ w2utils.event = {
                     this.options = options;
                     if (!$.isArray(options.selected)) options.selected = [];
                     $(this.el).data('selected', options.selected);
-                    if ($(this.el).attr('placeholder') == null) {
+                    //Wrong solution: in file type input is not used for typeing, so placeholder will always shown
+                    /*if ($(this.el).attr('placeholder') == null) {
                         $(this.el).attr('placeholder', w2utils.lang('Attach files by dragging and dropping or Click to Select'));
-                    }
+                    }*/
                     this.addMulti();
                     this.watchSize();
                     break;
@@ -3990,7 +3991,7 @@ w2utils.event = {
                 // add new list
                 if (html !== '') {
                     ul.prepend(html);
-                } else if ($(obj.el).attr('placeholder') != null && div.find('input').val() === '') {
+                } else /*if ($(obj.el).attr('placeholder') != null && div.find('input').val() === '')*/ {   //for file type there is a fixed placeholder
                     var style =
                         'padding-top: ' + $(this.el).css('padding-top') + ';'+
                         'padding-left: ' + $(this.el).css('padding-left') + '; ' +
@@ -3998,7 +3999,8 @@ w2utils.event = {
                         'line-height: ' + $(this.el).css('line-height') + '; ' +
                         'font-size: ' + $(this.el).css('font-size') + '; ' +
                         'font-family: ' + $(this.el).css('font-family') + '; ';
-                    div.prepend('<div class="w2ui-enum-placeholder" style="'+ style +'">'+ $(obj.el).attr('placeholder') +'</div>');
+                    if (this.type=='file') div.prepend('<div class="w2ui-enum-placeholder" style="'+ style +'">' + w2utils.lang('Attach files by dragging and dropping or Click to Select') + '</div>');
+                    else if ($(obj.el).attr('placeholder') != null && div.find('input').val() === '') div.prepend('<div class="w2ui-enum-placeholder" style="'+ style +'">' + $(obj.el).attr('placeholder') + '</div>');
                 }
                 // ITEMS events
                 div.off('scroll.w2field').on('scroll.w2field', function (event) {
