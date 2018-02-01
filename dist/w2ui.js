@@ -2741,6 +2741,13 @@ w2utils.event = {
                         originalEvent: event
                     });
                 }
+
+                //Menu onClick event
+                if (options.items[index].onClick) options.items[index].onClick({
+                        keepOpen: keepOpen,
+                        originalEvent: event
+                    });
+
                 // do not uncomment (or enum search type is not working in grid)
                 // setTimeout(function () { $(document).click(); }, 50);
                 // -- hide
