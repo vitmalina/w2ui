@@ -359,7 +359,7 @@ kickStart.register('route', function () {
         }
         // if route is not registered, see if it is in module definitions
         if (!isFound) {
-            // find if a route mataches a module route
+            // find if a route matches a module route
             var mods = app._conf.modules;
             for (var name in mods) {
                 var mod = mods[name];
