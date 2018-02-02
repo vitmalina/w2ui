@@ -1,4 +1,4 @@
-Five JavaScirpt tricks you may not know
+Five JavaScript tricks you may not know
 
 1. Test if element is part of the array
 
@@ -6,7 +6,7 @@ if (['item1', 'item2'].indexOf(testee) == -1) {
 	console.log('not there');
 }
 
-2. Set object only if does not eixts
+2. Set object only if it does not exist
 
 a = a || {};
 
