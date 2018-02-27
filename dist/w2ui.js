@@ -2,6 +2,16 @@
 var w2ui  = w2ui  || {};
 var w2obj = w2obj || {}; // expose object to be able to overwrite default functions
 
+//NodeJS wrapper
+if (typeof module!='undefined' && module.exports) {
+    var navigator = require('navigator');
+    
+    var jsdom = require('jsdom');
+    const { JSDOM } = jsdom;
+    const { window } = new JSDOM('<html></html>');
+    var jQuery = require('jquery')(window);  
+}
+
 /************************************************
 *  Library: Web 2.0 UI for jQuery
 *  - Following objects are defines
