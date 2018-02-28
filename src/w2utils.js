@@ -2475,9 +2475,9 @@ w2utils.event = {
 
         // need time to display
         setTimeout(function () {
-            resize();
             $(document).off('.w2overlay'+ name).on('click.w2overlay'+ name, hide);
             if (typeof options.onShow === 'function') options.onShow();
+            resize();
         }, 10);
 
         monitor();
