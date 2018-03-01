@@ -1485,7 +1485,12 @@ var w2utils = (function ($) {
         w2utils.settings.phrases = {};
 
         // load from the file
-        $.ajax({
+
+        if (typeof module!='undefined' && module.exports) {
+            var data = JSON.parse(fs.readFileSync(__dirname + '/' + locale));
+            w2utils.settings = $.extend(true, w2utils.settings, data);
+            if (typeof callBack == 'function') callBack();
+        } else $.ajax({
             url      : locale,
             type     : "GET",
             dataType : "JSON",
