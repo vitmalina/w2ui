@@ -214,6 +214,7 @@
         this.ranges  = [];
         this.menu    = [];
         this.method  = null;  // if defined, then overwrited ajax method
+        this.dataType = null;   // if defined, then overwrited w2utils.settings.dataType
         this.recid   = null;
         this.parser  = null;
 
@@ -2440,29 +2441,33 @@
                 headers  : edata.httpHeaders,
                 dataType : 'text'  // expected data type from server
             };
-           if (w2utils.settings.dataType == 'HTTP') {
-                ajaxOptions.data = (typeof ajaxOptions.data == 'object' ? String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']') : ajaxOptions.data);
-            }
-            if (w2utils.settings.dataType == 'HTTPJSON') {
-                ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
-            }
-            if (w2utils.settings.dataType == 'RESTFULL') {
-                ajaxOptions.type = 'GET';
-                if (params.cmd == 'save')   ajaxOptions.type = 'PUT';  // so far it is always update
-                if (params.cmd == 'delete') ajaxOptions.type = 'DELETE';
-                ajaxOptions.data = (typeof ajaxOptions.data == 'object' ? String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']') : ajaxOptions.data);
-            }
-            if (w2utils.settings.dataType == 'RESTFULLJSON') {
-                ajaxOptions.type = 'GET';
-                if (params.cmd == 'save')   ajaxOptions.type = 'PUT';  // so far it is always update
-                if (params.cmd == 'delete') ajaxOptions.type = 'DELETE';
-                ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
-                ajaxOptions.contentType = 'application/json';
-            }
-            if (w2utils.settings.dataType == 'JSON') {
-                ajaxOptions.type        = 'POST';
-                ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
-                ajaxOptions.contentType = 'application/json';
+
+            var dataType = this.dataType || w2utils.settings.dataType
+            switch (dataType) {
+                case 'HTTP':
+                    ajaxOptions.data = (typeof ajaxOptions.data == 'object' ? String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']') : ajaxOptions.data);
+                    break;
+                case 'HTTPJSON':
+                    ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
+                    break;
+                case 'RESTFULL':
+                    ajaxOptions.type = 'GET';
+                    if (params.cmd == 'save')   ajaxOptions.type = 'PUT';  // so far it is always update
+                    if (params.cmd == 'delete') ajaxOptions.type = 'DELETE';
+                    ajaxOptions.data = (typeof ajaxOptions.data == 'object' ? String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']') : ajaxOptions.data);
+                    break;
+                case 'RESTFULLJSON':
+                    ajaxOptions.type = 'GET';
+                    if (params.cmd == 'save')   ajaxOptions.type = 'PUT';  // so far it is always update
+                    if (params.cmd == 'delete') ajaxOptions.type = 'DELETE';
+                    ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                    ajaxOptions.contentType = 'application/json';
+                    break;
+                case 'JSON':
+                    ajaxOptions.type        = 'POST';
+                    ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                    ajaxOptions.contentType = 'application/json';
+                    break;
             }
             if (this.method) ajaxOptions.type = this.method;
 
