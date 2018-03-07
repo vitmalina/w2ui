@@ -5,9 +5,11 @@
   "description": "Complete set of JavaScript UI widget for development of data-driven web applications. Includes layout, grid, toolbar, sidebar, tabs, forms, fields, popup, overlay",
   "license": "MIT",
   "repository": "https://github.com/vitmalina/w2ui",
-  "dependencies" : {
+  "dependencies": {
     "jquery": ">=1.9"
   },
+  "main": "dist/w2ui.js",
+  "style": "dist/w2ui.css",
   "devDependencies": {
     "grunt": "~0.4.2",
     "grunt-contrib-clean": "~0.5.0",
