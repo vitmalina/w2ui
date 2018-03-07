@@ -76,7 +76,8 @@ module.exports = function (grunt) {
                     'src/w2toolbar.js',
                     'src/w2sidebar.js',
                     'src/w2fields.js',
-                    'src/w2form.js'
+                    'src/w2form.js',
+                    'src/moduleCompat.js' // must be last
                 ],
                 dest: 'dist/w2ui.js'
             },
