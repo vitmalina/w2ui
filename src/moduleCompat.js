@@ -15,4 +15,12 @@
     for (var m in w2ui) {
         global[m] = w2ui[m];
     }
-})(this, { w2ui: w2ui, w2obj: w2obj, w2utils: w2utils, w2popup: w2popup });
+})(this, {
+    w2ui: w2ui,
+    w2obj: w2obj,
+    w2utils: w2utils,
+    w2popup: w2popup,
+    w2alert: w2alert,
+    w2confirm: w2confirm,
+    w2prompt: w2prompt
+});
