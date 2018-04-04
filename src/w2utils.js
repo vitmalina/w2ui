@@ -2476,9 +2476,9 @@ w2utils.event = {
 
         // need time to display
         setTimeout(function () {
-            resize();
             $(document).off('.w2overlay'+ name).on('click.w2overlay'+ name, hide);
             if (typeof options.onShow === 'function') options.onShow();
+            resize();
         }, 10);
 
         monitor();
@@ -2663,11 +2663,6 @@ w2utils.event = {
                 if (overflowY && options.align !== 'both') div2.width(w + w2utils.scrollBarSize() + 2);
             }
             menu.css('overflow-y', 'auto');
-
-            // if outer div is bigger, match the size
-            if (div2.height() < div1.height()) {
-                div2.css('height', div1.height() + 'px');
-            }
         }
     };
 
@@ -2834,7 +2829,7 @@ w2utils.event = {
                 var scrTop = $('#w2ui-overlay'+ name +' div.menu').scrollTop();
                 cur.addClass('w2ui-selected');
                 if (options.tmp) options.tmp.contentHeight = $('#w2ui-overlay'+ name +' table').height() + (options.search ? 50 : 10);
-                if (options.tmp) options.tmp.contentWidth  = $('#w2ui-overlay'+ name +' table').width();
+                if (options.tmp) options.tmp.contentWidth  = $('#w2ui-overlay'+ name +' table').width() + 1;
                 if ($('#w2ui-overlay'+ name).length > 0) $('#w2ui-overlay'+ name)[0].resize();
                 // scroll into view
                 if (cur.length > 0) {
