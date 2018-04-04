@@ -158,7 +158,7 @@ var w2utils = (function ($) {
     }
 
     function isEmail (val) {
-        var email = /^[a-zA-Z0-9._%-]+@[а-яА-Яa-zA-Z0-9.-]+\.[а-яА-Яa-zA-Z]+$/;
+        var email = /^[a-zA-Z0-9._%\-+]+@[а-яА-Яa-zA-Z0-9.-]+\.[а-яА-Яa-zA-Z]+$/;
         return email.test(val);
     }
 
@@ -2477,9 +2477,9 @@ w2utils.event = {
 
         // need time to display
         setTimeout(function () {
-            resize();
             $(document).off('.w2overlay'+ name).on('click.w2overlay'+ name, hide);
             if (typeof options.onShow === 'function') options.onShow();
+            resize();
         }, 10);
 
         monitor();
@@ -2664,11 +2664,6 @@ w2utils.event = {
                 if (overflowY && options.align !== 'both') div2.width(w + w2utils.scrollBarSize() + 2);
             }
             menu.css('overflow-y', 'auto');
-
-            // if outer div is bigger, match the size
-            if (div2.height() < div1.height()) {
-                div2.css('height', div1.height() + 'px');
-            }
         }
     };
 
@@ -2835,7 +2830,7 @@ w2utils.event = {
                 var scrTop = $('#w2ui-overlay'+ name +' div.menu').scrollTop();
                 cur.addClass('w2ui-selected');
                 if (options.tmp) options.tmp.contentHeight = $('#w2ui-overlay'+ name +' table').height() + (options.search ? 50 : 10);
-                if (options.tmp) options.tmp.contentWidth  = $('#w2ui-overlay'+ name +' table').width();
+                if (options.tmp) options.tmp.contentWidth  = $('#w2ui-overlay'+ name +' table').width() + 1;
                 if ($('#w2ui-overlay'+ name).length > 0) $('#w2ui-overlay'+ name)[0].resize();
                 // scroll into view
                 if (cur.length > 0) {
@@ -3566,6 +3561,7 @@ w2utils.event = {
         this.ranges  = [];
         this.menu    = [];
         this.method  = null;  // if defined, then overwrited ajax method
+        this.dataType = null;   // if defined, then overwrited w2utils.settings.dataType
         this.recid   = null;
         this.parser  = null;
 
@@ -4565,14 +4561,12 @@ w2utils.event = {
                     case 'in':
                         var tmp = sdata.value;
                         if (sdata.svalue) tmp = sdata.svalue;
-                        if (tmp.indexOf(val1) !== -1) fl++;
-                        if (tmp.indexOf(w2utils.isFloat(val1b) ? parseFloat(val1b) : val1b) !== -1) fl++;
+                        if ((tmp.indexOf(w2utils.isFloat(val1b) ? parseFloat(val1b) : val1b) !== -1) || tmp.indexOf(val1) !== -1) fl++;
                         break;
                     case 'not in':
                         var tmp = sdata.value;
                         if (sdata.svalue) tmp = sdata.svalue;
-                        if (tmp.indexOf(val1) == -1) fl++;
-                        if (tmp.indexOf(w2utils.isFloat(val1b) ? parseFloat(val1b) : val1b) == -1) fl++;
+                        if (!((tmp.indexOf(w2utils.isFloat(val1b) ? parseFloat(val1b) : val1b) !== -1) || tmp.indexOf(val1) !== -1)) fl++;
                         break;
                     case 'begins':
                     case 'begins with': // need for back compatib.
@@ -5794,29 +5788,33 @@ w2utils.event = {
                 headers  : edata.httpHeaders,
                 dataType : 'text'  // expected data type from server
             };
-           if (w2utils.settings.dataType == 'HTTP') {
-                ajaxOptions.data = (typeof ajaxOptions.data == 'object' ? String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']') : ajaxOptions.data);
-            }
-            if (w2utils.settings.dataType == 'HTTPJSON') {
-                ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
-            }
-            if (w2utils.settings.dataType == 'RESTFULL') {
-                ajaxOptions.type = 'GET';
-                if (params.cmd == 'save')   ajaxOptions.type = 'PUT';  // so far it is always update
-                if (params.cmd == 'delete') ajaxOptions.type = 'DELETE';
-                ajaxOptions.data = (typeof ajaxOptions.data == 'object' ? String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']') : ajaxOptions.data);
-            }
-            if (w2utils.settings.dataType == 'RESTFULLJSON') {
-                ajaxOptions.type = 'GET';
-                if (params.cmd == 'save')   ajaxOptions.type = 'PUT';  // so far it is always update
-                if (params.cmd == 'delete') ajaxOptions.type = 'DELETE';
-                ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
-                ajaxOptions.contentType = 'application/json';
-            }
-            if (w2utils.settings.dataType == 'JSON') {
-                ajaxOptions.type        = 'POST';
-                ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
-                ajaxOptions.contentType = 'application/json';
+
+            var dataType = this.dataType || w2utils.settings.dataType
+            switch (dataType) {
+                case 'HTTP':
+                    ajaxOptions.data = (typeof ajaxOptions.data == 'object' ? String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']') : ajaxOptions.data);
+                    break;
+                case 'HTTPJSON':
+                    ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) };
+                    break;
+                case 'RESTFULL':
+                    ajaxOptions.type = 'GET';
+                    if (params.cmd == 'save')   ajaxOptions.type = 'PUT';  // so far it is always update
+                    if (params.cmd == 'delete') ajaxOptions.type = 'DELETE';
+                    ajaxOptions.data = (typeof ajaxOptions.data == 'object' ? String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']') : ajaxOptions.data);
+                    break;
+                case 'RESTFULLJSON':
+                    ajaxOptions.type = 'GET';
+                    if (params.cmd == 'save')   ajaxOptions.type = 'PUT';  // so far it is always update
+                    if (params.cmd == 'delete') ajaxOptions.type = 'DELETE';
+                    ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                    ajaxOptions.contentType = 'application/json';
+                    break;
+                case 'JSON':
+                    ajaxOptions.type        = 'POST';
+                    ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
+                    ajaxOptions.contentType = 'application/json';
+                    break;
             }
             if (this.method) ajaxOptions.type = this.method;
 
