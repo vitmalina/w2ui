@@ -2502,6 +2502,8 @@ w2utils.event = {
         function hide(event) {
             if (event && event.button !== 0) return; // only for left click button
             var div1 = $('#w2ui-overlay'+ name);
+            // Allow clicking inside other overlays which belong to the elements inside this overlay
+            if (event && $($(event.target).closest('.w2ui-overlay').data('element')).closest('.w2ui-overlay')[0] === div1[0]) return;
             if (div1.data('keepOpen') === true) {
                 div1.removeData('keepOpen');
                 return;
