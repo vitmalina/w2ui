@@ -2,7 +2,7 @@ module.exports = function (grunt) {
 
     var w2ui    = '/* w2ui 1.5.x (nightly) (c) http://w2ui.com, vitmalina@gmail.com */\n';
     var fields  = '/* w2ui-fields.js 1.5.x (nightly), part of w2ui (c) http://w2ui.com, vitmalina@gmail.com */\n';
-    var ks      = '/* kicstart 0.2.x (nightly) (c) http://w2ui.com/kickstart, vitmalina@gmail.com */\n';
+    var ks      = '/* kickstart 0.2.x (nightly) (c) http://w2ui.com/kickstart, vitmalina@gmail.com */\n';
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
