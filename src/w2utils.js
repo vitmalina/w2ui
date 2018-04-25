@@ -2759,6 +2759,7 @@ w2utils.event = {
                 //Menu onClick event
                 if (options.items[index].onClick) options.items[index].onClick({
                         keepOpen: keepOpen,
+                        item: options.items[index],
                         originalEvent: event
                     });
 
