@@ -3920,6 +3920,21 @@ w2utils.event = {
             }
         },
 
+        getCollapse: function(recid) {
+            //search children
+            function subget(records) {
+                for (var i = 0; i < records.length; i++) {
+                    if (records[i].recid == recid) return records[i];
+                    else if (records[i].w2ui && records[i].w2ui.children) {
+                        var ret = subget(records[i].w2ui.children);
+                        if (ret) return ret;
+                    }
+                }
+                return null;
+            }
+            return subget(this.records);
+        },
+
         getFirst: function () {
             if (this.records.length == 0) return null;
             var recid = this.records[0].recid;
