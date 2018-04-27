@@ -43,6 +43,7 @@
         this.onMouseOut  = options.onMouseOut  || null;
         this.onIconClick = options.onIconClick || null;
         this.onScroll    = options.onScroll || null;
+        this.onFocus     = options.onFocus || null;
         this.tmp         = {}; // temp object
         // clean up some options
         delete this.options.type;
@@ -55,6 +56,7 @@
         delete this.options.onMouseOut;
         delete this.options.onIconClick;
         delete this.options.onScroll;
+        delete this.options.onFocus;
         // extend with defaults
         $.extend(true, this, w2obj.field);
     };
@@ -926,9 +928,14 @@
             }
         },
 
-        focus: function (event) {
+        focus: function (event) {            
             var obj     = this;
             var options = this.options;
+
+            // trigger event
+            var edata = obj.trigger({ phase: 'before', type: 'focus', target: obj.el, originalEvent: event.originalEvent});
+            if (edata.isCancelled === true) return;
+
             // color, date, time
             if (['color', 'date', 'time', 'datetime'].indexOf(obj.type) !== -1) {
                 if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
@@ -953,6 +960,9 @@
             if (obj.type == 'file') {
                 $(obj.helpers.multi).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '-2px' });
             }
+
+            // event after
+            obj.trigger($.extend(edata, { phase: 'after' }));            
         },
 
         blur: function (event) {
