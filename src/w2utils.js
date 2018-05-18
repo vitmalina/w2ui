@@ -126,6 +126,7 @@ var w2utils = (function ($) {
                  navigator.userAgent.toLowerCase().indexOf('trident') != -1 )
                  ? true : false)
     };
+    obj.defaults = $.extend(true, {}, obj.settings);
     return obj;
 
     function isBin (val) {
@@ -1479,12 +1480,12 @@ var w2utils = (function ($) {
         }
 
         if (locale.length === 5) locale = 'locale/'+ locale +'.json';
-
+		
         // clear phrases from language before
-        w2utils.settings.phrases = {};
+		w2utils.settings = $.extend(true, w2utils.settings, w2utils.defaults);
+        //w2utils.settings.phrases = {};
 
         // load from the file
-
         if (typeof module!='undefined' && module.exports) {
             var data = JSON.parse(fs.readFileSync(__dirname + '/' + locale));
             w2utils.settings = $.extend(true, w2utils.settings, data);
