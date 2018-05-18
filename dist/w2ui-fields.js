@@ -50,7 +50,7 @@ var w2utils = (function ($) {
     var tmp = {}; // for some temp variables
     var obj = {
         version  : '1.5.x',
-        settings : {
+        defaults : {
             "locale"            : "en-us",
             "dateFormat"        : "m/d/yyyy",
             "timeFormat"        : "hh:mi pm",
@@ -65,8 +65,10 @@ var w2utils = (function ($) {
             "shortdays"         : ["M", "T", "W", "T", "F", "S", "S"],
             "fulldays"          : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
             "weekStarts"        : "M",        // can be "M" for Monday or "S" for Sunday
-            "dataType"          : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
             "phrases"           : {},         // empty object for english phrases
+        },
+        settings: {
+            "dataType"          : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
             "dateStartYear"     : 1950,       // start year for date-picker
             "dateEndYear"       : 2020        // end year for date picker
         },
@@ -127,7 +129,7 @@ var w2utils = (function ($) {
                  navigator.userAgent.toLowerCase().indexOf('trident') != -1 )
                  ? true : false)
     };
-    obj.defaults = $.extend(true, {}, obj.settings);
+    obj.settings = $.extend(true, obj.settings, obj.defaults);
     return obj;
 
     function isBin (val) {
@@ -1481,8 +1483,8 @@ var w2utils = (function ($) {
         }
 
         if (locale.length === 5) locale = 'locale/'+ locale +'.json';
-		
-        // clear phrases from language before
+
+        // clear settings to defaults
 		w2utils.settings = $.extend(true, w2utils.settings, w2utils.defaults);
         //w2utils.settings.phrases = {};
 
