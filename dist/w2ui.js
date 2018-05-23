@@ -1324,7 +1324,7 @@ var w2utils = (function ($) {
         if ($.trim(options.html) === '' && $.trim(options.body) === '' && $.trim(options.buttons) === '') {
             if (msgCount === 0) return; // no messages at all
             var $msg = $(where.box).find('#w2ui-message'+ (msgCount-1));
-            var options = $msg.data('options') || {};
+            var options = $msg.data('options') || options || {};
             // before event
             edata = options.trigger({ phase: 'before', type: 'close', target: 'self' });
             if (edata.isCancelled === true) return;
