@@ -1417,7 +1417,7 @@ var w2utils = (function ($) {
             if ($focus && $focus.length > 0) {
                 $focus.focus();
             } else {
-                if (obj && obj.focus) obj.focus();
+                if (obj && obj.focus && (typeof obj === 'function')) obj.focus();
             }
             head.css('z-index', head.data('old-z-index'));
             // event after
