@@ -323,7 +323,7 @@
                 box   : this.box,
                 path  : 'w2ui.' + this.name,
                 title : '.w2ui-form-header:visible',
-                body  : '.w2ui-form-box'
+                body  : '.w2ui-form-box:not(".w2ui-form-box .w2ui-form-box")'
             }, options);
         },
 
