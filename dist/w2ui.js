@@ -9581,6 +9581,7 @@ w2utils.event = {
                 var html = '';
                 var operators = obj.operators[obj.operatorsMap[type]];
                 if (fieldOperators != null) operators = fieldOperators;
+                if (!operators) return;
                 for (var i = 0; i < operators.length; i++) {
                     var oper = operators[i];
                     var text = oper;
