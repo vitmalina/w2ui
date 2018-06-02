@@ -5,7 +5,7 @@
     "datetimeFormat" : "dd.mm.yyyy|h24:mm",
     "currency"       : "^[-+]?[0-9]*[\\.]?[0-9]+\\€$",
     "currencyPrefix" : "",
-    "currencySuffix" : "€",
+    "currencySuffix" : "",
     "groupSymbol"    : "",
     "decimalSymbol"  : ",",
     "float"          : "^[-+]?[0-9]*[\\.,]?[0-9]+$",
