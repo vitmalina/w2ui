@@ -498,16 +498,23 @@
             function resizeStart(type, evnt) {
                 if (!obj.box) return;
                 if (!evnt) evnt = window.event;
-                $(document).off('mousemove', obj.tmp.events.mouseMove).on('mousemove', obj.tmp.events.mouseMove);
-                $(document).off('mouseup', obj.tmp.events.mouseUp).on('mouseup', obj.tmp.events.mouseUp);
+                $(document).off('mousemove touchmove', obj.tmp.events.mouseMove).on('mousemove touchmove', obj.tmp.events.mouseMove);
+                $(document).off('mouseup touchend', obj.tmp.events.mouseUp).on('mouseup touchend', obj.tmp.events.mouseUp);
                 obj.tmp.resize = {
                     type    : type,
-                    x       : evnt.screenX,
-                    y       : evnt.screenY,
+                    //x       : evnt.screenX,
+                    //y       : evnt.screenY,
                     diff_x  : 0,
                     diff_y  : 0,
                     value   : 0
                 };
+                if (evnt.targetTouches) {
+                    obj.tmp.resize.x = evnt.targetTouches[0].screenX;
+                    obj.tmp.resize.y  = evnt.targetTouches[0].screenY
+                } else {
+                    obj.tmp.resize.x  = evnt.screenX;
+                    obj.tmp.resize.y  = evnt.screenY;
+                }
                 // lock all panels
                 for (var p1 = 0; p1 < w2panels.length; p1++) {
                     var $tmp = $(obj.el(w2panels[p1])).parent().find('.w2ui-lock');
@@ -600,8 +607,13 @@
                 if (edata.isCancelled === true) return;
 
                 var p         = $('#layout_'+ obj.name + '_resizer_'+ tmp.type);
-                var resize_x  = (evnt.screenX - tmp.x);
-                var resize_y  = (evnt.screenY - tmp.y);
+                if (evnt.targetTouches) {
+                    var resize_x  = (evnt.targetTouches[0].screenX - tmp.x);
+                    var resize_y  = (evnt.targetTouches[0].screenY - tmp.y);                    
+                } else {
+                    var resize_x  = (evnt.screenX - tmp.x);
+                    var resize_y  = (evnt.screenY - tmp.y);
+                }
                 var mainPanel = obj.get('main');
 
                 if (!p.hasClass('active')) p.addClass('active');
@@ -848,7 +860,7 @@
                         'width': w + 'px',
                         'height': h + 'px',
                         'cursor': 'ns-resize'
-                    }).off('mousedown').on('mousedown', function (event) {
+                    }).off('mousedown touchstart').on('mousedown touchstart', function (event) {
                         // event before
                         var edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'top', originalEvent: event });
                         if (edata.isCancelled === true) return;
@@ -892,7 +904,7 @@
                         'width': w + 'px',
                         'height': h + 'px',
                         'cursor': 'ew-resize'
-                    }).off('mousedown').on('mousedown', function (event) {
+                    }).off('mousedown touchstart').on('mousedown touchstart', function (event) {
                         // event before
                         var edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'left', originalEvent: event });
                         if (edata.isCancelled === true) return;
@@ -934,7 +946,7 @@
                         'width': w + 'px',
                         'height': h + 'px',
                         'cursor': 'ew-resize'
-                    }).off('mousedown').on('mousedown', function (event) {
+                    }).off('mousedown touchstart').on('mousedown touchstart', function (event) {
                         // event before
                         var edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'right', originalEvent: event });
                         if (edata.isCancelled === true) return;
@@ -975,7 +987,7 @@
                         'width': w + 'px',
                         'height': h + 'px',
                         'cursor': 'ns-resize'
-                    }).off('mousedown').on('mousedown', function (event) {
+                    }).off('mousedown touchstart').on('mousedown touchstart', function (event) {
                         // event before
                         var edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'bottom', originalEvent: event });
                         if (edata.isCancelled === true) return;
@@ -1039,7 +1051,7 @@
                         'width': w + 'px',
                         'height': h + 'px',
                         'cursor': 'ns-resize'
-                    }).off('mousedown').on('mousedown', function (event) {
+                    }).off('mousedown touchstart').on('mousedown touchstart', function (event) {
                         // event before
                         var edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'preview', originalEvent: event });
                         if (edata.isCancelled === true) return;

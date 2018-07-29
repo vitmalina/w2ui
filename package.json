@@ -6,16 +6,18 @@
   "license": "MIT",
   "repository": "https://github.com/vitmalina/w2ui",
   "dependencies": {
-    "jquery": ">=1.9"
+    "grunt-bower-task": "^0.5.0",
+    "jquery": ">=1.9",
+    "natives": "^1.1.4"
   },
   "devDependencies": {
-    "grunt": "~0.4.2",
+    "grunt": "^0.4.5",
     "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-concat": "~1.0.1",
     "grunt-contrib-less": "~0.9.0",
+    "grunt-contrib-uglify": "^0.4.0",
     "grunt-contrib-watch": "~0.5.3",
     "grunt-shell": "~0.6.4",
-    "grunt-contrib-uglify": "^0.4.0",
     "grunt-webfont": "^0.4.3"
   }
 }
