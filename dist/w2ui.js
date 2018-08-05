@@ -12872,6 +12872,12 @@ var w2popup = {};
             var obj = this;
             $().w2tag(); // hide all tags
             if (!options) options = { width: 200, height: 100 };
+
+            if (options.onOpen) {
+                var edata = {options: options};
+                options.onOpen(edata);
+            }
+
             var pWidth   = parseInt($('#w2ui-popup').width());
             var pHeight  = parseInt($('#w2ui-popup').height());
             options.originalWidth  = options.width;
@@ -12914,7 +12920,7 @@ var w2popup = {};
                     } else {
                         obj.focus();
                     }
-                    if (typeof options.onClose == 'function') options.onClose();
+                    if (typeof options.onClose == 'function') options.onClose({options: options});
                 }, 150);
             } else {
                 if ($.trim(options.body) !== '' || $.trim(options.buttons) !== '') {
@@ -12952,7 +12958,7 @@ var w2popup = {};
                         obj.focus();
                         // has to be on top of lock
                         $('#w2ui-popup #w2ui-message'+ msgCount).css(w2utils.cssPrefix({ 'transition': '0s' }));
-                        if (typeof options.onOpen == 'function') options.onOpen();
+                        if (edata && edata.onComplete) edata.onComplete();
                     }, 350);
                 }
             }
