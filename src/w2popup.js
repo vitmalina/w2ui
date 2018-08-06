@@ -582,7 +582,7 @@ var w2popup = {};
                 }, 150);
             } else {
                 if ($.trim(options.body) !== '' || $.trim(options.buttons) !== '') {
-                    options.html = '<div class="w2ui-message-body">'+ options.body +'</div>'+
+                    options.html = '<div class="w2ui-message-body"' + (options.style ? (' style="' + options.style) + '"' : '') + '>'+ options.body +'</div>'+
                         '<div class="w2ui-message-buttons">'+ options.buttons +'</div>';
                 }
                 // hide previous messages
