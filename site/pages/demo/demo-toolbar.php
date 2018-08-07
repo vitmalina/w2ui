@@ -32,7 +32,7 @@
 
 	<div class="row">
 		<div class="span12">
-			By default, the toolbar is completely transparent. In the example above, I have defined a containter with a gradient fill. In the case of 
+			By default, the toolbar is completely transparent. In the example above, I have defined a container with a gradient fill. In the case of
 			the grid, the container with gradient fill is provided by the grid.
 		</div>
 	</div>
@@ -46,7 +46,7 @@
 		</div>
 		<div class="span4">
 			<h3>Dropdowns</h3>
-			Drop down menues and overlays are also supported. A menu will have selectable items. An overlay may contain any HTML text.
+			Drop down menus and overlays are also supported. A menu will have selectable items. An overlay may contain any HTML text.
 		</div>
 		<div class="span4">
 			<h3>Separators</h3>
@@ -59,7 +59,7 @@
 	<div class="row">
 		<div class="span4">
 			<h3>JavaScript APIs</h3>
-			All functionality can be accessed from JavaScript in short, human-readble commands. 
+			All functionality can be accessed from JavaScript in short, human-readable commands.
 		</div>
 		<div class="span4">
 			<h3>Clean Syntax</h3>

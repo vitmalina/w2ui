@@ -1,4 +1,4 @@
-/* kicstart 0.2.x (nightly) (c) http://w2ui.com/kickstart, vitmalina@gmail.com */
+/* kickstart 0.2.x (nightly) (c) http://w2ui.com/kickstart, vitmalina@gmail.com */
 /************************************************
 *  Library: KickStart - Minimalistic Framework
 *   - Dependencies: jQuery
@@ -359,7 +359,7 @@ kickStart.register('route', function () {
         }
         // if route is not registered, see if it is in module definitions
         if (!isFound) {
-            // find if a route mataches a module route
+            // find if a route matches a module route
             var mods = app._conf.modules;
             for (var name in mods) {
                 var mod = mods[name];

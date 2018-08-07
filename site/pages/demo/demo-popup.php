@@ -8,7 +8,7 @@
 		<div class="span10">
 			<h2>Popups and Overlays</h2>
 			Popups and overlays are popular UI elements of modern web applications. If used right, it can significantly enhance user interaction, provide 
-			clearity and improve navigation of your application. The w2ui library has both popups and overlays. A popup blocks the content of the 
+			clarity and improve navigation of your application. The w2ui library has both popups and overlays. A popup blocks the content of the
 			application for the duration of user interaction. An overlay, in turn, is non-blocking UI solutions that displays additional information.
 		</div>
 		<div class="span2">

@@ -2,7 +2,7 @@ MySQL vs Postgres
 
 I foresee this pots will be very unpopular with some developer community, but here goes nothing.
 
-1. Created a table with VC(65535) or 100 columns of VC(600) because mysql support comulative number of vc size to be 65525
+1. Created a table with VC(65535) or 100 columns of VC(600) because mysql support cumulative number of vc size to be 65525
 
 --- 
 Error Code: 1118. Row size too large. The maximum row size for the used table type, not counting BLOBs, is 65535. You have to change some columns to TEXT or BLOBs
