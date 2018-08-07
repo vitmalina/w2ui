@@ -19571,7 +19571,7 @@ var w2prompt = function (label, title, callBack) {
                         // generate
                         for (var i = 0; i < items.length; i++) {
                             input += '<label><input name="' + field.name + '" class="w2ui-input" type = "radio" ' + field.html.attr + (i === 0 ? tabindex_str : '') + ' value="'+ items[i].id + '"/>' +
-                                '&#160;' + items[i].text + '</label><br/>';
+                                '&#160;' + items[i].text + '</label> ';
 							if (field.options.multiline) input+='<br/>';	
                         }
                         break;
