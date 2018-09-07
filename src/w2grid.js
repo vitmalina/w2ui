@@ -523,6 +523,7 @@
             for (var o in obj) if (String(o).indexOf('.') != -1) hasDots = true;
             // look for an item
             for (var i = 0; i < this.records.length; i++) {
+                if (!this.records[i]) continue;
                 var match = true;
                 for (var o in obj) {
                     var val = this.records[i][o];

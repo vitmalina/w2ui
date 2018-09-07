@@ -5,11 +5,11 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 //NodeJS wrapper
 if (typeof module!='undefined' && module.exports) {
     var navigator = require('navigator');
-
+    
     var jsdom = require('jsdom');
     const { JSDOM } = jsdom;
     const { window } = new JSDOM('<html></html>');
-    var jQuery = require('jquery')(window);
+    var jQuery = require('jquery')(window);  
 }
 
 /************************************************
@@ -3915,6 +3915,7 @@ w2utils.event = {
             for (var o in obj) if (String(o).indexOf('.') != -1) hasDots = true;
             // look for an item
             for (var i = 0; i < this.records.length; i++) {
+                if (!this.records[i]) continue;
                 var match = true;
                 for (var o in obj) {
                     var val = this.records[i][o];
