@@ -2616,6 +2616,9 @@
                                     }.bind(this));
                                     return;
                                 }
+                                // If a dataset is loaded and any row is expanded the total is not good anymore for the next load of data
+                                // Add expanded rows to total
+                                this.total += this.find( { 'w2ui.expanded': true } ).map( recid => this.get( recid ).w2ui.children.length ).reduce( ( acc, len ) => acc += len, 0 );
                             }
                             // records
                             if (data.records) {
@@ -4010,7 +4013,7 @@
             if (rec.w2ui.expanded === true) return this.collapse(recid); else return this.expand(recid);
         },
 
-        expand: function (recid) {
+        expand: function (recid,doRefresh=true) {
             var obj  = this;
             var ind  = this.get(recid, true);
             var rec  = this.records[ind];
@@ -4036,7 +4039,7 @@
                         this.localSearch(true);
                     }
                 }
-                this.refresh();
+                if ( doRefresh ) this.refresh();
                 this.trigger($.extend(edata, { phase: 'after' }));
             } else {
                 if ($('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').length > 0 || this.show.expandColumn !== true) return false;
