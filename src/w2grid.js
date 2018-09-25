@@ -1798,12 +1798,27 @@
             return unselected;
         },
 
-        selectAll: function () {
+        selectAll: function (col) {
             var time = (new Date()).getTime();
             if (this.multiSelect === false) return;
             // event before
             var edata = this.trigger({ phase: 'before', type: 'select', target: this.name, all: true });
             if (edata.isCancelled === true) return;
+
+            if (col) {
+                var edata = {
+                    phase: 'before', type: 'change', target: this.name
+                }
+                edata = this.trigger(edata);
+                if (edata.isCancelled === true) return;
+                this.records.forEach(function(rec) {
+                    rec[col] = true;
+                })
+                this.trigger($.extend(edata, { phase: 'after' }));
+                this.refresh();
+                return;
+            }
+
             // default action
             var url  = (typeof this.url != 'object' ? this.url : this.url.get);
             var sel  = this.last.selection;
@@ -1854,11 +1869,26 @@
             return (new Date()).getTime() - time;
         },
 
-        selectNone: function () {
+        selectNone: function (col) {
             var time = (new Date()).getTime();
             // event before
             var edata = this.trigger({ phase: 'before', type: 'unselect', target: this.name, all: true });
             if (edata.isCancelled === true) return;
+
+            if (col) {
+                var edata = {
+                    phase: 'before', type: 'change', target: this.name
+                }
+                edata = this.trigger(edata);
+                if (edata.isCancelled === true) return;
+                this.records.forEach(function(rec) {
+                    rec[col] = false;
+                })
+                this.trigger($.extend(edata, { phase: 'after' }));
+                this.refresh();
+                return;
+            }
+
             // default action
             var sel = this.last.selection;
             // remove selected class
@@ -6589,6 +6619,23 @@
                 return [html1, html2];
             }
 
+            function getSelectColumnHTML(obj,col,checked) {
+                return '<td class="w2ui-head w2ui-col-select"'+
+                '       onclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
+                '    <div>'+
+                '        <input type="checkbox" id="grid_'+ obj.name +'_check_all' + (col ? '_' + col : '') + '" tabindex="-1"'+
+                '            style="' + (obj.multiSelect == false && !(col && col.selectAll) ? 'display: none;' : '') + '"'+
+                 (checked ? 'checked' : '') +
+                '            onmousedown="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;"'+
+                '            onclick="var grid = w2ui[\''+ obj.name +'\'];'+
+                '               if (this.checked) grid.selectAll(' + ( col ? ( '\'' + col + '\'' ) : '' ) + '); else grid.selectNone(' + ( col ? ( '\'' + col + '\'' ) : '' ) + ');'+
+                '               if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;'+
+                '               clearTimeout(grid.last.kbd_timer); /* keep focus */' +
+                '            "/>'+
+                '    </div>'+
+                '</td>';
+            }
+
             function getColumns (master) {
                 var html1 = '<tr>';
                 var html2 = '<tr>';
@@ -6600,19 +6647,7 @@
                             '</td>';
                 }
                 if (obj.show.selectColumn) {
-                    html1 += '<td class="w2ui-head w2ui-col-select"'+
-                            '       onclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
-                            '    <div>'+
-                            '        <input type="checkbox" id="grid_'+ obj.name +'_check_all" tabindex="-1"'+
-                            '            style="' + (obj.multiSelect == false ? 'display: none;' : '') + '"'+
-                            '            onmousedown="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;"'+
-                            '            onclick="var grid = w2ui[\''+ obj.name +'\'];'+
-                            '               if (this.checked) grid.selectAll(); else grid.selectNone();'+
-                            '               if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;'+
-                            '               clearTimeout(grid.last.kbd_timer); /* keep focus */' +
-                            '            "/>'+
-                            '    </div>'+
-                            '</td>';
+                    html1 += getSelectColumnHTML(obj);
                 }
                 if (obj.show.expandColumn) {
                     html1 += '<td class="w2ui-head w2ui-col-expand">'+
@@ -6635,7 +6670,13 @@
                     if (col.hidden)
                         continue;
                     if (colg.master !== true || master) { // grouping of columns
-                        var colCellHTML = obj.getColumnCellHTML(i);
+                        if (col.selectAll) {
+                            var checked = true;
+                            obj.records.forEach(function(rec) {
+                                checked = checked && rec[col.field]
+                            });
+                            var colCellHTML = getSelectColumnHTML(obj, col.field, checked);
+                        } else var colCellHTML = obj.getColumnCellHTML(i);
                         if (col && col.frozen) html1 += colCellHTML; else html2 += colCellHTML;
                     }
                 }
