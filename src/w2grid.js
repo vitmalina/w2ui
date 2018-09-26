@@ -207,6 +207,7 @@
         this.textSearch      = 'begins'; // default search type for text
         this.useFieldDot     = true;     // use field name containing dots as separator to look into object
         this.selectDuplicates = false;   // select duplicated recids
+        this.expandAllOnLoad = false; // expand all expandable records on load
 
         this.total   = 0;     // server total
         this.limit   = 100;
@@ -2609,16 +2610,23 @@
                                 this.summary = [];
                                 if (w2utils.isInt(data.total)) this.total = parseInt(data.total);
                             } else {
-                                if (data.total != -1 && parseInt(data.total) != parseInt(this.total)) {
+                                let total = this.total; // Variable for comparison - normally exactly the same as this.total
+                                if ( this.expandAllOnLoad ) {
+                                    let addToTotal = this.find( { 'w2ui.expanded': true } )
+                                                         .map( recid => this.get( recid ).w2ui.children.length )
+                                                         .reduce( ( acc, len ) => acc + len, 0 );
+                                    // Need to subtract expanded rows for comparison
+                                    total -= this.last.xhr_hasMore ? addToTotal : 0;
+                                    // Need to add expanded rows to get correct total value
+                                    this.total += this.last.xhr_hasMore ? 0 : addToTotal;
+                                }
+                                if (data.total != -1 && parseInt(data.total) != parseInt(total)) {
                                     this.message(w2utils.lang(this.msgNeedReload), function () {
                                         delete this.last.xhr_offset;
                                         this.reload();
                                     }.bind(this));
                                     return;
                                 }
-                                // If a dataset is loaded and any row is expanded the total is not good anymore for the next load of data
-                                // Add expanded rows to total
-                                this.total += this.find( { 'w2ui.expanded': true } ).map( recid => this.get( recid ).w2ui.children.length ).reduce( ( acc, len ) => acc += len, 0 );
                             }
                             // records
                             if (data.records) {
@@ -2656,6 +2664,7 @@
                 this.localSearch();
             }
             this.total = parseInt(this.total);
+            if (this.expandAllOnLoad) this.expandAll();
             // do not refresh if loading on infinite scroll
             if (this.last.xhr_offset === 0) {
                 this.refresh();
@@ -4013,6 +4022,55 @@
             if (rec.w2ui.expanded === true) return this.collapse(recid); else return this.expand(recid);
         },
 
+        expandAll: function () {
+            // There are issues with total number.
+            /*
+            let edata = this.trigger( { phase: 'before', type: 'expandAll', target: this.name } );
+            if ( edata.isCancelled === true ) return false;
+            let self = this;
+            ( function setExpanded( records ) {
+                records.forEach( record => {
+                    let ind = self.get( record.recid, true );
+                    let children = record.w2ui.children;
+                    if ( record.w2ui.expanded === true ) return false; // already shown
+                    if ( !Array.isArray( children ) || children.length === 0 ) return false;
+                    record.w2ui.expanded = true;
+                    children.forEach( child => {
+                        child.w2ui = child.w2ui || {};
+                        child.w2ui.parent_recid = record.recid;
+                        if ( child.w2ui.children == null ) child.w2ui.children = [];
+                    } );
+                    self.records.splice.apply( self.records, [ ind + 1, 0 ].concat( children ) );
+                    if ( self.total !== -1 ) self.total += children.length;
+                    setExpanded( children );
+                } );
+            } )( Array.from( self.records ) );
+            this.trigger( $.extend( edata, { phase: 'after' } ) );
+            return true;
+            */
+            let self = this;
+            ( function expandAll( records ) {
+                records.forEach( record => {
+                    if ( self.expand( record.recid, false ) ) expandAll( record.w2ui.children );
+                } );
+            } )( _.clone( self.records ) );
+
+            /*
+
+                NEED TO CALL
+                    this.refresh()
+                ( when dataset is completely new )
+                OR
+                    this.scroll()
+                    this.resize()
+                ( when current load is appended on existing dataset )
+                ( howewer this.refresh() is also good )
+                MANUALLY
+                AFTER CALL THIS METHOD
+
+             */
+        },
+
         expand: function (recid,doRefresh=true) {
             var obj  = this;
             var ind  = this.get(recid, true);
@@ -4090,6 +4148,28 @@
                 this.resizeRecords();
             }
             return true;
+        },
+
+        collapseAll: function () {
+            // There are issues with total number.
+            /*
+            let edata = this.trigger( { phase: 'before', type: 'collapseAll', target: this.name } );
+            if ( edata.isCancelled === true ) return false;
+            let self = this;
+            Array.from( self.records ).forEach( record => {
+                let ind = self.get( record.recid, true );
+                let children = record.w2ui.children;
+                if ( record.w2ui.parent_recid == null ) {
+                    record.w2ui.expanded = false;
+                }
+                else {
+                    let n = self.records.splice( ind, 1 );
+                    if ( self.total !== -1 ) self.total -= n.length;
+                }
+            } );
+            this.trigger( $.extend( edata, { phase: 'after' } ) );
+            return true;
+            */
         },
 
         collapse: function (recid) {
