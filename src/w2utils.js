@@ -1270,8 +1270,8 @@ var w2utils = (function ($) {
             '<div class="w2ui-lock"></div>'+
             '<div class="w2ui-lock-msg"></div>'
         );
-        var $lock = $(box).find('.w2ui-lock');
-        var mess = $(box).find('.w2ui-lock-msg');
+        var $lock = $(box).children('.w2ui-lock');
+        var mess = $(box).children('.w2ui-lock-msg');
         if (!options.msg) mess.css({ 'background-color': 'transparent', 'border': '0px' });
         if (options.spinner === true) options.msg = '<div class="w2ui-spinner" '+ (!options.msg ? 'style="width: 35px; height: 35px"' : '') +'></div>' + options.msg;
         if (options.opacity != null) $lock.css('opacity', options.opacity);
@@ -1286,14 +1286,14 @@ var w2utils = (function ($) {
 
     function unlock (box, speed) {
         if (isInt(speed)) {
-            $(box).find('.w2ui-lock').fadeOut(speed);
+            $(box).children('.w2ui-lock').fadeOut(speed);
             setTimeout(function () {
-                $(box).find('.w2ui-lock').remove();
-                $(box).find('.w2ui-lock-msg').remove();
+                $(box).children('.w2ui-lock').remove();
+                $(box).children('.w2ui-lock-msg').remove();
             }, speed);
         } else {
-            $(box).find('.w2ui-lock').remove();
-            $(box).find('.w2ui-lock-msg').remove();
+            $(box).children('.w2ui-lock').remove();
+            $(box).children('.w2ui-lock-msg').remove();
         }
     }
 
