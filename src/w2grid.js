@@ -207,7 +207,8 @@
         this.textSearch      = 'begins'; // default search type for text
         this.useFieldDot     = true;     // use field name containing dots as separator to look into object
         this.selectDuplicates = false;   // select duplicated recids
-        this.expandAllOnLoad = false; // expand all expandable records on load
+        this.expandAllOnLoad = false;    // expand all expandable records on load
+        this.multiEdit       = false;    // edit button is enabled when multiple records is selected
 
         this.total   = 0;     // server total
         this.limit   = 100;
@@ -7698,7 +7699,8 @@
                 }
                 $('#grid_'+ this.name +'_footer .w2ui-footer-left').html(msgLeft);
                 // toolbar
-                if (sel.length == 1) this.toolbar.enable('w2ui-edit'); else this.toolbar.disable('w2ui-edit');
+                if (sel.length == 1 || (this.multiEdit && sel.length > 1)) this.toolbar.enable('w2ui-edit'); 
+                else this.toolbar.disable('w2ui-edit');
                 if (sel.length >= 1) this.toolbar.enable('w2ui-delete'); else this.toolbar.disable('w2ui-delete');
             }
         },
