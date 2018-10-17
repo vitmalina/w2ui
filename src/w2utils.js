@@ -4,6 +4,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 //NodeJS wrapper
 if (typeof module!='undefined' && module.exports) {
     var navigator = require('navigator');
+    var fs = require('fs');
     
     var jsdom = require('jsdom');
     const { JSDOM } = jsdom;
