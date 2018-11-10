@@ -1276,7 +1276,7 @@ var w2utils = (function ($) {
         if (!options.msg) mess.css({ 'background-color': 'transparent', 'border': '0px' });
         if (options.spinner === true) options.msg = '<div class="w2ui-spinner" '+ (!options.msg ? 'style="width: 35px; height: 35px"' : '') +'></div>' + options.msg;
         if (options.opacity != null) $lock.css('opacity', options.opacity);
-        if (typeof $lock.fadeIn === 'function') {
+        if (typeof $lock.fadeIn === 'function' && options.fade !== false) {
             $lock.fadeIn(200);
             mess.html(options.msg).fadeIn(200);
         } else {
