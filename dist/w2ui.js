@@ -13198,9 +13198,10 @@ var w2popup = {};
                     if (typeof options.onClose == 'function') options.onClose({options: options});
                 }, 150);
             } else {
-                if ($.trim(options.body) !== '' || $.trim(options.buttons) !== '') {
-                    options.html = '<div class="w2ui-message-body"' + (options.style ? (' style="' + options.style) + '"' : '') + '>'+ options.body +'</div>'+
-                        '<div class="w2ui-message-buttons">'+ options.buttons +'</div>';
+                if ($.trim(options.body) !== '') {
+                    options.html = '<div class="w2ui-message-body"' + (options.style ? (' style="' + options.style) + '"' : '') + '>'+ options.body +'</div>';
+                    if ($.trim(options.buttons) !== '')
+                        options.html += '<div class="w2ui-message-buttons">'+ options.buttons +'</div>';
                 }
                 // hide previous messages
                 $('#w2ui-popup .w2ui-message').css('z-index', 1390);
