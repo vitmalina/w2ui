@@ -560,10 +560,10 @@ var w2popup = {};
             // remove message
             if ($.trim(options.html) === '' && $.trim(options.body) === '' && $.trim(options.buttons) === '') {
                 var $msg = $('#w2ui-popup #w2ui-message'+ (msgCount-1));
-                var options = $msg.data('options') || {};
+                var eloptions = $msg.data('options') || {};
                 $msg.css(w2utils.cssPrefix({
                     'transition': '0.15s',
-                    'transform': 'translateY(-' + options.height + 'px)'
+                    'transform': 'translateY(-' + eloptions.height + 'px)'
                 }));
                 if (msgCount == 1) {
                     w2popup.unlock(150);
