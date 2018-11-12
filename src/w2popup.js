@@ -579,6 +579,7 @@ var w2popup = {};
                         obj.focus();
                     }
                     if (typeof options.onClose == 'function') options.onClose({options: options});
+                    if (typeof eloptions.onClose == 'function') eloptions.onClose({options: eloptions});
                 }, 150);
             } else {
                 if ($.trim(options.body) !== '') {
