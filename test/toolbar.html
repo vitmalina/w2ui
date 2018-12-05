@@ -16,6 +16,19 @@
             tooltip: 'top',
             items: [
                 { type: 'button', id: 'item1.0', text: 'BTN', img: 'icon-page', tooltip: function () { return (new Date()).getTime(); }},
+                {
+                                type: 'menu-radio', id: 'menu-stato',
+                                text: function (item) {
+                                    return 'Stato: ' + item.selected;
+                                },
+                                selected: 'ALL',
+                                items: [
+                                    { id: 'ALL', text: 'Tutti gli stati' },
+                                    { id: 'NEW', text: 'Nuovo' },
+                                    { id: 'WIP', text: 'Work in progress' },
+                                    { id: 'LAV', text: 'Lavorato' }
+                                ]
+                            },
                 { type: 'check', id: 'item1.1', text: 'Check', img: 'icon-page', tooltip: function () { return (new Date()).getTime(); },
                     checked: true, route: '/project' },
                 { type: 'drop',  id: 'item12', img: 'icon-page', icon: 'fa fa-star', tooltip: 'Drop button',  html: 'so', route: '/project/:id/go', count: 4 },
