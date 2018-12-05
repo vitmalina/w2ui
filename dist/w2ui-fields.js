@@ -178,23 +178,23 @@ var w2utils = (function ($) {
 
         if (format == null) format = w2utils.settings.dateFormat;
 
-        if (typeof val.getUTCFullYear === 'function') { // date object
-            year  = val.getUTCFullYear();
-            month = val.getUTCMonth() + 1;
-            day   = val.getUTCDate();
+        if (typeof val.getFullYear === 'function') { // date object
+            year  = val.getFullYear();
+            month = val.getMonth() + 1;
+            day   = val.getDate();
         } else if (parseInt(val) == val && parseInt(val) > 0) {
             val = new Date(parseInt(val));
-            year  = val.getUTCFullYear();
-            month = val.getUTCMonth() + 1;
-            day   = val.getUTCDate();
+            year  = val.getFullYear();
+            month = val.getMonth() + 1;
+            day   = val.getDate();
 		} else if (String(new Date(val)) != 'Invalid Date') {
             val = new Date(val);
             if (retDate !== true) return true;
             return val;
             val = new Date(val);
-            year  = val.getUTCFullYear();
-            month = val.getUTCMonth() + 1;
-            day   = val.getUTCDate();
+            year  = val.getFullYear();
+            month = val.getMonth() + 1;
+            day   = val.getDate();
         } else {
             val = String(val);
             // convert month formats
@@ -281,7 +281,7 @@ var w2utils = (function ($) {
     function isDateTime (val, format, retDate) {
         if (format == null) format = w2utils.settings.datetimeFormat;
         var formats = format.split('|');
-        if (typeof val.getUTCFullYear === 'function') { // date object
+        if (typeof val.getFullYear === 'function') { // date object
             if (retDate !== true) return true;
             return val;
         } else if (parseInt(val) === val && parseInt(val) >= 0) {
@@ -317,7 +317,7 @@ var w2utils = (function ($) {
     function age(dateStr) {
         var d1;
         if (dateStr === '' || dateStr == null) return '';
-        if (typeof dateStr.getUTCFullYear === 'function') { // date object
+        if (typeof dateStr.getFullYear === 'function') { // date object
             d1 = dateStr;
         } else if (parseInt(dateStr) == dateStr && parseInt(dateStr) > 0) {
             d1 = new Date(parseInt(dateStr));
