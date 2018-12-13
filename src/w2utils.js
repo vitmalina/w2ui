@@ -57,7 +57,8 @@ var w2utils = (function ($) {
             "dataType"          : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
             "phrases"           : {},         // empty object for english phrases
             "dateStartYear"     : 1950,       // start year for date-picker
-            "dateEndYear"       : 2020        // end year for date picker
+            "dateEndYear"       : 2020,       // end year for date picker
+            "macButtonOrder"    : false       // if true, Yes on the right side
         },
         isBin           : isBin,
         isInt           : isInt,
