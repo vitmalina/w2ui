@@ -67,13 +67,13 @@
             },
             fields: [
                 // first page
-                { field: 'field.toggle', type: 'toggle', required: true },
-                { field: 'field.text', type: 'text', required: true, html: { group: 'General' } },
-                { field: 'field.textarea', type: 'textarea', required: true },
-                { field: 'field.date', type: 'date', required: false },
-                { field: 'field.time', type: 'time', required: false, html: { group: 'General' } },
-                { field: 'field.color', type: 'color', required: true },
-                { field: 'field.list', type: 'list', required: true,
+                { field: 'field.toggle', type: 'toggle', required: true, html: { group: 'General' } },
+                { field: 'field.text', type: 'text', required: true, html: { attr: 'style="width: 300px"' } },
+                { field: 'field.textarea', type: 'textarea', required: true, html: { attr: 'style="width: 300px"' } },
+                { field: 'field.date', type: 'date', required: false, html: { attr: 'style="width: 90px"' } },
+                { field: 'field.time', type: 'time', required: false, html: { attr: 'style="width: 90px"' } },
+                { field: 'field.color', type: 'color', required: true, html: { attr: 'style="width: 90px"' } },
+                { field: 'field.list', type: 'list', required: true, html: { group: 'Dropdowns' },
                     options: {
                         match: 'contains',
                         compare: function (item) {
@@ -100,8 +100,9 @@
                     }
                 },
                 { field: 'field.enum', type: 'enum', required: false,
+                    html: { attr: 'style="width: 400px"' },
                     options: { items: [{id: 1, text: 'Adams, John'}, 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
-                { field: 'field.file', type: 'file', required: false },
+                { field: 'field.file', type: 'file', required: false, html: { attr: 'style="width: 400px"' } },
                 // second page
                 { field: 'field.email', type: 'email', required: true, html: { page: 1 } },
                 { field: 'field.password', type: 'pass', required: false, html: { page: 1 } },
@@ -131,7 +132,10 @@
                 }
             ],
             onChange: function (event) {
-                // console.log('change', event);
+                console.log('change', event);
+            },
+            onInput: function (event) {
+                console.log('input', event);
             },
             postData1: {
                 a1: 1,
@@ -163,13 +167,12 @@
         // w2ui.form.formHTML = w2ui.form.generateHTML()
         // w2ui.form.render();
         // all event listener
-        w2ui.form.on('change', function (event) {
-            event.onComplete = function () {
-                console.log('--------');
-                console.log('change:', event);
-                console.log('record:', w2ui.form.record);
-            }
-        });
+        // w2ui.form.on('change', function (event) {
+        //     event.onComplete = function () {
+        //         console.log('--------');
+        //         console.log('change2:', event, 'record:', w2ui.form.record);
+        //     }
+        // });
 });
 //]]>
 </script>

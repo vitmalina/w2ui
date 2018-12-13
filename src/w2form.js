@@ -29,6 +29,7 @@
 *   - added field types html, empty, custom
 *   - httpHeaders
 *   - method
+*   - onInput
 *
 ************************************************************************/
 
@@ -181,6 +182,7 @@
         onProgress    : null,
         onSave        : null,
         onChange      : null,
+        onInput       : null,
         onRender      : null,
         onRefresh     : null,
         onResize      : null,
@@ -1068,67 +1070,81 @@
                 if (field.el) field.el.id = field.name;
                 var tmp = $(field).data('w2field');
                 if (tmp) tmp.clear();
-                $(field.$el).off('change').on('change', function () {
-                    var value_new      = this.value;
-                    var value_previous = obj.record[this.name] != null ? obj.record[this.name] : '';
-                    var field          = obj.get(this.name);
-                    if (['list', 'enum', 'file'].indexOf(field.type) !== -1 && $(this).data('selected')) {
-                        var nv = $(this).data('selected');
-                        var cv = obj.record[this.name];
-                        if ($.isArray(nv)) {
-                            value_new = [];
-                            for (var i = 0; i < nv.length; i++) value_new[i] = $.extend(true, {}, nv[i]); // clone array
+                $(field.$el)
+                    .off('.w2form')
+                    .on('change.w2form', function () {
+                        var value_new      = this.value;
+                        var value_previous = obj.record[this.name] != null ? obj.record[this.name] : '';
+                        var field          = obj.get(this.name);
+                        if (['list', 'enum', 'file'].indexOf(field.type) !== -1 && $(this).data('selected')) {
+                            var nv = $(this).data('selected');
+                            var cv = obj.record[this.name];
+                            if ($.isArray(nv)) {
+                                value_new = [];
+                                for (var i = 0; i < nv.length; i++) value_new[i] = $.extend(true, {}, nv[i]); // clone array
+                            }
+                            if ($.isPlainObject(nv)) {
+                                value_new = $.extend(true, {}, nv); // clone object
+                            }
+                            if ($.isArray(cv)) {
+                                value_previous = [];
+                                for (var i = 0; i < cv.length; i++) value_previous[i] = $.extend(true, {}, cv[i]); // clone array
+                            }
+                            if ($.isPlainObject(cv)) {
+                                value_previous = $.extend(true, {}, cv); // clone object
+                            }
                         }
-                        if ($.isPlainObject(nv)) {
-                            value_new = $.extend(true, {}, nv); // clone object
+                        if (['toggle', 'checkbox'].indexOf(field.type) !== -1) {
+                            value_new = ($(this).prop('checked') ? ($(this).prop('value') === 'on' ? true : $(this).prop('value')) : false);
                         }
-                        if ($.isArray(cv)) {
-                            value_previous = [];
-                            for (var i = 0; i < cv.length; i++) value_previous[i] = $.extend(true, {}, cv[i]); // clone array
+                        // clean extra chars
+                        if (['int', 'float', 'percent', 'money', 'currency'].indexOf(field.type) !== -1) {
+                            value_new = $(this).data('w2field').clean(value_new);
                         }
-                        if ($.isPlainObject(cv)) {
-                            value_previous = $.extend(true, {}, cv); // clone object
+                        if (value_new === value_previous) return;
+                        // event before
+                        var edata2 = obj.trigger({ phase: 'before', target: this.name, type: 'change', value_new: value_new, value_previous: value_previous });
+                        if (edata2.isCancelled === true) {
+                            $(this).val(obj.record[this.name]); // return previous value
+                            return;
                         }
-                    }
-                    if (['toggle', 'checkbox'].indexOf(field.type) !== -1) {
-                        value_new = ($(this).prop('checked') ? ($(this).prop('value') === 'on' ? true : $(this).prop('value')) : false);
-                    }
-                    // clean extra chars
-                    if (['int', 'float', 'percent', 'money', 'currency'].indexOf(field.type) !== -1) {
-                        value_new = $(this).data('w2field').clean(value_new);
-                    }
-                    if (value_new === value_previous) return;
-                    // event before
-                    var edata2 = obj.trigger({ phase: 'before', target: this.name, type: 'change', value_new: value_new, value_previous: value_previous });
-                    if (edata2.isCancelled === true) {
-                        $(this).val(obj.record[this.name]); // return previous value
-                        return;
-                    }
-                    // default action
-                    var val = this.value;
-                    if (this.type === 'select')   val = this.value;
-                    if (this.type === 'checkbox') val = this.checked ? true : false;
-                    if (this.type === 'radio') {
-                        field.$el.each(function (index, el) {
-                            if (el.checked) val = el.value;
-                        });
-                    }
-                    if (['int', 'float', 'percent', 'money', 'currency', 'list', 'combo', 'enum', 'file', 'toggle'].indexOf(field.type) !== -1) {
-                        val = value_new;
-                    }
-                    if (['enum', 'file'].indexOf(field.type) !== -1) {
-                        if (val.length > 0) {
-                            var fld = $(field.el).data('w2field').helpers.multi;
-                            $(fld).removeClass('w2ui-error');
+                        // default action
+                        var val = this.value;
+                        if (this.type === 'select')   val = this.value;
+                        if (this.type === 'checkbox') val = this.checked ? true : false;
+                        if (this.type === 'radio') {
+                            field.$el.each(function (index, el) {
+                                if (el.checked) val = el.value;
+                            });
                         }
-                    }
-                    if (val === '' || val == null || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) {
-                        val = null;
-                    }
-                    obj.record[this.name] = val;
-                    // event after
-                    obj.trigger($.extend(edata2, { phase: 'after' }));
-                });
+                        if (['int', 'float', 'percent', 'money', 'currency', 'list', 'combo', 'enum', 'file', 'toggle'].indexOf(field.type) !== -1) {
+                            val = value_new;
+                        }
+                        if (['enum', 'file'].indexOf(field.type) !== -1) {
+                            if (val.length > 0) {
+                                var fld = $(field.el).data('w2field').helpers.multi;
+                                $(fld).removeClass('w2ui-error');
+                            }
+                        }
+                        if (val === '' || val == null || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) {
+                            val = null;
+                        }
+                        obj.record[this.name] = val;
+                        // event after
+                        obj.trigger($.extend(edata2, { phase: 'after' }));
+                    })
+                    .on('input.w2form', function (event) {
+                        var val = this.value;
+                        if (event.target.type == 'checkbox') {
+                            val = event.target.checked;
+                        }
+                        // event before
+                        var edata2 = obj.trigger({ phase: 'before', target: this.name, type: 'input', value_new: val, originalEvent: event });
+                        if (edata2.isCancelled === true) return;
+
+                        // event after
+                        obj.trigger($.extend(edata2, { phase: 'after' }));
+                    });
                 // required
                 if (field.required) {
                     $(field.el).parent().parent().addClass('w2ui-required');
