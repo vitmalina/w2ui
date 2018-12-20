@@ -58,7 +58,8 @@ var w2utils = (function ($) {
             "dataType"          : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
             "phrases"           : {},         // empty object for english phrases
             "dateStartYear"     : 1950,       // start year for date-picker
-            "dateEndYear"       : 2020        // end year for date picker
+            "dateEndYear"       : 2020,       // end year for date picker
+            "macButtonOrder"    : false       // if true, Yes on the right side
         },
         isBin           : isBin,
         isInt           : isInt,
@@ -2503,6 +2504,8 @@ w2utils.event = {
         function hide(event) {
             if (event && event.button !== 0) return; // only for left click button
             var div1 = $('#w2ui-overlay'+ name);
+            // Allow clicking inside other overlays which belong to the elements inside this overlay
+            if (event && $($(event.target).closest('.w2ui-overlay').data('element')).closest('.w2ui-overlay')[0] === div1[0]) return;
             if (div1.data('keepOpen') === true) {
                 div1.removeData('keepOpen');
                 return;
@@ -6506,8 +6509,12 @@ w2utils.event = {
                     width   : 350,
                     height  : 170,
                     body    : '<div class="w2ui-centered">' + w2utils.lang(obj.msgDelete) + '</div>',
-                    buttons : '<button type="button" class="w2ui-btn w2ui-btn-red" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang('Yes') + '</button>'+
-                              '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('No') + '</button>',
+                    buttons : (w2utils.settings.macButtonOrder
+                        ? '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('No') + '</button>' +
+                          '<button type="button" class="w2ui-btn w2ui-btn-red" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang('Yes') + '</button>'
+                        : '<button type="button" class="w2ui-btn w2ui-btn-red" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang('Yes') + '</button>' +
+                          '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('No') + '</button>'
+                        ),
                     onOpen: function (event) {
                         var inputs = $(this.box).find('input, textarea, select, button');
                         inputs.off('.message')
@@ -13291,8 +13298,12 @@ var w2confirm = function (msg, title, callBack) {
             width   : options.width,
             height  : options.height,
             body    : '<div class="w2ui-centered w2ui-confirm-msg" style="font-size: 13px;">' + options.msg + '</div>',
-            buttons : '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">' + w2utils.lang(options.yes_text) + '</button>' +
-                      '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">' + w2utils.lang(options.no_text) + '</button>',
+            buttons : (w2utils.settings.macButtonOrder
+                ? '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">' + w2utils.lang(options.no_text) + '</button>' +
+                  '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">' + w2utils.lang(options.yes_text) + '</button>' 
+                : '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">' + w2utils.lang(options.yes_text) + '</button>' +
+                  '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">' + w2utils.lang(options.no_text) + '</button>'
+                ),
             onOpen: function () {
                 $('#w2ui-popup .w2ui-message .w2ui-btn').on('click.w2confirm', function (event) {
                     w2popup._confirm_btn = event.target.id;
@@ -13322,8 +13333,12 @@ var w2confirm = function (msg, title, callBack) {
             modal      : true,
             showClose  : false,
             body       : '<div class="w2ui-centered w2ui-confirm-msg" style="font-size: 13px;">' + options.msg + '</div>',
-            buttons    : '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">'+ w2utils.lang(options.yes_text) +'</button>'+
-                         '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">'+ w2utils.lang(options.no_text) +'</button>',
+            buttons    : (w2utils.settings.macButtonOrder
+                    ? '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">'+ w2utils.lang(options.no_text) +'</button>' +
+                      '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">'+ w2utils.lang(options.yes_text) +'</button>'
+                    : '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">'+ w2utils.lang(options.yes_text) +'</button>' +
+                      '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">'+ w2utils.lang(options.no_text) +'</button>'
+                    ),
             onOpen: function (event) {
                 // do not use onComplete as it is slower
                 setTimeout(function () {
@@ -13421,7 +13436,12 @@ var w2prompt = function (label, title, callBack) {
                         '  <input id="w2prompt" '+ options.attrs +'>'+
                         '</div>'
                     ),
-            buttons : '<button id="Ok" class="w2ui-popup-btn w2ui-btn">' + options.ok_text + '</button><button id="Cancel" class="w2ui-popup-btn w2ui-btn">' + options.cancel_text + '</button>',
+            buttons : (w2utils.settings.macButtonOrder
+                ? '<button id="Cancel" class="w2ui-popup-btn w2ui-btn">' + options.cancel_text + '</button>' +
+                  '<button id="Ok" class="w2ui-popup-btn w2ui-btn">' + options.ok_text + '</button>'
+                : '<button id="Ok" class="w2ui-popup-btn w2ui-btn">' + options.ok_text + '</button>' +
+                  '<button id="Cancel" class="w2ui-popup-btn w2ui-btn">' + options.cancel_text + '</button>'
+                ),
             onOpen: function () {
                 $('#w2prompt').val(options.value);
                 $('#w2ui-popup .w2ui-message .w2ui-btn#Ok').on('click.w2prompt', function (event) {
@@ -13467,8 +13487,12 @@ var w2prompt = function (label, title, callBack) {
                             '  <input id="w2prompt" '+ options.attrs +'>'+
                             '</div>'
                         ),
-            buttons    : '<button id="Ok" class="w2ui-popup-btn w2ui-btn">' + options.ok_text + '</button>'+
-                         '<button id="Cancel" class="w2ui-popup-btn w2ui-btn">' + options.cancel_text + '</button>',
+            buttons    : (w2utils.settings.macButtonOrder
+                ? '<button id="Cancel" class="w2ui-popup-btn w2ui-btn">' + options.cancel_text + '</button>' +
+                  '<button id="Ok" class="w2ui-popup-btn w2ui-btn">' + options.ok_text + '</button>'
+                : '<button id="Ok" class="w2ui-popup-btn w2ui-btn">' + options.ok_text + '</button>'+
+                  '<button id="Cancel" class="w2ui-popup-btn w2ui-btn">' + options.cancel_text + '</button>'
+                ),
             onOpen: function (event) {
                 // do not use onComplete as it is slower
                 setTimeout(function () {
@@ -16504,7 +16528,7 @@ var w2prompt = function (label, title, callBack) {
                             // default behavior
                             $().w2overlay();
                             selected.splice($(event.target).attr('index'), 1);
-                            $(obj.el).trigger('change');
+                            $(obj.el).trigger('input').trigger('change');
                             $(event.target).parent().fadeOut('fast');
                             setTimeout(function () {
                                 obj.refresh();
@@ -16907,14 +16931,14 @@ var w2prompt = function (label, title, callBack) {
                         if (event.shiftKey) break; // no action if shift key is pressed
                         var newDT = w2utils.formatDate(dt.getTime() + daymil, options.format);
                         if (inc == 10) newDT = w2utils.formatDate(new Date(dt.getFullYear(), dt.getMonth()+1, dt.getDate()), options.format);
-                        $(obj.el).val(newDT).change();
+                        $(obj.el).val(newDT).trigger('input').change();
                         cancel = true;
                         break;
                     case 40: // down
                         if (event.shiftKey) break; // no action if shift key is pressed
                         var newDT = w2utils.formatDate(dt.getTime() - daymil, options.format);
                         if (inc == 10) newDT = w2utils.formatDate(new Date(dt.getFullYear(), dt.getMonth()-1, dt.getDate()), options.format);
-                        $(obj.el).val(newDT).change();
+                        $(obj.el).val(newDT).trigger('input').change();
                         cancel = true;
                         break;
                 }
@@ -16946,7 +16970,7 @@ var w2prompt = function (label, title, callBack) {
                         break;
                 }
                 if (cancel) {
-                    $(obj.el).val(obj.fromMin(time)).change();
+                    $(obj.el).val(obj.fromMin(time)).trigger('input').change();
                     event.preventDefault();
                     setTimeout(function () {
                         // set cursor to the end
@@ -16968,14 +16992,14 @@ var w2prompt = function (label, title, callBack) {
                         if (event.shiftKey) break; // no action if shift key is pressed
                         var newDT = w2utils.formatDateTime(dt.getTime() + daymil, options.format);
                         if (inc == 10) newDT = w2utils.formatDateTime(new Date(dt.getFullYear(), dt.getMonth()+1, dt.getDate()), options.format);
-                        $(obj.el).val(newDT).change();
+                        $(obj.el).val(newDT).trigger('input').change();
                         cancel = true;
                         break;
                     case 40: // down
                         if (event.shiftKey) break; // no action if shift key is pressed
                         var newDT = w2utils.formatDateTime(dt.getTime() - daymil, options.format);
                         if (inc == 10) newDT = w2utils.formatDateTime(new Date(dt.getFullYear(), dt.getMonth()-1, dt.getDate()), options.format);
-                        $(obj.el).val(newDT).change();
+                        $(obj.el).val(newDT).trigger('input').change();
                         cancel = true;
                         break;
                 }
@@ -17112,7 +17136,7 @@ var w2prompt = function (label, title, callBack) {
                                 if (edata.isCancelled === true) return;
                                 // default behavior
                                 selected.pop();
-                                $(obj.el).trigger('change');
+                                $(obj.el).trigger('input').trigger('change');
                                 obj.refresh();
                                 // event after
                                 obj.trigger($.extend(edata, { phase: 'after' }));
@@ -17407,7 +17431,7 @@ var w2prompt = function (label, title, callBack) {
                 },
                 function (color) {
                     if (color == null) return;
-                    $(obj.el).val(color).change();
+                    $(obj.el).val(color).trigger('input').change();
                 });
             }
             // date
@@ -17469,7 +17493,7 @@ var w2prompt = function (label, title, callBack) {
                     $('#w2ui-overlay .w2ui-date')
                         .on('mousedown', function () {
                             var day = $(this).attr('date');
-                            $(obj.el).val(day).change();
+                            $(obj.el).val(day).trigger('input').change();
                             $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
                         })
                         .on('mouseup', function () {
@@ -17503,7 +17527,7 @@ var w2prompt = function (label, title, callBack) {
                     .on('mousedown', function (event) {
                         $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
                         var hour = $(this).attr('hour');
-                        $(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
+                        $(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).trigger('input').change();
                     });
                     if (this.options.noMinutes == null || this.options.noMinutes === false) {
                         $('#w2ui-overlay .w2ui-time')
@@ -17516,7 +17540,7 @@ var w2prompt = function (label, title, callBack) {
                                     .on('mousedown', function () {
                                         $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
                                         var min = $(this).attr('min');
-                                        $(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
+                                        $(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).trigger('input').change();
                                     })
                                     .on('mouseup', function () {
                                         setTimeout(function () { if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide(); }, 10);
@@ -17594,7 +17618,7 @@ var w2prompt = function (label, title, callBack) {
                     $('#w2ui-overlay .w2ui-date')
                         .on('mousedown', function () {
                             var day = $(this).attr('date');
-                            $(obj.el).val(day).change();
+                            $(obj.el).val(day).trigger('input').change();
                             $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
                             selDate = new Date($(this).attr('data-date'));
                         })
@@ -17611,8 +17635,8 @@ var w2prompt = function (label, title, callBack) {
                                     selHour = $(this).attr('hour');
                                     selDate.setHours(selHour);
                                     var txt = w2utils.formatDateTime(selDate, obj.options.format);
-                                    $(obj.el).val(txt).change();
-                                    //$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
+                                    $(obj.el).val(txt).trigger('input').change();
+                                    //$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).trigger('input').change();
                                 });
                             if (obj.options.noMinutes == null || obj.options.noMinutes === false) {
                                 $('#w2ui-overlay .w2ui-time')
@@ -17627,8 +17651,8 @@ var w2prompt = function (label, title, callBack) {
                                                 selMin = $(this).attr('min');
                                                 selDate.setHours(selHour, selMin);
                                                 var txt = w2utils.formatDateTime(selDate, obj.options.format);
-                                                $(obj.el).val(txt).change();
-                                                //$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
+                                                $(obj.el).val(txt).trigger('input').change();
+                                                //$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).trigger('input').change();
                                             })
                                             .on('mouseup', function () {
                                                 setTimeout(function () { if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide(); }, 10);
@@ -17656,7 +17680,7 @@ var w2prompt = function (label, title, callBack) {
                         .on('mousedown', function () {
                             // this currently ignores blocked days or start / end dates!
                             var tmp = w2utils.formatDateTime(new Date(), obj.options.format);
-                            $(obj.el).val(tmp).change();
+                            $(obj.el).val(tmp).trigger('input').change();
                             return false;
                         })
                         .on('mouseup', function () {
@@ -17722,7 +17746,7 @@ var w2prompt = function (label, title, callBack) {
                                     if (selected.length >= options.max && options.max > 0) selected.pop();
                                     delete event.item.hidden;
                                     selected.push(event.item);
-                                    $(obj.el).data('selected', selected).change();
+                                    $(obj.el).data('selected', selected).trigger('input').change();
                                     $(obj.helpers.multi).find('input').val('').width(20);
                                     obj.refresh();
                                     if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
@@ -17730,7 +17754,7 @@ var w2prompt = function (label, title, callBack) {
                                     obj.trigger($.extend(edata, { phase: 'after' }));
                                 }
                             } else {
-                                $(obj.el).data('selected', event.item).val(event.item.text).change();
+                                $(obj.el).data('selected', event.item).val(event.item.text).trigger('input').change();
                                 if (obj.helpers.focus) obj.helpers.focus.find('input').val('');
                             }
                         }
@@ -18295,7 +18319,7 @@ var w2prompt = function (label, title, callBack) {
                         var ind = fl.indexOf(',');
                         newItem.content = fl.substr(ind+1);
                         obj.refresh();
-                        $(obj.el).trigger('change');
+                        $(obj.el).trigger('input').trigger('change');
                         // event after
                         obj.trigger($.extend(edata, { phase: 'after' }));
                     };
@@ -18303,7 +18327,7 @@ var w2prompt = function (label, title, callBack) {
                 reader.readAsDataURL(file);
             } else {
                 obj.refresh();
-                $(obj.el).trigger('change');
+                $(obj.el).trigger('input').trigger('change');
                 obj.trigger($.extend(edata, { phase: 'after' }));
             }
         },
@@ -18561,6 +18585,7 @@ var w2prompt = function (label, title, callBack) {
 *   - added field types html, empty, custom
 *   - httpHeaders
 *   - method
+*   - onInput
 *
 ************************************************************************/
 
@@ -18713,6 +18738,7 @@ var w2prompt = function (label, title, callBack) {
         onProgress    : null,
         onSave        : null,
         onChange      : null,
+        onInput       : null,
         onRender      : null,
         onRefresh     : null,
         onResize      : null,
@@ -19600,67 +19626,81 @@ var w2prompt = function (label, title, callBack) {
                 if (field.el) field.el.id = field.name;
                 var tmp = $(field).data('w2field');
                 if (tmp) tmp.clear();
-                $(field.$el).off('change').on('change', function () {
-                    var value_new      = this.value;
-                    var value_previous = obj.record[this.name] != null ? obj.record[this.name] : '';
-                    var field          = obj.get(this.name);
-                    if (['list', 'enum', 'file'].indexOf(field.type) !== -1 && $(this).data('selected')) {
-                        var nv = $(this).data('selected');
-                        var cv = obj.record[this.name];
-                        if ($.isArray(nv)) {
-                            value_new = [];
-                            for (var i = 0; i < nv.length; i++) value_new[i] = $.extend(true, {}, nv[i]); // clone array
+                $(field.$el)
+                    .off('.w2form')
+                    .on('change.w2form', function () {
+                        var value_new      = this.value;
+                        var value_previous = obj.record[this.name] != null ? obj.record[this.name] : '';
+                        var field          = obj.get(this.name);
+                        if (['list', 'enum', 'file'].indexOf(field.type) !== -1 && $(this).data('selected')) {
+                            var nv = $(this).data('selected');
+                            var cv = obj.record[this.name];
+                            if ($.isArray(nv)) {
+                                value_new = [];
+                                for (var i = 0; i < nv.length; i++) value_new[i] = $.extend(true, {}, nv[i]); // clone array
+                            }
+                            if ($.isPlainObject(nv)) {
+                                value_new = $.extend(true, {}, nv); // clone object
+                            }
+                            if ($.isArray(cv)) {
+                                value_previous = [];
+                                for (var i = 0; i < cv.length; i++) value_previous[i] = $.extend(true, {}, cv[i]); // clone array
+                            }
+                            if ($.isPlainObject(cv)) {
+                                value_previous = $.extend(true, {}, cv); // clone object
+                            }
                         }
-                        if ($.isPlainObject(nv)) {
-                            value_new = $.extend(true, {}, nv); // clone object
+                        if (['toggle', 'checkbox'].indexOf(field.type) !== -1) {
+                            value_new = ($(this).prop('checked') ? ($(this).prop('value') === 'on' ? true : $(this).prop('value')) : false);
                         }
-                        if ($.isArray(cv)) {
-                            value_previous = [];
-                            for (var i = 0; i < cv.length; i++) value_previous[i] = $.extend(true, {}, cv[i]); // clone array
+                        // clean extra chars
+                        if (['int', 'float', 'percent', 'money', 'currency'].indexOf(field.type) !== -1) {
+                            value_new = $(this).data('w2field').clean(value_new);
                         }
-                        if ($.isPlainObject(cv)) {
-                            value_previous = $.extend(true, {}, cv); // clone object
+                        if (value_new === value_previous) return;
+                        // event before
+                        var edata2 = obj.trigger({ phase: 'before', target: this.name, type: 'change', value_new: value_new, value_previous: value_previous });
+                        if (edata2.isCancelled === true) {
+                            $(this).val(obj.record[this.name]); // return previous value
+                            return;
                         }
-                    }
-                    if (['toggle', 'checkbox'].indexOf(field.type) !== -1) {
-                        value_new = ($(this).prop('checked') ? ($(this).prop('value') === 'on' ? true : $(this).prop('value')) : false);
-                    }
-                    // clean extra chars
-                    if (['int', 'float', 'percent', 'money', 'currency'].indexOf(field.type) !== -1) {
-                        value_new = $(this).data('w2field').clean(value_new);
-                    }
-                    if (value_new === value_previous) return;
-                    // event before
-                    var edata2 = obj.trigger({ phase: 'before', target: this.name, type: 'change', value_new: value_new, value_previous: value_previous });
-                    if (edata2.isCancelled === true) {
-                        $(this).val(obj.record[this.name]); // return previous value
-                        return;
-                    }
-                    // default action
-                    var val = this.value;
-                    if (this.type === 'select')   val = this.value;
-                    if (this.type === 'checkbox') val = this.checked ? true : false;
-                    if (this.type === 'radio') {
-                        field.$el.each(function (index, el) {
-                            if (el.checked) val = el.value;
-                        });
-                    }
-                    if (['int', 'float', 'percent', 'money', 'currency', 'list', 'combo', 'enum', 'file', 'toggle'].indexOf(field.type) !== -1) {
-                        val = value_new;
-                    }
-                    if (['enum', 'file'].indexOf(field.type) !== -1) {
-                        if (val.length > 0) {
-                            var fld = $(field.el).data('w2field').helpers.multi;
-                            $(fld).removeClass('w2ui-error');
+                        // default action
+                        var val = this.value;
+                        if (this.type === 'select')   val = this.value;
+                        if (this.type === 'checkbox') val = this.checked ? true : false;
+                        if (this.type === 'radio') {
+                            field.$el.each(function (index, el) {
+                                if (el.checked) val = el.value;
+                            });
                         }
-                    }
-                    if (val === '' || val == null || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) {
-                        val = null;
-                    }
-                    obj.record[this.name] = val;
-                    // event after
-                    obj.trigger($.extend(edata2, { phase: 'after' }));
-                });
+                        if (['int', 'float', 'percent', 'money', 'currency', 'list', 'combo', 'enum', 'file', 'toggle'].indexOf(field.type) !== -1) {
+                            val = value_new;
+                        }
+                        if (['enum', 'file'].indexOf(field.type) !== -1) {
+                            if (val.length > 0) {
+                                var fld = $(field.el).data('w2field').helpers.multi;
+                                $(fld).removeClass('w2ui-error');
+                            }
+                        }
+                        if (val === '' || val == null || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) {
+                            val = null;
+                        }
+                        obj.record[this.name] = val;
+                        // event after
+                        obj.trigger($.extend(edata2, { phase: 'after' }));
+                    })
+                    .on('input.w2form', function (event) {
+                        var val = this.value;
+                        if (event.target.type == 'checkbox') {
+                            val = event.target.checked;
+                        }
+                        // event before
+                        var edata2 = obj.trigger({ phase: 'before', target: this.name, type: 'input', value_new: val, originalEvent: event });
+                        if (edata2.isCancelled === true) return;
+
+                        // event after
+                        obj.trigger($.extend(edata2, { phase: 'after' }));
+                    });
                 // required
                 if (field.required) {
                     $(field.el).parent().parent().addClass('w2ui-required');
