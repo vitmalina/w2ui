@@ -200,7 +200,8 @@ var w2utils = (function ($) {
             year  = val.getUTCFullYear();
             month = val.getUTCMonth() + 1;
             day   = val.getUTCDate();
-		} else if (String(new Date(val)) != 'Invalid Date') {
+        //ac2e968e7fc40733c95ee2dc978e2d3bb2e1cf66: this condition disables format handling! so i commented out (dd/mm/yyyy can be parsed as mm/dd/yyyy)
+		} /*else if (String(new Date(val)) != 'Invalid Date') {
             val = new Date(val);
             if (retDate !== true) return true;
             return val;
@@ -208,7 +209,7 @@ var w2utils = (function ($) {
             year  = val.getUTCFullYear();
             month = val.getUTCMonth() + 1;
             day   = val.getUTCDate();
-        } else {
+        }*/ else {
             val = String(val);
             // convert month formats
             if (new RegExp('mon', 'ig').test(format)) {
@@ -303,11 +304,12 @@ var w2utils = (function ($) {
             return val;
         } else if (parseInt(val) === val && parseInt(val) < 0) {
             return false;
-		} else if (String(new Date(val)) != 'Invalid Date') {
+        //ac2e968e7fc40733c95ee2dc978e2d3bb2e1cf66: this condition disables format handling! so i commented out (dd/mm/yyyy can be parsed as mm/dd/yyyy)
+		} /*else if (String(new Date(val)) != 'Invalid Date') {
             val = new Date(val);
             if (retDate !== true) return true;
             return val;
-        } else {
+        }*/ else {
             var tmp = String(val).indexOf(' ');
             var values  = [val.substr(0, tmp), val.substr(tmp).trim()];
             formats[0] = formats[0].trim();
