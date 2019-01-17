@@ -183,7 +183,8 @@
             recordTitles    : true,
             selectionBorder : true,
             skipRecords     : true,
-            saveRestoreState: true
+            saveRestoreState: true,
+            showInlineFilter:false
         };
 
         this.hasFocus        = false;
@@ -1894,6 +1895,8 @@
             var last_field  = this.last.field;
             var last_search = this.last.search;
             var hasHiddenSearches = false;
+            var hasInlineFilter = this.show.showInlineFilter;
+
             // add hidden searches
             for (var i = 0; i < this.searches.length; i++) {
                 if (!this.searches[i].hidden) continue;
@@ -1986,6 +1989,8 @@
                 last_search = value;
                 last_multi  = false;
                 last_logic  = (hasHiddenSearches ? 'AND' : 'OR');
+
+
                 // loop through all searches and see if it applies
                 if (value != null) {
                     if (field.toLowerCase() == 'all') {
@@ -2055,11 +2060,23 @@
                             }
                         }
                     } else {
+                        last_logic  = (hasInlineFilter ? 'AND' : 'OR');
+
                         var el = $('#grid_'+ this.name +'_search_all');
                         var search = this.getSearch(field);
                         if (search == null) search = { field: field, type: 'text' };
                         if (search.field == field) this.last.caption = search.caption;
+                        if(hasInlineFilter){
+                            for (var index = 0; index < this.searchData.length; index++) {
+                                var element = this.searchData[index];
+                                
+                                if(element.field!=search.field)
+                                    searchData.push(element);
+                            }
+                        }
+
                         if (value !== '') {
+
                             var op  = this.textSearch;
                             var val = value;
                             if (['date', 'time', 'datetime'].indexOf(search.type) != -1) op = 'is';
@@ -2091,7 +2108,9 @@
                                 operator : op,
                                 value    : val
                             };
+
                             searchData.push(tmp);
+                            
                         }
                     }
                 }
@@ -6586,6 +6605,56 @@
                 html2 += '<td class="w2ui-head w2ui-head-last" col="end"><div>&#160;</div></td>';
                 html1 += '</tr>';
                 html2 += '</tr>';
+
+                if(obj.show.showInlineFilter){
+                    var filterHTML = getFilters(master);
+                    html1 += filterHTML[0];
+                    html2 += filterHTML[1];
+                }
+
+                return [html1, html2];
+            }
+
+            function getFilters(master) {
+                var html1 = '<tr>';
+                var html2 = '<tr>';
+                if (obj.show.lineNumbers) {
+                    html1 += '<td class="w2ui-head w2ui-col-number"></td>';
+                }
+
+                if (obj.show.selectColumn) {
+                    html1 += '<td class="w2ui-head w2ui-col-select"></td>';
+                }
+
+                if (obj.show.expandColumn) {
+                    html1 += '<td class="w2ui-head w2ui-col-expand">' +
+                            '    <div>&#160;</div>' +
+                            '</td>';
+                }
+                var ii = 0;
+                var id = 0;
+                var colg;
+                html2 += '<td id="grid_' + obj.name + '_filter_column_start" class="w2ui-head" col="start" style="border-right: 0"></td>';
+                for (var i = 0; i < obj.columns.length; i++) {
+                    var col = obj.columns[i];
+                    if (col.size == null) col.size = '100%';
+                    if (i == id) {      // always true on first iteration
+                        colg = obj.columnGroups[ii++] || {};
+                        id = id + colg.span;
+                    }
+                    if ((i < obj.last.colStart || i > obj.last.colEnd) && !col.frozen)
+                        continue;
+                    if (col.hidden)
+                        continue;
+                    if (colg.master !== true || master) { // grouping of columns
+                        var colCellHTML = obj.getColumnFilterCellHTML(i);
+                        if (col && col.frozen) html1 += colCellHTML; else html2 += colCellHTML;
+                    }
+                }
+                html1 += '<td class="w2ui-head w2ui-head-last"><div>&#160;</div></td>';
+                html2 += '<td class="w2ui-head w2ui-head-last" col="end"><div>&#160;</div></td>';
+                html1 += '</tr>';
+                html2 += '</tr>';
                 return [html1, html2];
             }
         },
@@ -6623,6 +6692,48 @@
                         '        <div class="'+ sortStyle +'"></div>'+
                                 (!col.caption ? '&#160;' : col.caption) +
                         '    </div>'+
+                        '</td>';
+
+            return html
+        },
+        getColumnFilterCellHTML: function (i) {
+            var col = this.columns[i];
+            var searchValue = this.getSearchData(col.field);
+            
+            if (col == null) return '';
+            // reorder style
+            var reorderCols = (this.reorderColumns && (!this.columnGroups || !this.columnGroups.length)) ? ' w2ui-reorder-cols-head ' : '';
+            // sort style
+            var sortStyle = '';
+            
+            // col selected
+            var tmp = this.last.selection.columns;
+            var selected = false;
+            for (var t in tmp) {
+                for (var si = 0; si < tmp[t].length; si++) {
+                    if (tmp[t][si] == i) selected = true;
+                }
+            }
+
+            var lastValue="";
+            if(searchValue){
+                lastValue=searchValue.value;
+            }
+           
+
+            var html = '<td id="grid_' + this.name + '_column_filter_' + i + '" col="' + i + '" style="text-align: center;" >' +
+                            '<input rel="search" type="text" id="grid_' + col.name + '_field_Search_' + i + '" name="' + col.field + '" ' +
+                               '            placeholder="' + w2utils.lang(col.caption) + '" value="' + lastValue + '"' + +
+                        '            onfocus="clearTimeout(w2ui[\'' + this.name + '\'].last.kbd_timer);"' +
+                        '            onkeydown="if (event.keyCode == 13 &amp;&amp; w2utils.isIE) this.onchange();"' +
+                        '            onchange="' +
+                        '                var grid = w2ui[\'' + this.name + '\']; ' +
+                        '                var val = this.value; ' +
+                        '                var sel = jQuery(this).data(\'selected\');' +
+                        '                var fld = jQuery(this).data(\'w2field\'); ' +
+                        '                if (fld) val = fld.clean(val);' +
+                        '                grid.search(\''+ col.field +'\', val);' +
+                        '          " class="w2ui-input" style="width:98%" />' +
                         '</td>';
 
             return html
