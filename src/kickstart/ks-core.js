@@ -23,14 +23,13 @@ var kickStart = (function () {
     // ===========================================
     // -- Define modules
 
-    function define(mod) {
+    function define(mod, callBack) {
         // if string - it is path to the file
         if (typeof mod == 'string') {
             $.ajax({
                 url      : app._conf.baseURL + mod,
                 dataType : 'text',
                 cache    : app._conf.cache,
-                async    : false, // do it synchronously - otherwise errors
                 success : function (data, success, xhr) {
                     if (success != 'success') {
                         console.log('ERROR: error while loading module definition from "'+ mod +'".');
@@ -42,20 +41,28 @@ var kickStart = (function () {
                         console.log('ERROR: not valid JSON file  "'+ mod +'".\n'+ e);
                         return;
                     }
+                    _process();
+                    if (typeof callBack == 'function') callBack();
+
                 },
                 error : function (data, err, errData) {
                     console.log('ERROR: error while loading module definition from "'+ mod +'".');
                 }
             });
+        } else {
+            _process();
+            if (typeof callBack == 'function') callBack();
         }
-        for (var m in mod) {
-            if (app._conf.modules.hasOwnProperty(m)) {
-                console.log('ERROR: module ' + m + ' is already registered.');
-                return false;
+
+        function _process() {
+            for (var m in mod) {
+                if (app._conf.modules.hasOwnProperty(m)) {
+                    console.log('ERROR: module ' + m + ' is already registered.');
+                    return false;
+                }
+                app._conf.modules[m] = $.extend({ assets: {} }, mod[m], { ready: false, files: {} });
             }
-            app._conf.modules[m] = $.extend({ assets: {} }, mod[m], { ready: false, files: {} });
         }
-        return true;
     }
 
     // ===========================================
