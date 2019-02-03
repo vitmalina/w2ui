@@ -2572,6 +2572,7 @@ w2utils.event = {
                 }
                 if (options.tmp.contentWidth && options.align !== 'both') {
                     w = parseInt(options.tmp.contentWidth);
+                    if (w > options.maxWidth) w = options.maxWidth;
                     div2.width(w+10);
                     setTimeout(function () {
                         if (w > div2.find('div.menu > table').width()) {
@@ -3001,7 +3002,7 @@ w2utils.event = {
                             '               if ('+ ((mitem.disabled === true || mitem.focus === true)  ? 'true' : 'false') + ') return;'+
                             '               jQuery.fn.w2menuClick(event, \''+ f +'\');">'+
                                 imgd +
-                            '   <td class="menu-text" colspan="'+ colspan +'">'+ w2utils.lang(txt) +'</td>'+
+                            '   <td class="menu-text" style="'+ (options.style ? options.style : '') +'" colspan="'+ colspan +'">'+ w2utils.lang(txt) +'</td>'+
                             '   <td class="menu-count">'+
                                     (mitem.count != null ? '<span>' + mitem.count + '</span>' : '') +
                                     (mitem.hotkey != null ? '<span class="hotkey">' + mitem.hotkey + '</span>' : '') +
