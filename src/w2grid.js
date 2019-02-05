@@ -2551,7 +2551,8 @@
                         // if it is plain array, assume these are records
                         data = {
                             status  : 'success',
-                            records : data
+                            records : data,
+                            total   : data.length
                         }
                     }
                     if (obj.recid && data.records) {
