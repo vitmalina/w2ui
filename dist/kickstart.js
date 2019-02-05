@@ -343,11 +343,15 @@ kickStart.register('route', function () {
         if (hash == '') hash = '/';
         // process route
         var isFound = false;
+        var isExact = false;
         for (var r in routeRE) {
             var params = {};
             var tmp = routeRE[r].path.exec(hash);
             if (tmp) { // match
                 isFound = true;
+                if (!isExact && r[r.length-1] !== '*') {
+                    isExact = true;
+                }
                 var i = 1;
                 for (var p in routeRE[r].keys) {
                     params[routeRE[r].keys[p].name] = tmp[i];
@@ -359,35 +363,43 @@ kickStart.register('route', function () {
                     if (eventData.isCancelled === true) return false;
                 }
                 // default handler
-                routes[r]($.extend({ name: r, path: hash }, params));
+                routes[r]({ name: r, path: hash, params: params }, params);
                 // if events are available
                 if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
             }
         }
         // if route is not registered, see if it is in module definitions
-        if (!isFound) {
+        if (!isExact) {
             // find if a route matches a module route
             var mods = app._conf.modules;
             for (var name in mods) {
                 var mod = mods[name];
                 var rt  = mod.route;
+                var nearMatch = false;
                 if (typeof rt == 'string') {
                     rt = rt.replace(/\/{2,}/g, '/'); // remove double slashes
-                    if (rt[rt.length - 1] == '*') rt = rt.substr(0, rt.length - 1); // remove trailign *
+                    if (rt[rt.length - 1] == '*') {
+                        rt = rt.substr(0, rt.length - 1); // remove trailign *
+                        nearMatch = true;
+                    }
                 }
-                if (!mod.ready && mod.route && hash.indexOf(rt) === 0) { // only when not yet loaded
+                if (!mod.ready && mod.route && ((hash.indexOf(rt) === 0 && nearMatch === true) || (hash == rt && nearMatch === false)) )  { // only when not yet loaded
+                    console.log('AUTO LOAD:', name);
                     app.require(name).done(function () {
                         if (app._conf.modules[name]) process();
                     });
                     return;
                 }
             }
+            console.log('ERROR: exact route for "' + hash + '" not found');
+        }
+        if (!isFound) {
             // path not found
             if (typeof app.route.trigger == 'function') {
                 var eventData = app.route.trigger({ phase: 'before', type: 'error', target: 'self', hash: hash});
                 if (eventData.isCancelled === true) return false;
             }
-            console.log('ERROR: route "' + hash + '" not found');
+            console.log('ERROR: wild card route for "' + hash + '" not found');
             // if events are available
             if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
         }
