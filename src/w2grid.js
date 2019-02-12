@@ -3464,7 +3464,11 @@
             switch (key) {
                 case 8:  // backspace
                 case 46: // delete
-                    if (this.show.toolbarDelete || this.onDelete) obj["delete"]();
+                    // delete if button is visible
+                    var btn = this.toolbar.get('w2ui-delete');
+                    if (btn && btn.hidden !== true) {
+                        obj["delete"]();
+                    }
                     cancel = true;
                     event.stopPropagation();
                     break;
