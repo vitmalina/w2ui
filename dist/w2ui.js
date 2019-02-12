@@ -3329,25 +3329,6 @@ w2utils.event = {
 
 })(jQuery);
 
-/***********************************************************
-*  Compatibility with CommonJS and AMD modules
-*
-*********************************************************/
-
-(function(global, w2ui) {
-    if (typeof define=='function' && define.amd) {
-        return define(function(){ return w2ui; });
-    }
-    if (typeof exports!='undefined') {
-        if (typeof module!='undefined' && module.exports)
-            return exports = module.exports = w2ui;
-        global = exports;
-    }
-    for (var m in w2ui) {
-        global[m] = w2ui[m];
-    }
-})(this, { w2ui: w2ui, w2obj: w2obj, w2utils: w2utils });
-
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
 *   - Following objects defined
@@ -5901,7 +5882,8 @@ w2utils.event = {
                         // if it is plain array, assume these are records
                         data = {
                             status  : 'success',
-                            records : data
+                            records : data,
+                            total   : data.length
                         }
                     }
                     if (obj.recid && data.records) {
@@ -6813,7 +6795,11 @@ w2utils.event = {
             switch (key) {
                 case 8:  // backspace
                 case 46: // delete
-                    if (this.show.toolbarDelete || this.onDelete) obj["delete"]();
+                    // delete if button is visible
+                    var btn = this.toolbar.get('w2ui-delete');
+                    if (btn && btn.hidden !== true) {
+                        obj["delete"]();
+                    }
                     cancel = true;
                     event.stopPropagation();
                     break;
@@ -19959,3 +19945,30 @@ var w2prompt = function (label, title, callBack) {
     $.extend(w2form.prototype, w2utils.event);
     w2obj.form = w2form;
 })(jQuery);
+
+/***********************************************************
+*  Compatibility with CommonJS and AMD modules
+*
+*********************************************************/
+
+(function(global, w2ui) {
+    if (typeof define=='function' && define.amd) {
+        return define(function(){ return w2ui; });
+    }
+    if (typeof exports!='undefined') {
+        if (typeof module!='undefined' && module.exports)
+            return exports = module.exports = w2ui;
+        global = exports;
+    }
+    for (var m in w2ui) {
+        global[m] = w2ui[m];
+    }
+})(this, {
+    w2ui: w2ui,
+    w2obj: w2obj,
+    w2utils: w2utils,
+    w2popup: w2popup,
+    w2alert: w2alert,
+    w2confirm: w2confirm,
+    w2prompt: w2prompt
+});
