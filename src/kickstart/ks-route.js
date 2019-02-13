@@ -146,18 +146,14 @@ kickStart.register('route', function () {
                 var rt  = mod.route;
                 var nearMatch = false;
                 if (typeof rt == 'string') {
-                    rt = rt.replace(/\/{2,}/g, '/'); // remove double slashes
-                    if (rt[rt.length - 1] == '*') {
-                        rt = rt.substr(0, rt.length - 1); // remove trailign *
-                        nearMatch = true;
+                    if (mod.routeRE == null) mod.routeRE = prepare(mod.route);
+                    if (!mod.ready && mod.route && mod.routeRE.path.exec(hash)) {
+                        console.log('AUTO LOAD:', name);
+                        app.require(name).done(function () {
+                            if (app._conf.modules[name]) process();
+                        });
+                        return;
                     }
-                }
-                if (!mod.ready && mod.route && ((hash.indexOf(rt) === 0 && nearMatch === true) || (hash == rt && nearMatch === false)) )  { // only when not yet loaded
-                    console.log('AUTO LOAD:', name);
-                    app.require(name).done(function () {
-                        if (app._conf.modules[name]) process();
-                    });
-                    return;
                 }
             }
             console.log('ERROR: exact route for "' + hash + '" not found');
@@ -178,10 +174,17 @@ kickStart.register('route', function () {
     *   Private methods
     */
 
-    function prepare() {
+    function prepare(r) {
+        if (r != null) {
+            return _prepare(r)
+        }
         // make sure all routes are parsed to RegEx
         for (var r in routes) {
             if (routeRE[r]) continue;
+            routeRE[r] = _prepare(r)
+        }
+
+        function _prepare(r) {
             var keys = [];
             var path = r
                 .replace(/\/\(/g, '(?:/')
@@ -194,9 +197,9 @@ kickStart.register('route', function () {
                 .replace(/([\/.])/g, '\\$1')
                 .replace(/__plus__/g, '(.+)')
                 .replace(/\*/g, '(.*)');
-            routeRE[r] = {
-                path    : new RegExp('^' + path + '$', 'i'),
-                keys    : keys
+            return {
+                path : new RegExp('^' + path + '$', 'i'),
+                keys : keys
             }
         }
     }
