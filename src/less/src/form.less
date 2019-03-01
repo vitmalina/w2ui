@@ -15,7 +15,7 @@
     overflow: hidden !important;
 
     > div {
-        position: absolute; 
+        position: absolute;
         overflow: hidden;
     }
 
@@ -36,7 +36,7 @@
 
     .w2ui-form-toolbar {
         position: absolute;
-        left: 0px; 
+        left: 0px;
         right: 0px;
         margin: 0px;
         padding: 6px 3px;
@@ -69,12 +69,30 @@
         right: 0;
         overflow: auto;
         padding: 10px;
+        padding-bottom: 0px;
         border-left: @form-page-border;
         border-right: @form-page-border;
         background-color: @form-page-background-color;
         border-radius: 3px;
     }
-    
+    .w2ui-column-container {
+        display: flex;
+        .w2ui-column {
+            &.col-1,
+            &.col-2,
+            &.col-3,
+            &.col-4,
+            &.col-5,
+            &.col-6,
+            &.col-7,
+            &.col-8,
+            &.col-9,
+            &.col-10 {
+                margin-left: 10px;
+            }
+        }
+    }
+
     .w2ui-buttons {
         position: absolute;
         left: 0;
@@ -87,7 +105,7 @@
         padding: 15px 0px !important;
         border-bottom-left-radius: 3px;
         border-bottom-right-radius: 3px;
-        
+
         input[type="button"], button {
             min-width: 80px;
             margin-right: 5px;
@@ -101,6 +119,7 @@
 
     input[type=checkbox].w2ui-toggle {
         margin: 0px;
+        width: 50px;
     }
 }
 
@@ -109,8 +128,8 @@
 
 .w2ui-group-title {
     padding: 5px 2px;
-    color: #8D96A2; 
-    text-shadow: 1px 1px 2px rgb(253, 253, 253); 
+    color: #8D96A2;
+    text-shadow: 1px 1px 2px rgb(253, 253, 253);
     font-size: 120%;
 }
 
@@ -160,43 +179,43 @@
         > label { display: none; }
         > div { margin-left: 0; }
     }
-    &.w2ui-span1 { 
+    &.w2ui-span1 {
         > label { width: (@form-step-label * 1); }
         > div { margin-left: ((@form-step-label * 1) + @form-step-field); }
     }
-    &.w2ui-span2 { 
+    &.w2ui-span2 {
         > label { width: (@form-step-label * 2); }
         > div { margin-left: ((@form-step-label * 2) + @form-step-field); }
     }
-    &.w2ui-span3 { 
+    &.w2ui-span3 {
         > label { width: (@form-step-label * 3); }
         > div { margin-left: ((@form-step-label * 3) + @form-step-field); }
     }
-    &.w2ui-span4 { 
+    &.w2ui-span4 {
         > label { width: (@form-step-label * 4); }
         > div { margin-left: ((@form-step-label * 4) + @form-step-field); }
     }
-    &.w2ui-span5 { 
+    &.w2ui-span5 {
         > label { width: (@form-step-label * 5); }
         > div { margin-left: ((@form-step-label * 5) + @form-step-field); }
     }
-    &.w2ui-span6 { 
+    &.w2ui-span6 {
         > label { width: (@form-step-label * 6); }
         > div { margin-left: ((@form-step-label * 6) + @form-step-field); }
     }
-    &.w2ui-span7 { 
+    &.w2ui-span7 {
         > label { width: (@form-step-label * 7); }
         > div { margin-left: ((@form-step-label * 7) + @form-step-field); }
     }
-    &.w2ui-span8 { 
+    &.w2ui-span8 {
         > label { width: (@form-step-label * 8); }
         > div { margin-left: ((@form-step-label * 8) + @form-step-field); }
     }
-    &.w2ui-span9 { 
+    &.w2ui-span9 {
         > label { width: (@form-step-label * 9); }
         > div { margin-left: ((@form-step-label * 9) + @form-step-field); }
     }
-    &.w2ui-span10 { 
+    &.w2ui-span10 {
         > label { width: (@form-step-label * 10); }
         > div { margin-left: ((@form-step-label * 10) + @form-step-field); }
     }

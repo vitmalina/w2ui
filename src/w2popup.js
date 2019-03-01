@@ -208,12 +208,10 @@ var w2popup = {};
                 // clean transform
                 setTimeout(function () {
                     $('#w2ui-popup').css(w2utils.cssPrefix('transform', ''));
-                    // event after
-                    w2popup.status = 'open';
-                    setTimeout(function () {
-                        obj.trigger($.extend(edata, { phase: 'after' }));
-                    }, 100);
                 }, options.speed * 1000);
+                // event after
+                w2popup.status = 'open';
+                obj.trigger($.extend(edata, { phase: 'after' }));
 
             } else {
                 // if was from template and now not
@@ -286,10 +284,10 @@ var w2popup = {};
                     $('#w2ui-popup').data('prev-size', null);
                     // focus on first button
                     obj.focus();
-                    // call event onChange
-                    w2popup.status = 'open';
-                    obj.trigger($.extend(edata, { phase: 'after' }));
                 });
+                // call event onOpen
+                w2popup.status = 'open';
+                obj.trigger($.extend(edata, { phase: 'after' }));
             }
 
             // save new options
@@ -306,6 +304,8 @@ var w2popup = {};
             $('#w2ui-popup .w2ui-popup-title').on('mousedown', function (event) {
                 if (!w2popup.get().maximized) mvStart(event);
             });
+
+            return this;
 
             // handlers
             function mvStart(evnt) {
@@ -353,7 +353,6 @@ var w2popup = {};
                 $(document).off('mouseup', tmp.mvStop);
                 if (!tmp.isLocked) w2popup.unlock();
             }
-            return this;
         },
 
         keydown: function (event) {
@@ -930,7 +929,7 @@ var w2confirm = function (msg, title, callBack) {
             body    : '<div class="w2ui-centered w2ui-confirm-msg" style="font-size: 13px;">' + options.msg + '</div>',
             buttons : (w2utils.settings.macButtonOrder
                 ? '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">' + w2utils.lang(options.no_text) + '</button>' +
-                  '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">' + w2utils.lang(options.yes_text) + '</button>' 
+                  '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">' + w2utils.lang(options.yes_text) + '</button>'
                 : '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">' + w2utils.lang(options.yes_text) + '</button>' +
                   '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">' + w2utils.lang(options.no_text) + '</button>'
                 ),
@@ -983,7 +982,7 @@ var w2confirm = function (msg, title, callBack) {
                     }else{
                         $('#w2ui-popup .w2ui-popup-btn#Yes').focus();
                     }
-                    
+
                 }, 1);
             },
             onKeydown: function (event) {

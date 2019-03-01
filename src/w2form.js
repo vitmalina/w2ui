@@ -30,6 +30,7 @@
 *   - httpHeaders
 *   - method
 *   - onInput
+*   - added field.html.groupStyle
 *
 ************************************************************************/
 
@@ -288,8 +289,9 @@
         },
 
         clear: function () {
-            this.recid  = 0;
-            this.record = {};
+            this.recid    = 0;
+            this.record   = {};
+            this.original = {};
             $().w2tag();
             this.refresh();
         },
@@ -422,18 +424,23 @@
         },
 
         getChanges: function () {
-            var differ = function(record, original, result) {
+            var diff = {};
+            if (!$.isEmptyObject(this.original)) {
+                diff = doDiff(this.record, this.original, {});
+            }
+            return diff;
+
+            function doDiff(record, original, result) {
                 for (var i in record) {
                     if (typeof record[i] === "object") {
-                        result[i] = differ(record[i], original[i] || {}, {});
+                        result[i] = doDiff(record[i], original[i] || {}, {});
                         if (!result[i] || $.isEmptyObject(result[i])) delete result[i];
                     } else if (record[i] != original[i]) {
                         result[i] = record[i];
                     }
                 }
                 return result;
-            };
-            return differ(this.record, this.original, {});
+            }
         },
 
         request: function (postData, callBack) { // if (1) param then it is call back if (2) then postData and callBack
@@ -483,7 +490,9 @@
                 headers  : edata.httpHeaders,
                 dataType : 'text'   // expected from server
             }
-            switch (w2utils.settings.dataType) {
+            var dataType = obj.dataType || w2utils.settings.dataType;
+            if (edata.dataType) dataType = edata.dataType;
+            switch (dataType) {
                 case 'HTTP':
                     ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
                     break
@@ -506,18 +515,13 @@
                     break;
             }
             if (this.method) ajaxOptions.type = this.method;
+            if (edata.method) ajaxOptions.type = edata.method;
             this.last.xhr = $.ajax(ajaxOptions)
                 .done(function (data, status, xhr) {
                     obj.unlock();
-                    // event before
-                    var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'load', xhr: xhr });
-                    if (edata.isCancelled === true) {
-                        if (typeof callBack === 'function') callBack({ status: 'error', message: 'Request aborted.' });
-                        return;
-                    }
-                    // parse server response
+                    // prepare record
                     var data;
-                    var responseText = obj.last.xhr.responseText;
+                    var responseText = xhr.responseText;
                     if (status !== 'error') {
                         // default action
                         if (responseText != null && responseText !== '') {
@@ -535,18 +539,27 @@
                                     status       : 'error',
                                     message      : w2utils.lang(obj.msgNotJSON),
                                     responseText : responseText
-                                };
+                                }
                             }
-                            if (data.status === 'error') {
-                                obj.error(w2utils.lang(data['message']));
-                            } else {
-                                obj.record   = $.extend({}, data.record);
-                                obj.original = $.extend({}, data.record);
-                            }
+                        }
+                    }
+                    // event before
+                    var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'load', data: data, xhr: xhr });
+                    if (edata.isCancelled === true) {
+                        if (typeof callBack === 'function') callBack({ status: 'error', message: 'Request aborted.' });
+                        return;
+                    }
+                    // parse server response
+                    if (status !== 'error') {
+                        // default action
+                        if (edata.data.status === 'error') {
+                            obj.error(w2utils.lang(edata.data['message']));
+                        } else {
+                            obj.record = $.extend({}, edata.data.record);
                         }
                     } else {
                         obj.error('AJAX Error ' + xhr.status + ': '+ xhr.statusText);
-                        data = {
+                        edata.data = {
                             status       : 'error',
                             message      : w2utils.lang(obj.msgAJAXerror),
                             responseText : responseText
@@ -556,7 +569,7 @@
                     obj.trigger($.extend(edata, { phase: 'after' }));
                     obj.refresh();
                     // call back
-                    if (typeof callBack === 'function') callBack(data);
+                    if (typeof callBack === 'function') callBack(edata.data);
                 })
                 .fail(function (xhr, status, error) {
                     // trigger event
@@ -652,9 +665,11 @@
                             if (evt.lengthComputable) {
                                 var edata3 = obj.trigger({ phase: 'before', type: 'progress', total: evt.total, loaded: evt.loaded, originalEvent: evt });
                                 if (edata3.isCancelled === true) return;
-                                // default behavior
+                                // only show % if it takes time
                                 var percent = Math.round(evt.loaded / evt.total * 100);
-                                $('#'+ obj.name + '_progress').text(''+ percent + '%');
+                                if ((percent && percent != 100) || $('#'+ obj.name + '_progress').text() != '') {
+                                    $('#'+ obj.name + '_progress').text(''+ percent + '%');
+                                }
                                 // event after
                                 obj.trigger($.extend(edata3, { phase: 'after' }));
                             }
@@ -662,7 +677,9 @@
                         return xhr;
                     }
                 };
-                switch (w2utils.settings.dataType) {
+                var dataType = obj.dataType || w2utils.settings.dataType;
+                if (edata.dataType) dataType = edata.dataType;
+                switch (dataType) {
                     case 'HTTP':
                         ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
                         break;
@@ -715,6 +732,7 @@
                         break;
                 }
                 if (this.method) ajaxOptions.type = this.method;
+                if (edata.method) ajaxOptions.type = edata.method;
                 obj.last.xhr = $.ajax(ajaxOptions)
                     .done(function (data, status, xhr) {
                         obj.unlock();
@@ -746,7 +764,7 @@
                                 if (data.status === 'error') {
                                     obj.error(w2utils.lang(data.message));
                                 } else {
-                                    obj.original = $.extend({}, obj.record);
+                                    obj.original = {};
                                 }
                             }
                         } else {
@@ -761,7 +779,7 @@
                         obj.trigger($.extend(edata, { phase: 'after' }));
                         obj.refresh();
                         // call back
-                        if (data.status === 'success' && typeof callBack === 'function') callBack(data);
+                        if (typeof callBack === 'function') callBack(data, xhr);
                     })
                     .fail(function (xhr, status, error) {
                         // trigger event
@@ -898,7 +916,7 @@
                     }
                 }
                 if (field.html.group && (group != field.html.group)) {
-                    html += '\n   <div class="w2ui-group-title">'+ field.html.group + '</div>\n   <div class="w2ui-group">';
+                    html += '\n   <div class="w2ui-group-title">'+ field.html.group + '</div>\n   <div class="w2ui-group" style="'+ (field.html.groupStyle || '') +'">';
                     group = field.html.group;
                 }
                 html += '\n      <div class="w2ui-field '+ (field.html.span != null ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+
@@ -920,6 +938,8 @@
             if (!$.isEmptyObject(this.actions)) {
                 var addClass = '';
                 buttons += '\n<div class="w2ui-buttons">';
+                tabindex = this.tabindexBase + this.fields.length + 1;
+
                 for (var a in this.actions) { // it is an object
                     var act  = this.actions[a];
                     var info = { caption: '', style: '', "class": '' };
@@ -931,18 +951,23 @@
                         info.caption = a;
                         if (['save', 'update', 'create'].indexOf(a.toLowerCase()) !== -1) info['class'] = 'w2ui-btn-blue'; else info['class'] = '';
                     }
-                    buttons += '\n    <button name="'+ a +'" class="w2ui-btn '+ info['class'] +'" style="'+ info.style +'">'+
+                    buttons += '\n    <button name="'+ a +'" class="w2ui-btn '+ info['class'] +'" style="'+ info.style +'" tabindex="'+ tabindex +'">'+
                                             w2utils.lang(info.caption) +'</button>';
+                    tabindex++;
                 }
                 buttons += '\n</div>';
             }
             html = '';
             for (var p = 0; p < pages.length; p++){
-                html += '<div class="w2ui-page page-'+ p +'" ' + ((p===0)?'':'style="display: none;"') + '><div class="w2ui-column-container" style="display: flex;">';
+                html += '<div class="w2ui-page page-'+ p +'" ' + ((p===0)?'':'style="display: none;"') + '><div class="w2ui-column-container">';
                 for (var c = 0; c < pages[p].length; c++){
                     html += '<div class="w2ui-column col-'+ c +'">' + (pages[p][c] || '') + '\n</div>';
                 }
-                html += '\n</div></div>';
+                html += '\n</div>';
+                if (pages[p][-1]) {
+                    html += pages[p][-1];
+                }
+                html += '\n</div>';
             }
             html += buttons;
             return html;
@@ -1072,7 +1097,7 @@
                 if (tmp) tmp.clear();
                 $(field.$el)
                     .off('.w2form')
-                    .on('change.w2form', function () {
+                    .on('change.w2form', function (event) {
                         var value_new      = this.value;
                         var value_previous = obj.record[this.name] != null ? obj.record[this.name] : '';
                         var field          = obj.get(this.name);
@@ -1103,7 +1128,7 @@
                         }
                         if (value_new === value_previous) return;
                         // event before
-                        var edata2 = obj.trigger({ phase: 'before', target: this.name, type: 'change', value_new: value_new, value_previous: value_previous });
+                        var edata2 = obj.trigger({ phase: 'before', target: this.name, type: 'change', value_new: value_new, value_previous: value_previous, originalEvent: event });
                         if (edata2.isCancelled === true) {
                             $(this).val(obj.record[this.name]); // return previous value
                             return;
@@ -1137,6 +1162,10 @@
                         var val = this.value;
                         if (event.target.type == 'checkbox') {
                             val = event.target.checked;
+                        }
+                        // remember original
+                        if ($.isEmptyObject(obj.original) && !$.isEmptyObject(obj.record)) {
+                            obj.original = $.extend(true, {}, obj.record);
                         }
                         // event before
                         var edata2 = obj.trigger({ phase: 'before', target: this.name, type: 'input', value_new: val, originalEvent: event });
@@ -1308,10 +1337,6 @@
             // event before
             var edata = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (box != null ? box : this.box) });
             if (edata.isCancelled === true) return;
-            // default actions
-            if ($.isEmptyObject(this.original) && !$.isEmptyObject(this.record)) {
-                this.original = $.extend(true, {}, this.record);
-            }
             var html =  '<div class="w2ui-form-box">' +
                         (this.header !== '' ? '<div class="w2ui-form-header">' + this.header + '</div>' : '') +
                         '    <div id="form_'+ this.name +'_toolbar" class="w2ui-form-toolbar" style="display: none"></div>' +

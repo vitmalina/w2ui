@@ -1498,8 +1498,15 @@
                                     '\n   RECEIVED:', typeof data === 'object' ? data : xhr.responseText);
                             }
                             // reset stats
+                            obj.tmp.xhr_loading = false;
+                            obj.tmp.xhr_search  = search;
+                            obj.tmp.xhr_total   = 0;
+                            options.items       = [];
                             obj.clearCache();
                             obj.search();
+                            obj.updateOverlay(false, '<div style="white-space: normal; line-height: 1.3">' +
+                                                        (edata2.error || 'Server communication failed') +
+                                                     '</div>');
                             // event after
                             obj.trigger($.extend(edata2, { phase: 'after' }));
                         });
@@ -1568,7 +1575,7 @@
             }
         },
 
-        updateOverlay: function (indexOnly) {
+        updateOverlay: function (indexOnly, userError) {
             var obj     = this;
             var options = this.options;
             // color
@@ -1878,6 +1885,7 @@
                     if (options.url == null && options.items.length === 0) msgNoItems = w2utils.lang('Empty list');
                     if (options.msgNoItems != null) msgNoItems = options.msgNoItems;
                     if (typeof msgNoItems === 'function') msgNoItems = msgNoItems(options);
+                    if (userError) msgNoItems = userError;
                     $(el).w2menu((!indexOnly ? 'refresh' : 'refresh-index'), $.extend(true, {}, options, {
                         search     : false,
                         render     : options.renderDrop,
@@ -2210,8 +2218,8 @@
             // clean up & init
             $(obj.helpers.focus).remove();
             // remember original tabindex
-            var tabIndex = $(obj.el).attr('tabIndex');
-            if (tabIndex && tabIndex !== -1) obj.el._tabIndex = tabIndex;
+            var tabIndex = parseInt($(obj.el).attr('tabIndex'));
+            if (!isNaN(tabIndex) && tabIndex !== -1) obj.el._tabIndex = tabIndex;
             if (obj.el._tabIndex) tabIndex = obj.el._tabIndex;
             if (tabIndex == null) tabIndex = -1;
             // build helper

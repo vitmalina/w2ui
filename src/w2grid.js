@@ -3148,6 +3148,7 @@
             var obj = this;
             // event before
             var edata = this.trigger({ phase: 'before', target: this.name, type: 'delete', force: force });
+            if (force) this.message(); // close message
             if (edata.isCancelled === true) return;
             force = edata.force;
             // hide all tooltips
@@ -3187,7 +3188,6 @@
                 });
                 return;
             }
-            this.message(); // hides confirmation message
             // call delete script
             var url = (typeof this.url != 'object' ? this.url : this.url.remove);
             if (url) {
