@@ -875,7 +875,13 @@
                     if (nd.selected && !nd.disabled) obj.selected = nd.id;
                     tmp = '';
                     if (img) tmp  = '<div class="w2ui-node-image w2ui-icon '+ img +    (nd.selected && !nd.disabled ? " w2ui-icon-selected" : "") +'"></div>';
-                    if (icon) tmp = '<div class="w2ui-node-image"><span class="'+ icon +'"></span></div>';
+                    if (icon) {
+                        if (typeof icon == 'function') {
+                            tmp = '<div class="w2ui-node-image"><span>' + icon.call(obj, nd) + '</span></div>';
+                        } else {
+                            tmp = '<div class="w2ui-node-image"><span class="'+ icon +'"></span></div>';
+                        }
+                    }
                     var text = nd.text;
                     if (typeof nd.text == 'function') text = nd.text.call(obj, nd);
                     html =  '<div class="w2ui-node w2ui-level-'+ level +' '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
