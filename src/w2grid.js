@@ -5819,7 +5819,7 @@
                             if (edata2.isCancelled === true) return false;
                             obj.trigger($.extend(edata2, { phase: 'after' }));
                             // hide all tooltips
-                            //setTimeout(function () { $().w2tag(); }, 20); -- commented out, hides all tags
+                            setTimeout(function () { $().w2tag(); }, 20); // -- commented out, hides all tags ... but why!?
                             break;
                         case 'w2ui-edit':
                             var sel   = obj.getSelection();
