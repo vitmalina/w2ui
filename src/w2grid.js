@@ -5032,10 +5032,11 @@
                         if ($owner.hasClass('w2ui-scroll-wrapper') && $owner.parent().hasClass('w2ui-toolbar')) {
                             sLeft = obj.last.move.focusX - $owner.scrollLeft();
                         }
+                        /* Don't need to set to absolute position, it makes an empty vertical line in the layout
                         $input.css({
                             left: sLeft - 10,
                             top : sTop
-                        });
+                        });*/
                     }
                     // if toolbar input is clicked
                     setTimeout(function () {
