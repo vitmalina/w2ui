@@ -379,7 +379,7 @@
     // -- Implementation of core functionality
 
     w2grid.prototype = {
-        msgDelete       : 'Are you sure you want to delete selected records?',
+        msgDelete       : 'Please confirm you want to delete selected record(s)?',
         msgNotJSON      : 'Returned data is not in valid JSON format.',
         msgAJAXerror    : 'AJAX error. See console for more details.',
         msgRefresh      : 'Refreshing...',
@@ -1896,7 +1896,7 @@
             var hasHiddenSearches = false;
             // add hidden searches
             for (var i = 0; i < this.searches.length; i++) {
-                if (!this.searches[i].hidden) continue;
+                if (!this.searches[i].hidden || this.searches[i].value == null) continue;
                 searchData.push({
                     field    : this.searches[i].field,
                     operator : this.searches[i].operator || 'is',
@@ -1970,9 +1970,9 @@
 
                         }
                         searchData.push(tmp);
+                        last_multi = true; // if only hidden searches, then do not set
                     }
                 }
-                last_multi = true;
                 last_logic = 'AND';
             }
             // 2: search(field, value) - regular search
@@ -2199,7 +2199,7 @@
             var hasHiddenSearches = false;
             // add hidden searches
             for (var i = 0; i < this.searches.length; i++) {
-                if (!this.searches[i].hidden) continue;
+                if (!this.searches[i].hidden || this.searches[i].value == null) continue;
                 searchData.push({
                     field    : this.searches[i].field,
                     operator : this.searches[i].operator || 'is',
@@ -3162,10 +3162,10 @@
                     height  : 170,
                     body    : '<div class="w2ui-centered">' + w2utils.lang(obj.msgDelete) + '</div>',
                     buttons : (w2utils.settings.macButtonOrder
-                        ? '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('No') + '</button>' +
+                        ? '<button type="button" class="w2ui-btn btn-default" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('No') + '</button>' +
                           '<button type="button" class="w2ui-btn w2ui-btn-red" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang('Yes') + '</button>'
                         : '<button type="button" class="w2ui-btn w2ui-btn-red" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang('Yes') + '</button>' +
-                          '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('No') + '</button>'
+                          '<button type="button" class="w2ui-btn btn-default" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('No') + '</button>'
                         ),
                     onOpen: function (event) {
                         var inputs = $(this.box).find('input, textarea, select, button');
@@ -3181,9 +3181,9 @@
                                 if (evt.keyCode == 27) obj.message(); // esc
                             });
                         setTimeout(function () {
-                            $(this.box).find('.w2ui-btn:last-child').focus();
+                            $(this.box).find('.w2ui-btn.btn-default').focus();
                             clearTimeout(obj.last.kbd_timer);
-                        }, 25);
+                        }.bind(this), 50);
                     }
                 });
                 return;

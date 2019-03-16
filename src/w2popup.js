@@ -5,6 +5,9 @@
 *        - $().w2popup  - jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
+* == changes
+*   - added onMove event
+*
 * == NICE TO HAVE ==
 *   - hide overlay on esc
 *   - make popup width/height in %
@@ -329,10 +332,16 @@ var w2popup = {};
                 if (!evnt) evnt = window.event;
                 tmp.div_x = evnt.screenX - tmp.x;
                 tmp.div_y = evnt.screenY - tmp.y;
+                // trigger event
+                var edata = w2popup.trigger({ phase: 'before', type: 'move', target: 'popup', div_x: tmp.div_x, div_y: tmp.div_y });
+                if (edata.isCancelled === true) return;
+                // default behavior
                 $('#w2ui-popup').css(w2utils.cssPrefix({
                     'transition': 'none',
                     'transform' : 'translate3d('+ tmp.div_x +'px, '+ tmp.div_y +'px, 0px)'
                 }));
+                // event after
+                w2popup.trigger($.extend(edata, { phase: 'after'}));
             }
 
             function mvStop(evnt) {

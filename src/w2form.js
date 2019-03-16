@@ -50,7 +50,7 @@
         this.fields      = [];
         this.actions     = {};
         this.record      = {};
-        this.original    = {};
+        this.original    = null;
         this.postData    = {};
         this.httpHeaders = {};
         this.method      = null;     // only used when not null, otherwise set based on w2utils.settings.dataType
@@ -89,7 +89,7 @@
             var tabs     = method.tabs;
             // extend items
             var object = new w2form(method);
-            $.extend(object, { record: {}, original: {}, fields: [], tabs: {}, toolbar: {}, handlers: [] });
+            $.extend(object, { record: {}, original: null, fields: [], tabs: {}, toolbar: {}, handlers: [] });
             if ($.isArray(tabs)) {
                 $.extend(true, object.tabs, { tabs: [] });
                 for (var t = 0; t < tabs.length; t++) {
@@ -194,7 +194,7 @@
 
         msgNotJSON    : 'Returned data is not in valid JSON format.',
         msgAJAXerror  : 'AJAX error. See console for more details.',
-        msgRefresh    : 'Refreshing...',
+        msgRefresh    : 'Loading...',
         msgSaving     : 'Saving...',
 
         get: function (field, returnIndex) {
@@ -291,7 +291,7 @@
         clear: function () {
             this.recid    = 0;
             this.record   = {};
-            this.original = {};
+            this.original = null;
             $().w2tag();
             this.refresh();
         },
@@ -425,7 +425,7 @@
 
         getChanges: function () {
             var diff = {};
-            if (!$.isEmptyObject(this.original)) {
+            if (this.original != null && typeof this.original == 'object' && !$.isEmptyObject(this.record)) {
                 diff = doDiff(this.record, this.original, {});
             }
             return diff;
@@ -467,7 +467,7 @@
             if (edata.isCancelled === true) { if (typeof callBack === 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
             // default action
             this.record   = {};
-            this.original = {};
+            this.original = null;
             // call server to get data
             this.lock(w2utils.lang(this.msgRefresh));
             var url = edata.url;
@@ -568,6 +568,9 @@
                     // event after
                     obj.trigger($.extend(edata, { phase: 'after' }));
                     obj.refresh();
+                    // focus element
+                    var inputs = $(obj.box).find('div:not(.w2ui-field-helper) > input, select, textarea, div > label:nth-child(1) > :radio').not('.file-input');
+                    if (inputs.length > obj.focus) inputs[obj.focus].focus();
                     // call back
                     if (typeof callBack === 'function') callBack(edata.data);
                 })
@@ -764,7 +767,7 @@
                                 if (data.status === 'error') {
                                     obj.error(w2utils.lang(data.message));
                                 } else {
-                                    obj.original = {};
+                                    obj.original = null;
                                 }
                             }
                         } else {
@@ -905,7 +908,7 @@
                     case 'html':
                     case 'custom':
                     case 'empty':
-                        input = '';
+                        input = (field && field.html && field.html.html ? field.html.html : '');
                         break;
 
                 }
@@ -1164,8 +1167,12 @@
                             val = event.target.checked;
                         }
                         // remember original
-                        if ($.isEmptyObject(obj.original) && !$.isEmptyObject(obj.record)) {
-                            obj.original = $.extend(true, {}, obj.record);
+                        if (obj.original == null) {
+                            if (!$.isEmptyObject(obj.record)) {
+                                obj.original = $.extend(true, {}, obj.record);
+                            } else {
+                                obj.original = {};
+                            }
                         }
                         // event before
                         var edata2 = obj.trigger({ phase: 'before', target: this.name, type: 'input', value_new: val, originalEvent: event });
@@ -1400,7 +1407,7 @@
                     } else {
                         focusEl();
                     }
-                }, 10);
+                }, 50);
             }
             return (new Date()).getTime() - time;
         },
