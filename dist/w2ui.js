@@ -3710,7 +3710,7 @@ w2utils.event = {
     // -- Implementation of core functionality
 
     w2grid.prototype = {
-        msgDelete       : 'Are you sure you want to delete selected records?',
+        msgDelete       : 'Please confirm you want to delete selected record(s)?',
         msgNotJSON      : 'Returned data is not in valid JSON format.',
         msgAJAXerror    : 'AJAX error. See console for more details.',
         msgRefresh      : 'Refreshing...',
@@ -5227,7 +5227,7 @@ w2utils.event = {
             var hasHiddenSearches = false;
             // add hidden searches
             for (var i = 0; i < this.searches.length; i++) {
-                if (!this.searches[i].hidden) continue;
+                if (!this.searches[i].hidden || this.searches[i].value == null) continue;
                 searchData.push({
                     field    : this.searches[i].field,
                     operator : this.searches[i].operator || 'is',
@@ -5301,9 +5301,9 @@ w2utils.event = {
 
                         }
                         searchData.push(tmp);
+                        last_multi = true; // if only hidden searches, then do not set
                     }
                 }
-                last_multi = true;
                 last_logic = 'AND';
             }
             // 2: search(field, value) - regular search
@@ -5530,7 +5530,7 @@ w2utils.event = {
             var hasHiddenSearches = false;
             // add hidden searches
             for (var i = 0; i < this.searches.length; i++) {
-                if (!this.searches[i].hidden) continue;
+                if (!this.searches[i].hidden || this.searches[i].value == null) continue;
                 searchData.push({
                     field    : this.searches[i].field,
                     operator : this.searches[i].operator || 'is',
@@ -6493,10 +6493,10 @@ w2utils.event = {
                     height  : 170,
                     body    : '<div class="w2ui-centered">' + w2utils.lang(obj.msgDelete) + '</div>',
                     buttons : (w2utils.settings.macButtonOrder
-                        ? '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('No') + '</button>' +
+                        ? '<button type="button" class="w2ui-btn btn-default" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('No') + '</button>' +
                           '<button type="button" class="w2ui-btn w2ui-btn-red" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang('Yes') + '</button>'
                         : '<button type="button" class="w2ui-btn w2ui-btn-red" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang('Yes') + '</button>' +
-                          '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('No') + '</button>'
+                          '<button type="button" class="w2ui-btn btn-default" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('No') + '</button>'
                         ),
                     onOpen: function (event) {
                         var inputs = $(this.box).find('input, textarea, select, button');
@@ -6512,9 +6512,9 @@ w2utils.event = {
                                 if (evt.keyCode == 27) obj.message(); // esc
                             });
                         setTimeout(function () {
-                            $(this.box).find('.w2ui-btn:last-child').focus();
+                            $(this.box).find('.w2ui-btn.btn-default').focus();
                             clearTimeout(obj.last.kbd_timer);
-                        }, 25);
+                        }.bind(this), 50);
                     }
                 });
                 return;
@@ -12361,6 +12361,9 @@ w2utils.event = {
 *        - $().w2popup  - jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
+* == changes
+*   - added onMove event
+*
 * == NICE TO HAVE ==
 *   - hide overlay on esc
 *   - make popup width/height in %
@@ -12685,10 +12688,16 @@ var w2popup = {};
                 if (!evnt) evnt = window.event;
                 tmp.div_x = evnt.screenX - tmp.x;
                 tmp.div_y = evnt.screenY - tmp.y;
+                // trigger event
+                var edata = w2popup.trigger({ phase: 'before', type: 'move', target: 'popup', div_x: tmp.div_x, div_y: tmp.div_y });
+                if (edata.isCancelled === true) return;
+                // default behavior
                 $('#w2ui-popup').css(w2utils.cssPrefix({
                     'transition': 'none',
                     'transform' : 'translate3d('+ tmp.div_x +'px, '+ tmp.div_y +'px, 0px)'
                 }));
+                // event after
+                w2popup.trigger($.extend(edata, { phase: 'after'}));
             }
 
             function mvStop(evnt) {
@@ -18599,7 +18608,7 @@ var w2prompt = function (label, title, callBack) {
         this.fields      = [];
         this.actions     = {};
         this.record      = {};
-        this.original    = {};
+        this.original    = null;
         this.postData    = {};
         this.httpHeaders = {};
         this.method      = null;     // only used when not null, otherwise set based on w2utils.settings.dataType
@@ -18638,7 +18647,7 @@ var w2prompt = function (label, title, callBack) {
             var tabs     = method.tabs;
             // extend items
             var object = new w2form(method);
-            $.extend(object, { record: {}, original: {}, fields: [], tabs: {}, toolbar: {}, handlers: [] });
+            $.extend(object, { record: {}, original: null, fields: [], tabs: {}, toolbar: {}, handlers: [] });
             if ($.isArray(tabs)) {
                 $.extend(true, object.tabs, { tabs: [] });
                 for (var t = 0; t < tabs.length; t++) {
@@ -18743,7 +18752,7 @@ var w2prompt = function (label, title, callBack) {
 
         msgNotJSON    : 'Returned data is not in valid JSON format.',
         msgAJAXerror  : 'AJAX error. See console for more details.',
-        msgRefresh    : 'Refreshing...',
+        msgRefresh    : 'Loading...',
         msgSaving     : 'Saving...',
 
         get: function (field, returnIndex) {
@@ -18840,7 +18849,7 @@ var w2prompt = function (label, title, callBack) {
         clear: function () {
             this.recid    = 0;
             this.record   = {};
-            this.original = {};
+            this.original = null;
             $().w2tag();
             this.refresh();
         },
@@ -18974,7 +18983,7 @@ var w2prompt = function (label, title, callBack) {
 
         getChanges: function () {
             var diff = {};
-            if (!$.isEmptyObject(this.original)) {
+            if (this.original != null && typeof this.original == 'object' && !$.isEmptyObject(this.record)) {
                 diff = doDiff(this.record, this.original, {});
             }
             return diff;
@@ -19016,7 +19025,7 @@ var w2prompt = function (label, title, callBack) {
             if (edata.isCancelled === true) { if (typeof callBack === 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
             // default action
             this.record   = {};
-            this.original = {};
+            this.original = null;
             // call server to get data
             this.lock(w2utils.lang(this.msgRefresh));
             var url = edata.url;
@@ -19117,6 +19126,9 @@ var w2prompt = function (label, title, callBack) {
                     // event after
                     obj.trigger($.extend(edata, { phase: 'after' }));
                     obj.refresh();
+                    // focus element
+                    var inputs = $(obj.box).find('div:not(.w2ui-field-helper) > input, select, textarea, div > label:nth-child(1) > :radio').not('.file-input');
+                    if (inputs.length > obj.focus) inputs[obj.focus].focus();
                     // call back
                     if (typeof callBack === 'function') callBack(edata.data);
                 })
@@ -19313,7 +19325,7 @@ var w2prompt = function (label, title, callBack) {
                                 if (data.status === 'error') {
                                     obj.error(w2utils.lang(data.message));
                                 } else {
-                                    obj.original = {};
+                                    obj.original = null;
                                 }
                             }
                         } else {
@@ -19713,8 +19725,12 @@ var w2prompt = function (label, title, callBack) {
                             val = event.target.checked;
                         }
                         // remember original
-                        if ($.isEmptyObject(obj.original) && !$.isEmptyObject(obj.record)) {
-                            obj.original = $.extend(true, {}, obj.record);
+                        if (obj.original == null) {
+                            if (!$.isEmptyObject(obj.record)) {
+                                obj.original = $.extend(true, {}, obj.record);
+                            } else {
+                                obj.original = {};
+                            }
                         }
                         // event before
                         var edata2 = obj.trigger({ phase: 'before', target: this.name, type: 'input', value_new: val, originalEvent: event });
@@ -19949,7 +19965,7 @@ var w2prompt = function (label, title, callBack) {
                     } else {
                         focusEl();
                     }
-                }, 10);
+                }, 50);
             }
             return (new Date()).getTime() - time;
         },
