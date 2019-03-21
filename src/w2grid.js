@@ -146,6 +146,7 @@
         this.columns      = [];       // { field, caption, size, attr, render, hidden, gridMinWidth, editable }
         this.columnGroups = [];       // { span: int, caption: 'string', master: true/false }
         this.records      = [];       // { recid: int(requied), field1: 'value1', ... fieldN: 'valueN', style: 'string',  changes: object }
+		this.bufrec       = [];       // AP19 aleady buffered range...
         this.summary      = [];       // arry of summary records, same structure as records array
         this.searches     = [];       // { type, caption, field, inTag, outTag, hidden }
         this.searchData   = [];
@@ -191,8 +192,8 @@
         this.fixedBody       = true;     // if false; then grid grows with data
         this.recordHeight    = 24;       // should be in prototype
         this.lineNumberWidth = null;
-        this.vs_start        = 150;
-        this.vs_extra        = 15;
+        this.vs_start        = 0;//AP19 150;
+        this.vs_extra        = 0; // 15;
         this.keyboard        = true;
         this.selectType      = 'row';    // can be row|cell
         this.multiSearch     = true;
@@ -379,7 +380,7 @@
     // -- Implementation of core functionality
 
     w2grid.prototype = {
-        msgDelete       : 'Please confirm you want to delete selected record(s)?',
+        msgDelete       : 'Are you sure you want to delete selected records?',
         msgNotJSON      : 'Returned data is not in valid JSON format.',
         msgAJAXerror    : 'AJAX error. See console for more details.',
         msgRefresh      : 'Refreshing...',
@@ -592,7 +593,7 @@
                     this.last.idCache = idCache = {};
                 }
                 for (var i = 0; i < this.records.length; i++) {
-                    if (this.records[i].recid == recid) {
+                    if (this.records[i] !== undefined) if (this.records[i].recid == recid) {
                         idCache[recid] = i;
                         if (returnIndex === true) return i; else return this.records[i];
                     }
@@ -1896,7 +1897,7 @@
             var hasHiddenSearches = false;
             // add hidden searches
             for (var i = 0; i < this.searches.length; i++) {
-                if (!this.searches[i].hidden || this.searches[i].value == null) continue;
+                if (!this.searches[i].hidden) continue;
                 searchData.push({
                     field    : this.searches[i].field,
                     operator : this.searches[i].operator || 'is',
@@ -1970,9 +1971,9 @@
 
                         }
                         searchData.push(tmp);
-                        last_multi = true; // if only hidden searches, then do not set
                     }
                 }
+                last_multi = true;
                 last_logic = 'AND';
             }
             // 2: search(field, value) - regular search
@@ -2199,7 +2200,7 @@
             var hasHiddenSearches = false;
             // add hidden searches
             for (var i = 0; i < this.searches.length; i++) {
-                if (!this.searches[i].hidden || this.searches[i].value == null) continue;
+                if (!this.searches[i].hidden) continue;
                 searchData.push({
                     field    : this.searches[i].field,
                     operator : this.searches[i].operator || 'is',
@@ -2310,6 +2311,7 @@
         clear: function (noRefresh) {
             this.total            = 0;
             this.records          = [];
+			this.bufrec           = []; //AP19
             this.summary          = [];
             this.last.xhr_offset  = 0;   // need this for reload button to work on remote data set
             this.last.idCache     = {};  // optimization to free memory
@@ -2590,8 +2592,9 @@
                             }
                             // records
                             if (data.records) {
+								this.bufrec.push( this.last.xhr_offset ); //AP19
                                 for (var r = 0; r < data.records.length; r++) {
-                                    this.records.push(data.records[r]);
+                                    this.records[ this.last.xhr_offset + r ] = data.records[r]; // AP19 this.records.push(data.records[r]);
                                 }
                             }
                             // summary records (if any)
@@ -3162,10 +3165,10 @@
                     height  : 170,
                     body    : '<div class="w2ui-centered">' + w2utils.lang(obj.msgDelete) + '</div>',
                     buttons : (w2utils.settings.macButtonOrder
-                        ? '<button type="button" class="w2ui-btn btn-default" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('No') + '</button>' +
+                        ? '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('No') + '</button>' +
                           '<button type="button" class="w2ui-btn w2ui-btn-red" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang('Yes') + '</button>'
                         : '<button type="button" class="w2ui-btn w2ui-btn-red" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang('Yes') + '</button>' +
-                          '<button type="button" class="w2ui-btn btn-default" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('No') + '</button>'
+                          '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('No') + '</button>'
                         ),
                     onOpen: function (event) {
                         var inputs = $(this.box).find('input, textarea, select, button');
@@ -3181,9 +3184,9 @@
                                 if (evt.keyCode == 27) obj.message(); // esc
                             });
                         setTimeout(function () {
-                            $(this.box).find('.w2ui-btn.btn-default').focus();
+                            $(this.box).find('.w2ui-btn:last-child').focus();
                             clearTimeout(obj.last.kbd_timer);
-                        }.bind(this), 50);
+                        }, 25);
                     }
                 });
                 return;
@@ -6663,7 +6666,7 @@
         },
 
         getRecordsHTML: function () {
-            var buffered = this.records.length;
+            var buffered = this.total; // AP19 this.records.length;
             var url = (typeof this.url != 'object' ? this.url : this.url.get);
             if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length;
             // larger number works better with chrome, smaller with FF.
@@ -6687,14 +6690,14 @@
                 html1 += rec_html[0];
                 html2 += rec_html[1];
             }
-            html1 += '<tr id="grid_'+ this.name + '_frec_bottom" line="bottom" style="height: '+ ((buffered - limit) * this.recordHeight) +'px">'+
+            html1 += '<tr id="grid_'+ this.name + '_frec_bottom" line="bottom" style="height: '+ ((buffered - this.limit) * this.recordHeight) +'px">'+
                     '    <td colspan="2000" style="border: 0"></td>'+
                     '</tr>'+
                     '<tr id="grid_'+ this.name +'_frec_more" style="display: none; visibility: hidden">'+
                     '    <td colspan="2000" class="w2ui-load-more"></td>'+
                     '</tr>'+
                     '</tbody></table>';
-            html2 += '<tr id="grid_'+ this.name + '_rec_bottom" line="bottom" style="height: '+ ((buffered - limit) * this.recordHeight) +'px">'+
+            html2 += '<tr id="grid_'+ this.name + '_rec_bottom" line="bottom" style="height: '+ ((buffered - this.limit) * this.recordHeight) +'px">'+
                     '    <td colspan="2000" style="border: 0"></td>'+
                     '</tr>'+
                     '<tr id="grid_'+ this.name +'_rec_more" style="display: none">'+
@@ -6889,7 +6892,7 @@
             // only for local data source, else no extra records loaded
             if (!url && (!this.fixedBody || (this.total != -1 && this.total <= this.vs_start))) return;
             // regular processing
-            var start   = Math.floor(records[0].scrollTop / this.recordHeight) - this.last.show_extra;
+            var start   = Math.floor(records[0].scrollTop / this.recordHeight) ; //AP19 - this.last.show_extra;
             var end     = start + Math.floor(records.height() / this.recordHeight) + this.last.show_extra * 2 + 1;
             // var div  = start - this.last.range_start;
             if (start < 1) start = 1;
@@ -6964,7 +6967,7 @@
             }
             // first/last row size
             var h1 = (start - 1) * obj.recordHeight;
-            var h2 = (buffered - end) * obj.recordHeight;
+            var h2 = (this.total - end) * obj.recordHeight;
             if (h2 < 0) h2 = 0;
             tr1.css('height', h1 + 'px');
             tr1f.css('height', h1 + 'px');
@@ -6973,21 +6976,33 @@
             obj.last.range_start = start;
             obj.last.range_end   = end;
             // load more if needed
-            var s = Math.floor(records[0].scrollTop / this.recordHeight);
-            var e = s + Math.floor(records.height() / this.recordHeight);
-            if (e + 10 > buffered && this.last.pull_more !== true && (buffered < this.total - this.offset || (this.total == -1 && this.last.xhr_hasMore))) {
+			if ( ((this.bufrec.indexOf((Math.trunc((start/this.limit))) * this.limit)==-1) || (this.bufrec.indexOf((Math.trunc((end/this.limit))) * this.limit)==-1)) && (this.total>this.limit) && (start < this.total || (this.total == -1 && this.last.xhr_hasMore)) ) {
                 if (this.autoLoad === true) {
                     this.last.pull_more = true;
-                    this.last.xhr_offset += this.limit;
-                    this.request('get');
+                    // AP19 try to manage big scroll this.last.xhr_offset += this.limit;
+                    if (this.bufrec.indexOf((Math.trunc((end/this.limit))) * this.limit)==-1) {
+					   this.last.xhr_offset = (Math.trunc((end/this.limit))) * this.limit;
+                       this.request('get');
+					}
+                    if ((this.bufrec.indexOf((Math.trunc((start/this.limit))) * this.limit)==-1) && ( (Math.trunc((end/this.limit))) * this.limit !== this.last.xhr_offset )) {
+      		           this.last.xhr_offset = (Math.trunc((start/this.limit))) * this.limit;
+                       this.request('get');
+					}
                 } else {
                     var more = $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more');
                     if (more.css('display') == 'none') {
                         more.show()
                             .on('click', function () {
                                 obj.last.pull_more = true;
-                                obj.last.xhr_offset += obj.limit;
-                                obj.request('get');
+                                // AP19 try to manage big scroll this.last.xhr_offset += this.limit;
+                                if (this.bufrec.indexOf((Math.trunc((end/this.limit))) * this.limit)==-1) {
+					               this.last.xhr_offset = (Math.trunc((end/this.limit))) * this.limit;
+                                   this.request('get');
+					            }
+                                if ((this.bufrec.indexOf((Math.trunc((start/this.limit))) * this.limit)==-1) && ( (Math.trunc((end/this.limit))) * this.limit !== this.last.xhr_offset )) {
+      		                       this.last.xhr_offset = (Math.trunc((start/this.limit))) * this.limit;
+                                   this.request('get');
+					            }
                                 // show spinner the last
                                 $(this).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
                             });
