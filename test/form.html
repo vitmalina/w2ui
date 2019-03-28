@@ -43,32 +43,35 @@
 
             },
             record: {
-                "field.toggle"  : '0',
-                "field.text"    : 'some text',
-                "field.textarea": 'more text',
-                "field.date"    : '1/15/2014',
-                "field.time"    : '10:11 am',
-                "field.color"   : '999999',
-                "field.list"    : 5,
-                "field.combo"   : { id: 1, text: 'Item 1' },
-                "field.enum"    : [{ id: '1', text: 'item 1'}, { id: 2, text: 'item 2'}],
-                "field.file"    : [{ name: 'file.txt', size: 3033, type: 'text', modified: '1/1/2014' }],
-                "field.email"   : 'see@mail.com',
-                "field.password": 'pass',
-                "field.int"     : '10',
-                "field.float"   : '20',
-                "field.money"   : '30',
-                "field.currency": '40',
-                "field.percent" : '50',
-                "field.alpha"   : '60',
-                "field.select"  : 'second',
-                "field.check"   : 33
-                // "field.radio"   : '1'
+                field: {
+                    "toggle"  : '0',
+                    "text"    : 'some text',
+                    "textarea": 'more text',
+                    "date"    : '1/15/2014',
+                    "time"    : '10:11 am',
+                    "color"   : '999999',
+                    "list"    : 5,
+                    "combo"   : { id: 1, text: 'Item 1' },
+                    "enum"    : [{ id: '1', text: 'item 1'}, { id: 2, text: 'item 2'}],
+                    "file"    : [{ name: 'file.txt', size: 3033, type: 'text', modified: '1/1/2014' }],
+                    "email"   : 'see@mail.com',
+                    "password": 'pass',
+                    "int"     : '10',
+                    "float"   : '20',
+                    "money"   : '30',
+                    "currency": '40',
+                    "percent" : '50',
+                    "alpha"   : '60',
+                    "select"  : 'second',
+                    "check"   : 33
+                    // "radio"   : '1'
+                }
             },
+            focus: 1,
             fields: [
                 // first page
                 { field: 'field.toggle', type: 'toggle', required: true, html: { group: 'General' } },
-                { field: 'field.text', type: 'text', required: true, html: { attr: 'style="width: 300px"' } },
+                { field: 'field.text', type: 'text', required: true, html: { attr: 'style="width: 300px"' }, hidden: true },
                 { field: 'field.textarea', type: 'textarea', required: true, html: { attr: 'style="width: 300px"' } },
                 { field: 'field.date', type: 'date', required: false, html: { attr: 'style="width: 90px"' } },
                 { field: 'field.time', type: 'time', required: false, html: { attr: 'style="width: 90px"' } },
@@ -179,7 +182,7 @@
 <body>
 
     <div class="w2ui-reset">
-        <input name="field.toggle" type="checkbox" class="w2ui-input1 w2ui-toggle"/><div><div></div></div>
+        <input name="field.toggle" type="checkbox" class="w2ui-input1 w2ui-toggle w2ui-small"/><div><div></div></div>
         <br/><br/>
     </div>
 

@@ -167,13 +167,19 @@
     &.w2ui-required > div {
         position: relative;
     }
-
-    &.w2ui-required > div::before {
+    &.w2ui-required:not(.w2ui-field-inline) > div::before {
         content: '*';
         position: absolute;
         margin-top: 5px;
         margin-left: -9px;
         color: @form-required-color;
+    }
+    &.w2ui-required.w2ui-field-inline > div::before {
+        content: ''!important;
+    }
+    &.w2ui-disabled {
+        opacity: 0.3;
+        background-color: transparent !important;
     }
     &.w2ui-span0 {
         > label { display: none; }
@@ -218,6 +224,15 @@
     &.w2ui-span10 {
         > label { width: (@form-step-label * 10); }
         > div { margin-left: ((@form-step-label * 10) + @form-step-field); }
+    }
+    &.w2ui-field-inline {
+        display: inline;
+
+        > div {
+            display: inline;
+            margin: 0;
+            padding: 0;
+        }
     }
 }
 

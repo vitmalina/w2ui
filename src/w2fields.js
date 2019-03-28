@@ -1479,6 +1479,27 @@
                             obj.tmp.xhr_total   = data.records.length;
                             options.items       = obj.normMenu(data.records);
                             if (search === '' && data.records.length === 0) obj.tmp.emptySet = true; else obj.tmp.emptySet = false;
+                            // preset item
+                            var find_selected = $(obj.el).data('find_selected');
+                            if (find_selected) {
+                                var sel;
+                                if (Array.isArray(find_selected)) {
+                                    sel = [];
+                                    find_selected.forEach(function (find) {
+                                        options.items.forEach(function (item) {
+                                            if (item.id == find) sel.push($.extend(true, {}, item));
+                                        })
+                                    });
+
+                                } else {
+                                    options.items.forEach(function (item) {
+                                        if (item.id == find_selected) {
+                                            sel = item
+                                        }
+                                    })
+                                }
+                                $(obj.el).data('selected', sel).removeData('find_selected').change();
+                            }
                             obj.search();
                             // event after
                             obj.trigger($.extend(edata2, { phase: 'after' }));

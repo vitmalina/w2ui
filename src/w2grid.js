@@ -107,7 +107,7 @@
     }
 *   - added this.show.toolbarInput
 *   - disableCVS
-*   - added useFieldDot: use field name containing dots as separator to look into objects
+*   - added nestedFields: use field name containing dots as separator to look into objects
 *   - grid.message
 *   - added noReset option to localSort()
 *   - onColumnSelect
@@ -205,7 +205,7 @@
         this.columnTooltip   = 'normal'; // can be normal, top, bottom, left, right
         this.disableCVS      = false;    // disable Column Virtual Scroll
         this.textSearch      = 'begins'; // default search type for text
-        this.useFieldDot     = true;     // use field name containing dots as separator to look into object
+        this.nestedFields    = true;     // use field name containing dots as separator to look into object
 
         this.total   = 0;     // server total
         this.limit   = 100;
@@ -7273,8 +7273,13 @@
             // info bubble
             if (col.info === true) col.info = {};
             if (col.info != null) {
-                if (!col.info.icon) col.info.icon = 'w2ui-icon-info';
-                infoBubble += '<span class="w2ui-info '+ col.info.icon +'" style="'+ (col.info.style || '') + '" '+
+                var infoIcon = 'w2ui-icon-info';
+                if (typeof col.info.icon == 'function') {
+                    infoIcon = col.info.icon(record);
+                } else if (typeof col.info.icon == 'string') {
+                    infoIcon = col.info.icon;
+                }
+                infoBubble += '<span class="w2ui-info '+ infoIcon +'" style="'+ (col.info.style || '') + '" '+
                     ' onclick="event.stopPropagation(); w2ui[\''+ this.name + '\'].showBubble('+ ind +', '+ col_ind +')"></span>';
             }
             // various renderers
@@ -7673,7 +7678,7 @@
         },
 
         parseField: function (obj, field) {
-            if (this.useFieldDot) {
+            if (this.nestedFields) {
                 var val = '';
                 try { // need this to make sure no error in fields
                     val = obj;
