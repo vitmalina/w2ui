@@ -42,7 +42,7 @@ var kickStart = (function () {
                         console.log('ERROR: not valid JSON file  "'+ mod +'".\n'+ e);
                         return;
                     }
-                    _process();
+                    _process(mod);
                     if (typeof callBack == 'function') callBack();
 
                 },
@@ -51,17 +51,20 @@ var kickStart = (function () {
                 }
             });
         } else {
-            _process();
+            _process(mod);
             if (typeof callBack == 'function') callBack();
         }
 
-        function _process() {
+        function _process(mod) {
             for (var m in mod) {
-                if (app._conf.modules.hasOwnProperty(m)) {
-                    console.log('ERROR: module ' + m + ' is already registered.');
-                    return false;
+                if (Array.isArray(mod[m].assets)) {
+                    if (app._conf.modules.hasOwnProperty(m)) {
+                        console.log('ERROR: module ' + m + ' is already registered.');
+                    }
+                    app._conf.modules[m] = $.extend({ assets: {} }, mod[m], { ready: false, files: {} });
+                } else {
+                    _process(mod[m]);
                 }
-                app._conf.modules[m] = $.extend({ assets: {} }, mod[m], { ready: false, files: {} });
             }
         }
     }
