@@ -10,6 +10,10 @@
 *
 * == 1.5 changes ==
 *   - menu drop down can have groups now
+*   - item.caption - deprecated
+*   - item.text - can be a function
+*   - item.icon - can be a function
+*   - item.tooltip - can be a function
 *
 ************************************************************************/
 
@@ -630,12 +634,19 @@
             if (item.text == null) item.text = '';
             if (item.tooltip == null && item.hint != null) item.tooltip = item.hint; // for backward compatibility
             if (item.tooltip == null) item.tooltip = '';
+            if (item.caption != null) {
+                console.log('NOTICE: toolbar item.caption property is deprecated, please use item.text')
+            }
+            if (item.hint != null) {
+                console.log('NOTICE: toolbar item.hint property is deprecated, please use item.tooltip')
+            }
             var img  = '<td>&#160;</td>';
-            var text = item.text;
-            if (typeof text == 'function') text = text.call(this, item);
+            var text = (typeof item.text == 'function' ? item.text.call(this, item) : item.text);
             if (item.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ item.img +'"></div></td>';
-            if (item.icon) img = '<td><div class="w2ui-tb-image"><span class="'+ item.icon +'"></span></div></td>';
-
+            if (item.icon) {
+                img = '<td><div class="w2ui-tb-image"><span class="'+
+                    (typeof item.icon == 'function' ? item.icon.call(this, item) : item.icon) +'"></span></div></td>';
+            }
             if (html === '') switch (item.type) {
                 case 'color':
                 case 'text-color':

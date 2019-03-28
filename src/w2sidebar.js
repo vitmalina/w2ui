@@ -11,6 +11,9 @@
 *   - reorder with dgrag and drop
 *   - node.style is misleading - should be there to apply color for example
 *   - add multiselect
+*   - node.caption - deprecated
+*   - node.text - can be a function
+*   - node.icon - can be a function
 *
 ************************************************************************/
 
@@ -855,7 +858,10 @@
                     tmp = tmp.parent;
                     level++;
                 }
-                if (nd.caption != null) nd.text = nd.caption;
+                if (nd.caption != null && nd.text == null) nd.text = nd.caption;
+                if (nd.caption != null) {
+                    console.log('NOTICE: sidebar node.caption property is deprecated, please use node.text')
+                }
                 if (nd.group) {
                     html =
                         '<div class="w2ui-node-group w2ui-level-'+ level +'" id="node_'+ nd.id +'"'+
@@ -876,11 +882,7 @@
                     tmp = '';
                     if (img) tmp  = '<div class="w2ui-node-image w2ui-icon '+ img +    (nd.selected && !nd.disabled ? " w2ui-icon-selected" : "") +'"></div>';
                     if (icon) {
-                        if (typeof icon == 'function') {
-                            tmp = '<div class="w2ui-node-image"><span>' + icon.call(obj, nd) + '</span></div>';
-                        } else {
-                            tmp = '<div class="w2ui-node-image"><span class="'+ icon +'"></span></div>';
-                        }
+                        tmp = '<div class="w2ui-node-image"><span class="' + (typeof icon == 'function' ? icon.call(obj, nd) : icon) + '"></span></div>';
                     }
                     var text = nd.text;
                     if (typeof nd.text == 'function') text = nd.text.call(obj, nd);
