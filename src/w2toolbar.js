@@ -110,7 +110,7 @@
             icon        : null,
             route       : null,        // if not null, it is route to go
             arrow       : true,        // arrow down for drop/menu types
-            style       : null,        // extre css style for caption
+            style       : null,        // extra css style for caption
             color       : null,        // color value - used in color pickers
             transparent : null,        // transparent t/f - used in color picker
             advanced    : null,        // advanced picker t/f - user in color picker
@@ -500,6 +500,12 @@
                 var it = this.items[i];
                 if (it == null)  continue;
                 if (it.id == null) it.id = "item_" + i;
+                if (it.caption != null) {
+                    console.log('NOTICE: toolbar item.caption property is deprecated, please use item.text. Item -> ', it)
+                }
+                if (it.hint != null) {
+                    console.log('NOTICE: toolbar item.hint property is deprecated, please use item.tooltip. Item -> ', it)
+                }
                 if (it.type == 'spacer') {
                     html += '<td width="100%" id="tb_'+ this.name +'_item_'+ it.id +'" align="right"></td>';
                 } else {
@@ -634,12 +640,6 @@
             if (item.text == null) item.text = '';
             if (item.tooltip == null && item.hint != null) item.tooltip = item.hint; // for backward compatibility
             if (item.tooltip == null) item.tooltip = '';
-            if (item.caption != null) {
-                console.log('NOTICE: toolbar item.caption property is deprecated, please use item.text')
-            }
-            if (item.hint != null) {
-                console.log('NOTICE: toolbar item.hint property is deprecated, please use item.tooltip')
-            }
             var img  = '<td>&#160;</td>';
             var text = (typeof item.text == 'function' ? item.text.call(this, item) : item.text);
             if (item.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ item.img +'"></div></td>';
@@ -684,7 +684,7 @@
                             '  <tr>' +
                                     img +
                                     (text !== ''
-                                        ? '<td class="w2ui-tb-caption" nowrap="nowrap" style="'+ (item.style ? item.style : '') +'">'+ w2utils.lang(text) +'</td>'
+                                        ? '<td class="w2ui-tb-text w2ui-tb-caption" nowrap="nowrap" style="'+ (item.style ? item.style : '') +'">'+ w2utils.lang(text) +'</td>'
                                         : ''
                                     ) +
                                     (item.count != null

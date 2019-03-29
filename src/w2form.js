@@ -38,6 +38,7 @@
 *   - added getChanges()
 *   - added getCleanRecord()
 *   - added applyFocus()
+*   - deprecated field.name -> field.field
 *
 ************************************************************************/
 
@@ -109,7 +110,7 @@
                             object.tabs.active = tmp.id;
                         }
                     } else {
-                        object.tabs.tabs.push({ id: tmp, caption: tmp });
+                        object.tabs.tabs.push({ id: tmp, text: tmp });
                     }
                 }
             } else {
@@ -119,8 +120,10 @@
             // reassign variables
             if (fields) for (var p = 0; p < fields.length; p++) {
                 var field = $.extend(true, {}, fields[p]);
-                if (field.name == null && field.field != null) field.name = field.field;
-                if (field.field == null && field.name != null) field.field = field.name;
+                if (field.field == null && field.name != null) {
+                    console.log('NOTICE: form field.name property is deprecated, please use field.field. Field ->', field);
+                    field.field = field.name;
+                }
                 object.fields[p] = field;
             }
             for (var p in record) { // it is an object
@@ -210,12 +213,12 @@
             if (arguments.length === 0) {
                 var all = [];
                 for (var f1 = 0; f1 < this.fields.length; f1++) {
-                    if (this.fields[f1].name != null) all.push(this.fields[f1].name);
+                    if (this.fields[f1].field != null) all.push(this.fields[f1].field);
                 }
                 return all;
             } else {
                 for (var f2 = 0; f2 < this.fields.length; f2++) {
-                    if (this.fields[f2].name == field) {
+                    if (this.fields[f2].field == field) {
                         if (returnIndex === true) return f2; else return this.fields[f2];
                     }
                 }
@@ -225,7 +228,7 @@
 
         set: function (field, obj) {
             for (var f = 0; f < this.fields.length; f++) {
-                if (this.fields[f].name == field) {
+                if (this.fields[f].field == field) {
                     $.extend(this.fields[f] , obj);
                     this.refresh(field);
                     return true;
@@ -400,42 +403,42 @@
             var errors = [];
             for (var f = 0; f < this.fields.length; f++) {
                 var field = this.fields[f];
-                if (this.getValue(field.name) == null) this.setValue(field.name, '');
+                if (this.getValue(field.field) == null) this.setValue(field.field, '');
                 switch (field.type) {
                     case 'int':
-                        if (this.getValue(field.name) && !w2utils.isInt(this.getValue(field.name))) {
+                        if (this.getValue(field.field) && !w2utils.isInt(this.getValue(field.field))) {
                             errors.push({ field: field, error: w2utils.lang('Not an integer') });
                         }
                         break;
                     case 'float':
-                        if (this.getValue(field.name) && !w2utils.isFloat(this.getValue(field.name))) {
+                        if (this.getValue(field.field) && !w2utils.isFloat(this.getValue(field.field))) {
                             errors.push({ field: field, error: w2utils.lang('Not a float') });
                         }
                         break;
                     case 'money':
-                        if (this.getValue(field.name) && !w2utils.isMoney(this.getValue(field.name))) {
+                        if (this.getValue(field.field) && !w2utils.isMoney(this.getValue(field.field))) {
                             errors.push({ field: field, error: w2utils.lang('Not in money format') });
                         }
                         break;
                     case 'color':
                     case 'hex':
-                        if (this.getValue(field.name) && !w2utils.isHex(this.getValue(field.name))) {
+                        if (this.getValue(field.field) && !w2utils.isHex(this.getValue(field.field))) {
                             errors.push({ field: field, error: w2utils.lang('Not a hex number') });
                         }
                         break;
                     case 'email':
-                        if (this.getValue(field.name) && !w2utils.isEmail(this.getValue(field.name))) {
+                        if (this.getValue(field.field) && !w2utils.isEmail(this.getValue(field.field))) {
                             errors.push({ field: field, error: w2utils.lang('Not a valid email') });
                         }
                         break;
                     case 'checkbox':
                         // convert true/false
-                        if (this.getValue(field.name) == true) this.setValue(field.name, 1); else this.setValue(field.name, 0);
+                        if (this.getValue(field.field) == true) this.setValue(field.field, 1); else this.setValue(field.field, 0);
                         break;
                     case 'date':
                         // format date before submit
                         if (!field.options.format) field.options.format = w2utils.settings.dateFormat;
-                        if (this.getValue(field.name) && !w2utils.isDate(this.getValue(field.name), field.options.format)) {
+                        if (this.getValue(field.field) && !w2utils.isDate(this.getValue(field.field), field.options.format)) {
                             errors.push({ field: field, error: w2utils.lang('Not a valid date') + ': ' + field.options.format });
                         }
                         break;
@@ -446,11 +449,11 @@
                         break;
                 }
                 // === check required - if field is '0' it should be considered not empty
-                var val = this.getValue(field.name);
+                var val = this.getValue(field.field);
                 if (field.required && (val === '' || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val)))) {
                     errors.push({ field: field, error: w2utils.lang('Required field') });
                 }
-                if (field.equalto && this.getValue(field.name) != this.getValue(field.equalto)) {
+                if (field.equalto && this.getValue(field.field) != this.getValue(field.equalto)) {
                     errors.push({ field: field, error: w2utils.lang('Field should be equal to ') + field.equalto });
                 }
             }
@@ -937,19 +940,23 @@
                 var field = this.fields[f];
                 if (field.html == null) field.html = {};
                 if (field.options == null) field.options = {};
-                field.html = $.extend(true, { caption: '', span: 6, attr: '', text: '', style: '', page: 0, column: 0 }, field.html);
+                if (field.html.caption != null && field.html.label == null) {
+                    console.log('NOTICE: form field.html.caption property is deprecated, please use field.html.label. Field ->', field)
+                    field.html.label = field.html.caption;
+                }
+                field.html = $.extend(true, { label: '', span: 6, attr: '', text: '', style: '', page: 0, column: 0 }, field.html);
                 if (page == null) page = field.html.page;
                 if (column == null) column = field.html.column;
-                if (field.html.caption === '') field.html.caption = field.name;
+                if (field.html.label == '') field.html.label = field.field;
                 // input control
-                var input = '<input name="'+ field.name +'" class="w2ui-input" type="text" '+ field.html.attr + tabindex_str + '/>';
+                var input = '<input name="'+ field.field +'" class="w2ui-input" type="text" '+ field.html.attr + tabindex_str + '/>';
                 switch (field.type) {
                     case 'pass':
                     case 'password':
-                        input = '<input name="' + field.name + '" class="w2ui-input" type = "password" ' + field.html.attr + tabindex_str + '/>';
+                        input = '<input name="' + field.field + '" class="w2ui-input" type = "password" ' + field.html.attr + tabindex_str + '/>';
                         break;
                     case 'checkbox':
-                        input = '<input name="'+ field.name +'" class="w2ui-input" type="checkbox" '+ field.html.attr + tabindex_str + '/>';
+                        input = '<input name="'+ field.field +'" class="w2ui-input" type="checkbox" '+ field.html.attr + tabindex_str + '/>';
                         break;
                     case 'radio':
                         input = '';
@@ -961,12 +968,12 @@
                         }
                         // generate
                         for (var i = 0; i < items.length; i++) {
-                            input += '<label><input name="' + field.name + '" class="w2ui-input" type = "radio" ' + field.html.attr + (i === 0 ? tabindex_str : '') + ' value="'+ items[i].id + '"/>' +
+                            input += '<label><input name="' + field.field + '" class="w2ui-input" type = "radio" ' + field.html.attr + (i === 0 ? tabindex_str : '') + ' value="'+ items[i].id + '"/>' +
                                 '&#160;' + items[i].text + '</label><br/>';
                         }
                         break;
                     case 'select':
-                        input = '<select name="' + field.name + '" class="w2ui-input" ' + field.html.attr + tabindex_str + '>';
+                        input = '<select name="' + field.field + '" class="w2ui-input" ' + field.html.attr + tabindex_str + '>';
                         // normalized options
                         var items =  field.options.items ? field.options.items : field.html.items;
                         if (!$.isArray(items)) items = [];
@@ -980,10 +987,10 @@
                         input += '</select>';
                         break;
                     case 'textarea':
-                        input = '<textarea name="'+ field.name +'" class="w2ui-input" '+ field.html.attr + tabindex_str + '></textarea>';
+                        input = '<textarea name="'+ field.field +'" class="w2ui-input" '+ field.html.attr + tabindex_str + '></textarea>';
                         break;
                     case 'toggle':
-                        input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr + tabindex_str + ' class="w2ui-input w2ui-toggle"/><div><div></div></div>';
+                        input = '<input name="'+ field.field +'" type="checkbox" '+ field.html.attr + tabindex_str + ' class="w2ui-input w2ui-toggle"/><div><div></div></div>';
                         break;
                     case 'html':
                     case 'custom':
@@ -1004,13 +1011,13 @@
                 }
                 if (field.html.anchor == null) {
                     html += '\n      <div class="w2ui-field '+ (field.html.span != null ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+
-                            '\n         <label>' + w2utils.lang(field.html.caption) +'</label>'+
+                            '\n         <label>' + w2utils.lang(field.html.label) +'</label>'+
                             ((field.type === 'empty') ? '' : '\n         <div>'+ input + w2utils.lang(field.html.text) + '</div>') +
                             '\n      </div>';
                 } else {
                     pages[field.html.page].anchors = pages[field.html.page].anchors || {};
                     pages[field.html.page].anchors[field.html.anchor] = '<div class="w2ui-field w2ui-field-inline" style="'+ field.html.style +'">'+
-                            ((field.type === 'empty') ? '' : '<div>'+ w2utils.lang(field.html.caption) + input + w2utils.lang(field.html.text) + '</div>') +
+                            ((field.type === 'empty') ? '' : '<div>'+ w2utils.lang(field.html.label) + input + w2utils.lang(field.html.text) + '</div>') +
                             '</div>';
                 }
                 if (pages[field.html.page] == null) pages[field.html.page] = {};
@@ -1032,17 +1039,21 @@
 
                 for (var a in this.actions) { // it is an object
                     var act  = this.actions[a];
-                    var info = { caption: '', style: '', "class": '' };
+                    var info = { text: '', style: '', "class": '' };
                     if ($.isPlainObject(act)) {
-                        if (act.caption) info.caption = act.caption;
+                        if (act.text == null && act.caption != null) {
+                            console.log('NOTICE: form action.caption property is deprecated, please use action.text. Action ->', act);
+                            act.text = act.caption;
+                        }
+                        if (act.text) info.text = act.text;
                         if (act.style) info.style = act.style;
                         if (act["class"]) info['class'] = act['class'];
                     } else {
-                        info.caption = a;
+                        info.text = a;
                         if (['save', 'update', 'create'].indexOf(a.toLowerCase()) !== -1) info['class'] = 'w2ui-btn-blue'; else info['class'] = '';
                     }
                     buttons += '\n    <button name="'+ a +'" class="w2ui-btn '+ info['class'] +'" style="'+ info.style +'" tabindex="'+ tabindex +'">'+
-                                            w2utils.lang(info.caption) +'</button>';
+                                            w2utils.lang(info.text) +'</button>';
                     tabindex++;
                 }
                 buttons += '\n</div>';

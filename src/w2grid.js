@@ -131,6 +131,9 @@
 *   - added getFirst
 *   - added stateSaveColumnProperties
 *   - added stateSaveColumnFallbackValues
+*   - deprecated search.caption -> search.label
+*   - deprecated column.caption -> column.text
+*   - deprecated columnGroup.caption -> columnGroup.text
 *
 ************************************************************************/
 
@@ -143,11 +146,11 @@
         this.header       = '';
         this.url          = '';
         this.routeData    = {};       // data for dynamic routes
-        this.columns      = [];       // { field, caption, size, attr, render, hidden, gridMinWidth, editable }
-        this.columnGroups = [];       // { span: int, caption: 'string', master: true/false }
+        this.columns      = [];       // { field, text, size, attr, render, hidden, gridMinWidth, editable }
+        this.columnGroups = [];       // { span: int, text: 'string', master: true/false }
         this.records      = [];       // { recid: int(requied), field1: 'value1', ... fieldN: 'valueN', style: 'string',  changes: object }
         this.summary      = [];       // arry of summary records, same structure as records array
-        this.searches     = [];       // { type, caption, field, inTag, outTag, hidden }
+        this.searches     = [];       // { type, label, field, inTag, outTag, hidden }
         this.searchData   = [];
         this.sortData     = [];
         this.postData     = {};
@@ -221,7 +224,7 @@
         // internal
         this.last = {
             field     : '',
-            caption   : '',
+            label     : '',
             logic     : 'OR',
             search    : '',
             searchIds : [],
@@ -248,7 +251,7 @@
 
         // these column properties will be saved in stateSave()
         this.stateSaveColumnProperties = {
-            caption         : false,
+            text            : false,
             field           : true,
             size            : true,
             min             : false,
@@ -274,7 +277,7 @@
 
         // these are the stateSave() fallback values if the property to save is not a property of the column object
         this.stateSaveColumnFallbackValues = {
-            caption         : '',     // column caption
+            text            : '',     // column text
             field           : '',     // field name to map column to a record
             size            : null,   // size of column in px or %
             min             : 20,     // minimum width of column in px
@@ -346,11 +349,11 @@
                 var search = col.searchable;
                 if (search == null || search === false || object.getSearch(col.field) != null) continue;
                 if ($.isPlainObject(search)) {
-                    object.addSearch($.extend({ field: col.field, caption: col.caption, type: 'text' }, search));
+                    object.addSearch($.extend({ field: col.field, label: col.text, type: 'text' }, search));
                 } else {
                     var stype = col.searchable, attr  = '';
                     if (col.searchable === true) { stype = 'text'; attr = 'size="20"'; }
-                    object.addSearch({ field: col.field, caption: col.caption, type: stype, attr: attr });
+                    object.addSearch({ field: col.field, label: col.text, type: stype, attr: attr });
                 }
             }
             // init toolbar
@@ -658,7 +661,7 @@
                     var stype = columns[i].searchable;
                     var attr  = '';
                     if (columns[i].searchable === true) { stype = 'text'; attr = 'size="20"'; }
-                    this.addSearch({ field: columns[i].field, caption: columns[i].caption, type: stype, attr: attr });
+                    this.addSearch({ field: columns[i].field, label: columns[i].label, type: stype, attr: attr });
                 }
                 before++;
                 added++;
@@ -2058,7 +2061,7 @@
                         var el = $('#grid_'+ this.name +'_search_all');
                         var search = this.getSearch(field);
                         if (search == null) search = { field: field, type: 'text' };
-                        if (search.field == field) this.last.caption = search.caption;
+                        if (search.field == field) this.last.label = search.label;
                         if (value !== '') {
                             var op  = this.textSearch;
                             var val = value;
@@ -2222,15 +2225,15 @@
                     while (tmp < this.searches.length && (this.searches[tmp].hidden || this.searches[tmp].simple === false)) tmp++;
                     if (tmp >= this.searches.length) {
                         // all searches are hidden
-                        this.last.field   = '';
-                        this.last.caption = '';
+                        this.last.field = '';
+                        this.last.label = '';
                     } else {
-                        this.last.field   = this.searches[tmp].field;
-                        this.last.caption = this.searches[tmp].caption;
+                        this.last.field = this.searches[tmp].field;
+                        this.last.label = this.searches[tmp].label;
                     }
                 } else {
-                    this.last.field   = 'all';
-                    this.last.caption = w2utils.lang('All Fields');
+                    this.last.field = 'all';
+                    this.last.label = w2utils.lang('All Fields');
                 }
             }
             this.last.multi      = false;
@@ -2257,16 +2260,21 @@
                 var search = this.searches[s];
                 if (s == -1) {
                     if (!this.multiSearch || !this.show.searchAll) continue;
-                    search = { field: 'all', caption: w2utils.lang('All Fields') };
+                    search = { field: 'all', label: w2utils.lang('All Fields') };
                 } else {
                     if (this.searches[s].hidden === true || this.searches[s].simple === false) continue;
                 }
+                if (search.label == null && search.caption != null) {
+                    console.log('NOTICE: grid search.caption property is deprecated, please use search.label. Search ->', search);
+                    search.label = search.caption;
+                }
+
                 html += '<tr '+ (w2utils.isIOS ? 'onTouchStart' : 'onClick') +'="w2ui[\''+ this.name +'\'].initAllField(\''+ search.field +'\');'+
                         '      event.stopPropagation(); jQuery(\'#grid_'+ this.name +'_search_all\').w2overlay({ name: \''+ this.name +'-searchFields\' });">'+
                         '   <td>'+
                         '       <span class="w2ui-column-check w2ui-icon-'+ (search.field == this.last.field ? 'check' : 'empty') +'"></span>'+
                         '   </td>'+
-                        '   <td>'+ search.caption +'</td>'+
+                        '   <td>'+ search.label +'</td>'+
                         '</tr>';
             }
             html += "</tbody></table></div>";
@@ -2279,7 +2287,7 @@
         initAllField: function (field, value) {
             var el = $('#grid_'+ this.name +'_search_all');
             if (field == 'all') {
-                var search = { field: 'all', caption: w2utils.lang('All Fields') };
+                var search = { field: 'all', label: w2utils.lang('All Fields') };
                 el.w2field('clear');
                 el.change();
             } else {
@@ -2296,13 +2304,13 @@
             }
             // update field
             if (this.last.search != '') {
-                this.last.caption = search.caption;
+                this.last.label = search.label;
                 this.search(search.field, this.last.search);
             } else {
-                this.last.field   = search.field;
-                this.last.caption = search.caption;
+                this.last.field = search.field;
+                this.last.label = search.label;
             }
-            el.attr('placeholder', w2utils.lang(search.caption));
+            el.attr('placeholder', w2utils.lang(search.label || search.caption || search.field));
             $().w2overlay({ name: this.name + '-searchFields' });
         },
 
@@ -4226,8 +4234,8 @@
                 for (var c = 0; c < this.columns.length; c++) {
                     var col = this.columns[c];
                     if (col.hidden === true) continue;
-                    var colName = (col.caption ? col.caption : col.field);
-                    if (col.caption && col.caption.length < 3 && col.tooltip) colName = col.tooltip; // if column name is less then 3 char and there is tooltip - use it
+                    var colName = (col.text ? col.text : col.field);
+                    if (col.text && col.text.length < 3 && col.tooltip) colName = col.tooltip; // if column name is less then 3 char and there is tooltip - use it
                     text += '"' + w2utils.stripTags(colName) + '"\t';
                 }
                 text = text.substr(0, text.length-1); // remove last \t
@@ -4541,17 +4549,17 @@
             // search placeholder
             var el = $('#grid_'+ obj.name +'_search_all');
             if (!this.multiSearch && this.last.field == 'all' && this.searches.length > 0) {
-                this.last.field   = this.searches[0].field;
-                this.last.caption = this.searches[0].caption;
+                this.last.field = this.searches[0].field;
+                this.last.label = this.searches[0].label;
             }
             for (var s = 0; s < this.searches.length; s++) {
-                if (this.searches[s].field == this.last.field) this.last.caption = this.searches[s].caption;
+                if (this.searches[s].field == this.last.field) this.last.label = this.searches[s].label;
             }
             if (this.last.multi) {
                 el.attr('placeholder', '[' + w2utils.lang('Multiple Fields') + ']');
                 el.w2field('clear');
             } else {
-                el.attr('placeholder', w2utils.lang(this.last.caption));
+                el.attr('placeholder', w2utils.lang(this.last.label));
             }
             if (el.val() != this.last.search) {
                 var val = this.last.search;
@@ -4745,15 +4753,15 @@
                     while (tmp < this.searches.length && (this.searches[tmp].hidden || this.searches[tmp].simple === false)) tmp++;
                     if (tmp >= this.searches.length) {
                         // all searches are hidden
-                        this.last.field   = '';
-                        this.last.caption = '';
+                        this.last.field = '';
+                        this.last.label = '';
                     } else {
-                        this.last.field   = this.searches[tmp].field;
-                        this.last.caption = this.searches[tmp].caption;
+                        this.last.field = this.searches[tmp].field;
+                        this.last.label = this.searches[tmp].label;
                     }
                 } else {
-                    this.last.field   = 'all';
-                    this.last.caption = w2utils.lang('All Fields');
+                    this.last.field = 'all';
+                    this.last.label = w2utils.lang('All Fields');
                 }
             }
             // insert elements
@@ -5192,7 +5200,7 @@
             // columns
             for (var c = 0; c < this.columns.length; c++) {
                 var col = this.columns[c];
-                var tmp = this.columns[c].caption;
+                var tmp = this.columns[c].text;
                 if (col.hideable === false) continue;
                 if (!tmp && this.columns[c].tooltip) tmp = this.columns[c].tooltip;
                 if (!tmp) tmp = '- column '+ (parseInt(c) + 1) +' -';
@@ -5593,7 +5601,7 @@
                         '    <td>'+ this.buttons['search'].html +'</td>'+
                         '    <td>'+
                         '        <input type="text" id="grid_'+ this.name +'_search_all" class="w2ui-search-all" tabindex="-1" '+
-                        '            placeholder="'+ w2utils.lang(this.last.caption) +'" value="'+ this.last.search +'"'+
+                        '            placeholder="'+ w2utils.lang(this.last.label) +'" value="'+ this.last.search +'"'+
                         '            onfocus="clearTimeout(w2ui[\''+ this.name +'\'].last.kbd_timer);"'+
                         '            onkeydown="if (event.keyCode == 13 &amp;&amp; w2utils.isIE) this.onchange();"'+
                         '            onchange="'+
@@ -6224,7 +6232,10 @@
                 if (s.outTag  == null) s.outTag = '';
                 if (s.style   == null) s.style = '';
                 if (s.type    == null) s.type   = 'text';
-
+                if (s.label == null && s.caption != null) {
+                    console.log('NOTICE: grid search.caption property is deprecated, please use search.label. Search ->', s)
+                    s.label = s.caption;
+                }
                 var operator =
                     '<select id="grid_'+ this.name +'_operator_'+ i +'" class="w2ui-input" ' +
                     '   onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +')">' +
@@ -6233,7 +6244,7 @@
 
                 html += '<tr>'+
                         '    <td class="close-btn">'+ btn +'</td>' +
-                        '    <td class="caption">'+ (s.caption || '') +'</td>' +
+                        '    <td class="caption">'+ (s.label || '') +'</td>' +
                         '    <td class="operator">'+ operator +'</td>'+
                         '    <td class="value">';
 
@@ -6401,8 +6412,8 @@
                             if ($.isPlainObject(search.options.items[i])) {
                                 var val = si.id;
                                 var txt = si.text;
-                                if (val == null && si.value != null)   val = si.value;
-                                if (txt == null && si.caption != null) txt = si.caption;
+                                if (val == null && si.value != null) val = si.value;
+                                if (txt == null && si.text != null) txt = si.text;
                                 if (val == null) val = '';
                                 options += '<option value="'+ val +'">'+ txt +'</option>';
                             } else {
@@ -6464,7 +6475,12 @@
                 var html2 = '<tr>';
                 var tmpf  = '';
                 // add empty group at the end
-                if (obj.columnGroups[obj.columnGroups.length-1].caption != '') obj.columnGroups.push({ caption: '' });
+                var tmp = obj.columnGroups.length - 1;
+                if (obj.columnGroups[tmp].text == null && obj.columnGroups[tmp].caption != null) {
+                    console.log('NOTICE: grid columnGroup.caption property is deprecated, please use columnGroup.text. Group -> ', obj.columnGroups[tmp]);
+                    obj.columnGroups[tmp].text = obj.columnGroups[tmp].caption;
+                }
+                if (obj.columnGroups[obj.columnGroups.length-1].text != '') obj.columnGroups.push({ text: '' });
 
                 if (obj.show.lineNumbers) {
                     html1 += '<td class="w2ui-head w2ui-col-number">'+
@@ -6488,6 +6504,10 @@
                     var col  = obj.columns[ii];
                     if (colg.colspan != null) colg.span = colg.colspan;
                     if (colg.span == null || colg.span != parseInt(colg.span)) colg.span = 1;
+                    if (col.text == null && col.caption != null) {
+                        console.log('NOTICE: grid column.caption property is deprecated, please use column.text. Column ->', col);
+                        col.text = col.caption;
+                    }
                     var colspan = 0;
                     for (var jj = ii; jj < ii + colg.span; jj++) {
                         if (obj.columns[jj] && !obj.columns[jj].hidden)
@@ -6517,7 +6537,7 @@
                                    resizer +
                                '    <div class="w2ui-col-group w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +'">'+
                                '        <div class="'+ sortStyle +'"></div>'+
-                                       (!col.caption ? '&#160;' : col.caption) +
+                                       (!col.text ? '&#160;' : col.text) +
                                '    </div>'+
                                '</td>';
                         if (col && col.frozen) html1 += tmpf; else html2 += tmpf;
@@ -6525,7 +6545,7 @@
                         tmpf = '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head" col="'+ ii + '" '+
                                '        colspan="'+ colspan +'">'+
                                '    <div class="w2ui-col-group">'+
-                                   (!colg.caption ? '&#160;' : colg.caption) +
+                                   (!colg.text ? '&#160;' : colg.text) +
                                '    </div>'+
                                '</td>';
                         if (col && col.frozen) html1 += tmpf; else html2 += tmpf;
@@ -6573,6 +6593,10 @@
                 html2 += '<td id="grid_'+ obj.name + '_column_start" class="w2ui-head" col="start" style="border-right: 0"></td>';
                 for (var i = 0; i < obj.columns.length; i++) {
                     var col  = obj.columns[i];
+                    if (col.text == null && col.caption != null) {
+                        console.log('NOTICE: grid column.caption property is deprecated, please use column.text. Column -> ', col);
+                        col.text = col.caption;
+                    }
                     if (col.size == null) col.size = '100%';
                     if (i == id) {      // always true on first iteration
                         colg = obj.columnGroups[ii++] || {};
@@ -6626,7 +6650,7 @@
                              (col.resizable !== false ? '<div class="w2ui-resizer" name="'+ i +'"></div>' : '') +
                         '    <div class="w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +' '+ (selected ? 'w2ui-col-selected' : '') +'">'+
                         '        <div class="'+ sortStyle +'"></div>'+
-                                (!col.caption ? '&#160;' : col.caption) +
+                                (!col.text ? '&#160;' : col.text) +
                         '    </div>'+
                         '</td>';
 
@@ -7410,7 +7434,7 @@
                     }
                     if (info.showEmpty !== true && (val == null || val == '')) continue;
                     if (info.maxLength != null && typeof val == 'string' && val.length > info.maxLength) val = val.substr(0, info.maxLength) + '...';
-                    html += '<tr><td>' + col.caption + '</td><td>' + ((val === 0 ? '0' : val) || '') + '</td></tr>';
+                    html += '<tr><td>' + col.label + '</td><td>' + ((val === 0 ? '0' : val) || '') + '</td></tr>';
                 }
                 html += '</table>';
             } else if ($.isPlainObject(fields)) {
@@ -7553,7 +7577,7 @@
                     search      : this.last.search,
                     multi       : this.last.multi,
                     logic       : this.last.logic,
-                    caption     : this.last.caption,
+                    label       : this.last.label,
                     field       : this.last.field,
                     scrollTop   : this.last.scrollTop,
                     scrollLeft  : this.last.scrollLeft

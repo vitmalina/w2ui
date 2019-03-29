@@ -23,9 +23,9 @@
             header   : 'Edit header',
             style1     : 'border: 1px solid red;',
             tabs: [
-                { id: 'tab1', caption: 'General' },
-                { id: 'tab2', caption: 'Inputs' },
-                { id: 'tab3', caption: 'HTML' }
+                { id: 'tab1', text: 'General' },
+                { id: 'tab2', text: 'Inputs' },
+                { id: 'tab3', text: 'HTML' }
             ],
             onProgress: function (event) {
                 console.log('progress');
@@ -33,12 +33,12 @@
             },
             toolbar: {
                 items: [
-                    { type: 'button', id: 'button1', caption: 'Button1', img: 'icon-add' },
+                    { type: 'button', id: 'button1', text: 'Button1', img: 'icon-add' },
                     { type: 'break' },
-                    { type: 'check', id: 'button2', caption: 'Button2', img: 'icon-add' },
-                    { type: 'check', id: 'button3', caption: 'Button3', img: 'icon-add' },
+                    { type: 'check', id: 'button2', text: 'Button2', img: 'icon-add' },
+                    { type: 'check', id: 'button3', text: 'Button3', img: 'icon-add' },
                     { type: 'spacer' },
-                    { type: 'button', id: 'save', caption: 'Save', img: 'icon-folder' }
+                    { type: 'button', id: 'save', text: 'Save', img: 'icon-folder' }
                 ]
 
             },
@@ -146,7 +146,7 @@
             },
             actions: {
                 reset: {
-                    caption : 'Some Action',
+                    text    : 'Some Action',
                     style   : '',
                     "class" : '',
                     onClick : function () {

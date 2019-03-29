@@ -142,7 +142,11 @@
                     ind = this.get(before);
                     if (ind == null) {
                         if (!$.isArray(nodes)) nodes = [nodes];
-                        txt = (nodes[0].caption != null ? nodes[0].caption : nodes[0].text);
+                        if (nodes[0].caption != null && nodes[0].text == null) {
+                            console.log('NOTICE: sidebar node.caption property is deprecated, please use node.text. Node -> ', nodes[0]);
+                            nodes[0].text = nodes[0].caption;
+                        }
+                        txt = nodes[0].text;
                         console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.');
                         return null;
                     }
@@ -156,13 +160,16 @@
             for (var o = 0; o < nodes.length; o++) {
                 node = nodes[o];
                 if (typeof node.id == null) {
-                    txt = (node.caption != null ? node.caption : node.text);
+                    if (node.caption != null && node.text == null) {
+                        console.log('NOTICE: sidebar node.caption property is deprecated, please use node.text');
+                        node.text = node.caption;
+                    }
+                    txt = node.text;
                     console.log('ERROR: Cannot insert node "'+ txt +'" because it has no id.');
                     continue;
                 }
                 if (this.get(this, node.id) != null) {
-                    txt = (node.caption != null ? node.caption : node.text);
-                    console.log('ERROR: Cannot insert node with id='+ node.id +' (text: '+ txt + ') because another node with the same id already exists.');
+                    console.log('ERROR: Cannot insert node with id='+ node.id +' (text: '+ node.text + ') because another node with the same id already exists.');
                     continue;
                 }
                 tmp = $.extend({}, w2sidebar.prototype.node, node);
@@ -175,8 +182,7 @@
                 } else {
                     ind = this.get(parent, before, true);
                     if (ind == null) {
-                        txt = (node.caption != null ? node.caption : node.text);
-                        console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.');
+                        console.log('ERROR: Cannot insert node "'+ node.text +'" because cannot find node "'+ before +'" to insert before.');
                         return null;
                 }
                     parent.nodes.splice(ind, 0, tmp);
@@ -860,12 +866,13 @@
                 }
                 if (nd.caption != null && nd.text == null) nd.text = nd.caption;
                 if (nd.caption != null) {
-                    console.log('NOTICE: sidebar node.caption property is deprecated, please use node.text')
+                    console.log('NOTICE: sidebar node.caption property is deprecated, please use node.text. Node -> ', nd)
+                    nd.text = nd.caption;
                 }
                 if (nd.group) {
                     html =
                         '<div class="w2ui-node-group w2ui-level-'+ level +'" id="node_'+ nd.id +'"'+
-                        '   onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
+                        '   style="'+ (nd.hidden ? 'display: none' : '') +'" onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
                         '   oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
                         '   onmouseout="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
                         '   onmouseover="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
@@ -898,7 +905,7 @@
                             '<td class="w2ui-node-data" nowrap="nowrap">'+
                                     tmp +
                                     (nd.count || nd.count === 0 ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '') +
-                                    '<div class="w2ui-node-caption">'+ text +'</div>'+
+                                    '<div class="w2ui-node-text w2ui-node-caption">'+ text +'</div>'+
                             '</td>'+
                             '</tr></tbody></table>'+
                             '</div>'+

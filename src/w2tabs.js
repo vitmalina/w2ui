@@ -8,6 +8,9 @@
 * == NICE TO HAVE ==
 *   - align = left, right, center ??
 *
+* == 1.5 changes ==
+*   - tab.caption - deprecated
+*
 ************************************************************************/
 
 (function ($) {
@@ -267,6 +270,13 @@
                 if (tab == null) return false;
                 if (tab.text == null && tab.caption != null) tab.text = tab.caption;
                 if (tab.tooltip == null && tab.hint != null) tab.tooltip = tab.hint; // for backward compatibility
+                if (tab.caption != null) {
+                    console.log('NOTICE: tabs tab.caption property is deprecated, please use tab.text. Tab -> ', tab)
+                }
+                if (tab.hint != null) {
+                    console.log('NOTICE: tabs tab.hint property is deprecated, please use tab.tooltip. Tab -> ', tab)
+                }
+
                 var text = tab.text;
                 if (typeof text == 'function') text = text.call(this, tab);
                 if (text == null) text = '';

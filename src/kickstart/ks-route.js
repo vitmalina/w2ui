@@ -113,6 +113,7 @@ kickStart.register('route', function () {
         // process route
         var isFound = false;
         var isExact = false;
+        var isAutoLoad = false;
         for (var r in routeRE) {
             var params = {};
             var tmp = routeRE[r].path.exec(hash);
@@ -145,10 +146,18 @@ kickStart.register('route', function () {
                 var mod = mods[name];
                 var rt  = mod.route;
                 var nearMatch = false;
-                if (typeof rt == 'string') {
-                    if (mod.routeRE == null) mod.routeRE = prepare(mod.route);
-                    if (!mod.ready && mod.route && mod.routeRE.path.exec(hash)) {
+                if (rt != null) {
+                    if (typeof rt == 'string') rt = [rt];
+                    if (Array.isArray(rt)) {
+                        rt.forEach(function (str) { checkRoute(str) });
+                    }
+                }
+                function checkRoute(str) {
+                    mod.routeRE = mod.routeRE || {};
+                    if (mod.routeRE[str] == null) mod.routeRE[str] = prepare(str);
+                    if (!mod.ready && str && mod.routeRE[str].path.exec(hash)) {
                         console.log('AUTO LOAD:', name);
+                        isAutoLoad = true;
                         app.require(name).done(function () {
                             if (app._conf.modules[name]) process();
                         });
@@ -156,7 +165,7 @@ kickStart.register('route', function () {
                     }
                 }
             }
-            console.log('ERROR: exact route for "' + hash + '" not found');
+            if (!isAutoLoad) console.log('ERROR: exact route for "' + hash + '" not found');
         }
         if (!isFound) {
             // path not found
@@ -164,7 +173,7 @@ kickStart.register('route', function () {
                 var eventData = app.route.trigger({ phase: 'before', type: 'error', target: 'self', hash: hash});
                 if (eventData.isCancelled === true) return false;
             }
-            console.log('ERROR: wild card route for "' + hash + '" not found');
+            if (!isAutoLoad) console.log('ERROR: wild card route for "' + hash + '" not found');
             // if events are available
             if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
         }
