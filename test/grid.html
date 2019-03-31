@@ -97,7 +97,7 @@ jQuery(function () {
 
         // possible values: text, alphanumeric, int, float, money, currency, percent, hex, list, combo, enum, select, date, time
         searches: [
-            { field: 'personid', label: 'ID', type: 'int', value: [1, 10], operator: 'more' },
+            { field: 'personid', caption: 'ID', type: 'int', value: [1, 10], operator: 'more' },
             { field: 'color', label: 'Color', type: 'color' },
             { field: 'email', label: 'Email', type: 'text', operator1: 'null', operators1: ['is', 'null', 'not null'] },
             { field: 'fname', label: 'First Name', type: 'text' },
@@ -115,7 +115,7 @@ jQuery(function () {
         ],
         columns: [
             { field: 'personid', text: 'ID', size: '160px', sortable: true, resizable: true, frozen1: true, tooltip: 'User ID', info: true },
-            { field: 'icon', text: 'Icon', size: '60px', sortable: true, resizable: true, style: 'text-align: center',
+            { field: 'icon', text: 'Icon', size: '60px', searchable: true, sortable: true, resizable: true, style: 'text-align: center',
                 info: {
                     icon      : 'fa fa-flag',
                     style     : '',

@@ -7,6 +7,7 @@
 *
 * == changes
 *   - added onMove event
+*   - w2prompt.options.ok_class, cancel_class
 *
 * == NICE TO HAVE ==
 *   - hide overlay on esc
@@ -1026,7 +1027,6 @@ var w2confirm = function (msg, title, callBack) {
 
 var w2prompt = function (label, title, callBack) {
     var $ = jQuery;
-
     var options  = {};
     var defaults = {
         label       : '',
@@ -1075,10 +1075,10 @@ var w2prompt = function (label, title, callBack) {
                         '</div>'
                     ),
             buttons : (w2utils.settings.macButtonOrder
-                ? '<button id="Cancel" class="w2ui-popup-btn w2ui-btn">' + options.cancel_text + '</button>' +
-                  '<button id="Ok" class="w2ui-popup-btn w2ui-btn">' + options.ok_text + '</button>'
-                : '<button id="Ok" class="w2ui-popup-btn w2ui-btn">' + options.ok_text + '</button>' +
-                  '<button id="Cancel" class="w2ui-popup-btn w2ui-btn">' + options.cancel_text + '</button>'
+                ? '<button id="Cancel" class="w2ui-popup-btn w2ui-btn '+ options.cancel_class +'">' + options.cancel_text + '</button>' +
+                  '<button id="Ok" class="w2ui-popup-btn w2ui-btn '+ options.ok_class +'">' + options.ok_text + '</button>'
+                : '<button id="Ok" class="w2ui-popup-btn w2ui-btn '+ options.ok_class +'">' + options.ok_text + '</button>' +
+                  '<button id="Cancel" class="w2ui-popup-btn w2ui-btn '+ options.cancel_class +'">' + options.cancel_text + '</button>'
                 ),
             onOpen: function () {
                 $('#w2prompt').val(options.value);
