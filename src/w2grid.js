@@ -209,6 +209,7 @@
         this.selectDuplicates = false;   // select duplicated recids
         this.expandAllOnLoad = false;    // expand all expandable records on load
         this.multiEdit       = false;    // edit button is enabled when multiple records is selected
+        this.IOSContextMenu  = false;
 
         this.total   = 0;     // server total
         this.limit   = 100;
@@ -7259,7 +7260,7 @@
                     (record.w2ui && record.w2ui.editable === false ? ' w2ui-no-edit' : '') +
                     (record.w2ui && record.w2ui.expanded === true ? ' w2ui-expanded' : '') + '" ' +
                 (summary !== true ?
-                    (w2utils.isIOS ?
+                    (w2utils.isIOS && !this.IOSContextMenu ?
                         '    onclick  = "w2ui[\''+ this.name +'\'].dblClick(jQuery(this).attr(\'recid\'), event);"'
                         :
                         '    onclick  = "w2ui[\''+ this.name +'\'].click(jQuery(this).attr(\'recid\'), event);"'+
@@ -7281,7 +7282,7 @@
                     (record.w2ui && record.w2ui.editable === false ? ' w2ui-no-edit' : '') +
                     (record.w2ui && record.w2ui.expanded === true ? ' w2ui-expanded' : '') + '" ' +
                 (summary !== true ?
-                    (w2utils.isIOS ?
+                    (w2utils.isIOS && !this.IOSContextMenu ?
                         '    onclick  = "var obj = w2ui[\''+ this.name +'\']; obj.dblClick(jQuery(this).attr(\'recid\'), event);"'
                         :
                         '    onclick  = "var obj = w2ui[\''+ this.name +'\']; obj.click(jQuery(this).attr(\'recid\'), event);"'+
