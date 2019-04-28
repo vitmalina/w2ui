@@ -915,7 +915,7 @@
                     }
                 }
                 if (field.html.group && (group != field.html.group)) {
-                    html += '\n   <div class="w2ui-group-title">'+ field.html.group + '</div>\n   <div class="w2ui-group">';
+                    html += '\n   <div class="w2ui-group-title' + ( field.html.groupClass ? ' w2ui-group-title-' + field.html.groupClass : '' ) + '">'+ field.html.group + '</div>\n   <div class="w2ui-group' + ( field.html.groupClass ? ' w2ui-group-' + field.html.groupClass : '' ) + '">';
                     group = field.html.group;
                 }
                 html += '\n      <div class="w2ui-field-container"><div class="w2ui-field '+ (field.html.span != null ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+
