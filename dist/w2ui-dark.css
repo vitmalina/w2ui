@@ -126,6 +126,7 @@
 .w2ui-readonly {
   background-color: #f1f1f1 !important;
   color: #777 !important;
+  outline: none!important;
 }
 .w2ui-message {
   font-size: 12px;
@@ -202,6 +203,7 @@ input:not([type=button]):not([type=submit]).w2ui-input[readonly],
 textarea.w2ui-input[readonly] {
   background-color: #f1f1f1;
   color: #777;
+  outline: none!important;
 }
 /* IE9-11 specific classes */
 /* needs doblue :: */
@@ -951,7 +953,7 @@ button.w2ui-btn-small:focus:before {
   left: 0px;
   right: 0px;
   margin: 0px;
-  padding: 6px 3px;
+  padding: 5px 3px;
   border-bottom: 1px solid #3a4254;
 }
 .w2ui-form .w2ui-form-tabs {
@@ -975,7 +977,7 @@ button.w2ui-btn-small:focus:before {
   left: 0;
   right: 0;
   overflow: auto;
-  padding: 10px;
+  padding: 10px 3px 0 3px;
   padding-bottom: 0px;
   border-left: 1px solid inherit;
   border-right: 1px solid inherit;
@@ -1650,6 +1652,7 @@ button.w2ui-btn-small:focus:before {
   background-image: none;
   background-color: #f1f1f1 !important;
   color: #777 !important;
+  outline: none!important;
 }
 /*
 *    ENUM items
@@ -1755,6 +1758,9 @@ button.w2ui-btn-small:focus:before {
 .w2ui-list ul li > span.file-size {
   pointer-events: none;
   color: #777;
+}
+.w2ui-list.w2ui-readonly ul > li:hover {
+  background-color: #353d5b;
 }
 .w2ui-list .w2ui-enum-placeholder {
   display: inline;
@@ -2868,7 +2874,7 @@ button.w2ui-btn-small:focus:before {
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node table {
   pointer-events: none;
 }
-.w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-caption,
+.w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-text,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-image,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-image > span,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node td.w2ui-node-dots {
@@ -2876,7 +2882,7 @@ button.w2ui-btn-small:focus:before {
   text-shadow: 0px 0px 0px #ffffff;
   pointer-events: none;
 }
-.w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-caption:hover,
+.w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-text:hover,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-image:hover,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-image > span:hover,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node td.w2ui-node-dots:hover {
@@ -2906,8 +2912,8 @@ button.w2ui-btn-small:focus:before {
   border-top: 1px solid #111111;
   border-bottom: 1px solid #111111;
 }
-.w2ui-sidebar .w2ui-sidebar-div .w2ui-selected .w2ui-node-caption,
-.w2ui-sidebar .w2ui-sidebar-div .w2ui-selected:hover .w2ui-node-caption,
+.w2ui-sidebar .w2ui-sidebar-div .w2ui-selected .w2ui-node-text,
+.w2ui-sidebar .w2ui-sidebar-div .w2ui-selected:hover .w2ui-node-text,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-selected .w2ui-node-image,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-selected:hover .w2ui-node-image,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-selected .w2ui-node-image > span,
@@ -2937,8 +2943,8 @@ button.w2ui-btn-small:focus:before {
   border-top: 1px solid transparent;
   border-bottom: 1px solid transparent;
 }
-.w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled .w2ui-node-caption,
-.w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled:hover .w2ui-node-caption,
+.w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled .w2ui-node-text,
+.w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled:hover .w2ui-node-text,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled .w2ui-node-image,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled:hover .w2ui-node-image,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled .w2ui-node-image > span,
@@ -2950,7 +2956,7 @@ button.w2ui-btn-small:focus:before {
   color: #c0c8d5 !important;
   text-shadow: 0px 0px 0px #ffffff !important;
 }
-.w2ui-sidebar .w2ui-sidebar-div .w2ui-node-caption {
+.w2ui-sidebar .w2ui-sidebar-div .w2ui-node-text {
   white-space: nowrap;
   padding: 5px 0px 5px 3px;
   margin: 1px 0px 1px 22px;
@@ -3178,7 +3184,7 @@ button.w2ui-btn-small:focus:before {
 .w2ui-toolbar table.w2ui-button .w2ui-tb-image > span:before {
   vertical-align: top !important;
 }
-.w2ui-toolbar table.w2ui-button .w2ui-tb-caption {
+.w2ui-toolbar table.w2ui-button .w2ui-tb-text {
   color: #c0c8d5;
   padding: 0px 4px 0px 2px;
 }
@@ -3208,21 +3214,21 @@ button.w2ui-btn-small:focus:before {
   border: 1px solid #4c5056;
   background-color: #292f3c;
 }
-.w2ui-toolbar table.w2ui-button.over .w2ui-tb-caption {
+.w2ui-toolbar table.w2ui-button.over .w2ui-tb-text {
   color: #dae4f8;
 }
 .w2ui-toolbar table.w2ui-button.down {
   border: 1px solid #616c91;
   background-color: #0e1015;
 }
-.w2ui-toolbar table.w2ui-button.down .w2ui-tb-caption {
+.w2ui-toolbar table.w2ui-button.down .w2ui-tb-text {
   color: #ffffff;
 }
 .w2ui-toolbar table.w2ui-button.checked {
   border: 1px solid #797e8a;
   background-color: #292f3c;
 }
-.w2ui-toolbar table.w2ui-button.checked .w2ui-tb-caption {
+.w2ui-toolbar table.w2ui-button.checked .w2ui-tb-text {
   color: #eeeeee;
 }
 .w2ui-toolbar table.w2ui-button table {

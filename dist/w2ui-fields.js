@@ -32,6 +32,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - parseColor(str) returns rgb
 *   - rgb2hsv, hsv2rgb
 *   - color.onSelect
+*   - color.html
 *   - refactored w2tag object, it has more potential with $().data('w2tag')
 *
 ************************************************/
@@ -3320,6 +3321,7 @@ w2utils.event = {
             html += '<div class="w2ui-color-tabs">'+
                     '   <div class="w2ui-color-tab selected" onclick="jQuery(this).addClass(\'selected\').next().removeClass(\'selected\').parents(\'.w2ui-overlay\').find(\'.w2ui-color-advanced\').hide().parent().find(\'.w2ui-color-palette\').show(); jQuery.fn._colorAdvanced = false; jQuery(\'#w2ui-overlay\')[0].resize()"><span class="w2ui-icon w2ui-icon-colors"></span></div>'+
                     '   <div class="w2ui-color-tab" onclick="jQuery(this).addClass(\'selected\').prev().removeClass(\'selected\').parents(\'.w2ui-overlay\').find(\'.w2ui-color-advanced\').show().parent().find(\'.w2ui-color-palette\').hide(); jQuery.fn._colorAdvanced = true; jQuery(\'#w2ui-overlay\')[0].resize()"><span class="w2ui-icon w2ui-icon-settings"></span></div>'+
+                    '   <div style="padding: 8px; text-align: right;">' + (typeof options.html == 'string' ? options.html : '') + '</div>' +
                     '</div>'+
                     '</div>'+
                     '<div style="clear: both; height: 0"></div>';

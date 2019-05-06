@@ -71,6 +71,7 @@
 .w2ui-readonly {
   background-color: #f1f1f1 !important;
   color: #777 !important;
+  outline: none!important;
 }
 .w2ui-message {
   font-size: 12px;
@@ -133,6 +134,7 @@ input:not([type=button]):not([type=submit]).w2ui-input[readonly],
 textarea.w2ui-input[readonly] {
   background-color: #f1f1f1;
   color: #777;
+  outline: none!important;
 }
 /* IE9-11 specific classes */
 /* needs doblue :: */
@@ -1338,6 +1340,7 @@ button.w2ui-btn-small:focus:before {
   background-image: none;
   background-color: #f1f1f1 !important;
   color: #777 !important;
+  outline: none!important;
 }
 /*
 *    ENUM items
@@ -1443,6 +1446,9 @@ button.w2ui-btn-small:focus:before {
 .w2ui-list ul li > span.file-size {
   pointer-events: none;
   color: #777;
+}
+.w2ui-list.w2ui-readonly ul > li:hover {
+  background-color: #eff3f5;
 }
 .w2ui-list .w2ui-enum-placeholder {
   display: inline;
