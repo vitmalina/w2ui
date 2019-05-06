@@ -1,4 +1,4 @@
-kickStart.define({ route: { } });
+kickStart.define({ route: { assets: [] }});
 kickStart.register('route', function () {
     // private scope
     var app     = kickStart;
@@ -117,9 +117,9 @@ kickStart.register('route', function () {
         for (var r in routeRE) {
             var params = {};
             var tmp = routeRE[r].path.exec(hash);
-            if (tmp) { // match
+            if (tmp != null) { // match
                 isFound = true;
-                if (!isExact && r[r.length-1] !== '*') {
+                if (!isExact && r.indexOf('*') === -1) {
                     isExact = true;
                 }
                 var i = 1;
@@ -138,42 +138,45 @@ kickStart.register('route', function () {
                 if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
             }
         }
-        // if route is not registered, see if it is in module definitions
-        if (!isExact) {
-            // find if a route matches a module route
-            var mods = app._conf.modules;
-            for (var name in mods) {
-                var mod = mods[name];
-                var rt  = mod.route;
-                var nearMatch = false;
-                if (rt != null) {
-                    if (typeof rt == 'string') rt = [rt];
-                    if (Array.isArray(rt)) {
-                        rt.forEach(function (str) { checkRoute(str) });
-                    }
-                }
-                function checkRoute(str) {
-                    mod.routeRE = mod.routeRE || {};
-                    if (mod.routeRE[str] == null) mod.routeRE[str] = prepare(str);
-                    if (!mod.ready && str && mod.routeRE[str].path.exec(hash)) {
-                        console.log('AUTO LOAD:', name);
-                        isAutoLoad = true;
-                        app.require(name).done(function () {
-                            if (app._conf.modules[name]) process();
-                        });
-                        return;
-                    }
+        // find if a route matches a module route
+        var loadCnt = 0;
+        var mods    = app._conf.modules;
+        var loading = [];
+        for (var name in mods) {
+            var mod = mods[name];
+            var rt  = mod.route;
+            var nearMatch = false;
+            if (rt != null) {
+                if (typeof rt == 'string') rt = [rt];
+                if (Array.isArray(rt)) {
+                    rt.forEach(function (str) { checkRoute(str) });
                 }
             }
-            if (!isAutoLoad) console.log('ERROR: exact route for "' + hash + '" not found');
+            function checkRoute(str) {
+                mod.routeRE = mod.routeRE || {};
+                if (mod.routeRE[str] == null) mod.routeRE[str] = prepare(str);
+                if (!mod.ready && str && mod.routeRE[str].path.exec(hash) && loading.indexOf(name) == -1) {
+                    if (app._conf.verbose) console.log('ROUTER: Auto Load Module "' + name + '"');
+                    isAutoLoad = true;
+                    loadCnt++;
+                    loading.push(name);
+                    app.require(name).done(function () {
+                        loadCnt--;
+                        if (app._conf.modules[name] && loadCnt === 0) process();
+                    });
+                    return;
+                }
+            }
         }
+        if (!isAutoLoad && !isExact && app._conf.verbose) console.log('ROUTER: Exact route for "' + hash + '" not found');
+
         if (!isFound) {
             // path not found
             if (typeof app.route.trigger == 'function') {
                 var eventData = app.route.trigger({ phase: 'before', type: 'error', target: 'self', hash: hash});
                 if (eventData.isCancelled === true) return false;
             }
-            if (!isAutoLoad) console.log('ERROR: wild card route for "' + hash + '" not found');
+            if (!isAutoLoad && app._conf.verbose) console.log('ROUTER: Wild card route for "' + hash + '" not found');
             // if events are available
             if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
         }
