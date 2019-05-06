@@ -5,6 +5,12 @@
 *        - $().w2layout    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2tabs
 *
+* == changes
+*   - negative values for left, right panel
+*   - onResize for layout as well as onResizing
+*   - panel.callBack - one time
+*   - layout.html().replaced(function () {})
+*
 * == NICE TO HAVE ==
 *   - onResize for the panel
 *   - add more panel title positions (left=rotated, right=rotated, bottom)
@@ -124,35 +130,60 @@
                 toolbar : false,
                 tabs    : false
             },
+            callBack  : null,      // function to call when content is overwritten
             onRefresh : null,
             onShow    : null,
             onHide    : null
         },
 
         // alias for content
-        html: function (panel, data, transition) {
-            return this.content(panel, data, transition);
+        content: function (panel, data, transition) {
+            console.log('NOTICE: layout.content method is deprecated, please use layout.html() instead');
+            return this.html(panel, data, transition);
         },
 
-        content: function (panel, data, transition) {
+        html: function (panel, data, transition) {
             var obj = this;
             var p = this.get(panel);
+            var promise = {
+                panel     : panel,
+                html      : p.content,
+                error     : false,
+                cancelled : false,
+                removed   : function (callBack) {
+                    if (typeof callBack == 'function') {
+                        p.callBack = callBack
+                    }
+                }
+            }
+            if (typeof p.callBack == 'function') {
+                p.callBack({ panel: panel, content: p.content, new_content: data, transition: transition || 'none' });
+                p.callBack = null; // this is one time call back only
+            }
             // if it is CSS panel
             if (panel == 'css') {
                 $('#layout_'+ obj.name +'_panel_css').html('<style>'+ data +'</style>');
-                return true;
+                promise.status = true;
+                return promise;
             }
-            if (p == null) return false;
+            if (p == null) {
+                console.log('ERROR: incorrect panel name. Panel name can be main, left, right, top, bottom, preview or css')
+                promise.error = true;
+                return promise;
+            }
             if (data == null) {
-                return p.content;
+                return promise;
             }
             // event before
             var edata = this.trigger({ phase: 'before', type: 'content', target: panel, object: p, content: data, transition: transition });
-            if (edata.isCancelled === true) return;
+            if (edata.isCancelled === true) {
+                promise.cancelled = true;
+                return promise;
+            }
 
             if (data instanceof jQuery) {
                 console.log('ERROR: You can not pass jQuery object to w2layout.content() method');
-                return false;
+                return promise;
             }
             var pname    = '#layout_'+ this.name + '_panel_'+ p.type;
             var current  = $(pname + '> .w2ui-panel-content');
@@ -197,7 +228,7 @@
             // IE Hack
             obj.resize();
             if (window.navigator.userAgent.indexOf('MSIE') != -1) setTimeout(function () { obj.resize(); }, 100);
-            return true;
+            return promise;
         },
 
         message: function(panel, options) {
@@ -809,7 +840,7 @@
             }
             // negative size
             if (String(pright.size).substr(0, 1) == '-') {
-                if (sleft && pleft.size.substr(0, 1) == '-') {
+                if (sleft && String(pleft.size).substr(0, 1) == '-') {
                     console.log('ERROR: you cannot have both left panel.size and right panel.size be negative.');
                 } else {
                     pright.sizeCalculated = width - (sleft ? pleft.sizeCalculated : 0) + parseInt(pright.size);

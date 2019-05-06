@@ -138,6 +138,7 @@ jQuery(function () {
                 editable: { type: 'list', items: ['1', '2', '3'], compare: function () { return true } },
                 hidden: true
             },
+            { field: 'text', text: 'Random Text', size: '100px', sortable: true, searchable: true, resizable: true },
             { field: 'fname', text: 'First Name', size: '100px', sortable: true, searchable1: true, resizable: true, editable: { type: 'text' },
                 tooltip: 'Full Name', hidden1: true, info: true },
             { field: 'lname', text: 'Last Name', size: '100px', sortable: true, resizable: true,
@@ -272,6 +273,7 @@ jQuery(function () {
         w2ui['grid'].records.push({
             recid : 'rec-' + i,
             personid: i,
+            text: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 2),
             fname: fname[Math.floor(Math.random() * fname.length)],
             lname: lname[Math.floor(Math.random() * lname.length)],
             email: 'vm@gmail.com', manager: '--',
@@ -279,12 +281,12 @@ jQuery(function () {
             sdate: t,
             stime: dt,
             style1: 'background-color: #efefef',
-            w2ui: { children: [], colspan: { personid: 2 } },
+            w2ui: { children: [], colspan1: { personid: 2 } },
         });
     }
 
-    w2ui.grid.records[0].w2ui = { children: w2ui.grid.records.splice(10, 5), colspan: { personid: 2 }, hideCheckBox: true };
-    w2ui.grid.records[2].w2ui = { children: w2ui.grid.records.splice(10, 3), colspan: { personid: 5 }, hideCheckBox: true };
+    w2ui.grid.records[0].w2ui = { children: w2ui.grid.records.splice(10, 5), colspan1: { personid: 2 }, hideCheckBox: true };
+    w2ui.grid.records[2].w2ui = { children: w2ui.grid.records.splice(10, 3), colspan1: { personid: 5 }, hideCheckBox: true };
     // w2ui.grid.records[6].w2ui = { children: w2ui.grid.records.splice(10, 10), colspan: { personid: 7 } };
     // w2ui.grid.records[6].w2ui.children[1].w2ui = { children: w2ui.grid.records.splice(10, 4) };
     // w2ui.grid.records[6].w2ui.children[1].w2ui.children[2].w2ui = { children: w2ui.grid.records.splice(10, 4) };

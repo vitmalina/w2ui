@@ -949,14 +949,14 @@
                 if (column == null) column = field.html.column;
                 if (field.html.label == '') field.html.label = field.field;
                 // input control
-                var input = '<input name="'+ field.field +'" class="w2ui-input" type="text" '+ field.html.attr + tabindex_str + '/>';
+                var input = '<input id="'+ field.field +'" name="'+ field.field +'" class="w2ui-input" type="text" '+ field.html.attr + tabindex_str + '/>';
                 switch (field.type) {
                     case 'pass':
                     case 'password':
-                        input = '<input name="' + field.field + '" class="w2ui-input" type = "password" ' + field.html.attr + tabindex_str + '/>';
+                        input = '<input id="' + field.field + '" name="' + field.field + '" class="w2ui-input" type = "password" ' + field.html.attr + tabindex_str + '/>';
                         break;
                     case 'checkbox':
-                        input = '<input name="'+ field.field +'" class="w2ui-input" type="checkbox" '+ field.html.attr + tabindex_str + '/>';
+                        input = '<input id="'+ field.field +'" name="'+ field.field +'" class="w2ui-input" type="checkbox" '+ field.html.attr + tabindex_str + '/>';
                         break;
                     case 'radio':
                         input = '';
@@ -968,12 +968,12 @@
                         }
                         // generate
                         for (var i = 0; i < items.length; i++) {
-                            input += '<label><input name="' + field.field + '" class="w2ui-input" type = "radio" ' + field.html.attr + (i === 0 ? tabindex_str : '') + ' value="'+ items[i].id + '"/>' +
+                            input += '<label><input id="' + field.field + '" name="' + field.field + '" class="w2ui-input" type = "radio" ' + field.html.attr + (i === 0 ? tabindex_str : '') + ' value="'+ items[i].id + '"/>' +
                                 '&#160;' + items[i].text + '</label><br/>';
                         }
                         break;
                     case 'select':
-                        input = '<select name="' + field.field + '" class="w2ui-input" ' + field.html.attr + tabindex_str + '>';
+                        input = '<select id="' + field.field + '" name="' + field.field + '" class="w2ui-input" ' + field.html.attr + tabindex_str + '>';
                         // normalized options
                         var items =  field.options.items ? field.options.items : field.html.items;
                         if (!$.isArray(items)) items = [];
@@ -987,10 +987,17 @@
                         input += '</select>';
                         break;
                     case 'textarea':
-                        input = '<textarea name="'+ field.field +'" class="w2ui-input" '+ field.html.attr + tabindex_str + '></textarea>';
+                        input = '<textarea id="'+ field.field +'" name="'+ field.field +'" class="w2ui-input" '+ field.html.attr + tabindex_str + '></textarea>';
                         break;
                     case 'toggle':
-                        input = '<input name="'+ field.field +'" type="checkbox" '+ field.html.attr + tabindex_str + ' class="w2ui-input w2ui-toggle"/><div><div></div></div>';
+                        input = '<input id="'+ field.field +'" name="'+ field.field +'" type="checkbox" '+ field.html.attr + tabindex_str + ' class="w2ui-input w2ui-toggle"/><div><div></div></div>';
+                        break;
+                    case 'map':
+                        field.html.key = field.html.key || {};
+                        field.html.value = field.html.value || {};
+                        input = '<input id="'+ field.field +'" name="'+ field.field +'" type="hidden" '+ field.html.attr + tabindex_str + '>'+
+                                '<div class="w2ui-map-container"></div>'+
+                                field.html.text;
                         break;
                     case 'html':
                     case 'custom':
@@ -1206,10 +1213,6 @@
                 if (field.field == null && field.name != null) field.field = field.name;
                 field.$el = $(this.box).find('[name="'+ String(field.name).replace(/\\/g, '\\\\') +'"]');
                 field.el  = field.$el[0];
-                if (field.el == null) {
-                    if (['empty', 'html'].indexOf(field.type) == -1) console.log('ERROR: Cannot associate field "'+ field.name + '" with html control. Make sure html control exists with the same name.');
-                    continue;
-                }
                 if (field.el) field.el.id = field.name;
                 var tmp = $(field).data('w2field');
                 if (tmp) tmp.clear();
@@ -1323,10 +1326,12 @@
                     }
                 }
                 // hidden
+                var tmp = field.el;
+                if (!tmp) tmp = $(this.box).find('#' + field.field)
                 if (field.hidden) {
-                    $(field.el).closest('.w2ui-field').hide();
+                    $(tmp).closest('.w2ui-field').hide();
                 } else {
-                    $(field.el).closest('.w2ui-field').show();
+                    $(tmp).closest('.w2ui-field').show();
                 }
             }
             // attach actions on buttons
@@ -1445,6 +1450,56 @@
                             }
                         }
                         $(field.el).val(value);
+                        break;
+                    case 'map':
+                        // need closure
+                        (function (field) {
+                            field.el.mapAdd = function (field, div, cnt) {
+                                var html =  '<div class="w2ui-map-field" style="margin-bottom: 5px">'+
+                                    '<input id="'+ field.field +'_key_'+ cnt +'" data-cnt="'+ cnt +'" type="text" '+ field.html.key.attr +' class="w2ui-input w2ui-map key"/>'+
+                                        (field.html.key.text || '') +
+                                    '<input id="'+ field.field +'_value_'+ cnt +'" data-cnt="'+ cnt +'" type="text" '+ field.html.value.attr +' class="w2ui-input w2ui-map value"/>'+
+                                        (field.html.value.text || '') +
+                                    '</div>';
+                                div.append(html)
+                            }
+                            field.el.mapRefresh = function (map, div) {
+                                // generate options
+                                var cnt = 1;
+                                Object.keys(map).forEach(function (item) {
+                                    var $k = div.find('#' + field.name + '_key_' + cnt)
+                                    var $v = div.find('#' + field.name + '_value_' + cnt)
+                                    if ($k.length == 0 || $v.length == 0) {
+                                        field.el.mapAdd(field, div, cnt)
+                                        $k = div.find('#' + field.name + '_key_' + cnt)
+                                        $v = div.find('#' + field.name + '_value_' + cnt)
+                                    }
+                                    $k.val(item)
+                                    $v.val(map[item])
+                                    $k.parent().attr('data-key', item)
+                                    cnt++
+                                })
+                                field.el.mapAdd(field, div, cnt);
+                                // attach events
+                                $(field.el).next().find('input.w2ui-map')
+                                    .off('.mapChange')
+                                    .on('input.mapChange', function (event) {
+                                        var $cont   = $(event.target).parents('.w2ui-field')
+                                        var $input  = $cont.find('input')
+                                        var old_key = $(event.target).parents('.w2ui-map-field').attr('data-key')
+                                        var key     = $(event.target).parents('.w2ui-map-field').find('.key').val()
+                                        var value   = $(event.target).parents('.w2ui-map-field').find('.value').val()
+                                        delete map[old_key];
+                                        map[key] = value;
+                                        console.log('change', map);
+                                    })
+                                    .on('blur.mapChange', function () {
+                                        console.log('blue')
+                                        field.el.mapRefresh(map, div)
+                                    })
+                            }
+                            field.el.mapRefresh(value, $(field.el).parent().find('.w2ui-map-container'))
+                        })(field)
                         break;
                     case 'radio':
                         $(field.$el).prop('checked', false).each(function (index, el) {

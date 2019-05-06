@@ -129,11 +129,25 @@
 *   - expendable grids are still working
 *   - added search.type = 'color'
 *   - added getFirst
-*   - added stateSaveColumnProperties
-*   - added stateSaveColumnFallbackValues
+*   - added stateColProps
+*   - added stateColDefaults
 *   - deprecated search.caption -> search.label
 *   - deprecated column.caption -> column.text
 *   - deprecated columnGroup.caption -> columnGroup.text
+*   - moved a lot of properties into prototype
+*   - showExtraOnSearch
+*   - added sortMap, searchMap
+*   - added column.hideable
+*   - added updateColumn
+*   - column.info {
+        icon    : string|function|object,
+        style   : string|function|object,
+        render  : function,
+        fields  : array|object,
+        showOn  : 'mouseover|mouseenter|...',
+        hideOn  : 'mouseout|mouseleave|...',
+        options : {} - will be passed to w2tag (for example options.potions = 'top')
+    }
 *
 ************************************************************************/
 
@@ -143,83 +157,15 @@
         // public properties
         this.name         = null;
         this.box          = null;     // HTML element that hold this element
-        this.header       = '';
-        this.url          = '';
-        this.routeData    = {};       // data for dynamic routes
         this.columns      = [];       // { field, text, size, attr, render, hidden, gridMinWidth, editable }
         this.columnGroups = [];       // { span: int, text: 'string', master: true/false }
         this.records      = [];       // { recid: int(requied), field1: 'value1', ... fieldN: 'valueN', style: 'string',  changes: object }
         this.summary      = [];       // arry of summary records, same structure as records array
         this.searches     = [];       // { type, label, field, inTag, outTag, hidden }
-        this.searchData   = [];
-        this.sortData     = [];
-        this.postData     = {};
-        this.httpHeaders  = {};
+        this.sortMap      = {};       // remap sort Fields
         this.toolbar      = {};       // if not empty object; then it is toolbar object
-        this.stateId      = null;     // Custom state name for stateSave, stateRestore and stateReset
-
-        this.show = {
-            header          : false,
-            toolbar         : false,
-            footer          : false,
-            columnHeaders   : true,
-            lineNumbers     : false,
-            expandColumn    : false,
-            selectColumn    : false,
-            emptyRecords    : true,
-            toolbarReload   : true,
-            toolbarColumns  : true,
-            toolbarSearch   : true,
-            toolbarInput    : true,
-            toolbarAdd      : false,
-            toolbarEdit     : false,
-            toolbarDelete   : false,
-            toolbarSave     : false,
-            searchAll       : true,
-            statusRange     : true,
-            statusBuffered  : false,
-            statusRecordID  : true,
-            statusSelection : true,
-            statusResponse  : true,
-            statusSort      : false,
-            statusSearch    : false,
-            recordTitles    : true,
-            selectionBorder : true,
-            skipRecords     : true,
-            saveRestoreState: true
-        };
-
-        this.hasFocus        = false;
-        this.autoLoad        = true;     // for infinite scroll
-        this.fixedBody       = true;     // if false; then grid grows with data
-        this.recordHeight    = 24;       // should be in prototype
-        this.lineNumberWidth = null;
-        this.vs_start        = 150;
-        this.vs_extra        = 15;
-        this.keyboard        = true;
-        this.selectType      = 'row';    // can be row|cell
-        this.multiSearch     = true;
-        this.multiSelect     = true;
-        this.multiSort       = true;
-        this.reorderColumns  = false;
-        this.reorderRows     = false;
-        this.searchContextRows = 0;
-        this.markSearch      = true;
-        this.columnTooltip   = 'normal'; // can be normal, top, bottom, left, right
-        this.disableCVS      = false;    // disable Column Virtual Scroll
-        this.textSearch      = 'begins'; // default search type for text
-        this.nestedFields    = true;     // use field name containing dots as separator to look into object
-
-        this.total   = 0;     // server total
-        this.limit   = 100;
-        this.offset  = 0;     // how many records to skip (for infinite scroll) when pulling from server
-        this.style   = '';
-        this.ranges  = [];
-        this.menu    = [];
-        this.method  = null;  // if defined, then overwrited ajax method
-        this.dataType = null;   // if defined, then overwrited w2utils.settings.dataType
-        this.recid   = null;
-        this.parser  = null;
+        this.total        = 0;        // server total
+        this.recid        = null;     // field from records to be used as recid
 
         // internal
         this.last = {
@@ -247,62 +193,18 @@
             sel_type    : null,
             edit_col    : null,
             isSafari    : (/^((?!chrome|android).)*safari/i).test(navigator.userAgent)
-        };
-
-        // these column properties will be saved in stateSave()
-        this.stateSaveColumnProperties = {
-            text            : false,
-            field           : true,
-            size            : true,
-            min             : false,
-            max             : false,
-            gridMinWidth    : false,
-            sizeCorrected   : false,
-            sizeCalculated  : true,
-            sizeOriginal    : true,
-            sizeType        : true,
-            hidden          : true,
-            sortable        : false,
-            searchable      : false,
-            resizable       : false,
-            hideable        : false,
-            attr            : false,
-            style           : false,
-            render          : false,
-            title           : false,
-            editable        : false,
-            frozen          : true,
-            info            : false,
-        };
-
-        // these are the stateSave() fallback values if the property to save is not a property of the column object
-        this.stateSaveColumnFallbackValues = {
-            text            : '',     // column text
-            field           : '',     // field name to map column to a record
-            size            : null,   // size of column in px or %
-            min             : 20,     // minimum width of column in px
-            max             : null,   // maximum width of column in px
-            gridMinWidth    : null,   // minimum width of the grid when column is visible
-            sizeCorrected   : null,   // read only, corrected size (see explanation below)
-            sizeCalculated  : null,   // read only, size in px (see explanation below)
-            sizeOriginal    : null,
-            sizeType        : null,
-            hidden          : false,  // indicates if column is hidden
-            sortable        : false,  // indicates if column is sortable
-            searchable      : false,  // indicates if column is searchable, bool/string: int,float,date,...
-            resizable       : true,   // indicates if column is resizable
-            hideable        : true,   // indicates if column can be hidden
-            attr            : '',     // string that will be inside the <td ... attr> tag
-            style           : '',     // additional style for the td tag
-            render          : null,   // string or render function
-            title           : null,   // string or function for the title property for the column cells
-            editable        : {},     // editable object if column fields are editable
-            frozen          : false,  // indicates if the column is fixed to the left
-            info            : null    // info bubble, can be bool/object
-        };
-
-        $.extend(true, this, w2obj.grid, options);
-    };
+        }
+        $.extend(true, this, w2obj.grid);
+        this.show             = $.extend(true, {}, w2grid.prototype.show);
+        this.postData         = $.extend(true, {}, w2grid.prototype.postData);
+        this.httpHeaders      = $.extend(true, {}, w2grid.prototype.httpHeaders);
+        this.buttons          = $.extend(true, {}, w2grid.prototype.buttons);
+        this.operators        = $.extend(true, {}, w2grid.prototype.operators);
+        this.operatorsMap     = $.extend(true, {}, w2grid.prototype.operatorsMap);
+        this.stateColProps    = $.extend(true, {}, w2grid.prototype.stateColProps);
+        this.stateColDefaults = $.extend(true, {}, w2grid.prototype.stateColDefaults);
+        $.extend(true, this, options);
+    }
 
     // ====================================================
     // -- Registers as a jQuery plugin
@@ -318,13 +220,10 @@
             var searches     = method.searches;
             var searchData   = method.searchData;
             var sortData     = method.sortData;
-            var postData     = method.postData;
-            var httpHeaders  = method.httpHeaders;
-            var toolbar      = method.toolbar;
             // extend items
             var object = new w2grid(method);
-            $.extend(object, { postData: {}, httpHeaders: {}, records: [], columns: [], searches: [], toolbar: {}, sortData: [], searchData: [], handlers: [] });
-            $.extend(true, object.toolbar, toolbar);
+            $.extend(object, { records: [], columns: [], searches: [], sortData: [], searchData: [], handlers: [] });
+
             // reassign variables
             var p;
             if (columns)      for (p = 0; p < columns.length; p++)      object.columns[p]       = $.extend(true, {}, columns[p]);
@@ -332,8 +231,6 @@
             if (searches)     for (p = 0; p < searches.length; p++)     object.searches[p]      = $.extend(true, {}, searches[p]);
             if (searchData)   for (p = 0; p < searchData.length; p++)   object.searchData[p]    = $.extend(true, {}, searchData[p]);
             if (sortData)     for (p = 0; p < sortData.length; p++)     object.sortData[p]      = $.extend(true, {}, sortData[p]);
-            object.postData = $.extend(true, {}, postData);
-            object.httpHeaders = $.extend(true, {}, httpHeaders);
 
             // check if there are records without recid
             if (records) for (var r = 0; r < records.length; r++) {
@@ -376,13 +273,132 @@
                 return obj;
             }
         }
-    };
+    }
 
     // ====================================================
     // -- Implementation of core functionality
 
     w2grid.prototype = {
-        msgDelete       : 'Please confirm you want to delete selected record(s)?',
+        header       : '',
+        url          : '',
+        limit        : 100,
+        offset       : 0,        // how many records to skip (for infinite scroll) when pulling from server
+        searchData   : [],
+        sortData     : [],
+        routeData    : {},       // data for dynamic routes
+        postData     : {},
+        httpHeaders  : {},
+        show: {
+            header          : false,
+            toolbar         : false,
+            footer          : false,
+            columnHeaders   : true,
+            lineNumbers     : false,
+            expandColumn    : false,
+            selectColumn    : false,
+            emptyRecords    : true,
+            toolbarReload   : true,
+            toolbarColumns  : true,
+            toolbarSearch   : true,
+            toolbarInput    : true,
+            toolbarAdd      : false,
+            toolbarEdit     : false,
+            toolbarDelete   : false,
+            toolbarSave     : false,
+            searchAll       : true,
+            statusRange     : true,
+            statusBuffered  : false,
+            statusRecordID  : true,
+            statusSelection : true,
+            statusResponse  : true,
+            statusSort      : false,
+            statusSearch    : false,
+            recordTitles    : true,
+            selectionBorder : true,
+            skipRecords     : true,
+            saveRestoreState: true
+        },
+        stateId           : null,       // Custom state name for stateSave, stateRestore and stateReset
+        hasFocus          : false,
+        autoLoad          : true,       // for infinite scroll
+        fixedBody         : true,       // if false; then grid grows with data
+        recordHeight      : 24,         // should be in prototype
+        lineNumberWidth   : null,
+        keyboard          : true,
+        selectType        : 'row',      // can be row|cell
+        multiSearch       : true,
+        multiSelect       : true,
+        multiSort         : true,
+        reorderColumns    : false,
+        reorderRows       : false,
+        showExtraOnSearch : 0,          // show extra records before and after on search
+        markSearch        : true,
+        columnTooltip     : 'normal',   // can be normal, top, bottom, left, right
+        disableCVS        : false,      // disable Column Virtual Scroll
+        textSearch        : 'begins',   // default search type for text
+        nestedFields      : true,       // use field name containing dots as separator to look into object
+        vs_start          : 150,
+        vs_extra          : 15,
+        style             : '',
+        ranges            : [],
+        menu              : [],
+        method            : null,       // if defined, then overwrited ajax method
+        dataType          : null,       // if defined, then overwrited w2utils.settings.dataType
+        parser            : null,
+
+        // these column properties will be saved in stateSave()
+        stateColProps: {
+            text            : false,
+            field           : true,
+            size            : true,
+            min             : false,
+            max             : false,
+            gridMinWidth    : false,
+            sizeCorrected   : false,
+            sizeCalculated  : true,
+            sizeOriginal    : true,
+            sizeType        : true,
+            hidden          : true,
+            sortable        : false,
+            searchable      : false,
+            resizable       : false,
+            hideable        : false,
+            attr            : false,
+            style           : false,
+            render          : false,
+            title           : false,
+            editable        : false,
+            frozen          : true,
+            info            : false,
+        },
+
+        // these are the stateSave() fallback values if the property to save is not a property of the column object
+        stateColDefaults: {
+            text            : '',     // column text
+            field           : '',     // field name to map column to a record
+            size            : null,   // size of column in px or %
+            min             : 20,     // minimum width of column in px
+            max             : null,   // maximum width of column in px
+            gridMinWidth    : null,   // minimum width of the grid when column is visible
+            sizeCorrected   : null,   // read only, corrected size (see explanation below)
+            sizeCalculated  : null,   // read only, size in px (see explanation below)
+            sizeOriginal    : null,
+            sizeType        : null,
+            hidden          : false,  // indicates if column is hidden
+            sortable        : false,  // indicates if column is sortable
+            searchable      : false,  // indicates if column is searchable, bool/string: int,float,date,...
+            resizable       : true,   // indicates if column is resizable
+            hideable        : true,   // indicates if column can be hidden
+            attr            : '',     // string that will be inside the <td ... attr> tag
+            style           : '',     // additional style for the td tag
+            render          : null,   // string or render function
+            title           : null,   // string or function for the title property for the column cells
+            editable        : {},     // editable object if column fields are editable
+            frozen          : false,  // indicates if the column is fixed to the left
+            info            : null    // info bubble, can be bool/object
+        },
+
+        msgDelete       : 'Are you sure you want to delete selected records?',
         msgNotJSON      : 'Returned data is not in valid JSON format.',
         msgAJAXerror    : 'AJAX error. See console for more details.',
         msgRefresh      : 'Refreshing...',
@@ -701,55 +717,40 @@
             return null;
         },
 
-        toggleColumn: function () {
+        updateColumn: function (names, updates) {
+            var obj  = this;
             var effected = 0;
-            for (var a = 0; a < arguments.length; a++) {
-                for (var r = this.columns.length-1; r >= 0; r--) {
-                    var col = this.columns[r];
-                    if (col.field == arguments[a]) {
-                        col.hidden = !col.hidden;
-                        effected++;
+            names = (Array.isArray(names) ? names : [names]);
+            names.forEach(function (colName) {
+                obj.columns.forEach(function (col) {
+                    if (col.field == colName) {
+                        var _updates = $.extend(true, {}, updates);
+                        Object.keys(_updates).forEach(function (key) {
+                            // if it is a function
+                            if (typeof _updates[key] == 'function') {
+                                _updates[key] = _updates[key](col);
+                            }
+                            if (col[key] != _updates[key]) effected++
+                        })
+                        $.extend(true, col, _updates)
                     }
-                }
-            }
+                })
+            });
             this.refreshBody();
             this.resizeRecords();
             return effected;
         },
 
+        toggleColumn: function () {
+            return this.updateColumn(Array.from(arguments), { hidden: function (col) { return !col.hidden } });
+        },
+
         showColumn: function () {
-            var shown = 0;
-            for (var a = 0; a < arguments.length; a++) {
-                for (var r = this.columns.length-1; r >= 0; r--) {
-                    var col = this.columns[r];
-                    if (col.gridMinWidth) delete col.gridMinWidth;
-                    if (col.field == arguments[a] && col.hidden !== false) {
-                        col.hidden = false;
-                        shown++;
-                    }
-                }
-            }
-            this.refreshBody();
-            this.resizeRecords();
-            this.scroll(); // scroll needed because of column virtual scroll
-            return shown;
+            return this.updateColumn(Array.from(arguments), { hidden: false });
         },
 
         hideColumn: function () {
-            var hidden = 0;
-            for (var a = 0; a < arguments.length; a++) {
-                for (var r = this.columns.length-1; r >= 0; r--) {
-                    var col = this.columns[r];
-                    if (col.field == arguments[a] && col.hidden !== true) {
-                        col.hidden = true;
-                        hidden++;
-                    }
-                }
-            }
-            this.refreshBody();
-            this.resizeRecords();
-            this.scroll(); // scroll needed because of column virtual scroll
-            return hidden;
+            return this.updateColumn(Array.from(arguments), { hidden: true });
         },
 
         addSearch: function (before, search) {
@@ -1047,43 +1048,25 @@
                     var rec = this.records[i];
                     var match = searchRecord(rec);
                     if (match) {
-                        if (rec && rec.w2ui)
-                            addParent(rec.w2ui.parent_recid);
-
-                        if (this.searchContextRows && this.searchContextRows > 0)
-                        {
-                            var beforeItemCount = this.searchContextRows;
-                            var afterItemCount = this.searchContextRows;
-
-                            if (i < beforeItemCount)
-                                beforeItemCount = i;
-
-                            if (i + afterItemCount > this.records.length)
-                                afterItemCount = this.records.length - i;
-
-                            if (beforeItemCount > 0)
-                            {
-                                for (var j = i - beforeItemCount; j < i; j++)
-                                {
+                        if (rec && rec.w2ui) addParent(rec.w2ui.parent_recid);
+                        if (this.showExtraOnSearch > 0) {
+                            var before = this.showExtraOnSearch;
+                            var after  = this.showExtraOnSearch;
+                            if (i < before) before = i;
+                            if (i + after  > this.records.length) after  = this.records.length - i;
+                            if (before > 0) {
+                                for (var j = i - before; j < i; j++) {
                                     if (this.last.searchIds.indexOf(j) < 0)
                                         this.last.searchIds.push(j);
                                 }
                             }
-
-                            if (this.last.searchIds.indexOf(i) < 0)
-                                this.last.searchIds.push(i);
-
-                            if (afterItemCount > 0)
-                            {
-                                for (var j = (i + 1) ; j <= (i + afterItemCount) ; j++)
-                                {
-                                    if (this.last.searchIds.indexOf(j) < 0)
-                                        this.last.searchIds.push(j);
+                            if (this.last.searchIds.indexOf(i) < 0)  this.last.searchIds.push(i);
+                            if (after  > 0) {
+                                for (var j = (i + 1) ; j <= (i + after ) ; j++) {
+                                    if (this.last.searchIds.indexOf(j) < 0) this.last.searchIds.push(j);
                                 }
                             }
-                        }
-                        else
-                        {
+                        } else {
                             this.last.searchIds.push(i);
                         }
                     }
@@ -2386,17 +2369,26 @@
             if (url == '' || url == null) url = this.url;
             if (url == '' || url == null) return;
             // build parameters list
-            var params = {};
             if (!w2utils.isInt(this.offset)) this.offset = 0;
             if (!w2utils.isInt(this.last.xhr_offset)) this.last.xhr_offset = 0;
             // add list params
-            params['cmd']         = cmd;
-            params['selected']    = this.getSelection();
-            params['limit']       = this.limit;
-            params['offset']      = parseInt(this.offset) + parseInt(this.last.xhr_offset);
-            params['search']      = this.searchData;
-            params['searchLogic'] = this.last.logic;
-            params['sort']        = this.sortData;
+            var params = {
+                cmd         : cmd,
+                selected    : this.getSelection(),
+                limit       : this.limit,
+                offset      : parseInt(this.offset) + parseInt(this.last.xhr_offset),
+                searchLogic : this.last.logic,
+                search: this.searchData.map(function (search) {
+                        var _search = $.extend({}, search);
+                        if (this.searchMap && this.searchMap[_search.field]) _search.field = this.searchMap[_search.field];
+                        return _search;
+                    }.bind(this)),
+                sort: this.sortData.map(function (sort) {
+                        var _sort = $.extend({}, sort);
+                        if (this.sortMap && this.sortMap[_sort.field]) _sort.field = this.sortMap[_sort.field];
+                        return _sort;
+                    }.bind(this))
+            }
             if (this.searchData.length === 0) {
                 delete params['search'];
                 delete params['searchLogic'];
@@ -3170,10 +3162,10 @@
                     height  : 170,
                     body    : '<div class="w2ui-centered">' + w2utils.lang(obj.msgDelete) + '</div>',
                     buttons : (w2utils.settings.macButtonOrder
-                        ? '<button type="button" class="w2ui-btn btn-default" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('No') + '</button>' +
-                          '<button type="button" class="w2ui-btn w2ui-btn-red" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang('Yes') + '</button>'
-                        : '<button type="button" class="w2ui-btn w2ui-btn-red" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang('Yes') + '</button>' +
-                          '<button type="button" class="w2ui-btn btn-default" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('No') + '</button>'
+                        ? '<button type="button" class="w2ui-btn btn-default" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('Cancel') + '</button>' +
+                          '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang('Delete') + '</button>'
+                        : '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang('Delete') + '</button>' +
+                          '<button type="button" class="w2ui-btn btn-default" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('Cancel') + '</button>'
                         ),
                     onOpen: function (event) {
                         var inputs = $(this.box).find('input, textarea, select, button');
@@ -3507,7 +3499,7 @@
                             }
                         }
                         // edit last column that was edited
-                        if (this.selectType == 'row' && this.last._edit.column) {
+                        if (this.selectType == 'row' && this.last._edit && this.last._edit.column) {
                             columns = [this.last._edit.column];
                         }
                         if (columns.length > 0) {
@@ -4792,7 +4784,7 @@
             // refresh
             if (!this.last.state) this.last.state = this.stateSave(true); // initial default state
             this.stateRestore();
-            if (url) this.refresh(); // show empty grid (need it) - should it be only for remote data source
+            if (url) { this.clear(); this.refresh(); } // show empty grid (need it) - should it be only for remote data source
             // if hidden searches - apply it
             var hasHiddenSearches = false;
             for (var i = 0; i < this.searches.length; i++) {
@@ -5709,7 +5701,15 @@
                     }
                     // no default action
                     obj.trigger($.extend(edata, { phase: 'after' }));
-                });
+                })
+                this.toolbar.on('refresh', function (event) {
+                    if (event.target == 'w2ui-search') {
+                        var sd = obj.searchData;
+                        setTimeout(function () {
+                            obj.initAllField(obj.last.field, (sd.length == 1 ? sd[0].value : null));
+                        }, 1);
+                    }
+                })
             }
         },
 
@@ -6327,12 +6327,7 @@
             var fld2    = fld1.parent().find('span input');
             fld1.show();
             range.hide();
-            // fld1.w2field(search.type);
             switch ($(el).val()) {
-//                case 'in':
-//                case 'not in':
-//                    fld1.w2field('clear');
-//                    break;
                 case 'between':
                     range.show();
                     fld2.w2field(search.type, search.options);
@@ -7297,14 +7292,28 @@
             // info bubble
             if (col.info === true) col.info = {};
             if (col.info != null) {
-                var infoIcon = 'w2ui-icon-info';
+                var infoIcon  = 'w2ui-icon-info';
                 if (typeof col.info.icon == 'function') {
                     infoIcon = col.info.icon(record);
+                } else if (typeof col.info.icon == 'object') {
+                    infoIcon = col.info.icon[this.parseField(record, col.field)] || ''
                 } else if (typeof col.info.icon == 'string') {
                     infoIcon = col.info.icon;
                 }
-                infoBubble += '<span class="w2ui-info '+ infoIcon +'" style="'+ (col.info.style || '') + '" '+
-                    ' onclick="event.stopPropagation(); w2ui[\''+ this.name + '\'].showBubble('+ ind +', '+ col_ind +')"></span>';
+                var infoStyle = col.info.style || '';
+                if (typeof col.info.style == 'function') {
+                    infoStyle = col.info.style(record);
+                } else if (typeof col.info.style == 'object') {
+                    infoStyle = col.info.style[this.parseField(record, col.field)] || '';
+                } else if (typeof col.info.style == 'string') {
+                    infoStyle = col.info.style;
+                }
+                infoBubble += '<span class="w2ui-info '+ infoIcon +'" style="'+ infoStyle + '" '+
+                    (col.info.showOn != null ? 'on' + col.info.showOn : 'click') +
+                    '="event.stopPropagation(); w2ui[\''+ this.name + '\'].showBubble('+ ind +', '+ col_ind +')"'+
+                    (col.info.hideOn != null ? 'on' + col.info.hideOn : '') +
+                    '="var grid = w2ui[\''+ this.name + '\']; if (grid.last.bubbleEl) { $(grid.last.bubbleEl).w2tag() } grid.last.bubbleEl = null;"'+
+                    '></span>';
             }
             // various renderers
             if (col.render != null && ind !== -1) {
@@ -7434,7 +7443,7 @@
                     }
                     if (info.showEmpty !== true && (val == null || val == '')) continue;
                     if (info.maxLength != null && typeof val == 'string' && val.length > info.maxLength) val = val.substr(0, info.maxLength) + '...';
-                    html += '<tr><td>' + col.label + '</td><td>' + ((val === 0 ? '0' : val) || '') + '</td></tr>';
+                    html += '<tr><td>' + col.text + '</td><td>' + ((val === 0 ? '0' : val) || '') + '</td></tr>';
                 }
                 html += '</table>';
             } else if ($.isPlainObject(fields)) {
@@ -7590,14 +7599,14 @@
                 var col = obj.columns[i];
                 var col_save_obj = {};
                 // iterate properties to save
-                Object.keys(obj.stateSaveColumnProperties).forEach(function(prop, idx) {
-                    if(obj.stateSaveColumnProperties[prop]){
+                Object.keys(obj.stateColProps).forEach(function(prop, idx) {
+                    if(obj.stateColProps[prop]){
                         // check if the property is defined on the column
                         if(col[prop] !== undefined){
                             prop_val = col[prop];
                         } else {
                             // use fallback or null
-                            prop_val = obj.stateSaveColumnFallbackValues[prop] || null;
+                            prop_val = obj.stateColDefaults[prop] || null;
                         }
                         col_save_obj[prop] = prop_val;
                     }
@@ -7909,7 +7918,7 @@
                 body  : '.w2ui-grid-box'
             }, options);
         }
-    };
+    }
 
     $.extend(w2grid.prototype, w2utils.event);
     w2obj.grid = w2grid;

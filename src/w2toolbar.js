@@ -14,6 +14,8 @@
 *   - item.text - can be a function
 *   - item.icon - can be a function
 *   - item.tooltip - can be a function
+*   - item.color
+*   - item.options
 *
 ************************************************************************/
 
@@ -111,13 +113,16 @@
             route       : null,        // if not null, it is route to go
             arrow       : true,        // arrow down for drop/menu types
             style       : null,        // extra css style for caption
-            color       : null,        // color value - used in color pickers
-            transparent : null,        // transparent t/f - used in color picker
-            advanced    : null,        // advanced picker t/f - user in color picker
             group       : null,        // used for radio buttons
             items       : null,        // for type menu* it is an array of items in the menu
             selected    : null,        // used for menu-check, menu-radio
             overlay     : {},
+            color       : null,        // color value - used in color pickers
+            options     : {
+                advanced    : false,   // advanced picker t/f - user in color picker
+                transparent : true,    // transparent t/f - used in color picker
+                html        : ''       // additional buttons for color picker
+            },
             onClick     : null,
             onRefresh   : null
         },
@@ -393,11 +398,8 @@
                                 }));
                             }
                             if (['color', 'text-color'].indexOf(it.type) != -1) {
-                                if (it.transparent == null) it.transparent = true;
-                                $(el).w2color({
+                                $(el).w2color($.extend({
                                     color: it.color,
-                                    transparent: it.transparent,
-                                    advanced: it.advanced,
                                     onHide: function (event) {
                                         hideDrop();
                                         if (obj._tmpColor) {
@@ -411,7 +413,7 @@
                                             obj._tmpColor = color;
                                         }
                                     }
-                                });
+                                }, it.options));
                             }
                             function hideDrop(event) {
                                 it.checked = false;
