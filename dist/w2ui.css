@@ -2531,7 +2531,7 @@ button.w2ui-btn-small:focus:before {
 }
 .w2ui-overlay .w2ui-grid-searches table td.operator {
   text-align: left;
-  padding: 0px 10px;
+  padding: 0px 0px;
   padding-right: 5px;
   border-right: 1px solid #e8e8e3;
   height: 31px;

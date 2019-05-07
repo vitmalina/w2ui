@@ -351,8 +351,9 @@
                 if (search == null || search === false || object.getSearch(col.field) != null) continue;
                 if ($.isPlainObject(search)) {
                     var src = $.extend({ field: col.field, caption: col.caption, type: 'text' }, search);
-                    
+                    //Search mapping
                     if (src.type=='radio') src.type='list';
+                    else if (src.type=='textarea') src.type='text';
                     object.addSearch(src);
                 } else {
                     var stype = col.searchable, attr  = '';
@@ -424,7 +425,6 @@
 
         operatorsMap: {
             "text"         : "text",
-            "textarea"     : "text",
             "int"          : "number",
             "float"        : "number",
             "money"        : "number",
@@ -1970,6 +1970,7 @@
                     var operator = $('#grid_'+ this.name + '_operator_'+ i).val();
                     var field1   = $('#grid_'+ this.name + '_field_'+ i);
                     var field2   = $('#grid_'+ this.name + '_field2_'+ i);
+                    var opnot    = $('#grid_'+ this.name + '_not_'+ i).is(":checked"); 
                     var value1   = field1.val();
                     var value2   = field2.val();
                     var svalue   = null;
@@ -2003,12 +2004,15 @@
                         else value1 = null;
                     }
 
-                    if ((value1 !== '' && value1 != null) || (value2 != null && value2 !== '')) {
+                    if ( (value1 !== '' && value1 != null) || (value2 != null && value2 !== '') || opnot ) {
                         var tmp = {
                             field    : search.field,
                             type     : search.type,
                             operator : operator
                         };
+
+                        if ( opnot ) tmp.not = opnot;
+
                         if (operator == 'between') {
                             $.extend(tmp, { value: [value1, value2] });
                         } else if (operator == 'in' && typeof value1 == 'string') {
@@ -6386,6 +6390,7 @@
                 html += '<tr>'+
                         '    <td class="close-btn">'+ btn +'</td>' +
                         '    <td class="caption">'+ (s.caption || '') +'</td>' +
+                        '    <td class="not">' + w2utils.lang('Not') + ' <input type="checkbox" id="grid_'+ this.name +'_not_'+ i +'" /></td>'+
                         '    <td class="operator">'+ operator +'</td>'+
                         '    <td class="value">';
 
@@ -6434,7 +6439,7 @@
                         '</tr>';
             }
             html += '<tr>'+
-                    '    <td colspan="4" class="actions">'+
+                    '    <td colspan="100" class="actions">'+
                     '        <div>'+
                     '        <button type="button" class="w2ui-btn" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.searchReset(); }">'+ w2utils.lang('Reset') + '</button>'+
                     '        <button type="button" class="w2ui-btn w2ui-btn-blue" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.search(); }">'+ w2utils.lang('Search') + '</button>'+
@@ -6519,6 +6524,8 @@
                         break;
                     }
                 }
+                //not checkbox
+                if ( sdata && sdata.not ) $('#grid_'+ this.name +'_not_' + s).prop('checked', true);
                 // init types
                 switch (search.type) {
                     case 'text':

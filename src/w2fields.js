@@ -1590,6 +1590,19 @@
         updateOverlay: function (indexOnly) {
             var obj     = this;
             var options = this.options;
+            function genSpecials( ) {
+                //Special dates
+                var specials = '';
+                if (options.specials) {
+                    if (Array.isArray(options.specials)) options.specials.forEach(spec=>{
+                        if (spec.id) specials += '<div class="w2ui-calendar-now now special" id="' + spec.id + '">' + (spec.text ? spec.text : spec.id) + '</div>';
+                        else specials += '<div class="w2ui-calendar-now now special" id="' + spec + '">' + spec + '</div>';
+                    })
+                    else specials = '<div class="w2ui-calendar-now now special" id="' + spec + '">' + options.specials + '</div>';
+                }
+                return specials;
+            }
+
             // color
             if (this.type === 'color') {
                 if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
@@ -1627,7 +1640,7 @@
                 var dt = w2utils.isDate($(obj.el).val(), obj.options.format, true);
                 if (dt) { month = dt.getMonth() + 1; year = dt.getFullYear(); }
                 (function refreshCalendar(month, year) {
-                    $('#w2ui-overlay > div > div').html(obj.getMonthHTML(month, year, $(obj.el).val()));
+                    $('#w2ui-overlay > div > div').html(obj.getMonthHTML(month, year, $(obj.el).val()) + genSpecials());
                     $('#w2ui-overlay .w2ui-calendar-title')
                         .on('mousedown', function () {
                             if ($(this).next().hasClass('w2ui-calendar-jump')) {
@@ -1750,20 +1763,10 @@
                 if (dt) { month = dt.getMonth() + 1; year = dt.getFullYear(); }
                 var selDate = null;
                 (function refreshCalendar(month, year) {
-                    //Special dates
-                    var specials = '';
-                    if (options.specials) {
-                        if (Array.isArray(options.specials)) options.specials.forEach(spec=>{
-                            if (spec.id) specials += '<div class="w2ui-calendar-now now special" id="' + spec.id + '">' + (spec.text ? spec.text : spec.id) + '</div>';
-                            else specials += '<div class="w2ui-calendar-now now special" id="' + spec + '">' + spec + '</div>';
-                        })
-                        else specials = '<div class="w2ui-calendar-now now special" id="' + spec + '">' + options.specials + '</div>';
-                    }
-
                     $('#w2ui-overlay > div > div').html(
                         obj.getMonthHTML(month, year, $(obj.el).val())
                         + (options.btn_now ? '<div class="w2ui-calendar-now now">'+ w2utils.lang('Current Date & Time') + '</div>' : '')
-                        + specials
+                        + genSpecials()
                     );
                     $('#w2ui-overlay .w2ui-calendar-title')
                         .on('mousedown', function () {

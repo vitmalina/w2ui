@@ -79,6 +79,7 @@
 	  "Print": "Nyomtatás",
 	  "CSV export": "CSV exportálás",
 	  "JSON export": "JSON exportálás",
-	  "XML export": "XML exportálás"
+	  "XML export": "XML exportálás",
+	  "Not": "Nem"
     }
 }
