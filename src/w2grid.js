@@ -424,6 +424,7 @@
 
         operatorsMap: {
             "text"         : "text",
+            "textarea"     : "text",
             "int"          : "number",
             "float"        : "number",
             "money"        : "number",
