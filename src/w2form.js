@@ -524,6 +524,11 @@
                         })
                     }
                 }
+                if (fld.type == 'map') {
+                    var tmp = { nestedFields: true, record: data };
+                    var val = this.getValue.call(tmp, fld.field);
+                    if (val._order) delete val._order
+                }
             }.bind(this))
             return data;
         },
@@ -993,6 +998,7 @@
                         input = '<input id="'+ field.field +'" name="'+ field.field +'" type="checkbox" '+ field.html.attr + tabindex_str + ' class="w2ui-input w2ui-toggle"/><div><div></div></div>';
                         break;
                     case 'map':
+                    case 'array':
                         field.html.key = field.html.key || {};
                         field.html.value = field.html.value || {};
                         input = '<input id="'+ field.field +'" name="'+ field.field +'" type="hidden" '+ field.html.attr + tabindex_str + '>'+
@@ -1452,8 +1458,18 @@
                         $(field.el).val(value);
                         break;
                     case 'map':
+                    case 'array':
+                        // init map
+                        if (field.type == 'map' && (value == null || !$.isPlainObject(value))) {
+                            this.setValue(field.field, {})
+                            value = this.getValue(field.field)
+                        }
+                        if (field.type == 'array' && (value == null || !Array.isArray(value))) {
+                            this.setValue(field.field, [])
+                            value = this.getValue(field.field)
+                        }
                         // need closure
-                        (function (field) {
+                        (function (obj, field) {
                             field.el.mapAdd = function (field, div, cnt) {
                                 var html =  '<div class="w2ui-map-field" style="margin-bottom: 5px">'+
                                     '<input id="'+ field.field +'_key_'+ cnt +'" data-cnt="'+ cnt +'" type="text" '+ field.html.key.attr +' class="w2ui-input w2ui-map key"/>'+
@@ -1466,7 +1482,17 @@
                             field.el.mapRefresh = function (map, div) {
                                 // generate options
                                 var cnt = 1;
-                                Object.keys(map).forEach(function (item) {
+                                var names;
+                                if (field.type == 'map') {
+                                    if (!$.isPlainObject(map)) map = {}
+                                    if (map._order == null) map._order = Object.keys(map)
+                                    names = map._order
+                                }
+                                if (field.type == 'array') {
+                                    if (!Array.isArray(map)) map = []
+                                    names = map.map(function (item) { return item.key })
+                                }
+                                names.forEach(function (item) {
                                     var $k = div.find('#' + field.name + '_key_' + cnt)
                                     var $v = div.find('#' + field.name + '_value_' + cnt)
                                     if ($k.length == 0 || $v.length == 0) {
@@ -1474,32 +1500,98 @@
                                         $k = div.find('#' + field.name + '_key_' + cnt)
                                         $v = div.find('#' + field.name + '_value_' + cnt)
                                     }
+                                    var val = map[item];
+                                    if (field.type == 'array') {
+                                        var tmp = map.filter(function(it) { return it.key == item ? true : false})
+                                        if (tmp.length > 0) val = tmp[0].value
+                                    }
                                     $k.val(item)
-                                    $v.val(map[item])
-                                    $k.parent().attr('data-key', item)
+                                    $v.val(val)
+                                    $k.parents('.w2ui-map-field').attr('data-key', item)
                                     cnt++
                                 })
-                                field.el.mapAdd(field, div, cnt);
+                                var curr = div.find('#' + field.name + '_key_' + cnt).parent()
+                                var next = div.find('#' + field.name + '_key_' + (cnt + 1)).parent()
+                                if (curr.length == 0) {
+                                    field.el.mapAdd(field, div, cnt);
+                                }
+                                if (curr.length == 1 && next.length == 1) {
+                                    curr.removeAttr('data-key')
+                                    curr.find('.key').val(next.find('.key').val());
+                                    curr.find('.value').val(next.find('.value').val());
+                                    next.remove()
+                                }
                                 // attach events
                                 $(field.el).next().find('input.w2ui-map')
                                     .off('.mapChange')
-                                    .on('input.mapChange', function (event) {
-                                        var $cont   = $(event.target).parents('.w2ui-field')
-                                        var $input  = $cont.find('input')
-                                        var old_key = $(event.target).parents('.w2ui-map-field').attr('data-key')
-                                        var key     = $(event.target).parents('.w2ui-map-field').find('.key').val()
-                                        var value   = $(event.target).parents('.w2ui-map-field').find('.value').val()
-                                        delete map[old_key];
-                                        map[key] = value;
-                                        console.log('change', map);
-                                    })
-                                    .on('blur.mapChange', function () {
-                                        console.log('blue')
+                                    .on('change.mapChange', function () {
+                                        var $div  = $(event.target).parents('.w2ui-map-field')
+                                        var old   = $div.attr('data-key')
+                                        var key   = $div.find('.key').val()
+                                        var value = $div.find('.value').val()
+                                        // event before
+                                        var value_new = {}
+                                        var value_previous = {}
+                                        var aMap = null
+                                        var aIndex = null
+                                        value_new[key] = value
+                                        if (field.type == 'array') {
+                                            map.forEach(function (it, ind) {
+                                                if (it.key == old) aIndex = ind
+                                            })
+                                            aMap = map[aIndex]
+                                        }
+                                        if (old != null && field.type == 'map') {
+                                            value_previous[old] = map[old]
+                                        }
+                                        if (old != null && field.type == 'array') {
+                                            value_previous[old] = aMap.value
+                                        }
+                                        var edata = obj.trigger({ phase: 'before', target: field.field, type: 'change', originalEvent: event, value_new: value_new, value_previous: value_previous })
+                                        if (edata.isCancelled === true) {
+                                            return;
+                                        }
+                                        if (field.type == 'map') {
+                                            delete map[old];
+                                            var ind = map._order.indexOf(old)
+                                            if (key != '') {
+                                                if (map[key] != null) {
+                                                    var newKey, more = 0
+                                                    do { more++; newKey = key + more } while (map[newKey] != null)
+                                                    key = newKey
+                                                    $div.find('.key').val(newKey)
+                                                }
+                                                map[key] = value;
+                                                $div.attr('data-key', key)
+                                                if (ind != -1) {
+                                                    map._order[ind] = key
+                                                } else {
+                                                    map._order.push(key)
+                                                }
+                                            } else {
+                                                map._order.splice(ind, 1)
+                                                $div.find('.value').val('')
+                                            }
+                                        } else if (field.type == 'array') {
+                                            if (key != '') {
+                                                if (aMap == null) {
+                                                    map.push({ key: key, value: value })
+                                                } else {
+                                                    aMap.key = key
+                                                    aMap.value = value
+                                                }
+                                            } else {
+                                                map.splice(aInd, 1)
+                                            }
+                                        }
+                                        obj.setValue(field.field, map)
                                         field.el.mapRefresh(map, div)
+                                        // event after
+                                        obj.trigger($.extend(edata, { phase: 'after' }));
                                     })
                             }
                             field.el.mapRefresh(value, $(field.el).parent().find('.w2ui-map-container'))
-                        })(field)
+                        })(this, field)
                         break;
                     case 'radio':
                         $(field.$el).prop('checked', false).each(function (index, el) {

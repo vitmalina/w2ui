@@ -398,7 +398,7 @@
             info            : null    // info bubble, can be bool/object
         },
 
-        msgDelete       : 'Are you sure you want to delete selected records?',
+        msgDelete       : 'Are you sure you want to delete NN records?',
         msgNotJSON      : 'Returned data is not in valid JSON format.',
         msgAJAXerror    : 'AJAX error. See console for more details.',
         msgRefresh      : 'Refreshing...',
@@ -2373,8 +2373,6 @@
             if (!w2utils.isInt(this.last.xhr_offset)) this.last.xhr_offset = 0;
             // add list params
             var params = {
-                cmd         : cmd,
-                selected    : this.getSelection(),
                 limit       : this.limit,
                 offset      : parseInt(this.offset) + parseInt(this.last.xhr_offset),
                 searchLogic : this.last.logic,
@@ -3158,9 +3156,11 @@
             if (recs.length === 0) return;
             if (this.msgDelete != '' && !force) {
                 this.message({
-                    width   : 350,
+                    width   : 380,
                     height  : 170,
-                    body    : '<div class="w2ui-centered">' + w2utils.lang(obj.msgDelete) + '</div>',
+                    body    : '<div class="w2ui-centered">' +
+                                    w2utils.lang(obj.msgDelete).replace('NN', recs.length).replace('records', (recs.length == 1 ? 'record' : 'records')) +
+                              '</div>',
                     buttons : (w2utils.settings.macButtonOrder
                         ? '<button type="button" class="w2ui-btn btn-default" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('Cancel') + '</button>' +
                           '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang('Delete') + '</button>'

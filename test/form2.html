@@ -18,18 +18,38 @@
             header   : 'Edit header',
             //formURL : 'form-template.html',
             //formHTML: 'some html',
+            onChange(event) {
+                console.log(event)
+            },
             record: {
                 "field_date": '3/15/2013',
-                "field_map": {
-                    key1: 'some',
-                    key2: '2'
-                }
+                "field_map1": {
+                    key1: '1',
+                    key2: '2',
+                    key3: '3',
+                    key4: '4',
+                    key5: '5'
+                },
+                "field_array": [
+                    { key: 'key1', value: '1' },
+                    { key: 'key2', value: '2' },
+                    { key: 'key3', value: '3' },
+                    { key: 'key4', value: '4' },
+                    { key: 'key5', value: '5' }
+                ]
             },
             tabs: ['General', 'Aditional'],
             fields: [
                 { field: 'field_map', type: 'map', required: true,
                     html: {
                         label: 'Map', page: 0, text: '',
+                        key: { attr: 'placeholder="key"', text: '='},
+                        value: { attr: 'placeholder="value"', text: ''}
+                    },
+                },
+                { field: 'field_array', type: 'array', required: true,
+                    html: {
+                        label: 'Array', page: 0, text: '',
                         key: { attr: 'placeholder="key"', text: '='},
                         value: { attr: 'placeholder="value"', text: ''}
                     },
@@ -83,6 +103,9 @@
                         //obj.clear();
                     });
                 }
+            },
+            onChange: function (event) {
+                console.log('change', event)
             }
         });
 });
