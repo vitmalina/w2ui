@@ -2999,7 +2999,7 @@ button.w2ui-btn-small:focus:before {
   border: 1px solid #c0c0c0;
   border-bottom: 1px solid silver;
   white-space: nowrap;
-  margin: 1px 1px -1px 0px;
+  margin: 2px 1px -1px 0px;
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
   cursor: default;
