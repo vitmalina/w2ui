@@ -3465,10 +3465,7 @@
                 case 8:  // backspace
                 case 46: // delete
                     // delete if button is visible
-                    var btn = this.toolbar.get('w2ui-delete');
-                    if (btn && btn.hidden !== true) {
-                        obj["delete"]();
-                    }
+                    obj["delete"]();
                     cancel = true;
                     event.stopPropagation();
                     break;
