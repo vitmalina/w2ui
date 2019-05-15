@@ -315,6 +315,8 @@
             // click on menu items
             var tmp = String(id).split(':');
             var it  = this.get(tmp[0]);
+            var items = w2obj.field.prototype.normMenu.call(this, it.items, it);
+
             if (tmp.length > 1) {
                 var subItem = this.get(id);
                 if (subItem && !subItem.disabled) {
@@ -332,8 +334,8 @@
                 $(btn).removeClass('down'); // need to requery at the moment -- as well as elsewhere in this function
 
                 if (it.type == 'radio') {
-                    for (var i = 0; i < this.items.length; i++) {
-                        var itt = this.items[i];
+                    for (var i = 0; i < items.length; i++) {
+                        var itt = items[i];
                         if (itt == null || itt.id == it.id || itt.type !== 'radio') continue;
                         if (itt.group == it.group && itt.checked) {
                             itt.checked = false;
@@ -377,17 +379,17 @@
                                 var menuType = 'normal';
                                 if (it.type == 'menu-radio') {
                                     menuType = 'radio';
-                                    it.items.forEach(function (item) {
+                                    items.forEach(function (item) {
                                         if (it.selected == item.id) item.checked = true; else item.checked = false;
                                     });
                                 }
                                 if (it.type == 'menu-check') {
                                     menuType = 'check';
-                                    it.items.forEach(function (item) {
+                                    items.forEach(function (item) {
                                         if ($.isArray(it.selected) && it.selected.indexOf(item.id) != -1) item.checked = true; else item.checked = false;
                                     });
                                 }
-                                el.w2menu($.extend({ name: obj.name, items: it.items, left: left, top: 3 }, it.overlay, {
+                                el.w2menu($.extend({ name: obj.name, items: items, left: left, top: 3 }, it.overlay, {
                                     type: menuType,
                                     select: function (event) {
                                         obj.menuClick({ name: obj.name, item: it, subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen });
@@ -763,7 +765,9 @@
                 var item = this.get(event.item.id);
                 if (item.type == 'menu-radio') {
                     item.selected = it.id;
-                    event.item.items.forEach(function (item) { item.checked = false; });
+                    if (Array.isArray(event.item.items)) {
+                        event.item.items.forEach(function (item) { item.checked = false; });
+                    }
                     it.checked = true;
                 }
                 if (item.type == 'menu-check') {
