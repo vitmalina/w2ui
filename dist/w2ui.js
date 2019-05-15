@@ -6798,10 +6798,7 @@ w2utils.event = {
                 case 8:  // backspace
                 case 46: // delete
                     // delete if button is visible
-                    var btn = this.toolbar.get('w2ui-delete');
-                    if (btn && btn.hidden !== true) {
-                        obj["delete"]();
-                    }
+                    obj["delete"]();
                     cancel = true;
                     event.stopPropagation();
                     break;
@@ -14454,6 +14451,8 @@ var w2prompt = function (label, title, callBack) {
             // click on menu items
             var tmp = String(id).split(':');
             var it  = this.get(tmp[0]);
+            var items = w2obj.field.prototype.normMenu.call(this, it.items, it);
+
             if (tmp.length > 1) {
                 var subItem = this.get(id);
                 if (subItem && !subItem.disabled) {
@@ -14471,8 +14470,8 @@ var w2prompt = function (label, title, callBack) {
                 $(btn).removeClass('down'); // need to requery at the moment -- as well as elsewhere in this function
 
                 if (it.type == 'radio') {
-                    for (var i = 0; i < this.items.length; i++) {
-                        var itt = this.items[i];
+                    for (var i = 0; i < items.length; i++) {
+                        var itt = items[i];
                         if (itt == null || itt.id == it.id || itt.type !== 'radio') continue;
                         if (itt.group == it.group && itt.checked) {
                             itt.checked = false;
@@ -14516,17 +14515,17 @@ var w2prompt = function (label, title, callBack) {
                                 var menuType = 'normal';
                                 if (it.type == 'menu-radio') {
                                     menuType = 'radio';
-                                    it.items.forEach(function (item) {
+                                    items.forEach(function (item) {
                                         if (it.selected == item.id) item.checked = true; else item.checked = false;
                                     });
                                 }
                                 if (it.type == 'menu-check') {
                                     menuType = 'check';
-                                    it.items.forEach(function (item) {
+                                    items.forEach(function (item) {
                                         if ($.isArray(it.selected) && it.selected.indexOf(item.id) != -1) item.checked = true; else item.checked = false;
                                     });
                                 }
-                                el.w2menu($.extend({ name: obj.name, items: it.items, left: left, top: 3 }, it.overlay, {
+                                el.w2menu($.extend({ name: obj.name, items: items, left: left, top: 3 }, it.overlay, {
                                     type: menuType,
                                     select: function (event) {
                                         obj.menuClick({ name: obj.name, item: it, subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen });
@@ -14902,7 +14901,9 @@ var w2prompt = function (label, title, callBack) {
                 var item = this.get(event.item.id);
                 if (item.type == 'menu-radio') {
                     item.selected = it.id;
-                    event.item.items.forEach(function (item) { item.checked = false; });
+                    if (Array.isArray(event.item.items)) {
+                        event.item.items.forEach(function (item) { item.checked = false; });
+                    }
                     it.checked = true;
                 }
                 if (item.type == 'menu-check') {
@@ -14990,6 +14991,9 @@ var w2prompt = function (label, title, callBack) {
 *   - node.caption - deprecated
 *   - node.text - can be a function
 *   - node.icon - can be a function
+*
+* == 1.5 changes
+*   - node.class - ne property
 *
 ************************************************************************/
 
@@ -15847,7 +15851,7 @@ var w2prompt = function (label, title, callBack) {
                 }
                 if (nd.group) {
                     html =
-                        '<div class="w2ui-node-group w2ui-level-'+ level +'" id="node_'+ nd.id +'"'+
+                        '<div class="w2ui-node-group w2ui-level-'+ level + (nd.class ? ' ' + nd.class : '') +'" id="node_'+ nd.id +'"'+
                         '   style="'+ (nd.hidden ? 'display: none' : '') +'" onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
                         '   oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
                         '   onmouseout="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
@@ -15863,13 +15867,13 @@ var w2prompt = function (label, title, callBack) {
                 } else {
                     if (nd.selected && !nd.disabled) obj.selected = nd.id;
                     tmp = '';
-                    if (img) tmp  = '<div class="w2ui-node-image w2ui-icon '+ img +    (nd.selected && !nd.disabled ? " w2ui-icon-selected" : "") +'"></div>';
+                    if (img) tmp  = '<div class="w2ui-node-image w2ui-icon '+ img + (nd.selected && !nd.disabled ? " w2ui-icon-selected" : "") +'"></div>';
                     if (icon) {
                         tmp = '<div class="w2ui-node-image"><span class="' + (typeof icon == 'function' ? icon.call(obj, nd) : icon) + '"></span></div>';
                     }
                     var text = nd.text;
                     if (typeof nd.text == 'function') text = nd.text.call(obj, nd);
-                    html =  '<div class="w2ui-node w2ui-level-'+ level +' '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
+                    html =  '<div class="w2ui-node w2ui-level-'+ level + (nd.selected ? ' w2ui-selected' : '') + (nd.disabled ? ' w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
                             '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
                             '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
                             '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
@@ -15887,7 +15891,7 @@ var w2prompt = function (label, title, callBack) {
                             '</div>'+
                             '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
                     if (obj.flat) {
-                        html =  '<div class="w2ui-node w2ui-level-'+ level +' '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
+                        html =  '<div class="w2ui-node w2ui-level-'+ level +' '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
                                 '    onmouseover="jQuery(this).find(\'.w2ui-node-data\').w2tag(w2utils.base64decode(\''+
                                                 w2utils.base64encode(text + (nd.count || nd.count === 0 ? ' - <span class="w2ui-node-count">'+ nd.count +'</span>' : '')) + '\'), '+
                                 '               { id: \'' + nd.id + '\', left: -5 })"'+
@@ -15973,6 +15977,7 @@ var w2prompt = function (label, title, callBack) {
 *   - ENUM, LIST: should have same as grid (limit, offset, search, sort)
 *   - ENUM, LIST: should support wild chars
 *   - add selection of predefined times (used for appointments)
+*   - options.items - can be an array
 *
 ************************************************************************/
 
@@ -16255,13 +16260,17 @@ var w2prompt = function (label, title, callBack) {
                         openOnFocus     : false,        // if to show overlay onclick or when typing
                         markSearch      : false
                     };
-                    options.items = this.normMenu(options.items); // need to be first
+                    if (typeof options.items == 'function') {
+                        options._items_fun = options.items
+                    }
+                    // need to be first
+                    options.items = w2obj.field.prototype.normMenu.call(this, options.items);
                     if (this.type === 'list') {
                         // defaults.search = (options.items && options.items.length >= 10 ? true : false);
                         defaults.openOnFocus = true;
                         $(this.el).addClass('w2ui-select');
                         // if simple value - look it up
-                        if (!$.isPlainObject(options.selected) && options.items) {
+                        if (!$.isPlainObject(options.selected) && Array.isArray(options.items)) {
                             for (var i = 0; i< options.items.length; i++) {
                                 var item = options.items[i];
                                 if (item && item.id === options.selected) {
@@ -16329,8 +16338,11 @@ var w2prompt = function (label, title, callBack) {
                         onScroll        : null           // when div with selected items is scrolled
                     };
                     options = $.extend({}, defaults, options, { suffix: '' });
-                    options.items    = this.normMenu(options.items);
-                    options.selected = this.normMenu(options.selected);
+                    if (typeof options.items == 'function') {
+                        options._items_fun = options.items
+                    }
+                    options.items    = w2obj.field.prototype.normMenu.call(this, options.items);
+                    options.selected = w2obj.field.prototype.normMenu.call(this, options.selected);
                     this.options = options;
                     if (!$.isArray(options.selected)) options.selected = [];
                     $(this.el).data('selected', options.selected);
@@ -16892,6 +16904,10 @@ var w2prompt = function (label, title, callBack) {
                     obj.search();
                     setTimeout(function () { obj.updateOverlay(); }, 1);
                 }, 1);
+                // regenerat items
+                if (typeof obj.options._items_fun == 'function') {
+                    obj.options.items = w2obj.field.prototype.normMenu.call(this, obj.options._items_fun);
+                }
             }
             // file
             if (obj.type === 'file') {
@@ -17507,10 +17523,11 @@ var w2prompt = function (label, title, callBack) {
                 search = target.val();
                 for (var s in selected) { if (selected[s]) ids.push(selected[s].id); }
             }
+            var items = options.items;
             if (obj.tmp.xhr_loading !== true) {
                 var shown = 0;
-                for (var i = 0; i < options.items.length; i++) {
-                    var item = options.items[i];
+                for (var i = 0; i < items.length; i++) {
+                    var item = items[i];
                     if (options.compare != null) {
                         if (typeof options.compare === 'function') {
                             item.hidden = (options.compare.call(this, item, search) === false ? true : false);
@@ -17532,7 +17549,7 @@ var w2prompt = function (label, title, callBack) {
                 }
                 // preselect first item
                 options.index = -1;
-                while (options.items[options.index] && options.items[options.index].hidden) options.index++;
+                while (items[options.index] && items[options.index].hidden) options.index++;
                 if (shown <= 0) options.index = -1;
                 options.spinner = false;
                 obj.updateOverlay();
@@ -17543,7 +17560,7 @@ var w2prompt = function (label, title, callBack) {
                     }
                 }, 1);
             } else {
-                options.items.splice(0, options.cacheMax);
+                items.splice(0, options.cacheMax);
                 options.spinner = true;
                 obj.updateOverlay();
             }
@@ -17860,7 +17877,7 @@ var w2prompt = function (label, title, callBack) {
                     if (options.msgNoItems != null) msgNoItems = options.msgNoItems;
                     if (typeof msgNoItems === 'function') msgNoItems = msgNoItems(options);
                     if (userError) msgNoItems = userError;
-                    $(el).w2menu((!indexOnly ? 'refresh' : 'refresh-index'), $.extend(true, {}, options, {
+                    var params = $.extend(true, {}, options, {
                         search     : false,
                         render     : options.renderDrop,
                         maxHeight  : options.maxDropHeight,
@@ -17890,7 +17907,8 @@ var w2prompt = function (label, title, callBack) {
                                 if (obj.helpers.focus) obj.helpers.focus.find('input').val('');
                             }
                         }
-                    }));
+                    });
+                    $(el).w2menu((!indexOnly ? 'refresh' : 'refresh-index'), params);
                 }
             }
         },
@@ -18464,7 +18482,7 @@ var w2prompt = function (label, title, callBack) {
             }
         },
 
-        normMenu: function (menu) {
+        normMenu: function (menu, el) {
             if ($.isArray(menu)) {
                 for (var m = 0; m < menu.length; m++) {
                     if (typeof menu[m] === 'string') {
@@ -18477,7 +18495,7 @@ var w2prompt = function (label, title, callBack) {
                 }
                 return menu;
             } else if (typeof menu === 'function') {
-                return this.normMenu(menu());
+                return w2obj.field.prototype.normMenu.call(this, menu.call(this, el));
             } else if (typeof menu === 'object') {
                 var tmp = [];
                 for (var m in menu) tmp.push({ id: m, text: menu[m] });
@@ -18724,9 +18742,10 @@ var w2prompt = function (label, title, callBack) {
 *   - added nestedFields: use field name containing dots as separator to look into objects
 *   - added getValue(), setValue()
 *   - added getChanges()
-*   - added getCleanRecord()
+*   - added getCleanRecord(strict)
 *   - added applyFocus()
 *   - deprecated field.name -> field.field
+*   - options.items - can be an array
 *
 ************************************************************************/
 
@@ -19195,7 +19214,7 @@ var w2prompt = function (label, title, callBack) {
             }
         },
 
-        getCleanRecord: function () {
+        getCleanRecord: function (strict) {
             var data = $.extend(true, {}, this.record);
             this.fields.forEach(function (fld) {
                 if (['list', 'combo', 'enum'].indexOf(fld.type) != -1) {
@@ -19218,6 +19237,12 @@ var w2prompt = function (label, title, callBack) {
                     if (val._order) delete val._order
                 }
             }.bind(this))
+            // return only records presend in description
+            if (strict === true) {
+                Object.keys(data).forEach(function (key) {
+                    if (!this.get(key)) delete data[key]
+                }.bind(this));
+            }
             return data;
         },
 
@@ -19657,7 +19682,7 @@ var w2prompt = function (label, title, callBack) {
                         var items =  field.options.items ? field.options.items : field.html.items;
                         if (!$.isArray(items)) items = [];
                         if (items.length > 0) {
-                            items = w2obj.field.prototype.normMenu(items);
+                            items = w2obj.field.prototype.normMenu.call(this, items, field);
                         }
                         // generate
                         for (var i = 0; i < items.length; i++) {
@@ -19671,7 +19696,7 @@ var w2prompt = function (label, title, callBack) {
                         var items =  field.options.items ? field.options.items : field.html.items;
                         if (!$.isArray(items)) items = [];
                         if (items.length > 0) {
-                            items = w2obj.field.prototype.normMenu(items);
+                            items = w2obj.field.prototype.normMenu.call(this, items, field);
                         }
                         // generate
                         for (var i = 0; i < items.length; i++) {
@@ -20083,18 +20108,17 @@ var w2prompt = function (label, title, callBack) {
                             // normalized options
                             if (!field.options.items) field.options.items = [];
                             var items = field.options.items;
-                            if ($.isArray(items) && items.length > 0 && !$.isPlainObject(items[0])) {
-                                field.options.items = w2obj.field.prototype.normMenu(items);
-                            }
                             // find value from items
                             var isFound = false;
-                            for (var i = 0; i < field.options.items.length; i++) {
-                                var item = field.options.items[i];
-                                if (item.id == tmp_value) {
-                                    value = $.extend(true, {}, item);
-                                    obj.setValue(field.name, value);
-                                    isFound = true;
-                                    break;
+                            if (Array.isArray(field.options.items)) {
+                                for (var i = 0; i < field.options.items.length; i++) {
+                                    var item = field.options.items[i];
+                                    if (item.id == tmp_value) {
+                                        value = $.extend(true, {}, item);
+                                        obj.setValue(field.name, value);
+                                        isFound = true;
+                                        break;
+                                    }
                                 }
                             }
                             if (!isFound && value != null && value !== '') {
@@ -20112,19 +20136,23 @@ var w2prompt = function (label, title, callBack) {
                         break;
                     case 'enum':
                     case 'file':
-                        if (!$.isArray(value)) value = [];
-                        if (!$.isArray(field.options.items)) field.options.items = [];
-                        // find value from items
-                        var isFound = false;
                         var sel = [];
-                        value.forEach(function (val) {
-                            field.options.items.forEach(function (it) {
-                                if (it.id && (it.id == val || ($.isPlainObject(val) && it.id == val.id))) {
-                                    sel.push($.isPlainObject(it) ? $.extend(true, {}, it) : it);
-                                    isFound = true
-                                }
+                        var isFound = false;
+                        if (!$.isArray(value)) value = [];
+                        if (typeof field.options.items != 'function') {
+                            if (!$.isArray(field.options.items)) {
+                                field.options.items = [];
+                            }
+                            // find value from items
+                            value.forEach(function (val) {
+                                field.options.items.forEach(function (it) {
+                                    if (it.id && (it.id == val || ($.isPlainObject(val) && it.id == val.id))) {
+                                        sel.push($.isPlainObject(it) ? $.extend(true, {}, it) : it);
+                                        isFound = true
+                                    }
+                                })
                             })
-                        })
+                        }
                         if (!isFound && value != null && value.length !== 0) {
                             field.$el.data('find_selected', value);
                             sel = value
@@ -20137,7 +20165,7 @@ var w2prompt = function (label, title, callBack) {
                         // generate options
                         var items = field.options.items;
                         if (items != null && items.length > 0) {
-                            items = w2obj.field.prototype.normMenu(items);
+                            items = w2obj.field.prototype.normMenu.call(this, items, field);
                             $(field.el).html('');
                             for (var it = 0; it < items.length; it++) {
                                 $(field.el).append('<option value="'+ items[it].id +'">' + items[it].text + '</option');
