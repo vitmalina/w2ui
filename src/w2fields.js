@@ -20,6 +20,7 @@
 *   - ENUM, LIST: should have same as grid (limit, offset, search, sort)
 *   - ENUM, LIST: should support wild chars
 *   - add selection of predefined times (used for appointments)
+*   - options.items - can be an array
 *
 ************************************************************************/
 
@@ -302,13 +303,17 @@
                         openOnFocus     : false,        // if to show overlay onclick or when typing
                         markSearch      : false
                     };
-                    options.items = this.normMenu(options.items); // need to be first
+                    if (typeof options.items == 'function') {
+                        options._items_fun = options.items
+                    }
+                    // need to be first
+                    options.items = w2obj.field.prototype.normMenu.call(this, options.items);
                     if (this.type === 'list') {
                         // defaults.search = (options.items && options.items.length >= 10 ? true : false);
                         defaults.openOnFocus = true;
                         $(this.el).addClass('w2ui-select');
                         // if simple value - look it up
-                        if (!$.isPlainObject(options.selected) && options.items) {
+                        if (!$.isPlainObject(options.selected) && Array.isArray(options.items)) {
                             for (var i = 0; i< options.items.length; i++) {
                                 var item = options.items[i];
                                 if (item && item.id === options.selected) {
@@ -376,8 +381,11 @@
                         onScroll        : null           // when div with selected items is scrolled
                     };
                     options = $.extend({}, defaults, options, { suffix: '' });
-                    options.items    = this.normMenu(options.items);
-                    options.selected = this.normMenu(options.selected);
+                    if (typeof options.items == 'function') {
+                        options._items_fun = options.items
+                    }
+                    options.items    = w2obj.field.prototype.normMenu.call(this, options.items);
+                    options.selected = w2obj.field.prototype.normMenu.call(this, options.selected);
                     this.options = options;
                     if (!$.isArray(options.selected)) options.selected = [];
                     $(this.el).data('selected', options.selected);
@@ -939,6 +947,10 @@
                     obj.search();
                     setTimeout(function () { obj.updateOverlay(); }, 1);
                 }, 1);
+                // regenerat items
+                if (typeof obj.options._items_fun == 'function') {
+                    obj.options.items = w2obj.field.prototype.normMenu.call(this, obj.options._items_fun);
+                }
             }
             // file
             if (obj.type === 'file') {
@@ -1554,10 +1566,11 @@
                 search = target.val();
                 for (var s in selected) { if (selected[s]) ids.push(selected[s].id); }
             }
+            var items = options.items;
             if (obj.tmp.xhr_loading !== true) {
                 var shown = 0;
-                for (var i = 0; i < options.items.length; i++) {
-                    var item = options.items[i];
+                for (var i = 0; i < items.length; i++) {
+                    var item = items[i];
                     if (options.compare != null) {
                         if (typeof options.compare === 'function') {
                             item.hidden = (options.compare.call(this, item, search) === false ? true : false);
@@ -1579,7 +1592,7 @@
                 }
                 // preselect first item
                 options.index = -1;
-                while (options.items[options.index] && options.items[options.index].hidden) options.index++;
+                while (items[options.index] && items[options.index].hidden) options.index++;
                 if (shown <= 0) options.index = -1;
                 options.spinner = false;
                 obj.updateOverlay();
@@ -1590,7 +1603,7 @@
                     }
                 }, 1);
             } else {
-                options.items.splice(0, options.cacheMax);
+                items.splice(0, options.cacheMax);
                 options.spinner = true;
                 obj.updateOverlay();
             }
@@ -1907,7 +1920,7 @@
                     if (options.msgNoItems != null) msgNoItems = options.msgNoItems;
                     if (typeof msgNoItems === 'function') msgNoItems = msgNoItems(options);
                     if (userError) msgNoItems = userError;
-                    $(el).w2menu((!indexOnly ? 'refresh' : 'refresh-index'), $.extend(true, {}, options, {
+                    var params = $.extend(true, {}, options, {
                         search     : false,
                         render     : options.renderDrop,
                         maxHeight  : options.maxDropHeight,
@@ -1937,7 +1950,8 @@
                                 if (obj.helpers.focus) obj.helpers.focus.find('input').val('');
                             }
                         }
-                    }));
+                    });
+                    $(el).w2menu((!indexOnly ? 'refresh' : 'refresh-index'), params);
                 }
             }
         },
@@ -2511,7 +2525,7 @@
             }
         },
 
-        normMenu: function (menu) {
+        normMenu: function (menu, el) {
             if ($.isArray(menu)) {
                 for (var m = 0; m < menu.length; m++) {
                     if (typeof menu[m] === 'string') {
@@ -2524,7 +2538,7 @@
                 }
                 return menu;
             } else if (typeof menu === 'function') {
-                return this.normMenu(menu());
+                return w2obj.field.prototype.normMenu.call(this, menu.call(this, el));
             } else if (typeof menu === 'object') {
                 var tmp = [];
                 for (var m in menu) tmp.push({ id: m, text: menu[m] });

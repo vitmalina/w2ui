@@ -82,7 +82,15 @@
                         compare: function (item) {
                             if (item.id < 4) return false;
                         },
-                        items: [
+                        items: function(el) {
+                            console.log('LIST', el)
+                            console.log(this)
+                            return [
+                                { id: 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
+                                { id: 'item2', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) }
+                            ]
+                        },
+                        items1: [
                             { id: 0, text: 'Pickle, Susan' },
                             { id: 1, text: 'Adams, John' },
                             { id: 2, text: 'Openhimer, Peter' },
@@ -98,13 +106,32 @@
                 },
                 { field: 'field.combo', type: 'combo', required: false,
                     options: {
-                        applyFilter: true,
-                        url : 'listdat.json'
+                        applyFilter: false,
+                        items: function(el) {
+                            console.log('COMBO', el)
+                            console.log(this)
+                            return [
+                                { id: 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
+                                { id: 'item2', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) }
+                            ]
+                        },
+                        // url : 'listdat.json'
                     }
                 },
                 { field: 'field.enum', type: 'enum', required: false,
                     html: { attr: 'style="width: 400px"' },
-                    options: { items: [{id: 1, text: 'Adams, John'}, 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] } },
+                    options: {
+                        items: function (el) {
+                            console.log('ENUM', el)
+                            console.log(this)
+                            return [
+                                { id: 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
+                                { id: 'item2', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) }
+                            ]
+                        },
+                        items1: [{id: 1, text: 'Adams, John'}, 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick']
+                    }
+                },
                 { field: 'field.file', type: 'file', required: false, html: { attr: 'style="width: 400px"' } },
                 // second page
                 { field: 'field.email', type: 'email', required: true, html: { page: 1 } },

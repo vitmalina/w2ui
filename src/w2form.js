@@ -36,9 +36,10 @@
 *   - added nestedFields: use field name containing dots as separator to look into objects
 *   - added getValue(), setValue()
 *   - added getChanges()
-*   - added getCleanRecord()
+*   - added getCleanRecord(strict)
 *   - added applyFocus()
 *   - deprecated field.name -> field.field
+*   - options.items - can be an array
 *
 ************************************************************************/
 
@@ -507,7 +508,7 @@
             }
         },
 
-        getCleanRecord: function () {
+        getCleanRecord: function (strict) {
             var data = $.extend(true, {}, this.record);
             this.fields.forEach(function (fld) {
                 if (['list', 'combo', 'enum'].indexOf(fld.type) != -1) {
@@ -530,6 +531,12 @@
                     if (val._order) delete val._order
                 }
             }.bind(this))
+            // return only records presend in description
+            if (strict === true) {
+                Object.keys(data).forEach(function (key) {
+                    if (!this.get(key)) delete data[key]
+                }.bind(this));
+            }
             return data;
         },
 
@@ -969,7 +976,7 @@
                         var items =  field.options.items ? field.options.items : field.html.items;
                         if (!$.isArray(items)) items = [];
                         if (items.length > 0) {
-                            items = w2obj.field.prototype.normMenu(items);
+                            items = w2obj.field.prototype.normMenu.call(this, items, field);
                         }
                         // generate
                         for (var i = 0; i < items.length; i++) {
@@ -983,7 +990,7 @@
                         var items =  field.options.items ? field.options.items : field.html.items;
                         if (!$.isArray(items)) items = [];
                         if (items.length > 0) {
-                            items = w2obj.field.prototype.normMenu(items);
+                            items = w2obj.field.prototype.normMenu.call(this, items, field);
                         }
                         // generate
                         for (var i = 0; i < items.length; i++) {
@@ -1395,18 +1402,17 @@
                             // normalized options
                             if (!field.options.items) field.options.items = [];
                             var items = field.options.items;
-                            if ($.isArray(items) && items.length > 0 && !$.isPlainObject(items[0])) {
-                                field.options.items = w2obj.field.prototype.normMenu(items);
-                            }
                             // find value from items
                             var isFound = false;
-                            for (var i = 0; i < field.options.items.length; i++) {
-                                var item = field.options.items[i];
-                                if (item.id == tmp_value) {
-                                    value = $.extend(true, {}, item);
-                                    obj.setValue(field.name, value);
-                                    isFound = true;
-                                    break;
+                            if (Array.isArray(field.options.items)) {
+                                for (var i = 0; i < field.options.items.length; i++) {
+                                    var item = field.options.items[i];
+                                    if (item.id == tmp_value) {
+                                        value = $.extend(true, {}, item);
+                                        obj.setValue(field.name, value);
+                                        isFound = true;
+                                        break;
+                                    }
                                 }
                             }
                             if (!isFound && value != null && value !== '') {
@@ -1424,19 +1430,23 @@
                         break;
                     case 'enum':
                     case 'file':
-                        if (!$.isArray(value)) value = [];
-                        if (!$.isArray(field.options.items)) field.options.items = [];
-                        // find value from items
-                        var isFound = false;
                         var sel = [];
-                        value.forEach(function (val) {
-                            field.options.items.forEach(function (it) {
-                                if (it.id && (it.id == val || ($.isPlainObject(val) && it.id == val.id))) {
-                                    sel.push($.isPlainObject(it) ? $.extend(true, {}, it) : it);
-                                    isFound = true
-                                }
+                        var isFound = false;
+                        if (!$.isArray(value)) value = [];
+                        if (typeof field.options.items != 'function') {
+                            if (!$.isArray(field.options.items)) {
+                                field.options.items = [];
+                            }
+                            // find value from items
+                            value.forEach(function (val) {
+                                field.options.items.forEach(function (it) {
+                                    if (it.id && (it.id == val || ($.isPlainObject(val) && it.id == val.id))) {
+                                        sel.push($.isPlainObject(it) ? $.extend(true, {}, it) : it);
+                                        isFound = true
+                                    }
+                                })
                             })
-                        })
+                        }
                         if (!isFound && value != null && value.length !== 0) {
                             field.$el.data('find_selected', value);
                             sel = value
@@ -1449,7 +1459,7 @@
                         // generate options
                         var items = field.options.items;
                         if (items != null && items.length > 0) {
-                            items = w2obj.field.prototype.normMenu(items);
+                            items = w2obj.field.prototype.normMenu.call(this, items, field);
                             $(field.el).html('');
                             for (var it = 0; it < items.length; it++) {
                                 $(field.el).append('<option value="'+ items[it].id +'">' + items[it].text + '</option');
