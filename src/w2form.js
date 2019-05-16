@@ -1008,9 +1008,9 @@
                     case 'array':
                         field.html.key = field.html.key || {};
                         field.html.value = field.html.value || {};
-                        input = '<input id="'+ field.field +'" name="'+ field.field +'" type="hidden" '+ field.html.attr + tabindex_str + '>'+
-                                '<div class="w2ui-map-container"></div>'+
-                                field.html.text;
+                        input = '<span style="float: right">' + (field.html.text || '') + '</span>' +
+                                '<input id="'+ field.field +'" name="'+ field.field +'" type="hidden" '+ field.html.attr + tabindex_str + '>'+
+                                '<div class="w2ui-map-container"></div>';
                         break;
                     case 'html':
                     case 'custom':
@@ -1032,7 +1032,7 @@
                 if (field.html.anchor == null) {
                     html += '\n      <div class="w2ui-field '+ (field.html.span != null ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+
                             '\n         <label>' + w2utils.lang(field.html.label) +'</label>'+
-                            ((field.type === 'empty') ? '' : '\n         <div>'+ input + w2utils.lang(field.html.text) + '</div>') +
+                            ((field.type === 'empty') ? '' : '\n         <div>'+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.html.text) : '') + '</div>') +
                             '\n      </div>';
                 } else {
                     pages[field.html.page].anchors = pages[field.html.page].anchors || {};
@@ -1591,7 +1591,7 @@
                                                     aMap.value = value
                                                 }
                                             } else {
-                                                map.splice(aInd, 1)
+                                                map.splice(aIndex, 1)
                                             }
                                         }
                                         obj.setValue(field.field, map)

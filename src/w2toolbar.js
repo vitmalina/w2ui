@@ -313,9 +313,9 @@
         click: function (id, event) {
             var obj = this;
             // click on menu items
-            var tmp = String(id).split(':');
-            var it  = this.get(tmp[0]);
-            var items = w2obj.field.prototype.normMenu.call(this, it.items, it);
+            var tmp   = String(id).split(':');
+            var it    = this.get(tmp[0]);
+            var items = (it && it.items ? w2obj.field.prototype.normMenu.call(this, it.items, it) : []);
 
             if (tmp.length > 1) {
                 var subItem = this.get(id);
@@ -334,8 +334,8 @@
                 $(btn).removeClass('down'); // need to requery at the moment -- as well as elsewhere in this function
 
                 if (it.type == 'radio') {
-                    for (var i = 0; i < items.length; i++) {
-                        var itt = items[i];
+                    for (var i = 0; i < this.items.length; i++) {
+                        var itt = this.items[i];
                         if (itt == null || itt.id == it.id || itt.type !== 'radio') continue;
                         if (itt.group == it.group && itt.checked) {
                             itt.checked = false;
