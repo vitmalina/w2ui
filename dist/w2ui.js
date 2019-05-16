@@ -13052,7 +13052,7 @@ var w2popup = {};
         focus: function () {
             var tmp = null;
             var pop = $('#w2ui-popup');
-            var sel = 'input:visible, button:visible, select:visible, textarea:visible';
+            var sel = 'input:visible, button:visible, select:visible, textarea:visible, [contentEditable]';
             // clear previous blur
             $(pop).find(sel).off('.keep-focus');
             // in message or popup
@@ -14449,9 +14449,9 @@ var w2prompt = function (label, title, callBack) {
         click: function (id, event) {
             var obj = this;
             // click on menu items
-            var tmp = String(id).split(':');
-            var it  = this.get(tmp[0]);
-            var items = w2obj.field.prototype.normMenu.call(this, it.items, it);
+            var tmp   = String(id).split(':');
+            var it    = this.get(tmp[0]);
+            var items = (it && it.items ? w2obj.field.prototype.normMenu.call(this, it.items, it) : []);
 
             if (tmp.length > 1) {
                 var subItem = this.get(id);
@@ -14470,8 +14470,8 @@ var w2prompt = function (label, title, callBack) {
                 $(btn).removeClass('down'); // need to requery at the moment -- as well as elsewhere in this function
 
                 if (it.type == 'radio') {
-                    for (var i = 0; i < items.length; i++) {
-                        var itt = items[i];
+                    for (var i = 0; i < this.items.length; i++) {
+                        var itt = this.items[i];
                         if (itt == null || itt.id == it.id || itt.type !== 'radio') continue;
                         if (itt.group == it.group && itt.checked) {
                             itt.checked = false;
@@ -19714,9 +19714,9 @@ var w2prompt = function (label, title, callBack) {
                     case 'array':
                         field.html.key = field.html.key || {};
                         field.html.value = field.html.value || {};
-                        input = '<input id="'+ field.field +'" name="'+ field.field +'" type="hidden" '+ field.html.attr + tabindex_str + '>'+
-                                '<div class="w2ui-map-container"></div>'+
-                                field.html.text;
+                        input = '<span style="float: right">' + (field.html.text || '') + '</span>' +
+                                '<input id="'+ field.field +'" name="'+ field.field +'" type="hidden" '+ field.html.attr + tabindex_str + '>'+
+                                '<div class="w2ui-map-container"></div>';
                         break;
                     case 'html':
                     case 'custom':
@@ -19738,7 +19738,7 @@ var w2prompt = function (label, title, callBack) {
                 if (field.html.anchor == null) {
                     html += '\n      <div class="w2ui-field '+ (field.html.span != null ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+
                             '\n         <label>' + w2utils.lang(field.html.label) +'</label>'+
-                            ((field.type === 'empty') ? '' : '\n         <div>'+ input + w2utils.lang(field.html.text) + '</div>') +
+                            ((field.type === 'empty') ? '' : '\n         <div>'+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.html.text) : '') + '</div>') +
                             '\n      </div>';
                 } else {
                     pages[field.html.page].anchors = pages[field.html.page].anchors || {};
@@ -20297,7 +20297,7 @@ var w2prompt = function (label, title, callBack) {
                                                     aMap.value = value
                                                 }
                                             } else {
-                                                map.splice(aInd, 1)
+                                                map.splice(aIndex, 1)
                                             }
                                         }
                                         obj.setValue(field.field, map)
