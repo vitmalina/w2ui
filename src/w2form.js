@@ -40,6 +40,7 @@
 *   - added applyFocus()
 *   - deprecated field.name -> field.field
 *   - options.items - can be an array
+*   - added form.pageStyle
 *
 ************************************************************************/
 
@@ -164,7 +165,7 @@
             // render if not loaded from url
             if (object.formURL === '') {
                 if (String(object.formHTML).indexOf('w2ui-page') === -1) {
-                    object.formHTML = '<div class="w2ui-page page-0">'+ object.formHTML +'</div>';
+                    object.formHTML = '<div class="w2ui-page page-0" style="'+ (object.pageStyle || '') +'">'+ object.formHTML +'</div>';
                 }
                 $(object.box).html(object.formHTML);
                 object.isGenerated = true;
@@ -1080,7 +1081,7 @@
             }
             html = '';
             for (var p = 0; p < pages.length; p++){
-                html += '<div class="w2ui-page page-'+ p +'" ' + ((p===0)?'':'style="display: none;"') + '>';
+                html += '<div class="w2ui-page page-'+ p +'" style="' + (p !== 0 ? 'display: none;' : '') + this.pageStyle + '">';
                 if (pages[p].before) {
                     html += pages[p].before;
                 }
@@ -1481,10 +1482,11 @@
                         // need closure
                         (function (obj, field) {
                             field.el.mapAdd = function (field, div, cnt) {
+                                var attr = (field.disabled ? 'readOnly ' : '');
                                 var html =  '<div class="w2ui-map-field" style="margin-bottom: 5px">'+
-                                    '<input id="'+ field.field +'_key_'+ cnt +'" data-cnt="'+ cnt +'" type="text" '+ field.html.key.attr +' class="w2ui-input w2ui-map key"/>'+
+                                    '<input id="'+ field.field +'_key_'+ cnt +'" data-cnt="'+ cnt +'" type="text" '+ field.html.key.attr + attr +' class="w2ui-input w2ui-map key"/>'+
                                         (field.html.key.text || '') +
-                                    '<input id="'+ field.field +'_value_'+ cnt +'" data-cnt="'+ cnt +'" type="text" '+ field.html.value.attr +' class="w2ui-input w2ui-map value"/>'+
+                                    '<input id="'+ field.field +'_value_'+ cnt +'" data-cnt="'+ cnt +'" type="text" '+ field.html.value.attr + attr +' class="w2ui-input w2ui-map value"/>'+
                                         (field.html.value.text || '') +
                                     '</div>';
                                 div.append(html)
@@ -1503,25 +1505,25 @@
                                     names = map.map(function (item) { return item.key })
                                 }
                                 names.forEach(function (item) {
-                                    var $k = div.find('#' + field.name + '_key_' + cnt)
-                                    var $v = div.find('#' + field.name + '_value_' + cnt)
+                                    var $k = div.find('#' + w2utils.escapeId(field.name) + '_key_' + cnt)
+                                    var $v = div.find('#' + w2utils.escapeId(field.name) + '_value_' + cnt)
                                     if ($k.length == 0 || $v.length == 0) {
                                         field.el.mapAdd(field, div, cnt)
-                                        $k = div.find('#' + field.name + '_key_' + cnt)
-                                        $v = div.find('#' + field.name + '_value_' + cnt)
+                                        $k = div.find('#' + w2utils.escapeId(field.name) + '_key_' + cnt)
+                                        $v = div.find('#' + w2utils.escapeId(field.name) + '_value_' + cnt)
                                     }
                                     var val = map[item];
                                     if (field.type == 'array') {
                                         var tmp = map.filter(function(it) { return it.key == item ? true : false})
                                         if (tmp.length > 0) val = tmp[0].value
                                     }
-                                    $k.val(item)
-                                    $v.val(val)
+                                    $k.val(item).prop('readOnly', field.disabled ? true : false)
+                                    $v.val(val).prop('readOnly', field.disabled ? true : false)
                                     $k.parents('.w2ui-map-field').attr('data-key', item)
                                     cnt++
                                 })
-                                var curr = div.find('#' + field.name + '_key_' + cnt).parent()
-                                var next = div.find('#' + field.name + '_key_' + (cnt + 1)).parent()
+                                var curr = div.find('#' + w2utils.escapeId(field.name) + '_key_' + cnt).parent()
+                                var next = div.find('#' + w2utils.escapeId(field.name) + '_key_' + (cnt + 1)).parent()
                                 if (curr.length == 0) {
                                     field.el.mapAdd(field, div, cnt);
                                 }
@@ -1531,9 +1533,18 @@
                                     curr.find('.value').val(next.find('.value').val());
                                     next.remove()
                                 }
+                                curr.find('.key').prop('readOnly', field.disabled ? true : false)
+                                curr.find('.value').prop('readOnly', field.disabled ? true : false)
                                 // attach events
                                 $(field.el).next().find('input.w2ui-map')
                                     .off('.mapChange')
+                                    .on('keyup.mapChange', function (event) {
+                                        var $div  = $(event.target).parents('.w2ui-map-field')
+                                        if (event.keyCode == 13) {
+                                            $div.next().find('input.key').focus()
+                                        }
+
+                                    })
                                     .on('change.mapChange', function () {
                                         var $div  = $(event.target).parents('.w2ui-map-field')
                                         var old   = $div.attr('data-key')

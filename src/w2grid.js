@@ -119,6 +119,7 @@
 *   - message(.., callBack) - added callBack
 *   - grid.msgEmpty
 *   - field.render(..., data) -- added last argument which is what grid thinks should be there
+*   - field.render can return { html, class, style } as an object
 *   - onSearchOpen (onSearch will have mutli and reset flags)
 *   - added httpHeaders
 *   - col.editable can be a function which will be called with the same args as col.render()
@@ -1431,13 +1432,13 @@
                         $range.find('.w2ui-selection-resizer').hide();
                     }
                     if (first.recid != null && last.recid != null && td1f.length > 0 && td2f.length > 0) {
-                        var _left = (td1f.position().left - 1 + rec1.scrollLeft());
-                        var _top  = (td1f.position().top - 1 + rec1.scrollTop());
+                        var _left = (td1f.position().left - 0 + rec1.scrollLeft());
+                        var _top  = (td1f.position().top - 0 + rec1.scrollTop());
                         $range.show().css({
                             left    : (_left > 0 ? _left : 0) + 'px',
                             top     : (_top > 0 ? _top : 0) + 'px',
-                            width   : (td2f.position().left - td1f.position().left + td2f.width() + 3) + 'px',
-                            height  : (td2f.position().top - td1f.position().top + td2f.height() + 3) + 'px'
+                            width   : (td2f.position().left - td1f.position().left + td2f.width() + 2) + 'px',
+                            height  : (td2f.position().top - td1f.position().top + td2f.height() + 1) + 'px'
                         });
                     } else {
                         $range.hide();
@@ -1464,13 +1465,13 @@
                         $range.css('border-left', '0px');
                     }
                     if (first.recid != null && last.recid != null && td1.length > 0 && td2.length > 0) {
-                        var _left = (td1.position().left - 1 + rec2.scrollLeft());
-                        var _top  = (td1.position().top - 1 + rec2.scrollTop());
+                        var _left = (td1.position().left - 0 + rec2.scrollLeft());
+                        var _top  = (td1.position().top - 0 + rec2.scrollTop());
                         $range.show().css({
                             left    : (_left > 0 ? _left : 0) + 'px',
                             top     : (_top > 0 ? _top : 0) + 'px',
-                            width   : (td2.position().left - td1.position().left + td2.width() + 3) + 'px',
-                            height  : (td2.position().top - td1.position().top + td2.height() + 3) + 'px'
+                            width   : (td2.position().left - td1.position().left + td2.width() + 2) + 'px',
+                            height  : (td2.position().top - td1.position().top + td2.height() + 1) + 'px'
                         });
                     } else {
                         $range.hide();
@@ -7095,7 +7096,7 @@
             if (rec_class == null || typeof rec_class != 'string') rec_class = '';
             // render TR
             rec_html1 += '<tr id="grid_'+ this.name +'_frec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" index="'+ ind +'" '+
-                ' class="'+ (lineNum % 2 === 0 ? 'w2ui-even' : 'w2ui-odd') + ' ' + rec_class +
+                ' class="'+ (lineNum % 2 === 0 ? 'w2ui-even' : 'w2ui-odd') + ' w2ui-record ' + rec_class +
                     (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') +
                     (record.w2ui && record.w2ui.editable === false ? ' w2ui-no-edit' : '') +
                     (record.w2ui && record.w2ui.expanded === true ? ' w2ui-expanded' : '') + '" ' +
@@ -7117,7 +7118,7 @@
                     (rec_style != '' ? 'custom_style="'+ rec_style +'"' : '') +
                 '>';
             rec_html2 += '<tr id="grid_'+ this.name +'_rec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" index="'+ ind +'" '+
-                ' class="'+ (lineNum % 2 === 0 ? 'w2ui-even' : 'w2ui-odd') + ' ' + rec_class +
+                ' class="'+ (lineNum % 2 === 0 ? 'w2ui-even' : 'w2ui-odd') + ' w2ui-record ' + rec_class +
                     (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') +
                     (record.w2ui && record.w2ui.editable === false ? ' w2ui-no-edit' : '') +
                     (record.w2ui && record.w2ui.expanded === true ? ' w2ui-expanded' : '') + '" ' +
@@ -7315,7 +7316,14 @@
             // various renderers
             if (col.render != null && ind !== -1) {
                 if (typeof col.render == 'function') {
-                    data = $.trim(col.render.call(this, record, ind, col_ind, data));
+                    var html = col.render.call(this, record, ind, col_ind, data)
+                    if (html != null && typeof html == 'object') {
+                        data = $.trim(html.html || '');
+                        addClass = html.class || '';
+                        addStyle = html.style || '';
+                    } else {
+                        data = $.trim(html);
+                    }
                     if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') {
                         data = '<div style="'+ style +'">' + infoBubble + String(data) + '</div>';
                     }
