@@ -1078,6 +1078,16 @@ button.w2ui-btn-small:focus:before {
   opacity: 0.3;
   background-color: transparent !important;
 }
+.w2ui-field.w2ui-span-none > label {
+  margin: 0;
+  padding: 5px 0 0 4px;
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+.w2ui-field.w2ui-span-none > div {
+  margin-left: 0;
+}
 .w2ui-field.w2ui-span0 > label {
   display: none;
 }
