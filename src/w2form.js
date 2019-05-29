@@ -41,6 +41,7 @@
 *   - deprecated field.name -> field.field
 *   - options.items - can be an array
 *   - added form.pageStyle
+*   - added html.span -1 - then label is displayed on top
 *
 ************************************************************************/
 
@@ -957,10 +958,10 @@
                     console.log('NOTICE: form field.html.caption property is deprecated, please use field.html.label. Field ->', field)
                     field.html.label = field.html.caption;
                 }
+                if (field.html.label == null) field.html.label = field.field;
                 field.html = $.extend(true, { label: '', span: 6, attr: '', text: '', style: '', page: 0, column: 0 }, field.html);
                 if (page == null) page = field.html.page;
                 if (column == null) column = field.html.column;
-                if (field.html.label == '') field.html.label = field.field;
                 // input control
                 var input = '<input id="'+ field.field +'" name="'+ field.field +'" class="w2ui-input" type="text" '+ field.html.attr + tabindex_str + '/>';
                 switch (field.type) {
@@ -1020,7 +1021,7 @@
                         break;
 
                 }
-                if (group !== ''){
+                if (group !== '') {
                     if(page != field.html.page || column != field.html.column || (field.html.group && (group != field.html.group))){
                        pages[page][column]  += '\n   </div>';
                        group = '';
@@ -1031,13 +1032,15 @@
                     group = field.html.group;
                 }
                 if (field.html.anchor == null) {
-                    html += '\n      <div class="w2ui-field '+ (field.html.span != null ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+
-                            '\n         <label>' + w2utils.lang(field.html.label) +'</label>'+
+                    var span = (field.html.span != null ? 'w2ui-span'+ field.html.span : '')
+                    if (field.html.span == -1) span = 'w2ui-span-none';
+                    html += '\n      <div class="w2ui-field '+ span +'" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style  +'">'+
+                            '\n         <label'+ (span == 'none' ? ' style="display: none"' : '') +'>' + w2utils.lang(field.html.label) +'</label>'+
                             ((field.type === 'empty') ? '' : '\n         <div>'+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.html.text) : '') + '</div>') +
                             '\n      </div>';
                 } else {
                     pages[field.html.page].anchors = pages[field.html.page].anchors || {};
-                    pages[field.html.page].anchors[field.html.anchor] = '<div class="w2ui-field w2ui-field-inline" style="'+ field.html.style +'">'+
+                    pages[field.html.page].anchors[field.html.anchor] = '<div class="w2ui-field w2ui-field-inline" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
                             ((field.type === 'empty') ? '' : '<div>'+ w2utils.lang(field.html.label) + input + w2utils.lang(field.html.text) + '</div>') +
                             '</div>';
                 }
@@ -1441,7 +1444,7 @@
                             // find value from items
                             value.forEach(function (val) {
                                 field.options.items.forEach(function (it) {
-                                    if (it.id && (it.id == val || ($.isPlainObject(val) && it.id == val.id))) {
+                                    if (it && (it.id == val || ($.isPlainObject(val) && it.id == val.id))) {
                                         sel.push($.isPlainObject(it) ? $.extend(true, {}, it) : it);
                                         isFound = true
                                     }
@@ -1482,7 +1485,7 @@
                         // need closure
                         (function (obj, field) {
                             field.el.mapAdd = function (field, div, cnt) {
-                                var attr = (field.disabled ? 'readOnly ' : '');
+                                var attr = (field.disabled ? ' readOnly ' : '');
                                 var html =  '<div class="w2ui-map-field" style="margin-bottom: 5px">'+
                                     '<input id="'+ field.field +'_key_'+ cnt +'" data-cnt="'+ cnt +'" type="text" '+ field.html.key.attr + attr +' class="w2ui-input w2ui-map key"/>'+
                                         (field.html.key.text || '') +
@@ -1504,9 +1507,10 @@
                                     if (!Array.isArray(map)) map = []
                                     names = map.map(function (item) { return item.key })
                                 }
+                                var $k, $v;
                                 names.forEach(function (item) {
-                                    var $k = div.find('#' + w2utils.escapeId(field.name) + '_key_' + cnt)
-                                    var $v = div.find('#' + w2utils.escapeId(field.name) + '_value_' + cnt)
+                                    $k = div.find('#' + w2utils.escapeId(field.name) + '_key_' + cnt)
+                                    $v = div.find('#' + w2utils.escapeId(field.name) + '_value_' + cnt)
                                     if ($k.length == 0 || $v.length == 0) {
                                         field.el.mapAdd(field, div, cnt)
                                         $k = div.find('#' + w2utils.escapeId(field.name) + '_key_' + cnt)
@@ -1517,14 +1521,19 @@
                                         var tmp = map.filter(function(it) { return it.key == item ? true : false})
                                         if (tmp.length > 0) val = tmp[0].value
                                     }
-                                    $k.val(item).prop('readOnly', field.disabled ? true : false)
-                                    $v.val(val).prop('readOnly', field.disabled ? true : false)
+                                    $k.val(item);
+                                    $v.val(val);
+                                    if (field.disabled === true || field.disabled === false) {
+                                        $k.prop('readOnly', field.disabled ? true : false)
+                                        $v.prop('readOnly', field.disabled ? true : false)
+                                    }
                                     $k.parents('.w2ui-map-field').attr('data-key', item)
                                     cnt++
                                 })
                                 var curr = div.find('#' + w2utils.escapeId(field.name) + '_key_' + cnt).parent()
                                 var next = div.find('#' + w2utils.escapeId(field.name) + '_key_' + (cnt + 1)).parent()
-                                if (curr.length == 0) {
+                                // if not disabled - show next
+                                if (curr.length === 0 && !($k && ($k.prop('readOnly') === true || $k.prop('disabled') === true))) {
                                     field.el.mapAdd(field, div, cnt);
                                 }
                                 if (curr.length == 1 && next.length == 1) {
@@ -1533,8 +1542,10 @@
                                     curr.find('.value').val(next.find('.value').val());
                                     next.remove()
                                 }
-                                curr.find('.key').prop('readOnly', field.disabled ? true : false)
-                                curr.find('.value').prop('readOnly', field.disabled ? true : false)
+                                if (field.disabled === true || field.disabled === false) {
+                                    curr.find('.key').prop('readOnly', field.disabled ? true : false)
+                                    curr.find('.value').prop('readOnly', field.disabled ? true : false)
+                                }
                                 // attach events
                                 $(field.el).next().find('input.w2ui-map')
                                     .off('.mapChange')

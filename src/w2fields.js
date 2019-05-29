@@ -1415,7 +1415,7 @@
             if (obj.tmp.xhr_search == null) obj.tmp.xhr_search = '';
             if (obj.tmp.xhr_total == null) obj.tmp.xhr_total = -1;
             // check if need to search
-            if (options.url && $(obj.el).prop('readonly') !== true && $(obj.el).prop('disabled') !== true && (
+            if (options.url && (
                     (options.items.length === 0 && obj.tmp.xhr_total !== 0) ||
                     (obj.tmp.xhr_total == options.cacheMax && search.length > obj.tmp.xhr_search.length) ||
                     (search.length >= obj.tmp.xhr_search.length && search.substr(0, obj.tmp.xhr_search.length) !== obj.tmp.xhr_search) ||
@@ -2530,10 +2530,12 @@
                 for (var m = 0; m < menu.length; m++) {
                     if (typeof menu[m] === 'string') {
                         menu[m] = { id: menu[m], text: menu[m] };
-                    } else {
+                    } else if (menu[m] != null) {
                         if (menu[m].text != null && menu[m].id == null) menu[m].id = menu[m].text;
                         if (menu[m].text == null && menu[m].id != null) menu[m].text = menu[m].id;
                         if (menu[m].caption != null) menu[m].text = menu[m].caption;
+                    } else {
+                        menu[m] = { id: null, text: 'null' }
                     }
                 }
                 return menu;
