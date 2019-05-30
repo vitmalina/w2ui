@@ -144,7 +144,9 @@
                 { field: 'field.alpha', type: 'alphanumeric', required: false, html: { page: 1 } },
                 // third page
                 { field: 'field.select', type: 'select', required: false, options: { items: ['fist', 'second'] }, html: { page: 2 } },
-                { field: 'field.check', type: 'checkbox', required: false, html: { page: 2 } },
+                { field: 'field.check', type: 'checkbox', required: false, html: { page: 2, text: 'Options' } },
+                { field: 'field.check2', type: 'checkbox', required: false, html: { page: 2, label: 'Some long text for checkbox' } },
+                { field: 'field.check3', type: 'checkbox', required: false, html: { page: 2 } },
                 { field: 'field.radio', type: 'radio', required: false, html: { page: 2 }, options: {
                         items: [
                             { id: 0, text: 'Pickle, Susan' },
