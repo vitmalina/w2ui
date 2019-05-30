@@ -1007,6 +1007,8 @@ button.w2ui-btn-small:focus:before {
 .w2ui-form input[type=radio] {
   margin-top: 4px;
   margin-bottom: 4px;
+  width: 14px;
+  height: 14px;
 }
 .w2ui-form input[type=checkbox].w2ui-toggle {
   margin: 0px;

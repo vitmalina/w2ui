@@ -6734,7 +6734,7 @@ w2utils.event = {
             if (edata.isCancelled === true) return false;
             // default behaviour
             this.hasFocus = true;
-            $(this.box).find('.w2ui-inactive').removeClass('w2ui-inactive');
+            $(this.box).removeClass('w2ui-inactive').find('.w2ui-inactive').removeClass('w2ui-inactive');
             setTimeout(function () {
                 var $input = $(obj.box).find('#grid_'+ obj.name + '_focus');
                 if (!$input.is(':focus')) $input.focus();
@@ -6749,7 +6749,7 @@ w2utils.event = {
             if (edata.isCancelled === true) return false;
             // default behaviour
             this.hasFocus = false;
-            $(this.box).find('.w2ui-selected').addClass('w2ui-inactive');
+            $(this.box).addClass('w2ui-inactive').find('.w2ui-selected').addClass('w2ui-inactive');
             $(this.box).find('.w2ui-selection').addClass('w2ui-inactive');
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
@@ -8057,7 +8057,7 @@ w2utils.event = {
                 if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
                     $(this.box)
                         .removeAttr('name')
-                        .removeClass('w2ui-reset w2ui-grid')
+                        .removeClass('w2ui-reset w2ui-grid w2ui-inactive')
                         .html('');
                 }
                 this.box = box;
@@ -8090,7 +8090,7 @@ w2utils.event = {
             // insert elements
             $(this.box)
                 .attr('name', this.name)
-                .addClass('w2ui-reset w2ui-grid')
+                .addClass('w2ui-reset w2ui-grid w2ui-inactive')
                 .html('<div class="w2ui-grid-box">'+
                       '    <div id="grid_'+ this.name +'_header" class="w2ui-grid-header"></div>'+
                       '    <div id="grid_'+ this.name +'_toolbar" class="w2ui-grid-toolbar"></div>'+
@@ -8495,7 +8495,7 @@ w2utils.event = {
             if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
                 $(this.box)
                     .removeAttr('name')
-                    .removeClass('w2ui-reset w2ui-grid')
+                    .removeClass('w2ui-reset w2ui-grid w2ui-inactive')
                     .html('');
             }
             delete w2ui[this.name];
@@ -19744,7 +19744,10 @@ var w2prompt = function (label, title, callBack) {
                         input = '<input id="' + field.field + '" name="' + field.field + '" class="w2ui-input" type = "password" ' + field.html.attr + tabindex_str + '/>';
                         break;
                     case 'checkbox':
-                        input = '<input id="'+ field.field +'" name="'+ field.field +'" class="w2ui-input" type="checkbox" '+ field.html.attr + tabindex_str + '/>';
+                        input = '<label>'+
+                                '   <input id="'+ field.field +'" name="'+ field.field +'" style="float: left" class="w2ui-input" type="checkbox" '+ field.html.attr + tabindex_str + '/>'+
+                                '   <div style="margin: 6px 0 0 20px; user-select: none;">'+ field.html.label +'</div>'+
+                                '</label>';
                         break;
                     case 'radio':
                         input = '';
@@ -19756,8 +19759,10 @@ var w2prompt = function (label, title, callBack) {
                         }
                         // generate
                         for (var i = 0; i < items.length; i++) {
-                            input += '<label><input id="' + field.field + '" name="' + field.field + '" class="w2ui-input" type = "radio" ' + field.html.attr + (i === 0 ? tabindex_str : '') + ' value="'+ items[i].id + '"/>' +
-                                '&#160;' + items[i].text + '</label><br/>';
+                            input += '<label style="user-select: none">'+
+                                     '  <input id="' + field.field + '" name="' + field.field + '" class="w2ui-input" type = "radio" ' + field.html.attr + (i === 0 ? tabindex_str : '') + ' value="'+ items[i].id + '"/>' +
+                                        '&#160;' + items[i].text +
+                                     '</label><br/>';
                         }
                         break;
                     case 'select':
@@ -19809,13 +19814,13 @@ var w2prompt = function (label, title, callBack) {
                     var span = (field.html.span != null ? 'w2ui-span'+ field.html.span : '')
                     if (field.html.span == -1) span = 'w2ui-span-none';
                     html += '\n      <div class="w2ui-field '+ span +'" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style  +'">'+
-                            '\n         <label'+ (span == 'none' ? ' style="display: none"' : '') +'>' + w2utils.lang(field.html.label) +'</label>'+
-                            ((field.type === 'empty') ? '' : '\n         <div>'+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.html.text) : '') + '</div>') +
+                            '\n         <label'+ (span == 'none' ? ' style="display: none"' : '') +'>' + w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text) +'</label>'+
+                            ((field.type === 'empty') ? '' : '\n         <div>'+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '') : '') + '</div>') +
                             '\n      </div>';
                 } else {
                     pages[field.html.page].anchors = pages[field.html.page].anchors || {};
                     pages[field.html.page].anchors[field.html.anchor] = '<div class="w2ui-field w2ui-field-inline" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
-                            ((field.type === 'empty') ? '' : '<div>'+ w2utils.lang(field.html.label) + input + w2utils.lang(field.html.text) + '</div>') +
+                            ((field.type === 'empty') ? '' : '<div>'+ w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text) + input + w2utils.lang(field.type != 'checkbox' ? field.html.text : '') + '</div>') +
                             '</div>';
                 }
                 if (pages[field.html.page] == null) pages[field.html.page] = {};
