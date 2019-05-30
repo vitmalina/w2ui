@@ -3401,7 +3401,7 @@
             if (edata.isCancelled === true) return false;
             // default behaviour
             this.hasFocus = true;
-            $(this.box).find('.w2ui-inactive').removeClass('w2ui-inactive');
+            $(this.box).removeClass('w2ui-inactive').find('.w2ui-inactive').removeClass('w2ui-inactive');
             setTimeout(function () {
                 var $input = $(obj.box).find('#grid_'+ obj.name + '_focus');
                 if (!$input.is(':focus')) $input.focus();
@@ -3416,7 +3416,7 @@
             if (edata.isCancelled === true) return false;
             // default behaviour
             this.hasFocus = false;
-            $(this.box).find('.w2ui-selected').addClass('w2ui-inactive');
+            $(this.box).addClass('w2ui-inactive').find('.w2ui-selected').addClass('w2ui-inactive');
             $(this.box).find('.w2ui-selection').addClass('w2ui-inactive');
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
@@ -4724,7 +4724,7 @@
                 if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
                     $(this.box)
                         .removeAttr('name')
-                        .removeClass('w2ui-reset w2ui-grid')
+                        .removeClass('w2ui-reset w2ui-grid w2ui-inactive')
                         .html('');
                 }
                 this.box = box;
@@ -4757,7 +4757,7 @@
             // insert elements
             $(this.box)
                 .attr('name', this.name)
-                .addClass('w2ui-reset w2ui-grid')
+                .addClass('w2ui-reset w2ui-grid w2ui-inactive')
                 .html('<div class="w2ui-grid-box">'+
                       '    <div id="grid_'+ this.name +'_header" class="w2ui-grid-header"></div>'+
                       '    <div id="grid_'+ this.name +'_toolbar" class="w2ui-grid-toolbar"></div>'+
@@ -5162,7 +5162,7 @@
             if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
                 $(this.box)
                     .removeAttr('name')
-                    .removeClass('w2ui-reset w2ui-grid')
+                    .removeClass('w2ui-reset w2ui-grid w2ui-inactive')
                     .html('');
             }
             delete w2ui[this.name];
