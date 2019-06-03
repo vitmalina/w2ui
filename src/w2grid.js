@@ -78,6 +78,7 @@
 *   - added onColumnDblClick
 *   - implemented showBubble
 *   - added show.searchAll
+*   - added show.searchVisible
 *   - added w2grid.operators
 *   - added w2grid.operatorsMap
 *   - move events into prototype
@@ -149,6 +150,7 @@
         hideOn  : 'mouseout|mouseleave|...',
         options : {} - will be passed to w2tag (for example options.potions = 'top')
     }
+*   - added msgDeleteBtn
 *
 ************************************************************************/
 
@@ -307,6 +309,7 @@
             toolbarDelete   : false,
             toolbarSave     : false,
             searchAll       : true,
+            searchVisible   : false,
             statusRange     : true,
             statusBuffered  : false,
             statusRecordID  : true,
@@ -400,6 +403,7 @@
         },
 
         msgDelete       : 'Are you sure you want to delete NN records?',
+        msgDeleteBtn    : 'Delete',
         msgNotJSON      : 'Returned data is not in valid JSON format.',
         msgAJAXerror    : 'AJAX error. See console for more details.',
         msgRefresh      : 'Refreshing...',
@@ -2242,10 +2246,14 @@
             var html = '<div class="w2ui-select-field"><table><tbody>';
             for (var s = -1; s < this.searches.length; s++) {
                 var search = this.searches[s];
-                if (s == -1) {
+                var column = this.getColumn(search && search.field);
+                if (s == -1) { // -1 is All Fields search
                     if (!this.multiSearch || !this.show.searchAll) continue;
                     search = { field: 'all', label: w2utils.lang('All Fields') };
                 } else {
+                    // show only visible columns
+                    if (this.show.searchVisible && (column == null || column.hidden === true)) continue;
+                    // don't show hidden searches
                     if (this.searches[s].hidden === true || this.searches[s].simple === false) continue;
                 }
                 if (search.label == null && search.caption != null) {
@@ -3164,8 +3172,8 @@
                               '</div>',
                     buttons : (w2utils.settings.macButtonOrder
                         ? '<button type="button" class="w2ui-btn btn-default" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('Cancel') + '</button>' +
-                          '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang('Delete') + '</button>'
-                        : '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang('Delete') + '</button>' +
+                          '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang(this.msgDeleteBtn) + '</button>'
+                        : '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang(this.msgDeleteBtn) + '</button>' +
                           '<button type="button" class="w2ui-btn btn-default" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('Cancel') + '</button>'
                         ),
                     onOpen: function (event) {
@@ -7086,7 +7094,10 @@
                 record = this.summary[ind];
             }
             if (!record) return '';
-            if (record.recid == null && this.recid != null && record[this.recid] != null) record.recid = record[this.recid];
+            if (record.recid == null && this.recid != null) {
+                var rid = this.parseField(record, this.recid)
+                if (rid != null) record.recid = rid;
+            }
             var id = w2utils.escapeId(record.recid);
             var isRowSelected = false;
             if (sel.indexes.indexOf(ind) != -1) isRowSelected = true;

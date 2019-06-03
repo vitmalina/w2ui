@@ -42,6 +42,7 @@
 *   - options.items - can be an array
 *   - added form.pageStyle
 *   - added html.span -1 - then label is displayed on top
+*   - added field.options.minLength, min/max for numebrs can be done with int/float - min/max
 *
 ************************************************************************/
 
@@ -453,11 +454,13 @@
                 }
                 // === check required - if field is '0' it should be considered not empty
                 var val = this.getValue(field.field);
-                if (field.required && (val === '' || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val)))) {
+                if (field.required && field.hidden !== true
+                        && (val === '' || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val)))) {
                     errors.push({ field: field, error: w2utils.lang('Required field') });
                 }
-                if (field.equalto && this.getValue(field.field) != this.getValue(field.equalto)) {
-                    errors.push({ field: field, error: w2utils.lang('Field should be equal to ') + field.equalto });
+                if (field.options && field.hidden !== true && field.options.minLength > 0
+                        && this.getValue(field.field).length < field.options.minLength ) {
+                    errors.push({ field: field, error: w2utils.lang('Field should be at least '+ field.options.minLength +' characters.') });
                 }
             }
             // event before
@@ -684,6 +687,7 @@
                             '\n   EXPECTED:', { status: 'success', items: [{ id: 1, text: 'item' }] },
                             '\n         OR:', { status: 'error', message: 'error message' },
                             '\n   RECEIVED:', typeof data === 'object' ? data : xhr.responseText);
+                        obj.unlock();
                     }
                     // event after
                     obj.trigger($.extend(edata2, { phase: 'after' }));
@@ -890,6 +894,7 @@
                         console.log('ERROR: server communication failed. The server should return',
                             { status: 'success' }, 'OR', { status: 'error', message: 'error message' },
                             ', instead the AJAX request produced this: ', errorObj);
+                        obj.unlock();
                         // event after
                         obj.trigger($.extend(edata2, { phase: 'after' }));
                     });
