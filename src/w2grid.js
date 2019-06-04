@@ -78,7 +78,6 @@
 *   - added onColumnDblClick
 *   - implemented showBubble
 *   - added show.searchAll
-*   - added show.searchVisible
 *   - added w2grid.operators
 *   - added w2grid.operatorsMap
 *   - move events into prototype
@@ -309,7 +308,6 @@
             toolbarDelete   : false,
             toolbarSave     : false,
             searchAll       : true,
-            searchVisible   : false,
             statusRange     : true,
             statusBuffered  : false,
             statusRecordID  : true,
@@ -2251,8 +2249,7 @@
                     if (!this.multiSearch || !this.show.searchAll) continue;
                     search = { field: 'all', label: w2utils.lang('All Fields') };
                 } else {
-                    // show only visible columns
-                    if (this.show.searchVisible && (column == null || column.hidden === true)) continue;
+                    if (column != null && column.hideable === false) continue;
                     // don't show hidden searches
                     if (this.searches[s].hidden === true || this.searches[s].simple === false) continue;
                 }
