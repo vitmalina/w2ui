@@ -3482,6 +3482,7 @@ w2utils.event = {
         hideOn  : 'mouseout|mouseleave|...',
         options : {} - will be passed to w2tag (for example options.potions = 'top')
     }
+*   - added msgDeleteBtn
 *
 ************************************************************************/
 
@@ -3733,6 +3734,7 @@ w2utils.event = {
         },
 
         msgDelete       : 'Are you sure you want to delete NN records?',
+        msgDeleteBtn    : 'Delete',
         msgNotJSON      : 'Returned data is not in valid JSON format.',
         msgAJAXerror    : 'AJAX error. See console for more details.',
         msgRefresh      : 'Refreshing...',
@@ -5575,10 +5577,13 @@ w2utils.event = {
             var html = '<div class="w2ui-select-field"><table><tbody>';
             for (var s = -1; s < this.searches.length; s++) {
                 var search = this.searches[s];
-                if (s == -1) {
+                var column = this.getColumn(search && search.field);
+                if (s == -1) { // -1 is All Fields search
                     if (!this.multiSearch || !this.show.searchAll) continue;
                     search = { field: 'all', label: w2utils.lang('All Fields') };
                 } else {
+                    if (column != null && column.hideable === false) continue;
+                    // don't show hidden searches
                     if (this.searches[s].hidden === true || this.searches[s].simple === false) continue;
                 }
                 if (search.label == null && search.caption != null) {
@@ -6497,8 +6502,8 @@ w2utils.event = {
                               '</div>',
                     buttons : (w2utils.settings.macButtonOrder
                         ? '<button type="button" class="w2ui-btn btn-default" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('Cancel') + '</button>' +
-                          '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang('Delete') + '</button>'
-                        : '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang('Delete') + '</button>' +
+                          '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang(this.msgDeleteBtn) + '</button>'
+                        : '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang(this.msgDeleteBtn) + '</button>' +
                           '<button type="button" class="w2ui-btn btn-default" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('Cancel') + '</button>'
                         ),
                     onOpen: function (event) {
@@ -10419,7 +10424,10 @@ w2utils.event = {
                 record = this.summary[ind];
             }
             if (!record) return '';
-            if (record.recid == null && this.recid != null && record[this.recid] != null) record.recid = record[this.recid];
+            if (record.recid == null && this.recid != null) {
+                var rid = this.parseField(record, this.recid)
+                if (rid != null) record.recid = rid;
+            }
             var id = w2utils.escapeId(record.recid);
             var isRowSelected = false;
             if (sel.indexes.indexOf(ind) != -1) isRowSelected = true;
@@ -18816,6 +18824,7 @@ var w2prompt = function (label, title, callBack) {
 *   - options.items - can be an array
 *   - added form.pageStyle
 *   - added html.span -1 - then label is displayed on top
+*   - added field.options.minLength, min/max for numebrs can be done with int/float - min/max
 *
 ************************************************************************/
 
@@ -19227,11 +19236,13 @@ var w2prompt = function (label, title, callBack) {
                 }
                 // === check required - if field is '0' it should be considered not empty
                 var val = this.getValue(field.field);
-                if (field.required && (val === '' || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val)))) {
+                if (field.required && field.hidden !== true
+                        && (val === '' || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val)))) {
                     errors.push({ field: field, error: w2utils.lang('Required field') });
                 }
-                if (field.equalto && this.getValue(field.field) != this.getValue(field.equalto)) {
-                    errors.push({ field: field, error: w2utils.lang('Field should be equal to ') + field.equalto });
+                if (field.options && field.hidden !== true && field.options.minLength > 0
+                        && this.getValue(field.field).length < field.options.minLength ) {
+                    errors.push({ field: field, error: w2utils.lang('Field should be at least '+ field.options.minLength +' characters.') });
                 }
             }
             // event before
@@ -19458,6 +19469,7 @@ var w2prompt = function (label, title, callBack) {
                             '\n   EXPECTED:', { status: 'success', items: [{ id: 1, text: 'item' }] },
                             '\n         OR:', { status: 'error', message: 'error message' },
                             '\n   RECEIVED:', typeof data === 'object' ? data : xhr.responseText);
+                        obj.unlock();
                     }
                     // event after
                     obj.trigger($.extend(edata2, { phase: 'after' }));
@@ -19664,6 +19676,7 @@ var w2prompt = function (label, title, callBack) {
                         console.log('ERROR: server communication failed. The server should return',
                             { status: 'success' }, 'OR', { status: 'error', message: 'error message' },
                             ', instead the AJAX request produced this: ', errorObj);
+                        obj.unlock();
                         // event after
                         obj.trigger($.extend(edata2, { phase: 'after' }));
                     });
