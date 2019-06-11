@@ -3483,6 +3483,7 @@ w2utils.event = {
         options : {} - will be passed to w2tag (for example options.potions = 'top')
     }
 *   - added msgDeleteBtn
+*   - grid.toolbar.item batch
 *
 ************************************************************************/
 
@@ -3590,6 +3591,7 @@ w2utils.event = {
             }
             // init toolbar
             object.initToolbar();
+            object.updateToolbar();
             // render if necessary
             if ($(this).length !== 0) {
                 object.render($(this)[0]);
@@ -5012,6 +5014,7 @@ w2utils.event = {
             }
             this.status();
             this.addRange('selection');
+            this.updateToolbar(sel, areAllSelected);
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
             return selected;
@@ -5095,6 +5098,7 @@ w2utils.event = {
             // show number of selected
             this.status();
             this.addRange('selection');
+            this.updateToolbar(sel, areAllSelected);
             return unselected;
         },
 
@@ -5143,12 +5147,13 @@ w2utils.event = {
                 $(this.box).find('input.w2ui-grid-select-check').prop('checked', true);
             }
             // enable/disable toolbar buttons
-            var sel = this.getSelection();
+            var sel = this.getSelection(true);
             if (sel.length == 1) this.toolbar.enable('w2ui-edit'); else this.toolbar.disable('w2ui-edit');
             if (sel.length >= 1) this.toolbar.enable('w2ui-delete'); else this.toolbar.disable('w2ui-delete');
             this.addRange('selection');
             $('#grid_'+ this.name +'_check_all').prop('checked', true);
             this.status();
+            this.updateToolbar({ indexes: sel }, true);
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
@@ -5181,9 +5186,35 @@ w2utils.event = {
             this.removeRange('selection');
             $('#grid_'+ this.name +'_check_all').prop('checked', false);
             this.status();
+            this.updateToolbar(sel, false);
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
+        },
+
+        updateToolbar: function (sel, areAllSelected) {
+            var obj = this
+            var cnt = sel && sel.indexes ? sel.indexes.length : 0
+            this.toolbar.items.forEach(function (item) {
+                _checkItem(item, '')
+                if (Array.isArray(item.items)) {
+                    item.items.forEach(function (it) {
+                        _checkItem(it, item.id + ':')
+                    })
+                }
+            })
+
+            function _checkItem(item, prefix) {
+                if (item.batch === 0) {
+                    if (cnt > 0) obj.toolbar.enable(prefix + item.id); else obj.toolbar.disable(prefix + item.id)
+                }
+                if (item.batch != null && !isNaN(item.batch) && item.batch > 0) {
+                    if (cnt == item.batch) obj.toolbar.enable(prefix + item.id); else obj.toolbar.disable(prefix + item.id)
+                }
+                if (typeof item.batch == 'function') {
+                    item.batch(obj.selectType == 'cell' ? sel : (sel ? sel.indexes : null))
+                }
+            }
         },
 
         getSelection: function (returnIndex) {
@@ -8154,6 +8185,7 @@ w2utils.event = {
             // init mouse events for mouse selection
             var edataCol; // event for column select
             $(this.box).on('mousedown', mouseStart);
+            this.updateToolbar()
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
             // attach to resize event
@@ -8906,7 +8938,7 @@ w2utils.event = {
             var obj = this;
             // -- if toolbar is true
             if (this.toolbar['render'] == null) {
-                var tmp_items = this.toolbar.items;
+                var tmp_items = this.toolbar.items || [];
                 this.toolbar.items = [];
                 this.toolbar = $().w2toolbar($.extend(true, {}, this.toolbar, { name: this.name +'_toolbar', owner: this }));
 
@@ -8957,19 +8989,24 @@ w2utils.event = {
                 if (this.show.toolbarSearch && this.multiSearch && this.searches.length > 0) {
                     this.toolbar.items.push($.extend(true, {}, this.buttons['search-go']));
                 }
-                if ((this.show.toolbarSearch || this.show.toolbarInput) && (this.show.toolbarAdd || this.show.toolbarEdit || this.show.toolbarDelete || this.show.toolbarSave)) {
+                if ((this.show.toolbarSearch || this.show.toolbarInput)
+                        && (this.show.toolbarAdd || this.show.toolbarEdit || this.show.toolbarDelete || this.show.toolbarSave)) {
                     this.toolbar.items.push({ type: 'break', id: 'w2ui-break1' });
                 }
-                if (this.show.toolbarAdd) {
+                if (this.show.toolbarAdd && Array.isArray(tmp_items)
+                        && tmp_items.map(function (item) { return item.id }).indexOf(this.buttons['add'].id) == -1) {
                     this.toolbar.items.push($.extend(true, {}, this.buttons['add']));
                 }
-                if (this.show.toolbarEdit) {
+                if (this.show.toolbarEdit && Array.isArray(tmp_items)
+                        && tmp_items.map(function (item) { return item.id }).indexOf(this.buttons['edit'].id) == -1) {
                     this.toolbar.items.push($.extend(true, {}, this.buttons['edit']));
                 }
-                if (this.show.toolbarDelete) {
+                if (this.show.toolbarDelete && Array.isArray(tmp_items)
+                        && tmp_items.map(function (item) { return item.id }).indexOf(this.buttons['delete'].id) == -1) {
                     this.toolbar.items.push($.extend(true, {}, this.buttons['delete']));
                 }
-                if (this.show.toolbarSave) {
+                if (this.show.toolbarSave && Array.isArray(tmp_items)
+                        && tmp_items.map(function (item) { return item.id }).indexOf(this.buttons['save'].id) == -1) {
                     if (this.show.toolbarAdd || this.show.toolbarDelete || this.show.toolbarEdit) {
                         this.toolbar.items.push({ type: 'break', id: 'w2ui-break2' });
                     }
@@ -12886,7 +12923,7 @@ var w2popup = {};
                 $('#w2ui-popup').remove();
                 w2popup.status = 'closed';
                 // restore active
-                if (options._last_focus.length > 0) options._last_focus.focus();
+                if (options._last_focus && options._last_focus.length > 0) options._last_focus.focus();
                 // event after
                 obj.trigger($.extend(edata, { phase: 'after'}));
             }, options.speed * 1000);

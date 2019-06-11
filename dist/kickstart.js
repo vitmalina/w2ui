@@ -243,7 +243,6 @@ kickStart.register('route', function () {
     var app     = kickStart;
     var routes  = {};
     var routeRE = {};
-    var silent;
 
     addListener();
 
@@ -314,16 +313,14 @@ kickStart.register('route', function () {
 
     function go(route) {
         route = String('/'+route).replace(/\/{2,}/g, '/');
-        setTimeout(function () { window.location.hash = route; }, 1);
+        window.history.replaceState({}, document.title, '#' + route)
+        process()
         return app.route;
     }
 
     function set(route) {
-        silent = true;
-        // do not use go(route) here
         route = String('/'+route).replace(/\/{2,}/g, '/');
-        window.location.hash = route;
-        setTimeout(function () { silent = false }, 1);
+        window.history.replaceState({}, document.title, '#' + route)
         return app.route;
     }
 
@@ -344,7 +341,6 @@ kickStart.register('route', function () {
     }
 
     function process() {
-        if (silent === true) return;
         prepare();
         // match routes
         var hash = window.location.hash.substr(1).replace(/\/{2,}/g, '/');
