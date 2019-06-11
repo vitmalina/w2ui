@@ -446,7 +446,7 @@ var w2popup = {};
                 $('#w2ui-popup').remove();
                 w2popup.status = 'closed';
                 // restore active
-                if (options._last_focus.length > 0) options._last_focus.focus();
+                if (options._last_focus && options._last_focus.length > 0) options._last_focus.focus();
                 // event after
                 obj.trigger($.extend(edata, { phase: 'after'}));
             }, options.speed * 1000);

@@ -46,7 +46,7 @@ jQuery(function () {
             expandColumn: false,
             lineNumbers: true,
             toolbarAdd: true,
-            toolbarEdit: true,
+            toolbarEdit: false,
             toolbarDelete: true,
             toolbarSave: true
         },
@@ -72,6 +72,7 @@ jQuery(function () {
             console.log('blur: ', this.name, event);
             // event.preventDefault();
         },
+        onEdit(event){},
         postData: {
             "admin": 'somename'
         },
@@ -81,8 +82,9 @@ jQuery(function () {
         //multiSelect: false,
         //multiSearch: false,
         //fixedBody: false,
-        toolbar1: {
+        toolbar: {
             items: [
+                { type: 'button', id: 'w2ui-edit', text: 'custom edit' },
                 { type: 'break', id: 'br1' },
                 { type: 'menu',   id: 'item2', text: 'Drop Down', img: 'icon-folder', items: [
                     { text: 'Item 1', icon: 'icon-page' },
