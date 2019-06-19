@@ -1489,6 +1489,7 @@
                             obj.tmp.xhr_loading = false;
                             obj.tmp.xhr_search  = search;
                             obj.tmp.xhr_total   = data.records.length;
+                            obj.tmp.lastError   = '';
                             options.items       = obj.normMenu(data.records);
                             if (search === '' && data.records.length === 0) obj.tmp.emptySet = true; else obj.tmp.emptySet = false;
                             // preset item
@@ -1534,12 +1535,12 @@
                             obj.tmp.xhr_loading = false;
                             obj.tmp.xhr_search  = search;
                             obj.tmp.xhr_total   = 0;
+                            obj.tmp.emptySet    = true;
+                            obj.tmp.lastError   = (edata2.error || 'Server communication failed');
                             options.items       = [];
                             obj.clearCache();
                             obj.search();
-                            obj.updateOverlay(false, '<div style="white-space: normal; line-height: 1.3">' +
-                                                        (edata2.error || 'Server communication failed') +
-                                                     '</div>');
+                            obj.updateOverlay(false);
                             // event after
                             obj.trigger($.extend(edata2, { phase: 'after' }));
                         });
@@ -1609,7 +1610,7 @@
             }
         },
 
-        updateOverlay: function (indexOnly, userError) {
+        updateOverlay: function (indexOnly) {
             var obj     = this;
             var options = this.options;
             // color
@@ -1917,9 +1918,13 @@
                     if (options.url != null && $(input).val().length < options.minLength && obj.tmp.emptySet !== true) msgNoItems = options.minLength + ' ' + w2utils.lang('letters or more...');
                     if (options.url != null && $(input).val() === '' && obj.tmp.emptySet !== true) msgNoItems = w2utils.lang('Type to search...');
                     if (options.url == null && options.items.length === 0) msgNoItems = w2utils.lang('Empty list');
-                    if (options.msgNoItems != null) msgNoItems = options.msgNoItems;
-                    if (typeof msgNoItems === 'function') msgNoItems = msgNoItems(options);
-                    if (userError) msgNoItems = userError;
+                    if (options.msgNoItems != null) {
+                        msgNoItems = (typeof msgNoItems === 'function' ? msgNoItems(options) : options.msgNoItems);
+                    }
+                    if (obj.tmp.lastError) {
+                        msgNoItems = '<div style="white-space: normal; line-height: 1.3">' + obj.tmp.lastError + '</div>';
+                    }
+
                     var params = $.extend(true, {}, options, {
                         search     : false,
                         render     : options.renderDrop,

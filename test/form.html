@@ -21,7 +21,7 @@
             // formURL   : 'form-template.html',
             recid    : 4,
             header   : 'Edit header',
-            style1     : 'border: 1px solid red;',
+            style1   : 'border: 1px solid red;',
             tabs: [
                 { id: 'tab1', text: 'General' },
                 { id: 'tab2', text: 'Inputs' },
@@ -40,7 +40,6 @@
                     { type: 'spacer' },
                     { type: 'button', id: 'save', text: 'Save', img: 'icon-folder' }
                 ]
-
             },
             record: {
                 field: {
@@ -70,13 +69,13 @@
             focus: 1,
             fields: [
                 // first page
-                { field: 'field.toggle', type: 'toggle', required: true, html: { group: 'General' } },
+                { field: 'field.toggle', type: 'toggle', required: true, html: { group: 'General', groupCollapsable: true } },
                 { field: 'field.text', type: 'text', required: true, html: { attr: 'style="width: 300px"' }, hidden: true },
                 { field: 'field.textarea', type: 'textarea', required: true, html: { attr: 'style="width: 300px"' } },
                 { field: 'field.date', type: 'date', required: false, html: { attr: 'style="width: 90px"' } },
                 { field: 'field.time', type: 'time', required: false, html: { attr: 'style="width: 90px"' } },
                 { field: 'field.color', type: 'color', required: true, html: { attr: 'style="width: 90px"' } },
-                { field: 'field.list', type: 'list', required: true, html: { group: 'Dropdowns' },
+                { field: 'field.list', type: 'list', required: true, html: { group: 'Dropdowns', groupCollapsable: true },
                     options: {
                         match: 'contains',
                         compare: function (item) {
