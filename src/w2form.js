@@ -10,7 +10,6 @@
 *   - form should read <select> <options> into items
 *   - two way data bindings
 *   - verify validation of fields
-*   - added getChanges() - not complete
 *   - nested record object
 *   - formHTML --> template
 *
@@ -29,6 +28,22 @@
 *   - added field types html, empty, custom
 *   - httpHeaders
 *   - method
+*   - onInput
+*   - added field.html.groupStyle
+*   - added field.html.column = 'before' && field.html.column = 'after'
+*   - added field.html.anchor
+*   - changed this.clear(field1, field2,...)
+*   - added nestedFields: use field name containing dots as separator to look into objects
+*   - added getValue(), setValue()
+*   - added getChanges()
+*   - added getCleanRecord(strict)
+*   - added applyFocus()
+*   - deprecated field.name -> field.field
+*   - options.items - can be an array
+*   - added form.pageStyle
+*   - added html.span -1 - then label is displayed on top
+*   - added field.options.minLength, min/max for numebrs can be done with int/float - min/max
+*    field.html.groupCollapsable, form.toggleGroup
 *
 ************************************************************************/
 
@@ -48,7 +63,7 @@
         this.fields      = [];
         this.actions     = {};
         this.record      = {};
-        this.original    = {};
+        this.original    = null;
         this.postData    = {};
         this.httpHeaders = {};
         this.method      = null;     // only used when not null, otherwise set based on w2utils.settings.dataType
@@ -57,6 +72,8 @@
         this.style       = '';
         this.focus       = 0;        // focus first or other element
         this.autosize    = true;     // autosize
+        this.nestedFields= true;     // use field name containing dots as separator to look into object
+
         // When w2utils.settings.dataType is JSON, then we can convert the save request to multipart/form-data. So we can upload large files with the form
         // The original body is JSON.stringified to __body
         this.multipart   = false;
@@ -87,7 +104,7 @@
             var tabs     = method.tabs;
             // extend items
             var object = new w2form(method);
-            $.extend(object, { record: {}, original: {}, fields: [], tabs: {}, toolbar: {}, handlers: [] });
+            $.extend(object, { record: {}, original: null, fields: [], tabs: {}, toolbar: {}, handlers: [] });
             if ($.isArray(tabs)) {
                 $.extend(true, object.tabs, { tabs: [] });
                 for (var t = 0; t < tabs.length; t++) {
@@ -98,7 +115,7 @@
                             object.tabs.active = tmp.id;
                         }
                     } else {
-                        object.tabs.tabs.push({ id: tmp, caption: tmp });
+                        object.tabs.tabs.push({ id: tmp, text: tmp });
                     }
                 }
             } else {
@@ -108,8 +125,10 @@
             // reassign variables
             if (fields) for (var p = 0; p < fields.length; p++) {
                 var field = $.extend(true, {}, fields[p]);
-                if (field.name == null && field.field != null) field.name = field.field;
-                if (field.field == null && field.name != null) field.field = field.name;
+                if (field.field == null && field.name != null) {
+                    console.log('NOTICE: form field.name property is deprecated, please use field.field. Field ->', field);
+                    field.field = field.name;
+                }
                 object.fields[p] = field;
             }
             for (var p in record) { // it is an object
@@ -149,7 +168,7 @@
             // render if not loaded from url
             if (object.formURL === '') {
                 if (String(object.formHTML).indexOf('w2ui-page') === -1) {
-                    object.formHTML = '<div class="w2ui-page page-0">'+ object.formHTML +'</div>';
+                    object.formHTML = '<div class="w2ui-page page-0" style="'+ (object.pageStyle || '') +'">'+ object.formHTML +'</div>';
                 }
                 $(object.box).html(object.formHTML);
                 object.isGenerated = true;
@@ -181,6 +200,7 @@
         onProgress    : null,
         onSave        : null,
         onChange      : null,
+        onInput       : null,
         onRender      : null,
         onRefresh     : null,
         onResize      : null,
@@ -191,19 +211,19 @@
 
         msgNotJSON    : 'Returned data is not in valid JSON format.',
         msgAJAXerror  : 'AJAX error. See console for more details.',
-        msgRefresh    : 'Refreshing...',
+        msgRefresh    : 'Loading...',
         msgSaving     : 'Saving...',
 
         get: function (field, returnIndex) {
             if (arguments.length === 0) {
                 var all = [];
                 for (var f1 = 0; f1 < this.fields.length; f1++) {
-                    if (this.fields[f1].name != null) all.push(this.fields[f1].name);
+                    if (this.fields[f1].field != null) all.push(this.fields[f1].field);
                 }
                 return all;
             } else {
                 for (var f2 = 0; f2 < this.fields.length; f2++) {
-                    if (this.fields[f2].name == field) {
+                    if (this.fields[f2].field == field) {
                         if (returnIndex === true) return f2; else return this.fields[f2];
                     }
                 }
@@ -213,65 +233,107 @@
 
         set: function (field, obj) {
             for (var f = 0; f < this.fields.length; f++) {
-                if (this.fields[f].name == field) {
+                if (this.fields[f].field == field) {
                     $.extend(this.fields[f] , obj);
-                    this.refresh();
+                    this.refresh(field);
                     return true;
                 }
             }
             return false;
         },
 
+        getValue: function (field) {
+            if (this.nestedFields) {
+                var val = undefined;
+                try { // need this to make sure no error in fields
+                    var rec = this.record;
+                    val = String(field).split('.').reduce(function(rec, i) { return rec[i] }, rec)
+                } catch (event) {
+                }
+                return val;
+            } else {
+                return this.record[field];
+            }
+        },
+
+        setValue: function (field, value) {
+            if (this.nestedFields) {
+                try { // need this to make sure no error in fields
+                    var rec = this.record;
+                    String(field).split('.').map(function (fld, i, arr) {
+                        if (arr.length - 1 !== i) {
+                            if (rec[fld]) rec = rec[fld]; else { rec[fld] = {}; rec = rec[fld] }
+                        } else {
+                            rec[fld] = value;
+                        }
+                    });
+                    return true;
+                } catch (event) {
+                    return false;
+                }
+            } else {
+                this.record[field] = value;
+                return true;
+            }
+        },
+
         show: function () {
-            var affected = 0;
+            var affected = [];
             for (var a = 0; a < arguments.length; a++) {
                 var fld = this.get(arguments[a]);
                 if (fld && fld.hidden) {
                     fld.hidden = false;
-                    affected++;
+                    affected.push(fld.field);
                 }
             }
-            if (affected > 0) this.refresh();
-            return affected;
+            if (affected.length > 0) this.refresh.apply(this, affected);
+            return affected.length;
         },
 
         hide: function () {
-            var affected = 0;
+            var affected = [];
             for (var a = 0; a < arguments.length; a++) {
                 var fld = this.get(arguments[a]);
                 if (fld && !fld.hidden) {
                     fld.hidden = true;
-                    affected++;
+                    affected.push(fld.field);
                 }
             }
-            if (affected > 0) this.refresh();
-            return affected;
+            if (affected.length > 0) this.refresh.apply(this, affected);
+            return affected.length;
         },
 
         enable: function () {
-            var affected = 0;
+            var affected = [];
             for (var a = 0; a < arguments.length; a++) {
                 var fld = this.get(arguments[a]);
                 if (fld && fld.disabled) {
                     fld.disabled = false;
-                    affected++;
+                    affected.push(fld.field);
                 }
             }
-            if (affected > 0) this.refresh();
-            return affected;
+            if (affected.length > 0) this.refresh.apply(this, affected);
+            return affected.length;
         },
 
         disable: function () {
-            var affected = 0;
+            var affected = [];
             for (var a = 0; a < arguments.length; a++) {
                 var fld = this.get(arguments[a]);
                 if (fld && !fld.disabled) {
                     fld.disabled = true;
-                    affected++;
+                    affected.push(fld.field);
                 }
             }
-            if (affected > 0) this.refresh();
-            return affected;
+            if (affected.length > 0) this.refresh.apply(this, affected);
+            return affected.length;
+        },
+
+        change: function () {
+            Array.from(arguments).forEach(function(field) {
+                var tmp = this.get(field);
+                if (tmp.$el) tmp.$el.change();
+            }.bind(this));
         },
 
         reload: function (callBack) {
@@ -286,10 +348,21 @@
         },
 
         clear: function () {
-            this.recid  = 0;
-            this.record = {};
+            if (arguments.length != 0) {
+                Array.from(arguments).forEach(function(field) {
+                    var rec = this.record
+                    String(field).split('.').map(function (fld, i, arr) {
+                        if (arr.length - 1 !== i) rec = rec[fld]; else delete rec[fld]
+                    })
+                    this.refresh(field);
+                }.bind(this));
+            } else {
+                this.recid    = 0;
+                this.record   = {};
+                this.original = null;
+                this.refresh();
+            }
             $().w2tag();
-            this.refresh();
         },
 
         error: function (msg) {
@@ -339,42 +412,43 @@
                 var edata = this.trigger({ phase: 'before', target: field, type: 'validatefield', errors: errors});
                 if (edata.isCancelled === true) continue;
 
-                if (this.record[field.name] == null) this.record[field.name] = '';
+                if (this.getValue(field.field) == null) this.setValue(field.field, '');
+
                 switch (field.type) {
                     case 'int':
-                        if (this.record[field.name] && !w2utils.isInt(this.record[field.name])) {
+                        if (this.getValue(field.field) && !w2utils.isInt(this.getValue(field.field))) {
                             errors.push({ field: field, error: w2utils.lang('Not an integer') });
                         }
                         break;
                     case 'float':
-                        if (this.record[field.name] && !w2utils.isFloat(this.record[field.name])) {
+                        if (this.getValue(field.field) && !w2utils.isFloat(this.getValue(field.field))) {
                             errors.push({ field: field, error: w2utils.lang('Not a float') });
                         }
                         break;
                     case 'money':
-                        if (this.record[field.name] && typeof this.record[field.name] === 'string' && !w2utils.isMoney(this.record[field.name])) {  //Money can be stored as integer
+                        if (this.getValue(field.field) && typeof this.getValue(field.field) === 'string' && !w2utils.isMoney(this.getValue(field.field))) { //Money can be stored as integer
                             errors.push({ field: field, error: w2utils.lang('Not in money format') });
                         }
                         break;
                     case 'color':
                     case 'hex':
-                        if (this.record[field.name] && !w2utils.isHex(this.record[field.name])) {
+                        if (this.getValue(field.field) && !w2utils.isHex(this.getValue(field.field))) {
                             errors.push({ field: field, error: w2utils.lang('Not a hex number') });
                         }
                         break;
                     case 'email':
-                        if (this.record[field.name] && !w2utils.isEmail(this.record[field.name])) {
+                        if (this.getValue(field.field) && !w2utils.isEmail(this.getValue(field.field))) {
                             errors.push({ field: field, error: w2utils.lang('Not a valid email') });
                         }
                         break;
                     case 'checkbox':
                         // convert true/false
-                        if (this.record[field.name] == true) this.record[field.name] = 1; else this.record[field.name] = 0;
+                        if (this.getValue(field.field) == true) this.setValue(field.field, 1); else this.setValue(field.field, 0);
                         break;
                     case 'date':
                         // format date before submit
                         if (!field.options.format) field.options.format = w2utils.settings.dateFormat;
-                        if (this.record[field.name] && !w2utils.isDate(this.record[field.name], field.options.format)) {
+                        if (this.getValue(field.field) && !w2utils.isDate(this.getValue(field.field), field.options.format)) {
                             errors.push({ field: field, error: w2utils.lang('Not a valid date') + ': ' + field.options.format });
                         }
                         break;
@@ -385,12 +459,15 @@
                         break;
                 }
                 // === check required - if field is '0' it should be considered not empty
-                var val = this.record[field.name];
-                if (field.required && (val === '' || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val)))) {
+                var val = this.getValue(field.field);
+                if (field.required && field.hidden !== true
+                        && (val === '' || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val)))) {
                     errors.push({ field: field, error: w2utils.lang('Required field') });
                 }
-                if (field.equalto && this.record[field.name] != this.record[field.equalto]) {
-                    errors.push({ field: field, error: w2utils.lang('Field should be equal to ') + field.equalto });
+                if (field.options && field.hidden !== true && field.options.minLength > 0
+                        && ['enum', 'list', 'combo'].indexOf(field.type) == -1 // since minLength is used there too
+                        && this.getValue(field.field).length < field.options.minLength) {
+                    errors.push({ field: field, error: w2utils.lang('Field should be at least '+ field.options.minLength +' characters.') });
                 }
 
                 this.trigger($.extend(edata, { phase: 'after'}));
@@ -405,7 +482,7 @@
                     var opt = $.extend({ "class": 'w2ui-error' }, err.options);
                     if (err.field == null) continue;
                     if (err.field.type === 'radio') { // for radio and checkboxes
-                        $($(err.field.el).parents('div')[0]).w2tag(err.error, opt);
+                        $($(err.field.el).closest('div')[0]).w2tag(err.error, opt);
                     } else if (['enum', 'file'].indexOf(err.field.type) !== -1) {
                         (function (err) {
                             setTimeout(function () {
@@ -426,18 +503,55 @@
         },
 
         getChanges: function () {
-            var differ = function(record, original, result) {
+            var diff = {};
+            if (this.original != null && typeof this.original == 'object' && !$.isEmptyObject(this.record)) {
+                diff = doDiff(this.record, this.original, {});
+            }
+            return diff;
+
+            function doDiff(record, original, result) {
                 for (var i in record) {
                     if (typeof record[i] === "object") {
-                        result[i] = differ(record[i], original[i] || {}, {});
+                        result[i] = doDiff(record[i], original[i] || {}, {});
                         if (!result[i] || $.isEmptyObject(result[i])) delete result[i];
                     } else if (record[i] != original[i]) {
                         result[i] = record[i];
                     }
                 }
                 return result;
-            };
-            return differ(this.record, this.original, {});
+            }
+        },
+
+        getCleanRecord: function (strict) {
+            var data = $.extend(true, {}, this.record);
+            this.fields.forEach(function (fld) {
+                if (['list', 'combo', 'enum'].indexOf(fld.type) != -1) {
+                    var tmp = { nestedFields: true, record: data };
+                    var val = this.getValue.call(tmp, fld.field);
+                    if ($.isPlainObject(val) && val.id) {
+                        this.setValue.call(tmp, fld.field, val.id)
+                    }
+                    if (Array.isArray(val)) {
+                        val.forEach(function (item, ind) {
+                            if ($.isPlainObject(item) && item.id) {
+                                val[ind] = item.id;
+                            }
+                        })
+                    }
+                }
+                if (fld.type == 'map') {
+                    var tmp = { nestedFields: true, record: data };
+                    var val = this.getValue.call(tmp, fld.field);
+                    if (val._order) delete val._order
+                }
+            }.bind(this))
+            // return only records presend in description
+            if (strict === true) {
+                Object.keys(data).forEach(function (key) {
+                    if (!this.get(key)) delete data[key]
+                }.bind(this));
+            }
+            return data;
         },
 
         request: function (postData, callBack) { // if (1) param then it is call back if (2) then postData and callBack
@@ -464,7 +578,7 @@
             if (edata.isCancelled === true) { if (typeof callBack === 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
             // default action
             this.record   = {};
-            this.original = {};
+            this.original = null;
             // call server to get data
             this.lock(w2utils.lang(this.msgRefresh));
             var url = edata.url;
@@ -487,7 +601,9 @@
                 headers  : edata.httpHeaders,
                 dataType : 'text'   // expected from server
             }
-            switch (w2utils.settings.dataType) {
+            var dataType = obj.dataType || w2utils.settings.dataType;
+            if (edata.dataType) dataType = edata.dataType;
+            switch (dataType) {
                 case 'HTTP':
                     ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
                     break
@@ -510,18 +626,13 @@
                     break;
             }
             if (this.method) ajaxOptions.type = this.method;
+            if (edata.method) ajaxOptions.type = edata.method;
             this.last.xhr = $.ajax(ajaxOptions)
                 .done(function (data, status, xhr) {
                     obj.unlock();
-                    // event before
-                    var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'load', xhr: xhr });
-                    if (edata.isCancelled === true) {
-                        if (typeof callBack === 'function') callBack({ status: 'error', message: 'Request aborted.' });
-                        return;
-                    }
-                    // parse server response
+                    // prepare record
                     var data;
-                    var responseText = obj.last.xhr.responseText;
+                    var responseText = xhr.responseText;
                     if (status !== 'error') {
                         // default action
                         if (responseText != null && responseText !== '') {
@@ -539,18 +650,27 @@
                                     status       : 'error',
                                     message      : w2utils.lang(obj.msgNotJSON),
                                     responseText : responseText
-                                };
+                                }
                             }
-                            if (data.status === 'error') {
-                                obj.error(w2utils.lang(data['message']));
-                            } else {
-                                obj.record   = $.extend({}, data.record);
-                                obj.original = $.extend({}, data.record);
-                            }
+                        }
+                    }
+                    // event before
+                    var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'load', data: data, xhr: xhr });
+                    if (edata.isCancelled === true) {
+                        if (typeof callBack === 'function') callBack({ status: 'error', message: 'Request aborted.' });
+                        return;
+                    }
+                    // parse server response
+                    if (status !== 'error') {
+                        // default action
+                        if (edata.data.status === 'error') {
+                            obj.error(w2utils.lang(edata.data['message']));
+                        } else {
+                            obj.record = $.extend({}, edata.data.record);
                         }
                     } else {
                         obj.error('AJAX Error ' + xhr.status + ': '+ xhr.statusText);
-                        data = {
+                        edata.data = {
                             status       : 'error',
                             message      : w2utils.lang(obj.msgAJAXerror),
                             responseText : responseText
@@ -559,8 +679,9 @@
                     // event after
                     obj.trigger($.extend(edata, { phase: 'after' }));
                     obj.refresh();
+                    obj.applyFocus();
                     // call back
-                    if (typeof callBack === 'function') callBack(data);
+                    if (typeof callBack === 'function') callBack(edata.data);
                 })
                 .fail(function (xhr, status, error) {
                     // trigger event
@@ -575,6 +696,7 @@
                             '\n   EXPECTED:', { status: 'success', items: [{ id: 1, text: 'item' }] },
                             '\n         OR:', { status: 'error', message: 'error message' },
                             '\n   RECEIVED:', typeof data === 'object' ? data : xhr.responseText);
+                        obj.unlock();
                     }
                     // event after
                     obj.trigger($.extend(edata2, { phase: 'after' }));
@@ -619,8 +741,8 @@
                 // clear up files
                 if (!obj.multipart)
                         obj.fields.forEach(function (item) {
-                            if (item.type === 'file' && Array.isArray(obj.record[item.field])) {
-                                obj.record[item.field].forEach(function (fitem) {
+                            if (item.type === 'file' && Array.isArray(obj.getValue(item.field))) {
+                                obj.getValue(item.field).forEach(function (fitem) {
                                     delete fitem.file;
                                 });
                             }
@@ -656,9 +778,11 @@
                             if (evt.lengthComputable) {
                                 var edata3 = obj.trigger({ phase: 'before', type: 'progress', total: evt.total, loaded: evt.loaded, originalEvent: evt });
                                 if (edata3.isCancelled === true) return;
-                                // default behavior
+                                // only show % if it takes time
                                 var percent = Math.round(evt.loaded / evt.total * 100);
-                                $('#'+ obj.name + '_progress').text(''+ percent + '%');
+                                if ((percent && percent != 100) || $('#'+ obj.name + '_progress').text() != '') {
+                                    $('#'+ obj.name + '_progress').text(''+ percent + '%');
+                                }
                                 // event after
                                 obj.trigger($.extend(edata3, { phase: 'after' }));
                             }
@@ -666,7 +790,9 @@
                         return xhr;
                     }
                 };
-                switch (w2utils.settings.dataType) {
+                var dataType = obj.dataType || w2utils.settings.dataType;
+                if (edata.dataType) dataType = edata.dataType;
+                switch (dataType) {
                     case 'HTTP':
                         ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
                         break;
@@ -719,6 +845,7 @@
                         break;
                 }
                 if (this.method) ajaxOptions.type = this.method;
+                if (edata.method) ajaxOptions.type = edata.method;
                 obj.last.xhr = $.ajax(ajaxOptions)
                     .done(function (data, status, xhr) {
                         obj.unlock();
@@ -750,7 +877,7 @@
                                 if (data.status === 'error') {
                                     obj.error(w2utils.lang(data.message));
                                 } else {
-                                    obj.original = $.extend({}, obj.record);
+                                    obj.original = null;
                                 }
                             }
                         } else {
@@ -765,7 +892,7 @@
                         obj.trigger($.extend(edata, { phase: 'after' }));
                         obj.refresh();
                         // call back
-                        if (data.status === 'success' && typeof callBack === 'function') callBack(data);
+                        if (typeof callBack === 'function') callBack(data, xhr);
                     })
                     .fail(function (xhr, status, error) {
                         // trigger event
@@ -776,6 +903,7 @@
                         console.log('ERROR: server communication failed. The server should return',
                             { status: 'success' }, 'OR', { status: 'error', message: 'error message' },
                             ', instead the AJAX request produced this: ', errorObj);
+                        obj.unlock();
                         // event after
                         obj.trigger($.extend(edata2, { phase: 'after' }));
                     });
@@ -841,29 +969,36 @@
                 var field = this.fields[f];
                 if (field.html == null) field.html = {};
                 if (field.options == null) field.options = {};
-                field.html = $.extend(true, { 
-                    caption: '', 
-                    span: 6, 
-                    attr: '', 
-                    text: '', 
-                    style: '', 
-                    page: 0, 
-                    column: 0,
-                    row: 0  //columns are now in rows, you can use table layout in generated forms
-                }, field.html);
+                if (field.html.caption != null && field.html.label == null) {
+                    console.log('NOTICE: form field.html.caption property is deprecated, please use field.html.label. Field ->', field)
+                    field.html.label = field.html.caption;
+                }
+                if (field.html.label == null) field.html.label = field.field;
+                field.html = $.extend(true, {
+					label: '',
+					span: 6,
+					attr: '',
+					text: '',
+					style: '',
+					page: 0,
+					column: 0,
+					row: 0  //columns are now in rows, you can use table layout in generated forms
+				}, field.html);
                 if (page == null) page = field.html.page;
                 if (column == null) column = field.html.column;
-                if (row == null) row = field.html.row;
-                if (field.html.caption === '') field.html.caption = field.name;
+				if (row == null) row = field.html.row;
                 // input control
-                var input = '<input name="'+ field.name +'" class="w2ui-input" type="text" '+ field.html.attr + tabindex_str + '/>';
+                var input = '<input id="'+ field.field +'" name="'+ field.field +'" class="w2ui-input" type="text" '+ field.html.attr + tabindex_str + '>';
                 switch (field.type) {
                     case 'pass':
                     case 'password':
-                        input = '<input name="' + field.name + '" class="w2ui-input" type = "password" ' + field.html.attr + tabindex_str + '/>';
+                        input = '<input id="' + field.field + '" name="' + field.field + '" class="w2ui-input" type = "password" ' + field.html.attr + tabindex_str + '>';
                         break;
                     case 'checkbox':
-                        input = '<input name="'+ field.name +'" class="w2ui-input" type="checkbox" '+ field.html.attr + tabindex_str + '/>';
+                        input = '<label>'+
+                                '   <input id="'+ field.field +'" name="'+ field.field +'" style="float: left" class="w2ui-input" type="checkbox" '+ field.html.attr + tabindex_str + '>'+
+                                '   <div style="margin: 6px 0 0 20px; user-select: none;">'+ field.html.label +'</div>'+
+                                '</label>';
                         break;
                     case 'radio':
                         input = '';
@@ -871,22 +1006,24 @@
                         var items =  field.options.items ? field.options.items : field.html.items;
                         if (!$.isArray(items)) items = [];
                         if (items.length > 0) {
-                            items = w2obj.field.prototype.normMenu(items);
+                            items = w2obj.field.prototype.normMenu.call(this, items, field);
                         }
                         // generate
                         for (var i = 0; i < items.length; i++) {
-                            input += '<label><input name="' + field.name + '" class="w2ui-input" type = "radio" ' + field.html.attr + (i === 0 ? tabindex_str : '') + ' value="'+ items[i].id + '"/>' +
-                                '&#160;' + items[i].text + '</label> ';
-							if (field.options.multiline) input+='<br/>';	
+                            input += '<label style="user-select: none">'+
+                                     '  <input id="' + field.field + '" name="' + field.field + '" class="w2ui-input" type = "radio" ' + field.html.attr + (i === 0 ? tabindex_str : '') + ' value="'+ items[i].id + '">' +
+                                        '&#160;' + items[i].text +
+                                     '</label>';
+							 if (field.options.multiline) input+='<br/>';
                         }
                         break;
                     case 'select':
-                        input = '<select name="' + field.name + '" class="w2ui-input" ' + field.html.attr + tabindex_str + '>';
+                        input = '<select id="' + field.field + '" name="' + field.field + '" class="w2ui-input" ' + field.html.attr + tabindex_str + '>';
                         // normalized options
                         var items =  field.options.items ? field.options.items : field.html.items;
                         if (!$.isArray(items)) items = [];
                         if (items.length > 0) {
-                            items = w2obj.field.prototype.normMenu(items);
+                            items = w2obj.field.prototype.normMenu.call(this, items, field);
                         }
                         // generate
                         for (var i = 0; i < items.length; i++) {
@@ -895,15 +1032,23 @@
                         input += '</select>';
                         break;
                     case 'textarea':
-                        input = '<textarea name="'+ field.name +'" class="w2ui-input" '+ field.html.attr + tabindex_str + '></textarea>';
+                        input = '<textarea id="'+ field.field +'" name="'+ field.field +'" class="w2ui-input" '+ field.html.attr + tabindex_str + '></textarea>';
                         break;
                     case 'toggle':
-                        input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr + tabindex_str + ' class="w2ui-input w2ui-toggle"/><div><div></div></div>';
+                        input = '<input id="'+ field.field +'" name="'+ field.field +'" type="checkbox" '+ field.html.attr + tabindex_str + ' class="w2ui-input w2ui-toggle"><div><div></div></div>';
+                        break;
+                    case 'map':
+                    case 'array':
+                        field.html.key = field.html.key || {};
+                        field.html.value = field.html.value || {};
+                        input = '<span style="float: right">' + (field.html.text || '') + '</span>' +
+                                '<input id="'+ field.field +'" name="'+ field.field +'" type="hidden" '+ field.html.attr + tabindex_str + '>'+
+                                '<div class="w2ui-map-container"></div>';
                         break;
                     case 'html':
                     case 'custom':
                     case 'empty':
-                        input = '';
+                        input = (field && field.html && field.html.html ? field.html.html : '');
                         break;
 
                 }
@@ -915,17 +1060,39 @@
                     }
                 }
                 if (field.html.group && (group != field.html.group)) {
-                    html += '\n   <div class="w2ui-group-title' + ( field.html.groupClass ? ' w2ui-group-title-' + field.html.groupClass : '' ) + '">'+ field.html.group + '</div>\n   <div class="w2ui-group' + ( field.html.groupClass ? ' w2ui-group-' + field.html.groupClass : '' ) + '">';
+                    var collapsable = '';
+                    if (field.html.groupCollapsable) {
+                        collapsable = '<span class="w2ui-icon-expand" style="width: 15px; display: inline-block; position: relative; top: -2px;"></span>'
+                    }
+                    html += '\n   <div class="w2ui-group-title' + ( field.html.groupClass ? ' w2ui-group-title-' + field.html.groupClass : '' ) + '" '
+                        + (collapsable != '' ? 'data-group="' + w2utils.base64encode(field.html.group) + '"' : '')
+                        + (collapsable != '' ? 'style="cursor: pointer"' : '')
+                        + (collapsable != ''
+                            ? 'onclick="w2ui[\'' + this.name + '\'].toggleGroup(\'' + field.html.group + '\')"'
+                            : '')
+                        + '>'
+                        + collapsable + field.html.group + '</div>\n'
+                        + '   <div class="w2ui-group' + ( field.html.groupClass ? ' w2ui-group-' + field.html.groupClass : '' ) + '" style="'+ (field.html.groupStyle || '') +'">';
                     group = field.html.group;
                 }
-                html += '\n      <div class="w2ui-field-container"><div class="w2ui-field '+ (field.html.span != null ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+
-                        '\n         <label>' + w2utils.lang(field.html.caption) +'</label>'+
-                        ((field.type === 'empty') ? '' : '\n         <div>'+ input + w2utils.lang(field.html.text) + '</div>') +
-                        '\n      </div></div>';
-                if (pages[field.html.page] == null) pages[field.html.page] = [];
-                if (pages[field.html.page][field.html.row] == null) pages[field.html.page][field.html.row] = [];
+                if (field.html.anchor == null) {
+                    var span = (field.html.span != null ? 'w2ui-span'+ field.html.span : '')
+                    if (field.html.span == -1) span = 'w2ui-span-none';
+                    html += '\n      <div class="w2ui-field '+ span +'" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style  +'">'+
+                            '\n         <label'+ (span == 'none' ? ' style="display: none"' : '') +'>' + w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text) +'</label>'+
+                            ((field.type === 'empty') ? '' : '\n         <div>'+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '') : '') + '</div>') +
+                            '\n      </div>';
+                } else {
+                    pages[field.html.page].anchors = pages[field.html.page].anchors || {};
+                    pages[field.html.page].anchors[field.html.anchor] = '<div class="w2ui-field w2ui-field-inline" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
+                            ((field.type === 'empty') ? '' : '<div>'+ w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text) + input + w2utils.lang(field.type != 'checkbox' ? field.html.text : '') + '</div>') +
+                            '</div>';
+                }
+                
+				if (pages[field.html.page] == null) pages[field.html.page] = {};
+				if (pages[field.html.page][field.html.row] == null) pages[field.html.page][field.html.row] = [];				
                 if (pages[field.html.page][field.html.row][field.html.column] == null) pages[field.html.page][field.html.row][field.html.column] = '';
-                pages[field.html.page][field.html.row][field.html.column] += html;
+                pages[field.html.page][field.html.column] += html;
                 page = field.html.page;
                 column = field.html.column;
             }
@@ -938,36 +1105,77 @@
             if (!$.isEmptyObject(this.actions)) {
                 var addClass = '';
                 buttons += '\n<div class="w2ui-buttons">';
+                tabindex = this.tabindexBase + this.fields.length + 1;
+
                 for (var a in this.actions) { // it is an object
                     var act  = this.actions[a];
-                    var info = { caption: '', style: '', "class": '' };
+                    var info = { text: '', style: '', "class": '' };
                     if ($.isPlainObject(act)) {
-                        if (act.caption) info.caption = act.caption;
+                        if (act.text == null && act.caption != null) {
+                            console.log('NOTICE: form action.caption property is deprecated, please use action.text. Action ->', act);
+                            act.text = act.caption;
+                        }
+                        if (act.text) info.text = act.text;
                         if (act.style) info.style = act.style;
                         if (act["class"]) info['class'] = act['class'];
                     } else {
-                        info.caption = a;
+                        info.text = a;
                         if (['save', 'update', 'create'].indexOf(a.toLowerCase()) !== -1) info['class'] = 'w2ui-btn-blue'; else info['class'] = '';
                     }
-                    buttons += '\n    <button name="'+ a +'" class="w2ui-btn '+ info['class'] +'" style="'+ info.style +'">'+
-                                            w2utils.lang(info.caption) +'</button>';
+                    buttons += '\n    <button name="'+ a +'" class="w2ui-btn '+ info['class'] +'" style="'+ info.style +'" tabindex="'+ tabindex +'">'+
+                                            w2utils.lang(info.text) +'</button>';
+                    tabindex++;
                 }
                 buttons += '\n</div>';
             }
             html = '';
             for (var p = 0; p < pages.length; p++){
-                html += '<div class="w2ui-page page-'+ p +'" ' + ((p===0)?'':'style="display: none;"') + '><div class="w2ui-column-container" style="display: flex;">';
-                for (var r = 0; r < pages[p].length; r++){
-                    html+='<div class="w2ui-row row-'+r+'">\n';
-                    for (var c = 0; c < pages[p][r].length; c++){
-                        html += '<div class="w2ui-column col-'+ c +'"><div class="w2ui-field-group">' + (pages[p][r][c] || '') + '\n</div></div>';
-                    }
-                    html+='\n</div>';
+                html += '<div class="w2ui-page page-'+ p +'" style="' + (p !== 0 ? 'display: none;' : '') + this.pageStyle + '">';
+                if (pages[p].before) {
+                    html += pages[p].before;
                 }
-                html += '\n</div></div>';
+                html += '<div class="w2ui-column-container" style="display: flex;">';
+				for (var r = 0; r < pages[p].length; r++) {
+					html+='<div class="w2ui-row row-'+r+'">\n';
+					Object.keys(pages[p]).sort().forEach(function (c, ind) {
+						if (c == parseInt(c)) {
+							html += '<div class="w2ui-column col-'+ c +'">' + (pages[p][r][c] || '') + '\n</div>';
+						}
+					})
+					html += '\n</div>';
+				}
+				html += '\n</div>';
+                if (pages[p].after) {
+                    html += pages[p].after;
+                }
+                html += '\n</div>';
+                // process page anchors
+                if (pages[p].anchors) {
+                    Object.keys(pages[p].anchors).forEach(function (key, ind) {
+                        html = html.replace(key, pages[p].anchors[key]);
+                    });
+                }
             }
             html += buttons;
             return html;
+        },
+
+        toggleGroup: function (groupName, show) {
+            var el = $(this.box).find('.w2ui-group-title[data-group="' + w2utils.base64encode(groupName) + '"]')
+            if (el.next().css('display') == 'none' && show !== true) {
+                el.next().slideDown(300);
+                el.next().next().remove()
+                el.find('span').addClass('w2ui-icon-collapse').removeClass('w2ui-icon-expand');
+            } else {
+                el.next().slideUp(300);
+                var css = 'width: ' + el.next().css('width') + ';'
+                   + 'padding-left: ' + el.next().css('padding-left') + ';'
+                   + 'padding-right: ' + el.next().css('padding-right') + ';'
+                   + 'margin-left: ' + el.next().css('margin-left') + ';'
+                   + 'margin-right: ' + el.next().css('margin-right') + ';'
+                setTimeout(function () { el.next().after('<div style="height: 5px;'+ css +'"></div>') }, 100)
+                el.find('span').addClass('w2ui-icon-expand').removeClass('w2ui-icon-collapse');
+            }
         },
 
         action: function (action, event) {
@@ -1031,17 +1239,24 @@
             }
         },
 
-        refresh: function (field) {
+        refresh: function () {
             var time = (new Date()).getTime();
             var obj = this;
             if (!this.box) return;
             if (!this.isGenerated || $(this.box).html() == null) return;
             // event before
-            var edata = this.trigger({ phase: 'before', target: this.name, type: 'refresh', page: this.page, field: field });
+            var edata = this.trigger({ phase: 'before', target: this.name, type: 'refresh', page: this.page, field: field, fields: arguments });
             if (edata.isCancelled === true) return;
-            if (field != null) {
-                var from_field = obj.get(field, true);
-                var to_field = from_field + 1;
+            var fields = Array.from(this.fields.keys());
+            if (arguments.length > 0) {
+                fields = Array.from(arguments)
+                    .map(function (fld, ind) {
+                        if (typeof fld != 'string') console.log('ERROR: Arguments in refresh functions should be field names')
+                        return this.get(fld, true); // get index of field
+                    }.bind(this))
+                    .filter(function (fld, ind) {
+                        if (fld != null) return true; else return false;
+                    });
             } else {
                 // update what page field belongs
                 $(this.box).find('input, textarea, select').each(function (index, el) {
@@ -1049,7 +1264,7 @@
                     var field = obj.get(name);
                     if (field) {
                         // find page
-                        var div = $(el).parents('.w2ui-page');
+                        var div = $(el).closest('.w2ui-page');
                         if (div.length > 0) {
                             for (var i = 0; i < 100; i++) {
                                 if (div.hasClass('page-'+i)) { field.page = i; break; }
@@ -1076,20 +1291,14 @@
                 } else {
                     $('#form_'+ this.name +'_toolbar').hide();
                 }
-                var from_field = 0;
-                var to_field = this.fields.length;
             }
             // refresh values of fields
-            for (var f = from_field; f < to_field; f++) {
-                var field = this.fields[f];
+            for (var f = 0; f < fields.length; f++) {
+                var field = this.fields[fields[f]];
                 if (field.name == null && field.field != null) field.name = field.field;
                 if (field.field == null && field.name != null) field.field = field.name;
                 field.$el = $(this.box).find('[name="'+ String(field.name).replace(/\\/g, '\\\\') +'"]');
                 field.el  = field.$el[0];
-                if (field.el == null) {
-                    if (field.type !== 'empty') console.log('ERROR: Cannot associate field "'+ field.name + '" with html control. Make sure html control exists with the same name.');
-                    continue;
-                }
                 if (field.el) field.el.id = field.name;
                 var tmp = $(field).data('w2field');
                 if (tmp) tmp.clear();
@@ -1103,62 +1312,98 @@
                         if ($.isArray(nv)) {
                             value_new = [];
                             for (var i = 0; i < nv.length; i++) value_new[i] = $.extend(true, {}, nv[i]); // clone array
-                        }
-                        if ($.isPlainObject(nv)) {
-                            value_new = $.extend(true, {}, nv); // clone object
-                        }
-                        if ($.isArray(cv)) {
-                            value_previous = [];
-                            for (var i = 0; i < cv.length; i++) value_previous[i] = $.extend(true, {}, cv[i]); // clone array
-                        }
-                        if ($.isPlainObject(cv)) {
-                            value_previous = $.extend(true, {}, cv); // clone object
-                        }
-                    }
-                    if (['toggle', 'checkbox'].indexOf(field.type) !== -1) {
-                        value_new = ($(this).prop('checked') ? ($(this).prop('value') === 'on' ? true : $(this).prop('value')) : false);
-                    }
-                    // clean extra chars
-                    if (['int', 'float', 'percent', 'money', 'currency'].indexOf(field.type) !== -1) {
-                        value_new = $(this).data('w2field').clean(value_new);
-                    }                    
-                    if ($.isPlainObject(value_new) && $.isPlainObject(value_previous) && (JSON.stringify(value_new) === JSON.stringify(value_previous))) return;
-                    else if (value_new === value_previous) return;
-                    // event before
-                    var edata2 = obj.trigger({ phase: 'before', target: this.name, type: 'change', value_new: value_new, value_previous: value_previous });
-                    if (edata2.isCancelled === true) {
-                        $(this).val(obj.record[this.name]); // return previous value
-                        return;
-                    }
-                    // default action
-                    var val = this.value;
-                    if (this.type === 'select')   val = this.value;
-                    if (this.type === 'checkbox') val = this.checked ? true : false;
-                    if (this.type === 'radio') {
-                        field.$el.each(function (index, el) {
-                            if (el.checked) {
-                                var item = field.options.items.find(function(item){return item.id==el.value});
-                                if (item && item.id!=item.text) val = item;
-                                else val = el.value;
+                $(field.$el)
+                    .off('.w2form')
+                    .on('change.w2form', function (event) {
+                        var value_new      = this.value;
+                        var value_previous = obj.getValue(this.name) != null ? obj.getValue(this.name) : '';
+                        var field          = obj.get(this.name);
+						if ((['enum', 'file'].indexOf(field.type) != -1) || (['list', 'combo'].indexOf(field.type) != -1 && $(this).data('selected').text == value_new)) {
+                        //if (['list', 'enum', 'file'].indexOf(field.type) !== -1 && $(this).data('selected')) {
+                            var nv = $(this).data('selected');
+                            var cv = obj.getValue(this.name);
+                            if ($.isArray(nv)) {
+                                value_new = [];
+                                for (var i = 0; i < nv.length; i++) value_new[i] = $.extend(true, {}, nv[i]); // clone array
                             }
-                        });
-                    }
-                    if (['int', 'float', 'percent', 'money', 'currency', 'list', 'combo', 'enum', 'file', 'toggle'].indexOf(field.type) !== -1) {
-                        val = value_new;
-                    }
-                    if (['enum', 'file'].indexOf(field.type) !== -1) {
-                        if (val.length > 0) {
-                            var fld = $(field.el).data('w2field').helpers.multi;
-                            $(fld).removeClass('w2ui-error');
+                            if ($.isPlainObject(nv)) {
+                                value_new = $.extend(true, {}, nv); // clone object
+                            }
+                            if ($.isArray(cv)) {
+                                value_previous = [];
+                                for (var i = 0; i < cv.length; i++) value_previous[i] = $.extend(true, {}, cv[i]); // clone array
+                            }
+                            if ($.isPlainObject(cv)) {
+                                value_previous = $.extend(true, {}, cv); // clone object
+                            }
                         }
-                    }
-                    if (val === '' || val == null || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) {
-                        val = null;
-                    }
-                    obj.record[this.name] = val;
-                    // event after
-                    obj.trigger($.extend(edata2, { phase: 'after' }));
-                });
+                        if (['toggle', 'checkbox'].indexOf(field.type) !== -1) {
+                            value_new = ($(this).prop('checked') ? ($(this).prop('value') === 'on' ? true : $(this).prop('value')) : false);
+                        }
+                        // clean extra chars
+                        if (['int', 'float', 'percent', 'money', 'currency'].indexOf(field.type) !== -1) {
+                            value_new = $(this).data('w2field').clean(value_new);
+                        }
+						
+						//TODO: JSON.stringify > deepdiff
+						if ($.isPlainObject(value_new) && $.isPlainObject(value_previous) && (JSON.stringify(value_new) === JSON.stringify(value_previous))) return;
+						else if (value_new === value_previous) return;
+
+                        // event before
+                        var edata2 = obj.trigger({ phase: 'before', target: this.name, type: 'change', value_new: value_new, value_previous: value_previous, originalEvent: event });
+                        if (edata2.isCancelled === true) {
+                            $(this).val(obj.getValue(this.name)); // return previous value
+                            return;
+                        }
+                        // default action
+                        var val = this.value;
+                        if (this.type === 'select')   val = this.value;
+                        if (this.type === 'checkbox') val = this.checked ? true : false;
+                        if (this.type === 'radio') {
+                            field.$el.each(function (index, el) {
+                                if (el.checked) {
+									var item = field.options.items.find( function( item ){ return item.id == el.value } );
+									if ( item && item.id != item.text ) val = item;
+									else val = el.value;
+								}
+                            });
+                        }
+                        if (['int', 'float', 'percent', 'money', 'currency', 'list', 'combo', 'enum', 'file', 'toggle'].indexOf(field.type) !== -1) {
+                            val = value_new;
+                        }
+                        if (['enum', 'file'].indexOf(field.type) !== -1) {
+                            if (val.length > 0) {
+                                var fld = $(field.el).data('w2field').helpers.multi;
+                                $(fld).removeClass('w2ui-error');
+                            }
+                        }
+                        if (val === '' || val == null || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) {
+                            val = null;
+                        }
+                        obj.setValue(this.name, val);
+                        // event after
+                        obj.trigger($.extend(edata2, { phase: 'after' }));
+                    })
+                    .on('input.w2form', function (event) {
+                        var val = this.value;
+                        if (event.target.type == 'checkbox') {
+                            val = event.target.checked;
+                        }
+                        // remember original
+                        if (obj.original == null) {
+                            if (!$.isEmptyObject(obj.record)) {
+                                obj.original = $.extend(true, {}, obj.record);
+                            } else {
+                                obj.original = {};
+                            }
+                        }
+                        // event before
+                        var edata2 = obj.trigger({ phase: 'before', target: this.name, type: 'input', value_new: val, originalEvent: event });
+                        if (edata2.isCancelled === true) return;
+
+                        // event after
+                        obj.trigger($.extend(edata2, { phase: 'after' }));
+                    });
                 // required
                 if (field.required) {
                     $(field.el).parent().parent().addClass('w2ui-required');
@@ -1167,17 +1412,31 @@
                 }
                 // disabled
                 if (field.disabled != null) {
+                    var $fld = $(field.el);
                     if (field.disabled) {
-                        $(field.el).prop('readonly', true);
+                        if ($fld.data('w2ui-tabIndex') == null) {
+                            $fld.data('w2ui-tabIndex', $fld.prop('tabIndex'));
+                        }
+                        $(field.el)
+                            .prop('readonly', true)
+                            .prop('tabindex', -1)
+                            .closest('.w2ui-field')
+                            .addClass('w2ui-disabled');
                     } else {
-                        $(field.el).prop('readonly', false);
+                        $(field.el)
+                            .prop('readonly', false)
+                            .prop('tabIndex', $fld.data('w2ui-tabIndex'))
+                            .closest('.w2ui-field')
+                            .removeClass('w2ui-disabled');
                     }
                 }
                 // hidden
+                var tmp = field.el;
+                if (!tmp) tmp = $(this.box).find('#' + field.field)
                 if (field.hidden) {
-                    $(field.el).parents('.w2ui-field').hide();
+                    $(tmp).closest('.w2ui-field').hide();
                 } else {
-                    $(field.el).parents('.w2ui-field').show();
+                    $(tmp).closest('.w2ui-field').show();
                 }
             }
             // attach actions on buttons
@@ -1190,9 +1449,9 @@
                 });
             });
             // init controls with record
-            for (var f = from_field; f < to_field; f++) {
-                var field = this.fields[f];
-                var value = (this.record[field.name] != null ? this.record[field.name] : '');
+            for (var f = 0; f < fields.length; f++) {
+                var field = this.fields[fields[f]];
+                var value = (this.getValue(field.name) != null ? this.getValue(field.name) : '');
                 if (!field.el) continue;
                 if (!$(field.el).hasClass('w2ui-input')) $(field.el).addClass('w2ui-input');
                 field.type = String(field.type).toLowerCase();
@@ -1225,7 +1484,7 @@
                     case 'toggle':
                         if (w2utils.isFloat(value)) value = parseFloat(value);
                         $(field.el).prop('checked', (value ? true : false));
-                        this.record[field.name] = (value ? value : false);
+                        this.setValue(field.name, (value ? value : false));
                         break;
                     // enums
                     case 'list':
@@ -1235,17 +1494,21 @@
                             // normalized options
                             if (!field.options.items) field.options.items = [];
                             var items = field.options.items;
-                            if ($.isArray(items) && items.length > 0 && !$.isPlainObject(items[0])) {
-                                field.options.items = w2obj.field.prototype.normMenu(items);
-                            }
                             // find value from items
-                            for (var i = 0; i < field.options.items.length; i++) {
-                                var item = field.options.items[i];
-                                if (item.id == tmp_value) {
-                                    value = $.extend(true, {}, item);
-                                    obj.record[field.name] = value;
-                                    break;
+                            var isFound = false;
+                            if (Array.isArray(field.options.items)) {
+                                for (var i = 0; i < field.options.items.length; i++) {
+                                    var item = field.options.items[i];
+                                    if (item.id == tmp_value) {
+                                        value = $.extend(true, {}, item);
+                                        obj.setValue(field.name, value);
+                                        isFound = true;
+                                        break;
+                                    }
                                 }
+                            }
+                            if (!isFound && value != null && value !== '') {
+                                field.$el.data('find_selected', value);
                             }
                         } else if (field.type === 'combo' && !$.isPlainObject(value)) {
                             field.el.value = value;
@@ -1259,8 +1522,34 @@
                         break;
                     case 'enum':
                     case 'file':
+                        var sel = [];
+                        var isFound = false;
                         if (!$.isArray(value)) value = [];
-                        $(field.el).w2field($.extend({}, field.options, { type: field.type, selected: value }));
+                        if (typeof field.options.items != 'function') {
+                            if (!$.isArray(field.options.items)) {
+                                field.options.items = [];
+                            }
+                            // find value from items
+                            value.forEach(function (val) {
+                                field.options.items.forEach(function (it) {
+                                    if (it && (it.id == val || ($.isPlainObject(val) && it.id == val.id))) {
+                                        sel.push($.isPlainObject(it) ? $.extend(true, {}, it) : it);
+                                        isFound = true
+                                    }
+                                })
+                            })
+                        }
+                        if (!isFound && value != null && value.length !== 0) {
+                            field.$el.data('find_selected', value);
+                            sel = value
+                        }
+                        var opt = $.extend({}, field.options, { type: field.type, selected: sel })
+                        Object.keys(field.options).forEach(function(key) {
+                            if (typeof field.options[key] == 'function') {
+                                opt[key] = field.options[key]
+                            }
+                        })
+                        $(field.el).w2field(opt);
                         break;
 
                     // standard HTML
@@ -1268,13 +1557,167 @@
                         // generate options
                         var items = field.options.items;
                         if (items != null && items.length > 0) {
-                            items = w2obj.field.prototype.normMenu(items);
+                            items = w2obj.field.prototype.normMenu.call(this, items, field);
                             $(field.el).html('');
                             for (var it = 0; it < items.length; it++) {
                                 $(field.el).append('<option value="'+ items[it].id +'">' + items[it].text + '</option');
                             }
                         }
                         $(field.el).val(value);
+                        break;
+                    case 'map':
+                    case 'array':
+                        // init map
+                        if (field.type == 'map' && (value == null || !$.isPlainObject(value))) {
+                            this.setValue(field.field, {})
+                            value = this.getValue(field.field)
+                        }
+                        if (field.type == 'array' && (value == null || !Array.isArray(value))) {
+                            this.setValue(field.field, [])
+                            value = this.getValue(field.field)
+                        }
+                        // need closure
+                        (function (obj, field) {
+                            field.el.mapAdd = function (field, div, cnt) {
+                                var attr = (field.disabled ? ' readOnly ' : '');
+                                var html =  '<div class="w2ui-map-field" style="margin-bottom: 5px">'+
+                                    '<input id="'+ field.field +'_key_'+ cnt +'" data-cnt="'+ cnt +'" type="text" '+ field.html.key.attr + attr +' class="w2ui-input w2ui-map key">'+
+                                        (field.html.key.text || '') +
+                                    '<input id="'+ field.field +'_value_'+ cnt +'" data-cnt="'+ cnt +'" type="text" '+ field.html.value.attr + attr +' class="w2ui-input w2ui-map value">'+
+                                        (field.html.value.text || '') +
+                                    '</div>';
+                                div.append(html)
+                            }
+                            field.el.mapRefresh = function (map, div) {
+                                // generate options
+                                var cnt = 1;
+                                var names;
+                                if (field.type == 'map') {
+                                    if (!$.isPlainObject(map)) map = {}
+                                    if (map._order == null) map._order = Object.keys(map)
+                                    names = map._order
+                                }
+                                if (field.type == 'array') {
+                                    if (!Array.isArray(map)) map = []
+                                    names = map.map(function (item) { return item.key })
+                                }
+                                var $k, $v;
+                                names.forEach(function (item) {
+                                    $k = div.find('#' + w2utils.escapeId(field.name) + '_key_' + cnt)
+                                    $v = div.find('#' + w2utils.escapeId(field.name) + '_value_' + cnt)
+                                    if ($k.length == 0 || $v.length == 0) {
+                                        field.el.mapAdd(field, div, cnt)
+                                        $k = div.find('#' + w2utils.escapeId(field.name) + '_key_' + cnt)
+                                        $v = div.find('#' + w2utils.escapeId(field.name) + '_value_' + cnt)
+                                    }
+                                    var val = map[item];
+                                    if (field.type == 'array') {
+                                        var tmp = map.filter(function(it) { return it.key == item ? true : false})
+                                        if (tmp.length > 0) val = tmp[0].value
+                                    }
+                                    $k.val(item);
+                                    $v.val(val);
+                                    if (field.disabled === true || field.disabled === false) {
+                                        $k.prop('readOnly', field.disabled ? true : false)
+                                        $v.prop('readOnly', field.disabled ? true : false)
+                                    }
+                                    $k.parents('.w2ui-map-field').attr('data-key', item)
+                                    cnt++
+                                })
+                                var curr = div.find('#' + w2utils.escapeId(field.name) + '_key_' + cnt).parent()
+                                var next = div.find('#' + w2utils.escapeId(field.name) + '_key_' + (cnt + 1)).parent()
+                                // if not disabled - show next
+                                if (curr.length === 0 && !($k && ($k.prop('readOnly') === true || $k.prop('disabled') === true))) {
+                                    field.el.mapAdd(field, div, cnt);
+                                }
+                                if (curr.length == 1 && next.length == 1) {
+                                    curr.removeAttr('data-key')
+                                    curr.find('.key').val(next.find('.key').val());
+                                    curr.find('.value').val(next.find('.value').val());
+                                    next.remove()
+                                }
+                                if (field.disabled === true || field.disabled === false) {
+                                    curr.find('.key').prop('readOnly', field.disabled ? true : false)
+                                    curr.find('.value').prop('readOnly', field.disabled ? true : false)
+                                }
+                                // attach events
+                                $(field.el).next().find('input.w2ui-map')
+                                    .off('.mapChange')
+                                    .on('keyup.mapChange', function (event) {
+                                        var $div  = $(event.target).parents('.w2ui-map-field')
+                                        if (event.keyCode == 13) {
+                                            $div.next().find('input.key').focus()
+                                        }
+
+                                    })
+                                    .on('change.mapChange', function () {
+                                        var $div  = $(event.target).parents('.w2ui-map-field')
+                                        var old   = $div.attr('data-key')
+                                        var key   = $div.find('.key').val()
+                                        var value = $div.find('.value').val()
+                                        // event before
+                                        var value_new = {}
+                                        var value_previous = {}
+                                        var aMap = null
+                                        var aIndex = null
+                                        value_new[key] = value
+                                        if (field.type == 'array') {
+                                            map.forEach(function (it, ind) {
+                                                if (it.key == old) aIndex = ind
+                                            })
+                                            aMap = map[aIndex]
+                                        }
+                                        if (old != null && field.type == 'map') {
+                                            value_previous[old] = map[old]
+                                        }
+                                        if (old != null && field.type == 'array') {
+                                            value_previous[old] = aMap.value
+                                        }
+                                        var edata = obj.trigger({ phase: 'before', target: field.field, type: 'change', originalEvent: event, value_new: value_new, value_previous: value_previous })
+                                        if (edata.isCancelled === true) {
+                                            return;
+                                        }
+                                        if (field.type == 'map') {
+                                            delete map[old];
+                                            var ind = map._order.indexOf(old)
+                                            if (key != '') {
+                                                if (map[key] != null) {
+                                                    var newKey, more = 0
+                                                    do { more++; newKey = key + more } while (map[newKey] != null)
+                                                    key = newKey
+                                                    $div.find('.key').val(newKey)
+                                                }
+                                                map[key] = value;
+                                                $div.attr('data-key', key)
+                                                if (ind != -1) {
+                                                    map._order[ind] = key
+                                                } else {
+                                                    map._order.push(key)
+                                                }
+                                            } else {
+                                                map._order.splice(ind, 1)
+                                                $div.find('.value').val('')
+                                            }
+                                        } else if (field.type == 'array') {
+                                            if (key != '') {
+                                                if (aMap == null) {
+                                                    map.push({ key: key, value: value })
+                                                } else {
+                                                    aMap.key = key
+                                                    aMap.value = value
+                                                }
+                                            } else {
+                                                map.splice(aIndex, 1)
+                                            }
+                                        }
+                                        obj.setValue(field.field, map)
+                                        field.el.mapRefresh(map, div)
+                                        // event after
+                                        obj.trigger($.extend(edata, { phase: 'after' }));
+                                    })
+                            }
+                            field.el.mapRefresh(value, $(field.el).parent().find('.w2ui-map-container'))
+                        })(this, field)
                         break;
                     case 'radio':
                         $(field.$el).prop('checked', false).each(function (index, el) {
@@ -1283,6 +1726,9 @@
                         break;
                     case 'checkbox':
                         $(field.el).prop('checked', value ? true : false);
+                        if (field.disabled === true || field.disabled === false) {
+                            $(field.el).prop('disabled', field.disabled ? true : false)
+                        }
                         break;
                     case 'html':
                     case 'custom':
@@ -1322,10 +1768,6 @@
             // event before
             var edata = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (box != null ? box : this.box) });
             if (edata.isCancelled === true) return;
-            // default actions
-            if ($.isEmptyObject(this.original) && !$.isEmptyObject(this.record)) {
-                this.original = $.extend(true, {}, this.record);
-            }
             var html =  '<div class="w2ui-form-box">' +
                         (this.header !== '' ? '<div class="w2ui-form-header">' + this.header + '</div>' : '') +
                         '    <div id="form_'+ this.name +'_toolbar" class="w2ui-form-toolbar" style="display: none"></div>' +
@@ -1376,22 +1818,27 @@
                 this.tmp_resize = function (event) { w2ui[obj.name].resize(); };
                 $(window).off('resize', 'body').on('resize', 'body', this.tmp_resize);
             }
-            // focus on load
-            function focusEl() {
-                var inputs = $(obj.box).find('div:not(.w2ui-field-helper) > input, select, textarea, div > label:nth-child(1) > :radio').not('.file-input');
-                if (inputs.length > obj.focus) inputs[obj.focus].focus();
-            }
-            if (this.focus >= 0) {
+            if (this.focus != -1) {
                 setTimeout(function () {
                     // if not rendered in 10ms, then wait 500ms
                     if ($(obj.box).find('input, select, textarea').length === 0) {
                         setTimeout(focusEl, 500); // need timeout to allow form to render
                     } else {
-                        focusEl();
+                        obj.applyFocus();
                     }
-                }, 10);
+                }, 50);
             }
             return (new Date()).getTime() - time;
+        },
+
+        applyFocus: function() {
+            var focus  = this.focus;
+            var inputs = $(this.box).find('div:not(.w2ui-field-helper) > input, select, textarea, div > label:nth-child(1) > :radio').not('.file-input');
+            // find visible
+            while ($(inputs[focus]).is(':hidden') && inputs.length >= focus) {
+                focus++
+            }
+            if (inputs[focus]) inputs[focus].focus();
         },
 
         destroy: function () {

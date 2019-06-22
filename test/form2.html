@@ -1,6 +1,6 @@
 <html>
 <head>
-<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
+<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
 <script type="text/javascript" src="../libs/jquery/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2fields.js"></script>
@@ -11,51 +11,84 @@
 <script>
 //<![CDATA[
     $(function () {
-        $('#form').w2form({ 
+        $('#form').w2form({
             name     : 'form',
-            url      : 'form.php',
+            // url      : 'form.php',
             recid    : 4,
             header   : 'Edit header',
             //formURL : 'form-template.html',
             //formHTML: 'some html',
+            onChange(event) {
+                console.log(event)
+            },
             record: {
-                "field.date": '3/15/2013'
+                "field_date": '3/15/2013',
+                field: {
+                    map: {
+                        key1: '1',
+                        key2: '2',
+                        key3: '3',
+                        key4: '4',
+                        key5: '5'
+                    },
+                    array: [
+                        { key: 'key1', value: '1' },
+                        { key: 'key2', value: '2' },
+                        { key: 'key3', value: '3' },
+                        { key: 'key4', value: '4' },
+                        { key: 'key5', value: '5' }
+                    ]
+                }
             },
             tabs: ['General', 'Aditional'],
             fields: [
-                { name: 'field.text', type: 'text', required: true,
-                    html: { caption: 'Text', page: 0 }
+                { field: 'field.map', type: 'map', required: true,
+                    html: {
+                        label: 'Map', page: 0, text: '',
+                        key: { attr: 'placeholder="key"', text: '='},
+                        value: { attr: 'placeholder="value"', text: ''}
+                    },
                 },
-                { name: 'field.alpha', type: 'alphanumeric', required: true,
-                    html: { caption: 'Alpha Numeric', page: 0 }
+                { field: 'field.array', type: 'array', required: true,
+                    html: {
+                        label: 'Array', page: 0, text: '',
+                        key: { attr: 'placeholder="key"', text: '='},
+                        value: { attr: 'placeholder="value"', text: ''}
+                    },
                 },
-                { name: 'field.int', type: 'int', required: true,
-                    html: { caption: 'Integer', page: 0 }
+                { field: 'field_text', type: 'text', required: true,
+                    html: { label: 'Text', page: 0 }
                 },
-                { name: 'field.float', type: 'float', required: true,
-                    html: { caption: 'Float', page: 0 }
+                { field: 'field_alpha', type: 'alphanumeric', required: true,
+                    html: { label: 'Alpha Numeric', page: 0 }
                 },
-                { name: 'field.date', type: 'date', 
+                { field: 'field_int', type: 'int', required: true,
+                    html: { label: 'Integer', page: 0 }
+                },
+                { field: 'field_float', type: 'float', required: true,
+                    html: { label: 'Float', page: 0 }
+                },
+                { field: 'field_date', type: 'date',
                     options: { format: 'mm/dd/yyyy', blocked: ['3/12/2013', '3/13/2013'] },
-                    html: { caption: 'Date', page: 0 }
+                    html: { label: 'Date', page: 0 }
                 },
-                { name: 'field.list', type: 'list', required: true, 
+                { field: 'field_list', type: 'list', required: true,
                     options: { items: [{ id: 0, txt: 'Adams, John' }, { id: 1, text: 'Adams2, John' }], showNone: false },
-                    html: { caption: 'List', page: 0 }
+                    html: { label: 'List', page: 0 }
                 },
-                { name: 'field.enum', type: 'enum', required: true, 
+                { field: 'field_enum', type: 'enum', required: true,
                     options: { items: [{id: 1, text: 'Adams, John'}, 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] },
-                    html: { caption: 'Enum (multi select)', attr: 'style="width: 100%"', page: 0 }
+                    html: { label: 'Enum (multi select)', attr: 'style="width: 100%"', page: 0 }
                 },
-                { name: 'field.textarea', type: 'textarea', required: true, 
-                    html: { caption: 'Text Area', attr: 'style="width: 100%; height: 90px; resize: none"', page: 0 }
+                { field: 'field_textarea', type: 'textarea', required: true,
+                    html: { label: 'Text Area', attr: 'style="width: 100%; height: 90px; resize: none"', page: 0 }
                 },
-                { name: 'field.textarea', type: 'textarea', html: { page : 1 } },
-                { name: 'field.text2',  type: 'text', html: { page : 1 } },
-                { name: 'field.text3',  type: 'text', html: { page : 1 } },
-                { name: 'field.text4',  type: 'text', html: { page : 1 } },
-                { name: 'field.text5',  type: 'text', html: { page : 1 } },
-                { name: 'field.upload', type: 'text', html: { page : 1 } }
+                { field: 'field_textarea', type: 'textarea', html: { page : 1 } },
+                { field: 'field_text2',  type: 'text', html: { page : 1 } },
+                { field: 'field_text3',  type: 'text', html: { page : 1 } },
+                { field: 'field_text4',  type: 'text', html: { page : 1 } },
+                { field: 'field_text5',  type: 'text', html: { page : 1 } },
+                { field: 'field_upload', type: 'text', html: { page : 1 } }
             ],
             actions: {
                 Reset: function () {
@@ -63,7 +96,7 @@
                 },
                 Save: function () {
                     var obj = this;
-                    this.save({}, function (data) { 
+                    this.save({}, function (data) {
                         console.log(data);
                         if (data.status == 'error') {
                             console.log('ERROR: '+ data.message);
@@ -72,6 +105,9 @@
                         //obj.clear();
                     });
                 }
+            },
+            onChange: function (event) {
+                console.log('change', event)
             }
         });
 });

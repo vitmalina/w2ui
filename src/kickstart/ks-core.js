@@ -11,7 +11,8 @@ var kickStart = (function () {
             name    : 'unnamed',
             baseURL : '',
             cache   : false,
-            modules : {}
+            modules : {},
+            verbose : true
         },
         define    : define,
         require   : require,
@@ -23,39 +24,49 @@ var kickStart = (function () {
     // ===========================================
     // -- Define modules
 
-    function define(mod) {
+    function define(mod, callBack) {
         // if string - it is path to the file
         if (typeof mod == 'string') {
             $.ajax({
                 url      : app._conf.baseURL + mod,
                 dataType : 'text',
                 cache    : app._conf.cache,
-                async    : false, // do it synchronously - otherwise errors
                 success : function (data, success, xhr) {
                     if (success != 'success') {
-                        console.log('ERROR: error while loading module definition from "'+ mod +'".');
+                        if (app._conf.verbose) console.log('ERROR: error while loading module definition from "'+ mod +'".');
                         return;
                     }
                     try {
                         mod = JSON.parse(data);
                     } catch (e) {
-                        console.log('ERROR: not valid JSON file  "'+ mod +'".\n'+ e);
+                        if (app._conf.verbose) console.log('ERROR: not valid JSON file  "'+ mod +'".\n'+ e);
                         return;
                     }
+                    _process(mod);
+                    if (typeof callBack == 'function') callBack();
+
                 },
                 error : function (data, err, errData) {
-                    console.log('ERROR: error while loading module definition from "'+ mod +'".');
+                    if (app._conf.verbose) console.log('ERROR: error while loading module definition from "'+ mod +'".');
                 }
             });
+        } else {
+            _process(mod);
+            if (typeof callBack == 'function') callBack();
         }
-        for (var m in mod) {
-            if (app._conf.modules.hasOwnProperty(m)) {
-                console.log('ERROR: module ' + m + ' is already registered.');
-                return false;
+
+        function _process(mod) {
+            for (var m in mod) {
+                if (Array.isArray(mod[m].assets)) {
+                    if (app._conf.modules.hasOwnProperty(m)) {
+                        if (app._conf.verbose) console.log('ERROR: module ' + m + ' is already registered.');
+                    }
+                    app._conf.modules[m] = $.extend({ assets: {} }, mod[m], { ready: false, files: {} });
+                } else {
+                    _process(mod[m]);
+                }
             }
-            app._conf.modules[m] = $.extend({ assets: {} }, mod[m], { ready: false, files: {} });
         }
-        return true;
     }
 
     // ===========================================
@@ -64,11 +75,11 @@ var kickStart = (function () {
     function register(name, moduleFunction) {
         // check if modules id defined
         if (app.hasOwnProperty(name)) {
-            console.log('ERROR: Namespace '+ name +' is already registered');
+            if (app._conf.verbose) console.log('ERROR: Namespace '+ name +' is already registered');
             return false;
         }
         if (!app._conf.modules.hasOwnProperty(name)) {
-            console.log('ERROR: Namespace '+ name +' is not defined, first define it with kickStart.define');
+            if (app._conf.verbose) console.log('ERROR: Namespace '+ name +' is not defined, first define it with kickStart.define');
             return false;
         }
         // register module
@@ -112,7 +123,7 @@ var kickStart = (function () {
                     modCount--;
                     isFinished();
                 } else if (typeof app._conf.modules[name] == 'undefined') {
-                    console.log('ERROR: module ' + name + ' is not defined.');
+                    if (app._conf.verbose) console.log('ERROR: module ' + name + ' is not defined.');
                 } else {
                     (function (name) { // need closure
                         // load dependencies
@@ -133,11 +144,15 @@ var kickStart = (function () {
                                 if (tmp) tmp = tmp[0].split(':');
                                 if (tmp) {
                                     // display error
-                                    console.error('ERROR: ' + err[0] + ' ==> ' + app._conf.modules[name].start + ', line: '+ tmp[1] + ', character: '+ tmp[2]);
-                                    console.log(e.stack);
+                                    if (app._conf.verbose) {
+                                        console.error('ERROR: ' + err[0] + ' ==> ' + app._conf.modules[name].start + ', line: '+ tmp[1] + ', character: '+ tmp[2]);
+                                        console.log(e.stack);
+                                    }
                                 } else {
-                                    console.error('ERROR: ' + app._conf.modules[name].start);
-                                    console.log(e.stack);
+                                    if (app._conf.verbose) {
+                                        console.error('ERROR: ' + app._conf.modules[name].start);
+                                        console.log(e.stack);
+                                    }
                                 }
                                 // if (typeof app.conf.fail == 'function') app.conf.fail(app._conf.modules[name]);
                                 if (typeof promise._fail == 'function') promise._fail(app._conf.modules[name]);
@@ -194,7 +209,7 @@ var kickStart = (function () {
                         cache    : app._conf.cache,
                         success  : function (data, success, xhr) {
                             if (success != 'success') {
-                                console.log('ERROR: error while getting a file '+ path +'.');
+                                if (app._conf.verbose) console.log('ERROR: error while getting a file '+ path +'.');
                                 return;
                             }
                             bufferObj[path] = xhr.responseText;
@@ -203,9 +218,9 @@ var kickStart = (function () {
                         },
                         error : function (data, err, errData) {
                             if (err == 'error') {
-                                console.log('ERROR: failed to load '+ files[i] +'.');
+                                if (app._conf.verbose) console.log('ERROR: failed to load '+ files[i] +'.');
                             } else {
-                                console.log('ERROR: file "'+ files[i] + '" is loaded, but with a parsing error(s) in line '+ errData.line +': '+ errData.message);
+                                if (app._conf.verbose) console.log('ERROR: file "'+ files[i] + '" is loaded, but with a parsing error(s) in line '+ errData.line +': '+ errData.message);
                                 bufferObj[path] = xhr.responseText;
                                 loadDone();
                             }

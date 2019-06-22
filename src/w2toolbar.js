@@ -10,6 +10,12 @@
 *
 * == 1.5 changes ==
 *   - menu drop down can have groups now
+*   - item.caption - deprecated
+*   - item.text - can be a function
+*   - item.icon - can be a function
+*   - item.tooltip - can be a function
+*   - item.color
+*   - item.options
 *
 ************************************************************************/
 
@@ -106,14 +112,17 @@
             icon        : null,
             route       : null,        // if not null, it is route to go
             arrow       : true,        // arrow down for drop/menu types
-            style       : null,        // extre css style for caption
-            color       : null,        // color value - used in color pickers
-            transparent : null,        // transparent t/f - used in color picker
-            advanced    : null,        // advanced picker t/f - user in color picker
+            style       : null,        // extra css style for caption
             group       : null,        // used for radio buttons
             items       : null,        // for type menu* it is an array of items in the menu
             selected    : null,        // used for menu-check, menu-radio
             overlay     : {},
+            color       : null,        // color value - used in color pickers
+            options     : {
+                advanced    : false,   // advanced picker t/f - user in color picker
+                transparent : true,    // transparent t/f - used in color picker
+                html        : ''       // additional buttons for color picker
+            },
             onClick     : null,
             onRefresh   : null
         },
@@ -304,8 +313,10 @@
         click: function (id, event) {
             var obj = this;
             // click on menu items
-            var tmp = String(id).split(':');
-            var it  = this.get(tmp[0]);
+            var tmp   = String(id).split(':');
+            var it    = this.get(tmp[0]);
+            var items = (it && it.items ? w2obj.field.prototype.normMenu.call(this, it.items, it) : []);
+
             if (tmp.length > 1) {
                 var subItem = this.get(id);
                 if (subItem && !subItem.disabled) {
@@ -371,17 +382,17 @@
                                 var menuType = 'normal';
                                 if (it.type == 'menu-radio') {
                                     menuType = 'radio';
-                                    it.items.forEach(function (item) {
+                                    items.forEach(function (item) {
                                         if (it.selected == item.id) item.checked = true; else item.checked = false;
                                     });
                                 }
                                 if (it.type == 'menu-check') {
                                     menuType = 'check';
-                                    it.items.forEach(function (item) {
+                                    items.forEach(function (item) {
                                         if ($.isArray(it.selected) && it.selected.indexOf(item.id) != -1) item.checked = true; else item.checked = false;
                                     });
                                 }
-                                el.w2menu($.extend({ name: obj.name, items: it.items, left: left, top: 3 }, it.overlay, {
+                                el.w2menu($.extend({ name: obj.name, items: items, left: left, top: 3 }, it.overlay, {
                                     type: menuType,
                                     select: function (event) {
                                         obj.menuClick({ name: obj.name, item: it, subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen });
@@ -392,11 +403,8 @@
                                 }));
                             }
                             if (['color', 'text-color'].indexOf(it.type) != -1) {
-                                if (it.transparent == null) it.transparent = true;
-                                $(el).w2color({
+                                $(el).w2color($.extend({
                                     color: it.color,
-                                    transparent: it.transparent,
-                                    advanced: it.advanced,
                                     onHide: function (event) {
                                         hideDrop();
                                         if (obj._tmpColor) {
@@ -410,7 +418,7 @@
                                             obj._tmpColor = color;
                                         }
                                     }
-                                });
+                                }, it.options));
                             }
                             function hideDrop(event) {
                                 it.checked = false;
@@ -499,6 +507,12 @@
                 var it = this.items[i];
                 if (it == null)  continue;
                 if (it.id == null) it.id = "item_" + i;
+                if (it.caption != null) {
+                    console.log('NOTICE: toolbar item.caption property is deprecated, please use item.text. Item -> ', it)
+                }
+                if (it.hint != null) {
+                    console.log('NOTICE: toolbar item.hint property is deprecated, please use item.tooltip. Item -> ', it)
+                }
                 if (it.type == 'spacer') {
                     html += '<td width="100%" id="tb_'+ this.name +'_item_'+ it.id +'" align="right"></td>';
                 } else {
@@ -634,11 +648,12 @@
             if (item.tooltip == null && item.hint != null) item.tooltip = item.hint; // for backward compatibility
             if (item.tooltip == null) item.tooltip = '';
             var img  = '<td>&#160;</td>';
-            var text = item.text;
-            if (typeof text == 'function') text = text.call(this, item);
+            var text = (typeof item.text == 'function' ? item.text.call(this, item) : item.text);
             if (item.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ item.img +'"></div></td>';
-            if (item.icon) img = '<td><div class="w2ui-tb-image"><span class="'+ item.icon +'"></span></div></td>';
-
+            if (item.icon) {
+                img = '<td><div class="w2ui-tb-image"><span class="'+
+                    (typeof item.icon == 'function' ? item.icon.call(this, item) : item.icon) +'"></span></div></td>';
+            }
             if (html === '') switch (item.type) {
                 case 'color':
                 case 'text-color':
@@ -676,7 +691,7 @@
                             '  <tr>' +
                                     img +
                                     (text !== ''
-                                        ? '<td class="w2ui-tb-caption" nowrap="nowrap" style="'+ (item.style ? item.style : '') +'">'+ w2utils.lang(text) +'</td>'
+                                        ? '<td class="w2ui-tb-text w2ui-tb-caption" nowrap="nowrap" style="'+ (item.style ? item.style : '') +'">'+ w2utils.lang(text) +'</td>'
                                         : ''
                                     ) +
                                     (item.count != null
@@ -753,7 +768,9 @@
                 var item = this.get(event.item.id);
                 if (item.type == 'menu-radio') {
                     item.selected = it.id;
-                    event.item.items.forEach(function (item) { item.checked = false; });
+                    if (Array.isArray(event.item.items)) {
+                        event.item.items.forEach(function (item) { item.checked = false; });
+                    }
                     it.checked = true;
                 }
                 if (item.type == 'menu-check') {

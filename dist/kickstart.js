@@ -12,7 +12,8 @@ var kickStart = (function () {
             name    : 'unnamed',
             baseURL : '',
             cache   : false,
-            modules : {}
+            modules : {},
+            verbose : true
         },
         define    : define,
         require   : require,
@@ -24,39 +25,49 @@ var kickStart = (function () {
     // ===========================================
     // -- Define modules
 
-    function define(mod) {
+    function define(mod, callBack) {
         // if string - it is path to the file
         if (typeof mod == 'string') {
             $.ajax({
                 url      : app._conf.baseURL + mod,
                 dataType : 'text',
                 cache    : app._conf.cache,
-                async    : false, // do it synchronously - otherwise errors
                 success : function (data, success, xhr) {
                     if (success != 'success') {
-                        console.log('ERROR: error while loading module definition from "'+ mod +'".');
+                        if (app._conf.verbose) console.log('ERROR: error while loading module definition from "'+ mod +'".');
                         return;
                     }
                     try {
                         mod = JSON.parse(data);
                     } catch (e) {
-                        console.log('ERROR: not valid JSON file  "'+ mod +'".\n'+ e);
+                        if (app._conf.verbose) console.log('ERROR: not valid JSON file  "'+ mod +'".\n'+ e);
                         return;
                     }
+                    _process(mod);
+                    if (typeof callBack == 'function') callBack();
+
                 },
                 error : function (data, err, errData) {
-                    console.log('ERROR: error while loading module definition from "'+ mod +'".');
+                    if (app._conf.verbose) console.log('ERROR: error while loading module definition from "'+ mod +'".');
                 }
             });
+        } else {
+            _process(mod);
+            if (typeof callBack == 'function') callBack();
         }
-        for (var m in mod) {
-            if (app._conf.modules.hasOwnProperty(m)) {
-                console.log('ERROR: module ' + m + ' is already registered.');
-                return false;
+
+        function _process(mod) {
+            for (var m in mod) {
+                if (Array.isArray(mod[m].assets)) {
+                    if (app._conf.modules.hasOwnProperty(m)) {
+                        if (app._conf.verbose) console.log('ERROR: module ' + m + ' is already registered.');
+                    }
+                    app._conf.modules[m] = $.extend({ assets: {} }, mod[m], { ready: false, files: {} });
+                } else {
+                    _process(mod[m]);
+                }
             }
-            app._conf.modules[m] = $.extend({ assets: {} }, mod[m], { ready: false, files: {} });
         }
-        return true;
     }
 
     // ===========================================
@@ -65,11 +76,11 @@ var kickStart = (function () {
     function register(name, moduleFunction) {
         // check if modules id defined
         if (app.hasOwnProperty(name)) {
-            console.log('ERROR: Namespace '+ name +' is already registered');
+            if (app._conf.verbose) console.log('ERROR: Namespace '+ name +' is already registered');
             return false;
         }
         if (!app._conf.modules.hasOwnProperty(name)) {
-            console.log('ERROR: Namespace '+ name +' is not defined, first define it with kickStart.define');
+            if (app._conf.verbose) console.log('ERROR: Namespace '+ name +' is not defined, first define it with kickStart.define');
             return false;
         }
         // register module
@@ -113,7 +124,7 @@ var kickStart = (function () {
                     modCount--;
                     isFinished();
                 } else if (typeof app._conf.modules[name] == 'undefined') {
-                    console.log('ERROR: module ' + name + ' is not defined.');
+                    if (app._conf.verbose) console.log('ERROR: module ' + name + ' is not defined.');
                 } else {
                     (function (name) { // need closure
                         // load dependencies
@@ -134,11 +145,15 @@ var kickStart = (function () {
                                 if (tmp) tmp = tmp[0].split(':');
                                 if (tmp) {
                                     // display error
-                                    console.error('ERROR: ' + err[0] + ' ==> ' + app._conf.modules[name].start + ', line: '+ tmp[1] + ', character: '+ tmp[2]);
-                                    console.log(e.stack);
+                                    if (app._conf.verbose) {
+                                        console.error('ERROR: ' + err[0] + ' ==> ' + app._conf.modules[name].start + ', line: '+ tmp[1] + ', character: '+ tmp[2]);
+                                        console.log(e.stack);
+                                    }
                                 } else {
-                                    console.error('ERROR: ' + app._conf.modules[name].start);
-                                    console.log(e.stack);
+                                    if (app._conf.verbose) {
+                                        console.error('ERROR: ' + app._conf.modules[name].start);
+                                        console.log(e.stack);
+                                    }
                                 }
                                 // if (typeof app.conf.fail == 'function') app.conf.fail(app._conf.modules[name]);
                                 if (typeof promise._fail == 'function') promise._fail(app._conf.modules[name]);
@@ -195,7 +210,7 @@ var kickStart = (function () {
                         cache    : app._conf.cache,
                         success  : function (data, success, xhr) {
                             if (success != 'success') {
-                                console.log('ERROR: error while getting a file '+ path +'.');
+                                if (app._conf.verbose) console.log('ERROR: error while getting a file '+ path +'.');
                                 return;
                             }
                             bufferObj[path] = xhr.responseText;
@@ -204,9 +219,9 @@ var kickStart = (function () {
                         },
                         error : function (data, err, errData) {
                             if (err == 'error') {
-                                console.log('ERROR: failed to load '+ files[i] +'.');
+                                if (app._conf.verbose) console.log('ERROR: failed to load '+ files[i] +'.');
                             } else {
-                                console.log('ERROR: file "'+ files[i] + '" is loaded, but with a parsing error(s) in line '+ errData.line +': '+ errData.message);
+                                if (app._conf.verbose) console.log('ERROR: file "'+ files[i] + '" is loaded, but with a parsing error(s) in line '+ errData.line +': '+ errData.message);
                                 bufferObj[path] = xhr.responseText;
                                 loadDone();
                             }
@@ -222,13 +237,12 @@ var kickStart = (function () {
         }
     }
 })();
-kickStart.define({ route: { } });
+kickStart.define({ route: { assets: [] }});
 kickStart.register('route', function () {
     // private scope
     var app     = kickStart;
     var routes  = {};
     var routeRE = {};
-    var silent;
 
     addListener();
 
@@ -239,6 +253,7 @@ kickStart.register('route', function () {
         go      : go,
         set     : set,
         get     : get,
+        info    : info,
         process : process,
         list    : list,
         onAdd   : null,
@@ -299,21 +314,47 @@ kickStart.register('route', function () {
 
     function go(route) {
         route = String('/'+route).replace(/\/{2,}/g, '/');
-        setTimeout(function () { window.location.hash = route; }, 1);
+        window.history.replaceState({}, document.title, '#' + route)
+        process()
         return app.route;
     }
 
     function set(route) {
-        silent = true;
-        // do not use go(route) here
         route = String('/'+route).replace(/\/{2,}/g, '/');
-        window.location.hash = route;
-        setTimeout(function () { silent = false }, 1);
+        window.history.replaceState({}, document.title, '#' + route)
         return app.route;
     }
 
     function get() {
         return window.location.hash.substr(1).replace(/\/{2,}/g, '/');
+    }
+
+    function info() {
+        var matches = [];
+        var isFound = false;
+        var isExact = false;
+        // match routes
+        var hash = window.location.hash.substr(1).replace(/\/{2,}/g, '/');
+        if (hash == '') hash = '/';
+
+        for (var r in routeRE) {
+            var params = {};
+            var tmp = routeRE[r].path.exec(hash);
+            if (tmp != null) { // match
+                isFound = true;
+                if (!isExact && r.indexOf('*') === -1) {
+                    isExact = true;
+                }
+                var i = 1;
+                for (var p in routeRE[r].keys) {
+                    params[routeRE[r].keys[p].name] = tmp[i];
+                    i++;
+                }
+                // default handler
+                matches.push({ name: r, path: hash, params: params });
+            }
+        }
+        return matches;
     }
 
     function list() {
@@ -329,18 +370,22 @@ kickStart.register('route', function () {
     }
 
     function process() {
-        if (silent === true) return;
         prepare();
         // match routes
         var hash = window.location.hash.substr(1).replace(/\/{2,}/g, '/');
         if (hash == '') hash = '/';
         // process route
         var isFound = false;
+        var isExact = false;
+        var isAutoLoad = false;
         for (var r in routeRE) {
             var params = {};
             var tmp = routeRE[r].path.exec(hash);
-            if (tmp) { // match
+            if (tmp != null) { // match
                 isFound = true;
+                if (!isExact && r.indexOf('*') === -1) {
+                    isExact = true;
+                }
                 var i = 1;
                 for (var p in routeRE[r].keys) {
                     params[routeRE[r].keys[p].name] = tmp[i];
@@ -352,35 +397,53 @@ kickStart.register('route', function () {
                     if (eventData.isCancelled === true) return false;
                 }
                 // default handler
-                routes[r]($.extend({ name: r, path: hash }, params));
+                var res = routes[r]({ name: r, path: hash, params: params }, params);
                 // if events are available
                 if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
+                // if hash changed (for example in handler), then do not process rest of old processings
+                var current = window.location.hash.substr(1).replace(/\/{2,}/g, '/');
+                if (hash !== current) return
             }
         }
-        // if route is not registered, see if it is in module definitions
-        if (!isFound) {
-            // find if a route matches a module route
-            var mods = app._conf.modules;
-            for (var name in mods) {
-                var mod = mods[name];
-                var rt  = mod.route;
-                if (typeof rt == 'string') {
-                    rt = rt.replace(/\/{2,}/g, '/'); // remove double slashes
-                    if (rt[rt.length - 1] == '*') rt = rt.substr(0, rt.length - 1); // remove trailign *
+        // find if a route matches a module route
+        var loadCnt = 0;
+        var mods    = app._conf.modules;
+        var loading = [];
+        for (var name in mods) {
+            var mod = mods[name];
+            var rt  = mod.route;
+            var nearMatch = false;
+            if (rt != null) {
+                if (typeof rt == 'string') rt = [rt];
+                if (Array.isArray(rt)) {
+                    rt.forEach(function (str) { checkRoute(str) });
                 }
-                if (!mod.ready && mod.route && hash.indexOf(rt) === 0) { // only when not yet loaded
+            }
+            function checkRoute(str) {
+                mod.routeRE = mod.routeRE || {};
+                if (mod.routeRE[str] == null) mod.routeRE[str] = prepare(str);
+                if (!mod.ready && str && mod.routeRE[str].path.exec(hash) && loading.indexOf(name) == -1) {
+                    if (app._conf.verbose) console.log('ROUTER: Auto Load Module "' + name + '"');
+                    isAutoLoad = true;
+                    loadCnt++;
+                    loading.push(name);
                     app.require(name).done(function () {
-                        if (app._conf.modules[name]) process();
+                        loadCnt--;
+                        if (app._conf.modules[name] && loadCnt === 0) process();
                     });
                     return;
                 }
             }
+        }
+        if (!isAutoLoad && !isExact && app._conf.verbose) console.log('ROUTER: Exact route for "' + hash + '" not found');
+
+        if (!isFound) {
             // path not found
             if (typeof app.route.trigger == 'function') {
                 var eventData = app.route.trigger({ phase: 'before', type: 'error', target: 'self', hash: hash});
                 if (eventData.isCancelled === true) return false;
             }
-            console.log('ERROR: route "' + hash + '" not found');
+            if (!isAutoLoad && app._conf.verbose) console.log('ROUTER: Wild card route for "' + hash + '" not found');
             // if events are available
             if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
         }
@@ -390,10 +453,17 @@ kickStart.register('route', function () {
     *   Private methods
     */
 
-    function prepare() {
+    function prepare(r) {
+        if (r != null) {
+            return _prepare(r)
+        }
         // make sure all routes are parsed to RegEx
         for (var r in routes) {
             if (routeRE[r]) continue;
+            routeRE[r] = _prepare(r)
+        }
+
+        function _prepare(r) {
             var keys = [];
             var path = r
                 .replace(/\/\(/g, '(?:/')
@@ -406,9 +476,9 @@ kickStart.register('route', function () {
                 .replace(/([\/.])/g, '\\$1')
                 .replace(/__plus__/g, '(.+)')
                 .replace(/\*/g, '(.*)');
-            routeRE[r] = {
-                path    : new RegExp('^' + path + '$', 'i'),
-                keys    : keys
+            return {
+                path : new RegExp('^' + path + '$', 'i'),
+                keys : keys
             }
         }
     }

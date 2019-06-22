@@ -43,6 +43,7 @@ if (typeof module!='undefined' && module.exports) {
 *   - parseColor(str) returns rgb
 *   - rgb2hsv, hsv2rgb
 *   - color.onSelect
+*   - color.html
 *   - refactored w2tag object, it has more potential with $().data('w2tag')
 *
 ************************************************/
@@ -71,7 +72,8 @@ var w2utils = (function ($) {
         settings: {
             "dataType"          : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
             "dateStartYear"     : 1950,       // start year for date-picker
-            "dateEndYear"       : 2020        // end year for date picker
+            "dateEndYear"       : 2020,       // end year for date picker
+            "macButtonOrder"    : false       // if true, Yes on the right side
         },
         isBin           : isBin,
         isInt           : isInt,
@@ -192,24 +194,24 @@ var w2utils = (function ($) {
 
         if (format == null) format = w2utils.settings.dateFormat;
 
-        if (typeof val.getUTCFullYear === 'function') { // date object
-            year  = val.getUTCFullYear();
-            month = val.getUTCMonth() + 1;
-            day   = val.getUTCDate();
+        if (typeof val.getFullYear === 'function') { // date object
+            year  = val.getFullYear();
+            month = val.getMonth() + 1;
+            day   = val.getDate();
         } else if (parseInt(val) == val && parseInt(val) > 0) {
             val = new Date(parseInt(val));
-            year  = val.getUTCFullYear();
-            month = val.getUTCMonth() + 1;
-            day   = val.getUTCDate();
-        //ac2e968e7fc40733c95ee2dc978e2d3bb2e1cf66: this condition disables format handling! so i commented out (dd/mm/yyyy can be parsed as mm/dd/yyyy)
+            year  = val.getFullYear();
+            month = val.getMonth() + 1;
+            day   = val.getDate();
+		//ac2e968e7fc40733c95ee2dc978e2d3bb2e1cf66: this condition disables format handling! so i commented out (dd/mm/yyyy can be parsed as mm/dd/yyyy)
 		} /*else if (String(new Date(val)) != 'Invalid Date') {
             val = new Date(val);
             if (retDate !== true) return true;
             return val;
             val = new Date(val);
-            year  = val.getUTCFullYear();
-            month = val.getUTCMonth() + 1;
-            day   = val.getUTCDate();
+            year  = val.getFullYear();
+            month = val.getMonth() + 1;
+            day   = val.getDate();
         }*/ else {
             val = String(val);
             // convert month formats
@@ -296,7 +298,7 @@ var w2utils = (function ($) {
     function isDateTime (val, format, retDate) {
         if (format == null) format = w2utils.settings.datetimeFormat;
         var formats = format.split('|');
-        if (typeof val.getUTCFullYear === 'function') { // date object
+        if (typeof val.getFullYear === 'function') { // date object
             if (retDate !== true) return true;
             return val;
         } else if (parseInt(val) === val && parseInt(val) >= 0) {
@@ -333,7 +335,7 @@ var w2utils = (function ($) {
     function age(dateStr) {
         var d1;
         if (dateStr === '' || dateStr == null) return '';
-        if (typeof dateStr.getUTCFullYear === 'function') { // date object
+        if (typeof dateStr.getFullYear === 'function') { // date object
             d1 = dateStr;
         } else if (parseInt(dateStr) == dateStr && parseInt(dateStr) > 0) {
             d1 = new Date(parseInt(dateStr));
@@ -3366,6 +3368,7 @@ w2utils.event = {
             html += '<div class="w2ui-color-tabs">'+
                     '   <div class="w2ui-color-tab selected" onclick="jQuery(this).addClass(\'selected\').next().removeClass(\'selected\').parents(\'.w2ui-overlay\').find(\'.w2ui-color-advanced\').hide().parent().find(\'.w2ui-color-palette\').show(); jQuery.fn._colorAdvanced = false; jQuery(\'#w2ui-overlay\')[0].resize()"><span class="w2ui-icon w2ui-icon-colors"></span></div>'+
                     '   <div class="w2ui-color-tab" onclick="jQuery(this).addClass(\'selected\').prev().removeClass(\'selected\').parents(\'.w2ui-overlay\').find(\'.w2ui-color-advanced\').show().parent().find(\'.w2ui-color-palette\').hide(); jQuery.fn._colorAdvanced = true; jQuery(\'#w2ui-overlay\')[0].resize()"><span class="w2ui-icon w2ui-icon-settings"></span></div>'+
+                    '   <div style="padding: 8px; text-align: right;">' + (typeof options.html == 'string' ? options.html : '') + '</div>' +
                     '</div>'+
                     '</div>'+
                     '<div style="clear: both; height: 0"></div>';
@@ -3374,25 +3377,6 @@ w2utils.event = {
     };
 
 })(jQuery);
-
-/***********************************************************
-*  Compatibility with CommonJS and AMD modules
-*
-*********************************************************/
-
-(function(global, w2ui) {
-    if (typeof define=='function' && define.amd) {
-        return define(function(){ return w2ui; });
-    }
-    if (typeof exports!='undefined') {
-        if (typeof module!='undefined' && module.exports)
-            return exports = module.exports = w2ui;
-        global = exports;
-    }
-    for (var m in w2ui) {
-        global[m] = w2ui[m];
-    }
-})(this, { w2ui: w2ui, w2obj: w2obj, w2utils: w2utils });
 
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
@@ -3503,7 +3487,7 @@ w2utils.event = {
     }
 *   - added this.show.toolbarInput
 *   - disableCVS
-*   - added useFieldDot: use field name containing dots as separator to look into objects
+*   - added nestedFields: use field name containing dots as separator to look into objects
 *   - grid.message
 *   - added noReset option to localSort()
 *   - onColumnSelect
@@ -3515,6 +3499,7 @@ w2utils.event = {
 *   - message(.., callBack) - added callBack
 *   - grid.msgEmpty
 *   - field.render(..., data) -- added last argument which is what grid thinks should be there
+*   - field.render can return { html, class, style } as an object
 *   - onSearchOpen (onSearch will have mutli and reset flags)
 *   - added httpHeaders
 *   - col.editable can be a function which will be called with the same args as col.render()
@@ -3525,8 +3510,27 @@ w2utils.event = {
 *   - expendable grids are still working
 *   - added search.type = 'color'
 *   - added getFirst
-*   - added stateSaveColumnProperties
-*   - added stateSaveColumnFallbackValues
+*   - added stateColProps
+*   - added stateColDefaults
+*   - deprecated search.caption -> search.label
+*   - deprecated column.caption -> column.text
+*   - deprecated columnGroup.caption -> columnGroup.text
+*   - moved a lot of properties into prototype
+*   - showExtraOnSearch
+*   - added sortMap, searchMap
+*   - added column.hideable
+*   - added updateColumn
+*   - column.info {
+        icon    : string|function|object,
+        style   : string|function|object,
+        render  : function,
+        fields  : array|object,
+        showOn  : 'mouseover|mouseenter|...',
+        hideOn  : 'mouseout|mouseleave|...',
+        options : {} - will be passed to w2tag (for example options.potions = 'top')
+    }
+*   - added msgDeleteBtn
+*   - grid.toolbar.item batch
 *
 ************************************************************************/
 
@@ -3536,22 +3540,143 @@ w2utils.event = {
         // public properties
         this.name         = null;
         this.box          = null;     // HTML element that hold this element
-        this.header       = '';
-        this.url          = '';
-        this.routeData    = {};       // data for dynamic routes
-        this.columns      = [];       // { field, caption, size, attr, render, hidden, gridMinWidth, editable }
-        this.columnGroups = [];       // { span: int, caption: 'string', master: true/false }
+        this.columns      = [];       // { field, text, size, attr, render, hidden, gridMinWidth, editable }
+        this.columnGroups = [];       // { span: int, text: 'string', master: true/false }
         this.records      = [];       // { recid: int(requied), field1: 'value1', ... fieldN: 'valueN', style: 'string',  changes: object }
         this.summary      = [];       // arry of summary records, same structure as records array
-        this.searches     = [];       // { type, caption, field, inTag, outTag, hidden }
-        this.searchData   = [];
-        this.sortData     = [];
-        this.postData     = {};
-        this.httpHeaders  = {};
+        this.searches     = [];       // { type, label, field, inTag, outTag, hidden }
+        this.sortMap      = {};       // remap sort Fields
         this.toolbar      = {};       // if not empty object; then it is toolbar object
-        this.stateId      = null;     // Custom state name for stateSave, stateRestore and stateReset
+        this.total        = 0;        // server total
+        this.recid        = null;     // field from records to be used as recid
 
-        this.show = {
+        // internal
+        this.last = {
+            field     : '',
+            label     : '',
+            logic     : 'OR',
+            search    : '',
+            searchIds : [],
+            selection : {
+                indexes : [],
+                columns : {}
+            },
+            multi       : false,
+            scrollTop   : 0,
+            scrollLeft  : 0,
+            colStart    : 0,    // for column virtual scrolling
+            colEnd      : 0,
+            sortData    : null,
+            sortCount   : 0,
+            xhr         : null,
+            range_start : null,
+            range_end   : null,
+            sel_ind     : null,
+            sel_col     : null,
+            sel_type    : null,
+            edit_col    : null,
+            isSafari    : (/^((?!chrome|android).)*safari/i).test(navigator.userAgent)
+        }
+        $.extend(true, this, w2obj.grid);
+        this.show             = $.extend(true, {}, w2grid.prototype.show);
+        this.postData         = $.extend(true, {}, w2grid.prototype.postData);
+        this.httpHeaders      = $.extend(true, {}, w2grid.prototype.httpHeaders);
+        this.buttons          = $.extend(true, {}, w2grid.prototype.buttons);
+        this.operators        = $.extend(true, {}, w2grid.prototype.operators);
+        this.operatorsMap     = $.extend(true, {}, w2grid.prototype.operatorsMap);
+        this.stateColProps    = $.extend(true, {}, w2grid.prototype.stateColProps);
+        this.stateColDefaults = $.extend(true, {}, w2grid.prototype.stateColDefaults);
+        $.extend(true, this, options);
+    }
+
+    // ====================================================
+    // -- Registers as a jQuery plugin
+
+    $.fn.w2grid = function(method) {
+        if ($.isPlainObject(method)) {
+            // check name parameter
+            if (!w2utils.checkName(method, 'w2grid')) return;
+            // remember items
+            var columns      = method.columns;
+            var columnGroups = method.columnGroups;
+            var records      = method.records;
+            var searches     = method.searches;
+            var searchData   = method.searchData;
+            var sortData     = method.sortData;
+            // extend items
+            var object = new w2grid(method);
+            $.extend(object, { records: [], columns: [], searches: [], sortData: [], searchData: [], handlers: [] });
+
+            // reassign variables
+            var p;
+            if (columns)      for (p = 0; p < columns.length; p++)      object.columns[p]       = $.extend(true, {}, columns[p]);
+            if (columnGroups) for (p = 0; p < columnGroups.length; p++) object.columnGroups[p]  = $.extend(true, {}, columnGroups[p]);
+            if (searches)     for (p = 0; p < searches.length; p++)     object.searches[p]      = $.extend(true, {}, searches[p]);
+            if (searchData)   for (p = 0; p < searchData.length; p++)   object.searchData[p]    = $.extend(true, {}, searchData[p]);
+            if (sortData)     for (p = 0; p < sortData.length; p++)     object.sortData[p]      = $.extend(true, {}, sortData[p]);
+
+            // check if there are records without recid
+            if (records) for (var r = 0; r < records.length; r++) {
+                if (records[r].recid == null && records[r][object.recid] == null) {
+                    console.log('ERROR: Cannot add records without recid. (obj: '+ object.name +')');
+                    return;
+                }
+                object.records[r] = $.extend(true, {}, records[r]);
+            }
+            // add searches
+            for (var i = 0; i < object.columns.length; i++) {
+                var col = object.columns[i];
+                var search = col.searchable;
+                if (search == null || search === false || object.getSearch(col.field) != null) continue;
+                if ($.isPlainObject(search)) {
+                    var src = $.extend({ field: col.field, label: col.caption, type: 'text' }, search);
+                    //Search mapping ( radio > list, textarea > text )
+                    if (src.type=='radio') src.type='list';
+                    else if (src.type=='textarea') src.type='text';
+                    object.addSearch(src);
+                } else {
+                    var stype = col.searchable, attr  = '';
+                    if (col.searchable === true) { stype = 'text'; attr = 'size="20"'; }
+                    object.addSearch({ field: col.field, label: col.text, type: stype, attr: attr });
+                }
+            }
+            // init toolbar
+            object.initToolbar();
+            object.updateToolbar();
+            // render if necessary
+            if ($(this).length !== 0) {
+                object.render($(this)[0]);
+            }
+            // register new object
+            w2ui[object.name] = object;
+            return object;
+
+        } else {
+            var obj = w2ui[$(this).attr('name')];
+            if (!obj) return null;
+            if (arguments.length > 0) {
+                if (obj[method]) obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
+                return this;
+            } else {
+                return obj;
+            }
+        }
+    }
+
+    // ====================================================
+    // -- Implementation of core functionality
+
+    w2grid.prototype = {
+        header       : '',
+        url          : '',
+        limit        : 100,
+        offset       : 0,        // how many records to skip (for infinite scroll) when pulling from server
+        searchData   : [],
+        sortData     : [],
+        routeData    : {},       // data for dynamic routes
+        postData     : {},
+        httpHeaders  : {},
+        show: {
             header          : false,
             toolbar         : false,
             footer          : false,
@@ -3580,75 +3705,45 @@ w2utils.event = {
             selectionBorder : true,
             skipRecords     : true,
             saveRestoreState: true
-        };
+        },
+        stateId           : null,       // Custom state name for stateSave, stateRestore and stateReset
+        hasFocus          : false,
+        autoLoad          : true,       // for infinite scroll
+        fixedBody         : true,       // if false; then grid grows with data
+        recordHeight      : 24,         // should be in prototype
+        lineNumberWidth   : null,
+        keyboard          : true,
+        selectType        : 'row',      // can be row|cell
+        multiSearch       : true,
+        multiSelect       : true,
+        multiSort         : true,
+        reorderColumns    : false,
+        reorderRows       : false,
+        showExtraOnSearch : 0,          // show extra records before and after on search
+        markSearch        : true,
+        columnTooltip     : 'normal',   // can be normal, top, bottom, left, right
+        disableCVS        : false,      // disable Column Virtual Scroll
+        textSearch        : 'begins',   // default search type for text
+        nestedFields      : true,       // use field name containing dots as separator to look into object
+        vs_start          : 150,
+        vs_extra          : 15,
+        style             : '',
+        ranges            : [],
+        menu              : [],
+        method            : null,       // if defined, then overwrited ajax method
+        dataType          : null,       // if defined, then overwrited w2utils.settings.dataType
+        parser            : null,
 
-        this.hasFocus        = false;
-        this.autoLoad        = true;     // for infinite scroll
-        this.fixedBody       = true;     // if false; then grid grows with data
-        this.recordHeight    = 24;       // should be in prototype
-        this.lineNumberWidth = null;
-        this.vs_start        = 150;
-        this.vs_extra        = 15;
-        this.keyboard        = true;
-        this.selectType      = 'row';    // can be row|cell
-        this.multiSearch     = true;
-        this.multiSelect     = true;
-        this.multiSort       = true;
-        this.reorderColumns  = false;
-        this.reorderRows     = false;
-        this.searchContextRows = 0;
-        this.markSearch      = true;
-        this.columnTooltip   = 'normal'; // can be normal, top, bottom, left, right
-        this.disableCVS      = false;    // disable Column Virtual Scroll
-        this.textSearch      = 'begins'; // default search type for text
-        this.useFieldDot     = true;     // use field name containing dots as separator to look into object
-        this.selectDuplicates = false;   // select duplicated recids
-        this.expandAllOnLoad = false;    // expand all expandable records on load
-        this.multiEdit       = false;    // edit button is enabled when multiple records is selected
-        this.IOSContextMenu  = false;
+        useFieldDot       : true;       // use field name containing dots as separator to look into object
+        selectDuplicates  : false;      // select duplicated recids
+        expandAllOnLoad   : false;      // expand all expandable records on load
+        multiEdit         : false;      // edit button is enabled when multiple records is selected
+        IOSContextMenu    : false;
 
-        this.total   = 0;     // server total
-        this.limit   = 100;
-        this.offset  = 0;     // how many records to skip (for infinite scroll) when pulling from server
-        this.style   = '';
-        this.ranges  = [];
-        this.menu    = [];
-        this.method  = null;  // if defined, then overwrited ajax method
-        this.dataType = null;   // if defined, then overwrited w2utils.settings.dataType
-        this.recid   = null;
-        this.parser  = null;
-
-        // internal
-        this.last = {
-            field     : '',
-            caption   : '',
-            logic     : 'OR',
-            search    : '',
-            searchIds : [],
-            selection : {
-                indexes : [],
-                columns : {}
-            },
-            multi       : false,
-            scrollTop   : 0,
-            scrollLeft  : 0,
-            colStart    : 0,    // for column virtual scrolling
-            colEnd      : 0,
-            sortData    : null,
-            sortCount   : 0,
-            xhr         : null,
-            range_start : null,
-            range_end   : null,
-            sel_ind     : null,
-            sel_col     : null,
-            sel_type    : null,
-            edit_col    : null,
-            isSafari    : (/^((?!chrome|android).)*safari/i).test(navigator.userAgent)
-        };
 
         // these column properties will be saved in stateSave()
-        this.stateSaveColumnProperties = {
-            caption         : false,
+        stateColProps: {
+            text            : false,
             field           : true,
             size            : true,
             min             : false,
@@ -3670,11 +3765,11 @@ w2utils.event = {
             editable        : false,
             frozen          : true,
             info            : false,
-        };
+        },
 
         // these are the stateSave() fallback values if the property to save is not a property of the column object
-        this.stateSaveColumnFallbackValues = {
-            caption         : '',     // column caption
+        stateColDefaults: {
+            text            : '',     // column text
             field           : '',     // field name to map column to a record
             size            : null,   // size of column in px or %
             min             : 20,     // minimum width of column in px
@@ -3696,94 +3791,10 @@ w2utils.event = {
             editable        : {},     // editable object if column fields are editable
             frozen          : false,  // indicates if the column is fixed to the left
             info            : null    // info bubble, can be bool/object
-        };
+        },
 
-        $.extend(true, this, w2obj.grid, options);
-    };
-
-    // ====================================================
-    // -- Registers as a jQuery plugin
-
-    $.fn.w2grid = function(method) {
-        if ($.isPlainObject(method)) {
-            // check name parameter
-            if (!w2utils.checkName(method, 'w2grid')) return;
-            // remember items
-            var columns      = method.columns;
-            var columnGroups = method.columnGroups;
-            var records      = method.records;
-            var searches     = method.searches;
-            var searchData   = method.searchData;
-            var sortData     = method.sortData;
-            var postData     = method.postData;
-            var httpHeaders  = method.httpHeaders;
-            var toolbar      = method.toolbar;
-            // extend items
-            var object = new w2grid(method);
-            $.extend(object, { postData: {}, httpHeaders: {}, records: [], columns: [], searches: [], toolbar: {}, sortData: [], searchData: [], handlers: [] });
-            $.extend(true, object.toolbar, toolbar);
-            // reassign variables
-            var p;
-            if (columns)      for (p = 0; p < columns.length; p++)      object.columns[p]       = $.extend(true, {}, columns[p]);
-            if (columnGroups) for (p = 0; p < columnGroups.length; p++) object.columnGroups[p]  = $.extend(true, {}, columnGroups[p]);
-            if (searches)     for (p = 0; p < searches.length; p++)     object.searches[p]      = $.extend(true, {}, searches[p]);
-            if (searchData)   for (p = 0; p < searchData.length; p++)   object.searchData[p]    = $.extend(true, {}, searchData[p]);
-            if (sortData)     for (p = 0; p < sortData.length; p++)     object.sortData[p]      = $.extend(true, {}, sortData[p]);
-            object.postData = $.extend(true, {}, postData);
-            object.httpHeaders = $.extend(true, {}, httpHeaders);
-
-            // check if there are records without recid
-            if (records) for (var r = 0; r < records.length; r++) {
-                if (records[r].recid == null && records[r][object.recid] == null) {
-                    console.log('ERROR: Cannot add records without recid. (obj: '+ object.name +')');
-                    return;
-                }
-                object.records[r] = $.extend(true, {}, records[r]);
-            }
-            // add searches
-            for (var i = 0; i < object.columns.length; i++) {
-                var col = object.columns[i];
-                var search = col.searchable;
-                if (search == null || search === false || object.getSearch(col.field) != null) continue;
-                if ($.isPlainObject(search)) {
-                    var src = $.extend({ field: col.field, caption: col.caption, type: 'text' }, search);
-                    //Search mapping
-                    if (src.type=='radio') src.type='list';
-                    else if (src.type=='textarea') src.type='text';
-                    object.addSearch(src);
-                } else {
-                    var stype = col.searchable, attr  = '';
-                    if (col.searchable === true) { stype = 'text'; attr = 'size="20"'; }
-                    object.addSearch({ field: col.field, caption: col.caption, type: stype, attr: attr });
-                }
-            }
-            // init toolbar
-            object.initToolbar();
-            // render if necessary
-            if ($(this).length !== 0) {
-                object.render($(this)[0]);
-            }
-            // register new object
-            w2ui[object.name] = object;
-            return object;
-
-        } else {
-            var obj = w2ui[$(this).attr('name')];
-            if (!obj) return null;
-            if (arguments.length > 0) {
-                if (obj[method]) obj[method].apply(obj, Array.prototype.slice.call(arguments, 1));
-                return this;
-            } else {
-                return obj;
-            }
-        }
-    };
-
-    // ====================================================
-    // -- Implementation of core functionality
-
-    w2grid.prototype = {
-        msgDelete       : 'Are you sure you want to delete selected records?',
+        msgDelete       : 'Are you sure you want to delete NN records?',
+        msgDeleteBtn    : 'Delete',
         msgNotJSON      : 'Returned data is not in valid JSON format.',
         msgAJAXerror    : 'AJAX error. See console for more details.',
         msgRefresh      : 'Refreshing...',
@@ -4078,7 +4089,7 @@ w2utils.event = {
                     var stype = columns[i].searchable;
                     var attr  = '';
                     if (columns[i].searchable === true) { stype = 'text'; attr = 'size="20"'; }
-                    this.addSearch({ field: columns[i].field, caption: columns[i].caption, type: stype, attr: attr });
+                    this.addSearch({ field: columns[i].field, label: columns[i].label, type: stype, attr: attr });
                 }
                 before++;
                 added++;
@@ -4118,55 +4129,40 @@ w2utils.event = {
             return null;
         },
 
-        toggleColumn: function () {
+        updateColumn: function (names, updates) {
+            var obj  = this;
             var effected = 0;
-            for (var a = 0; a < arguments.length; a++) {
-                for (var r = this.columns.length-1; r >= 0; r--) {
-                    var col = this.columns[r];
-                    if (col.field == arguments[a]) {
-                        col.hidden = !col.hidden;
-                        effected++;
+            names = (Array.isArray(names) ? names : [names]);
+            names.forEach(function (colName) {
+                obj.columns.forEach(function (col) {
+                    if (col.field == colName) {
+                        var _updates = $.extend(true, {}, updates);
+                        Object.keys(_updates).forEach(function (key) {
+                            // if it is a function
+                            if (typeof _updates[key] == 'function') {
+                                _updates[key] = _updates[key](col);
+                            }
+                            if (col[key] != _updates[key]) effected++
+                        })
+                        $.extend(true, col, _updates)
                     }
-                }
-            }
+                })
+            });
             this.refreshBody();
             this.resizeRecords();
             return effected;
         },
 
+        toggleColumn: function () {
+            return this.updateColumn(Array.from(arguments), { hidden: function (col) { return !col.hidden } });
+        },
+
         showColumn: function () {
-            var shown = 0;
-            for (var a = 0; a < arguments.length; a++) {
-                for (var r = this.columns.length-1; r >= 0; r--) {
-                    var col = this.columns[r];
-                    if (col.gridMinWidth) delete col.gridMinWidth;
-                    if (col.field == arguments[a] && col.hidden !== false) {
-                        col.hidden = false;
-                        shown++;
-                    }
-                }
-            }
-            this.refreshBody();
-            this.resizeRecords();
-            this.scroll(); // scroll needed because of column virtual scroll
-            return shown;
+            return this.updateColumn(Array.from(arguments), { hidden: false });
         },
 
         hideColumn: function () {
-            var hidden = 0;
-            for (var a = 0; a < arguments.length; a++) {
-                for (var r = this.columns.length-1; r >= 0; r--) {
-                    var col = this.columns[r];
-                    if (col.field == arguments[a] && col.hidden !== true) {
-                        col.hidden = true;
-                        hidden++;
-                    }
-                }
-            }
-            this.refreshBody();
-            this.resizeRecords();
-            this.scroll(); // scroll needed because of column virtual scroll
-            return hidden;
+            return this.updateColumn(Array.from(arguments), { hidden: true });
         },
 
         addSearch: function (before, search) {
@@ -4464,43 +4460,25 @@ w2utils.event = {
                     var rec = this.records[i];
                     var match = searchRecord(rec);
                     if (match) {
-                        if (rec && rec.w2ui)
-                            addParent(rec.w2ui.parent_recid);
-
-                        if (this.searchContextRows && this.searchContextRows > 0)
-                        {
-                            var beforeItemCount = this.searchContextRows;
-                            var afterItemCount = this.searchContextRows;
-
-                            if (i < beforeItemCount)
-                                beforeItemCount = i;
-
-                            if (i + afterItemCount > this.records.length)
-                                afterItemCount = this.records.length - i;
-
-                            if (beforeItemCount > 0)
-                            {
-                                for (var j = i - beforeItemCount; j < i; j++)
-                                {
+                        if (rec && rec.w2ui) addParent(rec.w2ui.parent_recid);
+                        if (this.showExtraOnSearch > 0) {
+                            var before = this.showExtraOnSearch;
+                            var after  = this.showExtraOnSearch;
+                            if (i < before) before = i;
+                            if (i + after  > this.records.length) after  = this.records.length - i;
+                            if (before > 0) {
+                                for (var j = i - before; j < i; j++) {
                                     if (this.last.searchIds.indexOf(j) < 0)
                                         this.last.searchIds.push(j);
                                 }
                             }
-
-                            if (this.last.searchIds.indexOf(i) < 0)
-                                this.last.searchIds.push(i);
-
-                            if (afterItemCount > 0)
-                            {
-                                for (var j = (i + 1) ; j <= (i + afterItemCount) ; j++)
-                                {
-                                    if (this.last.searchIds.indexOf(j) < 0)
-                                        this.last.searchIds.push(j);
+                            if (this.last.searchIds.indexOf(i) < 0)  this.last.searchIds.push(i);
+                            if (after  > 0) {
+                                for (var j = (i + 1) ; j <= (i + after ) ; j++) {
+                                    if (this.last.searchIds.indexOf(j) < 0) this.last.searchIds.push(j);
                                 }
                             }
-                        }
-                        else
-                        {
+                        } else {
                             this.last.searchIds.push(i);
                         }
                     }
@@ -4591,21 +4569,21 @@ w2utils.event = {
                         }
                         else if (search.type == 'date') {
                             var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
-                            var val1 = w2utils.formatDate(w2utils.isDate(tmp, w2utils.settings.dateFormat, true), 'yyyy-mm-dd');
-                            var val2 = w2utils.formatDate(w2utils.isDate(val2, w2utils.settings.dateFormat, true), 'yyyy-mm-dd');
-                            if (val1 <= val2) fl++;
+                            var val1 = w2utils.isDate(tmp, w2utils.settings.dateFormat, true);
+                            var val2 = w2utils.isDate(val2, w2utils.settings.dateFormat, true);
+                            if (val1 < val2) fl++;
                         }
                         else if (search.type == 'time') {
                             var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
                             var val1 = w2utils.formatTime(tmp, 'hh24:mi');
                             var val2 = w2utils.formatTime(val2, 'hh24:mi');
-                            if (val1 <= val2) fl++;
+                            if (val1 < val2) fl++;
                         }
                         else if (search.type == 'datetime') {
                             var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
                             var val1 = w2utils.formatDateTime(tmp, 'yyyy-mm-dd|hh24:mm:ss');
                             var val2 = w2utils.formatDateTime(w2utils.isDateTime(val2, w2utils.settings.datetimeFormat, true), 'yyyy-mm-dd|hh24:mm:ss');
-                            if ( (val1.length == val2.length) && (val1 <= val2) ) fl++;
+                            if ( (val1.length == val2.length) && (val1 < val2) ) fl++;
                         }
                         break;
                     case 'more':
@@ -4614,8 +4592,8 @@ w2utils.event = {
                         }
                         else if (search.type == 'date') {
                             var tmp  = (obj.parseField(rec, search.field + '_') instanceof Date ? obj.parseField(rec, search.field + '_') : obj.parseField(rec, search.field));
-                            var val1 = w2utils.formatDate(w2utils.isDate(tmp, w2utils.settings.dateFormat, true), 'yyyy-mm-dd');
-                            var val2 = w2utils.formatDate(w2utils.isDate(val2, w2utils.settings.dateFormat, true), 'yyyy-mm-dd');
+                            var val1 = w2utils.isDate(tmp, w2utils.settings.dateFormat, true);
+                            var val2 = w2utils.isDate(val2, w2utils.settings.dateFormat, true);
                             if (val1 >= val2) fl++;
                         }
                         else if (search.type == 'time') {
@@ -4865,13 +4843,13 @@ w2utils.event = {
                         $range.find('.w2ui-selection-resizer').hide();
                     }
                     if (first.recid != null && last.recid != null && td1f.length > 0 && td2f.length > 0) {
-                        var _left = (td1f.position().left - 1 + rec1.scrollLeft());
-                        var _top  = (td1f.position().top - 1 + rec1.scrollTop());
+                        var _left = (td1f.position().left - 0 + rec1.scrollLeft());
+                        var _top  = (td1f.position().top - 0 + rec1.scrollTop());
                         $range.show().css({
                             left    : (_left > 0 ? _left : 0) + 'px',
                             top     : (_top > 0 ? _top : 0) + 'px',
-                            width   : (td2f.position().left - td1f.position().left + td2f.width() + 3) + 'px',
-                            height  : (td2f.position().top - td1f.position().top + td2f.height() + 3) + 'px'
+                            width   : (td2f.position().left - td1f.position().left + td2f.width() + 2) + 'px',
+                            height  : (td2f.position().top - td1f.position().top + td2f.height() + 1) + 'px'
                         });
                     } else {
                         $range.hide();
@@ -4898,13 +4876,13 @@ w2utils.event = {
                         $range.css('border-left', '0px');
                     }
                     if (first.recid != null && last.recid != null && td1.length > 0 && td2.length > 0) {
-                        var _left = (td1.position().left - 1 + rec2.scrollLeft());
-                        var _top  = (td1.position().top - 1 + rec2.scrollTop());
+                        var _left = (td1.position().left - 0 + rec2.scrollLeft());
+                        var _top  = (td1.position().top - 0 + rec2.scrollTop());
                         $range.show().css({
                             left    : (_left > 0 ? _left : 0) + 'px',
                             top     : (_top > 0 ? _top : 0) + 'px',
-                            width   : (td2.position().left - td1.position().left + td2.width() + 3) + 'px',
-                            height  : (td2.position().top - td1.position().top + td2.height() + 3) + 'px'
+                            width   : (td2.position().left - td1.position().left + td2.width() + 2) + 'px',
+                            height  : (td2.position().top - td1.position().top + td2.height() + 1) + 'px'
                         });
                     } else {
                         $range.hide();
@@ -5111,6 +5089,7 @@ w2utils.event = {
             }
             this.status();
             this.addRange('selection');
+            this.updateToolbar(sel, areAllSelected);
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
             return selected;
@@ -5195,6 +5174,7 @@ w2utils.event = {
             // show number of selected
             this.status();
             this.addRange('selection');
+            this.updateToolbar(sel, areAllSelected);
             return unselected;
         },
 
@@ -5258,12 +5238,13 @@ w2utils.event = {
                 $(this.box).find('input.w2ui-grid-select-check').prop('checked', true);
             }
             // enable/disable toolbar buttons
-            var sel = this.getSelection();
+            var sel = this.getSelection(true);
             if (sel.length == 1) this.toolbar.enable('w2ui-edit'); else this.toolbar.disable('w2ui-edit');
             if (sel.length >= 1) this.toolbar.enable('w2ui-delete'); else this.toolbar.disable('w2ui-delete');
             this.addRange('selection');
             $('#grid_'+ this.name +'_check_all').prop('checked', true);
             this.status();
+            this.updateToolbar({ indexes: sel }, true);
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
@@ -5311,9 +5292,35 @@ w2utils.event = {
             this.removeRange('selection');
             $('#grid_'+ this.name +'_check_all').prop('checked', false);
             this.status();
+            this.updateToolbar(sel, false);
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;
+        },
+
+        updateToolbar: function (sel, areAllSelected) {
+            var obj = this
+            var cnt = sel && sel.indexes ? sel.indexes.length : 0
+            this.toolbar.items.forEach(function (item) {
+                _checkItem(item, '')
+                if (Array.isArray(item.items)) {
+                    item.items.forEach(function (it) {
+                        _checkItem(it, item.id + ':')
+                    })
+                }
+            })
+
+            function _checkItem(item, prefix) {
+                if (item.batch === 0) {
+                    if (cnt > 0) obj.toolbar.enable(prefix + item.id); else obj.toolbar.disable(prefix + item.id)
+                }
+                if (item.batch != null && !isNaN(item.batch) && item.batch > 0) {
+                    if (cnt == item.batch) obj.toolbar.enable(prefix + item.id); else obj.toolbar.disable(prefix + item.id)
+                }
+                if (typeof item.batch == 'function') {
+                    item.batch(obj.selectType == 'cell' ? sel : (sel ? sel.indexes : null))
+                }
+            }
         },
 
         getSelection: function (returnIndex) {
@@ -5348,7 +5355,7 @@ w2utils.event = {
             var hasHiddenSearches = false;
             // add hidden searches
             for (var i = 0; i < this.searches.length; i++) {
-                if (!this.searches[i].hidden) continue;
+                if (!this.searches[i].hidden || this.searches[i].value == null) continue;
                 searchData.push({
                     field    : this.searches[i].field,
                     operator : this.searches[i].operator || 'is',
@@ -5434,9 +5441,9 @@ w2utils.event = {
 
                         }
                         searchData.push(tmp);
+                        last_multi = true; // if only hidden searches, then do not set
                     }
                 }
-                last_multi = true;
                 last_logic = 'AND';
             }
             // 2: search(field, value) - regular search
@@ -5522,7 +5529,7 @@ w2utils.event = {
                         var el = $('#grid_'+ this.name +'_search_all');
                         var search = this.getSearch(field);
                         if (search == null) search = { field: field, type: 'text' };
-                        if (search.field == field) this.last.caption = search.caption;
+                        if (search.field == field) this.last.label = search.label;
                         if (value !== '') {
                             var op  = this.textSearch;
                             var val = value;
@@ -5663,7 +5670,7 @@ w2utils.event = {
             var hasHiddenSearches = false;
             // add hidden searches
             for (var i = 0; i < this.searches.length; i++) {
-                if (!this.searches[i].hidden) continue;
+                if (!this.searches[i].hidden || this.searches[i].value == null) continue;
                 searchData.push({
                     field    : this.searches[i].field,
                     operator : this.searches[i].operator || 'is',
@@ -5686,15 +5693,15 @@ w2utils.event = {
                     while (tmp < this.searches.length && (this.searches[tmp].hidden || this.searches[tmp].simple === false)) tmp++;
                     if (tmp >= this.searches.length) {
                         // all searches are hidden
-                        this.last.field   = '';
-                        this.last.caption = '';
+                        this.last.field = '';
+                        this.last.label = '';
                     } else {
-                        this.last.field   = this.searches[tmp].field;
-                        this.last.caption = this.searches[tmp].caption;
+                        this.last.field = this.searches[tmp].field;
+                        this.last.label = this.searches[tmp].label;
                     }
                 } else {
-                    this.last.field   = 'all';
-                    this.last.caption = w2utils.lang('All Fields');
+                    this.last.field = 'all';
+                    this.last.label = w2utils.lang('All Fields');
                 }
             }
             this.last.multi      = false;
@@ -5719,18 +5726,26 @@ w2utils.event = {
             var html = '<div class="w2ui-select-field"><table><tbody>';
             for (var s = -1; s < this.searches.length; s++) {
                 var search = this.searches[s];
-                if (s == -1) {
+                var column = this.getColumn(search && search.field);
+                if (s == -1) { // -1 is All Fields search
                     if (!this.multiSearch || !this.show.searchAll) continue;
-                    search = { field: 'all', caption: w2utils.lang('All Fields') };
+                    search = { field: 'all', label: w2utils.lang('All Fields') };
                 } else {
+                    if (column != null && column.hideable === false) continue;
+                    // don't show hidden searches
                     if (this.searches[s].hidden === true || this.searches[s].simple === false) continue;
                 }
+                if (search.label == null && search.caption != null) {
+                    console.log('NOTICE: grid search.caption property is deprecated, please use search.label. Search ->', search);
+                    search.label = search.caption;
+                }
+
                 html += '<tr '+ (w2utils.isIOS ? 'onTouchStart' : 'onClick') +'="w2ui[\''+ this.name +'\'].initAllField(\''+ search.field +'\');'+
                         '      event.stopPropagation(); jQuery(\'#grid_'+ this.name +'_search_all\').w2overlay({ name: \''+ this.name +'-searchFields\' });">'+
                         '   <td>'+
                         '       <span class="w2ui-column-check w2ui-icon-'+ (search.field == this.last.field ? 'check' : 'empty') +'"></span>'+
                         '   </td>'+
-                        '   <td>'+ search.caption +'</td>'+
+                        '   <td>'+ search.label +'</td>'+
                         '</tr>';
             }
             html += "</tbody></table></div>";
@@ -5743,7 +5758,7 @@ w2utils.event = {
         initAllField: function (field, value) {
             var el = $('#grid_'+ this.name +'_search_all');
             if (field == 'all') {
-                var search = { field: 'all', caption: w2utils.lang('All Fields') };
+                var search = { field: 'all', label: w2utils.lang('All Fields') };
                 el.w2field('clear');
                 el.change();
             } else {
@@ -5760,13 +5775,13 @@ w2utils.event = {
             }
             // update field
             if (this.last.search != '') {
-                this.last.caption = search.caption;
+                this.last.label = search.label;
                 this.search(search.field, this.last.search);
             } else {
-                this.last.field   = search.field;
-                this.last.caption = search.caption;
+                this.last.field = search.field;
+                this.last.label = search.label;
             }
-            el.attr('placeholder', w2utils.lang(search.caption));
+            el.attr('placeholder', w2utils.lang(search.label || search.caption || search.field));
             $().w2overlay({ name: this.name + '-searchFields' });
         },
 
@@ -5842,17 +5857,24 @@ w2utils.event = {
             if (url == '' || url == null) url = this.url;
             if (url == '' || url == null) return;
             // build parameters list
-            var params = {};
             if (!w2utils.isInt(this.offset)) this.offset = 0;
             if (!w2utils.isInt(this.last.xhr_offset)) this.last.xhr_offset = 0;
             // add list params
-            params['cmd']         = cmd;
-            params['selected']    = this.getSelection();
-            params['limit']       = this.limit;
-            params['offset']      = parseInt(this.offset) + parseInt(this.last.xhr_offset);
-            params['search']      = this.searchData;
-            params['searchLogic'] = this.last.logic;
-            params['sort']        = this.sortData;
+            var params = {
+                limit       : this.limit,
+                offset      : parseInt(this.offset) + parseInt(this.last.xhr_offset),
+                searchLogic : this.last.logic,
+                search: this.searchData.map(function (search) {
+                        var _search = $.extend({}, search);
+                        if (this.searchMap && this.searchMap[_search.field]) _search.field = this.searchMap[_search.field];
+                        return _search;
+                    }.bind(this)),
+                sort: this.sortData.map(function (sort) {
+                        var _sort = $.extend({}, sort);
+                        if (this.sortMap && this.sortMap[_sort.field]) _sort.field = this.sortMap[_sort.field];
+                        return _sort;
+                    }.bind(this))
+            }
             if (this.searchData.length === 0) {
                 delete params['search'];
                 delete params['searchLogic'];
@@ -6015,7 +6037,8 @@ w2utils.event = {
                         // if it is plain array, assume these are records
                         data = {
                             status  : 'success',
-                            records : data
+                            records : data,
+                            total   : data.length
                         }
                     }
                     if (obj.recid && data.records) {
@@ -6622,6 +6645,7 @@ w2utils.event = {
             var obj = this;
             // event before
             var edata = this.trigger({ phase: 'before', target: this.name, type: 'delete', force: force });
+            if (force) this.message(); // close message
             if (edata.isCancelled === true) return;
             force = edata.force;
             // hide all tooltips
@@ -6631,11 +6655,17 @@ w2utils.event = {
             if (recs.length === 0) return;
             if (this.msgDelete != '' && !force) {
                 this.message({
-                    width   : 350,
+                    width   : 380,
                     height  : 170,
-                    body    : '<div class="w2ui-centered">' + w2utils.lang(obj.msgDelete) + '</div>',
-                    buttons : '<button type="button" class="w2ui-btn w2ui-btn-red" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang('Yes') + '</button>'+
-                              '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('No') + '</button>',
+                    body    : '<div class="w2ui-centered">' +
+                                    w2utils.lang(obj.msgDelete).replace('NN', recs.length).replace('records', (recs.length == 1 ? 'record' : 'records')) +
+                              '</div>',
+                    buttons : (w2utils.settings.macButtonOrder
+                        ? '<button type="button" class="w2ui-btn btn-default" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('Cancel') + '</button>' +
+                          '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang(this.msgDeleteBtn) + '</button>'
+                        : '<button type="button" class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].delete(true)">' + w2utils.lang(this.msgDeleteBtn) + '</button>' +
+                          '<button type="button" class="w2ui-btn btn-default" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('Cancel') + '</button>'
+                        ),
                     onOpen: function (event) {
                         var inputs = $(this.box).find('input, textarea, select, button');
                         inputs.off('.message')
@@ -6650,14 +6680,13 @@ w2utils.event = {
                                 if (evt.keyCode == 27) obj.message(); // esc
                             });
                         setTimeout(function () {
-                            $(this.box).find('.w2ui-btn:last-child').focus();
+                            $(this.box).find('.w2ui-btn.btn-default').focus();
                             clearTimeout(obj.last.kbd_timer);
-                        }, 25);
+                        }.bind(this), 50);
                     }
                 });
                 return;
             }
-            this.message(); // hides confirmation message
             // call delete script
             var url = (typeof this.url != 'object' ? this.url : this.url.remove);
             if (url) {
@@ -6870,7 +6899,7 @@ w2utils.event = {
             if (edata.isCancelled === true) return false;
             // default behaviour
             this.hasFocus = true;
-            $(this.box).find('.w2ui-inactive').removeClass('w2ui-inactive');
+            $(this.box).removeClass('w2ui-inactive').find('.w2ui-inactive').removeClass('w2ui-inactive');
             setTimeout(function () {
                 var $input = $(obj.box).find('#grid_'+ obj.name + '_focus');
                 if (!$input.is(':focus')) $input.focus();
@@ -6885,7 +6914,7 @@ w2utils.event = {
             if (edata.isCancelled === true) return false;
             // default behaviour
             this.hasFocus = false;
-            $(this.box).find('.w2ui-selected').addClass('w2ui-inactive');
+            $(this.box).addClass('w2ui-inactive').find('.w2ui-selected').addClass('w2ui-inactive');
             $(this.box).find('.w2ui-selection').addClass('w2ui-inactive');
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
@@ -6934,7 +6963,8 @@ w2utils.event = {
             switch (key) {
                 case 8:  // backspace
                 case 46: // delete
-                    if (this.show.toolbarDelete || this.onDelete) obj["delete"]();
+                    // delete if button is visible
+                    obj["delete"]();
                     cancel = true;
                     event.stopPropagation();
                     break;
@@ -6965,7 +6995,7 @@ w2utils.event = {
                             }
                         }
                         // edit last column that was edited
-                        if (this.selectType == 'row' && this.last._edit.column) {
+                        if (this.selectType == 'row' && this.last._edit && this.last._edit.column) {
                             columns = [this.last._edit.column];
                         }
                         if (columns.length > 0) {
@@ -7763,8 +7793,8 @@ w2utils.event = {
                 for (var c = 0; c < this.columns.length; c++) {
                     var col = this.columns[c];
                     if (col.hidden === true) continue;
-                    var colName = (col.caption ? col.caption : col.field);
-                    if (col.caption && col.caption.length < 3 && col.tooltip) colName = col.tooltip; // if column name is less then 3 char and there is tooltip - use it
+                    var colName = (col.text ? col.text : col.field);
+                    if (col.text && col.text.length < 3 && col.tooltip) colName = col.tooltip; // if column name is less then 3 char and there is tooltip - use it
                     text += '"' + w2utils.stripTags(colName) + '"\t';
                 }
                 text = text.substr(0, text.length-1); // remove last \t
@@ -8078,17 +8108,17 @@ w2utils.event = {
             // search placeholder
             var el = $('#grid_'+ obj.name +'_search_all');
             if (!this.multiSearch && this.last.field == 'all' && this.searches.length > 0) {
-                this.last.field   = this.searches[0].field;
-                this.last.caption = this.searches[0].caption;
+                this.last.field = this.searches[0].field;
+                this.last.label = this.searches[0].label;
             }
             for (var s = 0; s < this.searches.length; s++) {
-                if (this.searches[s].field == this.last.field) this.last.caption = this.searches[s].caption;
+                if (this.searches[s].field == this.last.field) this.last.label = this.searches[s].label;
             }
             if (this.last.multi) {
                 el.attr('placeholder', '[' + w2utils.lang('Multiple Fields') + ']');
                 el.w2field('clear');
             } else {
-                el.attr('placeholder', w2utils.lang(this.last.caption));
+                el.attr('placeholder', w2utils.lang(this.last.label));
             }
             if (el.val() != this.last.search) {
                 var val = this.last.search;
@@ -8263,7 +8293,7 @@ w2utils.event = {
                 if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
                     $(this.box)
                         .removeAttr('name')
-                        .removeClass('w2ui-reset w2ui-grid')
+                        .removeClass('w2ui-reset w2ui-grid w2ui-inactive')
                         .html('');
                 }
                 this.box = box;
@@ -8282,21 +8312,21 @@ w2utils.event = {
                     while (tmp < this.searches.length && (this.searches[tmp].hidden || this.searches[tmp].simple === false)) tmp++;
                     if (tmp >= this.searches.length) {
                         // all searches are hidden
-                        this.last.field   = '';
-                        this.last.caption = '';
+                        this.last.field = '';
+                        this.last.label = '';
                     } else {
-                        this.last.field   = this.searches[tmp].field;
-                        this.last.caption = this.searches[tmp].caption;
+                        this.last.field = this.searches[tmp].field;
+                        this.last.label = this.searches[tmp].label;
                     }
                 } else {
-                    this.last.field   = 'all';
-                    this.last.caption = w2utils.lang('All Fields');
+                    this.last.field = 'all';
+                    this.last.label = w2utils.lang('All Fields');
                 }
             }
             // insert elements
             $(this.box)
                 .attr('name', this.name)
-                .addClass('w2ui-reset w2ui-grid')
+                .addClass('w2ui-reset w2ui-grid w2ui-inactive')
                 .html('<div class="w2ui-grid-box">'+
                       '    <div id="grid_'+ this.name +'_header" class="w2ui-grid-header"></div>'+
                       '    <div id="grid_'+ this.name +'_toolbar" class="w2ui-grid-toolbar"></div>'+
@@ -8321,7 +8351,7 @@ w2utils.event = {
             // refresh
             if (!this.last.state) this.last.state = this.stateSave(true); // initial default state
             this.stateRestore();
-            if (url) this.refresh(); // show empty grid (need it) - should it be only for remote data source
+            if (url) { this.clear(); this.refresh(); } // show empty grid (need it) - should it be only for remote data source
             // if hidden searches - apply it
             var hasHiddenSearches = false;
             for (var i = 0; i < this.searches.length; i++) {
@@ -8355,6 +8385,7 @@ w2utils.event = {
             // init mouse events for mouse selection
             var edataCol; // event for column select
             $(this.box).on('mousedown', mouseStart);
+            this.updateToolbar()
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
             // attach to resize event
@@ -8707,7 +8738,7 @@ w2utils.event = {
             if ($(this.box).find('#grid_'+ this.name +'_body').length > 0) {
                 $(this.box)
                     .removeAttr('name')
-                    .removeClass('w2ui-reset w2ui-grid')
+                    .removeClass('w2ui-reset w2ui-grid w2ui-inactive')
                     .html('');
             }
             delete w2ui[this.name];
@@ -8735,7 +8766,7 @@ w2utils.event = {
             // columns
             for (var c = 0; c < this.columns.length; c++) {
                 var col = this.columns[c];
-                var tmp = this.columns[c].caption;
+                var tmp = this.columns[c].text;
                 if (col.hideable === false) continue;
                 if (!tmp && this.columns[c].tooltip) tmp = this.columns[c].tooltip;
                 if (!tmp) tmp = '- column '+ (parseInt(c) + 1) +' -';
@@ -9113,7 +9144,7 @@ w2utils.event = {
             var obj = this;
             // -- if toolbar is true
             if (this.toolbar['render'] == null) {
-                var tmp_items = this.toolbar.items;
+                var tmp_items = this.toolbar.items || [];
                 this.toolbar.items = [];
                 this.toolbar = $().w2toolbar($.extend(true, {}, this.toolbar, { name: this.name +'_toolbar', owner: this }));
 
@@ -9136,7 +9167,7 @@ w2utils.event = {
                         '    <td>'+ this.buttons['search'].html +'</td>'+
                         '    <td>'+
                         '        <input type="text" id="grid_'+ this.name +'_search_all" class="w2ui-search-all" tabindex="-1" '+
-                        '            placeholder="'+ w2utils.lang(this.last.caption) +'" value="'+ this.last.search +'"'+
+                        '            placeholder="'+ w2utils.lang(this.last.label) +'" value="'+ this.last.search +'"'+
                         '            onfocus="clearTimeout(w2ui[\''+ this.name +'\'].last.kbd_timer);"'+
                         '            onkeydown="if (event.keyCode == 13 &amp;&amp; w2utils.isIE) this.onchange();"'+
                         '            onchange="'+
@@ -9164,19 +9195,24 @@ w2utils.event = {
                 if (this.show.toolbarSearch && this.multiSearch && this.searches.length > 0) {
                     this.toolbar.items.push($.extend(true, {}, this.buttons['search-go']));
                 }
-                if ((this.show.toolbarSearch || this.show.toolbarInput) && (this.show.toolbarAdd || this.show.toolbarEdit || this.show.toolbarDelete || this.show.toolbarSave)) {
+                if ((this.show.toolbarSearch || this.show.toolbarInput)
+                        && (this.show.toolbarAdd || this.show.toolbarEdit || this.show.toolbarDelete || this.show.toolbarSave)) {
                     this.toolbar.items.push({ type: 'break', id: 'w2ui-break1' });
                 }
-                if (this.show.toolbarAdd) {
+                if (this.show.toolbarAdd && Array.isArray(tmp_items)
+                        && tmp_items.map(function (item) { return item.id }).indexOf(this.buttons['add'].id) == -1) {
                     this.toolbar.items.push($.extend(true, {}, this.buttons['add']));
                 }
-                if (this.show.toolbarEdit) {
+                if (this.show.toolbarEdit && Array.isArray(tmp_items)
+                        && tmp_items.map(function (item) { return item.id }).indexOf(this.buttons['edit'].id) == -1) {
                     this.toolbar.items.push($.extend(true, {}, this.buttons['edit']));
                 }
-                if (this.show.toolbarDelete) {
+                if (this.show.toolbarDelete && Array.isArray(tmp_items)
+                        && tmp_items.map(function (item) { return item.id }).indexOf(this.buttons['delete'].id) == -1) {
                     this.toolbar.items.push($.extend(true, {}, this.buttons['delete']));
                 }
-                if (this.show.toolbarSave) {
+                if (this.show.toolbarSave && Array.isArray(tmp_items)
+                        && tmp_items.map(function (item) { return item.id }).indexOf(this.buttons['save'].id) == -1) {
                     if (this.show.toolbarAdd || this.show.toolbarDelete || this.show.toolbarEdit) {
                         this.toolbar.items.push({ type: 'break', id: 'w2ui-break2' });
                     }
@@ -9244,7 +9280,15 @@ w2utils.event = {
                     }
                     // no default action
                     obj.trigger($.extend(edata, { phase: 'after' }));
-                });
+                })
+                this.toolbar.on('refresh', function (event) {
+                    if (event.target == 'w2ui-search') {
+                        var sd = obj.searchData;
+                        setTimeout(function () {
+                            obj.initAllField(obj.last.field, (sd.length == 1 ? sd[0].value : null));
+                        }, 1);
+                    }
+                })
             }
         },
 
@@ -9776,7 +9820,10 @@ w2utils.event = {
                 if (s.outTag  == null) s.outTag = '';
                 if (s.style   == null) s.style = '';
                 if (s.type    == null) s.type   = 'text';
-
+                if (s.label == null && s.caption != null) {
+                    console.log('NOTICE: grid search.caption property is deprecated, please use search.label. Search ->', s)
+                    s.label = s.caption;
+                }
                 var operator =
                     '<select id="grid_'+ this.name +'_operator_'+ i +'" class="w2ui-input" ' +
                     '   onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +')">' +
@@ -9785,7 +9832,7 @@ w2utils.event = {
 
                 html += '<tr>'+
                         '    <td class="close-btn">'+ btn +'</td>' +
-                        '    <td class="caption">'+ (s.caption || '') +'</td>' +
+                        '    <td class="caption">'+ (s.label || '') +'</td>' +
                         '    <td class="not">' + w2utils.lang('Not') + ' <input type="checkbox" id="grid_'+ this.name +'_not_'+ i +'" /></td>'+
                         '    <td class="operator">'+ operator +'</td>'+
                         '    <td class="value">';
@@ -9874,12 +9921,7 @@ w2utils.event = {
             var fld2    = fld1.parent().find('span input');
             fld1.show();
             range.hide();
-            // fld1.w2field(search.type);
             switch ($(el).val()) {
-//                case 'in':
-//                case 'not in':
-//                    fld1.w2field('clear');
-//                    break;
                 case 'between':
                     range.show();
                     fld2.w2field(search.type, search.options);
@@ -9966,8 +10008,8 @@ w2utils.event = {
                             if ($.isPlainObject(search.options.items[i])) {
                                 var val = si.id;
                                 var txt = si.text;
-                                if (val == null && si.value != null)   val = si.value;
-                                if (txt == null && si.caption != null) txt = si.caption;
+                                if (val == null && si.value != null) val = si.value;
+                                if (txt == null && si.text != null) txt = si.text;
                                 if (val == null) val = '';
                                 options += '<option value="'+ val +'">'+ txt +'</option>';
                             } else {
@@ -10033,7 +10075,12 @@ w2utils.event = {
                 var html2 = '<tr>';
                 var tmpf  = '';
                 // add empty group at the end
-                if (obj.columnGroups[obj.columnGroups.length-1].caption != '') obj.columnGroups.push({ caption: '' });
+                var tmp = obj.columnGroups.length - 1;
+                if (obj.columnGroups[tmp].text == null && obj.columnGroups[tmp].caption != null) {
+                    console.log('NOTICE: grid columnGroup.caption property is deprecated, please use columnGroup.text. Group -> ', obj.columnGroups[tmp]);
+                    obj.columnGroups[tmp].text = obj.columnGroups[tmp].caption;
+                }
+                if (obj.columnGroups[obj.columnGroups.length-1].text != '') obj.columnGroups.push({ text: '' });
 
                 if (obj.show.lineNumbers) {
                     html1 += '<td class="w2ui-head w2ui-col-number">'+
@@ -10057,6 +10104,10 @@ w2utils.event = {
                     var col  = obj.columns[ii];
                     if (colg.colspan != null) colg.span = colg.colspan;
                     if (colg.span == null || colg.span != parseInt(colg.span)) colg.span = 1;
+                    if (col.text == null && col.caption != null) {
+                        console.log('NOTICE: grid column.caption property is deprecated, please use column.text. Column ->', col);
+                        col.text = col.caption;
+                    }
                     var colspan = 0;
                     for (var jj = ii; jj < ii + colg.span; jj++) {
                         if (obj.columns[jj] && !obj.columns[jj].hidden)
@@ -10086,7 +10137,7 @@ w2utils.event = {
                                    resizer +
                                '    <div class="w2ui-col-group w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +'">'+
                                '        <div class="'+ sortStyle +'"></div>'+
-                                       (!col.caption ? '&#160;' : col.caption) +
+                                       (!col.text ? '&#160;' : col.text) +
                                '    </div>'+
                                '</td>';
                         if (col && col.frozen) html1 += tmpf; else html2 += tmpf;
@@ -10094,7 +10145,7 @@ w2utils.event = {
                         tmpf = '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head" col="'+ ii + '" '+
                                '        colspan="'+ colspan +'">'+
                                '    <div class="w2ui-col-group">'+
-                                   (!colg.caption ? '&#160;' : colg.caption) +
+                                   (!colg.text ? '&#160;' : colg.text) +
                                '    </div>'+
                                '</td>';
                         if (col && col.frozen) html1 += tmpf; else html2 += tmpf;
@@ -10147,6 +10198,10 @@ w2utils.event = {
                 html2 += '<td id="grid_'+ obj.name + '_column_start" class="w2ui-head" col="start" style="border-right: 0"></td>';
                 for (var i = 0; i < obj.columns.length; i++) {
                     var col  = obj.columns[i];
+                    if (col.text == null && col.caption != null) {
+                        console.log('NOTICE: grid column.caption property is deprecated, please use column.text. Column -> ', col);
+                        col.text = col.caption;
+                    }
                     if (col.size == null) col.size = '100%';
                     if (i == id) {      // always true on first iteration
                         colg = obj.columnGroups[ii++] || {};
@@ -10206,7 +10261,7 @@ w2utils.event = {
                              (col.resizable !== false ? '<div class="w2ui-resizer" name="'+ i +'"></div>' : '') +
                         '    <div class="w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +' '+ (selected ? 'w2ui-col-selected' : '') +'">'+
                         '        <div class="'+ sortStyle +'"></div>'+
-                                (!col.caption ? '&#160;' : col.caption) +
+                                (!col.text ? '&#160;' : col.text) +
                         '    </div>'+
                         '</td>';
 
@@ -10649,7 +10704,10 @@ w2utils.event = {
                 record = this.summary[ind];
             }
             if (!record) return '';
-            if (record.recid == null && this.recid != null && record[this.recid] != null) record.recid = record[this.recid];
+            if (record.recid == null && this.recid != null) {
+                var rid = this.parseField(record, this.recid)
+                if (rid != null) record.recid = rid;
+            }
             var id = w2utils.escapeId(record.recid);
             var isRowSelected = false;
             if (sel.indexes.indexOf(ind) != -1) isRowSelected = true;
@@ -10659,7 +10717,7 @@ w2utils.event = {
             if (rec_class == null || typeof rec_class != 'string') rec_class = '';
             // render TR
             rec_html1 += '<tr id="grid_'+ this.name +'_frec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" index="'+ ind +'" '+
-                ' class="'+ (lineNum % 2 === 0 ? 'w2ui-even' : 'w2ui-odd') + ' ' + rec_class +
+                ' class="'+ (lineNum % 2 === 0 ? 'w2ui-even' : 'w2ui-odd') + ' w2ui-record ' + rec_class +
                     (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') +
                     (record.w2ui && record.w2ui.editable === false ? ' w2ui-no-edit' : '') +
                     (record.w2ui && record.w2ui.expanded === true ? ' w2ui-expanded' : '') + '" ' +
@@ -10681,7 +10739,7 @@ w2utils.event = {
                     (rec_style != '' ? 'custom_style="'+ rec_style +'"' : '') +
                 '>';
             rec_html2 += '<tr id="grid_'+ this.name +'_rec_'+ record.recid +'" recid="'+ record.recid +'" line="'+ lineNum +'" index="'+ ind +'" '+
-                ' class="'+ (lineNum % 2 === 0 ? 'w2ui-even' : 'w2ui-odd') + ' ' + rec_class +
+                ' class="'+ (lineNum % 2 === 0 ? 'w2ui-even' : 'w2ui-odd') + ' w2ui-record ' + rec_class +
                     (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') +
                     (record.w2ui && record.w2ui.editable === false ? ' w2ui-no-edit' : '') +
                     (record.w2ui && record.w2ui.expanded === true ? ' w2ui-expanded' : '') + '" ' +
@@ -10853,14 +10911,40 @@ w2utils.event = {
             // info bubble
             if (col.info === true) col.info = {};
             if (col.info != null) {
-                if (!col.info.icon) col.info.icon = 'w2ui-icon-info';
-                infoBubble += '<span class="w2ui-info '+ col.info.icon +'" style="'+ (col.info.style || '') + '" '+
-                    ' onclick="event.stopPropagation(); w2ui[\''+ this.name + '\'].showBubble('+ ind +', '+ col_ind +')"></span>';
+                var infoIcon  = 'w2ui-icon-info';
+                if (typeof col.info.icon == 'function') {
+                    infoIcon = col.info.icon(record);
+                } else if (typeof col.info.icon == 'object') {
+                    infoIcon = col.info.icon[this.parseField(record, col.field)] || ''
+                } else if (typeof col.info.icon == 'string') {
+                    infoIcon = col.info.icon;
+                }
+                var infoStyle = col.info.style || '';
+                if (typeof col.info.style == 'function') {
+                    infoStyle = col.info.style(record);
+                } else if (typeof col.info.style == 'object') {
+                    infoStyle = col.info.style[this.parseField(record, col.field)] || '';
+                } else if (typeof col.info.style == 'string') {
+                    infoStyle = col.info.style;
+                }
+                infoBubble += '<span class="w2ui-info '+ infoIcon +'" style="'+ infoStyle + '" '+
+                    (col.info.showOn != null ? 'on' + col.info.showOn : 'click') +
+                    '="event.stopPropagation(); w2ui[\''+ this.name + '\'].showBubble('+ ind +', '+ col_ind +')"'+
+                    (col.info.hideOn != null ? 'on' + col.info.hideOn : '') +
+                    '="var grid = w2ui[\''+ this.name + '\']; if (grid.last.bubbleEl) { $(grid.last.bubbleEl).w2tag() } grid.last.bubbleEl = null;"'+
+                    '></span>';
             }
             // various renderers
             if (col.render != null && ind !== -1) {
                 if (typeof col.render == 'function') {
-                    data = $.trim(col.render.call(this, record, ind, col_ind, data));
+                    var html = col.render.call(this, record, ind, col_ind, data)
+                    if (html != null && typeof html == 'object') {
+                        data = $.trim(html.html || '');
+                        addClass = html.class || '';
+                        addStyle = html.style || '';
+                    } else {
+                        data = $.trim(html);
+                    }
                     if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') {
                         data = '<div style="'+ style +'">' + infoBubble + String(data) + '</div>';
                     }
@@ -10997,7 +11081,7 @@ w2utils.event = {
                     }
                     if (info.showEmpty !== true && (val == null || val == '')) continue;
                     if (info.maxLength != null && typeof val == 'string' && val.length > info.maxLength) val = val.substr(0, info.maxLength) + '...';
-                    html += '<tr><td>' + col.caption + '</td><td>' + ((val === 0 ? '0' : val) || '') + '</td></tr>';
+                    html += '<tr><td>' + col.text + '</td><td>' + ((val === 0 ? '0' : val) || '') + '</td></tr>';
                 }
                 html += '</table>';
             } else if ($.isPlainObject(fields)) {
@@ -11141,7 +11225,7 @@ w2utils.event = {
                     search      : this.last.search,
                     multi       : this.last.multi,
                     logic       : this.last.logic,
-                    caption     : this.last.caption,
+                    label       : this.last.label,
                     field       : this.last.field,
                     scrollTop   : this.last.scrollTop,
                     scrollLeft  : this.last.scrollLeft
@@ -11154,14 +11238,14 @@ w2utils.event = {
                 var col = obj.columns[i];
                 var col_save_obj = {};
                 // iterate properties to save
-                Object.keys(obj.stateSaveColumnProperties).forEach(function(prop, idx) {
-                    if(obj.stateSaveColumnProperties[prop]){
+                Object.keys(obj.stateColProps).forEach(function(prop, idx) {
+                    if(obj.stateColProps[prop]){
                         // check if the property is defined on the column
                         if(col[prop] !== undefined){
                             prop_val = col[prop];
                         } else {
                             // use fallback or null
-                            prop_val = obj.stateSaveColumnFallbackValues[prop] || null;
+                            prop_val = obj.stateColDefaults[prop] || null;
                         }
                         col_save_obj[prop] = prop_val;
                     }
@@ -11266,7 +11350,7 @@ w2utils.event = {
         },
 
         parseField: function (obj, field) {
-            if (this.useFieldDot) {
+            if (this.nestedFields) {
                 var val = '';
                 try { // need this to make sure no error in fields
                     val = obj;
@@ -11473,7 +11557,7 @@ w2utils.event = {
                 body  : '.w2ui-grid-box'
             }, options);
         }
-    };
+    }
 
     $.extend(w2grid.prototype, w2utils.event);
     w2obj.grid = w2grid;
@@ -11485,6 +11569,12 @@ w2utils.event = {
 *        - w2layout        - layout widget
 *        - $().w2layout    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2tabs
+*
+* == changes
+*   - negative values for left, right panel
+*   - onResize for layout as well as onResizing
+*   - panel.callBack - one time
+*   - layout.html().replaced(function () {})
 *
 * == NICE TO HAVE ==
 *   - onResize for the panel
@@ -11605,35 +11695,60 @@ w2utils.event = {
                 toolbar : false,
                 tabs    : false
             },
+            callBack  : null,      // function to call when content is overwritten
             onRefresh : null,
             onShow    : null,
             onHide    : null
         },
 
         // alias for content
-        html: function (panel, data, transition) {
-            return this.content(panel, data, transition);
+        content: function (panel, data, transition) {
+            console.log('NOTICE: layout.content method is deprecated, please use layout.html() instead');
+            return this.html(panel, data, transition);
         },
 
-        content: function (panel, data, transition) {
+        html: function (panel, data, transition) {
             var obj = this;
             var p = this.get(panel);
+            var promise = {
+                panel     : panel,
+                html      : p.content,
+                error     : false,
+                cancelled : false,
+                removed   : function (callBack) {
+                    if (typeof callBack == 'function') {
+                        p.callBack = callBack
+                    }
+                }
+            }
+            if (typeof p.callBack == 'function') {
+                p.callBack({ panel: panel, content: p.content, new_content: data, transition: transition || 'none' });
+                p.callBack = null; // this is one time call back only
+            }
             // if it is CSS panel
             if (panel == 'css') {
                 $('#layout_'+ obj.name +'_panel_css').html('<style>'+ data +'</style>');
-                return true;
+                promise.status = true;
+                return promise;
             }
-            if (p == null) return false;
+            if (p == null) {
+                console.log('ERROR: incorrect panel name. Panel name can be main, left, right, top, bottom, preview or css')
+                promise.error = true;
+                return promise;
+            }
             if (data == null) {
-                return p.content;
+                return promise;
             }
             // event before
             var edata = this.trigger({ phase: 'before', type: 'content', target: panel, object: p, content: data, transition: transition });
-            if (edata.isCancelled === true) return;
+            if (edata.isCancelled === true) {
+                promise.cancelled = true;
+                return promise;
+            }
 
             if (data instanceof jQuery) {
                 console.log('ERROR: You can not pass jQuery object to w2layout.content() method');
-                return false;
+                return promise;
             }
             var pname    = '#layout_'+ this.name + '_panel_'+ p.type;
             var current  = $(pname + '> .w2ui-panel-content');
@@ -11678,7 +11793,7 @@ w2utils.event = {
             // IE Hack
             obj.resize();
             if (window.navigator.userAgent.indexOf('MSIE') != -1) setTimeout(function () { obj.resize(); }, 100);
-            return true;
+            return promise;
         },
 
         message: function(panel, options) {
@@ -12302,7 +12417,7 @@ w2utils.event = {
             }
             // negative size
             if (String(pright.size).substr(0, 1) == '-') {
-                if (sleft && pleft.size.substr(0, 1) == '-') {
+                if (sleft && String(pleft.size).substr(0, 1) == '-') {
                     console.log('ERROR: you cannot have both left panel.size and right panel.size be negative.');
                 } else {
                     pright.sizeCalculated = width - (sleft ? pleft.sizeCalculated : 0) + parseInt(pright.size);
@@ -12635,6 +12750,13 @@ w2utils.event = {
 *        - $().w2popup  - jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
+* == changes
+*   - added onMove event
+*   - w2prompt.options.ok_class, cancel_class
+*   - w2confirm.options.onOpen, w2confirm.options.onClose
+*   - w2prompt.options.onOpen, w2prompt.options.onClose
+*   - w2popup.actions, w2popup.action, w2popup.onAction
+*
 * == NICE TO HAVE ==
 *   - hide overlay on esc
 *   - make popup width/height in %
@@ -12752,6 +12874,7 @@ var w2popup = {};
                 w2popup.onOpen    = null;
                 w2popup.onClose   = null;
                 w2popup.onKeydown = null;
+                w2popup.onAction  = null;
             }
             if (options.onOpen)    w2popup.onOpen    = options.onOpen;
             if (options.onClose)   w2popup.onClose   = options.onClose;
@@ -12759,6 +12882,7 @@ var w2popup = {};
             if (options.onMin)     w2popup.onMin     = options.onMin;
             if (options.onToggle)  w2popup.onToggle  = options.onToggle;
             if (options.onKeydown) w2popup.onKeydown = options.onKeydown;
+            if (options.onAction)  w2popup.onAction  = options.onAction;
             options.width  = parseInt(options.width);
             options.height = parseInt(options.height);
 
@@ -12775,6 +12899,24 @@ var w2popup = {};
             if (maxH - 10 < options.height) options.height = maxH - 10;
             var top  = (maxH - options.height) / 2 * 0.6;
             var left = (maxW - options.width) / 2;
+
+            // convert action arrays into buttons
+            if (options.actions != null) {
+                options.buttons = '';
+                Object.keys(options.actions).forEach(function (action) {
+                    var handler = options.actions[action];
+                    if (typeof handler == 'function') {
+                        options.buttons += '<button class="w2ui-btn" onclick="w2popup.action(\''+ action +'\')">'+ action +'</button>'
+                    }
+                    if (typeof handler == 'object') {
+                        options.buttons += '<button class="w2ui-btn '+ (handler['class'] || '') +'" style="'+ (handler['style'] || '') +'"'
+                            + 'onclick="w2popup.action(\''+ action +'\')">'+ (handler['text'] || action) +'</button>'
+                    }
+                    if (typeof handler == 'string') {
+                        options.buttons += handler
+                    }
+                });
+            }
 
             // check if message is already displayed
             if ($('#w2ui-popup').length === 0) {
@@ -12838,12 +12980,10 @@ var w2popup = {};
                 // clean transform
                 setTimeout(function () {
                     $('#w2ui-popup').css(w2utils.cssPrefix('transform', ''));
-                    // event after
-                    w2popup.status = 'open';
-                    setTimeout(function () {
-                        obj.trigger($.extend(edata, { phase: 'after' }));
-                    }, 100);
                 }, options.speed * 1000);
+                // event after
+                w2popup.status = 'open';
+                obj.trigger($.extend(edata, { phase: 'after' }));
 
             } else {
                 // if was from template and now not
@@ -12916,10 +13056,10 @@ var w2popup = {};
                     $('#w2ui-popup').data('prev-size', null);
                     // focus on first button
                     obj.focus();
-                    // call event onChange
-                    w2popup.status = 'open';
-                    obj.trigger($.extend(edata, { phase: 'after' }));
                 });
+                // call event onOpen
+                w2popup.status = 'open';
+                obj.trigger($.extend(edata, { phase: 'after' }));
             }
 
             // save new options
@@ -12936,6 +13076,8 @@ var w2popup = {};
             $('#w2ui-popup .w2ui-popup-title').on('mousedown', function (event) {
                 if (!w2popup.get().maximized) mvStart(event);
             });
+
+            return this;
 
             // handlers
             function mvStart(evnt) {
@@ -12959,10 +13101,16 @@ var w2popup = {};
                 if (!evnt) evnt = window.event;
                 tmp.div_x = evnt.screenX - tmp.x;
                 tmp.div_y = evnt.screenY - tmp.y;
+                // trigger event
+                var edata = w2popup.trigger({ phase: 'before', type: 'move', target: 'popup', div_x: tmp.div_x, div_y: tmp.div_y });
+                if (edata.isCancelled === true) return;
+                // default behavior
                 $('#w2ui-popup').css(w2utils.cssPrefix({
                     'transition': 'none',
                     'transform' : 'translate3d('+ tmp.div_x +'px, '+ tmp.div_y +'px, 0px)'
                 }));
+                // event after
+                w2popup.trigger($.extend(edata, { phase: 'after'}));
             }
 
             function mvStop(evnt) {
@@ -12983,7 +13131,21 @@ var w2popup = {};
                 $(document).off('mouseup', tmp.mvStop);
                 if (!tmp.isLocked) w2popup.unlock();
             }
-            return this;
+        },
+
+        action: function (action) {
+            var options = $('#w2ui-popup').data('options');
+            var handler = options.actions[action]
+            switch (typeof handler) {
+                case 'function':
+                    handler(action)
+                    break;
+                case 'object':
+                    if (typeof handler.onClick == 'function') {
+                        handler.onClick(action)
+                    }
+                    break;
+            }
         },
 
         keydown: function (event) {
@@ -13029,7 +13191,7 @@ var w2popup = {};
                 $('#w2ui-popup').remove();
                 w2popup.status = 'closed';
                 // restore active
-                if (options._last_focus.length > 0) options._last_focus.focus();
+                if (options._last_focus && options._last_focus.length > 0) options._last_focus.focus();
                 // event after
                 obj.trigger($.extend(edata, { phase: 'after'}));
             }, options.speed * 1000);
@@ -13226,7 +13388,7 @@ var w2popup = {};
                                 (head.length === 0 ? 'top: 0px;' : 'top: ' + w2utils.getSize(head, 'height') + 'px;') +
                                 (options.width  != null ? 'width: ' + options.width + 'px; left: ' + ((pWidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
                                 (options.height != null ? 'height: ' + options.height + 'px;' : 'bottom: 6px;') +
-                                w2utils.cssPrefix('transition', '.3s', true) + '"' +
+                                w2utils.cssPrefix('transition', '0s', true) + '"' +
                                 (options.hideOnClick === true ? 'onclick="w2popup.message();"' : '') + '>' +
                             '</div>');
                 $('#w2ui-popup #w2ui-message'+ msgCount).data('options', options).data('prev_focus', $(':focus'));
@@ -13238,9 +13400,14 @@ var w2popup = {};
                     $('#w2ui-popup #w2ui-message'+ msgCount).show().html(options.html);
                     // timer needs to animation
                     setTimeout(function () {
-                        $('#w2ui-popup #w2ui-message'+ msgCount).css(w2utils.cssPrefix({
-                            'transform': (display == 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)')
-                        }));
+                        $('#w2ui-popup #w2ui-message'+ msgCount).css(
+                            $.extend(
+                                w2utils.cssPrefix('transition', '.3s', false),
+                                w2utils.cssPrefix({
+                                    'transform': (display == 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)')
+                                })
+                            )
+                        );
                     }, 1);
                     // timer for lock
                     if (msgCount === 0) w2popup.lock();
@@ -13257,7 +13424,7 @@ var w2popup = {};
         focus: function () {
             var tmp = null;
             var pop = $('#w2ui-popup');
-            var sel = 'input:visible, button:visible, select:visible, textarea:visible';
+            var sel = 'input:visible, button:visible, select:visible, textarea:visible, [contentEditable]';
             // clear previous blur
             $(pop).find(sel).off('.keep-focus');
             // in message or popup
@@ -13566,15 +13733,20 @@ var w2confirm = function (msg, title, callBack) {
             width   : options.width,
             height  : options.height,
             body    : '<div class="w2ui-centered w2ui-confirm-msg" style="font-size: 13px;">' + options.msg + '</div>',
-            buttons : '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">' + w2utils.lang(options.yes_text) + '</button>' +
-                      '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">' + w2utils.lang(options.no_text) + '</button>',
-            onOpen: function () {
+            buttons : (w2utils.settings.macButtonOrder
+                ? '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">' + w2utils.lang(options.no_text) + '</button>' +
+                  '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">' + w2utils.lang(options.yes_text) + '</button>'
+                : '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">' + w2utils.lang(options.yes_text) + '</button>' +
+                  '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">' + w2utils.lang(options.no_text) + '</button>'
+                ),
+            onOpen: function (event) {
                 $('#w2ui-popup .w2ui-message .w2ui-btn').on('click.w2confirm', function (event) {
                     w2popup._confirm_btn = event.target.id;
                     w2popup.message();
                 });
+                if (typeof options.onOpen == 'function') options.onOpen()
             },
-            onClose: function () {
+            onClose: function (event) {
                 // needed this because there might be other messages
                 $('#w2ui-popup .w2ui-message .w2ui-btn').off('click.w2confirm');
                 // need to wait for message to slide up
@@ -13583,6 +13755,7 @@ var w2confirm = function (msg, title, callBack) {
                     if (w2popup._confirm_btn == 'Yes' && typeof options.yes_callBack == 'function') options.yes_callBack();
                     if (w2popup._confirm_btn == 'No'  && typeof options.no_callBack == 'function') options.no_callBack();
                 }, 300);
+                if (typeof options.onClose == 'function') options.onClose()
             }
             // onKeydown will not work here
         });
@@ -13597,8 +13770,12 @@ var w2confirm = function (msg, title, callBack) {
             modal      : true,
             showClose  : false,
             body       : '<div class="w2ui-centered w2ui-confirm-msg" style="font-size: 13px;">' + options.msg + '</div>',
-            buttons    : '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">'+ w2utils.lang(options.yes_text) +'</button>'+
-                         '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">'+ w2utils.lang(options.no_text) +'</button>',
+            buttons    : (w2utils.settings.macButtonOrder
+                    ? '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">'+ w2utils.lang(options.no_text) +'</button>' +
+                      '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">'+ w2utils.lang(options.yes_text) +'</button>'
+                    : '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">'+ w2utils.lang(options.yes_text) +'</button>' +
+                      '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">'+ w2utils.lang(options.no_text) +'</button>'
+                    ),
             onOpen: function (event) {
                 // do not use onComplete as it is slower
                 setTimeout(function () {
@@ -13613,8 +13790,11 @@ var w2confirm = function (msg, title, callBack) {
                     }else{
                         $('#w2ui-popup .w2ui-popup-btn#Yes').focus();
                     }
-                    
+                    if (typeof options.onOpen == 'function') options.onOpen()
                 }, 1);
+            },
+            onClose: function (event) {
+                if (typeof options.onClose == 'function') options.onClose()
             },
             onKeydown: function (event) {
                 // if there are no messages
@@ -13648,7 +13828,6 @@ var w2confirm = function (msg, title, callBack) {
 
 var w2prompt = function (label, title, callBack) {
     var $ = jQuery;
-
     var options  = {};
     var defaults = {
         label       : '',
@@ -13696,7 +13875,12 @@ var w2prompt = function (label, title, callBack) {
                         '  <input id="w2prompt" '+ options.attrs +'>'+
                         '</div>'
                     ),
-            buttons : '<button id="Ok" class="w2ui-popup-btn w2ui-btn">' + options.ok_text + '</button><button id="Cancel" class="w2ui-popup-btn w2ui-btn">' + options.cancel_text + '</button>',
+            buttons : (w2utils.settings.macButtonOrder
+                ? '<button id="Cancel" class="w2ui-popup-btn w2ui-btn '+ options.cancel_class +'">' + options.cancel_text + '</button>' +
+                  '<button id="Ok" class="w2ui-popup-btn w2ui-btn '+ options.ok_class +'">' + options.ok_text + '</button>'
+                : '<button id="Ok" class="w2ui-popup-btn w2ui-btn '+ options.ok_class +'">' + options.ok_text + '</button>' +
+                  '<button id="Cancel" class="w2ui-popup-btn w2ui-btn '+ options.cancel_class +'">' + options.cancel_text + '</button>'
+                ),
             onOpen: function () {
                 $('#w2prompt').val(options.value);
                 $('#w2ui-popup .w2ui-message .w2ui-btn#Ok').on('click.w2prompt', function (event) {
@@ -13709,6 +13893,8 @@ var w2prompt = function (label, title, callBack) {
                 });
                 // set focus
                 setTimeout(function () { $('#w2prompt').focus(); }, 100);
+                // some event
+                if (typeof options.onOpen == 'function') options.onOpen()
             },
             onClose: function () {
                 // needed this because there might be other messages
@@ -13719,6 +13905,8 @@ var w2prompt = function (label, title, callBack) {
                         options.callBack(w2popup._prompt_value);
                     }
                 }, 300);
+                // some event
+                if (typeof options.onClose == 'function') options.onClose()
             }
             // onKeydown will not work here
         });
@@ -13742,8 +13930,12 @@ var w2prompt = function (label, title, callBack) {
                             '  <input id="w2prompt" '+ options.attrs +'>'+
                             '</div>'
                         ),
-            buttons    : '<button id="Ok" class="w2ui-popup-btn w2ui-btn">' + options.ok_text + '</button>'+
-                         '<button id="Cancel" class="w2ui-popup-btn w2ui-btn">' + options.cancel_text + '</button>',
+            buttons    : (w2utils.settings.macButtonOrder
+                ? '<button id="Cancel" class="w2ui-popup-btn w2ui-btn">' + options.cancel_text + '</button>' +
+                  '<button id="Ok" class="w2ui-popup-btn w2ui-btn">' + options.ok_text + '</button>'
+                : '<button id="Ok" class="w2ui-popup-btn w2ui-btn">' + options.ok_text + '</button>'+
+                  '<button id="Cancel" class="w2ui-popup-btn w2ui-btn">' + options.cancel_text + '</button>'
+                ),
             onOpen: function (event) {
                 // do not use onComplete as it is slower
                 setTimeout(function () {
@@ -13761,7 +13953,13 @@ var w2prompt = function (label, title, callBack) {
                     $('#w2ui-popup .w2ui-popup-btn#Ok');
                     // set focus
                     setTimeout(function () { $('#w2prompt').focus(); }, 100);
+                    // some event
+                    if (typeof options.onOpen == 'function') options.onOpen()
                 }, 1);
+            },
+            onClose: function (event) {
+                // some event
+                if (typeof options.onClose == 'function') options.onClose()
             },
             onKeydown: function (event) {
                 // if there are no messages
@@ -13800,6 +13998,9 @@ var w2prompt = function (label, title, callBack) {
 *
 * == NICE TO HAVE ==
 *   - align = left, right, center ??
+*
+* == 1.5 changes ==
+*   - tab.caption - deprecated
 *
 ************************************************************************/
 
@@ -14060,6 +14261,13 @@ var w2prompt = function (label, title, callBack) {
                 if (tab == null) return false;
                 if (tab.text == null && tab.caption != null) tab.text = tab.caption;
                 if (tab.tooltip == null && tab.hint != null) tab.tooltip = tab.hint; // for backward compatibility
+                if (tab.caption != null) {
+                    console.log('NOTICE: tabs tab.caption property is deprecated, please use tab.text. Tab -> ', tab)
+                }
+                if (tab.hint != null) {
+                    console.log('NOTICE: tabs tab.hint property is deprecated, please use tab.tooltip. Tab -> ', tab)
+                }
+
                 var text = tab.text;
                 if (typeof text == 'function') text = text.call(this, tab);
                 if (text == null) text = '';
@@ -14325,6 +14533,12 @@ var w2prompt = function (label, title, callBack) {
 *
 * == 1.5 changes ==
 *   - menu drop down can have groups now
+*   - item.caption - deprecated
+*   - item.text - can be a function
+*   - item.icon - can be a function
+*   - item.tooltip - can be a function
+*   - item.color
+*   - item.options
 *
 ************************************************************************/
 
@@ -14421,14 +14635,17 @@ var w2prompt = function (label, title, callBack) {
             icon        : null,
             route       : null,        // if not null, it is route to go
             arrow       : true,        // arrow down for drop/menu types
-            style       : null,        // extre css style for caption
-            color       : null,        // color value - used in color pickers
-            transparent : null,        // transparent t/f - used in color picker
-            advanced    : null,        // advanced picker t/f - user in color picker
+            style       : null,        // extra css style for caption
             group       : null,        // used for radio buttons
             items       : null,        // for type menu* it is an array of items in the menu
             selected    : null,        // used for menu-check, menu-radio
             overlay     : {},
+            color       : null,        // color value - used in color pickers
+            options     : {
+                advanced    : false,   // advanced picker t/f - user in color picker
+                transparent : true,    // transparent t/f - used in color picker
+                html        : ''       // additional buttons for color picker
+            },
             onClick     : null,
             onRefresh   : null
         },
@@ -14619,8 +14836,10 @@ var w2prompt = function (label, title, callBack) {
         click: function (id, event) {
             var obj = this;
             // click on menu items
-            var tmp = String(id).split(':');
-            var it  = this.get(tmp[0]);
+            var tmp   = String(id).split(':');
+            var it    = this.get(tmp[0]);
+            var items = (it && it.items ? w2obj.field.prototype.normMenu.call(this, it.items, it) : []);
+
             if (tmp.length > 1) {
                 var subItem = this.get(id);
                 if (subItem && !subItem.disabled) {
@@ -14686,17 +14905,17 @@ var w2prompt = function (label, title, callBack) {
                                 var menuType = 'normal';
                                 if (it.type == 'menu-radio') {
                                     menuType = 'radio';
-                                    it.items.forEach(function (item) {
+                                    items.forEach(function (item) {
                                         if (it.selected == item.id) item.checked = true; else item.checked = false;
                                     });
                                 }
                                 if (it.type == 'menu-check') {
                                     menuType = 'check';
-                                    it.items.forEach(function (item) {
+                                    items.forEach(function (item) {
                                         if ($.isArray(it.selected) && it.selected.indexOf(item.id) != -1) item.checked = true; else item.checked = false;
                                     });
                                 }
-                                el.w2menu($.extend({ name: obj.name, items: it.items, left: left, top: 3 }, it.overlay, {
+                                el.w2menu($.extend({ name: obj.name, items: items, left: left, top: 3 }, it.overlay, {
                                     type: menuType,
                                     select: function (event) {
                                         obj.menuClick({ name: obj.name, item: it, subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen });
@@ -14707,11 +14926,8 @@ var w2prompt = function (label, title, callBack) {
                                 }));
                             }
                             if (['color', 'text-color'].indexOf(it.type) != -1) {
-                                if (it.transparent == null) it.transparent = true;
-                                $(el).w2color({
+                                $(el).w2color($.extend({
                                     color: it.color,
-                                    transparent: it.transparent,
-                                    advanced: it.advanced,
                                     onHide: function (event) {
                                         hideDrop();
                                         if (obj._tmpColor) {
@@ -14725,7 +14941,7 @@ var w2prompt = function (label, title, callBack) {
                                             obj._tmpColor = color;
                                         }
                                     }
-                                });
+                                }, it.options));
                             }
                             function hideDrop(event) {
                                 it.checked = false;
@@ -14814,6 +15030,12 @@ var w2prompt = function (label, title, callBack) {
                 var it = this.items[i];
                 if (it == null)  continue;
                 if (it.id == null) it.id = "item_" + i;
+                if (it.caption != null) {
+                    console.log('NOTICE: toolbar item.caption property is deprecated, please use item.text. Item -> ', it)
+                }
+                if (it.hint != null) {
+                    console.log('NOTICE: toolbar item.hint property is deprecated, please use item.tooltip. Item -> ', it)
+                }
                 if (it.type == 'spacer') {
                     html += '<td width="100%" id="tb_'+ this.name +'_item_'+ it.id +'" align="right"></td>';
                 } else {
@@ -14949,11 +15171,12 @@ var w2prompt = function (label, title, callBack) {
             if (item.tooltip == null && item.hint != null) item.tooltip = item.hint; // for backward compatibility
             if (item.tooltip == null) item.tooltip = '';
             var img  = '<td>&#160;</td>';
-            var text = item.text;
-            if (typeof text == 'function') text = text.call(this, item);
+            var text = (typeof item.text == 'function' ? item.text.call(this, item) : item.text);
             if (item.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ item.img +'"></div></td>';
-            if (item.icon) img = '<td><div class="w2ui-tb-image"><span class="'+ item.icon +'"></span></div></td>';
-
+            if (item.icon) {
+                img = '<td><div class="w2ui-tb-image"><span class="'+
+                    (typeof item.icon == 'function' ? item.icon.call(this, item) : item.icon) +'"></span></div></td>';
+            }
             if (html === '') switch (item.type) {
                 case 'color':
                 case 'text-color':
@@ -14991,7 +15214,7 @@ var w2prompt = function (label, title, callBack) {
                             '  <tr>' +
                                     img +
                                     (text !== ''
-                                        ? '<td class="w2ui-tb-caption" nowrap="nowrap" style="'+ (item.style ? item.style : '') +'">'+ w2utils.lang(text) +'</td>'
+                                        ? '<td class="w2ui-tb-text w2ui-tb-caption" nowrap="nowrap" style="'+ (item.style ? item.style : '') +'">'+ w2utils.lang(text) +'</td>'
                                         : ''
                                     ) +
                                     (item.count != null
@@ -15068,7 +15291,9 @@ var w2prompt = function (label, title, callBack) {
                 var item = this.get(event.item.id);
                 if (item.type == 'menu-radio') {
                     item.selected = it.id;
-                    event.item.items.forEach(function (item) { item.checked = false; });
+                    if (Array.isArray(event.item.items)) {
+                        event.item.items.forEach(function (item) { item.checked = false; });
+                    }
                     it.checked = true;
                 }
                 if (item.type == 'menu-check') {
@@ -15153,6 +15378,12 @@ var w2prompt = function (label, title, callBack) {
 *   - reorder with dgrag and drop
 *   - node.style is misleading - should be there to apply color for example
 *   - add multiselect
+*   - node.caption - deprecated
+*   - node.text - can be a function
+*   - node.icon - can be a function
+*
+* == 1.5 changes
+*   - node.class - ne property
 *
 ************************************************************************/
 
@@ -15281,7 +15512,11 @@ var w2prompt = function (label, title, callBack) {
                     ind = this.get(before);
                     if (ind == null) {
                         if (!$.isArray(nodes)) nodes = [nodes];
-                        txt = (nodes[0].caption != null ? nodes[0].caption : nodes[0].text);
+                        if (nodes[0].caption != null && nodes[0].text == null) {
+                            console.log('NOTICE: sidebar node.caption property is deprecated, please use node.text. Node -> ', nodes[0]);
+                            nodes[0].text = nodes[0].caption;
+                        }
+                        txt = nodes[0].text;
                         console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.');
                         return null;
                     }
@@ -15295,13 +15530,16 @@ var w2prompt = function (label, title, callBack) {
             for (var o = 0; o < nodes.length; o++) {
                 node = nodes[o];
                 if (typeof node.id == null) {
-                    txt = (node.caption != null ? node.caption : node.text);
+                    if (node.caption != null && node.text == null) {
+                        console.log('NOTICE: sidebar node.caption property is deprecated, please use node.text');
+                        node.text = node.caption;
+                    }
+                    txt = node.text;
                     console.log('ERROR: Cannot insert node "'+ txt +'" because it has no id.');
                     continue;
                 }
                 if (this.get(this, node.id) != null) {
-                    txt = (node.caption != null ? node.caption : node.text);
-                    console.log('ERROR: Cannot insert node with id='+ node.id +' (text: '+ txt + ') because another node with the same id already exists.');
+                    console.log('ERROR: Cannot insert node with id='+ node.id +' (text: '+ node.text + ') because another node with the same id already exists.');
                     continue;
                 }
                 tmp = $.extend({}, w2sidebar.prototype.node, node);
@@ -15314,8 +15552,7 @@ var w2prompt = function (label, title, callBack) {
                 } else {
                     ind = this.get(parent, before, true);
                     if (ind == null) {
-                        txt = (node.caption != null ? node.caption : node.text);
-                        console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.');
+                        console.log('ERROR: Cannot insert node "'+ node.text +'" because cannot find node "'+ before +'" to insert before.');
                         return null;
                 }
                     parent.nodes.splice(ind, 0, tmp);
@@ -15997,11 +16234,15 @@ var w2prompt = function (label, title, callBack) {
                     tmp = tmp.parent;
                     level++;
                 }
-                if (nd.caption != null) nd.text = nd.caption;
+                if (nd.caption != null && nd.text == null) nd.text = nd.caption;
+                if (nd.caption != null) {
+                    console.log('NOTICE: sidebar node.caption property is deprecated, please use node.text. Node -> ', nd)
+                    nd.text = nd.caption;
+                }
                 if (nd.group) {
                     html =
-                        '<div class="w2ui-node-group w2ui-level-'+ level +'" id="node_'+ nd.id +'"'+
-                        '   onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
+                        '<div class="w2ui-node-group w2ui-level-'+ level + (nd.class ? ' ' + nd.class : '') +'" id="node_'+ nd.id +'"'+
+                        '   style="'+ (nd.hidden ? 'display: none' : '') +'" onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
                         '   oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
                         '   onmouseout="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
                         '   onmouseover="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
@@ -16016,11 +16257,13 @@ var w2prompt = function (label, title, callBack) {
                 } else {
                     if (nd.selected && !nd.disabled) obj.selected = nd.id;
                     tmp = '';
-                    if (img) tmp  = '<div class="w2ui-node-image w2ui-icon '+ img +    (nd.selected && !nd.disabled ? " w2ui-icon-selected" : "") +'"></div>';
-                    if (icon) tmp = '<div class="w2ui-node-image"><span class="'+ icon +'"></span></div>';
+                    if (img) tmp  = '<div class="w2ui-node-image w2ui-icon '+ img + (nd.selected && !nd.disabled ? " w2ui-icon-selected" : "") +'"></div>';
+                    if (icon) {
+                        tmp = '<div class="w2ui-node-image"><span class="' + (typeof icon == 'function' ? icon.call(obj, nd) : icon) + '"></span></div>';
+                    }
                     var text = nd.text;
                     if (typeof nd.text == 'function') text = nd.text.call(obj, nd);
-                    html =  '<div class="w2ui-node w2ui-level-'+ level +' '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
+                    html =  '<div class="w2ui-node w2ui-level-'+ level + (nd.selected ? ' w2ui-selected' : '') + (nd.disabled ? ' w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
                             '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
                             '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
                             '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
@@ -16032,13 +16275,13 @@ var w2prompt = function (label, title, callBack) {
                             '<td class="w2ui-node-data" nowrap="nowrap">'+
                                     tmp +
                                     (nd.count || nd.count === 0 ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '') +
-                                    '<div class="w2ui-node-caption">'+ text +'</div>'+
+                                    '<div class="w2ui-node-text w2ui-node-caption">'+ text +'</div>'+
                             '</td>'+
                             '</tr></tbody></table>'+
                             '</div>'+
                             '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
                     if (obj.flat) {
-                        html =  '<div class="w2ui-node w2ui-level-'+ level +' '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
+                        html =  '<div class="w2ui-node w2ui-level-'+ level +' '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
                                 '    onmouseover="jQuery(this).find(\'.w2ui-node-data\').w2tag(w2utils.base64decode(\''+
                                                 w2utils.base64encode(text + (nd.count || nd.count === 0 ? ' - <span class="w2ui-node-count">'+ nd.count +'</span>' : '')) + '\'), '+
                                 '               { id: \'' + nd.id + '\', left: -5 })"'+
@@ -16124,6 +16367,7 @@ var w2prompt = function (label, title, callBack) {
 *   - ENUM, LIST: should have same as grid (limit, offset, search, sort)
 *   - ENUM, LIST: should support wild chars
 *   - add selection of predefined times (used for appointments)
+*   - options.items - can be an array
 *
 ************************************************************************/
 
@@ -16408,13 +16652,17 @@ var w2prompt = function (label, title, callBack) {
                         openOnFocus     : false,        // if to show overlay onclick or when typing
                         markSearch      : false
                     };
-                    options.items = this.normMenu(options.items); // need to be first
+                    if (typeof options.items == 'function') {
+                        options._items_fun = options.items
+                    }
+                    // need to be first
+                    options.items = w2obj.field.prototype.normMenu.call(this, options.items);
                     if (this.type === 'list') {
                         // defaults.search = (options.items && options.items.length >= 10 ? true : false);
                         defaults.openOnFocus = true;
                         $(this.el).addClass('w2ui-select');
                         // if simple value - look it up
-                        if (!$.isPlainObject(options.selected) && options.items) {
+                        if (!$.isPlainObject(options.selected) && Array.isArray(options.items)) {
                             for (var i = 0; i< options.items.length; i++) {
                                 var item = options.items[i];
                                 if (item && item.id === options.selected) {
@@ -16482,8 +16730,11 @@ var w2prompt = function (label, title, callBack) {
                         onScroll        : null           // when div with selected items is scrolled
                     };
                     options = $.extend({}, defaults, options, { suffix: '' });
-                    options.items    = this.normMenu(options.items);
-                    options.selected = this.normMenu(options.selected);
+                    if (typeof options.items == 'function') {
+                        options._items_fun = options.items
+                    }
+                    options.items    = w2obj.field.prototype.normMenu.call(this, options.items);
+                    options.selected = w2obj.field.prototype.normMenu.call(this, options.selected);
                     this.options = options;
                     if (!$.isArray(options.selected)) options.selected = [];
                     $(this.el).data('selected', options.selected);
@@ -16789,7 +17040,7 @@ var w2prompt = function (label, title, callBack) {
                             // default behavior
                             $().w2overlay();
                             selected.splice($(event.target).attr('index'), 1);
-                            $(obj.el).trigger('change');
+                            $(obj.el).trigger('input').trigger('change');
                             $(event.target).parent().fadeOut('fast');
                             setTimeout(function () {
                                 obj.refresh();
@@ -17059,6 +17310,10 @@ var w2prompt = function (label, title, callBack) {
                     obj.search();
                     setTimeout(function () { obj.updateOverlay(); }, 1);
                 }, 1);
+                // regenerat items
+                if (typeof obj.options._items_fun == 'function') {
+                    obj.options.items = w2obj.field.prototype.normMenu.call(this, obj.options._items_fun);
+                }
             }
             // file
             if (obj.type === 'file') {
@@ -17204,14 +17459,14 @@ var w2prompt = function (label, title, callBack) {
                         if (event.shiftKey) break; // no action if shift key is pressed
                         var newDT = w2utils.formatDate(dt.getTime() + daymil, options.format);
                         if (inc == 10) newDT = w2utils.formatDate(new Date(dt.getFullYear(), dt.getMonth()+1, dt.getDate()), options.format);
-                        $(obj.el).val(newDT).change();
+                        $(obj.el).val(newDT).trigger('input').change();
                         cancel = true;
                         break;
                     case 40: // down
                         if (event.shiftKey) break; // no action if shift key is pressed
                         var newDT = w2utils.formatDate(dt.getTime() - daymil, options.format);
                         if (inc == 10) newDT = w2utils.formatDate(new Date(dt.getFullYear(), dt.getMonth()-1, dt.getDate()), options.format);
-                        $(obj.el).val(newDT).change();
+                        $(obj.el).val(newDT).trigger('input').change();
                         cancel = true;
                         break;
                 }
@@ -17243,7 +17498,7 @@ var w2prompt = function (label, title, callBack) {
                         break;
                 }
                 if (cancel) {
-                    $(obj.el).val(obj.fromMin(time)).change();
+                    $(obj.el).val(obj.fromMin(time)).trigger('input').change();
                     event.preventDefault();
                     setTimeout(function () {
                         // set cursor to the end
@@ -17265,14 +17520,14 @@ var w2prompt = function (label, title, callBack) {
                         if (event.shiftKey) break; // no action if shift key is pressed
                         var newDT = w2utils.formatDateTime(dt.getTime() + daymil, options.format);
                         if (inc == 10) newDT = w2utils.formatDateTime(new Date(dt.getFullYear(), dt.getMonth()+1, dt.getDate()), options.format);
-                        $(obj.el).val(newDT).change();
+                        $(obj.el).val(newDT).trigger('input').change();
                         cancel = true;
                         break;
                     case 40: // down
                         if (event.shiftKey) break; // no action if shift key is pressed
                         var newDT = w2utils.formatDateTime(dt.getTime() - daymil, options.format);
                         if (inc == 10) newDT = w2utils.formatDateTime(new Date(dt.getFullYear(), dt.getMonth()-1, dt.getDate()), options.format);
-                        $(obj.el).val(newDT).change();
+                        $(obj.el).val(newDT).trigger('input').change();
                         cancel = true;
                         break;
                 }
@@ -17409,7 +17664,7 @@ var w2prompt = function (label, title, callBack) {
                                 if (edata.isCancelled === true) return;
                                 // default behavior
                                 selected.pop();
-                                $(obj.el).trigger('change');
+                                $(obj.el).trigger('input').trigger('change');
                                 obj.refresh();
                                 // event after
                                 obj.trigger($.extend(edata, { phase: 'after' }));
@@ -17526,7 +17781,7 @@ var w2prompt = function (label, title, callBack) {
             if (obj.tmp.xhr_search == null) obj.tmp.xhr_search = '';
             if (obj.tmp.xhr_total == null) obj.tmp.xhr_total = -1;
             // check if need to search
-            if (options.url && $(obj.el).prop('readonly') !== true && $(obj.el).prop('disabled') !== true && (
+            if (options.url && (
                     (options.items.length === 0 && obj.tmp.xhr_total !== 0) ||
                     (obj.tmp.xhr_total == options.cacheMax && search.length > obj.tmp.xhr_search.length) ||
                     (search.length >= obj.tmp.xhr_search.length && search.substr(0, obj.tmp.xhr_search.length) !== obj.tmp.xhr_search) ||
@@ -17600,8 +17855,30 @@ var w2prompt = function (label, title, callBack) {
                             obj.tmp.xhr_loading = false;
                             obj.tmp.xhr_search  = search;
                             obj.tmp.xhr_total   = data.records.length;
+                            obj.tmp.lastError   = '';
                             options.items       = obj.normMenu(data.records);
                             if (search === '' && data.records.length === 0) obj.tmp.emptySet = true; else obj.tmp.emptySet = false;
+                            // preset item
+                            var find_selected = $(obj.el).data('find_selected');
+                            if (find_selected) {
+                                var sel;
+                                if (Array.isArray(find_selected)) {
+                                    sel = [];
+                                    find_selected.forEach(function (find) {
+                                        options.items.forEach(function (item) {
+                                            if (item.id == find) sel.push($.extend(true, {}, item));
+                                        })
+                                    });
+
+                                } else {
+                                    options.items.forEach(function (item) {
+                                        if (item.id == find_selected) {
+                                            sel = item
+                                        }
+                                    })
+                                }
+                                $(obj.el).data('selected', sel).removeData('find_selected').change();
+                            }
                             obj.search();
                             // event after
                             obj.trigger($.extend(edata2, { phase: 'after' }));
@@ -17621,8 +17898,15 @@ var w2prompt = function (label, title, callBack) {
                                     '\n   RECEIVED:', typeof data === 'object' ? data : xhr.responseText);
                             }
                             // reset stats
+                            obj.tmp.xhr_loading = false;
+                            obj.tmp.xhr_search  = search;
+                            obj.tmp.xhr_total   = 0;
+                            obj.tmp.emptySet    = true;
+                            obj.tmp.lastError   = (edata2.error || 'Server communication failed');
+                            options.items       = [];
                             obj.clearCache();
                             obj.search();
+                            obj.updateOverlay(false);
                             // event after
                             obj.trigger($.extend(edata2, { phase: 'after' }));
                         });
@@ -17649,10 +17933,11 @@ var w2prompt = function (label, title, callBack) {
                 search = target.val();
                 for (var s in selected) { if (selected[s]) ids.push(selected[s].id); }
             }
+            var items = options.items;
             if (obj.tmp.xhr_loading !== true) {
                 var shown = 0;
-                for (var i = 0; i < options.items.length; i++) {
-                    var item = options.items[i];
+                for (var i = 0; i < items.length; i++) {
+                    var item = items[i];
                     if (options.compare != null) {
                         if (typeof options.compare === 'function') {
                             item.hidden = (options.compare.call(this, item, search) === false ? true : false);
@@ -17674,7 +17959,7 @@ var w2prompt = function (label, title, callBack) {
                 }
                 // preselect first item
                 options.index = -1;
-                while (options.items[options.index] && options.items[options.index].hidden) options.index++;
+                while (items[options.index] && items[options.index].hidden) options.index++;
                 if (shown <= 0) options.index = -1;
                 options.spinner = false;
                 obj.updateOverlay();
@@ -17685,7 +17970,7 @@ var w2prompt = function (label, title, callBack) {
                     }
                 }, 1);
             } else {
-                options.items.splice(0, options.cacheMax);
+                items.splice(0, options.cacheMax);
                 options.spinner = true;
                 obj.updateOverlay();
             }
@@ -17717,7 +18002,7 @@ var w2prompt = function (label, title, callBack) {
                 },
                 function (color) {
                     if (color == null) return;
-                    $(obj.el).val(color).change();
+                    $(obj.el).val(color).trigger('input').change();
                 });
             }
             // date
@@ -17780,7 +18065,7 @@ var w2prompt = function (label, title, callBack) {
                     $('#w2ui-overlay .w2ui-date')
                         .on('mousedown', function () {
                             var day = $(this).attr('date');
-                            $(obj.el).val(day).change();
+                            $(obj.el).val(day).trigger('input').change();
                             $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
                         })
                         .on('mouseup', function () {
@@ -17814,7 +18099,7 @@ var w2prompt = function (label, title, callBack) {
                     .on('mousedown', function (event) {
                         $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
                         var hour = $(this).attr('hour');
-                        $(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
+                        $(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).trigger('input').change();
                     });
                     if (this.options.noMinutes == null || this.options.noMinutes === false) {
                         $('#w2ui-overlay .w2ui-time')
@@ -17827,7 +18112,7 @@ var w2prompt = function (label, title, callBack) {
                                     .on('mousedown', function () {
                                         $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
                                         var min = $(this).attr('min');
-                                        $(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
+                                        $(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).trigger('input').change();
                                     })
                                     .on('mouseup', function () {
                                         setTimeout(function () { if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide(); }, 10);
@@ -17907,7 +18192,7 @@ var w2prompt = function (label, title, callBack) {
                     $('#w2ui-overlay .w2ui-date')
                         .on('mousedown', function () {
                             var day = $(this).attr('date');
-                            $(obj.el).val(w2utils.formatDate(day)).change();
+                            $(obj.el).val(w2utils.formatDate(day)).trigger('input').change();
                             $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' });
                             selDate = new Date($(this).attr('data-date'));
                         })
@@ -17924,8 +18209,8 @@ var w2prompt = function (label, title, callBack) {
                                     selHour = $(this).attr('hour');
                                     selDate.setHours(selHour);
                                     var txt = w2utils.formatDateTime(selDate, obj.options.format);
-                                    $(obj.el).val(txt).change();
-                                    //$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
+                                    $(obj.el).val(txt).trigger('input').change();
+                                    //$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).trigger('input').change();
                                 });
                             if (obj.options.noMinutes == null || obj.options.noMinutes === false) {
                                 $('#w2ui-overlay .w2ui-time')
@@ -17940,8 +18225,8 @@ var w2prompt = function (label, title, callBack) {
                                                 selMin = $(this).attr('min');
                                                 selDate.setHours(selHour, selMin);
                                                 var txt = w2utils.formatDateTime(selDate, obj.options.format);
-                                                $(obj.el).val(txt).change();
-                                                //$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).change();
+                                                $(obj.el).val(txt).trigger('input').change();
+                                                //$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).trigger('input').change();
                                             })
                                             .on('mouseup', function () {
                                                 setTimeout(function () { if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide(); }, 10);
@@ -17970,7 +18255,7 @@ var w2prompt = function (label, title, callBack) {
                             // this currently ignores blocked days or start / end dates!
                             if ($(this).hasClass('special')) var tmp = $(this).attr('id');
                             else var tmp = w2utils.formatDateTime(new Date(), obj.options.format);
-                            $(obj.el).val(tmp).change();
+                            $(obj.el).val(tmp).trigger('input').change();
                             return false;
                         })
                         .on('mouseup', function () {
@@ -18016,9 +18301,14 @@ var w2prompt = function (label, title, callBack) {
                     if (options.url != null && $(input).val().length < options.minLength && obj.tmp.emptySet !== true) msgNoItems = options.minLength + ' ' + w2utils.lang('letters or more...');
                     if (options.url != null && $(input).val() === '' && obj.tmp.emptySet !== true) msgNoItems = w2utils.lang('Type to search...');
                     if (options.url == null && options.items.length === 0) msgNoItems = w2utils.lang('Empty list');
-                    if (options.msgNoItems != null) msgNoItems = options.msgNoItems;
-                    if (typeof msgNoItems === 'function') msgNoItems = msgNoItems(options);
-                    $(el).w2menu((!indexOnly ? 'refresh' : 'refresh-index'), $.extend(true, {}, options, {
+                    if (options.msgNoItems != null) {
+                        msgNoItems = (typeof msgNoItems === 'function' ? msgNoItems(options) : options.msgNoItems);
+                    }
+                    if (obj.tmp.lastError) {
+                        msgNoItems = '<div style="white-space: normal; line-height: 1.3">' + obj.tmp.lastError + '</div>';
+                    }
+
+                    var params = $.extend(true, {}, options, {
                         search     : false,
                         render     : options.renderDrop,
                         maxHeight  : options.maxDropHeight,
@@ -18036,7 +18326,7 @@ var w2prompt = function (label, title, callBack) {
                                     if (selected.length >= options.max && options.max > 0) selected.pop();
                                     delete event.item.hidden;
                                     selected.push(event.item);
-                                    $(obj.el).data('selected', selected).change();
+                                    $(obj.el).data('selected', selected).trigger('input').change();
                                     $(obj.helpers.multi).find('input').val('').width(20);
                                     obj.refresh();
                                     if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
@@ -18044,11 +18334,12 @@ var w2prompt = function (label, title, callBack) {
                                     obj.trigger($.extend(edata, { phase: 'after' }));
                                 }
                             } else {
-                                $(obj.el).data('selected', event.item).val(event.item.text).change();
-                                if (obj.helpers.focus) obj.helpers.focus.find('input').val('');                                
+                                $(obj.el).data('selected', event.item).val(event.item.text).trigger('input').change();
+                                if (obj.helpers.focus) obj.helpers.focus.find('input').val('');
                             }
                         }
-                    }));
+                    });
+                    $(el).w2menu((!indexOnly ? 'refresh' : 'refresh-index'), params);
                 }
             }
         },
@@ -18350,8 +18641,8 @@ var w2prompt = function (label, title, callBack) {
             // clean up & init
             $(obj.helpers.focus).remove();
             // remember original tabindex
-            var tabIndex = $(obj.el).attr('tabIndex');
-            if (tabIndex && tabIndex !== -1) obj.el._tabIndex = tabIndex;
+            var tabIndex = parseInt($(obj.el).attr('tabIndex'));
+            if (!isNaN(tabIndex) && tabIndex !== -1) obj.el._tabIndex = tabIndex;
             if (obj.el._tabIndex) tabIndex = obj.el._tabIndex;
             if (tabIndex == null) tabIndex = -1;
             // build helper
@@ -18610,7 +18901,7 @@ var w2prompt = function (label, title, callBack) {
                         var ind = fl.indexOf(',');
                         newItem.content = fl.substr(ind+1);
                         obj.refresh();
-                        $(obj.el).trigger('change');
+                        $(obj.el).trigger('input').trigger('change');
                         // event after
                         obj.trigger($.extend(edata, { phase: 'after' }));
                     };
@@ -18618,25 +18909,27 @@ var w2prompt = function (label, title, callBack) {
                 reader.readAsDataURL(file);
             } else {
                 obj.refresh();
-                $(obj.el).trigger('change');
+                $(obj.el).trigger('input').trigger('change');
                 obj.trigger($.extend(edata, { phase: 'after' }));
             }
         },
 
-        normMenu: function (menu) {
+        normMenu: function (menu, el) {
             if ($.isArray(menu)) {
                 for (var m = 0; m < menu.length; m++) {
                     if (typeof menu[m] === 'string') {
                         menu[m] = { id: menu[m], text: menu[m] };
-                    } else {
+                    } else if (menu[m] != null) {
                         if (menu[m].text != null && menu[m].id == null) menu[m].id = menu[m].text;
                         if (menu[m].text == null && menu[m].id != null) menu[m].text = menu[m].id;
                         if (menu[m].caption != null) menu[m].text = menu[m].caption;
+                    } else {
+                        menu[m] = { id: null, text: 'null' }
                     }
                 }
                 return menu;
             } else if (typeof menu === 'function') {
-                return this.normMenu(menu());
+                return w2obj.field.prototype.normMenu.call(this, menu.call(this, el));
             } else if (typeof menu === 'object') {
                 var tmp = [];
                 for (var m in menu) tmp.push({ id: m, text: menu[m] });
@@ -18857,7 +19150,6 @@ var w2prompt = function (label, title, callBack) {
 *   - form should read <select> <options> into items
 *   - two way data bindings
 *   - verify validation of fields
-*   - added getChanges() - not complete
 *   - nested record object
 *   - formHTML --> template
 *
@@ -18876,6 +19168,22 @@ var w2prompt = function (label, title, callBack) {
 *   - added field types html, empty, custom
 *   - httpHeaders
 *   - method
+*   - onInput
+*   - added field.html.groupStyle
+*   - added field.html.column = 'before' && field.html.column = 'after'
+*   - added field.html.anchor
+*   - changed this.clear(field1, field2,...)
+*   - added nestedFields: use field name containing dots as separator to look into objects
+*   - added getValue(), setValue()
+*   - added getChanges()
+*   - added getCleanRecord(strict)
+*   - added applyFocus()
+*   - deprecated field.name -> field.field
+*   - options.items - can be an array
+*   - added form.pageStyle
+*   - added html.span -1 - then label is displayed on top
+*   - added field.options.minLength, min/max for numebrs can be done with int/float - min/max
+*    field.html.groupCollapsable, form.toggleGroup
 *
 ************************************************************************/
 
@@ -18895,7 +19203,7 @@ var w2prompt = function (label, title, callBack) {
         this.fields      = [];
         this.actions     = {};
         this.record      = {};
-        this.original    = {};
+        this.original    = null;
         this.postData    = {};
         this.httpHeaders = {};
         this.method      = null;     // only used when not null, otherwise set based on w2utils.settings.dataType
@@ -18904,6 +19212,8 @@ var w2prompt = function (label, title, callBack) {
         this.style       = '';
         this.focus       = 0;        // focus first or other element
         this.autosize    = true;     // autosize
+        this.nestedFields= true;     // use field name containing dots as separator to look into object
+
         // When w2utils.settings.dataType is JSON, then we can convert the save request to multipart/form-data. So we can upload large files with the form
         // The original body is JSON.stringified to __body
         this.multipart   = false;
@@ -18934,7 +19244,7 @@ var w2prompt = function (label, title, callBack) {
             var tabs     = method.tabs;
             // extend items
             var object = new w2form(method);
-            $.extend(object, { record: {}, original: {}, fields: [], tabs: {}, toolbar: {}, handlers: [] });
+            $.extend(object, { record: {}, original: null, fields: [], tabs: {}, toolbar: {}, handlers: [] });
             if ($.isArray(tabs)) {
                 $.extend(true, object.tabs, { tabs: [] });
                 for (var t = 0; t < tabs.length; t++) {
@@ -18945,7 +19255,7 @@ var w2prompt = function (label, title, callBack) {
                             object.tabs.active = tmp.id;
                         }
                     } else {
-                        object.tabs.tabs.push({ id: tmp, caption: tmp });
+                        object.tabs.tabs.push({ id: tmp, text: tmp });
                     }
                 }
             } else {
@@ -18955,8 +19265,10 @@ var w2prompt = function (label, title, callBack) {
             // reassign variables
             if (fields) for (var p = 0; p < fields.length; p++) {
                 var field = $.extend(true, {}, fields[p]);
-                if (field.name == null && field.field != null) field.name = field.field;
-                if (field.field == null && field.name != null) field.field = field.name;
+                if (field.field == null && field.name != null) {
+                    console.log('NOTICE: form field.name property is deprecated, please use field.field. Field ->', field);
+                    field.field = field.name;
+                }
                 object.fields[p] = field;
             }
             for (var p in record) { // it is an object
@@ -18996,7 +19308,7 @@ var w2prompt = function (label, title, callBack) {
             // render if not loaded from url
             if (object.formURL === '') {
                 if (String(object.formHTML).indexOf('w2ui-page') === -1) {
-                    object.formHTML = '<div class="w2ui-page page-0">'+ object.formHTML +'</div>';
+                    object.formHTML = '<div class="w2ui-page page-0" style="'+ (object.pageStyle || '') +'">'+ object.formHTML +'</div>';
                 }
                 $(object.box).html(object.formHTML);
                 object.isGenerated = true;
@@ -19028,6 +19340,7 @@ var w2prompt = function (label, title, callBack) {
         onProgress    : null,
         onSave        : null,
         onChange      : null,
+        onInput       : null,
         onRender      : null,
         onRefresh     : null,
         onResize      : null,
@@ -19038,19 +19351,19 @@ var w2prompt = function (label, title, callBack) {
 
         msgNotJSON    : 'Returned data is not in valid JSON format.',
         msgAJAXerror  : 'AJAX error. See console for more details.',
-        msgRefresh    : 'Refreshing...',
+        msgRefresh    : 'Loading...',
         msgSaving     : 'Saving...',
 
         get: function (field, returnIndex) {
             if (arguments.length === 0) {
                 var all = [];
                 for (var f1 = 0; f1 < this.fields.length; f1++) {
-                    if (this.fields[f1].name != null) all.push(this.fields[f1].name);
+                    if (this.fields[f1].field != null) all.push(this.fields[f1].field);
                 }
                 return all;
             } else {
                 for (var f2 = 0; f2 < this.fields.length; f2++) {
-                    if (this.fields[f2].name == field) {
+                    if (this.fields[f2].field == field) {
                         if (returnIndex === true) return f2; else return this.fields[f2];
                     }
                 }
@@ -19060,65 +19373,107 @@ var w2prompt = function (label, title, callBack) {
 
         set: function (field, obj) {
             for (var f = 0; f < this.fields.length; f++) {
-                if (this.fields[f].name == field) {
+                if (this.fields[f].field == field) {
                     $.extend(this.fields[f] , obj);
-                    this.refresh();
+                    this.refresh(field);
                     return true;
                 }
             }
             return false;
         },
 
+        getValue: function (field) {
+            if (this.nestedFields) {
+                var val = undefined;
+                try { // need this to make sure no error in fields
+                    var rec = this.record;
+                    val = String(field).split('.').reduce(function(rec, i) { return rec[i] }, rec)
+                } catch (event) {
+                }
+                return val;
+            } else {
+                return this.record[field];
+            }
+        },
+
+        setValue: function (field, value) {
+            if (this.nestedFields) {
+                try { // need this to make sure no error in fields
+                    var rec = this.record;
+                    String(field).split('.').map(function (fld, i, arr) {
+                        if (arr.length - 1 !== i) {
+                            if (rec[fld]) rec = rec[fld]; else { rec[fld] = {}; rec = rec[fld] }
+                        } else {
+                            rec[fld] = value;
+                        }
+                    });
+                    return true;
+                } catch (event) {
+                    return false;
+                }
+            } else {
+                this.record[field] = value;
+                return true;
+            }
+        },
+
         show: function () {
-            var affected = 0;
+            var affected = [];
             for (var a = 0; a < arguments.length; a++) {
                 var fld = this.get(arguments[a]);
                 if (fld && fld.hidden) {
                     fld.hidden = false;
-                    affected++;
+                    affected.push(fld.field);
                 }
             }
-            if (affected > 0) this.refresh();
-            return affected;
+            if (affected.length > 0) this.refresh.apply(this, affected);
+            return affected.length;
         },
 
         hide: function () {
-            var affected = 0;
+            var affected = [];
             for (var a = 0; a < arguments.length; a++) {
                 var fld = this.get(arguments[a]);
                 if (fld && !fld.hidden) {
                     fld.hidden = true;
-                    affected++;
+                    affected.push(fld.field);
                 }
             }
-            if (affected > 0) this.refresh();
-            return affected;
+            if (affected.length > 0) this.refresh.apply(this, affected);
+            return affected.length;
         },
 
         enable: function () {
-            var affected = 0;
+            var affected = [];
             for (var a = 0; a < arguments.length; a++) {
                 var fld = this.get(arguments[a]);
                 if (fld && fld.disabled) {
                     fld.disabled = false;
-                    affected++;
+                    affected.push(fld.field);
                 }
             }
-            if (affected > 0) this.refresh();
-            return affected;
+            if (affected.length > 0) this.refresh.apply(this, affected);
+            return affected.length;
         },
 
         disable: function () {
-            var affected = 0;
+            var affected = [];
             for (var a = 0; a < arguments.length; a++) {
                 var fld = this.get(arguments[a]);
                 if (fld && !fld.disabled) {
                     fld.disabled = true;
-                    affected++;
+                    affected.push(fld.field);
                 }
             }
-            if (affected > 0) this.refresh();
-            return affected;
+            if (affected.length > 0) this.refresh.apply(this, affected);
+            return affected.length;
+        },
+
+        change: function () {
+            Array.from(arguments).forEach(function(field) {
+                var tmp = this.get(field);
+                if (tmp.$el) tmp.$el.change();
+            }.bind(this));
         },
 
         reload: function (callBack) {
@@ -19133,10 +19488,21 @@ var w2prompt = function (label, title, callBack) {
         },
 
         clear: function () {
-            this.recid  = 0;
-            this.record = {};
+            if (arguments.length != 0) {
+                Array.from(arguments).forEach(function(field) {
+                    var rec = this.record
+                    String(field).split('.').map(function (fld, i, arr) {
+                        if (arr.length - 1 !== i) rec = rec[fld]; else delete rec[fld]
+                    })
+                    this.refresh(field);
+                }.bind(this));
+            } else {
+                this.recid    = 0;
+                this.record   = {};
+                this.original = null;
+                this.refresh();
+            }
             $().w2tag();
-            this.refresh();
         },
 
         error: function (msg) {
@@ -19186,42 +19552,43 @@ var w2prompt = function (label, title, callBack) {
                 var edata = this.trigger({ phase: 'before', target: field, type: 'validatefield', errors: errors});
                 if (edata.isCancelled === true) continue;
 
-                if (this.record[field.name] == null) this.record[field.name] = '';
+                if (this.getValue(field.field) == null) this.setValue(field.field, '');
+
                 switch (field.type) {
                     case 'int':
-                        if (this.record[field.name] && !w2utils.isInt(this.record[field.name])) {
+                        if (this.getValue(field.field) && !w2utils.isInt(this.getValue(field.field))) {
                             errors.push({ field: field, error: w2utils.lang('Not an integer') });
                         }
                         break;
                     case 'float':
-                        if (this.record[field.name] && !w2utils.isFloat(this.record[field.name])) {
+                        if (this.getValue(field.field) && !w2utils.isFloat(this.getValue(field.field))) {
                             errors.push({ field: field, error: w2utils.lang('Not a float') });
                         }
                         break;
                     case 'money':
-                        if (this.record[field.name] && typeof this.record[field.name] === 'string' && !w2utils.isMoney(this.record[field.name])) {  //Money can be stored as integer
+                        if (this.getValue(field.field) && typeof this.getValue(field.field) === 'string' && !w2utils.isMoney(this.getValue(field.field))) { //Money can be stored as integer
                             errors.push({ field: field, error: w2utils.lang('Not in money format') });
                         }
                         break;
                     case 'color':
                     case 'hex':
-                        if (this.record[field.name] && !w2utils.isHex(this.record[field.name])) {
+                        if (this.getValue(field.field) && !w2utils.isHex(this.getValue(field.field))) {
                             errors.push({ field: field, error: w2utils.lang('Not a hex number') });
                         }
                         break;
                     case 'email':
-                        if (this.record[field.name] && !w2utils.isEmail(this.record[field.name])) {
+                        if (this.getValue(field.field) && !w2utils.isEmail(this.getValue(field.field))) {
                             errors.push({ field: field, error: w2utils.lang('Not a valid email') });
                         }
                         break;
                     case 'checkbox':
                         // convert true/false
-                        if (this.record[field.name] == true) this.record[field.name] = 1; else this.record[field.name] = 0;
+                        if (this.getValue(field.field) == true) this.setValue(field.field, 1); else this.setValue(field.field, 0);
                         break;
                     case 'date':
                         // format date before submit
                         if (!field.options.format) field.options.format = w2utils.settings.dateFormat;
-                        if (this.record[field.name] && !w2utils.isDate(this.record[field.name], field.options.format)) {
+                        if (this.getValue(field.field) && !w2utils.isDate(this.getValue(field.field), field.options.format)) {
                             errors.push({ field: field, error: w2utils.lang('Not a valid date') + ': ' + field.options.format });
                         }
                         break;
@@ -19232,12 +19599,15 @@ var w2prompt = function (label, title, callBack) {
                         break;
                 }
                 // === check required - if field is '0' it should be considered not empty
-                var val = this.record[field.name];
-                if (field.required && (val === '' || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val)))) {
+                var val = this.getValue(field.field);
+                if (field.required && field.hidden !== true
+                        && (val === '' || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val)))) {
                     errors.push({ field: field, error: w2utils.lang('Required field') });
                 }
-                if (field.equalto && this.record[field.name] != this.record[field.equalto]) {
-                    errors.push({ field: field, error: w2utils.lang('Field should be equal to ') + field.equalto });
+                if (field.options && field.hidden !== true && field.options.minLength > 0
+                        && ['enum', 'list', 'combo'].indexOf(field.type) == -1 // since minLength is used there too
+                        && this.getValue(field.field).length < field.options.minLength) {
+                    errors.push({ field: field, error: w2utils.lang('Field should be at least '+ field.options.minLength +' characters.') });
                 }
 
                 this.trigger($.extend(edata, { phase: 'after'}));
@@ -19252,7 +19622,7 @@ var w2prompt = function (label, title, callBack) {
                     var opt = $.extend({ "class": 'w2ui-error' }, err.options);
                     if (err.field == null) continue;
                     if (err.field.type === 'radio') { // for radio and checkboxes
-                        $($(err.field.el).parents('div')[0]).w2tag(err.error, opt);
+                        $($(err.field.el).closest('div')[0]).w2tag(err.error, opt);
                     } else if (['enum', 'file'].indexOf(err.field.type) !== -1) {
                         (function (err) {
                             setTimeout(function () {
@@ -19273,18 +19643,55 @@ var w2prompt = function (label, title, callBack) {
         },
 
         getChanges: function () {
-            var differ = function(record, original, result) {
+            var diff = {};
+            if (this.original != null && typeof this.original == 'object' && !$.isEmptyObject(this.record)) {
+                diff = doDiff(this.record, this.original, {});
+            }
+            return diff;
+
+            function doDiff(record, original, result) {
                 for (var i in record) {
                     if (typeof record[i] === "object") {
-                        result[i] = differ(record[i], original[i] || {}, {});
+                        result[i] = doDiff(record[i], original[i] || {}, {});
                         if (!result[i] || $.isEmptyObject(result[i])) delete result[i];
                     } else if (record[i] != original[i]) {
                         result[i] = record[i];
                     }
                 }
                 return result;
-            };
-            return differ(this.record, this.original, {});
+            }
+        },
+
+        getCleanRecord: function (strict) {
+            var data = $.extend(true, {}, this.record);
+            this.fields.forEach(function (fld) {
+                if (['list', 'combo', 'enum'].indexOf(fld.type) != -1) {
+                    var tmp = { nestedFields: true, record: data };
+                    var val = this.getValue.call(tmp, fld.field);
+                    if ($.isPlainObject(val) && val.id) {
+                        this.setValue.call(tmp, fld.field, val.id)
+                    }
+                    if (Array.isArray(val)) {
+                        val.forEach(function (item, ind) {
+                            if ($.isPlainObject(item) && item.id) {
+                                val[ind] = item.id;
+                            }
+                        })
+                    }
+                }
+                if (fld.type == 'map') {
+                    var tmp = { nestedFields: true, record: data };
+                    var val = this.getValue.call(tmp, fld.field);
+                    if (val._order) delete val._order
+                }
+            }.bind(this))
+            // return only records presend in description
+            if (strict === true) {
+                Object.keys(data).forEach(function (key) {
+                    if (!this.get(key)) delete data[key]
+                }.bind(this));
+            }
+            return data;
         },
 
         request: function (postData, callBack) { // if (1) param then it is call back if (2) then postData and callBack
@@ -19311,7 +19718,7 @@ var w2prompt = function (label, title, callBack) {
             if (edata.isCancelled === true) { if (typeof callBack === 'function') callBack({ status: 'error', message: 'Request aborted.' }); return; }
             // default action
             this.record   = {};
-            this.original = {};
+            this.original = null;
             // call server to get data
             this.lock(w2utils.lang(this.msgRefresh));
             var url = edata.url;
@@ -19334,7 +19741,9 @@ var w2prompt = function (label, title, callBack) {
                 headers  : edata.httpHeaders,
                 dataType : 'text'   // expected from server
             }
-            switch (w2utils.settings.dataType) {
+            var dataType = obj.dataType || w2utils.settings.dataType;
+            if (edata.dataType) dataType = edata.dataType;
+            switch (dataType) {
                 case 'HTTP':
                     ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
                     break
@@ -19357,18 +19766,13 @@ var w2prompt = function (label, title, callBack) {
                     break;
             }
             if (this.method) ajaxOptions.type = this.method;
+            if (edata.method) ajaxOptions.type = edata.method;
             this.last.xhr = $.ajax(ajaxOptions)
                 .done(function (data, status, xhr) {
                     obj.unlock();
-                    // event before
-                    var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'load', xhr: xhr });
-                    if (edata.isCancelled === true) {
-                        if (typeof callBack === 'function') callBack({ status: 'error', message: 'Request aborted.' });
-                        return;
-                    }
-                    // parse server response
+                    // prepare record
                     var data;
-                    var responseText = obj.last.xhr.responseText;
+                    var responseText = xhr.responseText;
                     if (status !== 'error') {
                         // default action
                         if (responseText != null && responseText !== '') {
@@ -19386,18 +19790,27 @@ var w2prompt = function (label, title, callBack) {
                                     status       : 'error',
                                     message      : w2utils.lang(obj.msgNotJSON),
                                     responseText : responseText
-                                };
+                                }
                             }
-                            if (data.status === 'error') {
-                                obj.error(w2utils.lang(data['message']));
-                            } else {
-                                obj.record   = $.extend({}, data.record);
-                                obj.original = $.extend({}, data.record);
-                            }
+                        }
+                    }
+                    // event before
+                    var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'load', data: data, xhr: xhr });
+                    if (edata.isCancelled === true) {
+                        if (typeof callBack === 'function') callBack({ status: 'error', message: 'Request aborted.' });
+                        return;
+                    }
+                    // parse server response
+                    if (status !== 'error') {
+                        // default action
+                        if (edata.data.status === 'error') {
+                            obj.error(w2utils.lang(edata.data['message']));
+                        } else {
+                            obj.record = $.extend({}, edata.data.record);
                         }
                     } else {
                         obj.error('AJAX Error ' + xhr.status + ': '+ xhr.statusText);
-                        data = {
+                        edata.data = {
                             status       : 'error',
                             message      : w2utils.lang(obj.msgAJAXerror),
                             responseText : responseText
@@ -19406,8 +19819,9 @@ var w2prompt = function (label, title, callBack) {
                     // event after
                     obj.trigger($.extend(edata, { phase: 'after' }));
                     obj.refresh();
+                    obj.applyFocus();
                     // call back
-                    if (typeof callBack === 'function') callBack(data);
+                    if (typeof callBack === 'function') callBack(edata.data);
                 })
                 .fail(function (xhr, status, error) {
                     // trigger event
@@ -19422,6 +19836,7 @@ var w2prompt = function (label, title, callBack) {
                             '\n   EXPECTED:', { status: 'success', items: [{ id: 1, text: 'item' }] },
                             '\n         OR:', { status: 'error', message: 'error message' },
                             '\n   RECEIVED:', typeof data === 'object' ? data : xhr.responseText);
+                        obj.unlock();
                     }
                     // event after
                     obj.trigger($.extend(edata2, { phase: 'after' }));
@@ -19466,8 +19881,8 @@ var w2prompt = function (label, title, callBack) {
                 // clear up files
                 if (!obj.multipart)
                         obj.fields.forEach(function (item) {
-                            if (item.type === 'file' && Array.isArray(obj.record[item.field])) {
-                                obj.record[item.field].forEach(function (fitem) {
+                            if (item.type === 'file' && Array.isArray(obj.getValue(item.field))) {
+                                obj.getValue(item.field).forEach(function (fitem) {
                                     delete fitem.file;
                                 });
                             }
@@ -19503,9 +19918,11 @@ var w2prompt = function (label, title, callBack) {
                             if (evt.lengthComputable) {
                                 var edata3 = obj.trigger({ phase: 'before', type: 'progress', total: evt.total, loaded: evt.loaded, originalEvent: evt });
                                 if (edata3.isCancelled === true) return;
-                                // default behavior
+                                // only show % if it takes time
                                 var percent = Math.round(evt.loaded / evt.total * 100);
-                                $('#'+ obj.name + '_progress').text(''+ percent + '%');
+                                if ((percent && percent != 100) || $('#'+ obj.name + '_progress').text() != '') {
+                                    $('#'+ obj.name + '_progress').text(''+ percent + '%');
+                                }
                                 // event after
                                 obj.trigger($.extend(edata3, { phase: 'after' }));
                             }
@@ -19513,7 +19930,9 @@ var w2prompt = function (label, title, callBack) {
                         return xhr;
                     }
                 };
-                switch (w2utils.settings.dataType) {
+                var dataType = obj.dataType || w2utils.settings.dataType;
+                if (edata.dataType) dataType = edata.dataType;
+                switch (dataType) {
                     case 'HTTP':
                         ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']');
                         break;
@@ -19566,6 +19985,7 @@ var w2prompt = function (label, title, callBack) {
                         break;
                 }
                 if (this.method) ajaxOptions.type = this.method;
+                if (edata.method) ajaxOptions.type = edata.method;
                 obj.last.xhr = $.ajax(ajaxOptions)
                     .done(function (data, status, xhr) {
                         obj.unlock();
@@ -19597,7 +20017,7 @@ var w2prompt = function (label, title, callBack) {
                                 if (data.status === 'error') {
                                     obj.error(w2utils.lang(data.message));
                                 } else {
-                                    obj.original = $.extend({}, obj.record);
+                                    obj.original = null;
                                 }
                             }
                         } else {
@@ -19612,7 +20032,7 @@ var w2prompt = function (label, title, callBack) {
                         obj.trigger($.extend(edata, { phase: 'after' }));
                         obj.refresh();
                         // call back
-                        if (data.status === 'success' && typeof callBack === 'function') callBack(data);
+                        if (typeof callBack === 'function') callBack(data, xhr);
                     })
                     .fail(function (xhr, status, error) {
                         // trigger event
@@ -19623,6 +20043,7 @@ var w2prompt = function (label, title, callBack) {
                         console.log('ERROR: server communication failed. The server should return',
                             { status: 'success' }, 'OR', { status: 'error', message: 'error message' },
                             ', instead the AJAX request produced this: ', errorObj);
+                        obj.unlock();
                         // event after
                         obj.trigger($.extend(edata2, { phase: 'after' }));
                     });
@@ -19688,29 +20109,36 @@ var w2prompt = function (label, title, callBack) {
                 var field = this.fields[f];
                 if (field.html == null) field.html = {};
                 if (field.options == null) field.options = {};
-                field.html = $.extend(true, { 
-                    caption: '', 
-                    span: 6, 
-                    attr: '', 
-                    text: '', 
-                    style: '', 
-                    page: 0, 
-                    column: 0,
-                    row: 0  //columns are now in rows, you can use table layout in generated forms
-                }, field.html);
+                if (field.html.caption != null && field.html.label == null) {
+                    console.log('NOTICE: form field.html.caption property is deprecated, please use field.html.label. Field ->', field)
+                    field.html.label = field.html.caption;
+                }
+                if (field.html.label == null) field.html.label = field.field;
+                field.html = $.extend(true, {
+					label: '',
+					span: 6,
+					attr: '',
+					text: '',
+					style: '',
+					page: 0,
+					column: 0,
+					row: 0  //columns are now in rows, you can use table layout in generated forms
+				}, field.html);
                 if (page == null) page = field.html.page;
                 if (column == null) column = field.html.column;
-                if (row == null) row = field.html.row;
-                if (field.html.caption === '') field.html.caption = field.name;
+				if (row == null) row = field.html.row;
                 // input control
-                var input = '<input name="'+ field.name +'" class="w2ui-input" type="text" '+ field.html.attr + tabindex_str + '/>';
+                var input = '<input id="'+ field.field +'" name="'+ field.field +'" class="w2ui-input" type="text" '+ field.html.attr + tabindex_str + '>';
                 switch (field.type) {
                     case 'pass':
                     case 'password':
-                        input = '<input name="' + field.name + '" class="w2ui-input" type = "password" ' + field.html.attr + tabindex_str + '/>';
+                        input = '<input id="' + field.field + '" name="' + field.field + '" class="w2ui-input" type = "password" ' + field.html.attr + tabindex_str + '>';
                         break;
                     case 'checkbox':
-                        input = '<input name="'+ field.name +'" class="w2ui-input" type="checkbox" '+ field.html.attr + tabindex_str + '/>';
+                        input = '<label>'+
+                                '   <input id="'+ field.field +'" name="'+ field.field +'" style="float: left" class="w2ui-input" type="checkbox" '+ field.html.attr + tabindex_str + '>'+
+                                '   <div style="margin: 6px 0 0 20px; user-select: none;">'+ field.html.label +'</div>'+
+                                '</label>';
                         break;
                     case 'radio':
                         input = '';
@@ -19718,22 +20146,24 @@ var w2prompt = function (label, title, callBack) {
                         var items =  field.options.items ? field.options.items : field.html.items;
                         if (!$.isArray(items)) items = [];
                         if (items.length > 0) {
-                            items = w2obj.field.prototype.normMenu(items);
+                            items = w2obj.field.prototype.normMenu.call(this, items, field);
                         }
                         // generate
                         for (var i = 0; i < items.length; i++) {
-                            input += '<label><input name="' + field.name + '" class="w2ui-input" type = "radio" ' + field.html.attr + (i === 0 ? tabindex_str : '') + ' value="'+ items[i].id + '"/>' +
-                                '&#160;' + items[i].text + '</label> ';
-							if (field.options.multiline) input+='<br/>';	
+                            input += '<label style="user-select: none">'+
+                                     '  <input id="' + field.field + '" name="' + field.field + '" class="w2ui-input" type = "radio" ' + field.html.attr + (i === 0 ? tabindex_str : '') + ' value="'+ items[i].id + '">' +
+                                        '&#160;' + items[i].text +
+                                     '</label>';
+							 if (field.options.multiline) input+='<br/>';
                         }
                         break;
                     case 'select':
-                        input = '<select name="' + field.name + '" class="w2ui-input" ' + field.html.attr + tabindex_str + '>';
+                        input = '<select id="' + field.field + '" name="' + field.field + '" class="w2ui-input" ' + field.html.attr + tabindex_str + '>';
                         // normalized options
                         var items =  field.options.items ? field.options.items : field.html.items;
                         if (!$.isArray(items)) items = [];
                         if (items.length > 0) {
-                            items = w2obj.field.prototype.normMenu(items);
+                            items = w2obj.field.prototype.normMenu.call(this, items, field);
                         }
                         // generate
                         for (var i = 0; i < items.length; i++) {
@@ -19742,15 +20172,23 @@ var w2prompt = function (label, title, callBack) {
                         input += '</select>';
                         break;
                     case 'textarea':
-                        input = '<textarea name="'+ field.name +'" class="w2ui-input" '+ field.html.attr + tabindex_str + '></textarea>';
+                        input = '<textarea id="'+ field.field +'" name="'+ field.field +'" class="w2ui-input" '+ field.html.attr + tabindex_str + '></textarea>';
                         break;
                     case 'toggle':
-                        input = '<input name="'+ field.name +'" type="checkbox" '+ field.html.attr + tabindex_str + ' class="w2ui-input w2ui-toggle"/><div><div></div></div>';
+                        input = '<input id="'+ field.field +'" name="'+ field.field +'" type="checkbox" '+ field.html.attr + tabindex_str + ' class="w2ui-input w2ui-toggle"><div><div></div></div>';
+                        break;
+                    case 'map':
+                    case 'array':
+                        field.html.key = field.html.key || {};
+                        field.html.value = field.html.value || {};
+                        input = '<span style="float: right">' + (field.html.text || '') + '</span>' +
+                                '<input id="'+ field.field +'" name="'+ field.field +'" type="hidden" '+ field.html.attr + tabindex_str + '>'+
+                                '<div class="w2ui-map-container"></div>';
                         break;
                     case 'html':
                     case 'custom':
                     case 'empty':
-                        input = '';
+                        input = (field && field.html && field.html.html ? field.html.html : '');
                         break;
 
                 }
@@ -19762,17 +20200,39 @@ var w2prompt = function (label, title, callBack) {
                     }
                 }
                 if (field.html.group && (group != field.html.group)) {
-                    html += '\n   <div class="w2ui-group-title' + ( field.html.groupClass ? ' w2ui-group-title-' + field.html.groupClass : '' ) + '">'+ field.html.group + '</div>\n   <div class="w2ui-group' + ( field.html.groupClass ? ' w2ui-group-' + field.html.groupClass : '' ) + '">';
+                    var collapsable = '';
+                    if (field.html.groupCollapsable) {
+                        collapsable = '<span class="w2ui-icon-expand" style="width: 15px; display: inline-block; position: relative; top: -2px;"></span>'
+                    }
+                    html += '\n   <div class="w2ui-group-title' + ( field.html.groupClass ? ' w2ui-group-title-' + field.html.groupClass : '' ) + '" '
+                        + (collapsable != '' ? 'data-group="' + w2utils.base64encode(field.html.group) + '"' : '')
+                        + (collapsable != '' ? 'style="cursor: pointer"' : '')
+                        + (collapsable != ''
+                            ? 'onclick="w2ui[\'' + this.name + '\'].toggleGroup(\'' + field.html.group + '\')"'
+                            : '')
+                        + '>'
+                        + collapsable + field.html.group + '</div>\n'
+                        + '   <div class="w2ui-group' + ( field.html.groupClass ? ' w2ui-group-' + field.html.groupClass : '' ) + '" style="'+ (field.html.groupStyle || '') +'">';
                     group = field.html.group;
                 }
-                html += '\n      <div class="w2ui-field-container"><div class="w2ui-field '+ (field.html.span != null ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+
-                        '\n         <label>' + w2utils.lang(field.html.caption) +'</label>'+
-                        ((field.type === 'empty') ? '' : '\n         <div>'+ input + w2utils.lang(field.html.text) + '</div>') +
-                        '\n      </div></div>';
-                if (pages[field.html.page] == null) pages[field.html.page] = [];
-                if (pages[field.html.page][field.html.row] == null) pages[field.html.page][field.html.row] = [];
+                if (field.html.anchor == null) {
+                    var span = (field.html.span != null ? 'w2ui-span'+ field.html.span : '')
+                    if (field.html.span == -1) span = 'w2ui-span-none';
+                    html += '\n      <div class="w2ui-field '+ span +'" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style  +'">'+
+                            '\n         <label'+ (span == 'none' ? ' style="display: none"' : '') +'>' + w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text) +'</label>'+
+                            ((field.type === 'empty') ? '' : '\n         <div>'+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '') : '') + '</div>') +
+                            '\n      </div>';
+                } else {
+                    pages[field.html.page].anchors = pages[field.html.page].anchors || {};
+                    pages[field.html.page].anchors[field.html.anchor] = '<div class="w2ui-field w2ui-field-inline" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
+                            ((field.type === 'empty') ? '' : '<div>'+ w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text) + input + w2utils.lang(field.type != 'checkbox' ? field.html.text : '') + '</div>') +
+                            '</div>';
+                }
+                
+				if (pages[field.html.page] == null) pages[field.html.page] = {};
+				if (pages[field.html.page][field.html.row] == null) pages[field.html.page][field.html.row] = [];				
                 if (pages[field.html.page][field.html.row][field.html.column] == null) pages[field.html.page][field.html.row][field.html.column] = '';
-                pages[field.html.page][field.html.row][field.html.column] += html;
+                pages[field.html.page][field.html.column] += html;
                 page = field.html.page;
                 column = field.html.column;
             }
@@ -19785,36 +20245,77 @@ var w2prompt = function (label, title, callBack) {
             if (!$.isEmptyObject(this.actions)) {
                 var addClass = '';
                 buttons += '\n<div class="w2ui-buttons">';
+                tabindex = this.tabindexBase + this.fields.length + 1;
+
                 for (var a in this.actions) { // it is an object
                     var act  = this.actions[a];
-                    var info = { caption: '', style: '', "class": '' };
+                    var info = { text: '', style: '', "class": '' };
                     if ($.isPlainObject(act)) {
-                        if (act.caption) info.caption = act.caption;
+                        if (act.text == null && act.caption != null) {
+                            console.log('NOTICE: form action.caption property is deprecated, please use action.text. Action ->', act);
+                            act.text = act.caption;
+                        }
+                        if (act.text) info.text = act.text;
                         if (act.style) info.style = act.style;
                         if (act["class"]) info['class'] = act['class'];
                     } else {
-                        info.caption = a;
+                        info.text = a;
                         if (['save', 'update', 'create'].indexOf(a.toLowerCase()) !== -1) info['class'] = 'w2ui-btn-blue'; else info['class'] = '';
                     }
-                    buttons += '\n    <button name="'+ a +'" class="w2ui-btn '+ info['class'] +'" style="'+ info.style +'">'+
-                                            w2utils.lang(info.caption) +'</button>';
+                    buttons += '\n    <button name="'+ a +'" class="w2ui-btn '+ info['class'] +'" style="'+ info.style +'" tabindex="'+ tabindex +'">'+
+                                            w2utils.lang(info.text) +'</button>';
+                    tabindex++;
                 }
                 buttons += '\n</div>';
             }
             html = '';
             for (var p = 0; p < pages.length; p++){
-                html += '<div class="w2ui-page page-'+ p +'" ' + ((p===0)?'':'style="display: none;"') + '><div class="w2ui-column-container" style="display: flex;">';
-                for (var r = 0; r < pages[p].length; r++){
-                    html+='<div class="w2ui-row row-'+r+'">\n';
-                    for (var c = 0; c < pages[p][r].length; c++){
-                        html += '<div class="w2ui-column col-'+ c +'"><div class="w2ui-field-group">' + (pages[p][r][c] || '') + '\n</div></div>';
-                    }
-                    html+='\n</div>';
+                html += '<div class="w2ui-page page-'+ p +'" style="' + (p !== 0 ? 'display: none;' : '') + this.pageStyle + '">';
+                if (pages[p].before) {
+                    html += pages[p].before;
                 }
-                html += '\n</div></div>';
+                html += '<div class="w2ui-column-container" style="display: flex;">';
+				for (var r = 0; r < pages[p].length; r++) {
+					html+='<div class="w2ui-row row-'+r+'">\n';
+					Object.keys(pages[p]).sort().forEach(function (c, ind) {
+						if (c == parseInt(c)) {
+							html += '<div class="w2ui-column col-'+ c +'">' + (pages[p][r][c] || '') + '\n</div>';
+						}
+					})
+					html += '\n</div>';
+				}
+				html += '\n</div>';
+                if (pages[p].after) {
+                    html += pages[p].after;
+                }
+                html += '\n</div>';
+                // process page anchors
+                if (pages[p].anchors) {
+                    Object.keys(pages[p].anchors).forEach(function (key, ind) {
+                        html = html.replace(key, pages[p].anchors[key]);
+                    });
+                }
             }
             html += buttons;
             return html;
+        },
+
+        toggleGroup: function (groupName, show) {
+            var el = $(this.box).find('.w2ui-group-title[data-group="' + w2utils.base64encode(groupName) + '"]')
+            if (el.next().css('display') == 'none' && show !== true) {
+                el.next().slideDown(300);
+                el.next().next().remove()
+                el.find('span').addClass('w2ui-icon-collapse').removeClass('w2ui-icon-expand');
+            } else {
+                el.next().slideUp(300);
+                var css = 'width: ' + el.next().css('width') + ';'
+                   + 'padding-left: ' + el.next().css('padding-left') + ';'
+                   + 'padding-right: ' + el.next().css('padding-right') + ';'
+                   + 'margin-left: ' + el.next().css('margin-left') + ';'
+                   + 'margin-right: ' + el.next().css('margin-right') + ';'
+                setTimeout(function () { el.next().after('<div style="height: 5px;'+ css +'"></div>') }, 100)
+                el.find('span').addClass('w2ui-icon-expand').removeClass('w2ui-icon-collapse');
+            }
         },
 
         action: function (action, event) {
@@ -19878,17 +20379,24 @@ var w2prompt = function (label, title, callBack) {
             }
         },
 
-        refresh: function (field) {
+        refresh: function () {
             var time = (new Date()).getTime();
             var obj = this;
             if (!this.box) return;
             if (!this.isGenerated || $(this.box).html() == null) return;
             // event before
-            var edata = this.trigger({ phase: 'before', target: this.name, type: 'refresh', page: this.page, field: field });
+            var edata = this.trigger({ phase: 'before', target: this.name, type: 'refresh', page: this.page, field: field, fields: arguments });
             if (edata.isCancelled === true) return;
-            if (field != null) {
-                var from_field = obj.get(field, true);
-                var to_field = from_field + 1;
+            var fields = Array.from(this.fields.keys());
+            if (arguments.length > 0) {
+                fields = Array.from(arguments)
+                    .map(function (fld, ind) {
+                        if (typeof fld != 'string') console.log('ERROR: Arguments in refresh functions should be field names')
+                        return this.get(fld, true); // get index of field
+                    }.bind(this))
+                    .filter(function (fld, ind) {
+                        if (fld != null) return true; else return false;
+                    });
             } else {
                 // update what page field belongs
                 $(this.box).find('input, textarea, select').each(function (index, el) {
@@ -19896,7 +20404,7 @@ var w2prompt = function (label, title, callBack) {
                     var field = obj.get(name);
                     if (field) {
                         // find page
-                        var div = $(el).parents('.w2ui-page');
+                        var div = $(el).closest('.w2ui-page');
                         if (div.length > 0) {
                             for (var i = 0; i < 100; i++) {
                                 if (div.hasClass('page-'+i)) { field.page = i; break; }
@@ -19923,20 +20431,14 @@ var w2prompt = function (label, title, callBack) {
                 } else {
                     $('#form_'+ this.name +'_toolbar').hide();
                 }
-                var from_field = 0;
-                var to_field = this.fields.length;
             }
             // refresh values of fields
-            for (var f = from_field; f < to_field; f++) {
-                var field = this.fields[f];
+            for (var f = 0; f < fields.length; f++) {
+                var field = this.fields[fields[f]];
                 if (field.name == null && field.field != null) field.name = field.field;
                 if (field.field == null && field.name != null) field.field = field.name;
                 field.$el = $(this.box).find('[name="'+ String(field.name).replace(/\\/g, '\\\\') +'"]');
                 field.el  = field.$el[0];
-                if (field.el == null) {
-                    if (field.type !== 'empty') console.log('ERROR: Cannot associate field "'+ field.name + '" with html control. Make sure html control exists with the same name.');
-                    continue;
-                }
                 if (field.el) field.el.id = field.name;
                 var tmp = $(field).data('w2field');
                 if (tmp) tmp.clear();
@@ -19950,62 +20452,98 @@ var w2prompt = function (label, title, callBack) {
                         if ($.isArray(nv)) {
                             value_new = [];
                             for (var i = 0; i < nv.length; i++) value_new[i] = $.extend(true, {}, nv[i]); // clone array
-                        }
-                        if ($.isPlainObject(nv)) {
-                            value_new = $.extend(true, {}, nv); // clone object
-                        }
-                        if ($.isArray(cv)) {
-                            value_previous = [];
-                            for (var i = 0; i < cv.length; i++) value_previous[i] = $.extend(true, {}, cv[i]); // clone array
-                        }
-                        if ($.isPlainObject(cv)) {
-                            value_previous = $.extend(true, {}, cv); // clone object
-                        }
-                    }
-                    if (['toggle', 'checkbox'].indexOf(field.type) !== -1) {
-                        value_new = ($(this).prop('checked') ? ($(this).prop('value') === 'on' ? true : $(this).prop('value')) : false);
-                    }
-                    // clean extra chars
-                    if (['int', 'float', 'percent', 'money', 'currency'].indexOf(field.type) !== -1) {
-                        value_new = $(this).data('w2field').clean(value_new);
-                    }                    
-                    if ($.isPlainObject(value_new) && $.isPlainObject(value_previous) && (JSON.stringify(value_new) === JSON.stringify(value_previous))) return;
-                    else if (value_new === value_previous) return;
-                    // event before
-                    var edata2 = obj.trigger({ phase: 'before', target: this.name, type: 'change', value_new: value_new, value_previous: value_previous });
-                    if (edata2.isCancelled === true) {
-                        $(this).val(obj.record[this.name]); // return previous value
-                        return;
-                    }
-                    // default action
-                    var val = this.value;
-                    if (this.type === 'select')   val = this.value;
-                    if (this.type === 'checkbox') val = this.checked ? true : false;
-                    if (this.type === 'radio') {
-                        field.$el.each(function (index, el) {
-                            if (el.checked) {
-                                var item = field.options.items.find(function(item){return item.id==el.value});
-                                if (item && item.id!=item.text) val = item;
-                                else val = el.value;
+                $(field.$el)
+                    .off('.w2form')
+                    .on('change.w2form', function (event) {
+                        var value_new      = this.value;
+                        var value_previous = obj.getValue(this.name) != null ? obj.getValue(this.name) : '';
+                        var field          = obj.get(this.name);
+						if ((['enum', 'file'].indexOf(field.type) != -1) || (['list', 'combo'].indexOf(field.type) != -1 && $(this).data('selected').text == value_new)) {
+                        //if (['list', 'enum', 'file'].indexOf(field.type) !== -1 && $(this).data('selected')) {
+                            var nv = $(this).data('selected');
+                            var cv = obj.getValue(this.name);
+                            if ($.isArray(nv)) {
+                                value_new = [];
+                                for (var i = 0; i < nv.length; i++) value_new[i] = $.extend(true, {}, nv[i]); // clone array
                             }
-                        });
-                    }
-                    if (['int', 'float', 'percent', 'money', 'currency', 'list', 'combo', 'enum', 'file', 'toggle'].indexOf(field.type) !== -1) {
-                        val = value_new;
-                    }
-                    if (['enum', 'file'].indexOf(field.type) !== -1) {
-                        if (val.length > 0) {
-                            var fld = $(field.el).data('w2field').helpers.multi;
-                            $(fld).removeClass('w2ui-error');
+                            if ($.isPlainObject(nv)) {
+                                value_new = $.extend(true, {}, nv); // clone object
+                            }
+                            if ($.isArray(cv)) {
+                                value_previous = [];
+                                for (var i = 0; i < cv.length; i++) value_previous[i] = $.extend(true, {}, cv[i]); // clone array
+                            }
+                            if ($.isPlainObject(cv)) {
+                                value_previous = $.extend(true, {}, cv); // clone object
+                            }
                         }
-                    }
-                    if (val === '' || val == null || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) {
-                        val = null;
-                    }
-                    obj.record[this.name] = val;
-                    // event after
-                    obj.trigger($.extend(edata2, { phase: 'after' }));
-                });
+                        if (['toggle', 'checkbox'].indexOf(field.type) !== -1) {
+                            value_new = ($(this).prop('checked') ? ($(this).prop('value') === 'on' ? true : $(this).prop('value')) : false);
+                        }
+                        // clean extra chars
+                        if (['int', 'float', 'percent', 'money', 'currency'].indexOf(field.type) !== -1) {
+                            value_new = $(this).data('w2field').clean(value_new);
+                        }
+						
+						//TODO: JSON.stringify > deepdiff
+						if ($.isPlainObject(value_new) && $.isPlainObject(value_previous) && (JSON.stringify(value_new) === JSON.stringify(value_previous))) return;
+						else if (value_new === value_previous) return;
+
+                        // event before
+                        var edata2 = obj.trigger({ phase: 'before', target: this.name, type: 'change', value_new: value_new, value_previous: value_previous, originalEvent: event });
+                        if (edata2.isCancelled === true) {
+                            $(this).val(obj.getValue(this.name)); // return previous value
+                            return;
+                        }
+                        // default action
+                        var val = this.value;
+                        if (this.type === 'select')   val = this.value;
+                        if (this.type === 'checkbox') val = this.checked ? true : false;
+                        if (this.type === 'radio') {
+                            field.$el.each(function (index, el) {
+                                if (el.checked) {
+									var item = field.options.items.find( function( item ){ return item.id == el.value } );
+									if ( item && item.id != item.text ) val = item;
+									else val = el.value;
+								}
+                            });
+                        }
+                        if (['int', 'float', 'percent', 'money', 'currency', 'list', 'combo', 'enum', 'file', 'toggle'].indexOf(field.type) !== -1) {
+                            val = value_new;
+                        }
+                        if (['enum', 'file'].indexOf(field.type) !== -1) {
+                            if (val.length > 0) {
+                                var fld = $(field.el).data('w2field').helpers.multi;
+                                $(fld).removeClass('w2ui-error');
+                            }
+                        }
+                        if (val === '' || val == null || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) {
+                            val = null;
+                        }
+                        obj.setValue(this.name, val);
+                        // event after
+                        obj.trigger($.extend(edata2, { phase: 'after' }));
+                    })
+                    .on('input.w2form', function (event) {
+                        var val = this.value;
+                        if (event.target.type == 'checkbox') {
+                            val = event.target.checked;
+                        }
+                        // remember original
+                        if (obj.original == null) {
+                            if (!$.isEmptyObject(obj.record)) {
+                                obj.original = $.extend(true, {}, obj.record);
+                            } else {
+                                obj.original = {};
+                            }
+                        }
+                        // event before
+                        var edata2 = obj.trigger({ phase: 'before', target: this.name, type: 'input', value_new: val, originalEvent: event });
+                        if (edata2.isCancelled === true) return;
+
+                        // event after
+                        obj.trigger($.extend(edata2, { phase: 'after' }));
+                    });
                 // required
                 if (field.required) {
                     $(field.el).parent().parent().addClass('w2ui-required');
@@ -20014,17 +20552,31 @@ var w2prompt = function (label, title, callBack) {
                 }
                 // disabled
                 if (field.disabled != null) {
+                    var $fld = $(field.el);
                     if (field.disabled) {
-                        $(field.el).prop('readonly', true);
+                        if ($fld.data('w2ui-tabIndex') == null) {
+                            $fld.data('w2ui-tabIndex', $fld.prop('tabIndex'));
+                        }
+                        $(field.el)
+                            .prop('readonly', true)
+                            .prop('tabindex', -1)
+                            .closest('.w2ui-field')
+                            .addClass('w2ui-disabled');
                     } else {
-                        $(field.el).prop('readonly', false);
+                        $(field.el)
+                            .prop('readonly', false)
+                            .prop('tabIndex', $fld.data('w2ui-tabIndex'))
+                            .closest('.w2ui-field')
+                            .removeClass('w2ui-disabled');
                     }
                 }
                 // hidden
+                var tmp = field.el;
+                if (!tmp) tmp = $(this.box).find('#' + field.field)
                 if (field.hidden) {
-                    $(field.el).parents('.w2ui-field').hide();
+                    $(tmp).closest('.w2ui-field').hide();
                 } else {
-                    $(field.el).parents('.w2ui-field').show();
+                    $(tmp).closest('.w2ui-field').show();
                 }
             }
             // attach actions on buttons
@@ -20037,9 +20589,9 @@ var w2prompt = function (label, title, callBack) {
                 });
             });
             // init controls with record
-            for (var f = from_field; f < to_field; f++) {
-                var field = this.fields[f];
-                var value = (this.record[field.name] != null ? this.record[field.name] : '');
+            for (var f = 0; f < fields.length; f++) {
+                var field = this.fields[fields[f]];
+                var value = (this.getValue(field.name) != null ? this.getValue(field.name) : '');
                 if (!field.el) continue;
                 if (!$(field.el).hasClass('w2ui-input')) $(field.el).addClass('w2ui-input');
                 field.type = String(field.type).toLowerCase();
@@ -20072,7 +20624,7 @@ var w2prompt = function (label, title, callBack) {
                     case 'toggle':
                         if (w2utils.isFloat(value)) value = parseFloat(value);
                         $(field.el).prop('checked', (value ? true : false));
-                        this.record[field.name] = (value ? value : false);
+                        this.setValue(field.name, (value ? value : false));
                         break;
                     // enums
                     case 'list':
@@ -20082,17 +20634,21 @@ var w2prompt = function (label, title, callBack) {
                             // normalized options
                             if (!field.options.items) field.options.items = [];
                             var items = field.options.items;
-                            if ($.isArray(items) && items.length > 0 && !$.isPlainObject(items[0])) {
-                                field.options.items = w2obj.field.prototype.normMenu(items);
-                            }
                             // find value from items
-                            for (var i = 0; i < field.options.items.length; i++) {
-                                var item = field.options.items[i];
-                                if (item.id == tmp_value) {
-                                    value = $.extend(true, {}, item);
-                                    obj.record[field.name] = value;
-                                    break;
+                            var isFound = false;
+                            if (Array.isArray(field.options.items)) {
+                                for (var i = 0; i < field.options.items.length; i++) {
+                                    var item = field.options.items[i];
+                                    if (item.id == tmp_value) {
+                                        value = $.extend(true, {}, item);
+                                        obj.setValue(field.name, value);
+                                        isFound = true;
+                                        break;
+                                    }
                                 }
+                            }
+                            if (!isFound && value != null && value !== '') {
+                                field.$el.data('find_selected', value);
                             }
                         } else if (field.type === 'combo' && !$.isPlainObject(value)) {
                             field.el.value = value;
@@ -20106,8 +20662,34 @@ var w2prompt = function (label, title, callBack) {
                         break;
                     case 'enum':
                     case 'file':
+                        var sel = [];
+                        var isFound = false;
                         if (!$.isArray(value)) value = [];
-                        $(field.el).w2field($.extend({}, field.options, { type: field.type, selected: value }));
+                        if (typeof field.options.items != 'function') {
+                            if (!$.isArray(field.options.items)) {
+                                field.options.items = [];
+                            }
+                            // find value from items
+                            value.forEach(function (val) {
+                                field.options.items.forEach(function (it) {
+                                    if (it && (it.id == val || ($.isPlainObject(val) && it.id == val.id))) {
+                                        sel.push($.isPlainObject(it) ? $.extend(true, {}, it) : it);
+                                        isFound = true
+                                    }
+                                })
+                            })
+                        }
+                        if (!isFound && value != null && value.length !== 0) {
+                            field.$el.data('find_selected', value);
+                            sel = value
+                        }
+                        var opt = $.extend({}, field.options, { type: field.type, selected: sel })
+                        Object.keys(field.options).forEach(function(key) {
+                            if (typeof field.options[key] == 'function') {
+                                opt[key] = field.options[key]
+                            }
+                        })
+                        $(field.el).w2field(opt);
                         break;
 
                     // standard HTML
@@ -20115,13 +20697,167 @@ var w2prompt = function (label, title, callBack) {
                         // generate options
                         var items = field.options.items;
                         if (items != null && items.length > 0) {
-                            items = w2obj.field.prototype.normMenu(items);
+                            items = w2obj.field.prototype.normMenu.call(this, items, field);
                             $(field.el).html('');
                             for (var it = 0; it < items.length; it++) {
                                 $(field.el).append('<option value="'+ items[it].id +'">' + items[it].text + '</option');
                             }
                         }
                         $(field.el).val(value);
+                        break;
+                    case 'map':
+                    case 'array':
+                        // init map
+                        if (field.type == 'map' && (value == null || !$.isPlainObject(value))) {
+                            this.setValue(field.field, {})
+                            value = this.getValue(field.field)
+                        }
+                        if (field.type == 'array' && (value == null || !Array.isArray(value))) {
+                            this.setValue(field.field, [])
+                            value = this.getValue(field.field)
+                        }
+                        // need closure
+                        (function (obj, field) {
+                            field.el.mapAdd = function (field, div, cnt) {
+                                var attr = (field.disabled ? ' readOnly ' : '');
+                                var html =  '<div class="w2ui-map-field" style="margin-bottom: 5px">'+
+                                    '<input id="'+ field.field +'_key_'+ cnt +'" data-cnt="'+ cnt +'" type="text" '+ field.html.key.attr + attr +' class="w2ui-input w2ui-map key">'+
+                                        (field.html.key.text || '') +
+                                    '<input id="'+ field.field +'_value_'+ cnt +'" data-cnt="'+ cnt +'" type="text" '+ field.html.value.attr + attr +' class="w2ui-input w2ui-map value">'+
+                                        (field.html.value.text || '') +
+                                    '</div>';
+                                div.append(html)
+                            }
+                            field.el.mapRefresh = function (map, div) {
+                                // generate options
+                                var cnt = 1;
+                                var names;
+                                if (field.type == 'map') {
+                                    if (!$.isPlainObject(map)) map = {}
+                                    if (map._order == null) map._order = Object.keys(map)
+                                    names = map._order
+                                }
+                                if (field.type == 'array') {
+                                    if (!Array.isArray(map)) map = []
+                                    names = map.map(function (item) { return item.key })
+                                }
+                                var $k, $v;
+                                names.forEach(function (item) {
+                                    $k = div.find('#' + w2utils.escapeId(field.name) + '_key_' + cnt)
+                                    $v = div.find('#' + w2utils.escapeId(field.name) + '_value_' + cnt)
+                                    if ($k.length == 0 || $v.length == 0) {
+                                        field.el.mapAdd(field, div, cnt)
+                                        $k = div.find('#' + w2utils.escapeId(field.name) + '_key_' + cnt)
+                                        $v = div.find('#' + w2utils.escapeId(field.name) + '_value_' + cnt)
+                                    }
+                                    var val = map[item];
+                                    if (field.type == 'array') {
+                                        var tmp = map.filter(function(it) { return it.key == item ? true : false})
+                                        if (tmp.length > 0) val = tmp[0].value
+                                    }
+                                    $k.val(item);
+                                    $v.val(val);
+                                    if (field.disabled === true || field.disabled === false) {
+                                        $k.prop('readOnly', field.disabled ? true : false)
+                                        $v.prop('readOnly', field.disabled ? true : false)
+                                    }
+                                    $k.parents('.w2ui-map-field').attr('data-key', item)
+                                    cnt++
+                                })
+                                var curr = div.find('#' + w2utils.escapeId(field.name) + '_key_' + cnt).parent()
+                                var next = div.find('#' + w2utils.escapeId(field.name) + '_key_' + (cnt + 1)).parent()
+                                // if not disabled - show next
+                                if (curr.length === 0 && !($k && ($k.prop('readOnly') === true || $k.prop('disabled') === true))) {
+                                    field.el.mapAdd(field, div, cnt);
+                                }
+                                if (curr.length == 1 && next.length == 1) {
+                                    curr.removeAttr('data-key')
+                                    curr.find('.key').val(next.find('.key').val());
+                                    curr.find('.value').val(next.find('.value').val());
+                                    next.remove()
+                                }
+                                if (field.disabled === true || field.disabled === false) {
+                                    curr.find('.key').prop('readOnly', field.disabled ? true : false)
+                                    curr.find('.value').prop('readOnly', field.disabled ? true : false)
+                                }
+                                // attach events
+                                $(field.el).next().find('input.w2ui-map')
+                                    .off('.mapChange')
+                                    .on('keyup.mapChange', function (event) {
+                                        var $div  = $(event.target).parents('.w2ui-map-field')
+                                        if (event.keyCode == 13) {
+                                            $div.next().find('input.key').focus()
+                                        }
+
+                                    })
+                                    .on('change.mapChange', function () {
+                                        var $div  = $(event.target).parents('.w2ui-map-field')
+                                        var old   = $div.attr('data-key')
+                                        var key   = $div.find('.key').val()
+                                        var value = $div.find('.value').val()
+                                        // event before
+                                        var value_new = {}
+                                        var value_previous = {}
+                                        var aMap = null
+                                        var aIndex = null
+                                        value_new[key] = value
+                                        if (field.type == 'array') {
+                                            map.forEach(function (it, ind) {
+                                                if (it.key == old) aIndex = ind
+                                            })
+                                            aMap = map[aIndex]
+                                        }
+                                        if (old != null && field.type == 'map') {
+                                            value_previous[old] = map[old]
+                                        }
+                                        if (old != null && field.type == 'array') {
+                                            value_previous[old] = aMap.value
+                                        }
+                                        var edata = obj.trigger({ phase: 'before', target: field.field, type: 'change', originalEvent: event, value_new: value_new, value_previous: value_previous })
+                                        if (edata.isCancelled === true) {
+                                            return;
+                                        }
+                                        if (field.type == 'map') {
+                                            delete map[old];
+                                            var ind = map._order.indexOf(old)
+                                            if (key != '') {
+                                                if (map[key] != null) {
+                                                    var newKey, more = 0
+                                                    do { more++; newKey = key + more } while (map[newKey] != null)
+                                                    key = newKey
+                                                    $div.find('.key').val(newKey)
+                                                }
+                                                map[key] = value;
+                                                $div.attr('data-key', key)
+                                                if (ind != -1) {
+                                                    map._order[ind] = key
+                                                } else {
+                                                    map._order.push(key)
+                                                }
+                                            } else {
+                                                map._order.splice(ind, 1)
+                                                $div.find('.value').val('')
+                                            }
+                                        } else if (field.type == 'array') {
+                                            if (key != '') {
+                                                if (aMap == null) {
+                                                    map.push({ key: key, value: value })
+                                                } else {
+                                                    aMap.key = key
+                                                    aMap.value = value
+                                                }
+                                            } else {
+                                                map.splice(aIndex, 1)
+                                            }
+                                        }
+                                        obj.setValue(field.field, map)
+                                        field.el.mapRefresh(map, div)
+                                        // event after
+                                        obj.trigger($.extend(edata, { phase: 'after' }));
+                                    })
+                            }
+                            field.el.mapRefresh(value, $(field.el).parent().find('.w2ui-map-container'))
+                        })(this, field)
                         break;
                     case 'radio':
                         $(field.$el).prop('checked', false).each(function (index, el) {
@@ -20130,6 +20866,9 @@ var w2prompt = function (label, title, callBack) {
                         break;
                     case 'checkbox':
                         $(field.el).prop('checked', value ? true : false);
+                        if (field.disabled === true || field.disabled === false) {
+                            $(field.el).prop('disabled', field.disabled ? true : false)
+                        }
                         break;
                     case 'html':
                     case 'custom':
@@ -20169,10 +20908,6 @@ var w2prompt = function (label, title, callBack) {
             // event before
             var edata = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (box != null ? box : this.box) });
             if (edata.isCancelled === true) return;
-            // default actions
-            if ($.isEmptyObject(this.original) && !$.isEmptyObject(this.record)) {
-                this.original = $.extend(true, {}, this.record);
-            }
             var html =  '<div class="w2ui-form-box">' +
                         (this.header !== '' ? '<div class="w2ui-form-header">' + this.header + '</div>' : '') +
                         '    <div id="form_'+ this.name +'_toolbar" class="w2ui-form-toolbar" style="display: none"></div>' +
@@ -20223,22 +20958,27 @@ var w2prompt = function (label, title, callBack) {
                 this.tmp_resize = function (event) { w2ui[obj.name].resize(); };
                 $(window).off('resize', 'body').on('resize', 'body', this.tmp_resize);
             }
-            // focus on load
-            function focusEl() {
-                var inputs = $(obj.box).find('div:not(.w2ui-field-helper) > input, select, textarea, div > label:nth-child(1) > :radio').not('.file-input');
-                if (inputs.length > obj.focus) inputs[obj.focus].focus();
-            }
-            if (this.focus >= 0) {
+            if (this.focus != -1) {
                 setTimeout(function () {
                     // if not rendered in 10ms, then wait 500ms
                     if ($(obj.box).find('input, select, textarea').length === 0) {
                         setTimeout(focusEl, 500); // need timeout to allow form to render
                     } else {
-                        focusEl();
+                        obj.applyFocus();
                     }
-                }, 10);
+                }, 50);
             }
             return (new Date()).getTime() - time;
+        },
+
+        applyFocus: function() {
+            var focus  = this.focus;
+            var inputs = $(this.box).find('div:not(.w2ui-field-helper) > input, select, textarea, div > label:nth-child(1) > :radio').not('.file-input');
+            // find visible
+            while ($(inputs[focus]).is(':hidden') && inputs.length >= focus) {
+                focus++
+            }
+            if (inputs[focus]) inputs[focus].focus();
         },
 
         destroy: function () {
@@ -20264,5 +21004,32 @@ var w2prompt = function (label, title, callBack) {
     $.extend(w2form.prototype, w2utils.event);
     w2obj.form = w2form;
 })(jQuery);
+
+/***********************************************************
+*  Compatibility with CommonJS and AMD modules
+*
+*********************************************************/
+
+(function(global, w2ui) {
+    if (typeof define=='function' && define.amd) {
+        return define(function(){ return w2ui; });
+    }
+    if (typeof exports!='undefined') {
+        if (typeof module!='undefined' && module.exports)
+            return exports = module.exports = w2ui;
+        global = exports;
+    }
+    for (var m in w2ui) {
+        global[m] = w2ui[m];
+    }
+})(this, {
+    w2ui: w2ui,
+    w2obj: w2obj,
+    w2utils: w2utils,
+    w2popup: w2popup,
+    w2alert: w2alert,
+    w2confirm: w2confirm,
+    w2prompt: w2prompt
+});
 
 //# sourceMappingURL=w2ui.js.map

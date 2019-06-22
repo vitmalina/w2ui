@@ -11,6 +11,12 @@
 *   - reorder with dgrag and drop
 *   - node.style is misleading - should be there to apply color for example
 *   - add multiselect
+*   - node.caption - deprecated
+*   - node.text - can be a function
+*   - node.icon - can be a function
+*
+* == 1.5 changes
+*   - node.class - ne property
 *
 ************************************************************************/
 
@@ -139,7 +145,11 @@
                     ind = this.get(before);
                     if (ind == null) {
                         if (!$.isArray(nodes)) nodes = [nodes];
-                        txt = (nodes[0].caption != null ? nodes[0].caption : nodes[0].text);
+                        if (nodes[0].caption != null && nodes[0].text == null) {
+                            console.log('NOTICE: sidebar node.caption property is deprecated, please use node.text. Node -> ', nodes[0]);
+                            nodes[0].text = nodes[0].caption;
+                        }
+                        txt = nodes[0].text;
                         console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.');
                         return null;
                     }
@@ -153,13 +163,16 @@
             for (var o = 0; o < nodes.length; o++) {
                 node = nodes[o];
                 if (typeof node.id == null) {
-                    txt = (node.caption != null ? node.caption : node.text);
+                    if (node.caption != null && node.text == null) {
+                        console.log('NOTICE: sidebar node.caption property is deprecated, please use node.text');
+                        node.text = node.caption;
+                    }
+                    txt = node.text;
                     console.log('ERROR: Cannot insert node "'+ txt +'" because it has no id.');
                     continue;
                 }
                 if (this.get(this, node.id) != null) {
-                    txt = (node.caption != null ? node.caption : node.text);
-                    console.log('ERROR: Cannot insert node with id='+ node.id +' (text: '+ txt + ') because another node with the same id already exists.');
+                    console.log('ERROR: Cannot insert node with id='+ node.id +' (text: '+ node.text + ') because another node with the same id already exists.');
                     continue;
                 }
                 tmp = $.extend({}, w2sidebar.prototype.node, node);
@@ -172,8 +185,7 @@
                 } else {
                     ind = this.get(parent, before, true);
                     if (ind == null) {
-                        txt = (node.caption != null ? node.caption : node.text);
-                        console.log('ERROR: Cannot insert node "'+ txt +'" because cannot find node "'+ before +'" to insert before.');
+                        console.log('ERROR: Cannot insert node "'+ node.text +'" because cannot find node "'+ before +'" to insert before.');
                         return null;
                 }
                     parent.nodes.splice(ind, 0, tmp);
@@ -855,11 +867,15 @@
                     tmp = tmp.parent;
                     level++;
                 }
-                if (nd.caption != null) nd.text = nd.caption;
+                if (nd.caption != null && nd.text == null) nd.text = nd.caption;
+                if (nd.caption != null) {
+                    console.log('NOTICE: sidebar node.caption property is deprecated, please use node.text. Node -> ', nd)
+                    nd.text = nd.caption;
+                }
                 if (nd.group) {
                     html =
-                        '<div class="w2ui-node-group w2ui-level-'+ level +'" id="node_'+ nd.id +'"'+
-                        '   onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
+                        '<div class="w2ui-node-group w2ui-level-'+ level + (nd.class ? ' ' + nd.class : '') +'" id="node_'+ nd.id +'"'+
+                        '   style="'+ (nd.hidden ? 'display: none' : '') +'" onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
                         '   oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
                         '   onmouseout="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
                         '   onmouseover="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
@@ -874,11 +890,13 @@
                 } else {
                     if (nd.selected && !nd.disabled) obj.selected = nd.id;
                     tmp = '';
-                    if (img) tmp  = '<div class="w2ui-node-image w2ui-icon '+ img +    (nd.selected && !nd.disabled ? " w2ui-icon-selected" : "") +'"></div>';
-                    if (icon) tmp = '<div class="w2ui-node-image"><span class="'+ icon +'"></span></div>';
+                    if (img) tmp  = '<div class="w2ui-node-image w2ui-icon '+ img + (nd.selected && !nd.disabled ? " w2ui-icon-selected" : "") +'"></div>';
+                    if (icon) {
+                        tmp = '<div class="w2ui-node-image"><span class="' + (typeof icon == 'function' ? icon.call(obj, nd) : icon) + '"></span></div>';
+                    }
                     var text = nd.text;
                     if (typeof nd.text == 'function') text = nd.text.call(obj, nd);
-                    html =  '<div class="w2ui-node w2ui-level-'+ level +' '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
+                    html =  '<div class="w2ui-node w2ui-level-'+ level + (nd.selected ? ' w2ui-selected' : '') + (nd.disabled ? ' w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
                             '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
                             '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
                             '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
@@ -890,13 +908,13 @@
                             '<td class="w2ui-node-data" nowrap="nowrap">'+
                                     tmp +
                                     (nd.count || nd.count === 0 ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '') +
-                                    '<div class="w2ui-node-caption">'+ text +'</div>'+
+                                    '<div class="w2ui-node-text w2ui-node-caption">'+ text +'</div>'+
                             '</td>'+
                             '</tr></tbody></table>'+
                             '</div>'+
                             '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
                     if (obj.flat) {
-                        html =  '<div class="w2ui-node w2ui-level-'+ level +' '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
+                        html =  '<div class="w2ui-node w2ui-level-'+ level +' '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
                                 '    onmouseover="jQuery(this).find(\'.w2ui-node-data\').w2tag(w2utils.base64decode(\''+
                                                 w2utils.base64encode(text + (nd.count || nd.count === 0 ? ' - <span class="w2ui-node-count">'+ nd.count +'</span>' : '')) + '\'), '+
                                 '               { id: \'' + nd.id + '\', left: -5 })"'+

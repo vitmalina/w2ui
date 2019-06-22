@@ -126,6 +126,7 @@
 .w2ui-readonly {
   background-color: #f1f1f1 !important;
   color: #777 !important;
+  outline: none!important;
 }
 .w2ui-message {
   font-size: 12px;
@@ -188,6 +189,7 @@ input:not([type=button]):not([type=submit]).w2ui-input[readonly],
 textarea.w2ui-input[readonly] {
   background-color: #f1f1f1;
   color: #777;
+  outline: none!important;
 }
 /* IE9-11 specific classes */
 /* needs doblue :: */
@@ -214,8 +216,8 @@ select.w2ui-input {
   top: 1px;
   left: 1px;
   content: ' ';
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border: 2px solid rgba(150, 150, 150, 0.8);
   border-bottom: 0;
   border-left: 0;
@@ -226,8 +228,8 @@ select.w2ui-input {
   top: -1px;
   left: 3px;
   content: ' ';
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border: 2px solid rgba(150, 150, 150, 0.8);
   border-bottom: 0;
   border-left: 0;
@@ -242,8 +244,13 @@ input[type="checkbox"].w2ui-toggle {
   padding: 0px;
   margin: 0px;
   margin-left: 2px;
+  /* Knob */
+  /* Green */
+  /* Default Blue */
 }
-/* Track */
+input[type="checkbox"].w2ui-toggle:focus {
+  box-shadow: 0px 0px 1px 2px #a8cfff;
+}
 input[type="checkbox"].w2ui-toggle + div {
   display: inline-block;
   width: 46px;
@@ -258,10 +265,16 @@ input[type="checkbox"].w2ui-toggle + div {
   box-shadow: inset 0 0 0 0px rgba(0, 0, 0, 0.4);
   margin-left: 2px;
 }
+input[type="checkbox"].w2ui-toggle.w2ui-small + div {
+  width: 30px;
+  height: 16px;
+}
+input[type="checkbox"].w2ui-toggle:focus + div {
+  box-shadow: 0px 0px 3px 2px #91baed;
+}
 input[type="checkbox"].w2ui-toggle:disabled + div {
   opacity: 0.3;
 }
-/* Knob */
 input[type="checkbox"].w2ui-toggle + div > div {
   float: left;
   width: 22px;
@@ -277,27 +290,41 @@ input[type="checkbox"].w2ui-toggle + div > div {
   margin-top: -1px;
   margin-left: -1px;
 }
-/* Default Green */
-input[type="checkbox"].w2ui-toggle:checked + div {
-  border: 1px solid #00a23f;
-  box-shadow: inset 0 0 0 12px #54B350;
+input[type="checkbox"].w2ui-toggle.w2ui-small + div > div {
+  width: 16px;
+  height: 16px;
 }
 input[type="checkbox"].w2ui-toggle:checked + div > div {
   -webkit-transform: translate3d(24px, 0, 0);
   -moz-transform: translate3d(24px, 0, 0);
   background-color: #ffffff;
+}
+input[type="checkbox"].w2ui-toggle.w2ui-small:checked + div > div {
+  -webkit-transform: translate3d(14px, 0, 0);
+  -moz-transform: translate3d(14px, 0, 0);
+}
+input[type="checkbox"].w2ui-toggle:focus {
+  outline: none;
+}
+input[type="checkbox"].w2ui-toggle:checked + div {
+  border: 1px solid #00a23f;
+  box-shadow: inset 0 0 0 12px #54B350;
+}
+input[type="checkbox"].w2ui-toggle:checked:focus + div {
+  box-shadow: 0px 0px 3px 2px #91baed, inset 0 0 0 12px #54B350;
+}
+input[type="checkbox"].w2ui-toggle:checked + div > div {
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), 0 0 0 1px #00a23f;
 }
-/* Blue */
 input[type="checkbox"].w2ui-toggle.blue:checked + div {
   border: 1px solid #206FAD;
   box-shadow: inset 0 0 0 12px #35A6EB;
 }
+input[type="checkbox"].w2ui-toggle.blue:checked:focus + div {
+  box-shadow: 0px 0px 3px 2px #91baed, inset 0 0 0 12px #35A6EB;
+}
 input[type="checkbox"].w2ui-toggle.blue:checked + div > div {
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), 0px 0px 0 1px #206fad;
-}
-input[type=checkbox].w2ui-toggle:focus {
-  outline: none;
 }
 /*************************************************
 * ---- Overlay and Bubble ----
@@ -912,7 +939,7 @@ button.w2ui-btn-small:focus:before {
   left: 0px;
   right: 0px;
   margin: 0px;
-  padding: 6px 3px;
+  padding: 5px 3px;
   border-bottom: 1px solid #d5d8d8;
 }
 .w2ui-form .w2ui-form-tabs {
@@ -936,11 +963,27 @@ button.w2ui-btn-small:focus:before {
   left: 0;
   right: 0;
   overflow: auto;
-  padding: 10px;
+  padding: 10px 3px 0 3px;
+  padding-bottom: 0px;
   border-left: 1px solid inherit;
   border-right: 1px solid inherit;
   background-color: inherit;
   border-radius: 3px;
+}
+.w2ui-form .w2ui-column-container {
+  display: flex;
+}
+.w2ui-form .w2ui-column-container .w2ui-column.col-1,
+.w2ui-form .w2ui-column-container .w2ui-column.col-2,
+.w2ui-form .w2ui-column-container .w2ui-column.col-3,
+.w2ui-form .w2ui-column-container .w2ui-column.col-4,
+.w2ui-form .w2ui-column-container .w2ui-column.col-5,
+.w2ui-form .w2ui-column-container .w2ui-column.col-6,
+.w2ui-form .w2ui-column-container .w2ui-column.col-7,
+.w2ui-form .w2ui-column-container .w2ui-column.col-8,
+.w2ui-form .w2ui-column-container .w2ui-column.col-9,
+.w2ui-form .w2ui-column-container .w2ui-column.col-10 {
+  margin-left: 10px;
 }
 .w2ui-form .w2ui-buttons {
   position: absolute;
@@ -964,9 +1007,12 @@ button.w2ui-btn-small:focus:before {
 .w2ui-form input[type=radio] {
   margin-top: 4px;
   margin-bottom: 4px;
+  width: 14px;
+  height: 14px;
 }
 .w2ui-form input[type=checkbox].w2ui-toggle {
   margin: 0px;
+  width: 50px;
 }
 .w2ui-group-title {
   padding: 5px 2px;
@@ -1006,12 +1052,29 @@ button.w2ui-btn-small:focus:before {
 .w2ui-field.w2ui-required > div {
   position: relative;
 }
-.w2ui-field.w2ui-required > div::before {
+.w2ui-field.w2ui-required:not(.w2ui-field-inline) > div::before {
   content: '*';
   position: absolute;
   margin-top: 5px;
   margin-left: -9px;
   color: #ff0000;
+}
+.w2ui-field.w2ui-required.w2ui-field-inline > div::before {
+  content: '' !important;
+}
+.w2ui-field.w2ui-disabled {
+  opacity: 0.3;
+  background-color: transparent !important;
+}
+.w2ui-field.w2ui-span-none > label {
+  margin: 0;
+  padding: 5px 0 0 4px;
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+.w2ui-field.w2ui-span-none > div {
+  margin-left: 0;
 }
 .w2ui-field.w2ui-span0 > label {
   display: none;
@@ -1078,6 +1141,14 @@ button.w2ui-btn-small:focus:before {
 }
 .w2ui-field.w2ui-span10 > div {
   margin-left: 208px;
+}
+.w2ui-field.w2ui-field-inline {
+  display: inline;
+}
+.w2ui-field.w2ui-field-inline > div {
+  display: inline;
+  margin: 0;
+  padding: 0;
 }
 .w2ui-error {
   border: 1px solid #ffa8a8 !important;
@@ -1579,6 +1650,7 @@ button.w2ui-btn-small:focus:before {
   background-image: none;
   background-color: #f1f1f1 !important;
   color: #777 !important;
+  outline: none!important;
 }
 /*
 *    ENUM items
@@ -1684,6 +1756,9 @@ button.w2ui-btn-small:focus:before {
 .w2ui-list ul li > span.file-size {
   pointer-events: none;
   color: #777;
+}
+.w2ui-list.w2ui-readonly ul > li:hover {
+  background-color: #eff3f5;
 }
 .w2ui-list .w2ui-enum-placeholder {
   display: inline;
@@ -2531,7 +2606,7 @@ button.w2ui-btn-small:focus:before {
 }
 .w2ui-overlay .w2ui-grid-searches table td.operator {
   text-align: left;
-  padding: 0px 0px;
+  padding: 0px 10px;
   padding-right: 5px;
   border-right: 1px solid #e8e8e3;
   height: 31px;
@@ -2797,7 +2872,7 @@ button.w2ui-btn-small:focus:before {
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node table {
   pointer-events: none;
 }
-.w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-caption,
+.w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-text,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-image,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-image > span,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node td.w2ui-node-dots {
@@ -2805,7 +2880,7 @@ button.w2ui-btn-small:focus:before {
   text-shadow: 0px 0px 0px #ffffff;
   pointer-events: none;
 }
-.w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-caption:hover,
+.w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-text:hover,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-image:hover,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node .w2ui-node-image > span:hover,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-node td.w2ui-node-dots:hover {
@@ -2840,8 +2915,8 @@ button.w2ui-btn-small:focus:before {
   border-top: 1px solid #5295cd;
   border-bottom: 1px solid #2661a6;
 }
-.w2ui-sidebar .w2ui-sidebar-div .w2ui-selected .w2ui-node-caption,
-.w2ui-sidebar .w2ui-sidebar-div .w2ui-selected:hover .w2ui-node-caption,
+.w2ui-sidebar .w2ui-sidebar-div .w2ui-selected .w2ui-node-text,
+.w2ui-sidebar .w2ui-sidebar-div .w2ui-selected:hover .w2ui-node-text,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-selected .w2ui-node-image,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-selected:hover .w2ui-node-image,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-selected .w2ui-node-image > span,
@@ -2871,8 +2946,8 @@ button.w2ui-btn-small:focus:before {
   border-top: 1px solid transparent;
   border-bottom: 1px solid transparent;
 }
-.w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled .w2ui-node-caption,
-.w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled:hover .w2ui-node-caption,
+.w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled .w2ui-node-text,
+.w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled:hover .w2ui-node-text,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled .w2ui-node-image,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled:hover .w2ui-node-image,
 .w2ui-sidebar .w2ui-sidebar-div .w2ui-disabled .w2ui-node-image > span,
@@ -2884,7 +2959,7 @@ button.w2ui-btn-small:focus:before {
   color: #000000 !important;
   text-shadow: 0px 0px 0px #ffffff !important;
 }
-.w2ui-sidebar .w2ui-sidebar-div .w2ui-node-caption {
+.w2ui-sidebar .w2ui-sidebar-div .w2ui-node-text {
   white-space: nowrap;
   padding: 5px 0px 5px 3px;
   margin: 1px 0px 1px 22px;
@@ -2999,7 +3074,7 @@ button.w2ui-btn-small:focus:before {
   border: 1px solid #c0c0c0;
   border-bottom: 1px solid silver;
   white-space: nowrap;
-  margin: 2px 1px -1px 0px;
+  margin: 1px 1px -1px 0px;
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
   cursor: default;
@@ -3112,7 +3187,7 @@ button.w2ui-btn-small:focus:before {
 .w2ui-toolbar table.w2ui-button .w2ui-tb-image > span:before {
   vertical-align: top !important;
 }
-.w2ui-toolbar table.w2ui-button .w2ui-tb-caption {
+.w2ui-toolbar table.w2ui-button .w2ui-tb-text {
   color: #000000;
   padding: 0px 4px 0px 2px;
 }
@@ -3142,21 +3217,21 @@ button.w2ui-btn-small:focus:before {
   border: 1px solid #cccccc;
   background-color: #eeeeee;
 }
-.w2ui-toolbar table.w2ui-button.over .w2ui-tb-caption {
+.w2ui-toolbar table.w2ui-button.over .w2ui-tb-text {
   color: #000000;
 }
 .w2ui-toolbar table.w2ui-button.down {
   border: 1px solid #aaaaaa;
   background-color: #dddddd;
 }
-.w2ui-toolbar table.w2ui-button.down .w2ui-tb-caption {
+.w2ui-toolbar table.w2ui-button.down .w2ui-tb-text {
   color: #666666;
 }
 .w2ui-toolbar table.w2ui-button.checked {
   border: 1px solid #aaaaaa;
   background-color: #ffffff;
 }
-.w2ui-toolbar table.w2ui-button.checked .w2ui-tb-caption {
+.w2ui-toolbar table.w2ui-button.checked .w2ui-tb-text {
   color: #000000;
 }
 .w2ui-toolbar table.w2ui-button table {

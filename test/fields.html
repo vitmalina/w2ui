@@ -42,10 +42,18 @@
         jQuery('.combo').w2field('combo', {
             openOnFocus: true,
             minLength: 1,
-            url: 'http://w2ui.com/web/pages/demo/infinite/index.php?cmd=get-records',
+            // url: 'http://w2ui.com/web/pages/demo/infinite/index.php?request={"cmd":"get","selected":[],"limit":100,"offset":0}',
             recId: 'recid',
             recText: function (item) { return item.fname + ' ' + item.lname },
-            items: items,
+            items: function(el) {
+                console.log('Element', el)
+                console.log(this)
+                return [
+                    { id: 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
+                    { id: 'item2', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) }
+                ]
+            },
+            items1: items,
             onRequest: function (event) {
                 // console.log('request', event);
             },
@@ -63,10 +71,18 @@
             applyFilter: true,
             markSearch: true,
             minLength: 0,
-            url: 'http://w2ui.com/web/pages/demo/infinite/index.php?cmd=get-records',
+            // url: 'http://w2ui.com/web/pages/demo/infinite/index.php?request={"cmd":"get","selected":[],"limit":100,"offset":0}',
             recId: 'recid',
             recText: function (item) { return item.fname + ' ' + item.lname },
-            items: items,
+            items: function(el) {
+                console.log('Element', el)
+                console.log(this)
+                return [
+                    { id: 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
+                    { id: 'item2', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) }
+                ]
+            },
+            items1: items,
             onRequest: function (event) {
                 console.log('list request', event);
             },
@@ -84,11 +100,19 @@
 
         });
         jQuery('.enum').w2field('enum', {
-            url: 'http://w2ui.com/web/pages/demo/infinite/index.php?cmd=get-records',
+            // url: 'http://w2ui.com/web/pages/demo/infinite/index.php?request={"cmd":"get","selected":[],"limit":100,"offset":0}',
             recId: 'recid',
             recText: function (item) { return item.fname + ' ' + item.lname },
             openOnFocus: true,
-            items: items,
+            items: function(el) {
+                console.log('Element', el)
+                console.log(this)
+                return [
+                    { id: 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
+                    { id: 'item2', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) }
+                ]
+            },
+            items1: items,
             selected: [],
             renderItem: function (item, options, del) {
                 return item.text + del;

@@ -15,7 +15,7 @@
     overflow: hidden !important;
 
     > div {
-        position: absolute; 
+        position: absolute;
         overflow: hidden;
     }
 
@@ -36,10 +36,10 @@
 
     .w2ui-form-toolbar {
         position: absolute;
-        left: 0px; 
+        left: 0px;
         right: 0px;
         margin: 0px;
-        padding: 6px 3px;
+        padding: 5px 3px;
         // background-color: @form-buttons-background-color;
         border-bottom: @form-buttons-border-top;
     }
@@ -68,13 +68,31 @@
         left: 0;
         right: 0;
         overflow: auto;
-        padding: 10px;
+        padding: 10px 3px 0 3px;
+        padding-bottom: 0px;
         border-left: @form-page-border;
         border-right: @form-page-border;
         background-color: @form-page-background-color;
         border-radius: 3px;
     }
-    
+    .w2ui-column-container {
+        display: flex;
+        .w2ui-column {
+            &.col-1,
+            &.col-2,
+            &.col-3,
+            &.col-4,
+            &.col-5,
+            &.col-6,
+            &.col-7,
+            &.col-8,
+            &.col-9,
+            &.col-10 {
+                margin-left: 10px;
+            }
+        }
+    }
+
     .w2ui-buttons {
         position: absolute;
         left: 0;
@@ -87,7 +105,7 @@
         padding: 15px 0px !important;
         border-bottom-left-radius: 3px;
         border-bottom-right-radius: 3px;
-        
+
         input[type="button"], button {
             min-width: 80px;
             margin-right: 5px;
@@ -97,10 +115,13 @@
     input[type=checkbox], input[type=radio] {
         margin-top: 4px;
         margin-bottom: 4px;
+        width: 14px;
+        height: 14px;
     }
 
     input[type=checkbox].w2ui-toggle {
         margin: 0px;
+        width: 50px;
     }
 }
 
@@ -109,8 +130,8 @@
 
 .w2ui-group-title {
     padding: 5px 2px;
-    color: #8D96A2; 
-    text-shadow: 1px 1px 2px rgb(253, 253, 253); 
+    color: #8D96A2;
+    text-shadow: 1px 1px 2px rgb(253, 253, 253);
     font-size: 120%;
 }
 
@@ -148,57 +169,82 @@
     &.w2ui-required > div {
         position: relative;
     }
-
-    &.w2ui-required > div::before {
+    &.w2ui-required:not(.w2ui-field-inline) > div::before {
         content: '*';
         position: absolute;
         margin-top: 5px;
         margin-left: -9px;
         color: @form-required-color;
     }
+    &.w2ui-required.w2ui-field-inline > div::before {
+        content: ''!important;
+    }
+    &.w2ui-disabled {
+        opacity: 0.3;
+        background-color: transparent !important;
+    }
+    &.w2ui-span-none {
+        > label {
+            margin: 0;
+            padding: 5px 0 0 4px;
+            display: block;
+            width: 100%;
+            text-align: left;
+        }
+        > div { margin-left: 0; }
+    }
     &.w2ui-span0 {
         > label { display: none; }
         > div { margin-left: 0; }
     }
-    &.w2ui-span1 { 
+    &.w2ui-span1 {
         > label { width: (@form-step-label * 1); }
         > div { margin-left: ((@form-step-label * 1) + @form-step-field); }
     }
-    &.w2ui-span2 { 
+    &.w2ui-span2 {
         > label { width: (@form-step-label * 2); }
         > div { margin-left: ((@form-step-label * 2) + @form-step-field); }
     }
-    &.w2ui-span3 { 
+    &.w2ui-span3 {
         > label { width: (@form-step-label * 3); }
         > div { margin-left: ((@form-step-label * 3) + @form-step-field); }
     }
-    &.w2ui-span4 { 
+    &.w2ui-span4 {
         > label { width: (@form-step-label * 4); }
         > div { margin-left: ((@form-step-label * 4) + @form-step-field); }
     }
-    &.w2ui-span5 { 
+    &.w2ui-span5 {
         > label { width: (@form-step-label * 5); }
         > div { margin-left: ((@form-step-label * 5) + @form-step-field); }
     }
-    &.w2ui-span6 { 
+    &.w2ui-span6 {
         > label { width: (@form-step-label * 6); }
         > div { margin-left: ((@form-step-label * 6) + @form-step-field); }
     }
-    &.w2ui-span7 { 
+    &.w2ui-span7 {
         > label { width: (@form-step-label * 7); }
         > div { margin-left: ((@form-step-label * 7) + @form-step-field); }
     }
-    &.w2ui-span8 { 
+    &.w2ui-span8 {
         > label { width: (@form-step-label * 8); }
         > div { margin-left: ((@form-step-label * 8) + @form-step-field); }
     }
-    &.w2ui-span9 { 
+    &.w2ui-span9 {
         > label { width: (@form-step-label * 9); }
         > div { margin-left: ((@form-step-label * 9) + @form-step-field); }
     }
-    &.w2ui-span10 { 
+    &.w2ui-span10 {
         > label { width: (@form-step-label * 10); }
         > div { margin-left: ((@form-step-label * 10) + @form-step-field); }
+    }
+    &.w2ui-field-inline {
+        display: inline;
+
+        > div {
+            display: inline;
+            margin: 0;
+            padding: 0;
+        }
     }
 }
 

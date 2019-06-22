@@ -16,19 +16,40 @@
             tooltip: 'top',
             items: [
                 { type: 'button', id: 'item1.0', text: 'BTN', img: 'icon-page', tooltip: function () { return (new Date()).getTime(); }},
+                {
+                                type: 'menu-radio', id: 'menu-stato',
+                                text: function (item) {
+                                    return 'Stato: ' + item.selected;
+                                },
+                                selected: 'ALL',
+                                items: [
+                                    { id: 'ALL', text: 'Tutti gli stati' },
+                                    { id: 'NEW', text: 'Nuovo' },
+                                    { id: 'WIP', text: 'Work in progress' },
+                                    { id: 'LAV', text: 'Lavorato' }
+                                ]
+                            },
                 { type: 'check', id: 'item1.1', text: 'Check', img: 'icon-page', tooltip: function () { return (new Date()).getTime(); },
                     checked: true, route: '/project' },
                 { type: 'drop',  id: 'item12', img: 'icon-page', icon: 'fa fa-star', tooltip: 'Drop button',  html: 'so', route: '/project/:id/go', count: 4 },
                 { type: 'break', id: 'break0' },
-                { type: 'menu',  id: 'item2', caption: 'Drop Down', img: 'icon-folder', icon: 'fa fa-camera', hint: 'Menu button',
-                    items: [
+                { type: 'menu',  id: 'item2', text: 'Drop Down', img: 'icon-folder', icon: 'fa fa-camera', tooltip: 'Menu button',
+                    items: function(el) {
+                        console.log('Element', el)
+                        console.log(this)
+                        return [
+                            { id: 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
+                            { id: 'item2', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) }
+                        ]
+                    },
+                    items1: [
                         { text: 'Item 1', img: 'icon-page', route: '/project/:id/item1', tooltip: 'some' },
                         { text: 'Item 2', img: 'icon-page', route: '/project/:id/item2', disabled: true },
                         { text: 'Item 3', value: 'Item Three', img: 'icon-page', route: '/project/:id/item2' }
                     ]
                 },
-                { type: 'menu',   id: 'item.2a@', img: 'icon-folder', icon: 'fa fa-heart', hint: 'This is some long hint',
-                     items: [
+                { type: 'menu',   id: 'item.2a@', img: 'icon-folder', icon: 'fa fa-heart', tooltip: 'This is some long tooltip',
+                    items: [
                         { id: 'item1', text: 'First Item', count: 3, icon: 'fa fa-heart' },
                         { id: 'item2', text: 'Item 2', icon: 'fa fa-user', count: 12 },
                         { id: 'item3', text: 'Item 3', icon: 'fa fa-star-o' },
@@ -37,7 +58,7 @@
                     ], overlay: { top1: 10 }
                 },
                 { type: 'menu-check', id: 'menucheck', text: 'Menu: Check',
-                     items: [
+                    items: [
                         { id: 'item1', text: 'Item 1.1', count: 3, icon: 'fa fa-heart' },
                         { id: 'item2', text: 'Item 1.2', icon: 'fa fa-user', count: 12, checked: true },
                         { id: 'item3', text: 'Item 1.3', icon: 'fa fa-star-o', hotkey: '⌘S' },
@@ -48,7 +69,7 @@
                     ],
                 },
                 { type: 'menu-radio', id: 'menu.radio', text: 'Menu: Radio',
-                     items: [
+                    items: [
                         { id: 'item1', text: 'First Item', count: 3, icon: 'fa fa-heart' },
                         { text: '--' },
                         { id: 'item2', text: 'Item 2', icon: 'fa fa-user', count: 12, checked: true },
@@ -64,24 +85,24 @@
                     ],
                 },
                 { type: 'break', id: 'break1' },
-                { type: 'radio',  id: 'item3',  group: '1', caption: 'Radio 1', icon: 'fa fa-user', img1: 'icon-add', checked: true,
-                    hint: 'This is some long hint', route: '/project/:id/view/:vid', style: "width: 100px; text-align: center",
+                { type: 'radio',  id: 'item3',  group: '1', text: 'Radio 1', icon: 'fa fa-user', img1: 'icon-add', checked: true,
+                    tooltip: 'This is some long tooltip', route: '/project/:id/view/:vid', style: "width: 100px; text-align: center",
                 },
-                { type: 'radio',  id: 'item4',  group: '1', caption: 'Radio 2', icon: 'fa fa-users', img1: 'icon-add', disabled: false, count: 55,
-                    hint: 'This is some long hint', route: '/project/:id/drop down/:vid/:id', style: "width: 100px; text-align: center",
+                { type: 'radio',  id: 'item4',  group: '1', text: 'Radio 2', icon: 'fa fa-users', img1: 'icon-add', disabled: false, count: 55,
+                    tooltip: 'This is some long tooltip', route: '/project/:id/drop down/:vid/:id', style: "width: 100px; text-align: center",
                 },
                 { type: 'break' },
-                { type: 'drop', id: 'item7', caption: 'drop button', img: 'icon-folder',
-                    hint: 'This is some <br/>very very<br/> very very<br/> very veryt long hint',
+                { type: 'drop', id: 'item7', text: 'drop button', img: 'icon-folder',
+                    tooltip: 'This is some <br/>very very<br/> very very<br/> very veryt long tooltip',
                     html : '<div style="padding: 10px; font-size: 11px">some html</div>',
                     route: 'another/project'
                 },
-                { type: 'button',  id: 'itemT',  caption: 'Just Text', count: '1', hint: 'This is some very very very very very veryt long hint' },
-                { type: 'color', id: 'item8', caption1: 'Color', icon1: 'fa fa-star', hint: 'Color', transparent: true, color: '888888' },
-                { type: 'text-color', id: 'item9', caption1: 'Text Color', icon1: 'fa fa-star', hint: 'Text Color', transparent: true, color: 'FF9838' },
+                { type: 'button',  id: 'itemT',  text: 'Just Text', count: '1', tooltip: 'This is some very very very very very veryt long tooltip' },
+                { type: 'color', id: 'item8', text1: 'Color', icon1: 'fa fa-star', tooltip: 'Color', transparent: true, color: '888888' },
+                { type: 'text-color', id: 'item9', text1: 'Text Color', icon1: 'fa fa-star', tooltip: 'Text Color', transparent: true, color: 'FF9838' },
                 { type: 'spacer' },
-                { type: 'button',  id: 'item5',  caption: 'Item 5', img: 'icon-page', disabled: true, hint: 'This is some very very very very very veryt long hint' },
-                { type: 'button',  id: 'item6',  caption: 'Item 6', img: 'icon-page', hint: 'This is some very very very very very veryt long hint' },
+                { type: 'button',  id: 'item5',  text: 'Item 5', img: 'icon-page', disabled: true, tooltip: 'This is some very very very very very veryt long tooltip' },
+                { type: 'button',  id: 'item6',  text: 'Item 6', img: 'icon-page', tooltip: 'This is some very very very very very veryt long tooltip' },
                 { type: 'menu-radio', id: 'menu.radio2', text: 'Menu: Radio',
                      items: [
                         { id: 'item1', text: 'First Item', count: 3, icon: 'fa fa-heart' },
@@ -105,7 +126,7 @@
     });
 
     function changeTab() {
-        w2ui['tabs'].get('tab2').caption = '<div style="width: 300px">new and long</div>';
+        w2ui['tabs'].get('tab2').text = '<div style="width: 300px">new and long</div>';
         w2ui['tabs'].refresh();
     }
 //]]>

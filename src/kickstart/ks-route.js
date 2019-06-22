@@ -1,10 +1,9 @@
-kickStart.define({ route: { } });
+kickStart.define({ route: { assets: [] }});
 kickStart.register('route', function () {
     // private scope
     var app     = kickStart;
     var routes  = {};
     var routeRE = {};
-    var silent;
 
     addListener();
 
@@ -15,6 +14,7 @@ kickStart.register('route', function () {
         go      : go,
         set     : set,
         get     : get,
+        info    : info,
         process : process,
         list    : list,
         onAdd   : null,
@@ -75,21 +75,47 @@ kickStart.register('route', function () {
 
     function go(route) {
         route = String('/'+route).replace(/\/{2,}/g, '/');
-        setTimeout(function () { window.location.hash = route; }, 1);
+        window.history.replaceState({}, document.title, '#' + route)
+        process()
         return app.route;
     }
 
     function set(route) {
-        silent = true;
-        // do not use go(route) here
         route = String('/'+route).replace(/\/{2,}/g, '/');
-        window.location.hash = route;
-        setTimeout(function () { silent = false }, 1);
+        window.history.replaceState({}, document.title, '#' + route)
         return app.route;
     }
 
     function get() {
         return window.location.hash.substr(1).replace(/\/{2,}/g, '/');
+    }
+
+    function info() {
+        var matches = [];
+        var isFound = false;
+        var isExact = false;
+        // match routes
+        var hash = window.location.hash.substr(1).replace(/\/{2,}/g, '/');
+        if (hash == '') hash = '/';
+
+        for (var r in routeRE) {
+            var params = {};
+            var tmp = routeRE[r].path.exec(hash);
+            if (tmp != null) { // match
+                isFound = true;
+                if (!isExact && r.indexOf('*') === -1) {
+                    isExact = true;
+                }
+                var i = 1;
+                for (var p in routeRE[r].keys) {
+                    params[routeRE[r].keys[p].name] = tmp[i];
+                    i++;
+                }
+                // default handler
+                matches.push({ name: r, path: hash, params: params });
+            }
+        }
+        return matches;
     }
 
     function list() {
@@ -105,18 +131,22 @@ kickStart.register('route', function () {
     }
 
     function process() {
-        if (silent === true) return;
         prepare();
         // match routes
         var hash = window.location.hash.substr(1).replace(/\/{2,}/g, '/');
         if (hash == '') hash = '/';
         // process route
         var isFound = false;
+        var isExact = false;
+        var isAutoLoad = false;
         for (var r in routeRE) {
             var params = {};
             var tmp = routeRE[r].path.exec(hash);
-            if (tmp) { // match
+            if (tmp != null) { // match
                 isFound = true;
+                if (!isExact && r.indexOf('*') === -1) {
+                    isExact = true;
+                }
                 var i = 1;
                 for (var p in routeRE[r].keys) {
                     params[routeRE[r].keys[p].name] = tmp[i];
@@ -128,35 +158,53 @@ kickStart.register('route', function () {
                     if (eventData.isCancelled === true) return false;
                 }
                 // default handler
-                routes[r]($.extend({ name: r, path: hash }, params));
+                var res = routes[r]({ name: r, path: hash, params: params }, params);
                 // if events are available
                 if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
+                // if hash changed (for example in handler), then do not process rest of old processings
+                var current = window.location.hash.substr(1).replace(/\/{2,}/g, '/');
+                if (hash !== current) return
             }
         }
-        // if route is not registered, see if it is in module definitions
-        if (!isFound) {
-            // find if a route matches a module route
-            var mods = app._conf.modules;
-            for (var name in mods) {
-                var mod = mods[name];
-                var rt  = mod.route;
-                if (typeof rt == 'string') {
-                    rt = rt.replace(/\/{2,}/g, '/'); // remove double slashes
-                    if (rt[rt.length - 1] == '*') rt = rt.substr(0, rt.length - 1); // remove trailign *
+        // find if a route matches a module route
+        var loadCnt = 0;
+        var mods    = app._conf.modules;
+        var loading = [];
+        for (var name in mods) {
+            var mod = mods[name];
+            var rt  = mod.route;
+            var nearMatch = false;
+            if (rt != null) {
+                if (typeof rt == 'string') rt = [rt];
+                if (Array.isArray(rt)) {
+                    rt.forEach(function (str) { checkRoute(str) });
                 }
-                if (!mod.ready && mod.route && hash.indexOf(rt) === 0) { // only when not yet loaded
+            }
+            function checkRoute(str) {
+                mod.routeRE = mod.routeRE || {};
+                if (mod.routeRE[str] == null) mod.routeRE[str] = prepare(str);
+                if (!mod.ready && str && mod.routeRE[str].path.exec(hash) && loading.indexOf(name) == -1) {
+                    if (app._conf.verbose) console.log('ROUTER: Auto Load Module "' + name + '"');
+                    isAutoLoad = true;
+                    loadCnt++;
+                    loading.push(name);
                     app.require(name).done(function () {
-                        if (app._conf.modules[name]) process();
+                        loadCnt--;
+                        if (app._conf.modules[name] && loadCnt === 0) process();
                     });
                     return;
                 }
             }
+        }
+        if (!isAutoLoad && !isExact && app._conf.verbose) console.log('ROUTER: Exact route for "' + hash + '" not found');
+
+        if (!isFound) {
             // path not found
             if (typeof app.route.trigger == 'function') {
                 var eventData = app.route.trigger({ phase: 'before', type: 'error', target: 'self', hash: hash});
                 if (eventData.isCancelled === true) return false;
             }
-            console.log('ERROR: route "' + hash + '" not found');
+            if (!isAutoLoad && app._conf.verbose) console.log('ROUTER: Wild card route for "' + hash + '" not found');
             // if events are available
             if (typeof app.route.trigger == 'function') app.route.trigger($.extend(eventData, { phase: 'after' }));
         }
@@ -166,10 +214,17 @@ kickStart.register('route', function () {
     *   Private methods
     */
 
-    function prepare() {
+    function prepare(r) {
+        if (r != null) {
+            return _prepare(r)
+        }
         // make sure all routes are parsed to RegEx
         for (var r in routes) {
             if (routeRE[r]) continue;
+            routeRE[r] = _prepare(r)
+        }
+
+        function _prepare(r) {
             var keys = [];
             var path = r
                 .replace(/\/\(/g, '(?:/')
@@ -182,9 +237,9 @@ kickStart.register('route', function () {
                 .replace(/([\/.])/g, '\\$1')
                 .replace(/__plus__/g, '(.+)')
                 .replace(/\*/g, '(.*)');
-            routeRE[r] = {
-                path    : new RegExp('^' + path + '$', 'i'),
-                keys    : keys
+            return {
+                path : new RegExp('^' + path + '$', 'i'),
+                keys : keys
             }
         }
     }

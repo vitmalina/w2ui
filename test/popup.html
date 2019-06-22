@@ -95,22 +95,78 @@ function checkMenu(el) {
 
 function myConfirm () {
     w2confirm({
-            title: 'Title',
-            msg: 'Message',
-            width: 500,
-            height: 250,
-            yes_text: 'Yes',
-            no_text: 'No',
-            callBack: function (btn) {
-                console.log('Common call back '+ btn);
-            }
-        })
-        .yes(function () {
-            console.log('Yes clicked');
-        })
-        .no(function () {
-            console.log('No clicked');
-        });
+        title: 'Title',
+        msg: 'Message',
+        width: 500,
+        height: 250,
+        yes_text: 'Yes',
+        no_text: 'No',
+        callBack: function (btn) {
+            console.log('Common call back '+ btn);
+        },
+        onOpen: function (event) {
+            console.log('confirm open', event)
+        },
+        onClose: function (event) {
+            console.log('confirm close', event)
+        }
+    })
+    .yes(function () {
+        console.log('Yes clicked');
+    })
+    .no(function () {
+        console.log('No clicked');
+    });
+}
+
+function myPrompt () {
+    w2prompt({
+        title: 'Title',
+        msg: 'Message',
+        width: 500,
+        height: 250,
+        yes_text: 'Yes',
+        no_text: 'No',
+        callBack: function (btn) {
+            console.log('Common call back '+ btn);
+        },
+        onOpen: function () {
+            console.log('prompt open', event)
+        },
+        onClose: function () {
+            console.log('prompt close', event)
+        }
+    })
+    .ok(function () {
+        console.log('Ok clicked');
+    })
+    .change(function (text) {
+        console.log('Change: ', text);
+    });
+}
+
+function myActions() {
+    w2popup.open({
+        title: 'Actions',
+        body: 'some',
+        actions: {
+            "Action 1": function (action) {
+                console.log('Popup Action 1', action)
+            },
+            action2: {
+                text1: "Action 2 Text",
+                class: 'w2ui-btn-blue',
+                style: 'border-radius: 0',
+                onClick: function (action) {
+                    console.log('Popup Action 2', action)
+                }
+            },
+            help: ' Some help string'
+        },
+        onAction: function (action) {
+            console.log(action)
+        }
+    })
 }
 
 function popup3 () {
@@ -186,8 +242,8 @@ jQuery(function () {
         show: { toolbar: true },
         // selectType: 'cell',
         columns: [
-            { caption: 'First', field: 'fname', size: '100%', editable: { type: 'text' }, searchable: true },
-            { caption: 'Second', field: 'lname', size: '100%', editable: { type: 'text' }, searchable: true }
+            { text: 'First', field: 'fname', size: '100%', editable: { type: 'text' }, searchable: true },
+            { text: 'Second', field: 'lname', size: '100%', editable: { type: 'text' }, searchable: true }
         ],
         records: [
             { recid: 1, fname: 'John', lname: 'Cook' },
@@ -197,15 +253,15 @@ jQuery(function () {
     jQuery().w2form({
         name: 'form',
         fields: [
-            { field: 'fname', html: { caption: 'First Name' }},
-            { field: 'lname', html: { caption: 'Last Name' }}
+            { field: 'fname', html: { label: 'First Name' }},
+            { field: 'lname', html: { label: 'Last Name' }}
         ]
     });
     jQuery().w2layout({ name: 'layout', panels: [
         { type: 'top', style: 'border: 1px solid silver', size: '100px', resizable: true,
             toolbar: {
                 items: [
-                    { id: 'btn1', type: 'menu', caption: 'Menu', items: [{ id: 1, text: 'Item 1'}, { id: 2, text: 'item 2'}] }
+                    { id: 'btn1', type: 'menu', text: 'Menu', items: [{ id: 1, text: 'Item 1'}, { id: 2, text: 'item 2'}] }
                 ]
             }
         },
@@ -228,6 +284,8 @@ jQuery(function () {
         <button class="w2ui-btn" value="Menu"    onclick="checkMenu(this)">Check Menu</button>
         <button class="w2ui-btn" value="Alert"   onclick="w2alert('message');">Alert</button>
         <button class="w2ui-btn" value="Confirm" onclick="myConfirm()">Confirm</button>
+        <button class="w2ui-btn" value="Confirm" onclick="myPrompt()">Prompt</button>
+        <button class="w2ui-btn" value="Actions" onclick="myActions()">Actions</button>
     </div>
 
     <hr/>
