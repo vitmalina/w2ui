@@ -1078,23 +1078,23 @@
                 if (field.html.anchor == null) {
                     var span = (field.html.span != null ? 'w2ui-span'+ field.html.span : '')
                     if (field.html.span == -1) span = 'w2ui-span-none';
-                    html += '\n      <div class="w2ui-field '+ span +'" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style  +'">'+
+                    html += '\n      <div class="w2ui-field-container"><div class="w2ui-field '+ span +'" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style  +'">'+
                             '\n         <label'+ (span == 'none' ? ' style="display: none"' : '') +'>' + w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text) +'</label>'+
                             ((field.type === 'empty') ? '' : '\n         <div>'+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '') : '') + '</div>') +
-                            '\n      </div>';
+                            '\n      </div></div>';
                 } else {
                     pages[field.html.page].anchors = pages[field.html.page].anchors || {};
                     pages[field.html.page].anchors[field.html.anchor] = '<div class="w2ui-field w2ui-field-inline" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
                             ((field.type === 'empty') ? '' : '<div>'+ w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text) + input + w2utils.lang(field.type != 'checkbox' ? field.html.text : '') + '</div>') +
                             '</div>';
                 }
-                
-				if (pages[field.html.page] == null) pages[field.html.page] = {};
-				if (pages[field.html.page][field.html.row] == null) pages[field.html.page][field.html.row] = [];				
+				if (pages[field.html.page] == null) pages[field.html.page] = [];
+				if (pages[field.html.page][field.html.row] == null) pages[field.html.page][field.html.row] = {};				
                 if (pages[field.html.page][field.html.row][field.html.column] == null) pages[field.html.page][field.html.row][field.html.column] = '';
-                pages[field.html.page][field.html.column] += html;
+                pages[field.html.page][field.html.row][field.html.column] += html;
                 page = field.html.page;
                 column = field.html.column;
+                row = field.html.row;
             }
             if (group !== '') pages[page][row][column] += '\n   </div>';
             if (this.tabs.tabs) {
@@ -1130,16 +1130,16 @@
             }
             html = '';
             for (var p = 0; p < pages.length; p++){
-                html += '<div class="w2ui-page page-'+ p +'" style="' + (p !== 0 ? 'display: none;' : '') + this.pageStyle + '">';
+                html += '<div class="w2ui-page page-'+ p +'" style="' + (p !== 0 ? 'display: none;' : '') + ( this.pageStyle || '' ) + '">';
                 if (pages[p].before) {
                     html += pages[p].before;
                 }
-                html += '<div class="w2ui-column-container" style="display: flex;">';
+                html += '<div class="w2ui-column-container" style="display: flex;">\n';
 				for (var r = 0; r < pages[p].length; r++) {
 					html+='<div class="w2ui-row row-'+r+'">\n';
-					Object.keys(pages[p]).sort().forEach(function (c, ind) {
+					Object.keys(pages[p][r]).sort().forEach(function (c, ind) {
 						if (c == parseInt(c)) {
-							html += '<div class="w2ui-column col-'+ c +'">' + (pages[p][r][c] || '') + '\n</div>';
+							html += '<div class="w2ui-column col-'+ c +'"><div class="w2ui-field-group">' + (pages[p][r][c] || '') + '\n</div></div>';
 						}
 					})
 					html += '\n</div>';
@@ -1302,16 +1302,6 @@
                 if (field.el) field.el.id = field.name;
                 var tmp = $(field).data('w2field');
                 if (tmp) tmp.clear();
-                $(field.$el).off('change').on('change', function () {
-                    var value_new      = this.value;
-                    var value_previous = obj.record[this.name] != null ? obj.record[this.name] : '';
-                    var field          = obj.get(this.name);
-                    if ((['enum', 'file'].indexOf(field.type) != -1) || (['list', 'combo'].indexOf(field.type) != -1 && $(this).data('selected').text == value_new)) {
-                        var nv = $(this).data('selected');
-                        var cv = obj.record[this.name];
-                        if ($.isArray(nv)) {
-                            value_new = [];
-                            for (var i = 0; i < nv.length; i++) value_new[i] = $.extend(true, {}, nv[i]); // clone array
                 $(field.$el)
                     .off('.w2form')
                     .on('change.w2form', function (event) {
@@ -1344,7 +1334,7 @@
                         if (['int', 'float', 'percent', 'money', 'currency'].indexOf(field.type) !== -1) {
                             value_new = $(this).data('w2field').clean(value_new);
                         }
-						
+
 						//TODO: JSON.stringify > deepdiff
 						if ($.isPlainObject(value_new) && $.isPlainObject(value_previous) && (JSON.stringify(value_new) === JSON.stringify(value_previous))) return;
 						else if (value_new === value_previous) return;

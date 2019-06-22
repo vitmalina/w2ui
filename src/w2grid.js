@@ -354,12 +354,11 @@
         dataType          : null,       // if defined, then overwrited w2utils.settings.dataType
         parser            : null,
 
-        useFieldDot       : true;       // use field name containing dots as separator to look into object
-        selectDuplicates  : false;      // select duplicated recids
-        expandAllOnLoad   : false;      // expand all expandable records on load
-        multiEdit         : false;      // edit button is enabled when multiple records is selected
-        IOSContextMenu    : false;
-
+        useFieldDot       : true,       // use field name containing dots as separator to look into object
+        selectDuplicates  : false,      // select duplicated recids
+        expandAllOnLoad   : false,      // expand all expandable records on load
+        multiEdit         : false,      // edit button is enabled when multiple records is selected
+        IOSContextMenu    : false,
 
         // these column properties will be saved in stateSave()
         stateColProps: {
