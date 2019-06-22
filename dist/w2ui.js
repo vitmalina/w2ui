@@ -3605,6 +3605,7 @@ w2utils.event = {
         this.selectDuplicates = false;   // select duplicated recids
         this.expandAllOnLoad = false;    // expand all expandable records on load
         this.multiEdit       = false;    // edit button is enabled when multiple records is selected
+        this.IOSContextMenu  = false;
 
         this.total   = 0;     // server total
         this.limit   = 100;
@@ -3746,8 +3747,9 @@ w2utils.event = {
                 if (search == null || search === false || object.getSearch(col.field) != null) continue;
                 if ($.isPlainObject(search)) {
                     var src = $.extend({ field: col.field, caption: col.caption, type: 'text' }, search);
-                    
+                    //Search mapping
                     if (src.type=='radio') src.type='list';
+                    else if (src.type=='textarea') src.type='text';
                     object.addSearch(src);
                 } else {
                     var stype = col.searchable, attr  = '';
@@ -5364,6 +5366,7 @@ w2utils.event = {
                     var operator = $('#grid_'+ this.name + '_operator_'+ i).val();
                     var field1   = $('#grid_'+ this.name + '_field_'+ i);
                     var field2   = $('#grid_'+ this.name + '_field2_'+ i);
+                    var opnot    = $('#grid_'+ this.name + '_not_'+ i).is(":checked"); 
                     var value1   = field1.val();
                     var value2   = field2.val();
                     var svalue   = null;
@@ -5397,12 +5400,15 @@ w2utils.event = {
                         else value1 = null;
                     }
 
-                    if ((value1 !== '' && value1 != null) || (value2 != null && value2 !== '')) {
+                    if ( (value1 !== '' && value1 != null) || (value2 != null && value2 !== '') || opnot ) {
                         var tmp = {
                             field    : search.field,
                             type     : search.type,
                             operator : operator
                         };
+
+                        if ( opnot ) tmp.not = opnot;
+
                         if (operator == 'between') {
                             $.extend(tmp, { value: [value1, value2] });
                         } else if (operator == 'in' && typeof value1 == 'string') {
@@ -8428,6 +8434,7 @@ w2utils.event = {
                         if ($owner.hasClass('w2ui-scroll-wrapper') && $owner.parent().hasClass('w2ui-toolbar')) {
                             sLeft = obj.last.move.focusX - $owner.scrollLeft();
                         }
+                        //It can make an empty vertical line in the layout bug
                         $input.css({
                             left: sLeft - 10,
                             top : sTop
@@ -9215,7 +9222,7 @@ w2utils.event = {
                             if (edata2.isCancelled === true) return false;
                             obj.trigger($.extend(edata2, { phase: 'after' }));
                             // hide all tooltips
-                            //setTimeout(function () { $().w2tag(); }, 20); -- commented out, hides all tags
+                            setTimeout(function () { $().w2tag(); }, 20); // -- commented out, hides all tags ... but why!?
                             break;
                         case 'w2ui-edit':
                             var sel   = obj.getSelection();
@@ -9779,6 +9786,7 @@ w2utils.event = {
                 html += '<tr>'+
                         '    <td class="close-btn">'+ btn +'</td>' +
                         '    <td class="caption">'+ (s.caption || '') +'</td>' +
+                        '    <td class="not">' + w2utils.lang('Not') + ' <input type="checkbox" id="grid_'+ this.name +'_not_'+ i +'" /></td>'+
                         '    <td class="operator">'+ operator +'</td>'+
                         '    <td class="value">';
 
@@ -9827,7 +9835,7 @@ w2utils.event = {
                         '</tr>';
             }
             html += '<tr>'+
-                    '    <td colspan="4" class="actions">'+
+                    '    <td colspan="100" class="actions">'+
                     '        <div>'+
                     '        <button type="button" class="w2ui-btn" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.searchReset(); }">'+ w2utils.lang('Reset') + '</button>'+
                     '        <button type="button" class="w2ui-btn w2ui-btn-blue" onclick="obj = w2ui[\''+ this.name +'\']; if (obj) { obj.search(); }">'+ w2utils.lang('Search') + '</button>'+
@@ -9912,6 +9920,8 @@ w2utils.event = {
                         break;
                     }
                 }
+                //not checkbox
+                if ( sdata && sdata.not ) $('#grid_'+ this.name +'_not_' + s).prop('checked', true);
                 // init types
                 switch (search.type) {
                     case 'text':
@@ -10654,7 +10664,7 @@ w2utils.event = {
                     (record.w2ui && record.w2ui.editable === false ? ' w2ui-no-edit' : '') +
                     (record.w2ui && record.w2ui.expanded === true ? ' w2ui-expanded' : '') + '" ' +
                 (summary !== true ?
-                    (w2utils.isIOS ?
+                    (w2utils.isIOS && !this.IOSContextMenu ?
                         '    onclick  = "w2ui[\''+ this.name +'\'].dblClick(jQuery(this).attr(\'recid\'), event);"'
                         :
                         '    onclick  = "w2ui[\''+ this.name +'\'].click(jQuery(this).attr(\'recid\'), event);"'+
@@ -10676,7 +10686,7 @@ w2utils.event = {
                     (record.w2ui && record.w2ui.editable === false ? ' w2ui-no-edit' : '') +
                     (record.w2ui && record.w2ui.expanded === true ? ' w2ui-expanded' : '') + '" ' +
                 (summary !== true ?
-                    (w2utils.isIOS ?
+                    (w2utils.isIOS && !this.IOSContextMenu ?
                         '    onclick  = "var obj = w2ui[\''+ this.name +'\']; obj.dblClick(jQuery(this).attr(\'recid\'), event);"'
                         :
                         '    onclick  = "var obj = w2ui[\''+ this.name +'\']; obj.click(jQuery(this).attr(\'recid\'), event);"'+
@@ -14666,6 +14676,9 @@ var w2prompt = function (label, title, callBack) {
                                 el.w2overlay(it.html, $.extend({ name: obj.name, left: left, top: 3 }, it.overlay, {
                                     onHide: function (event) {
                                         hideDrop();
+                                    },
+                                    onShow: function (event) {
+                                        if ( obj.onShow ) obj.onShow( );
                                     }
                                 }));
                             }
@@ -17681,6 +17694,19 @@ var w2prompt = function (label, title, callBack) {
         updateOverlay: function (indexOnly) {
             var obj     = this;
             var options = this.options;
+            function genSpecials( ) {
+                //Special dates
+                var specials = '';
+                if (options.specials) {
+                    if (Array.isArray(options.specials)) options.specials.forEach(spec=>{
+                        if (spec.id) specials += '<div class="w2ui-calendar-now now special" id="' + spec.id + '">' + (spec.text ? spec.text : spec.id) + '</div>';
+                        else specials += '<div class="w2ui-calendar-now now special" id="' + spec + '">' + spec + '</div>';
+                    })
+                    else specials = '<div class="w2ui-calendar-now now special" id="' + spec + '">' + options.specials + '</div>';
+                }
+                return specials;
+            }
+
             // color
             if (this.type === 'color') {
                 if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
@@ -17718,7 +17744,7 @@ var w2prompt = function (label, title, callBack) {
                 var dt = w2utils.isDate($(obj.el).val(), obj.options.format, true);
                 if (dt) { month = dt.getMonth() + 1; year = dt.getFullYear(); }
                 (function refreshCalendar(month, year) {
-                    $('#w2ui-overlay > div > div').html(obj.getMonthHTML(month, year, $(obj.el).val()));
+                    $('#w2ui-overlay > div > div').html(obj.getMonthHTML(month, year, $(obj.el).val()) + genSpecials());
                     $('#w2ui-overlay .w2ui-calendar-title')
                         .on('mousedown', function () {
                             if ($(this).next().hasClass('w2ui-calendar-jump')) {
@@ -17841,20 +17867,10 @@ var w2prompt = function (label, title, callBack) {
                 if (dt) { month = dt.getMonth() + 1; year = dt.getFullYear(); }
                 var selDate = null;
                 (function refreshCalendar(month, year) {
-                    //Special dates
-                    var specials = '';
-                    if (options.specials) {
-                        if (Array.isArray(options.specials)) options.specials.forEach(spec=>{
-                            if (spec.id) specials += '<div class="w2ui-calendar-now now special" id="' + spec.id + '">' + (spec.text ? spec.text : spec.id) + '</div>';
-                            else specials += '<div class="w2ui-calendar-now now special" id="' + spec + '">' + spec + '</div>';
-                        })
-                        else specials = '<div class="w2ui-calendar-now now special" id="' + spec + '">' + options.specials + '</div>';
-                    }
-
                     $('#w2ui-overlay > div > div').html(
                         obj.getMonthHTML(month, year, $(obj.el).val())
                         + (options.btn_now ? '<div class="w2ui-calendar-now now">'+ w2utils.lang('Current Date & Time') + '</div>' : '')
-                        + specials
+                        + genSpecials()
                     );
                     $('#w2ui-overlay .w2ui-calendar-title')
                         .on('mousedown', function () {
@@ -19746,7 +19762,7 @@ var w2prompt = function (label, title, callBack) {
                     }
                 }
                 if (field.html.group && (group != field.html.group)) {
-                    html += '\n   <div class="w2ui-group-title">'+ field.html.group + '</div>\n   <div class="w2ui-group">';
+                    html += '\n   <div class="w2ui-group-title' + ( field.html.groupClass ? ' w2ui-group-title-' + field.html.groupClass : '' ) + '">'+ field.html.group + '</div>\n   <div class="w2ui-group' + ( field.html.groupClass ? ' w2ui-group-' + field.html.groupClass : '' ) + '">';
                     group = field.html.group;
                 }
                 html += '\n      <div class="w2ui-field-container"><div class="w2ui-field '+ (field.html.span != null ? 'w2ui-span'+ field.html.span : '') +'" style="'+ field.html.style +'">'+

@@ -361,6 +361,9 @@
                                 el.w2overlay(it.html, $.extend({ name: obj.name, left: left, top: 3 }, it.overlay, {
                                     onHide: function (event) {
                                         hideDrop();
+                                    },
+                                    onShow: function (event) {
+                                        if ( obj.onShow ) obj.onShow( );
                                     }
                                 }));
                             }
