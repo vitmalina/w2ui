@@ -6,11 +6,11 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 if (typeof module!='undefined' && module.exports) {
     var navigator = require('navigator');
     var fs = require('fs');
-    
+
     var jsdom = require('jsdom');
     const { JSDOM } = jsdom;
     const { window } = new JSDOM('<html></html>');
-    var jQuery = require('jquery')(window);  
+    var jQuery = require('jquery')(window);
 }
 
 /************************************************
@@ -3377,6 +3377,11 @@ w2utils.event = {
     };
 
 })(jQuery);
+
+//NodeJS wrapper
+if (typeof module!='undefined' && module.exports) {
+    module.exports = w2utils;
+}
 
 /************************************************************************
 *   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
