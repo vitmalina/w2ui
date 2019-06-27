@@ -2179,6 +2179,7 @@ w2utils.event = {
             inputClass      : '',       // add class for input when tag is shown
             onShow          : null,     // callBack when shown
             onHide          : null,     // callBack when hidden
+            overflowY       : true,     // tag height is not limited on the bottom of the window
             hideOnKeyPress  : true,     // hide tag if key pressed
             hideOnBlur      : false,    // hide tag on blur
             hideOnClick     : false,    // hide tag on document click
@@ -2266,6 +2267,12 @@ w2utils.event = {
                     .data('w2tag', tag)
                     .find('.w2ui-tag-body').addClass(pos['posClass']);
                 tag.tmp.pos = pos.left + 'x' + pos.top;
+
+                if ( !options.overflowY && tag.box.find('.w2ui-tag-body').height( ) > window.innerHeight - pos.top ) {
+                    tag.box.find('.w2ui-tag-body').css( {
+                        height: window.innerHeight - pos.top
+                    } );
+                }
 
                 $(tag.attachedTo)
                     .off('.w2tag')
