@@ -2608,7 +2608,7 @@
                                 this.last.xhr_hasMore = true;
                             } else {
                                 this.last.xhr_hasMore = false;
-                                this.total = this.last.xhr_offset + data.records.length;
+                                this.total = this.offset + this.last.xhr_offset + data.records.length;
                             }
                             if (this.last.xhr_offset === 0) {
                                 this.records = [];
