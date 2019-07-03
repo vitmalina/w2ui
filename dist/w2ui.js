@@ -8192,7 +8192,7 @@ w2utils.event = {
             if ($('.w2ui-layout').length === 0) { // if there is layout, it will send a resize event
                 $(window).off('resize.w2ui-'+ this.name)
                     .on('resize.w2ui-'+ this.name, function (event) {
-                        w2ui[obj.name].resize();
+                        if (w2ui[obj.name]) w2ui[obj.name].resize();
                     });
             }
             return (new Date()).getTime() - time;
@@ -11257,7 +11257,7 @@ w2utils.event = {
             this.last.selection = { indexes: [], columns: {} };
             var sel = this.last.selection;
             var lst = this.last._selection;
-            for (var i = 0; i < lst.length; i++) {
+            if (lst) for (var i = 0; i < lst.length; i++) {
                 if ($.isPlainObject(lst[i])) {
                     // selectType: cell
                     var tmp = this.get(lst[i].recid, true);
@@ -11826,7 +11826,7 @@ w2utils.event = {
             function initEvents() {
                 obj.tmp.events = {
                     resize : function (event) {
-                        w2ui[obj.name].resize();
+                        if (w2ui[obj.name] != null) w2ui[obj.name].resize();
                     },
                     resizeStart : resizeStart,
                     mouseMove   : resizeMove,
@@ -19866,7 +19866,7 @@ var w2prompt = function (label, title, callBack) {
                 if (field.html.group && (group != field.html.group)) {
                     var collapsable = '';
                     if (field.html.groupCollapsable) {
-                        collapsable = '<span class="w2ui-icon-expand" style="width: 15px; display: inline-block; position: relative; top: -2px;"></span>'
+                        collapsable = '<span class="w2ui-icon-collapse" style="width: 15px; display: inline-block; position: relative; top: -2px;"></span>'
                     }
                     html += '\n   <div class="w2ui-group-title" '
                         + (collapsable != '' ? 'data-group="' + w2utils.base64encode(field.html.group) + '"' : '')
@@ -20593,7 +20593,9 @@ var w2prompt = function (label, title, callBack) {
             }
             // attach to resize event
             if ($('.w2ui-layout').length === 0) { // if there is layout, it will send a resize event
-                this.tmp_resize = function (event) { w2ui[obj.name].resize(); };
+                this.tmp_resize = function (event) {
+                    if (w2ui[obj.name]) w2ui[obj.name].resize();
+                }
                 $(window).off('resize', 'body').on('resize', 'body', this.tmp_resize);
             }
             if (this.focus != -1) {

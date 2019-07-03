@@ -963,8 +963,7 @@ button.w2ui-btn-small:focus:before {
   left: 0;
   right: 0;
   overflow: auto;
-  padding: 10px 3px 0 3px;
-  padding-bottom: 0px;
+  padding: 10px 5px 0 5px;
   border-left: 1px solid inherit;
   border-right: 1px solid inherit;
   background-color: inherit;
@@ -972,7 +971,12 @@ button.w2ui-btn-small:focus:before {
 }
 .w2ui-form .w2ui-column-container {
   display: flex;
+  padding: 0;
 }
+.w2ui-form .w2ui-column-container .w2ui-column {
+  width: 100%;
+}
+.w2ui-form .w2ui-column-container .w2ui-column.col-0,
 .w2ui-form .w2ui-column-container .w2ui-column.col-1,
 .w2ui-form .w2ui-column-container .w2ui-column.col-2,
 .w2ui-form .w2ui-column-container .w2ui-column.col-3,
@@ -983,7 +987,7 @@ button.w2ui-btn-small:focus:before {
 .w2ui-form .w2ui-column-container .w2ui-column.col-8,
 .w2ui-form .w2ui-column-container .w2ui-column.col-9,
 .w2ui-form .w2ui-column-container .w2ui-column.col-10 {
-  margin-left: 10px;
+  margin: 0 5px;
 }
 .w2ui-form .w2ui-buttons {
   position: absolute;
