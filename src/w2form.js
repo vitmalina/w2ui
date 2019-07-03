@@ -1770,9 +1770,13 @@
             // attach to resize event
             if ($('.w2ui-layout').length === 0) { // if there is layout, it will send a resize event
                 this.tmp_resize = function (event) {
-                    if (w2ui[obj.name]) w2ui[obj.name].resize();
+                    if (w2ui[obj.name] == null) {
+                        $(window).off('resize.w2uiResize', obj.tmp_resize);
+                    } else {
+                        w2ui[obj.name].resize();
+                    }
                 }
-                $(window).off('resize', 'body').on('resize', 'body', this.tmp_resize);
+                $(window).off('resize.w2uiResize').on('resize.w2uiResize', obj.tmp_resize);
             }
             if (this.focus != -1) {
                 setTimeout(function () {

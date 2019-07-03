@@ -517,13 +517,17 @@
             function initEvents() {
                 obj.tmp.events = {
                     resize : function (event) {
-                        if (w2ui[obj.name] != null) w2ui[obj.name].resize();
+                        if (w2ui[obj.name] == null) {
+                            $(window).off('resize.w2ui-'+ obj.name);
+                        } else {
+                            w2ui[obj.name].resize();
+                        }
                     },
                     resizeStart : resizeStart,
                     mouseMove   : resizeMove,
                     mouseUp     : resizeStop
                 };
-                $(window).on('resize', obj.tmp.events.resize);
+                $(window).on('resize.w2ui-'+ obj.name, obj.tmp.events.resize);
             }
 
             function resizeStart(type, evnt) {

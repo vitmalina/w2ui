@@ -4857,9 +4857,14 @@
             this.trigger($.extend(edata, { phase: 'after' }));
             // attach to resize event
             if ($('.w2ui-layout').length === 0) { // if there is layout, it will send a resize event
-                $(window).off('resize.w2ui-'+ this.name)
-                    .on('resize.w2ui-'+ this.name, function (event) {
-                        if (w2ui[obj.name]) w2ui[obj.name].resize();
+                $(window)
+                    .off('resize.w2ui-'+ obj.name)
+                    .on('resize.w2ui-'+ obj.name, function (event) {
+                        if (w2ui[obj.name] == null) {
+                            $(window).off('resize.w2ui-'+ obj.name)
+                        } else {
+                            w2ui[obj.name].resize();
+                        }
                     });
             }
             return (new Date()).getTime() - time;
