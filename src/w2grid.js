@@ -4859,7 +4859,7 @@
             if ($('.w2ui-layout').length === 0) { // if there is layout, it will send a resize event
                 $(window).off('resize.w2ui-'+ this.name)
                     .on('resize.w2ui-'+ this.name, function (event) {
-                        w2ui[obj.name].resize();
+                        if (w2ui[obj.name]) w2ui[obj.name].resize();
                     });
             }
             return (new Date()).getTime() - time;
@@ -7924,7 +7924,7 @@
             this.last.selection = { indexes: [], columns: {} };
             var sel = this.last.selection;
             var lst = this.last._selection;
-            for (var i = 0; i < lst.length; i++) {
+            if (lst) for (var i = 0; i < lst.length; i++) {
                 if ($.isPlainObject(lst[i])) {
                     // selectType: cell
                     var tmp = this.get(lst[i].recid, true);

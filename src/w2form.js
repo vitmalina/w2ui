@@ -1042,7 +1042,7 @@
                 if (field.html.group && (group != field.html.group)) {
                     var collapsable = '';
                     if (field.html.groupCollapsable) {
-                        collapsable = '<span class="w2ui-icon-expand" style="width: 15px; display: inline-block; position: relative; top: -2px;"></span>'
+                        collapsable = '<span class="w2ui-icon-collapse" style="width: 15px; display: inline-block; position: relative; top: -2px;"></span>'
                     }
                     html += '\n   <div class="w2ui-group-title" '
                         + (collapsable != '' ? 'data-group="' + w2utils.base64encode(field.html.group) + '"' : '')
@@ -1769,7 +1769,9 @@
             }
             // attach to resize event
             if ($('.w2ui-layout').length === 0) { // if there is layout, it will send a resize event
-                this.tmp_resize = function (event) { w2ui[obj.name].resize(); };
+                this.tmp_resize = function (event) {
+                    if (w2ui[obj.name]) w2ui[obj.name].resize();
+                }
                 $(window).off('resize', 'body').on('resize', 'body', this.tmp_resize);
             }
             if (this.focus != -1) {

@@ -517,7 +517,7 @@
             function initEvents() {
                 obj.tmp.events = {
                     resize : function (event) {
-                        w2ui[obj.name].resize();
+                        if (w2ui[obj.name] != null) w2ui[obj.name].resize();
                     },
                     resizeStart : resizeStart,
                     mouseMove   : resizeMove,
