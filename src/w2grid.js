@@ -412,12 +412,12 @@
             info            : null    // info bubble, can be bool/object
         },
 
-        msgDelete       : 'Are you sure you want to delete NN records?',
-        msgDeleteBtn    : 'Delete',
-        msgNotJSON      : 'Returned data is not in valid JSON format.',
-        msgAJAXerror    : 'AJAX error. See console for more details.',
-        msgRefresh      : 'Refreshing...',
-        msgNeedReload   : 'Your remote data source record count has changed, reloading from the first record.',
+        msgDelete       : w2utils.lang('Are you sure you want to delete NN records?'),
+        msgDeleteBtn    : w2utils.lang('Delete'),
+        msgNotJSON      : w2utils.lang('Returned data is not in valid JSON format.'),
+        msgAJAXerror    : w2utils.lang('AJAX error. See console for more details.'),
+        msgRefresh      : w2utils.lang('Refreshing...'),
+        msgNeedReload   : w2utils.lang('Your remote data source record count has changed, reloading from the first record.'),
         msgEmpty        : '', // if not blank, then it is message when server returns no records
 
         buttons: {
