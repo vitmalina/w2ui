@@ -520,7 +520,7 @@ var w2utils = (function ($) {
             case 'number':
                 break;
             case 'string':
-                html = String(html).replace(/(<([^>]+)>)/ig, "");
+                html = String(html).replace(/<(?:[^>=]|='[^']*'|="[^"]*"|=[^'"][^\s>]*)*>/ig, "");
                 break;
             case 'object':
                 // does not modify original object, but creates a copy
