@@ -1812,7 +1812,7 @@
                 setTimeout(function () {
                     // if not rendered in 10ms, then wait 500ms
                     if ($(obj.box).find('input, select, textarea').length === 0) {
-                        setTimeout(focusEl, 500); // need timeout to allow form to render
+                        setTimeout(obj.applyFocus, 500); // need timeout to allow form to render
                     } else {
                         obj.applyFocus();
                     }

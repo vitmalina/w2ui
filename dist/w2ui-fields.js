@@ -2009,10 +2009,10 @@ w2utils.event = {
                 execute : tmp[1]
             };
         }
-        if (!$.isPlainObject(edata)) edata = { type: edata };
+        if (!$.isPlainObject(edata)) edata = { type: edata, scope: scope };
         edata = $.extend({}, { type: null, execute: 'before', target: null, onComplete: null }, edata);
         // errors
-        if (!edata.type && !scope) { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return; }
+        if (!edata.type && !edata.scope) { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return; }
         if (!handler) { handler = null; }
         // remove handlers
         var newHandlers = [];
@@ -2021,7 +2021,7 @@ w2utils.event = {
             if ((t.edata.type === edata.type || edata.type === '*' || (t.edata.scope != null && edata.type == '')) &&
                 (t.edata.target === edata.target || edata.target == null) &&
                 (t.edata.execute === edata.execute || edata.execute == null) &&
-                ((t.handler === handler && handler != null) || (scope != null && t.edata.scope == scope)))
+                ((handler != null && t.handler === handler) || (edata.scope != null && t.edata.scope == edata.scope)))
             {
                 // match
             } else {
