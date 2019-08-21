@@ -9,4 +9,5 @@ node_modules/
 .DAV
 copy_shield.sh
 npm-shrinkwrap.json
+package-lock.json
 *~
