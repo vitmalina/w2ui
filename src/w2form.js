@@ -843,7 +843,7 @@
                     .done(function (data, status, xhr) {
                         obj.unlock();
                         // event before
-                        var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'save', xhr: xhr, status: status });
+                        var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'save', xhr: xhr, status: status, data: data });
                         if (edata.isCancelled === true) return;
                         // parse server response
                         var data;
