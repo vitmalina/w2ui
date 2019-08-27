@@ -8,3 +8,7 @@ node_modules/
 /npm-debug.log
 .DAV
 copy_shield.sh
+npm-shrinkwrap.json
+package-lock.json
+*~
+clazzes-maven/target
