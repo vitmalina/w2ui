@@ -11,3 +11,4 @@ copy_shield.sh
 npm-shrinkwrap.json
 package-lock.json
 *~
+clazzes-maven/target
