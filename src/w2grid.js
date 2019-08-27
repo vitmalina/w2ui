@@ -5855,7 +5855,7 @@
                 .each(function (index, el) {
                     var td  = $(el).parent();
                     $(el).css({
-                        "height"         : '25px',
+                        "height"         : td.height(),
                         "margin-left"     : (td.width() - 3) + 'px'
                     });
                 });
