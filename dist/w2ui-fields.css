@@ -115,6 +115,9 @@
 /*************************************************
 * ---- Input Controls ----
 */
+div.w2ui-input:focus {
+  outline-color: #72b2ff;
+}
 input:not([type=button]):not([type=submit]).w2ui-input,
 textarea.w2ui-input {
   padding: 4px;
