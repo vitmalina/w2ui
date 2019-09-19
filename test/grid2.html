@@ -31,14 +31,16 @@ $(function () {
             footer: true,
             header: true,
             emptyRecords: true,
-            selectColumn: true,
+            selectColumn: false,
             expandColumn: false,
+            orderColumn: true,
             columnHeaders: true,
             lineNumbers: true,
             toolbarDelete: true,
             toolbarSave: true,
             toolbarAdd: true
         },
+        reorderRows: true,
         onClick: function (event) {
             var tg = $(event.originalEvent.target);
             if (tg[0].tagName == 'DIV') tg = tg.parents('td');
@@ -66,7 +68,7 @@ $(function () {
         },
         // selectType: 'cell',
         columns: [
-            { field: 'recid', text: 'ID', size: '80px', sortable: true, searchable: 'int', frozen: true },
+            { field: 'recid', text: 'ID', size: '80px', sortable: true, searchable: 'int' },
             { field: 'int', text: 'int', size: '80px', sortable: true, resizable: true,
               editable: function (record, index, col_index, data) {
                   // only odd 'recid' records are editable

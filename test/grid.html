@@ -41,6 +41,7 @@ jQuery(function () {
             emptyRecords: true,
             columnHeaders: true,
             searchAll: true,
+            searchHiddenMsg: true,
             searchVisible: true,
             selectColumn: true,
             expandColumn: false,
@@ -104,9 +105,13 @@ jQuery(function () {
             { field: 'color', label: 'Color', type: 'color' },
             { field: 'email', label: 'Email', type: 'text', operator1: 'null', operators1: ['is', 'null', 'not null'] },
             { field: 'fname', label: 'First Name 1', type: 'text' },
-            { field: 'fname', label: 'First Name 2', type: 'list', options: { items: ['Cuban', 'Rene'] } },
+            { field: 'fname-full', label: 'First Name 2', type: 'list', options: { items: ['Cuban', 'Rene'] } },
             { field: 'lname', label: 'Last Name', type: 'enum', options: { items: ['Cuban', 'Rene'] }}
         ],
+        searchMap: {
+            // color: 'personid',
+            // 'fname-full': 'fname'
+        },
         // sortData: [ { field: 'personid', direction: 'asc' } ],
         columnGroups1: [
             { text: '', span: 1 },

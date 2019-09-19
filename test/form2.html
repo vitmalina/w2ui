@@ -42,6 +42,9 @@
             },
             tabs: ['General', 'Aditional'],
             fields: [
+                { field: 'field_text', type: 'text', required: true,
+                    html: { label: 'Text', page: 0 }
+                },
                 { field: 'field.map', type: 'map', required: true,
                     html: {
                         label: 'Map', page: 0, text: '',
@@ -55,9 +58,6 @@
                         key: { attr: 'placeholder="key"', text: '='},
                         value: { attr: 'placeholder="value"', text: ''}
                     },
-                },
-                { field: 'field_text', type: 'text', required: true,
-                    html: { label: 'Text', page: 0 }
                 },
                 { field: 'field_alpha', type: 'alphanumeric', required: true,
                     html: { label: 'Alpha Numeric', page: 0 }

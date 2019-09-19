@@ -22,6 +22,7 @@
             recid    : 4,
             header   : 'Edit header',
             style1   : 'border: 1px solid red;',
+            // pageStyle: 'height: 200px',
             tabs: [
                 { id: 'tab1', text: 'General' },
                 { id: 'tab2', text: 'Inputs' },
@@ -41,7 +42,7 @@
                     { type: 'button', id: 'save', text: 'Save', img: 'icon-folder' }
                 ]
             },
-            record: {
+            record1: {
                 field: {
                     "toggle"  : '0',
                     "text"    : 'some text',
@@ -69,7 +70,14 @@
             focus: 1,
             fields: [
                 // first page
-                { field: 'field.toggle', type: 'toggle', required: true, html: { group: 'General', groupCollapsable: true } },
+                { field: 'field.toggle', type: 'html', required: true,
+                    html: {
+                        html: 'dfdf',
+                        attr: 'style="padding: 5px"',
+                        group: 'General',
+                        groupCollapsable: true
+                    }
+                },
                 { field: 'field.text', type: 'text', required: true, html: { attr: 'style="width: 300px"' }, hidden: true },
                 { field: 'field.textarea', type: 'textarea', required: true, html: { attr: 'style="width: 300px"' } },
                 { field: 'field.date', type: 'date', required: false, html: { attr: 'style="width: 90px"' } },
@@ -215,6 +223,6 @@
     </div>
 
     <!-- <div id="form" style="width: 700px; height: 600px;"></div> -->
-    <div id="form" style="width: 700px; height: 700px;">    </div>
+    <div id="form" style="width: 700px; height: 500px;">    </div>
 </body>
 </html>
