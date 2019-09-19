@@ -43,7 +43,8 @@
 *   - added form.pageStyle
 *   - added html.span -1 - then label is displayed on top
 *   - added field.options.minLength, min/max for numebrs can be done with int/float - min/max
-*    field.html.groupCollapsable, form.toggleGroup
+*   - field.html.groupCollapsable, form.toggleGroup
+*   - added showErrors
 *
 ************************************************************************/
 
@@ -82,11 +83,12 @@
         // internal
         this.isGenerated = false;
         this.last = {
-            xhr: null        // jquery xhr requests
-        };
+            xhr: null,        // jquery xhr requests
+            errors: []
+        }
 
         $.extend(true, this, w2obj.form, options);
-    };
+    }
 
     // ====================================================
     // -- Registers as a jQuery plugin
@@ -455,7 +457,7 @@
                 }
                 // === check required - if field is '0' it should be considered not empty
                 var val = this.getValue(field.field);
-                if (field.required && field.hidden !== true
+                if (field.required && field.hidden !== true && ['div', 'custom', 'html', 'empty'].indexOf(field.type) == -1
                         && (val === '' || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val)))) {
                     errors.push({ field: field, error: w2utils.lang('Required field') });
                 }
@@ -469,10 +471,24 @@
             var edata = this.trigger({ phase: 'before', target: this.name, type: 'validate', errors: errors });
             if (edata.isCancelled === true) return;
             // show error
-            if (showErrors) {
-                for (var e = 0; e < edata.errors.length; e++) {
-                    var err = edata.errors[e];
-                    var opt = $.extend({ "class": 'w2ui-error' }, err.options);
+            this.last.errors = errors
+            if (showErrors) this.showErrors()
+            // event after
+            this.trigger($.extend(edata, { phase: 'after' }));
+            return errors;
+        },
+
+        showErrors: function () {
+            var errors = this.last.errors
+            if (errors.length > 0) {
+                var err = errors[0];
+                // scroll into view
+                this.goto(errors[0].field.page)
+                $(err.field.$el).parents('.w2ui-field')[0].scrollIntoView(true)
+                // show errors
+                for (var i = 0; i < errors.length; i++) {
+                    err = errors[i];
+                    var opt = $.extend({ "class": 'w2ui-error', hideOnFocus: true }, err.options);
                     if (err.field == null) continue;
                     if (err.field.type === 'radio') { // for radio and checkboxes
                         $($(err.field.el).closest('div')[0]).w2tag(err.error, opt);
@@ -480,19 +496,26 @@
                         (function (err) {
                             setTimeout(function () {
                                 var fld = $(err.field.el).data('w2field').helpers.multi;
-                                $(err.field.el).w2tag(err.error,err.options);
+                                $(err.field.el).w2tag(err.error, err.options);
                                 $(fld).addClass('w2ui-error');
                             }, 1);
                         })(err);
                     } else {
                         $(err.field.el).w2tag(err.error, opt);
                     }
-                    this.goto(errors[0].field.page);
                 }
+                // hide errors on scroll
+                setTimeout(function () {
+                    var err = errors[0];
+                    $(err.field.$el).parents('.w2ui-page').off('.hideErrors').on('scroll.hideErrors', function (event) {
+                        for (var i = 0; i < errors.length; i++) {
+                            err = errors[i];
+                            $(err.field.el).w2tag()
+                        }
+                        $(err.field.$el).parents('.w2ui-page').off('.hideErrors')
+                    })
+                }, 300);
             }
-            // event after
-            this.trigger($.extend(edata, { phase: 'after' }));
-            return errors;
         },
 
         getChanges: function () {
@@ -1022,14 +1045,19 @@
                     case 'array':
                         field.html.key = field.html.key || {};
                         field.html.value = field.html.value || {};
+                        field.html.tabindex_str = tabindex_str
                         input = '<span style="float: right">' + (field.html.text || '') + '</span>' +
                                 '<input id="'+ field.field +'" name="'+ field.field +'" type="hidden" '+ field.html.attr + tabindex_str + '>'+
                                 '<div class="w2ui-map-container"></div>';
                         break;
                     case 'html':
+                    case 'div':
                     case 'custom':
+                        input = '<div id="'+ field.field +'" name="'+ field.field +'" '+ field.html.attr + tabindex_str + '>'+
+                                    (field && field.html && field.html.html ? field.html.html : '') +
+                                '</div>';
+                        break;
                     case 'empty':
-                        input = (field && field.html && field.html.html ? field.html.html : '');
                         break;
 
                 }
@@ -1281,6 +1309,7 @@
                         var value_new      = this.value;
                         var value_previous = obj.getValue(this.name) != null ? obj.getValue(this.name) : '';
                         var field          = obj.get(this.name);
+                        if (field == null) return;
                         if (['list', 'enum', 'file'].indexOf(field.type) !== -1 && $(this).data('selected')) {
                             var nv = $(this).data('selected');
                             var cv = obj.getValue(this.name);
@@ -1448,11 +1477,12 @@
                             // normalized options
                             if (!field.options.items) field.options.items = [];
                             var items = field.options.items;
+                            if (typeof items == 'function') items = items();
                             // find value from items
                             var isFound = false;
-                            if (Array.isArray(field.options.items)) {
-                                for (var i = 0; i < field.options.items.length; i++) {
-                                    var item = field.options.items[i];
+                            if (Array.isArray(items)) {
+                                for (var i = 0; i < items.length; i++) {
+                                    var item = items[i];
                                     if (item.id == tmp_value) {
                                         value = $.extend(true, {}, item);
                                         obj.setValue(field.name, value);
@@ -1533,7 +1563,7 @@
                         // need closure
                         (function (obj, field) {
                             field.el.mapAdd = function (field, div, cnt) {
-                                var attr = (field.disabled ? ' readOnly ' : '');
+                                var attr = (field.disabled ? ' readOnly ' : '') + (field.html.tabindex_str || '');
                                 var html =  '<div class="w2ui-map-field" style="margin-bottom: 5px">'+
                                     '<input id="'+ field.field +'_key_'+ cnt +'" data-cnt="'+ cnt +'" type="text" '+ field.html.key.attr + attr +' class="w2ui-input w2ui-map key">'+
                                         (field.html.key.text || '') +
@@ -1684,8 +1714,11 @@
                             $(field.el).prop('disabled', field.disabled ? true : false)
                         }
                         break;
-                    case 'html':
+                    case 'div':
                     case 'custom':
+                        $(field.el).html(value)
+                        break;
+                    case 'html':
                     case 'empty':
                         break;
                     default:
