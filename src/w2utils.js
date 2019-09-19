@@ -33,6 +33,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - color.onSelect
 *   - color.html
 *   - refactored w2tag object, it has more potential with $().data('w2tag')
+*   - w2tag options.hideOnFocus
 *
 ************************************************/
 
@@ -2159,6 +2160,7 @@ w2utils.event = {
             onShow          : null,     // callBack when shown
             onHide          : null,     // callBack when hidden
             hideOnKeyPress  : true,     // hide tag if key pressed
+            hideOnFocus     : false,    // hide tag on focus
             hideOnBlur      : false,    // hide tag on blur
             hideOnClick     : false,    // hide tag on document click
             hideOnChange    : true
@@ -2250,8 +2252,12 @@ w2utils.event = {
                     .css(tag.options.css)
                     .addClass(tag.options.inputClass);
 
+
                 if (tag.options.hideOnKeyPress) {
                     $(tag.attachedTo).on('keypress.w2tag', tag.hide);
+                }
+                if (tag.options.hideOnFocus) {
+                    $(tag.attachedTo).on('focus.w2tag', tag.hide);
                 }
                 if (options.hideOnChange) {
                     if (el.nodeName === 'INPUT') {
@@ -2264,7 +2270,7 @@ w2utils.event = {
                     $(tag.attachedTo).on('blur.w2tag', tag.hide);
                 }
                 if (tag.options.hideOnClick) {
-                    $(document).on('click.w2tag', tag.hide);
+                    $('body').on('click.w2tag' + (tag.id || ''), tag.hide);
                 }
                 if (typeof tag.options.onShow === 'function') {
                     tag.options.onShow();
@@ -2278,7 +2284,7 @@ w2utils.event = {
                 if (tag.tmp.timer) clearTimeout(tag.tmp.timer);
                 tag.box.remove();
                 if (tag.options.hideOnClick) {
-                    $(document).off('.w2tag');
+                    $('body').off('.w2tag' + (tag.id || ''));
                 }
                 $(tag.attachedTo).off('.w2tag')
                     .removeClass(tag.options.inputClass)

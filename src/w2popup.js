@@ -795,7 +795,8 @@ var w2popup = {};
 
         resize: function (width, height, callBack) {
             var obj = this;
-            var options = $('#w2ui-popup').data('options');
+            var options = $('#w2ui-popup').data('options') || {};
+            if (options.speed == null) options.speed = 0;
             width  = parseInt(width);
             height = parseInt(height);
             // calculate new position

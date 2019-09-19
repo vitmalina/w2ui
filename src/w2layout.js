@@ -436,6 +436,7 @@
                 } else if (pan.toolbar != null) {
                     pan.toolbar.refresh();
                 }
+                toolbar.owner = this;
                 this.showToolbar(panel);
                 this.refresh(panel);
             } else {
