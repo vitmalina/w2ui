@@ -239,7 +239,10 @@
 
             // check if there are records without recid
             if (records) for (var r = 0; r < records.length; r++) {
-                if (records[r].recid == null && records[r][object.recid] == null) {
+                if (records[r][object.recid] != null) {
+                    records[r].recid = records[r][object.recid];
+                }
+                if (records[r].recid == null) {
                     console.log('ERROR: Cannot add records without recid. (obj: '+ object.name +')');
                     return;
                 }
@@ -514,7 +517,10 @@
             var added = 0;
             for (var i = 0; i < record.length; i++) {
                 var rec = record[i];
-                if (rec.recid == null && rec[this.recid] == null) {
+                if (rec[this.recid] != null) {
+                    rec.recid = rec[this.recid];
+                }
+                if (rec.recid == null) {
                     console.log('ERROR: Cannot add record without recid. (obj: '+ this.name +')');
                     continue;
                 }
@@ -2623,7 +2629,7 @@
                     if (obj.recid && data.records) {
                         // convert recids
                         for (var i = 0; i < data.records.length; i++) {
-                            data.records[i]['recid'] = data.records[i][obj.recid];
+                            data.records[i].recid = data.records[i][obj.recid];
                         }
                     }
                     if (data['status'] == 'error') {
