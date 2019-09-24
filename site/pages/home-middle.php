@@ -132,8 +132,8 @@
 	  <div class="row spacer10"></div>
 
       <h2>Only 69kb</h2>
-      Complete w2ui library is only 69kb (minified and gziped) and provides extremely fast load and execution. It is 9 times smaller then extjs
-      and 7 times smaller then kendo ui. It is just a bit over the size of jQuery.
+      Complete w2ui library is only 69kb (minified and gziped) and provides extremely fast load and execution. It is 9 times smaller than extjs
+      and 7 times smaller than kendo ui. It is just a bit over the size of jQuery.
 	  <div class="row spacer25"></div>
 	  <div class="row spacer10"></div>
 
@@ -159,7 +159,7 @@
       
       <p>
         The project is in active development. If you would like to receive email notifications about new releases, updates,
-        and other relevant information, add your email to our mailing list. You should not receive more then one email per month or two. 
+        and other relevant information, add your email to our mailing list. You should not receive more than one email per month or two. 
       </p>
     </div>
 
