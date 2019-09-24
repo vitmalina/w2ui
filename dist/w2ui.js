@@ -190,14 +190,6 @@ var w2utils = (function ($) {
             year  = val.getFullYear();
             month = val.getMonth() + 1;
             day   = val.getDate();
-		} else if (String(new Date(val)) != 'Invalid Date') {
-            val = new Date(val);
-            if (retDate !== true) return true;
-            return val;
-            val = new Date(val);
-            year  = val.getFullYear();
-            month = val.getMonth() + 1;
-            day   = val.getDate();
         } else {
             val = String(val);
             // convert month formats
@@ -293,10 +285,6 @@ var w2utils = (function ($) {
             return val;
         } else if (parseInt(val) === val && parseInt(val) < 0) {
             return false;
-		} else if (String(new Date(val)) != 'Invalid Date') {
-            val = new Date(val);
-            if (retDate !== true) return true;
-            return val;
         } else {
             var tmp = String(val).indexOf(' ');
             var values  = [val.substr(0, tmp), val.substr(tmp).trim()];
@@ -522,7 +510,7 @@ var w2utils = (function ($) {
             case 'number':
                 break;
             case 'string':
-                html = String(html).replace(/(<([^>]+)>)/ig, "");
+                html = String(html).replace(/<(?:[^>=]|='[^']*'|="[^"]*"|=[^'"][^\s>]*)*>/ig, "");
                 break;
             case 'object':
                 // does not modify original object, but creates a copy
@@ -3578,7 +3566,10 @@ w2utils.event = {
 
             // check if there are records without recid
             if (records) for (var r = 0; r < records.length; r++) {
-                if (records[r].recid == null && records[r][object.recid] == null) {
+                if (records[r][object.recid] != null) {
+                    records[r].recid = records[r][object.recid];
+                }
+                if (records[r].recid == null) {
                     console.log('ERROR: Cannot add records without recid. (obj: '+ object.name +')');
                     return;
                 }
@@ -3853,7 +3844,10 @@ w2utils.event = {
             var added = 0;
             for (var i = 0; i < record.length; i++) {
                 var rec = record[i];
-                if (rec.recid == null && rec[this.recid] == null) {
+                if (rec[this.recid] != null) {
+                    rec.recid = rec[this.recid];
+                }
+                if (rec.recid == null) {
                     console.log('ERROR: Cannot add record without recid. (obj: '+ this.name +')');
                     continue;
                 }
@@ -5962,7 +5956,7 @@ w2utils.event = {
                     if (obj.recid && data.records) {
                         // convert recids
                         for (var i = 0; i < data.records.length; i++) {
-                            data.records[i]['recid'] = data.records[i][obj.recid];
+                            data.records[i].recid = data.records[i][obj.recid];
                         }
                     }
                     if (data['status'] == 'error') {
@@ -9243,7 +9237,7 @@ w2utils.event = {
                 .each(function (index, el) {
                     var td  = $(el).parent();
                     $(el).css({
-                        "height"         : '25px',
+                        "height"         : td.height(),
                         "margin-left"     : (td.width() - 3) + 'px'
                     });
                 });
@@ -19782,7 +19776,7 @@ var w2prompt = function (label, title, callBack) {
                     .done(function (data, status, xhr) {
                         obj.unlock();
                         // event before
-                        var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'save', xhr: xhr, status: status });
+                        var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'save', xhr: xhr, status: status, data: data });
                         if (edata.isCancelled === true) return;
                         // parse server response
                         var data;
