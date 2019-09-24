@@ -2470,6 +2470,15 @@
             // append other params
             $.extend(params, this.postData);
             $.extend(params, add_params);
+            // other actions
+            if (cmd == 'delete' || cmd == 'save') {
+                delete params['limit'];
+                delete params['offset'];
+                params['action'] = cmd
+                if (cmd == 'delete') {
+                    params[this.recid || 'recid'] = this.getSelection();
+                }
+            }
             // event before
             if (cmd == 'get') {
                 var edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params, httpHeaders: this.httpHeaders });
@@ -2723,17 +2732,17 @@
 
         getChanges: function (recordsBase) {
             var changes = [];
-
             if (typeof recordsBase == 'undefined') {
                 var recordsBase = this.records;
             }
 
             for (var r = 0; r < recordsBase.length; r++) {
                 var rec = recordsBase[r];
-
                 if (rec.w2ui) {
                     if (rec.w2ui.changes != null) {
-                        changes.push($.extend(true, { recid: rec.recid }, rec.w2ui.changes));
+                        var obj = {}
+                        obj[this.recid || 'recid'] = rec.recid
+                        changes.push($.extend(true, obj, rec.w2ui.changes));
                     }
 
                     // recursively look for changes in non-expanded children
