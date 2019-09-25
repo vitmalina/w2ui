@@ -5853,6 +5853,21 @@
                     var edata = { phase: 'before', type: 'columnResize', target: obj.name, column: obj.last.tmp.col, field: obj.columns[obj.last.tmp.col].field };
                     edata = obj.trigger($.extend(edata, { resizeBy: 0, originalEvent: event }));
                     // set move event
+                    function debounce(f, ms, obj) {
+                      var timer;
+                      return function () {
+                        var self = this, args = arguments;
+                        timer && clearTimeout(timer);
+                        timer = setTimeout(function() {
+                          f && f.apply(obj || self, args);
+                          timer = null;
+                        }, ms);
+                      }
+                    }
+                    var mouseMoveDebounce = debounce(function(){
+                        obj.resizeRecords();
+                        obj.scroll();
+                    }, 100, obj);
                     var mouseMove = function (event) {
                         if (obj.resizing != true) return;
                         if (!event) event = window.event;
@@ -5863,8 +5878,7 @@
                         obj.last.tmp.x = (event.screenX - obj.last.tmp.x);
                         obj.last.tmp.y = (event.screenY - obj.last.tmp.y);
                         obj.columns[obj.last.tmp.col].size = (parseInt(obj.columns[obj.last.tmp.col].size) + obj.last.tmp.x) + 'px';
-                        obj.resizeRecords();
-                        obj.scroll();
+                        mouseMoveDebounce();
                         // reset
                         obj.last.tmp.x = event.screenX;
                         obj.last.tmp.y = event.screenY;
