@@ -4734,22 +4734,17 @@
             var gridBody = $('#grid_'+ this.name +'_body', obj.box).html(bodyHTML),
                 records = $('#grid_'+ this.name +'_records', obj.box);
             var frecords = $('#grid_'+ this.name +'_frecords', obj.box);
-            records
-            .on('mouseover', 'tr', function(ev) {
-              $('#grid_'+ this.name +'_frec_' + w2utils.escapeId($(this).attr('recid'))).addClass('w2ui-record-hover')
-            })
-            .on('mouseout', 'tr', function(ev) {
-              $('#grid_'+ this.name +'_frec_' + w2utils.escapeId($(this).attr('recid'))).removeClass('w2ui-record-hover')
-            })
-
-            frecords
-            .on('mouseover', 'tr', function(ev) {
-              $('#grid_'+ this.name +'_rec_' + w2utils.escapeId($(this).attr('recid'))).addClass('w2ui-record-hover')
-            })
-            .on('mouseout', 'tr', function(ev) {
-              $('#grid_'+ this.name +'_rec_' + w2utils.escapeId($(this).attr('recid'))).removeClass('w2ui-record-hover')
-            })
             var self = this;
+            if (this.selectType == 'row') {
+              records
+              .on('mouseover mouseout', 'tr', function(event) {
+                $('#grid_'+ self.name +'_frec_' + w2utils.escapeId($(this).attr('recid'))).toggleClass('w2ui-record-hover', event.type == 'mouseover')
+              })
+              frecords
+              .on('mouseover mouseout', 'tr', function(event) {
+                $('#grid_'+ self.name +'_rec_' + w2utils.escapeId($(this).attr('recid'))).toggleClass('w2ui-record-hover', event.type == 'mouseover')
+              })
+            }
             if(w2utils.isIOS)
               records.add(frecords)
               .on('click', 'tr', function(ev) {
