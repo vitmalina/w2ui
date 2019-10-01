@@ -20803,3 +20803,5 @@ var w2prompt = function (label, title, callBack) {
     w2confirm: w2confirm,
     w2prompt: w2prompt
 });
+
+//# sourceMappingURL=w2ui.js.map
