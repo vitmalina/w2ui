@@ -24,18 +24,18 @@ Returns HTML text.
 
 <h4>Description</h4>
 
-The first argument <span class="argument">index</span> is the index of the record in the 
+The first argument <span class="argument">index</span> is the index of the record in the
 <a class="argument" href="w2grid.records">.records</a> array (or <a class="argument" href="w2grid.summary">.summary</a> array,
-if <span class="argument">summary</span> argument is true). The second argument <span class="argument">column_index</span> is the 
-index in the <a class="argument" href="w2grid.columns">.columns</a> array. This method will return final HTML after it applies
-formatters and calls render function (if any) for the cell.
+if <span class="argument">summary</span> argument is true). The second argument <span class="argument">column_index</span> is the
+index in the <a class="argument" href="w2grid.columns">.columns</a> array. This method will return the final HTML, after it applies
+formatters and calls the render function (if any) for the cell.
 <div style="height: 10px"></div>
 
-If you have grid defined in the following way:
+If you have a grid defined in the following way:
 <textarea class="javascript">
 $('#grid').w2grid({
     name    : 'grid',
-    columns: [                
+    columns: [
         { field: 'recid', caption: 'ID', size: '50px' },
         { field: 'lname', caption: 'Last Name', size: '30%' },
         { field: 'fname', caption: 'First Name', size: '30%' },
