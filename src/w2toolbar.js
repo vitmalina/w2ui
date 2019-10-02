@@ -391,6 +391,9 @@
                                 }
                                 el.w2menu($.extend({ name: obj.name, items: items, left: left, top: 3 }, it.overlay, {
                                     type: menuType,
+                                    remove: function (event) {
+                                        obj.menuClick({ name: obj.name, remove: true, item: it, subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen });
+                                    },
                                     select: function (event) {
                                         obj.menuClick({ name: obj.name, item: it, subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen });
                                     },
@@ -756,17 +759,19 @@
             var obj = this;
             if (event.item && !event.item.disabled) {
                 // event before
-                var edata = this.trigger({ phase: 'before', type: 'click', target: event.item.id + ':' + event.subItem.id, item: event.item,
+                var edata = this.trigger({ phase: 'before', type: (event.remove !== true ? 'click' : 'remove'), target: event.item.id + ':' + event.subItem.id, item: event.item,
                     subItem: event.subItem, originalEvent: event.originalEvent });
                 if (edata.isCancelled === true) return;
 
                 // route processing
-                var it   = event.subItem;
+                var it = event.subItem;
                 var item = this.get(event.item.id);
+                var items = item.items;
+                if (typeof items == 'function') items = item.items();
                 if (item.type == 'menu-radio') {
                     item.selected = it.id;
-                    if (Array.isArray(event.item.items)) {
-                        event.item.items.forEach(function (item) { item.checked = false; });
+                    if (Array.isArray(items)) {
+                        items.forEach(function (item) { if (item.checked === true) delete item.checked; });
                     }
                     it.checked = true;
                 }
@@ -784,7 +789,7 @@
                     } else {
                         // find all items in the same group
                         var unchecked = [];
-                        item.items.forEach(function (sub) {
+                        items.forEach(function (sub) {
                             if (sub.group === it.group) {
                                 var ind = item.selected.indexOf(sub.id);
                                 if (ind != -1) {

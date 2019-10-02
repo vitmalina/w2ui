@@ -500,6 +500,32 @@ input[type="checkbox"].w2ui-toggle {
             width: 18px;
         }
     }
+    td.menu-divider {
+        padding: 6px;
+        pointer-events: none;
+
+        div.line {
+            border-top: 1px solid silver;
+            color: transparent;
+            height: 0px;
+            padding: 0px 25px 0 0px;
+        }
+
+        &.divider-text {
+            padding: 12px 6px;
+
+            div.text {
+                display: block;
+                position: absolute;
+                margin-top: -6px;
+                margin-left: 46%;
+                background-color: white;
+                padding: 0px 3px;
+                color: darkgrey;
+                transform: translateX(-50%);
+            }
+        }
+    }
     // caption
     td.menu-text {
         padding: 8px 10px 8px 5px;
@@ -526,6 +552,16 @@ input[type="checkbox"].w2ui-toggle {
             color: #888;
             box-shadow: none;
             text-shadow: none;
+        }
+        & > span.remove {
+            background-color: transparent;
+            box-shadow: none;
+            padding: 2px 5px;
+            &:hover {
+                color: #982525;
+                border-color: #d28d5b;
+                background-color: #f9e7e7;
+            }
         }
     }
 

@@ -34,6 +34,9 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - color.html
 *   - refactored w2tag object, it has more potential with $().data('w2tag')
 *   - w2tag options.hideOnFocus
+*   - w2menu options.items... remove t/f
+*   - w2menu options.onRemove
+*   - w2menu options.hideOnRemove
 *
 ************************************************/
 
@@ -2686,13 +2689,14 @@ w2utils.event = {
             options.items = options.items();
         }
         var defaults = {
-            type       : 'normal',    // can be normal, radio, check
-            index      : null,        // current selected
-            items      : [],
-            render     : null,
-            msgNoItems : 'No items',
-            onSelect   : null,
-            tmp        : {}
+            type         : 'normal',    // can be normal, radio, check
+            index        : null,        // current selected
+            items        : [],
+            render       : null,
+            msgNoItems   : 'No items',
+            onSelect     : null,
+            hideOnRemove : false,
+            tmp          : {}
         };
         var obj  = this;
         var name = '';
@@ -2730,6 +2734,7 @@ w2utils.event = {
             $.fn.w2menuOptions = options;
             if (options.name) name = '-' + options.name;
             if (typeof options.select === 'function' && typeof options.onSelect !== 'function') options.onSelect = options.select;
+            if (typeof options.remove === 'function' && typeof options.onRemove !== 'function') options.onRemove = options.remove;
             if (typeof options.onRender === 'function' && typeof options.render !== 'function') options.render = options.onRender;
             // since only one overlay can exist at a time
             $.fn.w2menuClick = function (event, index) {
@@ -2737,7 +2742,19 @@ w2utils.event = {
                 if (['radio', 'check'].indexOf(options.type) !== -1) {
                     if (event.shiftKey || event.metaKey || event.ctrlKey) keepOpen = true;
                 }
-                if (typeof options.onSelect === 'function') {
+                if ($(event.target).hasClass('remove')) {
+                    if (typeof options.onRemove === 'function') {
+                        options.onRemove({
+                            index   : index,
+                            item    : options.items[index],
+                            keepOpen: keepOpen,
+                            originalEvent: event
+                        });
+                    }
+                    keepOpen = !options.hideOnRemove;
+                    $(event.target).parents('tr').remove();
+                    mresize();
+                } else if (typeof options.onSelect === 'function') {
                     options.onSelect({
                         index   : index,
                         item    : options.items[index],
@@ -2757,10 +2774,10 @@ w2utils.event = {
             $.fn.w2menuDown = function (event, index) {
                 var $el  = $(event.target).parents('tr');
                 var tmp  = $el.find('.w2ui-icon');
-                if (options.type === 'check' || options.type === 'radio') {
+                if ((options.type === 'check' || options.type === 'radio') && !$(event.target).hasClass('remove')) {
                    var item = options.items[index];
                    item.checked = !item.checked;
-                   if (item.checked) {
+                   if (item.checked ) {
                         if (options.type === 'radio') {
                            tmp.parents('table').find('.w2ui-icon')
                                .removeClass('w2ui-icon-check')
@@ -2935,7 +2952,7 @@ w2utils.event = {
                     if (img)  imgd = '<td class="menu-icon"><div class="w2ui-tb-image w2ui-icon '+ img +'"></div></td>';
                     if (icon) imgd = '<td class="menu-icon" align="center"><span class="w2ui-icon '+ icon +'"></span></td>';
                     // render only if non-empty
-                    if (mitem.type !== 'break' && txt != null && txt !== '' && !(/^-+$/.test(txt))) {
+                    if (mitem.type !== 'break' && txt != null && txt !== '' && txt.substr(0, 2) != '--') {
                         var bg = (count % 2 === 0 ? 'w2ui-item-even' : 'w2ui-item-odd');
                         if (options.altRows !== true) bg = '';
                         var colspan = 1;
@@ -2953,14 +2970,22 @@ w2utils.event = {
                                 imgd +
                             '   <td class="menu-text" colspan="'+ colspan +'">'+ w2utils.lang(txt) +'</td>'+
                             '   <td class="menu-count">'+
-                                    (mitem.count != null ? '<span>' + mitem.count + '</span>' : '') +
-                                    (mitem.hotkey != null ? '<span class="hotkey">' + mitem.hotkey + '</span>' : '') +
+                                    (mitem.remove != null
+                                        ? '<span class="remove">X</span>'
+                                        :
+                                        (mitem.count != null ? '<span>' + mitem.count + '</span>' : '') +
+                                        (mitem.hotkey != null ? '<span class="hotkey">' + mitem.hotkey + '</span>' : '')
+                                    ) +
                             '</td>' +
                             '</tr>';
                         count++;
                     } else {
                         // horizontal line
-                        menu_html += '<tr><td colspan="3" style="padding: 6px; pointer-events: none"><div style="border-top: 1px solid silver;"></div></td></tr>';
+                        var divText = txt.replace(/^-+/g, '')
+                        menu_html += '<tr><td colspan="3" class="menu-divider '+ (divText != '' ? 'divider-text' : '') +'">'+
+                                     '   <div class="line">'+ divText +'</div>'+
+                                     '   <div class="text">'+ divText +'</div>'+
+                                     '</td></tr>';
                     }
                 }
                 options.items[f] = mitem;

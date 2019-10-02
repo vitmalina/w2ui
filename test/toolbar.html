@@ -58,31 +58,37 @@
                     ], overlay: { top1: 10 }
                 },
                 { type: 'menu-check', id: 'menucheck', text: 'Menu: Check',
-                    items: [
+                    items: () => [
                         { id: 'item1', text: 'Item 1.1', count: 3, icon: 'fa fa-heart' },
                         { id: 'item2', text: 'Item 1.2', icon: 'fa fa-user', count: 12, checked: true },
                         { id: 'item3', text: 'Item 1.3', icon: 'fa fa-star-o', hotkey: '⌘S' },
-                        { text: '--' },
+                        { text: '--Group Name' },
                         { id: 'item4', text: 'Item 2.1', group: '2', icon: 'fa fa-link' },
                         { id: 'item5', text: 'Item 2.2', group: '2', icon: 'fa fa-link' },
                         { id: 'item6', text: 'Item 2.3', group: '2', icon: 'fa fa-link' }
                     ],
                 },
                 { type: 'menu-radio', id: 'menu.radio', text: 'Menu: Radio',
-                    items: [
+                    items: () => [
                         { id: 'item1', text: 'First Item', count: 3, icon: 'fa fa-heart' },
                         { text: '--' },
-                        { id: 'item2', text: 'Item 2', icon: 'fa fa-user', count: 12, checked: true },
-                        { id: 'item3', text: 'Item 3', icon: 'fa fa-star-o', checked: true },
+                        { id: 'item2', text: 'Item 2', icon: 'fa fa-user', count: 12 },
+                        { id: 'item3', text: 'Item 3', icon: 'fa fa-star-o' },
+                        { text: '--Some Group Name very long' },
+                        { id: 'item4', text: 'Item 4', icon: 'fa fa-link', hotkey: 'L', remove: true },
+                        { id: 'item1a', text: 'First Item', count: 3, icon: 'fa fa-heart', remove: true },
+                        { text: '-- more' },
+                        { id: 'item2a', text: 'Item 2', icon: 'fa fa-user', count: 12 },
+                        { id: 'item3a', text: 'Item 3', icon: 'fa fa-star-o' },
                         { text: '--' },
-                        { id: 'item4', text: 'Item 4', icon: 'fa fa-link', hotkey: '⌘L' },
-                        { id: 'item1a', text: 'First Item', count: 3, icon: 'fa fa-heart' },
-                        { text: '--' },
-                        { id: 'item2a', text: 'Item 2', icon: 'fa fa-user', count: 12, checked: true },
-                        { id: 'item3a', text: 'Item 3', icon: 'fa fa-star-o', checked: true },
-                        { text: '--' },
-                        { id: 'item4a', text: 'Item 4', icon: 'fa fa-link', hotkey: '⌘L' }
+                        { id: 'item4a', text: 'Item 4', icon: 'fa fa-link', hotkey: 'k', remove: true }
                     ],
+                        onRemove: function (event) {
+                            console.log('delete', event)
+                        },
+                        onSelect: function (event) {
+                            console.log('select', event)
+                        }
                 },
                 { type: 'break', id: 'break1' },
                 { type: 'radio',  id: 'item3',  group: '1', text: 'Radio 1', icon: 'fa fa-user', img1: 'icon-add', checked: true,
@@ -121,7 +127,8 @@
                 },
 
             ],
-            // onClick: function (event) { console.log(event); }
+            onClick: function (event) { console.log(event); },
+            onRemove: function (event) { console.log('remove', event); }
         });
     });
 
