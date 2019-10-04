@@ -771,7 +771,14 @@
                 if (item.type == 'menu-radio') {
                     item.selected = it.id;
                     if (Array.isArray(items)) {
-                        items.forEach(function (item) { if (item.checked === true) delete item.checked; });
+                        items.forEach(function (item) {
+                            if (item.checked === true) delete item.checked;
+                            if (Array.isArray(item.items)) {
+                                item.items.forEach(function (item) {
+                                    if (item.checked === true) delete item.checked;
+                                })
+                            }
+                        });
                     }
                     it.checked = true;
                 }
@@ -787,17 +794,20 @@
                             it.checked = false;
                         }
                     } else {
-                        // find all items in the same group
                         var unchecked = [];
-                        items.forEach(function (sub) {
-                            if (sub.group === it.group) {
-                                var ind = item.selected.indexOf(sub.id);
-                                if (ind != -1) {
-                                    if (sub.id != it.id) unchecked.push(sub.id);
-                                    item.selected.splice(ind, 1);
+                        // recursive
+                        (function checkNested(items) {
+                            items.forEach(function (sub) {
+                                if (sub.group === it.group) {
+                                    var ind = item.selected.indexOf(sub.id);
+                                    if (ind != -1) {
+                                        if (sub.id != it.id) unchecked.push(sub.id);
+                                        item.selected.splice(ind, 1);
+                                    }
                                 }
-                            }
-                        });
+                                if (Array.isArray(sub.items)) checkNested(sub.items)
+                            });
+                        })(items);
                         var ind = item.selected.indexOf(it.id);
                         if (ind == -1) {
                             item.selected.push(it.id);
