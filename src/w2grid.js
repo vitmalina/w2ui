@@ -2513,8 +2513,8 @@
             if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {}
             // URL
             url = (typeof edata.url != 'object' ? edata.url : edata.url.get);
-            if (params.cmd == 'save' && typeof edata.url == 'object')   url = edata.url.save;
-            if (params.cmd == 'delete' && typeof edata.url == 'object') url = edata.url.remove;
+            if (cmd == 'save' && typeof edata.url == 'object')   url = edata.url.save;
+            if (cmd == 'delete' && typeof edata.url == 'object') url = edata.url.remove;
             // process url with routeData
             if (!$.isEmptyObject(obj.routeData)) {
                 var info  = w2utils.parseRoute(url);
