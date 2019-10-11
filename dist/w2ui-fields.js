@@ -35,6 +35,10 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - color.html
 *   - refactored w2tag object, it has more potential with $().data('w2tag')
 *   - w2tag options.hideOnFocus
+*   - w2menu options.items... remove t/f
+*   - w2menu options.onRemove
+*   - w2menu options.hideOnRemove
+*   - w2menu - can not nest items, item.items and item.expanded
 *
 ************************************************/
 
@@ -2517,7 +2521,12 @@ w2utils.event = {
             var div1 = $('#w2ui-overlay'+ name);
             var div2 = div1.find(' > div');
             var menu = $('#w2ui-overlay'+ name +' div.menu');
-            menu.css('overflow-y', 'hidden');
+            var pos  = {};
+            if (menu.length > 0) {
+                menu.css('overflow-y', 'hidden');
+                pos.scrollTop = menu.scrollTop();
+                pos.scrollLeft = menu.scrollLeft();
+            }
             // if goes over the screen, limit height and width
             if (div1.length > 0) {
                 div2.height('auto').width('auto');
@@ -2554,6 +2563,8 @@ w2utils.event = {
                     setTimeout(function () {
                         div2.find('div.menu > table').css('overflow-x', 'auto');
                     }, 10);
+                } else {
+                    div2.find('div.menu').css('width', '100%');
                 }
                 // adjust position
                 var boxLeft  = options.left;
@@ -2661,7 +2672,11 @@ w2utils.event = {
                 // check scroll bar (needed to avoid horizontal scrollbar)
                 if (overflowY && options.align !== 'both') div2.width(w + w2utils.scrollBarSize() + 2);
             }
-            menu.css('overflow-y', 'auto');
+            if (menu.length > 0) {
+                menu.css('overflow-y', 'auto');
+                menu.scrollTop(pos.scrollTop);
+                menu.scrollLeft(pos.scrollLeft);
+            }
         }
     };
 
@@ -2687,13 +2702,14 @@ w2utils.event = {
             options.items = options.items();
         }
         var defaults = {
-            type       : 'normal',    // can be normal, radio, check
-            index      : null,        // current selected
-            items      : [],
-            render     : null,
-            msgNoItems : 'No items',
-            onSelect   : null,
-            tmp        : {}
+            type         : 'normal',    // can be normal, radio, check
+            index        : null,        // current selected
+            items        : [],
+            render       : null,
+            msgNoItems   : 'No items',
+            onSelect     : null,
+            hideOnRemove : false,
+            tmp          : {}
         };
         var obj  = this;
         var name = '';
@@ -2731,17 +2747,48 @@ w2utils.event = {
             $.fn.w2menuOptions = options;
             if (options.name) name = '-' + options.name;
             if (typeof options.select === 'function' && typeof options.onSelect !== 'function') options.onSelect = options.select;
+            if (typeof options.remove === 'function' && typeof options.onRemove !== 'function') options.onRemove = options.remove;
             if (typeof options.onRender === 'function' && typeof options.render !== 'function') options.render = options.onRender;
             // since only one overlay can exist at a time
-            $.fn.w2menuClick = function (event, index) {
+            $.fn.w2menuClick = function (event, index, parentIndex) {
                 var keepOpen = false;
+                var $tr = $(event.target).closest('tr');
                 if (['radio', 'check'].indexOf(options.type) !== -1) {
                     if (event.shiftKey || event.metaKey || event.ctrlKey) keepOpen = true;
                 }
-                if (typeof options.onSelect === 'function') {
+                if (parentIndex == null) {
+                    items = options.items
+                } else {
+                    items = options.items[parentIndex].items
+                }
+                if ($(event.target).hasClass('remove')) {
+                    if (typeof options.onRemove === 'function') {
+                        options.onRemove({
+                            index: index,
+                            parentIndex: parentIndex,
+                            item: items[index],
+                            keepOpen: keepOpen,
+                            originalEvent: event
+                        });
+                    }
+                    keepOpen = !options.hideOnRemove;
+                    $(event.target).closest('tr').remove();
+                    mresize();
+                } else if ($tr.hasClass('has-sub-menu')) {
+                    keepOpen = true;
+                    if ($tr.hasClass('expanded')) {
+                        items[index].expanded = false;
+                        $tr.removeClass('expanded').addClass('collapsed').next().hide();
+                    } else {
+                        items[index].expanded = true;
+                        $tr.addClass('expanded').removeClass('collapsed').next().show();
+                    }
+                    mresize();
+                } else if (typeof options.onSelect === 'function') {
                     options.onSelect({
-                        index   : index,
-                        item    : options.items[index],
+                        index: index,
+                        parentIndex: parentIndex,
+                        item: items[index],
                         keepOpen: keepOpen,
                         originalEvent: event
                     });
@@ -2755,33 +2802,42 @@ w2utils.event = {
                     div[0].hide();
                 }
             };
-            $.fn.w2menuDown = function (event, index) {
-                var $el  = $(event.target).parents('tr');
-                var tmp  = $el.find('.w2ui-icon');
-                if (options.type === 'check' || options.type === 'radio') {
-                   var item = options.items[index];
-                   item.checked = !item.checked;
-                   if (item.checked) {
+            $.fn.w2menuDown = function (event, index, parentIndex) {
+                var items, item;
+                var $el  = $(event.target).closest('tr');
+                var tmp  = $($el.get(0)).find('.w2ui-icon');
+                if (parentIndex == null) {
+                    items = options.items
+                } else {
+                    items = options.items[parentIndex].items
+                }
+                if ((options.type === 'check' || options.type === 'radio')
+                            && !$(event.target).hasClass('remove')
+                            && !$(event.target).closest('tr').hasClass('has-sub-menu')) {
+                    item = items[index];
+                    item.checked = !item.checked;
+                    if (item.checked ) {
                         if (options.type === 'radio') {
-                           tmp.parents('table').find('.w2ui-icon')
+                           tmp.parents('table').find('.w2ui-icon') // should not be closest, but parents
                                .removeClass('w2ui-icon-check')
                                .addClass('w2ui-icon-empty');
                         }
                         // groups of checkboxes
                         if (options.type === 'check' && item.group != null) {
-                            options.items.forEach(function (sub, ind) {
+                            items.forEach(function (sub, ind) {
+                                if (sub.id == item.id) return;
                                 if (sub.group === item.group && sub.checked) {
-                                    tmp.parents('table').find('tr[index='+ ind +'] .w2ui-icon')
-                                       .removeClass('w2ui-icon-check')
-                                       .addClass('w2ui-icon-empty');
-                                    sub.checked = false;
+                                    tmp.closest('table').find('tr[index='+ ind +'] .w2ui-icon')
+                                        .removeClass('w2ui-icon-check')
+                                        .addClass('w2ui-icon-empty');
+                                    items[ind].checked = false;
                                 }
                             });
                         }
                         tmp.removeClass('w2ui-icon-empty').addClass('w2ui-icon-check');
-                   } else if (options.type === 'check' && item.group == null) {
+                    } else if (options.type === 'check' && item.group == null) {
                         tmp.removeClass('w2ui-icon-check').addClass('w2ui-icon-empty');
-                   }
+                    }
                 }
                 // highlight record
                 $el.parent().find('tr').removeClass('w2ui-selected');
@@ -2798,7 +2854,7 @@ w2utils.event = {
                 options.index = 0;
                 for (var i = 0; i < options.items.length; i++) options.items[i].hidden = false;
             }
-            html += '<div class="menu" style="position: absolute; top: '+ (options.search ? 40 : 0) + 'px; bottom: 0px; width: 100%;">' +
+            html += '<div class="menu" style="position: absolute; top: '+ (options.search ? 40 : 0) + 'px; bottom: 0px">' +
                         getMenuHTML() +
                     '</div>';
             var ret = $(this).w2overlay(html, options);
@@ -2814,7 +2870,7 @@ w2utils.event = {
                     $('#w2ui-overlay'+ name +' #menu-search').focus();
                 }
                 mresize();
-            }, 200);
+            }, 250);
             mresize();
             return ret;
         }
@@ -2827,8 +2883,10 @@ w2utils.event = {
                 var cur    = $('#w2ui-overlay'+ name +' tr[index='+ options.index +']');
                 var scrTop = $('#w2ui-overlay'+ name +' div.menu').scrollTop();
                 cur.addClass('w2ui-selected');
-                if (options.tmp) options.tmp.contentHeight = $('#w2ui-overlay'+ name +' table').height() + (options.search ? 50 : 10);
-                if (options.tmp) options.tmp.contentWidth  = $('#w2ui-overlay'+ name +' table').width() + 1;
+                if (options.tmp) {
+                    options.tmp.contentHeight = $('#w2ui-overlay'+ name +' table').height() + (options.search ? 50 : 10);
+                    options.tmp.contentWidth  = $('#w2ui-overlay'+ name +' table').width();
+                }
                 if ($('#w2ui-overlay'+ name).length > 0) $('#w2ui-overlay'+ name)[0].resize();
                 // scroll into view
                 if (cur.length > 0) {
@@ -2903,7 +2961,7 @@ w2utils.event = {
             mresize();
         }
 
-        function getMenuHTML() {
+        function getMenuHTML(items, subMenu, expanded, parentIndex) {
             if (options.spinner) {
                 return  '<table class="w2ui-drop-menu"><tbody><tr><td style="padding: 5px 10px 10px 10px; text-align: center">'+
                         '    <div class="w2ui-spinner" style="width: 18px; height: 18px; position: relative; top: 5px;"></div> '+
@@ -2911,10 +2969,11 @@ w2utils.event = {
                         '</td></tr></tbody></table>';
             }
             var count        = 0;
-            var menu_html    = '<table cellspacing="0" cellpadding="0" class="w2ui-drop-menu"><tbody>';
+            var menu_html    = '<table cellspacing="0" cellpadding="0" class="w2ui-drop-menu'+ (subMenu ? ' sub-menu' : '') +'"><tbody>';
             var img = null, icon = null;
-            for (var f = 0; f < options.items.length; f++) {
-                var mitem = options.items[f];
+            if (items == null) items = options.items;
+            for (var f = 0; f < items.length; f++) {
+                var mitem = items[f];
                 if (typeof mitem === 'string') {
                     mitem = { id: mitem, text: mitem };
                 } else {
@@ -2926,45 +2985,63 @@ w2utils.event = {
                     if (img  == null) img  = null; // img might be undefined
                     if (icon == null) icon = null; // icon might be undefined
                 }
-                if (['radio', 'check'].indexOf(options.type) != -1) {
+                if (['radio', 'check'].indexOf(options.type) != -1 && !Array.isArray(mitem.items)) {
                     if (mitem.checked === true) icon = 'w2ui-icon-check'; else icon = 'w2ui-icon-empty';
                 }
                 if (mitem.hidden !== true) {
                     var imgd = '';
                     var txt = mitem.text;
+                    var subMenu_dsp = '';
                     if (typeof options.render === 'function') txt = options.render(mitem, options);
                     if (img)  imgd = '<td class="menu-icon"><div class="w2ui-tb-image w2ui-icon '+ img +'"></div></td>';
                     if (icon) imgd = '<td class="menu-icon" align="center"><span class="w2ui-icon '+ icon +'"></span></td>';
                     // render only if non-empty
-                    if (mitem.type !== 'break' && txt != null && txt !== '' && !(/^-+$/.test(txt))) {
+                    if (mitem.type !== 'break' && txt != null && txt !== '' && String(txt).substr(0, 2) != '--') {
                         var bg = (count % 2 === 0 ? 'w2ui-item-even' : 'w2ui-item-odd');
                         if (options.altRows !== true) bg = '';
                         var colspan = 1;
                         if (imgd === '') colspan++;
-                        if (mitem.count == null && mitem.hotkey == null) colspan++;
+                        if (mitem.count == null && mitem.hotkey == null && mitem.remove !== true && !Array.isArray(mitem.items)) colspan++;
                         if (mitem.tooltip == null && mitem.hint != null) mitem.tooltip = mitem.hint; // for backward compatibility
+                        var count_dsp = '';
+                        if (mitem.remove === true) {
+                            count_dsp = '<span class="remove">X</span>'
+                        } else if (Array.isArray(mitem.items)) {
+                            count_dsp = '<span></span>'
+                            subMenu_dsp = '<tr style="'+ (mitem.expanded ? '' : 'display: none') +'">'+
+                                          '     <td colspan="3">' + getMenuHTML(mitem.items, true, !mitem.expanded, f) + '</td>'+
+                                          '<tr>';
+                        } else {
+                            if (mitem.count != null)  count_dsp += '<span>' + mitem.count + '</span>'
+                            if (mitem.hotkey != null) count_dsp += '<span class="hotkey">' + mitem.hotkey + '</span>'
+                        }
                         menu_html +=
                             '<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+ (mitem.tooltip ? 'title="'+ w2utils.lang(mitem.tooltip) +'"' : '') +
-                            '        class="'+ bg +' '+ (options.index === f ? 'w2ui-selected' : '') + ' ' + (mitem.disabled === true ? 'w2ui-disabled' : '') +'"'+
+                            ' class="'+ bg
+                                + (options.index === f ? ' w2ui-selected' : '')
+                                + (mitem.disabled === true ? ' w2ui-disabled' : '')
+                                + (subMenu_dsp !== '' ? ' has-sub-menu' + (mitem.expanded ? ' expanded' : ' collapsed') : '')
+                                + '"'+
                             '        onmousedown="if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
-                            '               jQuery.fn.w2menuDown(event, \''+ f +'\');"'+
+                            '               jQuery.fn.w2menuDown(event, '+ f +',  '+ parentIndex +');"'+
                             '        onclick="event.stopPropagation(); '+
                             '               if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
-                            '               jQuery.fn.w2menuClick(event, \''+ f +'\');">'+
-                                imgd +
+                            '               jQuery.fn.w2menuClick(event, '+ f +',  '+ parentIndex +');">'+
+                                (subMenu ? '<td></td>' : '') + imgd +
                             '   <td class="menu-text" colspan="'+ colspan +'">'+ w2utils.lang(txt) +'</td>'+
-                            '   <td class="menu-count">'+
-                                    (mitem.count != null ? '<span>' + mitem.count + '</span>' : '') +
-                                    (mitem.hotkey != null ? '<span class="hotkey">' + mitem.hotkey + '</span>' : '') +
-                            '</td>' +
-                            '</tr>';
+                            '   <td class="menu-count">'+ count_dsp +'</td>'+
+                            '</tr>'+ subMenu_dsp;
                         count++;
                     } else {
                         // horizontal line
-                        menu_html += '<tr><td colspan="3" style="padding: 6px; pointer-events: none"><div style="border-top: 1px solid silver;"></div></td></tr>';
+                        var divText = txt.replace(/^-+/g, '')
+                        menu_html += '<tr><td colspan="3" class="menu-divider '+ (divText != '' ? 'divider-text' : '') +'">'+
+                                     '   <div class="line">'+ divText +'</div>'+
+                                     '   <div class="text">'+ divText +'</div>'+
+                                     '</td></tr>';
                     }
                 }
-                options.items[f] = mitem;
+                items[f] = mitem;
             }
             if (count === 0) {
                 menu_html += '<tr><td style="padding: 13px; color: #999; text-align: center">'+ options.msgNoItems +'</div></td></tr>';
