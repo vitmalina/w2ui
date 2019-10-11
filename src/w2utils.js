@@ -3000,10 +3000,10 @@ w2utils.event = {
                         if (options.altRows !== true) bg = '';
                         var colspan = 1;
                         if (imgd === '') colspan++;
-                        if (mitem.count == null && mitem.hotkey == null && mitem.remove == null && !Array.isArray(mitem.items)) colspan++;
+                        if (mitem.count == null && mitem.hotkey == null && mitem.remove !== true && !Array.isArray(mitem.items)) colspan++;
                         if (mitem.tooltip == null && mitem.hint != null) mitem.tooltip = mitem.hint; // for backward compatibility
                         var count_dsp = '';
-                        if (mitem.remove != null) {
+                        if (mitem.remove === true) {
                             count_dsp = '<span class="remove">X</span>'
                         } else if (Array.isArray(mitem.items)) {
                             count_dsp = '<span></span>'

@@ -101,7 +101,7 @@ jQuery(function () {
 
         // possible values: text, alphanumeric, int, float, money, currency, percent, hex, list, combo, enum, select, date, time
         searches: [
-            { field: 'personid', label: 'ID', type: 'int', value: [1, 10], operator: 'more' },
+            { field: 'personid', label: 'ID', type: 'int' },
             { field: 'color', label: 'Color', type: 'color' },
             { field: 'email', label: 'Email', type: 'text', operator1: 'null', operators1: ['is', 'null', 'not null'] },
             { field: 'fname', label: 'First Name 1', type: 'text' },
@@ -135,6 +135,7 @@ jQuery(function () {
                     }
                 },
             },
+            { field: 'personid', text: 'ID', size: '50px' },
             { field: 'personid2', text: 'ID2', size: '60px', sortable: true, resizable: true, tooltip: 'Person ID',
                 render: function (record) {
                     if (record.changes && record.changes['personid']) {
@@ -293,8 +294,8 @@ jQuery(function () {
         });
     }
 
-    w2ui.grid.records[0].w2ui = { children: w2ui.grid.records.splice(10, 5), colspan1: { personid: 2 }, hideCheckBox: true };
-    w2ui.grid.records[2].w2ui = { children: w2ui.grid.records.splice(10, 3), colspan1: { personid: 5 }, hideCheckBox: true };
+    // w2ui.grid.records[0].w2ui = { children: w2ui.grid.records.splice(10, 5), colspan1: { personid: 2 }, hideCheckBox: true };
+    // w2ui.grid.records[2].w2ui = { children: w2ui.grid.records.splice(10, 3), colspan1: { personid: 5 }, hideCheckBox: true };
     // w2ui.grid.records[6].w2ui = { children: w2ui.grid.records.splice(10, 10), colspan: { personid: 7 } };
     // w2ui.grid.records[6].w2ui.children[1].w2ui = { children: w2ui.grid.records.splice(10, 4) };
     // w2ui.grid.records[6].w2ui.children[1].w2ui.children[2].w2ui = { children: w2ui.grid.records.splice(10, 4) };
