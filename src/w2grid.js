@@ -2544,14 +2544,14 @@
                     break;
                 case 'RESTFULL':
                     ajaxOptions.type = 'GET';
-                    if (params.cmd == 'save')   ajaxOptions.type = 'PUT';  // so far it is always update
-                    if (params.cmd == 'delete') ajaxOptions.type = 'DELETE';
+                    if (cmd == 'save')   ajaxOptions.type = 'PUT';  // so far it is always update
+                    if (cmd == 'delete') ajaxOptions.type = 'DELETE';
                     ajaxOptions.data = (typeof ajaxOptions.data == 'object' ? String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']') : ajaxOptions.data);
                     break;
                 case 'RESTFULLJSON':
                     ajaxOptions.type = 'GET';
-                    if (params.cmd == 'save')   ajaxOptions.type = 'PUT';  // so far it is always update
-                    if (params.cmd == 'delete') ajaxOptions.type = 'DELETE';
+                    if (cmd == 'save')   ajaxOptions.type = 'PUT';  // so far it is always update
+                    if (cmd == 'delete') ajaxOptions.type = 'DELETE';
                     ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
                     ajaxOptions.contentType = 'application/json';
                     break;
@@ -2563,7 +2563,7 @@
             }
             if (this.method) ajaxOptions.type = this.method;
 
-            this.last.xhr_cmd   = params.cmd;
+            this.last.xhr_cmd   = cmd;
             this.last.xhr_start = (new Date()).getTime();
             this.last.xhr = $.ajax(ajaxOptions)
                 .done(function (data, status, xhr) {
@@ -5709,6 +5709,7 @@
                         '    <td>'+ this.buttons['search'].html +'</td>'+
                         '    <td>'+
                         '        <input type="text" id="grid_'+ this.name +'_search_all" class="w2ui-search-all" tabindex="-1" '+
+                        '            autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"'+
                         '            placeholder="'+ w2utils.lang(this.last.label) +'" value="'+ this.last.search +'"'+
                         '            onfocus="var grid = w2ui[\''+ this.name +'\']; clearTimeout(grid.last.kbd_timer); grid.searchShowFields(true); grid.searchClose()"'+
                         '            onkeydown="if (event.keyCode == 13 &amp;&amp; w2utils.isIE) this.onchange();"'+
