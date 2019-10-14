@@ -18,6 +18,15 @@ jQuery(function () {
         bottomHTML  : '<div style="padding: 10px 5px; border-top: 1px solid #aaa;">Bottom</div>',
         style       : 'border: 1px solid silver',
         routeData   : { id: 59, vid: '23.323.4' },
+        flatButton: true,
+        // flat: true,
+        onFlat(event) {
+            if (event.goFlat) {
+                jQuery('#sidebar').width(50)
+            } else {
+                jQuery('#sidebar').width(250)
+            }
+        },
         menu: [
             { id: 1, text: 'Select Item', icon: 'fa fa-star' },
             { id: 2, text: 'View Item', icon: 'fa fa-camera' },
@@ -36,6 +45,25 @@ jQuery(function () {
         },
         //onKeydown: function (event) { console.log('keyboard', event); event.preventDefault(); },
         nodes: [
+            { id: 'top-1', text: 'Top Level 1', icon: 'fa fa-star' },
+            { id: 'top-2', text: 'Top Level 2', icon: 'fa fa-star' },
+            { id: 'top-3', text: 'Top Level 3', icon: 'fa fa-star',
+                nodes: [
+                    { id: 'top-1-1', text: 'Sub 1', img: 'icon-page' },
+                    { id: 'top-1-2', text: 'Sub 2', img: 'icon-page' },
+                    { id: 'top-1-3', text: 'Sub 3', img: 'icon-page',
+                        nodes: [
+                            { id: 'top-1-3-1', text: 'Sub 3-1', img: 'icon-page' },
+                            { id: 'top-1-3-2', text: 'Sub 3-2', img: 'icon-page',
+                                nodes: [
+                                    { id: 'top-1-3-2-1', text: 'Sub 3-1', img: 'icon-page' },
+                                    { id: 'top-1-3-2-2', text: 'Sub 3-2', img: 'icon-page' },
+                                ]
+                             }
+                        ]
+                    }
+                ]
+            },
             { id: 'level-1', text: 'Level 1', expanded: true, group: true,
                 nodes: [
                     { id: 'level-1-1', text: function () { return  'Level 1.1' }, img1: 'icon-add', icon: 'fa fa-star', count: 1,
