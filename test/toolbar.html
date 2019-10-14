@@ -19,19 +19,20 @@
                 {
                                 type: 'menu-radio', id: 'menu-stato',
                                 text: function (item) {
-                                    return 'Stato: ' + item.selected;
+                                    return 'Status: ' + item.get(item.selected).text;
                                 },
                                 selected: 'ALL',
                                 items: [
-                                    { id: 'ALL', text: 'Tutti gli stati' },
-                                    { id: 'NEW', text: 'Nuovo' },
+                                    { id: 'ALL', text: 'All Statuses' },
+                                    { id: 'NEW', text: 'New' },
                                     { id: 'WIP', text: 'Work in progress' },
-                                    { id: 'LAV', text: 'Lavorato' }
+                                    { id: 'LAV', text: 'Working on it' }
                                 ]
                             },
                 { type: 'check', id: 'item1.1', text: 'Check', img: 'icon-page', tooltip: function () { return (new Date()).getTime(); },
                     checked: true, route: '/project' },
-                { type: 'drop',  id: 'item12', img: 'icon-page', icon: 'fa fa-star', tooltip: 'Drop button',  html: 'so', route: '/project/:id/go', count: 4 },
+                { type: 'drop',  id: 'item12', img: 'icon-page', icon: 'fa fa-star', tooltip: 'Drop button',
+                    html: '<div style="padding: 10px">Some html text</div>', route: '/project/:id/go', count: 4 },
                 { type: 'break', id: 'break0' },
                 { type: 'menu',  id: 'item2', text: 'Drop Down', img: 'icon-folder', icon: 'fa fa-camera', tooltip: 'Menu button',
                     items1: function(el) {

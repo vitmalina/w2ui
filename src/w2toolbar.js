@@ -16,6 +16,7 @@
 *   - item.tooltip - can be a function
 *   - item.color
 *   - item.options
+*   - event.item.get - finds selected item
 *
 ************************************************************************/
 
@@ -647,6 +648,13 @@
             if (item.text == null) item.text = '';
             if (item.tooltip == null && item.hint != null) item.tooltip = item.hint; // for backward compatibility
             if (item.tooltip == null) item.tooltip = '';
+            if (typeof item.get !== 'function' && Array.isArray(item.items)) {
+                item.get = function (id) {
+                    return item.items.find(function (it) {
+                        if (it.id == id) return true; else return false
+                    })
+                }
+            }
             var img  = '<td>&#160;</td>';
             var text = (typeof item.text == 'function' ? item.text.call(this, item) : item.text);
             if (item.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ item.img +'"></div></td>';
