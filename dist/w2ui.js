@@ -2520,7 +2520,7 @@ w2utils.event = {
         function resize() {
             var div1 = $('#w2ui-overlay'+ name);
             var div2 = div1.find(' > div');
-            var menu = $('#w2ui-overlay'+ name +' div.menu');
+            var menu = $('#w2ui-overlay'+ name +' div.w2ui-menu');
             var pos  = {};
             if (menu.length > 0) {
                 menu.css('overflow-y', 'hidden');
@@ -2542,13 +2542,13 @@ w2utils.event = {
                     h = parseInt(options.tmp.contentHeight);
                     div2.height(h);
                     setTimeout(function () {
-                        var $div = div2.find('div.menu');
+                        var $div = div2.find('div.w2ui-menu');
                         if (h > $div.height()) {
-                            div2.find('div.menu').css('overflow-y', 'hidden');
+                            div2.find('div.w2ui-menu').css('overflow-y', 'hidden');
                         }
                     }, 1);
                     setTimeout(function () {
-                        var $div = div2.find('div.menu');
+                        var $div = div2.find('div.w2ui-menu');
                         if ($div.css('overflow-y') !== 'auto') $div.css('overflow-y', 'auto');
                     }, 10);
                 }
@@ -2556,15 +2556,15 @@ w2utils.event = {
                     w = parseInt(options.tmp.contentWidth);
                     div2.width(w);
                     setTimeout(function () {
-                        if (w > div2.find('div.menu > table').width()) {
-                            div2.find('div.menu > table').css('overflow-x', 'hidden');
+                        if (w > div2.find('div.w2ui-menu > table').width()) {
+                            div2.find('div.w2ui-menu > table').css('overflow-x', 'hidden');
                         }
                     }, 1);
                     setTimeout(function () {
-                        div2.find('div.menu > table').css('overflow-x', 'auto');
+                        div2.find('div.w2ui-menu > table').css('overflow-x', 'auto');
                     }, 10);
                 } else {
-                    div2.find('div.menu').css('width', '100%');
+                    div2.find('div.w2ui-menu').css('width', '100%');
                 }
                 // adjust position
                 var boxLeft  = options.left;
@@ -2717,15 +2717,15 @@ w2utils.event = {
             // if not show - call blur
             if ($('#w2ui-overlay'+ name).length > 0) {
                 options = $.extend($.fn.w2menuOptions, options);
-                var scrTop = $('#w2ui-overlay'+ name +' div.menu').scrollTop();
-                $('#w2ui-overlay'+ name +' div.menu').html(getMenuHTML());
-                $('#w2ui-overlay'+ name +' div.menu').scrollTop(scrTop);
+                var scrTop = $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop();
+                $('#w2ui-overlay'+ name +' div.w2ui-menu').html(getMenuHTML());
+                $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop(scrTop);
                 mresize();
             } else {
                 $(this).w2menu(options);
             }
         } else if (menu === 'refresh-index') {
-            var $menu  = $('#w2ui-overlay'+ name +' div.menu');
+            var $menu  = $('#w2ui-overlay'+ name +' div.w2ui-menu');
             var cur    = $menu.find('tr[index='+ options.index +']');
             var scrTop = $menu.scrollTop();
             $menu.find('tr.w2ui-selected').removeClass('w2ui-selected'); // clear all
@@ -2854,7 +2854,7 @@ w2utils.event = {
                 options.index = 0;
                 for (var i = 0; i < options.items.length; i++) options.items[i].hidden = false;
             }
-            html += '<div class="menu" style="position: absolute; top: '+ (options.search ? 40 : 0) + 'px; bottom: 0px">' +
+            html += '<div class="w2ui-menu" style="top: '+ (options.search ? 40 : 0) + 'px">' +
                         getMenuHTML() +
                     '</div>';
             var ret = $(this).w2overlay(html, options);
@@ -2881,7 +2881,7 @@ w2utils.event = {
                 // show selected
                 $('#w2ui-overlay'+ name +' tr.w2ui-selected').removeClass('w2ui-selected');
                 var cur    = $('#w2ui-overlay'+ name +' tr[index='+ options.index +']');
-                var scrTop = $('#w2ui-overlay'+ name +' div.menu').scrollTop();
+                var scrTop = $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop();
                 cur.addClass('w2ui-selected');
                 if (options.tmp) {
                     options.tmp.contentHeight = $('#w2ui-overlay'+ name +' table').height() + (options.search ? 50 : 10);
@@ -2891,11 +2891,11 @@ w2utils.event = {
                 // scroll into view
                 if (cur.length > 0) {
                     var top    = cur[0].offsetTop - 5; // 5 is margin top
-                    var el     = $('#w2ui-overlay'+ name +' div.menu');
+                    var el     = $('#w2ui-overlay'+ name +' div.w2ui-menu');
                     var height = el.height();
-                    $('#w2ui-overlay'+ name +' div.menu').scrollTop(scrTop);
+                    $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop(scrTop);
                     if (top < scrTop || top + cur.height() > scrTop + height) {
-                        $('#w2ui-overlay'+ name +' div.menu').animate({ 'scrollTop': top - (height - cur.height() * 2) / 2 }, 200, 'linear');
+                        $('#w2ui-overlay'+ name +' div.w2ui-menu').animate({ 'scrollTop': top - (height - cur.height() * 2) / 2 }, 200, 'linear');
                     }
                 }
             }, 1);
@@ -2963,13 +2963,13 @@ w2utils.event = {
 
         function getMenuHTML(items, subMenu, expanded, parentIndex) {
             if (options.spinner) {
-                return  '<table class="w2ui-drop-menu"><tbody><tr><td style="padding: 5px 10px 10px 10px; text-align: center">'+
+                return  '<table><tbody><tr><td style="padding: 5px 10px 10px 10px; text-align: center">'+
                         '    <div class="w2ui-spinner" style="width: 18px; height: 18px; position: relative; top: 5px;"></div> '+
                         '    <div style="display: inline-block; padding: 3px; color: #999;">'+ w2utils.lang('Loading...') +'</div>'+
                         '</td></tr></tbody></table>';
             }
             var count        = 0;
-            var menu_html    = '<table cellspacing="0" cellpadding="0" class="w2ui-drop-menu'+ (subMenu ? ' sub-menu' : '') +'"><tbody>';
+            var menu_html    = '<table cellspacing="0" cellpadding="0" class="'+ (subMenu ? ' sub-menu' : '') +'"><tbody>';
             var img = null, icon = null;
             if (items == null) items = options.items;
             for (var f = 0; f < items.length; f++) {
@@ -5948,14 +5948,14 @@ w2utils.event = {
                     break;
                 case 'RESTFULL':
                     ajaxOptions.type = 'GET';
-                    if (params.cmd == 'save')   ajaxOptions.type = 'PUT';  // so far it is always update
-                    if (params.cmd == 'delete') ajaxOptions.type = 'DELETE';
+                    if (cmd == 'save')   ajaxOptions.type = 'PUT';  // so far it is always update
+                    if (cmd == 'delete') ajaxOptions.type = 'DELETE';
                     ajaxOptions.data = (typeof ajaxOptions.data == 'object' ? String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']') : ajaxOptions.data);
                     break;
                 case 'RESTFULLJSON':
                     ajaxOptions.type = 'GET';
-                    if (params.cmd == 'save')   ajaxOptions.type = 'PUT';  // so far it is always update
-                    if (params.cmd == 'delete') ajaxOptions.type = 'DELETE';
+                    if (cmd == 'save')   ajaxOptions.type = 'PUT';  // so far it is always update
+                    if (cmd == 'delete') ajaxOptions.type = 'DELETE';
                     ajaxOptions.data        = JSON.stringify(ajaxOptions.data);
                     ajaxOptions.contentType = 'application/json';
                     break;
@@ -5967,7 +5967,7 @@ w2utils.event = {
             }
             if (this.method) ajaxOptions.type = this.method;
 
-            this.last.xhr_cmd   = params.cmd;
+            this.last.xhr_cmd   = cmd;
             this.last.xhr_start = (new Date()).getTime();
             this.last.xhr = $.ajax(ajaxOptions)
                 .done(function (data, status, xhr) {
@@ -8262,7 +8262,8 @@ w2utils.event = {
                       '    <div id="grid_'+ this.name +'_fsummary" class="w2ui-grid-body w2ui-grid-summary"></div>'+
                       '    <div id="grid_'+ this.name +'_summary" class="w2ui-grid-body w2ui-grid-summary"></div>'+
                       '    <div id="grid_'+ this.name +'_footer" class="w2ui-grid-footer"></div>'+
-                      '    <textarea id="grid_'+ this.name +'_focus" class="w2ui-grid-focus-input"></textarea>'+
+                      '    <textarea id="grid_'+ this.name +'_focus" class="w2ui-grid-focus-input" '+
+                                (w2utils.isIOS ? 'readonly' : '') +'></textarea>'+ // readonly needed on android not to open keyboard
                       '</div>');
             if (this.selectType != 'row') $(this.box).addClass('w2ui-ss');
             if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style;
@@ -9113,6 +9114,7 @@ w2utils.event = {
                         '    <td>'+ this.buttons['search'].html +'</td>'+
                         '    <td>'+
                         '        <input type="text" id="grid_'+ this.name +'_search_all" class="w2ui-search-all" tabindex="-1" '+
+                        '            autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"'+
                         '            placeholder="'+ w2utils.lang(this.last.label) +'" value="'+ this.last.search +'"'+
                         '            onfocus="var grid = w2ui[\''+ this.name +'\']; clearTimeout(grid.last.kbd_timer); grid.searchShowFields(true); grid.searchClose()"'+
                         '            onkeydown="if (event.keyCode == 13 &amp;&amp; w2utils.isIE) this.onchange();"'+
@@ -14442,6 +14444,7 @@ var w2prompt = function (label, title, callBack) {
 *   - item.tooltip - can be a function
 *   - item.color
 *   - item.options
+*   - event.item.get - finds selected item
 *
 ************************************************************************/
 
@@ -15073,6 +15076,13 @@ var w2prompt = function (label, title, callBack) {
             if (item.text == null) item.text = '';
             if (item.tooltip == null && item.hint != null) item.tooltip = item.hint; // for backward compatibility
             if (item.tooltip == null) item.tooltip = '';
+            if (typeof item.get !== 'function' && Array.isArray(item.items)) {
+                item.get = function (id) {
+                    return item.items.find(function (it) {
+                        if (it.id == id) return true; else return false
+                    })
+                }
+            }
             var img  = '<td>&#160;</td>';
             var text = (typeof item.text == 'function' ? item.text.call(this, item) : item.text);
             if (item.img)  img = '<td><div class="w2ui-tb-image w2ui-icon '+ item.img +'"></div></td>';
@@ -15394,7 +15404,7 @@ var w2prompt = function (label, title, callBack) {
             disabled        : false,
             group           : false,        // if true, it will build as a group
             groupShowHide   : true,
-            collapsible     : true,
+            collapsible     : false,
             plus            : false,        // if true, plus will be shown even if there is no sub nodes
             // events
             onClick         : null,
@@ -15677,7 +15687,7 @@ var w2prompt = function (label, title, callBack) {
             if (edata.isCancelled === true) return;
             // default action
             $(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideUp(200);
-            $(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">+</div>');
+            $(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-expanded').removeClass('w2ui-expanded').addClass('w2ui-collapsed')
             nd.expanded = false;
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
@@ -15705,7 +15715,7 @@ var w2prompt = function (label, title, callBack) {
             if (edata.isCancelled === true) return;
             // default action
             $(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideDown(200);
-            $(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-node-dots:first-child').html('<div class="w2ui-expand">-</div>');
+            $(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-collapsed').removeClass('w2ui-collapsed').addClass('w2ui-expanded')
             nd.expanded = true;
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
@@ -15791,7 +15801,7 @@ var w2prompt = function (label, title, callBack) {
             if (edata.isCancelled === true) return false;
             // default behaviour
             this.hasFocus = true;
-            $(this.box).find('.w2ui-selected').removeClass('w2ui-inactive');
+            $(this.box).find('.w2ui-sidebar-body').addClass('w2ui-focus');
             setTimeout(function () {
                 var $input = $(obj.box).find('#sidebar_'+ obj.name + '_focus');
                 if (!$input.is(':focus')) $input.focus();
@@ -15806,7 +15816,7 @@ var w2prompt = function (label, title, callBack) {
             if (edata.isCancelled === true) return false;
             // default behaviour
             this.hasFocus = false;
-            $(this.box).find('.w2ui-selected').addClass('w2ui-inactive');
+            $(this.box).find('.w2ui-sidebar-body').removeClass('w2ui-focus');
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
         },
@@ -15835,10 +15845,18 @@ var w2prompt = function (label, title, callBack) {
                 if ((nd.nodes.length > 0 || nd.plus) && !nd.expanded) obj.expand(obj.selected);
             }
             if (event.keyCode == 38) { // up
-                selectNode(neighbor(nd, prev));
+                if (obj.get(obj.selected) == null) {
+                    selectNode(this.nodes[0] || null);
+                } else {
+                    selectNode(neighbor(nd, prev));
+                }
             }
             if (event.keyCode == 40) { // down
-                selectNode(neighbor(nd, next));
+                if (obj.get(obj.selected) == null) {
+                    selectNode(this.nodes[0] || null);
+                } else {
+                    selectNode(neighbor(nd, next));
+                }
             }
             // cancel event if needed
             if ($.inArray(event.keyCode, [13, 32, 37, 38, 39, 40]) != -1) {
@@ -15905,7 +15923,7 @@ var w2prompt = function (label, title, callBack) {
             if (id == null) id = this.selected;
             var nd = this.get(id);
             if (nd == null) return;
-            var body   = $(this.box).find('.w2ui-sidebar-div');
+            var body   = $(this.box).find('.w2ui-sidebar-body');
             var item   = $(this.box).find('#node_'+ w2utils.escapeId(id));
             var offset = item.offset().top - body.offset().top;
             if (offset + item.height() > body.height() || offset <= 0) {
@@ -15981,7 +15999,7 @@ var w2prompt = function (label, title, callBack) {
             if (edata.isCancelled === true) return;
             // default action
             if (box != null) {
-                if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
+                if ($(this.box).find('> div > div.w2ui-sidebar-body').length > 0) {
                     $(this.box)
                         .removeAttr('name')
                         .removeClass('w2ui-reset w2ui-sidebar')
@@ -15994,9 +16012,9 @@ var w2prompt = function (label, title, callBack) {
                 .attr('name', this.name)
                 .addClass('w2ui-reset w2ui-sidebar')
                 .html('<div>'+
-                        '<input id="sidebar_'+ this.name +'_focus" style="position: absolute; top: 0; right: 0; width: 1px; z-index: -1; opacity: 0"/>'+
+                        '<input id="sidebar_'+ this.name +'_focus" style="position: absolute; top: 0; right: 0; width: 1px; z-index: -1; opacity: 0" '+ (w2utils.isIOS ? 'readonly' : '') +'/>'+
                         '<div class="w2ui-sidebar-top"></div>' +
-                        '<div class="w2ui-sidebar-div"></div>'+
+                        '<div class="w2ui-sidebar-body"></div>'+
                         '<div class="w2ui-sidebar-bottom"></div>'+
                     '</div>'
                 );
@@ -16012,12 +16030,12 @@ var w2prompt = function (label, title, callBack) {
             }
             if (this.topHTML !== '' || flatHTML !== '') {
                 $(this.box).find('.w2ui-sidebar-top').html(this.topHTML + flatHTML);
-                $(this.box).find('.w2ui-sidebar-div')
+                $(this.box).find('.w2ui-sidebar-body')
                     .css('top', $(this.box).find('.w2ui-sidebar-top').height() + 'px');
             }
             if (this.bottomHTML !== '') {
                 $(this.box).find('.w2ui-sidebar-bottom').html(this.bottomHTML);
-                $(this.box).find('.w2ui-sidebar-div')
+                $(this.box).find('.w2ui-sidebar-body')
                     .css('bottom', $(this.box).find('.w2ui-sidebar-bottom').height() + 'px');
             }
             // focus
@@ -16073,12 +16091,12 @@ var w2prompt = function (label, title, callBack) {
             }
             if (this.topHTML !== '' || flatHTML !== '') {
                 $(this.box).find('.w2ui-sidebar-top').html(this.topHTML + flatHTML);
-                $(this.box).find('.w2ui-sidebar-div')
+                $(this.box).find('.w2ui-sidebar-body')
                     .css('top', $(this.box).find('.w2ui-sidebar-top').height() + 'px');
             }
             if (this.bottomHTML !== '') {
                 $(this.box).find('.w2ui-sidebar-bottom').html(this.bottomHTML);
-                $(this.box).find('.w2ui-sidebar-div')
+                $(this.box).find('.w2ui-sidebar-body')
                     .css('bottom', $(this.box).find('.w2ui-sidebar-bottom').height() + 'px');
             }
             // default action
@@ -16097,7 +16115,7 @@ var w2prompt = function (label, title, callBack) {
             var nm;
             if (id == null) {
                 node = this;
-                nm   = '.w2ui-sidebar-div';
+                nm   = '.w2ui-sidebar-body';
             } else {
                 node = this.get(id);
                 if (node == null) return;
@@ -16145,7 +16163,7 @@ var w2prompt = function (label, title, callBack) {
                 var tmp   = nd.parent;
                 var level = 0;
                 while (tmp && tmp.parent != null) {
-                    if (tmp.group) level--;
+                    // if (tmp.group) level--;
                     tmp = tmp.parent;
                     level++;
                 }
@@ -16154,6 +16172,7 @@ var w2prompt = function (label, title, callBack) {
                     console.log('NOTICE: sidebar node.caption property is deprecated, please use node.text. Node -> ', nd)
                     nd.text = nd.caption;
                 }
+                if (Array.isArray(nd.nodes) && nd.nodes.length > 0) nd.collapsible = true
                 if (nd.group) {
                     html =
                         '<div class="w2ui-node-group w2ui-level-'+ level + (nd.class ? ' ' + nd.class : '') +'" id="node_'+ nd.id +'"'+
@@ -16177,22 +16196,20 @@ var w2prompt = function (label, title, callBack) {
                         tmp = '<div class="w2ui-node-image"><span class="' + (typeof icon == 'function' ? icon.call(obj, nd) : icon) + '"></span></div>';
                     }
                     var text = nd.text;
+                    var expand = (nd.count != null ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '');
+                    if (nd.collapsible === true) {
+                        expand = '<div class="w2ui-' + (nd.expanded ? 'expanded' : 'collapsed') + '"><span></span></div>';
+                    }
+                    console.log(nd, expand)
                     if (typeof nd.text == 'function') text = nd.text.call(obj, nd);
                     html =  '<div class="w2ui-node w2ui-level-'+ level + (nd.selected ? ' w2ui-selected' : '') + (nd.disabled ? ' w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
                             '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
                             '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
                             '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
-                            '<table cellpadding="0" cellspacing="0" style="margin-left:'+ (level*18) +'px; padding-right:'+ (level*18) +'px"><tbody><tr>'+
-                            '<td class="w2ui-node-dots" nowrap="nowrap" onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\'); '+
-                            '        if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
-                            '    <div class="w2ui-expand">' + (nd.nodes.length > 0 ? (nd.expanded ? '-' : '+') : (nd.plus ? '+' : '')) + '</div>' +
-                            '</td>'+
-                            '<td class="w2ui-node-data" nowrap="nowrap">'+
-                                    tmp +
-                                    (nd.count || nd.count === 0 ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '') +
+                            '   <div class="w2ui-node-data" style="margin-left:'+ (level*12) +'px">'+
+                                    tmp + expand +
                                     '<div class="w2ui-node-text w2ui-node-caption">'+ text +'</div>'+
-                            '</td>'+
-                            '</tr></tbody></table>'+
+                            '   </div>'+
                             '</div>'+
                             '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
                     if (obj.flat) {
@@ -16234,7 +16251,7 @@ var w2prompt = function (label, title, callBack) {
             var edata = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
             if (edata.isCancelled === true) return;
             // clean up
-            if ($(this.box).find('> div > div.w2ui-sidebar-div').length > 0) {
+            if ($(this.box).find('> div > div.w2ui-sidebar-body').length > 0) {
                 $(this.box)
                     .removeAttr('name')
                     .removeClass('w2ui-reset w2ui-sidebar')

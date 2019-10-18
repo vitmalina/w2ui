@@ -2520,7 +2520,7 @@ w2utils.event = {
         function resize() {
             var div1 = $('#w2ui-overlay'+ name);
             var div2 = div1.find(' > div');
-            var menu = $('#w2ui-overlay'+ name +' div.menu');
+            var menu = $('#w2ui-overlay'+ name +' div.w2ui-menu');
             var pos  = {};
             if (menu.length > 0) {
                 menu.css('overflow-y', 'hidden');
@@ -2542,13 +2542,13 @@ w2utils.event = {
                     h = parseInt(options.tmp.contentHeight);
                     div2.height(h);
                     setTimeout(function () {
-                        var $div = div2.find('div.menu');
+                        var $div = div2.find('div.w2ui-menu');
                         if (h > $div.height()) {
-                            div2.find('div.menu').css('overflow-y', 'hidden');
+                            div2.find('div.w2ui-menu').css('overflow-y', 'hidden');
                         }
                     }, 1);
                     setTimeout(function () {
-                        var $div = div2.find('div.menu');
+                        var $div = div2.find('div.w2ui-menu');
                         if ($div.css('overflow-y') !== 'auto') $div.css('overflow-y', 'auto');
                     }, 10);
                 }
@@ -2556,15 +2556,15 @@ w2utils.event = {
                     w = parseInt(options.tmp.contentWidth);
                     div2.width(w);
                     setTimeout(function () {
-                        if (w > div2.find('div.menu > table').width()) {
-                            div2.find('div.menu > table').css('overflow-x', 'hidden');
+                        if (w > div2.find('div.w2ui-menu > table').width()) {
+                            div2.find('div.w2ui-menu > table').css('overflow-x', 'hidden');
                         }
                     }, 1);
                     setTimeout(function () {
-                        div2.find('div.menu > table').css('overflow-x', 'auto');
+                        div2.find('div.w2ui-menu > table').css('overflow-x', 'auto');
                     }, 10);
                 } else {
-                    div2.find('div.menu').css('width', '100%');
+                    div2.find('div.w2ui-menu').css('width', '100%');
                 }
                 // adjust position
                 var boxLeft  = options.left;
@@ -2717,15 +2717,15 @@ w2utils.event = {
             // if not show - call blur
             if ($('#w2ui-overlay'+ name).length > 0) {
                 options = $.extend($.fn.w2menuOptions, options);
-                var scrTop = $('#w2ui-overlay'+ name +' div.menu').scrollTop();
-                $('#w2ui-overlay'+ name +' div.menu').html(getMenuHTML());
-                $('#w2ui-overlay'+ name +' div.menu').scrollTop(scrTop);
+                var scrTop = $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop();
+                $('#w2ui-overlay'+ name +' div.w2ui-menu').html(getMenuHTML());
+                $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop(scrTop);
                 mresize();
             } else {
                 $(this).w2menu(options);
             }
         } else if (menu === 'refresh-index') {
-            var $menu  = $('#w2ui-overlay'+ name +' div.menu');
+            var $menu  = $('#w2ui-overlay'+ name +' div.w2ui-menu');
             var cur    = $menu.find('tr[index='+ options.index +']');
             var scrTop = $menu.scrollTop();
             $menu.find('tr.w2ui-selected').removeClass('w2ui-selected'); // clear all
@@ -2854,7 +2854,7 @@ w2utils.event = {
                 options.index = 0;
                 for (var i = 0; i < options.items.length; i++) options.items[i].hidden = false;
             }
-            html += '<div class="menu" style="position: absolute; top: '+ (options.search ? 40 : 0) + 'px; bottom: 0px">' +
+            html += '<div class="w2ui-menu" style="top: '+ (options.search ? 40 : 0) + 'px">' +
                         getMenuHTML() +
                     '</div>';
             var ret = $(this).w2overlay(html, options);
@@ -2881,7 +2881,7 @@ w2utils.event = {
                 // show selected
                 $('#w2ui-overlay'+ name +' tr.w2ui-selected').removeClass('w2ui-selected');
                 var cur    = $('#w2ui-overlay'+ name +' tr[index='+ options.index +']');
-                var scrTop = $('#w2ui-overlay'+ name +' div.menu').scrollTop();
+                var scrTop = $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop();
                 cur.addClass('w2ui-selected');
                 if (options.tmp) {
                     options.tmp.contentHeight = $('#w2ui-overlay'+ name +' table').height() + (options.search ? 50 : 10);
@@ -2891,11 +2891,11 @@ w2utils.event = {
                 // scroll into view
                 if (cur.length > 0) {
                     var top    = cur[0].offsetTop - 5; // 5 is margin top
-                    var el     = $('#w2ui-overlay'+ name +' div.menu');
+                    var el     = $('#w2ui-overlay'+ name +' div.w2ui-menu');
                     var height = el.height();
-                    $('#w2ui-overlay'+ name +' div.menu').scrollTop(scrTop);
+                    $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop(scrTop);
                     if (top < scrTop || top + cur.height() > scrTop + height) {
-                        $('#w2ui-overlay'+ name +' div.menu').animate({ 'scrollTop': top - (height - cur.height() * 2) / 2 }, 200, 'linear');
+                        $('#w2ui-overlay'+ name +' div.w2ui-menu').animate({ 'scrollTop': top - (height - cur.height() * 2) / 2 }, 200, 'linear');
                     }
                 }
             }, 1);
@@ -2963,13 +2963,13 @@ w2utils.event = {
 
         function getMenuHTML(items, subMenu, expanded, parentIndex) {
             if (options.spinner) {
-                return  '<table class="w2ui-drop-menu"><tbody><tr><td style="padding: 5px 10px 10px 10px; text-align: center">'+
+                return  '<table><tbody><tr><td style="padding: 5px 10px 10px 10px; text-align: center">'+
                         '    <div class="w2ui-spinner" style="width: 18px; height: 18px; position: relative; top: 5px;"></div> '+
                         '    <div style="display: inline-block; padding: 3px; color: #999;">'+ w2utils.lang('Loading...') +'</div>'+
                         '</td></tr></tbody></table>';
             }
             var count        = 0;
-            var menu_html    = '<table cellspacing="0" cellpadding="0" class="w2ui-drop-menu'+ (subMenu ? ' sub-menu' : '') +'"><tbody>';
+            var menu_html    = '<table cellspacing="0" cellpadding="0" class="'+ (subMenu ? ' sub-menu' : '') +'"><tbody>';
             var img = null, icon = null;
             if (items == null) items = options.items;
             for (var f = 0; f < items.length; f++) {

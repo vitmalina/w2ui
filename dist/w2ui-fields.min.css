@@ -425,64 +425,71 @@ input[type="checkbox"].w2ui-toggle.blue:checked + div > div {
 /*
 *    Drop down menu
 */
-.w2ui-overlay table.w2ui-drop-menu {
+.w2ui-menu {
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+}
+.w2ui-menu table {
+  font-family: verdana;
+  font-size: 11px;
   width: 100%;
   color: black;
   background-color: white;
   padding: 5px 0px;
   cursor: default;
 }
-.w2ui-overlay table.w2ui-drop-menu td {
+.w2ui-menu table td {
   white-space: nowrap;
 }
-.w2ui-overlay table.w2ui-drop-menu.sub-menu {
+.w2ui-menu table.sub-menu {
   top: 0;
   background-color: #fafdff;
   border-top: 1px dotted #cccccc;
   border-bottom: 1px dotted #cccccc;
 }
-.w2ui-overlay table.w2ui-drop-menu.sub-menu td:first-child {
+.w2ui-menu table.sub-menu td:first-child {
   padding-left: 10px;
 }
-.w2ui-overlay table.w2ui-drop-menu.sub-menu td.menu-divider {
+.w2ui-menu table.sub-menu td.menu-divider {
   padding-left: 16px;
 }
-.w2ui-overlay table.w2ui-drop-menu .w2ui-item-even {
+.w2ui-menu table .w2ui-item-even {
   color: inherit;
   background-color: #FFF;
 }
-.w2ui-overlay table.w2ui-drop-menu .w2ui-item-odd {
+.w2ui-menu table .w2ui-item-odd {
   color: inherit;
   background-color: #F3F6FA;
 }
-.w2ui-overlay table.w2ui-drop-menu .w2ui-item-group {
+.w2ui-menu table .w2ui-item-group {
   color: #444;
   font-weight: bold;
   background-color: #ECEDF0;
   border-bottom: 1px solid #D3D2D4;
 }
-.w2ui-overlay table.w2ui-drop-menu td.menu-icon {
+.w2ui-menu table td.menu-icon {
   padding: 3px 0px 4px 6px;
   width: 20px;
 }
-.w2ui-overlay table.w2ui-drop-menu td.menu-icon > span {
+.w2ui-menu table td.menu-icon > span {
   height: 20px;
   width: 18px;
 }
-.w2ui-overlay table.w2ui-drop-menu td.menu-divider {
+.w2ui-menu table td.menu-divider {
   padding: 6px;
   pointer-events: none;
 }
-.w2ui-overlay table.w2ui-drop-menu td.menu-divider div.line {
+.w2ui-menu table td.menu-divider div.line {
   border-top: 1px solid silver;
   color: transparent;
   height: 0px;
   padding: 0px 25px 0 0px;
 }
-.w2ui-overlay table.w2ui-drop-menu td.menu-divider.divider-text {
+.w2ui-menu table td.menu-divider.divider-text {
   padding: 12px 6px;
 }
-.w2ui-overlay table.w2ui-drop-menu td.menu-divider.divider-text div.text {
+.w2ui-menu table td.menu-divider.divider-text div.text {
   display: block;
   position: absolute;
   margin-top: -6px;
@@ -492,15 +499,15 @@ input[type="checkbox"].w2ui-toggle.blue:checked + div > div {
   color: darkgrey;
   transform: translateX(-50%);
 }
-.w2ui-overlay table.w2ui-drop-menu td.menu-text {
+.w2ui-menu table td.menu-text {
   padding: 8px 10px 8px 5px;
   width: auto;
 }
-.w2ui-overlay table.w2ui-drop-menu td.menu-count {
+.w2ui-menu table td.menu-count {
   text-align: right;
   padding-right: 1px;
 }
-.w2ui-overlay table.w2ui-drop-menu td.menu-count > span {
+.w2ui-menu table td.menu-count > span {
   border: 1px solid #9DA4AF;
   border-radius: 20px;
   width: auto;
@@ -512,7 +519,7 @@ input[type="checkbox"].w2ui-toggle.blue:checked + div > div {
   box-shadow: 0 0 2px #FFFFFF;
   text-shadow: 1px 1px 1px #E6E6E6;
 }
-.w2ui-overlay table.w2ui-drop-menu td.menu-count > span.hotkey {
+.w2ui-menu table td.menu-count > span.hotkey {
   border: none;
   border-radius: 0px;
   background-color: transparent !important;
@@ -520,27 +527,27 @@ input[type="checkbox"].w2ui-toggle.blue:checked + div > div {
   box-shadow: none;
   text-shadow: none;
 }
-.w2ui-overlay table.w2ui-drop-menu td.menu-count > span.remove {
+.w2ui-menu table td.menu-count > span.remove {
   border-color: transparent;
   background-color: transparent;
   box-shadow: none;
   padding: 2px 5px;
 }
-.w2ui-overlay table.w2ui-drop-menu td.menu-count > span.remove:hover {
+.w2ui-menu table td.menu-count > span.remove:hover {
   color: #982525;
   border-color: #d28d5b;
   background-color: #f9e7e7;
 }
-.w2ui-overlay table.w2ui-drop-menu tr.expanded td.menu-count > span,
-.w2ui-overlay table.w2ui-drop-menu tr.collapsed td.menu-count > span {
+.w2ui-menu table tr.expanded td.menu-count > span,
+.w2ui-menu table tr.collapsed td.menu-count > span {
   border-color: transparent;
   background-color: transparent;
   box-shadow: none;
   padding: 2px 5px;
   border-radius: 0px;
 }
-.w2ui-overlay table.w2ui-drop-menu tr.expanded td.menu-count > span:after,
-.w2ui-overlay table.w2ui-drop-menu tr.collapsed td.menu-count > span:after {
+.w2ui-menu table tr.expanded td.menu-count > span:after,
+.w2ui-menu table tr.collapsed td.menu-count > span:after {
   content: "";
   position: absolute;
   border-left: 5px solid #808080;
@@ -550,33 +557,47 @@ input[type="checkbox"].w2ui-toggle.blue:checked + div > div {
   pointer-events: none;
   margin-left: -2px;
 }
-.w2ui-overlay table.w2ui-drop-menu tr.expanded td.menu-count > span:hover,
-.w2ui-overlay table.w2ui-drop-menu tr.collapsed td.menu-count > span:hover {
+.w2ui-menu table tr.expanded td.menu-count > span:hover,
+.w2ui-menu table tr.collapsed td.menu-count > span:hover {
   border-color: transparent;
   background-color: transparent;
 }
-.w2ui-overlay table.w2ui-drop-menu tr.collapsed td.menu-count span:after {
+.w2ui-menu table tr.collapsed td.menu-count span:after {
   transform: rotateZ(90deg);
 }
-.w2ui-overlay table.w2ui-drop-menu tr:hover {
+.w2ui-menu table tr:hover {
   color: inherit;
   background-color: #E6F0FF;
 }
-.w2ui-overlay table.w2ui-drop-menu tr.w2ui-selected {
+.w2ui-menu table tr.w2ui-selected {
   background-color: #D7E4F2;
 }
-.w2ui-overlay table.w2ui-drop-menu tr.w2ui-selected td {
+.w2ui-menu table tr.w2ui-selected td {
   color: inherit;
 }
-.w2ui-overlay table.w2ui-drop-menu tr.w2ui-disabled {
+.w2ui-menu table tr.w2ui-disabled {
   opacity: 0.4;
   background-color: white !important;
 }
-.w2ui-overlay table.w2ui-drop-menu .w2ui-icon {
+.w2ui-menu table .w2ui-icon {
   font-size: 14px;
   color: #8D99A7;
   display: inline-block;
   padding-top: 4px;
+}
+.w2ui-menu-inline {
+  padding: 0;
+  margin: 0;
+}
+.w2ui-menu-inline .w2ui-menu {
+  position: static;
+}
+.w2ui-menu-inline .w2ui-menu > table {
+  padding: 0px;
+}
+.w2ui-menu-inline .w2ui-menu table td.menu-icon,
+.w2ui-menu-inline .w2ui-menu table td.menu-text {
+  padding: 1px 1px 1px 5px;
 }
 /*************************************************
 * ---- Common Classes ----
