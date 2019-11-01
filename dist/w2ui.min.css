@@ -1085,7 +1085,7 @@ button.w2ui-btn-small:focus:before {
 .w2ui-form .w2ui-column-container .w2ui-column.col-8,
 .w2ui-form .w2ui-column-container .w2ui-column.col-9,
 .w2ui-form .w2ui-column-container .w2ui-column.col-10 {
-  margin: 0 5px;
+  padding: 0 5px;
 }
 .w2ui-form .w2ui-buttons {
   position: absolute;
@@ -1170,9 +1170,9 @@ button.w2ui-btn-small:focus:before {
 }
 .w2ui-field.w2ui-span-none > label {
   margin: 0;
-  padding: 5px 0 0 4px;
+  padding: 5px 12px 0 4px;
   display: block;
-  width: 100%;
+  width: 98%;
   text-align: left;
 }
 .w2ui-field.w2ui-span-none > div {
@@ -2081,11 +2081,11 @@ button.w2ui-btn-small:focus:before {
   -o-user-select: text;
 }
 .w2ui-grid .w2ui-grid-body div.w2ui-input {
-  user-select: tex;
-  -webkit-user-select: tex;
-  -moz-user-select: tex;
-  -ms-user-select: tex;
-  -o-user-select: tex;
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  -o-user-select: text;
   background-color: white;
   padding: 4px 2px;
   border: 1px solid transparent;

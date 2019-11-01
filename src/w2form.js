@@ -45,6 +45,7 @@
 *   - added field.options.minLength, min/max for numebrs can be done with int/float - min/max
 *   - field.html.groupCollapsable, form.toggleGroup
 *   - added showErrors
+*   - added field.type = 'check'
 *
 ************************************************************************/
 

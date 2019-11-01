@@ -16200,7 +16200,6 @@ var w2prompt = function (label, title, callBack) {
                     if (nd.collapsible === true) {
                         expand = '<div class="w2ui-' + (nd.expanded ? 'expanded' : 'collapsed') + '"><span></span></div>';
                     }
-                    console.log(nd, expand)
                     if (typeof nd.text == 'function') text = nd.text.call(obj, nd);
                     html =  '<div class="w2ui-node w2ui-level-'+ level + (nd.selected ? ' w2ui-selected' : '') + (nd.disabled ? ' w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
                             '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
@@ -20040,6 +20039,26 @@ var w2prompt = function (label, title, callBack) {
                     case 'password':
                         input = '<input id="' + field.field + '" name="' + field.field + '" class="w2ui-input" type = "password" ' + field.html.attr + tabindex_str + '>';
                         break;
+                    case 'check':
+                    case 'checks':
+                        if (field.options.items == null && field.html.items != null) field.options.items = field.html.items;
+                        var items = field.options.items;
+                        input = '';
+                        // normalized options
+                        if (!$.isArray(items)) items = [];
+                        if (items.length > 0) {
+                            items = w2obj.field.prototype.normMenu.call(this, items, field);
+                        }
+                        // generate
+                        for (var i = 0; i < items.length; i++) {
+                            input += '<label style="user-select: none">'+
+                                     '  <input id="' + field.field + i +'" name="' + field.field + '" class="w2ui-input" type="checkbox" ' +
+                                                field.html.attr + (i === 0 ? tabindex_str : '') + ' data-value="'+ items[i].id +'" data-index="'+ i +'">' +
+                                        '&#160;' + items[i].text +
+                                     '</label><br>';
+                        }
+                        break;
+
                     case 'checkbox':
                         input = '<label>'+
                                 '   <input id="'+ field.field +'" name="'+ field.field +'" style="float: left" class="w2ui-input" type="checkbox" '+ field.html.attr + tabindex_str + '>'+
@@ -20049,7 +20068,8 @@ var w2prompt = function (label, title, callBack) {
                     case 'radio':
                         input = '';
                         // normalized options
-                        var items =  field.options.items ? field.options.items : field.html.items;
+                        if (field.options.items == null && field.html.items != null) field.options.items = field.html.items;
+                        var items = field.options.items;
                         if (!$.isArray(items)) items = [];
                         if (items.length > 0) {
                             items = w2obj.field.prototype.normMenu.call(this, items, field);
@@ -20057,7 +20077,8 @@ var w2prompt = function (label, title, callBack) {
                         // generate
                         for (var i = 0; i < items.length; i++) {
                             input += '<label style="user-select: none">'+
-                                     '  <input id="' + field.field + '" name="' + field.field + '" class="w2ui-input" type = "radio" ' + field.html.attr + (i === 0 ? tabindex_str : '') + ' value="'+ items[i].id + '">' +
+                                     '  <input id="' + field.field + i + '" name="' + field.field + '" class="w2ui-input" type = "radio" ' +
+                                            field.html.attr + (i === 0 ? tabindex_str : '') + ' value="'+ items[i].id + '">' +
                                         '&#160;' + items[i].text +
                                      '</label><br>';
                         }
@@ -20065,7 +20086,8 @@ var w2prompt = function (label, title, callBack) {
                     case 'select':
                         input = '<select id="' + field.field + '" name="' + field.field + '" class="w2ui-input" ' + field.html.attr + tabindex_str + '>';
                         // normalized options
-                        var items =  field.options.items ? field.options.items : field.html.items;
+                        if (field.options.items == null && field.html.items != null) field.options.items = field.html.items;
+                        var items = field.options.items;
                         if (!$.isArray(items)) items = [];
                         if (items.length > 0) {
                             items = w2obj.field.prototype.normMenu.call(this, items, field);
@@ -20347,10 +20369,13 @@ var w2prompt = function (label, title, callBack) {
                 $(field.$el)
                     .off('.w2form')
                     .on('change.w2form', function (event) {
-                        var value_new      = this.value;
-                        var value_previous = obj.getValue(this.name) != null ? obj.getValue(this.name) : '';
-                        var field          = obj.get(this.name);
+                        var field = obj.get(this.name);
                         if (field == null) return;
+
+                        var value_new      = this.value;
+                        var value_previous = obj.getValue(this.name);
+                        if (value_previous == null) value_previous = ''
+
                         if (['list', 'enum', 'file'].indexOf(field.type) !== -1 && $(this).data('selected')) {
                             var nv = $(this).data('selected');
                             var cv = obj.getValue(this.name);
@@ -20372,6 +20397,16 @@ var w2prompt = function (label, title, callBack) {
                         if (['toggle', 'checkbox'].indexOf(field.type) !== -1) {
                             value_new = ($(this).prop('checked') ? ($(this).prop('value') === 'on' ? true : $(this).prop('value')) : false);
                         }
+                        if (['check', 'checks'].indexOf(field.type) !== -1) {
+                            if (!Array.isArray(value_previous)) value_previous = [];
+                            value_new = value_previous.slice();
+                            var tmp = field.options.items[$(this).attr('data-index')];
+                            if ($(this).prop('checked')) {
+                                value_new.push(tmp.id)
+                            } else {
+                                value_new.splice(value_new.indexOf(tmp.id), 1)
+                            }
+                        }
                         // clean extra chars
                         if (['int', 'float', 'percent', 'money', 'currency'].indexOf(field.type) !== -1) {
                             value_new = $(this).data('w2field').clean(value_new);
@@ -20384,24 +20419,15 @@ var w2prompt = function (label, title, callBack) {
                             return;
                         }
                         // default action
-                        var val = this.value;
-                        if (this.type === 'select')   val = this.value;
-                        if (this.type === 'checkbox') val = this.checked ? true : false;
-                        if (this.type === 'radio') {
-                            field.$el.each(function (index, el) {
-                                if (el.checked) val = el.value;
-                            });
-                        }
-                        if (['int', 'float', 'percent', 'money', 'currency', 'list', 'combo', 'enum', 'file', 'toggle'].indexOf(field.type) !== -1) {
-                            val = value_new;
-                        }
+                        var val = edata2.value_new;
                         if (['enum', 'file'].indexOf(field.type) !== -1) {
                             if (val.length > 0) {
                                 var fld = $(field.el).data('w2field').helpers.multi;
                                 $(fld).removeClass('w2ui-error');
                             }
                         }
-                        if (val === '' || val == null || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) {
+                        if (val === '' || val == null
+                                || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) {
                             val = null;
                         }
                         obj.setValue(this.name, val);
