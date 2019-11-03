@@ -12668,6 +12668,8 @@ w2utils.event = {
 *   - w2confirm.options.onOpen, w2confirm.options.onClose
 *   - w2prompt.options.onOpen, w2prompt.options.onClose
 *   - w2popup.actions, w2popup.action, w2popup.onAction
+*   - w2popup.onMsgOpen, w2popup.onMsgClose
+*   - options.multiple
 *
 * == NICE TO HAVE ==
 *   - hide overlay on esc
@@ -12755,7 +12757,8 @@ var w2popup = {};
             height    : 300,
             showClose : true,
             showMax   : false,
-            transition: null
+            transition: null,
+            multiple  : false     // if popup already open, opens as a message
         },
         status    : 'closed',     // string that describes current status
         handlers  : [],
@@ -12768,6 +12771,7 @@ var w2popup = {};
 
         open: function (options) {
             var obj = this;
+            var orig_options = $.extend(true, {}, options);
             if (w2popup.status == 'closing') {
                 setTimeout(function () { obj.open.call(obj, options); }, 100);
                 return;
@@ -12897,6 +12901,9 @@ var w2popup = {};
                 w2popup.status = 'open';
                 obj.trigger($.extend(edata, { phase: 'after' }));
 
+            } else if (options.multiple === true) {
+                // popup is not compatible with w2popup.message
+                w2popup.message(orig_options)
             } else {
                 // if was from template and now not
                 if (w2popup._prev == null && w2popup._template != null) obj.restoreTemplate();
@@ -13045,19 +13052,29 @@ var w2popup = {};
             }
         },
 
-        action: function (action) {
+        action: function (action, msgId) {
+            var obj = this;
             var options = $('#w2ui-popup').data('options');
-            var handler = options.actions[action]
-            switch (typeof handler) {
-                case 'function':
-                    handler(action)
-                    break;
-                case 'object':
-                    if (typeof handler.onClick == 'function') {
-                        handler.onClick(action)
+            if (msgId != null) {
+                options = $('#w2ui-message' + msgId).data('options');
+                obj = {
+                    parent: this,
+                    options: options,
+                    close: function () {
+                        w2popup.message({ msgId: msgId })
                     }
-                    break;
+                }
             }
+            var act   = options.actions[action];
+            var click = act;
+            if ($.isPlainObject(act) && act.onClick) click = act.onClick;
+            // event before
+            var edata = this.trigger({ phase: 'before', target: action, msgId: msgId, type: 'action', action: act, originalEvent: event });
+            if (edata.isCancelled === true) return;
+            // default actions
+            if (typeof click === 'function') click.call(obj, event);
+            // event after
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         keydown: function (event) {
@@ -13255,28 +13272,54 @@ var w2popup = {};
 
             var head     = $('#w2ui-popup .w2ui-popup-title');
             var msgCount = $('#w2ui-popup .w2ui-message').length;
+
+            // convert action arrays into buttons
+            if (options.actions != null) {
+                options.buttons = '';
+                Object.keys(options.actions).forEach(function (action) {
+                    var handler = options.actions[action];
+                    if (typeof handler == 'function') {
+                        options.buttons += '<button class="w2ui-btn" onclick="w2popup.action(\''+ action +'\', '+ msgCount +')">'+ action +'</button>'
+                    }
+                    if (typeof handler == 'object') {
+                        options.buttons += '<button class="w2ui-btn '+ (handler['class'] || '') +'" style="'+ (handler['style'] || '') +'"'
+                            + 'onclick="w2popup.action(\''+ action +'\', '+ msgCount +')">'+ (handler['text'] || action) +'</button>'
+                    }
+                    if (typeof handler == 'string') {
+                        options.buttons += handler
+                    }
+                });
+            }
+
             // remove message
             if ($.trim(options.html) === '' && $.trim(options.body) === '' && $.trim(options.buttons) === '') {
-                var $msg = $('#w2ui-popup #w2ui-message'+ (msgCount-1));
+                var $msg = $('#w2ui-popup .w2ui-message').last();
+                if (options.msgId != null) {
+                    $msg = $('#w2ui-message'+ options.msgId);
+                }
                 var options = $msg.data('options') || {};
+                // message close event
+                var edata = obj.trigger({ phase: 'before', type: 'msgClose', msgId: $msg.attr('data-msgId'), target: 'popup', options: options });
+                if (edata.isCancelled === true) return;
+                // start hide transition
                 $msg.css(w2utils.cssPrefix({
                     'transition': '0.15s',
                     'transform': 'translateY(-' + options.height + 'px)'
                 }));
-                if (msgCount == 1) {
-                    w2popup.unlock(150);
-                } else {
-                    $('#w2ui-popup #w2ui-message'+ (msgCount-2)).css('z-index', 1500);
-                }
+                var $focus = $('#w2ui-popup .w2ui-message');
+                $focus = $($focus[$focus.length - 2])
+                    .css('z-index', 1500)
+                    .data('msg-focus');
+                if ($focus && $focus.length > 0) $focus.focus(); else obj.focus();
+                if (msgCount == 1) w2popup.unlock(150);
                 setTimeout(function () {
-                    var $focus = $msg.data('prev_focus');
                     $msg.remove();
-                    if ($focus && $focus.length > 0) {
-                        $focus.focus();
-                    } else {
-                        obj.focus();
+                    // default action
+                    if (typeof options.onClose == 'function') {
+                        options.onClose(edata);
                     }
-                    if (typeof options.onClose == 'function') options.onClose();
+                    // event after
+                    obj.trigger($.extend(edata, { phase: 'after' }));
                 }, 150);
             } else {
                 if ($.trim(options.body) !== '' || $.trim(options.buttons) !== '') {
@@ -13284,18 +13327,23 @@ var w2popup = {};
                         '<div class="w2ui-message-buttons">'+ options.buttons +'</div>';
                 }
                 // hide previous messages
-                $('#w2ui-popup .w2ui-message').css('z-index', 1390);
+                $('#w2ui-popup .w2ui-message').css('z-index', 1390).data('msg-focus', $(':focus'));
                 head.css('z-index', 1501);
+                if (options.close == null) {
+                    options.close = function () {
+                        w2popup.message({ msgId: msgCount })
+                    }
+                }
                 // add message
                 $('#w2ui-popup .w2ui-box')
                     .before('<div id="w2ui-message' + msgCount + '" class="w2ui-message" style="display: none; z-index: 1500; ' +
                                 (head.length === 0 ? 'top: 0px;' : 'top: ' + w2utils.getSize(head, 'height') + 'px;') +
                                 (options.width  != null ? 'width: ' + options.width + 'px; left: ' + ((pWidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
                                 (options.height != null ? 'height: ' + options.height + 'px;' : 'bottom: 6px;') +
-                                w2utils.cssPrefix('transition', '0s', true) + '"' +
+                                w2utils.cssPrefix('transition', '0s', true) + '" data-msgId="' + msgCount +'" ' +
                                 (options.hideOnClick === true ? 'onclick="w2popup.message();"' : '') + '>' +
                             '</div>');
-                $('#w2ui-popup #w2ui-message'+ msgCount).data('options', options).data('prev_focus', $(':focus'));
+                $('#w2ui-popup #w2ui-message'+ msgCount).data('options', options);
                 var display = $('#w2ui-popup #w2ui-message'+ msgCount).css('display');
                 $('#w2ui-popup #w2ui-message'+ msgCount).css(w2utils.cssPrefix({
                     'transform': (display == 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)')
@@ -13315,11 +13363,18 @@ var w2popup = {};
                     }, 1);
                     // timer for lock
                     if (msgCount === 0) w2popup.lock();
+                    // message open event
+                    var edata = obj.trigger({ phase: 'before', type: 'msgOpen', msgId: msgCount, target: 'popup', options: options });
+                    if (edata.isCancelled === true) return;
                     setTimeout(function() {
                         obj.focus();
                         // has to be on top of lock
                         $('#w2ui-popup #w2ui-message'+ msgCount).css(w2utils.cssPrefix({ 'transition': '0s' }));
-                        if (typeof options.onOpen == 'function') options.onOpen();
+                        if (typeof options.onOpen == 'function') {
+                            options.onOpen(edata);
+                        }
+                        // event after
+                        obj.trigger($.extend(edata, { phase: 'after' }));
                     }, 350);
                 }
             }
@@ -13771,13 +13826,13 @@ var w2prompt = function (label, title, callBack) {
             width   : options.width,
             height  : options.height,
             body    : (options.textarea
-                     ?  '<div class="w2ui-prompt" style="font-size: 13px; padding: 15px 10px 0 10px;">'+
-                        '  <div style="padding-bottom: 5px">' + options.label + '</div>'+
-                        '  <textarea id="w2prompt" '+ options.attrs +'></textarea>'+
+                     ?  '<div class="w2ui-prompt textarea">'+
+                        '  <div>' + options.label + '</div>'+
+                        '  <textarea id="w2prompt" class="w2ui-input" '+ options.attrs +'></textarea>'+
                         '</div>'
-                     :  '<div class="w2ui-prompt w2ui-centered" style="font-size: 13px;">'+
-                        '  <label style="margin-right: 10px;">' + options.label + '</label>'+
-                        '  <input id="w2prompt" '+ options.attrs +'>'+
+                     :  '<div class="w2ui-prompt w2ui-centered">'+
+                        '  <label>' + options.label + '</label>'+
+                        '  <input id="w2prompt" class="w2ui-input" '+ options.attrs +'>'+
                         '</div>'
                     ),
             buttons : (w2utils.settings.macButtonOrder
@@ -13826,13 +13881,13 @@ var w2prompt = function (label, title, callBack) {
             modal      : true,
             showClose  : false,
             body       : (options.textarea
-                         ?  '<div class="w2ui-prompt" style="font-size: 13px; padding: 15px 10px 0 10px;">'+
-                            '  <div style="padding-bottom: 5px">' + options.label + '</div>'+
-                            '  <textarea id="w2prompt" '+ options.attrs +'></textarea>'+
+                         ?  '<div class="w2ui-prompt">'+
+                            '  <div>' + options.label + '</div>'+
+                            '  <textarea id="w2prompt" class="w2ui-input" '+ options.attrs +'></textarea>'+
                             '</div>'
                          :  '<div class="w2ui-prompt w2ui-centered" style="font-size: 13px;">'+
-                            '  <label style="margin-right: 10px;">' + options.label + '</label>'+
-                            '  <input id="w2prompt" '+ options.attrs +'>'+
+                            '  <label>' + options.label + '</label>'+
+                            '  <input id="w2prompt" class="w2ui-input" '+ options.attrs +'>'+
                             '</div>'
                         ),
             buttons    : (w2utils.settings.macButtonOrder
@@ -19085,6 +19140,7 @@ var w2prompt = function (label, title, callBack) {
 *   - added field.options.minLength, min/max for numebrs can be done with int/float - min/max
 *   - field.html.groupCollapsable, form.toggleGroup
 *   - added showErrors
+*   - added field.type = 'check'
 *
 ************************************************************************/
 
@@ -20248,7 +20304,7 @@ var w2prompt = function (label, title, callBack) {
             var click = act;
             if ($.isPlainObject(act) && act.onClick) click = act.onClick;
             // event before
-            var edata = this.trigger({ phase: 'before', target: action, type: 'action', click: click, originalEvent: event });
+            var edata = this.trigger({ phase: 'before', target: action, type: 'action', action: act, originalEvent: event });
             if (edata.isCancelled === true) return;
             // default actions
             if (typeof click === 'function') click.call(this, event);

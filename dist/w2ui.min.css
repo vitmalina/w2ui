@@ -2858,6 +2858,7 @@ button.w2ui-btn-small:focus:before {
   height: 100%;
 }
 .w2ui-popup .w2ui-popup-buttons {
+  font-size: 11px;
   padding: 12px;
   border-radius: 0px 0px 6px 6px;
   border-top: 1px solid #d5d8d8;
@@ -2883,8 +2884,21 @@ button.w2ui-btn-small:focus:before {
 }
 .w2ui-popup .w2ui-alert-msg,
 .w2ui-popup .w2ui-confirm-msg {
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.5;
+}
+.w2ui-popup .w2ui-prompt {
+  font-size: 12px;
+  padding: 15px 10px 0 10px;
+}
+.w2ui-popup .w2ui-prompt > div {
+  margin-bottom: 5px;
+}
+.w2ui-popup .w2ui-prompt > label {
+  margin-right: 5px;
+}
+.w2ui-popup .w2ui-prompt input {
+  width: 230px;
 }
 .w2ui-popup .w2ui-prompt textarea {
   width: 100%;
