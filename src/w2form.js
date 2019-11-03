@@ -1209,7 +1209,7 @@
             var click = act;
             if ($.isPlainObject(act) && act.onClick) click = act.onClick;
             // event before
-            var edata = this.trigger({ phase: 'before', target: action, type: 'action', click: click, originalEvent: event });
+            var edata = this.trigger({ phase: 'before', target: action, type: 'action', action: act, originalEvent: event });
             if (edata.isCancelled === true) return;
             // default actions
             if (typeof click === 'function') click.call(this, event);

@@ -12,6 +12,7 @@
 *   - w2prompt.options.onOpen, w2prompt.options.onClose
 *   - w2popup.actions, w2popup.action, w2popup.onAction
 *   - w2popup.onMsgOpen, w2popup.onMsgClose
+*   - options.multiple
 *
 * == NICE TO HAVE ==
 *   - hide overlay on esc
@@ -99,7 +100,8 @@ var w2popup = {};
             height    : 300,
             showClose : true,
             showMax   : false,
-            transition: null
+            transition: null,
+            multiple  : false     // if popup already open, opens as a message
         },
         status    : 'closed',     // string that describes current status
         handlers  : [],
@@ -112,6 +114,7 @@ var w2popup = {};
 
         open: function (options) {
             var obj = this;
+            var orig_options = $.extend(true, {}, options);
             if (w2popup.status == 'closing') {
                 setTimeout(function () { obj.open.call(obj, options); }, 100);
                 return;
@@ -241,6 +244,9 @@ var w2popup = {};
                 w2popup.status = 'open';
                 obj.trigger($.extend(edata, { phase: 'after' }));
 
+            } else if (options.multiple === true) {
+                // popup is not compatible with w2popup.message
+                w2popup.message(orig_options)
             } else {
                 // if was from template and now not
                 if (w2popup._prev == null && w2popup._template != null) obj.restoreTemplate();
@@ -402,17 +408,16 @@ var w2popup = {};
                     }
                 }
             }
-            var handler = options.actions[action]
-            switch (typeof handler) {
-                case 'function':
-                    handler.call(obj, action)
-                    break;
-                case 'object':
-                    if (typeof handler.onClick == 'function') {
-                        handler.onClick.call(obj, action)
-                    }
-                    break;
-            }
+            var act   = options.actions[action];
+            var click = act;
+            if ($.isPlainObject(act) && act.onClick) click = act.onClick;
+            // event before
+            var edata = this.trigger({ phase: 'before', target: action, msgId: msgId, type: 'action', action: act, originalEvent: event });
+            if (edata.isCancelled === true) return;
+            // default actions
+            if (typeof click === 'function') click.call(obj, event);
+            // event after
+            this.trigger($.extend(edata, { phase: 'after' }));
         },
 
         keydown: function (event) {
@@ -644,17 +649,14 @@ var w2popup = {};
                     'transition': '0.15s',
                     'transform': 'translateY(-' + options.height + 'px)'
                 }));
+                var $focus = $('#w2ui-popup .w2ui-message');
+                $focus = $($focus[$focus.length - 2])
+                    .css('z-index', 1500)
+                    .data('msg-focus');
+                if ($focus && $focus.length > 0) $focus.focus(); else obj.focus();
+                if (msgCount == 1) w2popup.unlock(150);
                 setTimeout(function () {
                     $msg.remove();
-                    var $focus = $('#w2ui-popup .w2ui-message').last()
-                        .css('z-index', 1500)
-                        .data('msg-focus');
-                    if ($focus && $focus.length > 0) {
-                        $focus.focus();
-                    } else {
-                        obj.focus();
-                    }
-                    if (msgCount == 1) w2popup.unlock(150);
                     // default action
                     if (typeof options.onClose == 'function') {
                         options.onClose(edata);
@@ -670,6 +672,11 @@ var w2popup = {};
                 // hide previous messages
                 $('#w2ui-popup .w2ui-message').css('z-index', 1390).data('msg-focus', $(':focus'));
                 head.css('z-index', 1501);
+                if (options.close == null) {
+                    options.close = function () {
+                        w2popup.message({ msgId: msgCount })
+                    }
+                }
                 // add message
                 $('#w2ui-popup .w2ui-box')
                     .before('<div id="w2ui-message' + msgCount + '" class="w2ui-message" style="display: none; z-index: 1500; ' +

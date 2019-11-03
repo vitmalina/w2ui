@@ -164,8 +164,15 @@ function popupMessage() {
         actions: {
             Message,
             Close() {
-                debugger
                 this.close()
+            },
+            More: {
+                text: "Some Test",
+                class: 'w2ui-btn-blue',
+                style: 'border-radius: 20px',
+                onClick(action) {
+                    w2confirm('Please confirm')
+                }
             }
         }
     })
