@@ -1497,6 +1497,30 @@
                         $(field.el).prop('checked', (value ? true : false));
                         this.setValue(field.name, (value ? value : false));
                         break;
+                    case 'radio':
+                        $(field.$el).prop('checked', false).each(function (index, el) {
+                            if ($(el).val() == value) $(el).prop('checked', true);
+                        });
+                        break;
+                    case 'checkbox':
+                        $(field.el).prop('checked', value ? true : false);
+                        if (field.disabled === true || field.disabled === false) {
+                            $(field.el).prop('disabled', field.disabled ? true : false)
+                        }
+                        break;
+                    case 'check':
+                    case 'checks':
+                        if (Array.isArray(value)) {
+                            value.forEach(function (val) {
+                                $(field.el).closest('div').find('[data-value="' + val + '"]').prop('checked', true)
+                            })
+                        }
+                        if (field.disabled) {
+                            $(field.el).closest('div').find('input[type=checkbox]').prop('disabled', true)
+                        } else {
+                            $(field.el).closest('div').find('input[type=checkbox]').removeProp('disabled')
+                        }
+                        break;
                     // enums
                     case 'list':
                     case 'combo':
@@ -1730,17 +1754,6 @@
                             }
                             field.el.mapRefresh(value, $(field.el).parent().find('.w2ui-map-container'))
                         })(this, field)
-                        break;
-                    case 'radio':
-                        $(field.$el).prop('checked', false).each(function (index, el) {
-                            if ($(el).val() == value) $(el).prop('checked', true);
-                        });
-                        break;
-                    case 'checkbox':
-                        $(field.el).prop('checked', value ? true : false);
-                        if (field.disabled === true || field.disabled === false) {
-                            $(field.el).prop('disabled', field.disabled ? true : false)
-                        }
                         break;
                     case 'div':
                     case 'custom':
