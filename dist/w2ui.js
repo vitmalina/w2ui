@@ -3595,6 +3595,7 @@ w2utils.event = {
             sortData    : null,
             sortCount   : 0,
             xhr         : null,
+            loading     : false,
             range_start : null,
             range_end   : null,
             sel_ind     : null,
@@ -5969,6 +5970,7 @@ w2utils.event = {
 
             this.last.xhr_cmd   = cmd;
             this.last.xhr_start = (new Date()).getTime();
+            this.last.loading   = true;
             this.last.xhr = $.ajax(ajaxOptions)
                 .done(function (data, status, xhr) {
                     obj.requestComplete(status, cmd, callBack);
@@ -6001,7 +6003,10 @@ w2utils.event = {
             var obj = this;
             this.unlock();
             setTimeout(function () {
-                if (obj.show.statusResponse) obj.status(w2utils.lang('Server Response') + ' ' + ((new Date()).getTime() - obj.last.xhr_start)/1000 +' ' + w2utils.lang('sec'));
+                if (obj.show.statusResponse) {
+                    obj.status(w2utils.lang('Server Response') + ' ' + ((new Date()).getTime() - obj.last.xhr_start)/1000 +' ' + w2utils.lang('sec'));
+                }
+                obj.last.loading = false;
             }, 10);
             this.last.pull_more    = false;
             this.last.pull_refresh = true;
@@ -18601,11 +18606,16 @@ var w2prompt = function (label, title, callBack) {
             if (!isNaN(tabIndex) && tabIndex !== -1) obj.el._tabIndex = tabIndex;
             if (obj.el._tabIndex) tabIndex = obj.el._tabIndex;
             if (tabIndex == null) tabIndex = -1;
+            // if there is id, add to search with "_search"
+            var searchId = '';
+            if ($(obj.el).attr('id') != null) {
+                searchId = 'id="' + $(obj.el).attr('id') + '_search"'
+            }
             // build helper
             var html =
                 '<div class="w2ui-field-helper">'+
                 '    <div class="w2ui-icon icon-search" style="opacity: 0; display: none"></div>'+
-                '    <input type="text" autocomplete="off" tabIndex="'+ tabIndex +'"/>'+
+                '    <input '+ searchId +' type="text" autocomplete="off" tabIndex="'+ tabIndex +'"/>'+
                 '</div>';
             $(obj.el).attr('tabindex', -1).before(html);
             var helper = $(obj.el).prev();
@@ -18681,6 +18691,11 @@ var w2prompt = function (label, title, callBack) {
                                     - parseInt($(obj.el).css('margin-left'), 10)
                                     - parseInt($(obj.el).css('margin-right'), 10))
                                     + 'px;';
+            // if there is id, add to search with "_search"
+            var searchId = '';
+            if ($(obj.el).attr('id') != null) {
+                searchId = 'id="' + $(obj.el).attr('id') + '_search" '
+            }
             if (obj.type === 'enum') {
                 // remember original tabindex
                 var tabIndex = $(obj.el).attr('tabIndex');
@@ -18692,7 +18707,7 @@ var w2prompt = function (label, title, callBack) {
                         '    <div style="padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">'+
                         '    <ul>'+
                         '        <li style="padding-left: 0px; padding-right: 0px" class="nomouse">'+
-                        '            <input type="text" style="width: 20px; margin: -3px 0 0; padding: 2px 0; border-color: white" autocomplete="off"' + ($(obj.el).prop('readonly') ? ' readonly="readonly"': '') + ($(obj.el).prop('disabled') ? ' disabled="disabled"': '') + ' tabindex="'+ tabIndex +'"/>'+
+                        '            <input '+ searchId +' type="text" style="width: 20px; margin: -3px 0 0; padding: 2px 0; border-color: white" autocomplete="off"' + ($(obj.el).prop('readonly') ? ' readonly="readonly"': '') + ($(obj.el).prop('disabled') ? ' disabled="disabled"': '') + ' tabindex="'+ tabIndex +'"/>'+
                         '        </li>'+
                         '    </ul>'+
                         '    </div>'+
@@ -18701,7 +18716,7 @@ var w2prompt = function (label, title, callBack) {
             if (obj.type === 'file') {
                 html =  '<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box">'+
                         '   <div style="position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px;">'+
-                        '       <input class="file-input" type="file" style="width: 100%; height: 100%; opacity: 0;" name="attachment" tabindex="-1"' + (obj.options.max !== 1 ? ' multiple="multiple"': '') + ($(obj.el).prop('readonly') ? ' readonly="readonly"': '') + ($(obj.el).prop('disabled') ? ' disabled="disabled"': '') + ($(obj.el).attr('accept') ? ' accept="'+ $(obj.el).attr('accept') +'"': '') + '/>'+
+                        '       <input '+ searchId +' name="attachment" class="file-input" type="file" style="width: 100%; height: 100%; opacity: 0;" tabindex="-1"' + (obj.options.max !== 1 ? ' multiple="multiple"': '') + ($(obj.el).prop('readonly') ? ' readonly="readonly"': '') + ($(obj.el).prop('disabled') ? ' disabled="disabled"': '') + ($(obj.el).attr('accept') ? ' accept="'+ $(obj.el).attr('accept') +'"': '') + '/>'+
                         '   </div>'+
                         '    <div style="position: absolute; padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">'+
                         '        <ul><li style="padding-left: 0px; padding-right: 0px" class="nomouse"></li></ul>'+
@@ -20592,6 +20607,30 @@ var w2prompt = function (label, title, callBack) {
                         $(field.el).prop('checked', (value ? true : false));
                         this.setValue(field.name, (value ? value : false));
                         break;
+                    case 'radio':
+                        $(field.$el).prop('checked', false).each(function (index, el) {
+                            if ($(el).val() == value) $(el).prop('checked', true);
+                        });
+                        break;
+                    case 'checkbox':
+                        $(field.el).prop('checked', value ? true : false);
+                        if (field.disabled === true || field.disabled === false) {
+                            $(field.el).prop('disabled', field.disabled ? true : false)
+                        }
+                        break;
+                    case 'check':
+                    case 'checks':
+                        if (Array.isArray(value)) {
+                            value.forEach(function (val) {
+                                $(field.el).closest('div').find('[data-value="' + val + '"]').prop('checked', true)
+                            })
+                        }
+                        if (field.disabled) {
+                            $(field.el).closest('div').find('input[type=checkbox]').prop('disabled', true)
+                        } else {
+                            $(field.el).closest('div').find('input[type=checkbox]').removeProp('disabled')
+                        }
+                        break;
                     // enums
                     case 'list':
                     case 'combo':
@@ -20825,17 +20864,6 @@ var w2prompt = function (label, title, callBack) {
                             }
                             field.el.mapRefresh(value, $(field.el).parent().find('.w2ui-map-container'))
                         })(this, field)
-                        break;
-                    case 'radio':
-                        $(field.$el).prop('checked', false).each(function (index, el) {
-                            if ($(el).val() == value) $(el).prop('checked', true);
-                        });
-                        break;
-                    case 'checkbox':
-                        $(field.el).prop('checked', value ? true : false);
-                        if (field.disabled === true || field.disabled === false) {
-                            $(field.el).prop('disabled', field.disabled ? true : false)
-                        }
                         break;
                     case 'div':
                     case 'custom':
