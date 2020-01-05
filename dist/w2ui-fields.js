@@ -36,6 +36,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - refactored w2tag object, it has more potential with $().data('w2tag')
 *   - w2tag options.hideOnFocus
 *   - w2menu options.items... remove t/f
+*   - w2menu options.items... keepOpen t/f
 *   - w2menu options.onRemove
 *   - w2menu options.hideOnRemove
 *   - w2menu - can not nest items, item.items and item.expanded
@@ -2715,6 +2716,8 @@ w2utils.event = {
         var name = '';
         if (menu === 'refresh') {
             // if not show - call blur
+            if ($.fn.w2menuOptions) name = '-' + $.fn.w2menuOptions.name;
+            if (options.name) name = '-' + options.name;
             if ($('#w2ui-overlay'+ name).length > 0) {
                 options = $.extend($.fn.w2menuOptions, options);
                 var scrTop = $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop();
@@ -2793,13 +2796,13 @@ w2utils.event = {
                         originalEvent: event
                     });
                 }
-                // do not uncomment (or enum search type is not working in grid)
-                // setTimeout(function () { $(document).click(); }, 50);
                 // -- hide
-                var div = $('#w2ui-overlay'+ name);
-                div.removeData('keepOpen');
-                if (div.length > 0 && typeof div[0].hide === 'function' && !keepOpen) {
-                    div[0].hide();
+                if (items[index] == null || items[index].keepOpen !== true) {
+                    var div = $('#w2ui-overlay'+ name);
+                    div.removeData('keepOpen');
+                    if (div.length > 0 && typeof div[0].hide === 'function' && !keepOpen) {
+                        div[0].hide();
+                    }
                 }
             };
             $.fn.w2menuDown = function (event, index, parentIndex) {
@@ -3741,7 +3744,11 @@ w2utils.event = {
                     this.addPrefix();
                     this.addSuffix();
                     setTimeout(function () { obj.refresh(); }, 10); // need this for icon refresh
-                    $(this.el).attr('autocomplete', 'off');
+                    $(this.el)
+                        .attr('autocapitalize', 'off')
+                        .attr('autocomplete', 'off')
+                        .attr('autocorrect', 'off')
+                        .attr('spellcheck', 'false')
                     if (options.selected.text != null) $(this.el).val(options.selected.text);
                     break;
 
@@ -5672,6 +5679,7 @@ w2utils.event = {
             if (!isNaN(tabIndex) && tabIndex !== -1) obj.el._tabIndex = tabIndex;
             if (obj.el._tabIndex) tabIndex = obj.el._tabIndex;
             if (tabIndex == null) tabIndex = -1;
+            if (isNaN(tabIndex)) tabIndex = 0;
             // if there is id, add to search with "_search"
             var searchId = '';
             if ($(obj.el).attr('id') != null) {
@@ -5681,7 +5689,7 @@ w2utils.event = {
             var html =
                 '<div class="w2ui-field-helper">'+
                 '    <div class="w2ui-icon icon-search" style="opacity: 0; display: none"></div>'+
-                '    <input '+ searchId +' type="text" autocomplete="off" tabIndex="'+ tabIndex +'"/>'+
+                '    <input '+ searchId +' type="text" tabIndex="'+ tabIndex +'" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"/>'+
                 '</div>';
             $(obj.el).attr('tabindex', -1).before(html);
             var helper = $(obj.el).prev();
@@ -5773,7 +5781,8 @@ w2utils.event = {
                         '    <div style="padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">'+
                         '    <ul>'+
                         '        <li style="padding-left: 0px; padding-right: 0px" class="nomouse">'+
-                        '            <input '+ searchId +' type="text" style="width: 20px; margin: -3px 0 0; padding: 2px 0; border-color: white" autocomplete="off"' + ($(obj.el).prop('readonly') ? ' readonly="readonly"': '') + ($(obj.el).prop('disabled') ? ' disabled="disabled"': '') + ' tabindex="'+ tabIndex +'"/>'+
+                        '            <input '+ searchId +' type="text" style="width: 20px; margin: -3px 0 0; padding: 2px 0; border-color: white" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"' +
+                            ($(obj.el).prop('readonly') ? ' readonly="readonly"': '') + ($(obj.el).prop('disabled') ? ' disabled="disabled"': '') + ' tabindex="'+ tabIndex +'"/>'+
                         '        </li>'+
                         '    </ul>'+
                         '    </div>'+
