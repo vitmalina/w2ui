@@ -7461,7 +7461,7 @@
                     infoStyle = col.info.style;
                 }
                 infoBubble += '<span class="w2ui-info '+ infoIcon +'" style="'+ infoStyle + '" '+
-                    (col.info.showOn != null ? 'on' + col.info.showOn : 'click') +
+                    (col.info.showOn != null ? 'on' + col.info.showOn : 'onclick') +
                     '="event.stopPropagation(); w2ui[\''+ this.name + '\'].showBubble('+ ind +', '+ col_ind +')"'+
                     (col.info.hideOn != null ? 'on' + col.info.hideOn : '') +
                     '="var grid = w2ui[\''+ this.name + '\']; if (grid.last.bubbleEl) { $(grid.last.bubbleEl).w2tag() } grid.last.bubbleEl = null;"'+

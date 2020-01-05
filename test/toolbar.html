@@ -35,9 +35,7 @@
                     html: '<div style="padding: 10px">Some html text</div>', route: '/project/:id/go', count: 4 },
                 { type: 'break', id: 'break0' },
                 { type: 'menu',  id: 'item2', text: 'Drop Down', img: 'icon-folder', icon: 'fa fa-camera', tooltip: 'Menu button',
-                    items1: function(el) {
-                        console.log('Element', el)
-                        console.log(this)
+                    items0: function(el) {
                         return [
                             { id: 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
                             { id: 'item2', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) }
@@ -54,9 +52,9 @@
                         { id: '3', text: '--divider' },
                         { id: '4', img: 'icon-folder', text: 'item 1', expanded: true,
                             items: [
-                                { id: '4-1', icon: 'fa fa-star', text: 'item 4-1', group: 1 },
-                                { id: '4-2', icon: 'fa fa-star', text: 'item 4-2', group: 1 },
-                                { id: '4-3', icon: 'fa fa-star', text: 'item 4-3', group: 1 }
+                                { id: '4-1', icon: 'fa fa-star', text: 'item 4-1', group: 1, keepOpen: true },
+                                { id: '4-2', icon: 'fa fa-star', text: 'item 4-2', group: 1, keepOpen: true },
+                                { id: '4-3', icon: 'fa fa-star', text: 'item 4-3', group: 1, keepOpen: true }
                             ]
                         },
                         { id: '5a', img: 'icon-folder', text: 'item 2a',
@@ -167,9 +165,9 @@
 
             ],
             onClick: function (event) {
-                event.done(() => {
-                    console.log(event.item.selected);
-                })
+                console.log(event, this.get(event.target))
+                // debugger
+                this.set(event.target, { icon: 'icon-checkmark' })
             }
         });
     });

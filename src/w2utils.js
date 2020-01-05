@@ -35,6 +35,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - refactored w2tag object, it has more potential with $().data('w2tag')
 *   - w2tag options.hideOnFocus
 *   - w2menu options.items... remove t/f
+*   - w2menu options.items... keepOpen t/f
 *   - w2menu options.onRemove
 *   - w2menu options.hideOnRemove
 *   - w2menu - can not nest items, item.items and item.expanded
@@ -2714,6 +2715,8 @@ w2utils.event = {
         var name = '';
         if (menu === 'refresh') {
             // if not show - call blur
+            if ($.fn.w2menuOptions) name = '-' + $.fn.w2menuOptions.name;
+            if (options.name) name = '-' + options.name;
             if ($('#w2ui-overlay'+ name).length > 0) {
                 options = $.extend($.fn.w2menuOptions, options);
                 var scrTop = $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop();
@@ -2792,13 +2795,13 @@ w2utils.event = {
                         originalEvent: event
                     });
                 }
-                // do not uncomment (or enum search type is not working in grid)
-                // setTimeout(function () { $(document).click(); }, 50);
                 // -- hide
-                var div = $('#w2ui-overlay'+ name);
-                div.removeData('keepOpen');
-                if (div.length > 0 && typeof div[0].hide === 'function' && !keepOpen) {
-                    div[0].hide();
+                if (items[index] == null || items[index].keepOpen !== true) {
+                    var div = $('#w2ui-overlay'+ name);
+                    div.removeData('keepOpen');
+                    if (div.length > 0 && typeof div[0].hide === 'function' && !keepOpen) {
+                        div[0].hide();
+                    }
                 }
             };
             $.fn.w2menuDown = function (event, index, parentIndex) {
