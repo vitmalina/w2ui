@@ -19640,7 +19640,7 @@ var w2prompt = function (label, title, callBack) {
                 for (var i in record) {
                     if (typeof record[i] === "object") {
                         result[i] = doDiff(record[i], original[i] || {}, {});
-                        if (!result[i] || $.isEmptyObject(result[i])) delete result[i];
+                        if (!result[i] || ($.isEmptyObject(result[i]) && $.isEmptyObject(original[i]))) delete result[i];
                     } else if (record[i] != original[i]) {
                         result[i] = record[i];
                     }
