@@ -9279,6 +9279,21 @@ w2utils.event = {
                     var edata = { phase: 'before', type: 'columnResize', target: obj.name, column: obj.last.tmp.col, field: obj.columns[obj.last.tmp.col].field };
                     edata = obj.trigger($.extend(edata, { resizeBy: 0, originalEvent: event }));
                     // set move event
+                    function debounce(f, ms, obj) {
+                      var timer;
+                      return function () {
+                        var self = this, args = arguments;
+                        timer && clearTimeout(timer);
+                        timer = setTimeout(function() {
+                          f && f.apply(obj || self, args);
+                          timer = null;
+                        }, ms);
+                      }
+                    }
+                    var mouseMoveDebounce = debounce(function(){
+                        obj.resizeRecords();
+                        obj.scroll();
+                    }, 100, obj);
                     var mouseMove = function (event) {
                         if (obj.resizing != true) return;
                         if (!event) event = window.event;
@@ -9289,8 +9304,7 @@ w2utils.event = {
                         obj.last.tmp.x = (event.screenX - obj.last.tmp.x);
                         obj.last.tmp.y = (event.screenY - obj.last.tmp.y);
                         obj.columns[obj.last.tmp.col].size = (parseInt(obj.columns[obj.last.tmp.col].size) + obj.last.tmp.x) + 'px';
-                        obj.resizeRecords();
-                        obj.scroll();
+                        mouseMoveDebounce();
                         // reset
                         obj.last.tmp.x = event.screenX;
                         obj.last.tmp.y = event.screenY;
@@ -10906,7 +10920,10 @@ w2utils.event = {
                     }
                     // formatters
                     var func = w2utils.formatters[tmp[0]];
-                    data = '<div style="'+ style +'">' + infoBubble + (typeof func == 'function' ? func(data, tmp[1]) : '') + '</div>';
+                    if (col.options && col.options.autoFormat === false) {
+                        func = null;
+                    }
+                    data = '<div style="'+ style +'">' + infoBubble + (typeof func == 'function' ? func(data, tmp[1]) : data) + '</div>';
                 }
             } else {
                 // if editable checkbox
@@ -11767,14 +11784,14 @@ w2utils.event = {
             var obj = this;
             if (panel == 'css') {
                 $.get(url, function (data, status, xhr) { // should always be $.get as it is template
-                    obj.content(panel, xhr.responseText);
+                    obj.html(panel, xhr.responseText);
                     if (onLoad) onLoad();
                 });
                 return true;
             }
             if (this.get(panel) != null) {
                 $.get(url, function (data, status, xhr) { // should always be $.get as it is template
-                    obj.content(panel, xhr.responseText, transition);
+                    obj.html(panel, xhr.responseText, transition);
                     if (onLoad) onLoad();
                     // IE Hack
                     obj.resize();
