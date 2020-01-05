@@ -17,6 +17,7 @@
 *   - item.color
 *   - item.options
 *   - event.item.get - finds selected item
+*   - item.keepOpen, drop down will not close
 *
 ************************************************************************/
 
@@ -202,6 +203,13 @@
                         var item = it.items[i];
                         if (item.id == tmp[1] || (item.id == null && item.text == tmp[1])) {
                             if (returnIndex == true) return i; else return item;
+                        }
+                        if (Array.isArray(item.items)) {
+                            for (var j = 0; j < item.items.length; j++) {
+                                if (item.items[j].id == tmp[1] || (item.items[j].id == null && item.items[j].text == tmp[1])) {
+                                    if (returnIndex == true) return i; else return item.items[j];
+                                }
+                            }
                         }
                     }
                 } else if (it.id == tmp[0]) {
@@ -581,8 +589,15 @@
                     $(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(this.items[parseInt(this.get(id, true))+1].id)).before(html);
                 }
             } else {
-                if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1 && it.checked == false) {
-                    if ($('#w2ui-overlay-'+ this.name).length > 0) $('#w2ui-overlay-'+ this.name)[0].hide();
+                if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
+                    var drop = $('#w2ui-overlay-'+ this.name);
+                    if (drop.length > 0) {
+                        if (it.checked == false) {
+                            drop[0].hide();
+                        } else {
+                            drop.w2menu('refresh', { items: it.items });
+                        }
+                    }
                 }
                 // refresh
                 el.html(html);

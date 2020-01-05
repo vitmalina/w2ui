@@ -297,62 +297,75 @@
         },
 
         hide: function () { // multiple arguments
-            var hidden = 0;
+            var effected = 0;
             for (var a = 0; a < arguments.length; a++) {
                 var tmp = this.get(arguments[a]);
-                if (tmp == null) continue;
+                if (tmp == null || tmp.hidden === true) continue;
                 tmp.hidden = true;
-                hidden++;
+                effected++;
             }
-            if (arguments.length == 1) this.refresh(arguments[0]); else this.refresh();
-            return hidden;
+            if (effected > 0) {
+                if (arguments.length == 1) this.refresh(arguments[0]); else this.refresh();
+            }
+            return effected;
         },
 
         show: function () { // multiple arguments
-            var shown = 0;
+            var effected = 0;
             for (var a = 0; a < arguments.length; a++) {
                 var tmp = this.get(arguments[a]);
-                if (tmp == null) continue;
+                if (tmp == null || tmp.hidden === false) continue;
                 tmp.hidden = false;
-                shown++;
+                effected++;
             }
-            if (arguments.length == 1) this.refresh(arguments[0]); else this.refresh();
-            return shown;
+            if (effected > 0) {
+                if (arguments.length == 1) this.refresh(arguments[0]); else this.refresh();
+            }
+            return effected;
         },
 
         disable: function () { // multiple arguments
-            var disabled = 0;
+            var effected = 0;
             for (var a = 0; a < arguments.length; a++) {
                 var tmp = this.get(arguments[a]);
-                if (tmp == null) continue;
+                if (tmp == null || tmp.disabled === true) continue;
                 tmp.disabled = true;
                 if (tmp.selected) this.unselect(tmp.id);
-                disabled++;
+                effected++;
             }
-            if (arguments.length == 1) this.refresh(arguments[0]); else this.refresh();
-            return disabled;
+            if (effected > 0) {
+                if (arguments.length == 1) this.refresh(arguments[0]); else this.refresh();
+            }
+            return effected;
         },
 
         enable: function () { // multiple arguments
-            var enabled = 0;
+            var effected = 0;
             for (var a = 0; a < arguments.length; a++) {
                 var tmp = this.get(arguments[a]);
-                if (tmp == null) continue;
+                if (tmp == null || tmp.disabled === false) continue;
                 tmp.disabled = false;
-                enabled++;
+                effected++;
             }
-            if (arguments.length == 1) this.refresh(arguments[0]); else this.refresh();
-            return enabled;
+            if (effected > 0) {
+                if (arguments.length == 1) this.refresh(arguments[0]); else this.refresh();
+            }
+            return effected;
         },
 
         select: function (id) {
+            // var obj = this;
             var new_node = this.get(id);
             if (!new_node) return false;
             if (this.selected == id && new_node.selected) return false;
             this.unselect(this.selected);
-            $(this.box).find('#node_'+ w2utils.escapeId(id))
-                .addClass('w2ui-selected')
-                .find('.w2ui-icon').addClass('w2ui-icon-selected');
+            var $el = $(this.box).find('#node_'+ w2utils.escapeId(id));
+            $el.addClass('w2ui-selected')
+                .find('.w2ui-icon')
+                .addClass('w2ui-icon-selected')
+            if ($el.length > 0) {
+                this.scrollIntoView(id, true)
+            }
             new_node.selected = true;
             this.selected = id;
             return true;
@@ -627,7 +640,7 @@
             }
         },
 
-        scrollIntoView: function (id) {
+        scrollIntoView: function (id, instant) {
             if (id == null) id = this.selected;
             var nd = this.get(id);
             if (nd == null) return;
@@ -635,7 +648,7 @@
             var item   = $(this.box).find('#node_'+ w2utils.escapeId(id));
             var offset = item.offset().top - body.offset().top;
             if (offset + item.height() > body.height() || offset <= 0) {
-                body.animate({ 'scrollTop': body.scrollTop() + offset - body.height() / 2 + item.height() }, 250, 'linear');
+                body.animate({ 'scrollTop': body.scrollTop() + offset - body.height() / 2 + item.height() }, instant ? 0 : 250, 'linear');
             }
         },
 
@@ -839,6 +852,11 @@
                 $('#sidebar_'+ this.name + '_tmp').before(nodeHTML);
                 $('#sidebar_'+ this.name + '_tmp').remove();
             }
+            // remember scroll position
+            var scroll = {
+                top: $(this.box).find(nm).scrollTop(),
+                left: $(this.box).find(nm).scrollLeft()
+            }
             // refresh sub nodes
             $(this.box).find(nm).html('');
             for (var i = 0; i < node.nodes.length; i++) {
@@ -855,6 +873,8 @@
                     this.trigger($.extend(edata2, { phase: 'after' }));
                 }
             }
+            // reset scroll
+            $(this.box).find(nm).scrollLeft(scroll.left).scrollTop(scroll.top)
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
             return (new Date()).getTime() - time;

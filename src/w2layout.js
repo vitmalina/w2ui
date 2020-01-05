@@ -215,6 +215,8 @@
                             div1.remove();
                             div2.removeClass('new-panel');
                             div2.css('overflow', p.overflow);
+                            // make sure only one content left
+                            $(pname + '> .w2ui-panel-content').slice(1).remove()
                             // IE Hack
                             obj.resize();
                             if (window.navigator.userAgent.indexOf('MSIE') != -1) setTimeout(function () { obj.resize(); }, 100);
