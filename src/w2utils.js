@@ -3003,15 +3003,21 @@ w2utils.event = {
                         if (options.altRows !== true) bg = '';
                         var colspan = 1;
                         if (imgd === '') colspan++;
-                        if (mitem.count == null && mitem.hotkey == null && mitem.remove !== true && !Array.isArray(mitem.items)) colspan++;
+                        if (mitem.count == null && mitem.hotkey == null && mitem.remove !== true && mitem.items == null) colspan++;
                         if (mitem.tooltip == null && mitem.hint != null) mitem.tooltip = mitem.hint; // for backward compatibility
                         var count_dsp = '';
                         if (mitem.remove === true) {
                             count_dsp = '<span class="remove">X</span>'
-                        } else if (Array.isArray(mitem.items)) {
+                        } else if (mitem.items != null) {
+                            var _items = []
+                            if (typeof mitem.items == 'function') {
+                                _items = mitem.items(mitem)
+                            } else if (Array.isArray(mitem.items)) {
+                                _items = mitem.items
+                            }
                             count_dsp = '<span></span>'
                             subMenu_dsp = '<tr style="'+ (mitem.expanded ? '' : 'display: none') +'">'+
-                                          '     <td colspan="3">' + getMenuHTML(mitem.items, true, !mitem.expanded, f) + '</td>'+
+                                          '     <td colspan="3">' + getMenuHTML(_items, true, !mitem.expanded, f) + '</td>'+
                                           '<tr>';
                         } else {
                             if (mitem.count != null)  count_dsp += '<span>' + mitem.count + '</span>'

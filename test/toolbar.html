@@ -51,7 +51,13 @@
                         { id: '2', text: 'Item 2', img: 'icon-page', disabled: true },
                         { id: '3', text: '--divider' },
                         { id: '4', img: 'icon-folder', text: 'item 1', expanded: true,
-                            items: [
+                            items: function(el) {
+                                return [
+                                    { id: el.id + 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
+                                    { id: el.id + 'item2', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) }
+                                ]
+                            },
+                            items1: [
                                 { id: '4-1', icon: 'fa fa-star', text: 'item 4-1', group: 1, keepOpen: true },
                                 { id: '4-2', icon: 'fa fa-star', text: 'item 4-2', group: 1, keepOpen: true },
                                 { id: '4-3', icon: 'fa fa-star', text: 'item 4-3', group: 1, keepOpen: true }
