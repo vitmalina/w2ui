@@ -7770,7 +7770,7 @@
                 data = record.w2ui.changes[col.field];
             }
             if ($.isPlainObject(data) /*&& col.editable*/) {    //It can be an object btw
-                if (col.options && col.options.items) {
+                if ( col.options && Array.isArray( col.options.items ) ) {
                         val=col.options.items.find(function(item){ return item.id==data.id});
                         if (val) data=val.text;
                         else data=data.id;
