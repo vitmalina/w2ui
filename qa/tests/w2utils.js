@@ -73,7 +73,8 @@ test( "w2utils.formatDate()", function () {
         '2014-06-04 => Month dth, yyyy': 'June 4th, 2014',
         '2014-06-01 => Mon dth, yyyy'  : 'Jun 1st, 2014',
         '2014-06-02 => Mon dth, yyyy'  : 'Jun 2nd, 2014',
-        '2014-06-03 => Mon dth, yyyy'  : 'Jun 3rd, 2014'
+        '2014-06-03 => Mon dth, yyyy'  : 'Jun 3rd, 2014',
+        '1970-01-01 => Mon dth, yyyy'  : 'Jan 1st, 1970'
     };
     equal( w2utils.formatDate(), '',          "- no argument -" );
     equal( w2utils.formatDate(''), '',        "- blank -" );
