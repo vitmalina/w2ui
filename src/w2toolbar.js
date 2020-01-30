@@ -663,9 +663,11 @@
             if (item.text == null) item.text = '';
             if (item.tooltip == null && item.hint != null) item.tooltip = item.hint; // for backward compatibility
             if (item.tooltip == null) item.tooltip = '';
-            if (typeof item.get !== 'function' && Array.isArray(item.items)) {
+            if (typeof item.get !== 'function' && (Array.isArray(item.items) || typeof item.items == 'function')) {
                 item.get = function (id) {
-                    return item.items.find(function (it) {
+                    var tmp = item.items;
+                    if (typeof tmp == 'function') tmp = item.items(item);
+                    return tmp.find(function (it) {
                         if (it.id == id) return true; else return false
                     })
                 }
