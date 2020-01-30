@@ -2787,10 +2787,12 @@ w2utils.event = {
                     }
                     mresize();
                 } else if (typeof options.onSelect === 'function') {
+                    var tmp = items;
+                    if (typeof items == 'function') tmp = items(options.items[parentIndex])
                     options.onSelect({
                         index: index,
                         parentIndex: parentIndex,
-                        item: items[index],
+                        item: tmp[index],
                         keepOpen: keepOpen,
                         originalEvent: event
                     });
