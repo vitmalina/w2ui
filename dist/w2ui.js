@@ -2788,10 +2788,12 @@ w2utils.event = {
                     }
                     mresize();
                 } else if (typeof options.onSelect === 'function') {
+                    var tmp = items;
+                    if (typeof items == 'function') tmp = items(options.items[parentIndex])
                     options.onSelect({
                         index: index,
                         parentIndex: parentIndex,
-                        item: items[index],
+                        item: tmp[index],
                         keepOpen: keepOpen,
                         originalEvent: event
                     });
@@ -3004,15 +3006,21 @@ w2utils.event = {
                         if (options.altRows !== true) bg = '';
                         var colspan = 1;
                         if (imgd === '') colspan++;
-                        if (mitem.count == null && mitem.hotkey == null && mitem.remove !== true && !Array.isArray(mitem.items)) colspan++;
+                        if (mitem.count == null && mitem.hotkey == null && mitem.remove !== true && mitem.items == null) colspan++;
                         if (mitem.tooltip == null && mitem.hint != null) mitem.tooltip = mitem.hint; // for backward compatibility
                         var count_dsp = '';
                         if (mitem.remove === true) {
                             count_dsp = '<span class="remove">X</span>'
-                        } else if (Array.isArray(mitem.items)) {
+                        } else if (mitem.items != null) {
+                            var _items = []
+                            if (typeof mitem.items == 'function') {
+                                _items = mitem.items(mitem)
+                            } else if (Array.isArray(mitem.items)) {
+                                _items = mitem.items
+                            }
                             count_dsp = '<span></span>'
                             subMenu_dsp = '<tr style="'+ (mitem.expanded ? '' : 'display: none') +'">'+
-                                          '     <td colspan="3">' + getMenuHTML(mitem.items, true, !mitem.expanded, f) + '</td>'+
+                                          '     <td colspan="3">' + getMenuHTML(_items, true, !mitem.expanded, f) + '</td>'+
                                           '<tr>';
                         } else {
                             if (mitem.count != null)  count_dsp += '<span>' + mitem.count + '</span>'
@@ -9279,6 +9287,21 @@ w2utils.event = {
                     var edata = { phase: 'before', type: 'columnResize', target: obj.name, column: obj.last.tmp.col, field: obj.columns[obj.last.tmp.col].field };
                     edata = obj.trigger($.extend(edata, { resizeBy: 0, originalEvent: event }));
                     // set move event
+                    function debounce(f, ms, obj) {
+                      var timer;
+                      return function () {
+                        var self = this, args = arguments;
+                        timer && clearTimeout(timer);
+                        timer = setTimeout(function() {
+                          f && f.apply(obj || self, args);
+                          timer = null;
+                        }, ms);
+                      }
+                    }
+                    var mouseMoveDebounce = debounce(function(){
+                        obj.resizeRecords();
+                        obj.scroll();
+                    }, 100, obj);
                     var mouseMove = function (event) {
                         if (obj.resizing != true) return;
                         if (!event) event = window.event;
@@ -9289,8 +9312,7 @@ w2utils.event = {
                         obj.last.tmp.x = (event.screenX - obj.last.tmp.x);
                         obj.last.tmp.y = (event.screenY - obj.last.tmp.y);
                         obj.columns[obj.last.tmp.col].size = (parseInt(obj.columns[obj.last.tmp.col].size) + obj.last.tmp.x) + 'px';
-                        obj.resizeRecords();
-                        obj.scroll();
+                        mouseMoveDebounce();
                         // reset
                         obj.last.tmp.x = event.screenX;
                         obj.last.tmp.y = event.screenY;
@@ -13871,7 +13893,7 @@ var w2prompt = function (label, title, callBack) {
                 $('#w2ui-popup .w2ui-message .w2ui-btn').off('click.w2prompt');
                 // need to wait for message to slide up
                 setTimeout(function () {
-                    if (typeof options.callBack == 'function' && w2popup._prompt_value != null) {
+                    if (typeof options.callBack == 'function') {
                         options.callBack(w2popup._prompt_value);
                     }
                 }, 300);
@@ -13919,6 +13941,7 @@ var w2prompt = function (label, title, callBack) {
                     $('#w2ui-popup .w2ui-popup-btn#Cancel').on('click', function (event) {
                         w2popup._prompt_value = null;
                         w2popup.close();
+                        if (typeof options.callBack == 'function') options.callBack(w2popup._prompt_value);
                     });
                     $('#w2ui-popup .w2ui-popup-btn#Ok');
                     // set focus
@@ -15156,9 +15179,11 @@ var w2prompt = function (label, title, callBack) {
             if (item.text == null) item.text = '';
             if (item.tooltip == null && item.hint != null) item.tooltip = item.hint; // for backward compatibility
             if (item.tooltip == null) item.tooltip = '';
-            if (typeof item.get !== 'function' && Array.isArray(item.items)) {
+            if (typeof item.get !== 'function' && (Array.isArray(item.items) || typeof item.items == 'function')) {
                 item.get = function (id) {
-                    return item.items.find(function (it) {
+                    var tmp = item.items;
+                    if (typeof tmp == 'function') tmp = item.items(item);
+                    return tmp.find(function (it) {
                         if (it.id == id) return true; else return false
                     })
                 }
