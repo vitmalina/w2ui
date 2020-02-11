@@ -35,6 +35,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - color.html
 *   - refactored w2tag object, it has more potential with $().data('w2tag')
 *   - w2tag options.hideOnFocus
+*   - w2tag options.maxWidth
 *   - w2menu options.items... remove t/f
 *   - w2menu options.items... keepOpen t/f
 *   - w2menu options.onRemove
@@ -2147,6 +2148,7 @@ w2utils.event = {
             align           : 'none',   // can be none, left, right (only works for potision: top | bottom)
             left            : 0,        // delta for left coordinate
             top             : 0,        // delta for top coordinate
+            maxWidth        : null,     // max width
             style           : '',       // adition style for the tag
             css             : {},       // add css for input when tag is shown
             className       : '',       // add class bubble
@@ -2214,11 +2216,15 @@ w2utils.event = {
             } else {
                 tag.tmp.originalCSS = '';
                 if ($(tag.attachedTo).length > 0) tag.tmp.originalCSS = $(tag.attachedTo)[0].style.cssText;
+                var tagStyles = 'white-space: nowrap;'
+                if (tag.options.maxWidth && w2utils.getStrWidth(text) > tag.options.maxWidth) {
+                    tagStyles = 'width: '+ tag.options.maxWidth + 'px'
+                }
                 // insert
                 $('body').append(
                     '<div onclick="event.stopPropagation()" style="display: none;" id="w2ui-tag-'+ tag.id +'" '+
                     '       class="w2ui-tag '+ ($(tag.attachedTo).parents('.w2ui-popup, .w2ui-overlay-popup, .w2ui-message').length > 0 ? 'w2ui-tag-popup' : '') + '">'+
-                    '   <div style="margin: -2px 0px 0px -2px; white-space: nowrap;">'+
+                    '   <div style="margin: -2px 0px 0px -2px; '+ tagStyles +'">'+
                     '      <div class="w2ui-tag-body '+ tag.options.className +'" style="'+ (tag.options.style || '') +'">'+ text +'</div>'+
                     '   </div>' +
                     '</div>');
