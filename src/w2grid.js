@@ -125,6 +125,7 @@
 *   - added httpHeaders
 *   - col.editable can be a function which will be called with the same args as col.render()
 *   - col.clipboardCopy - display icon to copy to clipboard
+*   - clipboardCopy - new function on grid level
 *   - getCellEditable(index, col_ind) -- return an 'editable' descriptor if cell is really editable
 *   - added stateId
 *   - rec.w2ui.class (and rec.w2ui.class { fname: '...' })
@@ -7560,12 +7561,10 @@
             }
             var isCellSelected = false;
             if (isRowSelected && $.inArray(col_ind, sel.columns[ind]) != -1) isCellSelected = true;
-            var clipboardIcon = '<span onmouseenter="jQuery(this).w2tag(\'' + (typeof col.clipboardCopy == 'string' ? col.clipboardCopy : 'Copy to clipboard') +'\', { position: \'top|bottom\' })"'
-                + 'onclick="jQuery(\'#grid_'+ this.name +'_focus\').text(jQuery(this).prev().text()).select();'
-                + '   document.execCommand(\'copy\');'
-                + '   jQuery(this).w2tag(\'Copied\', { position: \'top|bottom\' });'
-                + '   event.stopPropagation()" '
-                + 'onmouseleave="jQuery(this).w2tag()" class="w2ui-clipboard-copy w2ui-icon-paste"></span>'
+            var clipboardTxt = (typeof col.clipboardCopy == 'string' ? col.clipboardCopy : 'Copy to clipboard')
+            var clipboardIcon = '<span onmouseEnter="jQuery(this).w2tag(\'' + clipboardTxt +'\', { position: \'top|bottom\' })"'
+                + 'onclick="w2ui[\''+ this.name + '\'].clipboardCopy('+ ind +', '+ col_ind +'); jQuery(this).w2tag(\'Copied\', { position: \'top|bottom\' }); event.stopPropagation();" '
+                + 'onmouseLeave="jQuery(this).w2tag()" class="w2ui-clipboard-copy w2ui-icon-paste"></span>'
             // data
             data =  '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') + ' ' + addClass +
                         (isChanged ? ' w2ui-changed' : '') +
@@ -7574,7 +7573,7 @@
                     '   style="'+ addStyle + (col.style != null ? col.style : '') +'" '+
                         (col.attr != null ? col.attr : '') +
                         (col_span > 1 ? 'colspan="'+ col_span + '"' : '') +
-                    '>' + data + (col.clipboardCopy != null ? clipboardIcon : '') +'</td>';
+                    '>' + data + (w2utils.stripTags(data) != '' && col.clipboardCopy && clipboardTxt ? clipboardIcon : '') +'</td>';
             // summary top row
             if (ind === -1 && summary === true) {
                 data =  '<td class="w2ui-grid-data" col="'+ col_ind +'" style="height: 0px; '+ addStyle + '" '+
@@ -7582,6 +7581,17 @@
                         '></td>';
             }
             return data;
+        },
+
+        clipboardCopy: function (ind, col_ind) {
+            var rec = this.records[ind]
+            var col = this.columns[col_ind]
+            var txt = (col ? this.parseField(rec, col.field) : '');
+            if (typeof col.clipboardCopy == 'function') {
+                txt = col.clipboardCopy(rec)
+            }
+            $('#grid_' + this.name + '_focus').text(txt).select();
+            document.execCommand('copy');
         },
 
         showBubble: function (ind, col_ind) {
