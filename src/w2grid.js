@@ -124,6 +124,7 @@
 *   - onSearchOpen (onSearch will have mutli and reset flags)
 *   - added httpHeaders
 *   - col.editable can be a function which will be called with the same args as col.render()
+*   - col.clipboardCopy - display icon to copy to clipboard
 *   - getCellEditable(index, col_ind) -- return an 'editable' descriptor if cell is really editable
 *   - added stateId
 *   - rec.w2ui.class (and rec.w2ui.class { fname: '...' })
@@ -345,7 +346,7 @@
         reorderRows       : false,
         showExtraOnSearch : 0,          // show extra records before and after on search
         markSearch        : true,
-        columnTooltip     : 'normal',   // can be normal, top, bottom, left, right
+        columnTooltip     : 'top|bottom',   // can be normal, top, bottom, left, right
         disableCVS        : false,      // disable Column Virtual Scroll
         textSearch        : 'begins',   // default search type for text
         nestedFields      : true,       // use field name containing dots as separator to look into object
@@ -373,6 +374,7 @@
             hidden          : true,
             sortable        : false,
             searchable      : false,
+            clipboardCopy   : false,
             resizable       : false,
             hideable        : false,
             attr            : false,
@@ -399,6 +401,7 @@
             hidden          : false,  // indicates if column is hidden
             sortable        : false,  // indicates if column is sortable
             searchable      : false,  // indicates if column is searchable, bool/string: int,float,date,...
+            clipboardCopy   : false,
             resizable       : true,   // indicates if column is resizable
             hideable        : true,   // indicates if column can be hidden
             attr            : '',     // string that will be inside the <td ... attr> tag
@@ -6792,8 +6795,8 @@
             }
             var html = '<td id="grid_'+ this.name + '_column_' + i +'" col="'+ i +'" class="w2ui-head '+ sortStyle + reorderCols + '" ' +
                              (this.columnTooltip == 'normal' && col.tooltip ? 'title="'+ col.tooltip +'" ' : '') +
-                        '    onmouseover = "w2ui[\''+ this.name +'\'].columnTooltipShow(\''+ i +'\', event);"'+
-                        '    onmouseout  = "w2ui[\''+ this.name +'\'].columnTooltipHide(\''+ i +'\', event);"'+
+                        '    onmouseEnter = "w2ui[\''+ this.name +'\'].columnTooltipShow(\''+ i +'\', event);"'+
+                        '    onmouseLeave  = "w2ui[\''+ this.name +'\'].columnTooltipHide(\''+ i +'\', event);"'+
                         '    oncontextmenu = "w2ui[\''+ this.name +'\'].contextMenu(null, '+ i +', event);"'+
                         '    onclick="w2ui[\''+ this.name +'\'].columnClick(\''+ col.field +'\', event);"'+
                         '    ondblclick="w2ui[\''+ this.name +'\'].columnDblClick(\''+ col.field +'\', event);">'+
@@ -6817,7 +6820,7 @@
                 if ($el.prop('_mouse_over') === true && $el.prop('_mouse_tooltip') !== true) {
                     $el.prop('_mouse_tooltip', true);
                     // show tooltip
-                    $el.w2tag(item.tooltip, { position: pos });
+                    $el.w2tag(item.tooltip, { position: pos, top: 5 });
                 }
             }, 1);
         },
@@ -7411,7 +7414,7 @@
             var record        = (summary !== true ? this.records[ind] : this.summary[ind]);
             var data          = (ind !== -1 ? this.getCellValue(ind, col_ind, summary) : '');
             var edit          = (ind !== -1 ? this.getCellEditable(ind, col_ind) : '');
-            var style         = 'max-height: '+ parseInt(this.recordHeight) +'px;';
+            var style         = 'max-height: '+ parseInt(this.recordHeight) +'px;' + (col.clipboardCopy ? 'margin-right: 20px' : '');
             var isChanged     = !summary && record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null;
             var addStyle      = '';
             var addClass      = '';
@@ -7554,6 +7557,12 @@
             }
             var isCellSelected = false;
             if (isRowSelected && $.inArray(col_ind, sel.columns[ind]) != -1) isCellSelected = true;
+            var clipboardIcon = '<span onmouseenter="jQuery(this).w2tag(\'' + (typeof col.clipboardCopy == 'string' ? col.clipboardCopy : 'Copy to clipboard') +'\', { position: \'top|bottom\' })"'
+                + 'onclick="jQuery(\'#grid_'+ this.name +'_focus\').text(jQuery(this).prev().text()).select();'
+                + '   document.execCommand(\'copy\');'
+                + '   jQuery(this).w2tag(\'Copied\', { position: \'top|bottom\' });'
+                + '   event.stopPropagation()" '
+                + 'onmouseleave="jQuery(this).w2tag()" class="w2ui-clipboard-copy w2ui-icon-paste"></span>'
             // data
             data =  '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') + ' ' + addClass +
                         (isChanged ? ' w2ui-changed' : '') +
@@ -7562,7 +7571,7 @@
                     '   style="'+ addStyle + (col.style != null ? col.style : '') +'" '+
                         (col.attr != null ? col.attr : '') +
                         (col_span > 1 ? 'colspan="'+ col_span + '"' : '') +
-                    '>' + data + '</td>';
+                    '>' + data + (col.clipboardCopy != null ? clipboardIcon : '') +'</td>';
             // summary top row
             if (ind === -1 && summary === true) {
                 data =  '<td class="w2ui-grid-data" col="'+ col_ind +'" style="height: 0px; '+ addStyle + '" '+

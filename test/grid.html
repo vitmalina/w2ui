@@ -31,7 +31,7 @@ jQuery(function () {
         //     remove : 'grid3.json',
         //     save   : 'save'
         // },
-        columnTooltip: 'top',
+        // columnTooltip: 'top',
         reorderRows: true,
         //reorderColumns: true,
         show: {
@@ -148,9 +148,12 @@ jQuery(function () {
                 hidden: true
             },
             { field: 'text', text: 'Random Text', size: '100px', hidden: true, sortable: true, searchable: true, resizable: true },
-            { field: 'fname', text: 'First Name', size: '100px', sortable: true, searchable1: true, resizable: true, editable: { type: 'text' },
+            { field: 'fname', text: 'First Name', size: '100px', sortable: true,
+                searchable1: true, resizable: true, editable: { type: 'text' },
                 tooltip: 'Full Name', hidden1: true, info: true },
             { field: 'lname', text: 'Last Name', size: '100px', sortable: true, resizable: true,
+                tooltip: 'some tooltip',
+                clipboardCopy: true,
                 info: {
                     icon: 'fa fa-user',
                     showEmpty: true,
@@ -273,7 +276,7 @@ jQuery(function () {
         //event.preventDefault();
     });
     var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
-    var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
+    var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnavliasoddfjgj'];
     // add 10k records
     for (var i = 0; i < 5000; i++) {
         var t  = ((new Date()).getTime() - Math.floor(Math.random() * 1000000000));
