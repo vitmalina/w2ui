@@ -40,6 +40,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - w2menu options.onRemove
 *   - w2menu options.hideOnRemove
 *   - w2menu - can not nest items, item.items and item.expanded
+*   - w2menu.options.topHTML and bottomHTML
 *
 ************************************************/
 
@@ -2979,7 +2980,8 @@ w2utils.event = {
                         '</td></tr></tbody></table>';
             }
             var count        = 0;
-            var menu_html    = '<table cellspacing="0" cellpadding="0" class="'+ (subMenu ? ' sub-menu' : '') +'"><tbody>';
+            var menu_html    =  '<table cellspacing="0" cellpadding="0" class="'+ (subMenu ? ' sub-menu' : '') +'"><tbody>'
+                + (options.topHTML ? '<tr class="w2ui-disabled" style="opacity: 1"><td colspan="3">' + options.topHTML + '</td></tr>' : '');
             var img = null, icon = null;
             if (items == null) items = options.items;
             for (var f = 0; f < items.length; f++) {
@@ -3059,9 +3061,10 @@ w2utils.event = {
                 }
                 items[f] = mitem;
             }
-            if (count === 0) {
+            if (count === 0 && options.msgNoItems) {
                 menu_html += '<tr><td style="padding: 13px; color: #999; text-align: center">'+ options.msgNoItems +'</div></td></tr>';
             }
+            menu_html += (options.bottomHTML ? '<tr class="w2ui-disabled" style="opacity: 1"><td colspan="3">' + options.bottomHTML + '</td></tr>' : '');
             menu_html += "</tbody></table>";
             return menu_html;
         }
