@@ -7517,7 +7517,10 @@
                     }
                     // formatters
                     var func = w2utils.formatters[tmp[0]];
-                    data = '<div style="'+ style +'">' + infoBubble + (typeof func == 'function' ? func(data, tmp[1]) : '') + '</div>';
+                    if (col.options && col.options.autoFormat === false) {
+                        func = null;
+                    }
+                    data = '<div style="'+ style +'">' + infoBubble + (typeof func == 'function' ? func(data, tmp[1]) : data) + '</div>';
                 }
             } else {
                 // if editable checkbox

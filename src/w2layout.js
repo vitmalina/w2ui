@@ -275,14 +275,14 @@
             var obj = this;
             if (panel == 'css') {
                 $.get(url, function (data, status, xhr) { // should always be $.get as it is template
-                    obj.content(panel, xhr.responseText);
+                    obj.html(panel, xhr.responseText);
                     if (onLoad) onLoad();
                 });
                 return true;
             }
             if (this.get(panel) != null) {
                 $.get(url, function (data, status, xhr) { // should always be $.get as it is template
-                    obj.content(panel, xhr.responseText, transition);
+                    obj.html(panel, xhr.responseText, transition);
                     if (onLoad) onLoad();
                     // IE Hack
                     obj.resize();
