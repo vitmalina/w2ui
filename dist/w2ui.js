@@ -41,6 +41,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - w2menu options.onRemove
 *   - w2menu options.hideOnRemove
 *   - w2menu - can not nest items, item.items and item.expanded
+*   - w2menu.options.topHTML and bottomHTML
 *
 ************************************************/
 
@@ -2722,7 +2723,7 @@ w2utils.event = {
         var name = '';
         if (menu === 'refresh') {
             // if not show - call blur
-            if ($.fn.w2menuOptions) name = '-' + $.fn.w2menuOptions.name;
+            if ($.fn.w2menuOptions && $.fn.w2menuOptions.name) name = '-' + $.fn.w2menuOptions.name;
             if (options.name) name = '-' + options.name;
             if ($('#w2ui-overlay'+ name).length > 0) {
                 options = $.extend($.fn.w2menuOptions, options);
@@ -2974,13 +2975,14 @@ w2utils.event = {
 
         function getMenuHTML(items, subMenu, expanded, parentIndex) {
             if (options.spinner) {
-                return  '<table><tbody><tr><td style="padding: 5px 10px 10px 10px; text-align: center">'+
+                return  '<table><tbody><tr><td style="padding: 5px 10px 13px 10px; text-align: center">'+
                         '    <div class="w2ui-spinner" style="width: 18px; height: 18px; position: relative; top: 5px;"></div> '+
                         '    <div style="display: inline-block; padding: 3px; color: #999;">'+ w2utils.lang('Loading...') +'</div>'+
                         '</td></tr></tbody></table>';
             }
             var count        = 0;
-            var menu_html    = '<table cellspacing="0" cellpadding="0" class="'+ (subMenu ? ' sub-menu' : '') +'"><tbody>';
+            var menu_html    =  '<table cellspacing="0" cellpadding="0" class="'+ (subMenu ? ' sub-menu' : '') +'"><tbody>'
+                + (options.topHTML ? '<tr class="w2ui-disabled" style="opacity: 1"><td colspan="3">' + options.topHTML + '</td></tr>' : '');
             var img = null, icon = null;
             if (items == null) items = options.items;
             for (var f = 0; f < items.length; f++) {
@@ -3060,9 +3062,10 @@ w2utils.event = {
                 }
                 items[f] = mitem;
             }
-            if (count === 0) {
+            if (count === 0 && options.msgNoItems) {
                 menu_html += '<tr><td style="padding: 13px; color: #999; text-align: center">'+ options.msgNoItems +'</div></td></tr>';
             }
+            menu_html += (options.bottomHTML ? '<tr class="w2ui-disabled" style="opacity: 1"><td colspan="3">' + options.bottomHTML + '</td></tr>' : '');
             menu_html += "</tbody></table>";
             return menu_html;
         }
@@ -3546,6 +3549,7 @@ w2utils.event = {
 *   - added httpHeaders
 *   - col.editable can be a function which will be called with the same args as col.render()
 *   - col.clipboardCopy - display icon to copy to clipboard
+*   - clipboardCopy - new function on grid level
 *   - getCellEditable(index, col_ind) -- return an 'editable' descriptor if cell is really editable
 *   - added stateId
 *   - rec.w2ui.class (and rec.w2ui.class { fname: '...' })
@@ -16452,6 +16456,7 @@ var w2prompt = function (label, title, callBack) {
 *   - add selection of predefined times (used for appointments)
 *   - options.items - can be an array
 *   - options.msgSearch - message to search for user
+*   - options.msgNoItems - can be a function
 *
 ************************************************************************/
 
@@ -17327,7 +17332,7 @@ var w2prompt = function (label, title, callBack) {
                     if ($(this.el).val().length !== 6 && $(this.el).val().length !== 3) color = '';
                 }
                 $(this.el).next().find('div').css('background-color', color);
-                if ($(this.el).is(':focus') && $(this.el).data('skipInit') !== true) {
+                if ($(this.el).hasClass('has-focus') && $(this.el).data('skipInit') !== true) {
                     this.updateOverlay();
                 }
             }
@@ -17353,7 +17358,7 @@ var w2prompt = function (label, title, callBack) {
             event.stopPropagation();
             // lists
             if (['list', 'combo', 'enum'].indexOf(this.type) !== -1) {
-                if (!$(this.el).is(':focus')) this.focus(event);
+                if (!$(this.el).hasClass('has-focus')) this.focus(event);
             }
             // other fields with drops
             if (['date', 'time', 'color', 'datetime'].indexOf(this.type) !== -1) {
@@ -17362,7 +17367,8 @@ var w2prompt = function (label, title, callBack) {
         },
 
         focus: function (event) {
-            var obj     = this;
+            var obj = this;
+            $(obj.el).addClass('has-focus')
             // color, date, time
             if (['color', 'date', 'time', 'datetime'].indexOf(obj.type) !== -1) {
                 if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
@@ -17375,7 +17381,7 @@ var w2prompt = function (label, title, callBack) {
                 if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
                 obj.resize();
                 setTimeout(function () {
-                    if (obj.type === 'list' && $(obj.el).is(':focus')) {
+                    if (obj.type === 'list' && $(obj.el).is(':focus')) { // need to stay .is(':focus')
                         $(obj.helpers.focus).find('input').focus();
                         return;
                     }
@@ -17394,10 +17400,11 @@ var w2prompt = function (label, title, callBack) {
         },
 
         blur: function (event) {
-            var obj     = this;
+            var obj = this;
             var options = obj.options;
-            var val     = $(obj.el).val().trim();
+            var val = $(obj.el).val().trim();
             var $overlay = $("#w2ui-overlay");
+            $(obj.el).removeClass('has-focus')
 
             // hide overlay
             if (['color', 'date', 'time', 'list', 'combo', 'enum', 'datetime'].indexOf(obj.type) !== -1) {
@@ -18336,7 +18343,7 @@ var w2prompt = function (label, title, callBack) {
                     }
                     input = $(this.helpers.focus).find('input');
                 }
-                if ($(input).is(':focus')) {
+                if ($(this.el).hasClass('has-focus')) {
                     if (options.openOnFocus === false && $(input).val() === '' && obj.tmp.force_open !== true) {
                         $().w2overlay();
                         return;
@@ -18358,12 +18365,28 @@ var w2prompt = function (label, title, callBack) {
                     }
                     if (options.url == null && options.items.length === 0) msgNoItems = w2utils.lang('Empty list');
                     if (options.msgNoItems != null) {
-                        msgNoItems = (typeof msgNoItems === 'function' ? msgNoItems(options) : options.msgNoItems);
+                        var eventData = {
+                            search: $(input).val(),
+                            options: $.extend(true, {}, options)
+                        }
+                        if (options.url) {
+                            eventData.remote = {
+                                url: options.url,
+                                empty: obj.tmp.emptySet ? true : false,
+                                error: obj.tmp.lastError,
+                                minLength: options.minLength
+                            }
+                        }
+                        msgNoItems = (typeof options.msgNoItems === 'function'
+                            ? options.msgNoItems(eventData)
+                            : options.msgNoItems)
                     }
                     if (obj.tmp.lastError) {
                         msgNoItems = obj.tmp.lastError;
                     }
-                    msgNoItems = '<div style="white-space: normal; line-height: 1.3">' + msgNoItems + '</div>';
+                    if (msgNoItems) {
+                        msgNoItems = '<div style="white-space: normal; line-height: 1.3">' + msgNoItems + '</div>';
+                    }
 
                     var params = $.extend(true, {}, options, {
                         search     : false,
@@ -18798,7 +18821,7 @@ var w2prompt = function (label, title, callBack) {
                 var tabIndex = $(obj.el).attr('tabIndex');
                 if (tabIndex && tabIndex !== -1) obj.el._tabIndex = tabIndex;
                 if (obj.el._tabIndex) tabIndex = obj.el._tabIndex;
-                if (tabIndex == null) tabIndex = -1;
+                if (tabIndex == null) tabIndex = 0; // default tabindex
 
                 html =  '<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box">'+
                         '    <div style="padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">'+
@@ -18862,41 +18885,38 @@ var w2prompt = function (label, title, callBack) {
             }
             if (obj.type === 'file') {
                 $(obj.el).css('outline', 'none');
-                div.on('click', function (event) {
-                        $(obj.el).focus();
+                div.find('input')
+                .off('.drag')
+                    .on('click.drag', function (event) {
+                        event.stopPropagation();
                         if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
-                        obj.blur(event);
-                        obj.resize();
-                        setTimeout(function () { div.find('input').click(); }, 10); // needed this when clicked on items div
+                        $(obj.el).focus();
                     })
-                    .on('dragenter', function (event) {
+                    .on('dragenter.drag', function (event) {
                         if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                         $(div).addClass('w2ui-file-dragover');
                     })
-                    .on('dragleave', function (event) {
+                    .on('dragleave.drag', function (event) {
                         if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
-                        var tmp = $(event.target).parents('.w2ui-field-helper');
-                        if (tmp.length === 0) $(div).removeClass('w2ui-file-dragover');
+                        $(div).removeClass('w2ui-file-dragover');
                     })
-                    .on('drop', function (event) {
+                    .on('drop.drag', function (event) {
                         if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return;
                         $(div).removeClass('w2ui-file-dragover');
                         var files = event.originalEvent.dataTransfer.files;
                         for (var i = 0, l = files.length; i < l; i++) obj.addFile.call(obj, files[i]);
+                        $(obj.el).focus();
                         // cancel to stop browser behaviour
                         event.preventDefault();
                         event.stopPropagation();
                     })
-                    .on('dragover', function (event) {
+                    .on('dragover.drag', function (event) {
                         // cancel to stop browser behaviour
                         event.preventDefault();
                         event.stopPropagation();
-                    });
-                div.find('input')
-                    .on('click', function (event) {
-                        event.stopPropagation();
                     })
-                    .on('change', function () {
+                    .on('change.drag', function () {
+                        $(obj.el).focus();
                         if (typeof this.files !== "undefined") {
                             for (var i = 0, l = this.files.length; i < l; i++) {
                                 obj.addFile.call(obj, this.files[i]);
