@@ -9,7 +9,7 @@
     <div style="position: absolute; left: 400px; top: 40px; height: 150px; border: 1px solid red; overflow: auto">
         <div style="padding: 10px"> Some Input: <input id="some" class="tags"> </div>
     </div>
-    <div style="position: absolute; left: 100px; top: 200px; padding: 10px; border: 1px solid red; overflow: auto">
+    <div style="position: absolute; left: 400px; top: 250px; padding: 7px; background-color: silver; overflow: auto">
         <button class="w2ui-btn" id="btn1">Click Me</button>
     </div>
     <script>
@@ -23,10 +23,10 @@
             });
         $('#btn1').on('click', function (event) {
             $(this).w2tag(`
-                Some very long or not so long text. I think so too. Some very long or not so long text. I think.
-                Some very long or not so long text. I think so too. Some very long or not so long text. I think.
-                Some very long or not so long text. I think so too. Some very long or not so long text. I think.
-                `, { position: 'top|bottom', maxWidth: 400 });
+                Some very long or not so long text. Some very long or not so long text.
+                Some very long or not so long text. Some very long or not so long text.
+                Some very long or not so long text. Some very long or not so long text.
+                `, { position: 'bottom', maxWidth: 400, className: 'w2ui-light1' });
         })
     });
     </script>
