@@ -34,6 +34,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - color.onSelect
 *   - color.html
 *   - refactored w2tag object, it has more potential with $().data('w2tag')
+*   - added w2utils.tooltip
 *   - w2tag options.hideOnFocus
 *   - w2tag options.maxWidth
 *   - w2menu options.items... remove t/f
@@ -113,6 +114,7 @@ var w2utils = (function ($) {
         parseColor      : parseColor,
         hsv2rgb         : hsv2rgb,
         rgb2hsv         : rgb2hsv,
+        tooltip         : tooltip,
         getCursorPosition : getCursorPosition,
         setCursorPosition : setCursorPosition,
         testLocalStorage  : testLocalStorage,
@@ -1770,6 +1772,25 @@ var w2utils = (function ($) {
         }
     }
 
+    function tooltip(msg, options) {
+        var actions, showOn = 'mouseenter', hideOn = 'mouseleave'
+        options = options || {}
+        if (options.showOn) {
+            showOn = options.showOn
+            delete options.showOn
+        }
+        if (options.hideOn) {
+            hideOn = options.hideOn
+            delete options.hideOn
+        }
+        // base64 is needed to avoid '"<> and other special chars conflicts
+        actions = 'on'+ showOn +'="$(this).w2tag(w2utils.base64decode(\'' + w2utils.base64encode(msg) + '\'),'
+                + 'JSON.parse(w2utils.base64decode(\'' + w2utils.base64encode(JSON.stringify(options)) + '\')))"'
+                + 'on'+ hideOn +'="$(this).w2tag()"'
+
+        return actions
+    }
+
     /*! from litejs.com / MIT Licence
         https://github.com/litejs/natural-compare-lite/blob/master/index.js */
     /*
@@ -3419,7 +3440,6 @@ w2utils.event = {
             return html;
         }
     };
-
 })(jQuery);
 
 /************************************************************************
