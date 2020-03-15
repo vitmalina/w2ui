@@ -282,19 +282,24 @@ var w2utils = (function ($) {
     }
 
     function isDateTime (val, format, retDate) {
-        if (format == null) format = w2utils.settings.datetimeFormat;
-        var formats = format.split('|');
         if (typeof val.getFullYear === 'function') { // date object
             if (retDate !== true) return true;
             return val;
-        } else if (parseInt(val) === val && parseInt(val) >= 0) {
-            val = new Date(parseInt(val));
-            if (retDate !== true) return true;
-            return val;
-        } else if (parseInt(val) === val && parseInt(val) < 0) {
-            return false;
+        }
+        var intVal = parseInt(val);
+        if (intVal === val) {
+            if (intVal < 0) return false;
+            else if (retDate !== true) return true;
+            else return new Date(intVal);
+        }
+        var tmp = String(val).indexOf(' ');
+        if (tmp < 0) {
+            if (String(val).indexOf('T') < 0 || String(new Date(val)) == 'Invalid Date') return false;
+            else if (retDate !== true) return true;
+            else return new Date(val);
         } else {
-            var tmp = String(val).indexOf(' ');
+            if (format == null) format = w2utils.settings.datetimeFormat;
+            var formats = format.split('|');
             var values  = [val.substr(0, tmp), val.substr(tmp).trim()];
             formats[0] = formats[0].trim();
             if (formats[1]) formats[1] = formats[1].trim();
