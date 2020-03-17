@@ -818,6 +818,8 @@
                             item.selected.splice(ind, 1);
                             it.checked = false;
                         }
+                    } else if (it.group === false) {
+                        // if group is false, then it is not part of checkboxes
                     } else {
                         var unchecked = [];
                         // recursive

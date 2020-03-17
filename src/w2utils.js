@@ -2816,7 +2816,12 @@ w2utils.event = {
                     mresize();
                 } else if (typeof options.onSelect === 'function') {
                     var tmp = items;
-                    if (typeof items == 'function') tmp = items(options.items[parentIndex])
+                    if (typeof items == 'function') {
+                        tmp = items(options.items[parentIndex])
+                    }
+                    if (tmp[index].keepOpen !== null) {
+                        keepOpen = tmp[index].keepOpen
+                    }
                     options.onSelect({
                         index: index,
                         parentIndex: parentIndex,
@@ -2835,7 +2840,7 @@ w2utils.event = {
                 }
             };
             $.fn.w2menuDown = function (event, index, parentIndex) {
-                var items, item;
+                var items;
                 var $el  = $(event.target).closest('tr');
                 var tmp  = $($el.get(0)).find('.w2ui-icon');
                 if (parentIndex == null) {
@@ -2843,18 +2848,17 @@ w2utils.event = {
                 } else {
                     items = options.items[parentIndex].items
                 }
-                if ((options.type === 'check' || options.type === 'radio')
+                var item = items[index];
+                if ((options.type === 'check' || options.type === 'radio') && item.group !== false
                             && !$(event.target).hasClass('remove')
                             && !$(event.target).closest('tr').hasClass('has-sub-menu')) {
-                    item = items[index];
                     item.checked = !item.checked;
-                    if (item.checked ) {
+                    if (item.checked) {
                         if (options.type === 'radio') {
                            tmp.parents('table').find('.w2ui-icon') // should not be closest, but parents
                                .removeClass('w2ui-icon-check')
                                .addClass('w2ui-icon-empty');
                         }
-                        // groups of checkboxes
                         if (options.type === 'check' && item.group != null) {
                             items.forEach(function (sub, ind) {
                                 if (sub.id == item.id) return;
@@ -2867,7 +2871,7 @@ w2utils.event = {
                             });
                         }
                         tmp.removeClass('w2ui-icon-empty').addClass('w2ui-icon-check');
-                    } else if (options.type === 'check' && item.group == null) {
+                    } else if (options.type === 'check' && item.group == null && item.group !== false) {
                         tmp.removeClass('w2ui-icon-check').addClass('w2ui-icon-empty');
                     }
                 }
@@ -3018,7 +3022,8 @@ w2utils.event = {
                     if (img  == null) img  = null; // img might be undefined
                     if (icon == null) icon = null; // icon might be undefined
                 }
-                if (['radio', 'check'].indexOf(options.type) != -1 && !Array.isArray(mitem.items)) {
+                // debugger
+                if (['radio', 'check'].indexOf(options.type) != -1 && !Array.isArray(mitem.items) && mitem.group !== false) {
                     if (mitem.checked === true) icon = 'w2ui-icon-check'; else icon = 'w2ui-icon-empty';
                 }
                 if (mitem.hidden !== true) {

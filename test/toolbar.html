@@ -51,9 +51,9 @@
                         { id: '2', text: 'Item 2', img: 'icon-page', disabled: true },
                         { id: '3', text: '--divider' },
                         { id: '4', img: 'icon-folder', text: 'item 1', expanded: true,
-                            items: function(el) {
+                            items: (el) => {
                                 return [
-                                    { id: el.id + 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
+                                    { id: el.id + 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100), keepOpen: true },
                                     { id: el.id + 'item2', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) }
                                 ]
                             },
@@ -65,8 +65,8 @@
                         },
                         { id: '5a', img: 'icon-folder', text: 'item 2a',
                             items: [
-                                { id: '5a-1', icon: 'fa fa-user', text: 'item 1' },
-                                { id: '5a-2', icon: 'fa fa-star-o', text: 'Medium long' },
+                                { id: '5a-1', icon: 'fa fa-user', text: 'item 1', keepOpen: true },
+                                { id: '5a-2', icon: 'fa fa-star-o', text: 'Medium long', keepOpen: true },
                                 { id: '5a-3', icon: 'fa fa-star', text: 'no icon' },
                                 { id: '5a-3', icon: 'fa fa-star-o',text: 'Some items' },
                                 { id: '5a-4', icon: 'fa fa-user', text: 'Font <i>item</i> with' },
@@ -111,7 +111,9 @@
                         { text: '--Group Name' },
                         { id: 'item4', text: 'Item 2.1', group: '2', icon: 'fa fa-link' },
                         { id: 'item5', text: 'Item 2.2', group: '2', icon: 'fa fa-link' },
-                        { id: 'item6', text: 'Item 2.3', group: '2', icon: 'fa fa-link' }
+                        { id: 'item6', text: 'Item 2.3', group: '2', icon: 'fa fa-link' },
+                        { text: '--' },
+                        { id: 'item6', text: 'Link', group: false, icon: 'fa fa-link' }
                     ],
                 },
                 { type: 'menu-radio', id: 'menu.radio', text: 'Menu: Radio',

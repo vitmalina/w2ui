@@ -27,10 +27,10 @@
 <script>
 // widget configuration
 var config = {
-    grid: { 
+    grid: {
         name: 'grid',
         selectType: 'cell',
-        show: { 
+        show: {
             footer: true,
             lineNumbers: true
         },
@@ -70,15 +70,7 @@ $(function () {
             size: '15%',
             resizable: true,
             sortable: true,
-            editable: { type: 'd' },
-            render: function (record, index, col_index) {
-                var field     = this.columns[col_index].field;
-                var val     = record[field];
-                var style     = '';
-                if (record.changed && record.changes[field]) val = record.changes[field];
-                if (record.style && record.style[col_index]) style = record.style[col_index];
-                return '<div style="'+ style +'; padding: 6px 3px; height: '+ this.recordHeight +'px">'+ val +'</div>';
-            }
+            editable: { type: 'd' }
         });
         values[tmp[i]] = '';
     }
@@ -109,31 +101,18 @@ function mark() {
 
 function cellFormat(flag) {
     var style = '';
+    var rec1 = w2ui.grid.get(3)
+    var rec2 = w2ui.grid.get(4)
+    rec1.w2ui = rec1.w2ui || {}
+    rec2.w2ui = rec2.w2ui || {}
     if (flag) {
-        w2ui.grid.get(3).style = { 5: 'color: white; background-color: #8BC386', 6: 'color: black; background-color: #BFE6FF' };
-        w2ui.grid.get(4).style = { 5: 'color: white; background-color: #8BC386', 6: 'color: black; background-color: #BFE6FF' };
+        rec1.w2ui.style = { 5: 'color: white; background-color: #8BC386', 6: 'color: black; background-color: #BFE6FF' };
+        rec2.w2ui.style = { 5: 'color: white; background-color: #8BC386', 6: 'color: black; background-color: #BFE6FF' };
     } else {
-        w2ui.grid.get(3).style = { 5: '', 6: '' };
-        w2ui.grid.get(4).style = { 5: '', 6: '' };
+        rec1.w2ui.style = { 5: '', 6: '' };
+        rec2.w2ui.style = { 5: '', 6: '' };
     }
-    w2ui.grid.refreshRow(3);
-    w2ui.grid.refreshRow(4);
+    w2ui.grid.refreshRow(rec1.recid);
+    w2ui.grid.refreshRow(rec2.recid);
 }
-
-/**
-*  This extands grid with a function that already part in 1.4.nightly
-*/
-
-w2ui.grid.refreshRow = function (recid) {
-    var tr = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
-    if (tr.length != 0) {
-        var ind  = this.get(recid, true);
-        var line = tr.attr('line');
-        // if it is searched, find index in search array
-        var url = (typeof this.url != 'object' ? this.url : this.url.get);
-        if (this.searchData.length > 0 && !url) for (var s in this.last.searchIds) if (this.last.searchIds[s] == ind) ind = s;
-        $(tr).replaceWith(this.getRecordHTML(ind, line));
-    }
-
-} 
 </script>
