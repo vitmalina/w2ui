@@ -1320,18 +1320,18 @@
                     case 38: // up
                         options.index = w2utils.isInt(options.index) ? parseInt(options.index) : 0;
                         options.index--;
-                        while (options.index > 0 && options.items[options.index].hidden) options.index--;
-                        if (options.index === 0 && options.items[options.index].hidden) {
-                            while (options.items[options.index] && options.items[options.index].hidden) options.index++;
+                        while (options.index > 0 && (options.items[options.index].hidden || options.items[options.index].disabled)) options.index--;
+                        if (options.index === 0 && (options.items[options.index].hidden || options.items[options.index].disabled)) {
+                            while (options.items[options.index] && (options.items[options.index].hidden || options.items[options.index].disabled)) options.index++;
                         }
                         indexOnly = true;
                         break;
                     case 40: // down
                         options.index = w2utils.isInt(options.index) ? parseInt(options.index) : -1;
                         options.index++;
-                        while (options.index < options.items.length-1 && options.items[options.index].hidden) options.index++;
-                        if (options.index == options.items.length-1 && options.items[options.index].hidden) {
-                            while (options.items[options.index] && options.items[options.index].hidden) options.index--;
+                        while (options.index < options.items.length-1 && (options.items[options.index].hidden || options.items[options.index].disabled)) options.index++;
+                        if (options.index == options.items.length-1 && (options.items[options.index].hidden || options.items[options.index].disabled)) {
+                            while (options.items[options.index] && (options.items[options.index].hidden || options.items[options.index].disabled)) options.index--;
                         }
                         // show overlay if not shown
                         if (focus.val() === '' && $('#w2ui-overlay').length === 0) {
@@ -1975,7 +1975,15 @@
                                     $(obj.el).data('selected', selected).trigger('input').change();
                                     $(obj.helpers.multi).find('input').val('').width(20);
                                     obj.refresh();
-                                    if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
+                                    if (event.keepOpen !== true) {
+                                        if ($("#w2ui-overlay").length > 0) $('#w2ui-overlay')[0].hide();
+                                    } else {
+                                        var ind;
+                                        params.items.forEach(function (item, i) { if (item.id == event.item.id) ind = i })
+                                        if (ind != null) params.items.splice(ind, 1)
+                                        params.selected = selected
+                                        $(el).w2menu('refresh', params);
+                                    }
                                     // event after
                                     obj.trigger($.extend(edata, { phase: 'after' }));
                                 }

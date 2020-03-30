@@ -103,7 +103,6 @@
             // url: 'http://w2ui.com/web/pages/demo/infinite/index.php?request={"cmd":"get","selected":[],"search":"122",limit":100,"offset":0}',
             recId: 'recid',
             spinner: true,
-            topHTML: 'e44',
             msgSearch: 'Type to search...',
             // msgNoItems: function (event) {
             //     console.log('event', event.remote, event.options.items)
@@ -112,7 +111,18 @@
             // minLength: 3,
             recText: function (item) { return item.fname + ' ' + item.lname },
             openOnFocus: true,
-            items: function(el) {
+            items: [
+                { id: 'item1', keepOpen: true, icon: 'fa fa-link', text: 'item 1' },
+                { id: 'item2', keepOpen: true, icon: 'fa fa-star', disabled: true, text: 'item 2'},
+                { id: 'item3', keepOpen: true, icon: 'fa fa-star', text: 'item 3' },
+                { id: 'item4', keepOpen: true, icon: 'fa fa-star', text: 'item 4' },
+                { id: 'item5', keepOpen: true, icon: 'fa fa-star', text: 'item 5' },
+                { id: 'item6', keepOpen: true, icon: 'fa fa-star', text: 'item 6' },
+                { id: 'item7', keepOpen: true, icon: 'fa fa-star', text: 'item 7' },
+                { id: 'item8', keepOpen: true, icon: 'fa fa-star', text: 'item 8' },
+                { id: 'item9', keepOpen: true, icon: 'fa fa-star', text: 'item 9' },
+            ],
+            items1: function(el) {
                 // console.log('Element', el)
                 // console.log(this)
                 return [

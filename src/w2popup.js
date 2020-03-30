@@ -214,7 +214,7 @@ var w2popup = {};
                 var msg = '<div class="w2ui-popup-title" style="'+ (!options.title ? 'display: none' : '') +'">' + btn + '</div>'+
                           '<div class="w2ui-box" style="'+ (!options.title ? 'top: 0px !important;' : '') +
                                     (!options.buttons ? 'bottom: 0px !important;' : '') + '">'+
-                          '    <div class="w2ui-popup-body' + (!options.title !== '' ? ' w2ui-popup-no-title' : '') +
+                          '    <div class="w2ui-popup-body' + (!options.title ? ' w2ui-popup-no-title' : '') +
                                     (!options.buttons ? ' w2ui-popup-no-buttons' : '') + '" style="' + options.style + '">' +
                           '    </div>'+
                           '</div>'+
@@ -1133,17 +1133,22 @@ var w2prompt = function (label, title, callBack) {
     var $ = jQuery;
     var options  = {};
     var defaults = {
+        title       : w2utils.lang('Notification'),
+        width       : ($('#w2ui-popup').length > 0 ? 400 : 450),
+        height      : ($('#w2ui-popup').length > 0 ? 170 : 220),
         label       : '',
         value       : '',
         attrs       : '',
         textarea    : false,
-        title       : w2utils.lang('Notification'),
         ok_text     : w2utils.lang('Ok'),
+        ok_class    : '',
         cancel_text : w2utils.lang('Cancel'),
-        width       : ($('#w2ui-popup').length > 0 ? 400 : 450),
-        height      : ($('#w2ui-popup').length > 0 ? 170 : 220),
-        callBack    : null
+        cancel_class: '',
+        callBack    : null,
+        onOpen      : null,
+        onClose     : null
     }
+    w2popup.tmp = w2popup.tmp || {}
 
     if (arguments.length == 1 && typeof label == 'object') {
         $.extend(options, defaults, label);
@@ -1185,13 +1190,19 @@ var w2prompt = function (label, title, callBack) {
                   '<button id="Cancel" class="w2ui-popup-btn w2ui-btn '+ options.cancel_class +'">' + options.cancel_text + '</button>'
                 ),
             onOpen: function () {
-                $('#w2prompt').val(options.value);
-                $('#w2ui-popup .w2ui-message .w2ui-btn#Ok').on('click.w2prompt', function (event) {
-                    w2popup._prompt_value = $('#w2prompt').val();
+                $('#w2prompt').val(options.value).off('.w2prompt').on('keydown.w2prompt', function(event) {
+                    if (event.keyCode == 13) {
+                        $('#w2ui-popup .w2ui-message .w2ui-btn#Ok').click()
+                    }
+                });
+                $('#w2ui-popup .w2ui-message .w2ui-btn#Ok').off('.w2prompt').on('click.w2prompt', function (event) {
+                    w2popup.tmp.btn = 'ok';
+                    w2popup.tmp.value = $('#w2prompt').val();
                     w2popup.message();
                 });
-                $('#w2ui-popup .w2ui-message .w2ui-btn#Cancel').on('click.w2prompt', function (event) {
-                    w2popup._prompt_value = null;
+                $('#w2ui-popup .w2ui-message .w2ui-btn#Cancel').off('.w2prompt').on('click.w2prompt', function (event) {
+                    w2popup.tmp.btn = 'cancel';
+                    w2popup.tmp.value = null;
                     w2popup.message();
                 });
                 // set focus
@@ -1204,9 +1215,7 @@ var w2prompt = function (label, title, callBack) {
                 $('#w2ui-popup .w2ui-message .w2ui-btn').off('click.w2prompt');
                 // need to wait for message to slide up
                 setTimeout(function () {
-                    if (typeof options.callBack == 'function') {
-                        options.callBack(w2popup._prompt_value);
-                    }
+                    btnClick(w2popup.tmp.btn, w2popup.tmp.value);
                 }, 300);
                 // some event
                 if (typeof options.onClose == 'function') options.onClose()
@@ -1234,10 +1243,10 @@ var w2prompt = function (label, title, callBack) {
                             '</div>'
                         ),
             buttons    : (w2utils.settings.macButtonOrder
-                ? '<button id="Cancel" class="w2ui-popup-btn w2ui-btn">' + options.cancel_text + '</button>' +
-                  '<button id="Ok" class="w2ui-popup-btn w2ui-btn">' + options.ok_text + '</button>'
-                : '<button id="Ok" class="w2ui-popup-btn w2ui-btn">' + options.ok_text + '</button>'+
-                  '<button id="Cancel" class="w2ui-popup-btn w2ui-btn">' + options.cancel_text + '</button>'
+                ? '<button id="Cancel" class="w2ui-popup-btn w2ui-btn '+ options.cancel_class +'">' + options.cancel_text + '</button>' +
+                  '<button id="Ok" class="w2ui-popup-btn w2ui-btn '+ options.ok_class +'">' + options.ok_text + '</button>'
+                : '<button id="Ok" class="w2ui-popup-btn w2ui-btn '+ options.ok_class +'">' + options.ok_text + '</button>'+
+                  '<button id="Cancel" class="w2ui-popup-btn w2ui-btn '+ options.cancel_class +'">' + options.cancel_text + '</button>'
                 ),
             onOpen: function (event) {
                 // do not use onComplete as it is slower
@@ -1245,14 +1254,14 @@ var w2prompt = function (label, title, callBack) {
                     $('#w2prompt').val(options.value);
                     $('#w2prompt').w2field('text');
                     $('#w2ui-popup .w2ui-popup-btn#Ok').on('click', function (event) {
-                        w2popup._prompt_value = $('#w2prompt').val();
+                        w2popup.tmp.btn = 'ok';
+                        w2popup.tmp.value = $('#w2prompt').val();
                         w2popup.close();
-                        if (typeof options.callBack == 'function') options.callBack(w2popup._prompt_value);
                     });
                     $('#w2ui-popup .w2ui-popup-btn#Cancel').on('click', function (event) {
-                        w2popup._prompt_value = null;
+                        w2popup.tmp.btn = 'cancel';
+                        w2popup.tmp.value = null;
                         w2popup.close();
-                        if (typeof options.callBack == 'function') options.callBack(w2popup._prompt_value);
                     });
                     $('#w2ui-popup .w2ui-popup-btn#Ok');
                     // set focus
@@ -1263,6 +1272,7 @@ var w2prompt = function (label, title, callBack) {
             },
             onClose: function (event) {
                 // some event
+               btnClick(w2popup.tmp.btn, w2popup.tmp.value);
                 if (typeof options.onClose == 'function') options.onClose()
             },
             onKeydown: function (event) {
@@ -1271,15 +1281,26 @@ var w2prompt = function (label, title, callBack) {
                     switch (event.originalEvent.keyCode) {
                         case 13: // enter
                             $('#w2ui-popup .w2ui-popup-btn#Ok').focus().addClass('clicked'); // no need fo click as enter will do click
-                            w2popup.close();
                             break;
                         case 27: // esc
-                            w2popup.close();
+                            w2popup.tmp.btn = 'cancel';
+                            w2popup.tmp.value = null;
                             break;
                     }
                 }
             }
         });
+    }
+    function btnClick(btn, value) {
+        if (btn == 'ok' && typeof options.ok_callBack == 'function') {
+            options.ok_callBack(value)
+        }
+        if (btn == 'cancel' && typeof options.ok_callBack == 'function') {
+            options.cancel_callBack(value)
+        }
+        if (typeof options.callBack == 'function') {
+            options.callBack(btn, value);
+        }
     }
     return {
         change: function (fun) {
@@ -1287,7 +1308,11 @@ var w2prompt = function (label, title, callBack) {
             return this;
         },
         ok: function (fun) {
-            options.callBack = fun;
+            options.ok_callBack = fun;
+            return this;
+        },
+        cancel: function (fun) {
+            options.cancel_callBack = fun;
             return this;
         }
     };
