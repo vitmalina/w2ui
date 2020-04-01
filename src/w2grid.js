@@ -171,6 +171,10 @@
         this.searches     = [];       // { type, label, field, inTag, outTag, hidden }
         this.sortMap      = {};       // remap sort Fields
         this.toolbar      = {};       // if not empty object; then it is toolbar object
+        this.ranges       = [];
+        this.menu         = [];
+        this.searchData   = [];
+        this.sortData     = [];
         this.total        = 0;        // server total
         this.recid        = null;     // field from records to be used as recid
 
@@ -205,12 +209,14 @@
         $.extend(true, this, w2obj.grid);
         this.show             = $.extend(true, {}, w2grid.prototype.show);
         this.postData         = $.extend(true, {}, w2grid.prototype.postData);
+        this.routeData        = $.extend(true, {}, w2grid.prototype.routeData);
         this.httpHeaders      = $.extend(true, {}, w2grid.prototype.httpHeaders);
         this.buttons          = $.extend(true, {}, w2grid.prototype.buttons);
         this.operators        = $.extend(true, {}, w2grid.prototype.operators);
         this.operatorsMap     = $.extend(true, {}, w2grid.prototype.operatorsMap);
         this.stateColProps    = $.extend(true, {}, w2grid.prototype.stateColProps);
         this.stateColDefaults = $.extend(true, {}, w2grid.prototype.stateColDefaults);
+
         $.extend(true, this, options);
     }
 
@@ -295,10 +301,8 @@
         url          : '',
         limit        : 100,
         offset       : 0,        // how many records to skip (for infinite scroll) when pulling from server
-        searchData   : [],
-        sortData     : [],
-        routeData    : {},       // data for dynamic routes
         postData     : {},
+        routeData    : {},
         httpHeaders  : {},
         show: {
             header          : false,
@@ -354,8 +358,6 @@
         vs_start          : 150,
         vs_extra          : 15,
         style             : '',
-        ranges            : [],
-        menu              : [],
         method            : null,       // if defined, then overwrited ajax method
         dataType          : null,       // if defined, then overwrited w2utils.settings.dataType
         parser            : null,

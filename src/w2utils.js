@@ -3042,6 +3042,7 @@ w2utils.event = {
                 + (options.topHTML ? '<tr class="w2ui-disabled" style="opacity: 1"><td colspan="3">' + options.topHTML + '</td></tr>' : '');
             var img = null, icon = null;
             if (items == null) items = options.items;
+            if (!Array.isArray(items)) items = []
             for (var f = 0; f < items.length; f++) {
                 var mitem = items[f];
                 if (typeof mitem === 'string') {
