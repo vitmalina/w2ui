@@ -1430,7 +1430,7 @@
                     (search.length < obj.tmp.xhr_search.length)
                 )) {
                 // empty list
-                if (obj.tmp.xhr) obj.tmp.xhr.abort();
+                if (obj.tmp.xhr) try { obj.tmp.xhr.abort(); } catch (e) {}
                 obj.tmp.xhr_loading = true;
                 obj.search();
                 // timeout
@@ -1507,14 +1507,19 @@
                                 if (Array.isArray(find_selected)) {
                                     sel = [];
                                     find_selected.forEach(function (find) {
+                                        var isFound = false
                                         options.items.forEach(function (item) {
-                                            if (item.id == find) sel.push($.extend(true, {}, item));
+                                            if (item.id == find || (find && find.id == item.id)) {
+                                                sel.push($.extend(true, {}, item));
+                                                isFound = true
+                                            }
                                         })
-                                    });
-
+                                        if (!isFound) sel.push(find)
+                                    })
                                 } else {
+                                    sel = find_selected;
                                     options.items.forEach(function (item) {
-                                        if (item.id == find_selected) {
+                                        if (item.id == find_selected || (find_selected && find_selected.id == item.id)) {
                                             sel = item
                                         }
                                     })
