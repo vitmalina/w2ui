@@ -4537,7 +4537,7 @@
             var col_ind   = this.getColumn(field, true);
             var rec       = (isSummary ? this.summary[index] : this.records[index]);
             var col       = this.columns[col_ind];
-            var cell      = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ col_ind);
+            var cell      = $(this.box).find((isSummary ? '.w2ui-grid-summary ' : '') + '#grid_'+ this.name + '_data_'+ index +'_'+ col_ind);
             if (rec == null) return false;
             // set cell html and changed flag
             cell.replaceWith(this.getCellHTML(index, col_ind, isSummary));
@@ -6421,7 +6421,7 @@
                     case 'date':
                     case 'time':
                     case 'datetime':
-                        var tmpStyle = 'width: 90px';
+                        var tmpStyle = 'width: 90px;';
                         if (s.type == 'datetime') tmpStyle = 'width: 140px;';
                         html += '<input rel="search" type="text" class="w2ui-input" style="'+ tmpStyle + s.style +'" id="grid_'+ this.name +'_field_'+ i +'" name="'+ s.field +'" '+ s.inTag +'/>'+
                                 '<span id="grid_'+ this.name +'_range_'+ i +'" style="display: none">&#160;-&#160;&#160;'+
@@ -7502,11 +7502,13 @@
                         data = '<div style="'+ style +'">' + infoBubble + String(data) + '</div>';
                     }
                 }
+                // if it is an object
                 if (typeof col.render == 'object') {
                     var dsp = col.render[data];
                     if (dsp == null || dsp === '') dsp = data;
                     data = '<div style="'+ style +'">' + infoBubble + dsp + '</div>';
                 }
+                // formatters
                 if (typeof col.render == 'string') {
                     var t   = col.render.toLowerCase().indexOf(':');
                     var tmp = [];
@@ -7522,7 +7524,7 @@
                     if (col.options && col.options.autoFormat === false) {
                         func = null;
                     }
-                    data = '<div style="'+ style +'">' + infoBubble + (typeof func == 'function' ? func(data, tmp[1]) : data) + '</div>';
+                    data = '<div style="'+ style +'">' + infoBubble + (typeof func == 'function' ? func(data, tmp[1]) : '') + '</div>';
                 }
             } else {
                 // if editable checkbox

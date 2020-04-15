@@ -1295,7 +1295,7 @@ var w2prompt = function (label, title, callBack) {
         if (btn == 'ok' && typeof options.ok_callBack == 'function') {
             options.ok_callBack(value)
         }
-        if (btn == 'cancel' && typeof options.ok_callBack == 'function') {
+        if (btn == 'cancel' && typeof options.cancel_callBack == 'function') {
             options.cancel_callBack(value)
         }
         if (typeof options.callBack == 'function') {
