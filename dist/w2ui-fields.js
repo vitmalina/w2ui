@@ -3043,6 +3043,7 @@ w2utils.event = {
                 + (options.topHTML ? '<tr class="w2ui-disabled" style="opacity: 1"><td colspan="3">' + options.topHTML + '</td></tr>' : '');
             var img = null, icon = null;
             if (items == null) items = options.items;
+            if (!Array.isArray(items)) items = []
             for (var f = 0; f < items.length; f++) {
                 var mitem = items[f];
                 if (typeof mitem === 'string') {
@@ -4911,7 +4912,7 @@ w2utils.event = {
                     (search.length < obj.tmp.xhr_search.length)
                 )) {
                 // empty list
-                if (obj.tmp.xhr) obj.tmp.xhr.abort();
+                if (obj.tmp.xhr) try { obj.tmp.xhr.abort(); } catch (e) {}
                 obj.tmp.xhr_loading = true;
                 obj.search();
                 // timeout
@@ -4988,14 +4989,19 @@ w2utils.event = {
                                 if (Array.isArray(find_selected)) {
                                     sel = [];
                                     find_selected.forEach(function (find) {
+                                        var isFound = false
                                         options.items.forEach(function (item) {
-                                            if (item.id == find) sel.push($.extend(true, {}, item));
+                                            if (item.id == find || (find && find.id == item.id)) {
+                                                sel.push($.extend(true, {}, item));
+                                                isFound = true
+                                            }
                                         })
-                                    });
-
+                                        if (!isFound) sel.push(find)
+                                    })
                                 } else {
+                                    sel = find_selected;
                                     options.items.forEach(function (item) {
-                                        if (item.id == find_selected) {
+                                        if (item.id == find_selected || (find_selected && find_selected.id == item.id)) {
                                             sel = item
                                         }
                                     })
@@ -5404,7 +5410,7 @@ w2utils.event = {
                     }
                     if ($(input).val() !== '') delete obj.tmp.force_open;
                     var msgNoItems = w2utils.lang('No matches');
-                    if (options.url != null && $(input).val().length < options.minLength && obj.tmp.emptySet !== true) {
+                    if (options.url != null && String($(input).val()).length < options.minLength && obj.tmp.emptySet !== true) {
                         msgNoItems = options.minLength + ' ' + w2utils.lang('letters or more...');
                     }
                     if (options.url != null && $(input).val() === '' && obj.tmp.emptySet !== true) {
