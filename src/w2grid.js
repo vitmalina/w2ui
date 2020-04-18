@@ -197,7 +197,7 @@
             sortData    : null,
             sortCount   : 0,
             xhr         : null,
-            loading     : false,
+            loaded      : false,
             range_start : null,
             range_end   : null,
             sel_ind     : null,
@@ -2572,7 +2572,7 @@
 
             this.last.xhr_cmd   = cmd;
             this.last.xhr_start = (new Date()).getTime();
-            this.last.loading   = true;
+            this.last.loaded    = false;
             this.last.xhr = $.ajax(ajaxOptions)
                 .done(function (data, status, xhr) {
                     obj.requestComplete(status, cmd, callBack);
@@ -2608,7 +2608,6 @@
                 if (obj.show.statusResponse) {
                     obj.status(w2utils.lang('Server Response') + ' ' + ((new Date()).getTime() - obj.last.xhr_start)/1000 +' ' + w2utils.lang('sec'));
                 }
-                obj.last.loading = false;
             }, 10);
             this.last.pull_more    = false;
             this.last.pull_refresh = true;
@@ -2738,6 +2737,7 @@
             if (typeof callBack == 'function') callBack(data); // need to be befor event:after
             // after event
             this.trigger($.extend(edata, { phase: 'after' }));
+            this.last.loaded = true;
         },
 
         error: function (msg) {
