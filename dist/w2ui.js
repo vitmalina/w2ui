@@ -3679,7 +3679,7 @@ w2utils.event = {
             sortData    : null,
             sortCount   : 0,
             xhr         : null,
-            loading     : false,
+            loaded      : false,
             range_start : null,
             range_end   : null,
             sel_ind     : null,
@@ -6054,7 +6054,7 @@ w2utils.event = {
 
             this.last.xhr_cmd   = cmd;
             this.last.xhr_start = (new Date()).getTime();
-            this.last.loading   = true;
+            this.last.loaded    = false;
             this.last.xhr = $.ajax(ajaxOptions)
                 .done(function (data, status, xhr) {
                     obj.requestComplete(status, cmd, callBack);
@@ -6090,7 +6090,6 @@ w2utils.event = {
                 if (obj.show.statusResponse) {
                     obj.status(w2utils.lang('Server Response') + ' ' + ((new Date()).getTime() - obj.last.xhr_start)/1000 +' ' + w2utils.lang('sec'));
                 }
-                obj.last.loading = false;
             }, 10);
             this.last.pull_more    = false;
             this.last.pull_refresh = true;
@@ -6220,6 +6219,7 @@ w2utils.event = {
             if (typeof callBack == 'function') callBack(data); // need to be befor event:after
             // after event
             this.trigger($.extend(edata, { phase: 'after' }));
+            this.last.loaded = true;
         },
 
         error: function (msg) {
@@ -10661,7 +10661,7 @@ w2utils.event = {
                 }
             }
             // check for grid end
-            if (buffered >= this.total - this.offset && this.total != -1) $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more').hide();
+            if (buffered >= this.total - this.offset && this.total != -1) $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more').show();
 
             function markSearch() {
                 // mark search
@@ -15535,6 +15535,9 @@ var w2prompt = function (label, title, callBack) {
 *
 * == 1.5 changes
 *   - node.class - ne property
+*   - sb.levelPadding
+*   - node.style
+*   - sb.updte()
 *
 ************************************************************************/
 
@@ -15599,7 +15602,7 @@ var w2prompt = function (label, title, callBack) {
     // -- Implementation of core functionality
 
     w2sidebar.prototype = {
-
+        levelPadding : 12,
         onClick       : null,      // Fire when user click on Node Text
         onDblClick    : null,      // Fire when user dbl clicks
         onContextMenu : null,
@@ -15747,13 +15750,17 @@ var w2prompt = function (label, title, callBack) {
             if (parent.nodes == null) return null;
             for (var i = 0; i < parent.nodes.length; i++) {
                 if (parent.nodes[i].id === id) {
-                    // make sure nodes inserted correctly
-                    var nodes = node.nodes;
-                    $.extend(parent.nodes[i], node, { nodes: [] });
-                    if (nodes != null) {
-                        this.add(parent.nodes[i], nodes);
+                    // see if quick update is possible
+                    var res = this.update(id, node)
+                    if (Object.keys(res).length != 0) {
+                        // make sure nodes inserted correctly
+                        var nodes = node.nodes;
+                        $.extend(parent.nodes[i], node, { nodes: [] });
+                        if (nodes != null) {
+                            this.add(parent.nodes[i], nodes);
+                        }
+                        this.refresh(id);
                     }
-                    this.refresh(id);
                     return true;
                 } else {
                     var rv = this.set(parent.nodes[i], id, node);
@@ -15921,6 +15928,7 @@ var w2prompt = function (label, title, callBack) {
         collapse: function (id) {
             var obj = this;
             var nd  = this.get(id);
+            if (nd == null) return false
             // event before
             var edata = this.trigger({ phase: 'before', type: 'collapse', target: id, object: nd });
             if (edata.isCancelled === true) return;
@@ -16317,6 +16325,69 @@ var w2prompt = function (label, title, callBack) {
             return (new Date()).getTime() - time;
         },
 
+        update: function (id, options) {
+            // quick function to refresh just this item (not sub nodes)
+            //  - icon, class, style, text, count
+            var nd = this.get(id)
+            var level
+            if (nd) {
+                var $el = $(this.box).find('#node_'+ nd.id)
+                if (nd.group) {
+                    if (options.text) {
+                        nd.text = options.text
+                        $el.find('.w2ui-group-text').replaceWith(typeof nd.text == 'function'
+                            ? nd.text.call(this, nd)
+                            : '<span class="w2ui-group-text">'+ nd.text +'</span>')
+                        delete options.text
+                    }
+                    if (options.class) {
+                        nd.class = options.class
+                        level = $el.data('level')
+                        $el[0].className = 'w2ui-node-group w2ui-level-'+ level +(nd.class ? ' ' + nd.class : '')
+                        delete options.class
+                    }
+                    if (options.style) {
+                        nd.style = options.style
+                        $el.next()[0].style = nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;')
+                        delete options.style
+                    }
+                } else {
+                    if (options.icon) {
+                        var $img = $el.find('.w2ui-node-image > span')
+                        if ($img.length > 0) {
+                            nd.icon = options.icon
+                            $img[0].className = (typeof nd.icon == 'function' ? nd.icon.call(this, nd) : nd.icon)
+                            delete options.icon
+                        }
+                    }
+                    if (options.count) {
+                        nd.count = options.count
+                        $el.find('.w2ui-node-count').html(nd.count)
+                        if ($el.find('.w2ui-node-count').length > 0) delete options.count
+                    }
+                    if (options.class && $el.length > 0) {
+                        nd.class = options.class
+                        level = $el.data('level')
+                        $el[0].className = 'w2ui-node w2ui-level-'+ level + (nd.selected ? ' w2ui-selected' : '') + (nd.disabled ? ' w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '')
+                        delete options.class
+                    }
+                    if (options.text) {
+                        nd.text = options.text
+                        $el.find('.w2ui-node-text').html(typeof nd.text == 'function' ? nd.text.call(this, nd) : nd.text)
+                        delete options.text
+                    }
+                    if (options.style && $el.length > 0) {
+                        var $txt = $el.find('.w2ui-node-text')
+                        nd.style = options.style
+                        $txt[0].style = nd.style
+                        delete options.style
+                    }
+                }
+            }
+            // return what was not set
+            return options
+        },
+
         refresh: function (id) {
             var time = (new Date()).getTime();
             // event before
@@ -16421,13 +16492,13 @@ var w2prompt = function (label, title, callBack) {
                 if (Array.isArray(nd.nodes) && nd.nodes.length > 0) nd.collapsible = true
                 if (nd.group) {
                     html =
-                        '<div class="w2ui-node-group w2ui-level-'+ level + (nd.class ? ' ' + nd.class : '') +'" id="node_'+ nd.id +'"'+
+                        '<div class="w2ui-node-group w2ui-level-'+ level + (nd.class ? ' ' + nd.class : '') +'" id="node_'+ nd.id +'" data-level="'+ level + '"'+
                         '   style="'+ (nd.hidden ? 'display: none' : '') +'" onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
                         '   oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
                         '   onmouseout="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
                         '   onmouseover="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
                         ((nd.groupShowHide && nd.collapsible) ? '<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>' : '<span></span>') +
-                        (typeof nd.text == 'function' ? nd.text.call(obj, nd) : '<span>'+ nd.text +'</span>') +
+                        (typeof nd.text == 'function' ? nd.text.call(obj, nd) : '<span class="w2ui-group-text">'+ nd.text +'</span>') +
                         '</div>'+
                         '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
                     if (obj.flat) {
@@ -16442,18 +16513,20 @@ var w2prompt = function (label, title, callBack) {
                         tmp = '<div class="w2ui-node-image"><span class="' + (typeof icon == 'function' ? icon.call(obj, nd) : icon) + '"></span></div>';
                     }
                     var text = nd.text;
-                    var expand = (nd.count != null ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '');
+                    var expand = '';
+                    var counts = (nd.count != null ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '');
                     if (nd.collapsible === true) {
                         expand = '<div class="w2ui-' + (nd.expanded ? 'expanded' : 'collapsed') + '"><span></span></div>';
                     }
                     if (typeof nd.text == 'function') text = nd.text.call(obj, nd);
-                    html =  '<div class="w2ui-node w2ui-level-'+ level + (nd.selected ? ' w2ui-selected' : '') + (nd.disabled ? ' w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
+                    html =  '<div class="w2ui-node w2ui-level-'+ level + (nd.selected ? ' w2ui-selected' : '') + (nd.disabled ? ' w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '') +'"'+
+                            '    id="node_'+ nd.id +'" data-level="'+ level +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
                             '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
                             '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
                             '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
-                            '   <div class="w2ui-node-data" style="margin-left:'+ (level*12) +'px">'+
-                                    tmp + expand +
-                                    '<div class="w2ui-node-text w2ui-node-caption">'+ text +'</div>'+
+                            '   <div class="w2ui-node-data" style="margin-left:'+ (level * obj.levelPadding) +'px">'+
+                                    expand + tmp + counts +
+                                    '<div class="w2ui-node-text w2ui-node-caption" style="'+ (nd.style || '') +'">'+ text +'</div>'+
                             '   </div>'+
                             '</div>'+
                             '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
@@ -19377,6 +19450,7 @@ var w2prompt = function (label, title, callBack) {
 *   - field.html.groupCollapsable, form.toggleGroup
 *   - added showErrors
 *   - added field.type = 'check'
+*   - new field type 'map', 'array' - same thing but map has unique keys also html: { key: { text: '111', attr: '222' }, value: {...}}
 *
 ************************************************************************/
 
@@ -20355,7 +20429,7 @@ var w2prompt = function (label, title, callBack) {
                         input = '<label>'+
                                 '   <input id="'+ field.field +'" name="'+ field.field +'" style="float: left" class="w2ui-input" type="checkbox" '+ field.html.attr + tabindex_str + '>'+
                                 '   <div style="margin: 6px 0 0 20px; user-select: none;">'+ field.html.label +'</div>'+
-                                '</label>';
+                                '</label>' + field.html.text;
                         break;
                     case 'radio':
                         input = '';
@@ -20442,7 +20516,7 @@ var w2prompt = function (label, title, callBack) {
                 if (field.html.anchor == null) {
                     var span  = (field.html.span != null ? 'w2ui-span'+ field.html.span : '')
                     if (field.html.span == -1) span = 'w2ui-span-none';
-                    var label = '<label'+ (span == 'none' ? ' style="display: none"' : '') +'>' + w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text) +'</label>'
+                    var label = '<label'+ (span == 'none' ? ' style="display: none"' : '') +'>' + w2utils.lang(field.type != 'checkbox' ? field.html.label : '') +'</label>'
                     if (!field.html.label) label = ''
                     html += '\n      <div class="w2ui-field '+ span +'" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style  +'">'+
                             '\n         '+ label +
