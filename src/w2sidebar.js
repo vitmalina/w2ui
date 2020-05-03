@@ -17,6 +17,9 @@
 *
 * == 1.5 changes
 *   - node.class - ne property
+*   - sb.levelPadding
+*   - node.style
+*   - sb.updte()
 *
 ************************************************************************/
 
@@ -81,7 +84,7 @@
     // -- Implementation of core functionality
 
     w2sidebar.prototype = {
-
+        levelPadding : 12,
         onClick       : null,      // Fire when user click on Node Text
         onDblClick    : null,      // Fire when user dbl clicks
         onContextMenu : null,
@@ -229,13 +232,17 @@
             if (parent.nodes == null) return null;
             for (var i = 0; i < parent.nodes.length; i++) {
                 if (parent.nodes[i].id === id) {
-                    // make sure nodes inserted correctly
-                    var nodes = node.nodes;
-                    $.extend(parent.nodes[i], node, { nodes: [] });
-                    if (nodes != null) {
-                        this.add(parent.nodes[i], nodes);
+                    // see if quick update is possible
+                    var res = this.update(id, node)
+                    if (Object.keys(res).length != 0) {
+                        // make sure nodes inserted correctly
+                        var nodes = node.nodes;
+                        $.extend(parent.nodes[i], node, { nodes: [] });
+                        if (nodes != null) {
+                            this.add(parent.nodes[i], nodes);
+                        }
+                        this.refresh(id);
                     }
-                    this.refresh(id);
                     return true;
                 } else {
                     var rv = this.set(parent.nodes[i], id, node);
@@ -403,6 +410,7 @@
         collapse: function (id) {
             var obj = this;
             var nd  = this.get(id);
+            if (nd == null) return false
             // event before
             var edata = this.trigger({ phase: 'before', type: 'collapse', target: id, object: nd });
             if (edata.isCancelled === true) return;
@@ -799,6 +807,69 @@
             return (new Date()).getTime() - time;
         },
 
+        update: function (id, options) {
+            // quick function to refresh just this item (not sub nodes)
+            //  - icon, class, style, text, count
+            var nd = this.get(id)
+            var level
+            if (nd) {
+                var $el = $(this.box).find('#node_'+ nd.id)
+                if (nd.group) {
+                    if (options.text) {
+                        nd.text = options.text
+                        $el.find('.w2ui-group-text').replaceWith(typeof nd.text == 'function'
+                            ? nd.text.call(this, nd)
+                            : '<span class="w2ui-group-text">'+ nd.text +'</span>')
+                        delete options.text
+                    }
+                    if (options.class) {
+                        nd.class = options.class
+                        level = $el.data('level')
+                        $el[0].className = 'w2ui-node-group w2ui-level-'+ level +(nd.class ? ' ' + nd.class : '')
+                        delete options.class
+                    }
+                    if (options.style) {
+                        nd.style = options.style
+                        $el.next()[0].style = nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;')
+                        delete options.style
+                    }
+                } else {
+                    if (options.icon) {
+                        var $img = $el.find('.w2ui-node-image > span')
+                        if ($img.length > 0) {
+                            nd.icon = options.icon
+                            $img[0].className = (typeof nd.icon == 'function' ? nd.icon.call(this, nd) : nd.icon)
+                            delete options.icon
+                        }
+                    }
+                    if (options.count) {
+                        nd.count = options.count
+                        $el.find('.w2ui-node-count').html(nd.count)
+                        if ($el.find('.w2ui-node-count').length > 0) delete options.count
+                    }
+                    if (options.class && $el.length > 0) {
+                        nd.class = options.class
+                        level = $el.data('level')
+                        $el[0].className = 'w2ui-node w2ui-level-'+ level + (nd.selected ? ' w2ui-selected' : '') + (nd.disabled ? ' w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '')
+                        delete options.class
+                    }
+                    if (options.text) {
+                        nd.text = options.text
+                        $el.find('.w2ui-node-text').html(typeof nd.text == 'function' ? nd.text.call(this, nd) : nd.text)
+                        delete options.text
+                    }
+                    if (options.style && $el.length > 0) {
+                        var $txt = $el.find('.w2ui-node-text')
+                        nd.style = options.style
+                        $txt[0].style = nd.style
+                        delete options.style
+                    }
+                }
+            }
+            // return what was not set
+            return options
+        },
+
         refresh: function (id) {
             var time = (new Date()).getTime();
             // event before
@@ -903,13 +974,13 @@
                 if (Array.isArray(nd.nodes) && nd.nodes.length > 0) nd.collapsible = true
                 if (nd.group) {
                     html =
-                        '<div class="w2ui-node-group w2ui-level-'+ level + (nd.class ? ' ' + nd.class : '') +'" id="node_'+ nd.id +'"'+
+                        '<div class="w2ui-node-group w2ui-level-'+ level + (nd.class ? ' ' + nd.class : '') +'" id="node_'+ nd.id +'" data-level="'+ level + '"'+
                         '   style="'+ (nd.hidden ? 'display: none' : '') +'" onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
                         '   oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
                         '   onmouseout="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
                         '   onmouseover="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
                         ((nd.groupShowHide && nd.collapsible) ? '<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>' : '<span></span>') +
-                        (typeof nd.text == 'function' ? nd.text.call(obj, nd) : '<span>'+ nd.text +'</span>') +
+                        (typeof nd.text == 'function' ? nd.text.call(obj, nd) : '<span class="w2ui-group-text">'+ nd.text +'</span>') +
                         '</div>'+
                         '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';
                     if (obj.flat) {
@@ -924,18 +995,20 @@
                         tmp = '<div class="w2ui-node-image"><span class="' + (typeof icon == 'function' ? icon.call(obj, nd) : icon) + '"></span></div>';
                     }
                     var text = nd.text;
-                    var expand = (nd.count != null ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '');
+                    var expand = '';
+                    var counts = (nd.count != null ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '');
                     if (nd.collapsible === true) {
                         expand = '<div class="w2ui-' + (nd.expanded ? 'expanded' : 'collapsed') + '"><span></span></div>';
                     }
                     if (typeof nd.text == 'function') text = nd.text.call(obj, nd);
-                    html =  '<div class="w2ui-node w2ui-level-'+ level + (nd.selected ? ' w2ui-selected' : '') + (nd.disabled ? ' w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
+                    html =  '<div class="w2ui-node w2ui-level-'+ level + (nd.selected ? ' w2ui-selected' : '') + (nd.disabled ? ' w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '') +'"'+
+                            '    id="node_'+ nd.id +'" data-level="'+ level +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
                             '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
                             '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
                             '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
-                            '   <div class="w2ui-node-data" style="margin-left:'+ (level*12) +'px">'+
-                                    tmp + expand +
-                                    '<div class="w2ui-node-text w2ui-node-caption">'+ text +'</div>'+
+                            '   <div class="w2ui-node-data" style="margin-left:'+ (level * obj.levelPadding) +'px">'+
+                                    expand + tmp + counts +
+                                    '<div class="w2ui-node-text w2ui-node-caption" style="'+ (nd.style || '') +'">'+ text +'</div>'+
                             '   </div>'+
                             '</div>'+
                             '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>';

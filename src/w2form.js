@@ -46,6 +46,7 @@
 *   - field.html.groupCollapsable, form.toggleGroup
 *   - added showErrors
 *   - added field.type = 'check'
+*   - new field type 'map', 'array' - same thing but map has unique keys also html: { key: { text: '111', attr: '222' }, value: {...}}
 *
 ************************************************************************/
 

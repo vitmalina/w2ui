@@ -7179,7 +7179,7 @@
                 }
             }
             // check for grid end
-            if (buffered >= this.total - this.offset && this.total != -1) $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more').hide();
+            if (buffered >= this.total - this.offset && this.total != -1) $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more').show();
 
             function markSearch() {
                 // mark search
