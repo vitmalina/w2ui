@@ -744,7 +744,7 @@
         border-collapse: border-collapse;
         tr {
             height: 27px;
-            &:hover {
+            &:hover, &.w2ui-selected {
                 background-color: @grid-row-selected-background-color;
             }
             td:nth-child(1) {
@@ -765,7 +765,7 @@
     table {
         border-spacing: 0px;
         border-collapse: border-collapse;
-        tr:hover {
+        tr:hover, tr.w2ui-selected {
             background-color: @grid-row-selected-background-color;
         }
         td {

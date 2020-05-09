@@ -18,6 +18,7 @@
 * == 1.5 changes
 *   - node.class - ne property
 *   - sb.levelPadding
+*   - sb.handle (for debugger points)
 *   - node.style
 *   - sb.updte()
 *
@@ -84,7 +85,8 @@
     // -- Implementation of core functionality
 
     w2sidebar.prototype = {
-        levelPadding : 12,
+        levelPadding  : 12,
+        handle        : { size: 0, style: '', content: '' },
         onClick       : null,      // Fire when user click on Node Text
         onDblClick    : null,      // Fire when user dbl clicks
         onContextMenu : null,
@@ -1002,11 +1004,17 @@
                     }
                     if (typeof nd.text == 'function') text = nd.text.call(obj, nd);
                     html =  '<div class="w2ui-node w2ui-level-'+ level + (nd.selected ? ' w2ui-selected' : '') + (nd.disabled ? ' w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '') +'"'+
-                            '    id="node_'+ nd.id +'" data-level="'+ level +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
+                            '    id="node_'+ nd.id +'" data-level="'+ level +'" style="position: relative; '+ (nd.hidden ? 'display: none;' : '') +'"'+
                             '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
                             '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
                             '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
-                            '   <div class="w2ui-node-data" style="margin-left:'+ (level * obj.levelPadding) +'px">'+
+                            (obj.handle.content
+                                ? '<div class="w2ui-node-handle" style="width: '+ obj.handle.size +'px; '+ obj.handle.style + '">'+
+                                       obj.handle.content +
+                                  '</div>'
+                                : ''
+                            ) +
+                            '   <div class="w2ui-node-data" style="margin-left:'+ (level * obj.levelPadding + obj.handle.size) +'px">'+
                                     expand + tmp + counts +
                                     '<div class="w2ui-node-text w2ui-node-caption" style="'+ (nd.style || '') +'">'+ text +'</div>'+
                             '   </div>'+

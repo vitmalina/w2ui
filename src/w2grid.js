@@ -2340,8 +2340,13 @@
                             ? 'onmouseenter="jQuery(this).w2tag({ top: 4, html: \''+ msg +'\' })" onmouseleave="jQuery(this).w2tag()"'
                             : ''
                         ) +
-                        (w2utils.isIOS ? 'onTouchStart' : 'onClick') +'="w2ui[\''+ this.name +'\'].initAllField(\''+ search.field +'\');'+
-                        '      event.stopPropagation(); jQuery(\'#grid_'+ this.name +'_search_all\').w2overlay({ name: \''+ this.name +'-searchFields\' });">'+
+                        (w2utils.isIOS ? 'onTouchStart' : 'onClick') +'="event.stopPropagation(); '+
+                        '           w2ui[\''+ this.name +'\'].initAllField(\''+ search.field +'\');'+
+                        '           jQuery(\'#grid_'+ this.name +'_search_all\').w2overlay({ name: \''+ this.name +'-searchFields\' });"'+
+                        '           jQuery(this).addClass(\'w2ui-selected\');'+
+                        '      onmousedown="jQuery(this).parent().find(\'tr\').removeClass(\'w2ui-selected\'); jQuery(this).addClass(\'w2ui-selected\')" ' +
+                        '      onmouseup="jQuery(this).removeClass(\'w2ui-selected\')" ' +
+                        '   >'+
                         '   <td>'+
                         '       <span class="w2ui-column-check w2ui-icon-'+ (search.field == this.last.field ? 'check' : 'empty') +'"></span>'+
                         '   </td>'+

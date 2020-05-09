@@ -71,6 +71,7 @@
         padding: 2px 0px;
         .user-select;
         .w2ui-node {
+            position: relative;
             .linear-gradient-vertical(@sidebar-node-linear-gradient-start, @sidebar-node-linear-gradient-end);
             border: @sidebar-node-border;
             border-radius: 4px;
@@ -85,6 +86,14 @@
                 &:hover {
                     color: @sidebar-node-hover-color;
                 }
+            }
+
+            .w2ui-node-handle {
+                display: inline-block;
+                padding: 0px;
+                margin: 0px;
+                height: 100%;
+                position: absolute;
             }
 
             &:hover {
