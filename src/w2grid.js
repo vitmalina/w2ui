@@ -2543,7 +2543,7 @@
                 url      : url,
                 data     : edata.postData,
                 headers  : edata.httpHeaders,
-                dataType : 'text'  // expected data type from server
+                dataType : 'json'  // expected data type from server
             };
 
             var dataType = this.dataType || w2utils.settings.dataType
@@ -2580,7 +2580,7 @@
             this.last.loaded    = false;
             this.last.xhr = $.ajax(ajaxOptions)
                 .done(function (data, status, xhr) {
-                    obj.requestComplete(status, cmd, callBack);
+                    obj.requestComplete(status, xhr, cmd, callBack);
                 })
                 .fail(function (xhr, status, error) {
                     // trigger event
@@ -2590,12 +2590,12 @@
                     // default behavior
                     if (status != 'abort') { // it can be aborted by the grid itself
                         var data;
-                        try { data = $.parseJSON(xhr.responseText); } catch (e) {}
+                        try { data = typeof xhr.responseJSON === 'object' ? xhr.responseJSON : $.parseJSON(xhr.responseText); } catch (e) {}
                         console.log('ERROR: Server communication failed.',
                             '\n   EXPECTED:', { status: 'success', total: 5, records: [{ recid: 1, field: 'value' }] },
                             '\n         OR:', { status: 'error', message: 'error message' },
                             '\n   RECEIVED:', typeof data == 'object' ? data : xhr.responseText);
-                        obj.requestComplete('error', cmd, callBack);
+                        obj.requestComplete('error', xhr, cmd, callBack);
                     }
                     // event after
                     obj.trigger($.extend(edata2, { phase: 'after' }));
@@ -2606,7 +2606,7 @@
             }
         },
 
-        requestComplete: function(status, cmd, callBack) {
+        requestComplete: function(status, xhr, cmd, callBack) {
             var obj = this;
             this.unlock();
             setTimeout(function () {
@@ -2628,99 +2628,81 @@
             }
             // parse server response
             var data;
-            var responseText = this.last.xhr.responseText;
             if (status != 'error') {
                 // default action
-                if (responseText != null && responseText != '') {
-                    // check if the onLoad handler has not already parsed the data
-                    if (typeof responseText == "object") {
-                        data = responseText;
-                    } else {
-                        if (typeof obj.parser == 'function') {
-                            data = obj.parser(responseText);
-                            if (typeof data != 'object') {
-                                console.log('ERROR: Your parser did not return proper object');
-                            }
+                data = xhr.responseJSON;
+                if (data == null) {
+                    data = {
+                        status       : 'error',
+                        message      : w2utils.lang(this.msgNotJSON),
+                        responseText : xhr.responseText
+                    };
+                } else if (Array.isArray(data)) {
+                    // if it is plain array, assume these are records
+                    data = {
+                        status  : 'success',
+                        records : data,
+                        total   : data.length
+                    }
+                }
+                if (obj.recid && data.records) {
+                    // convert recids
+                    for (var i = 0; i < data.records.length; i++) {
+                        data.records[i]['recid'] = data.records[i][obj.recid];
+                    }
+                }
+                if (data['status'] == 'error') {
+                    obj.error(data['message']);
+                } else {
+                    if (cmd == 'get') {
+                        if (data.total == null) data.total = -1;
+                        if (data.records == null) {
+                            data.records = [];
+                        }
+                        if (data.records.length == this.limit) {
+                            this.last.xhr_hasMore = true;
                         } else {
-                            // $.parseJSON or $.getJSON did not work because those expect perfect JSON data - where everything is in double quotes
-                            //
-                            // TODO: avoid (potentially malicious) code injection from the response.
-                            try { eval('data = '+ responseText); } catch (e) { }
+                            this.last.xhr_hasMore = false;
+                            this.total = this.offset + this.last.xhr_offset + data.records.length;
+                        }
+                        if (this.last.xhr_offset === 0) {
+                            this.records = [];
+                            this.summary = [];
+                            if (w2utils.isInt(data.total)) this.total = parseInt(data.total);
+                        } else {
+                            if (data.total != -1 && parseInt(data.total) != parseInt(this.total)) {
+                                this.message(w2utils.lang(this.msgNeedReload), function () {
+                                    delete this.last.xhr_offset;
+                                    this.reload();
+                                }.bind(this));
+                                return;
+                            }
+                        }
+                        // records
+                        if (data.records) {
+                            for (var r = 0; r < data.records.length; r++) {
+                                this.records.push(data.records[r]);
+                            }
+                        }
+                        // summary records (if any)
+                        if (data.summary) {
+                            this.summary = [];
+                            for (var r = 0; r < data.summary.length; r++) {
+                                this.summary.push(data.summary[r]);
+                            }
                         }
                     }
-                    if (data == null) {
-                        data = {
-                            status       : 'error',
-                            message      : w2utils.lang(this.msgNotJSON),
-                            responseText : responseText
-                        };
-                    } else if (Array.isArray(data)) {
-                        // if it is plain array, assume these are records
-                        data = {
-                            status  : 'success',
-                            records : data,
-                            total   : data.length
-                        }
-                    }
-                    if (obj.recid && data.records) {
-                        // convert recids
-                        for (var i = 0; i < data.records.length; i++) {
-                            data.records[i].recid = data.records[i][obj.recid];
-                        }
-                    }
-                    if (data['status'] == 'error') {
-                        obj.error(data['message']);
-                    } else {
-                        if (cmd == 'get') {
-                            if (data.total == null) data.total = -1;
-                            if (data.records == null) {
-                                data.records = [];
-                            }
-                            if (data.records.length == this.limit) {
-                                this.last.xhr_hasMore = true;
-                            } else {
-                                this.last.xhr_hasMore = false;
-                                this.total = this.offset + this.last.xhr_offset + data.records.length;
-                            }
-                            if (this.last.xhr_offset === 0) {
-                                this.records = [];
-                                this.summary = [];
-                                if (w2utils.isInt(data.total)) this.total = parseInt(data.total);
-                            } else {
-                                if (data.total != -1 && parseInt(data.total) != parseInt(this.total)) {
-                                    this.message(w2utils.lang(this.msgNeedReload), function () {
-                                        delete this.last.xhr_offset;
-                                        this.reload();
-                                    }.bind(this));
-                                    return;
-                                }
-                            }
-                            // records
-                            if (data.records) {
-                                for (var r = 0; r < data.records.length; r++) {
-                                    this.records.push(data.records[r]);
-                                }
-                            }
-                            // summary records (if any)
-                            if (data.summary) {
-                                this.summary = [];
-                                for (var r = 0; r < data.summary.length; r++) {
-                                    this.summary.push(data.summary[r]);
-                                }
-                            }
-                        }
-                        if (cmd == 'delete') {
-                            this.reset(); // unselect old selections
-                            this.reload();
-                            return;
-                        }
+                    if (cmd == 'delete') {
+                        this.reset(); // unselect old selections
+                        this.reload();
+                        return;
                     }
                 }
             } else {
                 data = {
                     status       : 'error',
                     message      : w2utils.lang(this.msgAJAXerror),
-                    responseText : responseText
+                    responseText : xhr.responseText
                 };
                 obj.error(w2utils.lang(this.msgAJAXerror));
             }

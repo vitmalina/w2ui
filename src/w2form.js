@@ -617,7 +617,7 @@
                 url      : url,
                 data     : edata.postData,
                 headers  : edata.httpHeaders,
-                dataType : 'text'   // expected from server
+                dataType : 'json'   // expected from server
             }
             var dataType = obj.dataType || w2utils.settings.dataType;
             if (edata.dataType) dataType = edata.dataType;
@@ -649,27 +649,12 @@
                 .done(function (data, status, xhr) {
                     obj.unlock();
                     // prepare record
-                    var data;
-                    var responseText = xhr.responseText;
-                    if (status !== 'error') {
-                        // default action
-                        if (responseText != null && responseText !== '') {
-                            // check if the onLoad handler has not already parsed the data
-                            if (typeof responseText === "object") {
-                                data = responseText;
-                            } else {
-                                // $.parseJSON or $.getJSON did not work because those expect perfect JSON data - where everything is in double quotes
-                                //
-                                // TODO: avoid (potentially malicious) code injection from the response.
-                                try { eval('data = '+ responseText); } catch (e) { }
-                            }
-                            if (data == null) {
-                                data = {
-                                    status       : 'error',
-                                    message      : w2utils.lang(obj.msgNotJSON),
-                                    responseText : responseText
-                                }
-                            }
+                    var data = xhr.responseJSON;
+                    if (data == null) {
+                        data = {
+                             status       : 'error',
+                             message      : w2utils.lang(obj.msgNotJSON),
+                             responseText : xhr.responseText
                         }
                     }
                     // event before
@@ -679,20 +664,10 @@
                         return;
                     }
                     // parse server response
-                    if (status !== 'error') {
-                        // default action
-                        if (edata.data.status === 'error') {
-                            obj.error(w2utils.lang(edata.data['message']));
-                        } else {
-                            obj.record = $.extend({}, edata.data.record);
-                        }
+                    if (edata.data.status === 'error') {
+                        obj.error(w2utils.lang(edata.data['message']));
                     } else {
-                        obj.error('AJAX Error ' + xhr.status + ': '+ xhr.statusText);
-                        edata.data = {
-                            status       : 'error',
-                            message      : w2utils.lang(obj.msgAJAXerror),
-                            responseText : responseText
-                        };
+                        obj.record = $.extend({}, edata.data.record);
                     }
                     // event after
                     obj.trigger($.extend(edata, { phase: 'after' }));
@@ -709,7 +684,7 @@
                     // default behavior
                     if (status !== 'abort') {
                         var data;
-                        try { data = $.parseJSON(xhr.responseText); } catch (e) {}
+                        try { data = typeof xhr.responseJSON === 'object' ? xhr.responseJSON : $.parseJSON(xhr.responseText); } catch (e) {}
                         console.log('ERROR: Server communication failed.',
                             '\n   EXPECTED:', { status: 'success', items: [{ id: 1, text: 'item' }] },
                             '\n         OR:', { status: 'error', message: 'error message' },
@@ -788,7 +763,7 @@
                     url      : url,
                     data     : edata.postData,
                     headers  : edata.httpHeaders,
-                    dataType : 'text',   // expected from server
+                    dataType : 'json',   // expected from server
                     xhr : function() {
                         var xhr = new window.XMLHttpRequest();
                         // upload
@@ -871,40 +846,19 @@
                         var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'save', xhr: xhr, status: status, data: data });
                         if (edata.isCancelled === true) return;
                         // parse server response
-                        var data;
-                        var responseText = xhr.responseText;
-                        if (status !== 'error') {
-                            // default action
-                            if (responseText != null && responseText !== '') {
-                                // check if the onLoad handler has not already parsed the data
-                                if (typeof responseText === 'object') {
-                                    data = responseText;
-                                } else {
-                                    // $.parseJSON or $.getJSON did not work because those expect perfect JSON data - where everything is in double quotes
-                                    //
-                                    // TODO: avoid (potentially malicious) code injection from the response.
-                                    try { eval('data = '+ responseText); } catch (e) { }
-                                }
-                                if (data == null) {
-                                    data = {
-                                        status       : 'error',
-                                        message      : w2utils.lang(obj.msgNotJSON),
-                                        responseText : responseText
-                                    };
-                                }
-                                if (data.status === 'error') {
-                                    obj.error(w2utils.lang(data.message));
-                                } else {
-                                    obj.original = null;
-                                }
-                            }
-                        } else {
-                            obj.error('AJAX Error ' + xhr.status + ': '+ xhr.statusText);
+                        var data = xhr.responseJSON;
+                        // default action
+                        if (data == null) {
                             data = {
                                 status       : 'error',
-                                message      : w2utils.lang(obj.msgAJAXerror),
-                                responseText : responseText
+                                message      : w2utils.lang(obj.msgNotJSON),
+                                responseText : xhr.responseText
                             };
+                        }
+                        if (data.status === 'error') {
+                            obj.error(w2utils.lang(data.message));
+                        } else {
+                            obj.original = null;
                         }
                         // event after
                         obj.trigger($.extend(edata, { phase: 'after' }));
