@@ -215,6 +215,8 @@
                             div1.remove();
                             div2.removeClass('new-panel');
                             div2.css('overflow', p.overflow);
+                            // make sure only one content left
+                            $(pname + '> .w2ui-panel-content').slice(1).remove()
                             // IE Hack
                             obj.resize();
                             if (window.navigator.userAgent.indexOf('MSIE') != -1) setTimeout(function () { obj.resize(); }, 100);
@@ -273,14 +275,14 @@
             var obj = this;
             if (panel == 'css') {
                 $.get(url, function (data, status, xhr) { // should always be $.get as it is template
-                    obj.content(panel, xhr.responseText);
+                    obj.html(panel, xhr.responseText);
                     if (onLoad) onLoad();
                 });
                 return true;
             }
             if (this.get(panel) != null) {
                 $.get(url, function (data, status, xhr) { // should always be $.get as it is template
-                    obj.content(panel, xhr.responseText, transition);
+                    obj.html(panel, xhr.responseText, transition);
                     if (onLoad) onLoad();
                     // IE Hack
                     obj.resize();
@@ -436,6 +438,7 @@
                 } else if (pan.toolbar != null) {
                     pan.toolbar.refresh();
                 }
+                toolbar.owner = this;
                 this.showToolbar(panel);
                 this.refresh(panel);
             } else {

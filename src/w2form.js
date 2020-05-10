@@ -43,7 +43,10 @@
 *   - added form.pageStyle
 *   - added html.span -1 - then label is displayed on top
 *   - added field.options.minLength, min/max for numebrs can be done with int/float - min/max
-*    field.html.groupCollapsable, form.toggleGroup
+*   - field.html.groupCollapsable, form.toggleGroup
+*   - added showErrors
+*   - added field.type = 'check'
+*   - new field type 'map', 'array' - same thing but map has unique keys also html: { key: { text: '111', attr: '222' }, value: {...}}
 *
 ************************************************************************/
 
@@ -82,11 +85,12 @@
         // internal
         this.isGenerated = false;
         this.last = {
-            xhr: null        // jquery xhr requests
-        };
+            xhr: null,        // jquery xhr requests
+            errors: []
+        }
 
         $.extend(true, this, w2obj.form, options);
-    };
+    }
 
     // ====================================================
     // -- Registers as a jQuery plugin
@@ -455,7 +459,7 @@
                 }
                 // === check required - if field is '0' it should be considered not empty
                 var val = this.getValue(field.field);
-                if (field.required && field.hidden !== true
+                if (field.required && field.hidden !== true && ['div', 'custom', 'html', 'empty'].indexOf(field.type) == -1
                         && (val === '' || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val)))) {
                     errors.push({ field: field, error: w2utils.lang('Required field') });
                 }
@@ -469,10 +473,24 @@
             var edata = this.trigger({ phase: 'before', target: this.name, type: 'validate', errors: errors });
             if (edata.isCancelled === true) return;
             // show error
-            if (showErrors) {
-                for (var e = 0; e < edata.errors.length; e++) {
-                    var err = edata.errors[e];
-                    var opt = $.extend({ "class": 'w2ui-error' }, err.options);
+            this.last.errors = errors
+            if (showErrors) this.showErrors()
+            // event after
+            this.trigger($.extend(edata, { phase: 'after' }));
+            return errors;
+        },
+
+        showErrors: function () {
+            var errors = this.last.errors
+            if (errors.length > 0) {
+                var err = errors[0];
+                // scroll into view
+                this.goto(errors[0].field.page)
+                $(err.field.$el).parents('.w2ui-field')[0].scrollIntoView(true)
+                // show errors
+                for (var i = 0; i < errors.length; i++) {
+                    err = errors[i];
+                    var opt = $.extend({ "class": 'w2ui-error', hideOnFocus: true }, err.options);
                     if (err.field == null) continue;
                     if (err.field.type === 'radio') { // for radio and checkboxes
                         $($(err.field.el).closest('div')[0]).w2tag(err.error, opt);
@@ -480,19 +498,26 @@
                         (function (err) {
                             setTimeout(function () {
                                 var fld = $(err.field.el).data('w2field').helpers.multi;
-                                $(err.field.el).w2tag(err.error,err.options);
+                                $(err.field.el).w2tag(err.error, err.options);
                                 $(fld).addClass('w2ui-error');
                             }, 1);
                         })(err);
                     } else {
                         $(err.field.el).w2tag(err.error, opt);
                     }
-                    this.goto(errors[0].field.page);
                 }
+                // hide errors on scroll
+                setTimeout(function () {
+                    var err = errors[0];
+                    $(err.field.$el).parents('.w2ui-page').off('.hideErrors').on('scroll.hideErrors', function (event) {
+                        for (var i = 0; i < errors.length; i++) {
+                            err = errors[i];
+                            $(err.field.el).w2tag()
+                        }
+                        $(err.field.$el).parents('.w2ui-page').off('.hideErrors')
+                    })
+                }, 300);
             }
-            // event after
-            this.trigger($.extend(edata, { phase: 'after' }));
-            return errors;
         },
 
         getChanges: function () {
@@ -506,7 +531,7 @@
                 for (var i in record) {
                     if (typeof record[i] === "object") {
                         result[i] = doDiff(record[i], original[i] || {}, {});
-                        if (!result[i] || $.isEmptyObject(result[i])) delete result[i];
+                        if (!result[i] || ($.isEmptyObject(result[i]) && $.isEmptyObject(original[i]))) delete result[i];
                     } else if (record[i] != original[i]) {
                         result[i] = record[i];
                     }
@@ -930,16 +955,12 @@
                     case 'password':
                         input = '<input id="' + field.field + '" name="' + field.field + '" class="w2ui-input" type = "password" ' + field.html.attr + tabindex_str + '>';
                         break;
-                    case 'checkbox':
-                        input = '<label>'+
-                                '   <input id="'+ field.field +'" name="'+ field.field +'" style="float: left" class="w2ui-input" type="checkbox" '+ field.html.attr + tabindex_str + '>'+
-                                '   <div style="margin: 6px 0 0 20px; user-select: none;">'+ field.html.label +'</div>'+
-                                '</label>';
-                        break;
-                    case 'radio':
+                    case 'check':
+                    case 'checks':
+                        if (field.options.items == null && field.html.items != null) field.options.items = field.html.items;
+                        var items = field.options.items;
                         input = '';
                         // normalized options
-                        var items =  field.options.items ? field.options.items : field.html.items;
                         if (!$.isArray(items)) items = [];
                         if (items.length > 0) {
                             items = w2obj.field.prototype.normMenu.call(this, items, field);
@@ -947,7 +968,33 @@
                         // generate
                         for (var i = 0; i < items.length; i++) {
                             input += '<label style="user-select: none">'+
-                                     '  <input id="' + field.field + '" name="' + field.field + '" class="w2ui-input" type = "radio" ' + field.html.attr + (i === 0 ? tabindex_str : '') + ' value="'+ items[i].id + '">' +
+                                     '  <input id="' + field.field + i +'" name="' + field.field + '" class="w2ui-input" type="checkbox" ' +
+                                                field.html.attr + (i === 0 ? tabindex_str : '') + ' data-value="'+ items[i].id +'" data-index="'+ i +'">' +
+                                        '&#160;' + items[i].text +
+                                     '</label><br>';
+                        }
+                        break;
+
+                    case 'checkbox':
+                        input = '<label>'+
+                                '   <input id="'+ field.field +'" name="'+ field.field +'" style="float: left" class="w2ui-input" type="checkbox" '+ field.html.attr + tabindex_str + '>'+
+                                '   <div style="margin: 6px 0 0 20px; user-select: none;">'+ field.html.label +'</div>'+
+                                '</label>' + field.html.text;
+                        break;
+                    case 'radio':
+                        input = '';
+                        // normalized options
+                        if (field.options.items == null && field.html.items != null) field.options.items = field.html.items;
+                        var items = field.options.items;
+                        if (!$.isArray(items)) items = [];
+                        if (items.length > 0) {
+                            items = w2obj.field.prototype.normMenu.call(this, items, field);
+                        }
+                        // generate
+                        for (var i = 0; i < items.length; i++) {
+                            input += '<label style="user-select: none">'+
+                                     '  <input id="' + field.field + i + '" name="' + field.field + '" class="w2ui-input" type = "radio" ' +
+                                            field.html.attr + (i === 0 ? tabindex_str : '') + ' value="'+ items[i].id + '">' +
                                         '&#160;' + items[i].text +
                                      '</label><br>';
                         }
@@ -955,7 +1002,8 @@
                     case 'select':
                         input = '<select id="' + field.field + '" name="' + field.field + '" class="w2ui-input" ' + field.html.attr + tabindex_str + '>';
                         // normalized options
-                        var items =  field.options.items ? field.options.items : field.html.items;
+                        if (field.options.items == null && field.html.items != null) field.options.items = field.html.items;
+                        var items = field.options.items;
                         if (!$.isArray(items)) items = [];
                         if (items.length > 0) {
                             items = w2obj.field.prototype.normMenu.call(this, items, field);
@@ -976,14 +1024,20 @@
                     case 'array':
                         field.html.key = field.html.key || {};
                         field.html.value = field.html.value || {};
+                        field.html.tabindex_str = tabindex_str
                         input = '<span style="float: right">' + (field.html.text || '') + '</span>' +
                                 '<input id="'+ field.field +'" name="'+ field.field +'" type="hidden" '+ field.html.attr + tabindex_str + '>'+
                                 '<div class="w2ui-map-container"></div>';
                         break;
                     case 'html':
+                    case 'div':
                     case 'custom':
+                        input = '<div id="'+ field.field +'" name="'+ field.field +'" '+ field.html.attr + tabindex_str + '>'+
+                                    (field && field.html && field.html.html ? field.html.html : '') +
+                                '</div>';
+                        break;
                     case 'empty':
-                        input = (field && field.html && field.html.html ? field.html.html : '');
+                        input = (field && field.html ? (field.html.html || '') + (field.html.text || '') : '');
                         break;
 
                 }
@@ -1010,16 +1064,18 @@
                     group = field.html.group;
                 }
                 if (field.html.anchor == null) {
-                    var span = (field.html.span != null ? 'w2ui-span'+ field.html.span : '')
+                    var span  = (field.html.span != null ? 'w2ui-span'+ field.html.span : '')
                     if (field.html.span == -1) span = 'w2ui-span-none';
+                    var label = '<label'+ (span == 'none' ? ' style="display: none"' : '') +'>' + w2utils.lang(field.type != 'checkbox' ? field.html.label : '') +'</label>'
+                    if (!field.html.label) label = ''
                     html += '\n      <div class="w2ui-field '+ span +'" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style  +'">'+
-                            '\n         <label'+ (span == 'none' ? ' style="display: none"' : '') +'>' + w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text) +'</label>'+
-                            ((field.type === 'empty') ? '' : '\n         <div>'+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '') : '') + '</div>') +
+                            '\n         '+ label +
+                            ((field.type === 'empty') ? input : '\n         <div>'+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '') : '') + '</div>') +
                             '\n      </div>';
                 } else {
                     pages[field.html.page].anchors = pages[field.html.page].anchors || {};
                     pages[field.html.page].anchors[field.html.anchor] = '<div class="w2ui-field w2ui-field-inline" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
-                            ((field.type === 'empty') ? '' : '<div>'+ w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text) + input + w2utils.lang(field.type != 'checkbox' ? field.html.text : '') + '</div>') +
+                            ((field.type === 'empty') ? input : '<div>'+ w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text) + input + w2utils.lang(field.type != 'checkbox' ? field.html.text : '') + '</div>') +
                             '</div>';
                 }
                 if (pages[field.html.page] == null) pages[field.html.page] = {};
@@ -1111,7 +1167,7 @@
             var click = act;
             if ($.isPlainObject(act) && act.onClick) click = act.onClick;
             // event before
-            var edata = this.trigger({ phase: 'before', target: action, type: 'action', click: click, originalEvent: event });
+            var edata = this.trigger({ phase: 'before', target: action, type: 'action', action: act, originalEvent: event });
             if (edata.isCancelled === true) return;
             // default actions
             if (typeof click === 'function') click.call(this, event);
@@ -1232,9 +1288,13 @@
                 $(field.$el)
                     .off('.w2form')
                     .on('change.w2form', function (event) {
+                        var field = obj.get(this.name);
+                        if (field == null) return;
+
                         var value_new      = this.value;
-                        var value_previous = obj.getValue(this.name) != null ? obj.getValue(this.name) : '';
-                        var field          = obj.get(this.name);
+                        var value_previous = obj.getValue(this.name);
+                        if (value_previous == null) value_previous = ''
+
                         if (['list', 'enum', 'file'].indexOf(field.type) !== -1 && $(this).data('selected')) {
                             var nv = $(this).data('selected');
                             var cv = obj.getValue(this.name);
@@ -1256,6 +1316,16 @@
                         if (['toggle', 'checkbox'].indexOf(field.type) !== -1) {
                             value_new = ($(this).prop('checked') ? ($(this).prop('value') === 'on' ? true : $(this).prop('value')) : false);
                         }
+                        if (['check', 'checks'].indexOf(field.type) !== -1) {
+                            if (!Array.isArray(value_previous)) value_previous = [];
+                            value_new = value_previous.slice();
+                            var tmp = field.options.items[$(this).attr('data-index')];
+                            if ($(this).prop('checked')) {
+                                value_new.push(tmp.id)
+                            } else {
+                                value_new.splice(value_new.indexOf(tmp.id), 1)
+                            }
+                        }
                         // clean extra chars
                         if (['int', 'float', 'percent', 'money', 'currency'].indexOf(field.type) !== -1) {
                             value_new = $(this).data('w2field').clean(value_new);
@@ -1268,24 +1338,15 @@
                             return;
                         }
                         // default action
-                        var val = this.value;
-                        if (this.type === 'select')   val = this.value;
-                        if (this.type === 'checkbox') val = this.checked ? true : false;
-                        if (this.type === 'radio') {
-                            field.$el.each(function (index, el) {
-                                if (el.checked) val = el.value;
-                            });
-                        }
-                        if (['int', 'float', 'percent', 'money', 'currency', 'list', 'combo', 'enum', 'file', 'toggle'].indexOf(field.type) !== -1) {
-                            val = value_new;
-                        }
+                        var val = edata2.value_new;
                         if (['enum', 'file'].indexOf(field.type) !== -1) {
                             if (val.length > 0) {
                                 var fld = $(field.el).data('w2field').helpers.multi;
                                 $(fld).removeClass('w2ui-error');
                             }
                         }
-                        if (val === '' || val == null || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) {
+                        if (val === '' || val == null
+                                || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) {
                             val = null;
                         }
                         obj.setValue(this.name, val);
@@ -1394,6 +1455,30 @@
                         $(field.el).prop('checked', (value ? true : false));
                         this.setValue(field.name, (value ? value : false));
                         break;
+                    case 'radio':
+                        $(field.$el).prop('checked', false).each(function (index, el) {
+                            if ($(el).val() == value) $(el).prop('checked', true);
+                        });
+                        break;
+                    case 'checkbox':
+                        $(field.el).prop('checked', value ? true : false);
+                        if (field.disabled === true || field.disabled === false) {
+                            $(field.el).prop('disabled', field.disabled ? true : false)
+                        }
+                        break;
+                    case 'check':
+                    case 'checks':
+                        if (Array.isArray(value)) {
+                            value.forEach(function (val) {
+                                $(field.el).closest('div').find('[data-value="' + val + '"]').prop('checked', true)
+                            })
+                        }
+                        if (field.disabled) {
+                            $(field.el).closest('div').find('input[type=checkbox]').prop('disabled', true)
+                        } else {
+                            $(field.el).closest('div').find('input[type=checkbox]').removeProp('disabled')
+                        }
+                        break;
                     // enums
                     case 'list':
                     case 'combo':
@@ -1402,11 +1487,12 @@
                             // normalized options
                             if (!field.options.items) field.options.items = [];
                             var items = field.options.items;
+                            if (typeof items == 'function') items = items();
                             // find value from items
                             var isFound = false;
-                            if (Array.isArray(field.options.items)) {
-                                for (var i = 0; i < field.options.items.length; i++) {
-                                    var item = field.options.items[i];
+                            if (Array.isArray(items)) {
+                                for (var i = 0; i < items.length; i++) {
+                                    var item = items[i];
                                     if (item.id == tmp_value) {
                                         value = $.extend(true, {}, item);
                                         obj.setValue(field.name, value);
@@ -1487,7 +1573,7 @@
                         // need closure
                         (function (obj, field) {
                             field.el.mapAdd = function (field, div, cnt) {
-                                var attr = (field.disabled ? ' readOnly ' : '');
+                                var attr = (field.disabled ? ' readOnly ' : '') + (field.html.tabindex_str || '');
                                 var html =  '<div class="w2ui-map-field" style="margin-bottom: 5px">'+
                                     '<input id="'+ field.field +'_key_'+ cnt +'" data-cnt="'+ cnt +'" type="text" '+ field.html.key.attr + attr +' class="w2ui-input w2ui-map key">'+
                                         (field.html.key.text || '') +
@@ -1627,19 +1713,11 @@
                             field.el.mapRefresh(value, $(field.el).parent().find('.w2ui-map-container'))
                         })(this, field)
                         break;
-                    case 'radio':
-                        $(field.$el).prop('checked', false).each(function (index, el) {
-                            if ($(el).val() == value) $(el).prop('checked', true);
-                        });
-                        break;
-                    case 'checkbox':
-                        $(field.el).prop('checked', value ? true : false);
-                        if (field.disabled === true || field.disabled === false) {
-                            $(field.el).prop('disabled', field.disabled ? true : false)
-                        }
+                    case 'div':
+                    case 'custom':
+                        $(field.el).html(value)
                         break;
                     case 'html':
-                    case 'custom':
                     case 'empty':
                         break;
                     default:

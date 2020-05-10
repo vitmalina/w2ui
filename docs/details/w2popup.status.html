@@ -1,10 +1,10 @@
-State of the popup. 
+State of the popup.
 
 <div class="definition">
     String, default 'closed'
 </div>
 
-The best way to find out if popup is opened (and since only one popup can be opened at any particular time), to use jQuery to 
+The best way to find out if popup is opened (and since only one popup can be opened at any particular time), to use jQuery to
 find popup div and check if it exists:
 <textarea class="javascript">
 if ($('#w2ui-popup').length > 0) {
@@ -12,7 +12,7 @@ if ($('#w2ui-popup').length > 0) {
 }
 </textarea>
 
-You can also find out what is the state of the popup if you read <span class="argument">status</span> property, which will provide you
+You can also find out what the state of the popup is if you access the <span class="argument">status</span> property. This will provide you
 with more information about popup states, such as open, closed, resizing, etc. Status can be one of the following:
 <ul>
     <li>opening</li>
@@ -23,17 +23,17 @@ with more information about popup states, such as open, closed, resizing, etc. S
     <li>moving</li>
 </ul>
 
-Use example below to find out how states are transition:
+Use this example below to find out how states are transitioned:
 <textarea class="javascript">
-$('body').append('<div id="status"></div>'); 
-setInterval(function () { 
-    $('#status').html(w2popup.status); 
+$('body').append('<div id="status"></div>');
+setInterval(function () {
+    $('#status').html(w2popup.status);
 }, 1);
 
-w2popup.open({ 
-    title: 'Text', 
-    body: 'Move me, then resize, and close', 
-    showMax: true, 
-    showClose: true 
+w2popup.open({
+    title: 'Text',
+    body: 'Move me, then resize, and close',
+    showMax: true,
+    showClose: true
 });
 </textarea>

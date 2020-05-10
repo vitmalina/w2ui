@@ -19,33 +19,79 @@
                 {
                                 type: 'menu-radio', id: 'menu-stato',
                                 text: function (item) {
-                                    return 'Stato: ' + item.selected;
+                                    return 'Status: ' + item.get(item.selected).text;
                                 },
                                 selected: 'ALL',
                                 items: [
-                                    { id: 'ALL', text: 'Tutti gli stati' },
-                                    { id: 'NEW', text: 'Nuovo' },
+                                    { id: 'ALL', text: 'All Statuses' },
+                                    { id: 'NEW', text: 'New' },
                                     { id: 'WIP', text: 'Work in progress' },
-                                    { id: 'LAV', text: 'Lavorato' }
+                                    { id: 'LAV', text: 'Working on it' }
                                 ]
                             },
                 { type: 'check', id: 'item1.1', text: 'Check', img: 'icon-page', tooltip: function () { return (new Date()).getTime(); },
                     checked: true, route: '/project' },
-                { type: 'drop',  id: 'item12', img: 'icon-page', icon: 'fa fa-star', tooltip: 'Drop button',  html: 'so', route: '/project/:id/go', count: 4 },
+                { type: 'drop',  id: 'item12', img: 'icon-page', icon: 'fa fa-star', tooltip: 'Drop button',
+                    html: '<div style="padding: 10px">Some html text</div>', route: '/project/:id/go', count: 4 },
                 { type: 'break', id: 'break0' },
                 { type: 'menu',  id: 'item2', text: 'Drop Down', img: 'icon-folder', icon: 'fa fa-camera', tooltip: 'Menu button',
-                    items: function(el) {
-                        console.log('Element', el)
-                        console.log(this)
+                    items0: function(el) {
                         return [
                             { id: 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
                             { id: 'item2', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) }
                         ]
                     },
-                    items1: [
+                    items2: [
                         { text: 'Item 1', img: 'icon-page', route: '/project/:id/item1', tooltip: 'some' },
                         { text: 'Item 2', img: 'icon-page', route: '/project/:id/item2', disabled: true },
                         { text: 'Item 3', value: 'Item Three', img: 'icon-page', route: '/project/:id/item2' }
+                    ],
+                    items: [
+                        { id: '1', text: 'Item 1', img: 'icon-page', tooltip: 'some' },
+                        { id: '2', text: 'Item 2', img: 'icon-page', disabled: true },
+                        { id: '3', text: '--divider' },
+                        { id: '4', img: 'icon-folder', text: 'item 1', expanded: true,
+                            items: (el) => {
+                                return [
+                                    { id: el.id + 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100), keepOpen: true },
+                                    { id: el.id + 'item2', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) }
+                                ]
+                            },
+                            items1: [
+                                { id: '4-1', icon: 'fa fa-star', text: 'item 4-1', group: 1, keepOpen: true },
+                                { id: '4-2', icon: 'fa fa-star', text: 'item 4-2', group: 1, keepOpen: true },
+                                { id: '4-3', icon: 'fa fa-star', text: 'item 4-3', group: 1, keepOpen: true }
+                            ]
+                        },
+                        { id: '5a', img: 'icon-folder', text: 'item 2a',
+                            items: [
+                                { id: '5a-1', icon: 'fa fa-user', text: 'item 1', keepOpen: true },
+                                { id: '5a-2', icon: 'fa fa-star-o', text: 'Medium long', keepOpen: true },
+                                { id: '5a-3', icon: 'fa fa-star', text: 'no icon' },
+                                { id: '5a-3', icon: 'fa fa-star-o',text: 'Some items' },
+                                { id: '5a-4', icon: 'fa fa-user', text: 'Font <i>item</i> with' },
+                                { id: '5a-5', icon: 'fa fa-link', text: 'item 5' },
+                                { id: '5a-3', icon: 'fa fa-star', text: 'item 6' }
+                            ]
+                        },
+                        { id: '5', img: 'icon-folder', text: 'item 2',
+                            items: [
+                                { id: '5-1', icon: 'fa fa-user', text: 'item 1' },
+                                { id: '5-2', icon: 'fa fa-star-o', text: 'Medium long' },
+                                { id: '5-3', text: 'no icon' },
+                                { id: '5-3', text: '5- 3', disabled: true },
+                                { id: '5-4', icon: 'fa fa-user', text: 'item 4' },
+                                { text: '--' },
+                                { id: '5-5', icon: 'fa fa-link', text: 'item 5' },
+                                { id: '5-3', icon: 'fa fa-star', text: 'item 6' }
+                            ]
+                        },
+                        { id: '6', img: 'icon-folder', text: 'no items',
+                            items: []
+                        },
+                        { id: '7', text: 'Item 7', img: 'icon-page', tooltip: 'some' },
+                        { id: '8', text: 'Item 8', img: 'icon-page', disabled: true },
+                        { id: '9', text: 'Item 9', img: 'icon-page', tooltip: 'some' },
                     ]
                 },
                 { type: 'menu',   id: 'item.2a@', img: 'icon-folder', icon: 'fa fa-heart', tooltip: 'This is some long tooltip',
@@ -58,31 +104,36 @@
                     ], overlay: { top1: 10 }
                 },
                 { type: 'menu-check', id: 'menucheck', text: 'Menu: Check',
-                    items: [
+                    items: () => [
                         { id: 'item1', text: 'Item 1.1', count: 3, icon: 'fa fa-heart' },
                         { id: 'item2', text: 'Item 1.2', icon: 'fa fa-user', count: 12, checked: true },
                         { id: 'item3', text: 'Item 1.3', icon: 'fa fa-star-o', hotkey: '⌘S' },
-                        { text: '--' },
+                        { text: '--Group Name' },
                         { id: 'item4', text: 'Item 2.1', group: '2', icon: 'fa fa-link' },
                         { id: 'item5', text: 'Item 2.2', group: '2', icon: 'fa fa-link' },
-                        { id: 'item6', text: 'Item 2.3', group: '2', icon: 'fa fa-link' }
+                        { id: 'item6', text: 'Item 2.3', group: '2', icon: 'fa fa-link' },
+                        { text: '--' },
+                        { id: 'item6', text: 'Link', group: false, icon: 'fa fa-link' }
                     ],
                 },
                 { type: 'menu-radio', id: 'menu.radio', text: 'Menu: Radio',
-                    items: [
+                    items: () => [
                         { id: 'item1', text: 'First Item', count: 3, icon: 'fa fa-heart' },
                         { text: '--' },
-                        { id: 'item2', text: 'Item 2', icon: 'fa fa-user', count: 12, checked: true },
-                        { id: 'item3', text: 'Item 3', icon: 'fa fa-star-o', checked: true },
+                        { id: 'item2', text: 'Item 2', icon: 'fa fa-user', count: 12 },
+                        { id: 'item3', text: 'Item 3', icon: 'fa fa-star-o' },
+                        { text: '--Group' },
+                        { id: 'item4', text: 'Item 4', icon: 'fa fa-link', hotkey: 'L', remove: true },
+                        { id: 'item1a', text: 'First Item', count: 3, icon: 'fa fa-heart', remove: true },
+                        { text: '-- more' },
+                        { id: 'item2a', text: 'Item 2', icon: 'fa fa-user', count: 12 },
+                        { id: 'item3a', text: 'Item 3', icon: 'fa fa-star-o' },
                         { text: '--' },
-                        { id: 'item4', text: 'Item 4', icon: 'fa fa-link', hotkey: '⌘L' },
-                        { id: 'item1a', text: 'First Item', count: 3, icon: 'fa fa-heart' },
-                        { text: '--' },
-                        { id: 'item2a', text: 'Item 2', icon: 'fa fa-user', count: 12, checked: true },
-                        { id: 'item3a', text: 'Item 3', icon: 'fa fa-star-o', checked: true },
-                        { text: '--' },
-                        { id: 'item4a', text: 'Item 4', icon: 'fa fa-link', hotkey: '⌘L' }
+                        { id: 'item4a', text: 'Item 4', icon: 'fa fa-link', count: 'k', remove: false }
                     ],
+                    overlay: {
+                        hideOnRemove: true,
+                    }
                 },
                 { type: 'break', id: 'break1' },
                 { type: 'radio',  id: 'item3',  group: '1', text: 'Radio 1', icon: 'fa fa-user', img1: 'icon-add', checked: true,
@@ -121,7 +172,9 @@
                 },
 
             ],
-            // onClick: function (event) { console.log(event); }
+            onClick: function (event) {
+                console.log(event, this.get(event.target))
+            }
         });
     });
 

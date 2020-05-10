@@ -336,6 +336,7 @@ test( "w2utils.isDate()", function() {
     ok( w2utils.isDate('30 Feb, 2013', 'dd Mon, yyyy') === false, "'30 Feb, 2013', 'dd Mon, yyyy'");
     ok( w2utils.isDate('1 January, 2013', 'dd Month, yyyy') === true, "'1 January, 2013', 'dd Month, yyyy'");
     ok( w2utils.isDate('January 5, 2013', 'Month dd, yyyy') === true, "'January 5, 2013', 'Month dd, yyyy'");
+   	ok( w2utils.isDate('04/03/2019', 'dd/mm/yyyy', true).toString().startsWith("Mon Mar 04 2019") === true, "Mon Mar 04 2019");
 
     ok( w2utils.isDate(new Date()) === true, "current date");
 

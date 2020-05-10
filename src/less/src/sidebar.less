@@ -60,7 +60,7 @@
         right: 0px;
     }
 
-    .w2ui-sidebar-div {
+    .w2ui-sidebar-body {
         position: absolute;
         z-index: 1;
         overflow: auto;
@@ -70,30 +70,30 @@
         right: 0px;
         padding: 2px 0px;
         .user-select;
-
-        table {
-            width: 100%;
-        }
-
         .w2ui-node {
+            position: relative;
             .linear-gradient-vertical(@sidebar-node-linear-gradient-start, @sidebar-node-linear-gradient-end);
-            border-top: @sidebar-node-border-top;
-            border-bottom: @sidebar-node-border-bottom;
-            margin: 0px;
+            border: @sidebar-node-border;
+            border-radius: 4px;
+            margin: 0px 3px;
             padding: 1px 0px;
-            table {
-                pointer-events: none; // all mouse events go to div
-            }
             .w2ui-node-text,
             .w2ui-node-image,
-            .w2ui-node-image > span,
-            td.w2ui-node-dots {
+            .w2ui-node-image > span {
                 color: @sidebar-node-color;
                 text-shadow: @sidebar-node-text-shadow;
                 pointer-events: none;
                 &:hover {
                     color: @sidebar-node-hover-color;
                 }
+            }
+
+            .w2ui-node-handle {
+                display: inline-block;
+                padding: 0px;
+                margin: 0px;
+                height: 100%;
+                position: absolute;
             }
 
             &:hover {
@@ -122,47 +122,40 @@
         .w2ui-selected:hover {
             position: relative;
             .linear-gradient-vertical(@sidebar-node-selected-linear-gradient-start, @sidebar-node-selected-linear-gradient-end);
-            border-top: @sidebar-node-selected-border-top;
-            border-bottom: @sidebar-node-selected-border-bottom;
+            border: @sidebar-node-selected-border;
 
             .w2ui-node-text,
             .w2ui-node-image,
-            .w2ui-node-image > span,
-            td.w2ui-node-dots {
+            .w2ui-node-image > span {
                 color: @sidebar-node-selected-color !important;
                 text-shadow: @sidebar-node-selected-text-shadow !important;
             }
         }
 
-        .w2ui-inactive {
-        }
-
         .w2ui-selected:before {
             content: "";
-            border: 1px dashed #eee;
-            border-radius: 3px;
+            border: 1px dashed transparent;
+            border-radius: 4px;
             position: absolute;
-            top: 2px;
-            bottom: 2px;
-            left: 2px;
-            right: 2px;
+            top: -1px;
+            bottom: -1px;
+            left: -1px;
+            right: -1px;
             pointer-events: none;
         }
 
-        .w2ui-selected.w2ui-inactive:before {
-            border: 1px dashed transparent !important;
+        &.w2ui-focus .w2ui-selected:before {
+            border: 1px solid #cccccc;
         }
 
         .w2ui-disabled,
         .w2ui-disabled:hover {
             background: transparent !important;
-            border-top: @sidebar-node-border-top;
-            border-bottom: @sidebar-node-border-bottom;
+            border: @sidebar-node-border;
 
             .w2ui-node-text,
             .w2ui-node-image,
-            .w2ui-node-image > span,
-            td.w2ui-node-dots {
+            .w2ui-node-image > span {
                 .opacity(0.4);
                 color: @sidebar-node-color !important;
                 text-shadow: @sidebar-node-text-shadow !important;
@@ -205,39 +198,8 @@
             overflow: hidden;
         }
 
-        // for flat sidebar
-        .w2ui-node-flat {
-            padding: 6px 0px;
-            text-align: center;
-            .w2ui-node-image {
-                text-align: center;
-                width: auto;
-                // for font-awesome icons
-                & > span {
-                    font-size: 16px;
-                    color: @sidebar-node-color;
-                    text-shadow: @sidebar-node-text-shadow;
-                }
-                &.w2ui-icon {
-                    width: 21px;
-                }
-            }
-        }
-
-        td.w2ui-node-dots {
-            width: 18px;
-            padding: 0px 0px 1px 7px;
-            text-align: center;
-
-            .w2ui-expand {
-                width: 16px;
-                margin-top: -3px;
-                pointer-events: auto;
-            }
-        }
-
-        td.w2ui-node-data {
-            padding: 1px 1px 3px 1px;
+        .w2ui-node-data {
+            padding: 2px;
 
             .w2ui-node-image {
                 padding: 3px 0px 0px 0px;
@@ -268,6 +230,62 @@
                 position: relative;
                 z-index: 2;
             }
+
+            .w2ui-collapsed,
+            .w2ui-expanded {
+                float: right;
+                width: auto;
+                height: 18px;
+                position: relative;
+                z-index: 2;
+                span {
+                    border-color: transparent;
+                    background-color: transparent;
+                    box-shadow: none;
+                    padding: 2px 5px;
+                    border-radius: 0px;
+                    &:after {
+                        content: "";
+                        position: absolute;
+                        border-left: 5px solid #808080;
+                        border-top: 5px solid transparent;
+                        border-bottom: 5px solid transparent;
+                        transform: rotateZ(-90deg);
+                        pointer-events: none;
+                        margin-left: -4px;
+                        margin-top: 7px;
+                    }
+                    &:hover {
+                        border-color: transparent;
+                        background-color: transparent;
+                    }
+                }
+            }
+
+            .w2ui-collapsed span:after {
+                transform: rotateZ(90deg);
+            }
          }
+
+        // for flat sidebar
+        .w2ui-node-flat {
+            display: block;
+            padding: 2px 0px;
+            text-align: center;
+            .w2ui-node-image {
+                float: none;
+                text-align: center;
+                width: auto;
+                padding: 1px 0px;
+                & > span {
+                    font-size: 16px;
+                    color: @sidebar-node-color;
+                    text-shadow: @sidebar-node-text-shadow;
+                }
+                &.w2ui-icon {
+                    width: 21px;
+                }
+            }
+        }
      }
 }

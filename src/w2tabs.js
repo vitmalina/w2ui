@@ -284,7 +284,7 @@
                 var jq_el    = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id));
                 var closable = '';
                 if (tab.closable && !tab.disabled) {
-                    closable = '<div class="w2ui-tab-close" '+
+                    closable = '<div class="w2ui-tab-close'+ (this.active === tab.id ? ' active' : '') + '"'+
                                '    onmouseover = "w2ui[\''+ this.name +'\'].tooltipShow(\''+ tab.id +'\', event);"'+
                                '    onmouseout  = "w2ui[\''+ this.name +'\'].tooltipHide(\''+ tab.id +'\', event);"'+
                                '    onclick="w2ui[\''+ this.name +'\'].animateClose(\''+ tab.id +'\', event);">'+
@@ -440,6 +440,7 @@
             if (edata.isCancelled === true) return;
             // default action
             $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active) +' .w2ui-tab').removeClass('active');
+            $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active) +' .w2ui-tab-close').removeClass('active');
             this.active = tab.id;
             // route processing
             if (typeof tab.route == 'string') {

@@ -92,6 +92,7 @@
     }
 
     .w2ui-popup-buttons {
+        font-size: 11px;
         padding: 12px;
         border-radius: 0px 0px 6px 6px;
         border-top: @popup-buttons-border-top;
@@ -120,12 +121,24 @@
 
     // w2alert and w2confirm
 
-    .w2ui-alert-msg, .w2ui-confirm-msg {
-        font-size: 13px;
+    .w2ui-alert-msg,
+    .w2ui-confirm-msg {
+        font-size: 12px;
         line-height: 1.5;
     }
 
     .w2ui-prompt {
+        font-size: 12px;
+        padding: 15px 10px 0 10px;
+        > div {
+            margin-bottom: 5px
+        }
+        > label {
+            margin-right: 5px;
+        }
+        input {
+            width: 230px;
+        }
         textarea {
             width: 100%;
             height: 50px;

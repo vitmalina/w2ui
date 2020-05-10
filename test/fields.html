@@ -46,8 +46,8 @@
             recId: 'recid',
             recText: function (item) { return item.fname + ' ' + item.lname },
             items: function(el) {
-                console.log('Element', el)
-                console.log(this)
+                // console.log('Element', el)
+                // console.log(this)
                 return [
                     { id: 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
                     { id: 'item2', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) }
@@ -65,7 +65,7 @@
             icon: 'fa fa-star',
             onIconClick: function (event) {
                 jQuery(event.el).w2overlay('eeeee');
-                console.log(event.el);
+                // console.log(event.el);
             },
             // search: false,
             applyFilter: true,
@@ -75,8 +75,8 @@
             recId: 'recid',
             recText: function (item) { return item.fname + ' ' + item.lname },
             items: function(el) {
-                console.log('Element', el)
-                console.log(this)
+                // console.log('Element', el)
+                // console.log(this)
                 return [
                     { id: 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
                     { id: 'item2', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) }
@@ -84,73 +84,98 @@
             },
             items1: items,
             onRequest: function (event) {
-                console.log('list request', event);
+                // console.log('list request', event);
             },
             onLoad: function (event) {
-                console.log('list load', event);
+                // console.log('list load', event);
             },
             onError: function (event) {
-                console.log('list error', event);
+                // console.log('list error', event);
             }
         }).on('blur', function (event) {
-            console.log('BLUR: user', jQuery(this).data());
+            // console.log('BLUR: user', jQuery(this).data());
 
         }).on('focus', function (event) {
-            console.log('FOCUS: user', jQuery(this).data());
+            // console.log('FOCUS: user', jQuery(this).data());
 
         });
         jQuery('.enum').w2field('enum', {
-            // url: 'http://w2ui.com/web/pages/demo/infinite/index.php?request={"cmd":"get","selected":[],"limit":100,"offset":0}',
+            // url: 'http://w2ui.com/web/pages/demo/infinite/index.php?request={"cmd":"get","selected":[],"search":"122",limit":100,"offset":0}',
             recId: 'recid',
+            spinner: true,
+            msgSearch: 'Type to search...',
+            // msgNoItems: function (event) {
+            //     console.log('event', event.remote, event.options.items)
+            //     return `Cannot find "${event.search}"`
+            // },
+            // minLength: 3,
             recText: function (item) { return item.fname + ' ' + item.lname },
             openOnFocus: true,
-            items: function(el) {
-                console.log('Element', el)
-                console.log(this)
+            items: [
+                { id: 'item1', keepOpen: true, icon: 'fa fa-link', text: 'item 1' },
+                { id: 'item2', keepOpen: true, icon: 'fa fa-star', disabled: true, text: 'item 2'},
+                { id: 'item3', keepOpen: true, icon: 'fa fa-star', text: 'item 3' },
+                { id: 'item4', keepOpen: true, icon: 'fa fa-star', text: 'item 4' },
+                { id: 'item5', keepOpen: true, icon: 'fa fa-star', text: 'item 5' },
+                { id: 'item6', keepOpen: true, icon: 'fa fa-star', text: 'item 6' },
+                { id: 'item7', keepOpen: true, icon: 'fa fa-star', text: 'item 7' },
+                { id: 'item8', keepOpen: true, icon: 'fa fa-star', text: 'item 8' },
+                { id: 'item9', keepOpen: true, icon: 'fa fa-star', text: 'item 9' },
+            ],
+            items1: function(el) {
+                // console.log('Element', el)
+                // console.log(this)
                 return [
-                    { id: 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
-                    { id: 'item2', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) }
+                    { id: 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*10) },
+                    { id: 'item2', icon: 'fa fa-star', disabled: true, text: 'item ' + Math.round(Math.random()*10) },
+                    { id: 'item3', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*10) },
+                    { id: 'item4', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*10) },
+                    { id: 'item5', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*10) },
+                    { id: 'item6', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*10) },
+                    { id: 'item7', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*10) },
+                    { id: 'item8', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*10) },
+                    { id: 'item9', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*10) },
                 ]
             },
             items1: items,
             selected: [],
-            renderItem: function (item, options, del) {
+            renderItem1: function (item, options, del) {
                 return item.text + del;
             },
-            renderDrop: function (item) {
+            renderDrop1: function (item) {
                 return '<div style="border: 1px solid red; padding: 10px;" onclick="event.stopPropagation()">' +item.text + '</div>';
             },
             select: function (event) {
-                console.log(event);
+                // console.log(event);
                 event.preventDefault();
             },
             // items: items
             onRequest: function (event) {
-                console.log('enum request', event);
+                // console.log('enum request', event);
             },
             onLoad: function (event) {
-                console.log('enum load', event);
+                // console.log('enum load', event);
             },
             onError: function (event) {
-                console.log('enum error', event);
+                // console.log('enum error', event);
             },
             onClick: function (event) {
-                console.log('enum click', event);
+                // console.log('enum click', event);
             },
             onMouseOver: function (event) {
-                console.log('enum over', event);
+                // console.log('enum over', event);
             },
             onMouseOut: function (event) {
-                console.log('enum out', event);
+                // console.log('enum out', event);
             },
             onRemove: function (event) {
-                console.log('enum remove', event.item);
+                // console.log('enum remove', event.item);
             },
             onAdd: function (event) {
-                console.log('enum add', event);
+                // console.log('enum add', event);
             },
             onNew: function (event) {
-                console.log('enum new', event);
+                // console.log('enum new', event);
                 jQuery().w2popup({'title':'test'})
             }
         });
@@ -308,25 +333,25 @@
         <div class="w2ui-field">
             <label>combo:</label>
             <div>
-                <input class="w2ui-input combo" type="text" style="width: 450px" onchange="console.log('field change', jQuery(this).data('selected'));"/>
+                <input id="combo" class="w2ui-input combo" type="text" style="width: 450px" onchange1="console.log('field change', jQuery(this).data('selected'));"/>
             </div>
         </div>
         <div class="w2ui-field">
             <label>list:</label>
             <div>
-                <input class="w2ui-input list" type="text" style="width: 450px" onchange="console.log('field change', jQuery(this).data('selected'));" placeholder="list placeholder"/>
+                <input id="list" class="w2ui-input list" type="text" style="width: 450px" onchange1="console.log('field change', jQuery(this).data('selected'));" placeholder="list placeholder"/>
             </div>
         </div>
         <div class="w2ui-field">
             <label>enum:</label>
             <div>
-                <input class="w2ui-input enum" type="text" style="width: 450px; min-height: 10px;" placeholder="enum placeholder"/>
+                <input id="enum" class="w2ui-input enum" type="text" style="width: 450px; min-height: 10px;" placeholder="enum placeholder"/>
             </div>
         </div>
         <div class="w2ui-field">
             <label>file:</label>
             <div>
-                <input class="w2ui-input file" type="text" style="width: 550px; min-height: 50px;" placeholder="file placeholder"/>
+                <input id="file" class="w2ui-input file" type="text" style="width: 550px; min-height: 50px;" placeholder="file placeholder"/>
             </div>
         </div>
         <div class="w2ui-field">
