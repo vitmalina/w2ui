@@ -546,7 +546,7 @@
                 if (['list', 'combo', 'enum'].indexOf(fld.type) != -1) {
                     var tmp = { nestedFields: true, record: data };
                     var val = this.getValue.call(tmp, fld.field);
-                    if ($.isPlainObject(val) && val.id) {
+                    if ($.isPlainObject(val) && val.id != null) { // should be tru if val.id === ''
                         this.setValue.call(tmp, fld.field, val.id)
                     }
                     if (Array.isArray(val)) {
