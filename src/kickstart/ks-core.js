@@ -134,31 +134,8 @@ var kickStart = (function () {
                             app._conf.modules[name].files  = files;
                             app._conf.modules[name].ready  = true;
                             // execute start file
-                            try {
-                                eval(start);
-                            } catch (e) {
-                                failed = true;
-                                // find error line
-                                var err = e.stack.split('\n');
-                                var tmp = err[1].match(/<anonymous>:([\d]){1,10}:([\d]{1,10})/gi);
-                                if (tmp) tmp = tmp[0].split(':');
-                                if (tmp) {
-                                    // display error
-                                    if (app._conf.verbose) {
-                                        console.error('ERROR: ' + err[0] + ' ==> ' + app._conf.modules[name].start + ', line: '+ tmp[1] + ', character: '+ tmp[2]);
-                                        console.log(e.stack);
-                                    }
-                                } else {
-                                    if (app._conf.verbose) {
-                                        console.error('ERROR: ' + app._conf.modules[name].start);
-                                        console.log(e.stack);
-                                    }
-                                }
-                                // if (typeof app.conf.fail == 'function') app.conf.fail(app._conf.modules[name]);
-                                if (typeof promise._fail == 'function') promise._fail(app._conf.modules[name]);
-                            }
+                            eval(start); // if in try block, it would not show errors properly
                             // check ready
-                            // if (typeof app.conf.ready == 'function') app.conf.ready(app._conf.modules[name]);
                             if (typeof promise._ready == 'function') promise._ready(app._conf.modules[name]);
                             modCount--;
                             isFinished();
