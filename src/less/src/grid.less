@@ -213,16 +213,21 @@
             }
 
             .w2ui-load-more {
-                border-top: @grid-row-border-right;
                 cursor: pointer;
+                background-color: @grid-row-number-background-color;
+                border-right: @grid-row-border-right;
+                height: 43px;
                 > div {
                     text-align: center;
                     color: @grid-row-number-color;
                     background-color: @grid-row-number-background-color;
                     padding: 10px 0px 15px 0px;
-                    border-top: 1px solid @grid-background-color;
+                    height: 43px;
+                    border-top: 1px dashed #D6D5D7;
+                    border-bottom: 1px dashed #D6D5D7;
+                    font-size: 12px;
                     &:hover {
-                        color: @grid-row-hover-color;
+                        color: #438ba2;
                         background-color: @grid-row-hover-background-color;
                     }
                 }

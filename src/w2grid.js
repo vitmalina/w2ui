@@ -2513,14 +2513,7 @@
             // call server to get data
             var obj = this;
             if (this.last.xhr_offset === 0) {
-                obj.lock(w2utils.lang(obj.msgRefresh), true);
-            } else {
-                var more = $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more');
-                if (this.autoLoad === true) {
-                    more.show().find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
-                } else {
-                    more.find('td').html('<div>'+ w2utils.lang('Load') + ' ' + obj.limit + ' ' + w2utils.lang('More') + '...</div>');
-                }
+                this.lock(w2utils.lang(this.msgRefresh), true);
             }
             if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {}
             // URL
@@ -2539,7 +2532,7 @@
             }
             // ajax options
             var ajaxOptions = {
-                type     : 'POST',
+                type     : 'GET',
                 url      : url,
                 data     : edata.postData,
                 headers  : edata.httpHeaders,
@@ -2630,25 +2623,34 @@
             var data;
             if (status != 'error') {
                 // default action
-                data = xhr.responseJSON;
-                if (data == null) {
-                    data = {
-                        status       : 'error',
-                        message      : w2utils.lang(this.msgNotJSON),
-                        responseText : xhr.responseText
-                    };
-                } else if (Array.isArray(data)) {
-                    // if it is plain array, assume these are records
-                    data = {
-                        status  : 'success',
-                        records : data,
-                        total   : data.length
+                if (typeof obj.parser == 'function') {
+                    data = obj.parser(xhr.responseJSON);
+                    if (typeof data != 'object') {
+                        console.log('ERROR: Your parser did not return proper object');
+                    }
+                } else {
+                    data = xhr.responseJSON;
+                    if (data == null) {
+                        data = {
+                            status       : 'error',
+                            message      : w2utils.lang(this.msgNotJSON),
+                            responseText : xhr.responseText
+                        };
+                    } else if (Array.isArray(data)) {
+                        // if it is plain array, assume these are records
+                        data = {
+                            status  : 'success',
+                            records : data,
+                            total   : data.length
+                        }
                     }
                 }
-                if (obj.recid && data.records) {
-                    // convert recids
+                if (Array.isArray(data.records)) {
+                    // make sure each record has recid
                     for (var i = 0; i < data.records.length; i++) {
-                        data.records[i]['recid'] = data.records[i][obj.recid];
+                        if (data.records[i].recid == null) {
+                            data.records[i].recid = obj.recid ? data.records[i][obj.recid] : 'recid-' + i;
+                        }
                     }
                 }
                 if (data['status'] == 'error') {
@@ -2717,6 +2719,13 @@
             if (this.last.xhr_offset === 0) {
                 this.refresh();
             } else {
+                // request function
+                var more = $('#grid_'+ this.name +'_frec_more, #grid_'+ this.name +'_rec_more');
+                if (this.autoLoad === true) {
+                    more.show().eq(1).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
+                } else {
+                    more.show().eq(1).find('td').html('<div style="padding-top: 15px">'+ w2utils.lang('Load') + ' ' + obj.limit + ' ' + w2utils.lang('More') + '...</div>');
+                }
                 this.scroll();
                 this.resize();
             }
@@ -6880,15 +6889,15 @@
                 html1 += rec_html[0];
                 html2 += rec_html[1];
             }
-            var h2 = (Math.max(buffered, this.total) - limit) * this.recordHeight;
-            html1 += '<tr id="grid_' + this.name + '_frec_bottom" rec="bottom" line="bottom" style="height: ' + h2 + 'px">' +
-                    '    <td colspan="2000" style="border: 0"></td>'+
+            var h2 = (buffered - limit) * this.recordHeight;
+            html1 += '<tr id="grid_' + this.name + '_frec_bottom" rec="bottom" line="bottom" style="height: ' + h2 + 'px; vertical-align: top">' +
+                    '    <td colspan="2000" style="border-right: 1px solid #D6D5D7;"></td>'+
                     '</tr>'+
-                    '<tr id="grid_'+ this.name +'_frec_more" style="display: none; visibility: hidden">'+
+                    '<tr id="grid_'+ this.name +'_frec_more" style="display: none; ">'+
                     '    <td colspan="2000" class="w2ui-load-more"></td>'+
                     '</tr>'+
                     '</tbody></table>';
-            html2 += '<tr id="grid_' + this.name + '_rec_bottom" rec="bottom" line="bottom" style="height: ' + h2 + 'px">' +
+            html2 += '<tr id="grid_' + this.name + '_rec_bottom" rec="bottom" line="bottom" style="height: ' + h2 + 'px; vertical-align: top">' +
                     '    <td colspan="2000" style="border: 0"></td>'+
                     '</tr>'+
                     '<tr id="grid_'+ this.name +'_rec_more" style="display: none">'+
@@ -7063,12 +7072,6 @@
             if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length;
             if (buffered === 0 || records.length === 0 || records.height() === 0) return;
             if (buffered > this.vs_start) this.last.show_extra = this.vs_extra; else this.last.show_extra = this.vs_start;
-            // need this to enable scrolling when this.limit < then a screen can fit
-            if (records.height() < buffered * this.recordHeight && records.css('overflow-y') == 'hidden') {
-                // TODO: is this needed?
-                // if (this.total > 0) this.refresh();
-                return;
-            }
             // update footer
             var t1 = Math.round(records[0].scrollTop / this.recordHeight + 1);
             var t2 = t1 + (Math.round(records.height() / this.recordHeight) - 1);
@@ -7158,7 +7161,7 @@
             }
             // first/last row size
             var h1 = (start - 1) * obj.recordHeight;
-            var h2 = (Math.max(buffered, this.total) - end) * this.recordHeight;
+            var h2 = (buffered - end) * this.recordHeight;
             if (h2 < 0) h2 = 0;
             tr1.css('height', h1 + 'px');
             tr1f.css('height', h1 + 'px');
@@ -7174,25 +7177,28 @@
                     this.last.pull_more = true;
                     this.last.xhr_offset += this.limit;
                     this.request('get');
-                } else {
-                    var more = $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more');
-                    if (more.css('display') == 'none') {
-                        more.show()
-                            .on('click', function () {
-                                obj.last.pull_more = true;
-                                obj.last.xhr_offset += obj.limit;
-                                obj.request('get');
-                                // show spinner the last
-                                $(this).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
-                            });
-                    }
-                    if (more.find('td .w2ui-spinner').length > 0 || more.find('td').text().indexOf('Load') == -1) {
-                        more.find('td').html('<div>'+ w2utils.lang('Load') + ' ' + obj.limit + ' ' + w2utils.lang('More') + '...</div>');
-                    }
+                }
+                var more = $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more');
+                if (more.css('display') == 'none') {
+                    more.show()
+                        .eq(1) // only main table
+                        .on('click', function () {
+                            // debugger
+                            // show spinner
+                            $(this).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
+                            // load more
+                            obj.last.pull_more = true;
+                            obj.last.xhr_offset += obj.limit;
+                            obj.request('get');
+                        })
+                        .find('td')
+                        .html('<div style="padding-top: 15px">'+ w2utils.lang('Load') + ' ' + obj.limit + ' ' + w2utils.lang('More') + '...</div>')
                 }
             }
             // check for grid end
-            if (buffered >= this.total - this.offset && this.total != -1) $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more').show();
+            if (buffered >= this.total - this.offset && this.total != -1) {
+                $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more').show();
+            }
 
             function markSearch() {
                 // mark search

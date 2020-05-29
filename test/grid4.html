@@ -17,7 +17,11 @@ $(function () {
         header: 'List of Names1',
         url: 'http://w2ui.com/web/pages/demo/infinite/index.php',
         recid: 'userid',
-        dataType: 'JSON',
+        // dataType: 'JSON',
+        // method: 'GET',
+        // limit: 2,
+        // offset: 3690,
+        // autoLoad: false,
         show: {
             toolbar: true,
             footer: true,
@@ -25,15 +29,19 @@ $(function () {
             emptyRecords: true,
             selectColumn: false,
             expandColumn: false,
-            orderColumn: true,
+            orderColumn: false,
             columnHeaders: true,
             lineNumbers: true,
             toolbarDelete: true,
             toolbarSave: true,
             toolbarAdd: true
         },
+        onLoad(event) {
+            // event.xhr.responseJSON.total = 500
+            // console.log(event)
+        },
         columns: [
-            { field: 'userid', text: 'ID', size: '80px', sortable: true, searchable: 'int' },
+            { field: 'userid', text: 'ID', size: '80px', sortable: true, searchable: 'int', hidden: true },
             { field: 'fname', text: 'hex', size: '180px', sortable: true, resizable: true, editable: { type: 'hex' } },
             { field: 'lname', text: 'color', size: '180px', sortable: true, resizable: true, editable: { type: 'color' } },
             { field: 'email', text: 'date', size: '100%', sortable: true, resizable: true, editable: { type: 'text' } }
