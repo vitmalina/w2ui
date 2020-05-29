@@ -2228,8 +2228,10 @@ button.w2ui-btn-small:focus:before {
 }
 .w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-load-more,
 .w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-load-more {
-  border-top: 1px solid #D6D5D7;
   cursor: pointer;
+  background-color: rgba(233, 237, 243, 0.5);
+  border-right: 1px solid #D6D5D7;
+  height: 43px;
 }
 .w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-load-more > div,
 .w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-load-more > div {
@@ -2237,11 +2239,14 @@ button.w2ui-btn-small:focus:before {
   color: #777;
   background-color: rgba(233, 237, 243, 0.5);
   padding: 10px 0px 15px 0px;
-  border-top: 1px solid white;
+  height: 43px;
+  border-top: 1px dashed #D6D5D7;
+  border-bottom: 1px dashed #D6D5D7;
+  font-size: 12px;
 }
 .w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-load-more > div:hover,
 .w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-load-more > div:hover {
-  color: inherit;
+  color: #438ba2;
   background-color: #E6F0FF;
 }
 .w2ui-grid .w2ui-grid-body table {
@@ -2692,7 +2697,8 @@ button.w2ui-btn-small:focus:before {
 .w2ui-overlay .w2ui-select-field table tr {
   height: 27px;
 }
-.w2ui-overlay .w2ui-select-field table tr:hover {
+.w2ui-overlay .w2ui-select-field table tr:hover,
+.w2ui-overlay .w2ui-select-field table tr.w2ui-selected {
   background-color: #B6D5FF;
 }
 .w2ui-overlay .w2ui-select-field table tr td:nth-child(1) {
@@ -2711,7 +2717,8 @@ button.w2ui-btn-small:focus:before {
   border-spacing: 0px;
   border-collapse: border-collapse;
 }
-.w2ui-overlay .w2ui-col-on-off table tr:hover {
+.w2ui-overlay .w2ui-col-on-off table tr:hover,
+.w2ui-overlay .w2ui-col-on-off table tr.w2ui-selected {
   background-color: #B6D5FF;
 }
 .w2ui-overlay .w2ui-col-on-off table td input[type=checkbox] {
@@ -3027,6 +3034,7 @@ button.w2ui-btn-small:focus:before {
   user-select: none;
 }
 .w2ui-sidebar .w2ui-sidebar-body .w2ui-node {
+  position: relative;
   background-color: transparent;
   border: 1px solid transparent;
   border-radius: 4px;
@@ -3044,6 +3052,13 @@ button.w2ui-btn-small:focus:before {
 .w2ui-sidebar .w2ui-sidebar-body .w2ui-node .w2ui-node-image:hover,
 .w2ui-sidebar .w2ui-sidebar-body .w2ui-node .w2ui-node-image > span:hover {
   color: inherit;
+}
+.w2ui-sidebar .w2ui-sidebar-body .w2ui-node .w2ui-node-handle {
+  display: inline-block;
+  padding: 0px;
+  margin: 0px;
+  height: 100%;
+  position: absolute;
 }
 .w2ui-sidebar .w2ui-sidebar-body .w2ui-node:hover {
   border-top: 1px solid #f9f9f9;

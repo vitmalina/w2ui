@@ -285,19 +285,24 @@ var w2utils = (function ($) {
     }
 
     function isDateTime (val, format, retDate) {
-        if (format == null) format = w2utils.settings.datetimeFormat;
-        var formats = format.split('|');
         if (typeof val.getFullYear === 'function') { // date object
             if (retDate !== true) return true;
             return val;
-        } else if (parseInt(val) === val && parseInt(val) >= 0) {
-            val = new Date(parseInt(val));
-            if (retDate !== true) return true;
-            return val;
-        } else if (parseInt(val) === val && parseInt(val) < 0) {
-            return false;
+        }
+        var intVal = parseInt(val);
+        if (intVal === val) {
+            if (intVal < 0) return false;
+            else if (retDate !== true) return true;
+            else return new Date(intVal);
+        }
+        var tmp = String(val).indexOf(' ');
+        if (tmp < 0) {
+            if (String(val).indexOf('T') < 0 || String(new Date(val)) == 'Invalid Date') return false;
+            else if (retDate !== true) return true;
+            else return new Date(val);
         } else {
-            var tmp = String(val).indexOf(' ');
+            if (format == null) format = w2utils.settings.datetimeFormat;
+            var formats = format.split('|');
             var values  = [val.substr(0, tmp), val.substr(tmp).trim()];
             formats[0] = formats[0].trim();
             if (formats[1]) formats[1] = formats[1].trim();
@@ -5822,8 +5827,13 @@ w2utils.event = {
                             ? 'onmouseenter="jQuery(this).w2tag({ top: 4, html: \''+ msg +'\' })" onmouseleave="jQuery(this).w2tag()"'
                             : ''
                         ) +
-                        (w2utils.isIOS ? 'onTouchStart' : 'onClick') +'="w2ui[\''+ this.name +'\'].initAllField(\''+ search.field +'\');'+
-                        '      event.stopPropagation(); jQuery(\'#grid_'+ this.name +'_search_all\').w2overlay({ name: \''+ this.name +'-searchFields\' });">'+
+                        (w2utils.isIOS ? 'onTouchStart' : 'onClick') +'="event.stopPropagation(); '+
+                        '           w2ui[\''+ this.name +'\'].initAllField(\''+ search.field +'\');'+
+                        '           jQuery(\'#grid_'+ this.name +'_search_all\').w2overlay({ name: \''+ this.name +'-searchFields\' });"'+
+                        '           jQuery(this).addClass(\'w2ui-selected\');'+
+                        '      onmousedown="jQuery(this).parent().find(\'tr\').removeClass(\'w2ui-selected\'); jQuery(this).addClass(\'w2ui-selected\')" ' +
+                        '      onmouseup="jQuery(this).removeClass(\'w2ui-selected\')" ' +
+                        '   >'+
                         '   <td>'+
                         '       <span class="w2ui-column-check w2ui-icon-'+ (search.field == this.last.field ? 'check' : 'empty') +'"></span>'+
                         '   </td>'+
@@ -5990,14 +6000,7 @@ w2utils.event = {
             // call server to get data
             var obj = this;
             if (this.last.xhr_offset === 0) {
-                obj.lock(w2utils.lang(obj.msgRefresh), true);
-            } else {
-                var more = $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more');
-                if (this.autoLoad === true) {
-                    more.show().find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
-                } else {
-                    more.find('td').html('<div>'+ w2utils.lang('Load') + ' ' + obj.limit + ' ' + w2utils.lang('More') + '...</div>');
-                }
+                this.lock(w2utils.lang(this.msgRefresh), true);
             }
             if (this.last.xhr) try { this.last.xhr.abort(); } catch (e) {}
             // URL
@@ -6016,11 +6019,11 @@ w2utils.event = {
             }
             // ajax options
             var ajaxOptions = {
-                type     : 'POST',
+                type     : 'GET',
                 url      : url,
                 data     : edata.postData,
                 headers  : edata.httpHeaders,
-                dataType : 'text'  // expected data type from server
+                dataType : 'json'  // expected data type from server
             };
 
             var dataType = this.dataType || w2utils.settings.dataType
@@ -6057,7 +6060,7 @@ w2utils.event = {
             this.last.loaded    = false;
             this.last.xhr = $.ajax(ajaxOptions)
                 .done(function (data, status, xhr) {
-                    obj.requestComplete(status, cmd, callBack);
+                    obj.requestComplete(status, xhr, cmd, callBack);
                 })
                 .fail(function (xhr, status, error) {
                     // trigger event
@@ -6067,12 +6070,12 @@ w2utils.event = {
                     // default behavior
                     if (status != 'abort') { // it can be aborted by the grid itself
                         var data;
-                        try { data = $.parseJSON(xhr.responseText); } catch (e) {}
+                        try { data = typeof xhr.responseJSON === 'object' ? xhr.responseJSON : $.parseJSON(xhr.responseText); } catch (e) {}
                         console.log('ERROR: Server communication failed.',
                             '\n   EXPECTED:', { status: 'success', total: 5, records: [{ recid: 1, field: 'value' }] },
                             '\n         OR:', { status: 'error', message: 'error message' },
                             '\n   RECEIVED:', typeof data == 'object' ? data : xhr.responseText);
-                        obj.requestComplete('error', cmd, callBack);
+                        obj.requestComplete('error', xhr, cmd, callBack);
                     }
                     // event after
                     obj.trigger($.extend(edata2, { phase: 'after' }));
@@ -6083,7 +6086,7 @@ w2utils.event = {
             }
         },
 
-        requestComplete: function(status, cmd, callBack) {
+        requestComplete: function(status, xhr, cmd, callBack) {
             var obj = this;
             this.unlock();
             setTimeout(function () {
@@ -6105,31 +6108,20 @@ w2utils.event = {
             }
             // parse server response
             var data;
-            var responseText = this.last.xhr.responseText;
             if (status != 'error') {
                 // default action
-                if (responseText != null && responseText != '') {
-                    // check if the onLoad handler has not already parsed the data
-                    if (typeof responseText == "object") {
-                        data = responseText;
-                    } else {
-                        if (typeof obj.parser == 'function') {
-                            data = obj.parser(responseText);
-                            if (typeof data != 'object') {
-                                console.log('ERROR: Your parser did not return proper object');
-                            }
-                        } else {
-                            // $.parseJSON or $.getJSON did not work because those expect perfect JSON data - where everything is in double quotes
-                            //
-                            // TODO: avoid (potentially malicious) code injection from the response.
-                            try { eval('data = '+ responseText); } catch (e) { }
-                        }
+                if (typeof obj.parser == 'function') {
+                    data = obj.parser(xhr.responseJSON);
+                    if (typeof data != 'object') {
+                        console.log('ERROR: Your parser did not return proper object');
                     }
+                } else {
+                    data = xhr.responseJSON;
                     if (data == null) {
                         data = {
                             status       : 'error',
                             message      : w2utils.lang(this.msgNotJSON),
-                            responseText : responseText
+                            responseText : xhr.responseText
                         };
                     } else if (Array.isArray(data)) {
                         // if it is plain array, assume these are records
@@ -6139,65 +6131,67 @@ w2utils.event = {
                             total   : data.length
                         }
                     }
-                    if (obj.recid && data.records) {
-                        // convert recids
-                        for (var i = 0; i < data.records.length; i++) {
-                            data.records[i].recid = data.records[i][obj.recid];
+                }
+                if (Array.isArray(data.records)) {
+                    // make sure each record has recid
+                    for (var i = 0; i < data.records.length; i++) {
+                        if (data.records[i].recid == null) {
+                            data.records[i].recid = obj.recid ? data.records[i][obj.recid] : 'recid-' + i;
                         }
                     }
-                    if (data['status'] == 'error') {
-                        obj.error(data['message']);
-                    } else {
-                        if (cmd == 'get') {
-                            if (data.total == null) data.total = -1;
-                            if (data.records == null) {
-                                data.records = [];
-                            }
-                            if (data.records.length == this.limit) {
-                                this.last.xhr_hasMore = true;
-                            } else {
-                                this.last.xhr_hasMore = false;
-                                this.total = this.offset + this.last.xhr_offset + data.records.length;
-                            }
-                            if (this.last.xhr_offset === 0) {
-                                this.records = [];
-                                this.summary = [];
-                                if (w2utils.isInt(data.total)) this.total = parseInt(data.total);
-                            } else {
-                                if (data.total != -1 && parseInt(data.total) != parseInt(this.total)) {
-                                    this.message(w2utils.lang(this.msgNeedReload), function () {
-                                        delete this.last.xhr_offset;
-                                        this.reload();
-                                    }.bind(this));
-                                    return;
-                                }
-                            }
-                            // records
-                            if (data.records) {
-                                for (var r = 0; r < data.records.length; r++) {
-                                    this.records.push(data.records[r]);
-                                }
-                            }
-                            // summary records (if any)
-                            if (data.summary) {
-                                this.summary = [];
-                                for (var r = 0; r < data.summary.length; r++) {
-                                    this.summary.push(data.summary[r]);
-                                }
+                }
+                if (data['status'] == 'error') {
+                    obj.error(data['message']);
+                } else {
+                    if (cmd == 'get') {
+                        if (data.total == null) data.total = -1;
+                        if (data.records == null) {
+                            data.records = [];
+                        }
+                        if (data.records.length == this.limit) {
+                            this.last.xhr_hasMore = true;
+                        } else {
+                            this.last.xhr_hasMore = false;
+                            this.total = this.offset + this.last.xhr_offset + data.records.length;
+                        }
+                        if (this.last.xhr_offset === 0) {
+                            this.records = [];
+                            this.summary = [];
+                            if (w2utils.isInt(data.total)) this.total = parseInt(data.total);
+                        } else {
+                            if (data.total != -1 && parseInt(data.total) != parseInt(this.total)) {
+                                this.message(w2utils.lang(this.msgNeedReload), function () {
+                                    delete this.last.xhr_offset;
+                                    this.reload();
+                                }.bind(this));
+                                return;
                             }
                         }
-                        if (cmd == 'delete') {
-                            this.reset(); // unselect old selections
-                            this.reload();
-                            return;
+                        // records
+                        if (data.records) {
+                            for (var r = 0; r < data.records.length; r++) {
+                                this.records.push(data.records[r]);
+                            }
                         }
+                        // summary records (if any)
+                        if (data.summary) {
+                            this.summary = [];
+                            for (var r = 0; r < data.summary.length; r++) {
+                                this.summary.push(data.summary[r]);
+                            }
+                        }
+                    }
+                    if (cmd == 'delete') {
+                        this.reset(); // unselect old selections
+                        this.reload();
+                        return;
                     }
                 }
             } else {
                 data = {
                     status       : 'error',
                     message      : w2utils.lang(this.msgAJAXerror),
-                    responseText : responseText
+                    responseText : xhr.responseText
                 };
                 obj.error(w2utils.lang(this.msgAJAXerror));
             }
@@ -6212,6 +6206,13 @@ w2utils.event = {
             if (this.last.xhr_offset === 0) {
                 this.refresh();
             } else {
+                // request function
+                var more = $('#grid_'+ this.name +'_frec_more, #grid_'+ this.name +'_rec_more');
+                if (this.autoLoad === true) {
+                    more.show().eq(1).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
+                } else {
+                    more.show().eq(1).find('td').html('<div style="padding-top: 15px">'+ w2utils.lang('Load') + ' ' + obj.limit + ' ' + w2utils.lang('More') + '...</div>');
+                }
                 this.scroll();
                 this.resize();
             }
@@ -8253,6 +8254,32 @@ w2utils.event = {
 
             var gridBody = $('#grid_'+ this.name +'_body', obj.box).html(bodyHTML),
                 records = $('#grid_'+ this.name +'_records', obj.box);
+            var frecords = $('#grid_'+ this.name +'_frecords', obj.box);
+            var self = this;
+            if (this.selectType == 'row') {
+              records
+              .on('mouseover mouseout', 'tr', function(event) {
+                $('#grid_'+ self.name +'_frec_' + w2utils.escapeId($(this).attr('recid'))).toggleClass('w2ui-record-hover', event.type == 'mouseover')
+              })
+              frecords
+              .on('mouseover mouseout', 'tr', function(event) {
+                $('#grid_'+ self.name +'_rec_' + w2utils.escapeId($(this).attr('recid'))).toggleClass('w2ui-record-hover', event.type == 'mouseover')
+              })
+            }
+            if(w2utils.isIOS)
+              records.add(frecords)
+              .on('click', 'tr', function(ev) {
+                self.dblClick($(this).attr('recid'), ev);
+              })
+            else
+              records.add(frecords)
+              .on('click', 'tr', function(ev) {
+                self.click($(this).attr('recid'), ev);
+              })
+              .on('contextmenu', 'tr', function(ev) {
+                self.contextMenu($(this).attr('recid'), null, ev);
+              })
+
             // enable scrolling on frozen records,
             gridBody.data('scrolldata', { lastTime: 0, lastDelta: 0, time: 0 })
                 .find('.w2ui-grid-frecords')
@@ -10349,15 +10376,15 @@ w2utils.event = {
                 html1 += rec_html[0];
                 html2 += rec_html[1];
             }
-            var h2 = (Math.max(buffered, this.total) - limit) * this.recordHeight;
-            html1 += '<tr id="grid_' + this.name + '_frec_bottom" rec="bottom" line="bottom" style="height: ' + h2 + 'px">' +
-                    '    <td colspan="2000" style="border: 0"></td>'+
+            var h2 = (buffered - limit) * this.recordHeight;
+            html1 += '<tr id="grid_' + this.name + '_frec_bottom" rec="bottom" line="bottom" style="height: ' + h2 + 'px; vertical-align: top">' +
+                    '    <td colspan="2000" style="border-right: 1px solid #D6D5D7;"></td>'+
                     '</tr>'+
-                    '<tr id="grid_'+ this.name +'_frec_more" style="display: none; visibility: hidden">'+
+                    '<tr id="grid_'+ this.name +'_frec_more" style="display: none; ">'+
                     '    <td colspan="2000" class="w2ui-load-more"></td>'+
                     '</tr>'+
                     '</tbody></table>';
-            html2 += '<tr id="grid_' + this.name + '_rec_bottom" rec="bottom" line="bottom" style="height: ' + h2 + 'px">' +
+            html2 += '<tr id="grid_' + this.name + '_rec_bottom" rec="bottom" line="bottom" style="height: ' + h2 + 'px; vertical-align: top">' +
                     '    <td colspan="2000" style="border: 0"></td>'+
                     '</tr>'+
                     '<tr id="grid_'+ this.name +'_rec_more" style="display: none">'+
@@ -10532,12 +10559,6 @@ w2utils.event = {
             if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length;
             if (buffered === 0 || records.length === 0 || records.height() === 0) return;
             if (buffered > this.vs_start) this.last.show_extra = this.vs_extra; else this.last.show_extra = this.vs_start;
-            // need this to enable scrolling when this.limit < then a screen can fit
-            if (records.height() < buffered * this.recordHeight && records.css('overflow-y') == 'hidden') {
-                // TODO: is this needed?
-                // if (this.total > 0) this.refresh();
-                return;
-            }
             // update footer
             var t1 = Math.round(records[0].scrollTop / this.recordHeight + 1);
             var t2 = t1 + (Math.round(records.height() / this.recordHeight) - 1);
@@ -10627,7 +10648,7 @@ w2utils.event = {
             }
             // first/last row size
             var h1 = (start - 1) * obj.recordHeight;
-            var h2 = (Math.max(buffered, this.total) - end) * this.recordHeight;
+            var h2 = (buffered - end) * this.recordHeight;
             if (h2 < 0) h2 = 0;
             tr1.css('height', h1 + 'px');
             tr1f.css('height', h1 + 'px');
@@ -10643,25 +10664,28 @@ w2utils.event = {
                     this.last.pull_more = true;
                     this.last.xhr_offset += this.limit;
                     this.request('get');
-                } else {
-                    var more = $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more');
-                    if (more.css('display') == 'none') {
-                        more.show()
-                            .on('click', function () {
-                                obj.last.pull_more = true;
-                                obj.last.xhr_offset += obj.limit;
-                                obj.request('get');
-                                // show spinner the last
-                                $(this).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
-                            });
-                    }
-                    if (more.find('td .w2ui-spinner').length > 0 || more.find('td').text().indexOf('Load') == -1) {
-                        more.find('td').html('<div>'+ w2utils.lang('Load') + ' ' + obj.limit + ' ' + w2utils.lang('More') + '...</div>');
-                    }
+                }
+                var more = $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more');
+                if (more.css('display') == 'none') {
+                    more.show()
+                        .eq(1) // only main table
+                        .on('click', function () {
+                            // debugger
+                            // show spinner
+                            $(this).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
+                            // load more
+                            obj.last.pull_more = true;
+                            obj.last.xhr_offset += obj.limit;
+                            obj.request('get');
+                        })
+                        .find('td')
+                        .html('<div style="padding-top: 15px">'+ w2utils.lang('Load') + ' ' + obj.limit + ' ' + w2utils.lang('More') + '...</div>')
                 }
             }
             // check for grid end
-            if (buffered >= this.total - this.offset && this.total != -1) $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more').show();
+            if (buffered >= this.total - this.offset && this.total != -1) {
+                $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more').show();
+            }
 
             function markSearch() {
                 // mark search
@@ -10750,20 +10774,6 @@ w2utils.event = {
                     (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') +
                     (record.w2ui && record.w2ui.editable === false ? ' w2ui-no-edit' : '') +
                     (record.w2ui && record.w2ui.expanded === true ? ' w2ui-expanded' : '') + '" ' +
-                (summary !== true ?
-                    (w2utils.isIOS ?
-                        '    onclick  = "w2ui[\''+ this.name +'\'].dblClick(jQuery(this).attr(\'recid\'), event);"'
-                        :
-                        '    onclick  = "w2ui[\''+ this.name +'\'].click(jQuery(this).attr(\'recid\'), event);"'+
-                        '    oncontextmenu = "w2ui[\''+ this.name +'\'].contextMenu(jQuery(this).attr(\'recid\'), null, event);"'
-                     )
-                    : ''
-                ) +
-                (this.selectType == 'row' ?
-                    ' onmouseover="jQuery(\'#grid_'+ this.name +'_rec_\'+ w2utils.escapeId(jQuery(this).attr(\'recid\'))).addClass(\'w2ui-record-hover\')"'+
-                    ' onmouseout ="jQuery(\'#grid_'+ this.name +'_rec_\'+ w2utils.escapeId(jQuery(this).attr(\'recid\'))).removeClass(\'w2ui-record-hover\')"'
-                    :
-                    '') +
                 ' style="height: '+ this.recordHeight +'px; '+ (!isRowSelected && rec_style != '' ? rec_style : rec_style.replace('background-color', 'none')) +'" '+
                     (rec_style != '' ? 'custom_style="'+ rec_style +'"' : '') +
                 '>';
@@ -10772,20 +10782,6 @@ w2utils.event = {
                     (isRowSelected && this.selectType == 'row' ? ' w2ui-selected' : '') +
                     (record.w2ui && record.w2ui.editable === false ? ' w2ui-no-edit' : '') +
                     (record.w2ui && record.w2ui.expanded === true ? ' w2ui-expanded' : '') + '" ' +
-                (summary !== true ?
-                    (w2utils.isIOS ?
-                        '    onclick  = "var obj = w2ui[\''+ this.name +'\']; obj.dblClick(jQuery(this).attr(\'recid\'), event);"'
-                        :
-                        '    onclick  = "var obj = w2ui[\''+ this.name +'\']; obj.click(jQuery(this).attr(\'recid\'), event);"'+
-                        '    oncontextmenu = "var obj = w2ui[\''+ this.name +'\']; obj.contextMenu(jQuery(this).attr(\'recid\'), null, event);"'
-                     )
-                    : ''
-                ) +
-                (this.selectType == 'row' ?
-                    ' onmouseover="jQuery(\'#grid_'+ this.name +'_frec_\' + w2utils.escapeId(jQuery(this).attr(\'recid\'))).addClass(\'w2ui-record-hover\')"'+
-                    ' onmouseout ="jQuery(\'#grid_'+ this.name +'_frec_\' + w2utils.escapeId(jQuery(this).attr(\'recid\'))).removeClass(\'w2ui-record-hover\')"'
-                    :
-                    '') +
                 ' style="height: '+ this.recordHeight +'px; '+ (!isRowSelected && rec_style != '' ? rec_style : rec_style.replace('background-color', 'none')) +'" '+
                     (rec_style != '' ? 'custom_style="'+ rec_style +'"' : '') +
                 '>';
@@ -15536,6 +15532,7 @@ var w2prompt = function (label, title, callBack) {
 * == 1.5 changes
 *   - node.class - ne property
 *   - sb.levelPadding
+*   - sb.handle (for debugger points)
 *   - node.style
 *   - sb.updte()
 *
@@ -15602,7 +15599,8 @@ var w2prompt = function (label, title, callBack) {
     // -- Implementation of core functionality
 
     w2sidebar.prototype = {
-        levelPadding : 12,
+        levelPadding  : 12,
+        handle        : { size: 0, style: '', content: '' },
         onClick       : null,      // Fire when user click on Node Text
         onDblClick    : null,      // Fire when user dbl clicks
         onContextMenu : null,
@@ -16520,11 +16518,17 @@ var w2prompt = function (label, title, callBack) {
                     }
                     if (typeof nd.text == 'function') text = nd.text.call(obj, nd);
                     html =  '<div class="w2ui-node w2ui-level-'+ level + (nd.selected ? ' w2ui-selected' : '') + (nd.disabled ? ' w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '') +'"'+
-                            '    id="node_'+ nd.id +'" data-level="'+ level +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
+                            '    id="node_'+ nd.id +'" data-level="'+ level +'" style="position: relative; '+ (nd.hidden ? 'display: none;' : '') +'"'+
                             '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
                             '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
                             '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
-                            '   <div class="w2ui-node-data" style="margin-left:'+ (level * obj.levelPadding) +'px">'+
+                            (obj.handle.content
+                                ? '<div class="w2ui-node-handle" style="width: '+ obj.handle.size +'px; '+ obj.handle.style + '">'+
+                                       obj.handle.content +
+                                  '</div>'
+                                : ''
+                            ) +
+                            '   <div class="w2ui-node-data" style="margin-left:'+ (level * obj.levelPadding + obj.handle.size) +'px">'+
                                     expand + tmp + counts +
                                     '<div class="w2ui-node-text w2ui-node-caption" style="'+ (nd.style || '') +'">'+ text +'</div>'+
                             '   </div>'+
@@ -19950,7 +19954,7 @@ var w2prompt = function (label, title, callBack) {
                 if (['list', 'combo', 'enum'].indexOf(fld.type) != -1) {
                     var tmp = { nestedFields: true, record: data };
                     var val = this.getValue.call(tmp, fld.field);
-                    if ($.isPlainObject(val) && val.id) {
+                    if ($.isPlainObject(val) && val.id != null) { // should be tru if val.id === ''
                         this.setValue.call(tmp, fld.field, val.id)
                     }
                     if (Array.isArray(val)) {
@@ -20021,7 +20025,7 @@ var w2prompt = function (label, title, callBack) {
                 url      : url,
                 data     : edata.postData,
                 headers  : edata.httpHeaders,
-                dataType : 'text'   // expected from server
+                dataType : 'json'   // expected from server
             }
             var dataType = obj.dataType || w2utils.settings.dataType;
             if (edata.dataType) dataType = edata.dataType;
@@ -20053,27 +20057,12 @@ var w2prompt = function (label, title, callBack) {
                 .done(function (data, status, xhr) {
                     obj.unlock();
                     // prepare record
-                    var data;
-                    var responseText = xhr.responseText;
-                    if (status !== 'error') {
-                        // default action
-                        if (responseText != null && responseText !== '') {
-                            // check if the onLoad handler has not already parsed the data
-                            if (typeof responseText === "object") {
-                                data = responseText;
-                            } else {
-                                // $.parseJSON or $.getJSON did not work because those expect perfect JSON data - where everything is in double quotes
-                                //
-                                // TODO: avoid (potentially malicious) code injection from the response.
-                                try { eval('data = '+ responseText); } catch (e) { }
-                            }
-                            if (data == null) {
-                                data = {
-                                    status       : 'error',
-                                    message      : w2utils.lang(obj.msgNotJSON),
-                                    responseText : responseText
-                                }
-                            }
+                    var data = xhr.responseJSON;
+                    if (data == null) {
+                        data = {
+                             status       : 'error',
+                             message      : w2utils.lang(obj.msgNotJSON),
+                             responseText : xhr.responseText
                         }
                     }
                     // event before
@@ -20083,20 +20072,10 @@ var w2prompt = function (label, title, callBack) {
                         return;
                     }
                     // parse server response
-                    if (status !== 'error') {
-                        // default action
-                        if (edata.data.status === 'error') {
-                            obj.error(w2utils.lang(edata.data['message']));
-                        } else {
-                            obj.record = $.extend({}, edata.data.record);
-                        }
+                    if (edata.data.status === 'error') {
+                        obj.error(w2utils.lang(edata.data['message']));
                     } else {
-                        obj.error('AJAX Error ' + xhr.status + ': '+ xhr.statusText);
-                        edata.data = {
-                            status       : 'error',
-                            message      : w2utils.lang(obj.msgAJAXerror),
-                            responseText : responseText
-                        };
+                        obj.record = $.extend({}, edata.data.record);
                     }
                     // event after
                     obj.trigger($.extend(edata, { phase: 'after' }));
@@ -20113,7 +20092,7 @@ var w2prompt = function (label, title, callBack) {
                     // default behavior
                     if (status !== 'abort') {
                         var data;
-                        try { data = $.parseJSON(xhr.responseText); } catch (e) {}
+                        try { data = typeof xhr.responseJSON === 'object' ? xhr.responseJSON : $.parseJSON(xhr.responseText); } catch (e) {}
                         console.log('ERROR: Server communication failed.',
                             '\n   EXPECTED:', { status: 'success', items: [{ id: 1, text: 'item' }] },
                             '\n         OR:', { status: 'error', message: 'error message' },
@@ -20192,7 +20171,7 @@ var w2prompt = function (label, title, callBack) {
                     url      : url,
                     data     : edata.postData,
                     headers  : edata.httpHeaders,
-                    dataType : 'text',   // expected from server
+                    dataType : 'json',   // expected from server
                     xhr : function() {
                         var xhr = new window.XMLHttpRequest();
                         // upload
@@ -20275,40 +20254,19 @@ var w2prompt = function (label, title, callBack) {
                         var edata = obj.trigger({ phase: 'before', target: obj.name, type: 'save', xhr: xhr, status: status, data: data });
                         if (edata.isCancelled === true) return;
                         // parse server response
-                        var data;
-                        var responseText = xhr.responseText;
-                        if (status !== 'error') {
-                            // default action
-                            if (responseText != null && responseText !== '') {
-                                // check if the onLoad handler has not already parsed the data
-                                if (typeof responseText === 'object') {
-                                    data = responseText;
-                                } else {
-                                    // $.parseJSON or $.getJSON did not work because those expect perfect JSON data - where everything is in double quotes
-                                    //
-                                    // TODO: avoid (potentially malicious) code injection from the response.
-                                    try { eval('data = '+ responseText); } catch (e) { }
-                                }
-                                if (data == null) {
-                                    data = {
-                                        status       : 'error',
-                                        message      : w2utils.lang(obj.msgNotJSON),
-                                        responseText : responseText
-                                    };
-                                }
-                                if (data.status === 'error') {
-                                    obj.error(w2utils.lang(data.message));
-                                } else {
-                                    obj.original = null;
-                                }
-                            }
-                        } else {
-                            obj.error('AJAX Error ' + xhr.status + ': '+ xhr.statusText);
+                        var data = xhr.responseJSON;
+                        // default action
+                        if (data == null) {
                             data = {
                                 status       : 'error',
-                                message      : w2utils.lang(obj.msgAJAXerror),
-                                responseText : responseText
+                                message      : w2utils.lang(obj.msgNotJSON),
+                                responseText : xhr.responseText
                             };
+                        }
+                        if (data.status === 'error') {
+                            obj.error(w2utils.lang(data.message));
+                        } else {
+                            obj.original = null;
                         }
                         // event after
                         obj.trigger($.extend(edata, { phase: 'after' }));
