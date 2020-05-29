@@ -19,7 +19,7 @@ $(function () {
         recid: 'userid',
         // dataType: 'JSON',
         // method: 'GET',
-        // limit: 2,
+        limit: 2000,
         // offset: 3690,
         // autoLoad: false,
         show: {
@@ -37,8 +37,8 @@ $(function () {
             toolbarAdd: true
         },
         onLoad(event) {
-            // event.xhr.responseJSON.total = 500
-            // console.log(event)
+            // event.xhr.responseJSON.total = 120
+            console.log(event)
         },
         columns: [
             { field: 'userid', text: 'ID', size: '80px', sortable: true, searchable: 'int', hidden: true },

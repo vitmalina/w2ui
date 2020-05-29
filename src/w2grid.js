@@ -2647,11 +2647,14 @@
                 }
                 if (Array.isArray(data.records)) {
                     // make sure each record has recid
-                    for (var i = 0; i < data.records.length; i++) {
-                        if (data.records[i].recid == null) {
-                            data.records[i].recid = obj.recid ? data.records[i][obj.recid] : 'recid-' + i;
+                    data.records.forEach(function (rec) {
+                        if (obj.recid) {
+                            rec.recid = rec[obj.recid];
                         }
-                    }
+                        if (rec.recid == null) {
+                            rec.recid = 'recid-' + i;
+                        }
+                    })
                 }
                 if (data['status'] == 'error') {
                     obj.error(data['message']);
@@ -2719,12 +2722,16 @@
             if (this.last.xhr_offset === 0) {
                 this.refresh();
             } else {
-                // request function
+                // requestComplete function
                 var more = $('#grid_'+ this.name +'_frec_more, #grid_'+ this.name +'_rec_more');
-                if (this.autoLoad === true) {
-                    more.show().eq(1).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
+                if (this.last.xhr_hasMore) {
+                    if (this.autoLoad === true) {
+                        more.show().eq(1).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
+                    } else {
+                        more.show().eq(1).find('td').html('<div style="padding-top: 15px">'+ w2utils.lang('Load') + ' ' + obj.limit + ' ' + w2utils.lang('More') + '...</div>');
+                    }
                 } else {
-                    more.show().eq(1).find('td').html('<div style="padding-top: 15px">'+ w2utils.lang('Load') + ' ' + obj.limit + ' ' + w2utils.lang('More') + '...</div>');
+                    more.hide()
                 }
                 this.scroll();
                 this.resize();
@@ -7069,6 +7076,7 @@
             }
             // perform virtual scroll
             var buffered = this.records.length;
+            if (buffered > this.total) buffered = this.total;
             if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length;
             if (buffered === 0 || records.length === 0 || records.height() === 0) return;
             if (buffered > this.vs_start) this.last.show_extra = this.vs_extra; else this.last.show_extra = this.vs_start;
@@ -7178,25 +7186,28 @@
                     this.last.xhr_offset += this.limit;
                     this.request('get');
                 }
+                // scroll function
                 var more = $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more');
-                if (more.css('display') == 'none') {
-                    more.show()
-                        .eq(1) // only main table
-                        .on('click', function () {
-                            // debugger
-                            // show spinner
-                            $(this).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
-                            // load more
-                            obj.last.pull_more = true;
-                            obj.last.xhr_offset += obj.limit;
-                            obj.request('get');
-                        })
-                        .find('td')
-                        .html('<div style="padding-top: 15px">'+ w2utils.lang('Load') + ' ' + obj.limit + ' ' + w2utils.lang('More') + '...</div>')
-                }
+                more.show()
+                    .eq(1) // only main table
+                    .on('click', function () {
+                        // debugger
+                        // show spinner
+                        $(this).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
+                        // load more
+                        obj.last.pull_more = true;
+                        obj.last.xhr_offset += obj.limit;
+                        obj.request('get');
+                    })
+                    .find('td')
+                    .html(obj.autoLoad
+                        ? '<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>'
+                        : '<div style="padding-top: 15px">'+ w2utils.lang('Load') + ' ' + obj.limit + ' ' + w2utils.lang('More') + '...</div>'
+                    )
             }
             // check for grid end
-            if (buffered >= this.total - this.offset && this.total != -1) {
+            // if (buffered >= this.total - this.offset && this.total != -1) {
+            if (this.url != null && this.last.xhr_hasMore) {
                 $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more').show();
             }
 
