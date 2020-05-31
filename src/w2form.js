@@ -967,18 +967,18 @@
                         }
                         // generate
                         for (var i = 0; i < items.length; i++) {
-                            input += '<label style="user-select: none">'+
+                            input += '<label class="w2ui-box-label">'+
                                      '  <input id="' + field.field + i +'" name="' + field.field + '" class="w2ui-input" type="checkbox" ' +
                                                 field.html.attr + (i === 0 ? tabindex_str : '') + ' data-value="'+ items[i].id +'" data-index="'+ i +'">' +
-                                        '&#160;' + items[i].text +
+                                        '<span>&#160;' + items[i].text + '</span>' +
                                      '</label><br>';
                         }
                         break;
 
                     case 'checkbox':
-                        input = '<label>'+
-                                '   <input id="'+ field.field +'" name="'+ field.field +'" style="float: left" class="w2ui-input" type="checkbox" '+ field.html.attr + tabindex_str + '>'+
-                                '   <div style="margin: 6px 0 0 20px; user-select: none;">'+ field.html.label +'</div>'+
+                        input = '<label class="w2ui-box-label">'+
+                                '   <input id="'+ field.field +'" name="'+ field.field +'" class="w2ui-input" type="checkbox" '+ field.html.attr + tabindex_str + '>'+
+                                '   <span>'+ field.html.label +'</span>'+
                                 '</label>' + field.html.text;
                         break;
                     case 'radio':
@@ -992,10 +992,10 @@
                         }
                         // generate
                         for (var i = 0; i < items.length; i++) {
-                            input += '<label style="user-select: none">'+
+                            input += '<label class="w2ui-box-label">'+
                                      '  <input id="' + field.field + i + '" name="' + field.field + '" class="w2ui-input" type = "radio" ' +
                                             field.html.attr + (i === 0 ? tabindex_str : '') + ' value="'+ items[i].id + '">' +
-                                        '&#160;' + items[i].text +
+                                        '<span>&#160;' + items[i].text + '</span>' +
                                      '</label><br>';
                         }
                         break;
