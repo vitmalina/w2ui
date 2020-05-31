@@ -2368,7 +2368,7 @@
             if (field == 'all') {
                 var search = { field: 'all', label: w2utils.lang('All Fields') };
                 el.w2field('clear');
-                el.change();
+                // el.change(); // triggering change will cause grid calling remote url twice
             } else {
                 var search = this.getSearch(field);
                 if (search == null) return;
