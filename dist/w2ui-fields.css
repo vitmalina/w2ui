@@ -154,7 +154,7 @@ select.w2ui-input {
   border-radius: 3px;
   border: 1px solid #bbb;
   -webkit-appearance: none;
-  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAALCAQAAACnzwd+AAAAcklEQVR4AcXMsQFBQQDG4P9tAgC0gJYRQJZgKQMwCqCku6vVAAAA+NJHP4KHOk0aV2pRw61n4BBmyOxKQ8I4ehZeuhd3HTx6DQEGZ7sBfr2OOOOj3Yi43kMKs9sZknofOexqZ8npMygwWZTX51CipP+YA1OiZJbYYg9lAAAAAElFTkSuQmCC'), -webkit-linear-gradient(to bottom, #FFF 20%, #f6f6f6 50%, #EEE 52%, #f4f4f4 100%);
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAALCAQAAACnzwd+AAAAcklEQVR4AcXMsQFBQQDG4P9tAgC0gJYRQJZgKQMwCqCku6vVAAAA+NJHP4KHOk0aV2pRw61n4BBmyOxKQ8I4ehZeuhd3HTx6DQEGZ7sBfr2OOOOj3Yi43kMKs9sZknofOexqZ8npMygwWZTX51CipP+YA1OiZJbYYg9lAAAAAElFTkSuQmCC'), linear-gradient(to bottom, #FFF 20%, #f6f6f6 50%, #EEE 52%, #f4f4f4 100%);
   background-size: 17px 6px, 100% 100%;
   background-position: right center, left top;
   background-repeat: no-repeat, no-repeat;
@@ -206,10 +206,8 @@ input[type="checkbox"].w2ui-toggle + div {
   border: 1px solid #bbb;
   border-radius: 30px;
   background-color: #eee;
-  -webkit-transition-duration: 0.3s;
-  -webkit-transition-property: background-color, box-shadow;
-  -moz-transition-duration: 0.3s;
-  -moz-transition-property: background-color, box-shadow;
+  transition-duration: 0.3s;
+  transition-property: background-color, box-shadow;
   box-shadow: inset 0 0 0 0px rgba(0, 0, 0, 0.4);
   margin-left: 2px;
 }
@@ -229,10 +227,8 @@ input[type="checkbox"].w2ui-toggle + div > div {
   height: 22px;
   border-radius: inherit;
   background: #f5f5f5;
-  -webkit-transition-duration: 0.3s;
-  -webkit-transition-property: transform, background-color, box-shadow;
-  -moz-transition-duration: 0.3s;
-  -moz-transition-property: transform, background-color;
+  transition-duration: 0.3s;
+  transition-property: transform, background-color, box-shadow;
   box-shadow: 0px 0px 1px #323232, 0 0 0 1px rgba(200, 200, 200, 0.6);
   pointer-events: none;
   margin-top: -1px;
@@ -243,13 +239,11 @@ input[type="checkbox"].w2ui-toggle.w2ui-small + div > div {
   height: 16px;
 }
 input[type="checkbox"].w2ui-toggle:checked + div > div {
-  -webkit-transform: translate3d(24px, 0, 0);
-  -moz-transform: translate3d(24px, 0, 0);
+  transform: translate3d(24px, 0, 0);
   background-color: #ffffff;
 }
 input[type="checkbox"].w2ui-toggle.w2ui-small:checked + div > div {
-  -webkit-transform: translate3d(14px, 0, 0);
-  -moz-transform: translate3d(14px, 0, 0);
+  transform: translate3d(14px, 0, 0);
 }
 input[type="checkbox"].w2ui-toggle:focus {
   outline: none;

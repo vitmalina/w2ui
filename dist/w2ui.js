@@ -5855,7 +5855,7 @@ w2utils.event = {
             if (field == 'all') {
                 var search = { field: 'all', label: w2utils.lang('All Fields') };
                 el.w2field('clear');
-                el.change();
+                // el.change(); // triggering change will cause grid calling remote url twice
             } else {
                 var search = this.getSearch(field);
                 if (search == null) return;
@@ -6134,11 +6134,14 @@ w2utils.event = {
                 }
                 if (Array.isArray(data.records)) {
                     // make sure each record has recid
-                    for (var i = 0; i < data.records.length; i++) {
-                        if (data.records[i].recid == null) {
-                            data.records[i].recid = obj.recid ? data.records[i][obj.recid] : 'recid-' + i;
+                    data.records.forEach(function (rec) {
+                        if (obj.recid) {
+                            rec.recid = rec[obj.recid];
                         }
-                    }
+                        if (rec.recid == null) {
+                            rec.recid = 'recid-' + i;
+                        }
+                    })
                 }
                 if (data['status'] == 'error') {
                     obj.error(data['message']);
@@ -6206,12 +6209,16 @@ w2utils.event = {
             if (this.last.xhr_offset === 0) {
                 this.refresh();
             } else {
-                // request function
+                // requestComplete function
                 var more = $('#grid_'+ this.name +'_frec_more, #grid_'+ this.name +'_rec_more');
-                if (this.autoLoad === true) {
-                    more.show().eq(1).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
+                if (this.last.xhr_hasMore) {
+                    if (this.autoLoad === true) {
+                        more.show().eq(1).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
+                    } else {
+                        more.show().eq(1).find('td').html('<div style="padding-top: 15px">'+ w2utils.lang('Load') + ' ' + obj.limit + ' ' + w2utils.lang('More') + '...</div>');
+                    }
                 } else {
-                    more.show().eq(1).find('td').html('<div style="padding-top: 15px">'+ w2utils.lang('Load') + ' ' + obj.limit + ' ' + w2utils.lang('More') + '...</div>');
+                    more.hide()
                 }
                 this.scroll();
                 this.resize();
@@ -10556,6 +10563,7 @@ w2utils.event = {
             }
             // perform virtual scroll
             var buffered = this.records.length;
+            if (buffered > this.total) buffered = this.total;
             if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length;
             if (buffered === 0 || records.length === 0 || records.height() === 0) return;
             if (buffered > this.vs_start) this.last.show_extra = this.vs_extra; else this.last.show_extra = this.vs_start;
@@ -10665,25 +10673,28 @@ w2utils.event = {
                     this.last.xhr_offset += this.limit;
                     this.request('get');
                 }
+                // scroll function
                 var more = $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more');
-                if (more.css('display') == 'none') {
-                    more.show()
-                        .eq(1) // only main table
-                        .on('click', function () {
-                            // debugger
-                            // show spinner
-                            $(this).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
-                            // load more
-                            obj.last.pull_more = true;
-                            obj.last.xhr_offset += obj.limit;
-                            obj.request('get');
-                        })
-                        .find('td')
-                        .html('<div style="padding-top: 15px">'+ w2utils.lang('Load') + ' ' + obj.limit + ' ' + w2utils.lang('More') + '...</div>')
-                }
+                more.show()
+                    .eq(1) // only main table
+                    .on('click', function () {
+                        // debugger
+                        // show spinner
+                        $(this).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
+                        // load more
+                        obj.last.pull_more = true;
+                        obj.last.xhr_offset += obj.limit;
+                        obj.request('get');
+                    })
+                    .find('td')
+                    .html(obj.autoLoad
+                        ? '<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>'
+                        : '<div style="padding-top: 15px">'+ w2utils.lang('Load') + ' ' + obj.limit + ' ' + w2utils.lang('More') + '...</div>'
+                    )
             }
             // check for grid end
-            if (buffered >= this.total - this.offset && this.total != -1) {
+            // if (buffered >= this.total - this.offset && this.total != -1) {
+            if (this.url != null && this.last.xhr_hasMore) {
                 $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more').show();
             }
 
@@ -20375,18 +20386,18 @@ var w2prompt = function (label, title, callBack) {
                         }
                         // generate
                         for (var i = 0; i < items.length; i++) {
-                            input += '<label style="user-select: none">'+
+                            input += '<label class="w2ui-box-label">'+
                                      '  <input id="' + field.field + i +'" name="' + field.field + '" class="w2ui-input" type="checkbox" ' +
                                                 field.html.attr + (i === 0 ? tabindex_str : '') + ' data-value="'+ items[i].id +'" data-index="'+ i +'">' +
-                                        '&#160;' + items[i].text +
+                                        '<span>&#160;' + items[i].text + '</span>' +
                                      '</label><br>';
                         }
                         break;
 
                     case 'checkbox':
-                        input = '<label>'+
-                                '   <input id="'+ field.field +'" name="'+ field.field +'" style="float: left" class="w2ui-input" type="checkbox" '+ field.html.attr + tabindex_str + '>'+
-                                '   <div style="margin: 6px 0 0 20px; user-select: none;">'+ field.html.label +'</div>'+
+                        input = '<label class="w2ui-box-label">'+
+                                '   <input id="'+ field.field +'" name="'+ field.field +'" class="w2ui-input" type="checkbox" '+ field.html.attr + tabindex_str + '>'+
+                                '   <span>'+ field.html.label +'</span>'+
                                 '</label>' + field.html.text;
                         break;
                     case 'radio':
@@ -20400,10 +20411,10 @@ var w2prompt = function (label, title, callBack) {
                         }
                         // generate
                         for (var i = 0; i < items.length; i++) {
-                            input += '<label style="user-select: none">'+
+                            input += '<label class="w2ui-box-label">'+
                                      '  <input id="' + field.field + i + '" name="' + field.field + '" class="w2ui-input" type = "radio" ' +
                                             field.html.attr + (i === 0 ? tabindex_str : '') + ' value="'+ items[i].id + '">' +
-                                        '&#160;' + items[i].text +
+                                        '<span>&#160;' + items[i].text + '</span>' +
                                      '</label><br>';
                         }
                         break;
