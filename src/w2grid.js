@@ -2722,17 +2722,6 @@
             if (this.last.xhr_offset === 0) {
                 this.refresh();
             } else {
-                // requestComplete function
-                var more = $('#grid_'+ this.name +'_frec_more, #grid_'+ this.name +'_rec_more');
-                if (this.last.xhr_hasMore) {
-                    if (this.autoLoad === true) {
-                        more.show().eq(1).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
-                    } else {
-                        more.show().eq(1).find('td').html('<div style="padding-top: 15px">'+ w2utils.lang('Load') + ' ' + obj.limit + ' ' + w2utils.lang('More') + '...</div>');
-                    }
-                } else {
-                    more.hide()
-                }
                 this.scroll();
                 this.resize();
             }
@@ -7190,8 +7179,8 @@
                 var more = $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more');
                 more.show()
                     .eq(1) // only main table
-                    .on('click', function () {
-                        // debugger
+                    .off('.load-more')
+                    .on('click.load-more', function () {
                         // show spinner
                         $(this).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>');
                         // load more
@@ -7204,11 +7193,6 @@
                         ? '<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>'
                         : '<div style="padding-top: 15px">'+ w2utils.lang('Load') + ' ' + obj.limit + ' ' + w2utils.lang('More') + '...</div>'
                     )
-            }
-            // check for grid end
-            // if (buffered >= this.total - this.offset && this.total != -1) {
-            if (this.url != null && this.last.xhr_hasMore) {
-                $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more').show();
             }
 
             function markSearch() {
