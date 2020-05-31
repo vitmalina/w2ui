@@ -19,9 +19,9 @@ $(function () {
         recid: 'userid',
         // dataType: 'JSON',
         // method: 'GET',
-        limit: 2000,
+        // limit: 2000,
         // offset: 3690,
-        // autoLoad: false,
+        autoLoad: true,
         show: {
             toolbar: true,
             footer: true,
@@ -36,9 +36,11 @@ $(function () {
             toolbarSave: true,
             toolbarAdd: true
         },
+        onRequest1(event) {
+            getRecords(event.url, event.postData)
+            event.preventDefault()
+        },
         onLoad(event) {
-            // event.xhr.responseJSON.total = 120
-            console.log(event)
         },
         columns: [
             { field: 'userid', text: 'ID', size: '80px', sortable: true, searchable: 'int', hidden: true },
@@ -47,6 +49,29 @@ $(function () {
             { field: 'email', text: 'date', size: '100%', sortable: true, resizable: true, editable: { type: 'text' } }
         ]
     });
+
+    function getRecords(url, post) {
+        $.ajax({
+            url,
+            method: 'GET',
+            data: { request: JSON.stringify(post) }
+        })
+        .done((data) => {
+            var grid = w2ui.grid
+            grid.last.xhr_offset = post.offset
+            if (grid.last.xhr_offset === 0) grid.records = []
+            if (data.total > grid.records.length) {
+                grid.last.xhr_hasMore = true
+            } else {
+                grid.last.xhr_hasMore = false
+            }
+            grid.last.pull_more    = false;
+            grid.last.pull_refresh = true;
+            grid.total = data.total
+            grid.records = grid.records.concat(data.records)
+            grid.refresh()
+        })
+    }
 });
 //]]>
 </script>
