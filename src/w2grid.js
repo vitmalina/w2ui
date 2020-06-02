@@ -2647,12 +2647,12 @@
                 }
                 if (Array.isArray(data.records)) {
                     // make sure each record has recid
-                    data.records.forEach(function (rec) {
+                    data.records.forEach(function (rec, ind) {
                         if (obj.recid) {
                             rec.recid = rec[obj.recid];
                         }
                         if (rec.recid == null) {
-                            rec.recid = 'recid-' + i;
+                            rec.recid = 'recid-' + ind;
                         }
                     })
                 }
