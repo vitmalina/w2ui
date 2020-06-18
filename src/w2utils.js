@@ -1701,6 +1701,13 @@ var w2utils = (function ($) {
                 b: parseInt(str.substr(4, 2), 16),
                 a: 1
             };
+        } else if (str.length === 8) {
+            color = {
+                r: parseInt(str.substr(0, 2), 16),
+                g: parseInt(str.substr(2, 2), 16),
+                b: parseInt(str.substr(4, 2), 16),
+                a: parseInt(str.substr(6, 2), 16)
+            };
         } else if (str.length > 4 && str.substr(0, 4) === 'RGB(') {
             var tmp = str.replace('RGB', '').replace(/\(/g, '').replace(/\)/g, '').split(',');
             color = {
@@ -2001,6 +2008,7 @@ w2utils.event = {
             var tmp = edata.split('.');
             edata = tmp[0];
             scope = tmp[1];
+            if (edata === '') edata = '*'
         }
         // allow 'eventName:after' syntax
         if (typeof edata === 'string' && edata.indexOf(':') !== -1) {
@@ -2012,7 +2020,7 @@ w2utils.event = {
             };
         }
         if (!$.isPlainObject(edata)) edata = { type: edata };
-        edata = $.extend({}, { type: null, execute: 'before', target: null, onComplete: null }, edata);
+        edata = $.extend({}, { type: null, execute: null, target: null, onComplete: null }, edata);
         // errors
         if (!edata.type && !scope) { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return; }
         if (!handler) { handler = null; }
@@ -2049,7 +2057,7 @@ w2utils.event = {
         // process events in REVERSE order
         for (var h = this.handlers.length-1; h >= 0; h--) {
             var item = this.handlers[h];
-            if ((item.edata.type === edata.type || item.edata.type === '*') &&
+            if (item != null && (item.edata.type === edata.type || item.edata.type === '*') &&
                 (item.edata.target === edata.target || item.edata.target == null) &&
                 (item.edata.execute === edata.phase || item.edata.execute === '*' || item.edata.phase === '*'))
             {
