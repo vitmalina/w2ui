@@ -155,6 +155,7 @@
 *   - added msgDeleteBtn
 *   - grid.toolbar.item batch
 *   - order.column
+*   - fixed select/unselect, not it can take array of ids
 *
 ************************************************************************/
 
@@ -1596,28 +1597,30 @@
             var selected = 0;
             var sel = this.last.selection;
             if (!this.multiSelect) this.selectNone();
-
+            // if too manu arguments > 150k, then it errors off
+            var args = Array.prototype.slice.call(arguments)
+            if (Array.isArray(args[0])) args = args[0]
             // event before
             var tmp = { phase: 'before', type: 'select', target: this.name };
-            if (arguments.length == 1) {
+            if (args.length == 1) {
                 tmp.multiple = false;
-                if ($.isPlainObject(arguments[0])) {
-                    tmp.recid  = arguments[0].recid;
-                    tmp.column = arguments[0].column;
+                if ($.isPlainObject(args[0])) {
+                    tmp.recid  = args[0].recid;
+                    tmp.column = args[0].column;
                 } else {
-                    tmp.recid = arguments[0];
+                    tmp.recid = args[0];
                 }
             } else {
                 tmp.multiple = true;
-                tmp.recids   = Array.prototype.slice.call(arguments, 0);
+                tmp.recids   = args;
             }
             var edata = this.trigger(tmp);
             if (edata.isCancelled === true) return 0;
 
             // default action
             if (this.selectType == 'row') {
-                for (var a = 0; a < arguments.length; a++) {
-                    var recid  = typeof arguments[a] == 'object' ? arguments[a].recid : arguments[a];
+                for (var a = 0; a < args.length; a++) {
+                    var recid  = typeof args[a] == 'object' ? args[a].recid : args[a];
                     var index = this.get(recid, true);
                     if (index == null) continue;
                     var recEl1 = null;
@@ -1640,9 +1643,9 @@
             } else {
                 // normalize for performance
                 var new_sel = {};
-                for (var a = 0; a < arguments.length; a++) {
-                    var recid  = typeof arguments[a] == 'object' ? arguments[a].recid : arguments[a];
-                    var column = typeof arguments[a] == 'object' ? arguments[a].column : null;
+                for (var a = 0; a < args.length; a++) {
+                    var recid  = typeof args[a] == 'object' ? args[a].recid : args[a];
+                    var column = typeof args[a] == 'object' ? args[a].column : null;
                     new_sel[recid] = new_sel[recid] || [];
                     if ($.isArray(column)) {
                         new_sel[recid] = column;
@@ -1719,8 +1722,28 @@
         unselect: function () {
             var unselected = 0;
             var sel = this.last.selection;
-            for (var a = 0; a < arguments.length; a++) {
-                var recid  = typeof arguments[a] == 'object' ? arguments[a].recid : arguments[a];
+            // if too manu arguments > 150k, then it errors off
+            var args = Array.prototype.slice.call(arguments)
+            if (Array.isArray(args[0])) args = args[0]
+            // event before
+            var tmp = { phase: 'before', type: 'unselect', target: this.name };
+            if (args.length == 1) {
+                tmp.multiple = false;
+                if ($.isPlainObject(args[0])) {
+                    tmp.recid  = args[0].recid;
+                    tmp.column = args[0].column;
+                } else {
+                    tmp.recid = args[0];
+                }
+            } else {
+                tmp.multiple = true;
+                tmp.recids   = args
+            }
+            var edata = this.trigger(tmp);
+            if (edata.isCancelled === true) return 0;
+
+            for (var a = 0; a < args.length; a++) {
+                var recid  = typeof args[a] == 'object' ? args[a].recid : args[a];
                 var record = this.get(recid);
                 if (record == null) continue;
                 var index  = this.get(record.recid, true);
@@ -1728,9 +1751,6 @@
                 var recEl2 = $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
                 if (this.selectType == 'row') {
                     if (sel.indexes.indexOf(index) == -1) continue;
-                    // event before
-                    var edata = this.trigger({ phase: 'before', type: 'unselect', target: this.name, recid: recid, index: index });
-                    if (edata.isCancelled === true) continue;
                     // default action
                     sel.indexes.splice(sel.indexes.indexOf(index), 1);
                     recEl1.removeClass('w2ui-selected w2ui-inactive').removeData('selected').find('.w2ui-col-number').removeClass('w2ui-row-selected');
@@ -1742,17 +1762,14 @@
                     recEl1.find('.w2ui-grid-select-check').prop("checked", false);
                     unselected++;
                 } else {
-                    var col  = arguments[a].column;
+                    var col  = args[a].column;
                     if (!w2utils.isInt(col)) { // unselect all columns
                         var cols = [];
                         for (var i = 0; i < this.columns.length; i++) { if (this.columns[i].hidden) continue; cols.push({ recid: recid, column: i }); }
-                        return this.unselect.apply(this, cols);
+                        return this.unselect(cols);
                     }
                     var s = sel.columns[index];
                     if (!$.isArray(s) || s.indexOf(col) == -1) continue;
-                    // event before
-                    var edata = this.trigger({ phase: 'before', type: 'unselect', target: this.name, recid: recid, column: col });
-                    if (edata.isCancelled === true) continue;
                     // default action
                     s.splice(s.indexOf(col), 1);
                     $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid)).find(' > td[col='+ col +']').removeClass('w2ui-selected w2ui-inactive');
@@ -1780,8 +1797,6 @@
                         recEl2.removeData('selected');
                     }
                 }
-                // event after
-                this.trigger($.extend(edata, { phase: 'after' }));
             }
             // all selected?
             var areAllSelected = (this.records.length > 0 && sel.indexes.length == this.records.length),
@@ -1795,6 +1810,8 @@
             this.status();
             this.addRange('selection');
             this.updateToolbar(sel, areAllSelected);
+            // event after
+            this.trigger($.extend(edata, { phase: 'after' }));
             return unselected;
         },
 
@@ -3389,7 +3406,7 @@
                     }
                     //sel.push(this.records[i].recid);
                 }
-                this.select.apply(this, sel_add);
+                this.select(sel_add);
             } else {
                 var last = this.last.selection;
                 var flag = (last.indexes.indexOf(ind) != -1 ? true : false);
@@ -3399,7 +3416,7 @@
                 // clear other if necessary
                 if (((!event.ctrlKey && !event.shiftKey && !event.metaKey && !fselect) || !this.multiSelect) && !this.showSelectColumn) {
                     if (this.selectType != 'row' && $.inArray(column, last.columns[ind]) == -1) flag = false;
-                    if (sel.length > 300) this.selectNone(); else this.unselect.apply(this, sel);
+                    if (sel.length > 300) this.selectNone(); else this.unselect(sel);
                     if (flag === true && sel.length == 1) {
                         this.unselect({ recid: recid, column: column });
                     } else {
@@ -3473,7 +3490,7 @@
                         for (var i = 0; i < this.records.length; i++) {
                             sel.push({ recid: this.records[i].recid, column: cols });
                         }
-                        this.select.apply(this, sel);
+                        this.select(sel);
                     }
                     this.trigger($.extend(edata, { phase: 'after' }));
                 }
@@ -3635,14 +3652,14 @@
                                         if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
                                         unSel.push({ recid: sel[i].recid, column: columns[columns.length-1] });
                                     }
-                                    obj.unselect.apply(obj, unSel);
+                                    obj.unselect(unSel);
                                     obj.scrollIntoView(ind, columns[columns.length-1], true);
                                 } else {
                                     for (var i = 0; i < sel.length; i++) {
                                         if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
                                         newSel.push({ recid: sel[i].recid, column: prev });
                                     }
-                                    obj.select.apply(obj, newSel);
+                                    obj.select(newSel);
                                     obj.scrollIntoView(ind, prev, true);
                                 }
                             } else {
@@ -3689,14 +3706,14 @@
                                         if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
                                         unSel.push({ recid: sel[i].recid, column: columns[0] });
                                     }
-                                    obj.unselect.apply(obj, unSel);
+                                    obj.unselect(unSel);
                                     obj.scrollIntoView(ind, columns[0], true);
                                 } else {
                                     for (var i = 0; i < sel.length; i++) {
                                         if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid);
                                         newSel.push({ recid: sel[i].recid, column: next });
                                     }
-                                    obj.select.apply(obj, newSel);
+                                    obj.select(newSel);
                                     obj.scrollIntoView(ind, next, true);
                                 }
                             } else {
@@ -3744,15 +3761,15 @@
                                     prev = ind2;
                                     var tmp = [];
                                     for (var c = 0; c < columns.length; c++) tmp.push({ recid: obj.records[prev].recid, column: columns[c] });
-                                    obj.unselect.apply(obj, tmp);
+                                    obj.unselect(tmp);
                                 } else {
                                     var tmp = [];
                                     for (var c = 0; c < columns.length; c++) tmp.push({ recid: obj.records[prev].recid, column: columns[c] });
-                                    obj.select.apply(obj, tmp);
+                                    obj.select(tmp);
                                 }
                             }
                         } else { // move selected record
-                            if (sel.length > 300) this.selectNone(); else this.unselect.apply(this, sel);
+                            if (sel.length > 300) this.selectNone(); else this.unselect(sel);
                             obj.click({ recid: obj.records[prev].recid, column: columns[0] }, event);
                         }
                         obj.scrollIntoView(prev);
@@ -3795,15 +3812,15 @@
                                     next = ind;
                                     var tmp = [];
                                     for (var c = 0; c < columns.length; c++) tmp.push({ recid: obj.records[next].recid, column: columns[c] });
-                                    obj.unselect.apply(obj, tmp);
+                                    obj.unselect(tmp);
                                 } else {
                                     var tmp = [];
                                     for (var c = 0; c < columns.length; c++) tmp.push({ recid: obj.records[next].recid, column: columns[c] });
-                                    obj.select.apply(obj, tmp);
+                                    obj.select(tmp);
                                 }
                             }
                         } else { // move selected record
-                            if (sel.length > 300) this.selectNone(); else this.unselect.apply(this, sel);
+                            if (sel.length > 300) this.selectNone(); else this.unselect(sel);
                             obj.click({ recid: obj.records[next].recid, column: columns[0] }, event);
                         }
                         obj.scrollIntoView(next);
@@ -3895,7 +3912,7 @@
                                 break;
                             }
                         }
-                        obj.unselect.apply(obj, sel);
+                        obj.unselect(sel);
                         return true;
                     }
                     return false;
@@ -3903,7 +3920,7 @@
                     obj.last.sel_type = 'key';
                     if (sel.length > 1) {
                         sel.splice(sel.indexOf(obj.records[obj.last.sel_ind].recid), 1);
-                        obj.unselect.apply(obj, sel);
+                        obj.unselect(sel);
                         return true;
                     }
                     return false;
@@ -4403,7 +4420,7 @@
                 ind++;
             }
             this.selectNone();
-            this.select.apply(this, newSel);
+            this.select(newSel);
             this.refresh();
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
@@ -4525,40 +4542,12 @@
 
         refreshCell: function (recid, field) {
             var index     = this.get(recid, true);
-            var isSummary = (this.records[index] && this.records[index].recid == recid ? false : true);
             var col_ind   = this.getColumn(field, true);
-            var rec       = (isSummary ? this.summary[index] : this.records[index]);
-            var col       = this.columns[col_ind];
+            var isSummary = (this.records[index] && this.records[index].recid == recid ? false : true);
             var cell      = $(this.box).find((isSummary ? '.w2ui-grid-summary ' : '') + '#grid_'+ this.name + '_data_'+ index +'_'+ col_ind);
-            if (rec == null) return false;
+            if (cell.length == 0) return false;
             // set cell html and changed flag
             cell.replaceWith(this.getCellHTML(index, col_ind, isSummary));
-            cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ col_ind); // need to recelect as it was replaced
-            if (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes[col.field] != null) {
-                cell.addClass('w2ui-changed');
-            } else {
-                cell.removeClass('w2ui-changed');
-            }
-            // assign style
-            if (rec.w2ui && rec.w2ui.style != null && !$.isEmptyObject(rec.w2ui.style)) {
-                if (typeof rec.w2ui.style == 'string') {
-                    $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid)).attr('style', rec.w2ui.style);
-                }
-                if ($.isPlainObject(rec.w2ui.style) && typeof rec.w2ui.style[col_ind] == 'string') {
-                    cell.attr('style', rec.w2ui.style[col_ind]);
-                }
-            } else {
-                cell.attr('style', '');
-            }
-            // assign class
-            if (rec.w2ui && rec.w2ui.class != null && !$.isEmptyObject(rec.w2ui.class)) {
-                if (typeof rec.w2ui.class == 'string') {
-                    $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid)).addClass(rec.w2ui.class);
-                }
-                if ($.isPlainObject(rec.w2ui.class) && typeof rec.w2ui.class[col_ind] == 'string') {
-                    cell.addClass(rec.w2ui.class[col_ind]);
-                }
-            }
         },
 
         refreshRow: function (recid, ind) {
@@ -4930,8 +4919,19 @@
                     }, 100); // need this timer to be 100 ms
                 })
                 .on('paste', function (event) {
-                    var el = this;
-                    setTimeout(function () { w2ui[obj.name].paste(el.value); el.value = ''; }, 1)
+                    var cd = (event.originalEvent.clipboardData ? event.originalEvent.clipboardData : null)
+                    if (cd && cd.types && cd.types.indexOf('text/plain') != -1) {
+                        event.preventDefault()
+                        var text = cd.getData('text/plain');
+                        if (text.indexOf('\r') != -1 && text.indexOf('\n') == -1) {
+                            text = text.replace(/\r/g, '\n');
+                        }
+                        w2ui[obj.name].paste(text);
+                    } else {
+                        // for older browsers
+                        var el = this;
+                        setTimeout(function () { w2ui[obj.name].paste(el.value); el.value = ''; }, 1)
+                    }
                 })
                 .on('keydown', function (event) {
                     w2ui[obj.name].keydown.call(w2ui[obj.name], event);
@@ -5223,7 +5223,7 @@
                             for (var s = 0; s < sel.length; s++) if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true;
                             if (!flag) tmp.push({ recid: newSel[ns].recid, column: newSel[ns].column });
                         }
-                        obj.select.apply(obj, tmp);
+                        obj.select(tmp);
                         // remove items
                         var tmp = [];
                         for (var s = 0; s < sel.length; s++) {
@@ -5231,7 +5231,7 @@
                             for (var ns = 0; ns < newSel.length; ns++) if (newSel[ns].recid == sel[s].recid && newSel[ns].column == sel[s].column) flag = true;
                             if (!flag) tmp.push({ recid: sel[s].recid, column: sel[s].column });
                         }
-                        obj.unselect.apply(obj, tmp);
+                        obj.unselect(tmp);
                     } else {
                         if (obj.multiSelect) {
                             var sel = obj.getSelection();
@@ -5261,7 +5261,7 @@
                         }
                         obj.removeRange('column-selection');
                         obj.trigger($.extend(edataCol, { phase: 'after' }));
-                        obj.select.apply(obj, sel);
+                        obj.select(sel);
                     }
                     if (obj.reorderRows == true && obj.last.move.reorder) {
                         // event
@@ -5869,13 +5869,12 @@
             var obj = this;
             //if (obj.resizing === true) return;
             $(this.box).find('.w2ui-resizer')
-                .off('click')
-                .on('click', function (event) {
+                .off('.grid-col-resize')
+                .on('click.grid-col-resize', function (event) {
                     if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
                     if (event.preventDefault) event.preventDefault();
                 })
-                .off('mousedown')
-                .on('mousedown', function (event) {
+                .on('mousedown.grid-col-resize', function (event) {
                     if (!event) event = window.event;
                     obj.resizing = true;
                     obj.last.tmp = {
@@ -5885,6 +5884,9 @@
                         gy  : event.screenY,
                         col : parseInt($(this).attr('name'))
                     };
+                    // find tds that will be resized
+                    obj.last.tmp.tds = $('#grid_'+ obj.name +'_body table tr:first-child td[col='+ obj.last.tmp.col +']')
+
                     if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
                     if (event.preventDefault) event.preventDefault();
                     // fix sizes
@@ -5896,21 +5898,7 @@
                     var edata = { phase: 'before', type: 'columnResize', target: obj.name, column: obj.last.tmp.col, field: obj.columns[obj.last.tmp.col].field };
                     edata = obj.trigger($.extend(edata, { resizeBy: 0, originalEvent: event }));
                     // set move event
-                    function debounce(f, ms, obj) {
-                      var timer;
-                      return function () {
-                        var self = this, args = arguments;
-                        timer && clearTimeout(timer);
-                        timer = setTimeout(function() {
-                          f && f.apply(obj || self, args);
-                          timer = null;
-                        }, ms);
-                      }
-                    }
-                    var mouseMoveDebounce = debounce(function(){
-                        obj.resizeRecords();
-                        obj.scroll();
-                    }, 100, obj);
+                    var timer;
                     var mouseMove = function (event) {
                         if (obj.resizing != true) return;
                         if (!event) event = window.event;
@@ -5920,26 +5908,34 @@
                         // default action
                         obj.last.tmp.x = (event.screenX - obj.last.tmp.x);
                         obj.last.tmp.y = (event.screenY - obj.last.tmp.y);
-                        obj.columns[obj.last.tmp.col].size = (parseInt(obj.columns[obj.last.tmp.col].size) + obj.last.tmp.x) + 'px';
-                        mouseMoveDebounce();
+                        var newWidth =(parseInt(obj.columns[obj.last.tmp.col].size) + obj.last.tmp.x) + 'px'
+                        obj.columns[obj.last.tmp.col].size = newWidth;
+                        if (timer) clearTimeout(timer)
+                        timer = setTimeout(function () {
+                            obj.resizeRecords()
+                            obj.scroll()
+                        }, 100)
+                        // quick resize
+                        obj.last.tmp.tds.css({ width: newWidth })
                         // reset
                         obj.last.tmp.x = event.screenX;
                         obj.last.tmp.y = event.screenY;
                     };
                     var mouseUp = function (event) {
                         delete obj.resizing;
-                        $(document).off('mousemove', 'body');
-                        $(document).off('mouseup', 'body');
+                        $(document).off('.grid-col-resize');
                         obj.resizeRecords();
                         obj.scroll();
                         // event after
                         obj.trigger($.extend(edata, { phase: 'after', originalEvent: event }));
                     };
-                    $(document).on('mousemove', 'body', mouseMove);
-                    $(document).on('mouseup', 'body', mouseUp);
+
+                    $(document)
+                        .off('.grid-col-resize')
+                        .on('mousemove.grid-col-resize', mouseMove)
+                        .on('mouseup.grid-col-resize', mouseUp);
                 })
-                .off('dblclick')
-                .on('dblclick', function(event) {
+                .on('dblclick.grid-col-resize', function(event) {
                     var colId = parseInt($(this).attr('name')),
                         col = obj.columns[colId],
                         maxDiff = 0;
@@ -5976,8 +5972,8 @@
                 .each(function (index, el) {
                     var td  = $(el).parent();
                     $(el).css({
-                        "height"         : td.height(),
-                        "margin-left"     : (td.width() - 3) + 'px'
+                        "height"      : td.height(),
+                        "margin-left" : (td.width() - 3) + 'px'
                     });
                 });
         },
