@@ -306,7 +306,7 @@
                     // hide overlay
                     setTimeout(function () {
                         var el = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id));
-                        el.w2overlay({ name: obj.name });
+                        el.w2overlay({ name: obj.name + '_' + it.id });
                     }, 1);
                 }
                 items++;
@@ -363,7 +363,7 @@
                         setTimeout(function () {
                             // hide overlay
                             var el = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id));
-                            el.w2overlay({ name: obj.name });
+                            el.w2overlay({ name: obj.name + '_' + it.id });
                             // uncheck
                             it.checked = false;
                             obj.refresh(it.id);
@@ -378,7 +378,7 @@
                             var left = (el.width() - 50) / 2;
                             if (left > 19) left = 19;
                             if (it.type == 'drop') {
-                                el.w2overlay(it.html, $.extend({ name: obj.name, left: left, top: 3 }, it.overlay, {
+                                el.w2overlay(it.html, $.extend({ name: obj.name + '_' + it.id, left: left, top: 3 }, it.overlay, {
                                     onHide: function (event) {
                                         hideDrop();
                                     }
@@ -590,12 +590,14 @@
                 }
             } else {
                 if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
-                    var drop = $('#w2ui-overlay-'+ this.name);
+                    var drop = $('#w2ui-overlay-'+ this.name  + '_' + w2utils.escapeId(it.id));
                     if (drop.length > 0) {
                         if (it.checked == false) {
                             drop[0].hide();
                         } else {
-                            drop.w2menu('refresh', { items: it.items });
+                            if (['menu', 'menu-radio', 'menu-check'].indexOf(it.type) != -1) {
+                                drop.w2menu('refresh', { items: it.items });
+                            }
                         }
                     }
                 }
