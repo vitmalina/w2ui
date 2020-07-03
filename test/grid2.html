@@ -64,7 +64,11 @@ $(function () {
                 console.log('click', event.target)
             }
         },
-        onSelect: function () {
+        onSelect: function (event) {
+            console.log('select', event)
+        },
+        onUnselect: function (event) {
+            console.log('unselect', event)
         },
         // selectType: 'cell',
         columns: [

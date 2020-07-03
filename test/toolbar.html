@@ -92,7 +92,16 @@
                         { id: '7', text: 'Item 7', img: 'icon-page', tooltip: 'some' },
                         { id: '8', text: 'Item 8', img: 'icon-page', disabled: true },
                         { id: '9', text: 'Item 9', img: 'icon-page', tooltip: 'some' },
-                    ]
+                    ],
+                    overlay: {
+                        // search: true,
+                        menuStyle: 'top: 30px; bottom: 30px',
+                        topHTML: `<div style="padding: 10px; height: 30px; border-bottom: 1px solid silver;">top html</div>
+                                <div style="position: absolute; bottom: 0px; left: 0px; right: 0px; padding: 10px; height: 30px; border-top: 1px solid silver;">positioned here</div>`,
+                        onShow(event) {
+                            console.log('open popup', event)
+                        }
+                    }
                 },
                 { type: 'menu',   id: 'item.2a@', img: 'icon-folder', icon: 'fa fa-heart', tooltip: 'This is some long tooltip',
                     items: [
