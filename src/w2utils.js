@@ -3086,6 +3086,7 @@ w2utils.event = {
                     var txt = mitem.text;
                     var subMenu_dsp = '';
                     if (typeof options.render === 'function') txt = options.render(mitem, options);
+                    if (typeof txt == 'function') txt = txt(mitem, options)
                     if (img)  imgd = '<td class="menu-icon"><div class="w2ui-tb-image w2ui-icon '+ img +'"></div></td>';
                     if (icon) imgd = '<td class="menu-icon" align="center"><span class="w2ui-icon '+ icon +'"></span></td>';
                     // render only if non-empty

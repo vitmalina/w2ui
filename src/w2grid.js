@@ -2666,7 +2666,7 @@
                     // make sure each record has recid
                     data.records.forEach(function (rec, ind) {
                         if (obj.recid) {
-                            rec.recid = rec[obj.recid];
+                            rec.recid = obj.parseField(rec, obj.recid);
                         }
                         if (rec.recid == null) {
                             rec.recid = 'recid-' + ind;
