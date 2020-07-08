@@ -895,7 +895,8 @@
                 var color = $(this.el).val();
                 if (color.substr(0, 3).toLowerCase() !== 'rgb') {
                     color = '#' + color;
-                    if ($(this.el).val().length !== 6 && $(this.el).val().length !== 3) color = '';
+                    var len = $(this.el).val().length
+                    if (len !== 8 && len !== 6 && len !== 3) color = '';
                 }
                 $(this.el).next().find('div').css('background-color', color);
                 if ($(this.el).hasClass('has-focus') && $(this.el).data('skipInit') !== true) {
@@ -1648,7 +1649,6 @@
                         onShow: function (event) {
                             // this needed for IE 11 compatibility
                             if (w2utils.isIE) {
-                                console.log("IE");
                                 $('.w2ui-calendar').on('mousedown', function (event) {
                                     var $tg = $(event.target);
                                     if ($tg.length === 1 && $tg[0].id === 'w2ui-jump-year') {
@@ -1769,7 +1769,6 @@
                         onShow: function (event) {
                             // this needed for IE 11 compatibility
                             if (w2utils.isIE) {
-                                console.log("IE");
                                 $('.w2ui-calendar').on('mousedown', function (event) {
                                     var $tg = $(event.target);
                                     if ($tg.length === 1 && $tg[0].id === 'w2ui-jump-year') {

@@ -40,32 +40,37 @@
     <div class="left">
         <div class="div">
             <div class="preview"></div>
-            <input class="color" onchange="$(this).prev().css('background-color', this.value)">
+            <input class="color" onchange="setColor(this)">
         </div>
         <div class="div">
             <div class="preview"></div>
-            <input class="color" onchange="$(this).prev().css('background-color', this.value)">
+            <input class="color" onchange="setColor(this)">
         </div>
         <div class="div">
             <div class="preview"></div>
-            <input class="color" onchange="$(this).prev().css('background-color', this.value)">
+            <input class="color" onchange="setColor(this)">
         </div>
         <div class="div">
             <div class="preview"></div>
-            <input class="color" onchange="$(this).prev().css('background-color', this.value)">
+            <input class="color" onchange="setColor(this)">
         </div>
         <div class="div">
             <div class="preview"></div>
-            <input class="color" onchange="$(this).prev().css('background-color', this.value)">
+            <input class="color" onchange="setColor(this)">
         </div>
         <div class="div">
             <div class="preview"></div>
-            <input class="color" onchange="$(this).prev().css('background-color', this.value)">
+            <input class="color" onchange="setColor(this)">
         </div>
         <div class="div">
             <div class="preview"></div>
-            <input class="color" onchange="$(this).prev().css('background-color', this.value)">
+            <input class="color" onchange="setColor(this)">
         </div>
     </div>
+    <script>
+        function setColor(el) {
+            $(el).prev().css('background-color', '#'+el.value)
+        }
+    </script>
 </body>
 </html>

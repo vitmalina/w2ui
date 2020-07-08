@@ -2631,7 +2631,7 @@
             var event_name = 'load';
             if (this.last.xhr_cmd == 'save') event_name   = 'save';
             if (this.last.xhr_cmd == 'delete') event_name = 'delete';
-            var edata = this.trigger({ phase: 'before', target: this.name, type: event_name, xhr: this.last.xhr, status: status });
+            var edata = this.trigger({ phase: 'before', target: this.name, type: event_name, xhr: xhr, status: status });
             if (edata.isCancelled === true) {
                 if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' });
                 return;

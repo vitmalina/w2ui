@@ -1694,21 +1694,21 @@ var w2utils = (function ($) {
                 g: parseInt(str[1] + str[1], 16),
                 b: parseInt(str[2] + str[2], 16),
                 a: 1
-            };
+            }
         } else if (str.length === 6) {
             color = {
                 r: parseInt(str.substr(0, 2), 16),
                 g: parseInt(str.substr(2, 2), 16),
                 b: parseInt(str.substr(4, 2), 16),
                 a: 1
-            };
+            }
         } else if (str.length === 8) {
             color = {
                 r: parseInt(str.substr(0, 2), 16),
                 g: parseInt(str.substr(2, 2), 16),
                 b: parseInt(str.substr(4, 2), 16),
-                a: parseInt(str.substr(6, 2), 16)
-            };
+                a: Math.round(parseInt(str.substr(6, 2), 16) / 255 * 100) / 100 // alpha channel 0-1
+            }
         } else if (str.length > 4 && str.substr(0, 4) === 'RGB(') {
             var tmp = str.replace('RGB', '').replace(/\(/g, '').replace(/\)/g, '').split(',');
             color = {
@@ -1716,7 +1716,7 @@ var w2utils = (function ($) {
                 g: parseInt(tmp[1], 10),
                 b: parseInt(tmp[2], 10),
                 a: 1
-            };
+            }
         } else if (str.length > 5 && str.substr(0, 5) === 'RGBA(') {
             var tmp = str.replace('RGBA', '').replace(/\(/g, '').replace(/\)/g, '').split(',');
             color = {
@@ -1724,7 +1724,7 @@ var w2utils = (function ($) {
                 g: parseInt(tmp[1], 10),
                 b: parseInt(tmp[2], 10),
                 a: parseFloat(tmp[3])
-            };
+            }
         } else {
             // word color
             return null;
@@ -3196,11 +3196,11 @@ w2utils.event = {
         if ($('#w2ui-overlay').length === 0) {
             $(el).w2overlay(getColorHTML(options), options);
         } else { // only refresh contents
-            $('#w2ui-overlay .w2ui-color').parent().html(getColorHTML(options));
+            $('#w2ui-overlay .w2ui-colors').parent().html(getColorHTML(options));
             $('#w2ui-overlay').show();
         }
         // bind events
-        $('#w2ui-overlay .color')
+        $('#w2ui-overlay .w2ui-color')
             .off('.w2color')
             .on('mousedown.w2color', function (event) {
                 var color = $(event.originalEvent.target).attr('name'); // should not have #
@@ -3279,17 +3279,20 @@ w2utils.event = {
             if (color.v != null) hsv.v = color.v;
             if (color.a != null) { rgb.a = color.a; hsv.a = color.a; }
             rgb = w2utils.hsv2rgb(hsv);
+            // console.log(rgb)
             var newColor = 'rgba('+ rgb.r +','+ rgb.g +','+ rgb.b +','+ rgb.a +')';
             var cl = [
                 Number(rgb.r).toString(16).toUpperCase(),
                 Number(rgb.g).toString(16).toUpperCase(),
-                Number(rgb.b).toString(16).toUpperCase()
+                Number(rgb.b).toString(16).toUpperCase(),
+                (Math.round(Number(rgb.a)*255)).toString(16).toUpperCase()
             ];
             cl.forEach(function (item, ind) { if (item.length === 1) cl[ind] = '0' + item; });
+            newColor = cl[0] + cl[1] + cl[2] + cl[3];
             if (rgb.a === 1) {
                 newColor = cl[0] + cl[1] + cl[2];
             }
-            $('#w2ui-overlay .color-preview').css('background-color', newColor);
+            $('#w2ui-overlay .color-preview').css('background-color', '#'+newColor);
             $('#w2ui-overlay input').each(function (index, el) {
                 if (el.name) {
                     if (rgb[el.name] != null) el.value = rgb[el.name];
@@ -3301,13 +3304,13 @@ w2utils.event = {
                 if (el.tagName.toUpperCase() === 'INPUT') {
                     $(el).val(newColor).data('skipInit', true);
                     if (options.fireChange) $(el).change();
-                    $(el).next().find('>div').css('background-color', newColor);
+                    $(el).next().find('>div').css('background-color', '#'+newColor);
                 } else {
                     $(el).data('_color', newColor);
                 }
                 if (typeof options.onSelect === 'function') options.onSelect(newColor);
             } else {
-                $('#w2ui-overlay .color-original').css('background-color', newColor);
+                $('#w2ui-overlay .color-original').css('background-color', '#'+newColor);
             }
         }
         var updateSlides = function () {
@@ -3436,7 +3439,7 @@ w2utils.event = {
 
         function getColorHTML(options) {
             var color = options.color, bor;
-            var html  = '<div class="w2ui-color" onmousedown="jQuery(this).parents(\'.w2ui-overlay\').data(\'keepOpen\', true)">'+
+            var html  = '<div class="w2ui-colors" onmousedown="jQuery(this).parents(\'.w2ui-overlay\').data(\'keepOpen\', true)">'+
                         '<div class="w2ui-color-palette">'+
                         '<table cellspacing="5"><tbody>';
             for (var i = 0; i < pal.length; i++) {
@@ -3444,7 +3447,7 @@ w2utils.event = {
                 for (var j = 0; j < pal[i].length; j++) {
                     if (pal[i][j] === 'FFFFFF') bor = ';border: 1px solid #efefef'; else bor = '';
                     html += '<td>'+
-                            '    <div class="color '+ (pal[i][j] === '' ? 'no-color' : '') +'" style="background-color: #'+ pal[i][j] + bor +';" ' +
+                            '    <div class="w2ui-color '+ (pal[i][j] === '' ? 'w2ui-no-color' : '') +'" style="background-color: #'+ pal[i][j] + bor +';" ' +
                             '       name="'+ pal[i][j] +'" index="'+ i + ':' + j +'">'+ (options.color == pal[i][j] ? '&#149;' : '&#160;') +
                             '    </div>'+
                             '</td>';
