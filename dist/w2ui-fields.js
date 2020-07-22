@@ -44,7 +44,8 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - w2menu options.onRemove
 *   - w2menu options.hideOnRemove
 *   - w2menu - can not nest items, item.items and item.expanded
-*   - w2menu.options.topHTML and bottomHTML
+*   - w2menu.options.topHTML
+*   - w2menu.options.menuStyle
 *
 ************************************************/
 
@@ -1702,6 +1703,13 @@ var w2utils = (function ($) {
                 b: parseInt(str.substr(4, 2), 16),
                 a: 1
             };
+        } else if (str.length === 8) {
+            color = {
+                r: parseInt(str.substr(0, 2), 16),
+                g: parseInt(str.substr(2, 2), 16),
+                b: parseInt(str.substr(4, 2), 16),
+                a: parseInt(str.substr(6, 2), 16)
+            };
         } else if (str.length > 4 && str.substr(0, 4) === 'RGB(') {
             var tmp = str.replace('RGB', '').replace(/\(/g, '').replace(/\)/g, '').split(',');
             color = {
@@ -2002,6 +2010,7 @@ w2utils.event = {
             var tmp = edata.split('.');
             edata = tmp[0];
             scope = tmp[1];
+            if (edata === '') edata = '*'
         }
         // allow 'eventName:after' syntax
         if (typeof edata === 'string' && edata.indexOf(':') !== -1) {
@@ -2013,7 +2022,7 @@ w2utils.event = {
             };
         }
         if (!$.isPlainObject(edata)) edata = { type: edata };
-        edata = $.extend({}, { type: null, execute: 'before', target: null, onComplete: null }, edata);
+        edata = $.extend({}, { type: null, execute: null, target: null, onComplete: null }, edata);
         // errors
         if (!edata.type && !scope) { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return; }
         if (!handler) { handler = null; }
@@ -2050,7 +2059,7 @@ w2utils.event = {
         // process events in REVERSE order
         for (var h = this.handlers.length-1; h >= 0; h--) {
             var item = this.handlers[h];
-            if ((item.edata.type === edata.type || item.edata.type === '*') &&
+            if (item != null && (item.edata.type === edata.type || item.edata.type === '*') &&
                 (item.edata.target === edata.target || item.edata.target == null) &&
                 (item.edata.execute === edata.phase || item.edata.execute === '*' || item.edata.phase === '*'))
             {
@@ -2778,6 +2787,7 @@ w2utils.event = {
             hideOnRemove : false,
             tmp          : {}
         };
+        var ret;
         var obj  = this;
         var name = '';
         if (menu === 'refresh') {
@@ -2929,10 +2939,11 @@ w2utils.event = {
                 options.index = 0;
                 for (var i = 0; i < options.items.length; i++) options.items[i].hidden = false;
             }
-            html += '<div class="w2ui-menu" style="top: '+ (options.search ? 40 : 0) + 'px">' +
+            html += (options.topHTML || '') +
+                    '<div class="w2ui-menu" style="top: '+ (options.search ? 40 : 0) + 'px;' + (options.menuStyle || '') + '">' +
                         getMenuHTML() +
                     '</div>';
-            var ret = $(this).w2overlay(html, options);
+            ret = $(this).w2overlay(html, options);
             setTimeout(function () {
                 $('#w2ui-overlay'+ name +' #menu-search')
                     .on('keyup', change)
@@ -2947,9 +2958,14 @@ w2utils.event = {
                 mresize();
             }, 250);
             mresize();
-            return ret;
+            // map functions
+            var div = $('#w2ui-overlay'+ name);
+            if (div.length > 0) {
+                div[0].mresize = mresize;
+                div[0].change = change;
+            }
         }
-        return;
+        return ret;
 
         function mresize() {
             setTimeout(function () {
@@ -2959,7 +2975,9 @@ w2utils.event = {
                 var scrTop = $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop();
                 cur.addClass('w2ui-selected');
                 if (options.tmp) {
-                    options.tmp.contentHeight = $('#w2ui-overlay'+ name +' table').height() + (options.search ? 50 : 10);
+                    options.tmp.contentHeight = $('#w2ui-overlay'+ name +' table').height() + (options.search ? 50 : 10)
+                        + (parseInt($('#w2ui-overlay'+ name +' .w2ui-menu').css('top')) || 0) // it menu is moved with menuStyle
+                        + (parseInt($('#w2ui-overlay'+ name +' .w2ui-menu').css('bottom')) || 0); // it menu is moved with menuStyle
                     options.tmp.contentWidth  = $('#w2ui-overlay'+ name +' table').width();
                 }
                 if ($('#w2ui-overlay'+ name).length > 0) $('#w2ui-overlay'+ name)[0].resize();
@@ -3044,8 +3062,7 @@ w2utils.event = {
                         '</td></tr></tbody></table>';
             }
             var count        = 0;
-            var menu_html    =  '<table cellspacing="0" cellpadding="0" class="'+ (subMenu ? ' sub-menu' : '') +'"><tbody>'
-                + (options.topHTML ? '<tr class="w2ui-disabled" style="opacity: 1"><td colspan="3">' + options.topHTML + '</td></tr>' : '');
+            var menu_html    =  '<table cellspacing="0" cellpadding="0" class="'+ (subMenu ? ' sub-menu' : '') +'"><tbody>';
             var img = null, icon = null;
             if (items == null) items = options.items;
             if (!Array.isArray(items)) items = []
@@ -3070,6 +3087,7 @@ w2utils.event = {
                     var txt = mitem.text;
                     var subMenu_dsp = '';
                     if (typeof options.render === 'function') txt = options.render(mitem, options);
+                    if (typeof txt == 'function') txt = txt(mitem, options)
                     if (img)  imgd = '<td class="menu-icon"><div class="w2ui-tb-image w2ui-icon '+ img +'"></div></td>';
                     if (icon) imgd = '<td class="menu-icon" align="center"><span class="w2ui-icon '+ icon +'"></span></td>';
                     // render only if non-empty
@@ -3129,7 +3147,6 @@ w2utils.event = {
             if (count === 0 && options.msgNoItems) {
                 menu_html += '<tr><td style="padding: 13px; color: #999; text-align: center">'+ options.msgNoItems +'</div></td></tr>';
             }
-            menu_html += (options.bottomHTML ? '<tr class="w2ui-disabled" style="opacity: 1"><td colspan="3">' + options.bottomHTML + '</td></tr>' : '');
             menu_html += "</tbody></table>";
             return menu_html;
         }
