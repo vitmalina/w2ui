@@ -15,7 +15,7 @@ console.log('==> Removing Current Files');
 var tmp = fs.readdirSync('summary');
 var cnt = 0;
 for (var t in tmp) {
-    fs.unlink('summary/' + tmp[t]);
+    fs.unlink('summary/' + tmp[t], ()=>{});
     cnt++;
 }
 console.log('    DONE. Removed '+ cnt + ' files');
