@@ -12,3 +12,4 @@ npm-shrinkwrap.json
 package-lock.json
 *~
 clazzes-maven/target
+.DS_Store
