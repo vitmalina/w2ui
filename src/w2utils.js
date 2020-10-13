@@ -38,6 +38,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - w2tag options.maxWidth
 *   - w2tag options.auto - if set to true, then tag will show on mouseover
 *   - w2tag options.showOn, hideOn - if set to true, then tag will show on mouseover
+*   - w2tag options.className: 'w2ui-light' - for light color tag
 *   - w2menu options.items... remove t/f
 *   - w2menu options.items... keepOpen t/f
 *   - w2menu options.onRemove
@@ -45,6 +46,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *   - w2menu - can not nest items, item.items and item.expanded
 *   - w2menu.options.topHTML
 *   - w2menu.options.menuStyle
+*   - naturalCompare
 *
 ************************************************/
 
@@ -2694,7 +2696,7 @@ w2utils.event = {
                     maxWidth  = window.innerWidth + $(document).scrollLeft() - options.pageX;
                 }
 
-                if ((maxHeight > -50 && maxHeight < 210) || options.openAbove === true) {
+                if (((maxHeight > -50 && maxHeight < 210) || options.openAbove === true) && options.openAbove !== false) {
                     var tipOffset;
                     // show on top
                     if (options.contextMenu) { // context menu

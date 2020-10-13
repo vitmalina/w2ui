@@ -18,6 +18,7 @@
 *   - item.options
 *   - event.item.get - finds selected item
 *   - item.keepOpen, drop down will not close
+*   - item.type = 'new-line'
 *
 ************************************************************************/
 
@@ -526,6 +527,11 @@
                 }
                 if (it.type == 'spacer') {
                     html += '<td width="100%" id="tb_'+ this.name +'_item_'+ it.id +'" align="right"></td>';
+                } else if (it.type == 'new-line') {
+                    html += '<td width="100%"></td></tr></tbody></table>'
+                         + '<div class="w2ui-toolbar-new-line"></div>'
+                         + '<table cellspacing="0" cellpadding="0" width="100%"><tbody><tr>';
+
                 } else {
                     html += '<td id="tb_'+ this.name + '_item_'+ it.id +'" style="'+ (it.hidden ? 'display: none' : '') +'" '+
                             '    class="'+ (it.disabled ? 'disabled' : '') +'" valign="middle">'+

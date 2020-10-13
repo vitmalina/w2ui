@@ -979,7 +979,7 @@
                         input = '<label class="w2ui-box-label">'+
                                 '   <input id="'+ field.field +'" name="'+ field.field +'" class="w2ui-input" type="checkbox" '+ field.html.attr + tabindex_str + '>'+
                                 '   <span>'+ field.html.label +'</span>'+
-                                '</label>' + field.html.text;
+                                '</label>';
                         break;
                     case 'radio':
                         input = '';
@@ -1066,7 +1066,7 @@
                 if (field.html.anchor == null) {
                     var span  = (field.html.span != null ? 'w2ui-span'+ field.html.span : '')
                     if (field.html.span == -1) span = 'w2ui-span-none';
-                    var label = '<label'+ (span == 'none' ? ' style="display: none"' : '') +'>' + w2utils.lang(field.type != 'checkbox' ? field.html.label : '') +'</label>'
+                    var label = '<label'+ (span == 'none' ? ' style="display: none"' : '') +'>' + w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text) +'</label>'
                     if (!field.html.label) label = ''
                     html += '\n      <div class="w2ui-field '+ span +'" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style  +'">'+
                             '\n         '+ label +
