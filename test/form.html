@@ -30,7 +30,6 @@
                 { id: 'tab3', text: 'HTML' }
             ],
             onProgress: function (event) {
-                console.log('progress');
                 event.preventDefault();
             },
             toolbar: {
@@ -92,8 +91,6 @@
                             if (item.id < 4) return false;
                         },
                         items: function(el) {
-                            console.log('LIST', el)
-                            console.log(this)
                             return [
                                 { id: 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
                                 { id: 'item2', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) }
@@ -117,8 +114,6 @@
                     options: {
                         applyFilter: false,
                         items: function(el) {
-                            console.log('COMBO', el)
-                            console.log(this)
                             return [
                                 { id: 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
                                 { id: 'item2', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) }
@@ -131,8 +126,6 @@
                     html: { attr: 'style="width: 400px"' },
                     options: {
                         items: function (el) {
-                            console.log('ENUM', el)
-                            console.log(this)
                             return [
                                 { id: 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
                                 { id: 'item2', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) }
@@ -189,7 +182,7 @@
                 }
             ],
             onChange: function (event) {
-                console.log(event.target, '=', event.value_previous, '-->', event.value_new);
+                event.preventDefault()
             },
             // onInput: function (event) {
             //     console.log('input', event);
@@ -208,10 +201,8 @@
                     }
                 },
                 save: function () {
-                    console.log('save', this.record);
                     var obj = this;
                     this.save({}, function (data) {
-                        console.log(data);
                         if (data.status == 'error') {
                             console.log('ERROR: '+ data.message);
                             return;

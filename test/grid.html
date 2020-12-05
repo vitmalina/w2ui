@@ -52,7 +52,12 @@ jQuery(function () {
             toolbarSave: true
         },
         menu: [
-            { id: 1, text: 'Select Item', icon: 'fa fa-star' },
+            { id: 1, text: 'Select Item', icon: 'fa fa-star',
+                items: [
+                    { id: 'item1', text: 'Select Item', icon: 'fa fa-star' },
+                    { id: 'item2', text: 'Select Item', icon: 'fa fa-star' }
+                ]
+            },
             { id: 2, text: 'View Item', icon: 'fa fa-camera' },
             { id: 4, text: 'Delete Item', icon: 'fa fa-minus' }
         ],

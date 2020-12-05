@@ -1288,8 +1288,13 @@
                 $(field.$el)
                     .off('.w2form')
                     .on('change.w2form', function (event) {
+                        var that = this;
                         var field = obj.get(this.name);
                         if (field == null) return;
+                        if ($(this).data('skip_change') == true) {
+                            $(this).data('skip_change', false)
+                            return
+                        }
 
                         var value_new      = this.value;
                         var value_previous = obj.getValue(this.name);
@@ -1334,8 +1339,13 @@
                         // event before
                         var edata2 = obj.trigger({ phase: 'before', target: this.name, type: 'change', value_new: value_new, value_previous: value_previous, originalEvent: event });
                         if (edata2.isCancelled === true) {
-                            $(this).val(obj.getValue(this.name)); // return previous value
-                            return;
+                            edata2.value_new = obj.getValue(this.name)
+                            if ($(this).val() !== edata2.value_new) {
+                                $(this).data('skip_change', true)
+                                // if not immediate, then ignore it
+                                setTimeout(function () { $(that).data('skip_change', false) }, 10)
+                            }
+                            $(this).val(edata2.value_new); // return previous value
                         }
                         // default action
                         var val = edata2.value_new;
