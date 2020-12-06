@@ -2517,9 +2517,15 @@ w2utils.event = {
         if (options.contextMenu && (options.pageX == null || options.pageY == null)) {
             console.log('ERROR: to display menu at mouse location, pass options.pageX and options.pageY.');
         }
+        var data_str = ''
+        if (options.data) {
+            Object.keys(options.data).forEach(function (item) {
+                data_str += 'data-'+ item + '="' + options.data[item] +'"'
+            })
+        }
         // append
         $('body').append(
-            '<div id="w2ui-overlay'+ name +'" style="display: none; left: 0px; top: 0px; '+ options.overlayStyle +'"'+
+            '<div id="w2ui-overlay'+ name +'" style="display: none; left: 0px; top: 0px; '+ options.overlayStyle +'" '+ data_str +
             '        class="w2ui-reset w2ui-overlay '+ ($(this).parents('.w2ui-popup, .w2ui-overlay-popup, .w2ui-message').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
             '    <style></style>'+
             '    <div style="min-width: 100%; '+ options.style +'" class="'+ options['class'] +'"></div>'+

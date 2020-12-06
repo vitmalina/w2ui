@@ -309,7 +309,7 @@
                     // hide overlay
                     setTimeout(function () {
                         var el = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id));
-                        el.w2overlay({ name: obj.name + '_' + it.id });
+                        el.w2overlay({ name: obj.name, data: { "tb-item": it.id }});
                     }, 1);
                 }
                 items++;
@@ -366,7 +366,7 @@
                         setTimeout(function () {
                             // hide overlay
                             var el = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id));
-                            el.w2overlay({ name: obj.name + '_' + it.id });
+                            el.w2overlay({ name: obj.name, data: { "tb-item": it.id }});
                             // uncheck
                             it.checked = false;
                             obj.refresh(it.id);
@@ -381,7 +381,7 @@
                             var left = (el.width() - 50) / 2;
                             if (left > 19) left = 19;
                             if (it.type == 'drop') {
-                                el.w2overlay(it.html, $.extend({ name: obj.name + '_' + it.id, left: left, top: 3 }, it.overlay, {
+                                el.w2overlay(it.html, $.extend({ name: obj.name, left: left, top: 3, data: { "tb-item": it.id } }, it.overlay, {
                                     onHide: function (event) {
                                         hideDrop();
                                     }
@@ -401,7 +401,7 @@
                                         if ($.isArray(it.selected) && it.selected.indexOf(item.id) != -1) item.checked = true; else item.checked = false;
                                     });
                                 }
-                                el.w2menu($.extend({ name: obj.name, items: items, left: left, top: 3 }, it.overlay, {
+                                el.w2menu($.extend({ name: obj.name, items: items, left: left, top: 3, data: { "tb-item": it.id } }, it.overlay, {
                                     type: menuType,
                                     remove: function (event) {
                                         obj.menuClick({ name: obj.name, remove: true, item: it, subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen });
@@ -598,7 +598,7 @@
                 }
             } else {
                 if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
-                    var drop = $('#w2ui-overlay-'+ this.name  + '_' + w2utils.escapeId(it.id));
+                    var drop = $('#w2ui-overlay-'+ this.name);
                     if (drop.length > 0) {
                         if (it.checked == false) {
                             drop[0].hide();
