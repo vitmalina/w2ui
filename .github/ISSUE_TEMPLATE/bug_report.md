@@ -15,12 +15,12 @@ For support please feel free to reach out on stackoverflow or w2ui.com:
 -->
 
 **Short description**
-... A clear and concise description of the problem
+A clear and concise description of the problem
 
 **What is current behavior**
 ...
 
-**What is desired behaviour**
+**What is desired behavior**
 ...
 
 **Link to jsfidle/codepan with sample code**
