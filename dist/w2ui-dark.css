@@ -3454,6 +3454,11 @@ button.w2ui-btn-small:focus:before {
   border-radius: 4px;
   cursor: default;
 }
+.w2ui-toolbar .w2ui-toolbar-new-line {
+  border-top: 1px solid #dedede;
+  border-bottom: 1px solid white;
+  margin: 5px 0 5px 0;
+}
 .w2ui-toolbar .w2ui-break {
   background-image: -webkit-linear-gradient(top, rgba(119, 119, 119, 0.1) 0%, #777 40%, #777 60%, rgba(119, 119, 119, 0.1) 100%);
   background-image: -moz-linear-gradient(top, rgba(119, 119, 119, 0.1) 0%, #777 40%, #777 60%, rgba(119, 119, 119, 0.1) 100%);
