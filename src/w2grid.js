@@ -156,6 +156,7 @@
 *   - grid.toolbar.item batch
 *   - order.column
 *   - fixed select/unselect, not it can take array of ids
+*   - menuClick - changed parameters
 *
 ************************************************************************/
 
@@ -4937,7 +4938,7 @@
                 });
             // init mouse events for mouse selection
             var edataCol; // event for column select
-            $(this.box).on('mousedown', mouseStart);
+            $(this.box).off('mousedown').on('mousedown', mouseStart);
             this.updateToolbar()
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
