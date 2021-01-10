@@ -72,7 +72,7 @@ $(function () {
         },
         // selectType: 'cell',
         columns: [
-            { field: 'recid', text: 'ID', size: '80px', sortable: true, searchable: 'int' },
+            { field: 'recid', text: function(col) { return (new Date()).getTime() }, size: '180px', sortable: true, searchable: 'int' },
             { field: 'int', text: 'int', size: '80px', sortable: true, resizable: true,
               editable: function (record, index, col_index, data) {
                   // only odd 'recid' records are editable
@@ -98,20 +98,20 @@ $(function () {
                     return html;
                 }
             },
-            { field: 'check', text: 'check', size: '40px', sortable: true, resizable: true,
+            { field: 'check', text: 'check', size: '70px', sortable: true, resizable: true,
                 editable: function (record, index, col_index, data) {
                   // only odd 'recid' records are editable
                   if (record.recid % 2) return { type: 'checkbox' }
                } },
-            // { field: 'enum', text: 'enum', size: '380px', sortable: true, resizable: true, editable: { type: 'enum', items: people } },
-            // { field: 'file', text: 'file', size: '80px', sortable: true, resizable: true, editable: { type: 'file' } },
+            { field: 'enum', text: 'enum', size: '380px', sortable: true, resizable: true, editable: { type: 'enum', items: people } },
+            { field: 'file', text: 'file', size: '80px', sortable: true, resizable: true, editable: { type: 'file' } },
             // { field: 'radio', text: 'radio', size: '80px', sortable: true, resizable: true, editable: { type: 'radio' } },
         ]
     });
     var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
     var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
     // add 10k records
-    for (var i = 0; i < 15; i++) {
+    for (var i = 0; i < 150; i++) {
         w2ui['grid'].records.push({
             recid : (i + 10),
             list1 : { id: 1, text: 'some' },

@@ -118,13 +118,12 @@ jQuery(function () {
             // 'fname-full': 'fname'
         },
         // sortData: [ { field: 'personid', direction: 'asc' } ],
-        columnGroups1: [
-            { text: '', span: 1 },
-            { text: '', span: 1 },
-            { text: 'General Information', span: 2},
-            { text: 'Email', span: 1, master: true },
-            { text: 'Text', span: 1, master: true },
-            { text: 'Important Dates', span: 3 }
+        columnGroups: [
+            { text: '11', text1: function(col) { return (new Date()).getTime() }, span: 3 },
+            { text: 'General Information', span: 4 },
+            // { text: 'Email', span: 1, master: false },
+            // { text: 'Text', span: 1, master: false },
+            // { text: 'Important Dates', span: 3 }
         ],
         columns: [
             { field: 'personid', text: 'ID', size: '160px', sortable: true, resizable: true, frozen1: true, tooltip: 'User ID', info: true },

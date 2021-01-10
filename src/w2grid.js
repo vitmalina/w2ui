@@ -157,6 +157,8 @@
 *   - order.column
 *   - fixed select/unselect, not it can take array of ids
 *   - menuClick - changed parameters
+*   - column.text can be a function
+*   - columnGroup.text can be a function
 *
 ************************************************************************/
 
@@ -760,8 +762,9 @@
                     }
                 })
             });
-            this.refreshBody();
-            this.resizeRecords();
+            if (effected > 0) {
+                this.refresh(); // need full refresh due to colgroups not resiging properly
+            }
             return effected;
         },
 
@@ -6675,11 +6678,13 @@
                     }
                     var colspan = 0;
                     for (var jj = ii; jj < ii + colg.span; jj++) {
-                        if (obj.columns[jj] && !obj.columns[jj].hidden)
+                        if (obj.columns[jj] && !obj.columns[jj].hidden) {
                             colspan++;
+                        }
                     }
-                    if (i == obj.columnGroups.length-1)
-                        colspan++;      // XXX
+                    if (i == obj.columnGroups.length-1) {
+                        colspan = 100; // last column
+                    }
                     if (colspan <= 0) {
                         // do nothing here, all columns in the group are hidden.
                     } else if (colg.master === true) {
@@ -6694,6 +6699,7 @@
                         if (col.resizable !== false) {
                             resizer = '<div class="w2ui-resizer" name="'+ ii +'"></div>';
                         }
+                        var text  = (typeof col.text == 'function' ? col.text(col) : col.text);
                         tmpf = '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head '+ sortStyle +'" col="'+ ii + '" '+
                                '    rowspan="2" colspan="'+ colspan +'" '+
                                '    oncontextmenu = "w2ui[\''+ obj.name +'\'].contextMenu(null, '+ ii +', event);"'+
@@ -6702,15 +6708,16 @@
                                    resizer +
                                '    <div class="w2ui-col-group w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +'">'+
                                '        <div class="'+ sortStyle +'"></div>'+
-                                       (!col.text ? '&#160;' : col.text) +
+                                       (!text ? '&#160;' : text) +
                                '    </div>'+
                                '</td>';
                         if (col && col.frozen) html1 += tmpf; else html2 += tmpf;
                     } else {
+                        var gText = (typeof colg.text == 'function' ? colg.text(colg) : colg.text);
                         tmpf = '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head" col="'+ ii + '" '+
                                '        colspan="'+ colspan +'">'+
                                '    <div class="w2ui-col-group">'+
-                                   (!colg.text ? '&#160;' : colg.text) +
+                                   (!gText ? '&#160;' : gText) +
                                '    </div>'+
                                '</td>';
                         if (col && col.frozen) html1 += tmpf; else html2 += tmpf;
@@ -6810,6 +6817,7 @@
                     if (tmp[t][si] == i) selected = true;
                 }
             }
+            var text = (typeof col.text == 'function' ? col.text(col) : col.text);
             var html = '<td id="grid_'+ this.name + '_column_' + i +'" col="'+ i +'" class="w2ui-head '+ sortStyle + reorderCols + '" ' +
                              (this.columnTooltip == 'normal' && col.tooltip ? 'title="'+ col.tooltip +'" ' : '') +
                         '    onmouseEnter = "w2ui[\''+ this.name +'\'].columnTooltipShow(\''+ i +'\', event);"'+
@@ -6820,7 +6828,7 @@
                              (col.resizable !== false ? '<div class="w2ui-resizer" name="'+ i +'"></div>' : '') +
                         '    <div class="w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +' '+ (selected ? 'w2ui-col-selected' : '') +'">'+
                         '        <div class="'+ sortStyle +'"></div>'+
-                                (!col.text ? '&#160;' : col.text) +
+                                (!text ? '&#160;' : text) +
                         '    </div>'+
                         '</td>';
 
