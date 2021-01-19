@@ -231,7 +231,7 @@ var w2popup = {};
                         .css(w2utils.cssPrefix({
                             'transition': options.speed + 's opacity, ' + options.speed + 's -webkit-transform'
                         }))
-						.removeClass("w2ui-popup-opening");
+                        .removeClass("w2ui-popup-opening");
                         obj.focus();
                 }, 1);
                 // clean transform
@@ -452,7 +452,7 @@ var w2popup = {};
                 .css(w2utils.cssPrefix({
                     'transition': options.speed + 's opacity, ' + options.speed + 's -webkit-transform'
                 }))
-				.addClass("w2ui-popup-closing");
+                .addClass("w2ui-popup-closing");
             w2popup.unlockScreen(options);
             setTimeout(function () {
                 // return template
