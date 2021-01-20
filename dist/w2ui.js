@@ -3672,6 +3672,8 @@ w2utils.event = {
 *   - order.column
 *   - fixed select/unselect, not it can take array of ids
 *   - menuClick - changed parameters
+*   - column.text can be a function
+*   - columnGroup.text can be a function
 *
 ************************************************************************/
 
@@ -4275,8 +4277,9 @@ w2utils.event = {
                     }
                 })
             });
-            this.refreshBody();
-            this.resizeRecords();
+            if (effected > 0) {
+                this.refresh(); // need full refresh due to colgroups not resiging properly
+            }
             return effected;
         },
 
@@ -10190,11 +10193,13 @@ w2utils.event = {
                     }
                     var colspan = 0;
                     for (var jj = ii; jj < ii + colg.span; jj++) {
-                        if (obj.columns[jj] && !obj.columns[jj].hidden)
+                        if (obj.columns[jj] && !obj.columns[jj].hidden) {
                             colspan++;
+                        }
                     }
-                    if (i == obj.columnGroups.length-1)
-                        colspan++;      // XXX
+                    if (i == obj.columnGroups.length-1) {
+                        colspan = 100; // last column
+                    }
                     if (colspan <= 0) {
                         // do nothing here, all columns in the group are hidden.
                     } else if (colg.master === true) {
@@ -10209,6 +10214,7 @@ w2utils.event = {
                         if (col.resizable !== false) {
                             resizer = '<div class="w2ui-resizer" name="'+ ii +'"></div>';
                         }
+                        var text  = (typeof col.text == 'function' ? col.text(col) : col.text);
                         tmpf = '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head '+ sortStyle +'" col="'+ ii + '" '+
                                '    rowspan="2" colspan="'+ colspan +'" '+
                                '    oncontextmenu = "w2ui[\''+ obj.name +'\'].contextMenu(null, '+ ii +', event);"'+
@@ -10217,15 +10223,16 @@ w2utils.event = {
                                    resizer +
                                '    <div class="w2ui-col-group w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +'">'+
                                '        <div class="'+ sortStyle +'"></div>'+
-                                       (!col.text ? '&#160;' : col.text) +
+                                       (!text ? '&#160;' : text) +
                                '    </div>'+
                                '</td>';
                         if (col && col.frozen) html1 += tmpf; else html2 += tmpf;
                     } else {
+                        var gText = (typeof colg.text == 'function' ? colg.text(colg) : colg.text);
                         tmpf = '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head" col="'+ ii + '" '+
                                '        colspan="'+ colspan +'">'+
                                '    <div class="w2ui-col-group">'+
-                                   (!colg.text ? '&#160;' : colg.text) +
+                                   (!gText ? '&#160;' : gText) +
                                '    </div>'+
                                '</td>';
                         if (col && col.frozen) html1 += tmpf; else html2 += tmpf;
@@ -10325,6 +10332,7 @@ w2utils.event = {
                     if (tmp[t][si] == i) selected = true;
                 }
             }
+            var text = (typeof col.text == 'function' ? col.text(col) : col.text);
             var html = '<td id="grid_'+ this.name + '_column_' + i +'" col="'+ i +'" class="w2ui-head '+ sortStyle + reorderCols + '" ' +
                              (this.columnTooltip == 'normal' && col.tooltip ? 'title="'+ col.tooltip +'" ' : '') +
                         '    onmouseEnter = "w2ui[\''+ this.name +'\'].columnTooltipShow(\''+ i +'\', event);"'+
@@ -10335,7 +10343,7 @@ w2utils.event = {
                              (col.resizable !== false ? '<div class="w2ui-resizer" name="'+ i +'"></div>' : '') +
                         '    <div class="w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +' '+ (selected ? 'w2ui-col-selected' : '') +'">'+
                         '        <div class="'+ sortStyle +'"></div>'+
-                                (!col.text ? '&#160;' : col.text) +
+                                (!text ? '&#160;' : text) +
                         '    </div>'+
                         '</td>';
 
@@ -14127,18 +14135,26 @@ var w2prompt = function (label, title, callBack) {
 *
 * == 1.5 changes ==
 *   - tab.caption - deprecated
+*   - getTabHTML()
+*   - refactored with display: flex
+*   - reorder
+*   - initReorder
+*   - dragMove
+*   - tmp
 *
 ************************************************************************/
 
 (function ($) {
     var w2tabs = function (options) {
-        this.box       = null;      // DOM Element that holds the element
-        this.name      = null;      // unique name for w2ui
+        this.box       = null;        // DOM Element that holds the element
+        this.name      = null;        // unique name for w2ui
         this.active    = null;
-        this.flow      = 'down';    // can be down or up
-        this.tooltip   = 'top|left';     // can be top, bottom, left, right
+        this.reorder   = false;
+        this.flow      = 'down';      // can be down or up
+        this.tooltip   = 'top|left';  // can be top, bottom, left, right
         this.tabs      = [];
-        this.routeData = {};        // data for dynamic routes
+        this.routeData = {};          // data for dynamic routes
+        this.tmp       = {};          // placeholder for internal variables
         this.right     = '';
         this.style     = '';
 
@@ -14222,10 +14238,9 @@ var w2prompt = function (label, title, callBack) {
                     this.tabs.push(newTab);
                 } else {
                     var middle = this.get(id, true);
-                    this.tabs = this.tabs.slice(0, middle).concat([newTab], this.tabs.slice(middle));
+                    var before = this.tabs[middle].id
+                    this.insertTabHTML(before, newTab)
                 }
-                this.refresh(tab[i].id);
-                this.resize();
             }
         },
 
@@ -14338,10 +14353,80 @@ var w2prompt = function (label, title, callBack) {
             return disabled;
         },
 
+        dragMove: function(event) {
+            if (!this.tmp.reordering) return
+            var obj  = this;
+            var info = this.tmp.moving
+            var tab  = this.tabs[info.index];
+            var next = _find(info.index, 1);
+            var prev = _find(info.index, -1);
+            var $el  = $('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(tab.id))
+            if (info.divX > 0 && next) {
+                var $nextEl = $('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(next.id))
+                var width1 = parseInt($el.css('width'));
+                var width2 = parseInt($nextEl.css('width'));
+                if (width1 < width2) {
+                    width1 = Math.floor(width1 / 3)
+                    width2 = width2 - width1;
+                } else {
+                    width1 = Math.floor(width2 / 3)
+                    width2 = width2 - width1;
+                }
+                if (info.divX > width2) {
+                    var index = this.tabs.indexOf(next)
+                    this.tabs.splice(info.index, 0, this.tabs.splice(index, 1)[0]); // reorder in the array
+                    info.$tab.before($nextEl)
+                    info.$tab.css('opacity', 0);
+                    Object.assign(this.tmp.moving, {
+                        index: index,
+                        divX: -width1,
+                        x: event.pageX + width1,
+                        left: info.left + info.divX + width1
+                    })
+                    return
+                }
+            }
+            if (info.divX < 0 && prev) {
+                var $prevEl = $('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(prev.id))
+                var width1 = parseInt($el.css('width'));
+                var width2 = parseInt($prevEl.css('width'));
+                if (width1 < width2) {
+                    width1 = Math.floor(width1 / 3)
+                    width2 = width2 - width1;
+                } else {
+                    width1 = Math.floor(width2 / 3)
+                    width2 = width2 - width1;
+                }
+                if (Math.abs(info.divX) > width2) {
+                    var index = this.tabs.indexOf(prev)
+                    this.tabs.splice(info.index, 0, this.tabs.splice(index, 1)[0]); // reorder in the array
+                    $prevEl.before(info.$tab)
+                    info.$tab.css('opacity', 0);
+                    Object.assign(info, {
+                        index: index,
+                        divX: width1,
+                        x: event.pageX - width1,
+                        left: info.left + info.divX - width1
+                    })
+                    return
+                }
+            }
+            function _find(ind, inc) {
+                ind += inc;
+                var tab = obj.tabs[ind]
+                if (tab && tab.hidden) {
+                    tab = _find(ind, inc)
+                }
+                return tab
+            }
+        },
+
         tooltipShow: function (id, event, forceRefresh) {
-            if (this.tooltip == null) return;
-            var $el  = $(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(id));
             var item = this.get(id);
+            var $el  = $(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(id));
+            if (this.tooltip == null || item.disabled || this.tmp.reordering) {
+                return;
+            }
             var pos  = this.tooltip;
             var txt  = item.tooltip;
             if (typeof txt == 'function') txt = txt.call(this, item);
@@ -14359,17 +14444,58 @@ var w2prompt = function (label, title, callBack) {
         },
 
         tooltipHide: function (id) {
-            if (this.tooltip == null) return;
-            var $el  = $(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(id));
             var item = this.get(id);
+            var $el  = $(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(id));
+            if (this.tooltip == null || item.disabled || this.tmp.reordering) {
+                return;
+            }
             $el.removeProp('_mouse_over');
             setTimeout(function () {
                 if ($el.prop('_mouse_over') !== true && $el.prop('_mouse_tooltip') === true) {
                     $el.removeProp('_mouse_tooltip');
-                    // hide tooltip
-                    $el.w2tag();
+                    $el.w2tag(); // hide tooltip
                 }
             }, 1);
+        },
+
+        getTabHTML: function (id) {
+            var index = this.get(id, true);
+            var tab = this.tabs[index];
+            if (tab == null) return false;
+            if (tab.text == null && tab.caption != null) tab.text = tab.caption;
+            if (tab.tooltip == null && tab.hint != null) tab.tooltip = tab.hint; // for backward compatibility
+            if (tab.caption != null) {
+                console.log('NOTICE: tabs tab.caption property is deprecated, please use tab.text. Tab -> ', tab)
+            }
+            if (tab.hint != null) {
+                console.log('NOTICE: tabs tab.hint property is deprecated, please use tab.tooltip. Tab -> ', tab)
+            }
+
+            var text = tab.text;
+            if (typeof text == 'function') text = text.call(this, tab);
+            if (text == null) text = '';
+
+            var closable = '';
+            var addStyle = '';
+            if (tab.hidden) { addStyle += 'display: none;'; }
+            if (tab.disabled) { addStyle += 'opacity: 0.2;'; }
+            if (tab.closable && !tab.disabled) {
+                closable = '<div class="w2ui-tab-close'+ (this.active === tab.id ? ' active' : '') + '"'
+                    + '  onmouseover= "w2ui[\''+ this.name +'\'].tooltipShow(\''+ tab.id +'\', event)"'
+                    + '  onmouseout = "w2ui[\''+ this.name +'\'].tooltipHide(\''+ tab.id +'\', event)"'
+                    + '  onmousedown= "event.stopPropagation()"'
+                    + '  onmouseup  = "w2ui[\''+ this.name +'\'].animateClose(\''+ tab.id +'\', event); event.stopPropagation()">'
+                    + '</div>';
+            }
+            var tabHTML = '<div id="tabs_'+ this.name + '_tab_'+ tab.id +'" style="'+ addStyle + ' ' + tab.style + '"'
+                + '   class="w2ui-tab'+ (this.active === tab.id ? ' active' : '') + (tab.closable ? ' closable' : '') + (tab['class'] ? ' ' + tab['class'] : '') +'"'
+                + '   onmouseover = "w2ui[\''+ this.name +"'].tooltipShow('"+ tab.id +'\', event)"'
+                + '   onmouseout  = "w2ui[\''+ this.name +"'].tooltipHide('"+ tab.id +'\', event)"'
+                + '   onmousedown = "w2ui[\''+ this.name +"'].initReorder('"+ tab.id +'\', event)"'
+                +'    onclick     = "w2ui[\''+ this.name +"'].click('"+ tab.id +'\', event)">'
+                +           w2utils.lang(text) + closable
+                + '</div>';
+            return tabHTML;
         },
 
         refresh: function (id) {
@@ -14380,63 +14506,24 @@ var w2prompt = function (label, title, callBack) {
             if (edata.isCancelled === true) return;
             if (id == null) {
                 // refresh all
-                for (var i = 0; i < this.tabs.length; i++) this.refresh(this.tabs[i].id);
+                for (var i = 0; i < this.tabs.length; i++) {
+                    this.refresh(this.tabs[i].id);
+                }
             } else {
                 // create or refresh only one item
-                var tab = this.get(id);
-                if (tab == null) return false;
-                if (tab.text == null && tab.caption != null) tab.text = tab.caption;
-                if (tab.tooltip == null && tab.hint != null) tab.tooltip = tab.hint; // for backward compatibility
-                if (tab.caption != null) {
-                    console.log('NOTICE: tabs tab.caption property is deprecated, please use tab.text. Tab -> ', tab)
-                }
-                if (tab.hint != null) {
-                    console.log('NOTICE: tabs tab.hint property is deprecated, please use tab.tooltip. Tab -> ', tab)
-                }
-
-                var text = tab.text;
-                if (typeof text == 'function') text = text.call(this, tab);
-                if (text == null) text = '';
-
-                var jq_el    = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id));
-                var closable = '';
-                if (tab.closable && !tab.disabled) {
-                    closable = '<div class="w2ui-tab-close'+ (this.active === tab.id ? ' active' : '') + '"'+
-                               '    onmouseover = "w2ui[\''+ this.name +'\'].tooltipShow(\''+ tab.id +'\', event);"'+
-                               '    onmouseout  = "w2ui[\''+ this.name +'\'].tooltipHide(\''+ tab.id +'\', event);"'+
-                               '    onclick="w2ui[\''+ this.name +'\'].animateClose(\''+ tab.id +'\', event);">'+
-                               '</div>';
-                }
-                var tabHTML = closable +
-                    '    <div class="w2ui-tab'+ (this.active === tab.id ? ' active' : '') + (tab.closable ? ' closable' : '')
-                                + (tab['class'] ? ' ' + tab['class'] : '') +'" style="'+ tab.style +'" '+
-                    '        onmouseover = "' + (!tab.disabled ? "w2ui['"+ this.name +"'].tooltipShow('"+ tab.id +"', event);" : "") + '"'+
-                    '        onmouseout  = "' + (!tab.disabled ? "w2ui['"+ this.name +"'].tooltipHide('"+ tab.id +"', event);" : "") + '"'+
-                    '        onclick="w2ui[\''+ this.name +'\'].click(\''+ tab.id +'\', event);">' + w2utils.lang(text) + '</div>';
-                if (jq_el.length === 0) {
-                    // does not exist - create it
-                    var addStyle = '';
-                    if (tab.hidden) { addStyle += 'display: none;'; }
-                    if (tab.disabled) { addStyle += 'opacity: 0.2;'; }
-                    var html = '<td id="tabs_'+ this.name + '_tab_'+ tab.id +'" style="'+ addStyle +'" valign="middle">'+ tabHTML + '</td>';
-                    if (this.get(id, true) !== this.tabs.length-1 && $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))+1].id)).length > 0) {
-                        $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))+1].id)).before(html);
-                    } else {
-                        $(this.box).find('#tabs_'+ this.name +'_right').before(html);
-                    }
+                var $tab = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(id));
+                var tabHTML = this.getTabHTML(id);
+                if ($tab.length === 0) {
+                    $(this.box).find('#tabs_'+ this.name +'_right').before(tabHTML);
                 } else {
-                    // refresh
-                    jq_el.html(tabHTML);
-                    if (tab.hidden) { jq_el.css('display', 'none'); }
-                    else { jq_el.css('display', ''); }
-                    if (tab.disabled) { jq_el.css({ 'opacity': '0.2' }); }
-                    else { jq_el.css({ 'opacity': '1' }); }
+                    $tab.replaceWith(tabHTML);
                 }
             }
             // right html
             $('#tabs_'+ this.name +'_right').html(this.right);
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
+            // this.resize();
             return (new Date()).getTime() - time;
         },
 
@@ -14448,7 +14535,7 @@ var w2prompt = function (label, title, callBack) {
             // default action
             // if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
             if (box != null) {
-                if ($(this.box).find('> table #tabs_'+ this.name + '_right').length > 0) {
+                if ($(this.box).find('#tabs_'+ this.name + '_right').length > 0) {
                     $(this.box)
                         .removeAttr('name')
                         .removeClass('w2ui-reset w2ui-tabs')
@@ -14458,10 +14545,10 @@ var w2prompt = function (label, title, callBack) {
             }
             if (!this.box) return false;
             // render all buttons
-            var html =  '<div class="w2ui-scroll-wrapper" onmousedown="var el=w2ui[\''+ this.name +'\']; if (el) el.resize();">'+
-                '<table cellspacing="0" cellpadding="1" width="100%"><tbody>'+
-                '    <tr><td width="100%" id="tabs_'+ this.name +'_right" align="right">'+ this.right +'</td></tr>'+
-                '</tbody></table>'+
+            var html =
+                '<div class="w2ui-scroll-wrapper" onmousedown="var el=w2ui[\''+ this.name +'\']; if (el) el.resize();">'+
+                '    <div class="w2ui-tabs-line"></div>'+
+                '    <div id="tabs_'+ this.name +'_right" class="w2ui-tabs-right">'+ this.right +'</div>'+
                 '</div>'+
                 '<div class="w2ui-scroll-left" onclick="var el=w2ui[\''+ this.name +'\']; if (el) el.scroll(\'left\');"></div>'+
                 '<div class="w2ui-scroll-right" onclick="var el=w2ui[\''+ this.name +'\']; if (el) el.scroll(\'right\');"></div>';
@@ -14477,25 +14564,90 @@ var w2prompt = function (label, title, callBack) {
             return (new Date()).getTime() - time;
         },
 
+        initReorder: function(id, event) {
+            if (!this.reorder) return
+            var obj  = this;
+            var $tab = $('#tabs_' + this.name + '_tab_' + w2utils.escapeId(id));
+            var tabIndex = this.get(id, true);
+            var $ghost = $tab.clone();
+            var edata;
+            $ghost.addClass('active')
+            $ghost.attr('id', '#tabs_' + this.name + '_tab_ghost')
+            // debugger
+            this.tmp.moving = {
+                index: tabIndex,
+                indexFrom: tabIndex,
+                $tab: $tab,
+                $ghost: $ghost,
+                divX: 0,
+                left: $tab.offset().left,
+                parentX: $(this.box).offset().left,
+                x: event.pageX,
+                opacity: $tab.css('opacity')
+            }
+
+            $('body')
+                .off('.w2uiTabReorder')
+                .on('mousemove.w2uiTabReorder', function (event) {
+                    if (!obj.tmp.reordering) {
+                        // event before
+                        edata = obj.trigger({ phase: 'before', type: 'reorder', target: obj.tabs[tabIndex].id, indexFrom: tabIndex, tab: obj.tabs[tabIndex] });
+                        if (edata.isCancelled === true) return;
+
+                        $().w2tag()
+                        obj.tmp.reordering = true;
+                        $ghost.addClass('w2ui-moving')
+                        $ghost.css({
+                            'pointer-events': 'none',
+                            'position': 'absolute',
+                            'left': $tab.offset().left
+                        })
+                        $tab.css('opacity', 0);
+                        $(obj.box).find('.w2ui-scroll-wrapper').append($ghost);
+                        $(obj.box).find('.w2ui-tab-close').hide();
+                    }
+                    obj.tmp.moving.divX = event.pageX - obj.tmp.moving.x;
+                    $ghost.css('left', (obj.tmp.moving.left - obj.tmp.moving.parentX + obj.tmp.moving.divX) + 'px');
+                    obj.dragMove(event);
+                })
+                .on('mouseup.w2uiTabReorder', function () {
+                    $('body').off('.w2uiTabReorder');
+                    $ghost.css({
+                        'transition': '0.1s',
+                        'left': obj.tmp.moving.$tab.offset().left - obj.tmp.moving.parentX
+                    })
+                    $(obj.box).find('.w2ui-tab-close').show();
+                    setTimeout(function () {
+                        $ghost.remove();
+                        $tab.css({ opacity: obj.tmp.moving.opacity });
+                        // obj.render()
+                        if (obj.tmp.reordering) {
+                            obj.trigger($.extend(edata, { phase: 'after', indexTo: obj.tmp.moving.index }));
+                            if (edata.isCancelled === true) return;
+                        }
+                        obj.tmp.reordering = false;
+                    }, 100)
+                })
+        },
+
         scroll: function (direction) {
             var box = $(this.box);
             var obj = this;
             var scrollBox  = box.find('.w2ui-scroll-wrapper');
             var scrollLeft = scrollBox.scrollLeft();
-            var width1, width2, scroll;
+            var $right = $(this.box).find('.w2ui-tabs-right');
+            var width1 = scrollBox.outerWidth();
+            var width2 = scrollLeft + parseInt($right.offset().left) + parseInt($right.width());
+            var scroll;
 
             switch (direction) {
                 case 'left':
-                    width1 = scrollBox.outerWidth();
-                    width2 = scrollBox.find(':first').outerWidth();
                     scroll = scrollLeft - width1 + 50; // 35 is width of both button
                     if (scroll <= 0) scroll = 0;
                     scrollBox.animate({ scrollLeft: scroll }, 300);
                     break;
 
                 case 'right':
-                    width1 = scrollBox.outerWidth();
-                    width2 = scrollBox.find(':first').outerWidth();
                     scroll = scrollLeft + width1 - 50; // 35 is width of both button
                     if (scroll >= width2 - width1) scroll = width2 - width1;
                     scrollBox.animate({ scrollLeft: scroll }, 300);
@@ -14515,12 +14667,16 @@ var w2prompt = function (label, title, callBack) {
             var box = $(this.box);
             box.find('.w2ui-scroll-left, .w2ui-scroll-right').hide();
             var scrollBox = box.find('.w2ui-scroll-wrapper');
-            if (scrollBox.find(':first').outerWidth() > scrollBox.outerWidth()) {
+            var $right = $(this.box).find('.w2ui-tabs-right');
+            var boxWidth = scrollBox.outerWidth()
+            var itemsWidth = $right[0].offsetLeft + $right[0].clientWidth;
+            if (itemsWidth > boxWidth) {
                 // we have overflowed content
                 if (scrollBox.scrollLeft() > 0) {
                     box.find('.w2ui-scroll-left').show();
                 }
-                if (scrollBox.scrollLeft() < scrollBox.find(':first').outerWidth() - scrollBox.outerWidth()) {
+                var padding = parseInt(scrollBox.css('padding-right'))
+                if (boxWidth  < itemsWidth - scrollBox.scrollLeft() - padding) {
                     box.find('.w2ui-scroll-right').show();
                 }
             }
@@ -14535,7 +14691,7 @@ var w2prompt = function (label, title, callBack) {
             var edata = this.trigger({ phase: 'before', type: 'destroy', target: this.name });
             if (edata.isCancelled === true) return;
             // clean up
-            if ($(this.box).find('> table #tabs_'+ this.name + '_right').length > 0) {
+            if ($(this.box).find('#tabs_'+ this.name + '_right').length > 0) {
                 $(this.box)
                     .removeAttr('name')
                     .removeClass('w2ui-reset w2ui-tabs')
@@ -14556,8 +14712,8 @@ var w2prompt = function (label, title, callBack) {
             var edata = this.trigger({ phase: 'before', type: 'click', target: id, tab: tab, object: tab, originalEvent: event });
             if (edata.isCancelled === true) return;
             // default action
-            $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active) +' .w2ui-tab').removeClass('active');
-            $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active) +' .w2ui-tab-close').removeClass('active');
+            $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active)).removeClass('active');
+            $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active)).removeClass('active');
             this.active = tab.id;
             // route processing
             if (typeof tab.route == 'string') {
@@ -14584,65 +14740,36 @@ var w2prompt = function (label, title, callBack) {
             if (edata.isCancelled === true) return;
             // default action
             var obj = this;
-            $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id)).css(w2utils.cssPrefix('transition', '.2s')).css('opacity', '0');
-            setTimeout(function () {
-                var width = $(obj.box).find('#tabs_'+ obj.name +'_tab_'+ w2utils.escapeId(tab.id)).width();
-                $(obj.box).find('#tabs_'+ obj.name +'_tab_'+ w2utils.escapeId(tab.id))
-                    .html('<div style="width: '+ width +'px; '+ w2utils.cssPrefix('transition', '.2s', true) +'"></div>');
-                setTimeout(function () {
-                    $(obj.box).find('#tabs_'+ obj.name +'_tab_'+ w2utils.escapeId(tab.id)).find(':first-child').css({ 'width': '0px' });
-                }, 50);
-            }, 200);
+            var $tab = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id))
+            $tab.css({ // need to be separate transition
+                    'opacity': 0,
+                    'transition': '.25s'
+                })
+                .find('.w2ui-tab-close').remove();
+            $tab.css({
+                'padding-left': 0,
+                'padding-right': 0,
+                'text-overflow': 'clip',
+                'overflow': 'hidden',
+                'width': '0px'
+            })
             setTimeout(function () {
                 obj.remove(id);
-            }, 450);
-            // event before
-            this.trigger($.extend(edata, { phase: 'after' }));
-            this.refresh();
+                obj.trigger($.extend(edata, { phase: 'after' }));
+                obj.refresh();
+            }, 250);
         },
 
-        animateInsert: function(id, tab) {
-            if (this.get(id) == null) return;
-            if (!$.isPlainObject(tab)) return;
-            // check for unique
-            if (!w2utils.checkUniqueId(tab.id, this.tabs, 'tabs', this.name)) return;
-            // insert simple div
-            var jq_el   = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id));
-            if (jq_el.length !== 0) return; // already exists
-            // measure width
-            if (tab.text == null && tab.caption != null) tab.text = tab.caption;
-            var tmp = '<div id="_tmp_tabs" class="w2ui-reset w2ui-tabs" style="position: absolute; top: -1000px;">'+
-                '<table cellspacing="0" cellpadding="1" width="100%"><tbody><tr>'+
-                '<td id="_tmp_simple_tab" style="" valign="middle">'+
-                    (tab.closable ? '<div class="w2ui-tab-close"></div>' : '') +
-                '    <div class="w2ui-tab '+ (this.active === tab.id ? 'active' : '') +'">'+ tab.text +'</div>'+
-                '</td></tr></tbody></table>'+
-                '</div>';
-            $('body').append(tmp);
-            // create dummy element
-            var tabHTML = '<div style="width: 1px; '+ w2utils.cssPrefix('transition', '.2s', true) +'">&#160;</div>';
-            var addStyle = '';
-            if (tab.hidden) { addStyle += 'display: none;'; }
-            if (tab.disabled) { addStyle += 'opacity: 0.2;'; }
-            var html = '<td id="tabs_'+ this.name +'_tab_'+ tab.id +'" style="'+ addStyle +'" valign="middle">'+ tabHTML +'</td>';
-            if (this.get(id, true) !== this.tabs.length && $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))].id)).length > 0) {
-                $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.tabs[parseInt(this.get(id, true))].id)).before(html);
-            } else {
-                $(this.box).find('#tabs_'+ this.name +'_right').before(html);
-            }
-            // -- move
+        insertTabHTML: function(id, tab) {
             var obj = this;
-            setTimeout(function () {
-                var width = $('#_tmp_simple_tab').width();
-                $('#_tmp_tabs').remove();
-                $('#tabs_'+ obj.name +'_tab_'+ w2utils.escapeId(tab.id) +' > div').css('width', width+'px');
-            }, 1);
-            setTimeout(function () {
-                // insert for real
-                obj.insert(id, tab);
-            }, 200);
+            var middle = this.get(id, true);
+            this.tabs  = this.tabs.slice(0, middle).concat([tab], this.tabs.slice(middle));
+            var $before = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(id));
+            var $tab = $(this.getTabHTML(tab.id));
+            $before.before($tab);
+            this.resize();
         }
-    };
+    }
 
     $.extend(w2tabs.prototype, w2utils.event);
     w2obj.tabs = w2tabs;
