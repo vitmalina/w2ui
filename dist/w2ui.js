@@ -12998,9 +12998,8 @@ var w2popup = {};
                     btn += '<div class="w2ui-popup-button w2ui-popup-max" onmousedown="event.stopPropagation()" onclick="w2popup.toggle()">Max</div>';
                 }
                 // first insert just body
-                var msg = '<div id="w2ui-popup" class="w2ui-popup" style="opacity: 0; left: '+ left +'px; top: '+ top +'px;'+
-                          '     width: ' + parseInt(options.width) + 'px; height: ' + parseInt(options.height) + 'px; '+
-                              w2utils.cssPrefix('transform', 'scale(0.8)', true) + '"></div>';
+                var msg = '<div id="w2ui-popup" class="w2ui-popup w2ui-popup-opening" style="left: '+ left +'px; top: '+ top +'px;'+
+                          '     width: ' + parseInt(options.width) + 'px; height: ' + parseInt(options.height) + 'px;"></div>';
                 $('body').append(msg);
                 // parse rel=*
                 var parts = $('#w2ui-popup');
@@ -13034,11 +13033,10 @@ var w2popup = {};
                 // allow element to render
                 setTimeout(function () {
                     $('#w2ui-popup')
-                        .css('opacity', '1')
                         .css(w2utils.cssPrefix({
-                            'transition': options.speed + 's opacity, ' + options.speed + 's -webkit-transform',
-                            'transform' : 'scale(1)'
-                        }));
+                            'transition': options.speed + 's opacity, ' + options.speed + 's -webkit-transform'
+                        }))
+                        .removeClass("w2ui-popup-opening");
                         obj.focus();
                 }, 1);
                 // clean transform
@@ -13256,11 +13254,10 @@ var w2popup = {};
             // default behavior
             w2popup.status = 'closing';
             $('#w2ui-popup')
-                .css('opacity', '0')
                 .css(w2utils.cssPrefix({
-                    'transition': options.speed + 's opacity, ' + options.speed + 's -webkit-transform',
-                    'transform' : 'scale(0.9)'
-                }));
+                    'transition': options.speed + 's opacity, ' + options.speed + 's -webkit-transform'
+                }))
+                .addClass("w2ui-popup-closing");
             w2popup.unlockScreen(options);
             setTimeout(function () {
                 // return template
@@ -14571,7 +14568,6 @@ var w2prompt = function (label, title, callBack) {
             var tabIndex = this.get(id, true);
             var $ghost = $tab.clone();
             var edata;
-            $ghost.addClass('active')
             $ghost.attr('id', '#tabs_' + this.name + '_tab_ghost')
             // debugger
             this.tmp.moving = {
@@ -14596,7 +14592,7 @@ var w2prompt = function (label, title, callBack) {
 
                         $().w2tag()
                         obj.tmp.reordering = true;
-                        $ghost.addClass('w2ui-moving')
+                        $ghost.addClass('moving')
                         $ghost.css({
                             'pointer-events': 'none',
                             'position': 'absolute',
@@ -14669,7 +14665,7 @@ var w2prompt = function (label, title, callBack) {
             var scrollBox = box.find('.w2ui-scroll-wrapper');
             var $right = $(this.box).find('.w2ui-tabs-right');
             var boxWidth = scrollBox.outerWidth()
-            var itemsWidth = $right[0].offsetLeft + $right[0].clientWidth;
+            var itemsWidth = ($right.length > 0 ? $right[0].offsetLeft + $right[0].clientWidth : 0);
             if (itemsWidth > boxWidth) {
                 // we have overflowed content
                 if (scrollBox.scrollLeft() > 0) {
@@ -14707,7 +14703,7 @@ var w2prompt = function (label, title, callBack) {
 
         click: function (id, event) {
             var tab = this.get(id);
-            if (tab == null || tab.disabled) return false;
+            if (tab == null || tab.disabled || this.tmp.reordering) return false;
             // event before
             var edata = this.trigger({ phase: 'before', type: 'click', target: id, tab: tab, object: tab, originalEvent: event });
             if (edata.isCancelled === true) return;
@@ -17247,10 +17243,10 @@ var w2prompt = function (label, title, callBack) {
                 if (this.type !== 'list' && append) {
                     if ($(this.el).data('selected') == null) $(this.el).data('selected', []);
                     $(this.el).data('selected').push(val);
-                    $(this.el).change();
+                    $(this.el).trigger('input').change();
                 } else {
                     var it = (this.type === 'enum' ? [val] : val);
-                    $(this.el).data('selected', it).change();
+                    $(this.el).data('selected', it).trigger('input').change();
                 }
                 this.refresh();
             } else {
@@ -17265,10 +17261,10 @@ var w2prompt = function (label, title, callBack) {
                     if (this.type !== 'list' && append) {
                         if ($(this.el).data('selected') == null) $(this.el).data('selected', []);
                         $(this.el).data('selected').push(items[ind]);
-                        $(this.el).change();
+                        $(this.el).trigger('input').change();
                     } else {
                         var it = (this.type === 'enum' ? [items[ind]] : items[ind]);
-                        $(this.el).data('selected', it).change();
+                        $(this.el).data('selected', it).trigger('input').change();
                     }
                     this.refresh();
                     return true;
@@ -17640,7 +17636,7 @@ var w2prompt = function (label, title, callBack) {
                 var new_val = this.format(this.clean($(this.el).val()));
                 // if was modified
                 if (val !== '' && val != new_val) {
-                    $(this.el).val(new_val).change();
+                    $(this.el).val(new_val).trigger('input').change();
                     // cancel event
                     event.stopPropagation();
                     event.preventDefault();
@@ -17671,9 +17667,9 @@ var w2prompt = function (label, title, callBack) {
                 // convert linux timestamps
                 var tmp = parseInt(obj.el.value);
                 if (w2utils.isInt(obj.el.value) && tmp > 3000) {
-                    if (this.type === 'time') $(obj.el).val(w2utils.formatTime(new Date(tmp), options.format)).change();
-                    if (this.type === 'date') $(obj.el).val(w2utils.formatDate(new Date(tmp), options.format)).change();
-                    if (this.type === 'datetime') $(obj.el).val(w2utils.formatDateTime(new Date(tmp), options.format)).change();
+                    if (this.type === 'time') $(obj.el).val(w2utils.formatTime(new Date(tmp), options.format)).trigger('input').change();
+                    if (this.type === 'date') $(obj.el).val(w2utils.formatDate(new Date(tmp), options.format)).trigger('input').change();
+                    if (this.type === 'datetime') $(obj.el).val(w2utils.formatDateTime(new Date(tmp), options.format)).trigger('input').change();
                 }
             }
         },
@@ -17745,7 +17741,7 @@ var w2prompt = function (label, title, callBack) {
             }
             if (['int', 'float', 'money', 'currency', 'percent'].indexOf(obj.type) !== -1) {
                 if (val !== '' && !obj.checkType(val)) {
-                    $(obj.el).val('').change();
+                    $(obj.el).val('').trigger('input').change();
                     if (options.silent === false) {
                         $(obj.el).w2tag('Not a valid number');
                         setTimeout(function () { $(obj.el).w2tag(''); }, 3000);
@@ -17756,28 +17752,28 @@ var w2prompt = function (label, title, callBack) {
             if (['date', 'time', 'datetime'].indexOf(obj.type) !== -1) {
                 // check if in range
                 if (val !== '' && !obj.inRange(obj.el.value)) {
-                    $(obj.el).val('').removeData('selected').change();
+                    $(obj.el).val('').removeData('selected').trigger('input').change();
                     if (options.silent === false) {
                         $(obj.el).w2tag('Not in range');
                         setTimeout(function () { $(obj.el).w2tag(''); }, 3000);
                     }
                 } else {
                     if (obj.type === 'date' && val !== '' && !w2utils.isDate(obj.el.value, options.format)) {
-                        $(obj.el).val('').removeData('selected').change();
+                        $(obj.el).val('').removeData('selected').trigger('input').change();
                         if (options.silent === false) {
                             $(obj.el).w2tag('Not a valid date');
                             setTimeout(function () { $(obj.el).w2tag(''); }, 3000);
                         }
                     }
                     else if (obj.type === 'time' && val !== '' && !w2utils.isTime(obj.el.value)) {
-                        $(obj.el).val('').removeData('selected').change();
+                        $(obj.el).val('').removeData('selected').trigger('input').change();
                         if (options.silent === false) {
                             $(obj.el).w2tag('Not a valid time');
                             setTimeout(function () { $(obj.el).w2tag(''); }, 3000);
                         }
                     }
                     else if (obj.type === 'datetime' && val !== '' && !w2utils.isDateTime(obj.el.value, options.format)) {
-                        $(obj.el).val('').removeData('selected').change();
+                        $(obj.el).val('').removeData('selected').trigger('input').change();
                         if (options.silent === false) {
                             $(obj.el).w2tag('Not a valid date');
                             setTimeout(function () { $(obj.el).w2tag(''); }, 3000);
@@ -17829,12 +17825,14 @@ var w2prompt = function (label, title, callBack) {
                 switch (key) {
                     case 38: // up
                         if (event.shiftKey) break; // no action if shift key is pressed
-                        $(obj.el).val((val + inc <= options.max || options.max == null ? Number((val + inc).toFixed(12)) : options.max)).change();
+                        var newValue = (val + inc <= options.max || options.max == null ? Number((val + inc).toFixed(12)) : options.max);
+                        $(obj.el).val(newValue).trigger('input').change();
                         cancel = true;
                         break;
                     case 40: // down
                         if (event.shiftKey) break; // no action if shift key is pressed
-                        $(obj.el).val((val - inc >= options.min || options.min == null ? Number((val - inc).toFixed(12)) : options.min)).change();
+                        var newValue = (val - inc >= options.min || options.min == null ? Number((val - inc).toFixed(12)) : options.min);
+                        $(obj.el).val(newValue).trigger('input').change();
                         cancel = true;
                         break;
                 }
@@ -17963,7 +17961,7 @@ var w2prompt = function (label, title, callBack) {
                     }
                     if (obj.el.nav && dir != null) {
                         newColor = obj.el.nav(dir);
-                        $(obj.el).val(newColor).change();
+                        $(obj.el).val(newColor).trigger('input').change();
                         event.preventDefault();
                     }
                 }
@@ -18020,7 +18018,7 @@ var w2prompt = function (label, title, callBack) {
                                 delete item.hidden;
                                 delete obj.tmp.force_open;
                                 selected.push(item);
-                                $(obj.el).change();
+                                $(obj.el).trigger('input').change();
                                 focus.val('').width(20);
                                 obj.refresh();
                                 // event after
@@ -18036,7 +18034,7 @@ var w2prompt = function (label, title, callBack) {
                                     if (selected.length >= options.max && options.max > 0) selected.pop();
                                     delete obj.tmp.force_open;
                                     selected.push(item);
-                                    $(obj.el).change();
+                                    $(obj.el).trigger('input').change();
                                     focus.val('').width(20);
                                     obj.refresh();
                                 }
@@ -18044,8 +18042,8 @@ var w2prompt = function (label, title, callBack) {
                                 obj.trigger($.extend(edata, { phase: 'after' }));
                             }
                         } else {
-                            if (item) $(obj.el).data('selected', item).val(item.text).change();
-                            if ($(obj.el).val() === '' && $(obj.el).data('selected')) $(obj.el).removeData('selected').val('').change();
+                            if (item) $(obj.el).data('selected', item).val(item.text).trigger('input').change();
+                            if ($(obj.el).val() === '' && $(obj.el).data('selected')) $(obj.el).removeData('selected').val('').trigger('input').change();
                             if (obj.type === 'list') {
                                 focus.val('');
                                 obj.refresh();
@@ -18071,7 +18069,7 @@ var w2prompt = function (label, title, callBack) {
                             }
                         }
                         if (obj.type === 'list' && focus.val() === '') {
-                            $(obj.el).data('selected', {}).change();
+                            $(obj.el).data('selected', {}).trigger('input').change();
                             obj.refresh();
                         }
                         break;
@@ -18282,7 +18280,7 @@ var w2prompt = function (label, title, callBack) {
                                         }
                                     })
                                 }
-                                $(obj.el).data('selected', sel).removeData('find_selected').change();
+                                $(obj.el).data('selected', sel).removeData('find_selected').trigger('input').change();
                             }
                             obj.search();
                             // event after
@@ -20092,14 +20090,14 @@ var w2prompt = function (label, title, callBack) {
 
             function doDiff(record, original, result) {
                 for (var i in record) {
-                    if (typeof record[i] === "object") {
+                    if (record[i] != null && typeof record[i] === "object") {
                         result[i] = doDiff(record[i], original[i] || {}, {});
                         if (!result[i] || ($.isEmptyObject(result[i]) && $.isEmptyObject(original[i]))) delete result[i];
-                    } else if (record[i] != original[i]) {
+                    } else if (record[i] != original[i] || (record[i] == null && original[i] != null)) { // also catch field clear
                         result[i] = record[i];
                     }
                 }
-                return result;
+                return !$.isEmptyObject(result) ? result : null;
             }
         },
 

@@ -1082,6 +1082,7 @@ button.w2ui-btn-small:focus:before {
   position: absolute;
   left: 0;
   right: 0;
+  height: 33px;
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
   padding-top: 5px !important;
@@ -2856,6 +2857,22 @@ button.w2ui-btn-small:focus:before {
   -o-box-sizing: border-box;
   box-sizing: border-box;
 }
+.w2ui-popup.w2ui-popup-opening {
+  opacity: 0;
+  -webkit-transform: scale(0.8);
+  -moz-transform: scale(0.8);
+  -ms-transform: scale(0.8);
+  -o-transform: scale(0.8);
+  transform: scale(0.8);
+}
+.w2ui-popup.w2ui-popup-closing {
+  opacity: 0;
+  -webkit-transform: scale(0.9);
+  -moz-transform: scale(0.9);
+  -ms-transform: scale(0.9);
+  -o-transform: scale(0.9);
+  transform: scale(0.9);
+}
 .w2ui-popup .w2ui-popup-title {
   padding: 6px;
   border-radius: 6px 6px 0px 0px;
@@ -3314,6 +3331,13 @@ button.w2ui-btn-small:focus:before {
 .w2ui-tabs .w2ui-scroll-wrapper .w2ui-tab.active {
   color: white;
   background-color: #313947;
+  border: 1px solid #999;
+  border-bottom: 3px solid 1px solid #999;
+  margin-bottom: -3px;
+}
+.w2ui-tabs .w2ui-scroll-wrapper .w2ui-tab.moving {
+  color: white;
+  background-color: #ddd;
   border: 1px solid #999;
   border-bottom: 3px solid 1px solid #999;
   margin-bottom: -3px;
