@@ -193,9 +193,8 @@ var w2popup = {};
                     btn += '<div class="w2ui-popup-button w2ui-popup-max" onmousedown="event.stopPropagation()" onclick="w2popup.toggle()">Max</div>';
                 }
                 // first insert just body
-                var msg = '<div id="w2ui-popup" class="w2ui-popup" style="opacity: 0; left: '+ left +'px; top: '+ top +'px;'+
-                          '     width: ' + parseInt(options.width) + 'px; height: ' + parseInt(options.height) + 'px; '+
-                              w2utils.cssPrefix('transform', 'scale(0.8)', true) + '"></div>';
+                var msg = '<div id="w2ui-popup" class="w2ui-popup w2ui-popup-opening" style="left: '+ left +'px; top: '+ top +'px;'+
+                          '     width: ' + parseInt(options.width) + 'px; height: ' + parseInt(options.height) + 'px;"></div>';
                 $('body').append(msg);
                 // parse rel=*
                 var parts = $('#w2ui-popup');
@@ -229,11 +228,10 @@ var w2popup = {};
                 // allow element to render
                 setTimeout(function () {
                     $('#w2ui-popup')
-                        .css('opacity', '1')
                         .css(w2utils.cssPrefix({
-                            'transition': options.speed + 's opacity, ' + options.speed + 's -webkit-transform',
-                            'transform' : 'scale(1)'
-                        }));
+                            'transition': options.speed + 's opacity, ' + options.speed + 's -webkit-transform'
+                        }))
+                        .removeClass("w2ui-popup-opening");
                         obj.focus();
                 }, 1);
                 // clean transform
@@ -451,11 +449,10 @@ var w2popup = {};
             // default behavior
             w2popup.status = 'closing';
             $('#w2ui-popup')
-                .css('opacity', '0')
                 .css(w2utils.cssPrefix({
-                    'transition': options.speed + 's opacity, ' + options.speed + 's -webkit-transform',
-                    'transform' : 'scale(0.9)'
-                }));
+                    'transition': options.speed + 's opacity, ' + options.speed + 's -webkit-transform'
+                }))
+                .addClass("w2ui-popup-closing");
             w2popup.unlockScreen(options);
             setTimeout(function () {
                 // return template
