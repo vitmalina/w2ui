@@ -446,7 +446,6 @@
             var tabIndex = this.get(id, true);
             var $ghost = $tab.clone();
             var edata;
-            $ghost.addClass('active')
             $ghost.attr('id', '#tabs_' + this.name + '_tab_ghost')
             // debugger
             this.tmp.moving = {
@@ -471,7 +470,7 @@
 
                         $().w2tag()
                         obj.tmp.reordering = true;
-                        $ghost.addClass('w2ui-moving')
+                        $ghost.addClass('moving')
                         $ghost.css({
                             'pointer-events': 'none',
                             'position': 'absolute',
@@ -544,7 +543,7 @@
             var scrollBox = box.find('.w2ui-scroll-wrapper');
             var $right = $(this.box).find('.w2ui-tabs-right');
             var boxWidth = scrollBox.outerWidth()
-            var itemsWidth = $right[0].offsetLeft + $right[0].clientWidth;
+            var itemsWidth = ($right.length > 0 ? $right[0].offsetLeft + $right[0].clientWidth : 0);
             if (itemsWidth > boxWidth) {
                 // we have overflowed content
                 if (scrollBox.scrollLeft() > 0) {
@@ -582,7 +581,7 @@
 
         click: function (id, event) {
             var tab = this.get(id);
-            if (tab == null || tab.disabled) return false;
+            if (tab == null || tab.disabled || this.tmp.reordering) return false;
             // event before
             var edata = this.trigger({ phase: 'before', type: 'click', target: id, tab: tab, object: tab, originalEvent: event });
             if (edata.isCancelled === true) return;

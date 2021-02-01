@@ -16,7 +16,8 @@
         justify-content: flex-start;
         align-content: flex-start;
         padding: 0 7px;
-        // overflow: visible;
+        // position: relative;
+        // height: 32px;
 
         .w2ui-tabs-line {
             border-bottom: 1px solid silver;
@@ -43,6 +44,13 @@
             &.active {
                 color: @tabs-tab-active-color;
                 background-color: @tabs-tab-active-background-color;
+                border: @tabs-tab-active-border;
+                border-bottom: 3px solid @tabs-tab-active-border;
+                margin-bottom: -3px;
+            }
+            &.moving {
+                color: @tabs-tab-active-color;
+                background-color: #ddd;
                 border: @tabs-tab-active-border;
                 border-bottom: 3px solid @tabs-tab-active-border;
                 margin-bottom: -3px;

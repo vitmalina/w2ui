@@ -17,7 +17,7 @@
             routeData: { id: 8, vid: '2.32.3' },
             reorder: true,
             tabs : [
-                { id: 'tab1', text: 'Tab 1', route: '/tab1', tooltip: 'some tooltip', style: 'background-color: red; color: white' },
+                { id: 'tab1', text: 'Tab 1', route: '/tab1', tooltip: 'some tooltip', style1: 'background-color: red; color: white' },
                 { id: 'tab2', text: 'Tab 2', route: '/tab2/:id', closable: false, tooltip: 'some other', hidden1: true },
                 { id: 'tab3', text: 'Tab 3', route: '/tab3/:id/view', closable: false, tooltip: 'none', hidden1: true, style: 'min-width1: 400px' },
                 { id: 'tab4', text: 'Tab 4', route: '/tab4/:id/some', closable: false, disabled1: true },
@@ -35,14 +35,14 @@
                 { id: 'new', text: '+', style: 'padding-left: 10px; padding-right: 10px; font-weight: bold;' },
             ],
             onReorder(event) {
-                console.log('start', JSON.stringify(event))
+                // console.log('start', JSON.stringify(event))
                 if (event.target == 'new') {
                     event.preventDefault()
                     return
                 }
                 this.hide('new')
                 event.done(() => {
-                    console.log('end', JSON.stringify(event))
+                    // console.log('end', JSON.stringify(event))
                     this.show('new')
                 })
             },
@@ -73,7 +73,7 @@
 </script>
 <body>
     <br/><br/>
-    <div id="tabs" style1="position: absolute; left: 200px; width: 800px; top: 175px; border: 1px solid red"></div>
+    <div id="tabs" style="position: absolute; left: 200px; width: 800px; height1: 50px; top: 175px; border: 1px solid red"></div>
     <br/>
     <button class="w2ui-btn" onclick="changeTab()">Change Tab 2</button>
     <button class="w2ui-btn" onclick="insertTab()">Insert Tab</button>
