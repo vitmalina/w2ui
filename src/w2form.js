@@ -529,14 +529,14 @@
 
             function doDiff(record, original, result) {
                 for (var i in record) {
-                    if (typeof record[i] === "object") {
+                    if (record[i] != null && typeof record[i] === "object") {
                         result[i] = doDiff(record[i], original[i] || {}, {});
                         if (!result[i] || ($.isEmptyObject(result[i]) && $.isEmptyObject(original[i]))) delete result[i];
-                    } else if (record[i] != original[i]) {
+                    } else if (record[i] != original[i] || (record[i] == null && original[i] != null)) { // also catch field clear
                         result[i] = record[i];
                     }
                 }
-                return result;
+                return !$.isEmptyObject(result) ? result : null;
             }
         },
 
