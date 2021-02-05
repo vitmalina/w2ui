@@ -73,7 +73,11 @@ test( "w2utils.formatDate()", function () {
         '2014-06-04 => Month dth, yyyy': 'June 4th, 2014',
         '2014-06-01 => Mon dth, yyyy'  : 'Jun 1st, 2014',
         '2014-06-02 => Mon dth, yyyy'  : 'Jun 2nd, 2014',
-        '2014-06-03 => Mon dth, yyyy'  : 'Jun 3rd, 2014'
+        '2014-06-03 => Mon dth, yyyy'  : 'Jun 3rd, 2014',
+        '2014-01-05 => m/d/y'          : '1/5/2014',
+        '2014-01-05 => m/d/yy'         : '1/5/14',
+        '2014-01-05 => m/d/yyy'        : '1/5/2014',
+        '2014-01-05 => m/d/yyyy'       : '1/5/2014'
     };
     equal( w2utils.formatDate(), '',          "- no argument -" );
     equal( w2utils.formatDate(''), '',        "- blank -" );
@@ -86,8 +90,34 @@ test( "w2utils.formatDate()", function () {
         var tmp = v.split(' => ');
         var tm1 = tmp[0].split('-');
         var fm  = w2utils.formatDate(new Date(parseInt(tm1[0]), parseInt(tm1[1])-1, parseInt(tm1[2])), tmp[1]);
-        equal( fm, values[v], 'Format: ' + tmp[0] + ' => ' + tmp[1] + ' =>  ' + fm);
+        equal(fm, values[v], 'Format: ' + tmp[0] + ' => ' + tmp[1] + ' =>  ' + fm);
     }
+
+    // special case
+    var d = new Date();
+    d.setFullYear(1);
+    d.setMonth(4)
+    d.setDate(1)
+    var values = {
+        '0001/05/01 => yyyy/mm/dd'  : '0001/05/01',
+        '0001/05/01 => yyy/mm/dd'   : '0001/05/01',
+        '0001/05/01 => yy/mm/dd'    : '01/05/01',
+        '0001/05/01 => mm/dd/yyyy'  : '05/01/0001',
+        '0001/05/01 => mm-dd-yyyy'  : '05-01-0001',
+        '0001/05/01 => m-d-yyyy'    : '5-1-0001',
+        '0001/05/01 => mm-dd/yyyy'  : '05-01/0001',
+        '0001-01-05 => m/d/y'        : '5/1/1',
+        '0001-01-05 => m/d/yy'       : '5/1/01',
+        '0001-01-05 => m/d/yyy'      : '5/1/0001',
+        '0001-01-05 => m/d/yyyy'     : '5/1/0001'
+}
+    for (var v in values) {
+        var tmp = v.split(' => ');
+        var fm  = w2utils.formatDate(d, tmp[1]);
+        equal(fm, values[v], 'Format: ' + tmp[0] + ' => ' + tmp[1] + ' =>  ' + fm);
+    }
+    // var fm = w2utils.formatDate(d, "yyyy/mm/dd");
+    // equal(fm, '0001/05/01', 'Format: 0001/05/01 => yyyy/mm/dd => ' + fm);
 });
 
 test( "w2utils.formatTime()", function () {
