@@ -72,11 +72,12 @@
                     }
                 }
             }
+            // register new object
+            w2ui[object.name] = object;
+            // render
             if ($(this).length !== 0) {
                 object.render($(this)[0]);
             }
-            // register new object
-            w2ui[object.name] = object;
             return object;
 
         } else {

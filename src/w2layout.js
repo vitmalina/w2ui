@@ -54,10 +54,10 @@
                 if (object.get(w2panels[p1]) != null) continue;
                 object.panels.push($.extend(true, {}, w2layout.prototype.panel, { type: w2panels[p1], hidden: (w2panels[p1] !== 'main'), size: 50 }));
             }
+            w2ui[object.name] = object;
             if ($(this).length > 0) {
                 object.render($(this)[0]);
             }
-            w2ui[object.name] = object;
             return object;
 
         } else {

@@ -61,12 +61,13 @@
             if (nodes != null) {
                 object.add(object, nodes);
             }
+            // register new object
+            object.sidebar = object;
+            w2ui[object.name] = object;
+            // render
             if ($(this).length !== 0) {
                 object.render($(this)[0]);
             }
-            object.sidebar = object;
-            // register new object
-            w2ui[object.name] = object;
             return object;
 
         } else {
