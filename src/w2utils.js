@@ -241,6 +241,7 @@ var w2utils = (function ($) {
         month = +month;
         day   = +day;
         dt    = new Date(year, month - 1, day);
+        dt.setFullYear( year );
         // do checks
         if (month == null) return false;
         if (String(dt) === 'Invalid Date') return false;
