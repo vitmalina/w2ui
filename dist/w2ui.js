@@ -451,12 +451,12 @@ var w2utils = (function ($) {
         return format.toLowerCase()
             .replace('month', w2utils.settings.fullmonths[month])
             .replace('mon', w2utils.settings.shortmonths[month])
-            .replace(/yyyy/g, year)
-            .replace(/yyy/g, year)
-            .replace(/yy/g, year > 2000 ? 100 + parseInt(String(year).substr(2)) : String(year).substr(2))
+            .replace(/yyyy/g, ('000' + year).slice(-4))
+            .replace(/yyy/g, ('000' + year).slice(-4))
+            .replace(/yy/g, ('0' + year).slice(-2))
             .replace(/(^|[^a-z$])y/g, '$1' + year)            // only y's that are not preceded by a letter
-            .replace(/mm/g, (month + 1 < 10 ? '0' : '') + (month + 1))
-            .replace(/dd/g, (date < 10 ? '0' : '') + date)
+            .replace(/mm/g, ('0' + (month + 1)).slice(-2))
+            .replace(/dd/g, ('0' + date).slice(-2))
             .replace(/th/g, (date == 1 ? 'st' : 'th'))
             .replace(/th/g, (date == 2 ? 'nd' : 'th'))
             .replace(/th/g, (date == 3 ? 'rd' : 'th'))
@@ -3789,6 +3789,8 @@ w2utils.event = {
                     object.addSearch({ field: col.field, label: col.text, type: stype, attr: attr });
                 }
             }
+            // register new object
+            w2ui[object.name] = object;
             // init toolbar
             object.initToolbar();
             object.updateToolbar();
@@ -3796,8 +3798,6 @@ w2utils.event = {
             if ($(this).length !== 0) {
                 object.render($(this)[0]);
             }
-            // register new object
-            w2ui[object.name] = object;
             return object;
 
         } else {
@@ -11684,10 +11684,10 @@ w2utils.event = {
                 if (object.get(w2panels[p1]) != null) continue;
                 object.panels.push($.extend(true, {}, w2layout.prototype.panel, { type: w2panels[p1], hidden: (w2panels[p1] !== 'main'), size: 50 }));
             }
+            w2ui[object.name] = object;
             if ($(this).length > 0) {
                 object.render($(this)[0]);
             }
-            w2ui[object.name] = object;
             return object;
 
         } else {
@@ -14172,11 +14172,12 @@ var w2prompt = function (label, title, callBack) {
             for (var i = 0; i < tabs.length; i++) {
                 object.tabs[i] = $.extend({}, w2tabs.prototype.tab, tabs[i]);
             }
+            // register new object
+            w2ui[object.name] = object;
+            // render
             if ($(this).length !== 0) {
                 object.render($(this)[0]);
             }
-            // register new object
-            w2ui[object.name] = object;
             return object;
         } else {
             var obj = w2ui[$(this).attr('name')];
@@ -14845,11 +14846,12 @@ var w2prompt = function (label, title, callBack) {
                     }
                 }
             }
+            // register new object
+            w2ui[object.name] = object;
+            // render
             if ($(this).length !== 0) {
                 object.render($(this)[0]);
             }
-            // register new object
-            w2ui[object.name] = object;
             return object;
 
         } else {
@@ -15727,12 +15729,13 @@ var w2prompt = function (label, title, callBack) {
             if (nodes != null) {
                 object.add(object, nodes);
             }
+            // register new object
+            object.sidebar = object;
+            w2ui[object.name] = object;
+            // render
             if ($(this).length !== 0) {
                 object.render($(this)[0]);
             }
-            object.sidebar = object;
-            // register new object
-            w2ui[object.name] = object;
             return object;
 
         } else {
