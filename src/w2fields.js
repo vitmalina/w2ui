@@ -216,7 +216,8 @@
                         advanced    : null, // open advanced by default
                         transparent : true
                     };
-                    $.extend(options, defaults);
+                    this.options = $.extend(true, {}, defaults, options);
+                    options = this.options; // since object is re-created, need to re-assign
                     this.addPrefix();    // only will add if needed
                     this.addSuffix();    // only will add if needed
                     // additional checks
