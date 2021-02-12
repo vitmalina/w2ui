@@ -2656,6 +2656,7 @@ w2utils.event = {
                 var tipLeft  = options.tipLeft;
                 // alignment
                 switch (options.align) {
+                    case 'both+left':
                     case 'both':
                         boxLeft = 17;
                         if (options.width === 0) options.width = w2utils.getSize($(obj), 'width');
@@ -2663,6 +2664,13 @@ w2utils.event = {
                         break;
                     case 'left':
                         boxLeft = 17;
+                        break;
+                    case 'both+right':
+                        if (options.width === 0) options.width = w2utils.getSize($(obj), 'width');
+                        if (options.maxWidth && options.width > options.maxWidth) options.width = options.maxWidth;
+                        var maxWidth = Math.max( w - 10, options.width - 17)
+                        boxLeft = w2utils.getSize($(obj), 'width') - maxWidth;
+                        tipLeft = maxWidth - 30;
                         break;
                     case 'right':
                         boxLeft = w2utils.getSize($(obj), 'width') - w + 10;
@@ -2672,8 +2680,7 @@ w2utils.event = {
                 if (w === 30 && !boxWidth) boxWidth = 30; else boxWidth = (options.width ? options.width : 'auto');
                 var tmp = (w - 17) / 2;
                 if (boxWidth !== 'auto') tmp = (boxWidth - 17) / 2;
-                if (tmp < 25) {
-                    boxLeft = 25 - tmp;
+                if (tmp < 25 && options.align !== 'right') {
                     tipLeft = Math.floor(tmp);
                 }
                 // Y coord
