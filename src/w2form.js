@@ -29,7 +29,7 @@
 *   - httpHeaders
 *   - method
 *   - onInput
-*   - added field.html.groupStyle
+*   - added field.html.groupStyle, field.html.groupTitleStyle
 *   - added field.html.column = 'before' && field.html.column = 'after'
 *   - added field.html.anchor
 *   - changed this.clear(field1, field2,...)
@@ -47,6 +47,7 @@
 *   - added showErrors
 *   - added field.type = 'check'
 *   - new field type 'map', 'array' - same thing but map has unique keys also html: { key: { text: '111', attr: '222' }, value: {...}}
+*   - updateEmptyGroups
 *
 ************************************************************************/
 
@@ -291,6 +292,7 @@
                 }
             }
             if (affected.length > 0) this.refresh.apply(this, affected);
+            this.updateEmptyGroups();
             return affected.length;
         },
 
@@ -304,7 +306,26 @@
                 }
             }
             if (affected.length > 0) this.refresh.apply(this, affected);
+            this.updateEmptyGroups();
             return affected.length;
+        },
+
+        updateEmptyGroups: function() {
+            // hide empty groups
+            $(this.box).find('.w2ui-group').each(function(ind, group){
+                if (isHidden($(group).find('.w2ui-field')))  {
+                    $(group).hide()
+                } else {
+                    $(group).show()
+                }
+            })
+            function isHidden($els) {
+                var flag = true
+                $els.each(function(ind, el) {
+                    if (el.style.display != 'none') flag = false
+                })
+                return flag
+            }
         },
 
         enable: function () {
@@ -1043,7 +1064,7 @@
                 }
                 if (group !== '') {
                     if(page != field.html.page || column != field.html.column || (field.html.group && (group != field.html.group))){
-                       pages[page][column]  += '\n   </div>';
+                       pages[page][column]  += '\n   </div>\n  </div>';
                        group = '';
                     }
                 }
@@ -1052,15 +1073,16 @@
                     if (field.html.groupCollapsable) {
                         collapsable = '<span class="w2ui-icon-collapse" style="width: 15px; display: inline-block; position: relative; top: -2px;"></span>'
                     }
-                    html += '\n   <div class="w2ui-group-title" '
+                    html += '\n <div class="w2ui-group">'
+                        + '\n   <div class="w2ui-group-title" style="'+ (field.html.groupTitleStyle || '')
+                                        + (collapsable != '' ? 'cursor: pointer; user-select: none' : '') + '"'
                         + (collapsable != '' ? 'data-group="' + w2utils.base64encode(field.html.group) + '"' : '')
-                        + (collapsable != '' ? 'style="cursor: pointer"' : '')
                         + (collapsable != ''
                             ? 'onclick="w2ui[\'' + this.name + '\'].toggleGroup(\'' + field.html.group + '\')"'
                             : '')
                         + '>'
                         + collapsable + field.html.group + '</div>\n'
-                        + '   <div class="w2ui-group" style="'+ (field.html.groupStyle || '') +'">';
+                        + '   <div class="w2ui-group-fields" style="'+ (field.html.groupStyle || '') +'">';
                     group = field.html.group;
                 }
                 if (field.html.anchor == null) {
@@ -1084,7 +1106,7 @@
                 page = field.html.page;
                 column = field.html.column;
             }
-            if (group !== '') pages[page][column] += '\n   </div>';
+            if (group !== '') pages[page][column] += '\n   </div>\n  </div>';
             if (this.tabs.tabs) {
                 for (var i = 0; i < this.tabs.tabs.length; i++) if (pages[i] == null) pages[i] = [];
             }

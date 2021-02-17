@@ -23,7 +23,7 @@
             header   : 'Edit header',
             style1   : 'border: 1px solid red;',
             // pageStyle: 'height: 200px',
-            page: 1,
+            page: 0,
             tabs: [
                 { id: 'tab1', text: 'General' },
                 { id: 'tab2', text: 'Inputs' },
@@ -68,7 +68,7 @@
                     "radio"   : '1'
                 }
             },
-            focus: 1,
+            focus: -1,
             fields: [
                 // first page
                 { field: 'field.html', type: 'html', required: true,
@@ -79,8 +79,12 @@
                         groupCollapsable: true
                     }
                 },
-                { field: 'field.text', type: 'text', required: true, html: { attr: 'style="width: 300px"' }, hidden: true },
-                { field: 'field.textarea', type: 'textarea', required: true, html: { attr: 'style="width: 300px"' } },
+                { field: 'field.text', type: 'text', required: true, html: { attr: 'style="width: 300px"' }, hidden1: true },
+                { field: 'field.textarea', type: 'textarea', required: true, html: { attr: 'style="width: 300px"' },
+                    html: {
+                        group: 'Other'
+                    }
+                },
                 { field: 'field.date', type: 'date', required: false, html: { attr: 'style="width: 90px"' } },
                 { field: 'field.time', type: 'time', required: false, html: { attr: 'style="width: 90px"' } },
                 { field: 'field.color', type: 'color', required: true, html: { attr: 'style="width: 90px"' } },
