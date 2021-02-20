@@ -76,7 +76,7 @@ It will bundle all necessary files into `dist/w2ui.min.js` and `dist/w2ui.min.cs
 ```
 - dist           - compiled JS and CSS files
 - src            - source JS files
-  - kickstart    - module loader & router, future (w2ui-starter) [https://github.com/vitmalina/w2ui-starter]
+  - kickstart    - module loader & router, future [w2ui-starter](https://github.com/vitmalina/w2ui-starter)
   - less         - LESS files (source for css)
 - demos          - all demos, same as on the website
 - libs           - external libs, som used in demos, etc.
