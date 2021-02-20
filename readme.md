@@ -1,4 +1,9 @@
-## W2UI 1.5 - MIT License
+## Road to 2.0
+`Master` branch has new, in-progress version of w2ui. You might want to consider [1.5 branch](https://github.com/vitmalina/w2ui/tree/w2ui-1.5) that is stable and supports older browsers. Here are the goals for the new version of w2ui.
+
+(https://github.com/vitmalina/w2ui/discussions/1955)
+
+## W2UI 1.5 
 
 **[`w2ui`](http://w2ui.com)** is a modern and intuitive JavaScript UI library for building rich data-driven web applications. The library has
 a small footprint and requires only jQuery (1.9+) as a dependency. 
@@ -26,25 +31,15 @@ If you're using **`w2ui`**, I'd love to hear about it, please email to `vitmalin
 
 ## Quick Start
 
-Current stable version is 1.4.
-Current development version is 1.5.rc1.
+Current stable version is 1.5.
+Current development version is 2.0
 
-You can:
-- Download from here: [http://w2ui.com](http://w2ui.com)
-- Install using bower:
-
-```
-bower install w2ui
-```
-- or install using npm:
-```
-npm install w2ui
-```
+You can download from here: [http://w2ui.com](http://w2ui.com)
 
 To start using the library you need to include into your page:
 
-- w2ui-1.4.js (or w2ui-1.4.min.js)
-- w2ui-1.4.css (or w2ui-1.4.min.css)
+- w2ui-1.5.js (or w2ui-1.5.min.js)
+- w2ui-1.5.css (or w2ui-1.5.min.css)
 
 All the widgets and their css classes are defined inside of these two files. There is no image dependencies, some images
 are embedded into CSS file.
