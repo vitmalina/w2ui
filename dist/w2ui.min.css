@@ -1143,7 +1143,7 @@ button.w2ui-btn-small:focus:before {
   text-shadow: 1px 1px 2px #fdfdfd;
   font-size: 120%;
 }
-.w2ui-group {
+.w2ui-group-fields {
   background-color: #F9F9F9;
   margin: 5px 0px 10px 0px;
   padding: 10px 5px;

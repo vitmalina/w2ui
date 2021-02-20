@@ -13,3 +13,4 @@ package-lock.json
 *~
 clazzes-maven/target
 .DS_Store
+copy-shield.sh

@@ -242,6 +242,7 @@ var w2utils = (function ($) {
         month = +month;
         day   = +day;
         dt    = new Date(year, month - 1, day);
+        dt.setFullYear(year);
         // do checks
         if (month == null) return false;
         if (String(dt) === 'Invalid Date') return false;
@@ -10917,6 +10918,7 @@ w2utils.event = {
         },
 
         getCellHTML: function (ind, col_ind, summary, col_span) {
+            var obj = this;
             var col = this.columns[col_ind];
             if (col == null) return '';
             var record        = (summary !== true ? this.records[ind] : this.summary[ind]);
@@ -10992,10 +10994,9 @@ w2utils.event = {
                     '="var grid = w2ui[\''+ this.name + '\']; if (grid.last.bubbleEl) { $(grid.last.bubbleEl).w2tag() } grid.last.bubbleEl = null;"'+
                     '></span>';
             }
-            // various renderers
             if (col.render != null && ind !== -1) {
                 if (typeof col.render == 'function') {
-                    var html = col.render.call(this, record, ind, col_ind, data)
+                    var html = col.render.call(this, record, ind, col_ind, data);
                     if (html != null && typeof html == 'object') {
                         data = $.trim(html.html || '');
                         addClass = html.class || '';
@@ -11004,14 +11005,14 @@ w2utils.event = {
                         data = $.trim(html);
                     }
                     if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') {
-                        data = '<div style="'+ style +'">' + infoBubble + String(data) + '</div>';
+                        data = '<div style="'+ style +'" title="'+ getTitle(data) +'">' + infoBubble + String(data) + '</div>';
                     }
                 }
                 // if it is an object
                 if (typeof col.render == 'object') {
                     var dsp = col.render[data];
                     if (dsp == null || dsp === '') dsp = data;
-                    data = '<div style="'+ style +'">' + infoBubble + dsp + '</div>';
+                    data = '<div style="'+ style +'" title="'+ getTitle(dsp) +'">' + infoBubble + String(dsp) + '</div>';
                 }
                 // formatters
                 if (typeof col.render == 'string') {
@@ -11029,7 +11030,8 @@ w2utils.event = {
                     if (col.options && col.options.autoFormat === false) {
                         func = null;
                     }
-                    data = '<div style="'+ style +'">' + infoBubble + (typeof func == 'function' ? func(data, tmp[1]) : '') + '</div>';
+                    data = (typeof func == 'function' ? func(data, tmp[1], record) : '');
+                    data = '<div style="'+ style +'" title="'+ getTitle(data) +'">' + infoBubble + String(data) + '</div>';
                 }
             } else {
                 // if editable checkbox
@@ -11042,15 +11044,7 @@ w2utils.event = {
                            '"/>';
                     infoBubble = '';
                 }
-                if (this.show.recordTitles) {
-                    // title overwrite
-                    var title = w2utils.stripTags(String(data).replace(/"/g, "''"));
-                    if (col.title != null) {
-                        if (typeof col.title == 'function') title = col.title.call(this, record, ind, col_ind);
-                        if (typeof col.title == 'string')   title = col.title;
-                    }
-                }
-                data = '<div style="'+ style +'" title="'+ (title || '') +'">'+ infoBubble + String(data) +'</div>';
+                data = '<div style="'+ style +'" title="'+ getTitle(data) +'">' + infoBubble + String(data) + '</div>';
             }
             if (data == null) data = '';
             // --> cell TD
@@ -11090,6 +11084,19 @@ w2utils.event = {
                         '></td>';
             }
             return data;
+
+            function getTitle(cellData){
+                var title = "";
+                if (obj.show.recordTitles) {
+                    if (col.title != null) {
+                        if (typeof col.title == 'function') title = col.title.call(obj, record, ind, col_ind);
+                        if (typeof col.title == 'string')   title = col.title;
+                    } else {
+                        title = w2utils.stripTags(String(cellData).replace(/"/g, "''"));
+                    }
+                }
+                return (title != null) ? String(title) : "";
+            }
         },
 
         clipboardCopy: function (ind, col_ind) {
@@ -11140,7 +11147,7 @@ w2utils.event = {
                     var val = (col ? this.parseField(rec, col.field) : '');
                     if (tmp.length > 1) {
                         if (w2utils.formatters[tmp[1]]) {
-                            val = w2utils.formatters[tmp[1]](val, tmp[2] || null);
+                            val = w2utils.formatters[tmp[1]](val, tmp[2] || null, rec);
                         } else {
                             console.log('ERROR: w2utils.formatters["'+ tmp[1] + '"] does not exists.')
                         }
@@ -11165,7 +11172,7 @@ w2utils.event = {
                     var val = (col ? this.parseField(rec, col.field) : '');
                     if (tmp.length > 1) {
                         if (w2utils.formatters[tmp[1]]) {
-                            val = w2utils.formatters[tmp[1]](val, tmp[2] || null);
+                            val = w2utils.formatters[tmp[1]](val, tmp[2] || null, rec);
                         } else {
                             console.log('ERROR: w2utils.formatters["'+ tmp[1] + '"] does not exists.')
                         }
@@ -16972,7 +16979,8 @@ var w2prompt = function (label, title, callBack) {
                         advanced    : null, // open advanced by default
                         transparent : true
                     };
-                    $.extend(options, defaults);
+                    this.options = $.extend(true, {}, defaults, options);
+                    options = this.options; // since object is re-created, need to re-assign
                     this.addPrefix();    // only will add if needed
                     this.addSuffix();    // only will add if needed
                     // additional checks
@@ -19593,7 +19601,7 @@ var w2prompt = function (label, title, callBack) {
 *   - httpHeaders
 *   - method
 *   - onInput
-*   - added field.html.groupStyle
+*   - added field.html.groupStyle, field.html.groupTitleStyle
 *   - added field.html.column = 'before' && field.html.column = 'after'
 *   - added field.html.anchor
 *   - changed this.clear(field1, field2,...)
@@ -19611,6 +19619,7 @@ var w2prompt = function (label, title, callBack) {
 *   - added showErrors
 *   - added field.type = 'check'
 *   - new field type 'map', 'array' - same thing but map has unique keys also html: { key: { text: '111', attr: '222' }, value: {...}}
+*   - updateEmptyGroups
 *
 ************************************************************************/
 
@@ -19855,6 +19864,7 @@ var w2prompt = function (label, title, callBack) {
                 }
             }
             if (affected.length > 0) this.refresh.apply(this, affected);
+            this.updateEmptyGroups();
             return affected.length;
         },
 
@@ -19868,7 +19878,26 @@ var w2prompt = function (label, title, callBack) {
                 }
             }
             if (affected.length > 0) this.refresh.apply(this, affected);
+            this.updateEmptyGroups();
             return affected.length;
+        },
+
+        updateEmptyGroups: function() {
+            // hide empty groups
+            $(this.box).find('.w2ui-group').each(function(ind, group){
+                if (isHidden($(group).find('.w2ui-field')))  {
+                    $(group).hide()
+                } else {
+                    $(group).show()
+                }
+            })
+            function isHidden($els) {
+                var flag = true
+                $els.each(function(ind, el) {
+                    if (el.style.display != 'none') flag = false
+                })
+                return flag
+            }
         },
 
         enable: function () {
@@ -20607,7 +20636,7 @@ var w2prompt = function (label, title, callBack) {
                 }
                 if (group !== '') {
                     if(page != field.html.page || column != field.html.column || (field.html.group && (group != field.html.group))){
-                       pages[page][column]  += '\n   </div>';
+                       pages[page][column]  += '\n   </div>\n  </div>';
                        group = '';
                     }
                 }
@@ -20616,15 +20645,16 @@ var w2prompt = function (label, title, callBack) {
                     if (field.html.groupCollapsable) {
                         collapsable = '<span class="w2ui-icon-collapse" style="width: 15px; display: inline-block; position: relative; top: -2px;"></span>'
                     }
-                    html += '\n   <div class="w2ui-group-title" '
+                    html += '\n <div class="w2ui-group">'
+                        + '\n   <div class="w2ui-group-title" style="'+ (field.html.groupTitleStyle || '')
+                                        + (collapsable != '' ? 'cursor: pointer; user-select: none' : '') + '"'
                         + (collapsable != '' ? 'data-group="' + w2utils.base64encode(field.html.group) + '"' : '')
-                        + (collapsable != '' ? 'style="cursor: pointer"' : '')
                         + (collapsable != ''
                             ? 'onclick="w2ui[\'' + this.name + '\'].toggleGroup(\'' + field.html.group + '\')"'
                             : '')
                         + '>'
                         + collapsable + field.html.group + '</div>\n'
-                        + '   <div class="w2ui-group" style="'+ (field.html.groupStyle || '') +'">';
+                        + '   <div class="w2ui-group-fields" style="'+ (field.html.groupStyle || '') +'">';
                     group = field.html.group;
                 }
                 if (field.html.anchor == null) {
@@ -20648,7 +20678,7 @@ var w2prompt = function (label, title, callBack) {
                 page = field.html.page;
                 column = field.html.column;
             }
-            if (group !== '') pages[page][column] += '\n   </div>';
+            if (group !== '') pages[page][column] += '\n   </div>\n  </div>';
             if (this.tabs.tabs) {
                 for (var i = 0; i < this.tabs.tabs.length; i++) if (pages[i] == null) pages[i] = [];
             }
