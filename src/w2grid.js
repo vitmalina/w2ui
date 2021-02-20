@@ -7478,19 +7478,6 @@
                     '="var grid = w2ui[\''+ this.name + '\']; if (grid.last.bubbleEl) { $(grid.last.bubbleEl).w2tag() } grid.last.bubbleEl = null;"'+
                     '></span>';
             }
-            // various renderers
-            function getTitle(cellData){
-                var title = "";
-                if (obj.show.recordTitles) {
-                    if (col.title != null) {
-                        if (typeof col.title == 'function') title = col.title.call(obj, record, ind, col_ind);
-                        if (typeof col.title == 'string')   title = col.title;
-                    } else {
-                        title = w2utils.stripTags(String(cellData).replace(/"/g, "''"));
-                    }
-                }
-                return (title != null) ? String(title) : "";
-            }
             if (col.render != null && ind !== -1) {
                 if (typeof col.render == 'function') {
                     var html = col.render.call(this, record, ind, col_ind, data);
@@ -7509,8 +7496,7 @@
                 if (typeof col.render == 'object') {
                     var dsp = col.render[data];
                     if (dsp == null || dsp === '') dsp = data;
-                    data = dsp;
-                    data = '<div style="'+ style +'" title="'+ getTitle(data) +'">' + infoBubble + String(data) + '</div>';
+                    data = '<div style="'+ style +'" title="'+ getTitle(dsp) +'">' + infoBubble + String(dsp) + '</div>';
                 }
                 // formatters
                 if (typeof col.render == 'string') {
@@ -7582,6 +7568,19 @@
                         '></td>';
             }
             return data;
+
+            function getTitle(cellData){
+                var title = "";
+                if (obj.show.recordTitles) {
+                    if (col.title != null) {
+                        if (typeof col.title == 'function') title = col.title.call(obj, record, ind, col_ind);
+                        if (typeof col.title == 'string')   title = col.title;
+                    } else {
+                        title = w2utils.stripTags(String(cellData).replace(/"/g, "''"));
+                    }
+                }
+                return (title != null) ? String(title) : "";
+            }
         },
 
         clipboardCopy: function (ind, col_ind) {
