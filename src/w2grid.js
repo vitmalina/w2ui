@@ -7402,6 +7402,7 @@
         },
 
         getCellHTML: function (ind, col_ind, summary, col_span) {
+            var obj = this;
             var col = this.columns[col_ind];
             if (col == null) return '';
             var record        = (summary !== true ? this.records[ind] : this.summary[ind]);
@@ -7478,9 +7479,21 @@
                     '></span>';
             }
             // various renderers
+            function getTitle(cellData){
+                var title = "";
+                if (obj.show.recordTitles) {
+                    if (col.title != null) {
+                        if (typeof col.title == 'function') title = col.title.call(obj, record, ind, col_ind);
+                        if (typeof col.title == 'string')   title = col.title;
+                    } else {
+                        title = w2utils.stripTags(String(cellData).replace(/"/g, "''"));
+                    }
+                }
+                return (title != null) ? String(title) : "";
+            }
             if (col.render != null && ind !== -1) {
                 if (typeof col.render == 'function') {
-                    var html = col.render.call(this, record, ind, col_ind, data)
+                    var html = col.render.call(this, record, ind, col_ind, data);
                     if (html != null && typeof html == 'object') {
                         data = $.trim(html.html || '');
                         addClass = html.class || '';
@@ -7489,14 +7502,15 @@
                         data = $.trim(html);
                     }
                     if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') {
-                        data = '<div style="'+ style +'">' + infoBubble + String(data) + '</div>';
+                        data = '<div style="'+ style +'" title="'+ getTitle(data) +'">' + infoBubble + String(data) + '</div>';
                     }
                 }
                 // if it is an object
                 if (typeof col.render == 'object') {
                     var dsp = col.render[data];
                     if (dsp == null || dsp === '') dsp = data;
-                    data = '<div style="'+ style +'">' + infoBubble + dsp + '</div>';
+                    data = dsp;
+                    data = '<div style="'+ style +'" title="'+ getTitle(data) +'">' + infoBubble + String(data) + '</div>';
                 }
                 // formatters
                 if (typeof col.render == 'string') {
@@ -7514,7 +7528,8 @@
                     if (col.options && col.options.autoFormat === false) {
                         func = null;
                     }
-                    data = '<div style="'+ style +'">' + infoBubble + (typeof func == 'function' ? func(data, tmp[1], record) : '') + '</div>';
+                    data = (typeof func == 'function' ? func(data, tmp[1], record) : '');
+                    data = '<div style="'+ style +'" title="'+ getTitle(data) +'">' + infoBubble + String(data) + '</div>';
                 }
             } else {
                 // if editable checkbox
@@ -7527,15 +7542,7 @@
                            '"/>';
                     infoBubble = '';
                 }
-                if (this.show.recordTitles) {
-                    // title overwrite
-                    var title = w2utils.stripTags(String(data).replace(/"/g, "''"));
-                    if (col.title != null) {
-                        if (typeof col.title == 'function') title = col.title.call(this, record, ind, col_ind);
-                        if (typeof col.title == 'string')   title = col.title;
-                    }
-                }
-                data = '<div style="'+ style +'" title="'+ (title || '') +'">'+ infoBubble + String(data) +'</div>';
+                data = '<div style="'+ style +'" title="'+ getTitle(data) +'">' + infoBubble + String(data) + '</div>';
             }
             if (data == null) data = '';
             // --> cell TD
