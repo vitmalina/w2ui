@@ -2,7 +2,7 @@
 <html>
 <head>
     <link rel="stylesheet" type="text/css" href="../../dist/w2ui.min.css" />
-    <script type="text/javascript" src="../../libs/jquery/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="../../libs/jquery/jquery-3.5.1.min.js"></script>
     <script type="text/javascript" src="../../dist/w2ui.min.js"></script>
 </head>
 <body>

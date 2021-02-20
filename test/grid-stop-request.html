@@ -1,7 +1,7 @@
 <html>
 <head>
-<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
-<script type="text/javascript" src="../libs/jquery/jquery-2.1.4.min.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
+<script type="text/javascript" src="../libs/jquery/jquery-3.5.1.min.js"></script>
 <script type="text/javascript" src="../src/w2utils.js"></script>
 <script type="text/javascript" src="../src/w2grid.js"></script>
 <script type="text/javascript" src="../src/w2toolbar.js"></script>
@@ -10,15 +10,15 @@
 //<![CDATA[
 $(function () {
 
-    $('#grid').w2grid({ 
-        name: 'grid', 
+    $('#grid').w2grid({
+        name: 'grid',
         header: 'List of Names',
         url:'testurl',
         onRequest:function(event){
             if(event.phase!=='before'){
                 return;
             }
-            
+
             event.stop=true;
             var responseData={
             total: 28,
@@ -48,13 +48,13 @@ $(function () {
             //Facking ajax call
             var xhr = {
               responseText: JSON.stringify(responseData),
-              status: '200'        
+              status: '200'
             };
             setTimeout(function(){
                 grid.requestComplete(xhr,'200', data.cmd);
             },2000);
         },
-        show: { 
+        show: {
             toolbar: true,
             footer: true,
             header: true,
@@ -67,8 +67,8 @@ $(function () {
             items: [
                 { type: 'break', id: 'br1' },
                 { type: 'menu',   id: 'item2', caption: 'Drop Down', img: 'icon-folder', items: [
-                    { text: 'Item 1', icon: 'icon-page' }, 
-                    { text: 'Item 2', icon: 'icon-page' }, 
+                    { text: 'Item 1', icon: 'icon-page' },
+                    { text: 'Item 2', icon: 'icon-page' },
                     { text: 'Item 3', value: 'Item Three', icon: 'icon-page' }
                 ]},
                 { type: 'break', id: 'br2' },
@@ -76,7 +76,7 @@ $(function () {
                 { type: 'drop', id: 'drop1', caption: 'Drop Button', html: '123' }
             ]
         },
-        searches: [                
+        searches: [
             { field: 'recid', caption: 'ID (int)', type: 'int' },
             { field: 'id', caption: 'ID (float)', type: 'float' },
             { field: 'fname', caption: 'First Name', type: 'text' },
@@ -91,7 +91,7 @@ $(function () {
             { caption: 'Email', span: 1, master: true },
             { caption: 'Important Dates', span: 3 }
         ],
-        columns: [                
+        columns: [
             { field: 'recid', caption: 'ID', size: '50px', sortable: true, attr: 'align=center1', style: 'text-align: right', resizable: true },
             { field: 'lname', caption: 'Last Name', size: '30%', sortable: true, resizable: true },
             { field: 'fname', caption: 'First Name', size: '30%', sortable: true, resizable: true },

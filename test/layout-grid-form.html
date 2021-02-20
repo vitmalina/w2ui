@@ -1,7 +1,7 @@
 <html>
 <head>
-<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
-<script type="text/javascript" src="../libs/jquery/jquery-2.1.4.min.js"></script>
+<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
+<script type="text/javascript" src="../libs/jquery/jquery-3.5.1.min.js"></script>
 <script type="text/javascript" src="../dist/w2ui.js"></script>
 <script type="text/javascript" src="../src/w2layout.js"></script>
 <script type="text/javascript" src="../src/w2grid.js"></script>
@@ -24,13 +24,13 @@ $(function () {
 
     // -- GRID
 
-    $().w2grid({ 
-        name: 'grid', 
-        show: { 
+    $().w2grid({
+        name: 'grid',
+        show: {
             toolbar: true,
             footer: true
         },
-        searches: [                
+        searches: [
             { field: 'recid', caption: 'ID (int)', type: 'int' },
             { field: 'id', caption: 'ID (float)', type: 'float' },
             { field: 'fname', caption: 'First Name', type: 'text' },
@@ -39,7 +39,7 @@ $(function () {
             { field: 'sdate', caption: 'Date', type: 'date' }
         ],
         sortData: [ { field: 'recid', direction: 'asc' } ],
-        columns: [                
+        columns: [
             { field: 'recid', caption: 'ID', size: '50px', sortable: true, resizable: true },
             { field: 'lname', caption: 'Last Name', size: '30%', sortable: true, resizable: true },
             { field: 'fname', caption: 'First Name', size: '30%', sortable: true, resizable: true },
@@ -78,9 +78,9 @@ $(function () {
         }
     });
 
-    // -- FORM    
+    // -- FORM
 
-    $().w2form({ 
+    $().w2form({
         name     : 'form',
         form_url : 'form-template.html',
         fields: [
