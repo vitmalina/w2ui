@@ -1,4 +1,4 @@
-/* kickstart 0.2.x (nightly) (c) http://w2ui.com/kickstart, vitmalina@gmail.com */
+/* kickstart 0.3.x (nightly) (c) http://w2ui.com/kickstart, vitmalina@gmail.com */
 /************************************************
 *  Library: KickStart - Minimalistic Framework
 *   - Dependencies: jQuery

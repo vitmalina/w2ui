@@ -1,4 +1,4 @@
-/* w2ui 1.5.x (nightly) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (c) http://w2ui.com, vitmalina@gmail.com */
 var w2ui  = w2ui  || {};
 var w2obj = w2obj || {}; // expose object to be able to overwrite default functions
 
@@ -21487,5 +21487,3 @@ var w2prompt = function (label, title, callBack) {
     w2confirm: w2confirm,
     w2prompt: w2prompt
 });
-
-//# sourceMappingURL=w2ui.js.map
