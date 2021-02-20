@@ -1,14 +1,13 @@
 ## Road to 2.0
-`Master` branch has new, in-progress version of w2ui. You might want to consider [1.5 branch](https://github.com/vitmalina/w2ui/tree/w2ui-1.5) that is stable and supports older browsers. Here are the goals for the new version of w2ui.
+The `master` branch has new, in-progress version of w2ui. You might want to consider [1.5 branch](https://github.com/vitmalina/w2ui/tree/w2ui-1.5) that is stable and supports older browsers. Here are the goals for the new version of w2ui.
 
-(https://github.com/vitmalina/w2ui/discussions/1955)
+[Road to 2.0 discussion](https://github.com/vitmalina/w2ui/discussions/1955)
 
 ## About W2UI
 
-**[`W2UI`](http://w2ui.com)** is a modern and intuitive JavaScript UI library for building rich data-driven web applications. The library has
-a small footprint and requires only jQuery (1.9+, but prefer with 3.5.1) as a dependency.
+W2UI is a modern JavaScript UI library for building data-driven web applications. It aims to let you define UI in expressive JSON-like structures. The library has small footprint and has only one dependency - jQuery.
 
-The library implements the following highly usable widgets:
+The library implements following UI controls:
 
 * **[w2layout](http://w2ui.com/web/docs/1.5/layout)** - a Layout component - *[demo](http://w2ui.com/web/demo/layout)*
 * **[w2grid](http://w2ui.com/web/docs/1.5/layout/grid)** - an advanced Grid component - *[demo](http://w2ui.com/web/demo/grid)*
@@ -36,7 +35,7 @@ To start using the library you need to include into your page:
 - w2ui.js (or w2ui.min.js)
 - w2ui.css (or w2ui.min.css)
 
-All the widgets and their css classes are defined inside of these two files. There is no image dependencies, some images
+All the controls and their css classes are defined inside of these two files. There is no image dependencies, some images
 are embedded into CSS file, as well as font icons.
 
 There is no requirement for a server side language. Node, Java, PHP, ASP, Perl or .NET all will work, as long as you can
@@ -74,15 +73,15 @@ It will bundle all necessary files into `dist/w2ui.min.js` and `dist/w2ui.min.cs
 ## File Structure
 
 ```
-- dist           - compiled JS and CSS files
-- src            - source JS files
-  - kickstart    - module loader & router, future [w2ui-starter](https://github.com/vitmalina/w2ui-starter)
-  - less         - LESS files (source for css)
-- demos          - all demos, same as on the website
-- libs           - external libs, som used in demos, etc.
-- server         - server api samles (to get you started)
-- specs          - some qunit test
-- test           - manual testing files
+- dist        - compiled JS and CSS files
+- src         - source JS files
+  - kickstart - module loader & router, see https://github.com/vitmalina/w2ui-starter
+  - less      - LESS files (source for css)
+- demos       - all demos, same as on the website
+- libs        - external libs, som used in demos, etc.
+- server      - server api samles (to get you started)
+- specs       - some qunit test
+- test        - manual testing files
 ```
 
 ## Who is Using It
