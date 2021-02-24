@@ -4031,7 +4031,7 @@
                 this.editField(recid, column, null, event);
             } else {
                 this.select({ recid: recid, column: column });
-                if (this.show.expandColumn || (rec.w2ui && Array.isArray(rec.w2ui.children))) this.toggle(recid);
+                if (this.show.expandColumn || (rec && rec.w2ui && Array.isArray(rec.w2ui.children))) this.toggle(recid);
             }
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
