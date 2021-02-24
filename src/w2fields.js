@@ -1666,6 +1666,11 @@
                 var dt = w2utils.isDate($(obj.el).val(), obj.options.format, true);
                 if (dt) { month = dt.getMonth() + 1; year = dt.getFullYear(); }
                 (function refreshCalendar(month, year) {
+                    if (!month && !year) {
+                        let dt = new Date()
+                        month = dt.getMonth()
+                        year = dt.getFullYear()
+                    }
                     $('#w2ui-overlay > div > div').html(obj.getMonthHTML(month, year, $(obj.el).val()));
                     $('#w2ui-overlay .w2ui-calendar-title')
                         .on('mousedown', function () {
@@ -1678,6 +1683,22 @@
                                 setTimeout(function () {
                                     $('#w2ui-overlay .w2ui-calendar-jump')
                                         .find('.w2ui-jump-month, .w2ui-jump-year')
+                                        .on('dblclick', function () {
+                                            if ($(this).hasClass('w2ui-jump-month')) {
+                                                $(this).parent().find('.w2ui-jump-month').removeClass('selected');
+                                                $(this).addClass('selected');
+                                                selMonth = $(this).attr('name');
+                                            }
+                                            if ($(this).hasClass('w2ui-jump-year')) {
+                                                $(this).parent().find('.w2ui-jump-year').removeClass('selected');
+                                                $(this).addClass('selected');
+                                                selYear = $(this).attr('name');
+                                            }
+                                            if (selMonth == null) selMonth = month
+                                            if (selYear == null) selYear = year
+                                            $('#w2ui-overlay .w2ui-calendar-jump').fadeOut(100);
+                                            setTimeout(function () { refreshCalendar(parseInt(selMonth)+1, selYear); }, 100);
+                                        })
                                         .on('click', function () {
                                             if ($(this).hasClass('w2ui-jump-month')) {
                                                 $(this).parent().find('.w2ui-jump-month').removeClass('selected');
@@ -2638,6 +2659,7 @@
                 '    <div class="w2ui-calendar-previous previous"> <div></div> </div>'+
                 '    <div class="w2ui-calendar-next next"> <div></div> </div> '+
                         months[month-1] +', '+ year +
+                '       <span class="arrow-down" style="position: relative; top: -1px; left: 5px; opacity: 0.6;"></span>'+
                 '</div>'+
                 '<table class="w2ui-calendar-days" cellspacing="0"><tbody>'+
                 '    <tr class="w2ui-day-title">' + dayTitle + '</tr>'+
