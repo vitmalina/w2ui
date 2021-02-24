@@ -25,6 +25,7 @@
 *   - reusable search component (see https://github.com/vitmalina/w2ui/issues/914#issuecomment-107340524)
 *   - allow enum in inline edit (see https://github.com/vitmalina/w2ui/issues/911#issuecomment-107341193)
 *   - if record has no recid, then it should be index in the aray (should not be 0)
+*   - remote source, but localSort/localSearch
 *
 * == KNOWN ISSUES ==
 *   - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
@@ -3439,6 +3440,10 @@
         },
 
         columnClick: function (field, event) {
+            // ignore click if column was resizing
+            if (this.last.colResizing === true) {
+                return
+            }
             // event before
             var edata = this.trigger({ phase: 'before', type: 'columnClick', target: this.name, field: field, originalEvent: event });
             if (edata.isCancelled === true) return;
@@ -5461,9 +5466,9 @@
 
                     columns = _dragData.columns = $( obj.box ).find( '.w2ui-head:not(.w2ui-head-last)' );
 
-                    //add events
-                    $( document ).on( 'mouseup', dragColEnd );
-                    $( document ).on( 'mousemove', dragColOver );
+                    // add events
+                    $(document).on( 'mouseup', dragColEnd );
+                    $(document).on( 'mousemove', dragColOver );
 
                     //_dragData.columns.css({ overflow: 'visible' }).children( 'div' ).css({ overflow: 'visible' });
 
@@ -5476,7 +5481,7 @@
                     $( _dragData.ghost ).find( '.w2ui-grid-body' ).css({ top: 0 });
 
                     selectedCol = $( _dragData.ghost ).find( '[col="' + _dragData.originalPos + '"]' );
-                    $( document.body ).append( _dragData.ghost );
+                    $(document.body).append( _dragData.ghost );
 
                     $( _dragData.ghost ).css({
                         width: 0,
@@ -5559,8 +5564,8 @@
 
                 //_dragData.columns.css({ overflow: '' }).children( 'div' ).css({ overflow: '' });
 
-                $( document ).off( 'mouseup', dragColEnd );
-                $( document ).off( 'mousemove', dragColOver );
+                $(document).off( 'mouseup', dragColEnd );
+                $(document).off( 'mousemove', dragColOver );
                 if ( _dragData.marker ) _dragData.marker.remove();
                 _dragData = {};
 
@@ -5636,9 +5641,9 @@
             //return an object to remove drag if it has ever been enabled
             return {
                 remove: function(){
-                    $( obj.box ).off( 'mousedown', dragColStart );
-                    $( obj.box ).off( 'mouseup', catchMouseup );
-                    $( obj.box ).find( '.w2ui-head' ).removeAttr( 'draggable' );
+                    $(obj.box).off( 'mousedown', dragColStart );
+                    $(obj.box).off( 'mouseup', catchMouseup );
+                    $(obj.box).find( '.w2ui-head' ).removeAttr( 'draggable' );
                     obj.last.columnDrag = false;
                 }
             };
@@ -5870,7 +5875,6 @@
 
         initResize: function () {
             var obj = this;
-            //if (obj.resizing === true) return;
             $(this.box).find('.w2ui-resizer')
                 .off('.grid-col-resize')
                 .on('click.grid-col-resize', function (event) {
@@ -5879,7 +5883,7 @@
                 })
                 .on('mousedown.grid-col-resize', function (event) {
                     if (!event) event = window.event;
-                    obj.resizing = true;
+                    obj.last.colResizing = true;
                     obj.last.tmp = {
                         x   : event.screenX,
                         y   : event.screenY,
@@ -5903,7 +5907,7 @@
                     // set move event
                     var timer;
                     var mouseMove = function (event) {
-                        if (obj.resizing != true) return;
+                        if (obj.last.colResizing != true) return;
                         if (!event) event = window.event;
                         // event before
                         edata = obj.trigger($.extend(edata, { resizeBy: (event.screenX - obj.last.tmp.gx), originalEvent: event }));
@@ -5925,13 +5929,14 @@
                         obj.last.tmp.y = event.screenY;
                     };
                     var mouseUp = function (event) {
-                        delete obj.resizing;
                         $(document).off('.grid-col-resize');
                         obj.resizeRecords();
                         obj.scroll();
                         // event after
                         obj.trigger($.extend(edata, { phase: 'after', originalEvent: event }));
-                    };
+                        // need timeout to finish processing events
+                        setTimeout(function () {  obj.last.colResizing = false }, 1)
+                    }
 
                     $(document)
                         .off('.grid-col-resize')
