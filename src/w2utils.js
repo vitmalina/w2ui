@@ -2648,9 +2648,8 @@ w2utils.event = {
                     setTimeout(function () {
                         div2.find('div.w2ui-menu > table').css('overflow-x', 'auto');
                     }, 10);
-                } else {
-                    div2.find('div.w2ui-menu').css('width', '100%');
                 }
+                div2.find('div.w2ui-menu').css('width', '100%');
                 // adjust position
                 var boxLeft  = options.left;
                 var boxWidth = options.width;
