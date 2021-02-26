@@ -2680,7 +2680,7 @@ w2utils.event = {
                 if(maxWidth === 'input') maxWidth = objWidth;
                 maxWidth = parseInt(maxWidth, 10);
                 // convert boxWidth to a numeric value
-                if(!boxWidth || boxWidth === 'auto') boxWidth = w;
+                if(!boxWidth || boxWidth === 'auto') boxWidth = 0;
                 if(boxWidth === 'input') boxWidth = objWidth;
                 boxWidth = parseInt(boxWidth, 10);
                 if(minWidth) boxWidth = Math.max(boxWidth, minWidth);
@@ -2692,7 +2692,7 @@ w2utils.event = {
                     tipLeft = mw - 30;
                 }
                 if (w === 30 && !boxWidth) boxWidth = 30;
-                var tmp = (boxWidth - 17) / 2;
+                var tmp = ((boxWidth ? boxWidth : w) - 17) / 2;
                 if (tmp < 25) {
                     tipLeft = Math.floor(tmp);
                 }
