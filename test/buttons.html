@@ -3,6 +3,7 @@
 <link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" /> 
 <script type="text/javascript" src="../libs/jquery/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="../dist/w2ui.js"></script>
+<script type="text/javascript" src="../src/w2utils.js"></script>
 <script>
 //<![CDATA[
 $(function () {
@@ -34,5 +35,9 @@ $(function () {
         Regular HTML Buttons: <br/><br/>
         <input type="button" value="Small"/> <input type="button" value="Very, Very, Very Long Button"/>
     </div>
+    <script type="text/javascript">
+        var a = {}
+        jQuery.extend(a, w2utils.event)
+    </script>
 </body>
 </html>
