@@ -1842,6 +1842,11 @@
                 }
                 $(window).off('resize.w2uiResize').on('resize.w2uiResize', obj.tmp_resize);
             }
+            // focus on load
+            function focusEl() {
+                var inputs = $(obj.box).find('div:not(.w2ui-field-helper) > input, select, textarea, div > label:nth-child(1) > :radio').not('.file-input');
+                if (inputs.length > obj.focus) inputs[obj.focus].focus();
+            }
             if (this.focus != -1) {
                 setTimeout(function () {
                     // if not rendered in 10ms, then wait 500ms
