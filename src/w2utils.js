@@ -2468,6 +2468,7 @@ w2utils.event = {
             selectable  : false,
             width       : 0,                 // fixed width
             height      : 0,                 // fixed height
+            minWidth    : null,              // min width if any. Valid values: null / 'auto' (default) / 'input' (default for align='both') / 'XXpx' / numeric value (same as setting string with 'px')
             maxWidth    : null,              // max width if any
             maxHeight   : null,              // max height if any
             contextMenu : false,             // if true, it will be opened at mouse position
@@ -2647,35 +2648,55 @@ w2utils.event = {
                     setTimeout(function () {
                         div2.find('div.w2ui-menu > table').css('overflow-x', 'auto');
                     }, 10);
-                } else {
-                    div2.find('div.w2ui-menu').css('width', '100%');
                 }
+                div2.find('div.w2ui-menu').css('width', '100%');
                 // adjust position
                 var boxLeft  = options.left;
                 var boxWidth = options.width;
                 var tipLeft  = options.tipLeft;
+                var minWidth = options.minWidth;
+                var maxWidth = options.maxWidth;
+                var objWidth = w2utils.getSize($(obj), 'width');
                 // alignment
                 switch (options.align) {
                     case 'both':
                         boxLeft = 17;
-                        if (options.width === 0) options.width = w2utils.getSize($(obj), 'width');
-                        if (options.maxWidth && options.width > options.maxWidth) options.width = options.maxWidth;
+                        minWidth = 'input';
+                        maxWidth = 'input';
                         break;
                     case 'left':
                         boxLeft = 17;
                         break;
                     case 'right':
-                        boxLeft = w2utils.getSize($(obj), 'width') - w + 10;
-                        tipLeft = w - 40;
                         break;
                 }
-                if (w === 30 && !boxWidth) boxWidth = 30; else boxWidth = (options.width ? options.width : 'auto');
-                var tmp = (w - 17) / 2;
-                if (boxWidth !== 'auto') tmp = (boxWidth - 17) / 2;
+
+                // convert minWidth to a numeric value
+                if(!minWidth || minWidth === 'auto') minWidth = 0;
+                if(minWidth === 'input') minWidth = objWidth;
+                minWidth = parseInt(minWidth, 10);
+                // convert maxWidth to a numeric value
+                if(!maxWidth || maxWidth === 'auto') maxWidth = 0;
+                if(maxWidth === 'input') maxWidth = objWidth;
+                maxWidth = parseInt(maxWidth, 10);
+                // convert boxWidth to a numeric value
+                if(!boxWidth || boxWidth === 'auto') boxWidth = 0;
+                if(boxWidth === 'input') boxWidth = objWidth;
+                boxWidth = parseInt(boxWidth, 10);
+                if(minWidth) boxWidth = Math.max(boxWidth, minWidth);
+                if(maxWidth) boxWidth = Math.min(boxWidth, maxWidth);
+
+                if(options.align === 'right') {
+                    var mw = Math.max(w - 10, minWidth - 17);
+                    boxLeft = objWidth - mw;
+                    tipLeft = mw - 30;
+                }
+                if (w === 30 && !boxWidth) boxWidth = 30;
+                var tmp = ((boxWidth ? boxWidth : w) - 17) / 2;
                 if (tmp < 25) {
-                    boxLeft = 25 - tmp;
                     tipLeft = Math.floor(tmp);
                 }
+
                 // Y coord
                 var X, Y, offsetTop;
                 if (options.contextMenu) { // context menu
@@ -2691,8 +2712,10 @@ w2utils.event = {
                 div1.css({
                     left        :  X + 'px',
                     top         :  Y + 'px',
-                    'min-width' : boxWidth,
-                    'min-height': (options.height ? options.height : 'auto')
+                    'width'     : boxWidth || 'auto',
+                    'min-width' : minWidth || 'auto',
+                    'max-width' : maxWidth || 'auto',
+                    'min-height': options.height || 'auto'
                 });
                 // $(window).height() - has a problem in FF20
                 var offset = div2.offset() || {};

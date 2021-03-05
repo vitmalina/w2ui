@@ -287,6 +287,7 @@
                         cacheMax        : 250,
                         maxDropHeight   : 350,          // max height for drop down menu
                         maxDropWidth    : null,         // if null then auto set
+                        minDropWidth    : null,         // if null then auto set
                         match           : 'begins',     // ['contains', 'is', 'begins', 'ends']
                         silent          : true,
                         icon            : null,
@@ -1987,6 +1988,7 @@
                         render     : options.renderDrop,
                         maxHeight  : options.maxDropHeight,
                         maxWidth   : options.maxDropWidth,
+                        minWidth   : options.minDropWidth,
                         msgNoItems : msgNoItems,
                         // selected with mouse
                         onSelect: function (event) {
