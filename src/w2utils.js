@@ -16,7 +16,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *        - w2utils.event    - generic event object
 *  - Dependencies: jQuery
 *
-* == NICE TO HAVE ==
+* == TODO ==
 *   - overlay should be displayed where more space (on top or on bottom)
 *   - write and article how to replace certain framework functions
 *   - add maxHeight for the w2menu
@@ -53,7 +53,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 var w2utils = (function ($) {
     var tmp = {}; // for some temp variables
     var obj = {
-        version  : '1.5.x',
+        version  : '2.0.x',
         settings : {
             "locale"            : "en-us",
             "dateFormat"        : "m/d/yyyy",

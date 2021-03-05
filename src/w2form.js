@@ -5,7 +5,7 @@
 *        - $().w2form  - jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2fields, w2tabs, w2toolbar
 *
-* == NICE TO HAVE ==
+* == TODO ==
 *   - include delta on save
 *   - form should read <select> <options> into items
 *   - two way data bindings

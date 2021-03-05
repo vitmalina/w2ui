@@ -5,7 +5,7 @@
 *        - $().w2tabs    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
-* == NICE TO HAVE ==
+* == TODO ==
 *   - align = left, right, center ??
 *
 * == 1.5 changes ==

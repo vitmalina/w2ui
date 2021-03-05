@@ -5,15 +5,9 @@
 *        - $().w2sidebar    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
-* == NICE TO HAVE ==
-*   - add find() method to find nodes by a specific criteria (I want all nodes for exampe)
+* == TODO ==
 *   - dbl click should be like it is in grid (with timer not HTML dbl click event)
-*   - reorder with dgrag and drop
 *   - node.style is misleading - should be there to apply color for example
-*   - add multiselect
-*   - node.caption - deprecated
-*   - node.text - can be a function
-*   - node.icon - can be a function
 *
 * == 1.5 changes
 *   - node.class - ne property
@@ -21,6 +15,9 @@
 *   - sb.handle (for debugger points)
 *   - node.style
 *   - sb.updte()
+*   - node.caption - deprecated
+*   - node.text - can be a function
+*   - node.icon - can be a function
 *
 ************************************************************************/
 

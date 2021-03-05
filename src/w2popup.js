@@ -5,6 +5,10 @@
 *        - $().w2popup  - jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
+* == TODO ==
+*   - hide overlay on esc
+*   - make popup width/height in %
+*
 * == changes
 *   - added onMove event
 *   - w2prompt.options.ok_class, cancel_class
@@ -13,10 +17,6 @@
 *   - w2popup.actions, w2popup.action, w2popup.onAction
 *   - w2popup.onMsgOpen, w2popup.onMsgClose
 *   - options.multiple
-*
-* == NICE TO HAVE ==
-*   - hide overlay on esc
-*   - make popup width/height in %
 *
 ************************************************************************/
 

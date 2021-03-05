@@ -5,7 +5,7 @@
 *        - $().w2field    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
-* == NICE TO HAVE ==
+* == TODO ==
 *   - upload (regular files)
 *   - BUG with prefix/postfix and arrows (test in different contexts)
 *   - multiple date selection

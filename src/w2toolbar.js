@@ -5,8 +5,9 @@
 *        - $().w2toolbar    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2field
 *
-* == NICE TO HAVE ==
+* == TODO ==
 *   - vertical toolbar
+*   - refactor w/o <table>
 *
 * == 1.5 changes ==
 *   - menu drop down can have groups now
