@@ -1995,6 +1995,7 @@ w2utils.event = {
                 type    : tmp[0],
                 execute : tmp[1]
             };
+            if (scope) edata.scope = scope
         }
         if (!$.isPlainObject(edata)) edata = { type: edata, scope: scope };
         edata = $.extend({ type: null, execute: 'before', target: null, onComplete: null }, edata);
@@ -2003,6 +2004,7 @@ w2utils.event = {
         if (!handler) { console.log('ERROR: You must specify event handler function when calling .on() method of '+ this.name); return; }
         if (!$.isArray(this.handlers)) this.handlers = [];
         this.handlers.push({ edata: edata, handler: handler });
+        return this; // needed for chaining
     },
 
     off: function (edata, handler) {
@@ -2044,6 +2046,7 @@ w2utils.event = {
             }
         }
         this.handlers = newHandlers;
+        return this;
     },
 
     trigger: function (edata) {
@@ -2480,7 +2483,7 @@ w2utils.event = {
             overlayStyle: '',
             onShow      : null,              // event on show
             onHide      : null,              // event on hide
-            openAbove   : false,             // show above control
+            openAbove   : null,              // show above control (if not, then as best needed)
             tmp         : {}
         };
         if (arguments.length === 1) {
