@@ -1,8 +1,8 @@
 <div class="content">
     <div id="example_title">
         <h1>Infinite Scroll</h1>
-        The grid below demonstrates how infinite scroll can be implemented. I have generated a few thousands random records in the 
-        database and as user scrolls new records will be loaded. For DB intensive record retrieval, you can use grid.autoLoad set to 
+        The grid below demonstrates how infinite scroll can be implemented. I have generated a few thousands random records in the
+        database and as user scrolls new records will be loaded. For DB intensive record retrieval, you can use grid.autoLoad set to
         false and records will not be load unless user clicks the Load More button.
     </div>
     <div id="example_view"></div>
@@ -21,26 +21,33 @@
 <script>
 // widget configuration
 var config = {
-    grid: { 
+    grid: {
         name: 'grid',
-        url : '//w2ui.com/web/pages/demo/infinite/index.php',
-        show: { 
-            footer    : true,
-            toolbar    : true
+        url : 'data/list3.json',
+        show: {
+            footer: true,
+            toolbar: true,
+            lineNumbers: true
         },
-        columns: [                
-            { field: 'userid', caption: 'ID', size: '50px', sortable: true, resizable: true },
-            { field: 'fname', caption: 'First Name', size: '140px', sortable: true, searchable: 'text', resizable: true },
-            { field: 'lname', caption: 'Last Name', size: '140px', sortable: true, searchable: 'text', resizable: true },
-            { field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true },
-            { field: 'manager', caption: 'Manager', size: '200px', resizable: true, sortable: true }
-        ]
+        limit: 50,
+        columns: [
+            { field: 'recid', caption: 'ID', size: '100px' },
+            { field: 'fname', caption: 'First Name', size: '200px', searchable: 'text' },
+            { field: 'lname', caption: 'Last Name', size: '200px', searchable: 'text' },
+            { field: 'sdate', caption: 'Date Range', size: '100%' }
+        ],
+        onLoad: function(event) {
+            let data = event.xhr.responseJSON.records
+            data.forEach((rec, ind) => {
+                rec.recid = 'recid-' + (this.records.length + ind)
+            })
+        }
     }
 };
 
 function refreshGrid(auto) {
     w2ui.grid.autoLoad = auto;
-    w2ui.grid.skip(0);    
+    w2ui.grid.skip(0);
 }
 
 $(function () {
