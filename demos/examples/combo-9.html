@@ -37,10 +37,11 @@ var config = {
             { field: 'sdate', caption: 'Date Range', size: '100%' }
         ],
         onLoad: function(event) {
-            let data = event.xhr.responseJSON.records
-            data.forEach((rec, ind) => {
+            let data = JSON.parse(event.xhr.responseText)
+            data.records.forEach((rec, ind) => {
                 rec.recid = 'recid-' + (this.records.length + ind)
             })
+            event.xhr.responseText = data
         }
     }
 };
