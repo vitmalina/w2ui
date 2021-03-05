@@ -5,7 +5,7 @@
 *        - $().w2grid    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2fields
 *
-* == NICE TO HAVE ==
+* == TODO ==
 *   - column autosize based on largest content
 *   - reorder columns/records
 *   - problem with .set() and arrays, array get extended too, but should be replaced
@@ -2683,10 +2683,15 @@
                             data.records = [];
                         }
                         if (data.records.length == this.limit) {
-                            this.last.xhr_hasMore = true;
+                            var loaded = this.records.length + data.records.length
+                            this.last.xhr_hasMore = (loaded == this.total ? false : true);
                         } else {
                             this.last.xhr_hasMore = false;
                             this.total = this.offset + this.last.xhr_offset + data.records.length;
+                        }
+                        if (!this.last.xhr_hasMore) {
+                            // if no morerecords, then hide spinner
+                            $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more').hide()
                         }
                         if (this.last.xhr_offset === 0) {
                             this.records = [];
@@ -7074,7 +7079,7 @@
             }
             // perform virtual scroll
             var buffered = this.records.length;
-            if (buffered > this.total) buffered = this.total;
+            if (buffered > this.total && this.total !== -1) buffered = this.total;
             if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length;
             if (buffered === 0 || records.length === 0 || records.height() === 0) return;
             if (buffered > this.vs_start) this.last.show_extra = this.vs_extra; else this.last.show_extra = this.vs_start;
@@ -7084,8 +7089,10 @@
             if (t1 > buffered) t1 = buffered;
             if (t2 >= buffered - 1) t2 = buffered;
             $('#grid_'+ this.name + '_footer .w2ui-footer-right').html(
-                (obj.show.statusRange ? w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) +
-                        (this.total != -1 ? ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(this.total) : '') : '') +
+                (obj.show.statusRange
+                    ? w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) +
+                        (this.total != -1 ? ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(this.total) : '')
+                        : '') +
                 (url && obj.show.statusBuffered ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(buffered) +
                         (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
             );
