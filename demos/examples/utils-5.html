@@ -51,6 +51,13 @@ function showMenu(type) {
         align: window.align,
         items: [
             { id: 1, text: 'Item 1 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-star' },
+            { id: 'sub', text: 'Sub Menu', icon: 'fa fa-star', hidden: (type != null ? true : false),
+                items: [
+                    { id: 1, text: 'Item 1 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-star' },
+                    { id: 2, text: 'Item 2 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-star-o' },
+                    { id: 3, text: 'Item 3 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-camera' }
+                ]
+            },
             { id: 2, text: 'Item 2 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-star-o' },
             { id: 3, text: 'Item 3 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-camera' },
             { text: '--' },

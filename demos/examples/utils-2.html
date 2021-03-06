@@ -15,10 +15,12 @@ This <a href="http://link">is some</a> HTML <b>text</b> to be encoded.
 <br><br>
 <button class="w2ui-btn" onclick="$('#encode').val(w2utils.base64encode($('#encode')[0].value))">Encode base64</button>
 <button class="w2ui-btn" onclick="$('#encode').val(w2utils.base64decode($('#encode')[0].value))">Decode base64</button>
-&nbsp;&nbsp;&nbsp;
-<button class="w2ui-btn" onclick="w2alert(w2utils.encodeTags($('#encode')[0].value))">Encode HTML Tags</button>
-<button class="w2ui-btn" onclick="w2alert(w2utils.stripTags($('#encode')[0].value))">Strip HTML Tags</button>
-&nbsp;&nbsp;&nbsp;
+<span style="color: gray; padding: 10px">|</span>
+<button class="w2ui-btn" onclick="$('#encode').val(w2utils.encodeTags($('#encode')[0].value))">Encode HTML Tags</button>
+<button class="w2ui-btn" onclick="$('#encode').val(w2utils.decodeTags($('#encode')[0].value))">Encode HTML Tags</button>
+<span style="color: gray; padding: 10px">|</span>
+<button class="w2ui-btn" onclick="$('#encode').val(w2utils.stripTags($('#encode')[0].value))">Strip HTML Tags</button>
+<span style="color: gray; padding: 10px">|</span>
 <button class="w2ui-btn" onclick="w2alert(w2utils.md5($('#encode')[0].value))">Calculate md5</button>
 
 <!--CODE-->
