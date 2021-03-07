@@ -172,6 +172,7 @@
 /*************************************************
 * ---- Input Controls ----
 */
+select:focus,
 div.w2ui-input:focus {
   outline-color: #72B2FF;
 }
@@ -250,8 +251,8 @@ input[type="checkbox"].w2ui-toggle {
   margin: 0px;
   margin-left: 2px;
   /* Knob */
+  /*  Blue */
   /* Green */
-  /* Default Blue */
 }
 input[type="checkbox"].w2ui-toggle:focus {
   box-shadow: 0px 0px 1px 2px #a8cfff;
@@ -306,24 +307,24 @@ input[type="checkbox"].w2ui-toggle:focus {
   outline: none;
 }
 input[type="checkbox"].w2ui-toggle:checked + div {
-  border: 1px solid #00a23f;
-  box-shadow: inset 0 0 0 12px #54B350;
-}
-input[type="checkbox"].w2ui-toggle:checked:focus + div {
-  box-shadow: 0px 0px 3px 2px #91baed, inset 0 0 0 12px #54B350;
-}
-input[type="checkbox"].w2ui-toggle:checked + div > div {
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), 0 0 0 1px #00a23f;
-}
-input[type="checkbox"].w2ui-toggle.blue:checked + div {
   border: 1px solid #206FAD;
   box-shadow: inset 0 0 0 12px #35A6EB;
 }
-input[type="checkbox"].w2ui-toggle.blue:checked:focus + div {
+input[type="checkbox"].w2ui-toggle:checked:focus + div {
   box-shadow: 0px 0px 3px 2px #91baed, inset 0 0 0 12px #35A6EB;
 }
-input[type="checkbox"].w2ui-toggle.blue:checked + div > div {
+input[type="checkbox"].w2ui-toggle:checked + div > div {
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), 0px 0px 0 1px #206FAD;
+}
+input[type="checkbox"].w2ui-toggle.green:checked + div {
+  border: 1px solid #00a23f;
+  box-shadow: inset 0 0 0 12px #54B350;
+}
+input[type="checkbox"].w2ui-toggle.green:checked:focus + div {
+  box-shadow: 0px 0px 3px 2px #91baed, inset 0 0 0 12px #54B350;
+}
+input[type="checkbox"].w2ui-toggle.green:checked + div > div {
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3), 0 0 0 1px #00a23f;
 }
 /*************************************************
 * ---- Overlay and Bubble ----
@@ -1105,7 +1106,11 @@ button.w2ui-btn-small:focus:before {
 .w2ui-form .w2ui-column-container .w2ui-column.col-8,
 .w2ui-form .w2ui-column-container .w2ui-column.col-9,
 .w2ui-form .w2ui-column-container .w2ui-column.col-10 {
-  padding: 0 5px;
+  padding: 0;
+  padding-left: 10px;
+}
+.w2ui-form .w2ui-column-container .w2ui-column.col-0 {
+  padding-left: 0px;
 }
 .w2ui-form .w2ui-buttons {
   position: absolute;
@@ -1125,19 +1130,15 @@ button.w2ui-btn-small:focus:before {
   min-width: 80px;
   margin-right: 5px;
 }
-.w2ui-form input[type=checkbox],
+.w2ui-form input[type=checkbox]:not(.w2ui-toggle),
 .w2ui-form input[type=radio] {
   margin-top: 4px;
   margin-bottom: 4px;
   width: 14px;
   height: 14px;
 }
-.w2ui-form input[type=checkbox].w2ui-toggle {
-  margin: 0px;
-  width: 50px;
-}
 .w2ui-group-title {
-  padding: 5px 2px;
+  padding: 5px 2px 0px 2px;
   color: #8D96A2;
   text-shadow: 1px 1px 2px #fdfdfd;
   font-size: 120%;

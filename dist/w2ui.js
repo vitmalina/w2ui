@@ -17,7 +17,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *        - w2utils.event    - generic event object
 *  - Dependencies: jQuery
 *
-* == NICE TO HAVE ==
+* == TODO ==
 *   - overlay should be displayed where more space (on top or on bottom)
 *   - write and article how to replace certain framework functions
 *   - add maxHeight for the w2menu
@@ -54,7 +54,7 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 var w2utils = (function ($) {
     var tmp = {}; // for some temp variables
     var obj = {
-        version  : '1.5.x',
+        version  : '2.0.x',
         settings : {
             "locale"            : "en-us",
             "dateFormat"        : "m/d/yyyy",
@@ -1995,6 +1995,7 @@ w2utils.event = {
                 type    : tmp[0],
                 execute : tmp[1]
             };
+            if (scope) edata.scope = scope
         }
         if (!$.isPlainObject(edata)) edata = { type: edata, scope: scope };
         edata = $.extend({ type: null, execute: 'before', target: null, onComplete: null }, edata);
@@ -2003,6 +2004,7 @@ w2utils.event = {
         if (!handler) { console.log('ERROR: You must specify event handler function when calling .on() method of '+ this.name); return; }
         if (!$.isArray(this.handlers)) this.handlers = [];
         this.handlers.push({ edata: edata, handler: handler });
+        return this; // needed for chaining
     },
 
     off: function (edata, handler) {
@@ -2044,6 +2046,7 @@ w2utils.event = {
             }
         }
         this.handlers = newHandlers;
+        return this;
     },
 
     trigger: function (edata) {
@@ -2469,6 +2472,7 @@ w2utils.event = {
             selectable  : false,
             width       : 0,                 // fixed width
             height      : 0,                 // fixed height
+            minWidth    : null,              // min width if any. Valid values: null / 'auto' (default) / 'input' (default for align='both') / 'XXpx' / numeric value (same as setting string with 'px')
             maxWidth    : null,              // max width if any
             maxHeight   : null,              // max height if any
             contextMenu : false,             // if true, it will be opened at mouse position
@@ -2480,7 +2484,7 @@ w2utils.event = {
             overlayStyle: '',
             onShow      : null,              // event on show
             onHide      : null,              // event on hide
-            openAbove   : false,             // show above control
+            openAbove   : null,              // show above control (if not, then as best needed)
             tmp         : {}
         };
         if (arguments.length === 1) {
@@ -2648,35 +2652,55 @@ w2utils.event = {
                     setTimeout(function () {
                         div2.find('div.w2ui-menu > table').css('overflow-x', 'auto');
                     }, 10);
-                } else {
-                    div2.find('div.w2ui-menu').css('width', '100%');
                 }
+                div2.find('div.w2ui-menu').css('width', '100%');
                 // adjust position
                 var boxLeft  = options.left;
                 var boxWidth = options.width;
                 var tipLeft  = options.tipLeft;
+                var minWidth = options.minWidth;
+                var maxWidth = options.maxWidth;
+                var objWidth = w2utils.getSize($(obj), 'width');
                 // alignment
                 switch (options.align) {
                     case 'both':
                         boxLeft = 17;
-                        if (options.width === 0) options.width = w2utils.getSize($(obj), 'width');
-                        if (options.maxWidth && options.width > options.maxWidth) options.width = options.maxWidth;
+                        minWidth = 'input';
+                        maxWidth = 'input';
                         break;
                     case 'left':
                         boxLeft = 17;
                         break;
                     case 'right':
-                        boxLeft = w2utils.getSize($(obj), 'width') - w + 10;
-                        tipLeft = w - 40;
                         break;
                 }
-                if (w === 30 && !boxWidth) boxWidth = 30; else boxWidth = (options.width ? options.width : 'auto');
-                var tmp = (w - 17) / 2;
-                if (boxWidth !== 'auto') tmp = (boxWidth - 17) / 2;
+
+                // convert minWidth to a numeric value
+                if(!minWidth || minWidth === 'auto') minWidth = 0;
+                if(minWidth === 'input') minWidth = objWidth;
+                minWidth = parseInt(minWidth, 10);
+                // convert maxWidth to a numeric value
+                if(!maxWidth || maxWidth === 'auto') maxWidth = 0;
+                if(maxWidth === 'input') maxWidth = objWidth;
+                maxWidth = parseInt(maxWidth, 10);
+                // convert boxWidth to a numeric value
+                if(!boxWidth || boxWidth === 'auto') boxWidth = 0;
+                if(boxWidth === 'input') boxWidth = objWidth;
+                boxWidth = parseInt(boxWidth, 10);
+                if(minWidth) boxWidth = Math.max(boxWidth, minWidth);
+                if(maxWidth) boxWidth = Math.min(boxWidth, maxWidth);
+
+                if(options.align === 'right') {
+                    var mw = Math.max(w - 10, minWidth - 17);
+                    boxLeft = objWidth - mw;
+                    tipLeft = mw - 30;
+                }
+                if (w === 30 && !boxWidth) boxWidth = 30;
+                var tmp = ((boxWidth ? boxWidth : w) - 17) / 2;
                 if (tmp < 25) {
-                    boxLeft = 25 - tmp;
                     tipLeft = Math.floor(tmp);
                 }
+
                 // Y coord
                 var X, Y, offsetTop;
                 if (options.contextMenu) { // context menu
@@ -2692,8 +2716,10 @@ w2utils.event = {
                 div1.css({
                     left        :  X + 'px',
                     top         :  Y + 'px',
-                    'min-width' : boxWidth,
-                    'min-height': (options.height ? options.height : 'auto')
+                    'width'     : boxWidth || 'auto',
+                    'min-width' : minWidth || 'auto',
+                    'max-width' : maxWidth || 'auto',
+                    'min-height': options.height || 'auto'
                 });
                 // $(window).height() - has a problem in FF20
                 var offset = div2.offset() || {};
@@ -3521,7 +3547,7 @@ w2utils.event = {
 *        - $().w2grid    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2fields
 *
-* == NICE TO HAVE ==
+* == TODO ==
 *   - column autosize based on largest content
 *   - reorder columns/records
 *   - problem with .set() and arrays, array get extended too, but should be replaced
@@ -3541,6 +3567,7 @@ w2utils.event = {
 *   - reusable search component (see https://github.com/vitmalina/w2ui/issues/914#issuecomment-107340524)
 *   - allow enum in inline edit (see https://github.com/vitmalina/w2ui/issues/911#issuecomment-107341193)
 *   - if record has no recid, then it should be index in the aray (should not be 0)
+*   - remote source, but localSort/localSearch
 *
 * == KNOWN ISSUES ==
 *   - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
@@ -6198,10 +6225,15 @@ w2utils.event = {
                             data.records = [];
                         }
                         if (data.records.length == this.limit) {
-                            this.last.xhr_hasMore = true;
+                            var loaded = this.records.length + data.records.length
+                            this.last.xhr_hasMore = (loaded == this.total ? false : true);
                         } else {
                             this.last.xhr_hasMore = false;
                             this.total = this.offset + this.last.xhr_offset + data.records.length;
+                        }
+                        if (!this.last.xhr_hasMore) {
+                            // if no morerecords, then hide spinner
+                            $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more').hide()
                         }
                         if (this.last.xhr_offset === 0) {
                             this.records = [];
@@ -6955,6 +6987,10 @@ w2utils.event = {
         },
 
         columnClick: function (field, event) {
+            // ignore click if column was resizing
+            if (this.last.colResizing === true) {
+                return
+            }
             // event before
             var edata = this.trigger({ phase: 'before', type: 'columnClick', target: this.name, field: field, originalEvent: event });
             if (edata.isCancelled === true) return;
@@ -7547,7 +7583,7 @@ w2utils.event = {
                 this.editField(recid, column, null, event);
             } else {
                 this.select({ recid: recid, column: column });
-                if (this.show.expandColumn || (rec.w2ui && Array.isArray(rec.w2ui.children))) this.toggle(recid);
+                if (this.show.expandColumn || (rec && rec.w2ui && Array.isArray(rec.w2ui.children))) this.toggle(recid);
             }
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
@@ -8977,9 +9013,9 @@ w2utils.event = {
 
                     columns = _dragData.columns = $( obj.box ).find( '.w2ui-head:not(.w2ui-head-last)' );
 
-                    //add events
-                    $( document ).on( 'mouseup', dragColEnd );
-                    $( document ).on( 'mousemove', dragColOver );
+                    // add events
+                    $(document).on( 'mouseup', dragColEnd );
+                    $(document).on( 'mousemove', dragColOver );
 
                     //_dragData.columns.css({ overflow: 'visible' }).children( 'div' ).css({ overflow: 'visible' });
 
@@ -8992,7 +9028,7 @@ w2utils.event = {
                     $( _dragData.ghost ).find( '.w2ui-grid-body' ).css({ top: 0 });
 
                     selectedCol = $( _dragData.ghost ).find( '[col="' + _dragData.originalPos + '"]' );
-                    $( document.body ).append( _dragData.ghost );
+                    $(document.body).append( _dragData.ghost );
 
                     $( _dragData.ghost ).css({
                         width: 0,
@@ -9075,8 +9111,8 @@ w2utils.event = {
 
                 //_dragData.columns.css({ overflow: '' }).children( 'div' ).css({ overflow: '' });
 
-                $( document ).off( 'mouseup', dragColEnd );
-                $( document ).off( 'mousemove', dragColOver );
+                $(document).off( 'mouseup', dragColEnd );
+                $(document).off( 'mousemove', dragColOver );
                 if ( _dragData.marker ) _dragData.marker.remove();
                 _dragData = {};
 
@@ -9152,9 +9188,9 @@ w2utils.event = {
             //return an object to remove drag if it has ever been enabled
             return {
                 remove: function(){
-                    $( obj.box ).off( 'mousedown', dragColStart );
-                    $( obj.box ).off( 'mouseup', catchMouseup );
-                    $( obj.box ).find( '.w2ui-head' ).removeAttr( 'draggable' );
+                    $(obj.box).off( 'mousedown', dragColStart );
+                    $(obj.box).off( 'mouseup', catchMouseup );
+                    $(obj.box).find( '.w2ui-head' ).removeAttr( 'draggable' );
                     obj.last.columnDrag = false;
                 }
             };
@@ -9386,7 +9422,6 @@ w2utils.event = {
 
         initResize: function () {
             var obj = this;
-            //if (obj.resizing === true) return;
             $(this.box).find('.w2ui-resizer')
                 .off('.grid-col-resize')
                 .on('click.grid-col-resize', function (event) {
@@ -9395,7 +9430,7 @@ w2utils.event = {
                 })
                 .on('mousedown.grid-col-resize', function (event) {
                     if (!event) event = window.event;
-                    obj.resizing = true;
+                    obj.last.colResizing = true;
                     obj.last.tmp = {
                         x   : event.screenX,
                         y   : event.screenY,
@@ -9419,7 +9454,7 @@ w2utils.event = {
                     // set move event
                     var timer;
                     var mouseMove = function (event) {
-                        if (obj.resizing != true) return;
+                        if (obj.last.colResizing != true) return;
                         if (!event) event = window.event;
                         // event before
                         edata = obj.trigger($.extend(edata, { resizeBy: (event.screenX - obj.last.tmp.gx), originalEvent: event }));
@@ -9441,13 +9476,14 @@ w2utils.event = {
                         obj.last.tmp.y = event.screenY;
                     };
                     var mouseUp = function (event) {
-                        delete obj.resizing;
                         $(document).off('.grid-col-resize');
                         obj.resizeRecords();
                         obj.scroll();
                         // event after
                         obj.trigger($.extend(edata, { phase: 'after', originalEvent: event }));
-                    };
+                        // need timeout to finish processing events
+                        setTimeout(function () {  obj.last.colResizing = false }, 1)
+                    }
 
                     $(document)
                         .off('.grid-col-resize')
@@ -10585,7 +10621,7 @@ w2utils.event = {
             }
             // perform virtual scroll
             var buffered = this.records.length;
-            if (buffered > this.total) buffered = this.total;
+            if (buffered > this.total && this.total !== -1) buffered = this.total;
             if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length;
             if (buffered === 0 || records.length === 0 || records.height() === 0) return;
             if (buffered > this.vs_start) this.last.show_extra = this.vs_extra; else this.last.show_extra = this.vs_start;
@@ -10595,8 +10631,10 @@ w2utils.event = {
             if (t1 > buffered) t1 = buffered;
             if (t2 >= buffered - 1) t2 = buffered;
             $('#grid_'+ this.name + '_footer .w2ui-footer-right').html(
-                (obj.show.statusRange ? w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) +
-                        (this.total != -1 ? ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(this.total) : '') : '') +
+                (obj.show.statusRange
+                    ? w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) +
+                        (this.total != -1 ? ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(this.total) : '')
+                        : '') +
                 (url && obj.show.statusBuffered ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(buffered) +
                         (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
             );
@@ -11642,16 +11680,16 @@ w2utils.event = {
 *        - $().w2layout    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2tabs
 *
+* == TODO ==
+*   - onResize for the panel
+*   - add more panel title positions (left=rotated, right=rotated, bottom)
+*   - bug: when you assign content before previous transition completed.
+*
 * == changes
 *   - negative values for left, right panel
 *   - onResize for layout as well as onResizing
 *   - panel.callBack - one time
 *   - layout.html().replaced(function () {})
-*
-* == NICE TO HAVE ==
-*   - onResize for the panel
-*   - add more panel title positions (left=rotated, right=rotated, bottom)
-*   - bug: when you assign content before previous transition completed.
 *
 ************************************************************************/
 
@@ -12817,6 +12855,10 @@ w2utils.event = {
 *        - $().w2popup  - jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
+* == TODO ==
+*   - hide overlay on esc
+*   - make popup width/height in %
+*
 * == changes
 *   - added onMove event
 *   - w2prompt.options.ok_class, cancel_class
@@ -12825,10 +12867,6 @@ w2utils.event = {
 *   - w2popup.actions, w2popup.action, w2popup.onAction
 *   - w2popup.onMsgOpen, w2popup.onMsgClose
 *   - options.multiple
-*
-* == NICE TO HAVE ==
-*   - hide overlay on esc
-*   - make popup width/height in %
 *
 ************************************************************************/
 
@@ -14134,7 +14172,7 @@ var w2prompt = function (label, title, callBack) {
 *        - $().w2tabs    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
-* == NICE TO HAVE ==
+* == TODO ==
 *   - align = left, right, center ??
 *
 * == 1.5 changes ==
@@ -14786,8 +14824,9 @@ var w2prompt = function (label, title, callBack) {
 *        - $().w2toolbar    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2field
 *
-* == NICE TO HAVE ==
+* == TODO ==
 *   - vertical toolbar
+*   - refactor w/o <table>
 *
 * == 1.5 changes ==
 *   - menu drop down can have groups now
@@ -15680,15 +15719,9 @@ var w2prompt = function (label, title, callBack) {
 *        - $().w2sidebar    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
-* == NICE TO HAVE ==
-*   - add find() method to find nodes by a specific criteria (I want all nodes for exampe)
+* == TODO ==
 *   - dbl click should be like it is in grid (with timer not HTML dbl click event)
-*   - reorder with dgrag and drop
 *   - node.style is misleading - should be there to apply color for example
-*   - add multiselect
-*   - node.caption - deprecated
-*   - node.text - can be a function
-*   - node.icon - can be a function
 *
 * == 1.5 changes
 *   - node.class - ne property
@@ -15696,6 +15729,9 @@ var w2prompt = function (label, title, callBack) {
 *   - sb.handle (for debugger points)
 *   - node.style
 *   - sb.updte()
+*   - node.caption - deprecated
+*   - node.text - can be a function
+*   - node.icon - can be a function
 *
 ************************************************************************/
 
@@ -16768,7 +16804,7 @@ var w2prompt = function (label, title, callBack) {
 *        - $().w2field    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
-* == NICE TO HAVE ==
+* == TODO ==
 *   - upload (regular files)
 *   - BUG with prefix/postfix and arrows (test in different contexts)
 *   - multiple date selection
@@ -17050,6 +17086,7 @@ var w2prompt = function (label, title, callBack) {
                         cacheMax        : 250,
                         maxDropHeight   : 350,          // max height for drop down menu
                         maxDropWidth    : null,         // if null then auto set
+                        minDropWidth    : null,         // if null then auto set
                         match           : 'begins',     // ['contains', 'is', 'begins', 'ends']
                         silent          : true,
                         icon            : null,
@@ -18190,7 +18227,7 @@ var w2prompt = function (label, title, callBack) {
             if (obj.tmp.xhr_search == null) obj.tmp.xhr_search = '';
             if (obj.tmp.xhr_total == null) obj.tmp.xhr_total = -1;
             // check if need to search
-            if (options.url && (
+            if (options.url && $(obj.el).prop('readonly') !== true && $(obj.el).prop('disabled') !== true && (
                     (options.items.length === 0 && obj.tmp.xhr_total !== 0) ||
                     (obj.tmp.xhr_total == options.cacheMax && search.length > obj.tmp.xhr_search.length) ||
                     (search.length >= obj.tmp.xhr_search.length && search.substr(0, obj.tmp.xhr_search.length) !== obj.tmp.xhr_search) ||
@@ -18429,6 +18466,11 @@ var w2prompt = function (label, title, callBack) {
                 var dt = w2utils.isDate($(obj.el).val(), obj.options.format, true);
                 if (dt) { month = dt.getMonth() + 1; year = dt.getFullYear(); }
                 (function refreshCalendar(month, year) {
+                    if (!month && !year) {
+                        let dt = new Date()
+                        month = dt.getMonth()
+                        year = dt.getFullYear()
+                    }
                     $('#w2ui-overlay > div > div').html(obj.getMonthHTML(month, year, $(obj.el).val()));
                     $('#w2ui-overlay .w2ui-calendar-title')
                         .on('mousedown', function () {
@@ -18441,6 +18483,22 @@ var w2prompt = function (label, title, callBack) {
                                 setTimeout(function () {
                                     $('#w2ui-overlay .w2ui-calendar-jump')
                                         .find('.w2ui-jump-month, .w2ui-jump-year')
+                                        .on('dblclick', function () {
+                                            if ($(this).hasClass('w2ui-jump-month')) {
+                                                $(this).parent().find('.w2ui-jump-month').removeClass('selected');
+                                                $(this).addClass('selected');
+                                                selMonth = $(this).attr('name');
+                                            }
+                                            if ($(this).hasClass('w2ui-jump-year')) {
+                                                $(this).parent().find('.w2ui-jump-year').removeClass('selected');
+                                                $(this).addClass('selected');
+                                                selYear = $(this).attr('name');
+                                            }
+                                            if (selMonth == null) selMonth = month
+                                            if (selYear == null) selYear = year
+                                            $('#w2ui-overlay .w2ui-calendar-jump').fadeOut(100);
+                                            setTimeout(function () { refreshCalendar(parseInt(selMonth)+1, selYear); }, 100);
+                                        })
                                         .on('click', function () {
                                             if ($(this).hasClass('w2ui-jump-month')) {
                                                 $(this).parent().find('.w2ui-jump-month').removeClass('selected');
@@ -18729,6 +18787,7 @@ var w2prompt = function (label, title, callBack) {
                         render     : options.renderDrop,
                         maxHeight  : options.maxDropHeight,
                         maxWidth   : options.maxDropWidth,
+                        minWidth   : options.minDropWidth,
                         msgNoItems : msgNoItems,
                         // selected with mouse
                         onSelect: function (event) {
@@ -19401,6 +19460,7 @@ var w2prompt = function (label, title, callBack) {
                 '    <div class="w2ui-calendar-previous previous"> <div></div> </div>'+
                 '    <div class="w2ui-calendar-next next"> <div></div> </div> '+
                         months[month-1] +', '+ year +
+                '       <span class="arrow-down" style="position: relative; top: -1px; left: 5px; opacity: 0.6;"></span>'+
                 '</div>'+
                 '<table class="w2ui-calendar-days" cellspacing="0"><tbody>'+
                 '    <tr class="w2ui-day-title">' + dayTitle + '</tr>'+
@@ -19577,13 +19637,11 @@ var w2prompt = function (label, title, callBack) {
 *        - $().w2form  - jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2fields, w2tabs, w2toolbar
 *
-* == NICE TO HAVE ==
+* == TODO ==
 *   - include delta on save
 *   - form should read <select> <options> into items
 *   - two way data bindings
-*   - verify validation of fields
-*   - nested record object
-*   - formHTML --> template
+*   - nested groups (so fields can be deifned inside)
 *
 * == 1.5 changes
 *   - $('#form').w2form() - if called w/o argument then it returns form object
@@ -19620,9 +19678,9 @@ var w2prompt = function (label, title, callBack) {
 *   - added field.type = 'check'
 *   - new field type 'map', 'array' - same thing but map has unique keys also html: { key: { text: '111', attr: '222' }, value: {...}}
 *   - updateEmptyGroups
+*   - tabs below some fields
 *
 ************************************************************************/
-
 
 (function ($) {
     var w2form = function(options) {
@@ -20562,7 +20620,7 @@ var w2prompt = function (label, title, callBack) {
                         for (var i = 0; i < items.length; i++) {
                             input += '<label class="w2ui-box-label">'+
                                      '  <input id="' + field.field + i +'" name="' + field.field + '" class="w2ui-input" type="checkbox" ' +
-                                                field.html.attr + (i === 0 ? tabindex_str : '') + ' data-value="'+ items[i].id +'" data-index="'+ i +'">' +
+                                                field.html.attr + tabindex_str + ' data-value="'+ items[i].id +'" data-index="'+ i +'">' +
                                         '<span>&#160;' + items[i].text + '</span>' +
                                      '</label><br>';
                         }
@@ -20622,13 +20680,13 @@ var w2prompt = function (label, title, callBack) {
                                 '<input id="'+ field.field +'" name="'+ field.field +'" type="hidden" '+ field.html.attr + tabindex_str + '>'+
                                 '<div class="w2ui-map-container"></div>';
                         break;
-                    case 'html':
                     case 'div':
                     case 'custom':
-                        input = '<div id="'+ field.field +'" name="'+ field.field +'" '+ field.html.attr + tabindex_str + '>'+
+                        input = '<div id="'+ field.field +'" name="'+ field.field +'" '+ field.html.attr + tabindex_str + ' class="w2ui-input">'+
                                     (field && field.html && field.html.html ? field.html.html : '') +
                                 '</div>';
                         break;
+                    case 'html':
                     case 'empty':
                         input = (field && field.html ? (field.html.html || '') + (field.html.text || '') : '');
                         break;
@@ -21413,6 +21471,11 @@ var w2prompt = function (label, title, callBack) {
                     }
                 }
                 $(window).off('resize.w2uiResize').on('resize.w2uiResize', obj.tmp_resize);
+            }
+            // focus on load
+            function focusEl() {
+                var inputs = $(obj.box).find('div:not(.w2ui-field-helper) > input, select, textarea, div > label:nth-child(1) > :radio').not('.file-input');
+                if (inputs.length > obj.focus) inputs[obj.focus].focus();
             }
             if (this.focus != -1) {
                 setTimeout(function () {
