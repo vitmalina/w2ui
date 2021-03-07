@@ -1,0 +1,90 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Anchored Fields</h1>
+        Anchored fieds are fields that are attached to dome other field
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="form" style="width: 750px;">
+
+</div>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#form').w2form({
+        name   : 'form',
+        url    : 'server/post',
+        fields : [
+            { field: 'address1', type: 'text',
+                html: {
+                    group: 'Address',
+                    span: 4,
+                    label: 'Address',
+                    attr: 'placeholder="line 1" style="width: 285px"'
+
+                }
+            },
+            { field: 'address2', type: 'text',
+                html: {
+                    span: 4,
+                    label: '',
+                    attr: 'placeholder="line 2" style="width: 285px"'
+
+                }
+            },
+            { field: 'city', type: 'text',
+                html: {
+                    text: ' %attach1%, %attach2%',
+                    span: 4,
+                    label: 'City',
+                    attr: 'placeholder="city"'
+
+                }
+            },
+            { field: 'state', type: 'text',
+                html: {
+                    label: '',
+                    anchor: '%attach1%',
+                    attr: 'placeholder="state" style="width: 40px"'
+                }
+            },
+            { field: 'zip', type: 'text',
+                html: {
+                    label: '',
+                    anchor: '%attach2%',
+                    attr: 'placeholder="zip" style="width: 100px"',
+                    text: ' <span style="font-size: 16px">←</span> anchored fields'
+                }
+            }
+        ],
+        actions: {
+            Reset: function () {
+                this.clear();
+            },
+            Save: function () {
+                if (w2ui.form.validate().length == 0) {
+                    w2popup.open({
+                        title: 'Form Data',
+                        with: 600,
+                        height: 550,
+                        body: `<pre>${JSON.stringify(this.getCleanRecord(), null, 4)}</pre>`,
+                        buttons: '<button class="w2ui-btn" onclick="w2popup.close()">Ok</button>'
+                    })
+                }
+            },
+            custom: {
+                text: '<span style="font-size: 16px">←</span> click to see data',
+                class: 'custom-class',
+                style: 'background-image: none; background-color: transparent; border: 0px; margin: 0 0 0 -10px;',
+                onClick() {
+                    w2alert('Not me!! The other button')
+                }
+            }
+        }
+    });
+});
+</script>

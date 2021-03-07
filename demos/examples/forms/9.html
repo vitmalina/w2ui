@@ -1,0 +1,59 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Events</h1>
+        Last event is shown in preview. Log of events is available in console.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="form" style="width: 750px"></div>
+<br><br>
+<b>Preview</b>
+<div id="preview"></div>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#form').w2form({
+        name   : 'form',
+        header : 'Form Events',
+        url    : 'server/post',
+        fields : [
+            { field: 'first_name', type: 'text', required: true, html: { label: 'First Name' } },
+            { field: 'last_name',  type: 'text', required: true, html: { label: 'Last Name' } },
+            { field: 'dob',  type: 'date', html: { label: 'DOB', attr: 'style="width: 90px"' } },
+            { field: 'category',  type: 'enum',
+                html: { label: 'Category', attr: 'style="width: 300px"' },
+                options: {
+                    items: ['Category 1', 'Category 2', 'Category 3', 'Category 4', 'Category 5',
+                            'Category 6', 'Category 7', 'Category 8', 'Category 9', 'Category 10'
+                    ]
+                }
+            },
+            { field: 'comments', type: 'textarea',
+                html: { label: 'Comments', attr: 'style="width: 300px; height: 50px"' }
+            }
+        ],
+        actions: {
+            Reset: function () {
+                this.clear();
+            },
+            Save: function () {
+                this.save();
+            }
+        }
+    });
+    // attach event listener for all events
+    w2ui.form.on('*', function (event) {
+        let edata = $.extend({}, event)
+        if (edata.originalEvent) edata.originalEvent = {'...':'...'}
+        if (edata.error) edata.error = {'...':'...'}
+        if (edata.errors) edata.errors = {'...':'...'}
+        if (edata.xhr) edata.xhr = {'...':'...'}
+        $('#preview').html(`Event: ${event.type}<pre style="font-size: 12px; line-height: 1.4">${JSON.stringify(edata, null, 2)}</pre>`);
+        console.log('Event: '+ event.type, 'Target: '+ event.target, event);
+    });
+});
+</script>

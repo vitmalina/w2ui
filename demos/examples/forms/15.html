@@ -1,0 +1,95 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Custom Fields</h1>
+        A single field can be a an array or a map of key values pairs.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="form" style="width: 750px; height: 650px">
+
+</div>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#form').w2form({
+        name: 'form',
+        url: 'server/post',
+        focus: 0,
+        record: {
+            div: 'Delete me...',
+            div2: 'Some text'
+        },
+        fields : [
+            { field: 'text1', type: 'text' },
+            { field: 'text2', type: 'text' },
+            { field: 'html', type: 'html',
+                html: {
+                    label: 'TYPE: html',
+                    attr: 'style="border: 1px solid green"',
+                    html: `<div style="padding: 30px 5px; background-color: #fafafa">Some <b>html</b> text</div>`
+                }
+            },
+            { field: 'div', type: 'div',
+                html: {
+                    label: 'Content editable DIV - TYPE: div',
+                    span: -1,
+                    attr: `contenteditable
+                        style="height: 60px; margin-top: 20px; padding: 5px; border: 1px solid silver; border-radius: 3px; background-color: white;"`,
+                }
+            },
+            { field: 'div2', type: 'div',
+                html: {
+                    label: 'DIV that can have focus and default value - TYPE: div',
+                    span: -1,
+                    attr: `style="height: 60px; margin-top: 20px; padding: 5px; border: 1px solid silver; border-radius: 3px;"`,
+                }
+            },
+            { field: 'html', type: 'html',
+                html: {
+                    span: 0,
+                    attr: 'style="border: 1px solid green"',
+                    html: `<div style="padding: 30px 5px; background-color: #fafafa">TYPE: html -- Some <b>html</b> text - no field label</div>`
+                }
+            },
+            { field: 'text3', type: 'text' },
+            { field: 'div2', type: 'html',
+                html: {
+                    label: 'TYPE: html',
+                    html: '<div style="height: 40px; padding: 5px; border: 1px solid silver; border-radius: 3px;">some html text, but with a label</div>'
+                }
+            },
+            { field: 'text4', type: 'text' },
+        ],
+        actions: {
+            Reset: function () {
+                this.clear();
+            },
+            Save: function () {
+                if (w2ui.form.validate().length == 0) {
+                    let rec = this.getCleanRecord()
+                    rec.div = $('#div').html()
+                    w2popup.open({
+                        title: 'Form Data',
+                        with: 600,
+                        height: 550,
+                        body: `<pre>${JSON.stringify(rec, null, 4)}</pre>`,
+                        buttons: '<button class="w2ui-btn" onclick="w2popup.close()">Ok</button>'
+                    })
+                }
+            },
+            custom: {
+                text: '<span style="font-size: 16px">←</span> click to see data',
+                class: 'custom-class',
+                style: 'background-image: none; background-color: transparent; border: 0px; margin: 0 0 0 -10px;',
+                onClick() {
+                    w2alert('Not me!! The other button')
+                }
+            }
+        }
+    });
+});
+</script>

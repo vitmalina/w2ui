@@ -1,0 +1,94 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Column Spans</h1>
+        Auto-generated forms have have groups that span accross all columns.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="form" style="width: 750px;">
+
+</div>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#form').w2form({
+        name   : 'form',
+        url    : 'server/post',
+        fields : [
+            { field: 'field1', type: 'text',
+                html: {
+                    group: 'Top Group',
+                    column: 'before',
+                    span: 4,
+                    label: 'Field 1',
+                    attr: 'style="width: calc(100% - 40px)"'
+                }
+            },
+            { field: 'field2', type: 'text',
+                html: {
+                    column: 'before',
+                    span: 4,
+                    label: 'Field 2',
+                    attr: 'style="width: calc(100% - 40px)"'
+                }
+            },
+
+            { field: 'address1', type: 'text',
+                html: { label: 'Address Line 1', column: 0, group: 'Address Group 1' }
+            },
+            { field: 'address2', type: 'text',
+                html: { label: 'Address Line 2', column: 0 }
+            },
+            { field: 'country', type: 'text',
+                html: { label: 'Country', column: 0 }
+            },
+            { field: 'city', type: 'text',
+                html: { label: 'City', column: 1, span: 3, group: 'Address Group 2' }
+            },
+            { field: 'state', type: 'text',
+                html: { label: 'State', column: 1, span: 3 }
+            },
+            { field: 'zip', type: 'int',
+                html: { label: 'Zip', column: 1, span: 3 }
+            },
+            { field: 'field1', type: 'textarea',
+                html: {
+                    group: 'Bottom Group',
+                    column: 'after',
+                    span: -1,
+                    label: 'Notes',
+                    attr: 'style="width: 100%; height: 60px; resize: none"'
+                }
+            }
+        ],
+        actions: {
+            Reset: function () {
+                this.clear();
+            },
+            Save: function () {
+                if (w2ui.form.validate().length == 0) {
+                    w2popup.open({
+                        title: 'Form Data',
+                        with: 600,
+                        height: 550,
+                        body: `<pre>${JSON.stringify(this.getCleanRecord(), null, 4)}</pre>`,
+                        buttons: '<button class="w2ui-btn" onclick="w2popup.close()">Ok</button>'
+                    })
+                }
+            },
+            custom: {
+                text: '<span style="font-size: 16px">←</span> click to see data',
+                class: 'custom-class',
+                style: 'background-image: none; background-color: transparent; border: 0px; margin: 0 0 0 -10px;',
+                onClick() {
+                    w2alert('Not me!! The other button')
+                }
+            }
+        }
+    });
+});
+</script>

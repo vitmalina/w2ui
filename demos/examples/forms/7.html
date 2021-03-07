@@ -1,0 +1,60 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Form with Toolbar</h1>
+        There are no form buttons. The actions are mapped last two toolbar buttons.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="form" style="width: 750px"></div>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#form').w2form({
+        name   : 'form',
+        header : 'Form with Toolbar',
+        url    : 'server/post',
+        fields : [
+            { field: 'name.first', type: 'text', required: true,
+                html: {
+                    group: 'General',
+                    groupStyle: 'width: 100%; height: 177px',
+                    label: 'First Name',
+                    span: 4,
+                    attr: ''
+                }
+            },
+            { field: 'name.last',  type: 'text', required: true,
+                html: {
+                    label: 'Last Name',
+                    span: 4,
+                    attr: ''
+                }
+            },
+            { field: 'comments', type: 'textarea',
+                html: {
+                    label: 'Comments',
+                    span: 4,
+                    attr: 'style="width: 100%; height: 60px; resize: none"'
+                }
+            }
+        ],
+        toolbar: {
+            items: [
+                { id: 'bt1', type: 'button', caption: 'Button 1', img: 'icon-folder' },
+                { id: 'bt2', type: 'button', caption: 'Button 2', img: 'icon-folder' },
+                { id: 'bt3', type: 'spacer' },
+                { id: 'bt4', type: 'button', caption: 'Reset', img: 'icon-page' },
+                { id: 'bt5', type: 'button', caption: 'Save', img: 'icon-page' }
+            ],
+            onClick: function (event) {
+                if (event.target == 'bt4') w2ui.form.clear();
+                if (event.target == 'bt5') w2ui.form.save();
+            }
+        }
+    });
+});
+</script>

@@ -1,0 +1,60 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Form in a Popup</h1>
+        Simple way to add a form to a popup.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<br>
+<button class="w2ui-btn" onclick="openPopup()">Open Form in a Popup</button>
+<br><br><br>
+
+<!--CODE-->
+<script>
+function openPopup () {
+    if (!w2ui.foo) {
+        $().w2form({
+            name: 'foo',
+            style: 'border: 0px; background-color: transparent;',
+            fields: [
+                { field: 'first_name', type: 'text', required: true, html: { label: 'First Name' } },
+                { field: 'last_name', type: 'text', required: true, html: { label: 'Last Name' } },
+                { field: 'email', type: 'email', html: { label: 'Email', attr: 'style="width: 200px"' } }
+            ],
+            record: {
+                first_name    : 'John',
+                last_name     : 'Doe',
+                email         : 'jdoe@email.com'
+            },
+            actions: {
+                "Reset": function () { this.clear(); },
+                "Save": function () { this.validate(); }
+            }
+        });
+    }
+    $().w2popup('open', {
+        title   : 'Form in a Popup',
+        body    : '<div id="form" style="width: 100%; height: 100%;"></div>',
+        style   : 'padding: 15px 0px 0px 0px',
+        width   : 500,
+        height  : 240,
+        showMax : true,
+        onToggle: function (event) {
+            $(w2ui.foo.box).hide();
+            event.onComplete = function () {
+                $(w2ui.foo.box).show();
+                w2ui.foo.resize();
+            }
+        },
+        onOpen: function (event) {
+            event.onComplete = function () {
+                // specifying an onOpen handler instead is equivalent to specifying an onBeforeOpen handler, which would make this code execute too early and hence not deliver.
+                $('#w2ui-popup #form').w2render('foo');
+            }
+        }
+    });
+}
+</script>

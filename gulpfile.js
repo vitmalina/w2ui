@@ -55,6 +55,25 @@ let tasks = {
             .pipe(gulp.dest('dist/'))
     },
 
+    pack: function (cb) {
+        return gulp
+            .src([
+                'src/w2utils.js', // order of files is important
+                'src/w2grid.js',
+                'src/w2layout.js',
+                'src/w2popup.js',
+                'src/w2tabs.js',
+                'src/w2toolbar.js',
+                'src/w2sidebar.js',
+                'src/w2fields.js',
+                'src/w2form.js',
+                'src/moduleCompat.js' // must be last
+            ])
+            .pipe(concat('w2ui.js'))
+            .pipe(header(comments.w2ui))
+            .pipe(gulp.dest('dist/'))
+    },
+
     build: function (cb) {
         gulp.src([
                 'src/w2utils.js', // order of files is important
@@ -184,7 +203,7 @@ let tasks = {
     },
 
     watch: function (cb) {
-        // gulp.watch(['src/**/*.js'], tasks.build) // compiling all js is too slow
+        gulp.watch(['src/**/*.js'], tasks.pack) // only packs dist/w2ui.js
         gulp.watch(['src/less/**/*.less'], tasks.less)
         gulp.watch(['src/less/icons/svg/*.svg'], tasks.icons)
     }

@@ -8,8 +8,8 @@ $(function () {
             { type: 'main', style: 'background-color: white;' }
         ]
     });
-    w2ui['main_layout'].content('top', '<div style="padding: 12px 20px; font-size: 18px;">W2UI 1.5 Demos</div>');
-    // w2ui['main_layout'].content('top', '<div style="padding: 9px;">'+
+    w2ui['main_layout'].html('top', '<div style="padding: 12px 20px; font-size: 18px;">W2UI 1.5 Demos</div>');
+    // w2ui['main_layout'].html('top', '<div style="padding: 9px;">'+
     //     'Theme: '+
     //     '<select onchange="$(\'#mainCSS\').attr(\'href\', this.value);">'+
     //     '    <option value="../css/w2ui.min.css">Default Theme</option>'+
@@ -23,7 +23,7 @@ $(function () {
     //     '</select>'+
     //     '</div>');
     // init sidebar
-    w2ui['main_layout'].content('left', $().w2sidebar({
+    w2ui['main_layout'].html('left', $().w2sidebar({
         name: 'demo-sidebar',
         img: null,
         nodes: [
@@ -130,16 +130,21 @@ $(function () {
             },
             { id: 'forms', text: 'Forms', img: 'icon-folder', group1: true,
                 nodes: [
-                    { id: 'forms-1', text: 'Simple Form', icon: 'fa fa-pencil-square-o' },
-                    { id: 'forms-10',text: 'Auto Templates', icon: 'fa fa-pencil-square-o' },
-                    { id: 'forms-2', text: 'Field Types', icon: 'fa fa-pencil-square-o' },
-                    { id: 'forms-3', text: 'Large Form', icon: 'fa fa-pencil-square-o' },
-                    { id: 'forms-4', text: 'Multi Page Form', icon: 'fa fa-pencil-square-o' },
-                    { id: 'forms-5', text: 'Form Tabs', icon: 'fa fa-pencil-square-o' },
-                    { id: 'forms-9', text: 'Form Toolbar', icon: 'fa fa-pencil-square-o' },
-                    { id: 'forms-8', text: 'Form in a Popup', icon: 'fa fa-pencil-square-o' },
-                    { id: 'forms-6', text: 'Events', icon: 'fa fa-pencil-square-o' },
-                    { id: 'forms-11', text: 'Form Columns (1.5+)', icon: 'fa fa-pencil-square-o' }
+                    { id: 'forms/1', text: 'Simple Form', icon: 'fa fa-pencil-square-o' },
+                    { id: 'forms/2',text: 'Auto Templates', icon: 'fa fa-pencil-square-o' },
+                    { id: 'forms/3', text: 'Field Types', icon: 'fa fa-pencil-square-o' },
+                    { id: 'forms/4', text: 'Field Groups', icon: 'fa fa-pencil-square-o' },
+                    { id: 'forms/5', text: 'Multi Page Form', icon: 'fa fa-pencil-square-o' },
+                    { id: 'forms/6', text: 'Form Tabs', icon: 'fa fa-pencil-square-o' },
+                    { id: 'forms/7', text: 'Form Toolbar', icon: 'fa fa-pencil-square-o' },
+                    { id: 'forms/8', text: 'Form in a Popup', icon: 'fa fa-pencil-square-o' },
+                    { id: 'forms/9', text: 'Events', icon: 'fa fa-pencil-square-o' },
+                    { id: 'forms/10', text: 'Multi Columns (1.5+)', icon: 'fa fa-pencil-square-o' },
+                    { id: 'forms/11', text: 'Column Span (1.5+)', icon: 'fa fa-pencil-square-o' },
+                    { id: 'forms/12', text: 'Custom Styling (1.5+)', icon: 'fa fa-pencil-square-o' },
+                    { id: 'forms/13', text: 'Anchored fields (1.5+)', icon: 'fa fa-pencil-square-o' },
+                    { id: 'forms/14', text: 'Maps and Arrays (1.5+)', icon: 'fa fa-pencil-square-o' },
+                    { id: 'forms/15', text: 'Custom Fiels (1.5+)', icon: 'fa fa-pencil-square-o' }
                 ]
             },
             { id: 'fields', text: 'Fields', img: 'icon-folder', group1: true,
@@ -215,7 +220,7 @@ $(function () {
                 css  = $.trim(css);
                 json = json.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '');
                 json = $.trim(json);
-                w2ui['main_layout'].content('main', tmp[0]);
+                w2ui['main_layout'].html('main', tmp[0]);
                 $('#example_view').html(
                         '<h2>Preview</h2>'+ html +
                         '<script type="text/javascript">' + js + '</script>' +
@@ -264,61 +269,63 @@ $(function () {
     // check hash
     setTimeout(function () {
         var tmp = String(document.location.hash).split('/');
-        switch (tmp[0]) {
+        let section = tmp.shift()
+        var page = tmp.join('/')
+        switch (section) {
             default:
             case '#!combo':
                 w2ui['demo-sidebar'].expand('combo');
-                w2ui['demo-sidebar'].click(tmp[1] || 'combo-1');
+                w2ui['demo-sidebar'].click(page || 'combo-1');
                 break;
 
             case '#!layout':
                 w2ui['demo-sidebar'].expand('layout');
-                w2ui['demo-sidebar'].click(tmp[1] || 'layout-1');
+                w2ui['demo-sidebar'].click(page || 'layout-1');
                 break;
 
             case '#!grid':
                 w2ui['demo-sidebar'].expand('grid');
-                w2ui['demo-sidebar'].click(tmp[1] || 'grid-1');
+                w2ui['demo-sidebar'].click(page || 'grid-1');
                 break;
 
             case '#!toolbar':
                 w2ui['demo-sidebar'].expand('toolbar');
-                w2ui['demo-sidebar'].click(tmp[1] || 'toolbar-1');
+                w2ui['demo-sidebar'].click(page || 'toolbar-1');
                 break;
 
             case '#!sidebar':
                 w2ui['demo-sidebar'].expand('sidebar');
-                w2ui['demo-sidebar'].click(tmp[1] || 'sidebar-1');
+                w2ui['demo-sidebar'].click(page || 'sidebar-1');
                 break;
 
             // case '#!listview':
             //     w2ui['demo-sidebar'].expand('listview');
-            //     w2ui['demo-sidebar'].click(tmp[1] || 'listview-1');
+            //     w2ui['demo-sidebar'].click(page || 'listview-1');
             //     break;
 
             case '#!tabs':
                 w2ui['demo-sidebar'].expand('tabs');
-                w2ui['demo-sidebar'].click(tmp[1] || 'tabs-1');
+                w2ui['demo-sidebar'].click(page || 'tabs-1');
                 break;
 
             case '#!popup':
                 w2ui['demo-sidebar'].expand('popup');
-                w2ui['demo-sidebar'].click(tmp[1] || 'popup-1');
+                w2ui['demo-sidebar'].click(page || 'popup-1');
                 break;
 
             case '#!forms':
                 w2ui['demo-sidebar'].expand('forms');
-                w2ui['demo-sidebar'].click(tmp[1] || 'forms-1');
+                w2ui['demo-sidebar'].click(page || 'forms-1');
                 break;
 
             case '#!fields':
                 w2ui['demo-sidebar'].expand('fields');
-                w2ui['demo-sidebar'].click(tmp[1] || 'fields-1');
+                w2ui['demo-sidebar'].click(page || 'fields-1');
                 break;
 
             case '#!utils':
                 w2ui['demo-sidebar'].expand('utils');
-                w2ui['demo-sidebar'].click(tmp[1] || 'utils-1');
+                w2ui['demo-sidebar'].click(page || 'utils-1');
                 break;
         }
     }, 100);

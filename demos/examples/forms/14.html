@@ -1,0 +1,104 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Maps and Arrays</h1>
+        A single field can be a an array or a map of key values pairs.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="form" style="width: 750px; height: 600px">
+
+</div>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#form').w2form({
+        name: 'form',
+        url: 'server/post',
+        record: {
+            map: {
+                key1: 'value 1',
+                key2: 'value 2'
+            },
+            array: [
+                { key: 'key', value: 'value 1' },
+                { key: 'key', value: 'value 2' }
+            ]
+        },
+        fields : [
+            { field: 'map', type: 'map',
+                html: {
+                    group: 'Map - no duplicate keys',
+                    label: 'Map',
+                    span: 4,
+                    key: {
+                        attr: 'placeholder="key" style="width: 80px"',
+                        text: ' = '
+                    },
+                    value: {
+                        attr: 'placeholder="value" style="width: 100px"',
+                        text: ' - ok'
+                    }
+                }
+            },
+            { field: 'array', type: 'array',
+                html: {
+                    group: 'Array - can have duplicate keys',
+                    label: 'Array',
+                    span: 4,
+                    key: {
+                        attr: 'placeholder="key" style="width: 80px"',
+                        text: ' = '
+                    },
+                    value: {
+                        attr: 'placeholder="value" style="width: 100px"',
+                        text: ' - ok'
+                    }
+                }
+            },
+            { field: 'array-single', type: 'array',
+                html: {
+                    group: 'Array - just keys',
+                    label: 'Array',
+                    span: 4,
+                    key: {
+                        attr: 'placeholder="Type text..." style="width: 200px"'
+                    },
+                    value: {
+                        attr: 'style="display: none"'
+                    }
+                }
+            }
+        ],
+        actions: {
+            Reset: function () {
+                this.clear();
+            },
+            Save: function () {
+                if (w2ui.form.validate().length == 0) {
+                    let rec = this.getCleanRecord()
+                    rec['array-single'] = rec['array-single'].map(item => item.key)
+                    w2popup.open({
+                        title: 'Form Data',
+                        with: 600,
+                        height: 550,
+                        body: `<pre>${JSON.stringify(rec, null, 4)}</pre>`,
+                        buttons: '<button class="w2ui-btn" onclick="w2popup.close()">Ok</button>'
+                    })
+                }
+            },
+            custom: {
+                text: '<span style="font-size: 16px">←</span> click to see data',
+                class: 'custom-class',
+                style: 'background-image: none; background-color: transparent; border: 0px; margin: 0 0 0 -10px;',
+                onClick() {
+                    w2alert('Not me!! The other button')
+                }
+            }
+        }
+    });
+});
+</script>

@@ -1,0 +1,68 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Auto-Generated Templates</h1>
+        Most templates can be auto generated. All examples that follow are with auto-generated teampltes.
+    </div>
+    <div id="example_view">
+        See <a href="http://w2ui.com/web/docs/w2form.fields" target="_blank">options</a> for more information
+    </div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="form" style="width: 750px;"></div>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#form').w2form({
+        name   : 'form',
+        header : 'Auto-Generated Form',
+        url    : 'server/post',
+        fields : [
+            { field: 'first_name', type: 'text', required: true,
+                html: {
+                    label: 'First Name',
+                    attr: 'style="width: 300px"'
+                }
+            },
+            { field: 'last_name',  type: 'text', required: true,
+                html: {
+                    label: 'Last Name',
+                    attr: 'style="width: 300px"'
+                }
+            },
+            { field: 'comments', type: 'textarea',
+                html: {
+                    label: 'Comments',
+                    attr: 'style="width: 300px; height: 60px"'
+                }
+            }
+        ],
+        actions: {
+            'Reset': function (event) {
+                this.clear();
+            },
+            'Save': function (event) {
+                if (w2ui.form.validate().length == 0) {
+                    w2popup.open({
+                        title: 'Form Data',
+                        with: 600,
+                        height: 550,
+                        body: `<pre>${JSON.stringify(this.getCleanRecord(), null, 4)}</pre>`,
+                        buttons: '<button class="w2ui-btn" onclick="w2popup.close()">Ok</button>'
+                    })
+                }
+            },
+            custom: {
+                text: '<span style="font-size: 16px">←</span> click to see data',
+                class: 'custom-class',
+                style: 'background-image: none; background-color: transparent; border: 0px; margin: 0 0 0 -10px;',
+                onClick() {
+                    w2alert('Not me!! The other button')
+                }
+            }
+        }
+    });
+});
+</script>

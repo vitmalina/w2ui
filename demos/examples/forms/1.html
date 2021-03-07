@@ -1,8 +1,7 @@
 <div class="content">
     <div id="example_title">
         <h1>Simple Form</h1>
-        Working with forms is common for a web developer. However, there is no way to create a unique template for all use cases. The w2ui library
-        streamlines most common tasks for you. The example below shows a simple form with two required fields, save and reset buttons.
+        You can bind your form to existing HTML (either in code or loaded from a file).
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -33,14 +32,14 @@
 
     <div class="w2ui-buttons">
         <button class="w2ui-btn" name="reset">Reset</button>
-        <button class="w2ui-btn" name="save">Save</button>
+        <button class="w2ui-btn w2ui-btn-blue" name="save">Save</button>
     </div>
 </div>
 
 <!--CODE-->
 <script>
 $(function () {
-    $('#form').w2form({ 
+    $('#form').w2form({
         name  : 'form',
         url   : 'server/post',
         fields: [

@@ -1,0 +1,159 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Form with Tabs and Columns</h1>
+        Auto-generated forms can have column, pages and groups.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="form" style="width: 750px; height: 500px">
+
+</div>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#form').w2form({
+        name   : 'form',
+        url    : 'server/post',
+        tabs: [
+            { id: 'tab1', text: 'General' },
+            { id: 'tab2', text: 'About' }
+        ],
+        fields : [
+            { field: 'first_name', type: 'text',
+                html: {
+                    group: 'General',
+                    page: 0,
+                    column: 0,
+                    label: 'First Name',
+                    span: 4
+                }
+            },
+            { field: 'last_name', type: 'text',
+                html: {
+                    page: 0,
+                    column: 0,
+                    label: 'Last Name',
+                    span: 4
+                }
+            },
+            { field: 'middle_name',  type: 'text',
+                html: {
+                    page: 0,
+                    column: 0,
+                    label: 'Middle Name',
+                    span: 4
+                }
+            },
+            { field: 'Other', type: 'textarea',
+                html: {
+                    page: 0,
+                    column: 1,
+                    group: 'Additional Info',
+                    groupStyle: 'min-height: 115px',
+                    label: 'Other',
+                    span: -1,
+                    attr: 'style="width: 100%; resize: vertical"'
+                }
+            },
+            { field: 'address1', type: 'text',
+                html: {
+                    page: 0,
+                    column: 0,
+                    group: 'Address Group 1',
+                    label: 'Address',
+                }
+            },
+            { field: 'address2', type: 'text',
+                html: {
+                    page: 0,
+                    label: 'Line 2',
+                    column: 0
+                }
+            },
+            { field: 'city', type: 'text',
+                html: {
+                    page: 0,
+                    group: 'Address Group 2',
+                    groupStyle: 'height: 170px',
+                    label: 'City',
+                    column: 1,
+                }
+            },
+            { field: 'state', type: 'text',
+                html: {
+                    page: 0,
+                    label: 'State',
+                    column: 1
+                }
+            },
+            { field: 'zip', type: 'int',
+                html: {
+                    page: 0,
+                    label: 'Zip',
+                    column: 1
+                }
+            },
+            { field: 'country', type: 'text',
+                html: {
+                    page: 0,
+                    group: 'Address Group 3',
+                    label: 'Country',
+                    column: 0,
+                }
+            },
+            { field: 'short_bio', type: 'text',
+                html: {
+                    page: 1,
+                    label: 'Short Bio',
+                    span: -1,
+                    attr: 'style="width: 100%; height: 60px"'
+                }
+            },
+            { field: 'talk_name', type: 'text',
+                html: {
+                    page: 1,
+                    label: 'Talk Name',
+                    span: -1,
+                    attr: 'style="width: 100%"'
+                }
+            },
+            { field: 'description', type: 'text',
+                html: {
+                    page: 1,
+                    label: 'Talk Description',
+                    span: -1,
+                    attr: 'style="width: 100%; height: 100px"'
+                }
+            }
+        ],
+        actions: {
+            Reset: function () {
+                this.clear();
+            },
+            Save: function () {
+                if (w2ui.form.validate().length == 0) {
+                    w2popup.open({
+                        title: 'Form Data',
+                        with: 600,
+                        height: 550,
+                        body: `<pre>${JSON.stringify(this.getCleanRecord(), null, 4)}</pre>`,
+                        buttons: '<button class="w2ui-btn" onclick="w2popup.close()">Ok</button>'
+                    })
+                }
+            },
+            custom: {
+                text: '<span style="font-size: 16px">←</span> click to see data',
+                class: 'custom-class',
+                style: 'background-image: none; background-color: transparent; border: 0px; margin: 0 0 0 -10px;',
+                onClick() {
+                    w2alert('Not me!! The other button')
+                }
+            }
+        }
+    });
+});
+</script>
