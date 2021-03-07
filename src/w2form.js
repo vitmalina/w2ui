@@ -9,9 +9,7 @@
 *   - include delta on save
 *   - form should read <select> <options> into items
 *   - two way data bindings
-*   - verify validation of fields
-*   - nested record object
-*   - formHTML --> template
+*   - nested groups (so fields can be deifned inside)
 *
 * == 1.5 changes
 *   - $('#form').w2form() - if called w/o argument then it returns form object
@@ -48,9 +46,9 @@
 *   - added field.type = 'check'
 *   - new field type 'map', 'array' - same thing but map has unique keys also html: { key: { text: '111', attr: '222' }, value: {...}}
 *   - updateEmptyGroups
+*   - tabs below some fields
 *
 ************************************************************************/
-
 
 (function ($) {
     var w2form = function(options) {
@@ -990,7 +988,7 @@
                         for (var i = 0; i < items.length; i++) {
                             input += '<label class="w2ui-box-label">'+
                                      '  <input id="' + field.field + i +'" name="' + field.field + '" class="w2ui-input" type="checkbox" ' +
-                                                field.html.attr + (i === 0 ? tabindex_str : '') + ' data-value="'+ items[i].id +'" data-index="'+ i +'">' +
+                                                field.html.attr + tabindex_str + ' data-value="'+ items[i].id +'" data-index="'+ i +'">' +
                                         '<span>&#160;' + items[i].text + '</span>' +
                                      '</label><br>';
                         }
@@ -1050,13 +1048,13 @@
                                 '<input id="'+ field.field +'" name="'+ field.field +'" type="hidden" '+ field.html.attr + tabindex_str + '>'+
                                 '<div class="w2ui-map-container"></div>';
                         break;
-                    case 'html':
                     case 'div':
                     case 'custom':
-                        input = '<div id="'+ field.field +'" name="'+ field.field +'" '+ field.html.attr + tabindex_str + '>'+
+                        input = '<div id="'+ field.field +'" name="'+ field.field +'" '+ field.html.attr + tabindex_str + ' class="w2ui-input">'+
                                     (field && field.html && field.html.html ? field.html.html : '') +
                                 '</div>';
                         break;
+                    case 'html':
                     case 'empty':
                         input = (field && field.html ? (field.html.html || '') + (field.html.text || '') : '');
                         break;
