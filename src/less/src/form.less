@@ -91,7 +91,11 @@
             &.col-8,
             &.col-9,
             &.col-10 {
-                padding: 0 5px;
+                padding: 0;
+                padding-left: 10px
+            }
+            &.col-0 {
+                padding-left: 0px;
             }
         }
     }
@@ -115,16 +119,12 @@
         }
     }
 
-    input[type=checkbox], input[type=radio] {
+    input[type=checkbox]:not(.w2ui-toggle),
+    input[type=radio] {
         margin-top: 4px;
         margin-bottom: 4px;
         width: 14px;
         height: 14px;
-    }
-
-    input[type=checkbox].w2ui-toggle {
-        margin: 0px;
-        width: 50px;
     }
 }
 
@@ -132,7 +132,7 @@
 // --- It is outside of the form on purpose
 
 .w2ui-group-title {
-    padding: 5px 2px;
+    padding: 5px 2px 0px 2px;
     color: #8D96A2;
     text-shadow: 1px 1px 2px rgb(253, 253, 253);
     font-size: 120%;
