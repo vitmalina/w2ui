@@ -26,6 +26,7 @@
 *   - allow enum in inline edit (see https://github.com/vitmalina/w2ui/issues/911#issuecomment-107341193)
 *   - if record has no recid, then it should be index in the aray (should not be 0)
 *   - remote source, but localSort/localSearch
+*   - gridMinWidth - should show/hide columns, when it is triggered, column can not be turned on at all
 *
 * == KNOWN ISSUES ==
 *   - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
@@ -1471,8 +1472,15 @@
                         $range.find('.w2ui-selection-resizer').hide();
                     }
                     if (first.recid != null && last.recid != null && td1f.length > 0 && td2f.length > 0) {
-                        var _left = (td1f.position().left - 0 + rec1.scrollLeft());
-                        var _top  = (td1f.position().top - 0 + rec1.scrollTop());
+                        var sLeft = 0; // frozen columns do not need left offset
+                        var sTop  = rec2.scrollTop();
+                        // work arround jQuery inconsistensy between vers >3.2 and <=3.3
+                        if (td1f.find('>div').position().top < 8) {
+                            sLeft = 0;
+                            sTop  = 0;
+                        }
+                        var _left = (td1f.position().left - 0 + sLeft);
+                        var _top  = (td1f.position().top - 0 + sTop);
                         $range.show().css({
                             left    : (_left > 0 ? _left : 0) + 'px',
                             top     : (_top > 0 ? _top : 0) + 'px',
@@ -1504,8 +1512,16 @@
                         $range.css('border-left', '0px');
                     }
                     if (first.recid != null && last.recid != null && td1.length > 0 && td2.length > 0) {
-                        var _left = (td1.position().left - 0 + rec2.scrollLeft());
-                        var _top  = (td1.position().top - 0 + rec2.scrollTop());
+                        var sLeft = rec2.scrollLeft();
+                        var sTop  = rec2.scrollTop();
+                        // work arround jQuery inconsistensy between vers >3.2 and <=3.3
+                        if (td2.find('>div').position().top < 8) {
+                            sLeft = 0;
+                            sTop  = 0;
+                        }
+                        var _left = (td1.position().left - 0 + sLeft);
+                        var _top  = (td1.position().top - 0 + sTop);
+                        // console.log('top', td1.position().top, rec2.scrollTop(), td1.find('>div').position().top)
                         $range.show().css({
                             left    : (_left > 0 ? _left : 0) + 'px',
                             top     : (_top > 0 ? _top : 0) + 'px',

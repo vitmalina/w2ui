@@ -47,6 +47,7 @@
 *   - new field type 'map', 'array' - same thing but map has unique keys also html: { key: { text: '111', attr: '222' }, value: {...}}
 *   - updateEmptyGroups
 *   - tabs below some fields
+*   - tabindexBase
 *
 ************************************************************************/
 
