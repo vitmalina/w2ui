@@ -7333,7 +7333,7 @@
             if (this.show.expandColumn) {
                 var tmp_img = '';
                 if (record.w2ui && record.w2ui.expanded === true)  tmp_img = '-'; else tmp_img = '+';
-                if (record.w2ui && record.w2ui.expanded == 'none') tmp_img = '';
+                if (record.w2ui && (record.w2ui.expanded == 'none' || !Array.isArray(record.w2ui.children) || !record.w2ui.children.length)) tmp_img = '';
                 if (record.w2ui && record.w2ui.expanded == 'spinner') tmp_img = '<div class="w2ui-spinner" style="width: 16px; margin: -2px 2px;"></div>';
                 rec_html1 +=
                         '<td id="grid_'+ this.name +'_cell_'+ ind +'_expand' + (summary ? '_s' : '') + '" class="w2ui-grid-data w2ui-col-expand">'+
