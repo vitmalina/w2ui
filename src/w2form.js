@@ -41,7 +41,7 @@
 *   - added form.pageStyle
 *   - added html.span -1 - then label is displayed on top
 *   - added field.options.minLength, min/max for numebrs can be done with int/float - min/max
-*   - field.html.groupCollapsable, form.toggleGroup
+*   - field.html.groupCollapsible, form.toggleGroup
 *   - added showErrors
 *   - added field.type = 'check'
 *   - new field type 'map', 'array' - same thing but map has unique keys also html: { key: { text: '111', attr: '222' }, value: {...}}
@@ -1068,19 +1068,19 @@
                     }
                 }
                 if (field.html.group && (group != field.html.group)) {
-                    var collapsable = '';
-                    if (field.html.groupCollapsable) {
-                        collapsable = '<span class="w2ui-icon-collapse" style="width: 15px; display: inline-block; position: relative; top: -2px;"></span>'
+                    var collapsible = '';
+                    if (field.html.groupCollapsible) {
+                        collapsible = '<span class="w2ui-icon-collapse" style="width: 15px; display: inline-block; position: relative; top: -2px;"></span>'
                     }
                     html += '\n <div class="w2ui-group">'
                         + '\n   <div class="w2ui-group-title" style="'+ (field.html.groupTitleStyle || '')
-                                        + (collapsable != '' ? 'cursor: pointer; user-select: none' : '') + '"'
-                        + (collapsable != '' ? 'data-group="' + w2utils.base64encode(field.html.group) + '"' : '')
-                        + (collapsable != ''
+                                        + (collapsible != '' ? 'cursor: pointer; user-select: none' : '') + '"'
+                        + (collapsible != '' ? 'data-group="' + w2utils.base64encode(field.html.group) + '"' : '')
+                        + (collapsible != ''
                             ? 'onclick="w2ui[\'' + this.name + '\'].toggleGroup(\'' + field.html.group + '\')"'
                             : '')
                         + '>'
-                        + collapsable + field.html.group + '</div>\n'
+                        + collapsible + field.html.group + '</div>\n'
                         + '   <div class="w2ui-group-fields" style="'+ (field.html.groupStyle || '') +'">';
                     group = field.html.group;
                 }
