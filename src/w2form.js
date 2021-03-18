@@ -548,6 +548,11 @@
             return diff;
 
             function doDiff(record, original, result) {
+                if(Array.isArray(record) && Array.isArray(original)){
+                    while(record.length < original.length){
+                        record.push(null)
+                    }
+                }
                 for (var i in record) {
                     if (record[i] != null && typeof record[i] === "object") {
                         result[i] = doDiff(record[i], original[i] || {}, {});
