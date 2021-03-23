@@ -161,6 +161,7 @@
 *   - menuClick - changed parameters
 *   - column.text can be a function
 *   - columnGroup.text can be a function
+*   - grid.tabIndex
 *
 ************************************************************************/
 
@@ -171,7 +172,7 @@
         this.name         = null;
         this.box          = null;     // HTML element that hold this element
         this.columns      = [];       // { field, text, size, attr, render, hidden, gridMinWidth, editable }
-        this.columnGroups = [];       // { span: int, text: 'string', master: true/false }
+        this.columnGroups = [];       // { span: int, text: 'string', main: true/false }
         this.records      = [];       // { recid: int(requied), field1: 'value1', ... fieldN: 'valueN', style: 'string',  changes: object }
         this.summary      = [];       // arry of summary records, same structure as records array
         this.searches     = [];       // { type, label, field, inTag, outTag, hidden }
@@ -4906,6 +4907,7 @@
                       '    <div id="grid_'+ this.name +'_summary" class="w2ui-grid-body w2ui-grid-summary"></div>'+
                       '    <div id="grid_'+ this.name +'_footer" class="w2ui-grid-footer"></div>'+
                       '    <textarea id="grid_'+ this.name +'_focus" class="w2ui-grid-focus-input" '+
+                                (this.tabIndex ? 'tabindex="' + this.tabIndex + '"' : '')+
                                 (w2utils.isIOS ? 'readonly' : '') +'></textarea>'+ // readonly needed on android not to open keyboard
                       '</div>');
             if (this.selectType != 'row') $(this.box).addClass('w2ui-ss');
@@ -6713,7 +6715,7 @@
                     }
                     if (colspan <= 0) {
                         // do nothing here, all columns in the group are hidden.
-                    } else if (colg.master === true) {
+                    } else if (colg.main === true) {
                         var sortStyle = '';
                         for (var si = 0; si < obj.sortData.length; si++) {
                             if (obj.sortData[si].field == col.field) {
@@ -6755,7 +6757,7 @@
                 return [html1, html2];
             }
 
-            function getColumns (master) {
+            function getColumns (main) {
                 var html1 = '<tr>';
                 var html2 = '<tr>';
                 if (obj.show.lineNumbers) {
@@ -6809,7 +6811,7 @@
                         continue;
                     if (col.hidden)
                         continue;
-                    if (colg.master !== true || master) { // grouping of columns
+                    if (colg.main !== true || main) { // grouping of columns
                         var colCellHTML = obj.getColumnCellHTML(i);
                         if (col && col.frozen) html1 += colCellHTML; else html2 += colCellHTML;
                     }

@@ -1676,7 +1676,6 @@ var w2utils = (function ($) {
 
     function testLocalStorage() {
         // test if localStorage is available, see issue #1282
-        // original code: https://github.com/Modernizr/Modernizr/blob/master/feature-detects/storage/localstorage.js
         var str = 'w2ui_test';
         try {
           localStorage.setItem(str, str);
@@ -1808,12 +1807,7 @@ var w2utils = (function ($) {
         return actions
     }
 
-    /*! from litejs.com / MIT Licence
-        https://github.com/litejs/natural-compare-lite/blob/master/index.js */
     /*
-     * @version    1.4.0
-     * @date       2015-10-26
-     * @stability  3 - Stable
      * @author     Lauri Rooden (https://github.com/litejs/natural-compare-lite)
      * @license    MIT License
      */
