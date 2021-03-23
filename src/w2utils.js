@@ -152,6 +152,8 @@ var w2utils = (function ($) {
     }
 
     function isMoney (val) {
+        if (typeof val === 'object' || val === '') return false;
+        if(isFloat(val)) return true;
         var se = w2utils.settings;
         var re = new RegExp('^'+ (se.currencyPrefix ? '\\' + se.currencyPrefix + '?' : '') +
                             '[-+]?'+ (se.currencyPrefix ? '\\' + se.currencyPrefix + '?' : '') +
@@ -159,7 +161,6 @@ var w2utils = (function ($) {
         if (typeof val === 'string') {
             val = val.replace(new RegExp(se.groupSymbol, 'g'), '');
         }
-        if (typeof val === 'object' || val === '') return false;
         return re.test(val);
     }
 
