@@ -18,6 +18,10 @@
 *   - node.caption - deprecated
 *   - node.text - can be a function
 *   - node.icon - can be a function
+*   - sb.each() - iterate through each node
+*   - sb.sort() - sort nodes
+*   - sb.skipRefresh - no refresh during add/remove
+*   - sb.tabIndex
 *
 ************************************************************************/
 
@@ -84,6 +88,7 @@
 
     w2sidebar.prototype = {
         levelPadding  : 12,
+        skipRefresh   : false,
         handle        : { size: 0, style: '', content: '' },
         onClick       : null,      // Fire when user click on Node Text
         onDblClick    : null,      // Fire when user dbl clicks
@@ -135,12 +140,13 @@
                 parent = this;
             }
             if (typeof parent == 'string') parent = this.get(parent);
+            if (parent == null || parent == '') parent = this;
             return this.insert(parent, null, nodes);
         },
 
         insert: function (parent, before, nodes) {
             var txt, ind, tmp, node, nd;
-            if (arguments.length == 2) {
+            if (arguments.length == 2 && typeof parent == 'string') {
                 // need to be in reverse order
                 nodes  = arguments[1];
                 before = arguments[0];
@@ -162,6 +168,7 @@
                 }
             }
             if (typeof parent == 'string') parent = this.get(parent);
+            if (parent == null || parent == '') parent = this;
             if (!$.isArray(nodes)) nodes = [nodes];
             for (var o = 0; o < nodes.length; o++) {
                 node = nodes[o];
@@ -197,7 +204,7 @@
                     this.insert(tmp, null, nd);
                 }
             }
-            this.refresh(parent.id);
+            if (!this.skipRefresh) this.refresh(parent.id);
             return tmp;
         },
 
@@ -216,7 +223,9 @@
                 tmp.parent.nodes.splice(ind, 1);
                 deleted++;
             }
-            if (deleted > 0 && arguments.length == 1) this.refresh(tmp.parent.id); else this.refresh();
+            if (!this.skipRefresh) {
+                if (deleted > 0 && arguments.length == 1) this.refresh(tmp.parent.id); else this.refresh();
+            }
             return deleted;
         },
 
@@ -241,7 +250,7 @@
                         if (nodes != null) {
                             this.add(parent.nodes[i], nodes);
                         }
-                        this.refresh(id);
+                        if (!this.skipRefresh) this.refresh(id);
                     }
                     return true;
                 } else {
@@ -283,6 +292,7 @@
         },
 
         find: function (parent, params, results) { // can be just called find({ selected: true })
+            // TODO: rewrite with this.each()
             if (arguments.length == 1) {
                 // need to be in reverse order
                 params = parent;
@@ -301,6 +311,59 @@
                 if (parent.nodes[i].nodes.length > 0) results = this.find(parent.nodes[i], params, results);
             }
             return results;
+        },
+
+        sort: function (options, nodes) {
+            // defabult options
+            if (!options || typeof options != 'object') options = {}
+            if (options.foldersFirst == null) options.foldersFirst = true
+            if (options.caseSensitive == null) options.caseSensitive = false
+            if (options.reverse == null) options.reverse = false
+
+            if (nodes == null) {
+                nodes = this.nodes
+            }
+            // if (nodes.length === 3) debugger
+            nodes.sort((a, b) => {
+                // folders first
+                let isAfolder = (a.nodes && a.nodes.length > 0)
+                let isBfolder = (b.nodes && b.nodes.length > 0)
+                // both folder or both not folders
+                if (options.foldersFirst === false || (!isAfolder && !isBfolder) || (isAfolder && isBfolder)) {
+                    aText = a.text
+                    bText = b.text
+                    if (!options.caseSensitive) {
+                        aText = aText.toLowerCase()
+                        bText = bText.toLowerCase()
+                    }
+                    if (aText == bText) return 0
+                    if (aText > bText) return !options.reverse ? 1 : -1
+                    return !options.reverse ? -1 : 1
+                }
+                if (isAfolder && !isBfolder) {
+                    return !options.reverse ? -1 : 1
+                }
+                if (!isAfolder && isBfolder) {
+                    return !options.reverse ? 1 : -1
+                }
+            })
+            nodes.forEach(node => {
+                if (node.nodes && node.nodes.length > 0) {
+                    this.sort(options, node.nodes)
+                }
+            })
+        },
+
+        each: function (fn, nodes) {
+            if (nodes == null) {
+                nodes = this.nodes
+            }
+            nodes.forEach((node) => {
+                fn(node)
+                if (node.nodes && node.nodes.length > 0) {
+                    this.each(fn, node.nodes)
+                }
+            })
         },
 
         hide: function () { // multiple arguments
@@ -741,7 +804,8 @@
                 .attr('name', this.name)
                 .addClass('w2ui-reset w2ui-sidebar')
                 .html('<div>'+
-                        '<input id="sidebar_'+ this.name +'_focus" style="position: absolute; top: 0; right: 0; width: 1px; z-index: -1; opacity: 0" '+ (w2utils.isIOS ? 'readonly' : '') +'/>'+
+                        '<input id="sidebar_'+ this.name +'_focus" '+ (this.tabIndex ? 'tabindex="' + this.tabIndex + '"' : '') +
+                        '   style="position: absolute; top: 0; right: 0; width: 1px; z-index: -1; opacity: 0" '+ (w2utils.isIOS ? 'readonly' : '') +'/>'+
                         '<div class="w2ui-sidebar-top"></div>' +
                         '<div class="w2ui-sidebar-body"></div>'+
                         '<div class="w2ui-sidebar-bottom"></div>'+
