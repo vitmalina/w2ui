@@ -162,6 +162,7 @@
 *   - column.text can be a function
 *   - columnGroup.text can be a function
 *   - grid.tabIndex
+*   - onColumnAutoResize
 *
 ************************************************************************/
 
@@ -3462,7 +3463,7 @@
         },
 
         columnClick: function (field, event) {
-            // ignore click if column was resizing
+            // ignore click if column was resized
             if (this.last.colResizing === true) {
                 return
             }
