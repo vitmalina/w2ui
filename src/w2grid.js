@@ -5428,7 +5428,7 @@
 
             var obj = this,
                 _dragData = {};
-                _dragData.lastInt = null;
+                _dragData.lastInt = undefined;
                 _dragData.pressed = false;
                 _dragData.timeout = null;_dragData.columnHead = null;
 
