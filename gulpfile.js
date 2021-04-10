@@ -8,8 +8,7 @@ const uglify    = require('gulp-uglify')
 const concat    = require('gulp-concat')
 const rename    = require('gulp-rename')
 const comments  = {
-    w2ui : '/* w2ui 2.0.x (nightly) (c) http://w2ui.com, vitmalina@gmail.com */\n',
-    ks   : '/* kickstart 0.3.x (nightly) (c) http://w2ui.com/kickstart, vitmalina@gmail.com */\n'
+    w2ui : '/* w2ui 2.0.x (nightly) (c) http://w2ui.com, vitmalina@gmail.com */\n'
 }
 
 let tasks = {
@@ -22,9 +21,7 @@ let tasks = {
             'rm -f dist/w2ui.css',
             'rm -f dist/w2ui-dark.css',
             'rm -f dist/w2ui.min.css',
-            'rm -f dist/w2ui-dark.min.css',
-            'rm -f dist/kickstart.js',
-            'rm -f dist/kickstart.min.js'
+            'rm -f dist/w2ui-dark.min.css'
         ]
         exec(commands.join('; '), (error, stdout, stderr) => {
             if (error) {
@@ -98,24 +95,7 @@ let tasks = {
             .pipe(header(comments.w2ui))
             .pipe(gulp.dest('dist/'))
             .on('end', () => {
-                // commpile kickstart
-                gulp.src([
-                    'src/kickstart/ks-core.js',
-                    'src/kickstart/ks-route.js'
-                ])
-                    .pipe(concat('kickstart.js'))
-                    .pipe(header(comments.ks))
-                    .pipe(gulp.dest('dist/'))
-                    .pipe(uglify({
-                        warnings: false,
-                        sourceMap: false
-                    }))
-                    .pipe(rename({ suffix: '.min' }))
-                    .pipe(header(comments.ks))
-                    .pipe(gulp.dest('dist/'))
-                    .on('end', () => {
-                        cb()
-                    })
+                cb()
             })
     },
 
