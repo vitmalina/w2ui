@@ -1,0 +1,33 @@
+<div style="width: 650px; height: 400px; overflow: auto">
+    <div rel="title">
+        Popup #1 Title
+    </div>
+    <div rel="body">
+        <div>
+            <div id="pic" style="float:left; background-color: white; width:150px; height:80px; border: 1px solid silver; margin:5px;">
+            </div>
+            This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+            This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+            This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+            This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+            This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+            This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+            This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+            This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+            This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+            This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+            This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+            <br/>
+            <input id="date" type="text" style="width1: 500px"/>
+            <input id="date1" type="hidden"/>
+            <input id="date2" style="display: none"/>
+        </div>
+    </div>
+    <div rel="buttons">
+        <button class="w2ui-btn" onclick="w2popup.load({ url: 'popup2.html#id2', transition: 'slide-left', showMax: false })" style="width: 150px">Switch to Popup 2</button>
+        <button class="w2ui-btn" onclick="w2popup.message({
+            body: '<div class=\'w2ui-centered\'>some text</div>',
+            buttons: '<button class=\'w2ui-btn\' onclick=\'w2popup.message();\'>Close</button><button class=\'w2ui-btn\' onclick=\'w2alert(123); w2confirm(123);\'>Alert</button>'})">
+        Message</button>
+    </div>
+</div>

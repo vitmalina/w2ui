@@ -3397,4 +3397,4 @@ w2utils.formatters = {
 })(jQuery)
 
 window.w2utils = w2utils
-export { w2utils }
+export { w2utils, w2utils as default }

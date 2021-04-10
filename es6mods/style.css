@@ -13,7 +13,7 @@
 }
 
 .div-box3 {
-    position: absolute;
+    position: absolute !important;
     top: 125px;
     width: 300px;
     height: 500px;
@@ -21,7 +21,7 @@
 }
 
 .div-box4 {
-    position: absolute;
+    position: absolute !important;
     top: 125px;
     margin-left: 310px;
     height: 500px;

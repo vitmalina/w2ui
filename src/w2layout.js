@@ -1129,4 +1129,4 @@ class w2layout extends w2event {
         w2utils.unlock(nm, speed)
     }
 }
-export { w2layout }
+export { w2layout, w2layout as default }

@@ -598,4 +598,4 @@ class w2tabs extends w2event {
         this.resize()
     }
 }
-export { w2tabs }
+export { w2tabs, w2tabs as default }

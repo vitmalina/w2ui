@@ -10,9 +10,11 @@ class w2event {
     constructor(name) {
         this.handlers = []
         // register globaly
-        window.w2ui = window.w2ui || {}
-        if (!w2utils.checkName(name)) return
-        window.w2ui[name] = this
+        if (name) {
+            window.w2ui = window.w2ui || {}
+            if (!w2utils.checkName(name)) return
+            window.w2ui[name] = this
+        }
     }
 
     on(edata, handler) {

@@ -1129,4 +1129,4 @@ class w2sidebar extends w2event {
         w2utils.unlock(this.box, speed)
     }
 }
-export { w2sidebar }
+export { w2sidebar, w2sidebar as default }

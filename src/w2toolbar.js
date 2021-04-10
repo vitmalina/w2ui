@@ -828,4 +828,4 @@ class w2toolbar extends w2event {
         }
     }
 }
-export { w2toolbar }
+export { w2toolbar, w2toolbar as default }
