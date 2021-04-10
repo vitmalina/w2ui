@@ -2818,11 +2818,7 @@
                     if (s == 'recid') continue; // do not allow to change recid
                     if (typeof changes[c][s] === "object") changes[c][s] = changes[c][s].text;
                     try {
-                        if (s.indexOf('.') != -1) {
-                            eval("record['" + s.replace(/\./g, "']['") + "'] = changes[c][s]")
-                        } else {
-                            record[s] = changes[c][s];
-                        }
+                        _setValue(record, s, changes[c][s])
                     } catch (e) {
                         console.log('ERROR: Cannot merge. ', e.message || '', e);
                     }
@@ -2830,6 +2826,17 @@
                 }
             }
             this.refresh();
+
+            function _setValue(obj, field, value) {
+                let fld = field.split('.')
+                if (fld.length == 1) {
+                    obj[field] = value
+                } else {
+                    obj = obj[fld[0]]
+                    fld.shift()
+                    _setValue(obj, fld.join('.'), value)
+                }
+            }
         },
 
         // ===================================================
