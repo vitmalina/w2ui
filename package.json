@@ -6,6 +6,7 @@
   "license": "MIT",
   "repository": "https://github.com/vitmalina/w2ui",
   "dependencies": {
+    "eslint": "^7.24.0",
     "jquery": ">=3.5"
   },
   "main": "dist/w2ui.js",
