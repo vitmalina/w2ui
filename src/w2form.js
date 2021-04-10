@@ -109,7 +109,7 @@
             // extend items
             var object = new w2form(method);
             $.extend(object, { record: {}, original: null, fields: [], tabs: {}, toolbar: {}, handlers: [] });
-            if ($.isArray(tabs)) {
+            if (Array.isArray(tabs)) {
                 $.extend(true, object.tabs, { tabs: [] });
                 for (var t = 0; t < tabs.length; t++) {
                     var tmp = tabs[t];
@@ -480,7 +480,7 @@
                 // === check required - if field is '0' it should be considered not empty
                 var val = this.getValue(field.field);
                 if (field.required && field.hidden !== true && ['div', 'custom', 'html', 'empty'].indexOf(field.type) == -1
-                        && (val === '' || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val)))) {
+                        && (val === '' || (Array.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val)))) {
                     errors.push({ field: field, error: w2utils.lang('Required field') });
                 }
                 if (field.options && field.hidden !== true && field.options.minLength > 0
@@ -986,7 +986,7 @@
                         var items = field.options.items;
                         input = '';
                         // normalized options
-                        if (!$.isArray(items)) items = [];
+                        if (!Array.isArray(items)) items = [];
                         if (items.length > 0) {
                             items = w2obj.field.prototype.normMenu.call(this, items, field);
                         }
@@ -1011,7 +1011,7 @@
                         // normalized options
                         if (field.options.items == null && field.html.items != null) field.options.items = field.html.items;
                         var items = field.options.items;
-                        if (!$.isArray(items)) items = [];
+                        if (!Array.isArray(items)) items = [];
                         if (items.length > 0) {
                             items = w2obj.field.prototype.normMenu.call(this, items, field);
                         }
@@ -1029,7 +1029,7 @@
                         // normalized options
                         if (field.options.items == null && field.html.items != null) field.options.items = field.html.items;
                         var items = field.options.items;
-                        if (!$.isArray(items)) items = [];
+                        if (!Array.isArray(items)) items = [];
                         if (items.length > 0) {
                             items = w2obj.field.prototype.normMenu.call(this, items, field);
                         }
@@ -1221,8 +1221,8 @@
                 if (parseInt($(this.box).height()) === 0 || $(this.box).data('auto-size') === true) {
                     $(this.box).height(
                         (header.length > 0 ? w2utils.getSize(header, 'height') : 0) +
-                        ((typeof this.tabs === 'object' && $.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) ? w2utils.getSize(tabs, 'height') : 0) +
-                        ((typeof this.toolbar === 'object' && $.isArray(this.toolbar.items) && this.toolbar.items.length > 0) ? w2utils.getSize(toolbar, 'height') : 0) +
+                        ((typeof this.tabs === 'object' && Array.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) ? w2utils.getSize(tabs, 'height') : 0) +
+                        ((typeof this.toolbar === 'object' && Array.isArray(this.toolbar.items) && this.toolbar.items.length > 0) ? w2utils.getSize(toolbar, 'height') : 0) +
                         (page.length > 0 ? w2utils.getSize(dpage, 'height') + w2utils.getSize(cpage, '+height') + 12 : 0) +  // why 12 ???
                         (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0)
                     );
@@ -1240,10 +1240,10 @@
                 main.width($(obj.box).width()).height($(obj.box).height());
                 toolbar.css('top', (obj.header !== '' ? w2utils.getSize(header, 'height') : 0));
                 tabs.css('top', (obj.header !== '' ? w2utils.getSize(header, 'height') : 0)
-                              + ((typeof obj.toolbar === 'object' && $.isArray(obj.toolbar.items) && obj.toolbar.items.length > 0) ? w2utils.getSize(toolbar, 'height') : 0));
+                              + ((typeof obj.toolbar === 'object' && Array.isArray(obj.toolbar.items) && obj.toolbar.items.length > 0) ? w2utils.getSize(toolbar, 'height') : 0));
                 page.css('top', (obj.header !== '' ? w2utils.getSize(header, 'height') : 0)
-                              + ((typeof obj.toolbar === 'object' && $.isArray(obj.toolbar.items) && obj.toolbar.items.length > 0) ? w2utils.getSize(toolbar, 'height') + 5 : 0)
-                              + ((typeof obj.tabs === 'object' && $.isArray(obj.tabs.tabs) && obj.tabs.tabs.length > 0) ? w2utils.getSize(tabs, 'height') + 5 : 0));
+                              + ((typeof obj.toolbar === 'object' && Array.isArray(obj.toolbar.items) && obj.toolbar.items.length > 0) ? w2utils.getSize(toolbar, 'height') + 5 : 0)
+                              + ((typeof obj.tabs === 'object' && Array.isArray(obj.tabs.tabs) && obj.tabs.tabs.length > 0) ? w2utils.getSize(tabs, 'height') + 5 : 0));
                 page.css('bottom', (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0));
             }
         },
@@ -1286,7 +1286,7 @@
                 $(this.box).find('.w2ui-page.page-' + this.page).show();
                 $(this.box).find('.w2ui-form-header').html(this.header);
                 // refresh tabs if needed
-                if (typeof this.tabs === 'object' && $.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) {
+                if (typeof this.tabs === 'object' && Array.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) {
                     $('#form_'+ this.name +'_tabs').show();
                     this.tabs.active = this.tabs.tabs[this.page].id;
                     this.tabs.refresh();
@@ -1294,7 +1294,7 @@
                     $('#form_'+ this.name +'_tabs').hide();
                 }
                 // refresh tabs if needed
-                if (typeof this.toolbar === 'object' && $.isArray(this.toolbar.items) && this.toolbar.items.length > 0) {
+                if (typeof this.toolbar === 'object' && Array.isArray(this.toolbar.items) && this.toolbar.items.length > 0) {
                     $('#form_'+ this.name +'_toolbar').show();
                     this.toolbar.refresh();
                 } else {
@@ -1329,14 +1329,14 @@
                         if (['list', 'enum', 'file'].indexOf(field.type) !== -1 && $(this).data('selected')) {
                             var nv = $(this).data('selected');
                             var cv = obj.getValue(this.name);
-                            if ($.isArray(nv)) {
+                            if (Array.isArray(nv)) {
                                 value_new = [];
                                 for (var i = 0; i < nv.length; i++) value_new[i] = $.extend(true, {}, nv[i]); // clone array
                             }
                             if ($.isPlainObject(nv)) {
                                 value_new = $.extend(true, {}, nv); // clone object
                             }
-                            if ($.isArray(cv)) {
+                            if (Array.isArray(cv)) {
                                 value_previous = [];
                                 for (var i = 0; i < cv.length; i++) value_previous[i] = $.extend(true, {}, cv[i]); // clone array
                             }
@@ -1382,7 +1382,7 @@
                             }
                         }
                         if (val === '' || val == null
-                                || ($.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) {
+                                || (Array.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) {
                             val = null;
                         }
                         obj.setValue(this.name, val);
@@ -1554,9 +1554,9 @@
                     case 'file':
                         var sel = [];
                         var isFound = false;
-                        if (!$.isArray(value)) value = [];
+                        if (!Array.isArray(value)) value = [];
                         if (typeof field.options.items != 'function') {
-                            if (!$.isArray(field.options.items)) {
+                            if (!Array.isArray(field.options.items)) {
                                 field.options.items = [];
                             }
                             // find value from items
