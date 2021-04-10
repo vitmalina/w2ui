@@ -22,6 +22,7 @@
 *   - sb.sort() - sort nodes
 *   - sb.skipRefresh - no refresh during add/remove
 *   - sb.tabIndex
+*   - sb.search
 *
 ************************************************************************/
 
@@ -364,6 +365,27 @@
                     this.each(fn, node.nodes)
                 }
             })
+        },
+
+        search(str) {
+            let str2 = str.toLowerCase()
+            this.each((node) => {
+                if (node.text.toLowerCase().indexOf(str2) === -1) {
+                    node.hidden = true
+                } else {
+                    showParents(node)
+                    node.hidden = false
+                }
+            })
+            this.refresh()
+            $(this.box).find('#search-steps input').val(str).focus()
+
+            function showParents(node) {
+                if (node.parent) {
+                    node.parent.hidden = false
+                    showParents(node.parent)
+                }
+            }
         },
 
         hide: function () { // multiple arguments
@@ -877,7 +899,7 @@
             var nd = this.get(id)
             var level
             if (nd) {
-                var $el = $(this.box).find('#node_'+ nd.id)
+                var $el = $(this.box).find('#node_'+ w2utils.escapeId(nd.id))
                 if (nd.group) {
                     if (options.text) {
                         nd.text = options.text
