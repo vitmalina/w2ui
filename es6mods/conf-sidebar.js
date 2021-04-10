@@ -3,7 +3,7 @@ export default {
     img         : null,
     topHTML     : '<div style="padding: 10px 5px; border-bottom: 1px solid #aaa;">This is text<input/> <select><option>one</option></select></div>',
     bottomHTML  : '<div style="padding: 10px 5px; border-top: 1px solid #aaa;">Bottom</div>',
-    style       : 'border: 1px solid silver',
+    style       : 'border: 1px solid red',
     routeData   : { id: 59, vid: '23.323.4' },
     flatButton: true,
     // flat: true,
