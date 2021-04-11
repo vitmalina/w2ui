@@ -1871,13 +1871,13 @@ w2utils.formatters = {
             // if object is not defined, define it
             if (obj == null) {
                 obj = new w2field(type, options)
-                obj.render(this)
+                obj.render(el)
                 return obj
             } else { // fully re-init
                 obj.clear()
                 if (type === 'clear') return
                 obj = new w2field(type, options)
-                obj.render(this)
+                obj.render(el)
                 return obj
             }
             return null

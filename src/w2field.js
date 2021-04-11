@@ -282,7 +282,7 @@ class w2field extends w2event {
                     options._items_fun = options.items
                 }
                 // need to be first
-                options.items = w2obj.field.prototype.normMenu.call(this, options.items)
+                options.items = w2utils.normMenu.call(this, options.items)
                 if (this.type === 'list') {
                     // defaults.search = (options.items && options.items.length >= 10 ? true : false);
                     defaults.openOnFocus = true
@@ -363,8 +363,8 @@ class w2field extends w2event {
                 if (typeof options.items == 'function') {
                     options._items_fun = options.items
                 }
-                options.items = w2obj.field.prototype.normMenu.call(this, options.items)
-                options.selected = w2obj.field.prototype.normMenu.call(this, options.selected)
+                options.items = w2utils.normMenu.call(this, options.items)
+                options.selected = w2utils.normMenu.call(this, options.selected)
                 this.options = options
                 if (!Array.isArray(options.selected)) options.selected = []
                 $(this.el).data('selected', options.selected)
@@ -931,7 +931,7 @@ class w2field extends w2event {
             }, 1)
             // regenerat items
             if (typeof obj.options._items_fun == 'function') {
-                obj.options.items = w2obj.field.prototype.normMenu.call(this, obj.options._items_fun)
+                obj.options.items = w2utils.normMenu.call(this, obj.options._items_fun)
             }
         }
         // file
@@ -2591,7 +2591,7 @@ class w2field extends w2event {
             }
             return menu
         } else if (typeof menu === 'function') {
-            return w2obj.field.prototype.normMenu.call(this, menu.call(this, el))
+            return w2utils.normMenu.call(this, menu.call(this, el))
         } else if (typeof menu === 'object') {
             let tmp = []
             for (let m in menu) tmp.push({ id: m, text: menu[m] })

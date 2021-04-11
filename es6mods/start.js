@@ -7,10 +7,12 @@ import { w2toolbar } from '../src/w2toolbar.js'
 import { w2sidebar } from '../src/w2sidebar.js'
 import { w2layout } from '../src/w2layout.js'
 import { w2field, addType, removeType } from '../src/w2field.js'
+import { w2form } from '../src/w2form.js'
 import conf_tabs from './conf-tabs.js'
 import conf_toolbar from './conf-toolbar.js'
 import conf_sidebar from './conf-sidebar.js'
 import conf_layout from './conf-layout.js'
+import conf_form from './conf-form.js'
 
 // w2field
 addType('myType', function (options) {
@@ -48,8 +50,12 @@ let sidebar = new w2sidebar(conf_sidebar)
 $('#box3').w2render(sidebar)
 
 // layout
-let layout = new w2layout(conf_layout)
-$('#box4').w2render(layout)
+// let layout = new w2layout(conf_layout)
+// $('#box4').w2render(layout)
+
+// form
+let form = new w2form(conf_form)
+$('#box4').w2render(form)
 
 // w2alert('ee')
 // w2popup.load({
