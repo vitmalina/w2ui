@@ -466,8 +466,6 @@ let w2utils = (($) => {
     }
 
     function formatTime (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
-        let months = w2utils.settings.shortmonths
-        let fullMonths = w2utils.settings.fullmonths
         if (!format) format = this.settings.timeFormat
         if (dateStr === '' || dateStr == null || (typeof dateStr === 'object' && !dateStr.getMonth)) return ''
 
@@ -536,10 +534,10 @@ let w2utils = (($) => {
                 // does not modify original object, but creates a copy
                 if (Array.isArray(html)) {
                     html = $.extend(true, [], html)
-                    for (var i = 0; i < html.length; i++) html[i] = this.stripTags(html[i])
+                    for (let i = 0; i < html.length; i++) html[i] = this.stripTags(html[i])
                 } else {
                     html = $.extend(true, {}, html)
-                    for (var i in html) html[i] = this.stripTags(html[i])
+                    for (let i in html) html[i] = this.stripTags(html[i])
                 }
                 break
         }
@@ -558,10 +556,10 @@ let w2utils = (($) => {
                 // does not modify original object, but creates a copy
                 if (Array.isArray(html)) {
                     html = $.extend(true, [], html)
-                    for (var i = 0; i < html.length; i++) html[i] = this.encodeTags(html[i])
+                    for (let i = 0; i < html.length; i++) html[i] = this.encodeTags(html[i])
                 } else {
                     html = $.extend(true, {}, html)
-                    for (var i in html) html[i] = this.encodeTags(html[i])
+                    for (let i in html) html[i] = this.encodeTags(html[i])
                 }
                 break
         }
@@ -580,10 +578,10 @@ let w2utils = (($) => {
                 // does not modify original object, but creates a copy
                 if (Array.isArray(html)) {
                     html = $.extend(true, [], html)
-                    for (var i = 0; i < html.length; i++) html[i] = this.decodeTags(html[i])
+                    for (let i = 0; i < html.length; i++) html[i] = this.decodeTags(html[i])
                 } else {
                     html = $.extend(true, {}, html)
-                    for (var i in html) html[i] = this.decodeTags(html[i])
+                    for (let i in html) html[i] = this.decodeTags(html[i])
                 }
                 break
         }
@@ -705,28 +703,8 @@ let w2utils = (($) => {
          */
 
         let hexcase = 0
-        let b64pad = ''
-
         function __pj_crypt_hex_md5(s) {
             return __pj_crypt_rstr2hex(__pj_crypt_rstr_md5(__pj_crypt_str2rstr_utf8(s)))
-        }
-        function __pj_crypt_b64_md5(s) {
-            return __pj_crypt_rstr2b64(__pj_crypt_rstr_md5(__pj_crypt_str2rstr_utf8(s)))
-        }
-        function __pj_crypt_any_md5(s, e) {
-            return __pj_crypt_rstr2any(__pj_crypt_rstr_md5(__pj_crypt_str2rstr_utf8(s)), e)
-        }
-        function __pj_crypt_hex_hmac_md5(k, d)
-        {
-            return __pj_crypt_rstr2hex(__pj_crypt_rstr_hmac_md5(__pj_crypt_str2rstr_utf8(k), __pj_crypt_str2rstr_utf8(d)))
-        }
-        function __pj_crypt_b64_hmac_md5(k, d)
-        {
-            return __pj_crypt_rstr2b64(__pj_crypt_rstr_hmac_md5(__pj_crypt_str2rstr_utf8(k), __pj_crypt_str2rstr_utf8(d)))
-        }
-        function __pj_crypt_any_hmac_md5(k, d, e)
-        {
-            return __pj_crypt_rstr2any(__pj_crypt_rstr_hmac_md5(__pj_crypt_str2rstr_utf8(k), __pj_crypt_str2rstr_utf8(d)), e)
         }
 
         /*
@@ -735,26 +713,6 @@ let w2utils = (($) => {
         function __pj_crypt_rstr_md5(s)
         {
             return __pj_crypt_binl2rstr(__pj_crypt_binl_md5(__pj_crypt_rstr2binl(s), s.length * 8))
-        }
-
-        /*
-         * Calculate the HMAC-MD5, of a key and some data (raw strings)
-         */
-        function __pj_crypt_rstr_hmac_md5(key, data)
-        {
-            let bkey = __pj_crypt_rstr2binl(key)
-            if (bkey.length > 16)
-                bkey = __pj_crypt_binl_md5(bkey, key.length * 8)
-
-            let ipad = Array(16), opad = Array(16)
-            for (let i = 0; i < 16; i++)
-            {
-                ipad[i] = bkey[i] ^ 0x36363636
-                opad[i] = bkey[i] ^ 0x5C5C5C5C
-            }
-
-            let hash = __pj_crypt_binl_md5(ipad.concat(__pj_crypt_rstr2binl(data)), 512 + data.length * 8)
-            return __pj_crypt_binl2rstr(__pj_crypt_binl_md5(opad.concat(hash), 512 + 128))
         }
 
         /*
@@ -776,83 +734,6 @@ let w2utils = (($) => {
                 output += hex_tab.charAt((x >>> 4) & 0x0F)
                         + hex_tab.charAt(x & 0x0F)
             }
-            return output
-        }
-
-        /*
-         * Convert a raw string to a base-64 string
-         */
-        function __pj_crypt_rstr2b64(input)
-        {
-            try {
-                b64pad
-            } catch (e) {
-                b64pad = ''
-            }
-            let tab = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-            let output = ''
-            let len = input.length
-            for (let i = 0; i < len; i += 3)
-            {
-                let triplet = (input.charCodeAt(i) << 16)
-                        | (i + 1 < len ? input.charCodeAt(i + 1) << 8 : 0)
-                        | (i + 2 < len ? input.charCodeAt(i + 2) : 0)
-                for (let j = 0; j < 4; j++)
-                {
-                    if (i * 8 + j * 6 > input.length * 8)
-                        output += b64pad
-                    else
-                        output += tab.charAt((triplet >>> 6 * (3 - j)) & 0x3F)
-                }
-            }
-            return output
-        }
-
-        /*
-         * Convert a raw string to an arbitrary string encoding
-         */
-        function __pj_crypt_rstr2any(input, encoding)
-        {
-            let divisor = encoding.length
-            let i, j, q, x, quotient
-
-            /* Convert to an array of 16-bit big-endian values, forming the dividend */
-            let dividend = Array(Math.ceil(input.length / 2))
-            for (i = 0; i < dividend.length; i++)
-            {
-                dividend[i] = (input.charCodeAt(i * 2) << 8) | input.charCodeAt(i * 2 + 1)
-            }
-
-            /*
-             * Repeatedly perform a long division. The binary array forms the dividend,
-             * the length of the encoding is the divisor. Once computed, the quotient
-             * forms the dividend for the next step. All remainders are stored for later
-             * use.
-             */
-            let full_length = Math.ceil(input.length * 8 /
-                    (Math.log(encoding.length) / Math.log(2)))
-            let remainders = Array(full_length)
-            for (j = 0; j < full_length; j++)
-            {
-                quotient = Array()
-                x = 0
-                for (i = 0; i < dividend.length; i++)
-                {
-                    x = (x << 16) + dividend[i]
-                    q = Math.floor(x / divisor)
-                    x -= q * divisor
-                    if (quotient.length > 0 || q > 0)
-                        quotient[quotient.length] = q
-                }
-                remainders[j] = x
-                dividend = quotient
-            }
-
-            /* Convert the remainders to the output string */
-            let output = ''
-            for (i = remainders.length - 1; i >= 0; i--)
-                output += encoding.charAt(remainders[i])
-
             return output
         }
 
@@ -897,36 +778,15 @@ let w2utils = (($) => {
         }
 
         /*
-         * Encode a string as utf-16
-         */
-        function __pj_crypt_str2rstr_utf16le(input)
-        {
-            let output = ''
-            for (let i = 0; i < input.length; i++)
-                output += String.fromCharCode(input.charCodeAt(i) & 0xFF,
-                    (input.charCodeAt(i) >>> 8) & 0xFF)
-            return output
-        }
-
-        function __pj_crypt_str2rstr_utf16be(input)
-        {
-            let output = ''
-            for (let i = 0; i < input.length; i++)
-                output += String.fromCharCode((input.charCodeAt(i) >>> 8) & 0xFF,
-                    input.charCodeAt(i) & 0xFF)
-            return output
-        }
-
-        /*
          * Convert a raw string to an array of little-endian words
          * Characters >255 have their high-byte silently ignored.
          */
         function __pj_crypt_rstr2binl(input)
         {
             let output = Array(input.length >> 2)
-            for (var i = 0; i < output.length; i++)
+            for (let i = 0; i < output.length; i++)
                 output[i] = 0
-            for (var i = 0; i < input.length * 8; i += 8)
+            for (let i = 0; i < input.length * 8; i += 8)
                 output[i >> 5] |= (input.charCodeAt(i / 8) & 0xFF) << (i % 32)
             return output
         }
@@ -1107,7 +967,7 @@ let w2utils = (($) => {
                 div_new.style.cssText += 'overflow: hidden; transform: translate3d('+ width + 'px, 0, 0)'
                 $(div_new).show()
                 // -- need a timing function because otherwise not working
-                window.setTimeout(function() {
+                window.setTimeout(() => {
                     div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)'
                     div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d(-'+ width +'px, 0, 0)'
                 }, 1)
@@ -1119,7 +979,7 @@ let w2utils = (($) => {
                 div_new.style.cssText += 'overflow: hidden; transform: translate3d(-'+ width +'px, 0, 0)'
                 $(div_new).show()
                 // -- need a timing function because otherwise not working
-                window.setTimeout(function() {
+                window.setTimeout(() => {
                     div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0px, 0, 0)'
                     div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d('+ width +'px, 0, 0)'
                 }, 1)
@@ -1131,7 +991,7 @@ let w2utils = (($) => {
                 div_new.style.cssText += 'overflow: hidden; z-index: 0; transform: translate3d(0, 0, 0)'
                 $(div_new).show()
                 // -- need a timing function because otherwise not working
-                window.setTimeout(function() {
+                window.setTimeout(() => {
                     div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)'
                     div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, '+ height +'px, 0)'
                 }, 1)
@@ -1143,7 +1003,7 @@ let w2utils = (($) => {
                 div_new.style.cssText += 'overflow: hidden; transform: translate3d(0, '+ height +'px, 0)'
                 $(div_new).show()
                 // -- need a timing function because otherwise not working
-                window.setTimeout(function() {
+                window.setTimeout(() => {
                     div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)'
                     div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)'
                 }, 1)
@@ -1155,7 +1015,7 @@ let w2utils = (($) => {
                 div_new.style.cssText += 'overflow: hidden; transform: rotateY(-180deg)'
                 $(div_new).show()
                 // -- need a timing function because otherwise not working
-                window.setTimeout(function() {
+                window.setTimeout(() => {
                     div_new.style.cssText += 'transition: '+ time +'s; transform: rotateY(0deg)'
                     div_old.style.cssText += 'transition: '+ time +'s; transform: rotateY(180deg)'
                 }, 1)
@@ -1167,7 +1027,7 @@ let w2utils = (($) => {
                 div_new.style.cssText += 'overflow: hidden; transform: rotateY(180deg)'
                 $(div_new).show()
                 // -- need a timing function because otherwise not working
-                window.setTimeout(function() {
+                window.setTimeout(() => {
                     div_new.style.cssText += 'transition: '+ time +'s; transform: rotateY(0deg)'
                     div_old.style.cssText += 'transition: '+ time +'s; transform: rotateY(-180deg)'
                 }, 1)
@@ -1179,7 +1039,7 @@ let w2utils = (($) => {
                 div_new.style.cssText += 'overflow: hidden; transform: rotateX(180deg)'
                 $(div_new).show()
                 // -- need a timing function because otherwise not working
-                window.setTimeout(function() {
+                window.setTimeout(() => {
                     div_new.style.cssText += 'transition: '+ time +'s; transform: rotateX(0deg)'
                     div_old.style.cssText += 'transition: '+ time +'s; transform: rotateX(-180deg)'
                 }, 1)
@@ -1191,7 +1051,7 @@ let w2utils = (($) => {
                 div_new.style.cssText += 'overflow: hidden; transform: rotateX(-180deg)'
                 $(div_new).show()
                 // -- need a timing function because otherwise not working
-                window.setTimeout(function() {
+                window.setTimeout(() => {
                     div_new.style.cssText += 'transition: '+ time +'s; transform: rotateX(0deg)'
                     div_old.style.cssText += 'transition: '+ time +'s; transform: rotateX(180deg)'
                 }, 1)
@@ -1203,7 +1063,7 @@ let w2utils = (($) => {
                 div_new.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0); transform: scale(.8); opacity: 0;'
                 $(div_new).show()
                 // -- need a timing function because otherwise not working
-                window.setTimeout(function() {
+                window.setTimeout(() => {
                     div_new.style.cssText += 'transition: '+ time +'s; transform: scale(1); opacity: 1;'
                     div_old.style.cssText += 'transition: '+ time +'s;'
                 }, 1)
@@ -1215,7 +1075,7 @@ let w2utils = (($) => {
                 div_new.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0); opacity: 0;'
                 $(div_new).show()
                 // -- need a timing function because otherwise not working
-                window.setTimeout(function() {
+                window.setTimeout(() => {
                     div_new.style.cssText += 'transition: '+ time +'s; opacity: 1;'
                     div_old.style.cssText += 'transition: '+ time +'s; transform: scale(1.7); opacity: 0;'
                 }, 1)
@@ -1227,14 +1087,14 @@ let w2utils = (($) => {
                 div_new.style.cssText += 'overflow: hidden; translate3d(0, 0, 0); opacity: 0;'
                 $(div_new).show()
                 // -- need a timing function because otherwise not working
-                window.setTimeout(function() {
+                window.setTimeout(() => {
                     div_new.style.cssText += 'transition: '+ time +'s; opacity: 1;'
                     div_old.style.cssText += 'transition: '+ time +'s'
                 }, 1)
                 break
         }
 
-        setTimeout(function () {
+        setTimeout(() => {
             if (type === 'slide-down') {
                 $(div_old).css('z-index', '1019')
                 $(div_new).css('z-index', '1020')
@@ -1286,7 +1146,7 @@ let w2utils = (($) => {
     function unlock (box, speed) {
         if (isInt(speed)) {
             $(box).find('.w2ui-lock').fadeOut(speed)
-            setTimeout(function () {
+            setTimeout(() => {
                 $(box).find('.w2ui-lock').remove()
                 $(box).find('.w2ui-lock-msg').remove()
             }, speed)
@@ -1346,7 +1206,7 @@ let w2utils = (($) => {
         if ($.trim(options.html) === '' && $.trim(options.body) === '' && $.trim(options.buttons) === '') {
             if (msgCount === 0) return // no messages at all
             let $msg = $(where.box).find('#w2ui-message'+ (msgCount-1))
-            var options = $msg.data('options') || {}
+            options = $msg.data('options') || {}
             // before event
             edata = options.trigger({ phase: 'before', type: 'close', target: 'self' })
             if (edata.isCancelled === true) return
@@ -1362,7 +1222,7 @@ let w2utils = (($) => {
             } else {
                 $(where.box).find('#w2ui-message'+ (msgCount-2)).css('z-index', 1500)
             }
-            closeTimer = setTimeout(function () { closeCB($msg, options) }, 150)
+            closeTimer = setTimeout(() => { closeCB($msg, options) }, 150)
 
         } else {
 
@@ -1406,7 +1266,7 @@ let w2utils = (($) => {
                     return
                 }
                 // timer needs to animation
-                setTimeout(function () {
+                setTimeout(() => {
                     $(where.box).find('#w2ui-message'+ msgCount).css(w2utils.cssPrefix({
                         'transform': (display === 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)')
                     }))
@@ -1415,7 +1275,7 @@ let w2utils = (($) => {
                 if (msgCount === 0 && this.lock) {
                     if (where.param) this.lock(where.param); else this.lock()
                 }
-                setTimeout(function() {
+                setTimeout(() => {
                     // has to be on top of lock
                     $(where.box).find('#w2ui-message'+ msgCount).css(w2utils.cssPrefix({ 'transition': '0s' }))
                     // event after
@@ -1514,11 +1374,11 @@ let w2utils = (($) => {
             url      : locale,
             type     : 'GET',
             dataType : 'JSON',
-            success  : function (data, status, xhr) {
+            success(data, status, xhr) {
                 w2utils.settings = $.extend(true, w2utils.settings, data)
                 if (typeof callBack === 'function') callBack()
             },
-            error    : function (xhr, status, msg) {
+            error(xhr, status, msg) {
                 console.log('ERROR: Cannot load locale '+ locale)
             }
         })
@@ -1569,7 +1429,7 @@ let w2utils = (($) => {
         let path = route
             .replace(/\/\(/g, '(?:/')
             .replace(/\+/g, '__plus__')
-            .replace(/(\/)?(\.)?:(\w+)(?:(\(.*?\)))?(\?)?/g, function(_, slash, format, key, capture, optional) {
+            .replace(/(\/)?(\.)?:(\w+)(?:(\(.*?\)))?(\?)?/g, (_, slash, format, key, capture, optional) => {
                 keys.push({ name: key, optional: !! optional })
                 slash = slash || ''
                 return '' + (optional ? '' : slash) + '(?:' + (optional ? slash : '') + (format || '') + (capture || (format && '([^/.]+?)' || '([^/]+?)')) + ')' + (optional || '')
@@ -1593,7 +1453,7 @@ let w2utils = (($) => {
             css = field
             if (value === true) returnString = true
         }
-        for (var c in css) {
+        for (let c in css) {
             newCSS[c] = css[c]
             newCSS['-webkit-'+c] = css[c]
             newCSS['-moz-'+c] = css[c].replace('-webkit-', '-moz-')
@@ -1601,7 +1461,7 @@ let w2utils = (($) => {
             newCSS['-o-'+c] = css[c].replace('-webkit-', '-o-')
         }
         if (returnString === true) {
-            for (var c in newCSS) {
+            for (let c in newCSS) {
                 ret += c + ': ' + newCSS[c] + '; '
             }
         } else {
@@ -1713,7 +1573,7 @@ let w2utils = (($) => {
                 a: Math.round(parseInt(str.substr(6, 2), 16) / 255 * 100) / 100 // alpha channel 0-1
             }
         } else if (str.length > 4 && str.substr(0, 4) === 'RGB(') {
-            var tmp = str.replace('RGB', '').replace(/\(/g, '').replace(/\)/g, '').split(',')
+            let tmp = str.replace('RGB', '').replace(/\(/g, '').replace(/\)/g, '').split(',')
             color = {
                 r: parseInt(tmp[0], 10),
                 g: parseInt(tmp[1], 10),
@@ -1721,7 +1581,7 @@ let w2utils = (($) => {
                 a: 1
             }
         } else if (str.length > 5 && str.substr(0, 5) === 'RGBA(') {
-            var tmp = str.replace('RGBA', '').replace(/\(/g, '').replace(/\)/g, '').split(',')
+            let tmp = str.replace('RGBA', '').replace(/\(/g, '').replace(/\)/g, '').split(',')
             color = {
                 r: parseInt(tmp[0], 10),
                 g: parseInt(tmp[1], 10),
@@ -1883,42 +1743,42 @@ let w2utils = (($) => {
 
 w2utils.formatters = {
 
-    'number': function (value, params) {
+    'number'(value, params) {
         if (parseInt(params) > 20) params = 20
         if (parseInt(params) < 0) params = 0
         if (value == null || value === '') return ''
         return w2utils.formatNumber(parseFloat(value), params, true)
     },
 
-    'float': function (value, params) {
+    'float'(value, params) {
         return w2utils.formatters.number(value, params)
     },
 
-    'int': function (value, params) {
+    'int'(value, params) {
         return w2utils.formatters.number(value, 0)
     },
 
-    'money': function (value, params) {
+    'money'(value, params) {
         if (value == null || value === '') return ''
         let data = w2utils.formatNumber(Number(value), w2utils.settings.currencyPrecision)
         return (w2utils.settings.currencyPrefix || '') + data + (w2utils.settings.currencySuffix || '')
     },
 
-    'currency': function (value, params) {
+    'currency'(value, params) {
         return w2utils.formatters.money(value, params)
     },
 
-    'percent': function (value, params) {
+    'percent'(value, params) {
         if (value == null || value === '') return ''
         return w2utils.formatNumber(value, params || 1) + '%'
     },
 
-    'size': function (value, params) {
+    'size'(value, params) {
         if (value == null || value === '') return ''
         return w2utils.formatSize(parseInt(value))
     },
 
-    'date': function (value, params) {
+    'date'(value, params) {
         if (params === '') params = w2utils.settings.dateFormat
         if (value == null || value === 0 || value === '') return ''
         let dt = w2utils.isDateTime(value, params, true)
@@ -1926,7 +1786,7 @@ w2utils.formatters = {
         return '<span title="'+ dt +'">' + w2utils.formatDate(dt, params) + '</span>'
     },
 
-    'datetime': function (value, params) {
+    'datetime'(value, params) {
         if (params === '') params = w2utils.settings.datetimeFormat
         if (value == null || value === 0 || value === '') return ''
         let dt = w2utils.isDateTime(value, params, true)
@@ -1934,7 +1794,7 @@ w2utils.formatters = {
         return '<span title="'+ dt +'">' + w2utils.formatDateTime(dt, params) + '</span>'
     },
 
-    'time': function (value, params) {
+    'time'(value, params) {
         if (params === '') params = w2utils.settings.timeFormat
         if (params === 'h12') params = 'hh:mi pm'
         if (params === 'h24') params = 'h24:mi'
@@ -1944,7 +1804,7 @@ w2utils.formatters = {
         return '<span title="'+ dt +'">' + w2utils.formatTime(value, params) + '</span>'
     },
 
-    'timestamp': function (value, params) {
+    'timestamp'(value, params) {
         if (params === '') params = w2utils.settings.datetimeFormat
         if (value == null || value === 0 || value === '') return ''
         let dt = w2utils.isDateTime(value, params, true)
@@ -1952,7 +1812,7 @@ w2utils.formatters = {
         return dt.toString ? dt.toString() : ''
     },
 
-    'gmt': function (value, params) {
+    'gmt'(value, params) {
         if (params === '') params = w2utils.settings.datetimeFormat
         if (value == null || value === 0 || value === '') return ''
         let dt = w2utils.isDateTime(value, params, true)
@@ -1960,23 +1820,23 @@ w2utils.formatters = {
         return dt.toUTCString ? dt.toUTCString() : ''
     },
 
-    'age': function (value, params) {
+    'age'(value, params) {
         if (value == null || value === 0 || value === '') return ''
         let dt = w2utils.isDateTime(value, null, true)
         if (dt === false) dt = w2utils.isDate(value, null, true)
         return '<span title="'+ dt +'">' + w2utils.age(value) + (params ? (' ' + params) : '') + '</span>'
     },
 
-    'interval': function (value, params) {
+    'interval'(value, params) {
         if (value == null || value === 0 || value === '') return ''
         return w2utils.interval(value) + (params ? (' ' + params) : '')
     },
 
-    'toggle': function (value, params) {
+    'toggle'(value, params) {
         return (value ? 'Yes' : '')
     },
 
-    'password': function (value, params) {
+    'password'(value, params) {
         let ret = ''
         for (let i=0; i < value.length; i++) {
             ret += '*'
@@ -1991,22 +1851,22 @@ w2utils.formatters = {
 *
 *********************************************************/
 
-(($) => {
+(function($) {
 
-    $.fn.w2render = function (name) {
+    $.fn.w2render = function(name) {
         if ($(this).length > 0) {
             if (typeof name === 'string' && w2ui[name]) w2ui[name].render($(this)[0])
             if (typeof name === 'object') name.render($(this)[0])
         }
     }
 
-    $.fn.w2field = function (type, options) {
+    $.fn.w2field = function(type, options) {
         // if without arguments - return the object
         if (arguments.length === 0) {
             let obj = $(this).data('w2field')
             return obj
         }
-        return this.each(function (index, el) {
+        return this.each((index, el) => {
             let obj = $(el).data('w2field')
             // if object is not defined, define it
             if (obj == null) {
@@ -2024,19 +1884,19 @@ w2utils.formatters = {
         })
     }
 
-    $.fn.w2destroy = function (name) {
+    $.fn.w2destroy = function(name) {
         if (!name && this.length > 0) name = this.attr('name')
         if (typeof name === 'string' && w2ui[name]) w2ui[name].destroy()
         if (typeof name === 'object') name.destroy()
     }
 
-    $.fn.w2marker = function () {
+    $.fn.w2marker = function() {
         let str = Array.prototype.slice.call(arguments, 0)
         if (Array.isArray(str[0])) str = str[0]
         if (str.length === 0 || !str[0]) { // remove marker
             return $(this).each(clearMarkedText)
         } else { // add marker
-            return $(this).each(function (index, el) {
+            return $(this).each((index, el) => {
                 clearMarkedText(index, el)
                 for (let s = 0; s < str.length; s++) {
                     let tmp = str[s]
@@ -2061,7 +1921,7 @@ w2utils.formatters = {
 
     // -- w2tag - there can be multiple on screen at a time
 
-    $.fn.w2tag = function (text, options) {
+    $.fn.w2tag = function(text, options) {
         // only one argument
         if (arguments.length === 1 && typeof text === 'object') {
             options = text
@@ -2096,7 +1956,7 @@ w2utils.formatters = {
 
         // remove all tags
         if ($(this).length === 0) {
-            $('.w2ui-tag').each(function (index, el) {
+            $('.w2ui-tag').each((index, el) => {
                 let tag = $(el).data('w2tag')
                 if (tag) tag.hide()
             })
@@ -2104,11 +1964,11 @@ w2utils.formatters = {
         }
         if (options.auto === true || options.showOn != null || options.hideOn != null) {
             if (arguments.length == 0 || !text) {
-                return $(this).each(function (index, el) {
+                return $(this).each((index, el) => {
                     $(el).off('.w2tooltip')
                 })
             } else {
-                return $(this).each(function (index, el) {
+                return $(this).each((index, el) => {
                     let showOn = 'mouseenter', hideOn = 'mouseleave'
                     if (options.showOn) {
                         showOn = String(options.showOn).toLowerCase()
@@ -2121,17 +1981,17 @@ w2utils.formatters = {
                     if (!options.potision) { options.position = 'top|bottom' }
                     $(el)
                         .off('.w2tooltip')
-                        .on(showOn + '.w2tooltip', function () {
+                        .on(showOn + '.w2tooltip', function tooltip() {
                             options.auto = false
                             $(this).w2tag(text, options)
                         })
-                        .on(hideOn + '.w2tooltip', function () {
+                        .on(hideOn + '.w2tooltip', function tooltip() {
                             $(this).w2tag()
                         })
                 })
             }
         } else {
-            return $(this).each(function (index, el) {
+            return $(this).each((index, el) => {
                 // main object
                 let tag
                 let origID = (options.id ? options.id : el.id)
@@ -2341,7 +2201,7 @@ w2utils.formatters = {
 
     // w2overlay - appears under the element, there can be only one at a time
 
-    $.fn.w2overlay = function (html, options) {
+    $.fn.w2overlay = function(html, options) {
         let obj = this
         let name = ''
         let defaults = {
@@ -2408,7 +2268,7 @@ w2utils.formatters = {
         }
         let data_str = ''
         if (options.data) {
-            Object.keys(options.data).forEach(function (item) {
+            Object.keys(options.data).forEach((item) => {
                 data_str += 'data-'+ item + '="' + options.data[item] +'"'
             })
         }
@@ -2433,12 +2293,12 @@ w2utils.formatters = {
             .data('options', options)
             .data('position', offset.left + 'x' + offset.top)
             .fadeIn('fast')
-            .on('click', function (event) {
+            .on('click', function click(event) {
                 $('#w2ui-overlay'+ name).data('keepOpen', true)
                 // if there is label for input, it will produce 2 click events
                 if (event.target.tagName.toUpperCase() === 'LABEL') event.stopPropagation()
             })
-            .on('mousedown', function (event) {
+            .on('mousedown', function mousedown(event) {
                 let tmp = event.target.tagName.toUpperCase()
                 if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(tmp) === -1 && !options.selectable) {
                     event.preventDefault()
@@ -2448,7 +2308,7 @@ w2utils.formatters = {
         div1[0].resize = resize
 
         // need time to display
-        setTimeout(function () {
+        setTimeout(() => {
             $(document).off('.w2overlay'+ name).on('click.w2overlay'+ name, hide)
             if (typeof options.onShow === 'function') options.onShow()
             resize()
@@ -2503,7 +2363,6 @@ w2utils.formatters = {
             if (div1.length > 0) {
                 div2.height('auto').width('auto')
                 // width/height
-                let overflowX = false
                 let overflowY = false
                 let h = div2.height()
                 let w = div2.width()
@@ -2513,13 +2372,13 @@ w2utils.formatters = {
                 if (options.tmp.contentHeight) {
                     h = parseInt(options.tmp.contentHeight)
                     div2.height(h)
-                    setTimeout(function () {
+                    setTimeout(() => {
                         let $div = div2.find('div.w2ui-menu')
                         if (h > $div.height()) {
                             div2.find('div.w2ui-menu').css('overflow-y', 'hidden')
                         }
                     }, 1)
-                    setTimeout(function () {
+                    setTimeout(() => {
                         let $div = div2.find('div.w2ui-menu')
                         if ($div.css('overflow-y') !== 'auto') $div.css('overflow-y', 'auto')
                     }, 10)
@@ -2527,12 +2386,12 @@ w2utils.formatters = {
                 if (options.tmp.contentWidth && options.align !== 'both') {
                     w = parseInt(options.tmp.contentWidth)
                     div2.width(w)
-                    setTimeout(function () {
+                    setTimeout(() => {
                         if (w > div2.find('div.w2ui-menu > table').width()) {
                             div2.find('div.w2ui-menu > table').css('overflow-x', 'hidden')
                         }
                     }, 1)
-                    setTimeout(function () {
+                    setTimeout(() => {
                         div2.find('div.w2ui-menu > table').css('overflow-x', 'auto')
                     }, 10)
                 }
@@ -2542,7 +2401,7 @@ w2utils.formatters = {
                 let boxWidth = options.width
                 let tipLeft = options.tipLeft
                 let minWidth = options.minWidth
-                var maxWidth = options.maxWidth
+                let maxWidth = options.maxWidth
                 let objWidth = w2utils.getSize($(obj), 'width')
                 // alignment
                 switch (options.align) {
@@ -2591,7 +2450,7 @@ w2utils.formatters = {
                     Y = options.pageY - 0
                     offsetTop = options.pageY
                 } else {
-                    var offset = obj.offset() || {}
+                    let offset = obj.offset() || {}
                     X = ((offset.left > 25 ? offset.left : 25) + boxLeft)
                     Y = (offset.top + w2utils.getSize(obj, 'height') + options.top + 7)
                     offsetTop = offset.top
@@ -2605,9 +2464,9 @@ w2utils.formatters = {
                     'min-height': options.height || 'auto'
                 })
                 // $(window).height() - has a problem in FF20
-                var offset = div2.offset() || {}
+                let offset = div2.offset() || {}
                 let maxHeight = window.innerHeight + $(document).scrollTop() - offset.top - 7
-                var maxWidth = window.innerWidth + $(document).scrollLeft() - offset.left - 7
+                maxWidth = window.innerWidth + $(document).scrollLeft() - offset.left - 7
                 if (options.contextMenu) { // context menu
                     maxHeight = window.innerHeight + $(document).scrollTop() - options.pageY - 15
                     maxWidth = window.innerWidth + $(document).scrollLeft() - options.pageX
@@ -2654,7 +2513,7 @@ w2utils.formatters = {
                 if (options.maxWidth && maxWidth > options.maxWidth) maxWidth = options.maxWidth
                 if (w > maxWidth && options.align !== 'both') {
                     options.align = 'right'
-                    setTimeout(function () { resize() }, 1)
+                    setTimeout(() => { resize() }, 1)
                 }
                 // don't show tip
                 if (options.contextMenu || options.noTip) { // context menu
@@ -2674,7 +2533,7 @@ w2utils.formatters = {
         }
     }
 
-    $.fn.w2menu = function (menu, options) {
+    $.fn.w2menu = function(menu, options) {
         /*
         ITEM STRUCTURE
             item : {
@@ -2714,7 +2573,7 @@ w2utils.formatters = {
             if (options.name) name = '-' + options.name
             if ($('#w2ui-overlay'+ name).length > 0) {
                 options = $.extend($.fn.w2menuOptions, options)
-                var scrTop = $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop()
+                let scrTop = $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop()
                 $('#w2ui-overlay'+ name +' div.w2ui-menu').html(getMenuHTML())
                 $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop(scrTop)
                 mresize()
@@ -2724,7 +2583,7 @@ w2utils.formatters = {
         } else if (menu === 'refresh-index') {
             let $menu = $('#w2ui-overlay'+ name +' div.w2ui-menu')
             let cur = $menu.find('tr[index='+ options.index +']')
-            var scrTop = $menu.scrollTop()
+            let scrTop = $menu.scrollTop()
             $menu.find('tr.w2ui-selected').removeClass('w2ui-selected') // clear all
             cur.addClass('w2ui-selected') // select current
             // scroll into view
@@ -2747,8 +2606,8 @@ w2utils.formatters = {
             if (typeof options.remove === 'function' && typeof options.onRemove !== 'function') options.onRemove = options.remove
             if (typeof options.onRender === 'function' && typeof options.render !== 'function') options.render = options.onRender
             // since only one overlay can exist at a time
-            $.fn.w2menuClick = function (event, index, parentIndex) {
-                let keepOpen = false
+            $.fn.w2menuClick = function w2menuClick(event, index, parentIndex) {
+                let keepOpen = false, items
                 let $tr = $(event.target).closest('tr')
                 if (event.shiftKey || event.metaKey || event.ctrlKey) {
                     keepOpen = true
@@ -2806,7 +2665,7 @@ w2utils.formatters = {
                     }
                 }
             }
-            $.fn.w2menuDown = function (event, index, parentIndex) {
+            $.fn.w2menuDown = function w2menuDown(event, index, parentIndex) {
                 let items
                 let $el = $(event.target).closest('tr')
                 let tmp = $($el.get(0)).find('.w2ui-icon')
@@ -2827,7 +2686,7 @@ w2utils.formatters = {
                                 .addClass('w2ui-icon-empty')
                         }
                         if (options.type === 'check' && item.group != null) {
-                            items.forEach(function (sub, ind) {
+                            items.forEach((sub, ind) => {
                                 if (sub.id == item.id) return
                                 if (sub.group === item.group && sub.checked) {
                                     tmp.closest('table').find('tr[index='+ ind +'] .w2ui-icon')
@@ -2862,10 +2721,10 @@ w2utils.formatters = {
                         getMenuHTML() +
                     '</div>'
             ret = $(this).w2overlay(html, options)
-            setTimeout(function () {
+            setTimeout(() => {
                 $('#w2ui-overlay'+ name +' #menu-search')
                     .on('keyup', change)
-                    .on('keydown', function (event) {
+                    .on('keydown', function keydown(event) {
                         // cancel tab key
                         if (event.keyCode === 9) { event.stopPropagation(); event.preventDefault() }
                     })
@@ -2886,7 +2745,7 @@ w2utils.formatters = {
         return ret
 
         function mresize() {
-            setTimeout(function () {
+            setTimeout(() => {
                 // show selected
                 $('#w2ui-overlay'+ name +' tr.w2ui-selected').removeClass('w2ui-selected')
                 let cur = $('#w2ui-overlay'+ name +' tr[index='+ options.index +']')
@@ -3070,8 +2929,7 @@ w2utils.formatters = {
         }
     }
 
-    $.fn.w2color = function (options, callBack) {
-        let obj = this
+    $.fn.w2color = function(options, callBack) {
         let $el = $(this)
         let el = $el[0]
         // no need to init
@@ -3121,7 +2979,7 @@ w2utils.formatters = {
         // bind events
         $('#w2ui-overlay .w2ui-color')
             .off('.w2color')
-            .on('mousedown.w2color', function (event) {
+            .on('mousedown.w2color', (event) => {
                 let color = $(event.originalEvent.target).attr('name') // should not have #
                 index = $(event.originalEvent.target).attr('index').split(':')
                 if (el.tagName.toUpperCase() === 'INPUT') {
@@ -3132,14 +2990,14 @@ w2utils.formatters = {
                 }
                 if (typeof options.onSelect === 'function') options.onSelect(color)
             })
-            .on('mouseup.w2color', function () {
-                setTimeout(function () {
+            .on('mouseup.w2color', () => {
+                setTimeout(() => {
                     if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide()
                 }, 10)
             })
         $('#w2ui-overlay .color-original')
             .off('.w2color')
-            .on('click.w2color', function (event) {
+            .on('click.w2color', (event) => {
                 // restore original color
                 let tmp = w2utils.parseColor($(event.target).css('background-color'))
                 if (tmp != null) {
@@ -3152,12 +3010,12 @@ w2utils.formatters = {
             })
         $('#w2ui-overlay input')
             .off('.w2color')
-            .on('mousedown.w2color', function (event) {
+            .on('mousedown.w2color', (event) => {
                 $('#w2ui-overlay').data('keepOpen', true)
-                setTimeout(function () { $('#w2ui-overlay').data('keepOpen', true) }, 10)
+                setTimeout(() => { $('#w2ui-overlay').data('keepOpen', true) }, 10)
                 event.stopPropagation()
             })
-            .on('change.w2color', function () {
+            .on('change.w2color', () => {
                 let $el = $(this)
                 let val = parseFloat($el.val())
                 let max = parseFloat($el.attr('max'))
@@ -3185,14 +3043,14 @@ w2utils.formatters = {
             })
         // advanced color events
         let initial
-        var hsv, rgb = w2utils.parseColor(options.color)
+        let hsv, rgb = w2utils.parseColor(options.color)
         if (rgb == null) {
             rgb = { r: 140, g: 150, b: 160, a: 1 }
             hsv = w2utils.rgb2hsv(rgb)
         }
         hsv = w2utils.rgb2hsv(rgb)
 
-        var setColor = function (color, silent) {
+        function setColor(color, silent) {
             if (color.h != null) hsv.h = color.h
             if (color.s != null) hsv.s = color.s
             if (color.v != null) hsv.v = color.v
@@ -3206,13 +3064,13 @@ w2utils.formatters = {
                 Number(rgb.b).toString(16).toUpperCase(),
                 (Math.round(Number(rgb.a)*255)).toString(16).toUpperCase()
             ]
-            cl.forEach(function (item, ind) { if (item.length === 1) cl[ind] = '0' + item })
+            cl.forEach((item, ind) => { if (item.length === 1) cl[ind] = '0' + item })
             newColor = cl[0] + cl[1] + cl[2] + cl[3]
             if (rgb.a === 1) {
                 newColor = cl[0] + cl[1] + cl[2]
             }
             $('#w2ui-overlay .color-preview').css('background-color', '#'+newColor)
-            $('#w2ui-overlay input').each(function (index, el) {
+            $('#w2ui-overlay input').each((index, el) => {
                 if (el.name) {
                     if (rgb[el.name] != null) el.value = rgb[el.name]
                     if (hsv[el.name] != null) el.value = hsv[el.name]
@@ -3232,7 +3090,7 @@ w2utils.formatters = {
                 $('#w2ui-overlay .color-original').css('background-color', '#'+newColor)
             }
         }
-        var updateSlides = function () {
+        function updateSlides() {
             let $el1 = $('#w2ui-overlay .palette .value1')
             let $el2 = $('#w2ui-overlay .rainbow .value2')
             let $el3 = $('#w2ui-overlay .alpha .value2')
@@ -3242,13 +3100,13 @@ w2utils.formatters = {
             $el2.css('left', hsv.h/(360/150) - offset2)
             $el3.css('left', rgb.a*150 - offset2)
         }
-        var refreshPalette = function() {
+        function refreshPalette() {
             let cl = w2utils.hsv2rgb(hsv.h, 100, 100)
             let rgb = cl.r + ',' + cl.g + ',' + cl.b
             $('#w2ui-overlay .palette').css('background-image',
                 'linear-gradient(90deg, rgba('+ rgb +',0) 0%, rgba(' + rgb + ',1) 100%)')
         }
-        let mouseDown = function (event) {
+        function mouseDown(event) {
             let $el = $(this).find('.value1, .value2')
             let offset = parseInt($el.width()) / 2
             if ($el.hasClass('move-x')) $el.css({ left: (event.offsetX - offset) + 'px' })
@@ -3267,10 +3125,10 @@ w2utils.formatters = {
                 .on(mMove, mouseMove)
                 .on(mUp, mouseUp)
         }
-        var mouseUp = function(event) {
+        function mouseUp(event) {
             $('body').off('.w2color')
         }
-        var mouseMove = function(event) {
+        function mouseMove (event) {
             let $el = initial.$el
             let divX = event.pageX - initial.x
             let divY = event.pageY - initial.y
@@ -3312,13 +3170,11 @@ w2utils.formatters = {
         updateSlides()
 
         // Events of iOS
-        let mDown = 'mousedown.w2color'
-        var mUp = 'mouseup.w2color'
-        var mMove = 'mousemove.w2color'
+        let mUp = 'mouseup.w2color'
+        let mMove = 'mousemove.w2color'
         if (w2utils.isIOS) {
-            mDown = 'touchstart.w2color'
             mUp = 'touchend.w2color'
-            mMove = 'touchmove.w2color  '
+            mMove = 'touchmove.w2color'
         }
         $('#w2ui-overlay .palette')
             .off('.w2color')
@@ -3331,7 +3187,7 @@ w2utils.formatters = {
             .on('mousedown.w2color', mouseDown)
 
         // keyboard navigation
-        el.nav = function (direction) {
+        el.nav = (direction) => {
             switch (direction) {
                 case 'up':
                     index[0]--
@@ -3357,7 +3213,7 @@ w2utils.formatters = {
         }
 
         function getColorHTML(options) {
-            let color = options.color, bor
+            let bor
             let html = '<div class="w2ui-colors" onmousedown="jQuery(this).parents(\'.w2ui-overlay\').data(\'keepOpen\', true)">'+
                         '<div class="w2ui-color-palette">'+
                         '<table cellspacing="5"><tbody>'
