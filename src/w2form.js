@@ -1,9 +1,6 @@
 /************************************************************************
-*   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
-*   - Following objects defined
-*        - w2form      - form widget
-*        - $().w2form  - jQuery wrapper
-*   - Dependencies: jQuery, w2utils, w2fields, w2tabs, w2toolbar
+*   Part of w2ui 2.0 library
+*   - Dependencies: jQuery, w2utils
 *
 * == TODO ==
 *   - include delta on save
@@ -48,6 +45,7 @@
 *   - updateEmptyGroups
 *   - tabs below some fields
 *   - tabindexBase
+*   == 2.0
 *
 ************************************************************************/
 

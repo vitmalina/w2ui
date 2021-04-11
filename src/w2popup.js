@@ -913,7 +913,7 @@ class w2dialog extends w2event {
 let w2popup = new w2dialog()
 window.w2popup = w2popup
 
-function w2alert (msg, title, callBack) {
+function w2alert(msg, title, callBack) {
     let $ = jQuery
     if (title == null) title = w2utils.lang('Notification')
     if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing') {

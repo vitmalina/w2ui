@@ -1,8 +1,5 @@
 /************************************************************************
-*   Library: Web 2.0 UI for jQuery (using prototypical inheritance)
-*   - Following objects defined
-*        - w2grid        - grid widget
-*        - $().w2grid    - jQuery wrapper
+*   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2fields
 *
 * == TODO ==
@@ -163,6 +160,7 @@
 *   - columnGroup.text can be a function
 *   - grid.tabIndex
 *   - onColumnAutoResize
+*   == 2.0
 *
 ************************************************************************/
 

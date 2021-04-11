@@ -13,6 +13,7 @@
 *   - onResize for layout as well as onResizing
 *   - panel.callBack - one time
 *   - layout.html().replaced(function () {})
+*   == 2.0
 *   - layout.content - deprecated
 *
 ************************************************************************/

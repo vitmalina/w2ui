@@ -1,16 +1,16 @@
-/************************************************
-*  Library: Web 2.0 UI for jQuery
-*  - Following objects are defines
+/************************************************************************
+*   Part of w2ui 2.0 library
+*   - Dependencies: jQuery, w2utils, w2field
 *        - w2ui             - object that will contain all widgets
 *        - w2utils          - basic utilities
 *        - $().w2render     - common render
+*        - $().w2field      - apply field
 *        - $().w2destroy    - common destroy
 *        - $().w2marker     - marker plugin
 *        - $().w2tag        - tag plugin
 *        - $().w2overlay    - overlay plugin
 *        - $().w2menu       - menu plugin
 *        - w2utils.event    - generic event object
-*  - Dependencies: jQuery
 *
 * == TODO ==
 *   - overlay should be displayed where more space (on top or on bottom)
@@ -43,9 +43,12 @@
 *   - w2menu.options.topHTML
 *   - w2menu.options.menuStyle
 *   - naturalCompare
+*   == 2.0
 *   - normMenu
 *
 ************************************************/
+
+import { w2field } from './w2field.js'
 
 let w2utils = (($) => {
     let tmp = {} // for some temp variables
@@ -1995,6 +1998,30 @@ w2utils.formatters = {
             if (typeof name === 'string' && w2ui[name]) w2ui[name].render($(this)[0])
             if (typeof name === 'object') name.render($(this)[0])
         }
+    }
+
+    $.fn.w2field = function (type, options) {
+        // if without arguments - return the object
+        if (arguments.length === 0) {
+            let obj = $(this).data('w2field')
+            return obj
+        }
+        return this.each(function (index, el) {
+            let obj = $(el).data('w2field')
+            // if object is not defined, define it
+            if (obj == null) {
+                obj = new w2field(type, options)
+                obj.render(this)
+                return obj
+            } else { // fully re-init
+                obj.clear()
+                if (type === 'clear') return
+                obj = new w2field(type, options)
+                obj.render(this)
+                return obj
+            }
+            return null
+        })
     }
 
     $.fn.w2destroy = function (name) {
