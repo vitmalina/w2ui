@@ -7,13 +7,15 @@ const cleanCSS  = require('gulp-clean-css')
 const uglify    = require('gulp-uglify')
 const concat    = require('gulp-concat')
 const rename    = require('gulp-rename')
+const babel     = require('gulp-babel')
+const replace   = require('gulp-replace')
 const comments  = {
     w2ui : '/* w2ui 2.0.x (nightly) (c) http://w2ui.com, vitmalina@gmail.com */\n'
 }
 
 let tasks = {
 
-    clean: function (cb) {
+    clean(cb) {
         // -f flag to ignore errors
         let commands = [
             'rm -f dist/w2ui.js',
@@ -36,7 +38,7 @@ let tasks = {
         })
     },
 
-    less: function (cb) {
+    less(cb) {
         return gulp
             .src(['src/less/*.less'])
             .on('error', function (err) {
@@ -52,17 +54,18 @@ let tasks = {
             .pipe(gulp.dest('dist/'))
     },
 
-    pack: function (cb) {
+    pack(cb) {
         return gulp
             .src([
-                'src/w2utils.js', // order of files is important
+                'src/w2event.js', // order of files is important
+                'src/w2utils.js',
                 'src/w2grid.js',
                 'src/w2layout.js',
                 'src/w2popup.js',
                 'src/w2tabs.js',
                 'src/w2toolbar.js',
                 'src/w2sidebar.js',
-                'src/w2fields.js',
+                'src/w2field.js',
                 'src/w2form.js',
                 'src/moduleCompat.js' // must be last
             ])
@@ -71,20 +74,28 @@ let tasks = {
             .pipe(gulp.dest('dist/'))
     },
 
-    build: function (cb) {
+    build(cb) {
         gulp.src([
-            'src/w2utils.js', // order of files is important
+            'src/w2event.js', // order of files is important
+            'src/w2utils.js',
             'src/w2grid.js',
             'src/w2layout.js',
             'src/w2popup.js',
             'src/w2tabs.js',
             'src/w2toolbar.js',
             'src/w2sidebar.js',
-            'src/w2fields.js',
+            'src/w2field.js',
             'src/w2form.js',
             'src/moduleCompat.js' // must be last
         ])
             .pipe(concat('w2ui.js'))
+            .pipe(replace("import { w2event } from './w2event.js'\n", ''))
+            .pipe(replace("import { w2utils } from './w2utils.js'\n", ''))
+            .pipe(replace("import { w2tabs } from './w2tabs.js'\n", ''))
+            .pipe(replace("import { w2toolbar } from './w2toolbar.js'\n", ''))
+            .pipe(replace("import { w2field } from './w2field.js'\n", ''))
+            .pipe(replace("\n\n", '\n'))
+            // .pipe(babel())
             .pipe(header(comments.w2ui))
             .pipe(gulp.dest('dist/'))
             .pipe(uglify({
@@ -99,7 +110,7 @@ let tasks = {
             })
     },
 
-    icons: function (cb) {
+    icons(cb) {
         let fs  = require('fs')
         let css = `@font-face {
     font-family: "w2ui-font";
@@ -182,7 +193,7 @@ let tasks = {
             })
     },
 
-    watch: function (cb) {
+    watch(cb) {
         gulp.watch(['src/**/*.js'], tasks.pack) // only packs dist/w2ui.js
         gulp.watch(['src/less/**/*.less'], tasks.less)
         gulp.watch(['src/less/icons/svg/*.svg'], tasks.icons)
