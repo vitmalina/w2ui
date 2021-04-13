@@ -967,7 +967,7 @@ let w2utils = (($) => {
                 div_new.style.cssText += 'overflow: hidden; transform: translate3d('+ width + 'px, 0, 0)'
                 $(div_new).show()
                 // -- need a timing function because otherwise not working
-                window.setTimeout(() => {
+                setTimeout(() => {
                     div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)'
                     div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d(-'+ width +'px, 0, 0)'
                 }, 1)
@@ -979,7 +979,7 @@ let w2utils = (($) => {
                 div_new.style.cssText += 'overflow: hidden; transform: translate3d(-'+ width +'px, 0, 0)'
                 $(div_new).show()
                 // -- need a timing function because otherwise not working
-                window.setTimeout(() => {
+                setTimeout(() => {
                     div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0px, 0, 0)'
                     div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d('+ width +'px, 0, 0)'
                 }, 1)
@@ -991,7 +991,7 @@ let w2utils = (($) => {
                 div_new.style.cssText += 'overflow: hidden; z-index: 0; transform: translate3d(0, 0, 0)'
                 $(div_new).show()
                 // -- need a timing function because otherwise not working
-                window.setTimeout(() => {
+                setTimeout(() => {
                     div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)'
                     div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, '+ height +'px, 0)'
                 }, 1)
@@ -1003,7 +1003,7 @@ let w2utils = (($) => {
                 div_new.style.cssText += 'overflow: hidden; transform: translate3d(0, '+ height +'px, 0)'
                 $(div_new).show()
                 // -- need a timing function because otherwise not working
-                window.setTimeout(() => {
+                setTimeout(() => {
                     div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)'
                     div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)'
                 }, 1)
@@ -1015,7 +1015,7 @@ let w2utils = (($) => {
                 div_new.style.cssText += 'overflow: hidden; transform: rotateY(-180deg)'
                 $(div_new).show()
                 // -- need a timing function because otherwise not working
-                window.setTimeout(() => {
+                setTimeout(() => {
                     div_new.style.cssText += 'transition: '+ time +'s; transform: rotateY(0deg)'
                     div_old.style.cssText += 'transition: '+ time +'s; transform: rotateY(180deg)'
                 }, 1)
@@ -1027,7 +1027,7 @@ let w2utils = (($) => {
                 div_new.style.cssText += 'overflow: hidden; transform: rotateY(180deg)'
                 $(div_new).show()
                 // -- need a timing function because otherwise not working
-                window.setTimeout(() => {
+                setTimeout(() => {
                     div_new.style.cssText += 'transition: '+ time +'s; transform: rotateY(0deg)'
                     div_old.style.cssText += 'transition: '+ time +'s; transform: rotateY(-180deg)'
                 }, 1)
@@ -1039,7 +1039,7 @@ let w2utils = (($) => {
                 div_new.style.cssText += 'overflow: hidden; transform: rotateX(180deg)'
                 $(div_new).show()
                 // -- need a timing function because otherwise not working
-                window.setTimeout(() => {
+                setTimeout(() => {
                     div_new.style.cssText += 'transition: '+ time +'s; transform: rotateX(0deg)'
                     div_old.style.cssText += 'transition: '+ time +'s; transform: rotateX(-180deg)'
                 }, 1)
@@ -1051,7 +1051,7 @@ let w2utils = (($) => {
                 div_new.style.cssText += 'overflow: hidden; transform: rotateX(-180deg)'
                 $(div_new).show()
                 // -- need a timing function because otherwise not working
-                window.setTimeout(() => {
+                setTimeout(() => {
                     div_new.style.cssText += 'transition: '+ time +'s; transform: rotateX(0deg)'
                     div_old.style.cssText += 'transition: '+ time +'s; transform: rotateX(180deg)'
                 }, 1)
@@ -1063,7 +1063,7 @@ let w2utils = (($) => {
                 div_new.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0); transform: scale(.8); opacity: 0;'
                 $(div_new).show()
                 // -- need a timing function because otherwise not working
-                window.setTimeout(() => {
+                setTimeout(() => {
                     div_new.style.cssText += 'transition: '+ time +'s; transform: scale(1); opacity: 1;'
                     div_old.style.cssText += 'transition: '+ time +'s;'
                 }, 1)
@@ -1075,7 +1075,7 @@ let w2utils = (($) => {
                 div_new.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0); opacity: 0;'
                 $(div_new).show()
                 // -- need a timing function because otherwise not working
-                window.setTimeout(() => {
+                setTimeout(() => {
                     div_new.style.cssText += 'transition: '+ time +'s; opacity: 1;'
                     div_old.style.cssText += 'transition: '+ time +'s; transform: scale(1.7); opacity: 0;'
                 }, 1)
@@ -1087,7 +1087,7 @@ let w2utils = (($) => {
                 div_new.style.cssText += 'overflow: hidden; translate3d(0, 0, 0); opacity: 0;'
                 $(div_new).show()
                 // -- need a timing function because otherwise not working
-                window.setTimeout(() => {
+                setTimeout(() => {
                     div_new.style.cssText += 'transition: '+ time +'s; opacity: 1;'
                     div_old.style.cssText += 'transition: '+ time +'s'
                 }, 1)
@@ -2293,12 +2293,12 @@ w2utils.formatters = {
             .data('options', options)
             .data('position', offset.left + 'x' + offset.top)
             .fadeIn('fast')
-            .on('click', function click(event) {
+            .on('click', function(event) {
                 $('#w2ui-overlay'+ name).data('keepOpen', true)
                 // if there is label for input, it will produce 2 click events
                 if (event.target.tagName.toUpperCase() === 'LABEL') event.stopPropagation()
             })
-            .on('mousedown', function mousedown(event) {
+            .on('mousedown', function(event) {
                 let tmp = event.target.tagName.toUpperCase()
                 if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(tmp) === -1 && !options.selectable) {
                     event.preventDefault()
@@ -2724,7 +2724,7 @@ w2utils.formatters = {
             setTimeout(() => {
                 $('#w2ui-overlay'+ name +' #menu-search')
                     .on('keyup', change)
-                    .on('keydown', function keydown(event) {
+                    .on('keydown', function(event) {
                         // cancel tab key
                         if (event.keyCode === 9) { event.stopPropagation(); event.preventDefault() }
                     })
@@ -3280,4 +3280,4 @@ w2utils.formatters = {
 })(jQuery)
 
 window.w2utils = w2utils
-export { w2utils, w2utils as default }
+export { w2utils }

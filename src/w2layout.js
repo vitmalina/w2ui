@@ -69,7 +69,7 @@ class w2layout extends w2event {
             onHide: null
         }
         // mix in options
-        Object.assign(this, options)
+        $.extend(true, this, options)
         if (!Array.isArray(this.panels)) this.panels = []
         // add defined panels
         this.panels.forEach((panel, ind) => {
@@ -848,7 +848,7 @@ class w2layout extends w2event {
                     'width': w + 'px',
                     'height': h + 'px',
                     'cursor': 'ns-resize'
-                }).off('mousedown').on('mousedown', function mousedown(event) {
+                }).off('mousedown').on('mousedown', function(event) {
                     // event before
                     let edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'top', originalEvent: event })
                     if (edata.isCancelled === true) return
@@ -892,7 +892,7 @@ class w2layout extends w2event {
                     'width': w + 'px',
                     'height': h + 'px',
                     'cursor': 'ew-resize'
-                }).off('mousedown').on('mousedown', function mousedown(event) {
+                }).off('mousedown').on('mousedown', function(event) {
                     // event before
                     let edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'left', originalEvent: event })
                     if (edata.isCancelled === true) return
@@ -934,7 +934,7 @@ class w2layout extends w2event {
                     'width': w + 'px',
                     'height': h + 'px',
                     'cursor': 'ew-resize'
-                }).off('mousedown').on('mousedown', function mousedown(event) {
+                }).off('mousedown').on('mousedown', function(event) {
                     // event before
                     let edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'right', originalEvent: event })
                     if (edata.isCancelled === true) return
@@ -975,7 +975,7 @@ class w2layout extends w2event {
                     'width': w + 'px',
                     'height': h + 'px',
                     'cursor': 'ns-resize'
-                }).off('mousedown').on('mousedown', function mousedown(event) {
+                }).off('mousedown').on('mousedown', function(event) {
                     // event before
                     let edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'bottom', originalEvent: event })
                     if (edata.isCancelled === true) return
@@ -1039,7 +1039,7 @@ class w2layout extends w2event {
                     'width': w + 'px',
                     'height': h + 'px',
                     'cursor': 'ns-resize'
-                }).off('mousedown').on('mousedown', function mousedown(event) {
+                }).off('mousedown').on('mousedown', function(event) {
                     // event before
                     let edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'preview', originalEvent: event })
                     if (edata.isCancelled === true) return
@@ -1130,4 +1130,4 @@ class w2layout extends w2event {
         w2utils.unlock(nm, speed)
     }
 }
-export { w2layout, w2layout as default }
+export { w2layout }

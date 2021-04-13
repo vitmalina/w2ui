@@ -55,7 +55,7 @@ class w2tabs extends w2event {
         let tabs = options.tabs
         delete options.tabs
         // mix in options
-        Object.assign(this, options)
+        $.extend(true, this, options)
         // add item via method to makes sure item_template is applied
         if (Array.isArray(tabs)) this.add(tabs)
     }
@@ -418,7 +418,7 @@ class w2tabs extends w2event {
 
         $('body')
             .off('.w2uiTabReorder')
-            .on('mousemove.w2uiTabReorder', function mouseover(event) {
+            .on('mousemove.w2uiTabReorder', function(event) {
                 if (!obj.tmp.reordering) {
                     // event before
                     edata = obj.trigger({ phase: 'before', type: 'reorder', target: obj.tabs[tabIndex].id, indexFrom: tabIndex, tab: obj.tabs[tabIndex] })
@@ -440,7 +440,7 @@ class w2tabs extends w2event {
                 $ghost.css('left', (obj.tmp.moving.left - obj.tmp.moving.parentX + obj.tmp.moving.divX) + 'px')
                 obj.dragMove(event)
             })
-            .on('mouseup.w2uiTabReorder', function mouseup() {
+            .on('mouseup.w2uiTabReorder', function() {
                 $('body').off('.w2uiTabReorder')
                 $ghost.css({
                     'transition': '0.1s',
@@ -598,4 +598,4 @@ class w2tabs extends w2event {
         this.resize()
     }
 }
-export { w2tabs, w2tabs as default }
+export { w2tabs }

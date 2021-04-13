@@ -96,7 +96,7 @@ class w2sidebar extends w2event {
         let nodes = options.nodes
         delete options.nodes
         // mix in options
-        Object.assign(this, options)
+        $.extend(true, this, options)
         // add item via method to makes sure item_template is applied
         if (Array.isArray(nodes)) this.add(nodes)
     }
@@ -821,21 +821,21 @@ class w2sidebar extends w2event {
         // focus
         let kbd_timer
         $(this.box).find('#sidebar_'+ this.name + '_focus')
-            .on('focus', function event(event) {
+            .on('focus', function(event) {
                 clearTimeout(kbd_timer)
                 if (!obj.hasFocus) obj.focus(event)
             })
-            .on('blur', function event(event) {
+            .on('blur', function(event) {
                 kbd_timer = setTimeout(() => {
                     if (obj.hasFocus) { obj.blur(event) }
                 }, 100)
             })
-            .on('keydown', function event(event) {
+            .on('keydown', function(event) {
                 if (event.keyCode != 9) { // not tab
                     w2ui[obj.name].keydown.call(w2ui[obj.name], event)
                 }
             })
-        $(this.box).off('mousedown').on('mousedown', function event(event) {
+        $(this.box).off('mousedown').on('mousedown', function(event) {
             // set focus to grid
             setTimeout(() => {
                 // if input then do not focus
@@ -1129,4 +1129,4 @@ class w2sidebar extends w2event {
         w2utils.unlock(this.box, speed)
     }
 }
-export { w2sidebar, w2sidebar as default }
+export { w2sidebar }

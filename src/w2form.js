@@ -106,7 +106,7 @@ class w2form extends w2event {
         this.msgRefresh = 'Loading...'
         this.msgSaving = 'Saving...'
         // mix in options
-        Object.assign(this, options)
+        $.extend(true, this, options)
 
         // When w2utils.settings.dataType is JSON, then we can convert the save request to multipart/form-data. So we can upload large files with the form
         // The original body is JSON.stringified to __body
@@ -482,7 +482,7 @@ class w2form extends w2event {
             // hide errors on scroll
             setTimeout(() => {
                 let err = errors[0]
-                $(err.field.$el).parents('.w2ui-page').off('.hideErrors').on('scroll.hideErrors', function event(event) {
+                $(err.field.$el).parents('.w2ui-page').off('.hideErrors').on('scroll.hideErrors', function(event) {
                     for (let i = 0; i < errors.length; i++) {
                         err = errors[i]
                         $(err.field.el).w2tag()
@@ -1268,7 +1268,7 @@ class w2form extends w2event {
             if (tmp) tmp.clear()
             $(field.$el)
                 .off('.w2form')
-                .on('change.w2form', function change(event) {
+                .on('change.w2form', function(event) {
                     let that = this
                     let field = obj.get(this.name)
                     if (field == null) return
@@ -1344,7 +1344,7 @@ class w2form extends w2event {
                     // event after
                     obj.trigger($.extend(edata2, { phase: 'after' }))
                 })
-                .on('input.w2form', function input(event) {
+                .on('input.w2form', function(event) {
                     let val = this.value
                     if (event.target.type == 'checkbox') {
                         val = event.target.checked
@@ -1401,7 +1401,7 @@ class w2form extends w2event {
         }
         // attach actions on buttons
         $(this.box).find('button, input[type=button]').each((index, el) => {
-            $(el).off('click').on('click', function click(event) {
+            $(el).off('click').on('click', function(event) {
                 let action = this.value
                 if (this.id) action = this.id
                 if (this.name) action = this.name
@@ -1564,7 +1564,7 @@ class w2form extends w2event {
                     }
                     // need closure
                     (function closure(obj, field) {
-                        field.el.mapAdd = function mapAdd(field, div, cnt) {
+                        field.el.mapAdd = function(field, div, cnt) {
                             let attr = (field.disabled ? ' readOnly ' : '') + (field.html.tabindex_str || '')
                             let html = '<div class="w2ui-map-field" style="margin-bottom: 5px">'+
                                 '<input id="'+ field.field +'_key_'+ cnt +'" data-cnt="'+ cnt +'" type="text" '+ field.html.key.attr + attr +' class="w2ui-input w2ui-map key">'+
@@ -1574,7 +1574,7 @@ class w2form extends w2event {
                                 '</div>'
                             div.append(html)
                         }
-                        field.el.mapRefresh = function mapRefresh(map, div) {
+                        field.el.mapRefresh = function(map, div) {
                             // generate options
                             let cnt = 1
                             let names
@@ -1629,14 +1629,14 @@ class w2form extends w2event {
                             // attach events
                             $(field.el).next().find('input.w2ui-map')
                                 .off('.mapChange')
-                                .on('keyup.mapChange', function map(event) {
+                                .on('keyup.mapChange', function(event) {
                                     let $div = $(event.target).parents('.w2ui-map-field')
                                     if (event.keyCode == 13) {
                                         $div.next().find('input.key').focus()
                                     }
 
                                 })
-                                .on('change.mapChange', function map() {
+                                .on('change.mapChange', function() {
                                     let $div = $(event.target).parents('.w2ui-map-field')
                                     let old = $div.attr('data-key')
                                     let key = $div.find('.key').val()
@@ -1760,7 +1760,7 @@ class w2form extends w2event {
         // init toolbar regardless it is defined or not
         if (typeof this.toolbar.render !== 'function') {
             this.toolbar = new w2toolbar($.extend({}, this.toolbar, { name: this.name +'_toolbar', owner: this }))
-            this.toolbar.on('click', function click(event) {
+            this.toolbar.on('click', function(event) {
                 let edata = obj.trigger({ phase: 'before', type: 'toolbar', target: event.target, originalEvent: event })
                 if (edata.isCancelled === true) return
                 // no default action
@@ -1773,7 +1773,7 @@ class w2form extends w2event {
         // init tabs regardless it is defined or not
         if (typeof this.tabs.render !== 'function') {
             this.tabs = new w2tabs($.extend({}, this.tabs, { name: this.name +'_tabs', owner: this, active: this.tabs.active }))
-            this.tabs.on('click', function click(event) {
+            this.tabs.on('click', function(event) {
                 obj.goto(this.get(event.target, true))
             })
         }
@@ -1849,4 +1849,4 @@ class w2form extends w2event {
         $(window).off('resize', 'body')
     }
 }
-export { w2form as default, w2form }
+export { w2form }

@@ -290,7 +290,7 @@ class w2dialog extends w2event {
                 mvMove   : mvMove,
                 mvStop   : mvStop
             }
-            $('#w2ui-popup .w2ui-popup-title').on('mousedown', function mousedown(event) {
+            $('#w2ui-popup .w2ui-popup-title').on('mousedown', function(event) {
                 if (!w2popup.get().maximized) mvStart(event)
             })
 
@@ -727,7 +727,7 @@ class w2dialog extends w2event {
         }
         // keep focus/blur inside popup
         $(tmp).find(sel)
-            .on('blur.keep-focus', function blur(event) {
+            .on('blur.keep-focus', function(event) {
                 setTimeout(() => {
                     let focus = $(':focus')
                     if ((focus.length > 0 && !$(tmp).find(sel).is(focus)) || focus.hasClass('w2ui-popup-hidden')) {
@@ -768,24 +768,24 @@ class w2dialog extends w2event {
         // add events
         if (options.modal == true) {
             $('#w2ui-lock')
-                .on('mousedown', function mousedown() {
+                .on('mousedown', function() {
                     $('#w2ui-lock')
                         .css('opacity', '0.6')
                         .css(w2utils.cssPrefix('transition', '.1s'))
                 })
-                .on('mouseup', function mouseup() {
+                .on('mouseup', function() {
                     setTimeout(() => {
                         $('#w2ui-lock')
                             .css('opacity', options.opacity)
                             .css(w2utils.cssPrefix('transition', '.1s'))
                     }, 100)
                 })
-                .on('mousewheel', function mousewheel(event) {
+                .on('mousewheel', function(event) {
                     if (event.stopPropagation) { event.stopPropagation() } else { event.cancelBubble = true }
                     if (event.preventDefault) { event.preventDefault() } else { return false }
                 })
         } else {
-            $('#w2ui-lock').on('mousedown', function mousedown() { w2popup.close() })
+            $('#w2ui-lock').on('mousedown', function() { w2popup.close() })
         }
         return true
     }
@@ -1038,7 +1038,7 @@ function w2confirm(msg, title, callBack) {
                   '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">' + w2utils.lang(options.no_text) + '</button>'
             ),
             onOpen(event) {
-                $('#w2ui-popup .w2ui-message .w2ui-btn').on('click.w2confirm', function click(event) {
+                $('#w2ui-popup .w2ui-message .w2ui-btn').on('click.w2confirm', function(event) {
                     w2popup._confirm_btn = event.target.id
                     w2popup.message()
                 })
@@ -1077,7 +1077,7 @@ function w2confirm(msg, title, callBack) {
             onOpen(event) {
                 // do not use onComplete as it is slower
                 setTimeout(() => {
-                    $('#w2ui-popup .w2ui-popup-btn').on('click', function click(event) {
+                    $('#w2ui-popup .w2ui-popup-btn').on('click', function(event) {
                         w2popup.close()
                         if (typeof options.callBack == 'function') options.callBack(event.target.id)
                         if (event.target.id == 'Yes' && typeof options.yes_callBack == 'function') options.yes_callBack()
@@ -1185,17 +1185,17 @@ function w2prompt(label, title, callBack) {
                   '<button id="Cancel" class="w2ui-popup-btn w2ui-btn '+ options.cancel_class +'">' + options.cancel_text + '</button>'
             ),
             onOpen() {
-                $('#w2prompt').val(options.value).off('.w2prompt').on('keydown.w2prompt', function keydown(event) {
+                $('#w2prompt').val(options.value).off('.w2prompt').on('keydown.w2prompt', function(event) {
                     if (event.keyCode == 13) {
                         $('#w2ui-popup .w2ui-message .w2ui-btn#Ok').click()
                     }
                 })
-                $('#w2ui-popup .w2ui-message .w2ui-btn#Ok').off('.w2prompt').on('click.w2prompt', function click(event) {
+                $('#w2ui-popup .w2ui-message .w2ui-btn#Ok').off('.w2prompt').on('click.w2prompt', function(event) {
                     w2popup.tmp.btn = 'ok'
                     w2popup.tmp.value = $('#w2prompt').val()
                     w2popup.message()
                 })
-                $('#w2ui-popup .w2ui-message .w2ui-btn#Cancel').off('.w2prompt').on('click.w2prompt', function click(event) {
+                $('#w2ui-popup .w2ui-message .w2ui-btn#Cancel').off('.w2prompt').on('click.w2prompt', function(event) {
                     w2popup.tmp.btn = 'cancel'
                     w2popup.tmp.value = null
                     w2popup.message()
@@ -1248,12 +1248,12 @@ function w2prompt(label, title, callBack) {
                 setTimeout(() => {
                     $('#w2prompt').val(options.value)
                     $('#w2prompt').w2field('text')
-                    $('#w2ui-popup .w2ui-popup-btn#Ok').on('click', function click(event) {
+                    $('#w2ui-popup .w2ui-popup-btn#Ok').on('click', function(event) {
                         w2popup.tmp.btn = 'ok'
                         w2popup.tmp.value = $('#w2prompt').val()
                         w2popup.close()
                     })
-                    $('#w2ui-popup .w2ui-popup-btn#Cancel').on('click', function click(event) {
+                    $('#w2ui-popup .w2ui-popup-btn#Cancel').on('click', function(event) {
                         w2popup.tmp.btn = 'cancel'
                         w2popup.tmp.value = null
                         w2popup.close()
@@ -1312,4 +1312,4 @@ function w2prompt(label, title, callBack) {
         }
     }
 }
-export { w2dialog, w2popup, w2alert, w2confirm, w2prompt, w2popup as default }
+export { w2dialog, w2popup, w2alert, w2confirm, w2prompt }

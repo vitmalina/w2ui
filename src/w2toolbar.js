@@ -70,7 +70,7 @@ class w2toolbar extends w2event {
         let items = options.items
         delete options.items
         // mix in options
-        Object.assign(this, options)
+        $.extend(true, this, options)
         // add item via method to makes sure item_template is applied
         if (Array.isArray(items)) this.add(items)
     }
@@ -238,7 +238,7 @@ class w2toolbar extends w2event {
         let effected = []
         Array.from(arguments).forEach(item => {
             let it = this.get(item)
-            if (!it || String(arguments[a]).indexOf(':') != -1) return
+            if (!it || String(item).indexOf(':') != -1) return
             it.checked = true
             effected.push(String(item).split(':')[0])
         })
@@ -250,7 +250,7 @@ class w2toolbar extends w2event {
         let effected = []
         Array.from(arguments).forEach(item => {
             let it = this.get(item)
-            if (!it || String(arguments[a]).indexOf(':') != -1) return
+            if (!it || String(item).indexOf(':') != -1) return
             // remove overlay
             if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1 && it.checked) {
                 // hide overlay
@@ -828,4 +828,4 @@ class w2toolbar extends w2event {
         }
     }
 }
-export { w2toolbar, w2toolbar as default }
+export { w2toolbar }

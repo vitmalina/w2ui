@@ -48,7 +48,7 @@ function removeType(type) {
 import { addType, removeType } from '.w2field.js'
 
 addType('myType', (options) => {
-    $(this.el).on('keypress', function keypress(event) {
+    $(this.el).on('keypress', function(event) {
         if (event.metaKey || event.ctrlKey || event.altKey
             || (event.charCode != event.keyCode && event.keyCode > 0)) return;
         let ch = String.fromCharCode(event.charCode);
@@ -57,7 +57,7 @@ addType('myType', (options) => {
             return false;
         }
     });
-    $(this.el).on('blur', function blur(event)  { // keyCode & charCode differ in FireFox
+    $(this.el).on('blur', function(event)  { // keyCode & charCode differ in FireFox
         let ch = this.value;
         if (ch != 'a' && ch != 'b' && ch != 'c') {
             $(this).w2tag(w2utils.lang("Not a single character from the set of 'abc'"));
@@ -643,7 +643,7 @@ class w2field extends w2event {
                 div.prepend('<div class="w2ui-enum-placeholder" style="'+ style +'">'+ $(obj.el).attr('placeholder') +'</div>')
             }
             // ITEMS events
-            div.off('scroll.w2field').on('scroll.w2field', function scroll(event) {
+            div.off('scroll.w2field').on('scroll.w2field', function(event) {
                 let edata = obj.trigger({ phase: 'before', type: 'scroll', target: obj.el, originalEvent: event })
                 if (edata.isCancelled === true) return
                 // event after
@@ -651,7 +651,7 @@ class w2field extends w2event {
             })
                 .find('li')
                 .data('mouse', 'out')
-                .on('click', function click(event) {
+                .on('click', function(event) {
                     let target = (event.target.tagName.toUpperCase() === 'LI' ? event.target : $(event.target).parents('LI'))
                     let item = selected[$(target).attr('index')]
                     if ($(target).hasClass('nomouse')) return
@@ -709,7 +709,7 @@ class w2field extends w2event {
                         obj.trigger($.extend(edata, { phase: 'after' }))
                     }
                 })
-                .on('mouseover', function mouseover(event) {
+                .on('mouseover', function(event) {
                     let target = (event.target.tagName.toUpperCase() === 'LI' ? event.target : $(event.target).parents('LI'))
                     if ($(target).hasClass('nomouse')) return
                     if ($(target).data('mouse') === 'out') {
@@ -722,7 +722,7 @@ class w2field extends w2event {
                     }
                     $(target).data('mouse', 'over')
                 })
-                .on('mouseout', function mouseout(event) {
+                .on('mouseout', function(event) {
                     let target = (event.target.tagName.toUpperCase() === 'LI' ? event.target : $(event.target).parents('LI'))
                     if ($(target).hasClass('nomouse')) return
                     $(target).data('mouse', 'leaving')
@@ -953,9 +953,9 @@ class w2field extends w2event {
                 if ($overlay.data('keepOpen') !== true) $overlay.hide()
             }, 0)
 
-            $('.menu', $overlay).one('focus', function focus() {
+            $('.menu', $overlay).one('focus', function() {
                 clearTimeout(closeTimeout)
-                $(this).one('focusout', function focusout(event) {
+                $(this).one('focusout', function(event) {
                     $overlay.hide()
                 })
             })
@@ -1627,7 +1627,7 @@ class w2field extends w2event {
                     onShow(event) {
                         // this needed for IE 11 compatibility
                         if (w2utils.isIE) {
-                            $('.w2ui-calendar').on('mousedown', function mousedown(event) {
+                            $('.w2ui-calendar').on('mousedown', function(event) {
                                 let $tg = $(event.target)
                                 if ($tg.length === 1 && $tg[0].id === 'w2ui-jump-year') {
                                     $('#w2ui-overlay').data('keepOpen', true)
@@ -1647,7 +1647,7 @@ class w2field extends w2event {
                 }
                 $('#w2ui-overlay > div > div').html(obj.getMonthHTML(month, year, $(obj.el).val()))
                 $('#w2ui-overlay .w2ui-calendar-title')
-                    .on('mousedown', function mousedown() {
+                    .on('mousedown', function() {
                         if ($(this).next().hasClass('w2ui-calendar-jump')) {
                             $(this).next().remove()
                         } else {
@@ -1657,7 +1657,7 @@ class w2field extends w2event {
                             setTimeout(() => {
                                 $('#w2ui-overlay .w2ui-calendar-jump')
                                     .find('.w2ui-jump-month, .w2ui-jump-year')
-                                    .on('dblclick', function dblclick() {
+                                    .on('dblclick', function() {
                                         if ($(this).hasClass('w2ui-jump-month')) {
                                             $(this).parent().find('.w2ui-jump-month').removeClass('selected')
                                             $(this).addClass('selected')
@@ -1673,7 +1673,7 @@ class w2field extends w2event {
                                         $('#w2ui-overlay .w2ui-calendar-jump').fadeOut(100)
                                         setTimeout(() => { refreshCalendar(parseInt(selMonth)+1, selYear) }, 100)
                                     })
-                                    .on('click', function click() {
+                                    .on('click', function() {
                                         if ($(this).hasClass('w2ui-jump-month')) {
                                             $(this).parent().find('.w2ui-jump-month').removeClass('selected')
                                             $(this).addClass('selected')
@@ -1694,22 +1694,22 @@ class w2field extends w2event {
                         }
                     })
                 $('#w2ui-overlay .w2ui-date')
-                    .on('mousedown', function mousedown() {
+                    .on('mousedown', function() {
                         let day = $(this).attr('date')
                         $(obj.el).val(day).trigger('input').change()
                         $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' })
                     })
-                    .on('mouseup', function mouseup() {
+                    .on('mouseup', function() {
                         setTimeout(() => {
                             if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide()
                         }, 10)
                     })
-                $('#w2ui-overlay .previous').on('mousedown', function mousedown() {
+                $('#w2ui-overlay .previous').on('mousedown', function() {
                     let tmp = obj.options.current.split('/')
                     tmp[0] = parseInt(tmp[0]) - 1
                     refreshCalendar(tmp[0], tmp[1])
                 })
-                $('#w2ui-overlay .next').on('mousedown', function mousedown() {
+                $('#w2ui-overlay .next').on('mousedown', function() {
                     let tmp = obj.options.current.split('/')
                     tmp[0] = parseInt(tmp[0]) + 1
                     refreshCalendar(tmp[0], tmp[1])
@@ -1727,31 +1727,31 @@ class w2field extends w2event {
             let h24 = (this.options.format === 'h24')
             $('#w2ui-overlay > div').html(obj.getHourHTML())
             $('#w2ui-overlay .w2ui-time')
-                .on('mousedown', function mousedown(event) {
+                .on('mousedown', function(event) {
                     $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' })
                     let hour = $(this).attr('hour')
                     $(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).trigger('input').change()
                 })
             if (this.options.noMinutes == null || this.options.noMinutes === false) {
                 $('#w2ui-overlay .w2ui-time')
-                    .on('mouseup', function mouseup() {
+                    .on('mouseup', function() {
                         let hour = $(this).attr('hour')
                         if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay')[0].hide()
                         $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time"></div>', { css: { 'background-color': '#fff' } })
                         $('#w2ui-overlay > div').html(obj.getMinHTML(hour))
                         $('#w2ui-overlay .w2ui-time')
-                            .on('mousedown', function mousedown() {
+                            .on('mousedown', function() {
                                 $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' })
                                 let min = $(this).attr('min')
                                 $(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).trigger('input').change()
                             })
-                            .on('mouseup', function mouseup() {
+                            .on('mouseup', function() {
                                 setTimeout(() => { if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide() }, 10)
                             })
                     })
             } else {
                 $('#w2ui-overlay .w2ui-time')
-                    .on('mouseup', function mouseup() {
+                    .on('mouseup', function() {
                         setTimeout(() => { if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide() }, 10)
                     })
             }
@@ -1767,7 +1767,7 @@ class w2field extends w2event {
                     onShow(event) {
                         // this needed for IE 11 compatibility
                         if (w2utils.isIE) {
-                            $('.w2ui-calendar').on('mousedown', function mousedown(event) {
+                            $('.w2ui-calendar').on('mousedown', function(event) {
                                 let $tg = $(event.target)
                                 if ($tg.length === 1 && $tg[0].id === 'w2ui-jump-year') {
                                     $('#w2ui-overlay').data('keepOpen', true)
@@ -1786,7 +1786,7 @@ class w2field extends w2event {
                     + (options.btn_now ? '<div class="w2ui-calendar-now now">'+ w2utils.lang('Current Date & Time') + '</div>' : '')
                 )
                 $('#w2ui-overlay .w2ui-calendar-title')
-                    .on('mousedown', function mousedown() {
+                    .on('mousedown', function() {
                         if ($(this).next().hasClass('w2ui-calendar-jump')) {
                             $(this).next().remove()
                         } else {
@@ -1796,7 +1796,7 @@ class w2field extends w2event {
                             setTimeout(() => {
                                 $('#w2ui-overlay .w2ui-calendar-jump')
                                     .find('.w2ui-jump-month, .w2ui-jump-year')
-                                    .on('click', function click() {
+                                    .on('click', function() {
                                         if ($(this).hasClass('w2ui-jump-month')) {
                                             $(this).parent().find('.w2ui-jump-month').removeClass('selected')
                                             $(this).addClass('selected')
@@ -1817,13 +1817,13 @@ class w2field extends w2event {
                         }
                     })
                 $('#w2ui-overlay .w2ui-date')
-                    .on('mousedown', function mousedown() {
+                    .on('mousedown', function() {
                         let day = $(this).attr('date')
                         $(obj.el).val(day).trigger('input').change()
                         $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' })
                         selDate = new Date($(this).attr('data-date'))
                     })
-                    .on('mouseup', function mouseup() {
+                    .on('mouseup', function() {
                         // continue with time picker
                         let selHour, selMin
                         if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay')[0].hide()
@@ -1831,7 +1831,7 @@ class w2field extends w2event {
                         // let h24 = (obj.options.format === 'h24')
                         $('#w2ui-overlay > div').html(obj.getHourHTML())
                         $('#w2ui-overlay .w2ui-time')
-                            .on('mousedown', function mousedown(event) {
+                            .on('mousedown', function(event) {
                                 $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' })
                                 selHour = $(this).attr('hour')
                                 selDate.setHours(selHour)
@@ -1841,13 +1841,13 @@ class w2field extends w2event {
                             })
                         if (obj.options.noMinutes == null || obj.options.noMinutes === false) {
                             $('#w2ui-overlay .w2ui-time')
-                                .on('mouseup', function mouseup() {
+                                .on('mouseup', function() {
                                     let hour = $(this).attr('hour')
                                     if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay')[0].hide()
                                     $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time"></div>', { css: { 'background-color': '#fff' } })
                                     $('#w2ui-overlay > div').html(obj.getMinHTML(hour))
                                     $('#w2ui-overlay .w2ui-time')
-                                        .on('mousedown', function mousedown() {
+                                        .on('mousedown', function() {
                                             $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' })
                                             selMin = $(this).attr('min')
                                             selDate.setHours(selHour, selMin)
@@ -1855,36 +1855,36 @@ class w2field extends w2event {
                                             $(obj.el).val(txt).trigger('input').change()
                                             //$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).trigger('input').change();
                                         })
-                                        .on('mouseup', function mouseup() {
+                                        .on('mouseup', function() {
                                             setTimeout(() => { if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide() }, 10)
                                         })
                                 })
                         } else {
                             $('#w2ui-overlay .w2ui-time')
-                                .on('mouseup', function mouseup() {
+                                .on('mouseup', function() {
                                     setTimeout(() => { if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide() }, 10)
                                 })
                         }
                     })
-                $('#w2ui-overlay .previous').on('mousedown', function mousedown() {
+                $('#w2ui-overlay .previous').on('mousedown', function() {
                     let tmp = obj.options.current.split('/')
                     tmp[0] = parseInt(tmp[0]) - 1
                     refreshCalendar(tmp[0], tmp[1])
                 })
-                $('#w2ui-overlay .next').on('mousedown', function mousedown() {
+                $('#w2ui-overlay .next').on('mousedown', function() {
                     let tmp = obj.options.current.split('/')
                     tmp[0] = parseInt(tmp[0]) + 1
                     refreshCalendar(tmp[0], tmp[1])
                 })
                 // "now" button
                 $('#w2ui-overlay .now')
-                    .on('mousedown', function mousedown() {
+                    .on('mousedown', function() {
                         // this currently ignores blocked days or start / end dates!
                         let tmp = w2utils.formatDateTime(new Date(), obj.options.format)
                         $(obj.el).val(tmp).trigger('input').change()
                         return false
                     })
-                    .on('mouseup', function mouseup() {
+                    .on('mouseup', function() {
                         setTimeout(() => {
                             if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide()
                         }, 10)
@@ -2167,7 +2167,7 @@ class w2field extends w2event {
                         'margin-left'    : $(obj.el).css('margin-left'),
                         'margin-right'   : 0
                     })
-                    .on('click', function click(event) {
+                    .on('click', function(event) {
                         if (obj.options.icon && typeof obj.onIconClick === 'function') {
                             // event before
                             let edata = obj.trigger({ phase: 'before', type: 'iconClick', target: obj.el, el: $(this).find('span.w2ui-icon')[0] })
@@ -2227,7 +2227,7 @@ class w2field extends w2event {
                     'border-left'   : '1px solid silver'
                 })
                     .css('margin-left', '-'+ (helper.width() + parseInt($(obj.el).css('margin-right'), 10) + 12) + 'px')
-                    .on('mousedown', function mousedown(event) {
+                    .on('mousedown', function(event) {
                         let body = $('body')
                         body.on('mouseup', tmp)
                         body.data('_field_update_timer', setTimeout(update, 700))
@@ -2272,7 +2272,7 @@ class w2field extends w2event {
                         'margin-top'     : (parseInt($(obj.el).css('margin-top'), 10) + 2) + 'px',
                         'margin-bottom'  : (parseInt($(obj.el).css('margin-bottom'), 10) + 1) + 'px'
                     })
-                    .on('click', function click(event) {
+                    .on('click', function(event) {
                         if (obj.type === 'list') {
                             $(obj.helpers.focus).find('input').focus()
                         } else {
@@ -2337,18 +2337,18 @@ class w2field extends w2event {
             })
         // INPUT events
         helper.find('input')
-            .on('click', function click(event) {
+            .on('click', function(event) {
                 if ($('#w2ui-overlay').length === 0) obj.focus(event)
                 event.stopPropagation()
             })
-            .on('focus', function focus(event) {
+            .on('focus', function(event) {
                 pholder = $(obj.el).attr('placeholder')
                 $(obj.el).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '2px' })
                 $(this).val('')
                 $(obj.el).triggerHandler('focus')
                 if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true
             })
-            .on('blur', function blur(event) {
+            .on('blur', function(event) {
                 $(obj.el).css('outline', 'none')
                 $(this).val('')
                 obj.refresh()
@@ -2356,17 +2356,17 @@ class w2field extends w2event {
                 if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true
                 if (pholder != null) $(obj.el).attr('placeholder', pholder)
             })
-            .on('keydown', function keydown(event) {
+            .on('keydown', function(event) {
                 let el = this
                 obj.keyDown(event)
                 setTimeout(() => {
                     if (el.value === '') $(obj.el).attr('placeholder', pholder); else $(obj.el).attr('placeholder', '')
                 }, 10)
             })
-            .on('keyup', function keyup(event) { obj.keyUp(event) })
-            .on('keypress', function keypress(event) { obj.keyPress(event) })
+            .on('keyup', function(event) { obj.keyUp(event) })
+            .on('keypress', function(event) { obj.keyPress(event) })
         // MAIN div
-        helper.on('click', function click(event) { $(this).find('input').focus() })
+        helper.on('click', function(event) { $(this).find('input').focus() })
         obj.refresh()
     }
 
@@ -2437,44 +2437,44 @@ class w2field extends w2event {
             $(obj.el).attr('tabindex', -1)
             // INPUT events
             div.find('input')
-                .on('click', function click(event) {
+                .on('click', function(event) {
                     if ($('#w2ui-overlay').length === 0) obj.focus(event)
                     $(obj.el).triggerHandler('click')
                 })
-                .on('focus', function focus(event) {
+                .on('focus', function(event) {
                     $(div).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '2px' })
                     $(obj.el).triggerHandler('focus')
                     if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true
                 })
-                .on('blur', function blur(event) {
+                .on('blur', function(event) {
                     $(div).css('outline', 'none')
                     $(obj.el).triggerHandler('blur')
                     if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true
                 })
-                .on('keyup', function keyup(event) { obj.keyUp(event) })
-                .on('keydown', function keydown(event) { obj.keyDown(event) })
-                .on('keypress', function keypress(event) { obj.keyPress(event) })
+                .on('keyup', function(event) { obj.keyUp(event) })
+                .on('keydown', function(event) { obj.keyDown(event) })
+                .on('keypress', function(event) { obj.keyPress(event) })
             // MAIN div
-            div.on('click', function click(event) { $(this).find('input').focus() })
+            div.on('click', function(event) { $(this).find('input').focus() })
         }
         if (obj.type === 'file') {
             $(obj.el).css('outline', 'none')
             div.find('input')
                 .off('.drag')
-                .on('click.drag', function drag(event) {
+                .on('click.drag', function(event) {
                     event.stopPropagation()
                     if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return
                     $(obj.el).focus()
                 })
-                .on('dragenter.drag', function drag(event) {
+                .on('dragenter.drag', function(event) {
                     if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return
                     $(div).addClass('w2ui-file-dragover')
                 })
-                .on('dragleave.drag', function drag(event) {
+                .on('dragleave.drag', function(event) {
                     if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return
                     $(div).removeClass('w2ui-file-dragover')
                 })
-                .on('drop.drag', function drag(event) {
+                .on('drop.drag', function(event) {
                     if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return
                     $(div).removeClass('w2ui-file-dragover')
                     let files = event.originalEvent.dataTransfer.files
@@ -2484,12 +2484,12 @@ class w2field extends w2event {
                     event.preventDefault()
                     event.stopPropagation()
                 })
-                .on('dragover.drag', function drag(event) {
+                .on('dragover.drag', function(event) {
                     // cancel to stop browser behaviour
                     event.preventDefault()
                     event.stopPropagation()
                 })
-                .on('change.drag', function drag() {
+                .on('change.drag', function() {
                     $(obj.el).focus()
                     if (typeof this.files !== 'undefined') {
                         for (let i = 0, l = this.files.length; i < l; i++) {
@@ -2796,4 +2796,4 @@ class w2field extends w2event {
     }
 }
 
-export { w2field as default, w2field, addType, removeType }
+export { w2field, addType, removeType }
