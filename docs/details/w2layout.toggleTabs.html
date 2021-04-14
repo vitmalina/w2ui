@@ -24,25 +24,25 @@ The first and only argument <span class="argument">type</span> is the name of th
     <li>preview
     <li>bottom
 </ul>
-            
+
 If you have a layout defined as:
 <textarea class="javascript">
 $('#layout').w2layout({
     name    : 'layout',
     panels  : [
         { type: 'top', size: 40 },
-        { type: 'main', content: 'This is main panel', 
+        { type: 'main', content: 'This is main panel',
             tabs: {
                 active: 'tab2',
                 tabs: [
-                    { id: 'tab1', caption: 'Tab 1' },
-                    { id: 'tab2', caption: 'Tab 2' },
-                    { id: 'tab3', caption: 'Tab 3' }
+                    { id: 'tab1', text: 'Tab 1' },
+                    { id: 'tab2', text: 'Tab 2' },
+                    { id: 'tab3', text: 'Tab 3' }
                 ],
                 onClick: function (event) {
                     console.log('event');
                 }
-            } 
+            }
         },
         { type: 'preview', size: 200 }
     ]

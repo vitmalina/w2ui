@@ -17,8 +17,8 @@ Returns integer.
 
 <h4>Description</h4>
 
-Makes a column or columns shown in the <a class="property" href="w2grid.columns">.columns</a> array. The column is identified by the 
-<span class="argument">.field</span> property, which is a required property for each column object. The method returns the number of columns it 
+Makes a column or columns shown in the <a class="property" href="w2grid.columns">.columns</a> array. The column is identified by the
+<span class="argument">.field</span> property, which is a required property for each column object. The method returns the number of columns it
 shows that were previously hidden.
 <div style="height: 10px"></div>
 
@@ -26,12 +26,12 @@ If you have following grid:
 <textarea class="javascript">
 $('#grid').w2grid({
     name    : 'grid',
-    columns: [                
-        { field: 'recid', caption: 'ID', size: '50px', hidden: true },
-        { field: 'lname', caption: 'Last Name', size: '30%' },
-        { field: 'fname', caption: 'First Name', size: '30%', hidden: true },
-        { field: 'email', caption: 'Email', size: '40%' },
-        { field: 'sdate', caption: 'End Date', size: '120px' }
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px', hidden: true },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%', hidden: true },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
     ],
     records: [
         { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },

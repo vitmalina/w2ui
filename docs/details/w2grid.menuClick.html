@@ -24,8 +24,8 @@ Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
-The first argument <span class="argument">recid</span> is the id of the record that was clicked. The third argument 
-<span class="argument">event</span> is DOM event object. This method emits 
+The first argument <span class="argument">recid</span> is the id of the record that was clicked. The third argument
+<span class="argument">event</span> is DOM event object. This method emits
 <a class="method" href="w2grid.onMenuClick">.onMenuClick</a> event.
 <div style="height: 10px"></div>
 
@@ -33,17 +33,17 @@ If you have grid defined in the following way:
 <textarea class="javascript">
 $('#grid').w2grid({
     name: 'grid2',
-    columns: [                
-        { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'lname', caption: 'Last Name', size: '30%' },
-        { field: 'fname', caption: 'First Name', size: '30%' },
-        { field: 'email', caption: 'Email', size: '40%' },
-        { field: 'sdate', caption: 'Start Date', size: '120px' },
-        { field: 'sdate', caption: 'End Date', size: '120px' }
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
     ],
     menu: [
         { id: 1, text: 'Select Item', icon: 'fa fa-star' },
-        { id: 2, text: 'View Item', icon: 'fa fa-camera' }, 
+        { id: 2, text: 'View Item', icon: 'fa fa-camera' },
         { id: 4, text: 'Delete Item', icon: 'fa fa-minus' }
     ],
     records: [

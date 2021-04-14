@@ -5,7 +5,7 @@ Toolbar for the form.
 </div>
 
 You can add a toolbar to the form by defining the <span class="method">.toolbar</span> property. The toolbar will be created on
-form initialization by creating w2toolbar object. After the form has been initialized, the <span class="method">.toolbar</span> 
+form initialization by creating w2toolbar object. After the form has been initialized, the <span class="method">.toolbar</span>
 property becomes instantiated w2toolbar object.
 <div style="height: 10px"></div>
 
@@ -15,14 +15,14 @@ $('#form').w2form({
     name: 'form2',
     toolbar: {
         items: [
-            { id: 'tb1', type: 'button', caption: 'Button 1', img: 'icon-page' },
-            { id: 'tb2', type: 'button', caption: 'Button 2', img: 'icon-page' },
-            { id: 'tb3', type: 'button', caption: 'Button 3', img: 'icon-page' }
+            { id: 'tb1', type: 'button', text: 'Button 1', img: 'icon-page' },
+            { id: 'tb2', type: 'button', text: 'Button 2', img: 'icon-page' },
+            { id: 'tb3', type: 'button', text: 'Button 3', img: 'icon-page' }
         ]
     },
     tabs: [
-        { id: 'tab1', caption: 'Tab 1' },
-        { id: 'tab2', caption: 'Tab 2' }
+        { id: 'tab1', text: 'Tab 1' },
+        { id: 'tab2', text: 'Tab 2' }
     ],
     fields: [
         { name: 'first_name', type: 'text', required: true },
@@ -30,7 +30,7 @@ $('#form').w2form({
         { name: 'email', type: 'email' },
         { name: 'extra_field', type: 'date' }
     ],
-    record: { 
+    record: {
         first_name    : 'John',
         last_name     : 'Doe',
         email         : 'jdoe@email.com',

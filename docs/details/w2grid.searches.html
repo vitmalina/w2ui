@@ -1,34 +1,34 @@
-Array of search objects. 
+Array of search objects.
 
 <div class="definition">
     Array, default = []
 </div>
 
-The <span class="argument">.searches</span> property can be initialized during the object creation or any time 
-during the run-time. There is no need to refresh the grid because this array will be used when user executes a search. 
+The <span class="argument">.searches</span> property can be initialized during the object creation or any time
+during the run-time. There is no need to refresh the grid because this array will be used when user executes a search.
 <div style="height: 10px"></div>
 
-Searches can be defined during object creation: 
+Searches can be defined during object creation:
 <textarea class="javascript">
 $('#grid').w2grid({
     name : 'grid',
     show : { toolbar : true },
-    columns : [                
-        { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'lname', caption: 'Last Name', size: '30%' },
-        { field: 'fname', caption: 'First Name', size: '30%' },
-        { field: 'email', caption: 'Email', size: '40%' },
-        { field: 'sdate', caption: 'Start Date', size: '120px' },
-        { field: 'sdate', caption: 'End Date', size: '120px' }
+    columns : [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
     ],
     searches : [
-        { field: 'recid', caption: 'ID (int)', type: 'int' },
-        { field: 'id', caption: 'ID (float)', type: 'float' },
-        { field: 'fname', caption: 'First Name', type: 'text' },
-        { field: 'lname', caption: 'Last Name', type: 'text' },
-        { field: 'email', caption: 'Email', type: 'list', 
+        { field: 'recid', text: 'ID (int)', type: 'int' },
+        { field: 'id', text: 'ID (float)', type: 'float' },
+        { field: 'fname', text: 'First Name', type: 'text' },
+        { field: 'lname', text: 'Last Name', type: 'text' },
+        { field: 'email', text: 'Email', type: 'list',
             options: { items: ['vitali@gmail.com', 'jim@gmail.com'] } },
-        { field: 'sdate', caption: 'Date', type: 'date' }
+        { field: 'sdate', text: 'Date', type: 'date' }
     ]
 });
 </textarea>
@@ -36,11 +36,11 @@ $('#grid').w2grid({
 Or it can be changed during run-time:
 
 <textarea class="javascript">
-w2ui['grid'].searches[0] = { field: 'recid', caption: 'ID', type: 'int' };
+w2ui['grid'].searches[0] = { field: 'recid', text: 'ID', type: 'int' };
 </textarea>
 
 Because the only way for the user to trigger the search is from the toolbar, the <a class="argument" href="w2grid.show">.show.toolbar</a> and
-<a class="argument" href="w2grid.show">.show.toolbarSearch</a> properties should be set to true. 
+<a class="argument" href="w2grid.show">.show.toolbarSearch</a> properties should be set to true.
 <div style="height: 10px"></div>
 
 Below it the structure of the search object:

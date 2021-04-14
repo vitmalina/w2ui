@@ -20,10 +20,10 @@ Returns integer.
 
 <h4>Description</h4>
 
-Adds a column or columns to the grid by adding items into <a class="property" href="w2grid.columns">.columns</a> array 
-and refreshes the grid. The first optional argument <span class="argument">before</span> is the column to insert before. It 
-can be either a column field name or the index in the <a class="property" href="w2grid.columns">.columns</a> array. If first 
-parameter is not defined, the column will be appended to the end. 
+Adds a column or columns to the grid by adding items into <a class="property" href="w2grid.columns">.columns</a> array
+and refreshes the grid. The first optional argument <span class="argument">before</span> is the column to insert before. It
+can be either a column field name or the index in the <a class="property" href="w2grid.columns">.columns</a> array. If first
+parameter is not defined, the column will be appended to the end.
 The second argument <span class="argument">columns</span> is the column object or an array of column column objects.
 <div style="height: 10px"></div>
 
@@ -34,9 +34,9 @@ If you define grid as:
 <textarea class="javascript">
 $('#grid').w2grid({
     name    : 'grid',
-    columns: [                
-        { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'email', caption: 'Email', size: '40%' }
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'email', text: 'Email', size: '40%' }
     ],
     records: [
         { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
@@ -47,15 +47,15 @@ $('#grid').w2grid({
 
 You can add columns by:
 <textarea class="javascript">
-w2ui['grid'].addColumn({ field: 'sdate', caption: 'End Date2', size: '120px' });
+w2ui['grid'].addColumn({ field: 'sdate', text: 'End Date2', size: '120px' });
 </textarea>
 
 or several at a time:
 
 <textarea class="javascript">
 w2ui['grid'].addColumn('email', [
-    { field: 'lname', caption: 'Last Name', size: '30%' },
-    { field: 'fname', caption: 'First Name', size: '30%' }
+    { field: 'lname', text: 'Last Name', size: '30%' },
+    { field: 'fname', text: 'First Name', size: '30%' }
 ]);
 </textarea>
 

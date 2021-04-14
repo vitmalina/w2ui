@@ -16,7 +16,7 @@ Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
-This method will display status text you specify in the footer of the grid. If you do not specify <span class="argument">msg</span> 
+This method will display status text you specify in the footer of the grid. If you do not specify <span class="argument">msg</span>
 argument, the grid will try to guess status. It will display record id if one record is selected or number of selected records.
 <div style="height: 10px"></div>
 
@@ -24,12 +24,12 @@ If you have following grid:
 <textarea class="javascript">
 $('#grid').w2grid({
     name    : 'grid',
-    columns: [                
-        { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'lname', caption: 'Last Name', size: '30%' },
-        { field: 'fname', caption: 'First Name', size: '30%' },
-        { field: 'email', caption: 'Email', size: '40%' },
-        { field: 'sdate', caption: 'End Date', size: '120px' }
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
     ],
     records: [
         { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },

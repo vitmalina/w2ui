@@ -4,7 +4,7 @@ Tabs for the form.
     Object, default = {}
 </div>
 
-If you define tabs then you have to define multiple pages with the form and the number of pages should be equal 
+If you define tabs then you have to define multiple pages with the form and the number of pages should be equal
 to the number of tabs. Multiple pages are defined by providing multiple div tags, for example:
 <textarea class="html">
 <div class="w2ui-page page-0">
@@ -17,8 +17,8 @@ to the number of tabs. Multiple pages are defined by providing multiple div tags
     <!-- actions -->
 </div>
 </textarea>
-If it is an object then it is a <span class="method">w2tabs</span> object definition. If it is an array then it is tabs definition that 
-should correspond to <span class="method">w2tabs.tabs</span> array. 
+If it is an object then it is a <span class="method">w2tabs</span> object definition. If it is an array then it is tabs definition that
+should correspond to <span class="method">w2tabs.tabs</span> array.
 <div style="height: 10px"></div>
 
 <b>Important:</b> After the form has been initialized, <span class="method">.tabs</span> is a w2tabs object.
@@ -28,7 +28,7 @@ You should define tabs during object creation:
 <textarea class="javascript">
 $('#form').w2form({
     name: 'form',
-    formHTML: 
+    formHTML:
         '<div class="w2ui-page page-0">'+
         '    <div class="w2ui-field">'+
         '        <label>First Name</label>'+
@@ -62,8 +62,8 @@ $('#form').w2form({
         '    <button class="w2ui-btn w2ui-btn-green" name="save">Save</button>'+
         '</div>',
     tabs: [
-        { id: 'tab1', caption: 'Tab 1' },
-        { id: 'tab2', caption: 'Tab 2' }
+        { id: 'tab1', text: 'Tab 1' },
+        { id: 'tab2', text: 'Tab 2' }
     ],
     fields: [
         { name: 'first_name', type: 'text', required: true },
@@ -71,7 +71,7 @@ $('#form').w2form({
         { name: 'email', type: 'email' },
         { name: 'extra_field', type: 'date' }
     ],
-    record: { 
+    record: {
         first_name    : 'John',
         last_name     : 'Doe',
         email         : 'jdoe@email.com',

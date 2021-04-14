@@ -4,8 +4,8 @@ Toolbar for the grid.
     Object, default = null
 </div>
 
-Each grid comes with a toolbar. The <span class="property">.toolbar</span> property should be initiated during 
-object creation because after the object is created, the w2toolbar is created too. During object creation you can add additional 
+Each grid comes with a toolbar. The <span class="property">.toolbar</span> property should be initiated during
+object creation because after the object is created, the w2toolbar is created too. During object creation you can add additional
 buttons to the toolbar in the following way:
 
 <textarea class="javascript">
@@ -18,27 +18,27 @@ $('#grid').w2grid({
     toolbar: {
         items: [
             { type: 'break' },
-            { type: 'button', id: 'mybutton', caption: 'My other button', img: 'icon-folder' }
+            { type: 'button', id: 'mybutton', text: 'My other button', img: 'icon-folder' }
         ],
         onClick: function (target, data) {
             console.log(target);
         }
     },
-    columns: [                
-        { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'lname', caption: 'Last Name', size: '30%' },
-        { field: 'fname', caption: 'First Name', size: '30%' },
-        { field: 'email', caption: 'Email', size: '40%' },
-        { field: 'sdate', caption: 'Start Date', size: '120px' },
-        { field: 'sdate', caption: 'End Date', size: '120px' }
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
     ]
 });
 </textarea>
 
 Please note, that by default toolbar is hidden. You need to set <a class="property" href="w2grid.show">.show.toolbar</a> property to true in order to make
-toolbar visible. There are also several default toolbar buttons that can be hidden or shown during object creation. They are all part of the 
+toolbar visible. There are also several default toolbar buttons that can be hidden or shown during object creation. They are all part of the
 <a class="property" href="w2grid.show">.show</a> property of the grid. Below is the <a class="property" href="w2grid.show">.show</a> property of the grid with items
-relevant to the toolbar with its default values: 
+relevant to the toolbar with its default values:
 
 <textarea class="javascript">
 show = {
@@ -56,7 +56,7 @@ show = {
 There are other items in the <a class="property" href="w2grid.show">.show</a> property besides those relevant to toolbar.
 <div style="height: 10px"></div>
 
-Once the grid object has been created, the <span class="property">.toolbar</span> property becomes w2toolbar object. The name of this 
+Once the grid object has been created, the <span class="property">.toolbar</span> property becomes w2toolbar object. The name of this
 object is the name of the grid + '_toolbar'. If you have the grid created, you can access w2toolbar object in the following way:
 
 <textarea class="javascript">

@@ -17,7 +17,7 @@ Returns <i>undefined</i>.
 
 If your data source is remote (the <a class="method" href="w2grid.url">.url</a> property is defined), you can reload records in your grid
 by calling the <span class="argument">.reload()</span> method. This method is also called when user clicks the reload button on the toolbar.
-If your data source is local, calling <span class="argument">.reload()</span> will be the same as calling 
+If your data source is local, calling <span class="argument">.reload()</span> will be the same as calling
 <a class="argument" href="w2grid.refresh">.refresh()</a>
 <div style="height: 10px"></div>
 
@@ -26,13 +26,13 @@ If you have grid defined in the following way:
 $('#grid').w2grid({
     name : 'grid',
     url  : 'some/server/url',
-    columns: [                
-        { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'lname', caption: 'Last Name', size: '30%' },
-        { field: 'fname', caption: 'First Name', size: '30%' },
-        { field: 'email', caption: 'Email', size: '40%' },
-        { field: 'sdate', caption: 'Start Date', size: '120px' },
-        { field: 'sdate', caption: 'End Date', size: '120px' }
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
     ]
 });
 </textarea>

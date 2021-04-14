@@ -4,7 +4,7 @@ Indicates if grid should listen to keyboard.
     Boolean, default = true
 </div>
 
-If <span class="argument">.keyboard</span> property is set to true, the grid will add event listener to listen for 
+If <span class="argument">.keyboard</span> property is set to true, the grid will add event listener to listen for
 keyboard events. There are several keyboard keys linked to the grid actions:
 <div style="height: 10px"></div>
 <ul>
@@ -17,18 +17,18 @@ keyboard events. There are several keyboard keys linked to the grid actions:
     <li>Enter or Space - enter editable field</li>
 </ul>
 
-This property can be defined during object creation: 
+This property can be defined during object creation:
 <textarea class="javascript">
 $('#grid').w2grid({
     name     : 'grid',
     keyboard : false,
-    columns: [                
-        { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'lname', caption: 'Last Name', size: '30%' },
-        { field: 'fname', caption: 'First Name', size: '30%' },
-        { field: 'email', caption: 'Email', size: '40%' },
-        { field: 'sdate', caption: 'Start Date', size: '120px' },
-        { field: 'sdate', caption: 'End Date', size: '120px' }
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
     ]
 });
 </textarea>
@@ -39,7 +39,7 @@ Or any time after the grid has been created:
 w2ui['layout'].keyboard = true;
 </textarea>
 
-Internally, the feature is implemented by <a href="w2utils.keyboard" class="method">w2utils.keyboard</a> object. 
+Internally, the feature is implemented by <a href="w2utils.keyboard" class="method">w2utils.keyboard</a> object.
 
 If there more then one grid on the screen and all of them have <span class="argument">.keyboard</span> set to true, then the last grid
-where user selects a record will active keyboard listener. 
+where user selects a record will active keyboard listener.

@@ -20,8 +20,8 @@ Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
-This method refreshes one given cell on the screen. It is here to allow a quick way to refresh data really fast if only one cell is 
-changed. It will be much faster then calling <a href="w2grid.refresh" class="argument">.refresh</a>, though will not refresh all 
+This method refreshes one given cell on the screen. It is here to allow a quick way to refresh data really fast if only one cell is
+changed. It will be much faster then calling <a href="w2grid.refresh" class="argument">.refresh</a>, though will not refresh all
 changed cells, but only specified one.
 <div style="height: 10px"></div>
 
@@ -29,13 +29,13 @@ If you have grid defined in the following way:
 <textarea class="javascript">
 $('#grid').w2grid({
     name: 'grid',
-    columns: [                
-        { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'lname', caption: 'Last Name', size: '30%', editable: { type: 'text' } },
-        { field: 'fname', caption: 'First Name', size: '30%', editable: { type: 'text' } },
-        { field: 'email', caption: 'Email', size: '40%', editable: { type: 'text' } },
-        { field: 'sdate', caption: 'Start Date', size: '120px', editable: { type: 'date' } },
-        { field: 'edate', caption: 'End Date', size: '120px', editable: { type: 'date' } }
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%', editable: { type: 'text' } },
+        { field: 'fname', text: 'First Name', size: '30%', editable: { type: 'text' } },
+        { field: 'email', text: 'Email', size: '40%', editable: { type: 'text' } },
+        { field: 'sdate', text: 'Start Date', size: '120px', editable: { type: 'date' } },
+        { field: 'edate', text: 'End Date', size: '120px', editable: { type: 'date' } }
     ],
     records: [
         { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },

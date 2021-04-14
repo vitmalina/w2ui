@@ -4,7 +4,7 @@ Defines selection type.
     String, default = 'row'
 </div>
 
-Selection type can be either 'row' or 'cell'. The default is 'row' that defines row selection, where user can select complete rows. 
+Selection type can be either 'row' or 'cell'. The default is 'row' that defines row selection, where user can select complete rows.
 However, you can created excel like grids if you define selection type as 'cell'.
 <div style="height: 10px"></div>
 
@@ -13,22 +13,22 @@ Selection type should be defined during object creation.
 $('#grid').w2grid({
     name : 'grid',
     selectType : 'cell',
-    columns : [                
-        { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'lname', caption: 'Last Name', size: '30%' },
-        { field: 'fname', caption: 'First Name', size: '30%' },
-        { field: 'email', caption: 'Email', size: '40%' },
-        { field: 'sdate', caption: 'Start Date', size: '120px' },
-        { field: 'sdate', caption: 'End Date', size: '120px' }
+    columns : [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
     ],
     searches : [
-        { field: 'recid', caption: 'ID (int)', type: 'int' },
-        { field: 'id', caption: 'ID (float)', type: 'float' },
-        { field: 'fname', caption: 'First Name', type: 'text' },
-        { field: 'lname', caption: 'Last Name', type: 'text' },
-        { field: 'email', caption: 'Email', type: 'list', 
+        { field: 'recid', text: 'ID (int)', type: 'int' },
+        { field: 'id', text: 'ID (float)', type: 'float' },
+        { field: 'fname', text: 'First Name', type: 'text' },
+        { field: 'lname', text: 'Last Name', type: 'text' },
+        { field: 'email', text: 'Email', type: 'list',
             items: ['vitali@gmail.com', 'jim@gmail.com'] },
-        { field: 'sdate', caption: 'Date', type: 'date' }
+        { field: 'sdate', text: 'Date', type: 'date' }
     ]
 });
 </textarea>

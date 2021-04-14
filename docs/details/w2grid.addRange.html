@@ -17,11 +17,11 @@ Returns integer.
 <h4>Description</h4>
 
 This method will only work if your grid is excel-like grid, set <a class="property" href="w2grid.selectType">.selectType</a> to 'cell'.
-The method adds a visible range or ranges to the grid by adding items into <a class="property" href="w2grid.ranges">.ranges</a> array 
+The method adds a visible range or ranges to the grid by adding items into <a class="property" href="w2grid.ranges">.ranges</a> array
 and calling the <a class="method" href="w2grid.refreshRanges">.refreshRanges()</a> method.
 <div style="height: 10px"></div>
 
-The first and only argument <span class="argument">range</span> can be either a range object or an array of range objects to add. 
+The first and only argument <span class="argument">range</span> can be either a range object or an array of range objects to add.
 Returns the number of ranges it adds.
 <div style="height: 10px"></div>
 
@@ -30,12 +30,12 @@ If you define grid as:
 $('#grid').w2grid({
     name : 'grid',
     selectionType : 'cell',
-    columns: [                
-        { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'lname', caption: 'Last Name', size: '30%', searchable: true },
-        { field: 'fname', caption: 'First Name', size: '30%', searchable: true },
-        { field: 'email', caption: 'Email', size: '40%', searchable: true },
-        { field: 'sdate', caption: 'End Date', size: '120px' }
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%', searchable: true },
+        { field: 'fname', text: 'First Name', size: '30%', searchable: true },
+        { field: 'email', text: 'Email', size: '40%', searchable: true },
+        { field: 'sdate', text: 'End Date', size: '120px' }
     ],
     records: [
         { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
@@ -46,9 +46,9 @@ $('#grid').w2grid({
 
 You can add a range by:
 <textarea class="javascript">
-w2ui.grid.addRange({ 
-    name    : 'range', 
-    range    : [{ recid: 1, column: 3 }, { recid: 5, column: 5 }], 
+w2ui.grid.addRange({
+    name    : 'range',
+    range    : [{ recid: 1, column: 3 }, { recid: 5, column: 5 }],
     style    : 'background-color: rgba(0, 140, 0, 0.1); border: 2px solid green'
 });
 </textarea>
@@ -57,14 +57,14 @@ or several at a time:
 
 <textarea class="javascript">
 w2ui.grid.addRange([
-    { 
-        name    : 'range1', 
-        range    : [{ recid: 1, column: 3 }, { recid: 5, column: 5 }], 
+    {
+        name    : 'range1',
+        range    : [{ recid: 1, column: 3 }, { recid: 5, column: 5 }],
         style    : 'background-color: rgba(0, 140, 0, 0.1); border: 2px solid green'
     },
-    { 
-        name    : 'range2', 
-        range    : [{ recid: 1, column: 0 }, { recid: 3, column: 0}], 
+    {
+        name    : 'range2',
+        range    : [{ recid: 1, column: 0 }, { recid: 3, column: 0}],
         style    : 'background-color: rgba(140, 0, 0, 0.1); border: 2px solid red'
     }
  ]);

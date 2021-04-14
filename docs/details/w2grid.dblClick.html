@@ -20,8 +20,8 @@ Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
-The first argument <span class="argument">recid</span> is the id of the record that was double clicked. The second argument 
-<span class="argument">event</span> is DOM event object. This object is used to determine if user held ctrl (cmd on mac) 
+The first argument <span class="argument">recid</span> is the id of the record that was double clicked. The second argument
+<span class="argument">event</span> is DOM event object. This object is used to determine if user held ctrl (cmd on mac)
 or shift key to do multi record select. This method emits <a class="method" href="w2grid.onDblClick">.onDblClick</a> event.
 <div style="height: 10px"></div>
 
@@ -29,13 +29,13 @@ If you have grid defined in the following way:
 <textarea class="javascript">
 $('#grid').w2grid({
     name           : 'grid',
-    columns: [                
-        { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'lname', caption: 'Last Name', size: '30%' },
-        { field: 'fname', caption: 'First Name', size: '30%' },
-        { field: 'email', caption: 'Email', size: '40%' },
-        { field: 'sdate', caption: 'Start Date', size: '120px' },
-        { field: 'sdate', caption: 'End Date', size: '120px' }
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
     ],
     records: [
         { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },

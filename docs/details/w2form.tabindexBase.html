@@ -17,12 +17,12 @@ var form = $('#form').w2form({
     header : 'Form with modified tabindex base',
     tabindexBase: 100,
     fields : [
-        { field: 'first_name', type: 'text', html: { caption: 'First Name',} },
-        { field: 'zip', type: 'int', html: { caption: 'Zip' } },
-        { field: 'short_bio', type: 'text', html: { caption: 'Short Bio' } },
+        { field: 'first_name', type: 'text', html: { text: 'First Name',} },
+        { field: 'zip', type: 'int', html: { text: 'Zip' } },
+        { field: 'short_bio', type: 'text', html: { text: 'Short Bio' } },
         // for talk_name tabindex "502" will be used instead of "104"
-        { field: 'talk_name', type: 'text', html: { caption: 'Talk Name', attr:'tabindex=502' } },
-        { field: 'description', type: 'text', html: { caption: 'Talk Description' } }
+        { field: 'talk_name', type: 'text', html: { text: 'Talk Name', attr:'tabindex=502' } },
+        { field: 'description', type: 'text', html: { text: 'Talk Description' } }
     ]
 });
 </textarea>

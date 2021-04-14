@@ -4,21 +4,21 @@ Indicates if record multi select is allowed.
     Boolean, default = true
 </div>
 
-If multi select is allowed, user can select more then one record at a time. This property can be defined 
-during object creation: 
+If multi select is allowed, user can select more then one record at a time. This property can be defined
+during object creation:
 
 <textarea class="javascript">
 $('#grid').w2grid({
     name        : 'grid',
     header      : 'Grid Header',
     multiSelect : false,
-    columns: [                
-        { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'lname', caption: 'Last Name', size: '30%' },
-        { field: 'fname', caption: 'First Name', size: '30%' },
-        { field: 'email', caption: 'Email', size: '40%' },
-        { field: 'sdate', caption: 'Start Date', size: '120px' },
-        { field: 'sdate', caption: 'End Date', size: '120px' }
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
     ]
 });
 </textarea>

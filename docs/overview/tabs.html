@@ -4,7 +4,7 @@ also create closable tabs.
 <div style="height: 20px"></div>
 
 <h4>Example</h4>
-Below is a simple example how to use tabs. It shows the minimum HTML and JavaScript you need to render the tab bar. It is assumed 
+Below is a simple example how to use tabs. It shows the minimum HTML and JavaScript you need to render the tab bar. It is assumed
 in the example that you link jquery.js, w2ui.js and w2ui.css files.
 
 <textarea class="html">
@@ -27,10 +27,10 @@ $(function () {
         name     : 'myTabs',
         active     : 'tab1',
         tabs    : [
-            { id: 'tab1', caption: 'Tab 1' },
-            { id: 'tab2', caption: 'Tab 2' },
-            { id: 'tab3', caption: 'Tab 3' },
-            { id: 'tab4', caption: 'Tab 4' }
+            { id: 'tab1', text: 'Tab 1' },
+            { id: 'tab2', text: 'Tab 2' },
+            { id: 'tab3', text: 'Tab 3' },
+            { id: 'tab4', text: 'Tab 4' }
         ],
         onClick: function (event) {
             $('#myTabsContent').html(event.target);

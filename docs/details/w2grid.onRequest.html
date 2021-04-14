@@ -11,16 +11,16 @@ $('#grid').w2grid({
     name    : 'grid',
     url        : 'some/url/to/data',
     columns: [
-        { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'lname', caption: 'Last Name', size: '30%' },
-        { field: 'fname', caption: 'First Name', size: '30%' },
-        { field: 'email', caption: 'Email', size: '40%' },
-        { field: 'sdate', caption: 'End Date', size: '120px' }
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
     ],
     onRequest: function(event) {
         console.log('-- server call --');
         console.log(event);
-    }        
+    }
 });
 </textarea>
 
@@ -33,9 +33,9 @@ w2ui.grid.on('request', function(event) {
 });
 </textarea>
 
-One of the important features of this event is that you can change the data that will be sent to the server. When the event is 
+One of the important features of this event is that you can change the data that will be sent to the server. When the event is
 emitted, the <span class="argument">postData</span> property inside <span class="argument">event</span> object
-will have all the variables to be sent to the server. If you modify <span class="argument">postData</span>, the grid will send 
+will have all the variables to be sent to the server. If you modify <span class="argument">postData</span>, the grid will send
 modified version to the server.
 <br>
 You can also change <span class="argument">url</span> property of <span class="argument">event</span> and the request will be sent to the new url.
@@ -44,7 +44,7 @@ You can also change <span class="argument">httpHeaders</span> property of <span 
 <div style="height: 10px;"></div>
 
 The event handler is called before the default action of the event is triggered. You can cancel the default action by calling
-<span class="method">event.preventDefault()</span>. To perform an action 
-after the event is fully processed, define <span class="method">event.onComplete</span> function. 
+<span class="method">event.preventDefault()</span>. To perform an action
+after the event is fully processed, define <span class="method">event.onComplete</span> function.
 <div style="height: 10px;"></div>
 See <a href="utils/events">events</a> page in utilities for more details.

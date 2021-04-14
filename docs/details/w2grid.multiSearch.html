@@ -9,19 +9,19 @@ at a time when user clicks the "Search..." button and defines what fields he wan
 only search one field at a time and he will not see the "Search..." button. He also will not see "All fields" in global search drop down.
 <div style="height: 10px"></div>
 
-This property can be defined during object creation: 
+This property can be defined during object creation:
 <textarea class="javascript">
 $('#grid').w2grid({
     name        : 'grid',
     header      : 'Grid Header',
     multiSearch : false,
-    columns: [                
-        { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'lname', caption: 'Last Name', size: '30%' },
-        { field: 'fname', caption: 'First Name', size: '30%' },
-        { field: 'email', caption: 'Email', size: '40%' },
-        { field: 'sdate', caption: 'Start Date', size: '120px' },
-        { field: 'sdate', caption: 'End Date', size: '120px' }
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
     ]
 });
 </textarea>
@@ -33,6 +33,6 @@ w2ui['layout'].multiSearch = true;
 w2ui['layout'].refresh();
 </textarea>
 
-If you do allow multi field search, but want to hide the "Search..." button, you can do so setting 
-<a class="argument" href="w2grid.show">.show.toolbarSearch</a> to false. If the data source is remote all search fields will be submitted 
+If you do allow multi field search, but want to hide the "Search..." button, you can do so setting
+<a class="argument" href="w2grid.show">.show.toolbarSearch</a> to false. If the data source is remote all search fields will be submitted
 to the remote data source. See <a href="grid">grid overview</a> for data structures it is going to submit.

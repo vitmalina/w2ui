@@ -8,10 +8,10 @@ Returns HTML text.
 
 <h4>Description</h4>
 
-In many cases the HTML template for the form is very typical - fields in one column, may be a few tabs. Instead of 
-creating many HTML files with this typical HTML template, they can be generated at run-time. The <span class="argument">generateHTML</span> 
-is an internal method and gets called when no HTML template is defined. First the form will check <a class="argument" href="w2form.formURL">.formURL</a>, 
-<a class="argument" href="w2form.formHTML">.formHTML</a>, and innerHTML of the <a class="argument" href="w2form.box">.box</a>. If 
+In many cases the HTML template for the form is very typical - fields in one column, may be a few tabs. Instead of
+creating many HTML files with this typical HTML template, they can be generated at run-time. The <span class="argument">generateHTML</span>
+is an internal method and gets called when no HTML template is defined. First the form will check <a class="argument" href="w2form.formURL">.formURL</a>,
+<a class="argument" href="w2form.formHTML">.formHTML</a>, and innerHTML of the <a class="argument" href="w2form.box">.box</a>. If
 no HTML template is defined it will be generated.
 <div style="height: 10px"></div>
 
@@ -30,17 +30,17 @@ html = {
 
 You should not call this method directly. The following is the example how to use it
 <textarea class="javascript">
-$('#form').w2form({ 
+$('#form').w2form({
     name     : 'form',
     fields: [
         { name: 'field.text', type: 'text', required: true,
-            html: { caption: 'Field 1', attr: 'size="40"', span: 5 }
+            html: { text: 'Field 1', attr: 'size="40"', span: 5 }
         },
         { name: 'field.alpha', type: 'alphanumeric', required: true,
-            html: { caption: 'Field 2', attr: 'size="40"', span: 5 }
+            html: { text: 'Field 2', attr: 'size="40"', span: 5 }
         },
         { name: 'field.int', type: 'int', required: true
-            html: { caption: 'Field 3', attr: 'size="40"', span: 5 }
+            html: { text: 'Field 3', attr: 'size="40"', span: 5 }
         }
     ],
     actions: {
