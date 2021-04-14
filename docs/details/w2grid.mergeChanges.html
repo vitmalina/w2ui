@@ -8,25 +8,25 @@ Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
-This method will only work if you define inline editing in the grid and there are changes that user entered. All changes 
-are tracked in the <span class="method">changes</span> object, which becomes part of the record in the 
+This method will only work if you define inline editing in the grid and there are changes that user entered. All changes
+are tracked in the <span class="method">changes</span> object, which becomes part of the record in the
 <a href="w2grid.records" class="method">.records</a> array. The record will also have <span class="method">changed</span>
-indicate if original record was changed. 
+indicate if original record was changed.
 <div style="height: 10px"></div>
 
-You can get all the changes by calling <a href="w2grid.getChanges" class="method">.getChanges()</a> method. 
+You can get all the changes by calling <a href="w2grid.getChanges" class="method">.getChanges()</a> method.
 <div style="height: 10px"></div>
 
 If you have following grid:
 <textarea class="javascript">
 $('#grid').w2grid({
     name    : 'grid',
-    columns: [                
-        { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'lname', caption: 'Last Name', size: '30%', editable: { type: 'text' } },
-        { field: 'fname', caption: 'First Name', size: '30%', editable: { type: 'text' } },
-        { field: 'email', caption: 'Email', size: '40%', editable: { type: 'text' } },
-        { field: 'sdate', caption: 'End Date', size: '120px', editable: { type: 'date' } }
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%', editable: { type: 'text' } },
+        { field: 'fname', text: 'First Name', size: '30%', editable: { type: 'text' } },
+        { field: 'email', text: 'Email', size: '40%', editable: { type: 'text' } },
+        { field: 'sdate', text: 'End Date', size: '120px', editable: { type: 'date' } }
     ],
     records: [
         { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },

@@ -1,11 +1,11 @@
-Unique name for the object. 
+Unique name for the object.
 
 <div class="definition">
     String, default = ''
 </div>
 
-All objects (regardless of type) are registered as <span class="property">w2ui[name]</span>, where w2ui is a global variable. 
-The name of the object must be unique, otherwise object will not be created. 
+All objects (regardless of type) are registered as <span class="property">w2ui[name]</span>, where w2ui is a global variable.
+The name of the object must be unique, otherwise object will not be created.
 
 <textarea class="javascript">
 // layout
@@ -21,9 +21,9 @@ $('#layout').w2layout({
 $('#grid').w2layout({
     name    : 'grid',
     columns : [
-        { field: 'fname', caption: 'First Name', size: '30%' },
-        { field: 'lname', caption: 'Last Name', size: '30%' },
-        { field: 'email', caption: 'Email', size: '40%' }
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' }
     ]
 });
 </textarea>

@@ -16,7 +16,7 @@ Returns integer.
 
 <h4>Description</h4>
 
-Removes a column or columns from the <a class="property" href="w2grid.columns">.columns</a> array. The column is identified by the 
+Removes a column or columns from the <a class="property" href="w2grid.columns">.columns</a> array. The column is identified by the
 <span class="argument">.field</span> property, which is a required property for each column object. The method returns the number of columns it removes.
 <div style="height: 10px"></div>
 
@@ -24,21 +24,21 @@ If you have following grid:
 <textarea class="javascript">
 $('#grid').w2grid({
     name    : 'grid',
-    columns: [                
-        { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'lname', caption: 'Last Name', size: '30%' },
-        { field: 'fname', caption: 'First Name', size: '30%' },
-        { field: 'email', caption: 'Email', size: '40%' },
-        { field: 'sdate', caption: 'End Date', size: '120px' }
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
     ],
     records: [
         { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
         { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' }
     ],
     searches: [
-        { field: 'recid', caption: 'ID', type: 'int' },
-        { field: 'fname', caption: 'First Name', type: 'text' },
-        { field: 'lname', caption: 'Last Name', type: 'text' }
+        { field: 'recid', label: 'ID', type: 'int' },
+        { field: 'fname', label: 'First Name', type: 'text' },
+        { field: 'lname', label: 'Last Name', type: 'text' }
     ]
 });
 </textarea>

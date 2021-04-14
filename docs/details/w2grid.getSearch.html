@@ -1,4 +1,4 @@
-Finds the search and returns its object or index in searches array. 
+Finds the search and returns its object or index in searches array.
 
 <div class="definition">
     getSearch(field, [returnIndex])
@@ -29,13 +29,13 @@ If you have grid defined in the following way:
 <textarea class="javascript">
 $('#grid').w2grid({
     name    : 'grid',
-    columns: [                
-        { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'lname', caption: 'Last Name', size: '30%' },
-        { field: 'fname', caption: 'First Name', size: '30%' },
-        { field: 'email', caption: 'Email', size: '40%' },
-        { field: 'sdate', caption: 'Start Date', size: '120px' },
-        { field: 'sdate', caption: 'End Date', size: '120px' }
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
     ],
     records: [
         { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
@@ -46,10 +46,10 @@ $('#grid').w2grid({
         { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
     ],
     searches: [
-        { field: 'recid', caption: 'ID', type: 'int', hidden: true },
-        { field: 'fname', caption: 'First Name', type: 'text', hidden: true },
-        { field: 'lname', caption: 'Last Name', type: 'text' }
-    ]    
+        { field: 'recid', label: 'ID', type: 'int', hidden: true },
+        { field: 'fname', label: 'First Name', type: 'text', hidden: true },
+        { field: 'lname', label: 'Last Name', type: 'text' }
+    ]
 });
 </textarea>
 

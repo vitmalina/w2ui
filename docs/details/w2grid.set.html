@@ -1,4 +1,4 @@
-Finds the record and extends it with provided object. 
+Finds the record and extends it with provided object.
 
 <div class="definition">
     set([recid], record, [noRefresh])
@@ -25,9 +25,9 @@ Returns boolean.
 
 <h4>Description</h4>
 
-This method will update the record in the <a class="property" href="w2grid.records">.records</a> array and refresh it on the screen 
-(assuming if noRefresh is not provided). The record is identified by the <span class="property">.recid</span> property of the record 
-object, which is a required property for each record object. The second argument <span class="argument">record</span> is the record 
+This method will update the record in the <a class="property" href="w2grid.records">.records</a> array and refresh it on the screen
+(assuming if noRefresh is not provided). The record is identified by the <span class="property">.recid</span> property of the record
+object, which is a required property for each record object. The second argument <span class="argument">record</span> is the record
 object. The method returns true is at least one record was updated or false otherwise.
 <div style="height: 10px"></div>
 
@@ -35,13 +35,13 @@ If you have grid defined in the following way:
 <textarea class="javascript">
 $('#grid').w2grid({
     name    : 'grid',
-    columns: [                
-        { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'lname', caption: 'Last Name', size: '30%' },
-        { field: 'fname', caption: 'First Name', size: '30%' },
-        { field: 'email', caption: 'Email', size: '40%' },
-        { field: 'sdate', caption: 'Start Date', size: '120px' },
-        { field: 'sdate', caption: 'End Date', size: '120px' }
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
     ],
     records: [
         { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
@@ -59,10 +59,10 @@ You can update record with recid = 2:
 w2ui['grid'].set(2, { fname: 'Not Suart', lname: 'Unknown' });
 </textarea>
 
-Or you can update one parameter in all records: 
+Or you can update one parameter in all records:
 <textarea class="javascript">
 w2ui['grid'].set({ fname: 'none' });
 </textarea>
 
-Please note that the record is not replaced with <span class="argument">record</span>, but extended using 
+Please note that the record is not replaced with <span class="argument">record</span>, but extended using
 <span class="argument">$.extend()</span> method.

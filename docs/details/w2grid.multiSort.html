@@ -4,21 +4,21 @@ Indicates if column multi sort is allowed.
     Boolean, default = true
 </div>
 
-If multi sort is allowed, user can sort by more then one column at a time (holding ctl or cmd key). This property can be defined 
-during object creation: 
+If multi sort is allowed, user can sort by more then one column at a time (holding ctl or cmd key). This property can be defined
+during object creation:
 
 <textarea class="javascript">
 $('#grid').w2grid({
     name      : 'grid',
     header    : 'Grid Header',
     multiSort : false,
-    columns: [                
-        { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'lname', caption: 'Last Name', size: '30%' },
-        { field: 'fname', caption: 'First Name', size: '30%' },
-        { field: 'email', caption: 'Email', size: '40%' },
-        { field: 'sdate', caption: 'Start Date', size: '120px' },
-        { field: 'sdate', caption: 'End Date', size: '120px' }
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
     ]
 });
 </textarea>
@@ -29,5 +29,5 @@ Or any time after the grid has been created:
 w2ui['layout'].multiSort = true;
 </textarea>
 
-Please note, you need to enable column sort when you define <span class="property">.columns</span> for the grid. 
+Please note, you need to enable column sort when you define <span class="property">.columns</span> for the grid.
 See <a class="argument" href="w2grid.columns">.columns</a> property for more information.

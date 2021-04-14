@@ -18,7 +18,7 @@ Returns integer.
 <h4>Description</h4>
 
 Selects a record or records in the <span class="method">.records</span> array and refreshes them on the screen. The record is identified by the
-<span class="property">.recid</span> property, which is a required property for each record object. The method emits 
+<span class="property">.recid</span> property, which is a required property for each record object. The method emits
 <a class="methos" href="w2grid.onSelect">.onSelect</a> event for each record it selects and returns the number of records it selects.
 <div style="height: 10px"></div>
 
@@ -26,13 +26,13 @@ If you have grid defined in the following way:
 <textarea class="javascript">
 $('#grid').w2grid({
     name    : 'grid',
-    columns: [                
-        { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'lname', caption: 'Last Name', size: '30%' },
-        { field: 'fname', caption: 'First Name', size: '30%' },
-        { field: 'email', caption: 'Email', size: '40%' },
-        { field: 'sdate', caption: 'Start Date', size: '120px' },
-        { field: 'sdate', caption: 'End Date', size: '120px' }
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
     ],
     records: [
         { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
@@ -50,6 +50,6 @@ You can select records:
 w2ui['grid'].select(2, 5, 6);
 </textarea>
 
-There are two events related to selection of records: <a class="property" href="w2grid.onSelect">onSelect</a> and 
+There are two events related to selection of records: <a class="property" href="w2grid.onSelect">onSelect</a> and
 <a class="property" href="w2grid.onUnselect">onUnselect</a>. Calling <span class="property">.select</span> will
 trigger <a class="property" href="w2grid.onSelect">onSelect</a> event.

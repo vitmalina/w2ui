@@ -4,18 +4,18 @@ Called when user clicks a column.
     onColumnClick = function(event)
 </div>
 
-The normal behavior of the click on a column is to do a sort, however, it can be overwritten using this event. 
+The normal behavior of the click on a column is to do a sort, however, it can be overwritten using this event.
 You can add event listener during the object creation:
 
 <textarea class="javascript">
 $('#grid').w2grid({
     name    : 'grid',
-    columns: [                
-        { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'lname', caption: 'Last Name', size: '30%' },
-        { field: 'fname', caption: 'First Name', size: '30%' },
-        { field: 'email', caption: 'Email', size: '40%' },
-        { field: 'sdate', caption: 'End Date', size: '120px' }
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
     ],
     records: [
         { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
@@ -27,7 +27,7 @@ $('#grid').w2grid({
     ],
     onColumnClick: function(event) {
         console.log(event);
-    }        
+    }
 });
 </textarea>
 
@@ -40,7 +40,7 @@ w2ui.grid.on('columnClick', function(event) {
 </textarea>
 
 The event handler is called before the default action of the event is triggered. You can cancel the default action by calling
-<span class="method">event.preventDefault()</span>. To perform an action 
-after the event is fully processed, define <span class="method">event.onComplete</span> function. 
+<span class="method">event.preventDefault()</span>. To perform an action
+after the event is fully processed, define <span class="method">event.onComplete</span> function.
 <div style="height: 10px;"></div>
 See <a href="utils/events">events</a> page in utilities for more details.

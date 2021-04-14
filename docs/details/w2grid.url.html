@@ -4,23 +4,23 @@ URL to the remote data source.
     String or Object, default = ''
 </div>
 
-If the <span class="method">.url</span> property is defined, then every time the grid needs to refresh, search, or sort records, 
-they will be pulled from the <span class="method">.url</span>. If grid needs to save the records, new changes will be submitted to 
-this <span class="method">.url</span> as well. 
+If the <span class="method">.url</span> property is defined, then every time the grid needs to refresh, search, or sort records,
+they will be pulled from the <span class="method">.url</span>. If grid needs to save the records, new changes will be submitted to
+this <span class="method">.url</span> as well.
 <div style="height: 10px"></div>
 
-URL can be defined during object creation: 
+URL can be defined during object creation:
 <textarea class="javascript">
 $('#grid').w2grid({
     name : 'grid',
     url  : 'server/side/path/to/records',
-    columns: [                
-        { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'lname', caption: 'Last Name', size: '30%' },
-        { field: 'fname', caption: 'First Name', size: '30%' },
-        { field: 'email', caption: 'Email', size: '40%' },
-        { field: 'sdate', caption: 'Start Date', size: '120px' },
-        { field: 'sdate', caption: 'End Date', size: '120px' }
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
     ]
 });
 </textarea>
@@ -34,13 +34,13 @@ $('#grid').w2grid({
         remove : 'server/side/path/to/remove',
         save   : 'server/side/path/to/save'
     },
-    columns: [                
-        { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'lname', caption: 'Last Name', size: '30%' },
-        { field: 'fname', caption: 'First Name', size: '30%' },
-        { field: 'email', caption: 'Email', size: '40%' },
-        { field: 'sdate', caption: 'Start Date', size: '120px' },
-        { field: 'sdate', caption: 'End Date', size: '120px' }
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
     ]
 });
 </textarea>
@@ -51,7 +51,7 @@ w2ui['layout'].url = 'server/side/path/to/records';
 w2ui['layout'].reload();
 </textarea>
 
-If you do not specify any <span class="method">.url</span>, then the assumed data source is local. You can add/remove records, user can search 
+If you do not specify any <span class="method">.url</span>, then the assumed data source is local. You can add/remove records, user can search
 and sort records and all actions will be performed locally. You can optionally use <a class="argument" href="w2grid.load">.load()</a> method to load records from the server without switching grid to remote data source.
 <div style="height: 10px"></div>
 

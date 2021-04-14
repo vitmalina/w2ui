@@ -4,7 +4,7 @@ Sorts records in the grid.
     sort()
 </div>
 
-OR 
+OR
 
 <div class="definition">
     search(field, [direction, [multiField]])
@@ -32,7 +32,7 @@ Returns <i>undefined</i>.
 <h4>Description</h4>
 
 This method will sort records in the <a class="property" href="w2grid.records">.records</a> array if you have local
-data source or submit to the server side if your data source is remote. If you call this method without parameters, it 
+data source or submit to the server side if your data source is remote. If you call this method without parameters, it
 will reset the sort.
 <div style="height: 10px;"></div>
 
@@ -40,13 +40,13 @@ If you have a grid defined in the following way:
 <textarea class="javascript">
 $('#grid').w2grid({
     name    : 'grid',
-    columns: [                
-        { field: 'recid', caption: 'ID', size: '50px' },
-        { field: 'lname', caption: 'Last Name', size: '30%' },
-        { field: 'fname', caption: 'First Name', size: '30%' },
-        { field: 'email', caption: 'Email', size: '40%' },
-        { field: 'sdate', caption: 'Start Date', size: '120px' },
-        { field: 'sdate', caption: 'End Date', size: '120px' }
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
     ],
     records: [
         { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
@@ -62,4 +62,4 @@ $('#grid').w2grid({
 You can do following searches:
 <textarea class="javascript">
 grid.sort('fname', 'asc');
-</textarea>    
+</textarea>
