@@ -1,0 +1,31 @@
+{
+  "name": "w2ui",
+  "version": "2.0.0",
+  "description": "JavaScript UI library. Includes grid, layout, toolbars, trees, popups.",
+  "main": "w2ui-2.0.min.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitmalina/w2ui.git"
+  },
+  "dependencies": {
+    "jquery": ">=3.5.0"
+  },
+  "keywords": [
+    "JavaScript",
+    "JS",
+    "UI",
+    "grid",
+    "layout",
+    "tree",
+    "popup"
+  ],
+  "author": "Vitali Malinouski <vitmalina@gmail.com> (http://w2ui.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vitmalina/w2ui/issues"
+  },
+  "homepage": "http://w2ui.com"
+}

@@ -14,3 +14,4 @@ package-lock.json
 clazzes-maven/target
 .DS_Store
 copy-shield.sh
+dist/w2ui-*.tgz
