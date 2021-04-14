@@ -1208,8 +1208,10 @@ let w2utils = (($) => {
             let $msg = $(where.box).find('#w2ui-message'+ (msgCount-1))
             options = $msg.data('options') || {}
             // before event
-            edata = options.trigger({ phase: 'before', type: 'close', target: 'self' })
-            if (edata.isCancelled === true) return
+            if (options.trigger) {
+                edata = options.trigger({ phase: 'before', type: 'close', target: 'self' })
+                if (edata.isCancelled === true) return
+            }
             // default behavior
             $msg.css(w2utils.cssPrefix({
                 'transition': '0.15s',
@@ -1259,11 +1261,13 @@ let w2utils = (($) => {
                 $(where.box).find('#w2ui-message'+ msgCount).show().html(options.html)
                 options.box = $(where.box).find('#w2ui-message'+ msgCount)
                 // before event
-                edata = options.trigger({ phase: 'before', type: 'open', target: 'self' })
-                if (edata.isCancelled === true) {
-                    head.css('z-index', head.data('old-z-index'))
-                    $(where.box).find('#w2ui-message'+ msgCount).remove()
-                    return
+                if (options.trigger) {
+                    edata = options.trigger({ phase: 'before', type: 'open', target: 'self' })
+                    if (edata.isCancelled === true) {
+                        head.css('z-index', head.data('old-z-index'))
+                        $(where.box).find('#w2ui-message'+ msgCount).remove()
+                        return
+                    }
                 }
                 // timer needs to animation
                 setTimeout(() => {
@@ -1279,7 +1283,9 @@ let w2utils = (($) => {
                     // has to be on top of lock
                     $(where.box).find('#w2ui-message'+ msgCount).css(w2utils.cssPrefix({ 'transition': '0s' }))
                     // event after
-                    options.trigger($.extend(edata, { phase: 'after' }))
+                    if (options.trigger) {
+                        options.trigger($.extend(edata, { phase: 'after' }))
+                    }
                 }, 350)
             }
         }
@@ -1287,11 +1293,13 @@ let w2utils = (($) => {
         function closeCB($msg, options) {
             if (edata == null) {
                 // before event
-                edata = options.trigger({ phase: 'before', type: 'open', target: 'self' })
-                if (edata.isCancelled === true) {
-                    head.css('z-index', head.data('old-z-index'))
-                    $(where.box).find('#w2ui-message'+ msgCount).remove()
-                    return
+                if (options.trigger) {
+                    edata = options.trigger({ phase: 'before', type: 'open', target: 'self' })
+                    if (edata.isCancelled === true) {
+                        head.css('z-index', head.data('old-z-index'))
+                        $(where.box).find('#w2ui-message'+ msgCount).remove()
+                        return
+                    }
                 }
             }
             let $focus = $msg.data('prev_focus')
@@ -1303,7 +1311,9 @@ let w2utils = (($) => {
             }
             head.css('z-index', head.data('old-z-index'))
             // event after
-            options.trigger($.extend(edata, { phase: 'after' }))
+            if (options.trigger) {
+                options.trigger($.extend(edata, { phase: 'after' }))
+            }
         }
     }
 

@@ -39,7 +39,7 @@ module.exports = {
         "no-multi-spaces": "error",
         "func-call-spacing": "warn",
         "func-name-matching": "warn",
-        "func-names": ["warn", "always"],
+        // "func-names": ["warn", "always"],
         "no-inner-declarations": "off",
         "no-unreachable": "off"
     }
