@@ -1554,7 +1554,7 @@ var w2utils = (function ($) {
     }
 
     function checkUniqueId (id, items, itemsDecription, objName) { // was w2checkUniqueId
-        if (!$.isArray(items)) items = [items];
+        if (!Array.isArray(items)) items = [items];
         for (var i = 0; i < items.length; i++) {
             if (items[i].id === id) {
                 console.log('ERROR: The parameter "id='+ id +'" is not unique within the current '+ itemsDecription +'. (obj: '+ objName +')');
@@ -1996,7 +1996,7 @@ w2utils.event = {
         // errors
         if (!edata.type) { console.log('ERROR: You must specify event type when calling .on() method of '+ this.name); return; }
         if (!handler) { console.log('ERROR: You must specify event handler function when calling .on() method of '+ this.name); return; }
-        if (!$.isArray(this.handlers)) this.handlers = [];
+        if (!Array.isArray(this.handlers)) this.handlers = [];
         this.handlers.push({ edata: edata, handler: handler });
         return this; // needed for chaining
     },
@@ -2055,7 +2055,7 @@ w2utils.event = {
         if (edata.phase === 'before') edata.onComplete = null;
         var args, fun, tmp;
         if (edata.target == null) edata.target = null;
-        if (!$.isArray(this.handlers)) this.handlers = [];
+        if (!Array.isArray(this.handlers)) this.handlers = [];
         // process events in REVERSE order
         for (var h = this.handlers.length-1; h >= 0; h--) {
             var item = this.handlers[h];

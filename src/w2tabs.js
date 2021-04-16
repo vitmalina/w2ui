@@ -99,7 +99,7 @@
         },
 
         insert: function (id, tab) {
-            if (!$.isArray(tab)) tab = [tab];
+            if (!Array.isArray(tab)) tab = [tab];
             // assume it is array
             for (var i = 0; i < tab.length; i++) {
                 // checks

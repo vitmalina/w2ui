@@ -154,7 +154,7 @@
                 if (before != null) {
                     ind = this.get(before);
                     if (ind == null) {
-                        if (!$.isArray(nodes)) nodes = [nodes];
+                        if (!Array.isArray(nodes)) nodes = [nodes];
                         if (nodes[0].caption != null && nodes[0].text == null) {
                             console.log('NOTICE: sidebar node.caption property is deprecated, please use node.text. Node -> ', nodes[0]);
                             nodes[0].text = nodes[0].caption;
@@ -170,7 +170,7 @@
             }
             if (typeof parent == 'string') parent = this.get(parent);
             if (parent == null || parent == '') parent = this;
-            if (!$.isArray(nodes)) nodes = [nodes];
+            if (!Array.isArray(nodes)) nodes = [nodes];
             for (var o = 0; o < nodes.length; o++) {
                 node = nodes[o];
                 if (typeof node.id == null) {

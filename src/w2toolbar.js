@@ -137,7 +137,7 @@
         },
 
         insert: function (id, items) {
-            if (!$.isArray(items)) items = [items];
+            if (!Array.isArray(items)) items = [items];
             for (var o = 0; o < items.length; o++) {
                 // checks
                 if (items[o].type == null) {
@@ -400,7 +400,7 @@
                                 if (it.type == 'menu-check') {
                                     menuType = 'check';
                                     items.forEach(function (item) {
-                                        if ($.isArray(it.selected) && it.selected.indexOf(item.id) != -1) item.checked = true; else item.checked = false;
+                                        if (Array.isArray(it.selected) && it.selected.indexOf(item.id) != -1) item.checked = true; else item.checked = false;
                                     });
                                 }
                                 el.w2menu($.extend({ name: obj.name, items: items, left: left, top: 3, data: { "tb-item": it.id } }, it.overlay, {
@@ -820,7 +820,7 @@
                     it.checked = true;
                 }
                 if (item.type == 'menu-check') {
-                    if (!$.isArray(item.selected)) item.selected = [];
+                    if (!Array.isArray(item.selected)) item.selected = [];
                     if (it.group == null) {
                         var ind = item.selected.indexOf(it.id);
                         if (ind == -1) {

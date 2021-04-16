@@ -46,8 +46,8 @@
             // add defined panels
             for (var p = 0, len = panels.length; p < len; p++) {
                 object.panels[p] = $.extend(true, {}, w2layout.prototype.panel, panels[p]);
-                if ($.isPlainObject(object.panels[p].tabs) || $.isArray(object.panels[p].tabs)) initTabs(object, panels[p].type);
-                if ($.isPlainObject(object.panels[p].toolbar) || $.isArray(object.panels[p].toolbar)) initToolbar(object, panels[p].type);
+                if ($.isPlainObject(object.panels[p].tabs) || Array.isArray(object.panels[p].tabs)) initTabs(object, panels[p].type);
+                if ($.isPlainObject(object.panels[p].toolbar) || Array.isArray(object.panels[p].toolbar)) initToolbar(object, panels[p].type);
             }
             // add all other panels
             for (var p1 = 0; p1 < w2panels.length; p1++) {
@@ -76,7 +76,7 @@
             if (pan != null && tabs == null) tabs = pan.tabs;
             if (pan == null || tabs == null) return false;
             // instanciate tabs
-            if ($.isArray(tabs)) tabs = { tabs: tabs };
+            if (Array.isArray(tabs)) tabs = { tabs: tabs };
             $().w2destroy(object.name + '_' + panel + '_tabs'); // destroy if existed
             pan.tabs = $().w2tabs($.extend({}, tabs, { owner: object, name: object.name + '_' + panel + '_tabs' }));
             pan.show.tabs = true;
@@ -88,7 +88,7 @@
             if (pan != null && toolbar == null) toolbar = pan.toolbar;
             if (pan == null || toolbar == null) return false;
             // instanciate toolbar
-            if ($.isArray(toolbar)) toolbar = { items: toolbar };
+            if (Array.isArray(toolbar)) toolbar = { items: toolbar };
             $().w2destroy(object.name + '_' + panel + '_toolbar'); // destroy if existed
             pan.toolbar = $().w2toolbar($.extend({}, toolbar, { owner: object, name: object.name + '_' + panel + '_toolbar' }));
             pan.show.toolbar = true;

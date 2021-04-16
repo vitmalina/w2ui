@@ -395,7 +395,7 @@
                     options.items    = w2obj.field.prototype.normMenu.call(this, options.items);
                     options.selected = w2obj.field.prototype.normMenu.call(this, options.selected);
                     this.options = options;
-                    if (!$.isArray(options.selected)) options.selected = [];
+                    if (!Array.isArray(options.selected)) options.selected = [];
                     $(this.el).data('selected', options.selected);
                     if (options.url) {
                         options.items = [];
@@ -430,7 +430,7 @@
                     };
                     options = $.extend({}, defaults, options);
                     this.options = options;
-                    if (!$.isArray(options.selected)) options.selected = [];
+                    if (!Array.isArray(options.selected)) options.selected = [];
                     $(this.el).data('selected', options.selected);
                     if ($(this.el).attr('placeholder') == null) {
                         $(this.el).attr('placeholder', w2utils.lang('Attach files by dragging and dropping or Click to Select'));
@@ -2607,7 +2607,7 @@
         },
 
         normMenu: function (menu, el) {
-            if ($.isArray(menu)) {
+            if (Array.isArray(menu)) {
                 for (var m = 0; m < menu.length; m++) {
                     if (typeof menu[m] === 'string') {
                         menu[m] = { id: menu[m], text: menu[m] };

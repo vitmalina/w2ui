@@ -528,7 +528,7 @@
         onReorderRow       : null,
 
         add: function (record, first) {
-            if (!$.isArray(record)) record = [record];
+            if (!Array.isArray(record)) record = [record];
             var added = 0;
             for (var i = 0; i < record.length; i++) {
                 var rec = record[i];
@@ -612,7 +612,7 @@
 
         get: function (recid, returnIndex) {
             // search records
-            if ($.isArray(recid)) {
+            if (Array.isArray(recid)) {
                 var recs = [];
                 for (var i = 0; i < recid.length; i++) {
                     var v = this.get(recid[i], returnIndex);
@@ -699,7 +699,7 @@
                 if (typeof before == 'string') before = this.getColumn(before, true);
                 if (before == null) before = this.columns.length;
             }
-            if (!$.isArray(columns)) columns = [columns];
+            if (!Array.isArray(columns)) columns = [columns];
             for (var i = 0; i < columns.length; i++) {
                 this.columns.splice(before, 0, columns[i]);
                 // if column is searchable, add search field
@@ -793,7 +793,7 @@
                 if (typeof before == 'string') before = this.getSearch(before, true);
                 if (before == null) before = this.searches.length;
             }
-            if (!$.isArray(search)) search = [search];
+            if (!Array.isArray(search)) search = [search];
             for (var i = 0; i < search.length; i++) {
                 this.searches.splice(before, 0, search[i]);
                 before++;
@@ -1126,7 +1126,7 @@
                         (typeof val1b != "object" || val1b.toString != defaultToString)) ?
                         String(val1b).toLowerCase() : "";  // do not match a bogus string
                     if (sdata.value != null) {
-                        if (!$.isArray(sdata.value)) {
+                        if (!Array.isArray(sdata.value)) {
                             var val2 = String(sdata.value).toLowerCase();
                         } else {
                             var val2 = sdata.value[0];
@@ -1350,7 +1350,7 @@
         addRange: function (ranges) {
             var added = 0;
             if (this.selectType == 'row') return added;
-            if (!$.isArray(ranges)) ranges = [ranges];
+            if (!Array.isArray(ranges)) ranges = [ranges];
             // if it is selection
             for (var i = 0; i < ranges.length; i++) {
                 if (typeof ranges[i] != 'object') ranges[i] = { name: 'selection' };
@@ -1670,7 +1670,7 @@
                     var recid  = typeof args[a] == 'object' ? args[a].recid : args[a];
                     var column = typeof args[a] == 'object' ? args[a].column : null;
                     new_sel[recid] = new_sel[recid] || [];
-                    if ($.isArray(column)) {
+                    if (Array.isArray(column)) {
                         new_sel[recid] = column;
                     } else if (w2utils.isInt(column)) {
                         new_sel[recid].push(column);
@@ -1792,7 +1792,7 @@
                         return this.unselect(cols);
                     }
                     var s = sel.columns[index];
-                    if (!$.isArray(s) || s.indexOf(col) == -1) continue;
+                    if (!Array.isArray(s) || s.indexOf(col) == -1) continue;
                     // default action
                     s.splice(s.indexOf(col), 1);
                     $('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid)).find(' > td[col='+ col +']').removeClass('w2ui-selected w2ui-inactive');
@@ -2016,7 +2016,7 @@
                     }
                     if (['list', 'enum'].indexOf(search.type) != -1) {
                         value1 = field1.data('selected') || {};
-                        if ($.isArray(value1)) {
+                        if (Array.isArray(value1)) {
                             svalue = [];
                             for (var j = 0; j < value1.length; j++) {
                                 svalue.push(w2utils.isFloat(value1[j].id) ? parseFloat(value1[j].id) : String(value1[j].id).toLowerCase());
@@ -2188,7 +2188,7 @@
                 }
             }
             // 3: search([ { field, value, [operator,] [type] }, { field, value, [operator,] [type] } ], logic) - submit whole structure
-            if ($.isArray(field)) {
+            if (Array.isArray(field)) {
                 var logic = 'AND';
                 if (typeof value == 'string') {
                     logic = value.toUpperCase();
@@ -2201,7 +2201,7 @@
                     var data = field[i];
                     if (typeof data.value == 'number') data.operator = 'is';
                     if (typeof data.value == 'string') data.operator = this.textSearch;
-                    if ($.isArray(data.value)) data.operator = 'in'
+                    if (Array.isArray(data.value)) data.operator = 'in'
                     // merge current field and search if any
                     searchData.push(data);
                 }
@@ -6627,7 +6627,7 @@
                         $('#grid_'+ this.name +'_field_'+ s).w2field('clear').val(sdata.value);
                     }
                     $('#grid_'+ this.name +'_operator_'+ s).val(sdata.operator).trigger('change');
-                    if (!$.isArray(sdata.value)) {
+                    if (!Array.isArray(sdata.value)) {
                         if (sdata.value != null) $('#grid_'+ this.name +'_field_'+ s).val(sdata.value).trigger('change');
                     } else {
                         if (['in', 'not in'].indexOf(sdata.operator) != -1) {
@@ -7659,7 +7659,7 @@
             if (typeof info.render == 'function') {
                 html = info.render(rec, ind, col_ind);
 
-            } else if ($.isArray(fields)) {
+            } else if (Array.isArray(fields)) {
                 // display mentioned fields
                 html = '<table cellpadding="0" cellspacing="0">';
                 for (var i = 0; i < fields.length; i++) {
