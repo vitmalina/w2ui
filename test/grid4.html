@@ -8,14 +8,17 @@
 <script type="text/javascript" src="../src/w2fields.js"></script>
 <script type="text/javascript" src="../src/w2popup.js"></script>
 <script type="text/javascript" src="../src/w2grid.js"></script>
-<!-- <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.4.3.js"></script> -->
 <script>
 //<![CDATA[
 $(function () {
     $('#grid').w2grid({
         name: 'grid',
         header: 'List of Names1',
-        url: 'http://w2ui.com/web/pages/demo/infinite/index.php',
+        url: {
+            get: 'http://w2ui.com/web/pages/demo/infinite/index.php',
+            save: 's',
+            remove: 'd'
+        },
         recid: 'userid',
         // dataType: 'JSON',
         // method: 'GET',
@@ -41,12 +44,17 @@ $(function () {
             event.preventDefault()
         },
         onLoad(event) {
+            this.total = 1
+            this.records = [
+                { userid: 1, age: '20', fname: 'Vitali', lname: 'Malinouski' }
+            ]
         },
         columns: [
-            { field: 'userid', text: 'ID', size: '80px', sortable: true, searchable: 'int', hidden: true },
-            { field: 'fname', text: 'hex', size: '180px', sortable: true, resizable: true, editable: { type: 'hex' } },
-            { field: 'lname', text: 'color', size: '180px', sortable: true, resizable: true, editable: { type: 'color' } },
-            { field: 'email', text: 'date', size: '100%', sortable: true, resizable: true, editable: { type: 'text' } }
+            { field: 'userid', text: 'ID', size: '80px', sortable: true, hidden: true },
+            { field: 'age', text: 'Age', size: '80px', sortable: true, searchable: 'int' },
+            { field: 'fname', text: 'First Name', size: '180px', sortable: true, searchable: 'text', resizable: true, editable: { type: 'hex' } },
+            { field: 'lname', text: 'Last Name', size: '180px', sortable: true, resizable: true, editable: { type: 'color' } },
+            { field: 'email', text: 'Email', size: '100%', sortable: true, resizable: true, editable: { type: 'text' } }
         ]
     });
 
