@@ -6,11 +6,14 @@ It is the most feature rich grid available.
 <ul>
     <li><a href="#ex1">Example 1</a> - local data source</li>
     <li><a href="#ex2">Example 2</a> - remove data source</li>
-    <li><a href="#data-structures">Request Data Stracture</a></li>
-    <li><a href="#data-structures2">Response Data Stracture</a></li>
+    <li><a href="#struct-request">Request Data Stracture</a></li>
+    <li><a href="#struct-response">Response Data Stracture</a></li>
+    <li><a href="#struct-delete">Delete Requestst</a></li>
+    <li><a href="#struct-save">Save Request</a></li>
 </ul>
+<div id="ex1" style="height: 20px"></div>
 
-<h4 id="ex1">Example 1 - Local Data Source</h4>
+<h4>Example 1 - Local Data Source</h4>
 
 Below is a simple example how to use the grid. This grid does not pull records from the server, but uses local data source.
 It shows the minimum HTML and JavaScript you need to have to display the grid.
@@ -50,9 +53,9 @@ $('#myGrid').w2grid({
 </script>
 </html>
 </textarea>
-<div style="height: 20px"></div>
+<div id="ex2" style="height: 20px"></div>
 
-<h4 id="ex2">Example 2 - Remote Data Source</h4>
+<h4>Example 2 - Remote Data Source</h4>
 This example displays similar grid as the example above, but it retrieves records from the server. It assumes that you have a file
 data/records.json relative to where your example runs that returns JSON structure.
 
@@ -81,9 +84,9 @@ $('#myGrid').w2grid({
 </script>
 </html>
 </textarea>
-<div style="height: 20px"></div>
+<div id="struct-request" style="height: 20px"></div>
 
-<h4 id="data-structures">Request Data Structure</h4>
+<h4>Request Data Structure</h4>
 
 The grid communicates with the server by sending a HTTP request in the format displayed below. Keep in mind that not all of the parameters are
 sent with each requests. Parameters such as search, sort, etc. might not be submitted if user did not apply them. The grid will also submit
@@ -109,9 +112,9 @@ request: {
 </textarea>
 
 However, you can control how you want request data to be encoded. See <a class="property" href="w2utils.settings">w2utils.settings</a> - see dataType.
-<div style="height: 20px"></div>
+<div id="struct-response" style="height: 20px"></div>
 
-<h4 id="data-structures2">Response Data Structure</h4>
+<h4>Response Data Structure</h4>
 
 The grid expects data in the JSON format from the server as it is described below.
 
@@ -137,7 +140,7 @@ If you want to return an error and have grid display in, you can return followin
     "message": "Error Message"
 }
 </textarea>
-<div style="height: 20px"></div>
+<div id="struct-delete" style="height: 20px"></div>
 
 <h4>Delete Records</h4>
 
@@ -163,7 +166,7 @@ OR
     "message": "Error Message"
 }
 </textarea>
-<div style="height: 20px"></div>
+<div id="struct-save" style="height: 20px"></div>
 
 <h4>Save Records</h4>
 
