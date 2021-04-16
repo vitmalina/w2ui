@@ -1,11 +1,16 @@
 <h3>Grid Overview</h3>
 
-The w2grid object allows you to create data grid controls with local or remote data source. The grid control is the most
-complex and flexible control in w2ui. It allows you to define columns, simple or multi field searches, one or many column
-sorting, inline editing, etc.
+The w2grid implements data grids with local or remote data source. The grid is the most complex and flexible control in w2ui.
+It is the most feature rich grid available.
 <div style="height: 20px"></div>
+<ul>
+    <li><a href="#ex1">Example 1</a> - local data source</li>
+    <li><a href="#ex2">Example 2</a> - remove data source</li>
+    <li><a href="#data-structures">Request Data Stracture</a></li>
+    <li><a href="#data-structures2">Response Data Stracture</a></li>
+</ul>
 
-<h4>Example 1</h4>
+<h4 id="ex1">Example 1 - Local Data Source</h4>
 
 Below is a simple example how to use the grid. This grid does not pull records from the server, but uses local data source.
 It shows the minimum HTML and JavaScript you need to have to display the grid.
@@ -14,9 +19,9 @@ It shows the minimum HTML and JavaScript you need to have to display the grid.
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.4.min.css" />
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.4.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.5.min.css" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.5.min.js"></script>
 </head>
 <body>
     <div id="myGrid" style="height: 450px"></div>
@@ -47,7 +52,7 @@ $('#myGrid').w2grid({
 </textarea>
 <div style="height: 20px"></div>
 
-<h4>Example 2</h4>
+<h4 id="ex2">Example 2 - Remote Data Source</h4>
 This example displays similar grid as the example above, but it retrieves records from the server. It assumes that you have a file
 data/records.json relative to where your example runs that returns JSON structure.
 
@@ -55,9 +60,9 @@ data/records.json relative to where your example runs that returns JSON structur
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.4.min.css" />
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.4.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.5.min.css" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.5.min.js"></script>
 </head>
 <body>
     <div id="myGrid" style="height: 450px"></div>
@@ -67,10 +72,10 @@ $('#myGrid').w2grid({
     name   : 'myGrid',
     url    : 'data/records.json',
     columns: [
-        { field: 'fname', caption: 'First Name', size: '30%' },
-        { field: 'lname', caption: 'Last Name', size: '30%' },
-        { field: 'email', caption: 'Email', size: '40%' },
-        { field: 'sdate', caption: 'Start Date', size: '120px' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' }
     ]
 });
 </script>
@@ -78,62 +83,43 @@ $('#myGrid').w2grid({
 </textarea>
 <div style="height: 20px"></div>
 
-<h4 id="data-structures">Data Structures</h4>
+<h4 id="data-structures">Request Data Structure</h4>
 
-The grid communicates with the server by sending a HTTP POST request in the format displayed below. Keep in mind that not all of the parameters are
-sent with each requests. Parameters such as search, sort-by, etc. might not be submitted if user did not apply them. The grid will also submit
-all user defined parameters from the <span class="property">.postData</span> map.
+The grid communicates with the server by sending a HTTP request in the format displayed below. Keep in mind that not all of the parameters are
+sent with each requests. Parameters such as search, sort, etc. might not be submitted if user did not apply them. The grid will also submit
+all user defined parameters from the <a class="property" href="w2grid.postData">.postData</a> map.
+<div style="height: 20px"></div>
+
+If <span class="property">w2utils.settings.dataType = 'HTTPJSON'</span> (default), the request will be:
 
 <textarea class="javascript">
-{
-    "cmd"         : "get-records",
-    "limit"       : 50,
-    "offset"      : 0,
-    "selected"    : [1, 2],
-    "searchLogic" : "AND",
-    "search": [
-        { "field": "fname", "type": "text", "value": "vit", "operator": "is" },
-        { "field": "age", "type": "int", "value": [10, 20], "operator": "between" }
+request: {
+    "limit":100,
+    "offset":0,
+    "searchLogic":"AND",
+    "search":[
+        {"field":"age", "type":"int", "operator":"between", "value":[10,20]},
+        {"field":"fname", "type":"text", "operator":"begins", "value":"vit"}
     ],
-    "sort": [
-        { "field": "fname", "direction": "ASC" },
-        { "field": "Lname", "direction": "DESC" }
+    "sort":[
+        {"field":"fname", "direction":"asc"},
+        {"field":"lname", "direction":"asc"}
     ]
 }
 </textarea>
 
-Which will be encoded into HTTP POST that looks like this:
+However, you can control how you want request data to be encoded. See <a class="property" href="w2utils.settings">w2utils.settings</a> - see dataType.
+<div style="height: 20px"></div>
 
-<textarea class="javascript">
-&cmd: get-records
-&limit: 50
-&offset: 0
-&selected[]: 1
-&selected[]: 2
-&searchLogic: AND
-&search[0][field]: fname
-&search[0][type]: text
-&search[0][operator]: is
-&search[0][value]: vit
-&search[1][field]: age
-&search[1][type]: int
-&search[1][operator]: between
-&search[1][value][]: 10
-&search[1][value][]: 20
-&sort[0][field]: fname
-&sort[0][direction]: asc
-&sort[1][field]: lname
-&sort[1][direction]: desc
-</textarea>
+<h4 id="data-structures2">Response Data Structure</h4>
 
-The grid expects data in the JSON format from the server as it is described below. The JSON structure will be merged into the grid with
-jQuery.extend method. It means that you can return any supported grid property from the server and it will be applied.
+The grid expects data in the JSON format from the server as it is described below.
 
 <textarea class="javascript">
 {
-    "status"  : "success",
-    "total"   : 36,
-    "records" : [
+    "status": "success",
+    "total": 36,
+    "records": [
         { "recid": 1, "field-1": "value-1", ... "field-N": "value-N" },
         ...
         { "recid": N, "field-1": "value-1", ... "field-N": "value-N" }
@@ -141,15 +127,14 @@ jQuery.extend method. It means that you can return any supported grid property f
 }
 </textarea>
 
-You can define grid's <span class="property">.onRequest</span> and <span class="property">.onLoad</span> events to do data conversion if
-you service returns format different from JSON (for example XML).
+You can define grid's <a class="property" href="w2grid.onRequest">.onRequest</a> and <a class="property" href="w2grid.onLoad">.onLoad</a> events to do data conversion if you service returns format different from JSON (for example XML).
 <div style="height: 10px"></div>
 
-If you want to return an error from the server side, you can return following JSON structure:
+If you want to return an error and have grid display in, you can return following JSON structure:
 <textarea class="javascript">
 {
-    "status"  : "error",
-    "message" : "Error Message"
+    "status": "error",
+    "message": "Error Message"
 }
 </textarea>
 <div style="height: 20px"></div>
@@ -157,53 +142,51 @@ If you want to return an error from the server side, you can return following JS
 <h4>Delete Records</h4>
 
 If user selects several records in the grid and clicks the delete button on the toolbar or if you call
-<span class="property">.delete()</span> method, the grid will send a request to delete records. The grid sends following parameters:
+<a class="property" href="w2grid.delete">.delete()</a> method, the grid will send following request
 
 <textarea class="javascript">
-{
-    "cmd"      : "delete-records",
-    "selected" : [1, 2],
+request: {
+    "action":"delete",
+    "userid": [1,2]
 }
 </textarea>
-It sends extra fields that are not directly related to the delete operation. If there was no errors, the grid expects back the response in the format
+The ressponse can be
 <textarea class="javascript">
 {
     "status" : "success"
 }
 </textarea>
-And as soon as it is received, it will submit a second request to refresh records. If the server responds:
-
+OR
 <textarea class="javascript">
 {
-    "status"  : "error",
-    "message" : "Error Message"
+    "status": "error",
+    "message": "Error Message"
 }
 </textarea>
-The grid will display the error and will not refresh records.
 <div style="height: 20px"></div>
 
 <h4>Save Records</h4>
 
-As a developer you can turn on inline editing in the grid. Once user has changed data and click the Save button, the grid will send the following structure
-to the server:
+As a developer you can turn on inline editing in the grid. Once user has changed data and click the Save button, the grid will send
 <textarea class="javascript">
-{
-    "cmd"     : "save-records",
-    "changes" : [],
+request: {
+    "action":"save"
+    "changes":[
+        { "userid":1, "lname":"Cruze", "fname":"Tom" }
+    ]
 }
 </textarea>
-Where changes is an array of object with key value pairs of all changed records. If there were no errors, the grid expects back the response in the format
+The ressponse can be
 <textarea class="javascript">
 {
-    "status": "success"
+    "status" : "success"
 }
 </textarea>
-If the server responds:
-
+OR
 <textarea class="javascript">
 {
-    "status"  : "error",
-    "message" : "Error Message"
+    "status": "error",
+    "message": "Error Message"
 }
 </textarea>
-The grid will display the error.
+<div style="height: 20px"></div>

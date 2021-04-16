@@ -1,18 +1,18 @@
 <h3>Sidebar Overview</h3>
-The w2sidebar object allows you to create sidebar controls and side panel controls. The sidebar control can have any level of nestedness and will 
+The w2sidebar object allows you to create sidebar controls and side panel controls. The sidebar control can have any level of nestedness and will
 render nodes on demand. If it is used as a side panel control it can have groups.
 <div style="height: 20px"></div>
 
 <h4>Example</h4>
-Below is a simple example how to use the sidebar control. It shows the minimum HTML and JavaScript you need to render the sidebar. 
+Below is a simple example how to use the sidebar control. It shows the minimum HTML and JavaScript you need to render the sidebar.
 
 <textarea class="html">
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.4.min.css" />
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.4.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.5.min.css" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.5.min.js"></script>
 </head>
 <body>
     <div id="mySidebar" style="height: 450px; width: 250px;"></div>
@@ -22,17 +22,17 @@ $(function () {
     $('#mySidebar').w2sidebar({
         name  : 'mySidebar',
         img   : null,
-        nodes : [ 
-            { id: 'level-1', text: 'Level 1', img: 'icon-folder', expanded: true, 
-                nodes: [ 
+        nodes : [
+            { id: 'level-1', text: 'Level 1', img: 'icon-folder', expanded: true,
+                nodes: [
                     { id: 'level-1-1', text: 'Level 1.1', img: 'icon-page' },
                     { id: 'level-1-2', text: 'Level 1.2', img: 'icon-page' },
                     { id: 'level-1-3', text: 'Level 1.3', img: 'icon-page' }
                  ]
             },
             { id: 'level-2', text: 'Level 2', img: 'icon-folder',
-                nodes: [ 
-                    { id: 'level-2-1', text: 'Level 2.1', img: 'icon-folder', 
+                nodes: [
+                    { id: 'level-2-1', text: 'Level 2.1', img: 'icon-folder',
                         nodes: [
                             { id: 'level-2-1-1', text: 'Level 2.1.1', img: 'icon-page' },
                             { id: 'level-2-1-2', text: 'Level 2.1.2', img: 'icon-page' },
@@ -70,15 +70,15 @@ $(function () {
 $('#sidebar').w2sidebar({
 name: 'sidebar',
 img: null,
-nodes: [ 
-{ id: 'level-1', text: 'Level 1', img: 'icon-folder', expanded: true, 
+nodes: [
+{ id: 'level-1', text: 'Level 1', img: 'icon-folder', expanded: true,
 nodes: [ { id: 'level-1-1', text: 'Level 1.1', img: 'icon-page' },
        { id: 'level-1-2', text: 'Level 1.2', img: 'icon-page' },
        { id: 'level-1-3', text: 'Level 1.3', img: 'icon-page' }
      ]
 },
 { id: 'level-2', text: 'Level 2', img: 'icon-folder',
-nodes: [ { id: 'level-2-1', text: 'Level 2.1', img: 'icon-folder', 
+nodes: [ { id: 'level-2-1', text: 'Level 2.1', img: 'icon-folder',
          nodes: [
            { id: 'level-2-1-1', text: 'Level 2.1.1', img: 'icon-page' },
            { id: 'level-2-1-2', text: 'Level 2.1.2', img: 'icon-page' },
