@@ -303,7 +303,7 @@
             var items = 0;
             var tmp   = [];
             for (var a = 0; a < arguments.length; a++) {
-                var it = this.get(arguments[a]);
+                let it = this.get(arguments[a]);
                 if (!it || String(arguments[a]).indexOf(':') != -1) continue;
                 // remove overlay
                 if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1 && it.checked) {
