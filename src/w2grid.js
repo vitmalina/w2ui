@@ -4965,7 +4965,7 @@
                 });
             // init mouse events for mouse selection
             var edataCol; // event for column select
-            $(this.box).off('mousedown').on('mousedown', mouseStart);
+            $(this.box).off('mousedown', mouseStart).on('mousedown', mouseStart);
             this.updateToolbar()
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
