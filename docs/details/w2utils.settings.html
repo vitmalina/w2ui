@@ -36,19 +36,101 @@ for more information. All locale specific files are located in the /src/locale f
 
 <h4>Data Types</h4>
 
-The dataType setting has 5 possible options. Below is explanation what they mean:
+w2utils.settings<span class="property">.dataType</span> can be one of the following.
 <div style="height: 20px"></div>
 
-HTTP - will submit GET or POST where it makes more sense by the size of the data submitted in w2grid, w2form and in autocomplete field (enum and list)
+<b>HTTPJSON</b> (default) - will encode params as a JSON string and will submit GET request
+<textarea class="javascript">
+request: {
+    "limit":100,
+    "offset":0,
+    "searchLogic":"AND",
+    "search":[
+        {"field":"age", "type":"int", "operator":"between", "value":[10,20]},
+        {"field":"fname", "type":"text", "operator":"begins", "value":"vitali"}
+    ],
+    "sort":[
+        {"field":"fname", "direction":"asc"},
+        {"field":"lname", "direction":"asc"}
+    ]
+}
+</textarea>
 <div style="height: 20px"></div>
 
-HTTPJSON - is the default one and will submit GET or POST, similar to HTTP, but will submit all params as JSON string
+<b>HTTP</b> - will encode params as HTTP string and will submit GET request
+<textarea class="javascript">
+limit: 100
+&offset: 0
+&searchLogic: AND
+&search[0][field]: age
+&search[0][type]: int
+&search[0][operator]: between
+&search[0][value][]: 10
+&search[0][value][]: 20
+&search[1][field]: fname
+&search[1][type]: text
+&search[1][operator]: begins
+&search[1][value]: vitali
+&sort[0][field]: fname
+&sort[0][direction]: asc
+&sort[1][field]: lname
+&sort[1][direction]: asc
+</textarea>
 <div style="height: 20px"></div>
 
-RESTFULL - will fully comply with REST standard and will submit GET or POST or PUT or DELETE actions where needed. Note that often PUT and DELETE are disabled by various hosting services.
+<b>RESTFULL</b> - will encode params as HTTP string and will submit GET for list, PUT for save, DELETE for delete, POST for update actions in w2grid and w2forms. For w2grid the request will look like this:
+<textarea  class="javascript">
+limit: 100
+&offset: 0
+&searchLogic: AND
+&search[0][field]: age
+&search[0][type]: int
+&search[0][operator]: between
+&search[0][value][]: 10
+&search[0][value][]: 20
+&search[1][field]: fname
+&search[1][type]: text
+&search[1][operator]: begins
+&search[1][value]: vitali
+&sort[0][field]: fname
+&sort[0][direction]: asc
+&sort[1][field]: lname
+&sort[1][direction]: asc
+</textarea>
 <div style="height: 20px"></div>
 
-RESTFULLJSON - will fully comply with REST standard and will submit GET or POST or PUT or DELETE actions where needed. Note that often PUT and DELETE are disabled by various hosting services. But will submit all params as JSON payload
+<b>RESTFULLJSON</b> - will encode params as JSON and will submit GET for list, PUT for save, DELETE for delete, POST for update actions in w2grid and w2forms. Note that often PUT and DELETE are disabled by various hosting services. For w2grid the request will look like this:
+<textarea class="javascript">
+{
+    "limit":100,
+    "offset":0,
+    "searchLogic":"AND",
+    "search":[
+        {"field":"age", "type":"int", "operator":"between", "value":[10,20]},
+        {"field":"fname", "type":"text", "operator":"begins", "value":"vitali"}
+    ],
+    "sort":[
+        {"field":"fname", "direction":"asc"},
+        {"field":"lname", "direction":"asc"}
+    ]
+}
+</textarea>
+
 <div style="height: 20px"></div>
 
-JSON - will submit all variables as JSON payload (not HTTP POST). On the server it needs to be parse differently.
+<b>JSON</b> - will encode params as JSON and submit POST request. The parameters will be submitted as HTTP payload (not HTTP POST), on the server it needs to be parsed differently.
+<textarea class="javascript">
+{
+    "limit":100,
+    "offset":0,
+    "searchLogic":"AND",
+    "search":[
+        {"field":"age", "type":"int", "operator":"between", "value":[10,20]},
+        {"field":"fname", "type":"text", "operator":"begins", "value":"vitali"}
+    ],
+    "sort":[
+        {"field":"fname", "direction":"asc"},
+        {"field":"lname", "direction":"asc"}
+    ]
+}
+</textarea>
