@@ -439,6 +439,36 @@ class w2grid extends w2event {
 
         // need deep merge
         $.extend(true, this, options)
+
+        // check if there are records without recid
+        if (Array.isArray(this.records)) {
+            this.records.forEach(rec => {
+                if (rec[this.recid] != null) {
+                    rec.recid = rec[this.recid]
+                }
+                if (rec.recid == null) {
+                    console.log('ERROR: Cannot add records without recid. (obj: '+ this.name +')')
+                }
+            })
+        }
+        // add searches
+        if (Array.isArray(this.columns)) {
+            this.columns.forEach(col => {
+                let search = col.searchable
+                if (search == null || search === false || this.getSearch(col.field) != null) return
+                if ($.isPlainObject(search)) {
+                    this.addSearch($.extend({ field: col.field, label: col.text, type: 'text' }, search))
+                } else {
+                    let stype = col.searchable
+                    let attr = ''
+                    if (col.searchable === true) {
+                        stype = 'text'
+                        attr = 'size="20"'
+                    }
+                    this.addSearch({ field: col.field, label: col.text, type: stype, attr: attr })
+                }
+            })
+        }
     }
 
     add(record, first) {
@@ -8046,78 +8076,3 @@ class w2grid extends w2event {
 }
 
 export { w2grid }
-
-(function ($) {
-    // ====================================================
-    // -- Registers as a jQuery plugin
-
-    $.fn.w2grid = function(method) {
-        if ($.isPlainObject(method)) {
-            // check name parameter
-            if (!w2utils.checkName(method, 'w2grid')) return
-            // remember items
-            let columns = method.columns
-            let columnGroups = method.columnGroups
-            let records = method.records
-            let searches = method.searches
-            let searchData = method.searchData
-            let sortData = method.sortData
-            // extend items
-            let object = new w2grid(method)
-            $.extend(object, { records: [], columns: [], searches: [], sortData: [], searchData: [], handlers: [] })
-
-            // reassign variables
-            let p
-            if (columns) for (p = 0; p < columns.length; p++) object.columns[p] = $.extend(true, {}, columns[p])
-            if (columnGroups) for (p = 0; p < columnGroups.length; p++) object.columnGroups[p] = $.extend(true, {}, columnGroups[p])
-            if (searches) for (p = 0; p < searches.length; p++) object.searches[p] = $.extend(true, {}, searches[p])
-            if (searchData) for (p = 0; p < searchData.length; p++) object.searchData[p] = $.extend(true, {}, searchData[p])
-            if (sortData) for (p = 0; p < sortData.length; p++) object.sortData[p] = $.extend(true, {}, sortData[p])
-
-            // check if there are records without recid
-            if (records) for (let r = 0; r < records.length; r++) {
-                if (records[r][object.recid] != null) {
-                    records[r].recid = records[r][object.recid]
-                }
-                if (records[r].recid == null) {
-                    console.log('ERROR: Cannot add records without recid. (obj: '+ object.name +')')
-                    return
-                }
-                object.records[r] = $.extend(true, {}, records[r])
-            }
-            // add searches
-            for (let i = 0; i < object.columns.length; i++) {
-                let col = object.columns[i]
-                let search = col.searchable
-                if (search == null || search === false || object.getSearch(col.field) != null) continue
-                if ($.isPlainObject(search)) {
-                    object.addSearch($.extend({ field: col.field, label: col.text, type: 'text' }, search))
-                } else {
-                    let stype = col.searchable, attr = ''
-                    if (col.searchable === true) { stype = 'text'; attr = 'size="20"' }
-                    object.addSearch({ field: col.field, label: col.text, type: stype, attr: attr })
-                }
-            }
-            // register new object
-            w2ui[object.name] = object
-            // init toolbar
-            object.initToolbar()
-            object.updateToolbar()
-            // render if necessary
-            if ($(this).length !== 0) {
-                object.render($(this)[0])
-            }
-            return object
-
-        } else {
-            let obj = w2ui[$(this).attr('name')]
-            if (!obj) return null
-            if (arguments.length > 0) {
-                if (obj[method]) obj[method].apply(obj, Array.prototype.slice.call(arguments, 1))
-                return this
-            } else {
-                return obj
-            }
-        }
-    }
-})(jQuery)

@@ -37,7 +37,7 @@
 *   - options.items - can be an array
 *   - added form.pageStyle
 *   - added html.span -1 - then label is displayed on top
-*   - added field.options.minLength, min/max for numebrs can be done with int/float - min/max
+*   - added field.options.minLength, min/max for numbers can be done with int/float - min/max
 *   - field.html.groupCollapsible, form.toggleGroup
 *   - added showErrors
 *   - added field.type = 'check'
@@ -439,7 +439,7 @@ class w2form extends w2event {
             if (field.options && field.hidden !== true && field.options.minLength > 0
                     && ['enum', 'list', 'combo'].indexOf(field.type) == -1 // since minLength is used there too
                     && this.getValue(field.field).length < field.options.minLength) {
-                errors.push({ field: field, error: w2utils.lang('Field should be at least '+ field.options.minLength +' characters.') })
+                errors.push({ field: field, error: w2utils.lang('Field should be at least NN characters.').replace('NN', field.options.minLength) })
             }
         }
         // event before

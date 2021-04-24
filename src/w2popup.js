@@ -911,7 +911,9 @@ class w2dialog extends w2event {
 }
 
 let w2popup = new w2dialog()
-window.w2popup = w2popup
+if (window) {
+    window.w2popup = w2popup
+}
 
 function w2alert(msg, title, callBack) {
     let $ = jQuery
