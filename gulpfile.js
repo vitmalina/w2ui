@@ -89,11 +89,8 @@ let tasks = {
             'src/w2compat.js' // must be last
         ])
             .pipe(concat('w2ui.js'))
-            .pipe(replace("import { w2event } from './w2event.js'\n", ''))
-            .pipe(replace("import { w2utils } from './w2utils.js'\n", ''))
-            .pipe(replace("import { w2tabs } from './w2tabs.js'\n", ''))
-            .pipe(replace("import { w2toolbar } from './w2toolbar.js'\n", ''))
-            .pipe(replace("import { w2field } from './w2field.js'\n", ''))
+            .pipe(replace(/import {(.)*}(.)*\n/g, '')) // remove import {} from ''
+            .pipe(replace(/export {(.)*}(.)*\n/g, '')) // remove export {}
             .pipe(replace("\n\n", '\n'))
             // .pipe(babel())
             .pipe(header(comments.w2ui))

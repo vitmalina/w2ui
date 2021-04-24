@@ -1,34 +1,12 @@
 import { w2ui, w2utils } from './w2utils.js'
 import { w2popup, w2alert, w2confirm, w2prompt } from './w2popup.js'
-import { w2field } from './w2field'
+import { w2field, addType, removeType } from './w2field'
 import { w2form } from './w2form'
 import { w2grid } from './w2grid'
 import { w2layout } from './w2layout'
 import { w2sidebar } from './w2sidebar'
 import { w2tabs } from './w2tabs'
 import { w2toolbar } from './w2toolbar'
-
-// Compatibility with CommonJS and AMD modules
-(function(global, w2ui) {
-    if (typeof define == 'function' && define.amd) {
-        return define(()=>w2ui)
-    }
-    if (typeof exports != 'undefined') {
-        if (typeof module != 'undefined' && module.exports)
-            return exports = module.exports = w2ui
-        global = exports
-    }
-    Object.keys(w2ui).forEach(key => {
-        global[key] = w2ui[key]
-    })
-})(self, {
-    w2ui,
-    w2utils,
-    w2popup,
-    w2alert,
-    w2confirm,
-    w2prompt
-});
 
 // Register jQuery plugins
 (function($) {
@@ -1492,4 +1470,38 @@ import { w2toolbar } from './w2toolbar'
         }
     }
 
-})(jQuery)
+})(jQuery);
+
+// Compatibility with CommonJS and AMD modules
+(function(global, w2ui) {
+    if (typeof define == 'function' && define.amd) {
+        return define(() => w2ui)
+    }
+    if (typeof exports != 'undefined') {
+        if (typeof module != 'undefined' && module.exports) {
+            return exports = module.exports = w2ui
+        }
+        global = exports
+    }
+    if (global) {
+        Object.keys(w2ui).forEach(key => {
+            global[key] = w2ui[key]
+        })
+    }
+})(self, {
+    w2ui,
+    w2utils,
+    w2popup,
+    w2alert,
+    w2confirm,
+    w2prompt,
+    w2field,
+    w2form,
+    w2grid,
+    w2layout,
+    w2sidebar,
+    w2tabs,
+    w2toolbar,
+    addType,
+    removeType
+})
