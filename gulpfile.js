@@ -67,7 +67,7 @@ let tasks = {
                 'src/w2sidebar.js',
                 'src/w2field.js',
                 'src/w2form.js',
-                'src/moduleCompat.js' // must be last
+                'src/w2compat.js' // must be last
             ])
             .pipe(concat('w2ui.js'))
             .pipe(header(comments.w2ui))
@@ -86,7 +86,7 @@ let tasks = {
             'src/w2sidebar.js',
             'src/w2field.js',
             'src/w2form.js',
-            'src/moduleCompat.js' // must be last
+            'src/w2compat.js' // must be last
         ])
             .pipe(concat('w2ui.js'))
             .pipe(replace("import { w2event } from './w2event.js'\n", ''))
