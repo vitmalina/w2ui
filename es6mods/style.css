@@ -1,0 +1,30 @@
+.div-box1 {
+    width: 100%;
+    height: 40px;
+    padding: 5px;
+    border: 1px solid #ddd;
+}
+
+.div-box2 {
+    width: 100%;
+    height: 78px;
+    padding: 5px;
+    border: 1px solid #ddd;
+}
+
+.div-box3 {
+    position: absolute !important;
+    top: 125px;
+    width: 300px;
+    height: 500px;
+    border: 1px solid #ddd;
+}
+
+.div-box4 {
+    position: absolute !important;
+    top: 125px;
+    margin-left: 310px;
+    height: 500px;
+    width: calc(100% - 322px);
+    border: 1px solid #ddd;
+}
