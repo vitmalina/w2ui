@@ -1,0 +1,28 @@
+<div id="id1" style="width: 400px; height: 300px; overflow: auto">
+    <div rel="title">
+        Popup #1
+    </div>
+    <div rel="body">
+        <div style="padding: 20px; color: green; font-size: 24px;">
+            This if first popup, it should not be.
+        </div>
+    </div>
+    <div rel="buttons">
+        <button class="w2ui-btn" onclick="w2popup.close()">Close</button>
+    </div>
+</div>
+
+<div id="id2" style="width: 600px; height: 300px; overflow: auto">
+    <div rel="title">
+        Popup #2
+    </div>
+    <div rel="body">
+        <div style="padding: 20px; color: green; font-size: 14px;">
+            Some other popup text. Some other popup text. Some other popup text. Some other popup text. Some other popup text.
+            Some other popup text. Some other popup text. Some other popup text. Some other popup text. Some other popup text.
+        </div>
+    </div>
+    <div rel="buttons">
+        <button class="w2ui-btn" onclick="w2popup.load({ url: 'popup.html', transition: 'slide-right', showMax: true })">Switch to Popup 1</button>
+    </div>
+</div>

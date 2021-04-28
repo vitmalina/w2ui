@@ -1,0 +1,4 @@
+{
+  "presets": ["es2015-without-strict"],
+  "compact": false
+}

@@ -21488,4 +21488,4 @@ var w2prompt = function (label, title, callBack) {
     w2prompt: w2prompt
 });
 
-//# sourceMappingURL=w2ui.js.map
+//# sourceMappingURL=w2ui-1.5.js.map
