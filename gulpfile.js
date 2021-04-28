@@ -9,6 +9,7 @@ const concat    = require('gulp-concat')
 const rename    = require('gulp-rename')
 const babel     = require('gulp-babel')
 const replace   = require('gulp-replace')
+const del       = require('del')
 const comments  = {
     w2ui : '/* w2ui 2.0.x (nightly) (c) http://w2ui.com, vitmalina@gmail.com */\n'
 }
@@ -16,26 +17,15 @@ const comments  = {
 let tasks = {
 
     clean(cb) {
-        // -f flag to ignore errors
-        let commands = [
-            'rm -f dist/w2ui.js',
-            'rm -f dist/w2ui.min.js',
-            'rm -f dist/w2ui.css',
-            'rm -f dist/w2ui-dark.css',
-            'rm -f dist/w2ui.min.css',
-            'rm -f dist/w2ui-dark.min.css'
+        let files = [
+            'dist/w2ui.js',
+            'dist/w2ui.min.js',
+            'dist/w2ui.css',
+            'dist/w2ui-dark.css',
+            'dist/w2ui.min.css',
+            'dist/w2ui-dark.min.css'
         ]
-        exec(commands.join('; '), (error, stdout, stderr) => {
-            if (error) {
-                console.log(`error: ${error.message}`)
-                return
-            }
-            if (stderr) {
-                console.log(`stderr: ${stderr}`)
-                return
-            }
-            cb()
-        })
+        return del(files)
     },
 
     less(cb) {
