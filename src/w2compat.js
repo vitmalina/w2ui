@@ -50,12 +50,12 @@ import { w2toolbar } from './w2toolbar'
         })
     }
 
-    $.fn.w2form     = function(options) { proc.call(this, options, 'w2form') }
-    $.fn.w2grid     = function(options) { proc.call(this, options, 'w2grid') }
-    $.fn.w2layout   = function(options) { proc.call(this, options, 'w2layout') }
-    $.fn.w2sidebar  = function(options) { proc.call(this, options, 'w2sidebar') }
-    $.fn.w2tabs     = function(options) { proc.call(this, options, 'w2tabs') }
-    $.fn.w2toolbar  = function(options) { proc.call(this, options, 'w2toolbar') }
+    $.fn.w2form     = function(options) { return proc.call(this, options, 'w2form') }
+    $.fn.w2grid     = function(options) { return proc.call(this, options, 'w2grid') }
+    $.fn.w2layout   = function(options) { return proc.call(this, options, 'w2layout') }
+    $.fn.w2sidebar  = function(options) { return proc.call(this, options, 'w2sidebar') }
+    $.fn.w2tabs     = function(options) { return proc.call(this, options, 'w2tabs') }
+    $.fn.w2toolbar  = function(options) { return proc.call(this, options, 'w2toolbar') }
 
     function proc(options, type) {
         if ($.isPlainObject(options)) {
@@ -67,7 +67,7 @@ import { w2toolbar } from './w2toolbar'
             if (type == 'w2tabs')       obj = new w2tabs(options)
             if (type == 'w2toolbar')    obj = new w2toolbar(options)
             if ($(this).length !== 0) {
-                obj.render($(this)[0])
+                obj.render(this[0])
             }
             return obj
         } else {
@@ -79,6 +79,12 @@ import { w2toolbar } from './w2toolbar'
             } else {
                 return obj
             }
+        }
+    }
+
+    $.fn.w2popup = function(options) {
+        if (this.length > 0 ) {
+            w2popup.template(this[0], null, options)
         }
     }
 

@@ -15,8 +15,8 @@
 *   - w2popup.onMsgOpen, w2popup.onMsgClose
 *   - options.multiple
 *   == 2.0
-*   - no longer jQuery plugin
 *   - load(url)
+*   - template(data, id)
 *   - open, load, message - return promise
 *   - options.actions = { text, class, onClick }
 *   - bindEvents
@@ -122,7 +122,6 @@ class w2dialog extends w2event {
                     }
                 })
             }
-
             // check if message is already displayed
             if ($('#w2ui-popup').length === 0) {
                 // trigger event
@@ -190,6 +189,7 @@ class w2dialog extends w2event {
                     // event after
                     obj.trigger($.extend(edata, { phase: 'after' }))
                     obj.bindEvents()
+                    $('#w2ui-popup').find('.w2ui-popup-body').show()
                     resolve(edata)
                 }, 50)
 
@@ -266,7 +266,10 @@ class w2dialog extends w2event {
                     $(div_old).remove()
                     $(div_new).removeClass('w2ui-box-temp').addClass('w2ui-box')
                     let $body = $(div_new).find('.w2ui-popup-body')
-                    if ($body.length == 1) $body[0].style.cssText = options.style
+                    if ($body.length == 1) {
+                        $body[0].style.cssText = options.style
+                        $body.show()
+                    }
                     // remove max state
                     $('#w2ui-popup').data('prev-size', null)
                     // focus on first button
@@ -276,6 +279,7 @@ class w2dialog extends w2event {
                 w2popup.status = 'open'
                 obj.trigger($.extend(edata, { phase: 'after' }))
                 obj.bindEvents()
+                $('#w2ui-popup').find('.w2ui-popup-body').show()
                 resolve(edata)
             }
 
@@ -347,6 +351,47 @@ class w2dialog extends w2event {
                 if (!tmp.isLocked) w2popup.unlock()
             }
         })
+    }
+
+    load(options) {
+        return new Promise((resolve, reject) => {
+            if (typeof options == 'string') {
+                options = { url: options }
+            }
+            if (options.url == null) {
+                console.log('ERROR: The url is not defined.')
+                reject('The url is not defined')
+                return
+            }
+            w2popup.status = 'loading'
+            let tmp = String(options.url).split('#')
+            let url = tmp[0]
+            let selector = tmp[1]
+            if (options == null) options = {}
+            // load url
+            let html = $('#w2ui-popup').data(url)
+            if (html != null) {
+                popup(html, selector)
+            } else {
+                $.get(url, (data, status, obj) => { // should always be $.get as it is template
+                    this.template(obj.responseText, selector, options).then(() => { resolve() })
+                })
+            }
+        })
+    }
+
+    template(data, id, options = {}) {
+        let $html = $(data)
+        if (id) $html = $html.filter('#' + id)
+        $.extend(options, {
+            style: $html[0].style.cssText,
+            width: $html.width(),
+            height: $html.height(),
+            title: $html.find('[rel=title]').html(),
+            body: $html.find('[rel=body]').html(),
+            buttons: $html.find('[rel=buttons]').html(),
+        })
+        return w2popup.open(options)
     }
 
     bindEvents() {
@@ -523,46 +568,6 @@ class w2dialog extends w2event {
 
     reset() {
         w2popup.open(w2popup.defaults)
-    }
-
-    load(options) {
-        return new Promise((resolve, reject) => {
-            if (typeof options == 'string') {
-                options = { url: options }
-            }
-            if (options.url == null) {
-                console.log('ERROR: The url is not defined.')
-                reject('The url is not defined')
-                return
-            }
-            w2popup.status = 'loading'
-            let tmp = String(options.url).split('#')
-            let url = tmp[0]
-            let selector = tmp[1]
-            if (options == null) options = {}
-            // load url
-            let html = $('#w2ui-popup').data(url)
-            if (html != null) {
-                popup(html, selector)
-            } else {
-                $.get(url, (data, status, obj) => { // should always be $.get as it is template
-                    popup(obj.responseText, selector)
-                })
-            }
-            function popup(data, selector) {
-                let $html = $(data)
-                if (selector) $html = $html.filter('#' + selector)
-                $.extend(options, {
-                    style: $html[0].style.cssText,
-                    width: $html.width(),
-                    height: $html.height(),
-                    title: $html.find('[rel=title]').html(),
-                    body: $html.find('[rel=body]').html(),
-                    buttons: $html.find('[rel=buttons]').html(),
-                })
-                w2popup.open(options).then(() => { resolve() })
-            }
-        })
     }
 
     message(options) {

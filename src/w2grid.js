@@ -6116,7 +6116,7 @@ class w2grid extends w2event {
             $('#grid_'+ grid.name +'_frecords > table').append(html1)
             $('#grid_'+ grid.name +'_records > table').append(html2)
         }
-        let width_box
+        let width_box, percent
         if (body.length > 0) {
             let width_max = parseInt(body.width())
                 - (bodyOverflowY ? w2utils.scrollBarSize() : 0)
@@ -6126,7 +6126,7 @@ class w2grid extends w2event {
                 - (this.show.expandColumn ? 26 : 0)
                 - 1 // left is 1xp due to border width
             width_box = width_max
-            let percent = 0
+            percent = 0
             // gridMinWidth processing
             let restart = false
             for (let i = 0; i < this.columns.length; i++) {

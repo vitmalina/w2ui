@@ -1405,7 +1405,7 @@ let w2utils = (($) => {
             return false
         }
         if (w2ui[name] != null) {
-            console.log(`ERROR: Property name="${name}" is alreayd used in w2ui.${name}.`)
+            console.log(`ERROR: Object named "${name}" is already registered as w2ui.${name}.`)
             return false
         }
         if (!w2utils.isAlphaNumeric(name)) {

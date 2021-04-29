@@ -80,7 +80,7 @@ class w2layout extends w2event {
         // add all other panels
         w2panels.forEach(tab => {
             if (this.get(tab) != null) return
-            this.panels.push($.extend(true, {}, w2layout.prototype.panel, { type: tab, hidden: (tab !== 'main'), size: 50 }))
+            this.panels.push($.extend(true, {}, this.panel_taemplate, { type: tab, hidden: (tab !== 'main'), size: 50 }))
         })
 
         function initTabs(object, panel, tabs) {
@@ -1116,7 +1116,7 @@ class w2layout extends w2event {
             console.log('ERROR: First parameter needs to be the a valid panel name.')
             return
         }
-        let args = Array.prototype.slice.call(arguments, 0)
+        let args = Array.from(arguments)
         args[0] = '#layout_'+ this.name + '_panel_' + panel
         w2utils.lock.apply(window, args)
     }
