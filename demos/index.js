@@ -167,9 +167,11 @@ $(function () {
                     { id: 'popup/4', text: 'Lock/Unlock', icon: 'fa fa-list-alt' },
                     { id: 'popup/5', text: 'Slide a Message', icon: 'fa fa-list-alt' },
                     { id: 'popup/6', text: 'Transitions', icon: 'fa fa-list-alt' },
-                    { id: 'popup/7', text: 'Dialogs (1.5+)', icon: 'fa fa-list-alt' },
+                    { id: 'popup/7', text: 'Common Dialogs (1.5+)', icon: 'fa fa-list-alt' },
                     { id: 'popup/8', text: 'Messages (1.5+)', icon: 'fa fa-list-alt' },
-                    { id: 'popup/9', text: 'Keyboard (1.5+)', icon: 'fa fa-list-alt' }
+                    { id: 'popup/9', text: 'Better Events (1.5+)', icon: 'fa fa-list-alt' },
+                    { id: 'popup/10', text: 'Promises (1.5+)', icon: 'fa fa-list-alt' },
+                    { id: 'popup/11', text: 'Actions (1.5+)', icon: 'fa fa-list-alt' }
                 ]
             },
             { id: 'utils', text: 'Utilities', img: 'icon-folder', group1: true,

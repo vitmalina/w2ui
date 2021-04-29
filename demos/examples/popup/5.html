@@ -1,8 +1,7 @@
 <div class="content">
     <div id="example_title">
         <h1>Slide a Message</h1>
-        The w2ui library allows to open single popup (because of my strong UX convictions). However, in some cases you need to show
-        addition info without closing the popup. This is where sliding a message from the top comes in.
+        Though you can only open one popup at a time, in some cases you might need to show addition info w/o closing the popup. This is where sliding a message can help.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -25,11 +24,11 @@ function popup() {
 }
 
 function showMessage () {
-    w2popup.message({ 
-        width   : 400, 
-        height  : 180,
-        html    : '<div style="padding: 60px; text-align: center">Click on the message to Hide it</div>'+
-                  '<div style="text-align: center"><button class="w2ui-btn" onclick="w2popup.message()">Close</button>'
+    w2popup.message({
+        width: 400,
+        height: 180,
+        html: '<div style="padding: 60px; text-align: center">Click on the message to Hide it</div>'+
+              '<div style="text-align: center"><button class="w2ui-btn" onclick="w2popup.message()">Close</button>'
     });
 }
 </script>

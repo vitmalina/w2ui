@@ -1,0 +1,44 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Actions (new in 1.5)</h1>
+        There is an easier way to define popup actions now. Which can be triggered with w2popu.action('action-name') method.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<button class="w2ui-btn" onclick="popup()">Open Popup</button>
+
+<!--CODE-->
+<script>
+function popup() {
+    w2popup.open({
+        width: 500,
+        height: 250,
+        title: 'Title',
+        body: '<div class="w2ui-centered" style="line-height: 1.8"><div class="text"></div></div>',
+        actions: {
+            // function name is used for button text
+            Ok(event) {
+                // do something
+                w2popup.close()
+            },
+            Cancel(event) {
+                w2popup.close()
+            },
+            // custom button, when you can define text and class
+            custom: {
+                text: "Other Button",
+                class: "w2ui-btn-blue",
+                onClick(event) {
+                    console.log('button clickced')
+                }
+            }
+        }
+    })
+    .then(() => {
+        $('#w2ui-popup .text').html("Popup ready")
+    });
+}
+</script>

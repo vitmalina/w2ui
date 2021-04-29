@@ -80,6 +80,7 @@ class w2dialog extends w2event {
                 w2popup.onClose = null
                 w2popup.onKeydown = null
                 w2popup.onAction = null
+                w2popup.onMove = null
             }
             if (options.onOpen) w2popup.onOpen = options.onOpen
             if (options.onClose) w2popup.onClose = options.onClose
@@ -88,6 +89,7 @@ class w2dialog extends w2event {
             if (options.onToggle) w2popup.onToggle = options.onToggle
             if (options.onKeydown) w2popup.onKeydown = options.onKeydown
             if (options.onAction) w2popup.onAction = options.onAction
+            if (options.onMove) w2popup.onMove = options.onMove
             options.width = parseInt(options.width)
             options.height = parseInt(options.height)
 
