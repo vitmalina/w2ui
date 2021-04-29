@@ -8,9 +8,9 @@ $(function () {
             { type: 'main', style: 'background-color: white;' }
         ]
     });
-    w2ui['layout'].content('top', '<div style="padding: 12px 20px; font-size: 18px;">W2UI 1.5 Documentation</div>');
+    w2ui['layout'].html('top', '<div style="padding: 12px 20px; font-size: 18px;">W2UI 1.5 Documentation</div>');
     // init sidebar
-    w2ui['layout'].content('left', $().w2sidebar({
+    w2ui['layout'].html('left', $().w2sidebar({
         name: 'docs',
         img: null,
         nodes: [
@@ -76,24 +76,8 @@ $(function () {
     init('toolbar');
     init('tabs');
     init('form');
-    initPopup();
-
-    // utils
-    var props   = [];
-    var methods = [];
-    for (var o in w2utils) {
-        if (typeof w2utils[o] == 'function') methods.push(o); else props.push(o);
-    }
-    props.sort();
-    methods.sort();
-    // properties
-    var nodes = [];
-    for (var o in props) nodes.push({ id: 'w2utils.' + props[o], text: props[o], icon: 'fa fa-tag' });
-    w2ui['docs'].add('w2utils-props', nodes);
-    // methods
-    var nodes = [];
-    for (var o in methods) nodes.push({ id: 'w2utils.' + methods[o], text: methods[o], icon: 'fa fa-cog' });
-    w2ui['docs'].add('w2utils-methods', nodes);
+    init('popup', w2popup)
+    initUtils()
 
     // remove internal methods/props
     w2ui['docs'].remove(
@@ -104,15 +88,24 @@ $(function () {
         'w2tabs.tab'
     );
 
-    function init (type) {
+    function init(type, obj) {
         var methods = [];
         var props   = [];
-        for (var o in w2obj[type].prototype) {
-            if (typeof w2obj[type].prototype[o]== 'function') methods.push(o); else props.push(o);
+        // -- this is needed for es6 compatibility
+        if (window.w2obj == null) {
+            window.w2obj = {}
         }
-        for (var o in w2ui['test-'+ type]) {
-            if (props.indexOf(o) == -1) props.push(o);
+        // ----
+        if (obj == null) {
+            obj = w2ui['test-'+ type]
         }
+        Object.getOwnPropertyNames(Object.getPrototypeOf(obj)).forEach(key => {
+            if (key == 'constructor' || String(key).substr(0, 2) == '__') return
+            if (typeof obj[key] == 'function') methods.push(key); else props.push(key);
+        })
+        Object.keys(obj).forEach(key => {
+            if (props.indexOf(key) == -1) props.push(key)
+        })
         methods.sort();
         props.sort();
         var nodes = [];
@@ -137,25 +130,23 @@ $(function () {
         w2ui['docs'].add('w2'+ type +'-props', nodes2);
     }
 
-    function initPopup () {
-        var methods = [];
-        var events  = [];
+    function initUtils() {
+        // utils
         var props   = [];
-        for (var m in w2popup) {
-            if (m.substr(0,2) == 'on' && m != 'on') {
-                events.push({ id: 'w2popup.' + m, text: m, icon: 'fa fa-tag' });
-            } else if (typeof w2popup[m] == 'function') {
-                methods.push({ id: 'w2popup.' + m, text: m, icon: 'fa fa-cog' });
-            } else {
-                props.push({ id: 'w2popup.' + m, text: m, icon: 'fa fa-star-o' });
-            }
+        var methods = [];
+        for (var o in w2utils) {
+            if (typeof w2utils[o] == 'function') methods.push(o); else props.push(o);
         }
-        methods.sort(function (a, b) { return a.text > b.text ? 1 : -1 });
-        events.sort(function (a, b) { return a.text > b.text ? 1 : -1 });
-        props.sort(function (a, b) { return a.text > b.text ? 1 : -1 });
-        w2ui.docs.set('w2popup-events', { nodes: events });
-        w2ui.docs.set('w2popup-props', { nodes: props });
-        w2ui.docs.set('w2popup-methods', { nodes: methods });
+        props.sort();
+        methods.sort();
+        // properties
+        var nodes = [];
+        for (var o in props) nodes.push({ id: 'w2utils.' + props[o], text: props[o], icon: 'fa fa-tag' });
+        w2ui['docs'].add('w2utils-props', nodes);
+        // methods
+        var nodes = [];
+        for (var o in methods) nodes.push({ id: 'w2utils.' + methods[o], text: methods[o], icon: 'fa fa-cog' });
+        w2ui['docs'].add('w2utils-methods', nodes);
     }
 
     // show latest hash
@@ -202,14 +193,14 @@ function doClick (cmd, data) {
             case 'onDestroy': cmd = 'common.onDestroy'; break;
             case 'onResize'    : cmd = 'common.onResize'; break;
         }
-        w2ui['layout'].content('main', '');
+        w2ui['layout'].html('main', '');
         var path = 'details/'+ cmd +'.html';
     }
     // load file
     $.get(path, function (data) {
         data = data.replace(/href="/g, 'href="#');
         data = data.replace(/href="#\/\/w2ui.com/g, 'href="//w2ui.com');
-        w2ui['layout'].content('main',
+        w2ui['layout'].html('main',
             '<div class="obj-desc">'+
             '<h1>' + cmd + '</h1>' +
             data +

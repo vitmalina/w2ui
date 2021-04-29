@@ -4,12 +4,12 @@ and require no feedback besides user acknowledgement. Confirm dialog has similar
 by accepting or declining the message. Prompt waits for user input. The w2ui library includes these dialogs for your convenience.
 <div style="height: 20px"></div>
 
-<h4>w2alert (msg, [title], [callBack])</h4>
+<h4>w2alert(msg, [title], [callBack])</h4>
 
 The alert dialog can be called in the following way:
 
 <textarea class="javascript">
-w2alert('This is an alert');
+w2alert('This is an alert')
 </textarea>
 
 First argument, msg, is a message to display. Second optional argument, title, is the title for the dialog. The third optional argument,
@@ -17,9 +17,10 @@ callBack, is a call back function when dialog is closed.
 <div style="height: 20px"></div>
 
 <textarea class="javascript">
-w2alert('This is an alert').done(function () {
-    // call back when alert closed
-});
+w2alert('This is an alert')
+    .ok(function () {
+        // call back when alert closed
+    })
 </textarea>
 
 
@@ -28,13 +29,20 @@ w2alert('This is an alert').done(function () {
 The confirm dialog can be called in the following way:
 
 <textarea class="javascript">
+w2confirm('Are you sure?')
+    .yes(() => {
+        console.log('Yes')
+    })
+    .no(() => {
+        console.log('Yes')
+    })
+// OR
 w2confirm('Are you sure?', function btn(answer) {
     console.log(answer); // Yes or No -- case-sensitive
-});
+})
 </textarea>
 
-The method takes up to three arguments <span class="method">w2confirm(msg, [title], [callBack])</span>, where msg is the message to display.
-You can optionally supply title for the message and a call back function.
+The method takes up to three arguments <span class="method">w2confirm(msg, [title], [callBack])</span>, where msg is the message to display. You can optionally supply title for the message and a call back function.
 <div style="height: 20px"></div>
 
 <h4>w2confirm(options)</h4>
@@ -43,23 +51,25 @@ You can optionally call w2confirm passing an object with options. This options o
 
 <textarea class="javascript">
 options = {
-    msg          : '',
-    title        : 'Confirmation',
-    width        : 450,     // width of the dialog
-    height       : 220,     // height of the dialog
-    btn_yes      : {
-        text     : 'Yes',   // text for yes button (or yes_text)
-        class    : '',      // class for yes button (or yes_class)
-        style    : '',      // style for yes button (or yes_style)
-        callBack : null     // callBack for yes button (or yes_callBack)
+    msg: '',
+    title: 'Confirmation',
+    width: 450,        // width of the dialog
+    height: 220,       // height of the dialog
+    btn_yes: {
+        text  : 'Yes', // text for yes button (or yes_text)
+        class : '',    // class for yes button (or yes_class)
+        style : '',    // style for yes button (or yes_style)
+        click : null   // callBack for yes button (or yes_callBack)
     },
-    btn_no       : {
-        text     : 'No',    // text for no button (or no_text)
-        class    : '',      // class for no button (or no_class)
-        style    : '',      // style for no button (or no_style)
-        callBack : null     // callBack for no button (or no_callBack)
+    btn_no: {
+        text  : 'No',  // text for no button (or no_text)
+        class : '',    // class for no button (or no_class)
+        style : '',    // style for no button (or no_style)
+        click : null   // callBack for no button (or no_callBack)
     },
-    callBack     : null     // common callBack
+    callBack: null,    // common callBack
+    onOpen: null,      // event when popup is opened
+    onClose: null      // event when popup is closed
 };
 </textarea>
 
@@ -81,9 +91,9 @@ Prompts user to enter value. Instead of passing label, title, and callBack, you 
 
 <textarea class="javascript">
 w2prompt({
-        label : 'Enter value',
-        value : '0',
-        attrs : 'size=6'
+        label: 'Enter value',
+        value: '0',
+        attrs: 'size=6'
     })
     .change(function () {
         console.log('Input value changed.');
@@ -99,14 +109,26 @@ Following properties are supported:
 
 <textarea class="javascript">
 options = {
-    label       : '',               // label for the input control
-    value       : '',               // initial value of input
-    attrs       : '',               // attributes for input control
-    title       : 'Notification',   // title of dialog
-    ok_text     : 'Ok',             // text of Ok button
-    cancel_text : 'Cancel',         // text of Cancel button
-    width       : 400,              // width of the dialog
-    height      : 220,              // height of dialog
-    callBack    : null              // callBack function, if any
+    title: 'Notification', // title of dialog
+    width: 400,            // width of the dialog
+    height: 220,           // height of dialog
+    label: '',             // label for the input control
+    value: '',             // initial value of input
+    attrs: '',             // attributes for input control
+    btn_ok: {
+        text  : 'Ok', // text for ok button (or ok_text)
+        class : '',    // class for ok button (or ok_class)
+        style : '',    // style for ok button (or ok_style)
+        click : null   // callBack for ok button (or ok_callBack)
+    },
+    btn_cancel: {
+        text  : 'Cancel', // text for cancel button (or cancel_text)
+        class : '',    // class for cancel button (or cancel_class)
+        style : '',    // style for cancel button (or cancel_style)
+        click : null   // callBack for cancel button (or cancel_callBack)
+    },
+    callBack: null         // callBack function, if any
+    onOpen: null,          // event when popup is opened
+    onClose: null          // event when popup is closed
 }
 </textarea>
