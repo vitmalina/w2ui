@@ -19,7 +19,7 @@ var config = {
         padding: 0,
         panels: [
             { type: 'left', size: 200, resizable: true, minSize: 120 },
-            { type: 'main', overflow: 'hidden', 
+            { type: 'main', overflow: 'hidden',
                 style: 'background-color: white; border: 1px solid silver; border-top: 0px; padding: 10px;',
                 tabs: {
                     active: 'tab0',
@@ -36,7 +36,7 @@ var config = {
     },
     sidebar: {
         name: 'sidebar',
-        nodes: [ 
+        nodes: [
             { id: 'general', text: 'General', group: true, expanded: true, nodes: [
                 { id: 'item1', text: 'Item 1', img: 'icon-page' },
                 { id: 'item2', text: 'Item 2', img: 'icon-page' },
@@ -60,6 +60,6 @@ var config = {
 $(function () {
     // initialization
     $('#main').w2layout(config.layout);
-    w2ui.layout.content('left', $().w2sidebar(config.sidebar));
+    w2ui.layout.html('left', $().w2sidebar(config.sidebar));
 });
 </script>

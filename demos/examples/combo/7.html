@@ -25,7 +25,7 @@ var config = {
             { type: 'main', minSize: 300 }
         ]
     },
-    grid: { 
+    grid: {
         name: 'grid',
         columns: [
             { field: 'fname', caption: 'First Name', size: '33%', sortable: true, searchable: true },
@@ -59,7 +59,7 @@ var config = {
             }
         }
     },
-    form: { 
+    form: {
         header: 'Edit Record',
         name: 'form',
         fields: [
@@ -107,11 +107,11 @@ function openPopup() {
         onOpen  : function (event) {
             event.onComplete = function () {
                 $('#w2ui-popup #main').w2render('layout');
-                w2ui.layout.content('left', w2ui.grid);
-                w2ui.layout.content('main', w2ui.form);
+                w2ui.layout.html('left', w2ui.grid);
+                w2ui.layout.html('main', w2ui.form);
             };
         },
-        onToggle: function (event) { 
+        onToggle: function (event) {
             event.onComplete = function () {
                 w2ui.layout.resize();
             }
