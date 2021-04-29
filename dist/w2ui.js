@@ -1459,7 +1459,7 @@ let w2utils = (($) => {
             return false
         }
         if (w2ui[name] != null) {
-            console.log(`ERROR: Property name="${name}" is alreayd used in w2ui.${name}.`)
+            console.log(`ERROR: Object named "${name}" is already registered as w2ui.${name}.`)
             return false
         }
         if (!w2utils.isAlphaNumeric(name)) {
@@ -7746,7 +7746,7 @@ class w2grid extends w2event {
             $('#grid_'+ grid.name +'_frecords > table').append(html1)
             $('#grid_'+ grid.name +'_records > table').append(html2)
         }
-        let width_box
+        let width_box, percent
         if (body.length > 0) {
             let width_max = parseInt(body.width())
                 - (bodyOverflowY ? w2utils.scrollBarSize() : 0)
@@ -7756,7 +7756,7 @@ class w2grid extends w2event {
                 - (this.show.expandColumn ? 26 : 0)
                 - 1 // left is 1xp due to border width
             width_box = width_max
-            let percent = 0
+            percent = 0
             // gridMinWidth processing
             let restart = false
             for (let i = 0; i < this.columns.length; i++) {
@@ -9726,7 +9726,7 @@ class w2layout extends w2event {
         // add all other panels
         w2panels.forEach(tab => {
             if (this.get(tab) != null) return
-            this.panels.push($.extend(true, {}, w2layout.prototype.panel, { type: tab, hidden: (tab !== 'main'), size: 50 }))
+            this.panels.push($.extend(true, {}, this.panel_taemplate, { type: tab, hidden: (tab !== 'main'), size: 50 }))
         })
         function initTabs(object, panel, tabs) {
             let pan = object.get(panel)
@@ -10719,7 +10719,7 @@ class w2layout extends w2event {
             console.log('ERROR: First parameter needs to be the a valid panel name.')
             return
         }
-        let args = Array.prototype.slice.call(arguments, 0)
+        let args = Array.from(arguments)
         args[0] = '#layout_'+ this.name + '_panel_' + panel
         w2utils.lock.apply(window, args)
     }
@@ -10749,8 +10749,8 @@ class w2layout extends w2event {
 *   - w2popup.onMsgOpen, w2popup.onMsgClose
 *   - options.multiple
 *   == 2.0
-*   - no longer jQuery plugin
 *   - load(url)
+*   - template(data, id)
 *   - open, load, message - return promise
 *   - options.actions = { text, class, onClick }
 *   - bindEvents
@@ -10915,6 +10915,7 @@ class w2dialog extends w2event {
                     // event after
                     obj.trigger($.extend(edata, { phase: 'after' }))
                     obj.bindEvents()
+                    $('#w2ui-popup').find('.w2ui-popup-body').show()
                     resolve(edata)
                 }, 50)
             } else if (options.multiple === true) {
@@ -10988,7 +10989,10 @@ class w2dialog extends w2event {
                     $(div_old).remove()
                     $(div_new).removeClass('w2ui-box-temp').addClass('w2ui-box')
                     let $body = $(div_new).find('.w2ui-popup-body')
-                    if ($body.length == 1) $body[0].style.cssText = options.style
+                    if ($body.length == 1) {
+                        $body[0].style.cssText = options.style
+                        $body.show()
+                    }
                     // remove max state
                     $('#w2ui-popup').data('prev-size', null)
                     // focus on first button
@@ -10998,6 +11002,7 @@ class w2dialog extends w2event {
                 w2popup.status = 'open'
                 obj.trigger($.extend(edata, { phase: 'after' }))
                 obj.bindEvents()
+                $('#w2ui-popup').find('.w2ui-popup-body').show()
                 resolve(edata)
             }
             // save new options
@@ -11064,6 +11069,45 @@ class w2dialog extends w2event {
                 if (!tmp.isLocked) w2popup.unlock()
             }
         })
+    }
+    load(options) {
+        return new Promise((resolve, reject) => {
+            if (typeof options == 'string') {
+                options = { url: options }
+            }
+            if (options.url == null) {
+                console.log('ERROR: The url is not defined.')
+                reject('The url is not defined')
+                return
+            }
+            w2popup.status = 'loading'
+            let tmp = String(options.url).split('#')
+            let url = tmp[0]
+            let selector = tmp[1]
+            if (options == null) options = {}
+            // load url
+            let html = $('#w2ui-popup').data(url)
+            if (html != null) {
+                popup(html, selector)
+            } else {
+                $.get(url, (data, status, obj) => { // should always be $.get as it is template
+                    this.template(obj.responseText, selector, options).then(() => { resolve() })
+                })
+            }
+        })
+    }
+    template(data, id, options = {}) {
+        let $html = $(data)
+        if (id) $html = $html.filter('#' + id)
+        $.extend(options, {
+            style: $html[0].style.cssText,
+            width: $html.width(),
+            height: $html.height(),
+            title: $html.find('[rel=title]').html(),
+            body: $html.find('[rel=body]').html(),
+            buttons: $html.find('[rel=buttons]').html(),
+        })
+        return w2popup.open(options)
     }
     bindEvents() {
         $('#w2ui-popup .w2ui-action').each((ind, el) => {
@@ -11229,45 +11273,6 @@ class w2dialog extends w2event {
     }
     reset() {
         w2popup.open(w2popup.defaults)
-    }
-    load(options) {
-        return new Promise((resolve, reject) => {
-            if (typeof options == 'string') {
-                options = { url: options }
-            }
-            if (options.url == null) {
-                console.log('ERROR: The url is not defined.')
-                reject('The url is not defined')
-                return
-            }
-            w2popup.status = 'loading'
-            let tmp = String(options.url).split('#')
-            let url = tmp[0]
-            let selector = tmp[1]
-            if (options == null) options = {}
-            // load url
-            let html = $('#w2ui-popup').data(url)
-            if (html != null) {
-                popup(html, selector)
-            } else {
-                $.get(url, (data, status, obj) => { // should always be $.get as it is template
-                    popup(obj.responseText, selector)
-                })
-            }
-            function popup(data, selector) {
-                let $html = $(data)
-                if (selector) $html = $html.filter('#' + selector)
-                $.extend(options, {
-                    style: $html[0].style.cssText,
-                    width: $html.width(),
-                    height: $html.height(),
-                    title: $html.find('[rel=title]').html(),
-                    body: $html.find('[rel=body]').html(),
-                    buttons: $html.find('[rel=buttons]').html(),
-                })
-                w2popup.open(options).then(() => { resolve() })
-            }
-        })
     }
     message(options) {
         return new Promise((resolve, reject) => {
@@ -18986,12 +18991,12 @@ class w2form extends w2event {
             return null
         })
     }
-    $.fn.w2form     = function(options) { proc.call(this, options, 'w2form') }
-    $.fn.w2grid     = function(options) { proc.call(this, options, 'w2grid') }
-    $.fn.w2layout   = function(options) { proc.call(this, options, 'w2layout') }
-    $.fn.w2sidebar  = function(options) { proc.call(this, options, 'w2sidebar') }
-    $.fn.w2tabs     = function(options) { proc.call(this, options, 'w2tabs') }
-    $.fn.w2toolbar  = function(options) { proc.call(this, options, 'w2toolbar') }
+    $.fn.w2form     = function(options) { return proc.call(this, options, 'w2form') }
+    $.fn.w2grid     = function(options) { return proc.call(this, options, 'w2grid') }
+    $.fn.w2layout   = function(options) { return proc.call(this, options, 'w2layout') }
+    $.fn.w2sidebar  = function(options) { return proc.call(this, options, 'w2sidebar') }
+    $.fn.w2tabs     = function(options) { return proc.call(this, options, 'w2tabs') }
+    $.fn.w2toolbar  = function(options) { return proc.call(this, options, 'w2toolbar') }
     function proc(options, type) {
         if ($.isPlainObject(options)) {
             let obj
@@ -19002,7 +19007,7 @@ class w2form extends w2event {
             if (type == 'w2tabs')       obj = new w2tabs(options)
             if (type == 'w2toolbar')    obj = new w2toolbar(options)
             if ($(this).length !== 0) {
-                obj.render($(this)[0])
+                obj.render(this[0])
             }
             return obj
         } else {
@@ -19014,6 +19019,11 @@ class w2form extends w2event {
             } else {
                 return obj
             }
+        }
+    }
+    $.fn.w2popup = function(options) {
+        if (this.length > 0 ) {
+            w2popup.template(this[0], null, options)
         }
     }
     $.fn.w2marker = function() {
