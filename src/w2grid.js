@@ -334,7 +334,7 @@ class w2grid extends w2event {
             info            : null // info bubble, can be bool/object
         }
 
-        this.msgDelete = 'Are you sure you want to delete NN records?'
+        this.msgDelete = 'Are you sure you want to delete XX records?'
         this.msgDeleteBtn = 'Delete'
         this.msgNotJSON = 'Returned data is not in valid JSON format.'
         this.msgAJAXerror = 'AJAX error. See console for more details.'
@@ -2577,9 +2577,10 @@ class w2grid extends w2event {
 
     requestComplete(status, xhr, cmd, callBack) {
         this.unlock()
+        this.last.xhr_response = ((new Date()).getTime() - this.last.xhr_start)/1000
         setTimeout(() => {
             if (this.show.statusResponse) {
-                this.status(w2utils.lang('Server Response') + ' ' + ((new Date()).getTime() - this.last.xhr_start)/1000 +' ' + w2utils.lang('sec'))
+                this.status(w2utils.lang('Server Response XX sec').replace('XX', this.last.xhr_response))
             }
         }, 10)
         this.last.pull_more = false
@@ -3241,7 +3242,7 @@ class w2grid extends w2event {
                 width   : 380,
                 height  : 170,
                 body    : '<div class="w2ui-centered">' +
-                                w2utils.lang(this.msgDelete).replace('NN', recs.length).replace('records', (recs.length == 1 ? 'record' : 'records')) +
+                                w2utils.lang(this.msgDelete).replace('XX', recs.length).replace('records', (recs.length == 1 ? 'record' : 'records')) +
                           '</div>',
                 buttons : (w2utils.settings.macButtonOrder
                     ? '<button type="button" class="w2ui-btn btn-default" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('Cancel') + '</button>' +

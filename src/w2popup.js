@@ -2,10 +2,6 @@
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
 *
-* == TODO ==
-*   - hide overlay on esc
-*   - make popup width/height in %
-*
 * == changes 2.0
 *   - load(url)
 *   - template(data, id)
