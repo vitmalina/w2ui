@@ -332,8 +332,12 @@ $(function () {
     function hashChanged() {
         // show toolbar
         let hash = String(document.location.hash).substr(2)
+        if (hash == '') hash = 'combo/1'
         let sec = hash.split('/')[0]
         let exp = hash.split('/')[1]
+        if (parseInt(exp) != exp) { // neded for backward compatibility with what is in google already
+            exp = String(exp).split('-')[1]
+        }
         let sb = w2ui.demo_sidebar
         w2ui.demo_toolbar.get(sec).checked = true
         w2ui.demo_toolbar.refresh(sec)
@@ -347,7 +351,7 @@ $(function () {
                     sb.hide(node.id)
                 }
             })
-            w2ui.demo_sidebar.click(hash || (exp+'/1'))
+            w2ui.demo_sidebar.click(sec + '/' + exp || (exp+'/1'))
         } else {
             // w2ui.demo_sidebar.select(hash || (exp+'/1'))
         }
