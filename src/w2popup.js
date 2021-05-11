@@ -2,21 +2,9 @@
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
 *
-* == TODO ==
-*   - hide overlay on esc
-*   - make popup width/height in %
-*
-* == changes
-*   - added onMove event
-*   - w2prompt.options.ok_class, cancel_class
-*   - w2confirm.options.onOpen, w2confirm.options.onClose
-*   - w2prompt.options.onOpen, w2prompt.options.onClose
-*   - w2popup.actions, w2popup.action, w2popup.onAction
-*   - w2popup.onMsgOpen, w2popup.onMsgClose
-*   - options.multiple
-*   == 2.0
-*   - no longer jQuery plugin
+* == changes 2.0
 *   - load(url)
+*   - template(data, id)
 *   - open, load, message - return promise
 *   - options.actions = { text, class, onClick }
 *   - bindEvents
@@ -55,6 +43,10 @@ class w2dialog extends w2event {
         this.onMin = null
         this.onToggle = null
         this.onKeydown = null
+        this.onAction = null
+        this.onMove = null
+        this.onMsgOpen = null
+        this.onMsgClose = null
     }
 
     open(options) {
@@ -73,13 +65,16 @@ class w2dialog extends w2event {
             // if new - reset event handlers
             if ($('#w2ui-popup').length === 0) {
                 // w2popup.handlers  = []; // if commented, allows to add w2popup.on() for all
+                w2popup.onOpen = null
+                w2popup.onClose = null
                 w2popup.onMax = null
                 w2popup.onMin = null
                 w2popup.onToggle = null
-                w2popup.onOpen = null
-                w2popup.onClose = null
                 w2popup.onKeydown = null
                 w2popup.onAction = null
+                w2popup.onMove = null
+                w2popup.onMsgOpen = null
+                w2popup.onMsgClose = null
             }
             if (options.onOpen) w2popup.onOpen = options.onOpen
             if (options.onClose) w2popup.onClose = options.onClose
@@ -88,6 +83,9 @@ class w2dialog extends w2event {
             if (options.onToggle) w2popup.onToggle = options.onToggle
             if (options.onKeydown) w2popup.onKeydown = options.onKeydown
             if (options.onAction) w2popup.onAction = options.onAction
+            if (options.onMove) w2popup.onMove = options.onMove
+            if (options.onMsgOpen) w2popup.onMsgOpen = options.onMsgOpen
+            if (options.onMsgClose) w2popup.onMsgClose = options.onMsgClose
             options.width = parseInt(options.width)
             options.height = parseInt(options.height)
 
@@ -122,7 +120,6 @@ class w2dialog extends w2event {
                     }
                 })
             }
-
             // check if message is already displayed
             if ($('#w2ui-popup').length === 0) {
                 // trigger event
@@ -190,6 +187,7 @@ class w2dialog extends w2event {
                     // event after
                     obj.trigger($.extend(edata, { phase: 'after' }))
                     obj.bindEvents()
+                    $('#w2ui-popup').find('.w2ui-popup-body').show()
                     resolve(edata)
                 }, 50)
 
@@ -266,7 +264,10 @@ class w2dialog extends w2event {
                     $(div_old).remove()
                     $(div_new).removeClass('w2ui-box-temp').addClass('w2ui-box')
                     let $body = $(div_new).find('.w2ui-popup-body')
-                    if ($body.length == 1) $body[0].style.cssText = options.style
+                    if ($body.length == 1) {
+                        $body[0].style.cssText = options.style
+                        $body.show()
+                    }
                     // remove max state
                     $('#w2ui-popup').data('prev-size', null)
                     // focus on first button
@@ -276,6 +277,7 @@ class w2dialog extends w2event {
                 w2popup.status = 'open'
                 obj.trigger($.extend(edata, { phase: 'after' }))
                 obj.bindEvents()
+                $('#w2ui-popup').find('.w2ui-popup-body').show()
                 resolve(edata)
             }
 
@@ -347,6 +349,47 @@ class w2dialog extends w2event {
                 if (!tmp.isLocked) w2popup.unlock()
             }
         })
+    }
+
+    load(options) {
+        return new Promise((resolve, reject) => {
+            if (typeof options == 'string') {
+                options = { url: options }
+            }
+            if (options.url == null) {
+                console.log('ERROR: The url is not defined.')
+                reject('The url is not defined')
+                return
+            }
+            w2popup.status = 'loading'
+            let tmp = String(options.url).split('#')
+            let url = tmp[0]
+            let selector = tmp[1]
+            if (options == null) options = {}
+            // load url
+            let html = $('#w2ui-popup').data(url)
+            if (html != null) {
+                popup(html, selector)
+            } else {
+                $.get(url, (data, status, obj) => { // should always be $.get as it is template
+                    this.template(obj.responseText, selector, options).then(() => { resolve() })
+                })
+            }
+        })
+    }
+
+    template(data, id, options = {}) {
+        let $html = $(data)
+        if (id) $html = $html.filter('#' + id)
+        $.extend(options, {
+            style: $html[0].style.cssText,
+            width: $html.width(),
+            height: $html.height(),
+            title: $html.find('[rel=title]').html(),
+            body: $html.find('[rel=body]').html(),
+            buttons: $html.find('[rel=buttons]').html(),
+        })
+        return w2popup.open(options)
     }
 
     bindEvents() {
@@ -523,46 +566,6 @@ class w2dialog extends w2event {
 
     reset() {
         w2popup.open(w2popup.defaults)
-    }
-
-    load(options) {
-        return new Promise((resolve, reject) => {
-            if (typeof options == 'string') {
-                options = { url: options }
-            }
-            if (options.url == null) {
-                console.log('ERROR: The url is not defined.')
-                reject('The url is not defined')
-                return
-            }
-            w2popup.status = 'loading'
-            let tmp = String(options.url).split('#')
-            let url = tmp[0]
-            let selector = tmp[1]
-            if (options == null) options = {}
-            // load url
-            let html = $('#w2ui-popup').data(url)
-            if (html != null) {
-                popup(html, selector)
-            } else {
-                $.get(url, (data, status, obj) => { // should always be $.get as it is template
-                    popup(obj.responseText, selector)
-                })
-            }
-            function popup(data, selector) {
-                let $html = $(data)
-                if (selector) $html = $html.filter('#' + selector)
-                $.extend(options, {
-                    style: $html[0].style.cssText,
-                    width: $html.width(),
-                    height: $html.height(),
-                    title: $html.find('[rel=title]').html(),
-                    body: $html.find('[rel=body]').html(),
-                    buttons: $html.find('[rel=buttons]').html(),
-                })
-                w2popup.open(options).then(() => { resolve() })
-            }
-        })
     }
 
     message(options) {
@@ -974,6 +977,10 @@ function w2alert(msg, title, callBack) {
         done(fun) {
             callBack = fun
             return this
+        },
+        then(fun) {
+            callBack = fun
+            return this
         }
     }
 }
@@ -982,18 +989,22 @@ function w2confirm(msg, title, callBack) {
     let $ = jQuery
     let options = {}
     let defaults = {
-        msg         : '',
-        title       : w2utils.lang('Confirmation'),
-        width       : ($('#w2ui-popup').length > 0 ? 400 : 450),
-        height      : ($('#w2ui-popup').length > 0 ? 170 : 220),
-        yes_text    : 'Yes',
-        yes_class   : '',
-        yes_style   : '',
-        yes_callBack: null,
-        no_text     : 'No',
-        no_class    : '',
-        no_style    : '',
-        no_callBack : null,
+        msg: '',
+        title: w2utils.lang('Confirmation'),
+        width: ($('#w2ui-popup').length > 0 ? 400 : 450),
+        height: ($('#w2ui-popup').length > 0 ? 170 : 220),
+        btn_yes: {
+            text: 'Yes',
+            class: '',
+            styel: '',
+            click: null
+        },
+        btn_no     : {
+            text: 'No',
+            class: '',
+            styel: '',
+            click: null
+        },
         focus_to_no : false,
         callBack    : null
     }
@@ -1013,31 +1024,31 @@ function w2confirm(msg, title, callBack) {
             })
         }
     }
-    // if there is a yes/no button object
-    if (typeof options.btn_yes == 'object') {
-        options.yes_text = options.btn_yes.text || options.yes_text
-        options.yes_class = options.btn_yes.class || options.yes_class
-        options.yes_style = options.btn_yes.style || options.yes_style
-        options.yes_callBack = options.btn_yes.callBack || options.yes_callBack
-    }
-    if (typeof options.btn_no == 'object') {
-        options.no_text = options.btn_no.text || options.no_text
-        options.no_class = options.btn_no.class || options.no_class
-        options.no_style = options.btn_no.style || options.no_style
-        options.no_callBack = options.btn_no.callBack || options.no_callBack
-    }
+    // yes btn - backward compatibility
+    if (options.yes_text) options.btn_yes.text = options.yes_text
+    if (options.yes_class) options.btn_yes.class = options.yes_class
+    if (options.yes_style) options.btn_yes.style = options.yes_style
+    if (options.yes_onClick) options.btn_yes.click = options.yes_onClick
+    if (options.yes_callBack) options.btn_yes.click = options.yes_callBack
+    // no btn - backward compatibility
+    if (options.no_text) options.btn_no.text = options.no_text
+    if (options.no_class) options.btn_no.class = options.no_class
+    if (options.no_style) options.btn_no.style = options.no_style
+    if (options.no_onClick) options.btn_no.click = options.no_onClick
+    if (options.no_callBack) options.btn_no.click = options.no_callBack
+
     if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing' && w2popup.get()) {
         if (options.width > w2popup.get().width) options.width = w2popup.get().width
         if (options.height > (w2popup.get().height - 50)) options.height = w2popup.get().height - 50
         w2popup.message({
-            width   : options.width,
-            height  : options.height,
-            body    : '<div class="w2ui-centered w2ui-confirm-msg" style="font-size: 13px;">' + options.msg + '</div>',
-            buttons : (w2utils.settings.macButtonOrder
-                ? '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">' + w2utils.lang(options.no_text) + '</button>' +
-                  '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">' + w2utils.lang(options.yes_text) + '</button>'
-                : '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">' + w2utils.lang(options.yes_text) + '</button>' +
-                  '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">' + w2utils.lang(options.no_text) + '</button>'
+            width: options.width,
+            height: options.height,
+            body: '<div class="w2ui-centered w2ui-confirm-msg" style="font-size: 13px;">' + options.msg + '</div>',
+            buttons: (w2utils.settings.macButtonOrder
+                ? '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.btn_no.class +'" style="'+ options.btn_no.style +'">' + w2utils.lang(options.btn_no.text) + '</button>' +
+                  '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.btn_yes.class +'" style="'+ options.btn_yes.style +'">' + w2utils.lang(options.btn_yes.text) + '</button>'
+                : '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.btn_yes.class +'" style="'+ options.btn_yes.style +'">' + w2utils.lang(options.btn_yes.text) + '</button>' +
+                  '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.btn_no.class +'" style="'+ options.btn_no.style +'">' + w2utils.lang(options.btn_no.text) + '</button>'
             ),
             onOpen(event) {
                 $('#w2ui-popup .w2ui-message .w2ui-btn').on('click.w2confirm', function(event) {
@@ -1052,8 +1063,8 @@ function w2confirm(msg, title, callBack) {
                 // need to wait for message to slide up
                 setTimeout(() => {
                     if (typeof options.callBack == 'function') options.callBack(w2popup._confirm_btn)
-                    if (w2popup._confirm_btn == 'Yes' && typeof options.yes_callBack == 'function') options.yes_callBack()
-                    if (w2popup._confirm_btn == 'No' && typeof options.no_callBack == 'function') options.no_callBack()
+                    if (w2popup._confirm_btn == 'Yes' && typeof options.btn_yes.click == 'function') options.btn_yes.click()
+                    if (w2popup._confirm_btn == 'No' && typeof options.btn_no.click == 'function') options.btn_no.click()
                 }, 300)
                 if (typeof options.onClose == 'function') options.onClose()
             }
@@ -1064,17 +1075,17 @@ function w2confirm(msg, title, callBack) {
 
         if (!w2utils.isInt(options.height)) options.height = options.height + 50
         w2popup.open({
-            width      : options.width,
-            height     : options.height,
-            title      : options.title,
-            modal      : true,
-            showClose  : false,
-            body       : '<div class="w2ui-centered w2ui-confirm-msg" style="font-size: 13px;">' + options.msg + '</div>',
-            buttons    : (w2utils.settings.macButtonOrder
-                    ? '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">'+ w2utils.lang(options.no_text) +'</button>' +
-                      '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">'+ w2utils.lang(options.yes_text) +'</button>'
-                    : '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.yes_class +'" style="'+ options.yes_style +'">'+ w2utils.lang(options.yes_text) +'</button>' +
-                      '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.no_class +'" style="'+ options.no_style +'">'+ w2utils.lang(options.no_text) +'</button>'
+            width: options.width,
+            height: options.height,
+            title: options.title,
+            modal: true,
+            showClose: false,
+            body: '<div class="w2ui-centered w2ui-confirm-msg" style="font-size: 13px;">' + options.msg + '</div>',
+            buttons: (w2utils.settings.macButtonOrder
+                    ? '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.btn_no.class +'" style="'+ options.btn_no.style +'">'+ w2utils.lang(options.btn_no.text) +'</button>' +
+                      '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.btn_yes.class +'" style="'+ options.btn_yes.style +'">'+ w2utils.lang(options.btn_yes.text) +'</button>'
+                    : '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.btn_yes.class +'" style="'+ options.btn_yes.style +'">'+ w2utils.lang(options.btn_yes.text) +'</button>' +
+                      '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.btn_no.class +'" style="'+ options.btn_no.style +'">'+ w2utils.lang(options.btn_no.text) +'</button>'
             ),
             onOpen(event) {
                 // do not use onComplete as it is slower
@@ -1082,8 +1093,8 @@ function w2confirm(msg, title, callBack) {
                     $('#w2ui-popup .w2ui-popup-btn').on('click', function(event) {
                         w2popup.close()
                         if (typeof options.callBack == 'function') options.callBack(event.target.id)
-                        if (event.target.id == 'Yes' && typeof options.yes_callBack == 'function') options.yes_callBack()
-                        if (event.target.id == 'No' && typeof options.no_callBack == 'function') options.no_callBack()
+                        if (event.target.id == 'Yes' && typeof options.btn_yes.click == 'function') options.btn_yes.click()
+                        if (event.target.id == 'No' && typeof options.btn_no.click == 'function') options.btn_no.click()
                     })
                     if(options.focus_to_no){
                         $('#w2ui-popup .w2ui-popup-btn#No').focus()
@@ -1116,11 +1127,11 @@ function w2confirm(msg, title, callBack) {
 
     return {
         yes(fun) {
-            options.yes_callBack = fun
+            options.btn_yes.click = fun
             return this
         },
         no(fun) {
-            options.no_callBack = fun
+            options.btn_no.click = fun
             return this
         }
     }
@@ -1130,20 +1141,28 @@ function w2prompt(label, title, callBack) {
     let $ = jQuery
     let options = {}
     let defaults = {
-        title       : w2utils.lang('Notification'),
-        width       : ($('#w2ui-popup').length > 0 ? 400 : 450),
-        height      : ($('#w2ui-popup').length > 0 ? 170 : 220),
-        label       : '',
-        value       : '',
-        attrs       : '',
-        textarea    : false,
-        ok_text     : w2utils.lang('Ok'),
-        ok_class    : '',
-        cancel_text : w2utils.lang('Cancel'),
-        cancel_class: '',
-        callBack    : null,
-        onOpen      : null,
-        onClose     : null
+        title: w2utils.lang('Notification'),
+        width: ($('#w2ui-popup').length > 0 ? 400 : 450),
+        height: ($('#w2ui-popup').length > 0 ? 170 : 220),
+        label: '',
+        value: '',
+        attrs: '',
+        textarea: false,
+        btn_ok: {
+            text: 'Ok',
+            class: '',
+            style: '',
+            click: null
+        },
+        btn_cancel: {
+            text: 'Cancel',
+            class: '',
+            style: '',
+            click: null
+        },
+        callBack: null,
+        onOpen: null,
+        onClose: null
     }
     w2popup.tmp = w2popup.tmp || {}
 
@@ -1163,6 +1182,18 @@ function w2prompt(label, title, callBack) {
             })
         }
     }
+    // ok btn - backward compatibility
+    if (options.ok_text) options.btn_ok.text = options.ok_text
+    if (options.ok_class) options.btn_ok.class = options.ok_class
+    if (options.ok_style) options.btn_ok.style = options.ok_style
+    if (options.ok_onClick) options.btn_ok.click = options.ok_onClick
+    if (options.ok_callBack) options.btn_ok.click = options.ok_callBack
+    // cancel btn - backward compatibility
+    if (options.cancel_text) options.btn_cancel.text = options.cancel_text
+    if (options.cancel_class) options.btn_cancel.class = options.cancel_class
+    if (options.cancel_style) options.btn_cancel.style = options.cancel_style
+    if (options.cancel_onClick) options.btn_cancel.click = options.cancel_onClick
+    if (options.cancel_callBack) options.btn_cancel.click = options.cancel_callBack
 
     if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing' && w2popup.get()) {
         if (options.width > w2popup.get().width) options.width = w2popup.get().width
@@ -1181,10 +1212,10 @@ function w2prompt(label, title, callBack) {
                         '</div>'
             ),
             buttons : (w2utils.settings.macButtonOrder
-                ? '<button id="Cancel" class="w2ui-popup-btn w2ui-btn '+ options.cancel_class +'">' + options.cancel_text + '</button>' +
-                  '<button id="Ok" class="w2ui-popup-btn w2ui-btn '+ options.ok_class +'">' + options.ok_text + '</button>'
-                : '<button id="Ok" class="w2ui-popup-btn w2ui-btn '+ options.ok_class +'">' + options.ok_text + '</button>' +
-                  '<button id="Cancel" class="w2ui-popup-btn w2ui-btn '+ options.cancel_class +'">' + options.cancel_text + '</button>'
+                ? '<button id="Cancel" class="w2ui-popup-btn w2ui-btn '+ options.btn_cancel.class +'" style="'+ options.btn_cancel.style +'">' + options.btn_cancel.text + '</button>' +
+                  '<button id="Ok" class="w2ui-popup-btn w2ui-btn '+ options.btn_ok.class +'" style="'+ options.btn_ok.style +'">' + options.btn_ok.text + '</button>'
+                : '<button id="Ok" class="w2ui-popup-btn w2ui-btn '+ options.btn_ok.class +'" style="'+ options.btn_ok.style +'">' + options.btn_ok.text + '</button>' +
+                  '<button id="Cancel" class="w2ui-popup-btn w2ui-btn '+ options.btn_cancel.class +'" style="'+ options.btn_cancel.style +'">' + options.btn_cancel.text + '</button>'
             ),
             onOpen() {
                 $('#w2prompt').val(options.value).off('.w2prompt').on('keydown.w2prompt', function(event) {
@@ -1224,12 +1255,12 @@ function w2prompt(label, title, callBack) {
 
         if (!w2utils.isInt(options.height)) options.height = options.height + 50
         w2popup.open({
-            width      : options.width,
-            height     : options.height,
-            title      : options.title,
-            modal      : true,
-            showClose  : false,
-            body       : (options.textarea
+            width: options.width,
+            height: options.height,
+            title: options.title,
+            modal: true,
+            showClose: false,
+            body: (options.textarea
                          ? '<div class="w2ui-prompt">'+
                             '  <div>' + options.label + '</div>'+
                             '  <textarea id="w2prompt" class="w2ui-input" '+ options.attrs +'></textarea>'+
@@ -1240,10 +1271,10 @@ function w2prompt(label, title, callBack) {
                             '</div>'
             ),
             buttons    : (w2utils.settings.macButtonOrder
-                ? '<button id="Cancel" class="w2ui-popup-btn w2ui-btn '+ options.cancel_class +'">' + options.cancel_text + '</button>' +
-                  '<button id="Ok" class="w2ui-popup-btn w2ui-btn '+ options.ok_class +'">' + options.ok_text + '</button>'
-                : '<button id="Ok" class="w2ui-popup-btn w2ui-btn '+ options.ok_class +'">' + options.ok_text + '</button>'+
-                  '<button id="Cancel" class="w2ui-popup-btn w2ui-btn '+ options.cancel_class +'">' + options.cancel_text + '</button>'
+                ? '<button id="Cancel" class="w2ui-popup-btn w2ui-btn '+ options.btn_cancel.class +'" style="'+ options.btn_cancel.style +'">' + options.btn_cancel.text + '</button>' +
+                  '<button id="Ok" class="w2ui-popup-btn w2ui-btn '+ options.btn_ok.class +'" style="'+ options.btn_ok.style +'">' + options.btn_ok.text + '</button>'
+                : '<button id="Ok" class="w2ui-popup-btn w2ui-btn '+ options.btn_ok.class +'" style="'+ options.btn_ok.style +'">' + options.btn_ok.text + '</button>'+
+                  '<button id="Cancel" class="w2ui-popup-btn w2ui-btn '+ options.btn_cancel.class +'" style="'+ options.btn_cancel.style +'">' + options.btn_cancel.text + '</button>'
             ),
             onOpen(event) {
                 // do not use onComplete as it is slower
@@ -1289,11 +1320,11 @@ function w2prompt(label, title, callBack) {
         })
     }
     function btnClick(btn, value) {
-        if (btn == 'ok' && typeof options.ok_callBack == 'function') {
-            options.ok_callBack(value)
+        if (btn == 'ok' && typeof options.btn_ok.click == 'function') {
+            options.btn_ok.click(value)
         }
-        if (btn == 'cancel' && typeof options.cancel_callBack == 'function') {
-            options.cancel_callBack(value)
+        if (btn == 'cancel' && typeof options.btn_cancel.click == 'function') {
+            options.btn_cancel.click(value)
         }
         if (typeof options.callBack == 'function') {
             options.callBack(btn, value)
@@ -1305,11 +1336,11 @@ function w2prompt(label, title, callBack) {
             return this
         },
         ok(fun) {
-            options.ok_callBack = fun
+            options.btn_ok.click = fun
             return this
         },
         cancel(fun) {
-            options.cancel_callBack = fun
+            options.btn_cancel.click = fun
             return this
         }
     }

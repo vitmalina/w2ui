@@ -1,0 +1,48 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Common Dialogs</h1>
+        There are 3 standard dialogs that you can use out of the box: w2alert(), w2confirm(), and w2prompt();
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<button class="w2ui-btn" onclick="showAlert()">Alert</button>
+<button class="w2ui-btn" onclick="showConfirm()">Confirm</button>
+<button class="w2ui-btn" onclick="showPrompt()">Prompt 1.5+</button>
+
+<!--CODE-->
+<script>
+function showAlert() {
+    w2alert('message')
+        .ok(() => { console.log('ok'); });
+}
+
+function showConfirm() {
+    w2confirm('message')
+        .yes(() => { console.log('YES'); })
+        .no(() => { console.log('NO'); });
+}
+
+function showPrompt() {
+    w2prompt({
+        label: 'Enter',
+        value: '2',
+        attrs: 'style="width: 200px"',
+        title: w2utils.lang('Notification'),
+        ok_text: w2utils.lang('Ok'),
+        ok_class: 'ok-class',
+        cancel_text: w2utils.lang('Cancel'),
+        cancel_class: 'cancel-class',
+        width: 400,
+        height: 200
+    })
+    .change((event) => {
+        console.log('change', event);
+    })
+    .ok((event) => {
+        console.log('ok', event);
+    });
+}
+</script>

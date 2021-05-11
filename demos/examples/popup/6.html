@@ -1,0 +1,36 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Transitions</h1>
+        Anytime you load new content, regardless the method, you can specify a transition type. If transition is not specified, then
+        the default will be used. All transitions are done with w2utils.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<button class="w2ui-btn" onclick="w2popup.load({ url: 'data/popup3.html' })">Open Popup</button>
+<script>
+    var last_index, last_trans;
+    if (typeof last_trans == 'undefined') {
+        last_index = 2;
+        last_trans = '';
+    }
+
+    function load() {
+        var trans = (last_trans == "" ? $('#trans option:nth-child('+ last_index +')').val() : $('#trans').val());
+        last_trans = $('#trans').val();
+        w2popup.load({
+            url: 'data/popup3.html',
+            transition: trans,
+            onChange: function () {
+                $('#trans').val(last_trans);
+            }
+        });
+        last_index++;
+        if (last_index > 11) last_index = 2;
+    }
+</script>
+
+
+<!--CODE-->

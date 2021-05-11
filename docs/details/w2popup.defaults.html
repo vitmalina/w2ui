@@ -1,4 +1,4 @@
-Default settings for the popup. 
+Default settings for the popup.
 
 <div class="definition">
     Object, default - see below
@@ -11,6 +11,7 @@ defaults: {
     title      : '',        // html for title - empty by default
     body       : '',        // html for body - empty by default
     buttons    : '',        // html for buttons - empty by default
+    actions    : {},        // object with actions (buttons on the bottom)
     width      : 500,       // width of the popup
     height     : 300,       // height of the popup
     style      : '',        // additional styles
@@ -22,7 +23,8 @@ defaults: {
     keyboard   : true,      // will close popup on ESC if not modal
     showClose  : true,      // show closed button by default
     showMax    : false,     // do not show max button by default
-    transition : null       // no content transition by default
+    transition : null,      // no content transition by default
+    multiple   : false      // if popup already open, opens as a message
 },
 </textarea>
 

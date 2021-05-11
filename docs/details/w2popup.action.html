@@ -1,0 +1,28 @@
+Triggers action of the popup
+
+<div class="definition">
+    action(action, msgId)
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>action</td>
+        <td><b>string</b>, action name as defined in options.actions</td>
+    </tr>
+    <tr>
+        <td>msgId</td>
+        <td><b>string</b> (optional), index of popup if it is opened as a message</td>
+    </tr>
+    </table>
+</div>
+
+<h4>Description</h4>
+
+The popup must exists. It will trigger action if it is defined with <span class="property">actions</span> object in the defaults. See <a href="w2popup.defaults" class="method">w2popup.defaults</a>
+<div style="height: 10px"></div>
+
+To trigger action:
+<textarea class="javascript">
+w2popup.action('Ok');
+</textarea>

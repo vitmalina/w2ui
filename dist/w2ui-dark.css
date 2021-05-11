@@ -186,6 +186,11 @@ input[type=button].w2ui-input:active {
   color: white;
   background-color: #282F3E;
 }
+select {
+  height: 25px;
+  border: 1px solid #afafaf;
+  border-radius: 3px;
+}
 select:focus,
 div.w2ui-input:focus {
   outline-color: #AAA871;

@@ -1,6 +1,20 @@
 <link rel="stylesheet" type="text/css" href="../summary.css"/> 
 <div class="container">
 <div class="obj-property">
+    <a href="w2popup.action">action</a> <span>- action(action, msgId)</span>
+</div>
+<div class="obj-property-desc">
+    Triggers action of the popup
+</div>
+
+<div class="obj-property">
+    <a href="w2popup.bindEvents">bindEvents</a> <span>- bindEvents()</span>
+</div>
+<div class="obj-property-desc">
+    Binds DOM events for actions
+</div>
+
+<div class="obj-property">
     <a href="w2popup.clear">clear</a> <span>- clear()</span>
 </div>
 <div class="obj-property-desc">
@@ -117,6 +131,13 @@
 </div>
 <div class="obj-property-desc">
     Transitions popup to the new state.
+</div>
+
+<div class="obj-property">
+    <a href="w2popup.template">template</a> <span>- template(data, id, options = {})</span>
+</div>
+<div class="obj-property-desc">
+    Parses provided HTML as popup template
 </div>
 
 <div class="obj-property">

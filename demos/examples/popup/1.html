@@ -1,0 +1,48 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Simple Popup</h1>
+        Only one popup at a time. It can be either modal or not. If modal, it can only be closed if user
+        clicks the cross button or as a developer you can provide a button to close it. If not modal, clicking
+        outside the popup will close it.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<button class="w2ui-btn" onclick="popup()">Simple popup</button>
+<button class="w2ui-btn" onclick="popup2()">Popup with buttons and event listeners</button>
+
+<!--CODE-->
+<script>
+function popup() {
+    w2popup.open({
+        title: 'Popup Title',
+        body: '<div class="w2ui-centered">This is text inside the popup</div>'
+    });
+}
+
+function popup2() {
+    w2popup.open({
+        title: 'Popup Title',
+        body: '<div class="w2ui-centered">This is text inside the popup</div>',
+        buttons: '<button class="w2ui-btn" onclick="w2popup.close();">Close</button> '+
+            '<button class="w2ui-btn" onclick="w2popup.lock(\'Loading\', true); '+
+            '        setTimeout(function () { w2popup.unlock(); }, 2000);">Lock</button>',
+        width: 500,
+        height: 300,
+        overflow: 'hidden',
+        color: '#333',
+        speed: '0.3',
+        opacity: '0.8',
+        modal: true,
+        showClose: true,
+        showMax: true,
+        onOpen(event) { console.log('open'); },
+        onClose(event) { console.log('close'); },
+        onMax(event) { console.log('max'); },
+        onMin(event) { console.log('min'); },
+        onKeydown(event) { console.log('keydown'); }
+    });
+}
+</script>

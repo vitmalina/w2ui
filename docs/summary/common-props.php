@@ -18,7 +18,7 @@
     <a href="common.name">name</a> <span>- String, default = ''</span>
 </div>
 <div class="obj-property-desc">
-    Unique name for the object. 
+    Unique name for the object.
 </div>
 
 <div class="obj-property">

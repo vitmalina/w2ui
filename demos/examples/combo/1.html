@@ -25,7 +25,7 @@ var config = {
     },
     sidebar: {
         name: 'sidebar',
-        nodes: [ 
+        nodes: [
             { id: 'general', text: 'General', group: true, expanded: true, nodes: [
                 { id: 'grid1', text: 'Grid 1', img: 'icon-page', selected: true },
                 { id: 'grid2', text: 'Grid 2', img: 'icon-page' },
@@ -35,23 +35,23 @@ var config = {
         onClick: function (event) {
             switch (event.target) {
                 case 'grid1':
-                    w2ui.layout.content('main', w2ui.grid1);
+                    w2ui.layout.html('main', w2ui.grid1);
                     break;
                 case 'grid2':
-                    w2ui.layout.content('main', w2ui.grid2);
+                    w2ui.layout.html('main', w2ui.grid2);
                     break;
                 case 'html':
-                    w2ui.layout.content('main', '<div style="padding: 10px">Some HTML</div>');
+                    w2ui.layout.html('main', '<div style="padding: 10px">Some HTML</div>');
                     $(w2ui.layout.el('main'))
                         .removeClass('w2ui-grid')
-                        .css({ 
+                        .css({
                             'border-left': '1px solid silver'
                         });
                     break;
             }
         }
     },
-    grid1: { 
+    grid1: {
         name: 'grid1',
         columns: [
             { field: 'fname', caption: 'First Name', size: '180px' },
@@ -71,7 +71,7 @@ var config = {
             { recid: 9, fname: 'Sergei', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
         ]
     },
-    grid2: { 
+    grid2: {
         name: 'grid2',
         columns: [
             { field: 'state', caption: 'State', size: '80px' },
@@ -89,8 +89,8 @@ var config = {
 $(function () {
     // initialization
     $('#main').w2layout(config.layout);
-    w2ui.layout.content('left', $().w2sidebar(config.sidebar));
-    w2ui.layout.content('main', $().w2grid(config.grid1));
+    w2ui.layout.html('left', $().w2sidebar(config.sidebar));
+    w2ui.layout.html('main', $().w2grid(config.grid1));
     // in memory initialization
     $().w2grid(config.grid2);
 });
