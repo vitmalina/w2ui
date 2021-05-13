@@ -232,7 +232,7 @@ $(function () {
                 },
                 { id: 'utils-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
-                        { id: 'utils/4', text: 'Tags (1.5+)', icon: 'fa fa-star-o' },
+                        { id: 'utils/4', text: 'Tooltips (1.5+)', icon: 'fa fa-star-o' },
                         { id: 'utils/5', text: 'Overlays (1.5+)', icon: 'fa fa-star-o' },
                         { id: 'utils/9', text: 'Menus (1.5+)', icon: 'fa fa-star-o' },
                         { id: 'utils/6', text: 'Formatters (1.5+)', icon: 'fa fa-star-o' },

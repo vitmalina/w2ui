@@ -21,7 +21,8 @@
 *   - options.msgSearch - message to search for user
 *   - options.msgNoItems - can be a function
 *   - normmenu - remove, it is in w2utils now
-*   == 2.0
+*
+* == 2.0 changes
 *
 ************************************************************************/
 

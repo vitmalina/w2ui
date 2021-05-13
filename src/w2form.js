@@ -45,7 +45,8 @@
 *   - updateEmptyGroups
 *   - tabs below some fields
 *   - tabindexBase
-*   == 2.0
+*
+* == 2.0 changes
 *
 ************************************************************************/
 

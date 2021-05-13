@@ -161,7 +161,8 @@
 *   - grid.tabIndex
 *   - onColumnAutoResize
 *   - col.sortMode = 'default', 'natural' or a function
-*   == 2.0
+*
+* == 2.0 changes
 *
 ************************************************************************/
 

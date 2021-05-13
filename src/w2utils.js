@@ -10,7 +10,7 @@
 *   - add maxHeight for the w2menu
 *   - add w2utils.lang wrap for all captions in all buttons.
 *
-* == 2.0 change
+* == 2.0 changes
 *   - normMenu
 *
 ************************************************/

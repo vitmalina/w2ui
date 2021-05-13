@@ -17,7 +17,8 @@
 *   - event.item.get - finds selected item
 *   - item.keepOpen, drop down will not close
 *   - item.type = 'new-line'
-*   == 2.0
+*
+* == 2.0 changes
 *   - w2toolbar.item => w2toolbar.item_template
 *   - show/hide, enable/disable, check/uncheck - return array of effected items
 *

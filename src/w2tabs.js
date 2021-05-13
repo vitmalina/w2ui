@@ -10,7 +10,8 @@
 *   - initReorder
 *   - dragMove
 *   - tmp
-*   == 2.0
+*
+* == 2.0 changes
 *   - w2tabs.tab => w2tabs.tab_template
 *   - show/hide, enable/disable, check/uncheck - return array of effected items
 *
