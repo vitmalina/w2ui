@@ -2,19 +2,9 @@
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2tabs
 *
-* == TODO ==
-*   - onResize for the panel
-*   - add more panel title positions (left=rotated, right=rotated, bottom)
-*   - bug: when you assign content before previous transition completed.
-*   - refactor with flex-grid
-*
-* == changes
-*   - negative values for left, right panel
-*   - onResize for layout as well as onResizing
-*   - panel.callBack - one time
-*   - layout.html().replaced(function () {})
-*   == 2.0
+* == 2.0 changes
 *   - layout.content - deprecated
+*   - panel.callBack -> panel.removed
 *
 ************************************************************************/
 
@@ -44,7 +34,7 @@ class w2layout extends w2event {
         this.onContent = null
         this.onResize = null
         this.onDestroy = null
-        this.panel_taemplate = {
+        this.panel_template = {
             type: null, // left, right, top, bottom
             title: '',
             size: 100, // width or height depending on panel name
@@ -63,7 +53,7 @@ class w2layout extends w2event {
                 toolbar: false,
                 tabs: false
             },
-            callBack: null, // function to call when content is overwritten
+            removed: null, // function to call when content is overwritten
             onRefresh: null,
             onShow: null,
             onHide: null
@@ -73,14 +63,14 @@ class w2layout extends w2event {
         if (!Array.isArray(this.panels)) this.panels = []
         // add defined panels
         this.panels.forEach((panel, ind) => {
-            this.panels[ind] = $.extend(true, {}, this.panel_taemplate, panel)
+            this.panels[ind] = $.extend(true, {}, this.panel_template, panel)
             if ($.isPlainObject(panel.tabs) || Array.isArray(panel.tabs)) initTabs(this, panel.type)
             if ($.isPlainObject(panel.toolbar) || Array.isArray(panel.toolbar)) initToolbar(this, panel.type)
         })
         // add all other panels
         w2panels.forEach(tab => {
             if (this.get(tab) != null) return
-            this.panels.push($.extend(true, {}, this.panel_taemplate, { type: tab, hidden: (tab !== 'main'), size: 50 }))
+            this.panels.push($.extend(true, {}, this.panel_template, { type: tab, hidden: (tab !== 'main'), size: 50 }))
         })
 
         function initTabs(object, panel, tabs) {
@@ -112,19 +102,19 @@ class w2layout extends w2event {
         let obj = this
         let p = this.get(panel)
         let promise = {
-            panel     : panel,
-            html      : p.html,
-            error     : false,
-            cancelled : false,
-            removed   (callBack) {
-                if (typeof callBack == 'function') {
-                    p.callBack = callBack
+            panel: panel,
+            html: p.html,
+            error: false,
+            cancelled: false,
+            removed(cb) {
+                if (typeof cb == 'function') {
+                    p.removed = cb
                 }
             }
         }
-        if (typeof p.callBack == 'function') {
-            p.callBack({ panel: panel, content: p.html, new_content: data, transition: transition || 'none' })
-            p.callBack = null // this is one time call back only
+        if (typeof p.removed == 'function') {
+            p.removed({ panel: panel, content: p.html, new_content: data, transition: transition || 'none' })
+            p.removed = null // this is one time call back only
         }
         // if it is CSS panel
         if (panel == 'css') {
@@ -239,15 +229,15 @@ class w2layout extends w2event {
         let obj = this
         if (panel == 'css') {
             $.get(url, (data, status, xhr) => { // should always be $.get as it is template
-                obj.html(panel, xhr.responseText)
-                if (onLoad) onLoad()
+                let prom = obj.html(panel, xhr.responseText)
+                if (onLoad) onLoad(prom)
             })
             return true
         }
         if (this.get(panel) != null) {
             $.get(url, (data, status, xhr) => { // should always be $.get as it is template
-                obj.html(panel, xhr.responseText, transition)
-                if (onLoad) onLoad()
+                let prom = obj.html(panel, xhr.responseText, transition)
+                if (onLoad) onLoad(prom)
                 // IE Hack
                 obj.resize()
                 if (window.navigator.userAgent.indexOf('MSIE') != -1) setTimeout(() => { obj.resize() }, 100)

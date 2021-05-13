@@ -1,0 +1,35 @@
+Object that is used to init panels.
+
+<div class="definition">
+    Object, default = {...} // see below
+</div>
+
+All panels are created when in the contructor and all panels will inherit following properties
+
+<textarea class="javascript definition">
+{
+    type: null,         // type of the panel can be: left, right, top, bottom, preview
+    title: '',          // title for the panel
+    size: 100,          // width or height of the panel depending on panel type, for left/right it can be negative
+    minSize: 20,        // minimum size of the panel in px when it is resized
+    maxSize: false,     // if a number, then it defined maximum size of the panel
+    hidden: false,      // indicates if panel is hidden
+    resizable: false,   // indicates if panel is resizable
+    overflow: 'auto',   // overflow property of the panel, can have same values as similar CSS property
+    style: '',          // additional css styles for the panel
+    content: '',        // content of the pane, can be a string or an object with .render(box) method
+    width: null,        // width of the panel, read only
+    height: null,       // height of the panel, read only
+    tabs: null,         // w2tabs object for the panel
+    toolbar: null,      // w2toolbar object for the panel
+    show: {             // indicates what sections are shown
+        tabs    : false,
+        toolbar : false
+    },
+    callBack: null,     // function to call when content is overwritten
+    // events
+    onRefresh: null,    // refresh event for the panel
+    onResizing: null,   // resizing event for the panel
+    onShow: null,       // show event for the panel
+    onHide: null        // hide event for the panel
+}</textarea>

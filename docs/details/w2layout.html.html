@@ -20,7 +20,104 @@ Sets or retrieves panel content.
     </tr>
     </table>
 </div>
+Returns object of the content
+<textarea class="javascript">
+{
+    panel,          // string, panel name
+    html,           // string/object, current html
+    error,          // bool, if there was an error
+    cancelled,      // bool, if content was not set
+    removed         // function to call when content was unloaded
+}
+</textarea>
+
 
 <h4>Description</h4>
 
-Alias for the <a class="argument" href="w2layout.content">w2layout.content</a> method.
+The first argument <span class="argument">type</span> is the name of the panel. It can be one of the following:
+<ul style="margin-left: 50px">
+    <li>top
+    <li>left
+    <li>main
+    <li>right
+    <li>preview
+    <li>bottom
+    <li>css
+</ul>
+As of 1.3 there is a hidden panel named css. If you define content for this panel, it will be set within style tag.
+You can also load content for the css panel <a class="argument" href="w2layout.load">w2layout.load</a> method.
+<textarea class="javascript">
+w2ui['layout'].html('css', '.class1 { color: red }');
+</textarea>
+or
+<textarea class="javascript">
+w2ui['layout'].load('css', 'file.css');
+</textarea>
+
+<div style="height: 10px"></div>
+
+Called with just <span class="argument">type</span> argument, it will return current content of the panel.
+
+<textarea class="javascript">
+let content = w2ui.layout.html('main')
+console.log(content)
+</textarea>
+
+
+The <span class="argument">content</span> argument can be either an HTML or an object. If it is an object, then it will assign
+layout panel's div to the <span class="argument">.box</span> property of the object and call <span class="method">.render()</span> method.
+This allows you to make a grid, sidebar, or any other object with <span class="argument">.box</span> property and
+<span class="method">.render()</span> method as content for the panel.
+
+If the argument <span class="argument">content</span> is not specified the method will return <i><b>current</b></i> content of the panel.
+
+<textarea class="javascript">
+// return current content
+var content = w2ui['layout'].html('main');
+console.log('main panel content is', content);
+</textarea>
+
+You can optionally provide <span class="argument">transition</span> argument that defines visual transition to the new content.
+The transition is done using <a href="w2utils.transition">w2utils.transition()</a> method and it can be one of the following:
+<ul style="margin-left: 50px">
+    <li>slide-left
+    <li>slide-right
+    <li>slide-up
+    <li>slide-down
+    <li>flip-left
+    <li>flip-right
+    <li>flip-up
+    <li>flip-down
+    <li>pop-in
+    <li>pop-out
+</ul>
+
+You can set content during object creation:
+<textarea class="javascript">
+$('#layout').w2layout({
+    name    : 'layout',
+    panels  : [
+        { type: 'top', size: 40 },
+        { type: 'main', content: 'This is main panel' },
+        { type: 'preview', size: 200 }
+    ]
+});
+</textarea>
+
+Or anytime during run-time:
+<textarea class="javascript">
+// set new content
+w2ui['layout'].html('main', 'HTML content');
+// set content as an object
+w2ui['layout'].html('main', w2ui['grid']);
+</textarea>
+
+You can set some content and defined a function to be called when this content was replaced
+
+<textarea class="javascript">
+w2ui.layout.html('main', 'Some content').removed(() => {
+    console.log('Content was removed')
+})
+</textarea>
+
+You can also also use global <a href="w2layout.onContent">.onContent</a> event to be alerted when content is reloaded for the panel.

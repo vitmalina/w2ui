@@ -68,7 +68,9 @@ $(function () {
                 },
                 { id: 'layout-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
-                        { id: 'layout/11', text: 'Panel Messages (1.5+)', icon: 'fa fa-columns' }
+                        { id: 'layout/11', text: 'Panel Messages (1.5+)', icon: 'fa fa-columns' },
+                        { id: 'layout/12', text: 'Fixed Size Main (1.5+)', icon: 'fa fa-columns' },
+                        { id: 'layout/13', text: 'Content Replaced (1.5+)', icon: 'fa fa-columns' }
                     ]
                 },
                 { id: 'grid', text: 'Grid Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
