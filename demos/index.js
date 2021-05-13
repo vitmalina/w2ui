@@ -327,7 +327,7 @@ $(function () {
     $().w2sidebar(conf.demo_sidebar)
     $('#demo_layout').w2layout(conf.demo_layout)
     // init sidebar
-    w2ui.demo_layout.html('top', `<div style="padding: 18px 0 0 20px; font-size: 18px;">W2UI 1.5 Demos</div><div id="demo_toolbar"></div>`)
+    w2ui.demo_layout.html('top', `<div style="padding: 18px 0 0 20px; font-size: 18px;">W2UI Demos</div><div id="demo_toolbar"></div>`)
     w2ui.demo_layout.html('left', w2ui.demo_sidebar)
 
     setTimeout(hashChanged, 10)
