@@ -1,6 +1,6 @@
 <div class="content">
     <div id="example_title">
-        <h1>Overlays (new in 1.5)</h1>
+        <h1>Overlays</h1>
         If you need to attach a short one-line message for an element or an input control - user $().w2tag(), if you need to attach
         a larger multi-line message - use $().w2overlay(). The example below demonstrates how to use these functions.
     </div>
@@ -24,9 +24,6 @@ Align:
 </div>
 
 <button class="w2ui-btn" onclick="showOverlay()">Show Overlay</button>
-<button class="w2ui-btn" onclick="showMenu()">Show Menu</button>
-<button class="w2ui-btn" onclick="showMenu('check')">Show Check Menu</button>
-<button class="w2ui-btn" onclick="showMenu('radio')">Show Radio Menu</button>
 <button class="w2ui-btn" onclick="showColor()">Color</button>
 
 <!--CODE-->
@@ -41,28 +38,6 @@ function showOverlay() {
         html: '<div style="padding: 10px; line-height: 150%">'+
             '    Multi line HTML message<br>Multi line HTML message<br>Multi line HTML message<br>'+
             '</div>'
-    });
-}
-
-function showMenu(type) {
-    $('#some-input').w2menu({
-        type: type,
-        openAbove: window.above,
-        align: window.align,
-        items: [
-            { id: 1, text: 'Item 1 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-star' },
-            { id: 'sub', text: 'Sub Menu', icon: 'fa fa-star', hidden: (type != null ? true : false),
-                items: [
-                    { id: 1, text: 'Item 1 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-star' },
-                    { id: 2, text: 'Item 2 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-star-o' },
-                    { id: 3, text: 'Item 3 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-camera' }
-                ]
-            },
-            { id: 2, text: 'Item 2 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-star-o' },
-            { id: 3, text: 'Item 3 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-camera' },
-            { text: '--' },
-            { id: 4, text: 'Item 4 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-table' },
-        ]
     });
 }
 

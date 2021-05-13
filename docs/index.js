@@ -85,7 +85,8 @@ $(function () {
         'w2grid.isIOS', 'w2grid.editChange', 'w2grid.initColumnDrag', 'w2grid.prepareData',
         'w2toolbar.item',
         'w2sidebar.node',
-        'w2tabs.tab'
+        'w2tabs.tab',
+        'w2utils.testLocalStorage'
     );
 
     function init(type, obj) {

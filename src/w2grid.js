@@ -160,6 +160,7 @@
 *   - columnGroup.text can be a function
 *   - grid.tabIndex
 *   - onColumnAutoResize
+*   - col.sortMode = 'default', 'natural' or a function
 *   == 2.0
 *
 ************************************************************************/
@@ -2892,7 +2893,7 @@ class w2grid extends w2event {
         }
         // normalize items
         if (edit.items.length > 0 && !$.isPlainObject(edit.items[0])) {
-            edit.items = w2obj.field.prototype.normMenu(edit.items)
+            edit.items = w2utils.normMenu(edit.items)
         }
         switch (edit.type) {
 

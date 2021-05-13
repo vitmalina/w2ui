@@ -112,7 +112,7 @@ import { w2toolbar } from './w2toolbar'
 
         function clearMarkedText(index, el) {
             while (el.innerHTML.indexOf('<span class="w2ui-marker">') !== -1) {
-                el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"\>((.|\n|\r)*)\<\/span\>/ig, '$1') // unmark
+                el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"((.|\n|\r)*)\<\/span\>/ig, '$1') // unmark
             }
         }
     }

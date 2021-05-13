@@ -234,7 +234,10 @@ $(function () {
                     nodes: [
                         { id: 'utils/4', text: 'Tags (1.5+)', icon: 'fa fa-star-o' },
                         { id: 'utils/5', text: 'Overlays (1.5+)', icon: 'fa fa-star-o' },
+                        { id: 'utils/9', text: 'Menus (1.5+)', icon: 'fa fa-star-o' },
                         { id: 'utils/6', text: 'Formatters (1.5+)', icon: 'fa fa-star-o' },
+                        { id: 'utils/7', text: 'Color Utils (1.5+)', icon: 'fa fa-star-o' },
+                        { id: 'utils/8', text: 'Text Marker (1.5+)', icon: 'fa fa-star-o' },
                     ]
                 }
             ],

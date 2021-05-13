@@ -151,9 +151,10 @@ table.list td {
     background-color: #f1f1f1;
     border-radius: 4px;
     margin: 0px;
-    padding: 0px 5px;
+    padding: 4px 8px;
     min-height: 17px;
-    font-family: Courier;
+    font-family: Monaco, "Courier New";
+    font-size: 13px;
     color: #176092;
 }
 

@@ -1,0 +1,34 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Color Utils</h1>
+        There are several function to work with colors.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<input id="str" type="text" size="20" onchange="update()" style="border: 1px solid silver; padding: 3px; height: 30px; width: 120px;">
+<br><br>
+<div style="float: left; width: 130px;">Parse Color</div><div id="color1" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">RGB -> HSV</div> <div id="color2" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">HSV -> RGB</div> <div id="color3" style="margin-left: 130px;">...</div>
+<br><br>
+
+<!--CODE-->
+<script>
+$('#str').w2field({ type: 'color', autoFormat: false });
+function update() {
+    let val = $('#str').val()
+    let parsed = w2utils.parseColor(val)
+    if (parsed) {
+        $('#color1').html(JSON.stringify(parsed))
+        $('#color2').html(JSON.stringify(w2utils.rgb2hsv(parsed)))
+        $('#color3').html(JSON.stringify(w2utils.hsv2rgb(w2utils.rgb2hsv(parsed))))
+    } else {
+        $('#color1').html('...')
+        $('#color2').html('...')
+        $('#color3').html('...')
+    }
+}
+</script>
