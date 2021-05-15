@@ -1,0 +1,62 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Reorder tabs</h1>
+        Tabs can be reordable
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="tabs" style="width: 100%;"></div>
+<br><br>
+<div id="log" style="width: 100%;">Action: <span id="log2"></span></div>
+
+<!--CODE-->
+<script>
+$(function () {
+    let ind = 10
+    $('#tabs').w2tabs({
+        name: 'tabs',
+        reorder: true,
+        tabs: [
+            { id: 'tab1', text: 'TOOLTIP', tooltip: 'This tab has a tooltip' },
+            { id: 'tab2', text: 'Tab 2', closable: true },
+            { id: 'tab3', text: 'Tab 3', closable: true },
+            { id: 'tab4', text: 'FIXED' },
+            { id: 'tab6', text: 'Tab 5' },
+            { id: 'tab7', text: 'Tab 6' },
+            { id: 'add', text: '+' },
+        ],
+        onClick(event) {
+            event.done(() => {
+                if (event.target == 'add') {
+                    let id = 'tab' + ind
+                    this.insert('add', { id: id, text: 'Tab ' + ind, closable: true })
+                    this.click(id)
+                    ind++
+                }
+            })
+        },
+        onReorder(event) {
+            if (event.target == 'add') {
+                event.preventDefault()
+                return
+            }
+            if (event.target == 'tab4') {
+                $("#log2").html('<span style="color: red">This tab cannot be dragged</span>')
+                event.preventDefault()
+                return
+            }
+            this.hide('add')
+            let tab = this.get(event.target)
+            $("#log2").html(`Dragging "${tab.text}"`)
+            event.done(() => {
+                $("#log2").html(`Moved "${tab.text}" from position "${event.indexFrom}" to "${event.indexTo}".`)
+                this.show('add')
+            })
+            console.log(event)
+        }
+    });
+});
+</script>

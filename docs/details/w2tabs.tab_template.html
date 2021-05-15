@@ -1,0 +1,22 @@
+Template object for creation of new tabs
+
+<div class="definition">
+    Object, default = {...} // see below
+</div>
+
+Each time a new tab is created, it wilbe initialized with a defulat object, plus anything you define on top. The default object has following structure:
+
+<textarea class="javascript">
+{
+    id          : null,     // unique id
+    text        : '',       // tab text
+    route       : '',       // route to follow, can have dynamic parts as /item/:id/details (see routeData)
+    hidden      : false,    // indicates if tab is hidden
+    disabled    : false,    // indicates if tab is disabled
+    closable    : false,    // indicates if tab is closable
+    style       : '',       // additional style for the tab text
+    tooltip     : '',       // tooltip for the tab
+    onClick     : null,     // click event handler (only this tab)
+    onRefresh   : null,     // refresh event handler (only this tab)
+    onClose     : null      // close event handler (only this tab)
+}</textarea>

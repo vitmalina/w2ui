@@ -8,6 +8,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2layout.panel_template">panel_template</a> <span>- Object, default = {...} // see below</span>
+</div>
+<div class="obj-property-desc">
+    Object that is used to init panels.
+</div>
+
+<div class="obj-property">
     <a href="w2layout.panels">panels</a> <span>- Array, default = []</span>
 </div>
 <div class="obj-property-desc">

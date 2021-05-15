@@ -158,9 +158,15 @@ $(function () {
                 { id: 'tabs-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'tabs/7', text: 'Tabs Overflow (1.5+)', icon: 'fa fa-folder-o' },
-                        { id: 'tabs/8', text: 'Tooltips (1.5+)', icon: 'fa fa-folder-o' }
+                        { id: 'tabs/8', text: 'Tooltips (1.5+)', icon: 'fa fa-folder-o' },
+                        { id: 'tabs/9', text: 'Tab Reorder (1.5+)', icon: 'fa fa-folder-o' }
                     ]
                 },
+                // { id: 'tabs-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                //     nodes: [
+                //         { id: 'tabs/10', text: 'Smooth Add/Remove (2.0+)', icon: 'fa fa-folder-o' }
+                //     ]
+                // },
                 { id: 'forms', text: 'Forms Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'form/1', text: 'Simple Form', icon: 'fa fa-pencil-square-o' },
