@@ -132,7 +132,7 @@ table.list td {
 
 #demo_toolbar {
     position: absolute;
-    top: 10px;
+    top: 13px;
     left: 233px;
     width: 880px;
     height: 38px;
@@ -142,8 +142,8 @@ table.list td {
 
 /* -- Demo Toolbar -- */
 
-#demo_toolbar.w2ui-toolbar table td {
-    padding: 1px 2px !important;
+#demo_toolbar.w2ui-toolbar > table td {
+    padding: 1px !important;
 }
 
 #demo_toolbar .w2ui-button:hover {

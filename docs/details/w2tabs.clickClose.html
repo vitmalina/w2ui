@@ -1,0 +1,44 @@
+Called when user clicks close button of the tab.
+
+<div class="definition">
+    clickClose(id, [event])
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>id</td>
+        <td><b>string</b>, id of the tab</td>
+    </tr>
+    <tr>
+        <td>event</td>
+        <td><b>object</b>, DOM Event object</td>
+    </tr>
+    </table>
+</div>
+
+Returns <i>undefined</i>.
+
+<h4>Description</h4>
+
+This method is called when user clicks on the close button of the tab. It is used internally, but you can use it to emulate clicks. It will animate closing of the tab. This method emits <a class="method" href="w2tabs.onClick">.onClose</a> event.
+<div style="height: 10px"></div>
+
+If you have tabs defined in the following way:
+<textarea class="javascript">
+$('#tabs').w2tabs({
+    name: 'tabs',
+    active: 'tab1',
+    tabs: [
+        { id: 'tab1', text: 'Tab 1' },
+        { id: 'tab2', text: 'Tab 2' },
+        { id: 'tab3', text: 'Tab 3' },
+        { id: 'tab4', text: 'Tab 4' }
+    ]
+});
+</textarea>
+
+You can add tabs:
+<textarea class="javascript">
+w2ui['tabs'].clickClose('tab3');
+</textarea>

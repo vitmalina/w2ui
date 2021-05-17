@@ -127,6 +127,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2utils.hsv2rgb">hsv2rgb</a> <span>- hsv2rgb(color)</span>
+</div>
+<div class="obj-property-desc">
+    Converts HSV to RGB color definition
+</div>
+
+<div class="obj-property">
     <a href="w2utils.interval">interval</a> <span>- interval(intStr)</span>
 </div>
 <div class="obj-property-desc">
@@ -190,6 +197,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2utils.isIpAddress">isIpAddress</a> <span>- isIpAddress(str)</span>
+</div>
+<div class="obj-property-desc">
+    Returns true if <span class="argument">str</span> is a IP v4.
+</div>
+
+<div class="obj-property">
     <a href="w2utils.isMoney">isMoney</a> <span>- isMoney(str)</span>
 </div>
 <div class="obj-property-desc">
@@ -239,10 +253,38 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2utils.naturalCompare">naturalCompare</a> <span>- naturalCompare(a, b);</span>
+</div>
+<div class="obj-property-desc">
+    Compares two strings and returns 0, 1, or -1.
+</div>
+
+<div class="obj-property">
+    <a href="w2utils.normMenu">normMenu</a> <span>- normMenu(menu, [obj]);</span>
+</div>
+<div class="obj-property-desc">
+    Normalizes menu to a consistent array
+</div>
+
+<div class="obj-property">
+    <a href="w2utils.parseColor">parseColor</a> <span>- parseColor(color)</span>
+</div>
+<div class="obj-property-desc">
+    Returns parsed color object.
+</div>
+
+<div class="obj-property">
     <a href="w2utils.parseRoute">parseRoute</a> <span>- parseRoute(route)</span>
 </div>
 <div class="obj-property-desc">
-    Returns parse route object.
+    Returns parsed route object.
+</div>
+
+<div class="obj-property">
+    <a href="w2utils.rgb2hsv">rgb2hsv</a> <span>- rgb2hsv(color)</span>
+</div>
+<div class="obj-property-desc">
+    Converts RGB to HSV color definition
 </div>
 
 <div class="obj-property">
@@ -264,6 +306,13 @@
 </div>
 <div class="obj-property-desc">
     Removes all HTML tags.
+</div>
+
+<div class="obj-property">
+    <a href="w2utils.tooltip">tooltip</a> <span>- tooltip(msg, [options])</span>
+</div>
+<div class="obj-property-desc">
+    Generates and encoded events for w2tag.
 </div>
 
 <div class="obj-property">

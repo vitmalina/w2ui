@@ -1,0 +1,153 @@
+<h3>Menus</h3>
+
+You can create and attach popup menus either to element, or you can display it as a context menu. The following code will define it as a context menu
+<div style="height: 20px"></div>
+
+<textarea class="javascript">
+$('body')
+    .on('contextmenu', function (event) {
+        event.preventDefault();
+        $('body').w2menu({
+            contextMenu: true,
+            originalEvent: event,
+            items: [
+                { id: 1, text: 'Edit', icon: 'fa fa-pencil' },
+                { id: 2, text: '--' },
+                { id: 3, text: 'Copy', icon: 'fa fa-copy'},
+                { id: 4, text: 'Paste', icon: 'fa fa-paste', disabled: true },
+                { id: 5, text: 'Hidden', icon: 'fa fa-star', hidden: true },
+            ]
+        })
+    })
+</textarea>
+<script type="text/javascript">
+$('body')
+    .on('contextmenu', function (event) {
+        event.preventDefault();
+        $('body').w2menu({
+            contextMenu: true,
+            originalEvent: event,
+            items: [
+                { id: 1, text: 'Edit', icon: 'fa fa-pencil' },
+                { id: 2, text: '--' },
+                { id: 3, text: 'Copy', icon: 'fa fa-copy'},
+                { id: 4, text: 'Paste', icon: 'fa fa-paste', disabled: true },
+                { id: 5, text: 'Hidden', icon: 'fa fa-star', hidden: true },
+            ]
+        })
+    })
+</script>
+
+<h4>$().w2menu(options)</h4>
+The menues can have enabled/disabled, have badges, remove icons, nested items, etc. Here is an example how to define more various menu types.
+For example:
+
+<textarea class="javascript">
+<input id="input" onclick="
+    $('#input').w2menu({
+        topHTML: `<div style='border-bottom: 1px solid silver; padding: 9px;'>Top HTML</div>`,
+        menuStyle: 'top: 30px',
+        items: [
+            { id: 1, text: 'Total Items', icon: 'fa fa-pencil', count: 10  },
+            { id: 6, text: '--'},
+            { id: 8, text: 'Set 1', icon: 'fa', expanded: true,
+                items: [
+                    { id: 81, text: 'Text 1', icon: 'fa', remove: true },
+                    { id: 82, text: 'Text 2', icon: 'fa', remove: true },
+                    { id: 83, text: 'Text 3', icon: 'fa', remove: true },
+                ]
+            },
+            { id: 8, text: 'Set 2', icon: 'fa',
+                items: [
+                    { id: 81, text: 'Text 1', icon: 'fa', remove: true },
+                    { id: 82, text: 'Text 2', icon: 'fa', remove: true },
+                    { id: 83, text: 'Text 3', icon: 'fa', remove: true },
+                ]
+            },
+        ],
+        onSelect(event) {
+            console.log(event);
+        },
+        onRemove(event) {
+            console.log('removed', event)
+        }
+    })
+">
+</textarea>
+
+<h5>Preview</h5>
+<input id="input" onclick="
+    $('#input').w2menu({
+        topHTML: `<div style='border-bottom: 1px solid silver; padding: 9px;'>Top HTML</div>`,
+        menuStyle: 'top: 30px',
+        items: [
+            { id: 1, text: 'Total Items', icon: 'fa fa-pencil', count: 10  },
+            { id: 6, text: '--'},
+            { id: 8, text: 'Set 1', icon: 'fa', expanded: true,
+                items: [
+                    { id: 81, text: 'Text 1', icon: 'fa', remove: true },
+                    { id: 82, text: 'Text 2', icon: 'fa', remove: true },
+                    { id: 83, text: 'Text 3', icon: 'fa', remove: true },
+                ]
+            },
+            { id: 8, text: 'Set 2', icon: 'fa',
+                items: [
+                    { id: 81, text: 'Text 1', icon: 'fa', remove: true },
+                    { id: 82, text: 'Text 2', icon: 'fa', remove: true },
+                    { id: 83, text: 'Text 3', icon: 'fa', remove: true },
+                ]
+            },
+        ],
+        onSelect(event) {
+            console.log(event);
+        },
+        onRemove(event) {
+            console.log('removed', event)
+        }
+    })">
+<div style="height: 10px"></div>
+
+<i>Click on this field</i>
+<div style="height: 10px"></div>
+
+You can use any valid overlay option for the menu as well. In addition it has following options:
+<textarea class="javascript">
+options: {
+    type        : 'normal',     // can be normal, radio, check
+    items       : [],           // array of items
+    render      : null,         // function (menu_item, options) - when menu item is rendered
+    spinner     : false,        // indicates if to show spinner
+    onSelect    : null          // function (event) - when menu item is selected
+    onRemove    : null          // function (event) - when menu item is remove
+    search      : false,        // indicates if to display search control
+    hideOnRemove: true,         // hide menu if item is removed
+    topHTML     : '',           // html text for top html
+    menuStyle   : '',           // additional styles for top menu div
+    // --- only when search is true ---
+    match       : 'begins',     // can be is, begins, ends
+    altRows     : false,        // display alternate background color
+    index       : 0,            // index of the selected item (when selected by keyboard)
+    msgNoItems  : 'No Items',   // default message where no items found
+}
+</textarea>
+
+The items property is an array of objects of following structure:
+<textarea class="javascript">
+item : {
+    id       : null,    // unique id
+    text     : '',      // text for the item
+    icon     : '',      // icon class
+    img      : '',      // image class
+    count    : null,    // count badge value
+    style    : '',      // additional styles
+    hotKey   : '',      // text to indicate what is hot key for the item
+    tooltip  : '',      // tooltip for the item
+    items    : [],      // array of nested items if any
+    hidden   : false,   // indicates if hidden
+    checked  : false,   // indicates if menu is checked (for check and radio)
+    disabled : false,   // indicates if disabled
+    remove   : false,   // indicates if to display close button
+    keepOpen : false,   // indicates if to keep dialog open on select of this item
+    expanded : false,   // if it has nested idems, expand it
+}
+</textarea>

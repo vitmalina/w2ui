@@ -8,17 +8,17 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2tabs.animateClose">animateClose</a> <span>- animateClose(id, [event])</span>
+    <a href="w2tabs.animateClose">animateClose</a> <span>- animateClose(id)</span>
 </div>
 <div class="obj-property-desc">
-    Removes and animates closing of the tab.
+    Animates closing of the <span class="argument">id</span>.
 </div>
 
 <div class="obj-property">
-    <a href="w2tabs.animateInsert">animateInsert</a> <span>- animateInsert(before, tabs)</span>
+    <a href="w2tabs.animateInsert">animateInsert</a> <span>- animateInsert(id, tab)</span>
 </div>
 <div class="obj-property-desc">
-    Add and animates insertion a tab or tabs.
+    Inserts <span class="argument">tab</span> into DOM before tab with <span class="argument">id</span>
 </div>
 
 <div class="obj-property">
@@ -29,10 +29,24 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2tabs.clickClose">clickClose</a> <span>- clickClose(id, [event])</span>
+</div>
+<div class="obj-property-desc">
+    Called when user clicks close button of the tab.
+</div>
+
+<div class="obj-property">
     <a href="w2tabs.disable">disable</a> <span>- disable(id1, [id2], ...)</span>
 </div>
 <div class="obj-property-desc">
     Disables a tab or tabs.
+</div>
+
+<div class="obj-property">
+    <a href="w2tabs.dragMove">dragMove</a> <span>- dragMove(event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when user drags tabs to reorder.
 </div>
 
 <div class="obj-property">
@@ -50,10 +64,24 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2tabs.getTabHTML">getTabHTML</a> <span>- getTabHTML(id)</span>
+</div>
+<div class="obj-property-desc">
+    Generate HTML for the tab with <span class="argument">id</span> and returns it.
+</div>
+
+<div class="obj-property">
     <a href="w2tabs.hide">hide</a> <span>- hide(id1, [id2], ...)</span>
 </div>
 <div class="obj-property-desc">
     Hides tab or tabs with <span class="argument">id</span>.
+</div>
+
+<div class="obj-property">
+    <a href="w2tabs.initReorder">initReorder</a> <span>- initReorder(id, event)</span>
+</div>
+<div class="obj-property-desc">
+    Initializes reorder when tabs is dragged
 </div>
 
 <div class="obj-property">
@@ -67,7 +95,7 @@
     <a href="w2tabs.remove">remove</a> <span>- remove(id1, [id2], ...)</span>
 </div>
 <div class="obj-property-desc">
-    Removes tabs.
+    Removes tabs with <span class="argument">id</span>.
 </div>
 
 <div class="obj-property">

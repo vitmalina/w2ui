@@ -2,7 +2,7 @@
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
 *
-* == changes 2.0
+* == 2.0 changes
 *   - load(url)
 *   - template(data, id)
 *   - open, load, message - return promise

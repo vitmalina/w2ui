@@ -1,0 +1,47 @@
+Compares two strings and returns 0, 1, or -1.
+
+<div class="definition">
+    naturalCompare(a, b);
+</div>
+<div class="arguments">
+    <table>
+    <tr>
+        <td>a</td>
+        <td><b>string</b>, string to compare</td>
+    </tr>
+    <tr>
+        <td>b</td>
+        <td><b>string</b>, string to compare</td>
+    </tr>
+    </table>
+</div>
+
+Compare strings containing a mix of letters and numbers in the way a human being would in sort order. This is described as a "natural ordering". Can be used
+
+<textarea class="javascript">
+Standard sorting:   Natural order sorting:
+    img1.png            img1.png
+    img10.png           img2.png
+    img12.png           img10.png
+    img2.png            img12.png
+</textarea>
+
+For example
+
+<textarea class="javascript">
+var a = ["z1.doc", "z10.doc", "z17.doc", "z2.doc", "z23.doc", "z3.doc"];
+a.sort(w2utils.naturalCompare);
+</textarea>
+
+returns
+
+<textarea class="javascript">
+[
+    "z1.doc",
+    "z2.doc",
+    "z3.doc",
+    "z10.doc",
+    "z17.doc",
+    "z23.doc"
+]
+</textarea>

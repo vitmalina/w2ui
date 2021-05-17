@@ -1,43 +1,24 @@
-Add and animates insertion a tab or tabs.
+Inserts <span class="argument">tab</span> into DOM before tab with <span class="argument">id</span>
 
 <div class="definition">
-    animateInsert(before, tabs)
+    animateInsert(id, tab)
 </div>
 
 <div class="arguments">
     <table>
     <tr>
-        <td>before</td>
-        <td><b>string</b>, id of tab to insert before</td>
+        <td>id</td>
+        <td><b>string</b>, id of the tab to insert before</td>
     </tr>
     <tr>
-        <td>tabs</td>
-        <td><b>object</b> or <b>array</b>, tab or array of tabs</td>
+        <td>tab</td>
+        <td><b>Object</b>, tab object</td>
     </tr>
     </table>
 </div>
-Returns <i>undefined</i>.
+
+Returns <i>promise</i>.
 
 <h4>Description</h4>
 
-This method will first animate inserting of the space before tab with id = <span class="argument">before</span> and then will call
-<a class="property" href="w2tabs.insert">.insert()</a> to insert the tab and display it.
-
-If you have tabs defined in the following way:
-<textarea class="javascript">
-$('#tabs').w2tabs({
-    name: 'tabs',
-    active: 'tab1',
-    tabs: [
-        { id: 'tab1', text: 'Tab 1' },
-        { id: 'tab2', text: 'Tab 2' },
-        { id: 'tab3', text: 'Tab 3' },
-        { id: 'tab4', text: 'Tab 4' }
-    ]
-});
-</textarea>
-
-You can add tabs:
-<textarea class="javascript">
-w2ui['tabs'].animateInsert('tab3', { id: 'tab5', text: 'Tab 5' });
-</textarea>
+This method is called internally to insert tab into DOM. It only inserts it into DOM, it does not insert into <span class="argument">.tabs</span> array. It is an internal method, but you can overwrite it for custom functionality.

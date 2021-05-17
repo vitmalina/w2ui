@@ -43,6 +43,20 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2popup.onMsgClose">onMsgClose</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when popup message is closed.
+</div>
+
+<div class="obj-property">
+    <a href="w2popup.onMsgOpen">onMsgOpen</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when popup message is opened.
+</div>
+
+<div class="obj-property">
     <a href="w2popup.onOpen">onOpen</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">

@@ -1,0 +1,30 @@
+Generates and encoded events for w2tag.
+
+<div class="definition">
+    tooltip(msg, [options])
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>msg</td>
+        <td><b>string</b>, tag message</td>
+    </tr>
+    <tr>
+        <td>options</td>
+        <td><b>Object</b> tag options</td>
+    </tr>
+    </table>
+</div>
+
+The first argument <span class="method">msg</span> is any HTML for w2tag. It can be quite complicated and big as it would be serialized.
+The second optional argument <span class="method">options</span> is the object to be passed to $().w2tag() plugin.
+
+<textarea class="javascript">
+let tooltip = w2utils.tooltip('Some long html that can have special characters !@#$%^&*()_', {
+    className: 'w2ui-light',
+    maxWidth: 200
+})
+let html = `<input style="margin: 50px" ${tooltip}>`
+$('body').html(html)
+</textarea>

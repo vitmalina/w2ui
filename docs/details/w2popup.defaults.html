@@ -28,4 +28,24 @@ defaults: {
 },
 </textarea>
 
+default.actions is an object, here is an example of it
+<textarea class="javascript">
+actions: {
+    Ok(event) {
+        w2popup.close()
+    },
+    Cancel(event) {
+        w2popup.close()
+    },
+    // you can also define a class and style for the button
+    cutom: {
+        class: 'custom-class',
+        style: '<more-css-styles>',
+        click(event) {
+            console.log('button clickced')
+        }
+    }
+}
+</textarea>
+
 Each time you open a popup a set of default settings will be used plus whatever properties you provide.

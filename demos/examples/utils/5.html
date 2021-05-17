@@ -1,6 +1,6 @@
 <div class="content">
     <div id="example_title">
-        <h1>Overlays (new in 1.5)</h1>
+        <h1>Overlays</h1>
         If you need to attach a short one-line message for an element or an input control - user $().w2tag(), if you need to attach
         a larger multi-line message - use $().w2overlay(). The example below demonstrates how to use these functions.
     </div>
@@ -11,22 +11,21 @@
 <!--CODE-->
 <input type="text" id="some-input" size="20" style="padding: 4px; border: 1px solid silver; height: 30px; width: 200px;">
 <div style="height: 20px"></div>
-Align:
-<div style="padding: 10px; margin-bottom: 20px; line-height: 2">
+    Alignment:<br>
+<div style="padding: 10px; margin-bottom: 20px; line-height: 2; float: left; width: 200px">
     <label><input name="postion" type="radio" onclick="window.align='none'" checked> &nbsp;none</label><br>
     <label><input name="postion" type="radio" onclick="window.align='left'"> &nbsp;left</label><br>
     <label><input name="postion" type="radio" onclick="window.align='right'"> &nbsp;right</label><br>
     <label><input name="postion" type="radio" onclick="window.align='both'"> &nbsp;both</label><br>
-    <div style="height: 5px"></div>
+</div>
+<div style="margin-left: 200px; padding-top: 15px; ">
     <label>
-        <input type="checkbox" onclick="window.above = this.checked"> &nbsp;Open Above
+        <input type="checkbox" onclick="window.above = this.checked" style="position: relative; top: 2px;"> &nbsp;Open Above
     </label>
 </div>
+<div style="clear: both"></div>
 
 <button class="w2ui-btn" onclick="showOverlay()">Show Overlay</button>
-<button class="w2ui-btn" onclick="showMenu()">Show Menu</button>
-<button class="w2ui-btn" onclick="showMenu('check')">Show Check Menu</button>
-<button class="w2ui-btn" onclick="showMenu('radio')">Show Radio Menu</button>
 <button class="w2ui-btn" onclick="showColor()">Color</button>
 
 <!--CODE-->
@@ -41,28 +40,6 @@ function showOverlay() {
         html: '<div style="padding: 10px; line-height: 150%">'+
             '    Multi line HTML message<br>Multi line HTML message<br>Multi line HTML message<br>'+
             '</div>'
-    });
-}
-
-function showMenu(type) {
-    $('#some-input').w2menu({
-        type: type,
-        openAbove: window.above,
-        align: window.align,
-        items: [
-            { id: 1, text: 'Item 1 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-star' },
-            { id: 'sub', text: 'Sub Menu', icon: 'fa fa-star', hidden: (type != null ? true : false),
-                items: [
-                    { id: 1, text: 'Item 1 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-star' },
-                    { id: 2, text: 'Item 2 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-star-o' },
-                    { id: 3, text: 'Item 3 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-camera' }
-                ]
-            },
-            { id: 2, text: 'Item 2 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-star-o' },
-            { id: 3, text: 'Item 3 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-camera' },
-            { text: '--' },
-            { id: 4, text: 'Item 4 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-table' },
-        ]
     });
 }
 

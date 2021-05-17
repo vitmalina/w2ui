@@ -20,7 +20,8 @@
 *   - sb.skipRefresh - no refresh during add/remove
 *   - sb.tabIndex
 *   - sb.search
-*   == 2.0
+*
+* == 2.0 changes
 *   - w2sidebar.node_template => w2sidebar.node
 *   - show/hide, enable/disable - return array of effected items
 *

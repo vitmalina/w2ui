@@ -1,0 +1,100 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Menus</h1>
+        A menu is a particular type of overlay that has selectable items.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<input type="text" id="some-input" size="20" style="padding: 4px; border: 1px solid silver; height: 30px; width: 200px;">
+<div style="height: 20px"></div>
+    Alignment:<br>
+<div style="padding: 10px; margin-bottom: 20px; line-height: 2; float: left; width: 200px">
+    <label><input name="postion" type="radio" onclick="window.align='none'" checked> &nbsp;none</label><br>
+    <label><input name="postion" type="radio" onclick="window.align='left'"> &nbsp;left</label><br>
+    <label><input name="postion" type="radio" onclick="window.align='right'"> &nbsp;right</label><br>
+    <label><input name="postion" type="radio" onclick="window.align='both'"> &nbsp;both</label><br>
+</div>
+<div style="margin-left: 200px; padding-top: 15px; ">
+    <label>
+        <input type="checkbox" onclick="window.above = this.checked" style="position: relative; top: 2px;"> &nbsp;Open Above
+    </label>
+</div>
+<div style="clear: both"></div>
+
+<button class="w2ui-btn" onclick="showMenu()">Show Menu</button>
+<button class="w2ui-btn" onclick="showMenu2()">Radio Menu</button>
+<button class="w2ui-btn" onclick="showMenu4()">Groups of Radio</button>
+<button class="w2ui-btn" onclick="showMenu3()">Check Menu</button>
+
+<!--CODE-->
+<script>
+window.align = 'none';
+window.above = false;
+
+function showMenu() {
+    $('#some-input').w2menu({
+        openAbove: window.above,
+        align: window.align,
+        items: [
+            { id: 1, text: 'Item 1 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-star' },
+            { id: 'sub', text: 'Sub Menu', icon: 'fa fa-star',
+                items: [
+                    { id: 1, text: 'Item 1 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-star' },
+                    { id: 2, text: 'Item 2 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-star-o' },
+                    { id: 3, text: 'Item 3 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-camera' }
+                ]
+            },
+            { id: 2, text: 'Item 2 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-star-o' },
+            { id: 3, text: 'Item 3 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-camera' },
+            { text: '--' },
+            { id: 4, text: 'Item 4 &nbsp;&nbsp;&nbsp;', icon: 'fa fa-table' },
+        ]
+    });
+}
+
+function showMenu2() {
+    $('#some-input').w2menu({
+        type: 'radio',
+        openAbove: window.above,
+        align: window.align,
+        items: [
+            { id: 1, text: 'Item 1 &nbsp;&nbsp;&nbsp;', keepOpen: true, icon: 'fa fa-star' },
+            { id: 2, text: 'Item 2 &nbsp;&nbsp;&nbsp;', keepOpen: true, icon: 'fa fa-star-o' },
+            { id: 3, text: 'Item 3 &nbsp;&nbsp;&nbsp;', keepOpen: true, icon: 'fa fa-camera' },
+        ]
+    });
+}
+
+function showMenu3() {
+    $('#some-input').w2menu({
+        type: 'check',
+        openAbove: window.above,
+        align: window.align,
+        items: [
+            { id: 1, text: 'Item 1 &nbsp;&nbsp;&nbsp;', keepOpen: true, icon: 'fa fa-star' },
+            { id: 2, text: 'Item 2 &nbsp;&nbsp;&nbsp;', keepOpen: true, icon: 'fa fa-star-o' },
+            { id: 3, text: 'Item 3 &nbsp;&nbsp;&nbsp;', keepOpen: true, icon: 'fa fa-camera' },
+        ]
+    });
+}
+
+function showMenu4() {
+    $('#some-input').w2menu({
+        type: 'check',
+        openAbove: window.above,
+        align: window.align,
+        items: [
+            { id: 1, text: 'Item 1 &nbsp;&nbsp;&nbsp;', keepOpen: true, icon: 'fa fa-star', group: '1' },
+            { id: 2, text: 'Item 2 &nbsp;&nbsp;&nbsp;', keepOpen: true, icon: 'fa fa-star-o', group: '1' },
+            { id: 3, text: 'Item 3 &nbsp;&nbsp;&nbsp;', keepOpen: true, icon: 'fa fa-camera', group: '1' },
+            { text: '--' },
+            { id: 4, text: 'Item 4 &nbsp;&nbsp;&nbsp;', keepOpen: true, icon: 'fa fa-table', group: '2' },
+            { id: 5, text: 'Item 5 &nbsp;&nbsp;&nbsp;', keepOpen: true, icon: 'fa fa-table', group: '2' },
+        ]
+    });
+}
+
+</script>

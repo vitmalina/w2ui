@@ -1,0 +1,47 @@
+Normalizes menu to a consistent array
+
+<div class="definition">
+    normMenu(menu, [obj]);
+</div>
+<div class="arguments">
+    <table>
+    <tr>
+        <td>menu</td>
+        <td><b>array, object, or function</b>, array of items to normalize</td>
+    </tr>
+    <tr>
+        <td>obj</td>
+        <td><b>object</b>, Object</td>
+    </tr>
+    </table>
+</div>
+
+This function is used in all the menus to normalized to an array of objects { id, text }. For example
+
+<textarea class="javascript">
+w2utils.normMenu(['1','2','3'])
+</textarea>
+
+returns
+
+<textarea class="javascript">
+[
+    { "id": "1", "text": "1" },
+    { "id": "2", "text": "2" },
+    { "id": "3", "text": "3" }
+]</textarea>
+
+It can also be an object
+
+<textarea class="javascript">
+w2utils.normMenu({ a: 1, b: 2, c: 55 })
+</textarea>
+
+returns
+
+<textarea class="javascript">
+[
+    { "id": "a", "text": 1 },
+    { "id": "b", "text": 2 },
+    { "id": "c", "text": 55 }
+]</textarea>

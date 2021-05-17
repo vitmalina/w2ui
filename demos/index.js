@@ -68,7 +68,9 @@ $(function () {
                 },
                 { id: 'layout-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
-                        { id: 'layout/11', text: 'Panel Messages (1.5+)', icon: 'fa fa-columns' }
+                        { id: 'layout/11', text: 'Panel Messages (1.5+)', icon: 'fa fa-columns' },
+                        { id: 'layout/12', text: 'Fixed Size Main (1.5+)', icon: 'fa fa-columns' },
+                        { id: 'layout/13', text: 'Content Replaced (1.5+)', icon: 'fa fa-columns' }
                     ]
                 },
                 { id: 'grid', text: 'Grid Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
@@ -156,9 +158,15 @@ $(function () {
                 { id: 'tabs-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'tabs/7', text: 'Tabs Overflow (1.5+)', icon: 'fa fa-folder-o' },
-                        { id: 'tabs/8', text: 'Tooltips (1.5+)', icon: 'fa fa-folder-o' }
+                        { id: 'tabs/8', text: 'Tooltips (1.5+)', icon: 'fa fa-folder-o' },
+                        { id: 'tabs/9', text: 'Tab Reorder (1.5+)', icon: 'fa fa-folder-o' }
                     ]
                 },
+                // { id: 'tabs-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                //     nodes: [
+                //         { id: 'tabs/10', text: 'Smooth Add/Remove (2.0+)', icon: 'fa fa-folder-o' }
+                //     ]
+                // },
                 { id: 'forms', text: 'Forms Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'form/1', text: 'Simple Form', icon: 'fa fa-pencil-square-o' },
@@ -230,9 +238,12 @@ $(function () {
                 },
                 { id: 'utils-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
-                        { id: 'utils/4', text: 'Tags (1.5+)', icon: 'fa fa-star-o' },
+                        { id: 'utils/4', text: 'Tooltips (1.5+)', icon: 'fa fa-star-o' },
                         { id: 'utils/5', text: 'Overlays (1.5+)', icon: 'fa fa-star-o' },
+                        { id: 'utils/9', text: 'Menus (1.5+)', icon: 'fa fa-star-o' },
                         { id: 'utils/6', text: 'Formatters (1.5+)', icon: 'fa fa-star-o' },
+                        { id: 'utils/7', text: 'Color Utils (1.5+)', icon: 'fa fa-star-o' },
+                        { id: 'utils/8', text: 'Text Marker (1.5+)', icon: 'fa fa-star-o' },
                     ]
                 }
             ],
@@ -322,7 +333,7 @@ $(function () {
     $().w2sidebar(conf.demo_sidebar)
     $('#demo_layout').w2layout(conf.demo_layout)
     // init sidebar
-    w2ui.demo_layout.html('top', `<div style="padding: 18px 0 0 20px; font-size: 18px;">W2UI 1.5 Demos</div><div id="demo_toolbar"></div>`)
+    w2ui.demo_layout.html('top', `<div style="padding: 18px 0 0 20px; font-size: 18px;">W2UI Demos</div><div id="demo_toolbar"></div>`)
     w2ui.demo_layout.html('left', w2ui.demo_sidebar)
 
     setTimeout(hashChanged, 10)
@@ -332,8 +343,12 @@ $(function () {
     function hashChanged() {
         // show toolbar
         let hash = String(document.location.hash).substr(2)
+        if (hash == '') hash = 'combo/1'
         let sec = hash.split('/')[0]
         let exp = hash.split('/')[1]
+        if (parseInt(exp) != exp) { // neded for backward compatibility with what is in google already
+            exp = String(exp).split('-')[1]
+        }
         let sb = w2ui.demo_sidebar
         w2ui.demo_toolbar.get(sec).checked = true
         w2ui.demo_toolbar.refresh(sec)
@@ -347,7 +362,7 @@ $(function () {
                     sb.hide(node.id)
                 }
             })
-            w2ui.demo_sidebar.click(hash || (exp+'/1'))
+            w2ui.demo_sidebar.click(sec + '/' + exp || (exp+'/1'))
         } else {
             // w2ui.demo_sidebar.select(hash || (exp+'/1'))
         }
