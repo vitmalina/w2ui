@@ -6,18 +6,6 @@
 *   - vertical toolbar
 *   - refactor w/o <table>
 *
-* == 1.5 changes ==
-*   - menu drop down can have groups now
-*   - item.caption - deprecated
-*   - item.text - can be a function
-*   - item.icon - can be a function
-*   - item.tooltip - can be a function
-*   - item.color
-*   - item.options
-*   - event.item.get - finds selected item
-*   - item.keepOpen, drop down will not close
-*   - item.type = 'new-line'
-*
 * == 2.0 changes
 *   - w2toolbar.item => w2toolbar.item_template
 *   - show/hide, enable/disable, check/uncheck - return array of effected items
