@@ -122,9 +122,10 @@ $(function () {
                     nodes: [
                         { id: 'toolbar/6', text: 'Menu Buttons (1.5+)', icon: 'fa fa-hand-o-up' },
                         { id: 'toolbar/7', text: 'Color Buttons (1.5+)', icon: 'fa fa-hand-o-up' },
-                        { id: 'toolbar/8', text: 'Tooltips (1.5+)', icon: 'fa fa-hand-o-up' },
                         { id: 'toolbar/9', text: 'Custom Buttons (1.5+)', icon: 'fa fa-hand-o-up' },
-                        { id: 'toolbar/10', text: 'Toolbar Overflow (1.5+)', icon: 'fa fa-hand-o-up' }
+                        { id: 'toolbar/8', text: 'Tooltips (1.5+)', icon: 'fa fa-hand-o-up' },
+                        { id: 'toolbar/10', text: 'Toolbar Overflow (1.5+)', icon: 'fa fa-hand-o-up' },
+                        { id: 'toolbar/11', text: 'Multiline Toolbars (1.5+)', icon: 'fa fa-hand-o-up' }
                     ]
                 },
                 { id: 'sidebar', text: 'Sidebar Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
@@ -244,6 +245,7 @@ $(function () {
                         { id: 'utils/6', text: 'Formatters (1.5+)', icon: 'fa fa-star-o' },
                         { id: 'utils/7', text: 'Color Utils (1.5+)', icon: 'fa fa-star-o' },
                         { id: 'utils/8', text: 'Text Marker (1.5+)', icon: 'fa fa-star-o' },
+                        { id: 'utils/10', text: 'Natural Compare (1.5+)', icon: 'fa fa-star-o' },
                     ]
                 }
             ],

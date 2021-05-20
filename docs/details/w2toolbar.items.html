@@ -19,94 +19,14 @@ $('#toolbar').w2toolbar({
 });
 </textarea>
 
-If you change this property during run-time, do not forget to call the <a class="method" href="w2toolbar.refresh">.refresh()</a>
-method to refresh it on the screen. If you need to add/remove items during run-time, you can use
-<a class="method" href="w2toolbar.add">.add()</a>, <a class="method" href="w2toolbar.insert">.insert()</a>,
-<a class="method" href="w2toolbar.remove">.remove()</a> methods.
+The structure of the item is defined in <a class="method" href="w2toolbar.item_template">.item_template()</a>
+
 <div style="height: 10px"></div>
+If you change this property during run-time, do not forget to call the <a class="method" href="w2toolbar.refresh">.refresh()</a>
+method.
 
-An item object has the following structure:
-<textarea class="javascript">
-item: {
-    id       : null,    // id of the item
-    type     : 'button',// type of the item (button, check, radio, drop, menu, break, spacer, html)
-    text     : '',      // caption of the item, can be string or function
-    html     : '',      // html text for the item (only if type = html), can be string or function
-    tooltip  : null,    // tooltip for the item (see w2toolbar.tooltip), can be string or function
-    count    : null,    // count badge
-    hidden   : false,   // indicates if item is hidden
-    disabled : false,   // indicates if item is disabled
-    checked  : false,   // indicates if item is checked
-    img      : '',      // css class of the image for the item
-    icon     : '',      // css class of the icon font for the item
-    route    : null,    // route to follow, can have dynamic parts as /item/:id/details (see routeData)
-    arrow    : true,    // down arrow for drop/menu types
-    style    : null,    // extra css style for caption
-    color    : null,    // color value - used in color pickers
-    transparent: null,  // transparent flag t/f - used in color pickers
-    group    : null,    // group name for the item, used for radio buttons, can be integer or string
-    items    : null,    // for type=menu it is an array of items in the menu
-    selected : null,    // id of array of ids of the selected item(s) for menu-check and menu-radio
-    overlay  : {},      // for drop down menus additional params for overlay, see overlay
-    onClick  : null,    // click event handler for this item only
-    onRefresh: null     // refresh event handler for this item only
-}
-</textarea>
-
-There are 12 types of toolbar items
-<style>
-table.list {
-    margin: 20px 0px;
-    border-collapse: collapse;
-}
-table.list td {
-    padding: 4px 10px;
-    border: 1px solid #efefef !important;
-}
-</style>
-<table class="list">
-    <tr><td> button </td>    <td> regular button </td></tr>
-    <tr><td> check </td>    <td> check button (2 states: checked and unchecked). See <span class="property">.checked</span> property. </td></tr>
-    <tr><td> radio </td>    <td> radio button, similar to check button but other buttons in the group will be unchecked. See <span class="property">.checked</span> and <span class="property">.group</span> property </td></tr>
-    <tr><td valign="top"> menu </td>
-        <td> drop down menu. The <span class="property">.items</span> property will be treated as menu items. This property
-        either an array of strings or array of objects. If it is array of string, then each element of the array is a menu item. If it is array of
-        object, then each element of the array is an object of the following type:
-        <textarea class="javascript">
-item: {
-    id       : '',     // id of the menu item
-    text     : '',     // text of the menu item
-    icon     : '',     // css class for icon font
-    img      : '',     // css class for an image
-    disabled : false,  // indicates if menu item is disabled
-    checked  : false   // indicates if menu item is checked (for menu-check or menu-radio)
-}
-        </textarea>
-        There are several default icons in w2ui.css file you can use or you can create your own css file with icons. Majority of
-        default icons are used in w2grid. Default icons    are:
-        <span class="argument">icon-folder</span>,
-        <span class="argument">icon-page</span>,
-        <span class="argument">icon-reload</span>,
-        <span class="argument">icon-columns</span>,
-        <span class="argument">icon-search</span>,
-        <span class="argument">icon-add</span>,
-        <span class="argument">icon-delete</span>,
-        <span class="argument">icon-save</span>,
-        <span class="argument">icon-edit</span>,
-        <span class="argument">icon-bullet-black</span>
-    </td></tr>
-    <tr><td valign="top"> menu-check </td>
-        <td> drop down menu of check boxes. It is similar to the menu item, but displays a checkbox next to the menu item. You can check what checkboxes
-        are selected if you read <span class="property">.selected</span> property (toolbar item not menu item). In case of menu-check it is an array of ids of the selected items.
-    </td></tr>
-    <tr><td valign="top"> menu-radio </td>
-        <td> drop down menu of radio buttons. It is similar to the menu item, but displays a radio button next to the menu item. You can check what radio button
-        is selected if you read <span class="property">.selected</span> property (toolbar item not menu item). In case of menu-radio it is a single value that is the id of the selected item
-    </td></tr>
-    <tr><td> drop </td>        <td> simple drop down, whatever in <span class="property">.html</span> property will be display in the drop down </td></tr>
-    <tr><td> html </td>        <td> html item, this html will be displayed instead of the toolbar item </td></tr>
-    <tr><td> color </td>       <td> color picker drop down, see <span class="property">.color</span> and <span class="property">.transparent</span> properties. </td></tr>
-    <tr><td> text-color </td>  <td> color picker drop down for text, see <span class="property">.color</span>, <span class="property">.transparent</span> properties. </td></tr>
-    <tr><td> break </td>       <td> vertical separator </td></tr>
-    <tr><td> spacer </td>      <td> horizontal spacer, will push all following buttons to the right hand side </td></tr>
-</table>
+<div style="height: 10px"></div>
+To add/remove items during run-time, you should better call
+<a class="method" href="w2toolbar.add">.add()</a>,
+<a class="method" href="w2toolbar.insert">.insert()</a>,
+<a class="method" href="w2toolbar.remove">.remove()</a> methods.
