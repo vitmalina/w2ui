@@ -22,6 +22,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2sidebar.handle">handle</a> <span>- Object, default = {...} // see below</span>
+</div>
+<div class="obj-property-desc">
+    Object that defineds node handle
+</div>
+
+<div class="obj-property">
     <a href="w2sidebar.hasFocus">hasFocus</a> <span>- Boolean, default = false</span>
 </div>
 <div class="obj-property-desc">
@@ -50,10 +57,24 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2sidebar.levelPadding">levelPadding</a> <span>- Number, default = 12</span>
+</div>
+<div class="obj-property-desc">
+    Defined padding level for nested nodes
+</div>
+
+<div class="obj-property">
     <a href="w2sidebar.menu">menu</a> <span>- Array, default = []</span>
 </div>
 <div class="obj-property-desc">
     Context menu for the sidebar.
+</div>
+
+<div class="obj-property">
+    <a href="w2sidebar.node_template">node_template</a> <span>- Object, default = {...} // see below</span>
+</div>
+<div class="obj-property-desc">
+    Node template object.
 </div>
 
 <div class="obj-property">
@@ -89,6 +110,13 @@
 </div>
 <div class="obj-property-desc">
     Reference to itself. Read Only.
+</div>
+
+<div class="obj-property">
+    <a href="w2sidebar.skipRefresh">skipRefresh</a> <span>- Boolean, default = false</span>
+</div>
+<div class="obj-property-desc">
+    Indicated if to refresh during add/remove of nodes
 </div>
 
 <div class="obj-property">

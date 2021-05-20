@@ -1,0 +1,40 @@
+Performs textual search on the sidebar
+
+<div class="definition">
+    search(str)
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>str</td>
+        <td><b>string</b>, text to search</td>
+    </tr>
+    </table>
+</div>
+Returns <i>undefined</i>.
+
+<h4>Description</h4>
+
+This method will search all nodes of the sidebar and those that match search criteria will be made visible, those that are not will be made hidden.
+<div style="height: 10px"></div>
+
+If you have sidebar defined in the following way:
+<textarea class="javascript">
+$('#sidebar').w2sidebar({
+    name : 'sidebar',
+    img  : 'icon-page',
+    nodes: [
+        { id: 'id-1', text: 'Level 1' },
+        { id: 'id-2', text: 'Level 2 (txt)' },
+        { id: 'id-3', text: 'Level 3' }
+    ]
+});
+</textarea>
+
+You can:
+<textarea class="javascript">
+w2ui.sidebar.search('txt')
+// to clear search
+w2ui.sidebar.search()
+</textarea>
