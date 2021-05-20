@@ -1,0 +1,68 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Sort Nodes</h1>
+        The example below shows how to sort nodes in the sidebar.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="sidebar" style="height: 600px; width: 200px; float: left"></div>
+<div style="margin-left: 220px;">
+    <div style="padding: 7px; line-height: 2">
+        <label><input id="foldersFirst" style="position: relative; top: 2px; left: -1px" type="checkbox"> Folders First</label><br>
+        <label><input id="caseSensitive" style="position: relative; top: 2px; left: -1px" type="checkbox"> Case Sensitive</label><br>
+        <label><input id="reverse" style="position: relative; top: 2px; left: -1px" type="checkbox"> Reverse</label><br>
+    </div>
+    <div style="height: 10px;"></div>
+    <button class="w2ui-btn" onclick="sort()">Sort</button>
+</div>
+<div style="clear: both"/>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#sidebar').w2sidebar({
+        name: 'sidebar',
+        levelPadding: 22,
+        nodes: [],
+    })
+    let sb = w2ui.sidebar
+    generate(sb.nodes, 'item', { icon: 'fa fa-folder-o' }, 5, 10)
+    generate(sb.nodes[0].nodes[1].nodes, 'sub', { expanded: false }, 3)
+    generate(sb.nodes[2].nodes[1].nodes, 'sb', { expanded: false }, 3)
+    sb.refresh()
+})
+
+function sort() {
+    let sb = w2ui.sidebar
+    let options = {
+        foldersFirst: $('#foldersFirst').is(':checked'),
+        caseSensitive: $('#caseSensitive').is(':checked'),
+        reverse: $('#reverse').is(':checked'),
+    }
+    console.log(options)
+    sb.sort(options)
+    sb.refresh()
+
+}
+
+function generate(nodes, id, options, count, subCount) {
+    let icons = ['fa fa-home', 'fa fa-coffee', 'fa fa-comment-o', 'fa fa-star', 'fa fa-bug']
+    let texts = ['Test', 'Label', 'Item', 'Simple', 'Formula', 'Single']
+    for (let i=0; i<count; i++) {
+        let node = $.extend({
+            id: id + '-' + i,
+            expanded: true,
+            text: texts[Math.floor(Math.random() * texts.length)],
+            icon: icons[Math.floor(Math.random() * icons.length)],
+            nodes: []
+        }, options)
+        if (subCount > 0) {
+            generate(node.nodes, id + '-' + i, {}, Math.floor(Math.random() * subCount) + 2)
+        }
+        nodes.push(node)
+    }
+}
+</script>

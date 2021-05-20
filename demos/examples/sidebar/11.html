@@ -1,0 +1,72 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Tree Like Sidebar</h1>
+        The same sidebar can be used to create tree like structures. It supports full keyboard navigation.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="sidebar" style="height: 600px; width: 220px; float: left"></div>
+<div style="margin-left: 240px">
+    Use keyboard to navigate<br>
+    <ul>
+        <li>up/down arrow - to navitage</li>
+        <li>left/right arrow - to open close folders</li>
+        <li>enter - to open close folders and trigger click</li>
+    </ul>
+</div>
+<div style="clear: both"/>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#sidebar').w2sidebar({
+        name: 'sidebar',
+        levelPadding: 20,
+        nodes: [
+            { id: 'level-1', text: 'Level 1', icon: 'fa fa-folder-o', expanded: true, selected: true,
+                nodes: [
+                    { id: 'level-1-1', text: 'Level 1.1', icon: 'fa fa-home',
+                        nodes: [
+                            { id: 'level-1-1-1', text: 'Level 1.1.1', icon: 'fa fa-star-o' },
+                            { id: 'level-1-1-2', text: 'Level 1.1.2', icon: 'fa fa-star-o' },
+                            { id: 'level-1-1-3', text: 'Level 1.1.3', icon: 'fa fa-star-o' }
+                        ]
+                    },
+                    { id: 'level-1-2', text: 'Level 1.2', icon: 'fa fa-coffee',
+                        nodes: [
+                            { id: 'level-1-2-1', text: 'Level 1.2.1', icon: 'fa fa-star-o' },
+                            { id: 'level-1-2-2', text: 'Level 1.2.2', icon: 'fa fa-star-o' },
+                            { id: 'level-1-2-3', text: 'Level 1.2.3', icon: 'fa fa-star-o' }
+                        ]
+                    },
+                    { id: 'level-1-3', text: 'Level 1.3', icon: 'fa fa-comment-o',
+                        nodes: [
+                            { id: 'level-1-3-1', text: 'Level 1.3.1', icon: 'fa fa-star-o' },
+                            { id: 'level-1-3-2', text: 'Level 1.3.2', icon: 'fa fa-star-o' },
+                            { id: 'level-1-3-3', text: 'Level 1.3.3', icon: 'fa fa-star-o' }
+                        ]
+                    }
+                ]
+            },
+            { id: 'level-2', text: 'Level 2', icon: 'fa fa-folder-o',
+                nodes: [
+                    { id: 'level-2-1', text: 'Level 2.1', icon: 'fa fa-star-o' },
+                    { id: 'level-2-2', text: 'Level 2.2', icon: 'fa fa-star-o' },
+                    { id: 'level-2-3', text: 'Level 2.3', icon: 'fa fa-star-o' }
+                ]
+            },
+            { id: 'level-3', text: 'Level 3', icon: 'fa fa-folder-o',
+                nodes: [
+                    { id: 'level-3-1', text: 'Level 3.1', icon: 'fa fa-star-o' },
+                    { id: 'level-3-2', text: 'Level 3.2', icon: 'fa fa-star-o' },
+                    { id: 'level-3-3', text: 'Level 3.3', icon: 'fa fa-star-o' }
+                ]
+            }
+        ]
+    })
+    w2ui.sidebar.focus()
+})
+</script>

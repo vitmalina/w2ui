@@ -1,0 +1,31 @@
+Defined padding level for nested nodes
+
+<div class="definition">
+    Number, default = 12
+</div>
+
+This porpertty defined padding for nested nodes.
+<div style="height: 10px"></div>
+
+You can defined it during object creation:
+<textarea class="javascript">
+$('#sidebar').w2sidebar({
+    name: 'sidebar',
+    levelPadding: 5,
+    nodes: [
+        { id: 'id-1', text: 'Level 1', hidden: true },
+        { id: 'id-2', text: 'Level 2', expanded: true, nodes: [
+            { id: 'id-2-1', text: 'Level 2.1' },
+            { id: 'id-2-2', text: 'Level 2.2' }
+        ]},
+        { id: 'id-3', text: 'Level 3' }
+    ]
+});
+</textarea>
+
+Or any time after the object has been created:
+
+<textarea class="javascript">
+w2ui.sidebar.levelPadding = 20
+w2ui.sidebar.refresh()
+</textarea>

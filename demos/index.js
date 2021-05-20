@@ -52,6 +52,11 @@ $(function () {
                         { id: 'combo/10', text: 'Dependent Fields', icon: 'fa fa-star-o' }
                     ]
                 },
+                { id: 'combo-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'combo/11', text: 'Flat Sidebar (1.5+)', icon: 'fa fa-star-o' }
+                    ]
+                },
                 { id: 'layout', text: 'Layout Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'layout/1', text: 'Simple Layout', icon: 'fa fa-columns' },
@@ -143,9 +148,18 @@ $(function () {
                 { id: 'sidebar-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'sidebar/9', text: 'Flat Sidebar (1.5+)', icon: 'fa fa-hand-o-up' },
-                        { id: 'sidebar/10', text: 'In/Out of Focus (1.5+)', icon: 'fa fa-hand-o-up' }
+                        { id: 'sidebar/10', text: 'In/Out of Focus (1.5+)', icon: 'fa fa-hand-o-up' },
+                        { id: 'sidebar/11', text: 'Tree Like Sidebars (1.5+)', icon: 'fa fa-hand-o-up' },
+                        { id: 'sidebar/12', text: 'Level Padding (1.5+)', icon: 'fa fa-hand-o-up' },
+                        { id: 'sidebar/13', text: 'Node Handle (1.5+)', icon: 'fa fa-hand-o-up' },
                     ]
                 },
+                // { id: 'sidebar-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                //     nodes: [
+                //         { id: 'sidebar/14', text: 'Sort Nodes (2.0+)', icon: 'fa fa-hand-o-up' },
+                //         { id: 'sidebar/15', text: 'Search Nodes (2.0+)', icon: 'fa fa-hand-o-up' }
+                //     ]
+                // },
                 { id: 'tabs', text: 'Tabs Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'tabs/1', text: 'Simple Tabs', icon: 'fa fa-folder-o' },
