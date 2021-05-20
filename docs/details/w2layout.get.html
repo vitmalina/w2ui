@@ -1,4 +1,4 @@
-Finds the panel and returns its object. 
+Finds the panel and returns its object.
 
 <div class="definition">
     get(type)
@@ -36,7 +36,7 @@ panel: {
     resizable:  false,   // indicates if panel is resizable
     overflow:   'auto',  // overflow property of the panel, can have same values as similar CSS property
     style:      '',      // additional css styles for the panel
-    content:    '',      // content of the pane, can be a string or an object with .render(box) method
+    html:       '',      // content of the panel, can be a string or an object with .render(box) method
     width:      null,    // width of the panel, read only
     height:     null,    // height of the panel, read only
     onRefresh:  null,    // refresh event for the panel
@@ -55,11 +55,10 @@ $('#layout').w2layout({
     name    : 'layout',
     panels  : [
         { type: 'top', size: 40 },
-        { type: 'main', content: 'This is main panel' },
+        { type: 'main', html: 'This is main panel' },
         { type: 'preview', size: 200, hidden: true }
     ]
 });
 
 console.log(w2ui['layout'].get('preview'));
 </textarea>
-
