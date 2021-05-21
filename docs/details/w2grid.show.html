@@ -47,6 +47,7 @@ show = {
     footer           : false,  // indicates if footer is visible
     columnHeaders    : true,   // indicates if columns is visible
     lineNumbers      : false,  // indicates if line numbers column is visible
+    orderColumn      : false,  // indicates if order records column is visible
     expandColumn     : false,  // indicates if expand column is visible
     selectColumn     : false,  // indicates if select column is visible
     emptyRecords     : true,   // indicates if empty records are visible
@@ -61,7 +62,9 @@ show = {
     selectionBorder  : true,   // display border around selection (for selectType = 'cell')
     recordTitles     : true,   // indicates if to define titles for records
     searchAll        : true,   // indiccates if to enable search by all fields
-    skipRecords      : true    // indicates if skip records should be visible,
+    searchHiddenMsg  : false,  // show tooltip message for search fields that are hidden or non-existant
+    skipRecords      : true,   // indicates if skip records should be visible,
+    saveRestoreState : false,  // indicates if "Save/Restore" items are visible
     statusRange      : true,
     statusBuffered   : false,
     statusRecordID   : true,
@@ -69,9 +72,5 @@ show = {
     statusResponse   : true,
     statusSort       : false,
     statusSearch     : false,
-    saveRestoreState : false
-
-
-
 }
 </textarea>

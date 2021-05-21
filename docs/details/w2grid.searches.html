@@ -46,28 +46,47 @@ Because the only way for the user to trigger the search is from the toolbar, the
 Below it the structure of the search object:
 <textarea class="javascript">
 search = {
-    type    : 'text',    // type of the search (see below)
-    field   : '',        // field name to submit to server
-    label   : '',        // caption of the search
-    inTag   : '',        // text that will be inside &lt;input ...&gt; tag
-    outTag  : '',        // text that will be outside &lt;input ...&gt; tag
-    hidden  : false,     // indicates if search is show or hidden
-    options : {}         // options for w2field object
+    type     : 'text', // type of the search (see below)
+    field    : '',     // field name to submit to server
+    label    : '',     // caption of the search
+    style    : '',     // additional style for the field
+    inTag    : '',     // text that will be inside &lt;input ...&gt; tag
+    outTag   : '',     // text that will be outside &lt;input ...&gt; tag
+    simple   : true,   // if true, it will show in simple search drop down
+    hidden   : false,  // if hidden = true it will always be submitted, but user cannot clear it
+    value    : null,   // default value for hidden search
+    operator : null,   // defines default operator for the field
+    operators: null,   // array of operators for the field, or default is used
+    options  : {}      // options for w2field object
 }
 </textarea>
+
+Initially the default search field is "all", however, you can remove it or define a different search field. To define a different default search you can do the following:
+<textarea class="javascript">
+grid.last.field = 'search_field'
+grid.last.search = 'search_str'
+</textarea>
+
+To disable "all" search set <a class="argument" href="w2grid.show">.show.searchAll</a> to false.
+<div style="height: 10px"></div>
+
+For all possible search operators see <a class="argument" href="w2grid.operators">.operators</a>. Conversion map from column type to search operator type is defined in <a class="argument" href="w2grid.operatorsMap">.operatorsMap</a>.
+<div style="height: 10px"></div>
 
 The type of the search filed can be one of the following:
 <ul>
     <li>text</li>
     <li>int</li>
     <li>float</li>
-    <li>hex</li>
     <li>money</li>
-    <li>currency</li>
+    <li>currency - same as money</li>
     <li>percent</li>
+    <li>hex</li>
+    <li>color - same as hex</li>
     <li>alphanumeric</li>
     <li>date</li>
     <li>time</li>
+    <li>datetime</li>
     <li>list</li>
     <li>combo</li>
     <li>enum</li>

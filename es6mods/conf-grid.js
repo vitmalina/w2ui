@@ -11,6 +11,7 @@ export default {
     // },
     // columnTooltip: 'top',
     reorderRows: true,
+    // multiSearch: false,
     //reorderColumns: true,
     show: {
         toolbar: true,
@@ -18,16 +19,18 @@ export default {
         header: true,
         emptyRecords: true,
         columnHeaders: true,
-        searchAll: true,
+        searchAll: false,
         searchHiddenMsg: true,
-        searchVisible: true,
+        searchVisible: false,
         selectColumn: true,
         expandColumn: false,
         lineNumbers: true,
         toolbarAdd: true,
         toolbarEdit: false,
         toolbarDelete: true,
-        toolbarSave: true
+        toolbarSave: true,
+        skipRecords: true,
+        saveRestoreState: true,
     },
     menu: [
         { id: 1, text: 'Select Item', icon: 'fa fa-star',
@@ -84,8 +87,8 @@ export default {
 
     // possible values: text, alphanumeric, int, float, money, currency, percent, hex, list, combo, enum, select, date, time
     searches: [
-        { field: 'personid', label: 'ID', type: 'int' },
-        { field: 'color', label: 'Color', type: 'color' },
+        { field: 'personid', label: 'ID', type: 'text', simple: false },
+        { field: 'color', label: 'Color', type: 'color', style: 'border: 1px solid red' },
         { field: 'email', label: 'Email', type: 'text', operator1: 'null', operators1: ['is', 'null', 'not null'] },
         { field: 'fname', label: 'First Name 1', type: 'text' },
         { field: 'fname-full', label: 'First Name 2', type: 'list', options: { items: ['Cuban', 'Rene'] } },
