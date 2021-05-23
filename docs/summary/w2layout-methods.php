@@ -18,7 +18,7 @@
     <a href="w2layout.get">get</a> <span>- get(type)</span>
 </div>
 <div class="obj-property-desc">
-    Finds the panel and returns its object. 
+    Finds the panel and returns its object.
 </div>
 
 <div class="obj-property">
@@ -74,7 +74,7 @@
     <a href="w2layout.set">set</a> <span>- set(type, panel)</span>
 </div>
 <div class="obj-property-desc">
-    Finds the panel and extends it with provided object. 
+    Finds the panel and extends it with provided object.
 </div>
 
 <div class="obj-property">
