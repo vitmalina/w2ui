@@ -164,36 +164,10 @@ class w2event {
 *
 * == TODO ==
 *   - overlay should be displayed where more space (on top or on bottom)
-*   - write and article how to replace certain framework functions
 *   - add maxHeight for the w2menu
-*   - add time zone
-*   - TEST On IOS
-*   - $().w2marker() -- only unmarks first instance
-*   - subitems for w2menus()
 *   - add w2utils.lang wrap for all captions in all buttons.
-*   - $().w2date(), $().w2dateTime()
 *
-* == 1.5 change
-*   - parseColor(str) returns rgb
-*   - rgb2hsv, hsv2rgb
-*   - color.onSelect
-*   - color.html
-*   - refactored w2tag object, it has more potential with $().data('w2tag')
-*   - added w2utils.tooltip
-*   - w2tag options.hideOnFocus
-*   - w2tag options.maxWidth
-*   - w2tag options.auto - if set to true, then tag will show on mouseover
-*   - w2tag options.showOn, hideOn - if set to true, then tag will show on mouseover
-*   - w2tag options.className: 'w2ui-light' - for light color tag
-*   - w2menu options.items... remove t/f
-*   - w2menu options.items... keepOpen t/f
-*   - w2menu options.onRemove
-*   - w2menu options.hideOnRemove
-*   - w2menu - can not nest items, item.items and item.expanded
-*   - w2menu.options.topHTML
-*   - w2menu.options.menuStyle
-*   - naturalCompare
-*   == 2.0
+* == 2.0 changes
 *   - normMenu
 *
 ************************************************/
@@ -1754,7 +1728,7 @@ let w2utils = (($) => {
     function normMenu(menu, el) {
         if (Array.isArray(menu)) {
             menu.forEach((it, m) => {
-                if (typeof it === 'string') {
+                if (typeof it === 'string' || typeof it === 'number') {
                     menu[m] = { id: it, text: it }
                 } else if (it != null) {
                     if (it.caption != null && it.text == null) it.text = it.caption
@@ -2031,7 +2005,9 @@ if (self) {
 *   - columnGroup.text can be a function
 *   - grid.tabIndex
 *   - onColumnAutoResize
-*   == 2.0
+*   - col.sortMode = 'default', 'natural' or a function
+*
+* == 2.0 changes
 *
 ************************************************************************/
 
@@ -2197,7 +2173,7 @@ class w2grid extends w2event {
             frozen          : false, // indicates if the column is fixed to the left
             info            : null // info bubble, can be bool/object
         }
-        this.msgDelete = 'Are you sure you want to delete NN records?'
+        this.msgDelete = 'Are you sure you want to delete XX records?'
         this.msgDeleteBtn = 'Delete'
         this.msgNotJSON = 'Returned data is not in valid JSON format.'
         this.msgAJAXerror = 'AJAX error. See console for more details.'
@@ -4358,9 +4334,10 @@ class w2grid extends w2event {
     }
     requestComplete(status, xhr, cmd, callBack) {
         this.unlock()
+        this.last.xhr_response = ((new Date()).getTime() - this.last.xhr_start)/1000
         setTimeout(() => {
             if (this.show.statusResponse) {
-                this.status(w2utils.lang('Server Response') + ' ' + ((new Date()).getTime() - this.last.xhr_start)/1000 +' ' + w2utils.lang('sec'))
+                this.status(w2utils.lang('Server Response XX sec').replace('XX', this.last.xhr_response))
             }
         }, 10)
         this.last.pull_more = false
@@ -4662,7 +4639,7 @@ class w2grid extends w2event {
         }
         // normalize items
         if (edit.items.length > 0 && !$.isPlainObject(edit.items[0])) {
-            edit.items = w2obj.field.prototype.normMenu(edit.items)
+            edit.items = w2utils.normMenu(edit.items)
         }
         switch (edit.type) {
             case 'select': {
@@ -5005,7 +4982,7 @@ class w2grid extends w2event {
                 width   : 380,
                 height  : 170,
                 body    : '<div class="w2ui-centered">' +
-                                w2utils.lang(this.msgDelete).replace('NN', recs.length).replace('records', (recs.length == 1 ? 'record' : 'records')) +
+                                w2utils.lang(this.msgDelete).replace('XX', recs.length).replace('records', (recs.length == 1 ? 'record' : 'records')) +
                           '</div>',
                 buttons : (w2utils.settings.macButtonOrder
                     ? '<button type="button" class="w2ui-btn btn-default" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('Cancel') + '</button>' +
@@ -9654,19 +9631,9 @@ class w2grid extends w2event {
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2tabs
 *
-* == TODO ==
-*   - onResize for the panel
-*   - add more panel title positions (left=rotated, right=rotated, bottom)
-*   - bug: when you assign content before previous transition completed.
-*   - refactor with flex-grid
-*
-* == changes
-*   - negative values for left, right panel
-*   - onResize for layout as well as onResizing
-*   - panel.callBack - one time
-*   - layout.html().replaced(function () {})
-*   == 2.0
+* == 2.0 changes
 *   - layout.content - deprecated
+*   - panel.callBack -> panel.removed
 *
 ************************************************************************/
 
@@ -9690,7 +9657,7 @@ class w2layout extends w2event {
         this.onContent = null
         this.onResize = null
         this.onDestroy = null
-        this.panel_taemplate = {
+        this.panel_template = {
             type: null, // left, right, top, bottom
             title: '',
             size: 100, // width or height depending on panel name
@@ -9709,7 +9676,7 @@ class w2layout extends w2event {
                 toolbar: false,
                 tabs: false
             },
-            callBack: null, // function to call when content is overwritten
+            removed: null, // function to call when content is overwritten
             onRefresh: null,
             onShow: null,
             onHide: null
@@ -9719,14 +9686,14 @@ class w2layout extends w2event {
         if (!Array.isArray(this.panels)) this.panels = []
         // add defined panels
         this.panels.forEach((panel, ind) => {
-            this.panels[ind] = $.extend(true, {}, this.panel_taemplate, panel)
+            this.panels[ind] = $.extend(true, {}, this.panel_template, panel)
             if ($.isPlainObject(panel.tabs) || Array.isArray(panel.tabs)) initTabs(this, panel.type)
             if ($.isPlainObject(panel.toolbar) || Array.isArray(panel.toolbar)) initToolbar(this, panel.type)
         })
         // add all other panels
         w2panels.forEach(tab => {
             if (this.get(tab) != null) return
-            this.panels.push($.extend(true, {}, this.panel_taemplate, { type: tab, hidden: (tab !== 'main'), size: 50 }))
+            this.panels.push($.extend(true, {}, this.panel_template, { type: tab, hidden: (tab !== 'main'), size: 50 }))
         })
         function initTabs(object, panel, tabs) {
             let pan = object.get(panel)
@@ -9755,19 +9722,19 @@ class w2layout extends w2event {
         let obj = this
         let p = this.get(panel)
         let promise = {
-            panel     : panel,
-            html      : p.html,
-            error     : false,
-            cancelled : false,
-            removed   (callBack) {
-                if (typeof callBack == 'function') {
-                    p.callBack = callBack
+            panel: panel,
+            html: p.html,
+            error: false,
+            cancelled: false,
+            removed(cb) {
+                if (typeof cb == 'function') {
+                    p.removed = cb
                 }
             }
         }
-        if (typeof p.callBack == 'function') {
-            p.callBack({ panel: panel, content: p.html, new_content: data, transition: transition || 'none' })
-            p.callBack = null // this is one time call back only
+        if (typeof p.removed == 'function') {
+            p.removed({ panel: panel, content: p.html, new_content: data, transition: transition || 'none' })
+            p.removed = null // this is one time call back only
         }
         // if it is CSS panel
         if (panel == 'css') {
@@ -9879,15 +9846,15 @@ class w2layout extends w2event {
         let obj = this
         if (panel == 'css') {
             $.get(url, (data, status, xhr) => { // should always be $.get as it is template
-                obj.html(panel, xhr.responseText)
-                if (onLoad) onLoad()
+                let prom = obj.html(panel, xhr.responseText)
+                if (onLoad) onLoad(prom)
             })
             return true
         }
         if (this.get(panel) != null) {
             $.get(url, (data, status, xhr) => { // should always be $.get as it is template
-                obj.html(panel, xhr.responseText, transition)
-                if (onLoad) onLoad()
+                let prom = obj.html(panel, xhr.responseText, transition)
+                if (onLoad) onLoad(prom)
                 // IE Hack
                 obj.resize()
                 if (window.navigator.userAgent.indexOf('MSIE') != -1) setTimeout(() => { obj.resize() }, 100)
@@ -10736,11 +10703,7 @@ class w2layout extends w2event {
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
 *
-* == TODO ==
-*   - hide overlay on esc
-*   - make popup width/height in %
-*
-* == changes 2.0
+* == 2.0 changes
 *   - load(url)
 *   - template(data, id)
 *   - open, load, message - return promise
@@ -12032,17 +11995,11 @@ function w2prompt(label, title, callBack) {
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
 *
-* == 1.5 changes ==
-*   - tab.caption - deprecated
-*   - getTabHTML()
-*   - refactored with display: flex
-*   - reorder
-*   - initReorder
-*   - dragMove
-*   - tmp
-*   == 2.0
+* == 2.0 changes
 *   - w2tabs.tab => w2tabs.tab_template
-*   - show/hide, enable/disable, check/uncheck - return array of effected items
+*   - show/hide, enable/disable, check/uncheck - return array of affected items
+*   - fixed animateInsert, animateClose to be smooth and return promise
+*   - clickClose
 *
 ************************************************************************/
 
@@ -12103,10 +12060,12 @@ class w2tabs extends w2event {
             let it = Object.assign({}, this.tab_template, tab)
             if (id == null) {
                 this.tabs.push(it)
+                this.animateInsert(null, it)
             } else {
                 let middle = this.get(id, true)
                 let before = this.tabs[middle].id
-                this.insertTabHTML(before, it)
+                this.tabs.splice(middle, 0, it)
+                this.animateInsert(before, it)
             }
         })
     }
@@ -12325,7 +12284,7 @@ class w2tabs extends w2event {
                 onmouseover= "w2ui['${this.name}'].tooltipShow('${tab.id}', event)"
                 onmouseout = "w2ui['${this.name}'].tooltipHide('${tab.id}', event)"
                 onmousedown= "event.stopPropagation()"
-                onmouseup  = "w2ui['${this.name}'].animateClose('${tab.id}', event); event.stopPropagation()">
+                onmouseup  = "w2ui['${this.name}'].clickClose('${tab.id}', event); event.stopPropagation()">
             </div>`
         }
         let tabHTML = `
@@ -12357,7 +12316,9 @@ class w2tabs extends w2event {
             if ($tab.length === 0) {
                 $(this.box).find('#tabs_'+ this.name +'_right').before(tabHTML)
             } else {
-                $tab.replaceWith(tabHTML)
+                if ($(this.box).find('.tab-animate-insert').length == 0) {
+                    $tab.replaceWith(tabHTML)
+                }
             }
         }
         // right html
@@ -12411,7 +12372,6 @@ class w2tabs extends w2event {
         let $ghost = $tab.clone()
         let edata
         $ghost.attr('id', '#tabs_' + this.name + '_tab_ghost')
-        // debugger
         this.tmp.moving = {
             index: tabIndex,
             indexFrom: tabIndex,
@@ -12459,7 +12419,6 @@ class w2tabs extends w2event {
                     // obj.render()
                     if (obj.tmp.reordering) {
                         obj.trigger($.extend(edata, { phase: 'after', indexTo: obj.tmp.moving.index }))
-                        if (edata.isCancelled === true) return
                     }
                     obj.tmp.reordering = false
                 }, 100)
@@ -12557,40 +12516,61 @@ class w2tabs extends w2event {
         this.trigger($.extend(edata, { phase: 'after' }))
         this.refresh(id)
     }
-    animateClose(id, event) {
+    clickClose(id, event) {
         let tab = this.get(id)
         if (tab == null || tab.disabled) return false
         // event before
         let edata = this.trigger({ phase: 'before', type: 'close', target: id, object: this.get(id), originalEvent: event })
         if (edata.isCancelled === true) return
-        // default action
-        let obj = this
-        let $tab = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id))
-        $tab.css({ // need to be separate transition
-            'opacity': 0,
-            'transition': '.25s'
+        this.animateClose(id).then(() => {
+            this.remove(id)
+            this.trigger($.extend(edata, { phase: 'after' }))
+            this.refresh()
         })
-            .find('.w2ui-tab-close').remove()
-        $tab.css({
-            'padding-left': 0,
-            'padding-right': 0,
-            'text-overflow': 'clip',
-            'overflow': 'hidden',
-            'width': '0px'
-        })
-        setTimeout(() => {
-            obj.remove(id)
-            obj.trigger($.extend(edata, { phase: 'after' }))
-            obj.refresh()
-        }, 250)
     }
-    insertTabHTML(id, tab) {
-        let middle = this.get(id, true)
-        this.tabs = this.tabs.slice(0, middle).concat([tab], this.tabs.slice(middle))
-        let $before = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(id))
-        let $tab = $(this.getTabHTML(tab.id))
-        $before.before($tab)
-        this.resize()
+    animateClose(id) {
+        return new Promise((resolve, reject) => {
+            let $tab = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(id))
+            let width = parseInt($tab.css('width') || 0)
+            let $anim = $(`<div class="tab-animate-close" style="display: inline-block; flex-shrink: 0; width: ${width}px; transition: width 0.25s"></div>`)
+            $tab.replaceWith($anim)
+            setTimeout(() => { $anim.css({ width: '0px' }) }, 1)
+            setTimeout(() => {
+                $anim.remove()
+                this.resize()
+                resolve()
+            }, 300)
+        })
+    }
+    animateInsert(id, tab) {
+        return new Promise((resolve, reject) => {
+            let middle = this.get(id, true)
+            let $before = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(id))
+            let $tab = $(this.getTabHTML(tab.id))
+            if ($before.length == 0) {
+                $before = $(this.box).find('#tabs_tabs_right')
+                $before.before($tab)
+                this.resize()
+            } else {
+                // insert at the end and find width
+                $tab.css({ opacity: 0 })
+                $(this.box).find('#tabs_tabs_right').before($tab)
+                let $tmp = $('#'+$tab.attr('id'))
+                let width = parseInt($tmp.css('width') || 0)
+                let $anim = $(`<div class="tab-animate-insert" style="display: inline-block; flex-shrink: 0; width: 0px; transition: width 0.25s"></div>`)
+                $before.before($anim)
+                $tab.hide()
+                $tab.insertBefore($anim)
+                setTimeout(() => { $anim.css({ width: width + 'px' }) }, 1)
+                setTimeout(() => {
+                    $anim.remove()
+                    $tab.css({ opacity: 1 }).show()
+                    this.refresh(tab.id)
+                    this.resize()
+                    resolve()
+                }, 300)
+            }
+        })
     }
 }
 /************************************************************************
@@ -12601,18 +12581,7 @@ class w2tabs extends w2event {
 *   - vertical toolbar
 *   - refactor w/o <table>
 *
-* == 1.5 changes ==
-*   - menu drop down can have groups now
-*   - item.caption - deprecated
-*   - item.text - can be a function
-*   - item.icon - can be a function
-*   - item.tooltip - can be a function
-*   - item.color
-*   - item.options
-*   - event.item.get - finds selected item
-*   - item.keepOpen, drop down will not close
-*   - item.type = 'new-line'
-*   == 2.0
+* == 2.0 changes
 *   - w2toolbar.item => w2toolbar.item_template
 *   - show/hide, enable/disable, check/uncheck - return array of effected items
 *
@@ -13385,23 +13354,14 @@ class w2toolbar extends w2event {
 *   - dbl click should be like it is in grid (with timer not HTML dbl click event)
 *   - node.style is misleading - should be there to apply color for example
 *
-* == 1.5 changes
-*   - node.class - ne property
-*   - sb.levelPadding
-*   - sb.handle (for debugger points)
-*   - node.style
-*   - sb.updte()
-*   - node.caption - deprecated
-*   - node.text - can be a function
-*   - node.icon - can be a function
-*   - sb.each() - iterate through each node
-*   - sb.sort() - sort nodes
-*   - sb.skipRefresh - no refresh during add/remove
-*   - sb.tabIndex
-*   - sb.search
-*   == 2.0
+* == 2.0 changes
 *   - w2sidebar.node_template => w2sidebar.node
 *   - show/hide, enable/disable - return array of effected items
+*   - sb.each() - iterate through each node
+*   - sb.sort() - sort nodes
+*   - sb.search() - search nodes
+*   - sb.tabIndex
+*   - handle.content - string/func
 *
 ************************************************************************/
 
@@ -13659,15 +13619,14 @@ class w2sidebar extends w2event {
         if (nodes == null) {
             nodes = this.nodes
         }
-        // if (nodes.length === 3) debugger
         nodes.sort((a, b) => {
             // folders first
             let isAfolder = (a.nodes && a.nodes.length > 0)
             let isBfolder = (b.nodes && b.nodes.length > 0)
             // both folder or both not folders
             if (options.foldersFirst === false || (!isAfolder && !isBfolder) || (isAfolder && isBfolder)) {
-                aText = a.text
-                bText = b.text
+                let aText = a.text
+                let bText = b.text
                 if (!options.caseSensitive) {
                     aText = aText.toLowerCase()
                     bText = bText.toLowerCase()
@@ -13692,24 +13651,26 @@ class w2sidebar extends w2event {
     each(fn, nodes) {
         if (nodes == null) nodes = this.nodes
         nodes.forEach((node) => {
-            fn(node)
+            fn.call(this, node)
             if (node.nodes && node.nodes.length > 0) {
                 this.each(fn, node.nodes)
             }
         })
     }
     search(str) {
+        let count = 0
         let str2 = str.toLowerCase()
         this.each((node) => {
             if (node.text.toLowerCase().indexOf(str2) === -1) {
                 node.hidden = true
             } else {
+                count++
                 showParents(node)
                 node.hidden = false
             }
         })
         this.refresh()
-        $(this.box).find('#search-steps input').val(str).focus()
+        return count
         function showParents(node) {
             if (node.parent) {
                 node.parent.hidden = false
@@ -14394,7 +14355,7 @@ class w2sidebar extends w2event {
                         '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
                         (obj.handle.content
                             ? '<div class="w2ui-node-handle" style="width: '+ obj.handle.size +'px; '+ obj.handle.style + '">'+
-                                   obj.handle.content +
+                                   (typeof obj.handle.content == 'function' ? obj.handle.content.call(obj, node) : obj.handle.content) +
                               '</div>'
                             : ''
                         ) +
@@ -14483,7 +14444,8 @@ class w2sidebar extends w2event {
 *   - options.msgSearch - message to search for user
 *   - options.msgNoItems - can be a function
 *   - normmenu - remove, it is in w2utils now
-*   == 2.0
+*
+* == 2.0 changes
 *
 ************************************************************************/
 
@@ -15893,7 +15855,7 @@ class w2field extends w2event {
                         obj.tmp.xhr_search = search
                         obj.tmp.xhr_total = data.records.length
                         obj.tmp.lastError = ''
-                        options.items = obj.normMenu(data.records)
+                        options.items = w2utils.normMenu(data.records)
                         if (search === '' && data.records.length === 0) obj.tmp.emptySet = true; else obj.tmp.emptySet = false
                         // preset item
                         let find_selected = $(obj.el).data('find_selected')
@@ -16974,28 +16936,6 @@ class w2field extends w2event {
             obj.trigger($.extend(edata, { phase: 'after' }))
         }
     }
-    normMenu(menu, el) {
-        if (Array.isArray(menu)) {
-            for (let m = 0; m < menu.length; m++) {
-                if (typeof menu[m] === 'string') {
-                    menu[m] = { id: menu[m], text: menu[m] }
-                } else if (menu[m] != null) {
-                    if (menu[m].text != null && menu[m].id == null) menu[m].id = menu[m].text
-                    if (menu[m].text == null && menu[m].id != null) menu[m].text = menu[m].id
-                    if (menu[m].caption != null) menu[m].text = menu[m].caption
-                } else {
-                    menu[m] = { id: null, text: 'null' }
-                }
-            }
-            return menu
-        } else if (typeof menu === 'function') {
-            return w2utils.normMenu.call(this, menu.call(this, el))
-        } else if (typeof menu === 'object') {
-            let tmp = []
-            for (let m in menu) tmp.push({ id: m, text: menu[m] })
-            return tmp
-        }
-    }
     getMonthHTML(month, year, selected) {
         let td = new Date()
         let months = w2utils.settings.fullmonths
@@ -17230,7 +17170,8 @@ class w2field extends w2event {
 *   - updateEmptyGroups
 *   - tabs below some fields
 *   - tabindexBase
-*   == 2.0
+*
+* == 2.0 changes
 *
 ************************************************************************/
 
@@ -19078,7 +19019,7 @@ class w2form extends w2event {
         }
         function clearMarkedText(index, el) {
             while (el.innerHTML.indexOf('<span class="w2ui-marker">') !== -1) {
-                el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"\>((.|\n|\r)*)\<\/span\>/ig, '$1') // unmark
+                el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"((.|\n|\r)*)\<\/span\>/ig, '$1') // unmark
             }
         }
     }

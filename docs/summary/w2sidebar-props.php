@@ -71,17 +71,17 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2sidebar.node_template">node_template</a> <span>- Object, default = {...} // see below</span>
-</div>
-<div class="obj-property-desc">
-    Node template object.
-</div>
-
-<div class="obj-property">
     <a href="w2sidebar.nodes">nodes</a> <span>- Array, default = []</span>
 </div>
 <div class="obj-property-desc">
     Array of node objects.
+</div>
+
+<div class="obj-property">
+    <a href="w2sidebar.node_template">node_template</a> <span>- Object, default = {...} // see below</span>
+</div>
+<div class="obj-property-desc">
+    Node template object.
 </div>
 
 <div class="obj-property">

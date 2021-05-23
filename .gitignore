@@ -9,6 +9,7 @@ dist/w2ui-*.tgz
 .DS_Store
 *.txt
 .idea
+.vscode
 *.iml
 *.ipr
 *.iws
