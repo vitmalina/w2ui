@@ -2733,9 +2733,9 @@ class w2grid extends w2event {
     mergeChanges() {
         let changes = this.getChanges()
         for (let c = 0; c < changes.length; c++) {
-            let record = this.get(changes[c].recid)
+            let record = this.get(changes[c][this.recid || 'recid'])
             for (let s in changes[c]) {
-                if (s == 'recid') continue // do not allow to change recid
+                if (s == 'recid' || (this.recid && s == this.recid)) continue // do not allow to change recid
                 if (typeof changes[c][s] === 'object') changes[c][s] = changes[c][s].text
                 try {
                     _setValue(record, s, changes[c][s])
