@@ -2812,9 +2812,9 @@
         mergeChanges: function () {
             var changes = this.getChanges();
             for (var c = 0; c < changes.length; c++) {
-                var record = this.get(changes[c].recid);
+                var record = this.get(changes[c][this.recid || 'recid']);
                 for (var s in changes[c]) {
-                    if (s == 'recid') continue; // do not allow to change recid
+                    if (s == 'recid' || (this.recid && s == this.recid)) continue; // do not allow to change recid
                     if (typeof changes[c][s] === "object") changes[c][s] = changes[c][s].text;
                     try {
                         if (s.indexOf('.') != -1) {
