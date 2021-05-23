@@ -4,41 +4,30 @@
 *
 * == TODO ==
 *   - column autosize based on largest content
-*   - reorder columns/records
 *   - problem with .set() and arrays, array get extended too, but should be replaced
 *   - after edit stay on the same record option
 *   - if supplied array of ids, get should return array of records
 *   - allow functions in routeData (also add routeData to list/enum)
-*   - implement global routeData and all elements read from there
 *   - send parsed URL to the event if there is routeData
 *   - if you set searchData or sortData and call refresh() it should work
 *   - add selectType: 'none' so that no selection can be make but with mouse
-*   - reorder records with frozen columns
 *   - focus/blur for selectType = cell not display grayed out selection
 *   - frozen columns
-        - load more only on the right side
         - scrolling on frozen columns is not working only on regular columns
 *   - copy or large number of records is slow
 *   - reusable search component (see https://github.com/vitmalina/w2ui/issues/914#issuecomment-107340524)
 *   - allow enum in inline edit (see https://github.com/vitmalina/w2ui/issues/911#issuecomment-107341193)
 *   - if record has no recid, then it should be index in the aray (should not be 0)
 *   - remote source, but localSort/localSearch
-*   - gridMinWidth - should show/hide columns, when it is triggered, column can not be turned on at all
+*
+* == DEMOS To create ==
 *
 * == KNOWN ISSUES ==
 *   - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
-*   - row drag and drop has bugs
 *   - Shift-click/Ctrl-click/Ctrl-Shift-Click selection is not as robust as it should be
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object
-*   - added statusRange     : true,
-*           statusBuffered  : false,
-*           statusRecordID  : true,
-*           statusSelection : true,
-*           statusResponse  : true,
-*           statusSort      : true,
-*           statusSearch    : true,
 *   - change selectAll() and selectNone() - return time it took
 *   - added vs_start and vs_extra
 *   - added update(cells) - updates only data in the grid (or cells)
