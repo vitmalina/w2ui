@@ -5,6 +5,7 @@
 * == 2.0 changes
 *   - layout.content - deprecated
 *   - panel.callBack -> panel.removed
+*   - panel.onContent -> panel.onChange
 *
 ************************************************************************/
 
@@ -31,7 +32,7 @@ class w2layout extends w2event {
         this.onResizerClick = null
         this.onRender       = null
         this.onRefresh      = null
-        this.onContent      = null
+        this.onChange       = null
         this.onResize       = null
         this.onDestroy      = null
         this.panel_template = {
@@ -113,7 +114,7 @@ class w2layout extends w2event {
             }
         }
         if (typeof p.removed == 'function') {
-            p.removed({ panel: panel, content: p.html, new_content: data, transition: transition || 'none' })
+            p.removed({ panel: panel, html: p.html, html_new: data, transition: transition || 'none' })
             p.removed = null // this is one time call back only
         }
         // if it is CSS panel
@@ -131,7 +132,7 @@ class w2layout extends w2event {
             return promise
         }
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'content', target: panel, object: p, content: data, transition: transition })
+        let edata = this.trigger({ phase: 'before', type: 'change', target: panel, panel: p, html_new: data, transition: transition })
         if (edata.isCancelled === true) {
             promise.cancelled = true
             return promise
