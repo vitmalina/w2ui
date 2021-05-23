@@ -1,342 +1,396 @@
+
 $(function () {
-    // init layout
-    var main_layout = $('#main_layout').w2layout({
-        name: 'main_layout',
-        panels: [
-            { type: 'top', size: 45, style: 'border: 0px; border-bottom: 1px solid silver; background-color: #fff; color: #555;', overflow: 'hidden'},
-            { type: 'left', size: 240, resizable: true, style: 'border-right: 1px solid silver;' },
-            { type: 'main', style: 'background-color: white;' }
-        ]
-    });
-    w2ui['main_layout'].html('top', '<div style="padding: 12px 20px; font-size: 18px;">W2UI 1.5 Demos</div>');
-    // w2ui['main_layout'].html('top', '<div style="padding: 9px;">'+
-    //     'Theme: '+
-    //     '<select onchange="$(\'#mainCSS\').attr(\'href\', this.value);">'+
-    //     '    <option value="../css/w2ui.min.css">Default Theme</option>'+
-    //     '    <option value="../css/w2ui-dark.min.css">Dark Theme</option>'+
-    //     '</select>&nbsp;&nbsp;&nbsp;'+
-    //     'Locale: '+
-    //     '<select onchange="w2utils.locale({ path: \'../\', lang: this.value }); alert(\'Localization is only internal functions. You need to refresh to see it.\')">'+
-    //     '    <option value="en-us">en-US</option>'+
-    //     '    <option value="fr-fr">fr-FR</option>'+
-    //     '    <option value="ru-ru">ru-RU</option>'+
-    //     '</select>'+
-    //     '</div>');
-    // init sidebar
-    w2ui['main_layout'].html('left', $().w2sidebar({
-        name: 'demo-sidebar',
-        img: null,
-        nodes: [
-            { id: 'combo', text: 'Combinations', img: 'icon-folder', group1: true,
-                nodes: [
-                    { id: 'combo-1', text: 'Sidebar & Grid', icon: 'fa fa-star-o' },
-                    { id: 'combo-2', text: 'Grid & Edit', icon: 'fa fa-star-o' },
-                    { id: 'combo-3', text: 'Spreadsheet Like Grid', icon: 'fa fa-star-o' },
-                    { id: 'combo-4', text: 'Buffered Scroll', icon: 'fa fa-star-o' },
-                    { id: 'combo-9', text: 'Infinite Scroll', icon: 'fa fa-star-o' },
-                    { id: 'combo-5', text: 'Tabs With Content', icon: 'fa fa-star-o' },
-                    { id: 'combo-6', text: 'Layout & Dynamic Tabs', icon: 'fa fa-star-o' },
-                    { id: 'combo-7', text: 'Popup & Grid', icon: 'fa fa-star-o' },
-                    { id: 'combo-8', text: 'Popup & Layout', icon: 'fa fa-star-o' },
-                    { id: 'combo-10', text: 'Dependent Fields', icon: 'fa fa-star-o' }
-                ]
-            },
-            { id: 'layout', text: 'Layout', img: 'icon-folder', group1: true,
-                nodes: [
-                    { id: 'layout-1', text: 'Simple Layout', icon: 'fa fa-columns' },
-                    { id: 'layout-2', text: 'Resizable Panels', icon: 'fa fa-columns' },
-                    { id: 'layout-3', text: 'Show/Hide Panels', icon: 'fa fa-columns' },
-                    { id: 'layout-4', text: 'Load Content', icon: 'fa fa-columns' },
-                    { id: 'layout-5', text: 'Transitions', icon: 'fa fa-columns' },
-                    { id: 'layout-6', text: 'Event Listeners', icon: 'fa fa-columns' },
-                    { id: 'layout-7', text: 'Nested Layouts', icon: 'fa fa-columns' },
-                    { id: 'layout-8', text: 'Panel With Tabs', icon: 'fa fa-columns' },
-                    { id: 'layout-9', text: 'Panel With Toolbar', icon: 'fa fa-columns' },
-                    { id: 'layout-10', text: 'Panel With Title', icon: 'fa fa-columns' },
-                    { id: 'layout-11', text: 'Panel Messages (1.5+)', icon: 'fa fa-columns' }
-                ]
-            },
-            { id: 'grid', text: 'Grid', img: 'icon-folder', group1: true,
-                nodes: [
-                    { id: 'grid-1', text: 'Simple Grid', icon: 'fa fa-table' },
-                    { id: 'grid-3', text: 'Grid Elements', icon: 'fa fa-table' },
-                    { id: 'grid-2', text: 'Row Formatting', icon: 'fa fa-table' },
-                    { id: 'grid-23',text: 'Cell Formatting', icon: 'fa fa-table' },
-                    { id: 'grid-4', text: 'Data Source', icon: 'fa fa-table' },
-                    { id: 'grid-5', text: 'Load Data Once', icon: 'fa fa-table' },
-                    { id: 'grid-6', text: 'Single or Multi Select', icon: 'fa fa-table' },
-                    { id: 'grid-8', text: 'Show/Hide Columns', icon: 'fa fa-table' },
-                    { id: 'grid-9', text: 'Add/Remove Records', icon: 'fa fa-table' },
-                    { id: 'grid-10', text: 'Select/Unselect Records', icon: 'fa fa-table' },
-                    { id: 'grid-11', text: 'Fixed/Resizable', icon: 'fa fa-table' },
-                    { id: 'grid-12', text: 'Column Sort', icon: 'fa fa-table' },
-                    { id: 'grid-13', text: 'Column Groups', icon: 'fa fa-table' },
-                    { id: 'grid-14', text: 'Summary Records', icon: 'fa fa-table' },
-                    { id: 'grid-15', text: 'Simple Search', icon: 'fa fa-table' },
-                    { id: 'grid-16', text: 'Advanced Search', icon: 'fa fa-table' },
-                    { id: 'grid-17', text: 'Grid Toolbar', icon: 'fa fa-table' },
-                    { id: 'grid-18', text: 'Master -> Detail', icon: 'fa fa-table' },
-                    { id: 'grid-19', text: 'Two Grids', icon: 'fa fa-table' },
-                    { id: 'grid-20', text: 'Render to a New Box', icon: 'fa fa-table' },
-                    { id: 'grid-21', text: 'Inline Editing', icon: 'fa fa-table' },
-                    { id: 'grid-22', text: 'Resizable Columns', icon: 'fa fa-table' },
-                    { id: 'grid-24', text: 'Lock/Unlock Grid', icon: 'fa fa-table' },
-                    { id: 'grid-25', text: 'Re-Order Columns', icon: 'fa fa-table' },
-                    { id: 'grid-26', text: 'Re-Order Records', icon: 'fa fa-table' },
-                    { id: 'grid-7',  text: 'Tree-Like Grid (1.5+)', icon: 'fa fa-table' },
-                    { id: 'grid-27', text: 'Frozen Columns (1.5+)', icon: 'fa fa-table' },
-                    { id: 'grid-28', text: 'Info Bubble (1.5+)', icon: 'fa fa-table' }
-                ]
-            },
-            { id: 'toolbar', text: 'Toolbar', img: 'icon-folder', group1: true,
-                nodes: [
-                    { id: 'toolbar-1', text: 'Simple Toolbar', icon: 'fa fa-hand-o-up' },
-                    { id: 'toolbar-2', text: 'More Buttons Type', icon: 'fa fa-hand-o-up' },
-                    { id: 'toolbar-3', text: 'Add/Remove Buttons', icon: 'fa fa-hand-o-up' },
-                    { id: 'toolbar-4', text: 'Show/Hide Buttons', icon: 'fa fa-hand-o-up' },
-                    { id: 'toolbar-5', text: 'Enable/Disable Buttons', icon: 'fa fa-hand-o-up' },
-                    { id: 'toolbar-6', text: 'Menu Buttons (1.5+)', icon: 'fa fa-hand-o-up' },
-                    { id: 'toolbar-7', text: 'Color Buttons (1.5+)', icon: 'fa fa-hand-o-up' },
-                    { id: 'toolbar-8', text: 'Tooltips (1.5+)', icon: 'fa fa-hand-o-up' },
-                    { id: 'toolbar-9', text: 'Custom Buttons (1.5+)', icon: 'fa fa-hand-o-up' },
-                    { id: 'toolbar-10', text: 'Toolbar Overflow (1.5+)', icon: 'fa fa-hand-o-up' }
-                ]
-            },
-            { id: 'sidebar', text: 'Sidebar', img: 'icon-folder', group1: true,
-                nodes: [
-                    { id: 'sidebar-1', text: 'Simple Sidebar', icon: 'fa fa-hand-o-left' },
-                    { id: 'sidebar-2', text: 'Add/Remove', icon: 'fa fa-hand-o-left' },
-                    { id: 'sidebar-3', text: 'Show/Hide', icon: 'fa fa-hand-o-left' },
-                    { id: 'sidebar-4', text: 'Enable/Disable', icon: 'fa fa-hand-o-left' },
-                    { id: 'sidebar-5', text: 'Expand/Collapse', icon: 'fa fa-hand-o-left' },
-                    { id: 'sidebar-6', text: 'Select/Unselect', icon: 'fa fa-hand-o-left' },
-                    { id: 'sidebar-8', text: 'Top & Bottom HTML', icon: 'fa fa-hand-o-left' },
-                    { id: 'sidebar-7', text: 'Events', icon: 'fa fa-hand-o-left' },
-                    { id: 'sidebar-9', text: 'Flat Sidebar (1.5+)', icon: 'fa fa-hand-o-up' },
-                    { id: 'sidebar-10', text: 'In/Out of Focus (1.5+)', icon: 'fa fa-hand-o-up' }
-                ]
-            },
-            { id: 'tabs', text: 'Tabs', img: 'icon-folder', group1: true,
-                nodes: [
-                    { id: 'tabs-1', text: 'Simple Tabs', icon: 'fa fa-folder-o' },
-                    { id: 'tabs-2', text: 'Set a Tab Active', icon: 'fa fa-folder-o' },
-                    { id: 'tabs-3', text: 'Closeable Tabs', icon: 'fa fa-folder-o' },
-                    { id: 'tabs-4', text: 'Add/Remove Tabs', icon: 'fa fa-folder-o' },
-                    { id: 'tabs-5', text: 'Enable/Disabled Tabs', icon: 'fa fa-folder-o' },
-                    { id: 'tabs-6', text: 'Show/Hide Tabs', icon: 'fa fa-folder-o' },
-                    { id: 'tabs-7', text: 'Tabs Overflow (1.5+)', icon: 'fa fa-folder-o' },
-                    { id: 'tabs-8', text: 'Tooltips (1.5+)', icon: 'fa fa-folder-o' }
-                ]
-            },
-            { id: 'forms', text: 'Forms', img: 'icon-folder', group1: true,
-                nodes: [
-                    { id: 'forms/1', text: 'Simple Form', icon: 'fa fa-pencil-square-o' },
-                    { id: 'forms/2',text: 'Auto Templates', icon: 'fa fa-pencil-square-o' },
-                    { id: 'forms/3', text: 'Field Types', icon: 'fa fa-pencil-square-o' },
-                    { id: 'forms/4', text: 'Field Groups', icon: 'fa fa-pencil-square-o' },
-                    { id: 'forms/5', text: 'Multi Page Form', icon: 'fa fa-pencil-square-o' },
-                    { id: 'forms/6', text: 'Form Tabs', icon: 'fa fa-pencil-square-o' },
-                    { id: 'forms/7', text: 'Form Toolbar', icon: 'fa fa-pencil-square-o' },
-                    { id: 'forms/8', text: 'Form in a Popup', icon: 'fa fa-pencil-square-o' },
-                    { id: 'forms/9', text: 'Events', icon: 'fa fa-pencil-square-o' },
-                    { id: 'forms/10', text: 'Multi Columns (1.5+)', icon: 'fa fa-pencil-square-o' },
-                    { id: 'forms/11', text: 'Column Span (1.5+)', icon: 'fa fa-pencil-square-o' },
-                    { id: 'forms/12', text: 'Custom Styling (1.5+)', icon: 'fa fa-pencil-square-o' },
-                    { id: 'forms/13', text: 'Anchored fields (1.5+)', icon: 'fa fa-pencil-square-o' },
-                    { id: 'forms/14', text: 'Maps and Arrays (1.5+)', icon: 'fa fa-pencil-square-o' },
-                    { id: 'forms/15', text: 'Custom Fiels (1.5+)', icon: 'fa fa-pencil-square-o' }
-                ]
-            },
-            { id: 'fields', text: 'Fields', img: 'icon-folder', group1: true,
-                nodes: [
-                    { id: 'fields-1', text: 'Numeric', icon: 'fa fa-pencil-square-o' },
-                    { id: 'fields-2', text: 'Date, Time & Datetime', icon: 'fa fa-pencil-square-o' },
-                    { id: 'fields-3', text: 'Drop Down Lists', icon: 'fa fa-pencil-square-o' },
-                    { id: 'fields-4', text: 'Multi Selects', icon: 'fa fa-pencil-square-o' },
-                    { id: 'fields-5', text: 'File Upload', icon: 'fa fa-pencil-square-o' },
-                    { id: 'fields-6', text: 'Remote Source', icon: 'fa fa-pencil-square-o' },
-                    { id: 'fields-7', text: 'Get/Set Value (1.5+)', icon: 'fa fa-pencil-square-o' },
-                    { id: 'fields-8', text: 'Color Picker (1.5+)', icon: 'fa fa-pencil-square-o' }
-                ]
-            },
-            { id: 'popup', text: 'Popup', img: 'icon-folder', group1: true,
-                nodes: [
-                    { id: 'popup-1', text: 'Simple Popup', icon: 'fa fa-list-alt' },
-                    { id: 'popup-2', text: 'More Options', icon: 'fa fa-list-alt' },
-                    { id: 'popup-3', text: 'Popup Elements', icon: 'fa fa-list-alt' },
-                    { id: 'popup-4', text: 'Based on Markup', icon: 'fa fa-list-alt' },
-                    { id: 'popup-5', text: 'Load Content', icon: 'fa fa-list-alt' },
-                    { id: 'popup-6', text: 'Transitions', icon: 'fa fa-list-alt' },
-                    { id: 'popup-7', text: 'Slide a Message', icon: 'fa fa-list-alt' },
-                    { id: 'popup-9', text: 'Lock Content', icon: 'fa fa-list-alt' },
-                    { id: 'popup-8', text: 'Dialogs (1.5+)', icon: 'fa fa-list-alt' },
-                    { id: 'popup-10', text: 'Keyboard (1.5+)', icon: 'fa fa-list-alt' },
-                    { id: 'popup-11', text: 'Messages (1.5+)', icon: 'fa fa-list-alt' }
-                ]
-            },
-            { id: 'utils', text: 'Utilities', img: 'icon-folder', group1: true,
-                nodes: [
-                    { id: 'utils-1', text: 'Validation', icon: 'fa fa-star-o' },
-                    { id: 'utils-2', text: 'Encoding', icon: 'fa fa-star-o' },
-                    { id: 'utils-3', text: 'Transitions', icon: 'fa fa-star-o' },
-                    { id: 'utils-4', text: 'Tags (1.5+)', icon: 'fa fa-star-o' },
-                    { id: 'utils-5', text: 'Overlays (1.5+)', icon: 'fa fa-star-o' },
-                    { id: 'utils-6', text: 'Formatters (1.5+)', icon: 'fa fa-star-o' },
-                ]
-            }
-        ],
-        onClick: function (event) {
-            var cmd = event.target;
-            if (parseInt(cmd.substr(cmd.length-1)) != cmd.substr(cmd.length-1)) return;
-            var tmp = w2ui['demo-sidebar'].get(cmd);
-            document.title = tmp.parent.text + ': ' + tmp.text + ' | w2ui';
-            // delete previously created items
-            for (var widget in w2ui) {
-                var nm = w2ui[widget].name;
-                if (['main_layout', 'demo-sidebar'].indexOf(nm) == -1) $().w2destroy(nm);
-            }
-            // set hash
-            if (tmp.parent && tmp.parent.id != '') {
-                var pid = w2ui['demo-sidebar'].get(cmd).parent.id;
-                document.location.hash = '!'+ pid + '/' + cmd;
-            }
-            // load example
-            $.get('examples/'+ cmd +'.html', function (data) {
-                var tmp = data.split('<!--CODE-->');
-                if (tmp.length == 1) {
-                    alert('ERROR: cannot parse example.');
-                    console.log('ERROR: cannot parse example.', data);
-                    return;
+    let last_hash
+    let conf = {
+        demo_layout: {
+            name: 'demo_layout',
+            panels: [
+                { type: 'top', size: 60, overflow: 'hidden',
+                    style: 'border: 0px; border-bottom: 1px solid #e4e4e4; background-color: #fff; color: #555;',
+                    onRefresh(event) {
+                        event.done(() => {
+                            $('#demo_toolbar').w2render(w2ui.demo_toolbar)
+                        })
+                    }
+                },
+                { type: 'left', size: 240, resizable: true, style: 'border-right: 1px solid #efefef;' },
+                { type: 'main', style: 'background-color: white;' }
+            ]
+        },
+
+        demo_toolbar: {
+            name: 'demo_toolbar',
+            items: [
+                { id: 'combo', type: 'radio', text: 'Combo', icon: 'fa fa-star-o', route: 'combo/1' },
+                { id: 'layout', type: 'radio', text: 'Layout', icon: 'fa fa-columns', route: 'layout/1' },
+                { id: 'grid', type: 'radio', text: 'Grid', icon: 'fa fa-table', route: 'grid/1' },
+                { id: 'toolbar', type: 'radio', text: 'Toolbar', icon: 'fa fa-hand-o-up', route: 'toolbar/1' },
+                { id: 'sidebar', type: 'radio', text: 'Sidebar', icon: 'fa fa-hand-o-left', route: 'sidebar/1' },
+                { id: 'tabs', type: 'radio', text: 'Tabs', icon: 'fa fa-folder-o', route: 'tabs/1' },
+                { id: 'form', type: 'radio', text: 'Forms', icon: 'fa fa-pencil-square-o', route: 'form/1' },
+                { id: 'fields', type: 'radio', text: 'Fields', icon: 'fa fa-pencil-square-o', route: 'fields/1' },
+                { id: 'popup', type: 'radio', text: 'Popup', icon: 'fa fa-list-alt', route: 'popup/1' },
+                { id: 'utils', type: 'radio', text: 'Utilities', icon: 'fa fa-star-o', route: 'utils/1' }
+            ]
+        },
+
+        demo_sidebar: {
+            name: 'demo_sidebar',
+            img: null,
+            nodes: [
+                { id: 'combo', text: 'Combinations', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'combo/1', text: 'Sidebar & Grid', icon: 'fa fa-star-o' },
+                        { id: 'combo/2', text: 'Grid & Edit', icon: 'fa fa-star-o' },
+                        { id: 'combo/3', text: 'Spreadsheet Like Grid', icon: 'fa fa-star-o' },
+                        { id: 'combo/4', text: 'Buffered Scroll', icon: 'fa fa-star-o' },
+                        { id: 'combo/9', text: 'Infinite Scroll', icon: 'fa fa-star-o' },
+                        { id: 'combo/5', text: 'Tabs With Content', icon: 'fa fa-star-o' },
+                        { id: 'combo/6', text: 'Layout & Dynamic Tabs', icon: 'fa fa-star-o' },
+                        { id: 'combo/7', text: 'Popup & Grid', icon: 'fa fa-star-o' },
+                        { id: 'combo/8', text: 'Popup & Layout', icon: 'fa fa-star-o' },
+                        { id: 'combo/10', text: 'Dependent Fields', icon: 'fa fa-star-o' }
+                    ]
+                },
+                { id: 'combo-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'combo/11', text: 'Flat Sidebar (1.5+)', icon: 'fa fa-star-o' }
+                    ]
+                },
+                { id: 'layout', text: 'Layout Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'layout/1', text: 'Simple Layout', icon: 'fa fa-columns' },
+                        { id: 'layout/2', text: 'Resizable Panels', icon: 'fa fa-columns' },
+                        { id: 'layout/3', text: 'Show/Hide Panels', icon: 'fa fa-columns' },
+                        { id: 'layout/4', text: 'Load Content', icon: 'fa fa-columns' },
+                        { id: 'layout/5', text: 'Transitions', icon: 'fa fa-columns' },
+                        { id: 'layout/6', text: 'Event Listeners', icon: 'fa fa-columns' },
+                        { id: 'layout/7', text: 'Nested Layouts', icon: 'fa fa-columns' },
+                        { id: 'layout/8', text: 'Panel With Tabs', icon: 'fa fa-columns' },
+                        { id: 'layout/9', text: 'Panel With Toolbar', icon: 'fa fa-columns' },
+                        { id: 'layout/10', text: 'Panel With Title', icon: 'fa fa-columns' }
+                    ]
+                },
+                { id: 'layout-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'layout/11', text: 'Panel Messages (1.5+)', icon: 'fa fa-columns' },
+                        { id: 'layout/12', text: 'Fixed Size Main (1.5+)', icon: 'fa fa-columns' },
+                        { id: 'layout/13', text: 'Content Replaced (1.5+)', icon: 'fa fa-columns' }
+                    ]
+                },
+                { id: 'grid', text: 'Grid Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'grid/1', text: 'Simple Grid', icon: 'fa fa-table' },
+                        { id: 'grid/3', text: 'Grid Elements', icon: 'fa fa-table' },
+                        { id: 'grid/2', text: 'Row Formatting', icon: 'fa fa-table' },
+                        { id: 'grid/23',text: 'Cell Formatting', icon: 'fa fa-table' },
+                        { id: 'grid/4', text: 'Data Source', icon: 'fa fa-table' },
+                        { id: 'grid/5', text: 'Load Data Once', icon: 'fa fa-table' },
+                        { id: 'grid/6', text: 'Single or Multi Select', icon: 'fa fa-table' },
+                        { id: 'grid/8', text: 'Show/Hide Columns', icon: 'fa fa-table' },
+                        { id: 'grid/9', text: 'Add/Remove Records', icon: 'fa fa-table' },
+                        { id: 'grid/10', text: 'Select/Unselect Records', icon: 'fa fa-table' },
+                        { id: 'grid/11', text: 'Fixed/Resizable', icon: 'fa fa-table' },
+                        { id: 'grid/12', text: 'Column Sort', icon: 'fa fa-table' },
+                        { id: 'grid/13', text: 'Column Groups', icon: 'fa fa-table' },
+                        { id: 'grid/14', text: 'Summary Records', icon: 'fa fa-table' },
+                        { id: 'grid/15', text: 'Simple Search', icon: 'fa fa-table' },
+                        { id: 'grid/16', text: 'Advanced Search', icon: 'fa fa-table' },
+                        { id: 'grid/17', text: 'Grid Toolbar', icon: 'fa fa-table' },
+                        { id: 'grid/18', text: 'Master -> Detail', icon: 'fa fa-table' },
+                        { id: 'grid/19', text: 'Two Grids', icon: 'fa fa-table' },
+                        { id: 'grid/20', text: 'Render to a New Box', icon: 'fa fa-table' },
+                        { id: 'grid/21', text: 'Inline Editing', icon: 'fa fa-table' },
+                        { id: 'grid/22', text: 'Resizable Columns', icon: 'fa fa-table' },
+                        { id: 'grid/24', text: 'Lock/Unlock Grid', icon: 'fa fa-table' },
+                        { id: 'grid/25', text: 'Re-Order Columns', icon: 'fa fa-table' },
+                        { id: 'grid/26', text: 'Re-Order Records', icon: 'fa fa-table' }
+                    ]
+                },
+                { id: 'grid-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'grid/7',  text: 'Tree-Like Grid (1.5+)', icon: 'fa fa-table' },
+                        { id: 'grid/27', text: 'Frozen Columns (1.5+)', icon: 'fa fa-table' },
+                        { id: 'grid/28', text: 'Info Bubble (1.5+)', icon: 'fa fa-table' }
+                    ]
+                },
+                { id: 'toolbar', text: 'Toolbar Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'toolbar/1', text: 'Simple Toolbar', icon: 'fa fa-hand-o-up' },
+                        { id: 'toolbar/2', text: 'More Buttons Type', icon: 'fa fa-hand-o-up' },
+                        { id: 'toolbar/3', text: 'Add/Remove Buttons', icon: 'fa fa-hand-o-up' },
+                        { id: 'toolbar/4', text: 'Show/Hide Buttons', icon: 'fa fa-hand-o-up' },
+                        { id: 'toolbar/5', text: 'Enable/Disable Buttons', icon: 'fa fa-hand-o-up' }
+                    ]
+                },
+                { id: 'toolbar-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'toolbar/6', text: 'Menu Buttons (1.5+)', icon: 'fa fa-hand-o-up' },
+                        { id: 'toolbar/7', text: 'Color Buttons (1.5+)', icon: 'fa fa-hand-o-up' },
+                        { id: 'toolbar/9', text: 'Custom Buttons (1.5+)', icon: 'fa fa-hand-o-up' },
+                        { id: 'toolbar/8', text: 'Tooltips (1.5+)', icon: 'fa fa-hand-o-up' },
+                        { id: 'toolbar/10', text: 'Toolbar Overflow (1.5+)', icon: 'fa fa-hand-o-up' },
+                        { id: 'toolbar/11', text: 'Multiline Toolbars (1.5+)', icon: 'fa fa-hand-o-up' }
+                    ]
+                },
+                { id: 'sidebar', text: 'Sidebar Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'sidebar/1', text: 'Simple Sidebar', icon: 'fa fa-hand-o-left' },
+                        { id: 'sidebar/2', text: 'Add/Remove', icon: 'fa fa-hand-o-left' },
+                        { id: 'sidebar/3', text: 'Show/Hide', icon: 'fa fa-hand-o-left' },
+                        { id: 'sidebar/4', text: 'Enable/Disable', icon: 'fa fa-hand-o-left' },
+                        { id: 'sidebar/5', text: 'Expand/Collapse', icon: 'fa fa-hand-o-left' },
+                        { id: 'sidebar/6', text: 'Select/Unselect', icon: 'fa fa-hand-o-left' },
+                        { id: 'sidebar/8', text: 'Top & Bottom HTML', icon: 'fa fa-hand-o-left' },
+                        { id: 'sidebar/7', text: 'Events', icon: 'fa fa-hand-o-left' }
+                    ]
+                },
+                { id: 'sidebar-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'sidebar/9', text: 'Flat Sidebar (1.5+)', icon: 'fa fa-hand-o-up' },
+                        { id: 'sidebar/10', text: 'In/Out of Focus (1.5+)', icon: 'fa fa-hand-o-up' },
+                        { id: 'sidebar/11', text: 'Tree Like Sidebars (1.5+)', icon: 'fa fa-hand-o-up' },
+                        { id: 'sidebar/12', text: 'Level Padding (1.5+)', icon: 'fa fa-hand-o-up' },
+                        { id: 'sidebar/13', text: 'Node Handle (1.5+)', icon: 'fa fa-hand-o-up' },
+                    ]
+                },
+                // { id: 'sidebar-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                //     nodes: [
+                //         { id: 'sidebar/14', text: 'Sort Nodes (2.0+)', icon: 'fa fa-hand-o-up' },
+                //         { id: 'sidebar/15', text: 'Search Nodes (2.0+)', icon: 'fa fa-hand-o-up' }
+                //     ]
+                // },
+                { id: 'tabs', text: 'Tabs Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'tabs/1', text: 'Simple Tabs', icon: 'fa fa-folder-o' },
+                        { id: 'tabs/2', text: 'Set a Tab Active', icon: 'fa fa-folder-o' },
+                        { id: 'tabs/3', text: 'Closeable Tabs', icon: 'fa fa-folder-o' },
+                        { id: 'tabs/4', text: 'Add/Remove Tabs', icon: 'fa fa-folder-o' },
+                        { id: 'tabs/5', text: 'Enable/Disabled Tabs', icon: 'fa fa-folder-o' },
+                        { id: 'tabs/6', text: 'Show/Hide Tabs', icon: 'fa fa-folder-o' }
+                    ]
+                },
+                { id: 'tabs-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'tabs/7', text: 'Tabs Overflow (1.5+)', icon: 'fa fa-folder-o' },
+                        { id: 'tabs/8', text: 'Tooltips (1.5+)', icon: 'fa fa-folder-o' },
+                        { id: 'tabs/9', text: 'Tab Reorder (1.5+)', icon: 'fa fa-folder-o' }
+                    ]
+                },
+                // { id: 'tabs-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                //     nodes: [
+                //         { id: 'tabs/10', text: 'Smooth Add/Remove (2.0+)', icon: 'fa fa-folder-o' }
+                //     ]
+                // },
+                { id: 'forms', text: 'Forms Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'form/1', text: 'Simple Form', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/2',text: 'Auto Templates', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/3', text: 'Field Types', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/4', text: 'Field Groups', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/5', text: 'Multi Page Form', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/6', text: 'Form Tabs', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/7', text: 'Form Toolbar', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/8', text: 'Form in a Popup', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/9', text: 'Events', icon: 'fa fa-pencil-square-o' }
+                    ]
+                },
+                { id: 'forms-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'form/10', text: 'Multi Columns (1.5+)', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/11', text: 'Column Span (1.5+)', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/12', text: 'Custom Styling (1.5+)', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/13', text: 'Anchored fields (1.5+)', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/14', text: 'Maps and Arrays (1.5+)', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/15', text: 'Custom Fiels (1.5+)', icon: 'fa fa-pencil-square-o' }
+                    ]
+                },
+                { id: 'fields', text: 'Fields Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'fields/1', text: 'Numeric', icon: 'fa fa-pencil-square-o' },
+                        { id: 'fields/2', text: 'Date, Time & Datetime', icon: 'fa fa-pencil-square-o' },
+                        { id: 'fields/3', text: 'Drop Down Lists', icon: 'fa fa-pencil-square-o' },
+                        { id: 'fields/4', text: 'Multi Selects', icon: 'fa fa-pencil-square-o' },
+                        { id: 'fields/5', text: 'File Upload', icon: 'fa fa-pencil-square-o' },
+                        { id: 'fields/6', text: 'Remote Source', icon: 'fa fa-pencil-square-o' }
+                    ]
+                },
+                { id: 'fields-1.5', text: 'Features 1.5', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'fields/7', text: 'Get/Set Value (1.5+)', icon: 'fa fa-pencil-square-o' },
+                        { id: 'fields/8', text: 'Color Picker (1.5+)', icon: 'fa fa-pencil-square-o' }
+                    ]
+                },
+                { id: 'popup', text: 'Popup Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'popup/1', text: 'Simple Popup', icon: 'fa fa-list-alt' },
+                        { id: 'popup/2', text: 'Popup Elements', icon: 'fa fa-list-alt' },
+                        { id: 'popup/3', text: 'Popup Content', icon: 'fa fa-list-alt' },
+                        { id: 'popup/4', text: 'Lock/Unlock', icon: 'fa fa-list-alt' },
+                        { id: 'popup/5', text: 'Slide a Message', icon: 'fa fa-list-alt' },
+                        { id: 'popup/6', text: 'Transitions', icon: 'fa fa-list-alt' }
+                    ]
+                },
+                { id: 'popup-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'popup/7', text: 'Common Dialogs (1.5+)', icon: 'fa fa-list-alt' },
+                        { id: 'popup/8', text: 'Messages (1.5+)', icon: 'fa fa-list-alt' },
+                        { id: 'popup/9', text: 'Better Events (1.5+)', icon: 'fa fa-list-alt' },
+                        { id: 'popup/10', text: 'Actions (1.5+)', icon: 'fa fa-list-alt' }
+                    ]
+                },
+                // { id: 'popup-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                //     nodes: [
+                //         { id: 'popup/11', text: 'Promises (2.0+)', icon: 'fa fa-list-alt' }
+                //     ]
+                // },
+                { id: 'utils', text: 'Utilities Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'utils/1', text: 'Validation', icon: 'fa fa-star-o' },
+                        { id: 'utils/2', text: 'Encoding', icon: 'fa fa-star-o' },
+                        { id: 'utils/3', text: 'Transitions', icon: 'fa fa-star-o' },
+                    ]
+                },
+                { id: 'utils-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'utils/4', text: 'Tooltips (1.5+)', icon: 'fa fa-star-o' },
+                        { id: 'utils/5', text: 'Overlays (1.5+)', icon: 'fa fa-star-o' },
+                        { id: 'utils/9', text: 'Menus (1.5+)', icon: 'fa fa-star-o' },
+                        { id: 'utils/6', text: 'Formatters (1.5+)', icon: 'fa fa-star-o' },
+                        { id: 'utils/7', text: 'Color Utils (1.5+)', icon: 'fa fa-star-o' },
+                        { id: 'utils/8', text: 'Text Marker (1.5+)', icon: 'fa fa-star-o' },
+                        { id: 'utils/10', text: 'Natural Compare (1.5+)', icon: 'fa fa-star-o' },
+                    ]
                 }
-                var w2ui_js  = 'http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.js';
-                var w2ui_css = 'http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css';
-                var html     = tmp[1] ? $.trim(tmp[1]) : '';
-                var js       = tmp[2] ? $.trim(tmp[2]) : '';
-                var css      = tmp[3] ? $.trim(tmp[3]) : '';
-                var json     = tmp[4] ? $.trim(tmp[4]) : '';
-                js   = js.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '');
-                js   = $.trim(js);
-                css  = css.replace(/^<style[^>]*>/, '').replace(/<\/style>$/, '');
-                css  = $.trim(css);
-                json = json.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '');
-                json = $.trim(json);
-                w2ui['main_layout'].html('main', tmp[0]);
-                $('#example_view').html(
-                        '<h2>Preview</h2>'+ html +
-                        '<script type="text/javascript">' + js + '</script>' +
-                        '<style>' + css + '</style>');
-                var code = '<!DOCTYPE html>\n'+
-                           '<html>\n'+
-                           '<head>\n'+
-                           '    <title>W2UI Demo: '+ cmd +'</title>\n'+
-                           '    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>\n'+
-                           '    <script type="text/javascript" src="'+ w2ui_js +'"></script>\n'+
-                           '    <link rel="stylesheet" type="text/css" href="'+ w2ui_css +'" />\n'+
-                           '</head>\n'+
-                           '<body>\n\n'+
-                           html + '\n\n'+
-                           (js != '' ? '<script type="text/javascript">\n' + js + '\n</script>\n\n' : '') +
-                           (css != '' ? '<style>\n' + css + '</style>\n\n' : '') +
-                           '</body>\n'+
-                           '</html>';
-                $('#example_code').html('<a href="javascript:" onclick="$(this).next().show(); initCode(); $(this).hide();" class="btn-source">Show Source Code</a>'+
-                    '<div id="sourcecode" style="display: none;">'+
-                    '<h2>Complete Code '+
-                    '<span style="font-weight: normal; padding-left: 10px;">- &nbsp;&nbsp;Copy & paste into your editor or <a href="javascript:" class="jsfiddle">fiddle with code online</a></span> </h2>'+
-                    '<textarea class="preview" id="code">'+
-                        code.replace(/<textarea/gi, '&lt;textarea').replace(/<\/textarea>/gi, '&lt;/textarea&gt;') +
-                    '</textarea>'+
-                    (json != '' ?
-                        '<h2>JSON file</h2>'+
-                        '<textarea class="json" id="json">'+ json +'</textarea>'
-                        :
-                        '')+
-                    '</div>'+
-                    '<div style="display: none">'+
-                    '<form id="fiddleForm" target="_blank" action="http://jsfiddle.net/api/post/jquery/2.1/" method="post">'+
-                    '    <textarea name="title">W2UI Demo: '+ cmd +'</textarea>'+
-                    '    <textarea name="resources">'+ w2ui_js +','+ w2ui_css +'</textarea>'+
-                    '    <textarea name="html">'+ html.replace(/<textarea/gi, '&lt;textarea').replace(/<\/textarea>/gi, '&lt;/textarea&gt;') +'</textarea>'+
-                    '    <textarea name="js">'+ js +'</textarea>'+
-                    '    <textarea name="css">'+ css +'</textarea>'+
-                    '    <textarea name="wrap">l</textarea>'+
-                    '</form>'+
-                    '</div>');
-            });
+            ],
+            onClick: function (event) {
+                var cmd = event.target
+                if (parseInt(cmd.substr(cmd.length-1)) != cmd.substr(cmd.length-1)) return
+                var tmp = w2ui.demo_sidebar.get(cmd)
+                document.title = tmp.parent.text + ': ' + tmp.text + ' | w2ui'
+                // delete previously created items
+                for (var widget in w2ui) {
+                    var nm = w2ui[widget].name
+                    if (['demo_layout', 'demo_sidebar', 'demo_toolbar'].indexOf(nm) == -1) $().w2destroy(nm)
+                }
+                // set hash
+                if (tmp.parent && tmp.parent.id != '') {
+                    last_hash = cmd
+                    document.location.hash = '/' + cmd
+                }
+                // load example
+                $.get('examples/'+ cmd +'.html', function (data) {
+                    var tmp = data.split('<!--CODE-->');
+                    if (tmp.length == 1) {
+                        alert('ERROR: cannot parse example.');
+                        console.log('ERROR: cannot parse example.', data);
+                        return;
+                    }
+                    var w2ui_js  = 'http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.js';
+                    var w2ui_css = 'http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css';
+                    var html     = tmp[1] ? $.trim(tmp[1]) : '';
+                    var js       = tmp[2] ? $.trim(tmp[2]) : '';
+                    var css      = tmp[3] ? $.trim(tmp[3]) : '';
+                    var json     = tmp[4] ? $.trim(tmp[4]) : '';
+                    js   = js.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '');
+                    js   = $.trim(js);
+                    css  = css.replace(/^<style[^>]*>/, '').replace(/<\/style>$/, '');
+                    css  = $.trim(css);
+                    json = json.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '');
+                    json = $.trim(json);
+                    w2ui['demo_layout'].html('main', tmp[0]);
+                    $('#example_view').html(
+                            '<h2>Preview</h2>'+ html +
+                            '<script type="text/javascript">' + js + '</script>' +
+                            '<style>' + css + '</style>');
+                    var code = '<!DOCTYPE html>\n'+
+                               '<html>\n'+
+                               '<head>\n'+
+                               '    <title>W2UI Demo: '+ cmd +'</title>\n'+
+                               '    <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>\n'+
+                               '    <script type="text/javascript" src="'+ w2ui_js +'"></script>\n'+
+                               '    <link rel="stylesheet" type="text/css" href="'+ w2ui_css +'" />\n'+
+                               '</head>\n'+
+                               '<body>\n\n'+
+                               html + '\n\n'+
+                               (js != '' ? '<script type="text/javascript">\n' + js + '\n</script>\n\n' : '') +
+                               (css != '' ? '<style>\n' + css + '</style>\n\n' : '') +
+                               '</body>\n'+
+                               '</html>';
+                    $('#example_code').html('<a href="javascript:" onclick="$(this).next().show(); initCode(); $(this).hide();" class="btn-source">Show Source Code</a>'+
+                        '<div id="sourcecode" style="display: none;">'+
+                        '<h2>Complete Code '+
+                        '<span style="font-weight: normal; padding-left: 10px;">- &nbsp;&nbsp;Copy & paste into your editor or <a href="javascript:" class="jsfiddle">fiddle with code online</a></span> </h2>'+
+                        '<textarea class="preview" id="code">'+
+                            code.replace(/<textarea/gi, '&lt;textarea').replace(/<\/textarea>/gi, '&lt;/textarea&gt;') +
+                        '</textarea>'+
+                        (json != '' ?
+                            '<h2>JSON file</h2>'+
+                            '<textarea class="json" id="json">'+ json +'</textarea>'
+                            :
+                            '')+
+                        '</div>'+
+                        '<div style="display: none">'+
+                        '<form id="fiddleForm" target="_blank" action="http://jsfiddle.net/api/post/jquery/2.1/" method="post">'+
+                        '    <textarea name="title">W2UI Demo: '+ cmd +'</textarea>'+
+                        '    <textarea name="resources">'+ w2ui_js +','+ w2ui_css +'</textarea>'+
+                        '    <textarea name="html">'+ html.replace(/<textarea/gi, '&lt;textarea').replace(/<\/textarea>/gi, '&lt;/textarea&gt;') +'</textarea>'+
+                        '    <textarea name="js">'+ js +'</textarea>'+
+                        '    <textarea name="css">'+ css +'</textarea>'+
+                        '    <textarea name="wrap">l</textarea>'+
+                        '</form>'+
+                        '</div>');
+                })
+            }
         }
-    }));
+    }
+    // init layout
+    $().w2toolbar(conf.demo_toolbar)
+    $().w2sidebar(conf.demo_sidebar)
+    $('#demo_layout').w2layout(conf.demo_layout)
+    // init sidebar
+    w2ui.demo_layout.html('top', `<div style="padding: 18px 0 0 20px; font-size: 18px;">W2UI Demos</div><div id="demo_toolbar"></div>`)
+    w2ui.demo_layout.html('left', w2ui.demo_sidebar)
+
+    setTimeout(hashChanged, 10)
+    window.onhashchange = hashChanged
 
     // check hash
-    setTimeout(function () {
-        var tmp = String(document.location.hash).split('/');
-        let section = tmp.shift()
-        var page = tmp.join('/')
-        switch (section) {
-            default:
-            case '#!combo':
-                w2ui['demo-sidebar'].expand('combo');
-                w2ui['demo-sidebar'].click(page || 'combo-1');
-                break;
-
-            case '#!layout':
-                w2ui['demo-sidebar'].expand('layout');
-                w2ui['demo-sidebar'].click(page || 'layout-1');
-                break;
-
-            case '#!grid':
-                w2ui['demo-sidebar'].expand('grid');
-                w2ui['demo-sidebar'].click(page || 'grid-1');
-                break;
-
-            case '#!toolbar':
-                w2ui['demo-sidebar'].expand('toolbar');
-                w2ui['demo-sidebar'].click(page || 'toolbar-1');
-                break;
-
-            case '#!sidebar':
-                w2ui['demo-sidebar'].expand('sidebar');
-                w2ui['demo-sidebar'].click(page || 'sidebar-1');
-                break;
-
-            // case '#!listview':
-            //     w2ui['demo-sidebar'].expand('listview');
-            //     w2ui['demo-sidebar'].click(page || 'listview-1');
-            //     break;
-
-            case '#!tabs':
-                w2ui['demo-sidebar'].expand('tabs');
-                w2ui['demo-sidebar'].click(page || 'tabs-1');
-                break;
-
-            case '#!popup':
-                w2ui['demo-sidebar'].expand('popup');
-                w2ui['demo-sidebar'].click(page || 'popup-1');
-                break;
-
-            case '#!forms':
-                w2ui['demo-sidebar'].expand('forms');
-                w2ui['demo-sidebar'].click(page || 'forms-1');
-                break;
-
-            case '#!fields':
-                w2ui['demo-sidebar'].expand('fields');
-                w2ui['demo-sidebar'].click(page || 'fields-1');
-                break;
-
-            case '#!utils':
-                w2ui['demo-sidebar'].expand('utils');
-                w2ui['demo-sidebar'].click(page || 'utils-1');
-                break;
+    function hashChanged() {
+        // show toolbar
+        let hash = String(document.location.hash).substr(2)
+        if (hash == '') hash = 'combo/1'
+        let sec = hash.split('/')[0]
+        let exp = hash.split('/')[1]
+        if (parseInt(exp) != exp) { // neded for backward compatibility with what is in google already
+            exp = String(exp).split('-')[1]
         }
-    }, 100);
-});
+        let sb = w2ui.demo_sidebar
+        w2ui.demo_toolbar.get(sec).checked = true
+        w2ui.demo_toolbar.refresh(sec)
+        if (last_hash != hash) {
+            last_hash = hash
+            sb.nodes.forEach(node => {
+                if (node.id.substr(0, sec.length) == sec) {
+                    sb.show(node.id)
+                    sb.expand(node.id)
+                } else {
+                    sb.hide(node.id)
+                }
+            })
+            w2ui.demo_sidebar.click(sec + '/' + exp || (exp+'/1'))
+        } else {
+            // w2ui.demo_sidebar.select(hash || (exp+'/1'))
+        }
+    }
+})
 
 function initCode() {
     // CodeMirror
-    var text = $('#example_code .preview');
+    var text = $('#example_code .preview')
     if (text.length > 0) {
         var cm = CodeMirror(
-            function(elt) { text[0].parentNode.replaceChild(elt, text[0]); },
+            function(elt) { text[0].parentNode.replaceChild(elt, text[0]) },
             {
                 value        : $.trim(text.val()),
                 mode        : "text/html",
@@ -344,13 +398,13 @@ function initCode() {
                 gutter        : true,
                 lineNumbers    : true
             }
-        );
-        cm.setSize(null, cm.doc.height + 15);
+        )
+        cm.setSize(null, cm.doc.height + 15)
     }
-    var text = $('#example_code .json');
+    var text = $('#example_code .json')
     if (text.length > 0) {
         var cm = CodeMirror(
-            function(elt) { text[0].parentNode.replaceChild(elt, text[0]); },
+            function(elt) { text[0].parentNode.replaceChild(elt, text[0]) },
             {
                     value        : $.trim(text.val()),
                 mode        : "javascript",
@@ -358,13 +412,13 @@ function initCode() {
                 gutter        : true,
                 lineNumbers    : true
             }
-        );
-        cm.setSize(null, cm.doc.height + 15);
+        )
+        cm.setSize(null, cm.doc.height + 15)
     }
     $('#example_code .jsfiddle').on('click', function () {
-        // $('#fiddleForm textarea[name=html]').val(html || '');
-        // $('#fiddleForm textarea[name=js]').val(js || '');
-        // $('#fiddleForm textarea[name=css]').val(css || '');
-        $('#fiddleForm').submit();
-    });
+        // $('#fiddleForm textarea[name=html]').val(html || '')
+        // $('#fiddleForm textarea[name=js]').val(js || '')
+        // $('#fiddleForm textarea[name=css]').val(css || '')
+        $('#fiddleForm').submit()
+    })
 }

@@ -1,0 +1,44 @@
+Iterates nodes
+
+<div class="definition">
+    each(fn, [nodes])
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>fn</td>
+        <td><b>function</b>, iterative function</td>
+    </tr>
+    <tr>
+        <td>nodes</td>
+        <td><b>array</b> (optional), array of noes to start with</td>
+    </tr>
+    </table>
+</div>
+Returns <i>undefined</i>.
+
+<h4>Description</h4>
+
+This method will call provide function <span class="property">fn</span> for each node. If you do not specify <span class="property">nodes</span> argument, it will start with the root of the sidebar.
+<div style="height: 10px"></div>
+
+If you have sidebar defined in the following way:
+<textarea class="javascript">
+$('#sidebar').w2sidebar({
+    name : 'sidebar',
+    img  : 'icon-page',
+    nodes: [
+        { id: 'id-1', text: 'Level 1' },
+        { id: 'id-2', text: 'Level 2' },
+        { id: 'id-3', text: 'Level 3' }
+    ]
+});
+</textarea>
+
+You can:
+<textarea class="javascript">
+w2ui.sidebar.each((node) => {
+    console.log(node.text)
+})
+</textarea>

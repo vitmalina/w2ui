@@ -1,0 +1,30 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Lock/Unlock the Content</h1>
+        If you need user to wait until popup is ready, you can lock it.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<button class="w2ui-btn" onclick="popup()">Open Popup</button>
+
+<!--CODE-->
+<script>
+function popup() {
+    w2popup.open({
+        width: 500,
+        height: 300,
+        title: 'Popup Title',
+        body: '<div class="w2ui-centered">Click on the "Lock" button or "Lock With a Message" to lock the message for 2 seconds. After 2 seconds it will be automatically unlocked.</div>',
+        buttons: '<button class="w2ui-btn" onclick="lock(\'\')">Lock</button>'+
+                 '<button class="w2ui-btn" onclick="lock(\'Loading...\')">Lock With a Message</button>',
+        showMax: true
+    });
+}
+function lock (msg) {
+    w2popup.lock(msg, true);
+    setTimeout(function () { w2popup.unlock(); }, 2000);
+}
+</script>

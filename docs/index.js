@@ -7,10 +7,10 @@ $(function () {
             { type: 'left', size: 240, resizable: true, style: 'border-right: 1px solid silver;' },
             { type: 'main', style: 'background-color: white;' }
         ]
-    });
-    w2ui['layout'].content('top', '<div style="padding: 12px 20px; font-size: 18px;">W2UI 1.5 Documentation</div>');
+    })
+    w2ui.layout.html('top', '<div style="padding: 12px 20px; font-size: 18px;">W2UI 1.5 Documentation</div>')
     // init sidebar
-    w2ui['layout'].content('left', $().w2sidebar({
+    w2ui.layout.html('left', $().w2sidebar({
         name: 'docs',
         img: null,
         nodes: [
@@ -55,204 +55,197 @@ $(function () {
             ] }
         ],
         onClick: function(id, data) {
-            doClick(id, data);
-            window.skipChange = true;
-            document.location = '#' + id;
+            doClick(id, data)
+            window.skipChange = true
+            document.location = '#' + id
         }
-    }));
+    }))
 
     // create test objects
-    $().w2layout({ name: 'test-layout' });
-    $().w2grid({ name: 'test-grid' });
-    $().w2sidebar({ name: 'test-sidebar' });
-    $().w2toolbar({ name: 'test-toolbar' });
-    $().w2tabs({ name: 'test-tabs' });
-    $().w2form({ name: 'test-form' });
+    $().w2layout({ name: 'test-layout' })
+    $().w2grid({ name: 'test-grid' })
+    $().w2sidebar({ name: 'test-sidebar' })
+    $().w2toolbar({ name: 'test-toolbar' })
+    $().w2tabs({ name: 'test-tabs' })
+    $().w2form({ name: 'test-form' })
 
     // init properties and methods
-    init('layout');
-    init('grid');
-    init('sidebar');
-    init('toolbar');
-    init('tabs');
-    init('form');
-    initPopup();
-
-    // utils
-    var props   = [];
-    var methods = [];
-    for (var o in w2utils) {
-        if (typeof w2utils[o] == 'function') methods.push(o); else props.push(o);
-    }
-    props.sort();
-    methods.sort();
-    // properties
-    var nodes = [];
-    for (var o in props) nodes.push({ id: 'w2utils.' + props[o], text: props[o], icon: 'fa fa-tag' });
-    w2ui['docs'].add('w2utils-props', nodes);
-    // methods
-    var nodes = [];
-    for (var o in methods) nodes.push({ id: 'w2utils.' + methods[o], text: methods[o], icon: 'fa fa-cog' });
-    w2ui['docs'].add('w2utils-methods', nodes);
+    init('layout')
+    init('grid')
+    init('sidebar')
+    init('toolbar')
+    init('tabs')
+    init('form')
+    init('popup', w2popup)
+    initUtils()
 
     // remove internal methods/props
-    w2ui['docs'].remove(
+    w2ui.docs.remove(
         'w2layout.panel',
         'w2grid.isIOS', 'w2grid.editChange', 'w2grid.initColumnDrag', 'w2grid.prepareData',
         'w2toolbar.item',
         'w2sidebar.node',
-        'w2tabs.tab'
-    );
+        'w2tabs.tab',
+        'w2utils.testLocalStorage'
+    )
 
-    function init (type) {
-        var methods = [];
-        var props   = [];
-        for (var o in w2obj[type].prototype) {
-            if (typeof w2obj[type].prototype[o]== 'function') methods.push(o); else props.push(o);
+    function init(type, obj) {
+        let methods = []
+        let props   = []
+        // -- this is needed for es6 compatibility
+        if (window.w2obj == null) {
+            window.w2obj = {}
         }
-        for (var o in w2ui['test-'+ type]) {
-            if (props.indexOf(o) == -1) props.push(o);
+        // ----
+        if (obj == null) {
+            obj = w2ui['test-'+ type]
         }
-        methods.sort();
-        props.sort();
-        var nodes = [];
-        for (var o in methods) {
+        Object.getOwnPropertyNames(Object.getPrototypeOf(obj)).forEach(key => {
+            if (key == 'constructor' || String(key).substr(0, 2) == '__') return
+            if (typeof obj[key] == 'function') methods.push(key); else props.push(key)
+        })
+        Object.keys(obj).forEach(key => {
+            if (props.indexOf(key) == -1) props.push(key)
+        })
+        methods.sort()
+        props.sort()
+        let nodes = []
+        for (let o in methods) {
             //console.log('---' + methods[o]);
-            nodes.push({ id: 'w2'+ type +'.' + methods[o], text: methods[o], icon: 'fa fa-cog' });
+            nodes.push({ id: 'w2'+ type +'.' + methods[o], text: methods[o], icon: 'fa fa-cog' })
         }
         // add to tree
-        w2ui['docs'].add('w2'+ type +'-methods', nodes);
-        var nodes1 = [];
-        var nodes2 = [];
-        for (var o in props) {
+        w2ui.docs.add('w2'+ type +'-methods', nodes)
+        let nodes1 = []
+        let nodes2 = []
+        for (let o in props) {
             //console.log('--->' + props[o]);
-            if (w2ui['docs'].get('w2'+ type +'.' + props[o]) != null) continue;
+            if (w2ui.docs.get('w2'+ type +'.' + props[o]) != null) continue
             if (props[o].substr(0, 2) == 'on') {
-                nodes1.push({ id: 'w2'+ type +'.' + props[o], text: props[o], icon: 'fa fa-tag' });
+                nodes1.push({ id: 'w2'+ type +'.' + props[o], text: props[o], icon: 'fa fa-tag' })
             } else {
-                nodes2.push({ id: 'w2'+ type +'.' + props[o], text: props[o], icon: 'fa fa-star-o' });
+                nodes2.push({ id: 'w2'+ type +'.' + props[o], text: props[o], icon: 'fa fa-star-o' })
             }
         }
-        w2ui['docs'].add('w2'+ type +'-events', nodes1);
-        w2ui['docs'].add('w2'+ type +'-props', nodes2);
+        w2ui.docs.add('w2'+ type +'-events', nodes1)
+        w2ui.docs.add('w2'+ type +'-props', nodes2)
     }
 
-    function initPopup () {
-        var methods = [];
-        var events  = [];
-        var props   = [];
-        for (var m in w2popup) {
-            if (m.substr(0,2) == 'on' && m != 'on') {
-                events.push({ id: 'w2popup.' + m, text: m, icon: 'fa fa-tag' });
-            } else if (typeof w2popup[m] == 'function') {
-                methods.push({ id: 'w2popup.' + m, text: m, icon: 'fa fa-cog' });
-            } else {
-                props.push({ id: 'w2popup.' + m, text: m, icon: 'fa fa-star-o' });
-            }
+    function initUtils() {
+        // utils
+        let props   = []
+        let methods = []
+        for (let o in w2utils) {
+            if (typeof w2utils[o] == 'function') methods.push(o); else props.push(o)
         }
-        methods.sort(function (a, b) { return a.text > b.text ? 1 : -1 });
-        events.sort(function (a, b) { return a.text > b.text ? 1 : -1 });
-        props.sort(function (a, b) { return a.text > b.text ? 1 : -1 });
-        w2ui.docs.set('w2popup-events', { nodes: events });
-        w2ui.docs.set('w2popup-props', { nodes: props });
-        w2ui.docs.set('w2popup-methods', { nodes: methods });
+        props.sort()
+        methods.sort()
+        // properties
+        let nodes = []
+        for (let o in props) nodes.push({ id: 'w2utils.' + props[o], text: props[o], icon: 'fa fa-tag' })
+        w2ui.docs.add('w2utils-props', nodes)
+        // methods
+        nodes = []
+        for (let o in methods) nodes.push({ id: 'w2utils.' + methods[o], text: methods[o], icon: 'fa fa-cog' })
+        w2ui.docs.add('w2utils-methods', nodes)
     }
 
     // show latest hash
     function goHash() {
         if (window.skipChange === true) {
-            window.skipChange = false;
-            return;
+            window.skipChange = false
+            return
         }
-        var hash = String(document.location.hash).substr(1);
-        if (w2ui['docs'].get(hash) != null) {
-            doClick(hash);
-            w2ui['docs'].collapseAll();
-            w2ui['docs'].select(hash);
-            w2ui['docs'].expandParents(hash);
+        let hash = String(document.location.hash).substr(1)
+        if (w2ui.docs.get(hash) != null) {
+            doClick(hash)
+            w2ui.docs.collapseAll()
+            w2ui.docs.select(hash)
+            w2ui.docs.expandParents(hash)
         }
     }
-    $(window).on('hashchange', goHash);
-    setTimeout(goHash, 1);
-});
+    $(window).on('hashchange', goHash)
+    setTimeout(goHash, 1)
+})
 
 function doClick (cmd, data) {
+    let path
     if (cmd.indexOf('.') == -1) {
         if (cmd.indexOf('-') == -1) {
-            var path = 'overview/'+ cmd.substr(2) +'.html';
+            path = 'overview/'+ cmd.substr(2) +'.html'
         } else {
-            var path = 'summary/'+ cmd +'.php';
+            path = 'summary/'+ cmd +'.php'
         }
     } else {
-        var tmp  = cmd.split('.');
+        let tmp = cmd.split('.')
         switch (tmp[1]) {
-            case 'box'        : cmd = 'common.box'; break;
-            case 'name'        : cmd = 'common.name'; break;
-            case 'handlers'    : cmd = 'common.handlers'; break;
-            case 'style'    : cmd = 'common.style'; break;
-            case 'render'    : cmd = 'common.render'; break;
-            case 'refresh'    : cmd = 'common.refresh'; break;
-            case 'destroy'    : cmd = 'common.destroy'; break;
-            case 'resize'    : if (tmp[0] != 'w2popup') cmd = 'common.resize'; break;
-            case 'on'        : cmd = 'common.on'; break;
-            case 'off'        : cmd = 'common.off'; break;
-            case 'trigger'    : cmd = 'common.trigger'; break;
-            case 'onRender'    : cmd = 'common.onRender'; break;
-            case 'onRefresh': cmd = 'common.onRefresh'; break;
-            case 'onDestroy': cmd = 'common.onDestroy'; break;
-            case 'onResize'    : cmd = 'common.onResize'; break;
+            case 'box' : cmd = 'common.box'; break
+            case 'name' : cmd = 'common.name'; break
+            case 'handlers' : cmd = 'common.handlers'; break
+            case 'style' : cmd = 'common.style'; break
+            case 'render' : cmd = 'common.render'; break
+            case 'refresh' : cmd = 'common.refresh'; break
+            case 'destroy' : cmd = 'common.destroy'; break
+            case 'resize' : if (tmp[0] != 'w2popup') cmd = 'common.resize'; break
+            case 'on' : cmd = 'common.on'; break
+            case 'off' : cmd = 'common.off'; break
+            case 'trigger' : cmd = 'common.trigger'; break
+            case 'onRender' : cmd = 'common.onRender'; break
+            case 'onRefresh': cmd = 'common.onRefresh'; break
+            case 'onDestroy': cmd = 'common.onDestroy'; break
+            case 'onResize' : cmd = 'common.onResize'; break
         }
-        w2ui['layout'].content('main', '');
-        var path = 'details/'+ cmd +'.html';
+        w2ui.layout.html('main', '')
+        path = 'details/'+ cmd +'.html'
     }
     // load file
     $.get(path, function (data) {
-        data = data.replace(/href="/g, 'href="#');
-        data = data.replace(/href="#\/\/w2ui.com/g, 'href="//w2ui.com');
-        w2ui['layout'].content('main',
+        data = data.replace(/href="/g, 'href="#')
+        data = data.replace(/href="#\/\/w2ui.com/g, 'href="//w2ui.com')
+        w2ui.layout.html('main',
             '<div class="obj-desc">'+
             '<h1>' + cmd + '</h1>' +
             data +
-            '</div>');
+            '</div>')
         // javascript
-        $("textarea.javascript").each(function (index, el) {
-            var obj = this;
+        $('textarea.javascript').each(function (index, el) {
+            let obj = this
             // resize to context
-            var ta = $(this);
-            $(ta).height(ta.scrollHeight + 2);
+            let ta = $(this)
+            $(ta).height(ta.scrollHeight + 2)
             // init Code Mirror
-            var cm = CodeMirror(
+            let cm = CodeMirror(
                 function (elt) {
-                      obj.parentNode.replaceChild(elt, obj);
+                    obj.parentNode.replaceChild(elt, obj)
                 }, {
                     value        : $.trim($(obj).val()),
-                    mode        : "javascript",
+                    mode        : 'javascript',
                     readOnly    : true,
                     gutter        : true,
                     lineNumbers    : true
                 }
-            );
-            cm.setSize(null, cm.doc.height + 15);
-        });
+            )
+            cm.setSize(null, cm.doc.height + 15)
+        })
         // html
-        $("textarea.html").each(function (index, el) {
-            var obj = this;
+        $('textarea.html').each(function (index, el) {
+            let obj = this
             // resize to context
-            var ta = $(this);
-            $(ta).height(ta.scrollHeight + 2);
+            let ta = $(this)
+            $(ta).height(ta.scrollHeight + 2)
             // init Code Mirror
-            var cm = CodeMirror(
+            let cm = CodeMirror(
                 function (elt) {
-                      obj.parentNode.replaceChild(elt, obj);
+                    obj.parentNode.replaceChild(elt, obj)
                 }, {
                     value        : $.trim($(obj).val()),
-                    mode        : "xml",
+                    mode        : 'xml',
                     readOnly    : true,
                     gutter        : true,
                     lineNumbers    : true
                 }
-            );
-            cm.setSize(null, cm.doc.height + 15);
-        });
-    });
+            )
+            cm.setSize(null, cm.doc.height + 15)
+        })
+    })
 }

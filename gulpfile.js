@@ -1,16 +1,16 @@
-const gulp      = require('gulp')
-const { exec }  = require('child_process')
-const header    = require('gulp-header')
-const iconfont  = require('gulp-iconfont')
-const less      = require('gulp-less')
-const cleanCSS  = require('gulp-clean-css')
-const uglify    = require('gulp-uglify')
-const concat    = require('gulp-concat')
-const rename    = require('gulp-rename')
-const babel     = require('gulp-babel')
-const replace   = require('gulp-replace')
-const del       = require('del')
-const comments  = {
+const gulp     = require('gulp')
+const { exec } = require('child_process')
+const header   = require('gulp-header')
+const iconfont = require('gulp-iconfont')
+const less     = require('gulp-less')
+const cleanCSS = require('gulp-clean-css')
+const uglify   = require('gulp-uglify')
+const concat   = require('gulp-concat')
+const rename   = require('gulp-rename')
+const babel    = require('gulp-babel')
+const replace  = require('gulp-replace')
+const del      = require('del')
+const comments = {
     w2ui : '/* w2ui 2.0.x (nightly) (c) http://w2ui.com, vitmalina@gmail.com */\n'
 }
 
@@ -79,12 +79,8 @@ let tasks = {
             'src/w2compat.js' // must be last
         ])
             .pipe(concat('w2ui.js'))
-            .pipe(replace("import { w2event } from './w2event.js'\n", ''))
-            .pipe(replace("import { w2utils } from './w2utils.js'\n", ''))
-            .pipe(replace("import { w2tabs } from './w2tabs.js'\n", ''))
-            .pipe(replace("import { w2toolbar } from './w2toolbar.js'\n", ''))
-            .pipe(replace("import { w2field } from './w2field.js'\n", ''))
-            .pipe(replace("\n\n", '\n'))
+            .pipe(replace(/^import.*'$\n|^export.*}$\n/gm, ''))
+            .pipe(replace('\n\n', '\n'))
             // .pipe(babel())
             .pipe(header(comments.w2ui))
             .pipe(gulp.dest('dist/'))
@@ -156,17 +152,16 @@ let tasks = {
                 this.emit('end')
             })
             .on('glyphs', function(icons, options) {
-                let n = 0
                 icons = icons.sort((a, b) => (a.name > b.name) - (a.name < b.name)) // need reorder f series
                 icons.forEach(function(icon, i) {
                     let unicode = icon.unicode
-                    html += `    <div class="preview"><span class="icon w2ui-icon-${icons[i].name}"></span><span>w2ui-icon-${icons[i].name}</span></div>\n`
-                    css  += `.w2ui-icon-${icons[i].name}:before { content: "${unicode.toString(16)}" }\n`
+                    html       += `    <div class="preview"><span class="icon w2ui-icon-${icons[i].name}"></span><span>w2ui-icon-${icons[i].name}</span></div>\n`
+                    css        += `.w2ui-icon-${icons[i].name}:before { content: "${unicode.toString(16)}" }\n`
                     json.push(icons[i].name)
                 })
 
                 html += '    <div style="clear: both; height: 10px;"></div>\n</body>\n</html>'
-                html = html.replace('$count', ' - ' + icons.length + ' icons')
+                html  = html.replace('$count', ' - ' + icons.length + ' icons')
                 fs.writeFileSync('src/less/icons/w2ui-font.css', css)
                 fs.writeFileSync('src/less/icons/preview.html', html)
                 fs.writeFileSync('src/less/icons/icons.json', JSON.stringify(json))
@@ -175,7 +170,7 @@ let tasks = {
             .on('end', function () {
                 let font = fs.readFileSync('src/less/icons/w2ui-font.woff')
                 let file = fs.readFileSync('src/less/icons/w2ui-font.css', 'utf-8')
-                file = file.replace('src: url("w2ui-font.woff");',
+                file     = file.replace('src: url("w2ui-font.woff");',
                     `src: url("data:application/x-font-woff;charset=utf-8;base64,${font.toString('base64')}") format("woff");`)
                 fs.writeFileSync('src/less/icons/w2ui-font.css', file)
                 fs.writeFileSync('src/less/src/icons.less', file) // copy of the file

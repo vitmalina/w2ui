@@ -1,0 +1,35 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Fixed Size Main Panel</h1>
+        <p>
+        In the following example, if you resize the layout, the size of the main panel will stay constant.
+        </p>
+
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="layout" style="width: 100%; height: 300px;"></div>
+
+<div style="height: 20px;"></div>
+
+<button class="w2ui-btn" onclick="$('#layout').width('700px'); w2ui.layout.resize()">width=700px</button>
+<button class="w2ui-btn" onclick="$('#layout').width('100%'); w2ui.layout.resize()">width=100%</button>
+
+<!--CODE-->
+<script>
+$(function () {
+    var pstyle = 'border: 1px solid #dfdfdf; padding: 5px;';
+    $('#layout').w2layout({
+        name: 'layout',
+        padding: 5,
+        panels: [
+            { type: 'left', size: 200, resizable: true, style: pstyle, content: 'left' },
+            { type: 'main', style: pstyle + 'border-top: 0px;', content: 'main' },
+            { type: 'right', style: pstyle + 'border-top: 0px;', size: -300, content: 'right', resizable: true }
+        ]
+    });
+});
+</script>

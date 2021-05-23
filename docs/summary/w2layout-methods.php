@@ -8,13 +8,6 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2layout.content">content</a> <span>- content(type, [content], [transition])</span>
-</div>
-<div class="obj-property-desc">
-    Sets or retrieves panel content.
-</div>
-
-<div class="obj-property">
     <a href="w2layout.el">el</a> <span>- el(type)</span>
 </div>
 <div class="obj-property-desc">

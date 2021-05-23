@@ -1,0 +1,40 @@
+Node template object.
+
+<div class="definition">
+    Object, default = {...} // see below
+</div>
+
+The <span class="method">.node_template</span> property defines default values for the sidebar node. This template is used when new sidebar nodes are created. An item object has the following structure:
+
+<textarea class="javascript">
+{
+    id            : null,     // id of the node, must be unique for the whole sidebar
+    text          : '',       // string or function, text for the node
+    nodes         : [],       // array of sub node objects
+    icon          : null,     // string or function, font icon name
+    img           : null,     // css class of the image that will appear on the left
+    style         : '',       // additional style for the node
+    class         : '',       // additional clas name for the node
+    count         : '',       // text of the badge that will appear on the right
+    route         : null,     // route for the node
+    selected      : false,    // indicates if node is selected
+    expanded      : false,    // indicates if node is expanded
+    hidden        : false,    // indicates if node is hidden
+    disabled      : false,    // indicates is node is disabled
+    group         : false,    // indicates if node is a group
+    groupShowHide : true,     // indicates if to display show/hide link for groups
+    collapsible   : true,     // indicates if node can be collapsible
+    plus          : false,    // if true, then + will be shown even if there is no sub nodes
+    // events
+    onClick       : null,     // mouse click event handler
+    onDblClick    : null,     // mouse double click event handler
+    onContextMenu : null,     // mouse right click event handler
+    onExpand      : null,     // node expand event handler
+    onCollapse    : null,     // node collapsed event handler
+    // internal
+    parent        : null,     // reference to a parent node object
+    sidebar       : null      // reference to the sidebar the node belongs to
+}
+</textarea>
+
+To nest add them into The <span class="method">item.nodes</span> array.

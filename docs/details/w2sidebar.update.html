@@ -1,0 +1,56 @@
+Quick refresh of a node if possible
+
+<div class="definition">
+    update(id, options)
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>id</td>
+        <td><b>string</b>, id of the sidebar node</td>
+    </tr>
+    <tr>
+        <td>node</td>
+        <td><b>object</b>, node object</td>
+    </tr>
+    </table>
+</div>
+
+Returns object of items it could not apply. If object is empty, all was possible to apply.
+
+<h4>Description</h4>
+
+The update method is similar to <a class="argument" href="w2sidebar.set">.set()</a>, but much faster. If it can find and update the node (both in <span class="argument">nodes</span> array and on the screen) without fully refreshing it (and its subnode), it will do so. It will retrun <span class="argument">options</span> that it could not apply:
+<div style="height: 10px"></div>
+
+The <span class="argument">id</span> argument is the id of the node and <span class="argument">options</span> is an object that contains new node properties. Below is the list of properties you can quickly update:
+<textarea class="javascript">
+options = {
+    icon,
+    class,
+    style,
+    text,
+    count
+}
+</textarea>
+
+If you defined the sidebar in the following way:
+<textarea class="javascript">
+$('#sidebar').w2sidebar({
+    name : 'sidebar',
+    img  : 'icon-page',
+    nodes: [
+        { id: 'id-1', text: 'Level 1' },
+        { id: 'id-2', text: 'Level 2' },
+        { id: 'id-3', text: 'Level 3' }
+    ]
+});
+</textarea>
+
+You can update sidebar node:
+<textarea class="javascript">
+w2ui['sidebar'].update('id-2', { text: 'level one'});
+</textarea>
+
+See also <a class="argument" href="w2sidebar.set">.set()</a>, which tries to update node by calling <span class="argument">update()</span> method and if it fails, it will fully update the node (just the node, not sidebar).

@@ -47,11 +47,6 @@
 *   - record.w2ui.style[field_name]
 *   - use column field for style: { 1: 'color: red' }
 *   - added focus(), blur(), onFocus, onBlur
-*   - search.simple - if false, will not show up in simple search
-*   - search.operator - default operator to use with search field
-*   - search.operators - array of operators for the search
-*   - search.hidden - could not be cleared by the user
-*   - search.value - only for hidden searches
 *   - if .search(val) - search all fields
 *   - refactor reorderRow (not finished)
 *   - return JSON can now have summary array
@@ -60,7 +55,6 @@
 *   - added additional search filter options for int, float, date, time
 *   - added getLineHTML
 *   - added lineNumberWidth
-*   - add searches.style
 *   - getColumn without params returns fields of all columns
 *   - getSearch without params returns fields of all searches
 *   - added column.tooltip
@@ -76,8 +70,6 @@
 *   - added onResizeDblClick
 *   - added onColumnDblClick
 *   - implemented showBubble
-*   - added show.searchAll
-*   - added show.searchHiddenMsg
 *   - added w2grid.operators
 *   - added w2grid.operatorsMap
 *   - move events into prototype
@@ -105,7 +97,6 @@
             class: 'string' - for entire row OR { field: 'string', ...} - per field
         }
     }
-*   - added this.show.toolbarInput
 *   - disableCVS
 *   - added nestedFields: use field name containing dots as separator to look into objects
 *   - grid.message
@@ -130,11 +121,9 @@
 *   - rec.w2ui.class (and rec.w2ui.class { fname: '...' })
 *   - columnTooltip
 *   - expendable grids are still working
-*   - added search.type = 'color'
 *   - added getFirst
 *   - added stateColProps
 *   - added stateColDefaults
-*   - deprecated search.caption -> search.label
 *   - deprecated column.caption -> column.text
 *   - deprecated columnGroup.caption -> columnGroup.text
 *   - moved a lot of properties into prototype
@@ -160,7 +149,9 @@
 *   - columnGroup.text can be a function
 *   - grid.tabIndex
 *   - onColumnAutoResize
-*   == 2.0
+*   - col.sortMode = 'default', 'natural' or a function
+*
+* == 2.0 changes
 *
 ************************************************************************/
 
@@ -334,7 +325,7 @@ class w2grid extends w2event {
             info            : null // info bubble, can be bool/object
         }
 
-        this.msgDelete = 'Are you sure you want to delete NN records?'
+        this.msgDelete = 'Are you sure you want to delete XX records?'
         this.msgDeleteBtn = 'Delete'
         this.msgNotJSON = 'Returned data is not in valid JSON format.'
         this.msgAJAXerror = 'AJAX error. See console for more details.'
@@ -2191,22 +2182,23 @@ class w2grid extends w2event {
             return
         }
         // show search
+        let obj = this
         $('#tb_'+ this.name +'_toolbar_item_w2ui-search-advanced').w2overlay({
-            html    : this.getSearchesHTML(),
-            name    : this.name + '-searchOverlay',
-            left    : -10,
-            'class' : 'w2ui-grid-searches',
+            html: this.getSearchesHTML(),
+            name: this.name + '-searchOverlay',
+            left: -10,
+            class: 'w2ui-grid-searches',
             onShow() {
-                this.initSearches()
-                $('#w2ui-overlay-'+ this.name +'-searchOverlay .w2ui-grid-searches').data('grid-name', this.name)
-                let sfields = $('#w2ui-overlay-'+ this.name +'-searchOverlay .w2ui-grid-searches *[rel=search]')
+                obj.initSearches()
+                $('#w2ui-overlay-'+ obj.name +'-searchOverlay .w2ui-grid-searches').data('grid-name', obj.name)
+                let sfields = $('#w2ui-overlay-'+ obj.name +'-searchOverlay .w2ui-grid-searches *[rel=search]')
                 if (sfields.length > 0) sfields[0].focus()
                 if (!it.checked) {
                     it.checked = true
                     $(btn).addClass('checked')
                 }
                 // event after
-                this.trigger($.extend(edata, { phase: 'after' }))
+                obj.trigger($.extend(edata, { phase: 'after' }))
             },
             onHide() {
                 it.checked = false
@@ -2577,9 +2569,10 @@ class w2grid extends w2event {
 
     requestComplete(status, xhr, cmd, callBack) {
         this.unlock()
+        this.last.xhr_response = ((new Date()).getTime() - this.last.xhr_start)/1000
         setTimeout(() => {
             if (this.show.statusResponse) {
-                this.status(w2utils.lang('Server Response') + ' ' + ((new Date()).getTime() - this.last.xhr_start)/1000 +' ' + w2utils.lang('sec'))
+                this.status(w2utils.lang('Server Response XX sec').replace('XX', this.last.xhr_response))
             }
         }, 10)
         this.last.pull_more = false
@@ -2891,7 +2884,7 @@ class w2grid extends w2event {
         }
         // normalize items
         if (edit.items.length > 0 && !$.isPlainObject(edit.items[0])) {
-            edit.items = w2obj.field.prototype.normMenu(edit.items)
+            edit.items = w2utils.normMenu(edit.items)
         }
         switch (edit.type) {
 
@@ -3241,7 +3234,7 @@ class w2grid extends w2event {
                 width   : 380,
                 height  : 170,
                 body    : '<div class="w2ui-centered">' +
-                                w2utils.lang(this.msgDelete).replace('NN', recs.length).replace('records', (recs.length == 1 ? 'record' : 'records')) +
+                                w2utils.lang(this.msgDelete).replace('XX', recs.length).replace('records', (recs.length == 1 ? 'record' : 'records')) +
                           '</div>',
                 buttons : (w2utils.settings.macButtonOrder
                     ? '<button type="button" class="w2ui-btn btn-default" onclick="w2ui[\''+ this.name +'\'].message()">' + w2utils.lang('Cancel') + '</button>' +
@@ -5780,7 +5773,7 @@ class w2grid extends w2event {
                         this.resize()
                         break
                     case 'w2ui-search-advanced':
-                        it = this.get(id)
+                        let it = this.toolbar.get(id)
                         if (it.checked) {
                             this.searchClose()
                         } else {
@@ -6116,7 +6109,7 @@ class w2grid extends w2event {
             $('#grid_'+ grid.name +'_frecords > table').append(html1)
             $('#grid_'+ grid.name +'_records > table').append(html2)
         }
-        let width_box
+        let width_box, percent
         if (body.length > 0) {
             let width_max = parseInt(body.width())
                 - (bodyOverflowY ? w2utils.scrollBarSize() : 0)
@@ -6126,7 +6119,7 @@ class w2grid extends w2event {
                 - (this.show.expandColumn ? 26 : 0)
                 - 1 // left is 1xp due to border width
             width_box = width_max
-            let percent = 0
+            percent = 0
             // gridMinWidth processing
             let restart = false
             for (let i = 0; i < this.columns.length; i++) {
@@ -6369,7 +6362,7 @@ class w2grid extends w2event {
             let operator =
                 '<select id="grid_'+ this.name +'_operator_'+ i +'" class="w2ui-input" ' +
                 '   onchange="w2ui[\''+ this.name + '\'].initOperator(this, '+ i +')">' +
-                    getOperators(s.type, s.operators) +
+                    getOperators.call(this, s.type, s.operators) +
                 '</select>'
 
             html += '<tr>'+
@@ -6430,11 +6423,12 @@ class w2grid extends w2event {
         return html
 
         function getOperators(type, fieldOperators) {
+            let operators = this.operators[this.operatorsMap[type]] || []
+            if (fieldOperators != null && Array.isArray(fieldOperators)) {
+                operators = fieldOperators
+            }
             let html = ''
-            let operators = obj.operators[obj.operatorsMap[type]]
-            if (fieldOperators != null) operators = fieldOperators
-            for (let i = 0; i < operators.length; i++) {
-                let oper = operators[i]
+            operators.forEach(oper => {
                 let text = oper
                 if (Array.isArray(oper)) {
                     text = oper[1]
@@ -6445,7 +6439,7 @@ class w2grid extends w2event {
                     oper = oper.oper
                 }
                 html += '<option value="'+ oper +'">'+ w2utils.lang(text) +'</option>\n'
-            }
+            })
             return html
         }
     }
@@ -6478,7 +6472,7 @@ class w2grid extends w2event {
             let search = this.searches[s]
             let sdata = this.getSearchData(search.field)
             search.type = String(search.type).toLowerCase()
-            let operators = this.operators[this.operatorsMap[search.type]]
+            let operators = this.operators[this.operatorsMap[search.type]] || []
             if (search.operators) operators = search.operators
             let operator = operators[0] // default operator
             if ($.isPlainObject(operator)) operator = operator.oper

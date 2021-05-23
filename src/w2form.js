@@ -45,7 +45,8 @@
 *   - updateEmptyGroups
 *   - tabs below some fields
 *   - tabindexBase
-*   == 2.0
+*
+* == 2.0 changes
 *
 ************************************************************************/
 
@@ -57,54 +58,54 @@ import { w2toolbar } from './w2toolbar.js'
 class w2form extends w2event {
     constructor(options) {
         super(options.name)
-        this.name = null
-        this.header = ''
-        this.box = null // HTML element that hold this element
-        this.url = ''
-        this.routeData = {} // data for dynamic routes
-        this.formURL = '' // url where to get form HTML
-        this.formHTML = '' // form HTML (might be loaded from the url)
-        this.page = 0 // current page
-        this.recid = 0 // can be null or 0
-        this.fields = []
-        this.actions = {}
-        this.record = {}
-        this.original = null
-        this.postData = {}
-        this.httpHeaders = {}
-        this.method = null // only used when not null, otherwise set based on w2utils.settings.dataType
-        this.toolbar = {} // if not empty, then it is toolbar
-        this.tabs = {} // if not empty, then it is tabs object
-        this.style = ''
-        this.focus = 0 // focus first or other element
-        this.autosize = true // autosize
-        this.nestedFields= true // use field name containing dots as separator to look into object
-        this.multipart = false
-        this.tabindexBase= 0 // this will be added to the auto numbering
-        this.isGenerated = false
-        this.last = {
+        this.name         = null
+        this.header       = ''
+        this.box          = null // HTML element that hold this element
+        this.url          = ''
+        this.routeData    = {} // data for dynamic routes
+        this.formURL      = '' // url where to get form HTML
+        this.formHTML     = '' // form HTML (might be loaded from the url)
+        this.page         = 0 // current page
+        this.recid        = 0 // can be null or 0
+        this.fields       = []
+        this.actions      = {}
+        this.record       = {}
+        this.original     = null
+        this.postData     = {}
+        this.httpHeaders  = {}
+        this.method       = null // only used when not null, otherwise set based on w2utils.settings.dataType
+        this.toolbar      = {} // if not empty, then it is toolbar
+        this.tabs         = {} // if not empty, then it is tabs object
+        this.style        = ''
+        this.focus        = 0 // focus first or other element
+        this.autosize     = true // autosize
+        this.nestedFields = true // use field name containing dots as separator to look into object
+        this.multipart    = false
+        this.tabindexBase = 0 // this will be added to the auto numbering
+        this.isGenerated  = false
+        this.last         = {
             xhr: null, // jquery xhr requests
             errors: []
         }
-        this.onRequest = null
-        this.onLoad = null
-        this.onValidate = null
-        this.onSubmit = null
-        this.onProgress = null
-        this.onSave = null
-        this.onChange = null
-        this.onInput = null
-        this.onRender = null
-        this.onRefresh = null
-        this.onResize = null
-        this.onDestroy = null
-        this.onAction = null
-        this.onToolbar = null
-        this.onError = null
-        this.msgNotJSON = 'Returned data is not in valid JSON format.'
+        this.onRequest    = null
+        this.onLoad       = null
+        this.onValidate   = null
+        this.onSubmit     = null
+        this.onProgress   = null
+        this.onSave       = null
+        this.onChange     = null
+        this.onInput      = null
+        this.onRender     = null
+        this.onRefresh    = null
+        this.onResize     = null
+        this.onDestroy    = null
+        this.onAction     = null
+        this.onToolbar    = null
+        this.onError      = null
+        this.msgNotJSON   = 'Returned data is not in valid JSON format.'
         this.msgAJAXerror = 'AJAX error. See console for more details.'
-        this.msgRefresh = 'Loading...'
-        this.msgSaving = 'Saving...'
+        this.msgRefresh   = 'Loading...'
+        this.msgSaving    = 'Saving...'
         // mix in options
         $.extend(true, this, options)
 
@@ -112,11 +113,11 @@ class w2form extends w2event {
         // The original body is JSON.stringified to __body
 
         // remember items
-        let record = options.record
+        let record   = options.record
         let original = options.original
-        let fields = options.fields
-        let toolbar = options.toolbar
-        let tabs = options.tabs
+        let fields   = options.fields
+        let toolbar  = options.toolbar
+        let tabs     = options.tabs
         // extend items
         $.extend(this, { record: {}, original: null, fields: [], tabs: {}, toolbar: {}, handlers: [] })
         if (Array.isArray(tabs)) {
@@ -162,11 +163,11 @@ class w2form extends w2event {
         // generate html if necessary
         if (this.formURL !== '') {
             $.get(this.formURL, (data) => { // should always be $.get as it is template
-                this.formHTML = data
+                this.formHTML    = data
                 this.isGenerated = true
             })
         } else if (!this.formURL && !this.formHTML) {
-            this.formHTML = this.generateHTML()
+            this.formHTML    = this.generateHTML()
             this.isGenerated = true
         }
     }
@@ -204,7 +205,7 @@ class w2form extends w2event {
             let val = undefined
             try { // need this to make sure no error in fields
                 let rec = this.record
-                val = String(field).split('.').reduce((rec, i) => { return rec[i] }, rec)
+                val     = String(field).split('.').reduce((rec, i) => { return rec[i] }, rec)
             } catch (event) {
             }
             return val
@@ -334,8 +335,8 @@ class w2form extends w2event {
                 this.refresh(field)
             })
         } else {
-            this.recid = 0
-            this.record = {}
+            this.recid    = 0
+            this.record   = {}
             this.original = null
             this.refresh()
         }
@@ -462,7 +463,7 @@ class w2form extends w2event {
             $(err.field.$el).parents('.w2ui-field')[0].scrollIntoView(true)
             // show errors
             for (let i = 0; i < errors.length; i++) {
-                err = errors[i]
+                err     = errors[i]
                 let opt = $.extend({ 'class': 'w2ui-error', hideOnFocus: true }, err.options)
                 if (err.field == null) continue
                 if (err.field.type === 'radio') { // for radio and checkboxes
@@ -500,14 +501,14 @@ class w2form extends w2event {
         }
         return diff
 
-         function doDiff(record, original, result) {
+        function doDiff(record, original, result) {
             if (Array.isArray(record) && Array.isArray(original)) {
                 while (record.length < original.length) {
                     record.push(null)
                 }
             }
             for (let i in record) {
-                if (record[i] != null && typeof record[i] === "object") {
+                if (record[i] != null && typeof record[i] === 'object') {
                     result[i] = doDiff(record[i], original[i] || {}, {})
                     if (!result[i] || ($.isEmptyObject(result[i]) && $.isEmptyObject(original[i]))) delete result[i]
                 } else if (record[i] != original[i] || (record[i] == null && original[i] != null)) { // also catch field clear
@@ -563,9 +564,9 @@ class w2form extends w2event {
         // build parameters list
         let params = {}
         // add list params
-        params.cmd = 'get'
+        params.cmd   = 'get'
         params.recid = this.recid
-        params.name = this.name
+        params.name  = this.name
         // append other params
         $.extend(params, this.postData)
         $.extend(params, postData)
@@ -573,7 +574,7 @@ class w2form extends w2event {
         let edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: this.url, postData: params, httpHeaders: this.httpHeaders })
         if (edata.isCancelled === true) { if (typeof callBack === 'function') callBack({ status: 'error', message: 'Request aborted.' }); return }
         // default action
-        this.record = {}
+        this.record   = {}
         this.original = null
         // call server to get data
         this.lock(w2utils.lang(this.msgRefresh))
@@ -597,7 +598,7 @@ class w2form extends w2event {
             headers  : edata.httpHeaders,
             dataType : 'json' // expected from server
         }
-        let dataType = obj.dataType || w2utils.settings.dataType
+        let dataType    = obj.dataType || w2utils.settings.dataType
         if (edata.dataType) dataType = edata.dataType
         switch (dataType) {
             case 'HTTP':
@@ -611,13 +612,13 @@ class w2form extends w2event {
                 ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']')
                 break
             case 'RESTFULLJSON':
-                ajaxOptions.type = 'GET'
-                ajaxOptions.data = JSON.stringify(ajaxOptions.data)
+                ajaxOptions.type        = 'GET'
+                ajaxOptions.data        = JSON.stringify(ajaxOptions.data)
                 ajaxOptions.contentType = 'application/json'
                 break
             case 'JSON':
-                ajaxOptions.type = 'POST'
-                ajaxOptions.data = JSON.stringify(ajaxOptions.data)
+                ajaxOptions.type        = 'POST'
+                ajaxOptions.data        = JSON.stringify(ajaxOptions.data)
                 ajaxOptions.contentType = 'application/json'
                 break
         }
@@ -657,7 +658,7 @@ class w2form extends w2event {
             .fail((xhr, status, error) => {
                 // trigger event
                 let errorObj = { status: status, error: error, rawResponseText: xhr.responseText }
-                let edata2 = obj.trigger({ phase: 'before', type: 'error', error: errorObj, xhr: xhr })
+                let edata2   = obj.trigger({ phase: 'before', type: 'error', error: errorObj, xhr: xhr })
                 if (edata2.isCancelled === true) return
                 // default behavior
                 if (status !== 'abort') {
@@ -703,9 +704,9 @@ class w2form extends w2event {
             // build parameters list
             let params = {}
             // add list params
-            params.cmd = 'save'
+            params.cmd   = 'save'
             params.recid = obj.recid
-            params.name = obj.name
+            params.name  = obj.name
             // append other params
             $.extend(params, obj.postData)
             $.extend(params, postData)
@@ -776,11 +777,11 @@ class w2form extends w2event {
                     break
                 case 'RESTFULLJSON':
                     if (obj.recid !== 0 && obj.recid != null) ajaxOptions.type = 'PUT'
-                    ajaxOptions.data = JSON.stringify(ajaxOptions.data)
+                    ajaxOptions.data        = JSON.stringify(ajaxOptions.data)
                     ajaxOptions.contentType = 'application/json'
                     break
                 case 'JSON':
-                    ajaxOptions.type = 'POST'
+                    ajaxOptions.type        = 'POST'
                     ajaxOptions.contentType = 'application/json'
                     if (!obj.multipart) {
                         ajaxOptions.data = JSON.stringify(ajaxOptions.data)
@@ -801,7 +802,7 @@ class w2form extends w2event {
                                 }
                             }
                             for(let prop in dob){
-                                let aux_p = p == '' ? prop : '${p}[${prop}]'
+                                let aux_p   = p == '' ? prop : '${p}[${prop}]'
                                 let aux_fob = !!fob ? fob[prop] : fob
                                 isObj(dob[prop], aux_fob, aux_p)
                             }
@@ -809,7 +810,7 @@ class w2form extends w2event {
                         let fdata = new FormData()
                         fdata.append('__body', JSON.stringify(ajaxOptions.data))
                         apend(fdata,ajaxOptions.data)
-                        ajaxOptions.data = fdata
+                        ajaxOptions.data        = fdata
                         ajaxOptions.contentType = false
                         ajaxOptions.processData = false
                     }
@@ -847,7 +848,7 @@ class w2form extends w2event {
                 .fail((xhr, status, error) => {
                     // trigger event
                     let errorObj = { status: status, error: error, rawResponseText: xhr.responseText }
-                    let edata2 = obj.trigger({ phase: 'before', type: 'error', error: errorObj, xhr: xhr })
+                    let edata2   = obj.trigger({ phase: 'before', type: 'error', error: errorObj, xhr: xhr })
                     if (edata2.isCancelled === true) return
                     // default behavior
                     console.log('ERROR: server communication failed. The server should return',
@@ -912,10 +913,10 @@ class w2form extends w2event {
         let tabindex
         let tabindex_str
         for (let f = 0; f < this.fields.length; f++) {
-            html = ''
-            tabindex = this.tabindexBase + f + 1
+            html         = ''
+            tabindex     = this.tabindexBase + f + 1
             tabindex_str = ' tabindex="'+ tabindex +'"'
-            let field = this.fields[f]
+            let field    = this.fields[f]
             if (field.html == null) field.html = {}
             if (field.options == null) field.options = {}
             if (field.html.caption != null && field.html.label == null) {
@@ -937,7 +938,7 @@ class w2form extends w2event {
                 case 'checks': {
                     if (field.options.items == null && field.html.items != null) field.options.items = field.html.items
                     let items = field.options.items
-                    input = ''
+                    input     = ''
                     // normalized options
                     if (!Array.isArray(items)) items = []
                     if (items.length > 0) {
@@ -1003,10 +1004,10 @@ class w2form extends w2event {
                     break
                 case 'map':
                 case 'array':
-                    field.html.key = field.html.key || {}
-                    field.html.value = field.html.value || {}
+                    field.html.key          = field.html.key || {}
+                    field.html.value        = field.html.value || {}
                     field.html.tabindex_str = tabindex_str
-                    input = '<span style="float: right">' + (field.html.text || '') + '</span>' +
+                    input                   = '<span style="float: right">' + (field.html.text || '') + '</span>' +
                             '<input id="'+ field.field +'" name="'+ field.field +'" type="hidden" '+ field.html.attr + tabindex_str + '>'+
                             '<div class="w2ui-map-container"></div>'
                     break
@@ -1025,7 +1026,7 @@ class w2form extends w2event {
             if (group !== '') {
                 if(page != field.html.page || column != field.html.column || (field.html.group && (group != field.html.group))){
                     pages[page][column] += '\n   </div>\n  </div>'
-                    group = ''
+                    group                = ''
                 }
             }
             if (field.html.group && (group != field.html.group)) {
@@ -1055,7 +1056,7 @@ class w2form extends w2event {
                         ((field.type === 'empty') ? input : '\n         <div>'+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '') : '') + '</div>') +
                         '\n      </div>'
             } else {
-                pages[field.html.page].anchors = pages[field.html.page].anchors || {}
+                pages[field.html.page].anchors                    = pages[field.html.page].anchors || {}
                 pages[field.html.page].anchors[field.html.anchor] = '<div class="w2ui-field w2ui-field-inline" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
                         ((field.type === 'empty') ? input : '<div>'+ w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text) + input + w2utils.lang(field.type != 'checkbox' ? field.html.text : '') + '</div>') +
                         '</div>'
@@ -1063,8 +1064,8 @@ class w2form extends w2event {
             if (pages[field.html.page] == null) pages[field.html.page] = {}
             if (pages[field.html.page][field.html.column] == null) pages[field.html.page][field.html.column] = ''
             pages[field.html.page][field.html.column] += html
-            page = field.html.page
-            column = field.html.column
+            page                                       = field.html.page
+            column                                     = field.html.column
         }
         if (group !== '') pages[page][column] += '\n   </div>\n  </div>'
         if (this.tabs.tabs) {
@@ -1077,7 +1078,7 @@ class w2form extends w2event {
             tabindex = this.tabindexBase + this.fields.length + 1
 
             for (let a in this.actions) { // it is an object
-                let act = this.actions[a]
+                let act  = this.actions[a]
                 let info = { text: '', style: '', 'class': '' }
                 if ($.isPlainObject(act)) {
                     if (act.text == null && act.caption != null) {
@@ -1144,7 +1145,7 @@ class w2form extends w2event {
     }
 
     action(action, event) {
-        let act = this.actions[action]
+        let act   = this.actions[action]
         let click = act
         if ($.isPlainObject(act) && act.onClick) click = act.onClick
         // event before
@@ -1162,13 +1163,13 @@ class w2form extends w2event {
         let edata = this.trigger({ phase: 'before', target: this.name, type: 'resize' })
         if (edata.isCancelled === true) return
         // default behaviour
-        let main = $(this.box).find('> div.w2ui-form-box')
-        let header = $(this.box).find('> div .w2ui-form-header')
+        let main    = $(this.box).find('> div.w2ui-form-box')
+        let header  = $(this.box).find('> div .w2ui-form-header')
         let toolbar = $(this.box).find('> div .w2ui-form-toolbar')
-        let tabs = $(this.box).find('> div .w2ui-form-tabs')
-        let page = $(this.box).find('> div .w2ui-page')
-        let cpage = $(this.box).find('> div .w2ui-page.page-'+ this.page)
-        let dpage = $(this.box).find('> div .w2ui-page.page-'+ this.page + ' > div')
+        let tabs    = $(this.box).find('> div .w2ui-form-tabs')
+        let page    = $(this.box).find('> div .w2ui-page')
+        let cpage   = $(this.box).find('> div .w2ui-page.page-'+ this.page)
+        let dpage   = $(this.box).find('> div .w2ui-page.page-'+ this.page + ' > div')
         let buttons = $(this.box).find('> div .w2ui-buttons')
         // if no height, calculate it
         resizeElements()
@@ -1205,7 +1206,7 @@ class w2form extends w2event {
 
     refresh() {
         let time = (new Date()).getTime()
-        let obj = this
+        let obj  = this
         if (!this.box) return
         if (!this.isGenerated || $(this.box).html() == null) return
         // event before
@@ -1224,7 +1225,7 @@ class w2form extends w2event {
         } else {
             // update what page field belongs
             $(this.box).find('input, textarea, select').each((index, el) => {
-                let name = ($(el).attr('name') != null ? $(el).attr('name') : $(el).attr('id'))
+                let name  = ($(el).attr('name') != null ? $(el).attr('name') : $(el).attr('id'))
                 let field = obj.get(name)
                 if (field) {
                     // find page
@@ -1262,14 +1263,14 @@ class w2form extends w2event {
             if (field.name == null && field.field != null) field.name = field.field
             if (field.field == null && field.name != null) field.field = field.name
             field.$el = $(this.box).find('[name="'+ String(field.name).replace(/\\/g, '\\\\') +'"]')
-            field.el = field.$el[0]
+            field.el  = field.$el[0]
             if (field.el) field.el.id = field.name
             let tmp = $(field).data('w2field')
             if (tmp) tmp.clear()
             $(field.$el)
                 .off('.w2form')
                 .on('change.w2form', function(event) {
-                    let that = this
+                    let that  = this
                     let field = obj.get(this.name)
                     if (field == null) return
                     if ($(this).data('skip_change') == true) {
@@ -1277,7 +1278,7 @@ class w2form extends w2event {
                         return
                     }
 
-                    let value_new = this.value
+                    let value_new      = this.value
                     let value_previous = obj.getValue(this.name)
                     if (value_previous == null) value_previous = ''
 
@@ -1305,7 +1306,7 @@ class w2form extends w2event {
                     if (['check', 'checks'].indexOf(field.type) !== -1) {
                         if (!Array.isArray(value_previous)) value_previous = []
                         value_new = value_previous.slice()
-                        let tmp = field.options.items[$(this).attr('data-index')]
+                        let tmp   = field.options.items[$(this).attr('data-index')]
                         if ($(this).prop('checked')) {
                             value_new.push(tmp.id)
                         } else {
@@ -1507,7 +1508,7 @@ class w2form extends w2event {
                     break
                 case 'enum':
                 case 'file':
-                    let sel = []
+                    let sel     = []
                     let isFound = false
                     if (!Array.isArray(value)) value = []
                     if (typeof field.options.items != 'function') {
@@ -1637,16 +1638,16 @@ class w2form extends w2event {
 
                                 })
                                 .on('change.mapChange', function() {
-                                    let $div = $(event.target).parents('.w2ui-map-field')
-                                    let old = $div.attr('data-key')
-                                    let key = $div.find('.key').val()
+                                    let $div  = $(event.target).parents('.w2ui-map-field')
+                                    let old   = $div.attr('data-key')
+                                    let key   = $div.find('.key').val()
                                     let value = $div.find('.value').val()
                                     // event before
-                                    let value_new = {}
+                                    let value_new      = {}
                                     let value_previous = {}
-                                    let aMap = null
-                                    let aIndex = null
-                                    value_new[key] = value
+                                    let aMap           = null
+                                    let aIndex         = null
+                                    value_new[key]     = value
                                     if (field.type == 'array') {
                                         map.forEach((it, ind) => {
                                             if (it.key == old) aIndex = ind
@@ -1689,7 +1690,7 @@ class w2form extends w2event {
                                             if (aMap == null) {
                                                 map.push({ key: key, value: value })
                                             } else {
-                                                aMap.key = key
+                                                aMap.key   = key
                                                 aMap.value = value
                                             }
                                         } else {
@@ -1731,7 +1732,7 @@ class w2form extends w2event {
 
     render(box) {
         let time = (new Date()).getTime()
-        let obj = this
+        let obj  = this
         if (typeof box === 'object') {
             // remove from previous box
             if ($(this.box).find('#form_'+ this.name +'_tabs').length > 0) {
@@ -1821,7 +1822,7 @@ class w2form extends w2event {
     }
 
     applyFocus() {
-        let focus = this.focus
+        let focus  = this.focus
         let inputs = $(this.box).find('div:not(.w2ui-field-helper) > input, select, textarea, div > label:nth-child(1) > :radio').not('.file-input')
         // find visible
         while ($(inputs[focus]).is(':hidden') && inputs.length >= focus) {

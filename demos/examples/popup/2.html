@@ -1,0 +1,30 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Popup Elements</h1>
+        There are 3 elements of the popup: title, body, and buttons, each can contain any HTML. You can also have two buttons in the
+        title: max and close.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<button class="w2ui-btn" onclick="popup1()">Popup with all 3 elements</button>
+<button class="w2ui-btn" onclick="popup2()">Popup with body only</button>
+
+<!--CODE-->
+<script>
+function popup1() {
+    w2popup.open({
+        title: 'Popup Title',
+        body: '<div class="w2ui-centered">This is text inside the popup</div>',
+        buttons: 'buttons',
+        showMax: true
+    });
+}
+function popup2() {
+    w2popup.open({
+        body: '<div class="w2ui-centered">Click anywhere outside the popup to hide it.</div>'
+    });
+}
+</script>

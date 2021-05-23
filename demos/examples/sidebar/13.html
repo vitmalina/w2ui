@@ -1,0 +1,92 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Node handle</h1>
+        Node handles are used as some html element in from of each node. It can be a line number or a way to set a break point.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="sidebar" style="height: 400px; width: 200px; float: left"></div>
+<div style="margin-left: 220px;">
+</div>
+<style>
+.w2ui-sidebar[name=sidebar] .w2ui-node-handle > div{
+    width: 11px;
+    height: 11px;
+    border-radius: 10px;
+    margin-left: 6px;
+    margin-top: 7px;
+    display: inline-block;
+    background-color: #e1e1e1;
+    border: 1px solid transparent
+}
+.w2ui-sidebar[name=sidebar] .w2ui-sidebar-body .w2ui-node .w2ui-node-handle > div:hover {
+    border: 1px solid #55ca2e
+}
+.w2ui-sidebar[name=sidebar] .w2ui-sidebar-body .w2ui-node .w2ui-node-handle > div.break-point {
+    background-color: #55ca2e;
+    border: 1px solid #55ca2e
+}
+</style>
+<div style="clear: both"/>
+
+<!--CODE-->
+<script>
+var bp = []
+$(function () {
+    $().w2sidebar({
+        name: 'sidebar',
+        levelPadding: 20,
+        line: 0,
+        handle: {
+            size: 22,
+            style: `height: 22px; width: 22px; margin-top: 1px; margin-left: 0px`,
+            content: `<div onclick="w2ui.sidebar.setBreakPoint(this, event)"
+                ${w2utils.tooltip('Set break point', { className: 'w2ui-light', left: -6, position: 'top|bottom' })}></div>`
+        },
+        nodes: [
+            { id: 'level-1-1', text: 'Level 1.1', icon: 'fa fa-folder-o', expanded: true,
+                nodes: [
+                    { id: 'level-1-1-1', text: 'Level 1.1.1', icon: 'fa fa-star-o', count: 5 },
+                    { id: 'level-1-1-2', text: 'Level 1.1.2', icon: 'fa fa-star-o', count: 6 },
+                    { id: 'level-1-1-3', text: 'Level 1.1.3', icon: 'fa fa-star-o', count: 12 }
+                ]
+            },
+            { id: 'level-1-2', text: 'Level 1.2', icon: 'fa fa-folder-o', expanded: true,
+                nodes: [
+                    { id: 'level-1-2-1', text: 'Level 1.2.1', icon: 'fa fa-star-o' },
+                    { id: 'level-1-2-2', text: 'Level 1.2.2', icon: 'fa fa-star-o' },
+                    { id: 'level-1-2-3', text: 'Level 1.2.3', icon: 'fa fa-star-o' }
+                ]
+            },
+            { id: 'level-1-3', text: 'Level 1.3', icon: 'fa fa-folder-o', expanded: true,
+                nodes: [
+                    { id: 'level-1-3-1', text: 'Level 1.3.1', icon: 'fa fa-star-o' },
+                    { id: 'level-1-3-2', text: 'Level 1.3.2', icon: 'fa fa-star-o' },
+                    { id: 'level-1-3-3', text: 'Level 1.3.3', icon: 'fa fa-star-o' }
+                ]
+            }
+        ],
+        setBreakPoint(el) {
+            let stepId = $(el).closest('.w2ui-node').attr('id')
+            if (bp.indexOf(stepId) != -1) {
+                bp.splice(bp.indexOf(stepId), 1)
+                $(el).removeClass('break-point')
+            } else {
+                bp.push(stepId)
+                $(el).addClass('break-point')
+            }
+            event.preventDefault()
+            event.stopPropagation()
+        }
+    })
+    // to avoid 1.5.3 (and prior) bug with handle object
+    let nh = w2ui.sidebar.handle
+    w2ui.sidebar.handle = $.extend({}, nh)
+    $.extend(nh, { size: 0 })
+    // ----
+    $('#sidebar').w2render('sidebar')
+})
+</script>

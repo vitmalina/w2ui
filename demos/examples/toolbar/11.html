@@ -1,0 +1,75 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Multiline Toolbars</h1>
+        Toolbar can take multiple lines.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="toolbar" style="padding: 4px; border: 1px solid #dfdfdf; border-radius: 3px; width: 575px;"></div>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#toolbar').w2toolbar({
+        name: 'toolbar',
+        items: [
+            { type: 'menu', id: 'item1', text: 'Menu', icon: 'fa fa-table', count: 17, items: [
+                { text: 'Item 1', icon: 'fa fa-camera', count: 5 },
+                { text: 'Item 2', icon: 'fa fa-picture-o', disabled: true },
+                { text: 'Item 3', icon: 'fa fa-glass', count: 12 }
+            ]},
+            { type: 'break' },
+            { type: 'menu-check', id: 'item3', text: 'Check', icon: 'fa fa-heart',
+                items: [
+                    { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
+                    { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
+                    { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 },
+                    { text: '--' },
+                    { id: 'id4', text: 'Item 4', icon: 'fa fa-glass' }
+                ]
+            },
+            { type: 'spacer' },
+            { type: 'menu-radio', id: 'item2', icon: 'fa fa-star',
+                items: [
+                    { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
+                    { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
+                    { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 }
+                ]
+            },
+            { type: 'new-line' },
+            { type: 'menu-check', id: 'item8', text: 'Check', icon: 'fa fa-heart',
+                items: [
+                    { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
+                    { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
+                    { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 },
+                    { text: '--' },
+                    { id: 'id4', text: 'Item 4', icon: 'fa fa-glass' }
+                ]
+            },
+            { type: 'break' },
+            { type: 'radio',  id: 'item40', text: 'Option 1', icon: 'fa fa-star' },
+            { type: 'radio',  id: 'item41', text: 'Option 2', icon: 'fa fa-star' },
+            { type: 'radio',  id: 'item42', text: 'Option 3', icon: 'fa fa-star' },
+            { type: 'radio',  id: 'item43', text: 'Option 4', icon: 'fa fa-star' },
+            { type: 'radio',  id: 'item44', text: 'Option 5', icon: 'fa fa-star' },
+            { type: 'new-line' },
+            { type: 'menu-check', id: 'item81', text: 'Last Drop Menu', icon: 'fa fa-star',
+                items: [
+                    { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
+                    { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
+                    { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 },
+                    { text: '--' },
+                    { id: 'id4', text: 'Item 4', icon: 'fa fa-glass' }
+                ]
+            }
+        ]
+    });
+
+    w2ui.toolbar.on('*', function (event) {
+        console.log('EVENT: '+ event.type + ' TARGET: '+ event.target, event);
+    });
+});
+</script>

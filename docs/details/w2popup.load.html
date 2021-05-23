@@ -8,14 +8,14 @@ Loads new content for the popup from the server.
     <table>
     <tr>
         <td>options</td>
-        <td><b>object</b>, options for the popup</td>
+        <td><b>string or object</b>, options for the popup</td>
     </tr>
     </table>
 </div>
 
 <h4>Description</h4>
 
-The first argument <span class="argument">options</span> is a map of properties for the popup (see <a href="popup">overview</a> page 
+The first argument <span class="argument">options</span> is a map of properties for the popup (see <a href="popup">overview</a> page
 for valid options). The <span class="argument">options</span> argument must have <span class="argument">url</span> property defined,
 which will be called to retrieve popup content.
 
@@ -23,8 +23,8 @@ which will be called to retrieve popup content.
 w2popup.load({ url: '/server/path/file.html' });
 </textarea>
 
-In many ways this method is similar to the <a href="w2popup.open" class="method">.open()</a> method. You can pass other properties 
-in the <span class="argument">options</span> object to the popup. They will be applied on top of properties retrieved from the server. 
+In many ways this method is similar to the <a href="w2popup.open" class="method">.open()</a> method. You can pass other properties
+in the <span class="argument">options</span> object to the popup. They will be applied on top of properties retrieved from the server.
 The markup from the server should have the same structure as for <a href="w2popup.open" class="method">.open</a> method, see example
 below:
 
@@ -43,8 +43,9 @@ below:
 </textarea>
 
 <div style="height: 10px;"></div>
-When you are loading content from the server, you can optionally add <span class="argument">#id</span> at the end of your url. This allows to 
-select a particular popup element by id, if server returns multiple in the same file.
+When you are loading content from the server, you can optionally add <span class="argument">#id</span> at the end of your url. This allows to select a particular popup element by id, if server returns multiple in the same file.
 <textarea class="javascript">
+w2popup.load('server/url/page.html');
+// OR
 w2popup.load({ url: 'server/url/page.html#id1' });
 </textarea>

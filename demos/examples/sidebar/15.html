@@ -1,0 +1,73 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Search Nodes</h1>
+        The example below shows how to search nodes in the sidebar.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="sidebar" style="height: 600px; width: 200px; float: left"></div>
+<div style="margin-left: 220px;">
+    <button class="w2ui-btn" onclick="w2ui.sidebar.collapseAll()">Collapse All</button>
+    <button class="w2ui-btn" onclick="w2ui.sidebar.expandAll()">Expand All</button>
+</div>
+<div style="clear: both"/>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#sidebar').w2sidebar({
+        name: 'sidebar',
+        levelPadding: 22,
+        nodes: [],
+        topHTML: `
+            <div style="height: 36px; padding: 3px 2px; border-bottom: 1px solid silver">
+                <input id="search" style="width: 100%; border: 1px solid silver; border-radius: 2px; padding: 6px;" placeholder="Search nodes..."
+                    onchange="search(this.value)">
+            </div>
+        `,
+        onRefresh(event) {
+            event.done(() => {
+                $('#search').val(w2ui.sidebar.last_search).focus()
+            })
+        }
+    })
+    let sb = w2ui.sidebar
+    generate(sb.nodes, 'item', { icon: 'fa fa-folder-o' }, 5, 10)
+    generate(sb.nodes[0].nodes[1].nodes, 'sub', { expanded: false }, 3)
+    generate(sb.nodes[2].nodes[1].nodes, 'sb', { expanded: false }, 3)
+    sb.refresh()
+})
+
+function search(value) {
+    let sb = w2ui.sidebar
+    sb.last_search = value
+    let count = sb.search(value)
+    sb.expandAll()
+    $(sb.box).find('#empty-search').remove()
+    if (count == 0) {
+        $(sb.box)
+            .append('<div id="empty-search" style="font-size: 13px; color: #666; z-index: 1400; top: 45%; left: 50%; transform: translateX(-50%); width: 100%!important; text-align: center">No nodes found</div>')
+    }
+}
+
+function generate(nodes, id, options, count, subCount) {
+    let icons = ['fa fa-home', 'fa fa-coffee', 'fa fa-comment-o', 'fa fa-star', 'fa fa-bug']
+    let texts = ['Test', 'Label', 'Item', 'Simple', 'Formula', 'Single']
+    for (let i=0; i<count; i++) {
+        let node = $.extend({
+            id: id + '-' + i,
+            expanded: false,
+            text: texts[Math.floor(Math.random() * texts.length)],
+            icon: icons[Math.floor(Math.random() * icons.length)],
+            nodes: []
+        }, options)
+        if (subCount > 0) {
+            generate(node.nodes, id + '-' + i, {}, Math.floor(Math.random() * subCount) + 2)
+        }
+        nodes.push(node)
+    }
+}
+</script>

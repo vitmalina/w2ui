@@ -1,0 +1,43 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Popup Content</h1>
+        You can open popup with content and settings defined in
+        <ul>
+            <li>JSON structure</li>
+            <li>HTML on the page</li>
+            <li>in a file</li>
+        </ul>
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<button class="w2ui-btn" onclick="w2popup.open({ title:'Popup', body: 'from JSON structure' })">From JSON</button>
+<button class="w2ui-btn" onclick="$('#popup1').w2popup()">From HTML</button>
+<button class="w2ui-btn" onclick="w2popup.load({ url: 'data/popup1.html' })">From File</button>
+<button class="w2ui-btn" onclick="w2popup.load({ url: 'data/popup1.html', showMax: true })">From File with options</button>
+
+<div id="popup1" style="display: none; width: 600px; height: 400px; overflow: hidden">
+    <div rel="title">
+        Popup #1 Title
+    </div>
+    <div rel="body" style="padding: 10px; line-height: 150%">
+        <div style="float: left; background-color: white; width: 150px; height: 80px; border: 1px solid silver; margin: 5px;"> </div>
+        This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+        This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+        This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+        This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+        This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+        This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+        This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+        This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+        This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+        This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+        This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
+    </div>
+    <div rel="buttons">
+        <button class="w2ui-btn" onclick="w2popup.close()">Close</button>
+    </div>
+</div>
+<!--CODE-->

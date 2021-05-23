@@ -18,14 +18,14 @@
     <a href="w2grid.columnGroups">columnGroups</a> <span>- Array, default = []</span>
 </div>
 <div class="obj-property-desc">
-    Array of column group objects. 
+    Array of column group objects.
 </div>
 
 <div class="obj-property">
     <a href="w2grid.columns">columns</a> <span>- Array, default = []</span>
 </div>
 <div class="obj-property-desc">
-    Array of column objects. 
+    Array of column objects.
 </div>
 
 <div class="obj-property">
@@ -39,7 +39,7 @@
     <a href="w2grid.header">header</a> <span>- String, default = ''</span>
 </div>
 <div class="obj-property-desc">
-    The header of the grid. 
+    The header of the grid.
 </div>
 
 <div class="obj-property">
@@ -186,7 +186,7 @@
     <a href="w2grid.records">records</a> <span>- Array, default = []</span>
 </div>
 <div class="obj-property-desc">
-    Array of record objects. 
+    Array of record objects.
 </div>
 
 <div class="obj-property">
@@ -221,7 +221,7 @@
     <a href="w2grid.searches">searches</a> <span>- Array, default = []</span>
 </div>
 <div class="obj-property-desc">
-    Array of search objects. 
+    Array of search objects.
 </div>
 
 <div class="obj-property">

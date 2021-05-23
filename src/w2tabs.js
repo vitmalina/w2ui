@@ -2,17 +2,11 @@
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
 *
-* == 1.5 changes ==
-*   - tab.caption - deprecated
-*   - getTabHTML()
-*   - refactored with display: flex
-*   - reorder
-*   - initReorder
-*   - dragMove
-*   - tmp
-*   == 2.0
+* == 2.0 changes
 *   - w2tabs.tab => w2tabs.tab_template
-*   - show/hide, enable/disable, check/uncheck - return array of effected items
+*   - show/hide, enable/disable, check/uncheck - return array of affected items
+*   - fixed animateInsert, animateClose to be smooth and return promise
+*   - clickClose
 *
 ************************************************************************/
 
@@ -78,10 +72,12 @@ class w2tabs extends w2event {
             let it = Object.assign({}, this.tab_template, tab)
             if (id == null) {
                 this.tabs.push(it)
+                this.animateInsert(null, it)
             } else {
                 let middle = this.get(id, true)
                 let before = this.tabs[middle].id
-                this.insertTabHTML(before, it)
+                this.tabs.splice(middle, 0, it)
+                this.animateInsert(before, it)
             }
         })
     }
@@ -314,7 +310,7 @@ class w2tabs extends w2event {
                 onmouseover= "w2ui['${this.name}'].tooltipShow('${tab.id}', event)"
                 onmouseout = "w2ui['${this.name}'].tooltipHide('${tab.id}', event)"
                 onmousedown= "event.stopPropagation()"
-                onmouseup  = "w2ui['${this.name}'].animateClose('${tab.id}', event); event.stopPropagation()">
+                onmouseup  = "w2ui['${this.name}'].clickClose('${tab.id}', event); event.stopPropagation()">
             </div>`
         }
         let tabHTML = `
@@ -347,7 +343,9 @@ class w2tabs extends w2event {
             if ($tab.length === 0) {
                 $(this.box).find('#tabs_'+ this.name +'_right').before(tabHTML)
             } else {
-                $tab.replaceWith(tabHTML)
+                if ($(this.box).find('.tab-animate-insert').length == 0) {
+                    $tab.replaceWith(tabHTML)
+                }
             }
         }
         // right html
@@ -403,7 +401,6 @@ class w2tabs extends w2event {
         let $ghost = $tab.clone()
         let edata
         $ghost.attr('id', '#tabs_' + this.name + '_tab_ghost')
-        // debugger
         this.tmp.moving = {
             index: tabIndex,
             indexFrom: tabIndex,
@@ -453,7 +450,6 @@ class w2tabs extends w2event {
                     // obj.render()
                     if (obj.tmp.reordering) {
                         obj.trigger($.extend(edata, { phase: 'after', indexTo: obj.tmp.moving.index }))
-                        if (edata.isCancelled === true) return
                     }
                     obj.tmp.reordering = false
                 }, 100)
@@ -561,41 +557,63 @@ class w2tabs extends w2event {
         this.refresh(id)
     }
 
-    animateClose(id, event) {
+    clickClose(id, event) {
         let tab = this.get(id)
         if (tab == null || tab.disabled) return false
         // event before
         let edata = this.trigger({ phase: 'before', type: 'close', target: id, object: this.get(id), originalEvent: event })
         if (edata.isCancelled === true) return
-        // default action
-        let obj = this
-        let $tab = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(tab.id))
-        $tab.css({ // need to be separate transition
-            'opacity': 0,
-            'transition': '.25s'
+        this.animateClose(id).then(() => {
+            this.remove(id)
+            this.trigger($.extend(edata, { phase: 'after' }))
+            this.refresh()
         })
-            .find('.w2ui-tab-close').remove()
-        $tab.css({
-            'padding-left': 0,
-            'padding-right': 0,
-            'text-overflow': 'clip',
-            'overflow': 'hidden',
-            'width': '0px'
-        })
-        setTimeout(() => {
-            obj.remove(id)
-            obj.trigger($.extend(edata, { phase: 'after' }))
-            obj.refresh()
-        }, 250)
     }
 
-    insertTabHTML(id, tab) {
-        let middle = this.get(id, true)
-        this.tabs = this.tabs.slice(0, middle).concat([tab], this.tabs.slice(middle))
-        let $before = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(id))
-        let $tab = $(this.getTabHTML(tab.id))
-        $before.before($tab)
-        this.resize()
+    animateClose(id) {
+        return new Promise((resolve, reject) => {
+            let $tab = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(id))
+            let width = parseInt($tab.css('width') || 0)
+            let $anim = $(`<div class="tab-animate-close" style="display: inline-block; flex-shrink: 0; width: ${width}px; transition: width 0.25s"></div>`)
+            $tab.replaceWith($anim)
+            setTimeout(() => { $anim.css({ width: '0px' }) }, 1)
+            setTimeout(() => {
+                $anim.remove()
+                this.resize()
+                resolve()
+            }, 300)
+        })
+    }
+
+    animateInsert(id, tab) {
+        return new Promise((resolve, reject) => {
+            let middle = this.get(id, true)
+            let $before = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(id))
+            let $tab = $(this.getTabHTML(tab.id))
+            if ($before.length == 0) {
+                $before = $(this.box).find('#tabs_tabs_right')
+                $before.before($tab)
+                this.resize()
+            } else {
+                // insert at the end and find width
+                $tab.css({ opacity: 0 })
+                $(this.box).find('#tabs_tabs_right').before($tab)
+                let $tmp = $('#'+$tab.attr('id'))
+                let width = parseInt($tmp.css('width') || 0)
+                let $anim = $(`<div class="tab-animate-insert" style="display: inline-block; flex-shrink: 0; width: 0px; transition: width 0.25s"></div>`)
+                $before.before($anim)
+                $tab.hide()
+                $tab.insertBefore($anim)
+                setTimeout(() => { $anim.css({ width: width + 'px' }) }, 1)
+                setTimeout(() => {
+                    $anim.remove()
+                    $tab.css({ opacity: 1 }).show()
+                    this.refresh(tab.id)
+                    this.resize()
+                    resolve()
+                }, 300)
+            }
+        })
     }
 }
 export { w2tabs }

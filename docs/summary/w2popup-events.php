@@ -1,6 +1,13 @@
 <link rel="stylesheet" type="text/css" href="../summary.css"/> 
 <div class="container">
 <div class="obj-property">
+    <a href="w2popup.onAction">onAction</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when popup action is triggered.
+</div>
+
+<div class="obj-property">
     <a href="w2popup.onClose">onClose</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">
@@ -26,6 +33,27 @@
 </div>
 <div class="obj-property-desc">
     Called when popup is minimized.
+</div>
+
+<div class="obj-property">
+    <a href="w2popup.onMove">onMove</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when popup is moved.
+</div>
+
+<div class="obj-property">
+    <a href="w2popup.onMsgClose">onMsgClose</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when popup message is closed.
+</div>
+
+<div class="obj-property">
+    <a href="w2popup.onMsgOpen">onMsgOpen</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when popup message is opened.
 </div>
 
 <div class="obj-property">

@@ -6,23 +6,14 @@
 *   - dbl click should be like it is in grid (with timer not HTML dbl click event)
 *   - node.style is misleading - should be there to apply color for example
 *
-* == 1.5 changes
-*   - node.class - ne property
-*   - sb.levelPadding
-*   - sb.handle (for debugger points)
-*   - node.style
-*   - sb.updte()
-*   - node.caption - deprecated
-*   - node.text - can be a function
-*   - node.icon - can be a function
-*   - sb.each() - iterate through each node
-*   - sb.sort() - sort nodes
-*   - sb.skipRefresh - no refresh during add/remove
-*   - sb.tabIndex
-*   - sb.search
-*   == 2.0
+* == 2.0 changes
 *   - w2sidebar.node_template => w2sidebar.node
 *   - show/hide, enable/disable - return array of effected items
+*   - sb.each() - iterate through each node
+*   - sb.sort() - sort nodes
+*   - sb.search() - search nodes
+*   - sb.tabIndex
+*   - handle.content - string/func
 *
 ************************************************************************/
 
@@ -291,15 +282,14 @@ class w2sidebar extends w2event {
         if (nodes == null) {
             nodes = this.nodes
         }
-        // if (nodes.length === 3) debugger
         nodes.sort((a, b) => {
             // folders first
             let isAfolder = (a.nodes && a.nodes.length > 0)
             let isBfolder = (b.nodes && b.nodes.length > 0)
             // both folder or both not folders
             if (options.foldersFirst === false || (!isAfolder && !isBfolder) || (isAfolder && isBfolder)) {
-                aText = a.text
-                bText = b.text
+                let aText = a.text
+                let bText = b.text
                 if (!options.caseSensitive) {
                     aText = aText.toLowerCase()
                     bText = bText.toLowerCase()
@@ -325,7 +315,7 @@ class w2sidebar extends w2event {
     each(fn, nodes) {
         if (nodes == null) nodes = this.nodes
         nodes.forEach((node) => {
-            fn(node)
+            fn.call(this, node)
             if (node.nodes && node.nodes.length > 0) {
                 this.each(fn, node.nodes)
             }
@@ -333,17 +323,19 @@ class w2sidebar extends w2event {
     }
 
     search(str) {
+        let count = 0
         let str2 = str.toLowerCase()
         this.each((node) => {
             if (node.text.toLowerCase().indexOf(str2) === -1) {
                 node.hidden = true
             } else {
+                count++
                 showParents(node)
                 node.hidden = false
             }
         })
         this.refresh()
-        $(this.box).find('#search-steps input').val(str).focus()
+        return count
 
         function showParents(node) {
             if (node.parent) {
@@ -1059,7 +1051,7 @@ class w2sidebar extends w2event {
                         '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
                         (obj.handle.content
                             ? '<div class="w2ui-node-handle" style="width: '+ obj.handle.size +'px; '+ obj.handle.style + '">'+
-                                   obj.handle.content +
+                                   (typeof obj.handle.content == 'function' ? obj.handle.content.call(obj, node) : obj.handle.content) +
                               '</div>'
                             : ''
                         ) +

@@ -8,6 +8,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2toolbar.item_template">item_template</a> <span>- Object, default = {...} // see below</span>
+</div>
+<div class="obj-property-desc">
+    Template for the item object
+</div>
+
+<div class="obj-property">
     <a href="w2toolbar.right">right</a> <span>- String, default = ''</span>
 </div>
 <div class="obj-property-desc">

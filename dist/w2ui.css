@@ -172,6 +172,11 @@
 /*************************************************
 * ---- Input Controls ----
 */
+select {
+  height: 25px;
+  border: 1px solid #afafaf;
+  border-radius: 3px;
+}
 select:focus,
 div.w2ui-input:focus {
   outline-color: #72B2FF;

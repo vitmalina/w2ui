@@ -1,7 +1,8 @@
 import '../libs/jquery/jquery-3.5.1.js'
+// import '../dist/w2ui.js'
+
 import '../src/w2compat.js'
 import { w2popup, w2alert, w2confirm, w2prompt } from '../src/w2popup.js'
-// import '../src/w2popup.js'
 import { w2tabs } from '../src/w2tabs.js'
 import { w2toolbar } from '../src/w2toolbar.js'
 import { w2sidebar } from '../src/w2sidebar.js'
@@ -9,14 +10,13 @@ import { w2layout } from '../src/w2layout.js'
 import { w2field, addType, removeType } from '../src/w2field.js'
 import { w2form } from '../src/w2form.js'
 import { w2grid } from '../src/w2grid.js'
-import '../src/w2compat.js'
 
 import conf_tabs from './conf-tabs.js'
 import conf_toolbar from './conf-toolbar.js'
 import conf_sidebar from './conf-sidebar.js'
 import conf_layout from './conf-layout.js'
 import conf_form from './conf-form.js'
-import conf_grid from './conf-grid2.js'
+import conf_grid from './conf-grid.js'
 
 // w2field
 addType('myType', function (options) {

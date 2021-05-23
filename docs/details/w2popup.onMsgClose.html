@@ -1,0 +1,31 @@
+Called when popup message is closed.
+
+<div class="definition">
+    onMsgClose = function(event)
+</div>
+
+You can add event listener during the object creation:
+
+<textarea class="javascript">
+w2popup.open({
+    title   : 'Title',
+    body    : 'Body',
+    onMsgClose: function (event) {
+        console.log('event: ' + event.type, event);
+    }
+});
+</textarea>
+
+or after popup is opened:
+
+<textarea class="javascript">
+w2popup.on('msgClose', function(event) {
+    console.log('event: ' + event.type, event);
+});
+</textarea>
+
+The event handler is called before the default action of the event is triggered. You can cancel the default action by calling
+<span class="method">event.preventDefault()</span>. To perform an action
+after the event is fully processed, define <span class="method">event.onComplete</span> function.
+<div style="height: 10px;"></div>
+See <a href="utils/events">events</a> page in utilities for more details.

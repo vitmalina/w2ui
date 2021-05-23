@@ -1,0 +1,40 @@
+Indicated if to refresh during add/remove of nodes
+
+<div class="definition">
+    Boolean, default = false
+</div>
+
+If you need to add a lot of nodes, it might be useful not to refresh during each operation. Set <span class="method">.skipRefresh = false</span> to skip refresh when new nodes are added/deleted with the following functions
+<ul>
+    <li><a href="w2sidebar.add" class="method">w2sidebar.add()</a></li>
+    <li><a href="w2sidebar.insert" class="method">w2sidebar.insert()</a></li>
+    <li><a href="w2sidebar.remove" class="method">w2sidebar.remove()</a></li>
+    <li><a href="w2sidebar.set" class="method">w2sidebar.set()</a></li>
+</ul>
+
+If you have a sidebar defined in the following way, you can add/remove/insert items
+<textarea class="javascript">
+$('#sidebar').w2sidebar({
+    name: 'sidebar',
+    skipRefresh: true,
+    nodes: [
+        { id: 'id-1', text: 'Level 1', hidden: true },
+        { id: 'id-2', text: 'Level 2', expanded: true, nodes: [
+            { id: 'id-2-1', text: 'Level 2.1' },
+            { id: 'id-2-2', text: 'Level 2.2' }
+        ]},
+        { id: 'id-3', text: 'Level 3' }
+    ]
+});
+</textarea>
+
+Or any time after the object has been created:
+
+<textarea class="javascript">
+w2ui.sidebar.add([
+    { id: 1, text: 'Item 1', img: 'icon-page' },
+    { id: 2, text: 'Item 2', img: 'icon-page' },
+    { id: 3, text: 'Item 3', img: 'icon-page' }
+])
+w2ui.sidebar.refresh()
+</textarea>

@@ -57,6 +57,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2sidebar.each">each</a> <span>- each(fn, [nodes])</span>
+</div>
+<div class="obj-property-desc">
+    Iterates nodes
+</div>
+
+<div class="obj-property">
     <a href="w2sidebar.enable">enable</a> <span>- enable(id1, [id2], ...)</span>
 </div>
 <div class="obj-property-desc">
@@ -162,6 +169,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2sidebar.search">search</a> <span>- search(str)</span>
+</div>
+<div class="obj-property-desc">
+    Performs textual search on the sidebar
+</div>
+
+<div class="obj-property">
     <a href="w2sidebar.select">select</a> <span>- select(id)</span>
 </div>
 <div class="obj-property-desc">
@@ -183,6 +197,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2sidebar.sort">sort</a> <span>- sort([options], [nodes])</span>
+</div>
+<div class="obj-property-desc">
+    Sorts sidebar nodes
+</div>
+
+<div class="obj-property">
     <a href="w2sidebar.toggle">toggle</a> <span>- toggle(id)</span>
 </div>
 <div class="obj-property-desc">
@@ -201,6 +222,13 @@
 </div>
 <div class="obj-property-desc">
     Unselects sidebar node with <span class="argument">id</span>.
+</div>
+
+<div class="obj-property">
+    <a href="w2sidebar.update">update</a> <span>- update(id, options)</span>
+</div>
+<div class="obj-property-desc">
+    Quick refresh of a node if possible
 </div>
 
 </div>

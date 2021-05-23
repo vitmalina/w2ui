@@ -1,0 +1,48 @@
+Object that defineds node handle
+
+<div class="definition">
+    Object, default = {...} // see below
+</div>
+
+If the <span class="property">handle</span> property is defined, then next to each node a handled will be displayed. This handle can be used to insert some html element in front of the node.
+<div style="height: 10px"></div>
+
+The <span class="property">handle</span> property has the following structure:
+<textarea class="javascript">
+{
+    size    : 0,    // the size of the handle, needed to calc node padding
+    style   : '',   // style for the handle
+    content : ''    // content of the handle
+}
+</textarea>
+
+<div style="height: 10px"></div>
+
+You can define nodes during object creation:
+<textarea class="javascript">
+$('#sidebar').w2sidebar({
+    name : 'sidebar',
+    img  : 'icon-page',
+    handle: {
+        size: 18,
+        style: 'height: 22px; width: 20px; margin-top: 0px; margin-left: -15px;',
+        content: '<div onclick="w2ui.steps.setBreakPoint(this, event)"></div>'
+    },
+    nodes: [
+        { id: 'id-1', text: 'Level 1' },
+        { id: 'id-2', text: 'Level 2' },
+        { id: 'id-3', text: 'Level 3' }
+    ]
+});
+</textarea>
+
+or after the object has been created:
+
+<textarea class="javascript">
+w2ui.sidebar.handle = {
+    size: 18,
+    style: 'height: 22px; width: 20px; margin-top: 0px; margin-left: -15px;',
+    content: '<div onclick="w2ui.steps.setBreakPoint(this, event)"></div>'
+}
+w2ui.sidebar.refresh()
+</textarea>

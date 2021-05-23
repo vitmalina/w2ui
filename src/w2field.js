@@ -21,7 +21,8 @@
 *   - options.msgSearch - message to search for user
 *   - options.msgNoItems - can be a function
 *   - normmenu - remove, it is in w2utils now
-*   == 2.0
+*
+* == 2.0 changes
 *
 ************************************************************************/
 
@@ -1476,7 +1477,7 @@ class w2field extends w2event {
                         obj.tmp.xhr_search = search
                         obj.tmp.xhr_total = data.records.length
                         obj.tmp.lastError = ''
-                        options.items = obj.normMenu(data.records)
+                        options.items = w2utils.normMenu(data.records)
                         if (search === '' && data.records.length === 0) obj.tmp.emptySet = true; else obj.tmp.emptySet = false
                         // preset item
                         let find_selected = $(obj.el).data('find_selected')
@@ -2573,29 +2574,6 @@ class w2field extends w2event {
             obj.refresh()
             $(obj.el).trigger('input').trigger('change')
             obj.trigger($.extend(edata, { phase: 'after' }))
-        }
-    }
-
-    normMenu(menu, el) {
-        if (Array.isArray(menu)) {
-            for (let m = 0; m < menu.length; m++) {
-                if (typeof menu[m] === 'string') {
-                    menu[m] = { id: menu[m], text: menu[m] }
-                } else if (menu[m] != null) {
-                    if (menu[m].text != null && menu[m].id == null) menu[m].id = menu[m].text
-                    if (menu[m].text == null && menu[m].id != null) menu[m].text = menu[m].id
-                    if (menu[m].caption != null) menu[m].text = menu[m].caption
-                } else {
-                    menu[m] = { id: null, text: 'null' }
-                }
-            }
-            return menu
-        } else if (typeof menu === 'function') {
-            return w2utils.normMenu.call(this, menu.call(this, el))
-        } else if (typeof menu === 'object') {
-            let tmp = []
-            for (let m in menu) tmp.push({ id: m, text: menu[m] })
-            return tmp
         }
     }
 

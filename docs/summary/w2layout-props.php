@@ -15,6 +15,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2layout.panel_template">panel_template</a> <span>- Object, default = {...} // see below</span>
+</div>
+<div class="obj-property-desc">
+    Object that is used to init panels.
+</div>
+
+<div class="obj-property">
     <a href="w2layout.resizer">resizer</a> <span>- Integer, default = 4</span>
 </div>
 <div class="obj-property-desc">

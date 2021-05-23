@@ -1,0 +1,49 @@
+Parses provided HTML as popup template
+
+<div class="definition">
+    template(data, id, options = {})
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>data</td>
+        <td><b>string</b>, HTML test with popup data</td>
+    </tr>
+    <tr>
+        <td>id</td>
+        <td><b>string</b> (optional), if there are multiple templates, id of the template</td>
+    </tr>
+    <tr>
+        <td>options</td>
+        <td><b>obhect</b> (optional), options for the popup</td>
+    </tr>
+    </table>
+</div>
+
+<h4>Description</h4>
+
+It will take HTML text, parse it, extracting <span class="argument">[rel=title]</span>, <span class="argument">[rel=body]</span>, and <span class="argument">[rel=buttons]</span> and open a popup based on this data. If you have following html
+
+<textarea class="html">
+<div id="popup" style="width: 600px; height: 400px; overflow: hidden">
+    <div rel="title">
+        Title
+    </div>
+    <div rel="body">
+        body ...
+    </div>
+    <div rel="buttons">
+        <input type="button" value="Switch to Popup 2" onclick="$('#popup2').w2popup()"/>
+    </div>
+</div>
+</textarea>
+
+You can open it with
+
+<div style="height: 10px;"></div>
+<textarea class="javascript">
+w2popup.template(html)
+</textarea>
+
+This function is used internally, when contetn is loaded with <a href="w2popup.load" class="method">w2popup.load</a>
