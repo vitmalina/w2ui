@@ -19,9 +19,9 @@ $(function () {
         url: 'data/list2.json',
         method: 'GET', // need this to avoid 412 error on Safari
         columns: [
-            { field: 'fname', caption: 'First Name', size: '30%' },
-            { field: 'lname', caption: 'Last Name', size: '70%' },
-            { field: 'sdate', caption: 'Dates', size: '120px', attr: "align=center" }
+            { field: 'fname', text: 'First Name', size: '30%' },
+            { field: 'lname', text: 'Last Name', size: '70%' },
+            { field: 'sdate', text: 'Dates', size: '120px', attr: "align=center" }
         ]
     });
 });

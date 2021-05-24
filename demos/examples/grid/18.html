@@ -1,7 +1,7 @@
 <div class="content">
     <div id="example_title">
         <h1>Master -> Details</h1>
-        There is a number of different events you can listen to in the grid. The example below demonstrates how to implement a simple 
+        There is a number of different events you can listen to in the grid. The example below demonstrates how to implement a simple
         master -> detail list. In the example the grids use local data, but there is no restriction on this.
     </div>
     <div id="example_view"></div>
@@ -17,16 +17,16 @@
 <!--CODE-->
 <script>
 $(function () {
-    $('#grid1').w2grid({ 
-        name: 'grid1', 
+    $('#grid1').w2grid({
+        name: 'grid1',
         header: 'Master',
         show: { header: true },
-        columns: [                
-            { field: 'recid', caption: 'ID', size: '50px', sortable: true, attr: 'align=center' },
-            { field: 'lname', caption: 'Last Name', size: '30%', sortable: true },
-            { field: 'fname', caption: 'First Name', size: '30%', sortable: true },
-            { field: 'email', caption: 'Email', size: '40%' },
-            { field: 'sdate', caption: 'Start Date', size: '120px' }
+        columns: [
+            { field: 'recid', text: 'ID', size: '50px', sortable: true, attr: 'align=center' },
+            { field: 'lname', text: 'Last Name', size: '30%', sortable: true },
+            { field: 'fname', text: 'First Name', size: '30%', sortable: true },
+            { field: 'email', text: 'Email', size: '40%' },
+            { field: 'sdate', text: 'Start Date', size: '120px' }
         ],
         records: [
             { recid: 1, fname: 'John', lname: 'doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
@@ -48,15 +48,15 @@ $(function () {
             ]);
         }
     });
-    
-    $('#grid2').w2grid({ 
+
+    $('#grid2').w2grid({
         header: 'Details',
         show: { header: true, columnHeaders: false },
-        name: 'grid2', 
-        columns: [                
-            { field: 'name', caption: 'Name', size: '100px', style: 'background-color: #efefef; border-bottom: 1px solid white; padding-right: 5px;', attr: "align=right" },
-            { field: 'value', caption: 'Value', size: '100%' }
+        name: 'grid2',
+        columns: [
+            { field: 'name', text: 'Name', size: '100px', style: 'background-color: #efefef; border-bottom: 1px solid white; padding-right: 5px;', attr: "align=right" },
+            { field: 'value', text: 'Value', size: '100%' }
         ]
-    });    
+    });
 });
 </script>

@@ -17,16 +17,16 @@
 <!--CODE-->
 <script>
 $(function () {
-    $('#grid1').w2grid({ 
-        name: 'grid1', 
+    $('#grid1').w2grid({
+        name: 'grid1',
         header: 'Available',
         show: { header: true },
-        columns: [                
-            { field: 'recid', caption: 'ID', size: '50px', sortable: true, attr: 'align=center' },
-            { field: 'lname', caption: 'Last Name', size: '30%', sortable: true },
-            { field: 'fname', caption: 'First Name', size: '30%', sortable: true },
-            { field: 'email', caption: 'Email', size: '40%' },
-            { field: 'sdate', caption: 'Start Date', size: '120px' }
+        columns: [
+            { field: 'recid', text: 'ID', size: '50px', sortable: true, attr: 'align=center' },
+            { field: 'lname', text: 'Last Name', size: '30%', sortable: true },
+            { field: 'fname', text: 'First Name', size: '30%', sortable: true },
+            { field: 'email', text: 'Email', size: '40%' },
+            { field: 'sdate', text: 'Start Date', size: '120px' }
         ],
         records: [
             { recid: 1, fname: 'Jane', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
@@ -46,17 +46,17 @@ $(function () {
             }, 150);
         }
     });
-    
-    $('#grid2').w2grid({ 
-        name: 'grid2', 
+
+    $('#grid2').w2grid({
+        name: 'grid2',
         header: 'Selected',
         show: { header: true },
-        columns: [                
-            { field: 'recid', caption: 'ID', size: '50px', sortable: true, attr: 'align=center' },
-            { field: 'lname', caption: 'Last Name', size: '30%', sortable: true },
-            { field: 'fname', caption: 'First Name', size: '30%', sortable: true },
-            { field: 'email', caption: 'Email', size: '40%' },
-            { field: 'sdate', caption: 'Start Date', size: '120px' }
+        columns: [
+            { field: 'recid', text: 'ID', size: '50px', sortable: true, attr: 'align=center' },
+            { field: 'lname', text: 'Last Name', size: '30%', sortable: true },
+            { field: 'fname', text: 'First Name', size: '30%', sortable: true },
+            { field: 'email', text: 'Email', size: '40%' },
+            { field: 'sdate', text: 'Start Date', size: '120px' }
         ],
         onClick: function (event) {
             var grid = this;
@@ -67,6 +67,6 @@ $(function () {
                 grid.remove(event.recid);
             }, 150);
         }
-    });    
+    });
 });
 </script>

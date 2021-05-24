@@ -22,8 +22,8 @@
 <!--CODE-->
 <script>
 $(function () {
-    $('#grid').w2grid({ 
-        name: 'grid', 
+    $('#grid').w2grid({
+        name: 'grid',
         header: 'List of Names',
         url: 'data/list.json',
         method: 'GET', // need this to avoid 412 error on Safari
@@ -34,23 +34,23 @@ $(function () {
             lineNumbers    : true,
             selectColumn: true,
             expandColumn: true
-        },        
-        columns: [                
-            { field: 'fname', caption: 'First Name', size: '30%' },
-            { field: 'lname', caption: 'Last Name', size: '30%' },
-            { field: 'email', caption: 'Email', size: '40%' },
-            { field: 'sdate', caption: 'Start Date', size: '120px' }
+        },
+        columns: [
+            { field: 'fname', text: 'First Name', size: '30%' },
+            { field: 'lname', text: 'Last Name', size: '30%' },
+            { field: 'email', text: 'Email', size: '40%' },
+            { field: 'sdate', text: 'Start Date', size: '120px' }
         ],
         searches: [
-            { type: 'int',  field: 'recid', caption: 'ID' },
-            { type: 'text', field: 'fname', caption: 'First Name' },
-            { type: 'text', field: 'lname', caption: 'Last Name' },
-            { type: 'date', field: 'sdate', caption: 'Start Date' }
+            { type: 'int',  field: 'recid', text: 'ID' },
+            { type: 'text', field: 'fname', text: 'First Name' },
+            { type: 'text', field: 'lname', text: 'Last Name' },
+            { type: 'date', field: 'sdate', text: 'Start Date' }
         ],
         onExpand: function (event) {
             $('#'+event.box_id).html('<div style="padding: 10px; height: 100px">Expanded content</div>');
         }
-    });    
+    });
 });
 </script>
 

@@ -18,25 +18,25 @@
 
 <!--CODE-->
 <script>
-$(function () {    
-    $('#grid').w2grid({ 
-        name: 'grid', 
+$(function () {
+    $('#grid').w2grid({
+        name: 'grid',
         show: {
             lineNumbers: true,
             footer: true
         },
-        columns: [                
-            { field: 'recid', caption: 'RecID', size: '60px', sortable: true },
-            { field: 'lname', caption: 'Last Name', size: '30%' },
-            { field: 'fname', caption: 'First Name', size: '30%' },
-            { field: 'email', caption: 'Email', size: '40%' },
-            { field: 'sdate', caption: 'Start Date', size: '90px' }
+        columns: [
+            { field: 'recid', text: 'RecID', size: '60px', sortable: true },
+            { field: 'lname', text: 'Last Name', size: '30%' },
+            { field: 'fname', text: 'First Name', size: '30%' },
+            { field: 'email', text: 'Email', size: '40%' },
+            { field: 'sdate', text: 'Start Date', size: '90px' }
         ],
         records: [
             { recid: 1, fname: 'John', lname: 'doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
             { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
         ]
-    });    
+    });
 });
 
 function addARecord() {

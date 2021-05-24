@@ -21,17 +21,17 @@
 <!--CODE-->
 <script>
 $(function () {
-    $('#grid').w2grid({ 
-        name: 'grid', 
+    $('#grid').w2grid({
+        name: 'grid',
         show: {
             selectColumn: true
         },
-        columns: [                
-            { field: 'recid', caption: 'ID', size: '30px', sortable: true, attr: 'align="center"' },
-            { field: 'lname', caption: 'Last Name', size: '30%', sortable: true },
-            { field: 'fname', caption: 'First Name', size: '30%', sortable: true },
-            { field: 'email', caption: 'Email', size: '40%', sortable: true },
-            { field: 'sdate', caption: 'Start Date', size: '90px', sortable: true }
+        columns: [
+            { field: 'recid', text: 'ID', size: '30px', sortable: true, attr: 'align="center"' },
+            { field: 'lname', text: 'Last Name', size: '30%', sortable: true },
+            { field: 'fname', text: 'First Name', size: '30%', sortable: true },
+            { field: 'email', text: 'Email', size: '40%', sortable: true },
+            { field: 'sdate', text: 'Start Date', size: '90px', sortable: true }
         ],
         records: [
             { recid: 1, fname: 'John', lname: 'doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
@@ -43,6 +43,6 @@ $(function () {
             { recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
             { recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
         ]
-    });    
+    });
 });
 </script>
