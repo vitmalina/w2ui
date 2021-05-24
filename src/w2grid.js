@@ -6615,7 +6615,7 @@ class w2grid extends w2event {
             }
             for (let i=0; i<obj.columnGroups.length; i++) {
                 let colg = obj.columnGroups[i]
-                let col = obj.columns[ii]
+                let col = obj.columns[ii] || {}
                 if (colg.colspan != null) colg.span = colg.colspan
                 if (colg.span == null || colg.span != parseInt(colg.span)) colg.span = 1
                 if (col.text == null && col.caption != null) {
