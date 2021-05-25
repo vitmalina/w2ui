@@ -348,7 +348,6 @@ class w2form extends w2event {
         // let the management of the error outside of the grid
         let edata = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.last.xhr })
         if (edata.isCancelled === true) {
-            if (typeof callBack === 'function') callBack()
             return
         }
         // need a time out because message might be already up)

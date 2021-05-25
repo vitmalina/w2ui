@@ -1404,7 +1404,7 @@ import { w2toolbar } from './w2toolbar'
             if (index[1] < 0) index[1] = 0
             if (index[1] > pal[0].length - 1) index[1] = pal[0].length - 1
 
-            color = pal[index[0]][index[1]]
+            let color = pal[index[0]][index[1]]
             $(el).data('_color', color)
             return color
         }

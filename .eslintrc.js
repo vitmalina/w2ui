@@ -14,6 +14,10 @@ module.exports = {
     'globals': {
         '$': 'readonly',
         'app': 'readonly',
+        'define': 'readonly',
+        'exports': 'readonly',
+        'jQuery': 'readonly',
+        'module': 'readonly',
         'w2ui': 'readonly',
         'w2obj': 'readonly',
         'w2utils': 'readonly',
@@ -50,6 +54,7 @@ module.exports = {
         'func-name-matching': 'warn',
         // "func-names": ["warn", "always"],
         'no-inner-declarations': 'off',
+        'no-undef': 'error',
         'no-unreachable': 'off',
         // PLUGIN rules
         'align-assignments/align-assignments' : [ 2, { requiresOnly : false } ],

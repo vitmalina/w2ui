@@ -111,7 +111,7 @@ class w2toolbar extends w2event {
                 this.items.push(newItem)
             } else {
                 let middle = this.get(id, true)
-                this.items = this.items.slice(0, middle).concat([netItem], this.items.slice(middle))
+                this.items = this.items.slice(0, middle).concat([newItem], this.items.slice(middle))
             }
             this.refresh(newItem.id)
         })
@@ -236,6 +236,7 @@ class w2toolbar extends w2event {
     }
 
     uncheck() {
+        let obj      = this
         let effected = []
         Array.from(arguments).forEach(item => {
             let it = this.get(item)
