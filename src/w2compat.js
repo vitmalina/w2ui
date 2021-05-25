@@ -131,7 +131,7 @@ import { w2toolbar } from './w2toolbar'
             auto            : null, // if auto true, then tag will show on mouseEnter and hide on mouseLeave
             html            : text, // or html
             position        : 'right|top', // can be left, right, top, bottom
-            align           : 'none', // can be none, left, right (only works for potision: top | bottom)
+            align           : 'none', // can be none, left, right (only works for position: top | bottom)
             left            : 0, // delta for left coordinate
             top             : 0, // delta for top coordinate
             maxWidth        : null, // max width
@@ -176,7 +176,7 @@ import { w2toolbar } from './w2toolbar'
                         hideOn = String(options.hideOn).toLowerCase()
                         delete options.hideOn
                     }
-                    if (!options.potision) { options.position = 'top|bottom' }
+                    if (!options.position) { options.position = 'top|bottom' }
                     $(el)
                         .off('.w2tooltip')
                         .on(showOn + '.w2tooltip', function tooltip() {

@@ -9,11 +9,11 @@ the object creation:
 
 <textarea class="javascript">
 $('#grid').w2grid({
-    name    : 'grid',
-    show : {
-        header : true,
-        footer : true,
-        toolbar: true
+    name: 'grid',
+    show {
+        header  : true,
+        footer  : true,
+        toolbar : true
     },
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
@@ -35,43 +35,42 @@ $('#grid').w2grid({
 
 Or any time during run-time. You will need to call <a class="argument" href="w2grid.refresh">.refresh()</a> method to refresh on the screen.
 <textarea class="javascript">
-w2ui['grid'].show.header = false;
-w2ui['grid'].refresh();
+w2ui.grid.show.header = false;
+w2ui.grid.refresh();
 </textarea>
 
 The map and its default values are:
 <textarea class="javascript">
 show = {
-    header           : false,  // indicates if header is visible
-    toolbar          : false,  // indicates if toolbar is visible
-    footer           : false,  // indicates if footer is visible
-    columnHeaders    : true,   // indicates if columns is visible
-    lineNumbers      : false,  // indicates if line numbers column is visible
-    expandColumn     : false,  // indicates if expand column is visible
-    selectColumn     : false,  // indicates if select column is visible
-    emptyRecords     : true,   // indicates if empty records are visible
-    toolbarReload    : true,   // indicates if toolbar reload button is visible
-    toolbarColumns   : true,   // indicates if toolbar columns button is visible
-    toolbarSearch    : true,   // indicates if toolbar search controls are visible
-    toolbarInput     : true,   // indicates if to show search input
-    toolbarAdd       : true,   // indicates if toolbar add new button is visible
-    toolbarEdit      : true,   // indicates if toolbar edit button is visible
-    toolbarDelete    : true,   // indicates if toolbar delete button is visible
-    toolbarSave      : true,   // indicates if toolbar save button is visible
+    header           : false,  // show/hide header
+    toolbar          : false,  // show/hide toolbar
+    footer           : false,  // show/hide footer
+    columnHeaders    : true,   // show/hide columns
+    lineNumbers      : false,  // show/hide line numbers column
+    orderColumn      : false,  // show/hide order records column
+    expandColumn     : false,  // show/hide expand column
+    selectColumn     : false,  // show/hide select column
+    emptyRecords     : true,   // show/hide empty records
     selectionBorder  : true,   // display border around selection (for selectType = 'cell')
     recordTitles     : true,   // indicates if to define titles for records
     searchAll        : true,   // indiccates if to enable search by all fields
-    skipRecords      : true    // indicates if skip records should be visible,
-    statusRange      : true,
-    statusBuffered   : false,
-    statusRecordID   : true,
-    statusSelection  : true,
-    statusResponse   : true,
-    statusSort       : false,
-    statusSearch     : false,
-    saveRestoreState : false
-
-
-
+    searchHiddenMsg  : false,  // show tooltip message for search fields that are hidden or non-existant
+    skipRecords      : true,   // indicates if skip records should be visible,
+    saveRestoreState : false,  // indicates if "Save/Restore" items are visible
+    toolbarReload    : true,   // show/hide toolbar reload button
+    toolbarColumns   : true,   // show/hide toolbar columns button
+    toolbarSearch    : true,   // show/hide toolbar search controls
+    toolbarInput     : true,   // show/hide to show
+    toolbarAdd       : true,   // show/hide toolbar add new button
+    toolbarEdit      : true,   // show/hide toolbar edit button
+    toolbarDelete    : true,   // show/hide toolbar delete button
+    toolbarSave      : true,   // show/hide toolbar save button
+    statusRange      : true,   // show selection range in status bar
+    statusBuffered   : false,  // show number of buffered records in status bar
+    statusRecordID   : true,   // show selected record id in status bar
+    statusSelection  : true,   // show selection in status bar
+    statusResponse   : true,   // show server response tiem in status bar
+    statusSort       : false,  // show sort time in status bar
+    statusSearch     : false,  // show search time in status bar
 }
 </textarea>
