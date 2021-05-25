@@ -6,7 +6,7 @@
 *   - include delta on save
 *   - form should read <select> <options> into items
 *   - two way data bindings
-*   - nested groups (so fields can be deifned inside)
+*   - nested groups (so fields can be defined inside)
 *
 * == 1.5 changes
 *   - $('#form').w2form() - if called w/o argument then it returns form object
@@ -440,7 +440,7 @@ class w2form extends w2event {
             if (field.options && field.hidden !== true && field.options.minLength > 0
                     && ['enum', 'list', 'combo'].indexOf(field.type) == -1 // since minLength is used there too
                     && this.getValue(field.field).length < field.options.minLength) {
-                errors.push({ field: field, error: w2utils.lang('Field should be at least NN characters.').replace('NN', field.options.minLength) })
+                errors.push({ field: field, error: w2utils.lang('Field should be at least XX characters.').replace('XX', field.options.minLength) })
             }
         }
         // event before
@@ -542,7 +542,7 @@ class w2form extends w2event {
                 if (val._order) delete val._order
             }
         })
-        // return only records presend in description
+        // return only records present in description
         if (strict === true) {
             Object.keys(data).forEach((key) => {
                 if (!this.get(key)) delete data[key]

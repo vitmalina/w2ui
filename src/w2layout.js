@@ -78,7 +78,7 @@ class w2layout extends w2event {
             let pan = object.get(panel)
             if (pan != null && tabs == null) tabs = pan.tabs
             if (pan == null || tabs == null) return false
-            // instanciate tabs
+            // instantiate tabs
             if (Array.isArray(tabs)) tabs = { tabs: tabs }
             $().w2destroy(object.name + '_' + panel + '_tabs') // destroy if existed
             pan.tabs      = new w2tabs($.extend({}, tabs, { owner: object, name: object.name + '_' + panel + '_tabs' }))
@@ -90,7 +90,7 @@ class w2layout extends w2event {
             let pan = object.get(panel)
             if (pan != null && toolbar == null) toolbar = pan.toolbar
             if (pan == null || toolbar == null) return false
-            // instanciate toolbar
+            // instantiate toolbar
             if (Array.isArray(toolbar)) toolbar = { items: toolbar }
             $().w2destroy(object.name + '_' + panel + '_toolbar') // destroy if existed
             pan.toolbar      = new w2toolbar($.extend({}, toolbar, { owner: object, name: object.name + '_' + panel + '_toolbar' }))
@@ -464,7 +464,7 @@ class w2layout extends w2event {
         obj.refresh() // if refresh is not called here, the layout will not be available right after initialization
         // process event
         obj.trigger($.extend(edata, { phase: 'after' }))
-        // reinit events
+        // re-init events
         setTimeout(() => { // needed this timeout to allow browser to render first if there are tabs or toolbar
             initEvents()
             obj.resize()

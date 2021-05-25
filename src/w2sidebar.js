@@ -23,40 +23,40 @@ import { w2utils } from './w2utils.js'
 class w2sidebar extends w2event {
     constructor(options) {
         super(options.name)
-        this.name = null
-        this.box = null
-        this.sidebar = null
-        this.parent = null
-        this.nodes = [] // Sidebar child nodes
-        this.menu = []
-        this.routeData = {} // data for dynamic routes
-        this.selected = null // current selected node (readonly)
-        this.img = null
-        this.icon = null
-        this.style = ''
-        this.topHTML = ''
-        this.bottomHTML = ''
-        this.flatButton = false
-        this.keyboard = true
-        this.flat = false
-        this.hasFocus = false
+        this.name         = null
+        this.box          = null
+        this.sidebar      = null
+        this.parent       = null
+        this.nodes        = [] // Sidebar child nodes
+        this.menu         = []
+        this.routeData    = {} // data for dynamic routes
+        this.selected     = null // current selected node (readonly)
+        this.img          = null
+        this.icon         = null
+        this.style        = ''
+        this.topHTML      = ''
+        this.bottomHTML   = ''
+        this.flatButton   = false
+        this.keyboard     = true
+        this.flat         = false
+        this.hasFocus     = false
         this.levelPadding = 12
-        this.skipRefresh = false
+        this.skipRefresh  = false
         this.handle = { size: 0, style: '', content: '' },
         this.onClick = null // Fire when user click on Node Text
-        this.onDblClick = null // Fire when user dbl clicks
+        this.onDblClick    = null // Fire when user dbl clicks
         this.onContextMenu = null
-        this.onMenuClick = null // when context menu item selected
-        this.onExpand = null // Fire when node Expands
-        this.onCollapse = null // Fire when node Colapses
-        this.onKeydown = null
-        this.onRender = null
-        this.onRefresh = null
-        this.onResize = null
-        this.onDestroy = null
-        this.onFocus = null
-        this.onBlur = null
-        this.onFlat = null
+        this.onMenuClick   = null // when context menu item selected
+        this.onExpand      = null // Fire when node expands
+        this.onCollapse    = null // Fire when node collapses
+        this.onKeydown     = null
+        this.onRender      = null
+        this.onRefresh     = null
+        this.onResize      = null
+        this.onDestroy     = null
+        this.onFocus       = null
+        this.onBlur        = null
+        this.onFlat        = null
         this.node_template = {
             id: null,
             text: '',
@@ -84,7 +84,7 @@ class w2sidebar extends w2event {
             parent: null, // node object
             sidebar: null
         }
-        let nodes = options.nodes
+        let nodes          = options.nodes
         delete options.nodes
         // mix in options
         $.extend(true, this, options)
@@ -95,7 +95,7 @@ class w2sidebar extends w2event {
     add(parent, nodes) {
         if (arguments.length == 1) {
             // need to be in reverse order
-            nodes = arguments[0]
+            nodes  = arguments[0]
             parent = this
         }
         if (typeof parent == 'string') parent = this.get(parent)
@@ -107,7 +107,7 @@ class w2sidebar extends w2event {
         let txt, ind, tmp, node, nd
         if (arguments.length == 2 && typeof parent == 'string') {
             // need to be in reverse order
-            nodes = arguments[1]
+            nodes  = arguments[1]
             before = arguments[0]
             if (before != null) {
                 ind = this.get(before)
@@ -144,11 +144,11 @@ class w2sidebar extends w2event {
                 console.log('ERROR: Cannot insert node with id='+ node.id +' (text: '+ node.text + ') because another node with the same id already exists.')
                 continue
             }
-            tmp = Object.assign({}, this.node_template, node)
+            tmp         = Object.assign({}, this.node_template, node)
             tmp.sidebar = this
-            tmp.parent = parent
-            nd = tmp.nodes || []
-            tmp.nodes = [] // very important to re-init empty nodes array
+            tmp.parent  = parent
+            nd          = tmp.nodes || []
+            tmp.nodes   = [] // very important to re-init empty nodes array
             if (before == null) { // append to the end
                 parent.nodes.push(tmp)
             } else {
@@ -191,8 +191,8 @@ class w2sidebar extends w2event {
     set(parent, id, node) {
         if (arguments.length == 2) {
             // need to be in reverse order
-            node = id
-            id = parent
+            node   = id
+            id     = parent
             parent = this
         }
         // searches all nested nodes
@@ -232,8 +232,8 @@ class w2sidebar extends w2event {
             if (arguments.length == 1 || (arguments.length == 2 && id === true) ) {
                 // need to be in reverse order
                 returnIndex = id
-                id = parent
-                parent = this
+                id          = parent
+                parent      = this
             }
             // searches all nested nodes
             if (typeof parent == 'string') parent = this.get(parent)
@@ -273,7 +273,7 @@ class w2sidebar extends w2event {
     }
 
     sort(options, nodes) {
-        // defabult options
+        // default options
         if (!options || typeof options != 'object') options = {}
         if (options.foldersFirst == null) options.foldersFirst = true
         if (options.caseSensitive == null) options.caseSensitive = false
@@ -324,7 +324,7 @@ class w2sidebar extends w2event {
 
     search(str) {
         let count = 0
-        let str2 = str.toLowerCase()
+        let str2  = str.toLowerCase()
         this.each((node) => {
             if (node.text.toLowerCase().indexOf(str2) === -1) {
                 node.hidden = true
@@ -416,7 +416,7 @@ class w2sidebar extends w2event {
             this.scrollIntoView(id, true)
         }
         new_node.selected = true
-        this.selected = id
+        this.selected     = id
         return true
     }
 
@@ -451,7 +451,7 @@ class w2sidebar extends w2event {
 
     collapse(id) {
         let obj = this
-        let nd = this.get(id)
+        let nd  = this.get(id)
         if (nd == null) return false
         // event before
         let edata = this.trigger({ phase: 'before', type: 'collapse', target: id, object: nd })
@@ -480,7 +480,7 @@ class w2sidebar extends w2event {
 
     expand(id) {
         let obj = this
-        let nd = this.get(id)
+        let nd  = this.get(id)
         // event before
         let edata = this.trigger({ phase: 'before', type: 'expand', target: id, object: nd })
         if (edata.isCancelled === true) return
@@ -520,12 +520,12 @@ class w2sidebar extends w2event {
 
     click(id, event) {
         let obj = this
-        let nd = this.get(id)
+        let nd  = this.get(id)
         if (nd == null) return
         if (nd.disabled || nd.group) return // should click event if already selected
-        // unselect all previsously
+        // unselect all previously
         $(obj.box).find('.w2ui-node.w2ui-selected').each((index, el) => {
-            let oldID = $(el).attr('id').replace('node_', '')
+            let oldID   = $(el).attr('id').replace('node_', '')
             let oldNode = obj.get(oldID)
             if (oldNode != null) oldNode.selected = false
             $(el).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected')
@@ -547,11 +547,11 @@ class w2sidebar extends w2event {
             // default action
             if (oldNode != null) oldNode.selected = false
             obj.get(id).selected = true
-            obj.selected = id
+            obj.selected         = id
             // route processing
             if (typeof nd.route == 'string') {
                 let route = nd.route !== '' ? String('/'+ nd.route).replace(/\/{2,}/g, '/') : ''
-                let info = w2utils.parseRoute(route)
+                let info  = w2utils.parseRoute(route)
                 if (info.keys.length > 0) {
                     for (let k = 0; k < info.keys.length; k++) {
                         if (obj.routeData[info.keys[k].name] == null) continue
@@ -594,7 +594,7 @@ class w2sidebar extends w2event {
 
     keydown(event) {
         let obj = this
-        let nd = obj.get(obj.selected)
+        let nd  = obj.get(obj.selected)
         if (obj.keyboard !== true) return
         if (!nd) nd = obj.nodes[0]
         // trigger event
@@ -654,8 +654,8 @@ class w2sidebar extends w2event {
 
         function next(node, noSubs) {
             if (node == null) return null
-            let parent = node.parent
-            let ind = obj.get(node.id, true)
+            let parent   = node.parent
+            let ind      = obj.get(node.id, true)
             let nextNode = null
             // jump inside
             if (node.expanded && node.nodes.length > 0 && noSubs !== true) {
@@ -674,8 +674,8 @@ class w2sidebar extends w2event {
 
         function prev(node) {
             if (node == null) return null
-            let parent = node.parent
-            let ind = obj.get(node.id, true)
+            let parent   = node.parent
+            let ind      = obj.get(node.id, true)
             let prevNode = (ind > 0) ? lastChild(parent.nodes[ind - 1]) : parent
             if (prevNode != null && (prevNode.hidden || prevNode.disabled || prevNode.group)) prevNode = prev(prevNode)
             return prevNode
@@ -694,8 +694,8 @@ class w2sidebar extends w2event {
         if (id == null) id = this.selected
         let nd = this.get(id)
         if (nd == null) return
-        let body = $(this.box).find('.w2ui-sidebar-body')
-        let item = $(this.box).find('#node_'+ w2utils.escapeId(id))
+        let body   = $(this.box).find('.w2ui-sidebar-body')
+        let item   = $(this.box).find('#node_'+ w2utils.escapeId(id))
         let offset = item.offset().top - body.offset().top
         if (offset + item.height() > body.height() || offset <= 0) {
             body.animate({ 'scrollTop': body.scrollTop() + offset - body.height() / 2 + item.height() }, instant ? 0 : 250, 'linear')
@@ -715,7 +715,7 @@ class w2sidebar extends w2event {
 
     contextMenu(id, event) {
         let obj = this
-        let nd = obj.get(id)
+        let nd  = obj.get(id)
         if (id != obj.selected) obj.click(id)
         // event before
         let edata = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, originalEvent: event, object: nd, allowOnDisabled: false })
@@ -764,7 +764,7 @@ class w2sidebar extends w2event {
 
     render(box) {
         let time = (new Date()).getTime()
-        let obj = this
+        let obj  = this
         // event before
         let edata = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box })
         if (edata.isCancelled === true) return
@@ -866,13 +866,13 @@ class w2sidebar extends w2event {
                     delete options.text
                 }
                 if (options.class) {
-                    nd.class = options.class
-                    level = $el.data('level')
+                    nd.class         = options.class
+                    level            = $el.data('level')
                     $el[0].className = 'w2ui-node-group w2ui-level-'+ level +(nd.class ? ' ' + nd.class : '')
                     delete options.class
                 }
                 if (options.style) {
-                    nd.style = options.style
+                    nd.style            = options.style
                     $el.next()[0].style = nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;')
                     delete options.style
                 }
@@ -880,7 +880,7 @@ class w2sidebar extends w2event {
                 if (options.icon) {
                     let $img = $el.find('.w2ui-node-image > span')
                     if ($img.length > 0) {
-                        nd.icon = options.icon
+                        nd.icon           = options.icon
                         $img[0].className = (typeof nd.icon == 'function' ? nd.icon.call(this, nd) : nd.icon)
                         delete options.icon
                     }
@@ -891,8 +891,8 @@ class w2sidebar extends w2event {
                     if ($el.find('.w2ui-node-count').length > 0) delete options.count
                 }
                 if (options.class && $el.length > 0) {
-                    nd.class = options.class
-                    level = $el.data('level')
+                    nd.class         = options.class
+                    level            = $el.data('level')
                     $el[0].className = 'w2ui-node w2ui-level-'+ level + (nd.selected ? ' w2ui-selected' : '') + (nd.disabled ? ' w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '')
                     delete options.class
                 }
@@ -902,8 +902,8 @@ class w2sidebar extends w2event {
                     delete options.text
                 }
                 if (options.style && $el.length > 0) {
-                    let $txt = $el.find('.w2ui-node-text')
-                    nd.style = options.style
+                    let $txt      = $el.find('.w2ui-node-text')
+                    nd.style      = options.style
                     $txt[0].style = nd.style
                     delete options.style
                 }
@@ -941,7 +941,7 @@ class w2sidebar extends w2event {
         })
         // if no parent - reset nodes
         if (this.nodes.length > 0 && this.nodes[0].parent == null) {
-            let tmp = this.nodes
+            let tmp    = this.nodes
             this.nodes = []
             this.add(this, tmp)
         }
@@ -950,7 +950,7 @@ class w2sidebar extends w2event {
         let nm
         if (id == null) {
             node = this
-            nm = '.w2ui-sidebar-body'
+            nm   = '.w2ui-sidebar-body'
         } else {
             node = this.get(id)
             if (node == null) return
@@ -958,7 +958,7 @@ class w2sidebar extends w2event {
         }
         let nodeHTML
         if (node !== this) {
-            let tmp = '#node_'+ w2utils.escapeId(node.id)
+            let tmp  = '#node_'+ w2utils.escapeId(node.id)
             nodeHTML = getNodeHTML(node)
             $(this.box).find(tmp).before('<div id="sidebar_'+ this.name + '_tmp"></div>')
             $(this.box).find(tmp).remove()
@@ -974,7 +974,7 @@ class w2sidebar extends w2event {
         // refresh sub nodes
         $(this.box).find(nm).html('')
         for (let i = 0; i < node.nodes.length; i++) {
-            nd = node.nodes[i]
+            nd       = node.nodes[i]
             nodeHTML = getNodeHTML(nd)
             $(this.box).find(nm).append(nodeHTML)
             if (nd.nodes.length !== 0) {
@@ -995,14 +995,14 @@ class w2sidebar extends w2event {
 
         function getNodeHTML(nd) {
             let html = ''
-            let img = nd.img
+            let img  = nd.img
             let icon = nd.icon
             if (icon == null && img == null) {
                 if (icon == null) icon = obj.icon
                 if (img == null) img = obj.img
             }
             // -- find out level
-            let tmp = nd.parent
+            let tmp   = nd.parent
             let level = 0
             while (tmp && tmp.parent != null) {
                 // if (tmp.group) level--;
@@ -1037,7 +1037,7 @@ class w2sidebar extends w2event {
                 if (icon) {
                     tmp = '<div class="w2ui-node-image"><span class="' + (typeof icon == 'function' ? icon.call(obj, nd) : icon) + '"></span></div>'
                 }
-                let text = nd.text
+                let text   = nd.text
                 let expand = ''
                 let counts = (nd.count != null ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '')
                 if (nd.collapsible === true) {

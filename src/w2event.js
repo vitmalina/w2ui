@@ -9,7 +9,7 @@ import { w2utils } from './w2utils.js'
 class w2event {
     constructor(name) {
         this.handlers = []
-        // register globaly
+        // register globally
         if (name) {
             window.w2ui = window.w2ui || {}
             if (!w2utils.checkName(name)) return
@@ -22,8 +22,8 @@ class w2event {
         // allow 'eventName.scope' syntax
         if (typeof edata === 'string' && edata.indexOf('.') !== -1) {
             let tmp = edata.split('.')
-            edata = tmp[0]
-            scope = tmp[1]
+            edata   = tmp[0]
+            scope   = tmp[1]
         }
         // allow 'eventName:after' syntax
         if (typeof edata === 'string' && edata.indexOf(':') !== -1) {
@@ -50,8 +50,8 @@ class w2event {
         // allow 'eventName.scope' syntax
         if (typeof edata === 'string' && edata.indexOf('.') !== -1) {
             let tmp = edata.split('.')
-            edata = tmp[0]
-            scope = tmp[1]
+            edata   = tmp[0]
+            scope   = tmp[1]
             if (edata === '') edata = '*'
         }
         // allow 'eventName:after' syntax
@@ -108,7 +108,7 @@ class w2event {
                 edata = $.extend({}, item.edata, edata)
                 // check handler arguments
                 args = []
-                tmp = new RegExp(/\((.*?)\)/).exec(item.handler)
+                tmp  = new RegExp(/\((.*?)\)/).exec(item.handler)
                 if (tmp) args = tmp[1].split(/\s*,\s*/)
                 if (args.length === 2) {
                     item.handler.call(this, edata.target, edata) // old way for back compatibility
@@ -124,7 +124,7 @@ class w2event {
             fun = this[funName]
             // check handler arguments
             args = []
-            tmp = new RegExp(/\((.*?)\)/).exec(fun)
+            tmp  = new RegExp(/\((.*?)\)/).exec(fun)
             if (tmp) args = tmp[1].split(/\s*,\s*/)
             if (args.length === 2) {
                 fun.call(this, edata.target, edata) // old way for back compatibility
@@ -138,7 +138,7 @@ class w2event {
             fun = edata.object[funName]
             // check handler arguments
             args = []
-            tmp = new RegExp(/\((.*?)\)/).exec(fun)
+            tmp  = new RegExp(/\((.*?)\)/).exec(fun)
             if (tmp) args = tmp[1].split(/\s*,\s*/)
             if (args.length === 2) {
                 fun.call(this, edata.target, edata) // old way for back compatibility

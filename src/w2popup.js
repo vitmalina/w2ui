@@ -17,7 +17,7 @@ import { w2utils } from './w2utils.js'
 class w2dialog extends w2event {
     constructor(options) {
         super()
-        this.defaults = {
+        this.defaults   = {
             title: '',
             body: '',
             buttons: '',
@@ -36,22 +36,22 @@ class w2dialog extends w2event {
             transition: null,
             multiple: false // if popup already open, opens as a message
         }
-        this.status = 'closed' // string that describes current status
-        this.onOpen = null
-        this.onClose = null
-        this.onMax = null
-        this.onMin = null
-        this.onToggle = null
-        this.onKeydown = null
-        this.onAction = null
-        this.onMove = null
-        this.onMsgOpen = null
+        this.status     = 'closed' // string that describes current status
+        this.onOpen     = null
+        this.onClose    = null
+        this.onMax      = null
+        this.onMin      = null
+        this.onToggle   = null
+        this.onKeydown  = null
+        this.onAction   = null
+        this.onMove     = null
+        this.onMsgOpen  = null
         this.onMsgClose = null
     }
 
     open(options) {
         return new Promise((resolve, reject) => {
-            let obj = this
+            let obj          = this
             let orig_options = $.extend(true, {}, options)
             if (w2popup.status == 'closing') {
                 setTimeout(() => { obj.open.call(obj, options) }, 100)
@@ -59,21 +59,21 @@ class w2dialog extends w2event {
             }
             // get old options and merge them
             let old_options = $('#w2ui-popup').data('options')
-            options = $.extend({}, this.defaults, old_options, { title: '', body : '', buttons: '' }, options, { maximized: false })
+            options         = $.extend({}, this.defaults, old_options, { title: '', body : '', buttons: '' }, options, { maximized: false })
             // need timer because popup might not be open
             setTimeout(() => { $('#w2ui-popup').data('options', options) }, 100)
             // if new - reset event handlers
             if ($('#w2ui-popup').length === 0) {
                 // w2popup.handlers  = []; // if commented, allows to add w2popup.on() for all
-                w2popup.onOpen = null
-                w2popup.onClose = null
-                w2popup.onMax = null
-                w2popup.onMin = null
-                w2popup.onToggle = null
-                w2popup.onKeydown = null
-                w2popup.onAction = null
-                w2popup.onMove = null
-                w2popup.onMsgOpen = null
+                w2popup.onOpen     = null
+                w2popup.onClose    = null
+                w2popup.onMax      = null
+                w2popup.onMin      = null
+                w2popup.onToggle   = null
+                w2popup.onKeydown  = null
+                w2popup.onAction   = null
+                w2popup.onMove     = null
+                w2popup.onMsgOpen  = null
                 w2popup.onMsgClose = null
             }
             if (options.onOpen) w2popup.onOpen = options.onOpen
@@ -86,7 +86,7 @@ class w2dialog extends w2event {
             if (options.onMove) w2popup.onMove = options.onMove
             if (options.onMsgOpen) w2popup.onMsgOpen = options.onMsgOpen
             if (options.onMsgClose) w2popup.onMsgClose = options.onMsgClose
-            options.width = parseInt(options.width)
+            options.width  = parseInt(options.width)
             options.height = parseInt(options.height)
 
             let maxW, maxH, edata, msg, tmp
@@ -100,7 +100,7 @@ class w2dialog extends w2event {
             }
             if (maxW - 10 < options.width) options.width = maxW - 10
             if (maxH - 10 < options.height) options.height = maxH - 10
-            let top = (maxH - options.height) / 2 * 0.6
+            let top  = (maxH - options.height) / 2 * 0.6
             let left = (maxW - options.width) / 2
 
             // convert action arrays into buttons
@@ -207,7 +207,7 @@ class w2dialog extends w2event {
                     if (!old_options.maximized && (old_options.width != options.width || old_options.height != options.height)) {
                         w2popup.resize(options.width, options.height)
                     }
-                    options.prevSize = options.width + 'px:' + options.height + 'px'
+                    options.prevSize  = options.width + 'px:' + options.height + 'px'
                     options.maximized = old_options.maximized
                 }
                 // show new items
@@ -300,12 +300,12 @@ class w2dialog extends w2event {
             function mvStart(evnt) {
                 if (!evnt) evnt = window.event
                 w2popup.status = 'moving'
-                tmp.resizing = true
-                tmp.isLocked = $('#w2ui-popup > .w2ui-lock').length == 1 ? true : false
-                tmp.x = evnt.screenX
-                tmp.y = evnt.screenY
-                tmp.pos_x = $('#w2ui-popup').position().left
-                tmp.pos_y = $('#w2ui-popup').position().top
+                tmp.resizing   = true
+                tmp.isLocked   = $('#w2ui-popup > .w2ui-lock').length == 1 ? true : false
+                tmp.x          = evnt.screenX
+                tmp.y          = evnt.screenY
+                tmp.pos_x      = $('#w2ui-popup').position().left
+                tmp.pos_y      = $('#w2ui-popup').position().top
                 if (!tmp.isLocked) w2popup.lock({ opacity: 0 })
                 $(document).on('mousemove', tmp.mvMove)
                 $(document).on('mouseup', tmp.mvStop)
@@ -334,8 +334,8 @@ class w2dialog extends w2event {
                 if (tmp.resizing != true) return
                 if (!evnt) evnt = window.event
                 w2popup.status = 'open'
-                tmp.div_x = (evnt.screenX - tmp.x)
-                tmp.div_y = (evnt.screenY - tmp.y)
+                tmp.div_x      = (evnt.screenX - tmp.x)
+                tmp.div_y      = (evnt.screenY - tmp.y)
                 $('#w2ui-popup').css({
                     'left': (tmp.pos_x + tmp.div_x) + 'px',
                     'top' : (tmp.pos_y + tmp.div_y) + 'px'
@@ -362,9 +362,9 @@ class w2dialog extends w2event {
                 return
             }
             w2popup.status = 'loading'
-            let tmp = String(options.url).split('#')
-            let url = tmp[0]
-            let selector = tmp[1]
+            let tmp        = String(options.url).split('#')
+            let url        = tmp[0]
+            let selector   = tmp[1]
             if (options == null) options = {}
             // load url
             let html = $('#w2ui-popup').data(url)
@@ -415,11 +415,11 @@ class w2dialog extends w2event {
     }
 
     action(action, msgId) {
-        let obj = this
+        let obj     = this
         let options = $('#w2ui-popup').data('options')
         if (msgId != null) {
             options = $('#w2ui-message' + msgId).data('options')
-            obj = {
+            obj     = {
                 parent: this,
                 options: options,
                 close() {
@@ -427,7 +427,7 @@ class w2dialog extends w2event {
                 }
             }
         }
-        let act = options.actions[action]
+        let act   = options.actions[action]
         let click = act
         if ($.isPlainObject(act) && act.onClick) click = act.onClick
         // event before
@@ -490,12 +490,12 @@ class w2dialog extends w2event {
     }
 
     toggle() {
-        let obj = this
+        let obj     = this
         let options = $('#w2ui-popup').data('options')
         // trigger event
         let edata = this.trigger({ phase: 'before', type: 'toggle', target: 'popup', options: options })
         if (edata.isCancelled === true) return
-        // defatul action
+        // default action
         if (options.maximized === true) w2popup.min(); else w2popup.max()
         // event after
         setTimeout(() => {
@@ -504,18 +504,18 @@ class w2dialog extends w2event {
     }
 
     max() {
-        let obj = this
+        let obj     = this
         let options = $('#w2ui-popup').data('options')
         if (options.maximized === true) return
         // trigger event
         let edata = this.trigger({ phase: 'before', type: 'max', target: 'popup', options: options })
         if (edata.isCancelled === true) return
         // default behavior
-        w2popup.status = 'resizing'
+        w2popup.status   = 'resizing'
         options.prevSize = $('#w2ui-popup').css('width') + ':' + $('#w2ui-popup').css('height')
         // do resize
         w2popup.resize(10000, 10000, () => {
-            w2popup.status = 'open'
+            w2popup.status    = 'open'
             options.maximized = true
             obj.trigger($.extend(edata, { phase: 'after'}))
             // resize gird, form, layout inside popup
@@ -527,7 +527,7 @@ class w2dialog extends w2event {
     }
 
     min() {
-        let obj = this
+        let obj     = this
         let options = $('#w2ui-popup').data('options')
         if (options.maximized !== true) return
         let size = options.prevSize.split(':')
@@ -538,9 +538,9 @@ class w2dialog extends w2event {
         w2popup.status = 'resizing'
         // do resize
         w2popup.resize(parseInt(size[0]), parseInt(size[1]), () => {
-            w2popup.status = 'open'
+            w2popup.status    = 'open'
             options.maximized = false
-            options.prevSize = null
+            options.prevSize  = null
             obj.trigger($.extend(edata, { phase: 'after'}))
             // resize gird, form, layout inside popup
             $('#w2ui-popup .w2ui-grid, #w2ui-popup .w2ui-form, #w2ui-popup .w2ui-layout').each(() => {
@@ -576,14 +576,14 @@ class w2dialog extends w2event {
                 options = { html: options, width: 200, height: 100 }
             }
             if (!options) options = { width: 200, height: 100 }
-            let pWidth = parseInt($('#w2ui-popup').width())
-            let pHeight = parseInt($('#w2ui-popup').height())
-            options.originalWidth = options.width
+            let pWidth             = parseInt($('#w2ui-popup').width())
+            let pHeight            = parseInt($('#w2ui-popup').height())
+            options.originalWidth  = options.width
             options.originalHeight = options.height
             if (parseInt(options.width) < 10) options.width = 10
             if (parseInt(options.height) < 10) options.height = 10
             if (options.hideOnClick == null) options.hideOnClick = false
-            let poptions = $('#w2ui-popup').data('options') || {}
+            let poptions    = $('#w2ui-popup').data('options') || {}
             let titleHeight = parseInt($('#w2ui-popup > .w2ui-popup-title').css('height'))
             if (options.width == null || options.width > poptions.width - 10) {
                 options.width = poptions.width - 10
@@ -595,7 +595,7 @@ class w2dialog extends w2event {
             if (options.originalHeight < 0) options.height = pHeight + options.originalHeight - titleHeight
             if (options.originalWidth < 0) options.width = pWidth + options.originalWidth * 2 // x 2 because there is left and right margin
 
-            let head = $('#w2ui-popup .w2ui-popup-title')
+            let head     = $('#w2ui-popup .w2ui-popup-title')
             let msgCount = $('#w2ui-popup .w2ui-message').length
 
             // convert action arrays into buttons
@@ -632,7 +632,7 @@ class w2dialog extends w2event {
                     'transform': 'translateY(-' + options.height + 'px)'
                 }))
                 let $focus = $('#w2ui-popup .w2ui-message')
-                $focus = $($focus[$focus.length - 2])
+                $focus     = $($focus[$focus.length - 2])
                     .css('z-index', 1500)
                     .data('msg-focus')
                 if ($focus && $focus.length > 0) $focus.focus(); else obj.focus()
@@ -811,18 +811,18 @@ class w2dialog extends w2event {
         // see if there are messages and resize them
         $('#w2ui-popup .w2ui-message').each(() => {
             let moptions = $(this).data('options')
-            let $popup = $('#w2ui-popup')
+            let $popup   = $('#w2ui-popup')
             if (parseInt(moptions.width) < 10) moptions.width = 10
             if (parseInt(moptions.height) < 10) moptions.height = 10
             let titleHeight = parseInt($popup.find('> .w2ui-popup-title').css('height'))
-            let pWidth = parseInt($popup.width())
-            let pHeight = parseInt($popup.height())
-            // recalc width
+            let pWidth      = parseInt($popup.width())
+            let pHeight     = parseInt($popup.height())
+            // re-calc width
             moptions.width = moptions.originalWidth
             if (moptions.width > pWidth - 10) {
                 moptions.width = pWidth - 10
             }
-            // recalc height
+            // re-calc height
             moptions.height = moptions.originalHeight
             if (moptions.height > pHeight - titleHeight - 5) {
                 moptions.height = pHeight - titleHeight - 5
@@ -838,10 +838,10 @@ class w2dialog extends w2event {
     }
 
     resize(width, height, callBack) {
-        let obj = this
+        let obj     = this
         let options = $('#w2ui-popup').data('options') || {}
         if (options.speed == null) options.speed = 0
-        width = parseInt(width)
+        width  = parseInt(width)
         height = parseInt(height)
         // calculate new position
         let maxW, maxH
@@ -855,7 +855,7 @@ class w2dialog extends w2event {
         }
         if (maxW - 10 < width) width = maxW - 10
         if (maxH - 10 < height) height = maxH - 10
-        let top = (maxH - height) / 2 * 0.6
+        let top  = (maxH - height) / 2 * 0.6
         let left = (maxW - width) / 2
         // resize there
         $('#w2ui-popup')
@@ -871,7 +871,7 @@ class w2dialog extends w2event {
         let tmp_int = setInterval(() => { obj.resizeMessages() }, 10) // then messages resize nicely
         setTimeout(() => {
             clearInterval(tmp_int)
-            options.width = width
+            options.width  = width
             options.height = height
             obj.resizeMessages()
             if (typeof callBack == 'function') callBack()
@@ -887,14 +887,14 @@ class w2dialog extends w2event {
         let options = $('#w2ui-popup').data('options')
         if (options == null) return
         let template = w2popup._template
-        let title = options.title
-        let body = options.body
-        let buttons = options.buttons
+        let title    = options.title
+        let body     = options.body
+        let buttons  = options.buttons
         if (w2popup._prev) {
             template = w2popup._prev.template
-            title = w2popup._prev.title
-            body = w2popup._prev.body
-            buttons = w2popup._prev.buttons
+            title    = w2popup._prev.title
+            body     = w2popup._prev.body
+            buttons  = w2popup._prev.buttons
             delete w2popup._prev
         } else {
             delete w2popup._template
@@ -986,8 +986,8 @@ function w2alert(msg, title, callBack) {
 }
 
 function w2confirm(msg, title, callBack) {
-    let $ = jQuery
-    let options = {}
+    let $        = jQuery
+    let options  = {}
     let defaults = {
         msg: '',
         title: w2utils.lang('Confirmation'),
@@ -1138,8 +1138,8 @@ function w2confirm(msg, title, callBack) {
 }
 
 function w2prompt(label, title, callBack) {
-    let $ = jQuery
-    let options = {}
+    let $        = jQuery
+    let options  = {}
     let defaults = {
         title: w2utils.lang('Notification'),
         width: ($('#w2ui-popup').length > 0 ? 400 : 450),
@@ -1164,7 +1164,7 @@ function w2prompt(label, title, callBack) {
         onOpen: null,
         onClose: null
     }
-    w2popup.tmp = w2popup.tmp || {}
+    w2popup.tmp  = w2popup.tmp || {}
 
     if (arguments.length == 1 && typeof label == 'object') {
         $.extend(options, defaults, label)
@@ -1224,12 +1224,12 @@ function w2prompt(label, title, callBack) {
                     }
                 })
                 $('#w2ui-popup .w2ui-message .w2ui-btn#Ok').off('.w2prompt').on('click.w2prompt', function(event) {
-                    w2popup.tmp.btn = 'ok'
+                    w2popup.tmp.btn   = 'ok'
                     w2popup.tmp.value = $('#w2prompt').val()
                     w2popup.message()
                 })
                 $('#w2ui-popup .w2ui-message .w2ui-btn#Cancel').off('.w2prompt').on('click.w2prompt', function(event) {
-                    w2popup.tmp.btn = 'cancel'
+                    w2popup.tmp.btn   = 'cancel'
                     w2popup.tmp.value = null
                     w2popup.message()
                 })
@@ -1282,12 +1282,12 @@ function w2prompt(label, title, callBack) {
                     $('#w2prompt').val(options.value)
                     $('#w2prompt').w2field('text')
                     $('#w2ui-popup .w2ui-popup-btn#Ok').on('click', function(event) {
-                        w2popup.tmp.btn = 'ok'
+                        w2popup.tmp.btn   = 'ok'
                         w2popup.tmp.value = $('#w2prompt').val()
                         w2popup.close()
                     })
                     $('#w2ui-popup .w2ui-popup-btn#Cancel').on('click', function(event) {
-                        w2popup.tmp.btn = 'cancel'
+                        w2popup.tmp.btn   = 'cancel'
                         w2popup.tmp.value = null
                         w2popup.close()
                     })
@@ -1311,7 +1311,7 @@ function w2prompt(label, title, callBack) {
                             $('#w2ui-popup .w2ui-popup-btn#Ok').focus().addClass('clicked') // no need fo click as enter will do click
                             break
                         case 27: // esc
-                            w2popup.tmp.btn = 'cancel'
+                            w2popup.tmp.btn   = 'cancel'
                             w2popup.tmp.value = null
                             break
                     }

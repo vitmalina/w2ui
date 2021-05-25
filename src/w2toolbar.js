@@ -17,17 +17,17 @@ import { w2utils } from './w2utils.js'
 class w2toolbar extends w2event {
     constructor(options) {
         super(options.name)
-        this.box = null // DOM Element that holds the element
-        this.name = null // unique name for w2ui
-        this.routeData = {} // data for dynamic routes
-        this.items = []
-        this.right = '' // HTML text on the right of toolbar
-        this.tooltip = 'top|left'// can be top, bottom, left, right
-        this.onClick = null
-        this.onRender = null
-        this.onRefresh = null
-        this.onResize = null
-        this.onDestroy = null
+        this.box           = null // DOM Element that holds the element
+        this.name          = null // unique name for w2ui
+        this.routeData     = {} // data for dynamic routes
+        this.items         = []
+        this.right         = '' // HTML text on the right of toolbar
+        this.tooltip       = 'top|left'// can be top, bottom, left, right
+        this.onClick       = null
+        this.onRender      = null
+        this.onRefresh     = null
+        this.onResize      = null
+        this.onDestroy     = null
         this.item_template = {
             id: null, // command to be sent to all event handlers
             type: 'button', // button, check, radio, drop, menu, menu-radio, menu-check, break, html, spacer
@@ -56,7 +56,7 @@ class w2toolbar extends w2event {
             onClick: null,
             onRefresh: null
         }
-        let items = options.items
+        let items          = options.items
         delete options.items
         // mix in options
         $.extend(true, this, options)
@@ -258,8 +258,8 @@ class w2toolbar extends w2event {
     click(id, event) {
         let obj = this
         // click on menu items
-        let tmp = String(id).split(':')
-        let it = this.get(tmp[0])
+        let tmp   = String(id).split(':')
+        let it    = this.get(tmp[0])
         let items = (it && it.items ? w2utils.normMenu.call(this, it.items, it) : [])
 
         if (tmp.length > 1) {
@@ -276,7 +276,7 @@ class w2toolbar extends w2event {
             if (edata.isCancelled === true) return
 
             let btn = '#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id) +' table.w2ui-button'
-            $(btn).removeClass('down') // need to requery at the moment -- as well as elsewhere in this function
+            $(btn).removeClass('down') // need to re-query at the moment -- as well as elsewhere in this function
 
             if (it.type == 'radio') {
                 for (let i = 0; i < this.items.length; i++) {
@@ -384,7 +384,7 @@ class w2toolbar extends w2event {
             // route processing
             if (it.route) {
                 let route = String('/'+ it.route).replace(/\/{2,}/g, '/')
-                let info = w2utils.parseRoute(route)
+                let info  = w2utils.parseRoute(route)
                 if (info.keys.length > 0) {
                     for (let k = 0; k < info.keys.length; k++) {
                         route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), this.routeData[info.keys[k].name])
@@ -402,9 +402,9 @@ class w2toolbar extends w2event {
     }
 
     scroll(direction) {
-        let box = $(this.box)
-        let obj = this
-        let scrollBox = box.find('.w2ui-scroll-wrapper')
+        let box        = $(this.box)
+        let obj        = this
+        let scrollBox  = box.find('.w2ui-scroll-wrapper')
         let scrollLeft = scrollBox.scrollLeft()
         let width1, width2, scroll
 
@@ -511,7 +511,7 @@ class w2toolbar extends w2event {
             edata2 = this.trigger({ phase: 'before', type: 'refresh', target: id, item: it, object: it })
             if (edata2.isCancelled === true) return
         }
-        let el = $(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id))
+        let el   = $(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id))
         let html = this.getItemHTML(it)
         // hide tooltip
         this.tooltipHide(id, {})
@@ -614,7 +614,7 @@ class w2toolbar extends w2event {
                 return tmp.find(it => it.id == id ? true : false)
             }
         }
-        let img = '<td>&#160;</td>'
+        let img  = '<td>&#160;</td>'
         let text = (typeof item.text == 'function' ? item.text.call(this, item) : item.text)
         if (item.img) img = '<td><div class="w2ui-tb-image w2ui-icon '+ item.img +'"></div></td>'
         if (item.icon) {
@@ -688,10 +688,10 @@ class w2toolbar extends w2event {
 
     tooltipShow(id, event, forceRefresh) {
         if (this.tooltip == null) return
-        let $el = $(this.box).find('#tb_'+ this.name + '_item_'+ w2utils.escapeId(id))
+        let $el  = $(this.box).find('#tb_'+ this.name + '_item_'+ w2utils.escapeId(id))
         let item = this.get(id)
-        let pos = this.tooltip
-        let txt = item.tooltip
+        let pos  = this.tooltip
+        let txt  = item.tooltip
         if (typeof txt == 'function') txt = txt.call(this, item)
         clearTimeout(this._tooltipTimer)
         this._tooltipTimer = setTimeout(() => {
@@ -730,8 +730,8 @@ class w2toolbar extends w2event {
             if (edata.isCancelled === true) return
 
             // route processing
-            let it = event.subItem
-            let item = this.get(event.item.id)
+            let it    = event.subItem
+            let item  = this.get(event.item.id)
             let items = item.items
             if (typeof items == 'function') items = item.items()
             if (item.type == 'menu-radio') {
@@ -785,7 +785,7 @@ class w2toolbar extends w2event {
             }
             if (typeof it.route == 'string') {
                 let route = it.route !== '' ? String('/'+ it.route).replace(/\/{2,}/g, '/') : ''
-                let info = w2utils.parseRoute(route)
+                let info  = w2utils.parseRoute(route)
                 if (info.keys.length > 0) {
                     for (let k = 0; k < info.keys.length; k++) {
                         if (obj.routeData[info.keys[k].name] == null) continue

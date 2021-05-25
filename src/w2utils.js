@@ -15,7 +15,7 @@
 *
 ************************************************/
 
-let w2ui = {}
+let w2ui    = {}
 let w2utils = (($) => {
     let tmp = {} // for some temp variables
     return {
@@ -162,27 +162,27 @@ let w2utils = (($) => {
         if (format == null) format = w2utils.settings.dateFormat
 
         if (typeof val.getFullYear === 'function') { // date object
-            year = val.getFullYear()
+            year  = val.getFullYear()
             month = val.getMonth() + 1
-            day = val.getDate()
+            day   = val.getDate()
         } else if (parseInt(val) == val && parseInt(val) > 0) {
-            val = new Date(parseInt(val))
-            year = val.getFullYear()
+            val   = new Date(parseInt(val))
+            year  = val.getFullYear()
             month = val.getMonth() + 1
-            day = val.getDate()
+            day   = val.getDate()
         } else {
             val = String(val)
             // convert month formats
             if (new RegExp('mon', 'ig').test(format)) {
                 format = format.replace(/month/ig, 'm').replace(/mon/ig, 'm').replace(/dd/ig, 'd').replace(/[, ]/ig, '/').replace(/\/\//g, '/').toLowerCase()
-                val = val.replace(/[, ]/ig, '/').replace(/\/\//g, '/').toLowerCase()
+                val    = val.replace(/[, ]/ig, '/').replace(/\/\//g, '/').toLowerCase()
                 for (let m = 0, len = w2utils.settings.fullmonths.length; m < len; m++) {
                     let t = w2utils.settings.fullmonths[m]
-                    val = val.replace(new RegExp(t, 'ig'), (parseInt(m) + 1)).replace(new RegExp(t.substr(0, 3), 'ig'), (parseInt(m) + 1))
+                    val   = val.replace(new RegExp(t, 'ig'), (parseInt(m) + 1)).replace(new RegExp(t.substr(0, 3), 'ig'), (parseInt(m) + 1))
                 }
             }
             // format date
-            let tmp = val.replace(/-/g, '/').replace(/\./g, '/').toLowerCase().split('/')
+            let tmp  = val.replace(/-/g, '/').replace(/\./g, '/').toLowerCase().split('/')
             let tmp2 = format.replace(/-/g, '/').replace(/\./g, '/').toLowerCase()
             if (tmp2 === 'mm/dd/yyyy') { month = tmp[0]; day = tmp[1]; year = tmp[2] }
             if (tmp2 === 'm/d/yyyy') { month = tmp[0]; day = tmp[1]; year = tmp[2] }
@@ -204,10 +204,10 @@ let w2utils = (($) => {
         if (!isInt(year)) return false
         if (!isInt(month)) return false
         if (!isInt(day)) return false
-        year = +year
+        year  = +year
         month = +month
-        day = +day
-        dt = new Date(year, month - 1, day)
+        day   = +day
+        dt    = new Date(year, month - 1, day)
         dt.setFullYear(year)
         // do checks
         if (month == null) return false
@@ -221,17 +221,17 @@ let w2utils = (($) => {
         if (val == null) return false
         let max, am, pm
         // -- process american format
-        val = String(val)
-        val = val.toUpperCase()
-        am = val.indexOf('AM') >= 0
-        pm = val.indexOf('PM') >= 0
+        val      = String(val)
+        val      = val.toUpperCase()
+        am       = val.indexOf('AM') >= 0
+        pm       = val.indexOf('PM') >= 0
         let ampm = (pm || am)
         if (ampm) max = 12; else max = 24
         val = val.replace('AM', '').replace('PM', '')
         val = $.trim(val)
         // ---
         let tmp = val.split(':')
-        let h = parseInt(tmp[0] || 0), m = parseInt(tmp[1] || 0), s = parseInt(tmp[2] || 0)
+        let h   = parseInt(tmp[0] || 0), m = parseInt(tmp[1] || 0), s = parseInt(tmp[2] || 0)
         // accept edge case: 3PM is a good timestamp, but 3 (without AM or PM) is NOT:
         if ((!ampm || tmp.length !== 1) && tmp.length !== 2 && tmp.length !== 3) { return false }
         if (tmp[0] === '' || h < 0 || h > max || !this.isInt(tmp[0]) || tmp[0].length > 2) { return false }
@@ -273,8 +273,8 @@ let w2utils = (($) => {
         } else {
             if (format == null) format = w2utils.settings.datetimeFormat
             let formats = format.split('|')
-            let values = [val.substr(0, tmp), val.substr(tmp).trim()]
-            formats[0] = formats[0].trim()
+            let values  = [val.substr(0, tmp), val.substr(tmp).trim()]
+            formats[0]  = formats[0].trim()
             if (formats[1]) formats[1] = formats[1].trim()
             // check
             let tmp1 = w2utils.isDate(values[0], formats[0], true)
@@ -303,36 +303,36 @@ let w2utils = (($) => {
         }
         if (String(d1) === 'Invalid Date') return ''
 
-        let d2 = new Date()
-        let sec = (d2.getTime() - d1.getTime()) / 1000
+        let d2     = new Date()
+        let sec    = (d2.getTime() - d1.getTime()) / 1000
         let amount = ''
-        let type = ''
+        let type   = ''
         if (sec < 0) {
             amount = 0
-            type = 'sec'
+            type   = 'sec'
         } else if (sec < 60) {
             amount = Math.floor(sec)
-            type = 'sec'
+            type   = 'sec'
             if (sec < 0) { amount = 0; type = 'sec' }
         } else if (sec < 60*60) {
             amount = Math.floor(sec/60)
-            type = 'min'
+            type   = 'min'
         } else if (sec < 24*60*60) {
             amount = Math.floor(sec/60/60)
-            type = 'hour'
+            type   = 'hour'
         } else if (sec < 30*24*60*60) {
             amount = Math.floor(sec/24/60/60)
-            type = 'day'
+            type   = 'day'
         } else if (sec < 365*24*60*60) {
             amount = Math.floor(sec/30/24/60/60*10)/10
-            type = 'month'
+            type   = 'month'
         } else if (sec < 365*4*24*60*60) {
             amount = Math.floor(sec/365/24/60/60*10)/10
-            type = 'year'
+            type   = 'year'
         } else if (sec >= 365*4*24*60*60) {
             // factor in leap year shift (only older then 4 years)
             amount = Math.floor(sec/365.25/24/60/60*10)/10
-            type = 'year'
+            type   = 'year'
         }
         return amount + ' ' + type + (amount > 1 ? 's' : '')
     }
@@ -364,17 +364,17 @@ let w2utils = (($) => {
         if (String(d1) === 'Invalid Date') return ''
 
         let months = w2utils.settings.shortmonths
-        let d2 = new Date() // today
-        let d3 = new Date()
+        let d2     = new Date() // today
+        let d3     = new Date()
         d3.setTime(d3.getTime() - 86400000) // yesterday
 
         let dd1 = months[d1.getMonth()] + ' ' + d1.getDate() + ', ' + d1.getFullYear()
         let dd2 = months[d2.getMonth()] + ' ' + d2.getDate() + ', ' + d2.getFullYear()
         let dd3 = months[d3.getMonth()] + ' ' + d3.getDate() + ', ' + d3.getFullYear()
 
-        let time = (d1.getHours() - (d1.getHours() > 12 ? 12 :0)) + ':' + (d1.getMinutes() < 10 ? '0' : '') + d1.getMinutes() + ' ' + (d1.getHours() >= 12 ? 'pm' : 'am')
-        let time2= (d1.getHours() - (d1.getHours() > 12 ? 12 :0)) + ':' + (d1.getMinutes() < 10 ? '0' : '') + d1.getMinutes() + ':' + (d1.getSeconds() < 10 ? '0' : '') + d1.getSeconds() + ' ' + (d1.getHours() >= 12 ? 'pm' : 'am')
-        let dsp = dd1
+        let time  = (d1.getHours() - (d1.getHours() > 12 ? 12 :0)) + ':' + (d1.getMinutes() < 10 ? '0' : '') + d1.getMinutes() + ' ' + (d1.getHours() >= 12 ? 'pm' : 'am')
+        let time2 = (d1.getHours() - (d1.getHours() > 12 ? 12 :0)) + ':' + (d1.getMinutes() < 10 ? '0' : '') + d1.getMinutes() + ':' + (d1.getSeconds() < 10 ? '0' : '') + d1.getSeconds() + ' ' + (d1.getHours() >= 12 ? 'pm' : 'am')
+        let dsp   = dd1
         if (dd1 === dd2) dsp = time
         if (dd1 === dd3) dsp = w2utils.lang('Yesterday')
 
@@ -386,7 +386,7 @@ let w2utils = (($) => {
         sizeStr = parseFloat(sizeStr)
         if (sizeStr === 0) return 0
         let sizes = ['Bt', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB']
-        let i = parseInt( Math.floor( Math.log(sizeStr) / Math.log(1024) ) )
+        let i     = parseInt( Math.floor( Math.log(sizeStr) / Math.log(1024) ) )
         return (Math.floor(sizeStr / Math.pow(1024, i) * 10) / 10).toFixed(i === 0 ? 0 : 1) + ' ' + (sizes[i] || '??')
     }
 
@@ -412,9 +412,9 @@ let w2utils = (($) => {
         if (w2utils.isInt(dateStr)) dt = new Date(Number(dateStr)) // for unix timestamps
         if (String(dt) === 'Invalid Date') return ''
 
-        let year = dt.getFullYear()
+        let year  = dt.getFullYear()
         let month = dt.getMonth()
-        let date = dt.getDate()
+        let date  = dt.getDate()
         return format.toLowerCase()
             .replace('month', w2utils.settings.fullmonths[month])
             .replace('mon', w2utils.settings.shortmonths[month])
@@ -439,7 +439,7 @@ let w2utils = (($) => {
         if (w2utils.isInt(dateStr)) dt = new Date(Number(dateStr)) // for unix timestamps
         if (w2utils.isTime(dateStr)) {
             let tmp = w2utils.isTime(dateStr, true)
-            dt = new Date()
+            dt      = new Date()
             dt.setHours(tmp.hours)
             dt.setMinutes(tmp.minutes)
         }
@@ -447,9 +447,9 @@ let w2utils = (($) => {
 
         let type = 'am'
         let hour = dt.getHours()
-        let h24 = dt.getHours()
-        let min = dt.getMinutes()
-        let sec = dt.getSeconds()
+        let h24  = dt.getHours()
+        let min  = dt.getMinutes()
+        let sec  = dt.getSeconds()
         if (min < 10) min = '0' + min
         if (sec < 10) sec = '0' + sec
         if (format.indexOf('am') !== -1 || format.indexOf('pm') !== -1) {
@@ -478,7 +478,7 @@ let w2utils = (($) => {
         if (typeof format !== 'string') {
             fmt = [this.settings.dateFormat, this.settings.timeFormat]
         } else {
-            fmt = format.split('|')
+            fmt    = format.split('|')
             fmt[0] = fmt[0].trim()
             fmt[1] = (fmt.length > 1 ? fmt[1].trim() : this.settings.timeFormat)
         }
@@ -562,9 +562,9 @@ let w2utils = (($) => {
     function base64encode (input) {
         let output = ''
         let chr1, chr2, chr3, enc1, enc2, enc3, enc4
-        let i = 0
+        let i      = 0
         let keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
-        input = utf8_encode(input)
+        input      = utf8_encode(input)
 
         while (i < input.length) {
             chr1 = input.charCodeAt(i++)
@@ -583,7 +583,7 @@ let w2utils = (($) => {
         }
 
         function utf8_encode (string) {
-            string = String(string).replace(/\r\n/g,'\n')
+            string      = String(string).replace(/\r\n/g,'\n')
             let utftext = ''
 
             for (let n = 0; n < string.length; n++) {
@@ -611,18 +611,18 @@ let w2utils = (($) => {
         let output = ''
         let chr1, chr2, chr3
         let enc1, enc2, enc3, enc4
-        let i = 0
+        let i      = 0
         let keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
-        input = input.replace(/[^A-Za-z0-9\+\/\=]/g, '')
+        input      = input.replace(/[^A-Za-z0-9\+\/\=]/g, '')
 
         while (i < input.length) {
-            enc1 = keyStr.indexOf(input.charAt(i++))
-            enc2 = keyStr.indexOf(input.charAt(i++))
-            enc3 = keyStr.indexOf(input.charAt(i++))
-            enc4 = keyStr.indexOf(input.charAt(i++))
-            chr1 = (enc1 << 2) | (enc2 >> 4)
-            chr2 = ((enc2 & 15) << 4) | (enc3 >> 2)
-            chr3 = ((enc3 & 3) << 6) | enc4
+            enc1   = keyStr.indexOf(input.charAt(i++))
+            enc2   = keyStr.indexOf(input.charAt(i++))
+            enc3   = keyStr.indexOf(input.charAt(i++))
+            enc4   = keyStr.indexOf(input.charAt(i++))
+            chr1   = (enc1 << 2) | (enc2 >> 4)
+            chr2   = ((enc2 & 15) << 4) | (enc3 >> 2)
+            chr3   = ((enc3 & 3) << 6) | enc4
             output = output + String.fromCharCode(chr1)
             if (enc3 !== 64) {
                 output = output + String.fromCharCode(chr2)
@@ -635,8 +635,8 @@ let w2utils = (($) => {
 
         function utf8_decode (utftext) {
             let string = ''
-            let i = 0
-            let c = 0, c2, c3
+            let i      = 0
+            let c      = 0, c2, c3
 
             while ( i < utftext.length ) {
                 c = utftext.charCodeAt(i)
@@ -645,15 +645,15 @@ let w2utils = (($) => {
                     i++
                 }
                 else if((c > 191) && (c < 224)) {
-                    c2 = utftext.charCodeAt(i+1)
+                    c2      = utftext.charCodeAt(i+1)
                     string += String.fromCharCode(((c & 31) << 6) | (c2 & 63))
-                    i += 2
+                    i      += 2
                 }
                 else {
-                    c2 = utftext.charCodeAt(i+1)
-                    c3 = utftext.charCodeAt(i+2)
+                    c2      = utftext.charCodeAt(i+1)
+                    c3      = utftext.charCodeAt(i+2)
                     string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63))
-                    i += 3
+                    i      += 3
                 }
             }
 
@@ -692,11 +692,11 @@ let w2utils = (($) => {
                 hexcase = 0
             }
             let hex_tab = hexcase ? '0123456789ABCDEF' : '0123456789abcdef'
-            let output = ''
+            let output  = ''
             let x
             for (let i = 0; i < input.length; i++)
             {
-                x = input.charCodeAt(i)
+                x       = input.charCodeAt(i)
                 output += hex_tab.charAt((x >>> 4) & 0x0F)
                         + hex_tab.charAt(x & 0x0F)
             }
@@ -710,7 +710,7 @@ let w2utils = (($) => {
         function __pj_crypt_str2rstr_utf8(input)
         {
             let output = ''
-            let i = -1
+            let i      = -1
             let x, y
 
             while (++i < input.length)
@@ -774,7 +774,7 @@ let w2utils = (($) => {
         function __pj_crypt_binl_md5(x, len)
         {
             /* append padding */
-            x[len >> 5] |= 0x80 << ((len) % 32)
+            x[len >> 5]                      |= 0x80 << ((len) % 32)
             x[(((len + 64) >>> 9) << 4) + 14] = len
 
             let a = 1732584193
@@ -913,9 +913,9 @@ let w2utils = (($) => {
     }
 
     function transition (div_old, div_new, type, callBack) {
-        let width = $(div_old).width()
+        let width  = $(div_old).width()
         let height = $(div_old).height()
-        let time = 0.5
+        let time   = 0.5
 
         if (!div_old || !div_new) {
             console.log('ERROR: Cannot do transition when one of the divs is null')
@@ -923,8 +923,8 @@ let w2utils = (($) => {
         }
 
         div_old.parentNode.style.cssText += 'perspective: 900px; overflow: hidden;'
-        div_old.style.cssText += '; position: absolute; z-index: 1019; backface-visibility: hidden'
-        div_new.style.cssText += '; position: absolute; z-index: 1020; backface-visibility: hidden'
+        div_old.style.cssText            += '; position: absolute; z-index: 1019; backface-visibility: hidden'
+        div_new.style.cssText            += '; position: absolute; z-index: 1020; backface-visibility: hidden'
 
         switch (type) {
             case 'slide-left':
@@ -1086,7 +1086,7 @@ let w2utils = (($) => {
         if (typeof msg === 'object') {
             options = msg
         } else {
-            options.msg = msg
+            options.msg     = msg
             options.spinner = spinner
         }
         if (!options.msg && options.msg !== 0) options.msg = ''
@@ -1096,7 +1096,7 @@ let w2utils = (($) => {
             '<div class="w2ui-lock-msg"></div>'
         )
         let $lock = $(box).find('.w2ui-lock')
-        let mess = $(box).find('.w2ui-lock-msg')
+        let mess  = $(box).find('.w2ui-lock-msg')
         if (!options.msg) mess.css({ 'background-color': 'transparent', 'border': '0px' })
         if (options.spinner === true) options.msg = '<div class="w2ui-spinner" '+ (!options.msg ? 'style="width: 35px; height: 35px"' : '') +'></div>' + options.msg
         if (options.opacity != null) $lock.css('opacity', options.opacity)
@@ -1137,12 +1137,12 @@ let w2utils = (($) => {
         if (options.on == null) $.extend(options, w2utils.event)
         if (options.width == null) options.width = 200
         if (options.height == null) options.height = 100
-        let pWidth = parseInt($(where.box).width())
-        let pHeight = parseInt($(where.box).height())
+        let pWidth      = parseInt($(where.box).width())
+        let pHeight     = parseInt($(where.box).height())
         let titleHeight = parseInt($(where.box).find(where.title).css('height') || 0)
         if (options.width > pWidth) options.width = pWidth - 10
         if (options.height > pHeight - titleHeight) options.height = pHeight - 10 - titleHeight
-        options.originalWidth = options.width
+        options.originalWidth  = options.width
         options.originalHeight = options.height
         if (parseInt(options.width) < 0) options.width = pWidth + options.width
         if (parseInt(options.width) < 10) options.width = 10
@@ -1172,7 +1172,7 @@ let w2utils = (($) => {
         if ($.trim(options.html) === '' && $.trim(options.body) === '' && $.trim(options.buttons) === '') {
             if (msgCount === 0) return // no messages at all
             let $msg = $(where.box).find('#w2ui-message'+ (msgCount-1))
-            options = $msg.data('options') || {}
+            options  = $msg.data('options') || {}
             // before event
             if (options.trigger) {
                 edata = options.trigger({ phase: 'before', type: 'close', target: 'self' })
@@ -1284,7 +1284,7 @@ let w2utils = (($) => {
     }
 
     function getSize (el, type) {
-        let $el = $(el)
+        let $el    = $(el)
         let bwidth = {
             left    : parseInt($el.css('border-left-width')) || 0,
             right   : parseInt($el.css('border-right-width')) || 0,
@@ -1420,9 +1420,9 @@ let w2utils = (($) => {
     }
 
     function cssPrefix(field, value, returnString) {
-        let css = {}
+        let css    = {}
         let newCSS = {}
-        let ret = ''
+        let ret    = ''
         if (!$.isPlainObject(field)) {
             css[field] = value
         } else {
@@ -1430,11 +1430,11 @@ let w2utils = (($) => {
             if (value === true) returnString = true
         }
         for (let c in css) {
-            newCSS[c] = css[c]
+            newCSS[c]            = css[c]
             newCSS['-webkit-'+c] = css[c]
-            newCSS['-moz-'+c] = css[c].replace('-webkit-', '-moz-')
-            newCSS['-ms-'+c] = css[c].replace('-webkit-', '-ms-')
-            newCSS['-o-'+c] = css[c].replace('-webkit-', '-o-')
+            newCSS['-moz-'+c]    = css[c].replace('-webkit-', '-moz-')
+            newCSS['-ms-'+c]     = css[c].replace('-webkit-', '-ms-')
+            newCSS['-o-'+c]      = css[c].replace('-webkit-', '-o-')
         }
         if (returnString === true) {
             for (let c in newCSS) {
@@ -1449,8 +1449,8 @@ let w2utils = (($) => {
     function getCursorPosition(input) {
         if (input == null) return null
         let caretOffset = 0
-        let doc = input.ownerDocument || input.document
-        let win = doc.defaultView || doc.parentWindow
+        let doc         = input.ownerDocument || input.document
+        let win         = doc.defaultView || doc.parentWindow
         let sel
         if (input.tagName && input.tagName.toUpperCase() === 'INPUT' && input.selectionStart) {
             // standards browser
@@ -1459,14 +1459,14 @@ let w2utils = (($) => {
             if (win.getSelection) {
                 sel = win.getSelection()
                 if (sel.rangeCount > 0) {
-                    let range = sel.getRangeAt(0)
+                    let range         = sel.getRangeAt(0)
                     let preCaretRange = range.cloneRange()
                     preCaretRange.selectNodeContents(input)
                     preCaretRange.setEnd(range.endContainer, range.endOffset)
                     caretOffset = preCaretRange.toString().length
                 }
             } else if ( (sel = doc.selection) && sel.type !== 'Control') {
-                let textRange = sel.createRange()
+                let textRange         = sel.createRange()
                 let preCaretTextRange = doc.body.createTextRange()
                 preCaretTextRange.moveToElementText(input)
                 preCaretTextRange.setEndPoint('EndToEnd', textRange)
@@ -1477,7 +1477,7 @@ let w2utils = (($) => {
     }
 
     function setCursorPosition(input, pos, posEnd) {
-        let range = document.createRange()
+        let range   = document.createRange()
         let el, sel = window.getSelection()
         if (input == null) return
         for (let i = 0; i < input.childNodes.length; i++) {
@@ -1550,7 +1550,7 @@ let w2utils = (($) => {
             }
         } else if (str.length > 4 && str.substr(0, 4) === 'RGB(') {
             let tmp = str.replace('RGB', '').replace(/\(/g, '').replace(/\)/g, '').split(',')
-            color = {
+            color   = {
                 r: parseInt(tmp[0], 10),
                 g: parseInt(tmp[1], 10),
                 b: parseInt(tmp[2], 10),
@@ -1558,7 +1558,7 @@ let w2utils = (($) => {
             }
         } else if (str.length > 5 && str.substr(0, 5) === 'RGBA(') {
             let tmp = str.replace('RGBA', '').replace(/\(/g, '').replace(/\)/g, '').split(',')
-            color = {
+            color   = {
                 r: parseInt(tmp[0], 10),
                 g: parseInt(tmp[1], 10),
                 b: parseInt(tmp[2], 10),
@@ -1627,7 +1627,7 @@ let w2utils = (($) => {
 
     function tooltip(msg, options) {
         let actions, showOn = 'mouseenter', hideOn = 'mouseleave'
-        options = options || {}
+        options             = options || {}
         if (options.showOn) {
             showOn = options.showOn
             delete options.showOn
@@ -1680,7 +1680,7 @@ let w2utils = (($) => {
             if (codeA < 76 && codeB < 76 && codeA > 66 && codeB > 66) {
                 codeA = getCode(a, posA, posA)
                 codeB = getCode(b, posB, posA = i)
-                posB = i
+                posB  = i
             }
 
             if (codeA != codeB) return (codeA < codeB) ? -1 : 1
@@ -1713,7 +1713,7 @@ let w2utils = (($) => {
 
 /***********************************************************
 *  Formatters object
-*  --- Primariy used in grid
+*  --- Primarily used in grid
 *
 *********************************************************/
 
@@ -1814,7 +1814,7 @@ w2utils.formatters = {
 
     'password'(value, params) {
         let ret = ''
-        for (let i=0; i < value.length; i++) {
+        for (let i = 0; i < value.length; i++) {
             ret += '*'
         }
         return ret
@@ -1823,8 +1823,8 @@ w2utils.formatters = {
 
 if (self) {
     self.w2utils = w2utils
-    self.w2ui = self.w2ui || {}
-    w2ui = self.w2ui
+    self.w2ui    = self.w2ui || {}
+    w2ui         = self.w2ui
 }
 
 export { w2ui, w2utils }
