@@ -1188,7 +1188,7 @@ class w2grid extends w2event {
                         break
                     case 'ends':
                     case 'ends with': // need for back compatibility
-                        lastIndex = val1.lastIndexOf(val2)
+                        let lastIndex = val1.lastIndexOf(val2)
                         if (lastIndex !== -1 && lastIndex == val1.length - val2.length) fl++ // do not hide record
                         break
                 }
@@ -2698,7 +2698,6 @@ class w2grid extends w2event {
         // let the management of the error outside of the grid
         let edata = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.last.xhr })
         if (edata.isCancelled === true) {
-            if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' })
             return
         }
         this.message(msg)
@@ -7655,7 +7654,7 @@ class w2grid extends w2event {
         }
         if ($.isPlainObject(data) /*&& col.editable*/) { //It can be an object btw
             if (col.options && col.options.items) {
-                val = col.options.items.find((item) => { return item.id == data.id })
+                let val = col.options.items.find((item) => { return item.id == data.id })
                 if (val) data = val.text
                 else data = data.id
             } else {
@@ -7759,7 +7758,9 @@ class w2grid extends w2event {
         if (returnOnly !== true) {
             // event before
             let edata = this.trigger({ phase: 'before', type: 'stateSave', target: this.name, state: state })
-            if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return }
+            if (edata.isCancelled === true) {
+                return
+            }
             try {
                 let savedState = $.parseJSON(localStorage.w2ui || '{}')
                 if (!savedState) savedState = {}
@@ -7793,7 +7794,9 @@ class w2grid extends w2event {
         }
         // event before
         let edata = this.trigger({ phase: 'before', type: 'stateRestore', target: this.name, state: newState })
-        if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return }
+        if (edata.isCancelled === true) {
+            return
+        }
         // default behavior
         if ($.isPlainObject(newState)) {
             $.extend(this.show, newState.show)
