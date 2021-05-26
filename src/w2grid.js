@@ -23,6 +23,8 @@
 * == DEMOS To create ==
 *
 * == KNOWN ISSUES ==
+*   - reorder records with school - not correct
+*   - reorder columns not working
 *   - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
 *   - Shift-click/Ctrl-click/Ctrl-Shift-Click selection is not as robust as it should be
 *
@@ -2962,6 +2964,7 @@ class w2grid extends w2event {
         }
 
         setTimeout(() => {
+            let input = el.find('input').get(0)
             if (!this.last.inEditMode) return
             el.find('input, select, div.w2ui-input')
                 .data('old_value', old_value)
@@ -5005,6 +5008,7 @@ class w2grid extends w2event {
                     $(obj.box).find('.w2ui-odd td').not('.w2ui-col-number').css('background-color', oColor)
                     // display empty record and ghost record
                     let mv = obj.last.move
+                    let recs = $(obj.box).find('.w2ui-grid-records')
                     if (!mv.ghost) {
                         let row = $('#grid_'+ obj.name + '_rec_'+ mv.recid)
                         let tmp = row.parents('table').find('tr:first-child').clone()
@@ -5015,15 +5019,13 @@ class w2grid extends w2event {
                         mv.ghost.removeAttr('id')
                         row.find('td').remove()
                         row.append('<td colspan="1000"><div style="height: '+ obj.recordHeight +'px; background-color: #eee; border-bottom: 1px dashed #aaa; border-top: 1px dashed #aaa;"></div></td>')
-                        let recs = $(obj.box).find('.w2ui-grid-records')
                         recs.append('<div id="grid_'+ obj.name + '_ghost_line" style="position: absolute; z-index: 999999; pointer-events: none; width: 100%;"></div>')
                         recs.append('<table id="grid_'+ obj.name + '_ghost" style="position: absolute; z-index: 999998; opacity: 0.9; pointer-events: none;"></table>')
                         $('#grid_'+ obj.name + '_ghost').append(tmp).append(mv.ghost)
                     }
                     let ghost = $('#grid_'+ obj.name + '_ghost')
-                    let recs = $(obj.box).find('.w2ui-grid-records')
                     ghost.css({
-                        top  : mv.pos.top + recs.scrollTop(),
+                        top  : mv.pos.top,
                         left : mv.pos.left,
                         'border-top'    : '1px solid #aaa',
                         'border-bottom' : '1px solid #aaa'
@@ -5047,7 +5049,6 @@ class w2grid extends w2event {
             if (Math.abs(mv.divX) <= 1 && Math.abs(mv.divY) <= 1) return // only if moved more then 1px
             obj.last.cancelClick = true
             if (obj.reorderRows == true && obj.last.move.reorder) {
-                let recs = $(obj.box).find('.w2ui-grid-records')
                 let tmp = $(event.target).parents('tr')
                 let recid = tmp.attr('recid')
                 if (recid == '-none-') recid = 'bottom'
@@ -5065,7 +5066,7 @@ class w2grid extends w2event {
                     let ghost_line = $('#grid_'+ obj.name + '_ghost_line')
                     if (pos) {
                         ghost_line.css({
-                            top  : pos.top + recs.scrollTop(),
+                            top  : pos.top,
                             left : mv.pos.left,
                             'border-top': '2px solid #769EFC'
                         })
@@ -5077,7 +5078,7 @@ class w2grid extends w2event {
                 }
                 let ghost = $('#grid_'+ obj.name + '_ghost')
                 ghost.css({
-                    top  : mv.pos.top + mv.divY + recs.scrollTop(),
+                    top  : mv.pos.top + mv.divY,
                     left : mv.pos.left
                 })
                 return
@@ -5213,38 +5214,45 @@ class w2grid extends w2event {
                     obj.select(sel)
                 }
                 if (obj.reorderRows == true && obj.last.move.reorder) {
-                    // event
-                    let edata = obj.trigger({ phase: 'before', target: obj.name, type: 'reorderRow', recid: mv.from, moveAfter: mv.to })
-                    if (edata.isCancelled === true) {
-                        $('#grid_'+ obj.name + '_ghost').remove()
-                        $('#grid_'+ obj.name + '_ghost_line').remove()
-                        obj.refresh()
-                        delete obj.last.move
-                        return
-                    }
-                    // default behavior
-                    let ind1 = obj.get(mv.from, true)
-                    let ind2 = obj.get(mv.to, true)
-                    if (mv.to == 'bottom') ind2 = obj.records.length // end of list
-                    let tmp = obj.records[ind1]
-                    // swap records
-                    if (ind1 != null && ind2 != null) {
-                        obj.records.splice(ind1, 1)
-                        if (ind1 > ind2) {
-                            obj.records.splice(ind2, 0, tmp)
-                        } else {
-                            obj.records.splice(ind2 - 1, 0, tmp)
+                    if (mv.to != null) {
+                        // event
+                        let edata = obj.trigger({ phase: 'before', target: obj.name, type: 'reorderRow', recid: mv.from, moveBefore: mv.to })
+                        if (edata.isCancelled === true) {
+                            resetRowReorder()
+                            delete obj.last.move
+                            return
                         }
+                        // default behavior
+                        let ind1 = obj.get(mv.from, true)
+                        let ind2 = obj.get(mv.to, true)
+                        if (mv.to == 'bottom') ind2 = obj.records.length // end of list
+                        let tmp = obj.records[ind1]
+                        // swap records
+                        if (ind1 != null && ind2 != null) {
+                            obj.records.splice(ind1, 1)
+                            if (ind1 > ind2) {
+                                obj.records.splice(ind2, 0, tmp)
+                            } else {
+                                obj.records.splice(ind2 - 1, 0, tmp)
+                            }
+                        }
+                        resetRowReorder()
+                        // event after
+                        obj.trigger($.extend(edata, { phase: 'after' }))
+                    } else {
+                        resetRowReorder()
                     }
-                    $('#grid_'+ obj.name + '_ghost').remove()
-                    $('#grid_'+ obj.name + '_ghost_line').remove()
-                    obj.refresh()
-                    // event after
-                    obj.trigger($.extend(edata, { phase: 'after' }))
                 }
             }
             delete obj.last.move
             $(document).off('.w2ui-' + obj.name)
+        }
+
+        function resetRowReorder() {
+            $('#grid_'+ obj.name + '_ghost').remove()
+            $('#grid_'+ obj.name + '_ghost_line').remove()
+            obj.refresh()
+            delete obj.last.move
         }
     }
 
@@ -6615,7 +6623,7 @@ class w2grid extends w2event {
             }
             for (let i=0; i<obj.columnGroups.length; i++) {
                 let colg = obj.columnGroups[i]
-                let col = obj.columns[ii]
+                let col = obj.columns[ii] || {}
                 if (colg.colspan != null) colg.span = colg.colspan
                 if (colg.span == null || colg.span != parseInt(colg.span)) colg.span = 1
                 if (col.text == null && col.caption != null) {

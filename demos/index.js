@@ -103,12 +103,12 @@ $(function () {
                         { id: 'grid/21', text: 'Inline Editing', icon: 'fa fa-table' },
                         { id: 'grid/22', text: 'Resizable Columns', icon: 'fa fa-table' },
                         { id: 'grid/24', text: 'Lock/Unlock Grid', icon: 'fa fa-table' },
-                        { id: 'grid/25', text: 'Re-Order Columns', icon: 'fa fa-table' },
-                        { id: 'grid/26', text: 'Re-Order Records', icon: 'fa fa-table' }
+                        { id: 'grid/25', text: 'Reorder Columns', icon: 'fa fa-table' }
                     ]
                 },
                 { id: 'grid-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
+                        { id: 'grid/26', text: 'Reorder Records (1.5+)', icon: 'fa fa-table' },
                         { id: 'grid/7',  text: 'Tree-Like Grid (1.5+)', icon: 'fa fa-table' },
                         { id: 'grid/27', text: 'Frozen Columns (1.5+)', icon: 'fa fa-table' },
                         { id: 'grid/28', text: 'Info Bubble (1.5+)', icon: 'fa fa-table' }

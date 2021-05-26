@@ -1,9 +1,9 @@
 <div class="content">
     <div id="example_title">
         <h1>Local or Remote Data Source</h1>
-        The data in the grid might come from a local or remote data source. If you define <span class="method">grid.url</span> 
+        The data in the grid might come from a local or remote data source. If you define <span class="method">grid.url</span>
         property, the grid will assume that your data source is remote. Otherwise, the data source is local (all records are stored in
-        <span class="method">grid.records</span>) array. If data source is remote, the grid will: 
+        <span class="method">grid.records</span>) array. If data source is remote, the grid will:
         <ul>
             <li>Pull records from the server on render</li>
             <li>Pull records from the server on reload</li>
@@ -25,20 +25,20 @@
 <!--CODE-->
 <script>
 $(function () {
-    $('#grid').w2grid({ 
-        name: 'grid', 
-        searches: [                
-            { field: 'fname', caption: 'First Name', type: 'text' },
-            { field: 'lname', caption: 'Last Name', type: 'text' },
-            { field: 'email', caption: 'Email', type: 'text' }
+    $('#grid').w2grid({
+        name: 'grid',
+        searches: [
+            { field: 'fname', text: 'First Name', type: 'text' },
+            { field: 'lname', text: 'Last Name', type: 'text' },
+            { field: 'email', text: 'Email', type: 'text' }
         ],
         sortData: [ { field: 'lname', direction: 'asc' } ],
-        columns: [                
-            { field: 'recid', caption: 'ID', size: '50px', sortable: true },
-            { field: 'fname', caption: 'First Name', size: '30%', sortable: true },
-            { field: 'lname', caption: 'Last Name', size: '30%', sortable: true },
-            { field: 'email', caption: 'Email', size: '40%' },
-            { field: 'sdate', caption: 'Start Date', size: '120px' }
+        columns: [
+            { field: 'recid', text: 'ID', size: '50px', sortable: true },
+            { field: 'fname', text: 'First Name', size: '30%', sortable: true },
+            { field: 'lname', text: 'Last Name', size: '30%', sortable: true },
+            { field: 'email', text: 'Email', size: '40%' },
+            { field: 'sdate', text: 'Start Date', size: '120px' }
         ],
         records: [
             { recid: 1, fname: 'John', lname: 'doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
@@ -57,6 +57,6 @@ $(function () {
             { recid: 24, fname: 'Manny', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
             { recid: 25, fname: 'Ben', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
         ]
-    });    
+    });
 });
 </script>

@@ -1,7 +1,7 @@
 <div class="content">
     <div id="example_title">
         <h1>Fixed/Resizable Grid</h1>
-        If you set <span class="method">grid.fixedBody</span> property to true, the size of the grid will be fixed. If you set the 
+        If you set <span class="method">grid.fixedBody</span> property to true, the size of the grid will be fixed. If you set the
         <span class="method">fixedBody</span> property to false, the grid to the height of its data.
     </div>
     <div id="example_view"></div>
@@ -15,7 +15,7 @@
 <button class="w2ui-btn" onclick="removeRecords()">Remove Appended Records</button>
 &nbsp;&nbsp;&nbsp;&nbsp;
 <label>
-    <input type="checkbox" id="fixedsize" onclick="var grid = w2ui.grid; grid.fixedBody = this.checked; 
+    <input type="checkbox" id="fixedsize" onclick="var grid = w2ui.grid; grid.fixedBody = this.checked;
         if (this.checked) { grid.resize(null, '200px'); } else { grid.refresh(); }">
     Fixed Height
 </label>
@@ -23,15 +23,15 @@
 <!--CODE-->
 <script>
 $(function () {
-    $('#grid').w2grid({ 
-        name: 'grid', 
+    $('#grid').w2grid({
+        name: 'grid',
         show: { lineNumbers: true },
         fixedBody: false,
-        columns: [                
-            { field: 'lname', caption: 'Last Name', size: '30%' },
-            { field: 'fname', caption: 'First Name', size: '30%' },
-            { field: 'email', caption: 'Email', size: '40%' },
-            { field: 'sdate', caption: 'Start Date', size: '90px' }
+        columns: [
+            { field: 'lname', text: 'Last Name', size: '30%' },
+            { field: 'fname', text: 'First Name', size: '30%' },
+            { field: 'email', text: 'Email', size: '40%' },
+            { field: 'sdate', text: 'Start Date', size: '90px' }
         ],
         records: [
             { recid: 1, fname: 'Jane', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
@@ -47,7 +47,7 @@ $(function () {
             { recid: 11, fname: 'Jane', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
             { recid: 12, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
         ]
-    });    
+    });
 });
 
 function addRecord() {

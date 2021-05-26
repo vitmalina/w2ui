@@ -14,26 +14,26 @@
 <!--CODE-->
 <script>
 $(function () {
-    $('#grid').w2grid({ 
-        name: 'grid', 
-        show: { 
+    $('#grid').w2grid({
+        name: 'grid',
+        show: {
             toolbar: true,
             footer: true
         },
         multiSearch: false,
         searches: [
-            { field: 'recid', caption: 'ID ', type: 'int' },
-            { field: 'lname', caption: 'Last Name', type: 'text' },
-            { field: 'fname', caption: 'First Name', type: 'text' },
-            { field: 'email', caption: 'Email', type: 'text' },
-            { field: 'sdate', caption: 'Start Date', type: 'date' }
+            { field: 'recid', text: 'ID ', type: 'int' },
+            { field: 'lname', text: 'Last Name', type: 'text' },
+            { field: 'fname', text: 'First Name', type: 'text' },
+            { field: 'email', text: 'Email', type: 'text' },
+            { field: 'sdate', text: 'Start Date', type: 'date' }
         ],
-        columns: [                
-            { field: 'recid', caption: 'ID', size: '50px', sortable: true, attr: 'align=center' },
-            { field: 'lname', caption: 'Last Name', size: '30%', sortable: true },
-            { field: 'fname', caption: 'First Name', size: '30%', sortable: true },
-            { field: 'email', caption: 'Email', size: '40%' },
-            { field: 'sdate', caption: 'Start Date', size: '120px' }
+        columns: [
+            { field: 'recid', text: 'ID', size: '50px', sortable: true, attr: 'align=center' },
+            { field: 'lname', text: 'Last Name', size: '30%', sortable: true },
+            { field: 'fname', text: 'First Name', size: '30%', sortable: true },
+            { field: 'email', text: 'Email', size: '40%' },
+            { field: 'sdate', text: 'Start Date', size: '120px' }
         ],
         records: [
             { recid: 1, fname: 'Jane', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
@@ -55,6 +55,6 @@ $(function () {
             { recid: 27, fname: 'Shashi', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
             { recid: 28, fname: 'Av', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
         ]
-    });    
+    });
 });
 </script>
