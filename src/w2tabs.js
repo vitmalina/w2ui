@@ -587,7 +587,6 @@ class w2tabs extends w2event {
 
     animateInsert(id, tab) {
         return new Promise((resolve, reject) => {
-            let middle = this.get(id, true)
             let $before = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(id))
             let $tab = $(this.getTabHTML(tab.id))
             if ($before.length == 0) {
@@ -600,7 +599,7 @@ class w2tabs extends w2event {
                 $(this.box).find('#tabs_tabs_right').before($tab)
                 let $tmp = $('#'+$tab.attr('id'))
                 let width = parseInt($tmp.css('width') || 0)
-                let $anim = $(`<div class="tab-animate-insert" style="display: inline-block; flex-shrink: 0; width: 0px; transition: width 0.25s"></div>`)
+                let $anim = $('<div class="tab-animate-insert" style="display: inline-block; flex-shrink: 0; width: 0px; transition: width 0.25s"></div>')
                 $before.before($anim)
                 $tab.hide()
                 $tab.insertBefore($anim)
