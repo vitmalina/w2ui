@@ -29,6 +29,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2form.onProgress">onProgress</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called during the save request.
+</div>
+
+<div class="obj-property">
     <a href="w2form.onRequest">onRequest</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">

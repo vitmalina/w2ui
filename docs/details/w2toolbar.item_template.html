@@ -17,7 +17,7 @@ item: {
     disabled : false,   // indicates if item is disabled
     checked  : false,   // indicates if item is checked
     img      : '',      // css class of the image for the item
-    icon     : '',      // css class of the icon font for the item
+    icon     : '',      // css class of the icon font for the item, can be string or function
     route    : null,    // route to follow, can have dynamic parts as /item/:id/details (see routeData)
     arrow    : true,    // down arrow for drop/menu types
     style    : null,    // extra css style for caption
@@ -93,5 +93,5 @@ item: {
     <tr><td style="white-space: nowrap"> text-color </td>  <td> color picker drop down for text, see <span class="property">.color</span>, <span class="property">.transparent</span> properties. </td></tr>
     <tr><td> break </td>       <td> horizontal separator </td></tr>
     <tr><td> spacer </td>      <td> horizontal spacer, will push all following buttons to the right hand side </td></tr>
-    <tr><td> new-line </td>    <td> verticle separator </td></tr>
+    <tr><td> new-line </td>    <td> vertical separator </td></tr>
 </table>

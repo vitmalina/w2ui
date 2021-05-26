@@ -42,6 +42,7 @@ class w2sidebar extends w2event {
         this.hasFocus = false
         this.levelPadding = 12
         this.skipRefresh = false
+        this.tabIndex = 0 // will only be set if > 0
         this.handle = { size: 0, style: '', content: '' },
         this.onClick = null // Fire when user click on Node Text
         this.onDblClick = null // Fire when user dbl clicks

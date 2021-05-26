@@ -109,7 +109,7 @@ $(function () {
                 { id: 'grid-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'grid/26', text: 'Reorder Records (1.5+)', icon: 'fa fa-table' },
-                        { id: 'grid/7',  text: 'Tree-Like Grid (1.5+)', icon: 'fa fa-table' },
+                        { id: 'grid/7', text: 'Tree-Like Grid (1.5+)', icon: 'fa fa-table' },
                         { id: 'grid/27', text: 'Frozen Columns (1.5+)', icon: 'fa fa-table' },
                         { id: 'grid/28', text: 'Info Bubble (1.5+)', icon: 'fa fa-table' }
                     ]
@@ -200,9 +200,10 @@ $(function () {
                         { id: 'form/10', text: 'Multi Columns (1.5+)', icon: 'fa fa-pencil-square-o' },
                         { id: 'form/11', text: 'Column Span (1.5+)', icon: 'fa fa-pencil-square-o' },
                         { id: 'form/12', text: 'Custom Styling (1.5+)', icon: 'fa fa-pencil-square-o' },
-                        { id: 'form/13', text: 'Anchored fields (1.5+)', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/13', text: 'Anchored Fields (1.5+)', icon: 'fa fa-pencil-square-o' },
                         { id: 'form/14', text: 'Maps and Arrays (1.5+)', icon: 'fa fa-pencil-square-o' },
-                        { id: 'form/15', text: 'Custom Fiels (1.5+)', icon: 'fa fa-pencil-square-o' }
+                        { id: 'form/15', text: 'Custom Fields (1.5+)', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/16', text: 'Enable/Disable Fields (1.5+)', icon: 'fa fa-pencil-square-o' }
                     ]
                 },
                 { id: 'fields', text: 'Fields Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
@@ -264,13 +265,13 @@ $(function () {
                 }
             ],
             onClick: function (event) {
-                var cmd = event.target
+                let cmd = event.target
                 if (parseInt(cmd.substr(cmd.length-1)) != cmd.substr(cmd.length-1)) return
-                var tmp = w2ui.demo_sidebar.get(cmd)
+                let tmp = w2ui.demo_sidebar.get(cmd)
                 document.title = tmp.parent.text + ': ' + tmp.text + ' | w2ui'
                 // delete previously created items
-                for (var widget in w2ui) {
-                    var nm = w2ui[widget].name
+                for (let widget in w2ui) {
+                    let nm = w2ui[widget].name
                     if (['demo_layout', 'demo_sidebar', 'demo_toolbar'].indexOf(nm) == -1) $().w2destroy(nm)
                 }
                 // set hash
@@ -280,30 +281,30 @@ $(function () {
                 }
                 // load example
                 $.get('examples/'+ cmd +'.html', function (data) {
-                    var tmp = data.split('<!--CODE-->');
+                    let tmp = data.split('<!--CODE-->')
                     if (tmp.length == 1) {
-                        alert('ERROR: cannot parse example.');
-                        console.log('ERROR: cannot parse example.', data);
-                        return;
+                        alert('ERROR: cannot parse example.')
+                        console.log('ERROR: cannot parse example.', data)
+                        return
                     }
-                    var w2ui_js  = 'http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.js';
-                    var w2ui_css = 'http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css';
-                    var html     = tmp[1] ? $.trim(tmp[1]) : '';
-                    var js       = tmp[2] ? $.trim(tmp[2]) : '';
-                    var css      = tmp[3] ? $.trim(tmp[3]) : '';
-                    var json     = tmp[4] ? $.trim(tmp[4]) : '';
-                    js   = js.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '');
-                    js   = $.trim(js);
-                    css  = css.replace(/^<style[^>]*>/, '').replace(/<\/style>$/, '');
-                    css  = $.trim(css);
-                    json = json.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '');
-                    json = $.trim(json);
-                    w2ui['demo_layout'].html('main', tmp[0]);
+                    let w2ui_js  = 'http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.js'
+                    let w2ui_css = 'http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css'
+                    let html     = tmp[1] ? $.trim(tmp[1]) : ''
+                    let js       = tmp[2] ? $.trim(tmp[2]) : ''
+                    let css      = tmp[3] ? $.trim(tmp[3]) : ''
+                    let json     = tmp[4] ? $.trim(tmp[4]) : ''
+                    js   = js.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '')
+                    js   = $.trim(js)
+                    css  = css.replace(/^<style[^>]*>/, '').replace(/<\/style>$/, '')
+                    css  = $.trim(css)
+                    json = json.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '')
+                    json = $.trim(json)
+                    w2ui.demo_layout.html('main', tmp[0])
                     $('#example_view').html(
-                            '<h2>Preview</h2>'+ html +
+                        '<h2>Preview</h2>'+ html +
                             '<script type="text/javascript">' + js + '</script>' +
-                            '<style>' + css + '</style>');
-                    var code = '<!DOCTYPE html>\n'+
+                            '<style>' + css + '</style>')
+                    let code = '<!DOCTYPE html>\n'+
                                '<html>\n'+
                                '<head>\n'+
                                '    <title>W2UI Demo: '+ cmd +'</title>\n'+
@@ -316,7 +317,7 @@ $(function () {
                                (js != '' ? '<script type="text/javascript">\n' + js + '\n</script>\n\n' : '') +
                                (css != '' ? '<style>\n' + css + '</style>\n\n' : '') +
                                '</body>\n'+
-                               '</html>';
+                               '</html>'
                     $('#example_code').html('<a href="javascript:" onclick="$(this).next().show(); initCode(); $(this).hide();" class="btn-source">Show Source Code</a>'+
                         '<div id="sourcecode" style="display: none;">'+
                         '<h2>Complete Code '+
@@ -339,7 +340,7 @@ $(function () {
                         '    <textarea name="css">'+ css +'</textarea>'+
                         '    <textarea name="wrap">l</textarea>'+
                         '</form>'+
-                        '</div>');
+                        '</div>')
                 })
             }
         }
@@ -349,7 +350,7 @@ $(function () {
     $().w2sidebar(conf.demo_sidebar)
     $('#demo_layout').w2layout(conf.demo_layout)
     // init sidebar
-    w2ui.demo_layout.html('top', `<div style="padding: 18px 0 0 20px; font-size: 18px;">W2UI Demos</div><div id="demo_toolbar"></div>`)
+    w2ui.demo_layout.html('top', '<div style="padding: 18px 0 0 20px; font-size: 18px;">W2UI Demos</div><div id="demo_toolbar"></div>')
     w2ui.demo_layout.html('left', w2ui.demo_sidebar)
 
     setTimeout(hashChanged, 10)
@@ -362,7 +363,7 @@ $(function () {
         if (hash == '') hash = 'combo/1'
         let sec = hash.split('/')[0]
         let exp = hash.split('/')[1]
-        if (parseInt(exp) != exp) { // neded for backward compatibility with what is in google already
+        if (parseInt(exp) != exp) { // needed for backward compatibility with what is in google already
             exp = String(exp).split('-')[1]
         }
         let sb = w2ui.demo_sidebar
@@ -387,13 +388,13 @@ $(function () {
 
 function initCode() {
     // CodeMirror
-    var text = $('#example_code .preview')
+    let text = $('#example_code .preview')
     if (text.length > 0) {
-        var cm = CodeMirror(
+        let cm = CodeMirror(
             function(elt) { text[0].parentNode.replaceChild(elt, text[0]) },
             {
                 value        : $.trim(text.val()),
-                mode        : "text/html",
+                mode        : 'text/html',
                 readOnly    : true,
                 gutter        : true,
                 lineNumbers    : true
@@ -401,13 +402,13 @@ function initCode() {
         )
         cm.setSize(null, cm.doc.height + 15)
     }
-    var text = $('#example_code .json')
+    text = $('#example_code .json')
     if (text.length > 0) {
-        var cm = CodeMirror(
+        let cm = CodeMirror(
             function(elt) { text[0].parentNode.replaceChild(elt, text[0]) },
             {
-                    value        : $.trim(text.val()),
-                mode        : "javascript",
+                value        : $.trim(text.val()),
+                mode        : 'javascript',
                 readOnly    : true,
                 gutter        : true,
                 lineNumbers    : true
