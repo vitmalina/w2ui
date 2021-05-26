@@ -16,7 +16,7 @@ import conf_toolbar from './conf-toolbar.js'
 import conf_sidebar from './conf-sidebar.js'
 import conf_layout from './conf-layout.js'
 import conf_form from './conf-form.js'
-import conf_grid from './conf-grid.js'
+import conf_grid from './conf-grid3.js'
 
 // w2field
 addType('myType', function (options) {

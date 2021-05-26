@@ -7,7 +7,8 @@
 </div>
 
 <!--CODE-->
-<div id="grid" style="width: 100%; height: 400px;"></div>
+<div id="grid" style="width: 100%; height: 600px;"></div>
+<div id="log" style="padding-top: 15px"></div>
 
 <!--CODE-->
 <script>
@@ -16,11 +17,11 @@ $(function () {
         name: 'grid',
         show: {
             footer: true,
-            lineNumbers : true
+            orderColumn: true,
         },
         reorderRows: true,
         columns: [
-            { field: 'recid', text: 'ID', size: '50px', resizable: true },
+            { field: 'recid', text: 'ID', size: '50px', resizable: true, sortable: true },
             { field: 'fname', text: 'Full Name', size: '200px', resizable: true,
                 render: function (record, index, column_index) {
                     var html = '<div>'+ record.fname + ' ' + record.lname + '</div>';
@@ -48,7 +49,11 @@ $(function () {
             { recid: 17, fname: 'Mark', lname: 'Welldo', email: 'mark@gmail.com', profit: 7065, sdate: '8/13/2012' },
             { recid: 18, fname: 'Thomas', lname: 'Bahh', email: 'thomas@gmail.com', profit: 609, sdate: '4/31/2012' },
             { recid: 19, fname: 'Sergei', lname: 'Rachmaninov', email: 'sergei@gmail.com', profit: 777, sdate: '2/23/2012' }
-        ]
-    });
-});
+        ],
+        onReorderRow(event) {
+            $('#log').html(`Record "${event.recid}" moved before "${event.moveBefore || event.moveAfter}"`)
+            console.log('er', event)
+        }
+    })
+})
 </script>
