@@ -2964,6 +2964,7 @@ class w2grid extends w2event {
         }
 
         setTimeout(() => {
+            let input = el.find('input').get(0)
             if (!this.last.inEditMode) return
             el.find('input, select, div.w2ui-input')
                 .data('old_value', old_value)

@@ -39,30 +39,25 @@ module.exports = {
         'no-eval': 'error',
         'no-implied-eval': 'error',
         'no-extend-native': 'error',
-        'no-multi-spaces': [ 'error',
-            {
-                ignoreEOLComments : true,
-                exceptions : {
-                    VariableDeclarator : true,
-                    AssignmentPattern : true,
-                    AssignmentExpression : true
-                }
+        'no-multi-spaces': [ 'error', {
+            ignoreEOLComments : true,
+            exceptions : {
+                VariableDeclarator : true,
+                AssignmentPattern : true,
+                AssignmentExpression : true
             }
-        ],
-        'key-spacing' : [ 'error',
-            {
-                mode        : 'strict',
-                beforeColon : true,
-                afterColon  : true,
-                align       : 'colon',
-            }
-        ],
+        }],
+        // 'align-assignments/align-assignments': ['error', { requiresOnly: false } ],
+        // 'key-spacing' : [ 'error', {
+        //     mode        : 'strict',
+        //     beforeColon : false,
+        //     afterColon  : true,
+        //     align       : 'colon'
+        // }],
         'func-call-spacing': 'warn',
         'func-name-matching': 'warn',
         // "func-names": ["warn", "always"],
         'no-inner-declarations': 'off',
-        'no-unreachable': 'off',
-        // PLUGIN rules
-        // 'align-assignments/align-assignments': [ 2, { requiresOnly : false } ],
+        'no-unreachable': 'off'
     }
 }

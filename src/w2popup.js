@@ -369,7 +369,7 @@ class w2dialog extends w2event {
             // load url
             let html = $('#w2ui-popup').data(url)
             if (html != null) {
-                popup(html, selector)
+                this.template(html, selector)
             } else {
                 $.get(url, (data, status, obj) => { // should always be $.get as it is template
                     this.template(obj.responseText, selector, options).then(() => { resolve() })
