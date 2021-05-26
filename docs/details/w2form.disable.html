@@ -1,0 +1,28 @@
+Disables fields in a form.
+
+<div class="definition">
+    disable(field1, field2, ...)
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>field</td>
+        <td><b>string</b>, id of the field</td>
+    </tr>
+    </table>
+</div>
+Returns integer.
+
+<h4>Description</h4>
+
+Disables a field or fields from the <a class="method" href="w2form.fields">.fields</a> array and refreshes the form.
+The field is identified by the <span class="property">.field</span> property, which is a required property for each field
+object. The method returns the number of fields it disables.
+<div style="height: 10px"></div>
+
+Example:
+
+<textarea class="javascript">
+w2ui['form'].disable('field1', 'field2');
+</textarea>

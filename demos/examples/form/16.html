@@ -1,7 +1,7 @@
 <div class="content">
     <div id="example_title">
-        <h1>Auto-Generated Templates</h1>
-        Most templates can be auto generated. All examples that follow are with auto-generated templates.
+        <h1>Enable/Disable Fields</h1>
+        Multiple fields can be enabled/disabled at once.
     </div>
     <div id="example_view">
         See <a href="http://w2ui.com/web/docs/w2form.fields" target="_blank">options</a> for more information
@@ -21,23 +21,23 @@ $(function () {
         url    : 'server/post',
         fields : [
             { field: 'first_name', type: 'text', required: true,
-                html: {
-                    label: 'First Name',
-                    attr: 'style="width: 300px"'
-                }
+                html: { label: 'First Name', attr: 'style="width: 200px"' }
             },
             { field: 'last_name',  type: 'text', required: true,
-                html: {
-                    label: 'Last Name',
-                    attr: 'style="width: 300px"'
-                }
+                html: { label: 'Last Name', attr: 'style="width: 200px"' }
             },
             { field: 'comments', type: 'textarea',
-                html: {
-                    label: 'Comments',
-                    attr: 'style="width: 300px; height: 60px"'
-                }
-            }
+                html: { label: 'Comments', attr: 'style="width: 200px; height: 60px"' }
+            },
+            { field: 'city', type: 'text',
+                html: { label: 'City', attr: 'style="width: 200px"', column: 2, }
+            },
+            { field: 'zip', type: 'text', disabled: true,
+                html: { label: 'Zip Code', attr: 'style="width: 100px"', column: 2, }
+            },
+            { field: 'street', type: 'text',
+                html: { label: 'Street', attr: 'style="width: 200px"', column: 2, }
+            },
         ],
         actions: {
             'Reset': function (event) {
@@ -54,12 +54,16 @@ $(function () {
                     })
                 }
             },
-            custom: {
-                text: '<span style="font-size: 16px">←</span> click to see data',
-                class: 'custom-class',
-                style: 'background-image: none; background-color: transparent; border: 0px; margin: 0 0 0 -10px;',
+            Disable: {
+                text: 'Disable',
                 onClick() {
-                    w2alert('Not me!! The other button')
+                    console.log( this.disable('zip', 'street', 'first_name', 'bad_field') )
+                }
+            },
+            Enable: {
+                text: 'Enable',
+                onClick() {
+                    console.log( this.enable('zip', 'street', 'first_name', 'bad_field') )
                 }
             }
         }

@@ -4,7 +4,7 @@ Object of event handlers for form actions.
     Object, default = {}
 </div>
 
-When you define HTML template for the form, you can add buttons. If you add name attribute to the button it will be associated with 
+When you define HTML template for the form, you can add buttons. If you add name attribute to the button it will be associated with
 the same action in the form. The HTML code below shows how to define buttons properly:
 
 <textarea class="html">
@@ -15,13 +15,13 @@ the same action in the form. The HTML code below shows how to define buttons pro
 <div class="w2ui-buttons">
     <input type="button" value="Reset" name="reset"/>
     <input type="button" value="Save" name="save"/>
-</div>    
+</div>
 </textarea>
 
 Now for each button you can define an action in the form
 
 <textarea class="javascript">
-$('#form').w2form({ 
+$('#form').w2form({
     name     : 'form',
     url      : 'server/post',
     record: {
@@ -46,5 +46,17 @@ $('#form').w2form({
 Please note that the name of the action must match the name of the button (case-sensitive).
 <div style="height: 10px;"></div>
 
-If you want to execute an action, you can call <a class="argument" href="w2form.action">.action()</a> method. There is also 
+An action can be either a function as shown above or an object with the following properties:
+
+<textarea class="javascript">
+{
+    text : '',          // caption of the button
+    style : '',         // style of the button
+    class : '',         // class of the button
+    onClick: null,      // click event handler of the button
+}
+</textarea>
+<div style="height: 10px;"></div>
+
+If you want to execute an action, you can call <a class="argument" href="w2form.action">.action()</a> method. There is also
 <a class="argument" href="w2form.onAction">.onAction</a> event that gets triggered each time action is executed.

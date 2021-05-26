@@ -1,17 +1,17 @@
-Defined padding level for nested nodes.
+Defines tabIndex for sidebar element.
 
 <div class="definition">
-    Number, default = 12
+    Number, default = 0
 </div>
 
-This property defined padding for nested nodes.
+This property will only influence the HTML if it's not 0.
 <div style="height: 10px"></div>
 
 You can defined it during object creation:
 <textarea class="javascript">
 $('#sidebar').w2sidebar({
     name: 'sidebar',
-    levelPadding: 5,
+    tabIndex: 5,
     nodes: [
         { id: 'id-1', text: 'Level 1', hidden: true },
         { id: 'id-2', text: 'Level 2', expanded: true, nodes: [
@@ -23,9 +23,9 @@ $('#sidebar').w2sidebar({
 });
 </textarea>
 
-Or any time after the object has been created:
+Or any time after the object has been created, if you re-render the object:
 
 <textarea class="javascript">
-w2ui.sidebar.levelPadding = 20
-w2ui.sidebar.refresh()
+w2ui.sidebar.tabIndex = 20
+w2ui.sidebar.render()
 </textarea>

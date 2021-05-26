@@ -60,7 +60,7 @@
     <a href="w2sidebar.levelPadding">levelPadding</a> <span>- Number, default = 12</span>
 </div>
 <div class="obj-property-desc">
-    Defined padding level for nested nodes
+    Defined padding level for nested nodes.
 </div>
 
 <div class="obj-property">
@@ -71,17 +71,17 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2sidebar.node_template">node_template</a> <span>- Object, default = {...} // see below</span>
-</div>
-<div class="obj-property-desc">
-    Node template object.
-</div>
-
-<div class="obj-property">
     <a href="w2sidebar.nodes">nodes</a> <span>- Array, default = []</span>
 </div>
 <div class="obj-property-desc">
     Array of node objects.
+</div>
+
+<div class="obj-property">
+    <a href="w2sidebar.node_template">node_template</a> <span>- Object, default = {...} // see below</span>
+</div>
+<div class="obj-property-desc">
+    Node template object.
 </div>
 
 <div class="obj-property">
@@ -117,6 +117,13 @@
 </div>
 <div class="obj-property-desc">
     Indicated if to refresh during add/remove of nodes
+</div>
+
+<div class="obj-property">
+    <a href="w2sidebar.tabIndex">tabIndex</a> <span>- Number, default = 0</span>
+</div>
+<div class="obj-property-desc">
+    Defines tabIndex for sidebar element.
 </div>
 
 <div class="obj-property">
