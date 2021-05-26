@@ -50,12 +50,12 @@ import { w2toolbar } from './w2toolbar'
         })
     }
 
-    $.fn.w2form     = function(options) { return proc.call(this, options, 'w2form') }
-    $.fn.w2grid     = function(options) { return proc.call(this, options, 'w2grid') }
-    $.fn.w2layout   = function(options) { return proc.call(this, options, 'w2layout') }
-    $.fn.w2sidebar  = function(options) { return proc.call(this, options, 'w2sidebar') }
-    $.fn.w2tabs     = function(options) { return proc.call(this, options, 'w2tabs') }
-    $.fn.w2toolbar  = function(options) { return proc.call(this, options, 'w2toolbar') }
+    $.fn.w2form    = function(options) { return proc.call(this, options, 'w2form') }
+    $.fn.w2grid    = function(options) { return proc.call(this, options, 'w2grid') }
+    $.fn.w2layout  = function(options) { return proc.call(this, options, 'w2layout') }
+    $.fn.w2sidebar = function(options) { return proc.call(this, options, 'w2sidebar') }
+    $.fn.w2tabs    = function(options) { return proc.call(this, options, 'w2tabs') }
+    $.fn.w2toolbar = function(options) { return proc.call(this, options, 'w2toolbar') }
 
     function proc(options, type) {
         if ($.isPlainObject(options)) {
@@ -100,8 +100,8 @@ import { w2toolbar } from './w2toolbar'
                     let tmp = str[s]
                     if (typeof tmp !== 'string') tmp = String(tmp)
                     // escape regex special chars
-                    tmp = tmp.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&').replace(/&/g, '&amp;').replace(/</g, '&gt;').replace(/>/g, '&lt;')
-                    let regex = new RegExp(tmp + '(?!([^<]+)?>)', 'gi') // only outside tags
+                    tmp          = tmp.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&').replace(/&/g, '&amp;').replace(/</g, '&gt;').replace(/>/g, '&lt;')
+                    let regex    = new RegExp(tmp + '(?!([^<]+)?>)', 'gi') // only outside tags
                     el.innerHTML = el.innerHTML.replace(regex, replaceValue)
                 }
                 function replaceValue(matched) { // mark new
@@ -335,53 +335,53 @@ import { w2toolbar } from './w2toolbar'
                 }
 
                 function getPos() {
-                    let offset = $(tag.attachedTo).offset()
+                    let offset   = $(tag.attachedTo).offset()
                     let posClass = 'w2ui-tag-right'
-                    let posLeft = parseInt(offset.left + tag.attachedTo.offsetWidth + (tag.options.left ? tag.options.left : 0))
-                    let posTop = parseInt(offset.top + (tag.options.top ? tag.options.top : 0))
-                    let tagBody = tag.box.find('.w2ui-tag-body')
-                    let width = tagBody[0].offsetWidth
-                    let height = tagBody[0].offsetHeight
+                    let posLeft  = parseInt(offset.left + tag.attachedTo.offsetWidth + (tag.options.left ? tag.options.left : 0))
+                    let posTop   = parseInt(offset.top + (tag.options.top ? tag.options.top : 0))
+                    let tagBody  = tag.box.find('.w2ui-tag-body')
+                    let width    = tagBody[0].offsetWidth
+                    let height   = tagBody[0].offsetHeight
                     if (typeof tag.options.position === 'string' && tag.options.position.indexOf('|') !== -1) {
                         tag.options.position = tag.options.position.split('|')
                     }
                     if (tag.options.position === 'top') {
                         posClass = 'w2ui-tag-top'
-                        posLeft = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - 14
-                        posTop = parseInt(offset.top + (tag.options.top ? tag.options.top : 0)) - height - 10
+                        posLeft  = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - 14
+                        posTop   = parseInt(offset.top + (tag.options.top ? tag.options.top : 0)) - height - 10
                     } else if (tag.options.position === 'bottom') {
                         posClass = 'w2ui-tag-bottom'
-                        posLeft = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - 14
-                        posTop = parseInt(offset.top + tag.attachedTo.offsetHeight + (tag.options.top ? tag.options.top : 0)) + 10
+                        posLeft  = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - 14
+                        posTop   = parseInt(offset.top + tag.attachedTo.offsetHeight + (tag.options.top ? tag.options.top : 0)) + 10
                     } else if (tag.options.position === 'left') {
                         posClass = 'w2ui-tag-left'
-                        posLeft = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - width - 20
-                        posTop = parseInt(offset.top + (tag.options.top ? tag.options.top : 0))
+                        posLeft  = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - width - 20
+                        posTop   = parseInt(offset.top + (tag.options.top ? tag.options.top : 0))
                     } else if (Array.isArray(tag.options.position)) {
                         // try to fit the tag on screen in the order defined in the array
-                        let maxWidth = window.innerWidth
+                        let maxWidth  = window.innerWidth
                         let maxHeight = window.innerHeight
                         for (let i = 0; i < tag.options.position.length; i++) {
                             let pos = tag.options.position[i]
                             if (pos === 'right') {
                                 posClass = 'w2ui-tag-right'
-                                posLeft = parseInt(offset.left + tag.attachedTo.offsetWidth + (tag.options.left ? tag.options.left : 0))
-                                posTop = parseInt(offset.top + (tag.options.top ? tag.options.top : 0))
+                                posLeft  = parseInt(offset.left + tag.attachedTo.offsetWidth + (tag.options.left ? tag.options.left : 0))
+                                posTop   = parseInt(offset.top + (tag.options.top ? tag.options.top : 0))
                                 if (posLeft+width <= maxWidth) break
                             } else if (pos === 'left') {
                                 posClass = 'w2ui-tag-left'
-                                posLeft = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - width - 20
-                                posTop = parseInt(offset.top + (tag.options.top ? tag.options.top : 0))
+                                posLeft  = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - width - 20
+                                posTop   = parseInt(offset.top + (tag.options.top ? tag.options.top : 0))
                                 if (posLeft >= 0) break
                             } else if (pos === 'top') {
                                 posClass = 'w2ui-tag-top'
-                                posLeft = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - 14
-                                posTop = parseInt(offset.top + (tag.options.top ? tag.options.top : 0)) - height - 10
+                                posLeft  = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - 14
+                                posTop   = parseInt(offset.top + (tag.options.top ? tag.options.top : 0)) - height - 10
                                 if(posLeft+width <= maxWidth && posTop >= 0) break
                             } else if (pos === 'bottom') {
                                 posClass = 'w2ui-tag-bottom'
-                                posLeft = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - 14
-                                posTop = parseInt(offset.top + tag.attachedTo.offsetHeight + (tag.options.top ? tag.options.top : 0)) + 10
+                                posLeft  = parseInt(offset.left + (tag.options.left ? tag.options.left : 0)) - 14
+                                posTop   = parseInt(offset.top + tag.attachedTo.offsetHeight + (tag.options.top ? tag.options.top : 0)) + 10
                                 if (posLeft+width <= maxWidth && posTop+height <= maxHeight) break
                             }
                         }
@@ -400,8 +400,8 @@ import { w2toolbar } from './w2toolbar'
     // w2overlay - appears under the element, there can be only one at a time
 
     $.fn.w2overlay = function(html, options) {
-        let obj = this
-        let name = ''
+        let obj      = this
+        let name     = ''
         let defaults = {
             name        : null, // it not null, then allows multiple concurrent overlays
             html        : '', // html text to display
@@ -502,7 +502,7 @@ import { w2toolbar } from './w2toolbar'
                     event.preventDefault()
                 }
             })
-        div1[0].hide = hide
+        div1[0].hide   = hide
         div1[0].resize = resize
 
         // need time to display
@@ -521,7 +521,7 @@ import { w2toolbar } from './w2toolbar'
             if (tmp.data('element') !== obj[0]) return // it if it different overlay
             if (tmp.length === 0) return
             let offset = $(obj).offset() || {}
-            let pos = offset.left + 'x' + offset.top
+            let pos    = offset.left + 'x' + offset.top
             if (tmp.data('position') !== pos) {
                 hide()
             } else {
@@ -551,10 +551,10 @@ import { w2toolbar } from './w2toolbar'
             let div1 = $('#w2ui-overlay'+ name)
             let div2 = div1.find(' > div')
             let menu = $('#w2ui-overlay'+ name +' div.w2ui-menu')
-            let pos = {}
+            let pos  = {}
             if (menu.length > 0) {
                 menu.css('overflow-y', 'hidden')
-                pos.scrollTop = menu.scrollTop()
+                pos.scrollTop  = menu.scrollTop()
                 pos.scrollLeft = menu.scrollLeft()
             }
             // if goes over the screen, limit height and width
@@ -562,8 +562,8 @@ import { w2toolbar } from './w2toolbar'
                 div2.height('auto').width('auto')
                 // width/height
                 let overflowY = false
-                let h = div2.height()
-                let w = div2.width()
+                let h         = div2.height()
+                let w         = div2.width()
                 if (options.width && options.width < w) w = options.width
                 if (w < 30) w = 30
                 // if content of specific height
@@ -595,16 +595,16 @@ import { w2toolbar } from './w2toolbar'
                 }
                 div2.find('div.w2ui-menu').css('width', '100%')
                 // adjust position
-                let boxLeft = options.left
+                let boxLeft  = options.left
                 let boxWidth = options.width
-                let tipLeft = options.tipLeft
+                let tipLeft  = options.tipLeft
                 let minWidth = options.minWidth
                 let maxWidth = options.maxWidth
                 let objWidth = w2utils.getSize($(obj), 'width')
                 // alignment
                 switch (options.align) {
                     case 'both':
-                        boxLeft = 17
+                        boxLeft  = 17
                         minWidth = 'input'
                         maxWidth = 'input'
                         break
@@ -631,7 +631,7 @@ import { w2toolbar } from './w2toolbar'
                 if(maxWidth) boxWidth = Math.min(boxWidth, maxWidth)
 
                 if(options.align === 'right') {
-                    let mw = Math.max(w - 10, minWidth - 17)
+                    let mw  = Math.max(w - 10, minWidth - 17)
                     boxLeft = objWidth - mw
                     tipLeft = mw - 30
                 }
@@ -644,14 +644,14 @@ import { w2toolbar } from './w2toolbar'
                 // Y coord
                 let X, Y, offsetTop
                 if (options.contextMenu) { // context menu
-                    X = options.pageX + 8
-                    Y = options.pageY - 0
+                    X         = options.pageX + 8
+                    Y         = options.pageY - 0
                     offsetTop = options.pageY
                 } else {
                     let offset = obj.offset() || {}
-                    X = ((offset.left > 25 ? offset.left : 25) + boxLeft)
-                    Y = (offset.top + w2utils.getSize(obj, 'height') + options.top + 7)
-                    offsetTop = offset.top
+                    X          = ((offset.left > 25 ? offset.left : 25) + boxLeft)
+                    Y          = (offset.top + w2utils.getSize(obj, 'height') + options.top + 7)
+                    offsetTop  = offset.top
                 }
                 div1.css({
                     left        :  X + 'px',
@@ -662,12 +662,12 @@ import { w2toolbar } from './w2toolbar'
                     'min-height': options.height || 'auto'
                 })
                 // $(window).height() - has a problem in FF20
-                let offset = div2.offset() || {}
+                let offset    = div2.offset() || {}
                 let maxHeight = window.innerHeight + $(document).scrollTop() - offset.top - 7
-                maxWidth = window.innerWidth + $(document).scrollLeft() - offset.left - 7
+                maxWidth      = window.innerWidth + $(document).scrollLeft() - offset.left - 7
                 if (options.contextMenu) { // context menu
                     maxHeight = window.innerHeight + $(document).scrollTop() - options.pageY - 15
-                    maxWidth = window.innerWidth + $(document).scrollLeft() - options.pageX
+                    maxWidth  = window.innerWidth + $(document).scrollLeft() - options.pageX
                 }
 
                 if (((maxHeight > -50 && maxHeight < 210) || options.openAbove === true) && options.openAbove !== false) {
@@ -706,7 +706,7 @@ import { w2toolbar } from './w2toolbar'
                     )
                 }
                 // check width
-                w = div2.width()
+                w        = div2.width()
                 maxWidth = window.innerWidth + $(document).scrollLeft() - offset.left - 7
                 if (options.maxWidth && maxWidth > options.maxWidth) maxWidth = options.maxWidth
                 if (w > maxWidth && options.align !== 'both') {
@@ -763,14 +763,14 @@ import { w2toolbar } from './w2toolbar'
             tmp          : {}
         }
         let ret
-        let obj = this
-        let name = ''
+        let obj      = this
+        let name     = ''
         if (menu === 'refresh') {
             // if not show - call blur
             if ($.fn.w2menuOptions && $.fn.w2menuOptions.name) name = '-' + $.fn.w2menuOptions.name
             if (options.name) name = '-' + options.name
             if ($('#w2ui-overlay'+ name).length > 0) {
-                options = $.extend($.fn.w2menuOptions, options)
+                options    = $.extend($.fn.w2menuOptions, options)
                 let scrTop = $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop()
                 $('#w2ui-overlay'+ name +' div.w2ui-menu').html(getMenuHTML())
                 $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop(scrTop)
@@ -779,14 +779,14 @@ import { w2toolbar } from './w2toolbar'
                 $(this).w2menu(options)
             }
         } else if (menu === 'refresh-index') {
-            let $menu = $('#w2ui-overlay'+ name +' div.w2ui-menu')
-            let cur = $menu.find('tr[index='+ options.index +']')
+            let $menu  = $('#w2ui-overlay'+ name +' div.w2ui-menu')
+            let cur    = $menu.find('tr[index='+ options.index +']')
             let scrTop = $menu.scrollTop()
             $menu.find('tr.w2ui-selected').removeClass('w2ui-selected') // clear all
             cur.addClass('w2ui-selected') // select current
             // scroll into view
             if (cur.length > 0) {
-                let top = cur[0].offsetTop - 5 // 5 is margin top
+                let top    = cur[0].offsetTop - 5 // 5 is margin top
                 let height = $menu.height()
                 $menu.scrollTop(scrTop)
                 if (top < scrTop || top + cur.height() > scrTop + height) {
@@ -797,7 +797,7 @@ import { w2toolbar } from './w2toolbar'
         } else {
             if (arguments.length === 1) options = menu; else options.items = menu
             if (typeof options !== 'object') options = {}
-            options = $.extend({}, defaults, options)
+            options            = $.extend({}, defaults, options)
             $.fn.w2menuOptions = options
             if (options.name) name = '-' + options.name
             if (typeof options.select === 'function' && typeof options.onSelect !== 'function') options.onSelect = options.select
@@ -806,7 +806,7 @@ import { w2toolbar } from './w2toolbar'
             // since only one overlay can exist at a time
             $.fn.w2menuClick = function w2menuClick(event, index, parentIndex) {
                 let keepOpen = false, items
-                let $tr = $(event.target).closest('tr')
+                let $tr      = $(event.target).closest('tr')
                 if (event.shiftKey || event.metaKey || event.ctrlKey) {
                     keepOpen = true
                 }
@@ -905,20 +905,19 @@ import { w2toolbar } from './w2toolbar'
             }
             let html = ''
             if (options.search) {
-                html +=
-                    '<div style="position: absolute; top: 0px; height: 40px; left: 0px; right: 0px; border-bottom: 1px solid silver; background-color: #ECECEC; padding: 8px 5px;">'+
+                html          += '<div style="position: absolute; top: 0px; height: 40px; left: 0px; right: 0px; border-bottom: 1px solid silver; background-color: #ECECEC; padding: 8px 5px;">'+
                     '    <div class="w2ui-icon icon-search" style="position: absolute; margin-top: 4px; margin-left: 6px; width: 11px; background-position: left !important;"></div>'+
                     '    <input id="menu-search" type="text" style="width: 100%; outline: none; padding-left: 20px;" onclick="event.stopPropagation();"/>'+
                     '</div>'
                 options.style += ';background-color: #ECECEC'
-                options.index = 0
+                options.index  = 0
                 for (let i = 0; i < options.items.length; i++) options.items[i].hidden = false
             }
             html += (options.topHTML || '') +
                     '<div class="w2ui-menu" style="top: '+ (options.search ? 40 : 0) + 'px;' + (options.menuStyle || '') + '">' +
                         getMenuHTML() +
                     '</div>'
-            ret = $(this).w2overlay(html, options)
+            ret   = $(this).w2overlay(html, options)
             setTimeout(() => {
                 $('#w2ui-overlay'+ name +' #menu-search')
                     .on('keyup', change)
@@ -937,7 +936,7 @@ import { w2toolbar } from './w2toolbar'
             let div = $('#w2ui-overlay'+ name)
             if (div.length > 0) {
                 div[0].mresize = mresize
-                div[0].change = change
+                div[0].change  = change
             }
         }
         return ret
@@ -946,20 +945,20 @@ import { w2toolbar } from './w2toolbar'
             setTimeout(() => {
                 // show selected
                 $('#w2ui-overlay'+ name +' tr.w2ui-selected').removeClass('w2ui-selected')
-                let cur = $('#w2ui-overlay'+ name +' tr[index='+ options.index +']')
+                let cur    = $('#w2ui-overlay'+ name +' tr[index='+ options.index +']')
                 let scrTop = $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop()
                 cur.addClass('w2ui-selected')
                 if (options.tmp) {
                     options.tmp.contentHeight = $('#w2ui-overlay'+ name +' table').height() + (options.search ? 50 : 10)
                         + (parseInt($('#w2ui-overlay'+ name +' .w2ui-menu').css('top')) || 0) // it menu is moved with menuStyle
                         + (parseInt($('#w2ui-overlay'+ name +' .w2ui-menu').css('bottom')) || 0) // it menu is moved with menuStyle
-                    options.tmp.contentWidth = $('#w2ui-overlay'+ name +' table').width()
+                    options.tmp.contentWidth  = $('#w2ui-overlay'+ name +' table').width()
                 }
                 if ($('#w2ui-overlay'+ name).length > 0) $('#w2ui-overlay'+ name)[0].resize()
                 // scroll into view
                 if (cur.length > 0) {
-                    let top = cur[0].offsetTop - 5 // 5 is margin top
-                    let el = $('#w2ui-overlay'+ name +' div.w2ui-menu')
+                    let top    = cur[0].offsetTop - 5 // 5 is margin top
+                    let el     = $('#w2ui-overlay'+ name +' div.w2ui-menu')
                     let height = el.height()
                     $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop(scrTop)
                     if (top < scrTop || top + cur.height() > scrTop + height) {
@@ -971,7 +970,7 @@ import { w2toolbar } from './w2toolbar'
 
         function change(event) {
             let search = this.value
-            let key = event.keyCode
+            let key    = event.keyCode
             let cancel = false
             switch (key) {
                 case 13: // enter
@@ -1008,7 +1007,7 @@ import { w2toolbar } from './w2toolbar'
             if (!cancel) {
                 let shown = 0
                 for (let i = 0; i < options.items.length; i++) {
-                    let item = options.items[i]
+                    let item   = options.items[i]
                     let prefix = ''
                     let suffix = ''
                     if (['is', 'begins with'].indexOf(options.match) !== -1) prefix = '^'
@@ -1036,9 +1035,9 @@ import { w2toolbar } from './w2toolbar'
                         '    <div style="display: inline-block; padding: 3px; color: #999;">'+ w2utils.lang('Loading...') +'</div>'+
                         '</td></tr></tbody></table>'
             }
-            let count = 0
+            let count     = 0
             let menu_html = '<table cellspacing="0" cellpadding="0" class="'+ (subMenu ? ' sub-menu' : '') +'"><tbody>'
-            let img = null, icon = null
+            let img       = null, icon = null
             if (items == null) items = options.items
             if (!Array.isArray(items)) items = []
             for (let f = 0; f < items.length; f++) {
@@ -1049,7 +1048,7 @@ import { w2toolbar } from './w2toolbar'
                     if (mitem.text != null && mitem.id == null) mitem.id = mitem.text
                     if (mitem.text == null && mitem.id != null) mitem.text = mitem.id
                     if (mitem.caption != null) mitem.text = mitem.caption
-                    img = mitem.img
+                    img  = mitem.img
                     icon = mitem.icon
                     if (img == null) img = null // img might be undefined
                     if (icon == null) icon = null // icon might be undefined
@@ -1058,8 +1057,8 @@ import { w2toolbar } from './w2toolbar'
                     if (mitem.checked === true) icon = 'w2ui-icon-check'; else icon = 'w2ui-icon-empty'
                 }
                 if (mitem.hidden !== true) {
-                    let imgd = ''
-                    let txt = mitem.text
+                    let imgd        = ''
+                    let txt         = mitem.text
                     let subMenu_dsp = ''
                     if (typeof options.render === 'function') txt = options.render(mitem, options)
                     if (typeof txt == 'function') txt = txt(mitem, options)
@@ -1083,7 +1082,7 @@ import { w2toolbar } from './w2toolbar'
                             } else if (Array.isArray(mitem.items)) {
                                 _items = mitem.items
                             }
-                            count_dsp = '<span></span>'
+                            count_dsp   = '<span></span>'
                             subMenu_dsp = '<tr style="'+ (mitem.expanded ? '' : 'display: none') +'">'+
                                           '     <td colspan="3">' + getMenuHTML(_items, true, !mitem.expanded, f) + '</td>'+
                                           '<tr>'
@@ -1111,7 +1110,7 @@ import { w2toolbar } from './w2toolbar'
                     } else {
                         // horizontal line
                         let divText = txt.replace(/^-+/g, '')
-                        menu_html += '<tr><td colspan="3" class="menu-divider '+ (divText != '' ? 'divider-text' : '') +'">'+
+                        menu_html  += '<tr><td colspan="3" class="menu-divider '+ (divText != '' ? 'divider-text' : '') +'">'+
                                      '   <div class="line">'+ divText +'</div>'+
                                      '   <div class="text">'+ divText +'</div>'+
                                      '</td></tr>'
@@ -1129,7 +1128,7 @@ import { w2toolbar } from './w2toolbar'
 
     $.fn.w2color = function(options, callBack) {
         let $el = $(this)
-        let el = $el[0]
+        let el  = $el[0]
         // no need to init
         if ($el.data('skipInit')) {
             $el.removeData('skipInit')
@@ -1179,7 +1178,7 @@ import { w2toolbar } from './w2toolbar'
             .off('.w2color')
             .on('mousedown.w2color', (event) => {
                 let color = $(event.originalEvent.target).attr('name') // should not have #
-                index = $(event.originalEvent.target).attr('index').split(':')
+                index     = $(event.originalEvent.target).attr('index').split(':')
                 if (el.tagName.toUpperCase() === 'INPUT') {
                     if (options.fireChange) $(el).change()
                     $(el).next().find('>div').css('background-color', color)
@@ -1227,11 +1226,11 @@ import { w2toolbar } from './w2toolbar'
                     $el.val(0)
                     val = 0
                 }
-                let name = $el.attr('name')
+                let name  = $el.attr('name')
                 let color = {}
                 if (['r', 'g', 'b', 'a'].indexOf(name) !== -1) {
                     rgb[name] = val
-                    hsv = w2utils.rgb2hsv(rgb)
+                    hsv       = w2utils.rgb2hsv(rgb)
                 } else if (['h', 's', 'v'].indexOf(name) !== -1) {
                     color[name] = val
                 }
@@ -1256,7 +1255,7 @@ import { w2toolbar } from './w2toolbar'
             rgb = w2utils.hsv2rgb(hsv)
             // console.log(rgb)
             let newColor = 'rgba('+ rgb.r +','+ rgb.g +','+ rgb.b +','+ rgb.a +')'
-            let cl = [
+            let cl       = [
                 Number(rgb.r).toString(16).toUpperCase(),
                 Number(rgb.g).toString(16).toUpperCase(),
                 Number(rgb.b).toString(16).toUpperCase(),
@@ -1289,9 +1288,9 @@ import { w2toolbar } from './w2toolbar'
             }
         }
         function updateSlides() {
-            let $el1 = $('#w2ui-overlay .palette .value1')
-            let $el2 = $('#w2ui-overlay .rainbow .value2')
-            let $el3 = $('#w2ui-overlay .alpha .value2')
+            let $el1    = $('#w2ui-overlay .palette .value1')
+            let $el2    = $('#w2ui-overlay .rainbow .value2')
+            let $el3    = $('#w2ui-overlay .alpha .value2')
             let offset1 = parseInt($el1.width()) / 2
             let offset2 = parseInt($el2.width()) / 2
             $el1.css({ 'left': hsv.s * 150 / 100 - offset1, 'top': (100 - hsv.v) * 125 / 100 - offset1})
@@ -1299,13 +1298,13 @@ import { w2toolbar } from './w2toolbar'
             $el3.css('left', rgb.a*150 - offset2)
         }
         function refreshPalette() {
-            let cl = w2utils.hsv2rgb(hsv.h, 100, 100)
+            let cl  = w2utils.hsv2rgb(hsv.h, 100, 100)
             let rgb = cl.r + ',' + cl.g + ',' + cl.b
             $('#w2ui-overlay .palette').css('background-image',
                 'linear-gradient(90deg, rgba('+ rgb +',0) 0%, rgba(' + rgb + ',1) 100%)')
         }
         function mouseDown(event) {
-            let $el = $(this).find('.value1, .value2')
+            let $el    = $(this).find('.value1, .value2')
             let offset = parseInt($el.width()) / 2
             if ($el.hasClass('move-x')) $el.css({ left: (event.offsetX - offset) + 'px' })
             if ($el.hasClass('move-y')) $el.css({ top: (event.offsetY - offset) + 'px' })
@@ -1327,11 +1326,11 @@ import { w2toolbar } from './w2toolbar'
             $('body').off('.w2color')
         }
         function mouseMove (event) {
-            let $el = initial.$el
-            let divX = event.pageX - initial.x
-            let divY = event.pageY - initial.y
-            let newX = initial.left + divX
-            let newY = initial.top + divY
+            let $el    = initial.$el
+            let divX   = event.pageX - initial.x
+            let divY   = event.pageY - initial.y
+            let newX   = initial.left + divX
+            let newY   = initial.top + divY
             let offset = parseInt($el.width()) / 2
             if (newX < -offset) newX = -offset
             if (newY < -offset) newY = -offset
@@ -1342,8 +1341,8 @@ import { w2toolbar } from './w2toolbar'
 
             // move
             let name = $el.parent().attr('name')
-            let x = parseInt($el.css('left')) + offset
-            let y = parseInt($el.css('top')) + offset
+            let x    = parseInt($el.css('left')) + offset
+            let y    = parseInt($el.css('top')) + offset
             if (name === 'palette') {
                 setColor({
                     s: Math.round(x / initial.width * 100),
@@ -1368,10 +1367,10 @@ import { w2toolbar } from './w2toolbar'
         updateSlides()
 
         // Events of iOS
-        let mUp = 'mouseup.w2color'
+        let mUp   = 'mouseup.w2color'
         let mMove = 'mousemove.w2color'
         if (w2utils.isIOS) {
-            mUp = 'touchend.w2color'
+            mUp   = 'touchend.w2color'
             mMove = 'touchmove.w2color'
         }
         $('#w2ui-overlay .palette')
@@ -1405,7 +1404,7 @@ import { w2toolbar } from './w2toolbar'
             if (index[1] < 0) index[1] = 0
             if (index[1] > pal[0].length - 1) index[1] = pal[0].length - 1
 
-            color = pal[index[0]][index[1]]
+            let color = pal[index[0]][index[1]]
             $(el).data('_color', color)
             return color
         }

@@ -32,7 +32,7 @@ import { w2utils } from './w2utils.js'
 let custom = {}
 
 function addType(type, handler) {
-    type = String(type).toLowerCase()
+    type         = String(type).toLowerCase()
     custom[type] = handler
     return true
 }
@@ -70,7 +70,7 @@ addType('myType', (options) => {
 class w2field extends w2event {
     constructor(type, options) {
         super()
-        // sanitazation
+        // sanitization
         if (typeof type == 'string' && options == null) {
             options = { type: type }
         }
@@ -82,24 +82,24 @@ class w2field extends w2event {
         }
         options.type = String(options.type).toLowerCase()
 
-        this.options = options
-        this.el = null
-        this.helpers = {} // object or helper elements
-        this.type = options.type || 'text'
-        this.options = $.extend(true, {}, options)
-        this.onSearch = options.onSearch || null
-        this.onRequest = options.onRequest || null
-        this.onLoad = options.onLoad || null
-        this.onError = options.onError || null
-        this.onClick = options.onClick || null
-        this.onAdd = options.onAdd || null
-        this.onNew = options.onNew || null
-        this.onRemove = options.onRemove || null
+        this.options     = options
+        this.el          = null
+        this.helpers     = {} // object or helper elements
+        this.type        = options.type || 'text'
+        this.options     = $.extend(true, {}, options)
+        this.onSearch    = options.onSearch || null
+        this.onRequest   = options.onRequest || null
+        this.onLoad      = options.onLoad || null
+        this.onError     = options.onError || null
+        this.onClick     = options.onClick || null
+        this.onAdd       = options.onAdd || null
+        this.onNew       = options.onNew || null
+        this.onRemove    = options.onRemove || null
         this.onMouseOver = options.onMouseOver || null
-        this.onMouseOut = options.onMouseOut || null
+        this.onMouseOut  = options.onMouseOut || null
         this.onIconClick = options.onIconClick || null
-        this.onScroll = options.onScroll || null
-        this.tmp = {} // temp object
+        this.onScroll    = options.onScroll || null
+        this.tmp         = {} // temp object
         // clean up some options
         delete this.options.type
         delete this.options.onSearch
@@ -123,7 +123,7 @@ class w2field extends w2event {
     }
 
     init() {
-        let obj = this
+        let obj     = this
         let options = this.options
         let defaults
 
@@ -148,7 +148,7 @@ class w2field extends w2event {
             case 'alphanumeric':
             case 'bin':
             case 'hex':
-                defaults = {
+                defaults          = {
                     min                : null,
                     max                : null,
                     step               : 1,
@@ -165,14 +165,14 @@ class w2field extends w2event {
                     prefix             : '',
                     suffix             : ''
                 }
-                this.options = $.extend(true, {}, defaults, options)
-                options = this.options // since object is re-created, need to re-assign
-                options.numberRE = new RegExp('['+ options.groupSymbol + ']', 'g')
-                options.moneyRE = new RegExp('['+ options.currencyPrefix + options.currencySuffix + options.groupSymbol +']', 'g')
+                this.options      = $.extend(true, {}, defaults, options)
+                options           = this.options // since object is re-created, need to re-assign
+                options.numberRE  = new RegExp('['+ options.groupSymbol + ']', 'g')
+                options.moneyRE   = new RegExp('['+ options.currencyPrefix + options.currencySuffix + options.groupSymbol +']', 'g')
                 options.percentRE = new RegExp('['+ options.groupSymbol + '%]', 'g')
                 // no keyboard support needed
                 if (['text', 'alphanumeric', 'hex', 'bin'].indexOf(this.type) !== -1) {
-                    options.arrows = false
+                    options.arrows   = false
                     options.keyboard = false
                 }
                 this.addPrefix() // only will add if needed
@@ -180,7 +180,7 @@ class w2field extends w2event {
                 break
 
             case 'color':
-                defaults = {
+                defaults     = {
                     prefix      : '',
                     suffix      : '<div style="width: '+ (parseInt($(this.el).css('font-size')) || 12) +'px">&#160;</div>',
                     arrows      : false,
@@ -189,7 +189,7 @@ class w2field extends w2event {
                     transparent : true
                 }
                 this.options = $.extend(true, {}, defaults, options)
-                options = this.options // since object is re-created, need to re-assign
+                options      = this.options // since object is re-created, need to re-assign
                 this.addPrefix() // only will add if needed
                 this.addSuffix() // only will add if needed
                 // additional checks
@@ -197,7 +197,7 @@ class w2field extends w2event {
                 break
 
             case 'date':
-                defaults = {
+                defaults     = {
                     format       : w2utils.settings.dateFormat, // date format
                     keyboard     : true,
                     silent       : true,
@@ -208,12 +208,12 @@ class w2field extends w2event {
                     blockWeekDays : null // array of numbers of weekday to block
                 }
                 this.options = $.extend(true, {}, defaults, options)
-                options = this.options // since object is re-created, need to re-assign
+                options      = this.options // since object is re-created, need to re-assign
                 if ($(this.el).attr('placeholder') == null) $(this.el).attr('placeholder', options.format)
                 break
 
             case 'time':
-                defaults = {
+                defaults     = {
                     format    : w2utils.settings.timeFormat,
                     keyboard  : true,
                     silent    : true,
@@ -222,12 +222,12 @@ class w2field extends w2event {
                     noMinutes : false
                 }
                 this.options = $.extend(true, {}, defaults, options)
-                options = this.options // since object is re-created, need to re-assign
+                options      = this.options // since object is re-created, need to re-assign
                 if ($(this.el).attr('placeholder') == null) $(this.el).attr('placeholder', options.format)
                 break
 
             case 'datetime':
-                defaults = {
+                defaults     = {
                     format      : w2utils.settings.dateFormat + ' | ' + w2utils.settings.timeFormat,
                     keyboard    : true,
                     silent      : true,
@@ -240,7 +240,7 @@ class w2field extends w2event {
                     noMinutes   : false
                 }
                 this.options = $.extend(true, {}, defaults, options)
-                options = this.options // since object is re-created, need to re-assign
+                options      = this.options // since object is re-created, need to re-assign
                 if ($(this.el).attr('placeholder') == null) $(this.el).attr('placeholder', options.placeholder || options.format)
                 break
 
@@ -300,7 +300,7 @@ class w2field extends w2event {
                     }
                     this.watchSize()
                 }
-                options = $.extend({}, defaults, options)
+                options      = $.extend({}, defaults, options)
                 this.options = options
                 if (!$.isPlainObject(options.selected)) options.selected = {}
                 $(this.el).data('selected', options.selected)
@@ -324,7 +324,7 @@ class w2field extends w2event {
                 defaults = {
                     items           : [],
                     selected        : [],
-                    max             : 0, // max number of selected items, 0 - unlim
+                    max             : 0, // max number of selected items, 0 - unlimited
                     url             : null, // not implemented
                     recId           : null, // map retrieved data from url to id, can be string or function
                     recText         : null, // map retrieved data from url to text, can be string or function
@@ -360,13 +360,13 @@ class w2field extends w2event {
                     onMouseOut      : null, // when an item is mouse out
                     onScroll        : null // when div with selected items is scrolled
                 }
-                options = $.extend({}, defaults, options, { suffix: '' })
+                options  = $.extend({}, defaults, options, { suffix: '' })
                 if (typeof options.items == 'function') {
                     options._items_fun = options.items
                 }
-                options.items = w2utils.normMenu.call(this, options.items)
+                options.items    = w2utils.normMenu.call(this, options.items)
                 options.selected = w2utils.normMenu.call(this, options.selected)
-                this.options = options
+                this.options     = options
                 if (!Array.isArray(options.selected)) options.selected = []
                 $(this.el).data('selected', options.selected)
                 if (options.url) {
@@ -379,11 +379,11 @@ class w2field extends w2event {
                 break
 
             case 'file':
-                defaults = {
+                defaults     = {
                     selected      : [],
                     max           : 0,
-                    maxSize       : 0, // max size of all files, 0 - unlim
-                    maxFileSize   : 0, // max size of a single file, 0 -unlim
+                    maxSize       : 0, // max size of all files, 0 - unlimited
+                    maxFileSize   : 0, // max size of a single file, 0 -unlimited
                     maxWidth      : 250, // max width for a single item
                     maxHeight     : 350, // max height for input control to grow
                     maxDropHeight : 350, // max height for drop down menu
@@ -400,7 +400,7 @@ class w2field extends w2event {
                     onMouseOver   : null, // when an item is mouse over
                     onMouseOut    : null // when an item is mouse out
                 }
-                options = $.extend({}, defaults, options)
+                options      = $.extend({}, defaults, options)
                 this.options = options
                 if (!Array.isArray(options.selected)) options.selected = []
                 $(this.el).data('selected', options.selected)
@@ -437,8 +437,8 @@ class w2field extends w2event {
     }
 
     watchSize() {
-        let obj = this
-        let tmp = $(obj.el).data('tmp') || {}
+        let obj       = this
+        let tmp       = $(obj.el).data('tmp') || {}
         tmp.sizeTimer = setInterval(() => {
             if ($(obj.el).parents('body').length > 0) {
                 obj.resize()
@@ -507,7 +507,7 @@ class w2field extends w2event {
             $(this.el).removeClass('w2ui-select')
         }
         this.type = 'clear'
-        let tmp = $(this.el).data('tmp')
+        let tmp   = $(this.el).data('tmp')
         if (!this.tmp) return
         // restore paddings
         if (tmp != null) {
@@ -531,10 +531,10 @@ class w2field extends w2event {
     }
 
     refresh() {
-        let obj = this
-        let options = this.options
+        let obj      = this
+        let options  = this.options
         let selected = $(this.el).data('selected')
-        let time = (new Date()).getTime()
+        let time     = (new Date()).getTime()
         // enum
         if (['list'].indexOf(this.type) !== -1) {
             $(obj.el).parent().css('white-space', 'nowrap') // needs this for arrow always to appear on the right side
@@ -590,7 +590,7 @@ class w2field extends w2event {
             let html = ''
             if (selected) {
                 for (let s = 0; s < selected.length; s++) {
-                    let it = selected[s]
+                    let it  = selected[s]
                     let ren = ''
                     if (typeof options.renderItem === 'function') {
                         ren = options.renderItem(it, s, '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&#160;&#160;</div>')
@@ -603,7 +603,7 @@ class w2field extends w2event {
                 }
             }
             let div = obj.helpers.multi
-            let ul = div.find('ul')
+            let ul  = div.find('ul')
             div.attr('style', div.attr('style') + ';' + options.style)
             $(obj.el).css('z-index', '-1')
             if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) {
@@ -654,7 +654,7 @@ class w2field extends w2event {
                 .data('mouse', 'out')
                 .on('click', function(event) {
                     let target = (event.target.tagName.toUpperCase() === 'LI' ? event.target : $(event.target).parents('LI'))
-                    let item = selected[$(target).attr('index')]
+                    let item   = selected[$(target).attr('index')]
                     if ($(target).hasClass('nomouse')) return
                     event.stopPropagation()
                     let edata
@@ -692,8 +692,8 @@ class w2field extends w2event {
                                     '    >'+
                                     '</div>'
                             }
-                            let td1 = 'style="padding: 3px; text-align: right; color: #777;"'
-                            let td2 = 'style="padding: 3px"'
+                            let td1  = 'style="padding: 3px; text-align: right; color: #777;"'
+                            let td2  = 'style="padding: 3px"'
                             preview += '<div style="padding: 8px;">'+
                                 '    <table cellpadding="2"><tbody>'+
                                 '    <tr><td '+ td1 +'>'+ w2utils.lang('Name') +':</td><td '+ td2 +'>'+ item.name +'</td></tr>'+
@@ -768,13 +768,13 @@ class w2field extends w2event {
 
     // resizing width of list, enum, file controls
     resize() {
-        let obj = this
-        let new_width = $(obj.el).width()
+        let obj        = this
+        let new_width  = $(obj.el).width()
         let new_height = $(obj.el).height()
         if (obj.tmp.current_width == new_width && new_height > 0) return
 
-        let focus = this.helpers.focus
-        let multi = this.helpers.multi
+        let focus  = this.helpers.focus
+        let multi  = this.helpers.multi
         let suffix = this.helpers.suffix
         let prefix = this.helpers.prefix
 
@@ -805,7 +805,7 @@ class w2field extends w2event {
             return val
         }
         let options = this.options
-        val = String(val).trim()
+        val         = String(val).trim()
         // clean
         if (['int', 'float', 'money', 'currency', 'percent'].indexOf(this.type) !== -1) {
             if (typeof val === 'string') {
@@ -849,12 +849,12 @@ class w2field extends w2event {
     }
 
     change(event) {
-        let obj = this
+        let obj     = this
         let options = obj.options
         // numeric
         if (['int', 'float', 'money', 'currency', 'percent'].indexOf(this.type) !== -1) {
             // check max/min
-            let val = $(this.el).val()
+            let val     = $(this.el).val()
             let new_val = this.format(this.clean($(this.el).val()))
             // if was modified
             if (val !== '' && val != new_val) {
@@ -869,7 +869,7 @@ class w2field extends w2event {
         if (this.type === 'color') {
             let color = $(this.el).val()
             if (color.substr(0, 3).toLowerCase() !== 'rgb') {
-                color = '#' + color
+                color   = '#' + color
                 let len = $(this.el).val().length
                 if (len !== 8 && len !== 6 && len !== 3) color = ''
             }
@@ -930,7 +930,7 @@ class w2field extends w2event {
                 obj.search()
                 setTimeout(() => { obj.updateOverlay() }, 1)
             }, 1)
-            // regenerat items
+            // regenerate items
             if (typeof obj.options._items_fun == 'function') {
                 obj.options.items = w2utils.normMenu.call(this, obj.options._items_fun)
             }
@@ -942,9 +942,9 @@ class w2field extends w2event {
     }
 
     blur(event) {
-        let obj = this
-        let options = obj.options
-        let val = $(obj.el).val().trim()
+        let obj      = this
+        let options  = obj.options
+        let val      = $(obj.el).val().trim()
         let $overlay = $('#w2ui-overlay')
         $(obj.el).removeClass('has-focus')
 
@@ -1033,10 +1033,10 @@ class w2field extends w2event {
     }
 
     keyDown(event, extra) {
-        let obj = this
+        let obj     = this
         let options = obj.options
-        let key = event.keyCode || (extra && extra.keyCode)
-        let cancel = false
+        let key     = event.keyCode || (extra && extra.keyCode)
+        let cancel  = false
         let val, inc, daymil, dt, newValue, newDT
         // numeric
         if (['int', 'float', 'money', 'currency', 'percent'].indexOf(obj.type) !== -1) {
@@ -1070,7 +1070,7 @@ class w2field extends w2event {
         if (obj.type === 'date') {
             if (!options.keyboard || $(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return
             daymil = 24*60*60*1000
-            inc = 1
+            inc    = 1
             if (event.ctrlKey || event.metaKey) inc = 10
             dt = w2utils.isDate($(obj.el).val(), options.format, true)
             if (!dt) { dt = new Date(); daymil = 0 }
@@ -1102,18 +1102,18 @@ class w2field extends w2event {
         // time
         if (obj.type === 'time') {
             if (!options.keyboard || $(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return
-            inc = (event.ctrlKey || event.metaKey ? 60 : 1)
-            val = $(obj.el).val()
+            inc      = (event.ctrlKey || event.metaKey ? 60 : 1)
+            val      = $(obj.el).val()
             let time = obj.toMin(val) || obj.toMin((new Date()).getHours() + ':' + ((new Date()).getMinutes() - 1))
             switch (key) {
                 case 38: // up
                     if (event.shiftKey) break // no action if shift key is pressed
-                    time += inc
+                    time  += inc
                     cancel = true
                     break
                 case 40: // down
                     if (event.shiftKey) break // no action if shift key is pressed
-                    time -= inc
+                    time  -= inc
                     cancel = true
                     break
             }
@@ -1130,10 +1130,10 @@ class w2field extends w2event {
         if (obj.type === 'datetime') {
             if (!options.keyboard || $(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return
             daymil = 24*60*60*1000
-            inc = 1
+            inc    = 1
             if (event.ctrlKey || event.metaKey) inc = 10
             let str = $(obj.el).val()
-            dt = w2utils.isDateTime(str, this.options.format, true)
+            dt      = w2utils.isDateTime(str, this.options.format, true)
             if (!dt) { dt = new Date(); daymil = 0 }
             switch (key) {
                 case 38: // up
@@ -1165,7 +1165,7 @@ class w2field extends w2event {
             if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return
             // paste
             if ((event.ctrlKey || event.metaKey) && !event.shiftKey) {
-                let dir = null
+                let dir      = null
                 let newColor = null
                 switch (key) {
                     case 38: // up
@@ -1191,8 +1191,8 @@ class w2field extends w2event {
         // list/select/combo
         if (['list', 'combo', 'enum'].indexOf(obj.type) !== -1) {
             if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return
-            let selected = $(obj.el).data('selected')
-            let focus = $(obj.el)
+            let selected  = $(obj.el).data('selected')
+            let focus     = $(obj.el)
             let indexOnly = false
             if (['list', 'enum'].indexOf(obj.type) !== -1) {
                 if (obj.type === 'list') {
@@ -1247,7 +1247,7 @@ class w2field extends w2event {
                             obj.trigger($.extend(edata, { phase: 'after' }))
                         } else {
                             // trigger event
-                            item = { id: focus.val(), text: focus.val() }
+                            item      = { id: focus.val(), text: focus.val() }
                             let edata = obj.trigger({ phase: 'before', type: 'new', target: obj.el, originalEvent: event.originalEvent, item: item })
                             if (edata.isCancelled === true) return
                             item = edata.item // need to reassign because it could be recreated by user
@@ -1351,7 +1351,7 @@ class w2field extends w2event {
         let obj = this
         if (['list', 'combo', 'enum'].indexOf(this.type) !== -1) {
             if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return
-            // need to be here for ipad compa
+            // need to be here for ipad compatibility
             if ([16, 17, 18, 20, 37, 39, 91].indexOf(event.keyCode) == -1) { // no refresh on crtl, shift, left/right arrows, etc
                 let input = $(this.helpers.focus).find('input')
                 if (input.length === 0) input = $(this.el) // for combo list
@@ -1371,17 +1371,17 @@ class w2field extends w2event {
     }
 
     clearCache() {
-        let options = this.options
-        options.items = []
+        let options          = this.options
+        options.items        = []
         this.tmp.xhr_loading = false
-        this.tmp.xhr_search = ''
-        this.tmp.xhr_total = -1
+        this.tmp.xhr_search  = ''
+        this.tmp.xhr_total   = -1
     }
 
     request(interval) {
-        let obj = this
+        let obj     = this
         let options = this.options
-        let search = $(obj.el).val() || ''
+        let search  = $(obj.el).val() || ''
         // if no url - do nothing
         if (!options.url) return
         // --
@@ -1416,7 +1416,7 @@ class w2field extends w2event {
             clearTimeout(obj.tmp.timeout)
             obj.tmp.timeout = setTimeout(() => {
                 // trigger event
-                let url = options.url
+                let url      = options.url
                 let postData = {
                     search : search,
                     max    : options.cacheMax
@@ -1424,8 +1424,8 @@ class w2field extends w2event {
                 $.extend(postData, options.postData)
                 let edata = obj.trigger({ phase: 'before', type: 'request', search: search, target: obj.el, url: url, postData: postData })
                 if (edata.isCancelled === true) return
-                url = edata.url
-                postData = edata.postData
+                url             = edata.url
+                postData        = edata.postData
                 let ajaxOptions = {
                     type     : 'GET',
                     url      : url,
@@ -1434,8 +1434,8 @@ class w2field extends w2event {
                 }
                 if (options.method) ajaxOptions.type = options.method
                 if (w2utils.settings.dataType === 'JSON') {
-                    ajaxOptions.type = 'POST'
-                    ajaxOptions.data = JSON.stringify(ajaxOptions.data)
+                    ajaxOptions.type        = 'POST'
+                    ajaxOptions.data        = JSON.stringify(ajaxOptions.data)
                     ajaxOptions.contentType = 'application/json'
                 }
                 if (w2utils.settings.dataType === 'HTTPJSON') {
@@ -1474,10 +1474,10 @@ class w2field extends w2event {
                         }
                         // remember stats
                         obj.tmp.xhr_loading = false
-                        obj.tmp.xhr_search = search
-                        obj.tmp.xhr_total = data.records.length
-                        obj.tmp.lastError = ''
-                        options.items = w2utils.normMenu(data.records)
+                        obj.tmp.xhr_search  = search
+                        obj.tmp.xhr_total   = data.records.length
+                        obj.tmp.lastError   = ''
+                        options.items       = w2utils.normMenu(data.records)
                         if (search === '' && data.records.length === 0) obj.tmp.emptySet = true; else obj.tmp.emptySet = false
                         // preset item
                         let find_selected = $(obj.el).data('find_selected')
@@ -1512,7 +1512,7 @@ class w2field extends w2event {
                     .fail((xhr, status, error) => {
                         // trigger event
                         let errorObj = { status: status, error: error, rawResponseText: xhr.responseText }
-                        let edata2 = obj.trigger({ phase: 'before', type: 'error', target: obj.el, search: search, error: errorObj, xhr: xhr })
+                        let edata2   = obj.trigger({ phase: 'before', type: 'error', target: obj.el, search: search, error: errorObj, xhr: xhr })
                         if (edata2.isCancelled === true) return
                         // default behavior
                         if (status !== 'abort') {
@@ -1525,11 +1525,11 @@ class w2field extends w2event {
                         }
                         // reset stats
                         obj.tmp.xhr_loading = false
-                        obj.tmp.xhr_search = search
-                        obj.tmp.xhr_total = 0
-                        obj.tmp.emptySet = true
-                        obj.tmp.lastError = (edata2.error || 'Server communication failed')
-                        options.items = []
+                        obj.tmp.xhr_search  = search
+                        obj.tmp.xhr_total   = 0
+                        obj.tmp.emptySet    = true
+                        obj.tmp.lastError   = (edata2.error || 'Server communication failed')
+                        options.items       = []
                         obj.clearCache()
                         obj.search()
                         obj.updateOverlay(false)
@@ -1543,11 +1543,11 @@ class w2field extends w2event {
     }
 
     search() {
-        let obj = this
-        let options = this.options
-        let search = $(obj.el).val()
-        let target = obj.el
-        let ids = []
+        let obj      = this
+        let options  = this.options
+        let search   = $(obj.el).val()
+        let target   = obj.el
+        let ids      = []
         let selected = $(obj.el).data('selected')
         if (obj.type === 'enum') {
             target = $(obj.helpers.multi).find('input')
@@ -1603,7 +1603,7 @@ class w2field extends w2event {
     }
 
     updateOverlay(indexOnly) {
-        let obj = this
+        let obj     = this
         let options = this.options
         let month, year, dt, params
         // color
@@ -1643,8 +1643,8 @@ class w2field extends w2event {
             (function refreshCalendar(month, year) {
                 if (!month && !year) {
                     let dt = new Date()
-                    month = dt.getMonth()
-                    year = dt.getFullYear()
+                    month  = dt.getMonth()
+                    year   = dt.getFullYear()
                 }
                 $('#w2ui-overlay > div > div').html(obj.getMonthHTML(month, year, $(obj.el).val()))
                 $('#w2ui-overlay .w2ui-calendar-title')
@@ -1707,12 +1707,12 @@ class w2field extends w2event {
                     })
                 $('#w2ui-overlay .previous').on('mousedown', function() {
                     let tmp = obj.options.current.split('/')
-                    tmp[0] = parseInt(tmp[0]) - 1
+                    tmp[0]  = parseInt(tmp[0]) - 1
                     refreshCalendar(tmp[0], tmp[1])
                 })
                 $('#w2ui-overlay .next').on('mousedown', function() {
                     let tmp = obj.options.current.split('/')
-                    tmp[0] = parseInt(tmp[0]) + 1
+                    tmp[0]  = parseInt(tmp[0]) + 1
                     refreshCalendar(tmp[0], tmp[1])
                 })
             })(month, year)
@@ -1869,12 +1869,12 @@ class w2field extends w2event {
                     })
                 $('#w2ui-overlay .previous').on('mousedown', function() {
                     let tmp = obj.options.current.split('/')
-                    tmp[0] = parseInt(tmp[0]) - 1
+                    tmp[0]  = parseInt(tmp[0]) - 1
                     refreshCalendar(tmp[0], tmp[1])
                 })
                 $('#w2ui-overlay .next').on('mousedown', function() {
                     let tmp = obj.options.current.split('/')
-                    tmp[0] = parseInt(tmp[0]) + 1
+                    tmp[0]  = parseInt(tmp[0]) + 1
                     refreshCalendar(tmp[0], tmp[1])
                 })
                 // "now" button
@@ -1894,10 +1894,10 @@ class w2field extends w2event {
         }
         // list
         if (['list', 'combo', 'enum'].indexOf(this.type) !== -1) {
-            let el = this.el
+            let el    = this.el
             let input = this.el
             if (this.type === 'enum') {
-                el = $(this.helpers.multi)
+                el    = $(this.helpers.multi)
                 input = $(el).find('input')
             }
             if (this.type === 'list') {
@@ -2008,10 +2008,10 @@ class w2field extends w2event {
             if (dt) {
                 // enable range
                 if (this.options.start || this.options.end) {
-                    let st = (typeof this.options.start === 'string' ? this.options.start : $(this.options.start).val())
-                    let en = (typeof this.options.end === 'string' ? this.options.end : $(this.options.end).val())
-                    let start = w2utils.isDate(st, this.options.format, true)
-                    let end = w2utils.isDate(en, this.options.format, true)
+                    let st      = (typeof this.options.start === 'string' ? this.options.start : $(this.options.start).val())
+                    let en      = (typeof this.options.end === 'string' ? this.options.end : $(this.options.end).val())
+                    let start   = w2utils.isDate(st, this.options.format, true)
+                    let end     = w2utils.isDate(en, this.options.format, true)
                     let current = new Date(dt)
                     if (!start) start = current
                     if (!end) end = current
@@ -2024,13 +2024,13 @@ class w2field extends w2event {
 
                 /*
                 clockWeekDay - type: array or integers. every element - number of week day.
-                number of weekday (1 - monday, 2 - tuesday, 3 - wensday, 4 - thursday, 5 - friday, 6 - saturday, 0 - sunday)
+                number of weekday (1 - monday, 2 - tuesday, 3 - wednesday, 4 - thursday, 5 - friday, 6 - saturday, 0 - sunday)
                 for block in calendar (for example, block all sundays so user can't choose sunday in calendar)
                 */
                 if (this.options.blockWeekDays !== null && this.options.blockWeekDays !== undefined
                     && this.options.blockWeekDays.length != undefined){
                     let l = this.options.blockWeekDays.length
-                    for (let i=0; i<l; i++){
+                    for (let i = 0; i<l; i++){
                         if (dt.getDay() == this.options.blockWeekDays[i]){
                             inRange = false
                         }
@@ -2039,7 +2039,7 @@ class w2field extends w2event {
             }
         } else if (this.type === 'time') {
             if (this.options.start || this.options.end) {
-                let tm = this.toMin(str)
+                let tm  = this.toMin(str)
                 let tm1 = this.toMin(this.options.start)
                 let tm2 = this.toMin(this.options.end)
                 if (!tm1) tm1 = tm
@@ -2088,7 +2088,7 @@ class w2field extends w2event {
                 }
                 // block predefined dates
                 if (inRange && this.options.blocked) {
-                    for (let i=0; i<this.options.blocked.length; i++) {
+                    for (let i = 0; i<this.options.blocked.length; i++) {
                         let blocked = this.options.blocked[i]
                         if(typeof blocked === 'string') {
                             // convert string to Date object
@@ -2291,7 +2291,7 @@ class w2field extends w2event {
     }
 
     addFocus() {
-        let obj = this
+        let obj   = this
         let width = 0 // 11 - show search icon, 0 do not show
         let pholder
         // clean up & init
@@ -2314,7 +2314,7 @@ class w2field extends w2event {
             '    <input '+ searchId +' type="text" tabIndex="'+ tabIndex +'" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"/>'+
             '</div>'
         $(obj.el).attr('tabindex', -1).before(html)
-        let helper = $(obj.el).prev()
+        let helper        = $(obj.el).prev()
         obj.helpers.focus = helper
         helper.css({
             width           : $(obj.el).width(),
@@ -2376,7 +2376,7 @@ class w2field extends w2event {
         // clean up & init
         $(obj.helpers.multi).remove()
         // build helper
-        let html = ''
+        let html   = ''
         let margin =
             'margin-top     : 0px; ' +
             'margin-bottom  : 0px; ' +
@@ -2420,9 +2420,9 @@ class w2field extends w2event {
                     '</div>'
         }
         // old bg and border
-        let tmp = $(obj.el).data('tmp') || {}
+        let tmp                     = $(obj.el).data('tmp') || {}
         tmp['old-background-color'] = $(obj.el).css('background-color')
-        tmp['old-border-color'] = $(obj.el).css('border-color')
+        tmp['old-border-color']     = $(obj.el).css('border-color')
         $(obj.el).data('tmp', tmp)
 
         $(obj.el)
@@ -2432,7 +2432,7 @@ class w2field extends w2event {
                 'border-color'     : 'transparent'
             })
 
-        let div = $(obj.el).prev()
+        let div           = $(obj.el).prev()
         obj.helpers.multi = div
         if (obj.type === 'enum') {
             $(obj.el).attr('tabindex', -1)
@@ -2503,10 +2503,10 @@ class w2field extends w2event {
     }
 
     addFile(file) {
-        let obj = this
-        let options = this.options
+        let obj      = this
+        let options  = this.options
         let selected = $(obj.el).data('selected')
-        let newItem = {
+        let newItem  = {
             name     : file.name,
             type     : file.type,
             modified : file.lastModifiedDate,
@@ -2514,12 +2514,12 @@ class w2field extends w2event {
             content  : null,
             file     : file
         }
-        let size = 0
-        let cnt = 0
+        let size     = 0
+        let cnt      = 0
         let err
         if (selected) {
             for (let s = 0; s < selected.length; s++) {
-                // check for dups
+                // check for dupes
                 if (selected[s].name == file.name && selected[s].size == file.size) return
                 size += selected[s].size
                 cnt++
@@ -2560,8 +2560,8 @@ class w2field extends w2event {
             // need a closure
             reader.onload = (function onload() {
                 return function closure(event) {
-                    let fl = event.target.result
-                    let ind = fl.indexOf(',')
+                    let fl          = event.target.result
+                    let ind         = fl.indexOf(',')
                     newItem.content = fl.substr(ind+1)
                     obj.refresh()
                     $(obj.el).trigger('input').trigger('change')
@@ -2578,12 +2578,12 @@ class w2field extends w2event {
     }
 
     getMonthHTML(month, year, selected) {
-        let td = new Date()
-        let months = w2utils.settings.fullmonths
+        let td        = new Date()
+        let months    = w2utils.settings.fullmonths
         let daysCount = ['31', '28', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31']
-        let today = td.getFullYear() + '/' + (Number(td.getMonth()) + 1) + '/' + td.getDate()
-        let days = w2utils.settings.fulldays.slice() // creates copy of the array
-        let sdays = w2utils.settings.shortdays.slice() // creates copy of the array
+        let today     = td.getFullYear() + '/' + (Number(td.getMonth()) + 1) + '/' + td.getDate()
+        let days      = w2utils.settings.fulldays.slice() // creates copy of the array
+        let sdays     = w2utils.settings.shortdays.slice() // creates copy of the array
         if (w2utils.settings.weekStarts !== 'M') {
             days.unshift(days.pop())
             sdays.unshift(sdays.pop())
@@ -2591,7 +2591,7 @@ class w2field extends w2event {
         let options = this.options
         if (options == null) options = {}
         // normalize date
-        year = w2utils.isInt(year) ? parseInt(year) : td.getFullYear()
+        year  = w2utils.isInt(year) ? parseInt(year) : td.getFullYear()
         month = w2utils.isInt(month) ? parseInt(month) : td.getMonth() + 1
         if (month > 12) { month -= 12; year++ }
         if (month < 1 || month === 0) { month += 12; year-- }
@@ -2599,8 +2599,8 @@ class w2field extends w2event {
         options.current = month + '/' + year
 
         // start with the required date
-        td = new Date(year, month-1, 1)
-        let weekDay = td.getDay()
+        td           = new Date(year, month-1, 1)
+        let weekDay  = td.getDay()
         let dayTitle = ''
         for (let i = 0; i < sdays.length; i++) dayTitle += '<td title="'+ days[i] +'">' + sdays[i] + '</td>'
 
@@ -2619,7 +2619,7 @@ class w2field extends w2event {
         if (w2utils.settings.weekStarts !== 'M') weekDay++
         if(this.type === 'datetime') {
             let dt_sel = w2utils.isDateTime(selected, options.format, true)
-            selected = w2utils.formatDate(dt_sel, w2utils.settings.dateFormat)
+            selected   = w2utils.formatDate(dt_sel, w2utils.settings.dateFormat)
         }
         for (let ci = 1; ci < 43; ci++) {
             if (weekDay === 0 && ci == 1) {
@@ -2632,30 +2632,30 @@ class w2field extends w2event {
                     continue
                 }
             }
-            let dt = year + '/' + month + '/' + day
-            let DT = new Date(dt)
+            let dt        = year + '/' + month + '/' + day
+            let DT        = new Date(dt)
             let className = ''
             if (DT.getDay() === 6) className = ' w2ui-saturday'
             if (DT.getDay() === 0) className = ' w2ui-sunday'
             if (dt == today) className += ' w2ui-today'
 
             let dspDay = day
-            let col = ''
-            let bgcol = ''
+            let col    = ''
+            let bgcol  = ''
             let tmp_dt, tmp_dt_fmt
             if(this.type === 'datetime') {
                 // var fm = options.format.split('|')[0].trim();
                 // tmp_dt      = w2utils.formatDate(dt, fm);
-                tmp_dt = w2utils.formatDateTime(dt, options.format)
+                tmp_dt     = w2utils.formatDateTime(dt, options.format)
                 tmp_dt_fmt = w2utils.formatDate(dt, w2utils.settings.dateFormat)
             } else {
-                tmp_dt = w2utils.formatDate(dt, options.format)
+                tmp_dt     = w2utils.formatDate(dt, options.format)
                 tmp_dt_fmt = tmp_dt
             }
             if (options.colored && options.colored[tmp_dt_fmt] !== undefined) { // if there is predefined colors for dates
                 let tmp = options.colored[tmp_dt_fmt].split(':')
-                bgcol = 'background-color: ' + tmp[0] + ';'
-                col = 'color: ' + tmp[1] + ';'
+                bgcol   = 'background-color: ' + tmp[0] + ';'
+                col     = 'color: ' + tmp[1] + ';'
             }
             html += '<td class="'+ (this.inRange(tmp_dt, true) ? 'w2ui-date ' + (tmp_dt_fmt == selected ? 'w2ui-date-selected' : '') : 'w2ui-blocked') + className + '" '+
                     '   style="'+ col + bgcol + '" date="'+ tmp_dt +'" data-date="'+ DT +'">'+
@@ -2669,11 +2669,11 @@ class w2field extends w2event {
     }
 
     getYearHTML() {
-        let months = w2utils.settings.shortmonths
+        let months     = w2utils.settings.shortmonths
         let start_year = w2utils.settings.dateStartYear
-        let end_year = w2utils.settings.dateEndYear
-        let mhtml = ''
-        let yhtml = ''
+        let end_year   = w2utils.settings.dateEndYear
+        let mhtml      = ''
+        let yhtml      = ''
         for (let m = 0; m < months.length; m++) {
             mhtml += '<div class="w2ui-jump-month" name="'+ m +'">'+ months[m] + '</div>'
         }
@@ -2684,7 +2684,7 @@ class w2field extends w2event {
     }
 
     getHourHTML() {
-        let tmp = []
+        let tmp     = []
         let options = this.options
         if (options == null) options = { format: w2utils.settings.timeFormat }
         let h24 = (options.format.indexOf('h24') > -1)
@@ -2697,8 +2697,8 @@ class w2field extends w2event {
             if (this.type === 'datetime') {
                 let dt = w2utils.isDateTime(this.el.value, options.format, true)
                 let fm = options.format.split('|')[0].trim()
-                tm1 = w2utils.formatDate(dt, fm) + ' ' + tm1
-                tm2 = w2utils.formatDate(dt, fm) + ' ' + tm2
+                tm1    = w2utils.formatDate(dt, fm) + ' ' + tm1
+                tm2    = w2utils.formatDate(dt, fm) + ' ' + tm2
             }
             tmp[Math.floor(a/8)] += '<div class="'+ (this.inRange(tm1) || this.inRange(tm2) ? 'w2ui-time ' : 'w2ui-blocked') + '" hour="'+ a +'">'+ time +'</div>'
         }
@@ -2722,13 +2722,13 @@ class w2field extends w2event {
         let tmp = []
         for (let a = 0; a < 60; a += 5) {
             let time = (hour > 12 && !h24 ? hour - 12 : hour) + ':' + (a < 10 ? 0 : '') + a + ' ' + (!h24 ? (hour < 12 ? 'am' : 'pm') : '')
-            let tm = time
-            let ind = a < 20 ? 0 : (a < 40 ? 1 : 2)
+            let tm   = time
+            let ind  = a < 20 ? 0 : (a < 40 ? 1 : 2)
             if (!tmp[ind]) tmp[ind] = ''
             if (this.type === 'datetime') {
                 let dt = w2utils.isDateTime(this.el.value, options.format, true)
                 let fm = options.format.split('|')[0].trim()
-                tm = w2utils.formatDate(dt, fm) + ' ' + tm
+                tm     = w2utils.formatDate(dt, fm) + ' ' + tm
             }
             tmp[ind] += '<div class="'+ (this.inRange(tm) ? 'w2ui-time ' : 'w2ui-blocked') + '" min="'+ a +'">'+ time +'</div>'
         }
@@ -2761,8 +2761,8 @@ class w2field extends w2event {
         let ret = ''
         if (time >= 24 * 60) time = time % (24 * 60)
         if (time < 0) time = 24 * 60 + time
-        let hour = Math.floor(time/60)
-        let min = ((time % 60) < 10 ? '0' : '') + (time % 60)
+        let hour    = Math.floor(time/60)
+        let min     = ((time % 60) < 10 ? '0' : '') + (time % 60)
         let options = this.options
         if (options == null) options = { format: w2utils.settings.timeFormat }
         if (options.format.indexOf('h24') !== -1) {
