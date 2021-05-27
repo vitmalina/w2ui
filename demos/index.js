@@ -54,7 +54,7 @@ $(function () {
                 },
                 { id: 'combo-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
-                        { id: 'combo/11', text: 'Flat Sidebar (1.5+)', icon: 'fa fa-star-o' }
+                        { id: 'combo/11', text: 'Flat Sidebar', icon: 'fa fa-star-o' }
                     ]
                 },
                 { id: 'layout', text: 'Layout Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
@@ -73,9 +73,9 @@ $(function () {
                 },
                 { id: 'layout-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
-                        { id: 'layout/11', text: 'Panel Messages (1.5+)', icon: 'fa fa-columns' },
-                        { id: 'layout/12', text: 'Fixed Size Main (1.5+)', icon: 'fa fa-columns' },
-                        { id: 'layout/13', text: 'Content Replaced (1.5+)', icon: 'fa fa-columns' }
+                        { id: 'layout/11', text: 'Panel Messages', icon: 'fa fa-columns' },
+                        { id: 'layout/12', text: 'Fixed Size Main', icon: 'fa fa-columns' },
+                        { id: 'layout/13', text: 'Content Replaced', icon: 'fa fa-columns' }
                     ]
                 },
                 { id: 'grid', text: 'Grid Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
@@ -108,10 +108,10 @@ $(function () {
                 },
                 { id: 'grid-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
-                        { id: 'grid/26', text: 'Reorder Records (1.5+)', icon: 'fa fa-table' },
-                        { id: 'grid/7', text: 'Tree-Like Grid (1.5+)', icon: 'fa fa-table' },
-                        { id: 'grid/27', text: 'Frozen Columns (1.5+)', icon: 'fa fa-table' },
-                        { id: 'grid/28', text: 'Info Bubble (1.5+)', icon: 'fa fa-table' }
+                        { id: 'grid/26', text: 'Reorder Records', icon: 'fa fa-table' },
+                        { id: 'grid/7', text: 'Tree-Like Grid', icon: 'fa fa-table' },
+                        { id: 'grid/27', text: 'Frozen Columns', icon: 'fa fa-table' },
+                        { id: 'grid/28', text: 'Info Bubble', icon: 'fa fa-table' }
                     ]
                 },
                 { id: 'toolbar', text: 'Toolbar Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
@@ -125,12 +125,12 @@ $(function () {
                 },
                 { id: 'toolbar-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
-                        { id: 'toolbar/6', text: 'Menu Buttons (1.5+)', icon: 'fa fa-hand-o-up' },
-                        { id: 'toolbar/7', text: 'Color Buttons (1.5+)', icon: 'fa fa-hand-o-up' },
-                        { id: 'toolbar/9', text: 'Custom Buttons (1.5+)', icon: 'fa fa-hand-o-up' },
-                        { id: 'toolbar/8', text: 'Tooltips (1.5+)', icon: 'fa fa-hand-o-up' },
-                        { id: 'toolbar/10', text: 'Toolbar Overflow (1.5+)', icon: 'fa fa-hand-o-up' },
-                        { id: 'toolbar/11', text: 'Multiline Toolbars (1.5+)', icon: 'fa fa-hand-o-up' }
+                        { id: 'toolbar/6', text: 'Menu Buttons', icon: 'fa fa-hand-o-up' },
+                        { id: 'toolbar/7', text: 'Color Buttons', icon: 'fa fa-hand-o-up' },
+                        { id: 'toolbar/9', text: 'Custom Buttons', icon: 'fa fa-hand-o-up' },
+                        { id: 'toolbar/8', text: 'Tooltips', icon: 'fa fa-hand-o-up' },
+                        { id: 'toolbar/10', text: 'Toolbar Overflow', icon: 'fa fa-hand-o-up' },
+                        { id: 'toolbar/11', text: 'Multiline Toolbars', icon: 'fa fa-hand-o-up' }
                     ]
                 },
                 { id: 'sidebar', text: 'Sidebar Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
@@ -147,17 +147,17 @@ $(function () {
                 },
                 { id: 'sidebar-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
-                        { id: 'sidebar/9', text: 'Flat Sidebar (1.5+)', icon: 'fa fa-hand-o-up' },
-                        { id: 'sidebar/10', text: 'In/Out of Focus (1.5+)', icon: 'fa fa-hand-o-up' },
-                        { id: 'sidebar/11', text: 'Tree Like Sidebars (1.5+)', icon: 'fa fa-hand-o-up' },
-                        { id: 'sidebar/12', text: 'Level Padding (1.5+)', icon: 'fa fa-hand-o-up' },
-                        { id: 'sidebar/13', text: 'Node Handle (1.5+)', icon: 'fa fa-hand-o-up' },
+                        { id: 'sidebar/9', text: 'Flat Sidebar', icon: 'fa fa-hand-o-up' },
+                        { id: 'sidebar/10', text: 'In/Out of Focus', icon: 'fa fa-hand-o-up' },
+                        { id: 'sidebar/11', text: 'Tree Like Sidebars', icon: 'fa fa-hand-o-up' },
+                        { id: 'sidebar/12', text: 'Level Padding', icon: 'fa fa-hand-o-up' },
+                        { id: 'sidebar/13', text: 'Node Handle', icon: 'fa fa-hand-o-up' },
                     ]
                 },
                 // { id: 'sidebar-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                 //     nodes: [
-                //         { id: 'sidebar/14', text: 'Sort Nodes (2.0+)', icon: 'fa fa-hand-o-up' },
-                //         { id: 'sidebar/15', text: 'Search Nodes (2.0+)', icon: 'fa fa-hand-o-up' }
+                //         { id: 'sidebar/14', text: 'Sort Nodes', icon: 'fa fa-hand-o-up' },
+                //         { id: 'sidebar/15', text: 'Search Nodes', icon: 'fa fa-hand-o-up' }
                 //     ]
                 // },
                 { id: 'tabs', text: 'Tabs Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
@@ -172,14 +172,14 @@ $(function () {
                 },
                 { id: 'tabs-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
-                        { id: 'tabs/7', text: 'Tabs Overflow (1.5+)', icon: 'fa fa-folder-o' },
-                        { id: 'tabs/8', text: 'Tooltips (1.5+)', icon: 'fa fa-folder-o' },
-                        { id: 'tabs/9', text: 'Tab Reorder (1.5+)', icon: 'fa fa-folder-o' }
+                        { id: 'tabs/7', text: 'Tabs Overflow', icon: 'fa fa-folder-o' },
+                        { id: 'tabs/8', text: 'Tooltips', icon: 'fa fa-folder-o' },
+                        { id: 'tabs/9', text: 'Tab Reorder', icon: 'fa fa-folder-o' }
                     ]
                 },
                 // { id: 'tabs-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                 //     nodes: [
-                //         { id: 'tabs/10', text: 'Smooth Add/Remove (2.0+)', icon: 'fa fa-folder-o' }
+                //         { id: 'tabs/10', text: 'Smooth Add/Remove', icon: 'fa fa-folder-o' }
                 //     ]
                 // },
                 { id: 'forms', text: 'Forms Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
@@ -197,20 +197,20 @@ $(function () {
                 },
                 { id: 'forms-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
-                        { id: 'form/10', text: 'Multi Columns (1.5+)', icon: 'fa fa-pencil-square-o' },
-                        { id: 'form/11', text: 'Column Span (1.5+)', icon: 'fa fa-pencil-square-o' },
-                        { id: 'form/12', text: 'Custom Styling (1.5+)', icon: 'fa fa-pencil-square-o' },
-                        { id: 'form/13', text: 'Anchored Fields (1.5+)', icon: 'fa fa-pencil-square-o' },
-                        { id: 'form/14', text: 'Maps and Arrays (1.5+)', icon: 'fa fa-pencil-square-o' },
-                        { id: 'form/15', text: 'Custom Fields (1.5+)', icon: 'fa fa-pencil-square-o' },
-                        { id: 'form/16', text: 'Enable/Disable Fields (1.5+)', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/10', text: 'Multi Columns', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/11', text: 'Column Span', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/12', text: 'Custom Styling', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/13', text: 'Anchored Fields', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/14', text: 'Maps and Arrays', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/15', text: 'Custom Fields', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/16', text: 'Enable/Disable Fields', icon: 'fa fa-pencil-square-o' },
                     ]
                 },
-                { id: 'forms-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
-                    nodes: [
-                        { id: 'form/17', text: 'Apply Focus (2.0+)', icon: 'fa fa-pencil-square-o' },
-                    ]
-                },
+                // { id: 'forms-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                //     nodes: [
+                //         { id: 'form/17', text: 'Apply Focus', icon: 'fa fa-pencil-square-o' },
+                //     ]
+                // },
                 { id: 'fields', text: 'Fields Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'fields/1', text: 'Numeric', icon: 'fa fa-pencil-square-o' },
@@ -223,8 +223,8 @@ $(function () {
                 },
                 { id: 'fields-1.5', text: 'Features 1.5', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
-                        { id: 'fields/7', text: 'Get/Set Value (1.5+)', icon: 'fa fa-pencil-square-o' },
-                        { id: 'fields/8', text: 'Color Picker (1.5+)', icon: 'fa fa-pencil-square-o' }
+                        { id: 'fields/7', text: 'Get/Set Value', icon: 'fa fa-pencil-square-o' },
+                        { id: 'fields/8', text: 'Color Picker', icon: 'fa fa-pencil-square-o' }
                     ]
                 },
                 { id: 'popup', text: 'Popup Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
@@ -239,15 +239,15 @@ $(function () {
                 },
                 { id: 'popup-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
-                        { id: 'popup/7', text: 'Common Dialogs (1.5+)', icon: 'fa fa-list-alt' },
-                        { id: 'popup/8', text: 'Messages (1.5+)', icon: 'fa fa-list-alt' },
-                        { id: 'popup/9', text: 'Better Events (1.5+)', icon: 'fa fa-list-alt' },
-                        { id: 'popup/10', text: 'Actions (1.5+)', icon: 'fa fa-list-alt' }
+                        { id: 'popup/7', text: 'Common Dialogs', icon: 'fa fa-list-alt' },
+                        { id: 'popup/8', text: 'Messages', icon: 'fa fa-list-alt' },
+                        { id: 'popup/9', text: 'Better Events', icon: 'fa fa-list-alt' },
+                        { id: 'popup/10', text: 'Actions', icon: 'fa fa-list-alt' }
                     ]
                 },
                 // { id: 'popup-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                 //     nodes: [
-                //         { id: 'popup/11', text: 'Promises (2.0+)', icon: 'fa fa-list-alt' }
+                //         { id: 'popup/11', text: 'Promises', icon: 'fa fa-list-alt' }
                 //     ]
                 // },
                 { id: 'utils', text: 'Utilities Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
@@ -259,13 +259,13 @@ $(function () {
                 },
                 { id: 'utils-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
-                        { id: 'utils/4', text: 'Tooltips (1.5+)', icon: 'fa fa-star-o' },
-                        { id: 'utils/5', text: 'Overlays (1.5+)', icon: 'fa fa-star-o' },
-                        { id: 'utils/9', text: 'Menus (1.5+)', icon: 'fa fa-star-o' },
-                        { id: 'utils/6', text: 'Formatters (1.5+)', icon: 'fa fa-star-o' },
-                        { id: 'utils/7', text: 'Color Utils (1.5+)', icon: 'fa fa-star-o' },
-                        { id: 'utils/8', text: 'Text Marker (1.5+)', icon: 'fa fa-star-o' },
-                        { id: 'utils/10', text: 'Natural Compare (1.5+)', icon: 'fa fa-star-o' },
+                        { id: 'utils/4', text: 'Tooltips', icon: 'fa fa-star-o' },
+                        { id: 'utils/5', text: 'Overlays', icon: 'fa fa-star-o' },
+                        { id: 'utils/9', text: 'Menus', icon: 'fa fa-star-o' },
+                        { id: 'utils/6', text: 'Formatters', icon: 'fa fa-star-o' },
+                        { id: 'utils/7', text: 'Color Utils', icon: 'fa fa-star-o' },
+                        { id: 'utils/8', text: 'Text Marker', icon: 'fa fa-star-o' },
+                        { id: 'utils/10', text: 'Natural Compare', icon: 'fa fa-star-o' },
                     ]
                 }
             ],
