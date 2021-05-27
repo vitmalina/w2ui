@@ -1,7 +1,7 @@
 <div class="content">
     <div id="example_title">
-        <h1>Show/Hide Fields</h1>
-        There is an easy way to show/hide specified fields.
+        <h1>Context Message</h1>
+        Context messages only lock the form, not the entire page. You can open message on top of message.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -10,8 +10,8 @@
 <!--CODE-->
 <div id="form" style="width: 750px;"></div>
 <br>
-<button class="w2ui-btn" onclick="hide()">Hide</button>
-<button class="w2ui-btn" onclick="show()">Show</button>
+<button class="w2ui-btn" onclick="message()">Show Message</button>
+<button class="w2ui-btn" onclick="message2()">Ask a Question</button>
 <br>
 
 <!--CODE-->
@@ -60,10 +60,27 @@ $(function () {
     })
 })
 
-function hide() {
-    console.log(w2ui.form.hide('zip', 'street', 'first_name', 'bad_field'))
+function message() {
+    w2ui.form.message('You need to input all fields.')
 }
-function show() {
-    console.log(w2ui.form.show('zip', 'street', 'first_name', 'bad_field'))
+
+function message2() {
+    w2ui.form.message({
+        body: '<div class="w2ui-centered">message</div>',
+        width: 400,
+        height: 200,
+        buttons: `
+            <button class="w2ui-btn" onclick="w2ui.form.message()">Yes</button>
+            <button class="w2ui-btn" onclick="w2ui.form.message()">No</button>
+        `,
+        onOpen(event) {
+            console.log('Opening', event)
+            event.done(() => { console.log('Opened', event) })
+        },
+        onClose(event) {
+            console.log('Closing', event)
+            event.done(() => { console.log('Closed', event) })
+        }
+    })
 }
 </script>
