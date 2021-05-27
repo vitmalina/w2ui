@@ -17,8 +17,8 @@ Returns array.
 
 <h4>Description</h4>
 
-The method will perform validation of the data, making sure all required fields are not blank and values are according to their field 
-types. It will return an array of error objects. If this array is empty, then there are no errors. You can optionally supply 
+The method will perform validation of the data, making sure all required fields are not blank and values are according to their field
+types. It will return an array of error objects. If this array is empty, then there are no errors. You can optionally supply
 <span class="argument">showErrors</span> argument that will make the method to display error bubbles next to the fields.
 <div style="height: 10px"></div>
 
@@ -30,9 +30,9 @@ $('#form').w2form({
     url      : '/server/form/path',
     formURL  : '/server/path',
     fields: [
-        { name: 'first_name', type: 'text', required: true },
-        { name: 'last_name', type: 'text', required: true },
-        { name: 'email', type: 'email' }
+        { field: 'first_name', type: 'text', required: true },
+        { field: 'last_name', type: 'text', required: true },
+        { field: 'email', type: 'email' }
     ],
     actions: {
         "save"  : function (target, data) { this.save(); },

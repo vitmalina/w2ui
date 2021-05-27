@@ -825,7 +825,7 @@ class w2field extends w2event {
 
     format(val) {
         let options = this.options
-        // autoformat numbers or money
+        // auto format numbers or money
         if (options.autoFormat && val !== '') {
             switch (this.type) {
                 case 'money':

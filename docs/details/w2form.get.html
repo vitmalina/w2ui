@@ -21,20 +21,20 @@ Returns object, integer, or null.
 
 <h4>Description</h4>
 
-This method will find the <span class="argument">field</span> object in the <a class="argument" href="w2form.fields">.fields</a> 
-array and return it or its index. If the field does not exists it will return null. Because JavaScript passes objects by 
-reference, modifying this object will modify the original field. If the second optional argument 
-<span class="argument">returnIndex</span> is set to true, the method will return index of the field in 
+This method will find the <span class="argument">field</span> object in the <a class="argument" href="w2form.fields">.fields</a>
+array and return it or its index. If the field does not exists it will return null. Because JavaScript passes objects by
+reference, modifying this object will modify the original field. If the second optional argument
+<span class="argument">returnIndex</span> is set to true, the method will return index of the field in
 the <a class="argument" href="w2form.fields">.fields</a> array.
 <div style="height: 10px"></div>
 
-If you call <a class="argument" href="w2form.fields">.get</a> without any arguments, it will return you an array of all field 
+If you call <a class="argument" href="w2form.fields">.get</a> without any arguments, it will return you an array of all field
 names.
 <div style="height: 10px"></div>
 
 If you have form defined in the following way:
 <textarea class="javascript">
-$('#form').w2form({ 
+$('#form').w2form({
     name     : 'form',
     url      : 'server/post',
     record: {
@@ -42,13 +42,13 @@ $('#form').w2form({
         field_2 : 2
     },
     fields: [
-        { name: 'field_1', type: 'text', required: true },
-        { name: 'field_2', type: 'alphanumeric', required: true }
+        { field: 'field_1', type: 'text', required: true },
+        { field: 'field_2', type: 'alphanumeric', required: true }
     ]
 });
 </textarea>
 
-You can do: 
+You can do:
 <textarea class="javascript">
 // update field object
 var field = w2ui['form'].get('field_1');

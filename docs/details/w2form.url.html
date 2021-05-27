@@ -4,8 +4,8 @@ URL to the remote data source.
     String or Object, default = ''
 </div>
 
-If the <span class="method">.url</span> property is defined and <a class="argument" href="w2form.recid">.recid</a> property is not 0, 
-the form will attempt to load record data from the remote data source. The data will be loaded into the 
+If the <span class="method">.url</span> property is defined and <a class="argument" href="w2form.recid">.recid</a> property is not 0,
+the form will attempt to load record data from the remote data source. The data will be loaded into the
 <a class="argument" href="w2form.record">.record</a> object and a copy into <a class="argument" href="w2form.original">.original</a> object.
 <div style="height: 10px"></div>
 
@@ -17,21 +17,21 @@ $('#form').w2form({
     url      : '/server/url',
     formURL  : '/server/path',
     fields: [
-        { name: 'first_name', type: 'text', required: true },
-        { name: 'last_name', type: 'text', required: true },
-        { name: 'email', type: 'email' }
+        { field: 'first_name', type: 'text', required: true },
+        { field: 'last_name', type: 'text', required: true },
+        { field: 'email', type: 'email' }
     ],
-    record: { 
-        first_name    : 'John',
-        last_name     : 'Doe',
-        email         : 'jdoe@email.com'
+    record: {
+        first_name : 'John',
+        last_name  : 'Doe',
+        email      : 'jdoe@email.com'
     },
     actions: {
         "save": function () { this.validate(); },
         "reset": function () { this.clear(); }
     },
     postData: [
-        param1 : 'value1', 
+        param1 : 'value1',
         param2 : 'value2'
     ]
 });
@@ -44,7 +44,7 @@ $('#form').w2form({
     recid    : 10,
     url      : {
         get  : '/server/url/to/get',
-        save : '/server/url/to/save' 
+        save : '/server/url/to/save'
     },
     formURL  : '/server/path',
     fields: [
@@ -52,7 +52,7 @@ $('#form').w2form({
         { name: 'last_name', type: 'text', required: true },
         { name: 'email', type: 'email' }
     ],
-    record: { 
+    record: {
         first_name    : 'John',
         last_name     : 'Doe',
         email         : 'jdoe@email.com'
@@ -62,7 +62,7 @@ $('#form').w2form({
         "reset": function () { this.clear(); }
     },
     postData: [
-        param1 : 'value1', 
+        param1 : 'value1',
         param2 : 'value2'
     ]
 });
@@ -76,7 +76,7 @@ w2ui['form'].reload();
 
 <h3>JSON Structures</h3>
 
-If the <a class="argument" href="w2form.recid">.recid</a> property is not set, no request will be made. Otherwise, the form will submit the 
+If the <a class="argument" href="w2form.recid">.recid</a> property is not set, no request will be made. Otherwise, the form will submit the
 following JSON structure;
 
 <textarea class="javascript">
@@ -86,13 +86,13 @@ following JSON structure;
     recid   : xx              // recid of the form
 }
 </textarea>
-Plus any additional parameters you specified in <a href="w2form.postData" class="property">.postData</a> object. The form will expect back a 
+Plus any additional parameters you specified in <a href="w2form.postData" class="property">.postData</a> object. The form will expect back a
 JSON structure in the following format:
 <textarea class="javascript">
 {
     status: 'success',
     record: {
-        field1 : value1, 
+        field1 : value1,
         ...
         fieldN : valueN
     }
@@ -109,7 +109,7 @@ If you want to return an error, you can return it in the following format:
 }
 </textarea>
 
-If you call the <a href="w2form.save" class="method">.save()</a> method the form will submit the following JSON structure: 
+If you call the <a href="w2form.save" class="method">.save()</a> method the form will submit the following JSON structure:
 
 <textarea class="javascript">
 {

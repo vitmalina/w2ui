@@ -31,9 +31,9 @@ $('#form').w2form({
     url      : '/server/form/path',
     formURL  : '/server/path',
     fields: [
-        { name: 'first_name', type: 'text', required: true },
-        { name: 'last_name', type: 'text', required: true },
-        { name: 'email', type: 'email' }
+        { field: 'first_name', type: 'text', required: true },
+        { field: 'last_name', type: 'text', required: true },
+        { field: 'email', type: 'email' }
     ],
     actions: {
         "save": function (target, data) { this.save(); },
@@ -65,12 +65,12 @@ If there is no error, the server should return the following JSON:
 <textarea class="javascript">
 {
     "status": "success"
-}    
+}
 </textarea>
 If there are errors, you can send:
 <textarea class="javascript">
 {
     "status": "error",
     "message": "Error message"
-}    
+}
 </textarea>
