@@ -825,7 +825,7 @@ class w2field extends w2event {
 
     format(val) {
         let options = this.options
-        // autoformat numbers or money
+        // auto format numbers or money
         if (options.autoFormat && val !== '') {
             switch (this.type) {
                 case 'money':
@@ -1517,7 +1517,7 @@ class w2field extends w2event {
                         // default behavior
                         if (status !== 'abort') {
                             let data
-                            try { data = $.parseJSON(xhr.responseText) } catch (e) {}
+                            try { data = JSON.parse(xhr.responseText) } catch (e) {}
                             console.log('ERROR: Server communication failed.',
                                 '\n   EXPECTED:', { status: 'success', records: [{ id: 1, text: 'item' }] },
                                 '\n         OR:', { status: 'error', message: 'error message' },

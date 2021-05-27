@@ -4,14 +4,14 @@ Called before form submits request for record data.
     onRequest = function(event)
 </div>
 
-This event is triggered before form requests record data. If you want to add an event after data is returned, see 
+This event is triggered before form requests record data. If you want to add an event after data is returned, see
 <a href="w2form.onLoad" class="argument">.onLoad</a> event. These two events are called when the form requests data
 from the server, not when user clicks the save button.
 <div style="height: 10px;"></div>
 
 You can add event listener during the object creation:
 <textarea class="javascript">
-$('#form').w2form({ 
+$('#form').w2form({
     name     : 'form',
     url      : 'server/post',
     record: {
@@ -19,12 +19,12 @@ $('#form').w2form({
         field_2 : 2
     },
     fields: [
-        { name: 'field_1', type: 'text', required: true },
-        { name: 'field_2', type: 'alphanumeric', required: true }
+        { field: 'field_1', type: 'text', required: true },
+        { field: 'field_2', type: 'alphanumeric', required: true }
     ],
     onRequest: function(event) {
         console.log(event);
-    }        
+    }
 });
 </textarea>
 
@@ -36,7 +36,7 @@ w2ui.form.on('request', function(event) {
 </textarea>
 
 The event handler is called before the default action of the event is triggered. You can cancel the default action by calling
-<span class="method">event.preventDefault()</span>. To perform an action 
-after the event is fully processed, define <span class="method">event.onComplete</span> function. 
+<span class="method">event.preventDefault()</span>. To perform an action
+after the event is fully processed, define <span class="method">event.onComplete</span> function.
 <div style="height: 10px;"></div>
 See <a href="utils/events">events</a> page in utilities for more details.

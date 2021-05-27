@@ -20,7 +20,7 @@ $(function () {
         record: {
             simple: {
                 text: 'default text value',
-                alpha: '',
+                alpha: 'ABC123',
                 int: 0,
                 float: 0
             },
@@ -30,19 +30,19 @@ $(function () {
             }
         },
         fields: [
-            { field: 'simple.text', type: 'text', required: true,
-                html: {
-                    label: 'Text',
-                    attr: 'style="width: 300px"'
-                }
-            },
             { field: 'simple.alpha', type: 'alphaNumeric',
                 html: {
                     label: 'Alpha Numeric',
                     attr: 'style="width: 300px"'
                 }
             },
-            { field: 'simple.int', type: 'int', required: true,
+            { field: 'simple.text', type: 'text',
+                html: {
+                    label: 'Text',
+                    attr: 'style="width: 300px"'
+                }
+            },
+            { field: 'simple.int', type: 'int',
                 html: {
                     label: 'Integer',
                     attr: 'style="width: 60px"'
@@ -79,6 +79,11 @@ $(function () {
                     anchor: '@time',
                     label: ' Time ',
                     attr: 'style="width: 90px"'
+                }
+            },
+            { field: 'date.datetime', type: 'datetime',
+                html: {
+                    label: 'Date &amp; Time',
                 }
             },
             { field: 'list', type: 'list',

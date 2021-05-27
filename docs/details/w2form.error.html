@@ -25,14 +25,14 @@ $('#form').w2form({
     name     : 'form',
     formURL  : '/server/path',
     fields: [
-        { name: 'first_name', type: 'text', required: true },
-        { name: 'last_name', type: 'text', required: true },
-        { name: 'email', type: 'email' }
+        { field: 'first_name', type: 'text', required: true },
+        { field: 'last_name', type: 'text', required: true },
+        { field: 'email', type: 'email' }
     ]
 });
 </textarea>
 
-You can 
+You can
 <textarea class="javascript">
 w2ui['form'].error('Some error.');
 </textarea>

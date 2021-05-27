@@ -959,9 +959,9 @@ class w2grid extends w2event {
                 bb = String(bb)
             // do case-insensitive string comparison
             if (typeof aa == 'string')
-                aa = $.trim(aa.toLowerCase())
+                aa = aa.toLowerCase().trim()
             if (typeof bb == 'string')
-                bb = $.trim(bb.toLowerCase())
+                bb = bb.toLowerCase().trim()
 
             switch (sortMode) {
                 case 'natural':
@@ -2020,11 +2020,11 @@ class w2grid extends w2event {
                                     operator : (search.operator != null ? search.operator : (search.type == 'text' ? this.textSearch : 'is')),
                                     value    : value
                                 }
-                                if ($.trim(value) != '') searchData.push(tmp)
+                                if (String(value).trim() != '') searchData.push(tmp)
                             }
                             // range in global search box
-                            if (['int', 'float', 'money', 'currency', 'percent'].indexOf(search.type) != -1 && $.trim(String(value)).split('-').length == 2) {
-                                let t   = $.trim(String(value)).split('-')
+                            if (['int', 'float', 'money', 'currency', 'percent'].indexOf(search.type) != -1 && String(value).trim().split('-').length == 2) {
+                                let t   = String(value).trim().split('-')
                                 let tmp = {
                                     field    : search.field,
                                     type     : search.type,
@@ -2542,7 +2542,7 @@ class w2grid extends w2event {
                 // default behavior
                 if (status != 'abort') { // it can be aborted by the grid itself
                     let data
-                    try { data = typeof xhr.responseJSON === 'object' ? xhr.responseJSON : $.parseJSON(xhr.responseText) } catch (e) {}
+                    try { data = typeof xhr.responseJSON === 'object' ? xhr.responseJSON : JSON.parse(xhr.responseText) } catch (e) {}
                     console.log('ERROR: Server communication failed.',
                         '\n   EXPECTED:', { status: 'success', total: 5, records: [{ recid: 1, field: 'value' }] },
                         '\n         OR:', { status: 'error', message: 'error message' },
@@ -5440,7 +5440,7 @@ class w2grid extends w2event {
                     opacity: 0
                 }).addClass('.w2ui-grid-ghost').animate({
                     width: selectedCol.width(),
-                    height: $(obj.box).find('.w2ui-grid-body:first').height(),
+                    height: $(obj.box).find('.w2ui-grid-body').first().height(),
                     left : event.pageX,
                     top : event.pageY,
                     opacity: 0.8
@@ -7434,11 +7434,11 @@ class w2grid extends w2event {
             if (typeof col.render == 'function') {
                 let html = col.render.call(this, record, ind, col_ind, data)
                 if (html != null && typeof html == 'object') {
-                    data     = $.trim(html.html || '')
+                    data     = (html.html || '').trim()
                     addClass = html.class || ''
                     addStyle = html.style || ''
                 } else {
-                    data = $.trim(html)
+                    data = (html || '').trim()
                 }
                 if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') {
                     data = '<div style="'+ style +'" title="'+ getTitle(data) +'">' + infoBubble + String(data) + '</div>'
@@ -7771,7 +7771,7 @@ class w2grid extends w2event {
                 return
             }
             try {
-                let savedState = $.parseJSON(localStorage.w2ui || '{}')
+                let savedState = JSON.parse(localStorage.w2ui || '{}')
                 if (!savedState) savedState = {}
                 if (!savedState.states) savedState.states = {}
                 savedState.states[(this.stateId || this.name)] = state
@@ -7792,7 +7792,7 @@ class w2grid extends w2event {
             // read it from local storage
             try {
                 if (!w2utils.hasLocalStorage) return false
-                let tmp = $.parseJSON(localStorage.w2ui || '{}')
+                let tmp = JSON.parse(localStorage.w2ui || '{}')
                 if (!tmp) tmp = {}
                 if (!tmp.states) tmp.states = {}
                 newState = tmp.states[(this.stateId || this.name)]
@@ -7848,7 +7848,7 @@ class w2grid extends w2event {
         // remove from local storage
         if (w2utils.hasLocalStorage) {
             try {
-                let tmp = $.parseJSON(localStorage.w2ui || '{}')
+                let tmp = JSON.parse(localStorage.w2ui || '{}')
                 if (tmp.states && tmp.states[(this.stateId || this.name)]) {
                     delete tmp.states[(this.stateId || this.name)]
                 }

@@ -1,0 +1,55 @@
+Use field name containing dots as separator to look into object.
+
+<div class="definition">
+    Boolean, default = true
+</div>
+
+<textarea class="javascript">
+$('#form').w2form({
+    name     : 'form',
+    url      : 'server/post',
+    header   : 'Field Types',
+    record: {
+        simple: {
+            text: 'default text value',
+            alpha: 'ABC123',
+        },
+        single: {
+            check: true,
+            toggle: true
+        }
+    },
+    fields: [
+        { field: 'simple.alpha', type: 'alphaNumeric',
+            html: {
+                label: 'Alpha Numeric',
+                attr: 'style="width: 300px"'
+            }
+        },
+        { field: 'simple.text', type: 'text',
+            html: {
+                label: 'Text',
+                attr: 'style="width: 300px"'
+            }
+        },
+        { field: 'single.check', type: 'checkbox',
+            html: {
+                label: 'Check box'
+            }
+        },
+        { field: 'single.toggle', type: 'toggle',
+            html: {
+                label: 'Toggle'
+            }
+        }
+    ],
+    actions: {
+        Reset: function () {
+            this.clear();
+        },
+        Save: function () {
+            this.save();
+        }
+    }
+});
+</textarea>

@@ -1,0 +1,56 @@
+Sets a new value of a given field.
+
+<div class="definition">
+    setValue(field, value)
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>field</td>
+        <td><b>string</b>, name of the field</td>
+    </tr>
+    <tr>
+        <td>value</td>
+        <td><b>any</b>, new value for the field</td>
+    </tr>
+    </table>
+</div>
+
+Returns boolean, <i>true</i> if setting the value was successful, otherwise <i>false</i>.
+
+<h4>Description</h4>
+
+This method will find the <span class="argument">field</span> object in the <a class="argument" href="w2form.fields">.fields</a>
+array and set its value to <span class="argument">value</span>. If the field does not exists, form.record will be extended with the new field name.
+<div style="height: 10px"></div>
+
+Setting a value will not refresh the form.
+<div style="height: 10px"></div>
+
+If you have form defined in the following way:
+<textarea class="javascript">
+$('#form').w2form({
+    name     : 'form',
+    url      : 'server/post',
+    record: {
+        field_1 : 1,
+        field_2 : 2,
+        field_3 : {
+            key : 'value'
+        }
+    },
+    fields: [
+        { field: 'field_1', type: 'text', required: true },
+        { field: 'field_2', type: 'alphanumeric', required: true },
+        { field: 'field_3.key', type: 'alphanumeric' },
+    ]
+});
+</textarea>
+
+You can do:
+<textarea class="javascript">
+w2ui['form'].setValue('field_1', "acb123");
+w2ui['form'].setValue('field_3.key', "def456");
+w2ui['form'].refresh();
+</textarea>

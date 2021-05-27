@@ -12,14 +12,14 @@ $('#form').w2form({
     header     : 'Form Header',
     msgRefresh : 'Please Wait...',
     fields: [
-        { name: 'first_name', type: 'text', required: true },
-        { name: 'last_name', type: 'text', required: true },
-        { name: 'email', type: 'email' }
+        { field: 'first_name', type: 'text', required: true },
+        { field: 'last_name', type: 'text', required: true },
+        { field: 'email', type: 'email' }
     ],
-    record: { 
-        first_name    : 'John',
-        last_name     : 'Doe',
-        email         : 'jdoe@email.com'
+    record: {
+        first_name : 'John',
+        last_name  : 'Doe',
+        email      : 'jdoe@email.com'
     },
     actions: {
         "save": function () { this.validate(); },

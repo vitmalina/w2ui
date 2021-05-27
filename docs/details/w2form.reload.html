@@ -17,11 +17,11 @@ Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
-If the data source is remote (the form has <a class="argument" href="w2form.recid">.recid</a> and <span class="argument">.url</span> 
-properties defined), this method will reload record data from the remote data source. If the data source is local, the form will be 
+If the data source is remote (the form has <a class="argument" href="w2form.recid">.recid</a> and <span class="argument">.url</span>
+properties defined), this method will reload record data from the remote data source. If the data source is local, the form will be
 refreshed.
 <div style="height: 10px"></div>
-                
+
 If you have following form:
 <textarea class="javascript">
 $('#form').w2form({
@@ -30,9 +30,9 @@ $('#form').w2form({
     url      : '/server/form/path',
     formURL  : '/server/path',
     fields: [
-        { name: 'first_name', type: 'text', required: true },
-        { name: 'last_name', type: 'text', required: true },
-        { name: 'email', type: 'email' }
+        { field: 'first_name', type: 'text', required: true },
+        { field: 'last_name', type: 'text', required: true },
+        { field: 'email', type: 'email' }
     ],
     actions: {
         "save": function (target, data) { this.validate(); },

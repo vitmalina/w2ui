@@ -617,7 +617,7 @@ class w2dialog extends w2event {
             }
 
             // remove message
-            if ($.trim(options.html) === '' && $.trim(options.body) === '' && $.trim(options.buttons) === '') {
+            if ((options.html || '').trim() === '' && (options.body || '').trim() === '' && (options.buttons || '').trim() === '') {
                 let $msg = $('#w2ui-popup .w2ui-message').last()
                 if (options.msgId != null) {
                     $msg = $('#w2ui-message'+ options.msgId)
@@ -649,7 +649,7 @@ class w2dialog extends w2event {
                     resolve(edata)
                 }, 150)
             } else {
-                if ($.trim(options.body) !== '' || $.trim(options.buttons) !== '') {
+                if ((options.body || '').trim() !== '' || (options.buttons || '').trim() !== '') {
                     options.html = '<div class="w2ui-message-body">'+ options.body +'</div>'+
                         '<div class="w2ui-message-buttons">'+ options.buttons +'</div>'
                 }

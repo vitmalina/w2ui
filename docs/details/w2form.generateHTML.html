@@ -33,13 +33,13 @@ You should not call this method directly. The following is the example how to us
 $('#form').w2form({
     name     : 'form',
     fields: [
-        { name: 'field.text', type: 'text', required: true,
+        { field: 'field.text', type: 'text', required: true,
             html: { text: 'Field 1', attr: 'size="40"', span: 5 }
         },
-        { name: 'field.alpha', type: 'alphanumeric', required: true,
+        { field: 'field.alpha', type: 'alphanumeric', required: true,
             html: { text: 'Field 2', attr: 'size="40"', span: 5 }
         },
-        { name: 'field.int', type: 'int', required: true
+        { field: 'field.int', type: 'int', required: true
             html: { text: 'Field 3', attr: 'size="40"', span: 5 }
         }
     ],

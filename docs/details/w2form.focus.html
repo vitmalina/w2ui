@@ -40,13 +40,13 @@ If your HTML template is defined as follows:
 The form definition will be:
 
 <textarea class="javascript">
-$('#form').w2form({ 
+$('#form').w2form({
     name   : 'form',
     focus  : 2,
     fields : [
-        { name: 'first_name', type: 'text' },
-        { name: 'last_name', type: 'text' },
-        { name: 'field_textarea', type: 'text' }
+        { field: 'first_name', type: 'text' },
+        { field: 'last_name', type: 'text' },
+        { field: 'field_textarea', type: 'text' }
     ],
     actions : {
         "reset": function () {

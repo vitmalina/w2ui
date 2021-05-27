@@ -4,9 +4,9 @@ Current page.
     Integer, default = 0
 </div>
 
-A form can have multiple pages, but only one page will be displayed at a time. The page numbers start with 0. 
-If you change this property directly, do not forget to call <a href="w2form.refresh" class="argument">.refresh()</a> method 
-to refresh the form. You can also use <a class="argument" href="w2form.goto">.goto()</a> method that takes page number as 
+A form can have multiple pages, but only one page will be displayed at a time. The page numbers start with 0.
+If you change this property directly, do not forget to call <a href="w2form.refresh" class="argument">.refresh()</a> method
+to refresh the form. You can also use <a class="argument" href="w2form.goto">.goto()</a> method that takes page number as
 first parameter.
 <div style="height: 10px"></div>
 
@@ -14,7 +14,7 @@ If you have multi-page form defined in the following way:
 <textarea class="javascript">
 $('#form').w2form({
     name: 'form',
-    formHTML: 
+    formHTML:
         '<div class="w2ui-page page-0">'+
         '    <div class="w2ui-field">'+
         '        <label>First Name</label>'+
@@ -48,15 +48,15 @@ $('#form').w2form({
         '    <button class="w2ui-btn w2ui-btn-green" name="save">Save</button>'+
         '</div>',
     fields: [
-        { name: 'first_name', type: 'text', required: true },
-        { name: 'last_name', type: 'text', required: true },
-        { name: 'email', type: 'email' },
-        { name: 'extra_field', type: 'date' }
+        { field: 'first_name', type: 'text', required: true },
+        { field: 'last_name', type: 'text', required: true },
+        { field: 'email', type: 'email' },
+        { field: 'extra_field', type: 'date' }
     ],
-    record: { 
-        first_name    : 'John',
-        last_name     : 'Doe',
-        email         : 'jdoe@email.com',
+    record: {
+        first_name  : 'John',
+        last_name   : 'Doe',
+        email       : 'jdoe@email.com',
         extra_field : ''
     },
     actions: {
@@ -66,7 +66,7 @@ $('#form').w2form({
 });
 </textarea>
 
-You can open second page by 
+You can open second page by
 <textarea class="javascript">
 w2ui['form'].page = 1;
 w2ui['form'].refresh();
