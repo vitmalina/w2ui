@@ -1,0 +1,29 @@
+Indicates if the form should set the height of the box where it is rendered based on the form's content.
+
+<div class="definition">
+    Boolean, default = true
+</div>
+
+If set to false, the form's box must have a height set.
+
+<textarea class="javascript">
+$('#form').height(300);
+$('#form').w2form({
+    name    : 'form',
+    focus   : 2,
+    autosize: false,
+    fields  : [
+        { field: 'first_name', type: 'text' },
+        { field: 'last_name', type: 'text' },
+        { field: 'field_textarea', type: 'text' }
+    ],
+    actions : {
+        "reset": function () {
+            this.clear();
+        },
+        "save": function () {
+            this.save();
+        }
+    }
+});
+</textarea>

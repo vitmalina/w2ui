@@ -4,8 +4,8 @@ Map of field values.
     Object, default = {}
 </div>
 
-If you defined a form that has <a class="argument" href="w2form.recid">.recid</a> and <a class="argument" href="w2form.url">.url</a> 
-properties defined, the form data will be loaded from the remote data source into the <span class="argument">.record</span> object. 
+If you defined a form that has <a class="argument" href="w2form.recid">.recid</a> and <a class="argument" href="w2form.url">.url</a>
+properties defined, the form data will be loaded from the remote data source into the <span class="argument">.record</span> object.
 <div style="height: 10px"></div>
 
 You can also define record during object creation:
@@ -15,14 +15,14 @@ $('#form').w2form({
     style    : 'border: 0px; background-color: transparent;',
     formURL  : '/server/path',
     fields: [
-        { name: 'first_name', type: 'text', required: true },
-        { name: 'last_name', type: 'text', required: true },
-        { name: 'email', type: 'email' }
+        { field: 'first_name', type: 'text', required: true },
+        { field: 'last_name', type: 'text', required: true },
+        { field: 'email', type: 'email' }
     ],
-    record: { 
-        first_name    : 'John',
-        last_name     : 'Doe',
-        email         : 'jdoe@email.com'
+    record: {
+        first_name : 'John',
+        last_name  : 'Doe',
+        email      : 'jdoe@email.com'
     },
     actions: {
         "save": function () { this.validate(); },
@@ -33,7 +33,7 @@ $('#form').w2form({
 
 Or any time during run-time
 <textarea class="javascript">
-w2ui['form'].record = { 
+w2ui['form'].record = {
     first_name    : 'John',
     last_name     : 'Doe',
     email         : 'jdoe@email.com'

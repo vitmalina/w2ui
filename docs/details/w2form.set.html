@@ -4,8 +4,6 @@ Extends field object with <span class="argument">obj</span>.
     set(field, obj)
 </div>
 
-<h4>Arguments</h4>
-
 <div class="arguments">
     <table>
     <tr>
@@ -23,16 +21,16 @@ Returns boolean.
 
 <h4>Description</h4>
 
-This method will find and update the field object in the <a class="argument" href="w2form.fields">.fields</a> array. If you change 
-this array, you will need to call <a class="argument" href="w2form.refresh">.refresh()</a> method to update it on the screen. Note 
-that this does not change the field value, it changes the field object, which contains description of the field. In order to change 
-field value you need to update <a class="argument" href="w2form.records">.records</a> array and then call 
+This method will find and update the field object in the <a class="argument" href="w2form.fields">.fields</a> array. If you change
+this array, you will need to call <a class="argument" href="w2form.refresh">.refresh()</a> method to update it on the screen. Note
+that this does not change the field value, it changes the field object, which contains description of the field. In order to change
+field value you need to update <a class="argument" href="w2form.records">.records</a> array and then call
 <a class="argument" href="w2form.refresh">.refresh()</a> method to update it on the screen.
 <div style="height: 10px"></div>
 
 If you have form defined in the following way:
 <textarea class="javascript">
-$('#form').w2form({ 
+$('#form').w2form({
     name     : 'form',
     url      : 'server/post',
     record: {
@@ -40,13 +38,13 @@ $('#form').w2form({
         field_2 : 2
     },
     fields: [
-        { name: 'field_1', type: 'text', required: true },
-        { name: 'field_2', type: 'alphanumeric', required: true }
+        { field: 'field_1', type: 'text', required: true },
+        { field: 'field_2', type: 'alphanumeric', required: true }
     ]
 });
 
 // update field object
-w2ui['form'].set('field_1', { type: 'int' }); 
+w2ui['form'].set('field_1', { type: 'int' });
 w2ui['form'].refresh();
 </textarea>
 
@@ -58,6 +56,6 @@ If you need to update field value, for the form same as above you can do it in t
 
 <textarea class="javascript">
 // update field value
-w2ui['form'].record['field_1'] = 'new value'; 
+w2ui['form'].record['field_1'] = 'new value';
 w2ui['form'].refresh();
 </textarea>

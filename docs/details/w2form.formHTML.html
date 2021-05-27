@@ -18,7 +18,7 @@ The following example shows how to define HTML template in JavaScript
 $('#form').w2form({
     name: 'form',
     style: 'border: 0px; background-color: transparent;',
-    formHTML: 
+    formHTML:
         '<div class="w2ui-page page-0">'+
         '    <div class="w2ui-field">'+
         '        <label>First Name</label>'+
@@ -44,14 +44,14 @@ $('#form').w2form({
         '    <button class="w2ui-btn w2ui-btn-green" name="save">Save</button>'+
         '</div>',
     fields: [
-        { name: 'first_name', type: 'text', required: true },
-        { name: 'last_name', type: 'text', required: true },
-        { name: 'email', type: 'email' }
+        { field: 'first_name', type: 'text', required: true },
+        { field: 'last_name', type: 'text', required: true },
+        { field: 'email', type: 'email' }
     ],
-    record: { 
-        first_name    : 'John',
-        last_name     : 'Doe',
-        email         : 'jdoe@email.com'
+    record: {
+        first_name : 'John',
+        last_name  : 'Doe',
+        email      : 'jdoe@email.com'
     },
     actions: {
         "save": function () { this.validate(); },

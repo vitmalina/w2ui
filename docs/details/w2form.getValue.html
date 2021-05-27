@@ -1,0 +1,48 @@
+Returns the current value of a given field.
+
+<div class="definition">
+    getValue(field)
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>field</td>
+        <td><b>string</b>, name of the field</td>
+    </tr>
+    </table>
+</div>
+
+Returns string, integer, boolean, null, or <i>undefined</i>.
+
+<h4>Description</h4>
+
+This method will find the <span class="argument">field</span> object in the <a class="argument" href="w2form.fields">.fields</a>
+array and return its value. If the field does not exists it will return <i>undefined</i>.
+<div style="height: 10px"></div>
+
+If you have form defined in the following way:
+<textarea class="javascript">
+$('#form').w2form({
+    name     : 'form',
+    url      : 'server/post',
+    record: {
+        field_1 : 1,
+        field_2 : 2,
+        field_3 : {
+            key : 'value'
+        }
+    },
+    fields: [
+        { field: 'field_1', type: 'text', required: true },
+        { field: 'field_2', type: 'alphanumeric', required: true },
+        { field: 'field_3.key', type: 'alphanumeric' },
+    ]
+});
+</textarea>
+
+You can do:
+<textarea class="javascript">
+console.log( w2ui['form'].getValue('field_1') );
+console.log( w2ui['form'].getValue('field_3.key') );
+</textarea>

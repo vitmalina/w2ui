@@ -1,0 +1,26 @@
+Sets focus to a field.
+
+<div class="definition">
+    applyFocus([focus])
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>focus</td>
+        <td><b>string|number</b>, id of the field or index of the filed</td>
+    </tr>
+    </table>
+</div>
+
+Returns JQuery object or <i>undefined</i>.
+
+<h4>Description</h4>
+
+This method will set the focus to a field determined by <span class="argument">focus</span>.
+<div style="height: 10px"></div>
+
+If the <span class="argument">focus</span> argument is not set, form<a class="argument" href="w2form.focus">.focus</a> will be used.
+<div style="height: 10px"></div>
+
+If a field to focus is found, the JQuery object of the field will be returned. If no field is found, <i>undefined</i> is returned.

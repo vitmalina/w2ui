@@ -203,7 +203,12 @@ $(function () {
                         { id: 'form/13', text: 'Anchored Fields (1.5+)', icon: 'fa fa-pencil-square-o' },
                         { id: 'form/14', text: 'Maps and Arrays (1.5+)', icon: 'fa fa-pencil-square-o' },
                         { id: 'form/15', text: 'Custom Fields (1.5+)', icon: 'fa fa-pencil-square-o' },
-                        { id: 'form/16', text: 'Enable/Disable Fields (1.5+)', icon: 'fa fa-pencil-square-o' }
+                        { id: 'form/16', text: 'Enable/Disable Fields (1.5+)', icon: 'fa fa-pencil-square-o' },
+                    ]
+                },
+                { id: 'forms-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'form/17', text: 'Apply Focus (2.0+)', icon: 'fa fa-pencil-square-o' },
                     ]
                 },
                 { id: 'fields', text: 'Fields Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,

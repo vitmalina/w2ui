@@ -78,7 +78,7 @@ class w2form extends w2event {
         this.tabs         = {} // if not empty, then it is tabs object
         this.style        = ''
         this.focus        = 0 // focus first or other element
-        this.autosize     = true // autosize
+        this.autosize     = true // autosize, if false the container must have a height set
         this.nestedFields = true // use field name containing dots as separator to look into object
         this.multipart    = false
         this.tabindexBase = 0 // this will be added to the auto numbering
@@ -214,7 +214,7 @@ class w2form extends w2event {
         }
     }
 
-    setValue(field, value) {
+    setValue(field, value) { // will not refresh the form!
         if (this.nestedFields) {
             try { // need this to make sure no error in fields
                 let rec = this.record
@@ -397,6 +397,7 @@ class w2form extends w2event {
                         errors.push({ field: field, error: w2utils.lang('Not a float') })
                     }
                     break
+                case 'currency':
                 case 'money':
                     if (this.getValue(field.field) && !w2utils.isMoney(this.getValue(field.field))) {
                         errors.push({ field: field, error: w2utils.lang('Not in money format') })
@@ -524,7 +525,7 @@ class w2form extends w2event {
             if (['list', 'combo', 'enum'].indexOf(fld.type) != -1) {
                 let tmp = { nestedFields: true, record: data }
                 let val = this.getValue.call(tmp, fld.field)
-                if ($.isPlainObject(val) && val.id != null) { // should be tru if val.id === ''
+                if ($.isPlainObject(val) && val.id != null) { // should be true if val.id === ''
                     this.setValue.call(tmp, fld.field, val.id)
                 }
                 if (Array.isArray(val)) {
@@ -785,7 +786,7 @@ class w2form extends w2event {
                     if (!obj.multipart) {
                         ajaxOptions.data = JSON.stringify(ajaxOptions.data)
                     } else {
-                        function apend(fd, dob, fob, p){
+                        function append(fd, dob, fob, p){
                             if (p == null) p = ''
                             function isObj(dob, fob, p){
                                 if (typeof dob === 'object' && dob instanceof File) fd.append(p, dob)
@@ -796,7 +797,7 @@ class w2form extends w2event {
                                             isObj(dob[i], aux_fob, p+'['+i+']')
                                         }
                                     } else {
-                                        apend(fd, dob, fob, p)
+                                        append(fd, dob, fob, p)
                                     }
                                 }
                             }
@@ -808,7 +809,7 @@ class w2form extends w2event {
                         }
                         let fdata = new FormData()
                         fdata.append('__body', JSON.stringify(ajaxOptions.data))
-                        apend(fdata,ajaxOptions.data)
+                        append(fdata, ajaxOptions.data)
                         ajaxOptions.data        = fdata
                         ajaxOptions.contentType = false
                         ajaxOptions.processData = false
@@ -1438,6 +1439,7 @@ class w2form extends w2event {
                 case 'color':
                 case 'date':
                 case 'time':
+                case 'datetime':
                     field.el.value = value
                     $(field.el).w2field($.extend({}, field.options, { type: field.type }))
                     break
@@ -1802,16 +1804,13 @@ class w2form extends w2event {
             }
             $(window).off('resize.w2uiResize').on('resize.w2uiResize', obj.tmp_resize)
         }
+
         // focus on load
-        function focusEl() {
-            let inputs = $(obj.box).find('div:not(.w2ui-field-helper) > input, select, textarea, div > label:nth-child(1) > :radio').not('.file-input')
-            if (inputs.length > obj.focus) inputs[obj.focus].focus()
-        }
         if (this.focus != -1) {
             setTimeout(() => {
-                // if not rendered in 10ms, then wait 500ms
+                // if not rendered in 50ms, then wait another 500ms
                 if ($(obj.box).find('input, select, textarea').length === 0) {
-                    setTimeout(focusEl, 500) // need timeout to allow form to render
+                    setTimeout(obj.applyFocus, 500) // need timeout to allow form to render
                 } else {
                     obj.applyFocus()
                 }
@@ -1820,14 +1819,34 @@ class w2form extends w2event {
         return (new Date()).getTime() - time
     }
 
-    applyFocus() {
-        let focus  = this.focus
-        let inputs = $(this.box).find('div:not(.w2ui-field-helper) > input, select, textarea, div > label:nth-child(1) > :radio').not('.file-input')
-        // find visible
-        while ($(inputs[focus]).is(':hidden') && inputs.length >= focus) {
-            focus++
+    applyFocus(focus) {
+        if(typeof focus === 'undefined'){
+            // no argument - use form's focus property
+            focus = this.focus
         }
-        if (inputs[focus]) inputs[focus].focus()
+        let $input
+        // focus field by index
+        if(w2utils.isInt(focus)){
+            if(focus < 0) {
+                return
+            }
+            let inputs = $(this.box).find('div:not(.w2ui-field-helper) > input, select, textarea, div > label:nth-child(1) > :radio').not('.file-input')
+            // find visible
+            while ($(inputs[focus]).is(':hidden') && inputs.length >= focus) {
+                focus++
+            }
+            if (inputs[focus]) {
+                $input = $(inputs[focus])
+            }
+        }
+        // focus field by name
+        else if (typeof focus === 'string') {
+            $input = $(this.box).find('[name=\''+focus+'\']').first()
+        }
+        if($input){
+            $input.trigger('focus')
+        }
+        return $input
     }
 
     destroy() {
