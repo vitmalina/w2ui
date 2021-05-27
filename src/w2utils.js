@@ -227,8 +227,7 @@ let w2utils = (($) => {
         pm       = val.indexOf('PM') >= 0
         let ampm = (pm || am)
         if (ampm) max = 12; else max = 24
-        val = val.replace('AM', '').replace('PM', '')
-        val = $.trim(val)
+        val = val.replace('AM', '').replace('PM', '').trim()
         // ---
         let tmp = val.split(':')
         let h   = parseInt(tmp[0] || 0), m = parseInt(tmp[1] || 0), s = parseInt(tmp[2] || 0)
@@ -1169,7 +1168,7 @@ let w2utils = (($) => {
         }
         let msgCount = $(where.box).find('.w2ui-message').length
         // remove message
-        if ($.trim(options.html) === '' && $.trim(options.body) === '' && $.trim(options.buttons) === '') {
+        if ((options.html || '').trim() === '' && (options.body || '').trim() === '' && (options.buttons || '').trim() === '') {
             if (msgCount === 0) return // no messages at all
             let $msg = $(where.box).find('#w2ui-message'+ (msgCount-1))
             options  = $msg.data('options') || {}
@@ -1194,7 +1193,7 @@ let w2utils = (($) => {
 
         } else {
 
-            if ($.trim(options.body) !== '' || $.trim(options.buttons) !== '') {
+            if ((options.body || '').trim() !== '' || (options.buttons || '').trim() !== '') {
                 options.html = '<div class="w2ui-message-body">'+ (options.body || '') +'</div>'+
                     '<div class="w2ui-message-buttons">'+ (options.buttons || '') +'</div>'
             }
