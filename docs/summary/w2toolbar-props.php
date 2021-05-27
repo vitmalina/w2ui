@@ -1,17 +1,17 @@
 <link rel="stylesheet" type="text/css" href="../summary.css"/> 
 <div class="container">
 <div class="obj-property">
-    <a href="w2toolbar.item_template">item_template</a> <span>- Object, default = {...} // see below</span>
-</div>
-<div class="obj-property-desc">
-    Template for the item object
-</div>
-
-<div class="obj-property">
     <a href="w2toolbar.items">items</a> <span>- Array, default = []</span>
 </div>
 <div class="obj-property-desc">
     Array of the item objects.
+</div>
+
+<div class="obj-property">
+    <a href="w2toolbar.item_template">item_template</a> <span>- Object, default = {...} // see below</span>
+</div>
+<div class="obj-property-desc">
+    Template for the item object
 </div>
 
 <div class="obj-property">
