@@ -662,7 +662,7 @@ class w2form extends w2event {
                 // default behavior
                 if (status !== 'abort') {
                     let data
-                    try { data = typeof xhr.responseJSON === 'object' ? xhr.responseJSON : $.parseJSON(xhr.responseText) } catch (e) {}
+                    try { data = typeof xhr.responseJSON === 'object' ? xhr.responseJSON : JSON.parse(xhr.responseText) } catch (e) {}
                     console.log('ERROR: Server communication failed.',
                         '\n   EXPECTED:', { status: 'success', items: [{ id: 1, text: 'item' }] },
                         '\n         OR:', { status: 'error', message: 'error message' },
