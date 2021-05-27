@@ -1,4 +1,4 @@
-Slides down a dialog <span class="argument">str</span> is a date.
+Slides down a dialog that does not lock entire page.
 
 <div class="definition">
     message(where, [options])
@@ -43,13 +43,13 @@ The second argument <span class="method">options</span> is the same as for <span
 
 <textarea class="javascript">
 options: {
-    html        : '',   // html of the message
-    body        : '',   // similar to body in w2popup, can be used instead of options.html
-    buttons     : '',   // similar to buttons in w2popup, can be used instead of options.html
-    width       : 10,   // width in px (if negative, then it is 100% of popup in message.width)
-    height      : 10,   // height in px (if negative, then it is 100% of popup in message.height)
-    hideOnClick : true, // if true, hide message if user clicks on it
-    onOpen      : null, // function to execute when message opens
-    onClose     : null  // function to execute when message closes
+    html        : '',    // html of the message
+    body        : '',    // similar to body in w2popup, can be used instead of options.html
+    buttons     : '',    // similar to buttons in w2popup, can be used instead of options.html
+    width       : 10,    // width in px (if negative, then it is 100% of popup in message.width)
+    height      : 10,    // height in px (if negative, then it is 100% of popup in message.height)
+    hideOnClick : false, // if true, hide message if user clicks on it
+    onOpen      : null,  // function to execute when message opens
+    onClose     : null   // function to execute when message closes
 }
 </textarea>

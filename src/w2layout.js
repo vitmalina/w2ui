@@ -6,6 +6,7 @@
 *   - layout.content - deprecated
 *   - panel.callBack -> panel.removed
 *   - panel.onContent -> panel.onChange
+*   - .message - returns a promise
 *
 ************************************************************************/
 
@@ -217,7 +218,7 @@ class w2layout extends w2event {
             }
         }
         $('#layout_'+ this.name + '_panel_'+ p.type).css('overflow', 'hidden')
-        w2utils.message.call(this, {
+        return w2utils.message.call(this, {
             box   : $('#layout_'+ this.name + '_panel_'+ p.type),
             param : panel,
             path  : 'w2ui.' + this.name,

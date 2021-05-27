@@ -9,7 +9,6 @@
 *   - nested groups (so fields can be defined inside)
 *
 * == 1.5 changes
-*   - $('#form').w2form() - if called w/o argument then it returns form object
 *   - added onProgress
 *   - added field.html.style (for the whole field)
 *   - added enable/disable, show/hide
@@ -47,6 +46,8 @@
 *   - tabindexBase
 *
 * == 2.0 changes
+*   - show/hide, enable/disable - return array of effected items
+*   - .message - returns a promise
 *
 ************************************************************************/
 
@@ -236,31 +237,57 @@ class w2form extends w2event {
     }
 
     show() {
-        let affected = []
+        let effected = []
         for (let a = 0; a < arguments.length; a++) {
             let fld = this.get(arguments[a])
             if (fld && fld.hidden) {
                 fld.hidden = false
-                affected.push(fld.field)
+                effected.push(fld.field)
             }
         }
-        if (affected.length > 0) this.refresh.apply(this, affected)
+        if (effected.length > 0) this.refresh.apply(this, effected)
         this.updateEmptyGroups()
-        return affected.length
+        return effected
     }
 
     hide() {
-        let affected = []
+        let effected = []
         for (let a = 0; a < arguments.length; a++) {
             let fld = this.get(arguments[a])
             if (fld && !fld.hidden) {
                 fld.hidden = true
-                affected.push(fld.field)
+                effected.push(fld.field)
             }
         }
-        if (affected.length > 0) this.refresh.apply(this, affected)
+        if (effected.length > 0) this.refresh.apply(this, effected)
         this.updateEmptyGroups()
-        return affected.length
+        return effected
+    }
+
+    enable() {
+        let effected = []
+        for (let a = 0; a < arguments.length; a++) {
+            let fld = this.get(arguments[a])
+            if (fld && fld.disabled) {
+                fld.disabled = false
+                effected.push(fld.field)
+            }
+        }
+        if (effected.length > 0) this.refresh.apply(this, effected)
+        return effected
+    }
+
+    disable() {
+        let effected = []
+        for (let a = 0; a < arguments.length; a++) {
+            let fld = this.get(arguments[a])
+            if (fld && !fld.disabled) {
+                fld.disabled = true
+                effected.push(fld.field)
+            }
+        }
+        if (effected.length > 0) this.refresh.apply(this, effected)
+        return effected
     }
 
     updateEmptyGroups() {
@@ -279,32 +306,6 @@ class w2form extends w2event {
             })
             return flag
         }
-    }
-
-    enable() {
-        let affected = []
-        for (let a = 0; a < arguments.length; a++) {
-            let fld = this.get(arguments[a])
-            if (fld && fld.disabled) {
-                fld.disabled = false
-                affected.push(fld.field)
-            }
-        }
-        if (affected.length > 0) this.refresh.apply(this, affected)
-        return affected.length
-    }
-
-    disable() {
-        let affected = []
-        for (let a = 0; a < arguments.length; a++) {
-            let fld = this.get(arguments[a])
-            if (fld && !fld.disabled) {
-                fld.disabled = true
-                affected.push(fld.field)
-            }
-        }
-        if (affected.length > 0) this.refresh.apply(this, affected)
-        return affected.length
     }
 
     change() {
@@ -370,7 +371,7 @@ class w2form extends w2event {
                 }
             }
         }
-        w2utils.message.call(this, {
+        return w2utils.message.call(this, {
             box   : this.box,
             path  : 'w2ui.' + this.name,
             title : '.w2ui-form-header:visible',

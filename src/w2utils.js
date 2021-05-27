@@ -9,9 +9,11 @@
 *   - overlay should be displayed where more space (on top or on bottom)
 *   - add maxHeight for the w2menu
 *   - add w2utils.lang wrap for all captions in all buttons.
+*   - message.options - should have actions
 *
 * == 2.0 changes
 *   - normMenu
+*   - w2utils.message - return a promise
 *
 ************************************************/
 
@@ -1127,159 +1129,167 @@ let w2utils = (($) => {
     */
 
     function message(where, options) {
-        let obj = this, closeTimer, edata
-        // var where.path    = 'w2popup';
-        // var where.title   = '.w2ui-popup-title';
-        // var where.body    = '.w2ui-box';
-        $().w2tag() // hide all tags
-        if (!options) options = { width: 200, height: 100 }
-        if (options.on == null) $.extend(options, w2utils.event)
-        if (options.width == null) options.width = 200
-        if (options.height == null) options.height = 100
-        let pWidth      = parseInt($(where.box).width())
-        let pHeight     = parseInt($(where.box).height())
-        let titleHeight = parseInt($(where.box).find(where.title).css('height') || 0)
-        if (options.width > pWidth) options.width = pWidth - 10
-        if (options.height > pHeight - titleHeight) options.height = pHeight - 10 - titleHeight
-        options.originalWidth  = options.width
-        options.originalHeight = options.height
-        if (parseInt(options.width) < 0) options.width = pWidth + options.width
-        if (parseInt(options.width) < 10) options.width = 10
-        if (parseInt(options.height) < 0) options.height = pHeight + options.height - titleHeight
-        if (parseInt(options.height) < 10) options.height = 10
-        if (options.hideOnClick == null) options.hideOnClick = false
-        let poptions = $(where.box).data('options') || {}
-        if (options.width == null || options.width > poptions.width - 10) {
-            options.width = poptions.width - 10
-        }
-        if (options.height == null || options.height > poptions.height - titleHeight - 5) {
-            options.height = poptions.height - titleHeight - 5 // need margin from bottom only
-        }
-        // negative value means margin
-        if (options.originalHeight < 0) options.height = pHeight + options.originalHeight - titleHeight
-        if (options.originalWidth < 0) options.width = pWidth + options.originalWidth * 2 // x 2 because there is left and right margin
-        let head = $(where.box).find(where.title)
-
-        // if some messages are closing, insta close them
-        let $tmp = $(where.box).find('.w2ui-message.w2ui-closing')
-        if ($(where.box).find('.w2ui-message.w2ui-closing').length > 0) {
-            clearTimeout(closeTimer)
-            closeCB($tmp, $tmp.data('options') || {})
-        }
-        let msgCount = $(where.box).find('.w2ui-message').length
-        // remove message
-        if ((options.html || '').trim() === '' && (options.body || '').trim() === '' && (options.buttons || '').trim() === '') {
-            if (msgCount === 0) return // no messages at all
-            let $msg = $(where.box).find('#w2ui-message'+ (msgCount-1))
-            options  = $msg.data('options') || {}
-            // before event
-            if (options.trigger) {
-                edata = options.trigger({ phase: 'before', type: 'close', target: 'self' })
-                if (edata.isCancelled === true) return
+        return new Promise((resolve, reject) => {
+            let obj = this, closeTimer, edata
+            // var where.path    = 'w2popup';
+            // var where.title   = '.w2ui-popup-title';
+            // var where.body    = '.w2ui-box';
+            $().w2tag() // hide all tags
+            if (!options) options = { width: 200, height: 100 }
+            if (options.on == null) {
+                // mix in events
+                let opts = options
+                options = new w2event()
+                $.extend(options, opts)
             }
-            // default behavior
-            $msg.css(w2utils.cssPrefix({
-                'transition': '0.15s',
-                'transform': 'translateY(-' + options.height + 'px)'
-            })).addClass('w2ui-closing')
-            if (msgCount === 1) {
-                if (this.unlock) {
-                    if (where.param) this.unlock(where.param, 150); else this.unlock(150)
-                }
-            } else {
-                $(where.box).find('#w2ui-message'+ (msgCount-2)).css('z-index', 1500)
+            if (options.width == null) options.width = 200
+            if (options.height == null) options.height = 100
+            let pWidth      = parseInt($(where.box).width())
+            let pHeight     = parseInt($(where.box).height())
+            let titleHeight = parseInt($(where.box).find(where.title).css('height') || 0)
+            if (options.width > pWidth) options.width = pWidth - 10
+            if (options.height > pHeight - titleHeight) options.height = pHeight - 10 - titleHeight
+            options.originalWidth  = options.width
+            options.originalHeight = options.height
+            if (parseInt(options.width) < 0) options.width = pWidth + options.width
+            if (parseInt(options.width) < 10) options.width = 10
+            if (parseInt(options.height) < 0) options.height = pHeight + options.height - titleHeight
+            if (parseInt(options.height) < 10) options.height = 10
+            if (options.hideOnClick == null) options.hideOnClick = false
+            let poptions = $(where.box).data('options') || {}
+            if (options.width == null || options.width > poptions.width - 10) {
+                options.width = poptions.width - 10
             }
-            closeTimer = setTimeout(() => { closeCB($msg, options) }, 150)
-
-        } else {
-
-            if ((options.body || '').trim() !== '' || (options.buttons || '').trim() !== '') {
-                options.html = '<div class="w2ui-message-body">'+ (options.body || '') +'</div>'+
-                    '<div class="w2ui-message-buttons">'+ (options.buttons || '') +'</div>'
+            if (options.height == null || options.height > poptions.height - titleHeight - 5) {
+                options.height = poptions.height - titleHeight - 5 // need margin from bottom only
             }
-            // hide previous messages
-            $(where.box).find('.w2ui-message').css('z-index', 1390)
-            head.data('old-z-index', head.css('z-index'))
-            head.css('z-index', 1501)
-            // add message
-            $(where.box).find(where.body)
-                .before('<div id="w2ui-message' + msgCount + '" onmousedown="event.stopPropagation();" '+
-                        '   class="w2ui-message" style="display: none; z-index: 1500; ' +
-                            (head.length === 0 ? 'top: 0px;' : 'top: ' + w2utils.getSize(head, 'height') + 'px;') +
-                            (options.width != null ? 'width: ' + options.width + 'px; left: ' + ((pWidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
-                            (options.height != null ? 'height: ' + options.height + 'px;' : 'bottom: 6px;') +
-                            w2utils.cssPrefix('transition', '.3s', true) + '"' +
-                            (options.hideOnClick === true
-                                ? where.param
-                                    ? 'onclick="'+ where.path +'.message(\''+ where.param +'\');"'
-                                    : 'onclick="'+ where.path +'.message();"'
-                                : '') + '>' +
-                        '</div>')
-            $(where.box).find('#w2ui-message'+ msgCount)
-                .data('options', options)
-                .data('prev_focus', $(':focus'))
-            let display = $(where.box).find('#w2ui-message'+ msgCount).css('display')
-            $(where.box).find('#w2ui-message'+ msgCount).css(w2utils.cssPrefix({
-                'transform': (display === 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)')
-            }))
-            if (display === 'none') {
-                $(where.box).find('#w2ui-message'+ msgCount).show().html(options.html)
-                options.box = $(where.box).find('#w2ui-message'+ msgCount)
+            // negative value means margin
+            if (options.originalHeight < 0) options.height = pHeight + options.originalHeight - titleHeight
+            if (options.originalWidth < 0) options.width = pWidth + options.originalWidth * 2 // x 2 because there is left and right margin
+            let head = $(where.box).find(where.title)
+
+            // if some messages are closing, insta close them
+            let $tmp = $(where.box).find('.w2ui-message.w2ui-closing')
+            if ($(where.box).find('.w2ui-message.w2ui-closing').length > 0) {
+                clearTimeout(closeTimer)
+                closeCB($tmp, $tmp.data('options') || {})
+            }
+            let msgCount = $(where.box).find('.w2ui-message').length
+            // remove message
+            if ((options.html || '').trim() === '' && (options.body || '').trim() === '' && (options.buttons || '').trim() === '') {
+                if (msgCount === 0) return // no messages at all
+                let $msg = $(where.box).find('#w2ui-message'+ (msgCount-1))
+                options  = $msg.data('options') || {}
                 // before event
                 if (options.trigger) {
-                    edata = options.trigger({ phase: 'before', type: 'open', target: 'self' })
-                    if (edata.isCancelled === true) {
-                        head.css('z-index', head.data('old-z-index'))
-                        $(where.box).find('#w2ui-message'+ msgCount).remove()
-                        return
+                    edata = options.trigger({ phase: 'before', type: 'close', target: 'self', box: options.box[0] })
+                    if (edata.isCancelled === true) return
+                }
+                // default behavior
+                $msg.css(w2utils.cssPrefix({
+                    'transition': '0.15s',
+                    'transform': 'translateY(-' + options.height + 'px)'
+                })).addClass('w2ui-closing')
+                if (msgCount === 1) {
+                    if (this.unlock) {
+                        if (where.param) this.unlock(where.param, 150); else this.unlock(150)
                     }
+                } else {
+                    $(where.box).find('#w2ui-message'+ (msgCount-2)).css('z-index', 1500)
                 }
-                // timer needs to animation
-                setTimeout(() => {
-                    $(where.box).find('#w2ui-message'+ msgCount).css(w2utils.cssPrefix({
-                        'transform': (display === 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)')
-                    }))
-                }, 1)
-                // timer for lock
-                if (msgCount === 0 && this.lock) {
-                    if (where.param) this.lock(where.param); else this.lock()
+                closeTimer = setTimeout(() => { closeCB($msg, options) }, 150)
+
+            } else {
+
+                if ((options.body || '').trim() !== '' || (options.buttons || '').trim() !== '') {
+                    options.html = '<div class="w2ui-message-body">'+ (options.body || '') +'</div>'+
+                        '<div class="w2ui-message-buttons">'+ (options.buttons || '') +'</div>'
                 }
-                setTimeout(() => {
-                    // has to be on top of lock
-                    $(where.box).find('#w2ui-message'+ msgCount).css(w2utils.cssPrefix({ 'transition': '0s' }))
-                    // event after
+                // hide previous messages
+                $(where.box).find('.w2ui-message').css('z-index', 1390)
+                head.data('old-z-index', head.css('z-index'))
+                head.css('z-index', 1501)
+                // add message
+                $(where.box).find(where.body)
+                    .before('<div id="w2ui-message' + msgCount + '" onmousedown="event.stopPropagation();" '+
+                            '   class="w2ui-message" style="display: none; z-index: 1500; ' +
+                                (head.length === 0 ? 'top: 0px;' : 'top: ' + w2utils.getSize(head, 'height') + 'px;') +
+                                (options.width != null ? 'width: ' + options.width + 'px; left: ' + ((pWidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
+                                (options.height != null ? 'height: ' + options.height + 'px;' : 'bottom: 6px;') +
+                                w2utils.cssPrefix('transition', '.3s', true) + '"' +
+                                (options.hideOnClick === true
+                                    ? where.param
+                                        ? 'onclick="'+ where.path +'.message(\''+ where.param +'\');"'
+                                        : 'onclick="'+ where.path +'.message();"'
+                                    : '') + '>' +
+                            '</div>')
+                $(where.box).find('#w2ui-message'+ msgCount)
+                    .data('options', options)
+                    .data('prev_focus', $(':focus'))
+                let display = $(where.box).find('#w2ui-message'+ msgCount).css('display')
+                $(where.box).find('#w2ui-message'+ msgCount).css(w2utils.cssPrefix({
+                    'transform': (display === 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)')
+                }))
+                if (display === 'none') {
+                    $(where.box).find('#w2ui-message'+ msgCount).show().html(options.html)
+                    options.box = $(where.box).find('#w2ui-message'+ msgCount)
+                    // before event
                     if (options.trigger) {
-                        options.trigger($.extend(edata, { phase: 'after' }))
+                        edata = options.trigger({ phase: 'before', type: 'open', target: 'self', box: options.box[0] })
+                        if (edata.isCancelled === true) {
+                            head.css('z-index', head.data('old-z-index'))
+                            $(where.box).find('#w2ui-message'+ msgCount).remove()
+                            return
+                        }
                     }
-                }, 350)
-            }
-        }
-
-        function closeCB($msg, options) {
-            if (edata == null) {
-                // before event
-                if (options.trigger) {
-                    edata = options.trigger({ phase: 'before', type: 'open', target: 'self' })
-                    if (edata.isCancelled === true) {
-                        head.css('z-index', head.data('old-z-index'))
-                        $(where.box).find('#w2ui-message'+ msgCount).remove()
-                        return
+                    // timer needs to animation
+                    setTimeout(() => {
+                        $(where.box).find('#w2ui-message'+ msgCount).css(w2utils.cssPrefix({
+                            'transform': (display === 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)')
+                        }))
+                    }, 1)
+                    // timer for lock
+                    if (msgCount === 0 && this.lock) {
+                        if (where.param) this.lock(where.param); else this.lock()
                     }
+                    setTimeout(() => {
+                        // has to be on top of lock
+                        $(where.box).find('#w2ui-message'+ msgCount).css(w2utils.cssPrefix({ 'transition': '0s' }))
+                        // event after
+                        if (options.trigger) {
+                            options.trigger($.extend(edata, { phase: 'after' }))
+                            resolve()
+                        }
+                    }, 350)
                 }
             }
-            let $focus = $msg.data('prev_focus')
-            $msg.remove()
-            if ($focus && $focus.length > 0) {
-                $focus.focus()
-            } else {
-                if (obj && obj.focus) obj.focus()
+
+            function closeCB($msg, options) {
+                if (edata == null) {
+                    // before event
+                    if (options.trigger) {
+                        edata = options.trigger({ phase: 'before', type: 'open', target: 'self' })
+                        if (edata.isCancelled === true) {
+                            head.css('z-index', head.data('old-z-index'))
+                            $(where.box).find('#w2ui-message'+ msgCount).remove()
+                            return
+                        }
+                    }
+                }
+                let $focus = $msg.data('prev_focus')
+                $msg.remove()
+                if ($focus && $focus.length > 0) {
+                    $focus.focus()
+                } else {
+                    if (obj && obj.focus) obj.focus()
+                }
+                head.css('z-index', head.data('old-z-index'))
+                // event after
+                if (options.trigger) {
+                    options.trigger($.extend(edata, { phase: 'after' }))
+                }
             }
-            head.css('z-index', head.data('old-z-index'))
-            // event after
-            if (options.trigger) {
-                options.trigger($.extend(edata, { phase: 'after' }))
-            }
-        }
+        })
     }
 
     function getSize (el, type) {
