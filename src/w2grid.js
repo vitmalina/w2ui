@@ -143,6 +143,7 @@
 *   - col.sortMode = 'default', 'natural' or a function
 *
 * == 2.0 changes
+*   - .message - returns a promise
 *
 ************************************************************************/
 
@@ -8061,7 +8062,7 @@ class w2grid extends w2event {
                 }
             }
         }
-        w2utils.message.call(this, {
+        return w2utils.message.call(this, {
             box   : this.box,
             path  : 'w2ui.' + this.name,
             title : '.w2ui-grid-header:visible',
