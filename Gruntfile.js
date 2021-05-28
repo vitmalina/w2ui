@@ -1,8 +1,8 @@
 module.exports = function (grunt) {
 
-    var w2ui    = '/* w2ui 1.5.x (nightly) (c) http://w2ui.com, vitmalina@gmail.com */\n';
-    var fields  = '/* w2ui-fields.js 1.5.x (nightly), part of w2ui (c) http://w2ui.com, vitmalina@gmail.com */\n';
-    var ks      = '/* kickstart 0.2.x (nightly) (c) http://w2ui.com/kickstart, vitmalina@gmail.com */\n';
+    var w2ui    = '/* w2ui 1.5.x (nightly) (c) http://w2ui.com, vitmalina@gmail.com */';
+    var fields  = '/* w2ui-fields.js 1.5.x (nightly), part of w2ui (c) http://w2ui.com, vitmalina@gmail.com */';
+    var ks      = '/* kickstart 0.2.x (nightly) (c) http://w2ui.com/kickstart, vitmalina@gmail.com */';
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -38,6 +38,7 @@ module.exports = function (grunt) {
             "w2ui-min": {
                 options: {
                     cleancss: true,
+                    compress: true,
                     report: 'min'
                 },
                 files: {
@@ -53,6 +54,7 @@ module.exports = function (grunt) {
             "fields-min": {
                 options: {
                     cleancss: true,
+                    compress: true,
                     report: 'min'
                 },
                 files: {
@@ -64,8 +66,8 @@ module.exports = function (grunt) {
         concat: {
             w2ui: {
                 options: {
-                    banner: w2ui,
-		    sourceMap: true
+                  banner: w2ui+'\n',
+		          sourceMap: true
                 },
                 src: [
                     'src/w2utils.js',
@@ -83,7 +85,7 @@ module.exports = function (grunt) {
             },
             fields: {
                 options: {
-                    banner: fields
+                    banner: fields+'\n'
                 },
                 src: [
                     'src/w2utils.js',
@@ -93,38 +95,38 @@ module.exports = function (grunt) {
             },
             ks: {
                 options: {
-                    banner: ks
+                    banner: ks+'\n'
                 },
                 src: ['src/kickstart/ks-core.js', 'src/kickstart/ks-route.js'],
                 dest: 'dist/kickstart.js'
             },
             'banner-w2ui-1': {
-                options: { banner: w2ui },
+                options: { banner: w2ui+'\n' },
                 src    : 'dist/w2ui.css',
                 dest   : 'dist/w2ui.css'
             },
             'banner-w2ui-2': {
-                options : { banner: w2ui },
+                options : { banner: w2ui+'\n' },
                 src     : 'dist/w2ui.min.css',
                 dest    : 'dist/w2ui.min.css'
             },
             'banner-w2ui-3': {
-                options : { banner: w2ui },
+                options : { banner: w2ui+'\n' },
                 src     : 'dist/w2ui-dark.css',
                 dest    : 'dist/w2ui-dark.css'
             },
             'banner-w2ui-4': {
-                options : { banner: w2ui },
+                options : { banner: w2ui+'\n' },
                 src     : 'dist/w2ui-dark.min.css',
                 dest    : 'dist/w2ui-dark.min.css'
             },
             'banner-fields-1': {
-                options : { banner: fields },
+                options : { banner: fields+'\n' },
                 src     : 'dist/w2ui-fields.css',
                 dest    : 'dist/w2ui-fields.css'
             },
             'banner-fields-2': {
-                options : { banner: fields },
+                options : { banner: fields+'\n' },
                 src     : 'dist/w2ui-fields.min.css',
                 dest    : 'dist/w2ui-fields.min.css'
             }
