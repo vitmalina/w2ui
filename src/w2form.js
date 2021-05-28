@@ -9,41 +9,21 @@
 *   - nested groups (so fields can be defined inside)
 *
 * == 1.5 changes
-*   - added onProgress
-*   - added field.html.style (for the whole field)
-*   - added enable/disable, show/hide
-*   - added field.disabled, field.hidden
 *   - when field is blank, set record.field = null
-*   - action: { caption: 'Limpiar', style: '', class: '', onClick() {} }
 *   - added ability to generate radio and select html in generateHTML()
 *   - refresh(field) - would refresh only one field
 *   - form.message
-*   - added field.html.column
-*   - added field types html, empty, custom
-*   - httpHeaders
-*   - method
-*   - onInput
-*   - added field.html.groupStyle, field.html.groupTitleStyle
 *   - added field.html.column = 'before' && field.html.column = 'after'
 *   - added field.html.anchor
-*   - changed this.clear(field1, field2,...)
 *   - added nestedFields: use field name containing dots as separator to look into objects
-*   - added getValue(), setValue()
-*   - added getChanges()
 *   - added getCleanRecord(strict)
-*   - added applyFocus()
-*   - deprecated field.name -> field.field
 *   - options.items - can be an array
 *   - added form.pageStyle
-*   - added html.span -1 - then label is displayed on top
 *   - added field.options.minLength, min/max for numbers can be done with int/float - min/max
 *   - field.html.groupCollapsible, form.toggleGroup
 *   - added showErrors
-*   - added field.type = 'check'
-*   - new field type 'map', 'array' - same thing but map has unique keys also html: { key: { text: '111', attr: '222' }, value: {...}}
 *   - updateEmptyGroups
 *   - tabs below some fields
-*   - tabindexBase
 *
 * == 2.0 changes
 *   - show/hide, enable/disable - return array of effected items
