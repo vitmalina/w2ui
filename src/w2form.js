@@ -37,7 +37,6 @@
 *   - added form.pageStyle
 *   - added html.span -1 - then label is displayed on top
 *   - added field.options.minLength, min/max for numbers can be done with int/float - min/max
-*   - field.html.groupCollapsible, form.toggleGroup
 *   - added showErrors
 *   - added field.type = 'check'
 *   - new field type 'map', 'array' - same thing but map has unique keys also html: { key: { text: '111', attr: '222' }, value: {...}}
@@ -1129,18 +1128,23 @@ class w2form extends w2event {
 
     toggleGroup(groupName, show) {
         let el = $(this.box).find('.w2ui-group-title[data-group="' + w2utils.base64encode(groupName) + '"]')
-        if (el.next().css('display') == 'none' && show !== true) {
-            el.next().slideDown(300)
-            el.next().next().remove()
+        if(!el || !el.length) return
+        if (typeof show === 'undefined') {
+            show = ( el_next.css('display') == 'none' )
+        }
+        let el_next = el.next()
+        if (show) {
+            el_next.slideDown(300)
+            el_next.next().remove()
             el.find('span').addClass('w2ui-icon-collapse').removeClass('w2ui-icon-expand')
         } else {
-            el.next().slideUp(300)
-            let css = 'width: ' + el.next().css('width') + ';'
-               + 'padding-left: ' + el.next().css('padding-left') + ';'
-               + 'padding-right: ' + el.next().css('padding-right') + ';'
-               + 'margin-left: ' + el.next().css('margin-left') + ';'
-               + 'margin-right: ' + el.next().css('margin-right') + ';'
-            setTimeout(() => { el.next().after('<div style="height: 5px;'+ css +'"></div>') }, 100)
+            el_next.slideUp(300)
+            let css = 'width: ' + el_next.css('width') + ';'
+               + 'padding-left: ' + el_next.css('padding-left') + ';'
+               + 'padding-right: ' + el_next.css('padding-right') + ';'
+               + 'margin-left: ' + el_next.css('margin-left') + ';'
+               + 'margin-right: ' + el_next.css('margin-right') + ';'
+            setTimeout(() => { el_next.after('<div style="height: 5px;'+ css +'"></div>') }, 100)
             el.find('span').addClass('w2ui-icon-expand').removeClass('w2ui-icon-collapse')
         }
     }
