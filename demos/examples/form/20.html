@@ -1,0 +1,140 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Collapsible Groups</h1>
+        Groups can be collapsed, expanded, and toggled.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="form" style="width: 750px; height: 500px"></div>
+<br>
+<button class="w2ui-btn" onclick="w2ui.form.toggleGroup('General')">Toggle General</button>
+<button class="w2ui-btn" onclick="w2ui.form.toggleGroup('Address Group 2')">Toggle Address Group 2</button>
+<button class="w2ui-btn" onclick="w2ui.form.toggleGroup('Address Group 3', false)">Collapse Address Group 3</button>
+<button class="w2ui-btn" onclick="w2ui.form.toggleGroup('Address Group 3', true)">Expand Address Group 3</button>
+<br>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#form').w2form({
+        name   : 'form',
+        url    : 'server/post',
+        fields : [
+            { field: 'first_name', type: 'text',
+                html: {
+                    group: 'General',
+                    groupCollapsible: true,
+                    page: 0,
+                    column: 0,
+                    label: 'First Name',
+                    span: 4
+                }
+            },
+            { field: 'last_name', type: 'text',
+                html: {
+                    page: 0,
+                    column: 0,
+                    label: 'Last Name',
+                    span: 4
+                }
+            },
+            { field: 'middle_name',  type: 'text',
+                html: {
+                    page: 0,
+                    column: 0,
+                    label: 'Middle Name',
+                    span: 4
+                }
+            },
+            { field: 'Other', type: 'textarea',
+                html: {
+                    page: 0,
+                    column: 1,
+                    group: 'Additional Info',
+                    groupCollapsible: true,
+                    groupStyle: 'min-height: 115px',
+                    label: 'Other',
+                    span: -1,
+                    attr: 'style="width: 100%; resize: vertical"'
+                }
+            },
+            { field: 'address1', type: 'text',
+                html: {
+                    page: 0,
+                    column: 0,
+                    group: 'Address Group 1',
+                    groupCollapsible: false,
+                    label: 'Address',
+                }
+            },
+            { field: 'address2', type: 'text',
+                html: {
+                    page: 0,
+                    label: 'Line 2',
+                    column: 0
+                }
+            },
+            { field: 'city', type: 'text',
+                html: {
+                    page: 0,
+                    group: 'Address Group 2',
+                    groupCollapsible: true,
+                    groupStyle: 'height: 170px',
+                    label: 'City',
+                    column: 1,
+                }
+            },
+            { field: 'state', type: 'text',
+                html: {
+                    page: 0,
+                    label: 'State',
+                    column: 1
+                }
+            },
+            { field: 'zip', type: 'int',
+                html: {
+                    page: 0,
+                    label: 'Zip',
+                    column: 1
+                }
+            },
+            { field: 'country', type: 'text',
+                html: {
+                    page: 0,
+                    group: 'Address Group 3',
+                    groupCollapsible: true,
+                    label: 'Country',
+                    column: 0,
+                }
+            }
+        ],
+        actions: {
+            Reset: function () {
+                this.clear();
+            },
+            Save: function () {
+                if (w2ui.form.validate().length == 0) {
+                    w2popup.open({
+                        title: 'Form Data',
+                        with: 600,
+                        height: 550,
+                        body: `<pre>${JSON.stringify(this.getCleanRecord(), null, 4)}</pre>`,
+                        buttons: '<button class="w2ui-btn" onclick="w2popup.close()">Ok</button>'
+                    })
+                }
+            },
+            custom: {
+                text: '<span style="font-size: 16px">←</span> click to see data',
+                class: 'custom-class',
+                style: 'background-image: none; background-color: transparent; border: 0px; margin: 0 0 0 -10px;',
+                onClick() {
+                    w2alert('Not me!! The other button')
+                }
+            }
+        }
+    });
+});
+</script>
