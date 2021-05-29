@@ -16,6 +16,7 @@
 *   - w2utils.message - return a promise
 *
 ************************************************/
+import { w2event } from './w2event.js'
 
 let w2ui    = {}
 let w2utils = (($) => {
