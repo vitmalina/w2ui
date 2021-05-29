@@ -13,5 +13,6 @@ package-lock.json
 *~
 clazzes-maven/target
 .DS_Store
+.vscode
 copy-shield.sh
 dist/w2ui-1.5.0.tgz
