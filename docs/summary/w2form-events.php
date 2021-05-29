@@ -22,6 +22,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2form.onInput">onInput</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when user types within a form field.
+</div>
+
+<div class="obj-property">
     <a href="w2form.onLoad">onLoad</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">

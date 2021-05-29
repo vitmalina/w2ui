@@ -36,17 +36,17 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2tabs.tabs">tabs</a> <span>- Array, default = []</span>
-</div>
-<div class="obj-property-desc">
-    Array of tab objects.
-</div>
-
-<div class="obj-property">
     <a href="w2tabs.tab_template">tab_template</a> <span>- Object, default = {...} // see below</span>
 </div>
 <div class="obj-property-desc">
     Template object for creation of new tabs
+</div>
+
+<div class="obj-property">
+    <a href="w2tabs.tabs">tabs</a> <span>- Array, default = []</span>
+</div>
+<div class="obj-property-desc">
+    Array of tab objects.
 </div>
 
 <div class="obj-property">

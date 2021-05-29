@@ -13,6 +13,7 @@ $(function () {
     w2ui.layout.html('left', $().w2sidebar({
         name: 'docs',
         img: null,
+        levelPadding: 22,
         nodes: [
             { id: 'w2layout', text: 'w2layout', img: 'icon-folder', group1: true, expanded: true, nodes: [
                 { id: 'w2layout-events', text: 'Events', icon: 'fa fa-tag' },
