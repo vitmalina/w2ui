@@ -206,12 +206,13 @@ $(function () {
                         { id: 'form/16', text: 'Enable/Disable Fields', icon: 'fa fa-pencil-square-o' },
                         { id: 'form/17', text: 'Show/Hide Fields', icon: 'fa fa-pencil-square-o' },
                         { id: 'form/18', text: 'Context Messages', icon: 'fa fa-pencil-square-o' },
-                        { id: 'form/20', text: 'Collapsible Groups', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/19', text: 'Collapsible Groups', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/20', text: 'Form Actions', icon: 'fa fa-pencil-square-o' },
                     ]
                 },
                 // { id: 'forms-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                 //     nodes: [
-                //         { id: 'form/19', text: 'Apply Focus', icon: 'fa fa-pencil-square-o' },
+                //         { id: 'form/21', text: 'Apply Focus', icon: 'fa fa-pencil-square-o' },
                 //     ]
                 // },
                 { id: 'fields', text: 'Fields Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,

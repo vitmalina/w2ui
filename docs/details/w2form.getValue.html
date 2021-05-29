@@ -13,19 +13,18 @@ Returns the current value of a given field.
     </table>
 </div>
 
-Returns string, integer, boolean, null, or <i>undefined</i>.
+Returns <i>various types</i>.
 
 <h4>Description</h4>
 
-This method will find the <span class="argument">field</span> object in the <a class="argument" href="w2form.fields">.fields</a>
-array and return its value. If the field does not exists it will return <i>undefined</i>.
+This method will find the <span class="argument">field</span> in the <a class="argument" href="w2form.fields">.fields</a> array and return its value. If the field does not exists it will return <i>undefined</i>. The field can be nested, for example <span class="argument">"file.name"</span>.
 <div style="height: 10px"></div>
 
 If you have form defined in the following way:
 <textarea class="javascript">
 $('#form').w2form({
-    name     : 'form',
-    url      : 'server/post',
+    name: 'form',
+    url: 'server/post',
     record: {
         field_1 : 1,
         field_2 : 2,
@@ -43,6 +42,6 @@ $('#form').w2form({
 
 You can do:
 <textarea class="javascript">
-console.log( w2ui['form'].getValue('field_1') );
-console.log( w2ui['form'].getValue('field_3.key') );
+console.log(w2ui.form.getValue('field_1'));
+console.log(w2ui.form.getValue('field_3.key'));
 </textarea>
