@@ -213,6 +213,7 @@ $(function () {
                 // { id: 'forms-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                 //     nodes: [
                 //         { id: 'form/21', text: 'Apply Focus', icon: 'fa fa-pencil-square-o' },
+                //         { id: 'form/22', text: 'Better Groups', icon: 'fa fa-pencil-square-o' },
                 //     ]
                 // },
                 { id: 'fields', text: 'Fields Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,

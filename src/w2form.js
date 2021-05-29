@@ -28,6 +28,7 @@
 * == 2.0 changes
 *   - show/hide, enable/disable - return array of effected items
 *   - .message - returns a promise
+*   - field.type = 'group' - only in constructor
 *
 ************************************************************************/
 
@@ -119,13 +120,43 @@ class w2form extends w2event {
         }
         $.extend(true, this.toolbar, toolbar)
         // reassign variables
-        if (fields) for (let p = 0; p < fields.length; p++) {
-            let field = $.extend(true, {}, fields[p])
-            if (field.field == null && field.name != null) {
-                console.log('NOTICE: form field.name property is deprecated, please use field.field. Field ->', field)
-                field.field = field.name
-            }
-            this.fields[p] = field
+        if (fields) {
+            fields.forEach(field => {
+                if (field.type == 'group') {
+                    // group properties
+                    let group = {
+                        group: field.text || '',
+                        groupStyle: field.style || '',
+                        groupTitleStyle: field.titleStyle || '',
+                        groupCollapsible: field.collapsible === true ? true : false,
+                    }
+                    // loop through fields
+                    if (Array.isArray(field.fields)) {
+                        field.fields.forEach(gfield => {
+                            let fld = $.extend(true, {}, gfield)
+                            if (fld.html == null) fld.html = {}
+                            $.extend(fld.html, group)
+                            Array('span', 'page', 'column', 'attr').forEach(key => {
+                                if (fld.html[key] == null && field[key] != null) {
+                                    fld.html[key] = field[key]
+                                }
+                            })
+                            if (fld.field == null && fld.name != null) {
+                                console.log('NOTICE: form field.name property is deprecated, please use field.field. Field ->', field)
+                                fld.field = fld.name
+                            }
+                            this.fields.push(fld)
+                        })
+                    }
+                } else {
+                    let fld = $.extend(true, {}, field)
+                    if (fld.field == null && fld.name != null) {
+                        console.log('NOTICE: form field.name property is deprecated, please use field.field. Field ->', field)
+                        fld.field = fld.name
+                    }
+                    this.fields.push(fld)
+                }
+            })
         }
         for (let p in record) { // it is an object
             if ($.isPlainObject(record[p])) {
@@ -1016,7 +1047,7 @@ class w2form extends w2event {
                     collapsible = '<span class="w2ui-icon-collapse" style="width: 15px; display: inline-block; position: relative; top: -2px;"></span>'
                 }
                 html += '\n <div class="w2ui-group">'
-                    + '\n   <div class="w2ui-group-title" style="'+ (field.html.groupTitleStyle || '')
+                    + '\n   <div class="w2ui-group-title" style="'+ (field.html.groupTitleStyle || '') + '; ' +
                                     + (collapsible != '' ? 'cursor: pointer; user-select: none' : '') + '"'
                     + (collapsible != '' ? 'data-group="' + w2utils.base64encode(field.html.group) + '"' : '')
                     + (collapsible != ''
@@ -1082,6 +1113,10 @@ class w2form extends w2event {
         html = ''
         for (let p = 0; p < pages.length; p++){
             html += '<div class="w2ui-page page-'+ p +'" style="' + (p !== 0 ? 'display: none;' : '') + this.pageStyle + '">'
+            if (!pages[p]) {
+                console.log(`ERROR: Page ${p} does not exist`)
+                return false
+            }
             if (pages[p].before) {
                 html += pages[p].before
             }
