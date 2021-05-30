@@ -119,44 +119,9 @@ class w2form extends w2event {
             $.extend(true, this.tabs, tabs)
         }
         $.extend(true, this.toolbar, toolbar)
-        // reassign variables
+        // preprocess fields
         if (fields) {
-            fields.forEach(field => {
-                if (field.type == 'group') {
-                    // group properties
-                    let group = {
-                        group: field.text || '',
-                        groupStyle: field.style || '',
-                        groupTitleStyle: field.titleStyle || '',
-                        groupCollapsible: field.collapsible === true ? true : false,
-                    }
-                    // loop through fields
-                    if (Array.isArray(field.fields)) {
-                        field.fields.forEach(gfield => {
-                            let fld = $.extend(true, {}, gfield)
-                            if (fld.html == null) fld.html = {}
-                            $.extend(fld.html, group)
-                            Array('span', 'page', 'column', 'attr').forEach(key => {
-                                if (fld.html[key] == null && field[key] != null) {
-                                    fld.html[key] = field[key]
-                                }
-                            })
-                            if (fld.field == null && fld.name != null) {
-                                console.log('NOTICE: form field.name property is deprecated, please use field.field. Field ->', field)
-                                fld.field = fld.name
-                            }
-                            this.fields.push(fld)
-                        })
-                    }
-                } else {
-                    let fld = $.extend(true, {}, field)
-                    if (fld.field == null && fld.name != null) {
-                        console.log('NOTICE: form field.name property is deprecated, please use field.field. Field ->', field)
-                        fld.field = fld.name
-                    }
-                    this.fields.push(fld)
-                }
-            })
+            this.fields = _processFields(fields)
         }
         for (let p in record) { // it is an object
             if ($.isPlainObject(record[p])) {
@@ -181,6 +146,85 @@ class w2form extends w2event {
         } else if (!this.formURL && !this.formHTML) {
             this.formHTML    = this.generateHTML()
             this.isGenerated = true
+        }
+
+        function _processFields(fields) {
+            let newFields = []
+            // if it is an object
+            if ($.isPlainObject(fields)) {
+                let tmp = fields
+                fields = []
+                Object.keys(tmp).forEach((key) => {
+                    let fld = tmp[key]
+                    if (fld.type == 'group') {
+                        fld.text = key
+                        if ($.isPlainObject(fld.fields)) {
+                            let tmp2 = fld.fields
+                            fld.fields = []
+                            Object.keys(tmp2).forEach((key2) => {
+                                let fld2 = tmp2[key2]
+                                fld2.field = key2
+                                fld.fields.push(_process(fld2))
+
+                            })
+                        }
+                    } else {
+                        fld.field = key
+                    }
+                    fields.push(fld.type == 'group' ? fld : _process(fld))
+                })
+                function _process(fld) {
+                    let ignore = ['html']
+                    if (fld.html == null) fld.html = {}
+                    Object.keys(fld).forEach((key => {
+                        if (ignore.indexOf(key) != -1) return
+                        if (['label', 'attr', 'style', 'text', 'span', 'page', 'column', 'anchor',
+                                'group', 'groupStyle', 'groupTitleStyle', 'groupCollapsible'].indexOf(key) != -1) {
+                            fld.html[key] = fld[key]
+                            delete fld[key]
+                        }
+                    }))
+                    return fld
+                }
+            }
+            // process groups
+            fields.forEach(field => {
+                if (field.type == 'group') {
+                    // group properties
+                    let group = {
+                        group: field.text || '',
+                        groupStyle: field.style || '',
+                        groupTitleStyle: field.titleStyle || '',
+                        groupCollapsible: field.collapsible === true ? true : false,
+                    }
+                    // loop through fields
+                    if (Array.isArray(field.fields)) {
+                        field.fields.forEach(gfield => {
+                            let fld = $.extend(true, {}, gfield)
+                            if (fld.html == null) fld.html = {}
+                            $.extend(fld.html, group)
+                            Array('span', 'page', 'column', 'attr').forEach(key => {
+                                if (fld.html[key] == null && field[key] != null) {
+                                    fld.html[key] = field[key]
+                                }
+                            })
+                            if (fld.field == null && fld.name != null) {
+                                console.log('NOTICE: form field.name property is deprecated, please use field.field. Field ->', field)
+                                fld.field = fld.name
+                            }
+                            newFields.push(fld)
+                        })
+                    }
+                } else {
+                    let fld = $.extend(true, {}, field)
+                    if (fld.field == null && fld.name != null) {
+                        console.log('NOTICE: form field.name property is deprecated, please use field.field. Field ->', field)
+                        fld.field = fld.name
+                    }
+                    newFields.push(fld)
+                }
+            })
+            return newFields
         }
     }
 

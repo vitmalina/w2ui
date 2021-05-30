@@ -1,0 +1,102 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
+<script type="text/javascript" src="../libs/jquery/jquery-3.5.1.min.js"></script>
+<script type="module" src="../src/w2compat.js"></script>
+<script>
+$(function () {
+    $('#form').w2form({
+        name: 'form',
+        fields: {
+            "User Info": {
+                type: 'group',
+                attr: 'style="width: 200px"',
+                fields: {
+                    "user.first_name": {
+                        type: 'text',
+                        required: true,
+                        label: 'First Name'
+                    },
+                    "user.last_name": {
+                        type: 'text',
+                        required: true,
+                        label: 'Last Name'
+                    }
+                }
+            },
+            "Some KPIs": {
+                type: 'group',
+                attr: 'style="width: 200px"',
+                fields: {
+                    "kpi.param1": {
+                        type: 'int',
+                        required: false,
+                        label: 'Param 1'
+                    },
+                    'kpi.param2': {
+                        type: 'int',
+                        required: false,
+                        label: 'Param 2'
+                    }
+                }
+            }
+        },
+        fields1: [
+            { type: 'group', text: 'User Info', attr: 'style="width: 200px"',
+                fields: [
+                    { field: 'user.first_name', type: 'text', required: true,
+                        html: { label: 'First Name' }
+                    },
+                    { field: 'user.last_namemap', type: 'text', required: true,
+                        html: { label: 'Last Name' }
+                    }
+                ]
+            },
+            { type: 'group', text: 'Some KPIs', attr: 'style="width: 200px"',
+                fields: [
+                    { field: 'kpi.param1', type: 'int', required: false,
+                        html: { label: 'Param 1' }
+                    },
+                    { field: 'kpi.param2', type: 'int', required: false,
+                        html: { label: 'Param 2' }
+                    }
+                ]
+            }
+        ],
+        fields1: [
+            { field: 'user.first_name', type: 'text', required: true,
+                html: { label: 'First Name', group: 'User Info', attr: 'style="width: 200px"' }
+            },
+            { field: 'user.last_namemap', type: 'text', required: true,
+                html: { label: 'Last Name', attr: 'style="width: 200px"' }
+            },
+            { field: 'kpi.param1', type: 'int', required: false,
+                html: { label: 'Param 1', group: 'Some KPIs', attr: 'style="width: 200px"' }
+            },
+            { field: 'kpi.param2', type: 'int', required: false,
+                html: { label: 'Param 2', attr: 'style="width: 200px"' }
+            }
+        ],
+        actions: {
+            Reset () {
+                this.clear();
+            },
+            Save () {
+                var obj = this;
+                this.save({}, function (data) {
+                    console.log(data);
+                    if (data.status == 'error') {
+                        console.log('ERROR: '+ data.message);
+                        return;
+                    }
+                    //obj.clear();
+                });
+            }
+        }
+    })
+})
+</script>
+<body>
+    <div id="form" style="width: 900px; height: 700px;"></div>
+</body>
+</html>
