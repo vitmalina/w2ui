@@ -7,6 +7,7 @@
 *   - form should read <select> <options> into items
 *   - two way data bindings
 *   - nested groups (so fields can be defined inside)
+*   - rename applyFocus -> focus
 *
 * == 1.5 changes
 *   - added onProgress
