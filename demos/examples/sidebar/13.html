@@ -70,7 +70,7 @@ $(function () {
             }
         ],
         setBreakPoint(el) {
-            let stepId = $(el).closest('.w2ui-node').attr('id')
+            let stepId = $(el).closest('.w2ui-node').attr('id').substr(5)
             if (bp.indexOf(stepId) != -1) {
                 bp.splice(bp.indexOf(stepId), 1)
                 $(el).removeClass('break-point')
@@ -80,6 +80,16 @@ $(function () {
             }
             event.preventDefault()
             event.stopPropagation()
+        },
+        onRefresh(event) {
+            event.done(() => {
+                let node = $('#node_' + event.target + ' .w2ui-node-handle > div')
+                if (bp.indexOf(event.target) == -1) {
+                    node.removeClass('break-point')
+                } else {
+                    node.addClass('break-point')
+                }
+            })
         }
     })
     // to avoid 1.5.3 (and prior) bug with handle object
