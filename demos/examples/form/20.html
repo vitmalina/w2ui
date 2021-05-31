@@ -1,0 +1,66 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Form Actions</h1>
+        Actions is a quick way to define buttons on the bottom of the form.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="form" style="width: 750px;"></div>
+<br>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#form').w2form({
+        name   : 'form',
+        url    : 'server/post',
+        fields : [
+            { field: 'first_name', type: 'text', required: true,
+                html: { label: 'First Name', attr: 'style="width: 200px"' }
+            },
+            { field: 'last_name',  type: 'text', required: true,
+                html: { label: 'Last Name', attr: 'style="width: 200px"' }
+            },
+            { field: 'comments', type: 'textarea',
+                html: { label: 'Comments', attr: 'style="width: 200px; height: 60px"' }
+            },
+            { field: 'city', type: 'text',
+                html: { label: 'City', attr: 'style="width: 200px"', column: 2, }
+            },
+            { field: 'zip', type: 'text', disabled: true,
+                html: { label: 'Zip Code', attr: 'style="width: 100px"', column: 2, }
+            },
+            { field: 'street', type: 'text',
+                html: { label: 'Street', attr: 'style="width: 200px"', column: 2, }
+            },
+        ],
+        actions: {
+            Reset(event) {
+                this.clear();
+            },
+            Save(event) {
+                if (w2ui.form.validate().length == 0) {
+                    w2popup.open({
+                        title: 'Form Data',
+                        with: 600,
+                        height: 550,
+                        body: `<pre>${JSON.stringify(this.getCleanRecord(), null, 4)}</pre>`,
+                        buttons: '<button class="w2ui-btn" onclick="w2popup.close()">Ok</button>'
+                    })
+                }
+            },
+            custom: {
+                text: 'Custom Action',
+                class: 'w2ui-btn-green',
+                style: 'text-transform: uppercase',
+                onClick(event) {
+                    w2alert('Custom Action')
+                }
+            }
+        }
+    })
+})
+</script>

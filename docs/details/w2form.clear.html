@@ -1,4 +1,4 @@
-Resets the form.
+Clears entire form or specified fields.
 
 <div class="definition">
     clear([field1, field2, ...])
@@ -8,8 +8,7 @@ Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
-If no arguments are provided, clears <a class="method" href="w2form.record">.record</a> object, sets <a class="method" href="w2form.recid">.recid</a> to 0, removes
-all tags and resets fields on the screen to a blank state.
+If no arguments are provided, clears <a class="method" href="w2form.record">.record</a> object, sets <a class="method" href="w2form.recid">.recid</a> to 0, removes all tags and resets fields on the screen to a blank state.
 <div style="height: 10px"></div>
 
 If arguments are provided, only those fields are cleared.
@@ -45,10 +44,10 @@ $('#form').w2form({
 
 You can do
 <textarea class="javascript">
-w2ui['form'].clear();
+w2ui.form.clear();
 </textarea>
 
 Or
 <textarea class="javascript">
-w2ui['form'].clear('email', 'last_name');
+w2ui.form.clear('email', 'last_name');
 </textarea>

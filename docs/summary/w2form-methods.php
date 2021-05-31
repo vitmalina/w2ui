@@ -8,10 +8,31 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2form.clear">clear</a> <span>- clear()</span>
+    <a href="w2form.applyFocus">applyFocus</a> <span>- applyFocus([focus])</span>
 </div>
 <div class="obj-property-desc">
-    Resets the form.
+    Sets focus to a field.
+</div>
+
+<div class="obj-property">
+    <a href="w2form.clear">clear</a> <span>- clear([field1, field2, ...])</span>
+</div>
+<div class="obj-property-desc">
+    Clears entire form or specified fields.
+</div>
+
+<div class="obj-property">
+    <a href="w2form.disable">disable</a> <span>- disable(field1, field2, ...)</span>
+</div>
+<div class="obj-property-desc">
+    Disables fields in a form.
+</div>
+
+<div class="obj-property">
+    <a href="w2form.enable">enable</a> <span>- enable(field1, field2, ...)</span>
+</div>
+<div class="obj-property-desc">
+    Enables fields in a form.
 </div>
 
 <div class="obj-property">
@@ -43,10 +64,24 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2form.getValue">getValue</a> <span>- getValue(field)</span>
+</div>
+<div class="obj-property-desc">
+    Returns the current value of a given field.
+</div>
+
+<div class="obj-property">
     <a href="w2form.goto">goto</a> <span>- goto(page)</span>
 </div>
 <div class="obj-property-desc">
     Opens specified form page.
+</div>
+
+<div class="obj-property">
+    <a href="w2form.hide">hide</a> <span>- hide(field1, field2, ...)</span>
+</div>
+<div class="obj-property-desc">
+    Hides fields in a form.
 </div>
 
 <div class="obj-property">
@@ -85,10 +120,31 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2form.setValue">setValue</a> <span>- setValue(field, value)</span>
+</div>
+<div class="obj-property-desc">
+    Sets a new value of a given field.
+</div>
+
+<div class="obj-property">
+    <a href="w2form.show">show</a> <span>- show(field1, field2, ...)</span>
+</div>
+<div class="obj-property-desc">
+    Shows fields in a form.
+</div>
+
+<div class="obj-property">
     <a href="w2form.submit">submit</a> <span>- submit([postData], [callBack])</span>
 </div>
 <div class="obj-property-desc">
     Submits record data to remote data source for saving.
+</div>
+
+<div class="obj-property">
+    <a href="w2form.toggleGroup">toggleGroup</a> <span>- toggleGroup(groupName, [show])</span>
+</div>
+<div class="obj-property-desc">
+    Toggles the collapsed state of a form's group.
 </div>
 
 <div class="obj-property">

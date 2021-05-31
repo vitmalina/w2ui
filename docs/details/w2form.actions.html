@@ -33,11 +33,19 @@ $('#form').w2form({
         { field: 'field_2', type: 'alphanumeric', required: true }
     ],
     actions: {
-        "reset": function () {
+        reset() {
             this.clear();
         },
-        "save": function () {
+        save() {
             this.save();
+        },
+        custom: {
+            text: 'Button Name',
+            style: 'color: red',
+            class: 'custom-class',
+            onClick(event) {
+                console.log('Custom button clicked', event)
+            }
         }
     }
 });

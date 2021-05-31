@@ -249,7 +249,7 @@
     <a href="w2utils.message">message</a> <span>- message(where, [options])</span>
 </div>
 <div class="obj-property-desc">
-    Slides down a dialog <span class="argument">str</span> is a date.
+    Slides down a dialog that does not lock entire page.
 </div>
 
 <div class="obj-property">

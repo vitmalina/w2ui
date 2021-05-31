@@ -8,6 +8,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2form.autosize">autosize</a> <span>- Boolean, default = true</span>
+</div>
+<div class="obj-property-desc">
+    Indicates if the form should set the height of the box where it is rendered based on the form's content.
+</div>
+
+<div class="obj-property">
     <a href="w2form.fields">fields</a> <span>- Object, default = []</span>
 </div>
 <div class="obj-property-desc">
@@ -39,7 +46,14 @@
     <a href="w2form.header">header</a> <span>- String, default = ''</span>
 </div>
 <div class="obj-property-desc">
-    The header of the form. 
+    The header of the form.
+</div>
+
+<div class="obj-property">
+    <a href="w2form.httpHeaders">httpHeaders</a> <span>- Object, default = {}</span>
+</div>
+<div class="obj-property-desc">
+    Object of http headers for AJAX calls.
 </div>
 
 <div class="obj-property">
@@ -54,6 +68,13 @@
 </div>
 <div class="obj-property-desc">
     Last state parameters
+</div>
+
+<div class="obj-property">
+    <a href="w2form.method">method</a> <span>- String, default = null</span>
+</div>
+<div class="obj-property-desc">
+    Override the method for this form.
 </div>
 
 <div class="obj-property">
@@ -82,6 +103,13 @@
 </div>
 <div class="obj-property-desc">
     Message that appears when form is being saved.
+</div>
+
+<div class="obj-property">
+    <a href="w2form.nestedFields">nestedFields</a> <span>- Boolean, default = true</span>
+</div>
+<div class="obj-property-desc">
+    Use field name containing dots as separator to look into object.
 </div>
 
 <div class="obj-property">

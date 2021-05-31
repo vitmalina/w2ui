@@ -1,0 +1,75 @@
+Toggles the collapsed state of a form's group.
+
+<div class="definition">
+    toggleGroup(groupName, [show])
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>groupName</td>
+        <td><b>string</b>, name of the group</td>
+    </tr>
+    <tr>
+        <td>show</td>
+        <td><b>boolean</b>, if true the group will be expanded, if false the group will be collapsed <i>(optional)</i></td>
+    </tr>
+    </table>
+</div>
+
+Returns <i>undefined</i>.
+
+<h4>Description</h4>
+
+This method will toggle the collapsed/expanded state of a group if <span class="argument">show</span> is not set.
+<div style="height: 10px"></div>
+
+If <span class="argument">show</span> is, the group will be collapsed/expanded based on the value of <span class="argument">show</span>.
+<div style="height: 10px"></div>
+
+
+If you have form defined in the following way:
+<textarea class="javascript">
+$('#form').w2form({
+    name     : 'form',
+    url      : 'server/post',
+    fields: [
+        { field: 'first_name', type: 'text',
+            html: {
+                group: 'General',
+                groupCollapsible: true,
+                page: 0,
+                column: 0,
+                label: 'First Name',
+                span: 4
+            }
+        },
+        { field: 'last_name', type: 'text',
+            html: {
+                page: 0,
+                column: 0,
+                label: 'Last Name',
+                span: 4
+            }
+        },
+        { field: 'middle_name',  type: 'text',
+            html: {
+                page: 0,
+                column: 0,
+                label: 'Middle Name',
+                span: 4
+            }
+        }
+    ]
+});
+</textarea>
+
+You can do:
+<textarea class="javascript">
+// toggle collapsed/expanded state of the group based on the current state
+w2ui.form.toggleGroup('General');
+// collapse the group
+w2ui.form.toggleGroup('General', false);
+// expand the group
+w2ui.form.toggleGroup('General', true);
+</textarea>

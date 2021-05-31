@@ -1,53 +1,126 @@
 <div class="content">
     <div id="example_title">
-        <h1>Apply Focus</h1>
-        You can define initial field to focus, or you can set focus later on.
+        <h1>Collapsible Groups</h1>
+        Groups can be collapsed, expanded, and toggled.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
 </div>
 
 <!--CODE-->
-<div id="form" style="width: 750px;"></div>
+<div id="form" style="width: 750px; height: 500px"></div>
 <br>
-<button class="w2ui-btn" onClick="w2ui.form.applyFocus(0)">Focus 1st field</button>
-<button class="w2ui-btn" onClick="w2ui.form.applyFocus(5)">Focus 6th field</button>
-<button class="w2ui-btn" onClick="w2ui.form.applyFocus('comments')">Focus 'comments' field</button>
-<button class="w2ui-btn" onClick="w2ui.form.applyFocus()">Focus original focus field</button>
+<button class="w2ui-btn" onclick="w2ui.form.toggleGroup('General')">Toggle General</button>
+<button class="w2ui-btn" onclick="w2ui.form.toggleGroup('Address Group 2')">Toggle Address Group 2</button>
+<button class="w2ui-btn" onclick="w2ui.form.toggleGroup('Address Group 3', false)">Collapse Address Group 3</button>
+<button class="w2ui-btn" onclick="w2ui.form.toggleGroup('Address Group 3', true)">Expand Address Group 3</button>
+<br>
 
 <!--CODE-->
 <script>
 $(function () {
     $('#form').w2form({
         name   : 'form',
-        header : 'Auto-Generated Form',
         url    : 'server/post',
-        focus  : 'last_name',
         fields : [
-            { field: 'first_name', type: 'text', required: true,
-                html: { label: 'First Name', attr: 'style="width: 200px"' }
+            { field: 'first_name', type: 'text',
+                html: {
+                    group: 'General',
+                    groupCollapsible: true,
+                    groupCollapsable: true, // misspelled in 1.5.0
+                    page: 0,
+                    column: 0,
+                    label: 'First Name',
+                    span: 4
+                }
             },
-            { field: 'last_name',  type: 'text', required: true,
-                html: { label: 'Last Name', attr: 'style="width: 200px"' }
+            { field: 'last_name', type: 'text',
+                html: {
+                    page: 0,
+                    column: 0,
+                    label: 'Last Name',
+                    span: 4
+                }
             },
-            { field: 'comments', type: 'textarea',
-                html: { label: 'Comments', attr: 'style="width: 200px; height: 60px"' }
+            { field: 'middle_name',  type: 'text',
+                html: {
+                    page: 0,
+                    column: 0,
+                    label: 'Middle Name',
+                    span: 4
+                }
+            },
+            { field: 'Other', type: 'textarea',
+                html: {
+                    page: 0,
+                    column: 1,
+                    group: 'Additional Info',
+                    groupCollapsible: true,
+                    groupCollapsable: true, // misspelled in 1.5.0
+                    groupStyle: 'min-height: 115px',
+                    label: 'Other',
+                    span: -1,
+                    attr: 'style="width: 100%; resize: vertical"'
+                }
+            },
+            { field: 'address1', type: 'text',
+                html: {
+                    page: 0,
+                    column: 0,
+                    group: 'Address Group 1',
+                    groupCollapsible: false,
+                    groupCollapsable: true, // misspelled in 1.5.0
+                    label: 'Address',
+                }
+            },
+            { field: 'address2', type: 'text',
+                html: {
+                    page: 0,
+                    label: 'Line 2',
+                    column: 0
+                }
             },
             { field: 'city', type: 'text',
-                html: { label: 'City', attr: 'style="width: 200px"', column: 2, }
+                html: {
+                    page: 0,
+                    group: 'Address Group 2',
+                    groupCollapsible: true,
+                    groupCollapsable: true, // misspelled in 1.5.0
+                    groupStyle: 'height: 170px',
+                    label: 'City',
+                    column: 1,
+                }
             },
-            { field: 'zip', type: 'text',
-                html: { label: 'Zip Code', attr: 'style="width: 100px"', column: 2, }
+            { field: 'state', type: 'text',
+                html: {
+                    page: 0,
+                    label: 'State',
+                    column: 1
+                }
             },
-            { field: 'street', type: 'text',
-                html: { label: 'Street', attr: 'style="width: 200px"', column: 2, }
+            { field: 'zip', type: 'int',
+                html: {
+                    page: 0,
+                    label: 'Zip',
+                    column: 1
+                }
             },
+            { field: 'country', type: 'text',
+                html: {
+                    page: 0,
+                    group: 'Address Group 3',
+                    groupCollapsible: true,
+                    groupCollapsable: true, // misspelled in 1.5.0
+                    label: 'Country',
+                    column: 0,
+                }
+            }
         ],
         actions: {
-            'Reset': function (event) {
+            Reset: function () {
                 this.clear();
             },
-            'Save': function (event) {
+            Save: function () {
                 if (w2ui.form.validate().length == 0) {
                     w2popup.open({
                         title: 'Form Data',
@@ -56,6 +129,14 @@ $(function () {
                         body: `<pre>${JSON.stringify(this.getCleanRecord(), null, 4)}</pre>`,
                         buttons: '<button class="w2ui-btn" onclick="w2popup.close()">Ok</button>'
                     })
+                }
+            },
+            custom: {
+                text: '<span style="font-size: 16px">←</span> click to see data',
+                class: 'custom-class',
+                style: 'background-image: none; background-color: transparent; border: 0px; margin: 0 0 0 -10px;',
+                onClick() {
+                    w2alert('Not me!! The other button')
                 }
             }
         }

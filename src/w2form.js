@@ -10,45 +10,25 @@
 *   - rename applyFocus -> focus
 *
 * == 1.5 changes
-*   - added onProgress
-*   - added field.html.style (for the whole field)
-*   - added enable/disable, show/hide
-*   - added field.disabled, field.hidden
 *   - when field is blank, set record.field = null
-*   - action: { caption: 'Limpiar', style: '', class: '', onClick() {} }
 *   - added ability to generate radio and select html in generateHTML()
 *   - refresh(field) - would refresh only one field
 *   - form.message
-*   - added field.html.column
-*   - added field types html, empty, custom
-*   - httpHeaders
-*   - method
-*   - onInput
-*   - added field.html.groupStyle, field.html.groupTitleStyle
 *   - added field.html.column = 'before' && field.html.column = 'after'
 *   - added field.html.anchor
-*   - changed this.clear(field1, field2,...)
 *   - added nestedFields: use field name containing dots as separator to look into objects
-*   - added getValue(), setValue()
-*   - added getChanges()
 *   - added getCleanRecord(strict)
-*   - added applyFocus()
-*   - deprecated field.name -> field.field
 *   - options.items - can be an array
 *   - added form.pageStyle
-*   - added html.span -1 - then label is displayed on top
 *   - added field.options.minLength, min/max for numbers can be done with int/float - min/max
-*   - field.html.groupCollapsible, form.toggleGroup
 *   - added showErrors
-*   - added field.type = 'check'
-*   - new field type 'map', 'array' - same thing but map has unique keys also html: { key: { text: '111', attr: '222' }, value: {...}}
 *   - updateEmptyGroups
 *   - tabs below some fields
-*   - tabindexBase
 *
 * == 2.0 changes
 *   - show/hide, enable/disable - return array of effected items
 *   - .message - returns a promise
+*   - field.type = 'group' - only in constructor
 *
 ************************************************************************/
 
@@ -139,14 +119,9 @@ class w2form extends w2event {
             $.extend(true, this.tabs, tabs)
         }
         $.extend(true, this.toolbar, toolbar)
-        // reassign variables
-        if (fields) for (let p = 0; p < fields.length; p++) {
-            let field = $.extend(true, {}, fields[p])
-            if (field.field == null && field.name != null) {
-                console.log('NOTICE: form field.name property is deprecated, please use field.field. Field ->', field)
-                field.field = field.name
-            }
-            this.fields[p] = field
+        // preprocess fields
+        if (fields) {
+            this.fields = _processFields(fields)
         }
         for (let p in record) { // it is an object
             if ($.isPlainObject(record[p])) {
@@ -171,6 +146,85 @@ class w2form extends w2event {
         } else if (!this.formURL && !this.formHTML) {
             this.formHTML    = this.generateHTML()
             this.isGenerated = true
+        }
+
+        function _processFields(fields) {
+            let newFields = []
+            // if it is an object
+            if ($.isPlainObject(fields)) {
+                let tmp = fields
+                fields = []
+                Object.keys(tmp).forEach((key) => {
+                    let fld = tmp[key]
+                    if (fld.type == 'group') {
+                        fld.text = key
+                        if ($.isPlainObject(fld.fields)) {
+                            let tmp2 = fld.fields
+                            fld.fields = []
+                            Object.keys(tmp2).forEach((key2) => {
+                                let fld2 = tmp2[key2]
+                                fld2.field = key2
+                                fld.fields.push(_process(fld2))
+
+                            })
+                        }
+                    } else {
+                        fld.field = key
+                    }
+                    fields.push(fld.type == 'group' ? fld : _process(fld))
+                })
+                function _process(fld) {
+                    let ignore = ['html']
+                    if (fld.html == null) fld.html = {}
+                    Object.keys(fld).forEach((key => {
+                        if (ignore.indexOf(key) != -1) return
+                        if (['label', 'attr', 'style', 'text', 'span', 'page', 'column', 'anchor',
+                                'group', 'groupStyle', 'groupTitleStyle', 'groupCollapsible'].indexOf(key) != -1) {
+                            fld.html[key] = fld[key]
+                            delete fld[key]
+                        }
+                    }))
+                    return fld
+                }
+            }
+            // process groups
+            fields.forEach(field => {
+                if (field.type == 'group') {
+                    // group properties
+                    let group = {
+                        group: field.text || '',
+                        groupStyle: field.style || '',
+                        groupTitleStyle: field.titleStyle || '',
+                        groupCollapsible: field.collapsible === true ? true : false,
+                    }
+                    // loop through fields
+                    if (Array.isArray(field.fields)) {
+                        field.fields.forEach(gfield => {
+                            let fld = $.extend(true, {}, gfield)
+                            if (fld.html == null) fld.html = {}
+                            $.extend(fld.html, group)
+                            Array('span', 'page', 'column', 'attr').forEach(key => {
+                                if (fld.html[key] == null && field[key] != null) {
+                                    fld.html[key] = field[key]
+                                }
+                            })
+                            if (fld.field == null && fld.name != null) {
+                                console.log('NOTICE: form field.name property is deprecated, please use field.field. Field ->', field)
+                                fld.field = fld.name
+                            }
+                            newFields.push(fld)
+                        })
+                    }
+                } else {
+                    let fld = $.extend(true, {}, field)
+                    if (fld.field == null && fld.name != null) {
+                        console.log('NOTICE: form field.name property is deprecated, please use field.field. Field ->', field)
+                        fld.field = fld.name
+                    }
+                    newFields.push(fld)
+                }
+            })
+            return newFields
         }
     }
 
@@ -1037,7 +1091,7 @@ class w2form extends w2event {
                     collapsible = '<span class="w2ui-icon-collapse" style="width: 15px; display: inline-block; position: relative; top: -2px;"></span>'
                 }
                 html += '\n <div class="w2ui-group">'
-                    + '\n   <div class="w2ui-group-title" style="'+ (field.html.groupTitleStyle || '')
+                    + '\n   <div class="w2ui-group-title" style="'+ (field.html.groupTitleStyle || '') + '; ' +
                                     + (collapsible != '' ? 'cursor: pointer; user-select: none' : '') + '"'
                     + (collapsible != '' ? 'data-group="' + w2utils.base64encode(field.html.group) + '"' : '')
                     + (collapsible != ''
@@ -1103,6 +1157,10 @@ class w2form extends w2event {
         html = ''
         for (let p = 0; p < pages.length; p++){
             html += '<div class="w2ui-page page-'+ p +'" style="' + (p !== 0 ? 'display: none;' : '') + this.pageStyle + '">'
+            if (!pages[p]) {
+                console.log(`ERROR: Page ${p} does not exist`)
+                return false
+            }
             if (pages[p].before) {
                 html += pages[p].before
             }
@@ -1130,18 +1188,23 @@ class w2form extends w2event {
 
     toggleGroup(groupName, show) {
         let el = $(this.box).find('.w2ui-group-title[data-group="' + w2utils.base64encode(groupName) + '"]')
-        if (el.next().css('display') == 'none' && show !== true) {
-            el.next().slideDown(300)
-            el.next().next().remove()
+        if(!el || !el.length) return
+        if (typeof show === 'undefined') {
+            show = ( el_next.css('display') == 'none' )
+        }
+        let el_next = el.next()
+        if (show) {
+            el_next.slideDown(300)
+            el_next.next().remove()
             el.find('span').addClass('w2ui-icon-collapse').removeClass('w2ui-icon-expand')
         } else {
-            el.next().slideUp(300)
-            let css = 'width: ' + el.next().css('width') + ';'
-               + 'padding-left: ' + el.next().css('padding-left') + ';'
-               + 'padding-right: ' + el.next().css('padding-right') + ';'
-               + 'margin-left: ' + el.next().css('margin-left') + ';'
-               + 'margin-right: ' + el.next().css('margin-right') + ';'
-            setTimeout(() => { el.next().after('<div style="height: 5px;'+ css +'"></div>') }, 100)
+            el_next.slideUp(300)
+            let css = 'width: ' + el_next.css('width') + ';'
+               + 'padding-left: ' + el_next.css('padding-left') + ';'
+               + 'padding-right: ' + el_next.css('padding-right') + ';'
+               + 'margin-left: ' + el_next.css('margin-left') + ';'
+               + 'margin-right: ' + el_next.css('margin-right') + ';'
+            setTimeout(() => { el_next.after('<div style="height: 5px;'+ css +'"></div>') }, 100)
             el.find('span').addClass('w2ui-icon-expand').removeClass('w2ui-icon-collapse')
         }
     }

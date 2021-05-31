@@ -141,6 +141,7 @@
 *   - grid.tabIndex
 *   - onColumnAutoResize
 *   - col.sortMode = 'default', 'natural' or a function
+*   - advanceOnEdit
 *
 * == 2.0 changes
 *   - .message - returns a promise
@@ -262,6 +263,7 @@ class w2grid extends w2event {
         this.method            = null // if defined, then overwrites ajax method
         this.dataType          = null // if defined, then overwrites w2utils.settings.dataType
         this.parser            = null
+        this.advanceOnEdit     = true // automatically begin editing the next cell after submitting an inline edit?
 
         // these column properties will be saved in stateSave()
         this.stateColProps = {
@@ -2801,16 +2803,18 @@ class w2grid extends w2event {
                 column = this.last._edit.column
                 recid  = this.last._edit.recid
                 this.editChange({ type: 'custom', value: this.last._edit.value }, this.get(recid, true), column, event)
-                let next = event.shiftKey ? this.prevRow(index, column) : this.nextRow(index, column)
-                if (next != null && next != index) {
-                    setTimeout(() => {
-                        if (this.selectType != 'row') {
-                            this.selectNone()
-                            this.select({ recid: this.records[next].recid, column: column })
-                        } else {
-                            this.editField(this.records[next].recid, column, null, event)
-                        }
-                    }, 1)
+                if(this.advanceOnEdit) {
+                    let next = event.shiftKey ? this.prevRow(index, column) : this.nextRow(index, column)
+                    if (next != null && next != index) {
+                        setTimeout(() => {
+                            if (this.selectType != 'row') {
+                                this.selectNone()
+                                this.select({ recid: this.records[next].recid, column: column })
+                            } else {
+                                this.editField(this.records[next].recid, column, null, event)
+                            }
+                        }, 1)
+                    }
                 }
                 this.last.inEditMode = false
             } else {
@@ -3049,16 +3053,18 @@ class w2grid extends w2event {
                             }
                             case 13: { // enter
                                 el.blur()
-                                let next = event.shiftKey ? obj.prevRow(index, column) : obj.nextRow(index, column)
-                                if (next != null && next != index) {
-                                    setTimeout(() => {
-                                        if (obj.selectType != 'row') {
-                                            obj.selectNone()
-                                            obj.select({ recid: obj.records[next].recid, column: column })
-                                        } else {
-                                            obj.editField(obj.records[next].recid, column, null, event)
-                                        }
-                                    }, 1)
+                                if(obj.advanceOnEdit) {
+                                    let next = event.shiftKey ? obj.prevRow(index, column) : obj.nextRow(index, column)
+                                    if (next != null && next != index) {
+                                        setTimeout(() => {
+                                            if (obj.selectType != 'row') {
+                                                obj.selectNone()
+                                                obj.select({ recid: obj.records[next].recid, column: column })
+                                            } else {
+                                                obj.editField(obj.records[next].recid, column, null, event)
+                                            }
+                                        }, 1)
+                                    }
                                 }
                                 if (el.tagName.toUpperCase() == 'DIV') {
                                     event.preventDefault()
