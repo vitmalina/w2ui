@@ -1,4 +1,4 @@
-/* w2ui 1.5.x (nightly) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 1.5 (c) http://w2ui.com, vitmalina@gmail.com */
 var w2ui  = w2ui  || {};
 var w2obj = w2obj || {}; // expose object to be able to overwrite default functions
 
@@ -1677,6 +1677,7 @@ var w2utils = (function ($) {
 
     function testLocalStorage() {
         // test if localStorage is available, see issue #1282
+        // original code: https://github.com/Modernizr/Modernizr/blob/master/feature-detects/storage/localstorage.js
         var str = 'w2ui_test';
         try {
           localStorage.setItem(str, str);
@@ -1808,7 +1809,12 @@ var w2utils = (function ($) {
         return actions
     }
 
+    /*! from litejs.com / MIT Licence
+        https://github.com/litejs/natural-compare-lite/blob/master/index.js */
     /*
+     * @version    1.4.0
+     * @date       2015-10-26
+     * @stability  3 - Stable
      * @author     Lauri Rooden (https://github.com/litejs/natural-compare-lite)
      * @license    MIT License
      */
@@ -1989,7 +1995,6 @@ w2utils.event = {
                 type    : tmp[0],
                 execute : tmp[1]
             };
-            if (scope) edata.scope = scope
         }
         if (!$.isPlainObject(edata)) edata = { type: edata, scope: scope };
         edata = $.extend({ type: null, execute: 'before', target: null, onComplete: null }, edata);
@@ -1998,7 +2003,6 @@ w2utils.event = {
         if (!handler) { console.log('ERROR: You must specify event handler function when calling .on() method of '+ this.name); return; }
         if (!$.isArray(this.handlers)) this.handlers = [];
         this.handlers.push({ edata: edata, handler: handler });
-        return this; // needed for chaining
     },
 
     off: function (edata, handler) {
@@ -2040,7 +2044,6 @@ w2utils.event = {
             }
         }
         this.handlers = newHandlers;
-        return this;
     },
 
     trigger: function (edata) {
@@ -2477,7 +2480,7 @@ w2utils.event = {
             overlayStyle: '',
             onShow      : null,              // event on show
             onHide      : null,              // event on hide
-            openAbove   : null,              // show above control (if not, then as best needed)
+            openAbove   : false,             // show above control
             tmp         : {}
         };
         if (arguments.length === 1) {
@@ -3518,7 +3521,7 @@ w2utils.event = {
 *        - $().w2grid    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2fields
 *
-* == TODO ==
+* == NICE TO HAVE ==
 *   - column autosize based on largest content
 *   - reorder columns/records
 *   - problem with .set() and arrays, array get extended too, but should be replaced
@@ -3538,8 +3541,6 @@ w2utils.event = {
 *   - reusable search component (see https://github.com/vitmalina/w2ui/issues/914#issuecomment-107340524)
 *   - allow enum in inline edit (see https://github.com/vitmalina/w2ui/issues/911#issuecomment-107341193)
 *   - if record has no recid, then it should be index in the aray (should not be 0)
-*   - remote source, but localSort/localSearch
-*   - gridMinWidth - should show/hide columns, when it is triggered, column can not be turned on at all
 *
 * == KNOWN ISSUES ==
 *   - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
@@ -3674,7 +3675,6 @@ w2utils.event = {
 *   - menuClick - changed parameters
 *   - column.text can be a function
 *   - columnGroup.text can be a function
-*   - grid.tabIndex
 *
 ************************************************************************/
 
@@ -3685,7 +3685,7 @@ w2utils.event = {
         this.name         = null;
         this.box          = null;     // HTML element that hold this element
         this.columns      = [];       // { field, text, size, attr, render, hidden, gridMinWidth, editable }
-        this.columnGroups = [];       // { span: int, text: 'string', main: true/false }
+        this.columnGroups = [];       // { span: int, text: 'string', master: true/false }
         this.records      = [];       // { recid: int(requied), field1: 'value1', ... fieldN: 'valueN', style: 'string',  changes: object }
         this.summary      = [];       // arry of summary records, same structure as records array
         this.searches     = [];       // { type, label, field, inTag, outTag, hidden }
@@ -4986,15 +4986,8 @@ w2utils.event = {
                         $range.find('.w2ui-selection-resizer').hide();
                     }
                     if (first.recid != null && last.recid != null && td1f.length > 0 && td2f.length > 0) {
-                        var sLeft = 0; // frozen columns do not need left offset
-                        var sTop  = rec2.scrollTop();
-                        // work arround jQuery inconsistensy between vers >3.2 and <=3.3
-                        if (td1f.find('>div').position().top < 8) {
-                            sLeft = 0;
-                            sTop  = 0;
-                        }
-                        var _left = (td1f.position().left - 0 + sLeft);
-                        var _top  = (td1f.position().top - 0 + sTop);
+                        var _left = (td1f.position().left - 0 + rec1.scrollLeft());
+                        var _top  = (td1f.position().top - 0 + rec1.scrollTop());
                         $range.show().css({
                             left    : (_left > 0 ? _left : 0) + 'px',
                             top     : (_top > 0 ? _top : 0) + 'px',
@@ -5026,16 +5019,8 @@ w2utils.event = {
                         $range.css('border-left', '0px');
                     }
                     if (first.recid != null && last.recid != null && td1.length > 0 && td2.length > 0) {
-                        var sLeft = rec2.scrollLeft();
-                        var sTop  = rec2.scrollTop();
-                        // work arround jQuery inconsistensy between vers >3.2 and <=3.3
-                        if (td2.find('>div').position().top < 8) {
-                            sLeft = 0;
-                            sTop  = 0;
-                        }
-                        var _left = (td1.position().left - 0 + sLeft);
-                        var _top  = (td1.position().top - 0 + sTop);
-                        // console.log('top', td1.position().top, rec2.scrollTop(), td1.find('>div').position().top)
+                        var _left = (td1.position().left - 0 + rec2.scrollLeft());
+                        var _top  = (td1.position().top - 0 + rec2.scrollTop());
                         $range.show().css({
                             left    : (_left > 0 ? _left : 0) + 'px',
                             top     : (_top > 0 ? _top : 0) + 'px',
@@ -6213,15 +6198,10 @@ w2utils.event = {
                             data.records = [];
                         }
                         if (data.records.length == this.limit) {
-                            var loaded = this.records.length + data.records.length
-                            this.last.xhr_hasMore = (loaded == this.total ? false : true);
+                            this.last.xhr_hasMore = true;
                         } else {
                             this.last.xhr_hasMore = false;
                             this.total = this.offset + this.last.xhr_offset + data.records.length;
-                        }
-                        if (!this.last.xhr_hasMore) {
-                            // if no morerecords, then hide spinner
-                            $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more').hide()
                         }
                         if (this.last.xhr_offset === 0) {
                             this.records = [];
@@ -6325,9 +6305,9 @@ w2utils.event = {
         mergeChanges: function () {
             var changes = this.getChanges();
             for (var c = 0; c < changes.length; c++) {
-                var record = this.get(changes[c][this.recid || 'recid']);
+                var record = this.get(changes[c].recid);
                 for (var s in changes[c]) {
-                    if (s == 'recid' || (this.recid && s == this.recid)) continue; // do not allow to change recid
+                    if (s == 'recid') continue; // do not allow to change recid
                     if (typeof changes[c][s] === "object") changes[c][s] = changes[c][s].text;
                     try {
                         if (s.indexOf('.') != -1) {
@@ -8416,7 +8396,6 @@ w2utils.event = {
                       '    <div id="grid_'+ this.name +'_summary" class="w2ui-grid-body w2ui-grid-summary"></div>'+
                       '    <div id="grid_'+ this.name +'_footer" class="w2ui-grid-footer"></div>'+
                       '    <textarea id="grid_'+ this.name +'_focus" class="w2ui-grid-focus-input" '+
-                                (this.tabIndex ? 'tabindex="' + this.tabIndex + '"' : '')+
                                 (w2utils.isIOS ? 'readonly' : '') +'></textarea>'+ // readonly needed on android not to open keyboard
                       '</div>');
             if (this.selectType != 'row') $(this.box).addClass('w2ui-ss');
@@ -8478,7 +8457,7 @@ w2utils.event = {
                 });
             // init mouse events for mouse selection
             var edataCol; // event for column select
-            $(this.box).off('mousedown', mouseStart).on('mousedown', mouseStart);
+            $(this.box).off('mousedown').on('mousedown', mouseStart);
             this.updateToolbar()
             // event after
             this.trigger($.extend(edata, { phase: 'after' }));
@@ -9019,7 +8998,7 @@ w2utils.event = {
                         width: 0,
                         height: 0,
                         margin: 0,
-                        position: 'absolute',
+                        position: 'fixed',
                         zIndex: 999999,
                         opacity: 0
                     }).addClass( '.w2ui-grid-ghost' ).animate({
@@ -10206,7 +10185,7 @@ w2utils.event = {
                 }
                 for (var i=0; i<obj.columnGroups.length; i++) {
                     var colg = obj.columnGroups[i];
-                    var col  = obj.columns[ii] || {};
+                    var col  = obj.columns[ii];
                     if (colg.colspan != null) colg.span = colg.colspan;
                     if (colg.span == null || colg.span != parseInt(colg.span)) colg.span = 1;
                     if (col.text == null && col.caption != null) {
@@ -10224,7 +10203,7 @@ w2utils.event = {
                     }
                     if (colspan <= 0) {
                         // do nothing here, all columns in the group are hidden.
-                    } else if (colg.main === true) {
+                    } else if (colg.master === true) {
                         var sortStyle = '';
                         for (var si = 0; si < obj.sortData.length; si++) {
                             if (obj.sortData[si].field == col.field) {
@@ -10266,7 +10245,7 @@ w2utils.event = {
                 return [html1, html2];
             }
 
-            function getColumns (main) {
+            function getColumns (master) {
                 var html1 = '<tr>';
                 var html2 = '<tr>';
                 if (obj.show.lineNumbers) {
@@ -10320,7 +10299,7 @@ w2utils.event = {
                         continue;
                     if (col.hidden)
                         continue;
-                    if (colg.main !== true || main) { // grouping of columns
+                    if (colg.master !== true || master) { // grouping of columns
                         var colCellHTML = obj.getColumnCellHTML(i);
                         if (col && col.frozen) html1 += colCellHTML; else html2 += colCellHTML;
                     }
@@ -10606,7 +10585,7 @@ w2utils.event = {
             }
             // perform virtual scroll
             var buffered = this.records.length;
-            if (buffered > this.total && this.total !== -1) buffered = this.total;
+            if (buffered > this.total) buffered = this.total;
             if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length;
             if (buffered === 0 || records.length === 0 || records.height() === 0) return;
             if (buffered > this.vs_start) this.last.show_extra = this.vs_extra; else this.last.show_extra = this.vs_start;
@@ -10616,10 +10595,8 @@ w2utils.event = {
             if (t1 > buffered) t1 = buffered;
             if (t2 >= buffered - 1) t2 = buffered;
             $('#grid_'+ this.name + '_footer .w2ui-footer-right').html(
-                (obj.show.statusRange
-                    ? w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) +
-                        (this.total != -1 ? ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(this.total) : '')
-                        : '') +
+                (obj.show.statusRange ? w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) +
+                        (this.total != -1 ? ' ' + w2utils.lang('of') + ' ' +    w2utils.formatNumber(this.total) : '') : '') +
                 (url && obj.show.statusBuffered ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(buffered) +
                         (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
             );
@@ -19604,7 +19581,9 @@ var w2prompt = function (label, title, callBack) {
 *   - include delta on save
 *   - form should read <select> <options> into items
 *   - two way data bindings
-*   - nested groups (so fields can be deifned inside)
+*   - verify validation of fields
+*   - nested record object
+*   - formHTML --> template
 *
 * == 1.5 changes
 *   - $('#form').w2form() - if called w/o argument then it returns form object
@@ -19636,15 +19615,14 @@ var w2prompt = function (label, title, callBack) {
 *   - added form.pageStyle
 *   - added html.span -1 - then label is displayed on top
 *   - added field.options.minLength, min/max for numebrs can be done with int/float - min/max
-*   - field.html.groupCollapsible, form.toggleGroup
+*   - field.html.groupCollapsable, form.toggleGroup
 *   - added showErrors
 *   - added field.type = 'check'
 *   - new field type 'map', 'array' - same thing but map has unique keys also html: { key: { text: '111', attr: '222' }, value: {...}}
 *   - updateEmptyGroups
-*   - tabs below some fields
-*   - tabindexBase
 *
 ************************************************************************/
+
 
 (function ($) {
     var w2form = function(options) {
@@ -20584,7 +20562,7 @@ var w2prompt = function (label, title, callBack) {
                         for (var i = 0; i < items.length; i++) {
                             input += '<label class="w2ui-box-label">'+
                                      '  <input id="' + field.field + i +'" name="' + field.field + '" class="w2ui-input" type="checkbox" ' +
-                                                field.html.attr + tabindex_str + ' data-value="'+ items[i].id +'" data-index="'+ i +'">' +
+                                                field.html.attr + (i === 0 ? tabindex_str : '') + ' data-value="'+ items[i].id +'" data-index="'+ i +'">' +
                                         '<span>&#160;' + items[i].text + '</span>' +
                                      '</label><br>';
                         }
@@ -20644,13 +20622,13 @@ var w2prompt = function (label, title, callBack) {
                                 '<input id="'+ field.field +'" name="'+ field.field +'" type="hidden" '+ field.html.attr + tabindex_str + '>'+
                                 '<div class="w2ui-map-container"></div>';
                         break;
+                    case 'html':
                     case 'div':
                     case 'custom':
-                        input = '<div id="'+ field.field +'" name="'+ field.field +'" '+ field.html.attr + tabindex_str + ' class="w2ui-input">'+
+                        input = '<div id="'+ field.field +'" name="'+ field.field +'" '+ field.html.attr + tabindex_str + '>'+
                                     (field && field.html && field.html.html ? field.html.html : '') +
                                 '</div>';
                         break;
-                    case 'html':
                     case 'empty':
                         input = (field && field.html ? (field.html.html || '') + (field.html.text || '') : '');
                         break;
@@ -20663,19 +20641,19 @@ var w2prompt = function (label, title, callBack) {
                     }
                 }
                 if (field.html.group && (group != field.html.group)) {
-                    var collapsible = '';
-                    if (field.html.groupCollapsible) {
-                        collapsible = '<span class="w2ui-icon-collapse" style="width: 15px; display: inline-block; position: relative; top: -2px;"></span>'
+                    var collapsable = '';
+                    if (field.html.groupCollapsable) {
+                        collapsable = '<span class="w2ui-icon-collapse" style="width: 15px; display: inline-block; position: relative; top: -2px;"></span>'
                     }
                     html += '\n <div class="w2ui-group">'
                         + '\n   <div class="w2ui-group-title" style="'+ (field.html.groupTitleStyle || '')
-                                        + (collapsible != '' ? 'cursor: pointer; user-select: none' : '') + '"'
-                        + (collapsible != '' ? 'data-group="' + w2utils.base64encode(field.html.group) + '"' : '')
-                        + (collapsible != ''
+                                        + (collapsable != '' ? 'cursor: pointer; user-select: none' : '') + '"'
+                        + (collapsable != '' ? 'data-group="' + w2utils.base64encode(field.html.group) + '"' : '')
+                        + (collapsable != ''
                             ? 'onclick="w2ui[\'' + this.name + '\'].toggleGroup(\'' + field.html.group + '\')"'
                             : '')
                         + '>'
-                        + collapsible + field.html.group + '</div>\n'
+                        + collapsable + field.html.group + '</div>\n'
                         + '   <div class="w2ui-group-fields" style="'+ (field.html.groupStyle || '') +'">';
                     group = field.html.group;
                 }
@@ -21510,4 +21488,4 @@ var w2prompt = function (label, title, callBack) {
     w2prompt: w2prompt
 });
 
-//# sourceMappingURL=w2ui.js.map
+//# sourceMappingURL=w2ui-1.5.js.map
