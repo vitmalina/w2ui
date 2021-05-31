@@ -162,6 +162,7 @@
 *   - column.text can be a function
 *   - columnGroup.text can be a function
 *   - grid.tabIndex
+*   - added editAutoAdvance
 *
 ************************************************************************/
 
@@ -170,20 +171,20 @@
 
         // public properties
         this.name         = null;
-        this.box          = null;     // HTML element that hold this element
-        this.columns      = [];       // { field, text, size, attr, render, hidden, gridMinWidth, editable }
-        this.columnGroups = [];       // { span: int, text: 'string', main: true/false }
-        this.records      = [];       // { recid: int(requied), field1: 'value1', ... fieldN: 'valueN', style: 'string',  changes: object }
-        this.summary      = [];       // arry of summary records, same structure as records array
-        this.searches     = [];       // { type, label, field, inTag, outTag, hidden }
-        this.sortMap      = {};       // remap sort Fields
-        this.toolbar      = {};       // if not empty object; then it is toolbar object
+        this.box          = null;   // HTML element that hold this element
+        this.columns      = [];     // { field, text, size, attr, render, hidden, gridMinWidth, editable }
+        this.columnGroups = [];     // { span: int, text: 'string', main: true/false }
+        this.records      = [];     // { recid: int(requied), field1: 'value1', ... fieldN: 'valueN', style: 'string',  changes: object }
+        this.summary      = [];     // arry of summary records, same structure as records array
+        this.searches     = [];     // { type, label, field, inTag, outTag, hidden }
+        this.sortMap      = {};     // remap sort Fields
+        this.toolbar      = {};     // if not empty object; then it is toolbar object
         this.ranges       = [];
         this.menu         = [];
         this.searchData   = [];
         this.sortData     = [];
-        this.total        = 0;        // server total
-        this.recid        = null;     // field from records to be used as recid
+        this.total        = 0;      // server total
+        this.recid        = null;   // field from records to be used as recid
 
         // internal
         this.last = {
@@ -368,6 +369,7 @@
         method            : null,       // if defined, then overwrited ajax method
         dataType          : null,       // if defined, then overwrited w2utils.settings.dataType
         parser            : null,
+        editAutoAdvance   : true,       // automatically begin editing the next cell after submitting an inline edit?
 
         // these column properties will be saved in stateSave()
         stateColProps: {
@@ -2872,16 +2874,18 @@
                     var column = this.last._edit.column;
                     var recid  = this.last._edit.recid;
                     this.editChange({ type: 'custom', value: this.last._edit.value }, this.get(recid, true), column, event);
-                    var next = event.shiftKey ? this.prevRow(index, column) : this.nextRow(index, column);
-                    if (next != null && next != index) {
-                        setTimeout(function () {
-                            if (obj.selectType != 'row') {
-                                obj.selectNone();
-                                obj.select({ recid: obj.records[next].recid, column: column });
-                            } else {
-                                obj.editField(obj.records[next].recid, column, null, event);
-                            }
-                        }, 1);
+                    if(this.editAutoAdvance) {
+                        var next = event.shiftKey ? this.prevRow(index, column) : this.nextRow(index, column);
+                        if (next != null && next != index) {
+                            setTimeout(function () {
+                                if (obj.selectType != 'row') {
+                                    obj.selectNone();
+                                    obj.select({ recid: obj.records[next].recid, column: column });
+                                } else {
+                                    obj.editField(obj.records[next].recid, column, null, event);
+                                }
+                            }, 1);
+                        }
                     }
                     this.last.inEditMode = false;
                 } else {
@@ -3118,16 +3122,18 @@
 
                                 case 13: // enter
                                     el.blur();
-                                    var next = event.shiftKey ? obj.prevRow(index, column) : obj.nextRow(index, column);
-                                    if (next != null && next != index) {
-                                        setTimeout(function () {
-                                            if (obj.selectType != 'row') {
-                                                obj.selectNone();
-                                                obj.select({ recid: obj.records[next].recid, column: column });
-                                            } else {
-                                                obj.editField(obj.records[next].recid, column, null, event);
-                                            }
-                                        }, 1);
+                                    if(obj.editAutoAdvance) {
+                                        var next = event.shiftKey ? obj.prevRow(index, column) : obj.nextRow(index, column);
+                                        if (next != null && next != index) {
+                                            setTimeout(function () {
+                                                if (obj.selectType != 'row') {
+                                                    obj.selectNone();
+                                                    obj.select({ recid: obj.records[next].recid, column: column });
+                                                } else {
+                                                    obj.editField(obj.records[next].recid, column, null, event);
+                                                }
+                                            }, 1);
+                                        }
                                     }
                                     if (el.tagName.toUpperCase() == 'DIV') {
                                         event.preventDefault();
