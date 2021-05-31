@@ -162,6 +162,7 @@
 *   - column.text can be a function
 *   - columnGroup.text can be a function
 *   - grid.tabIndex
+*   - added editAutoAdvance
 *
 ************************************************************************/
 
@@ -169,22 +170,21 @@
     var w2grid = function(options) {
 
         // public properties
-        this.name          = null;
-        this.box           = null;      // HTML element that hold this element
-        this.columns       = [];        // { field, text, size, attr, render, hidden, gridMinWidth, editable }
-        this.columnGroups  = [];        // { span: int, text: 'string', main: true/false }
-        this.records       = [];        // { recid: int(requied), field1: 'value1', ... fieldN: 'valueN', style: 'string',  changes: object }
-        this.summary       = [];        // arry of summary records, same structure as records array
-        this.searches      = [];        // { type, label, field, inTag, outTag, hidden }
-        this.sortMap       = {};        // remap sort Fields
-        this.toolbar       = {};        // if not empty object; then it is toolbar object
-        this.ranges        = [];
-        this.menu          = [];
-        this.searchData    = [];
-        this.sortData      = [];
-        this.total         = 0;         // server total
-        this.recid         = null;      // field from records to be used as recid
-        this.advanceOnEdit = true;      // automatically begin editing the next cell after submitting an inline edit?
+        this.name         = null;
+        this.box          = null;   // HTML element that hold this element
+        this.columns      = [];     // { field, text, size, attr, render, hidden, gridMinWidth, editable }
+        this.columnGroups = [];     // { span: int, text: 'string', main: true/false }
+        this.records      = [];     // { recid: int(requied), field1: 'value1', ... fieldN: 'valueN', style: 'string',  changes: object }
+        this.summary      = [];     // arry of summary records, same structure as records array
+        this.searches     = [];     // { type, label, field, inTag, outTag, hidden }
+        this.sortMap      = {};     // remap sort Fields
+        this.toolbar      = {};     // if not empty object; then it is toolbar object
+        this.ranges       = [];
+        this.menu         = [];
+        this.searchData   = [];
+        this.sortData     = [];
+        this.total        = 0;      // server total
+        this.recid        = null;   // field from records to be used as recid
 
         // internal
         this.last = {
@@ -369,6 +369,7 @@
         method            : null,       // if defined, then overwrited ajax method
         dataType          : null,       // if defined, then overwrited w2utils.settings.dataType
         parser            : null,
+        editAutoAdvance   : true,       // automatically begin editing the next cell after submitting an inline edit?
 
         // these column properties will be saved in stateSave()
         stateColProps: {
@@ -2873,7 +2874,7 @@
                     var column = this.last._edit.column;
                     var recid  = this.last._edit.recid;
                     this.editChange({ type: 'custom', value: this.last._edit.value }, this.get(recid, true), column, event);
-                    if(this.advanceOnEdit) {
+                    if(this.editAutoAdvance) {
                         var next = event.shiftKey ? this.prevRow(index, column) : this.nextRow(index, column);
                         if (next != null && next != index) {
                             setTimeout(function () {
@@ -3121,7 +3122,7 @@
 
                                 case 13: // enter
                                     el.blur();
-                                    if(obj.advanceOnEdit) {
+                                    if(obj.editAutoAdvance) {
                                         var next = event.shiftKey ? obj.prevRow(index, column) : obj.nextRow(index, column);
                                         if (next != null && next != index) {
                                             setTimeout(function () {
