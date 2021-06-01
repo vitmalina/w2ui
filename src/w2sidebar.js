@@ -1052,7 +1052,7 @@ class w2sidebar extends w2event {
                         '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
                         (obj.handle.content
                             ? '<div class="w2ui-node-handle" style="width: '+ obj.handle.size +'px; '+ obj.handle.style + '">'+
-                                   (typeof obj.handle.content == 'function' ? obj.handle.content.call(obj, node) : obj.handle.content) +
+                                   (typeof obj.handle.content == 'function' ? obj.handle.content.call(obj, nd) : obj.handle.content) +
                               '</div>'
                             : ''
                         ) +

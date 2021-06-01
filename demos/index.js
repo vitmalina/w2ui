@@ -111,7 +111,8 @@ $(function () {
                         { id: 'grid/26', text: 'Reorder Records', icon: 'fa fa-table' },
                         { id: 'grid/7', text: 'Tree-Like Grid', icon: 'fa fa-table' },
                         { id: 'grid/27', text: 'Frozen Columns', icon: 'fa fa-table' },
-                        { id: 'grid/28', text: 'Info Bubble', icon: 'fa fa-table' }
+                        { id: 'grid/28', text: 'Info Bubble', icon: 'fa fa-table' },
+                        { id: 'grid/29', text: 'Advanced Formatting', icon: 'fa fa-table' },
                     ]
                 },
                 { id: 'toolbar', text: 'Toolbar Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,

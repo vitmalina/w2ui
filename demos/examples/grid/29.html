@@ -1,0 +1,61 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Advanced Formatting</h1>
+        You can style individual cells as well as whole rows by applying a CSS style or a CSS class with
+        <a class="property" href="../docs/index.html#w2grid.records">.record.w2ui = { ... }</a><br>
+        You can also format whole columns by setting a column renderer - either a function or by choosing an existing
+        formatter or by extending <a class="property" href="../docs/index.html#w2utils.formatters">w2utils.formatters</a>.<br>
+        In the example below the column <b>'Start Date'</b> has a custom formatter applied to center <i>valid</i> values.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<style>
+.row, .cell1 {
+    font-style: italic;
+    color: blue !important;
+}
+.cell2 {
+    font-weight: bold;
+    background-color: yellow;
+}
+</style>
+<div id="grid" style="width: 100%; height: 350px;"></div>
+
+<!--CODE-->
+<script>
+$(function () {
+    w2utils.formatters.custom_centered = function(value, params, record) {
+        if(!value) {
+            return 'Bad Date!'
+        }
+        return '<div style="text-align: center">'+ value +'</div>'
+    }
+    $('#grid').w2grid({
+        name: 'grid',
+        columns: [
+            { field: 'fname', text: 'First Name', size: '150px', info: true },
+            { field: 'lname', text: 'Last Name', size: '150px', render: function(record, index, column_index, value){
+                if (value === 'W2ui') {
+                    return '<a href="http://w2ui.com" target="_blank" title="Click Me!"><u>http://w2ui.com</u></a>'
+                }
+                return value
+            } },
+            { field: 'email', text: 'Email', size: '200px' },
+            { field: 'sdate', text: 'Start Date', size: '200px', render: 'custom_centered' },
+            { field: 'comment', text: 'Comment', size: '100%' },
+        ],
+        "records": [
+            { recid: 1, fname: "John", lname: "Doe", email: "jdoe@gmail.com", sdate: "4/3/2012", comment: "not styled" },
+            { recid: 2, fname: "Stuart", lname: "Motzart", email: "jdoe@gmail.com", sdate: "4/3/2012", comment: 'w2ui: { style: "background-color: #C2F5B4" }', w2ui: { style: "background-color: #C2F5B4" } },
+            { recid: 3, fname: "Jin", lname: "Franson", email: "jdoe@gmail.com", sdate: "4/3/2012", comment: 'w2ui: { class: "row" }', w2ui: { class: "row" } },
+            { recid: 4, fname: "Susan", lname: "Ottie", email: "jdoe@gmail.com", sdate: "4/3/2012", comment: 'w2ui: { style: { lname: "background: red;", email: "font-weight: bold;" } }', w2ui: { style: { lname: "background: red;", email: "font-weight: bold;" } } },
+            { recid: 5, fname: "Kelly", lname: "Silver", email: "jdoe@gmail.com", sdate: "4/3/2012", comment: 'w2ui: { class: { fname: "cell1", sdate: "cell2" } }', w2ui: { class: { fname: "cell1", sdate: "cell2" } } },
+            { recid: 6, fname: "Francis", lname: "W2ui", email: "jdoe@gmail.com", sdate: "4/3/2012", comment: '"Last Name" modified by column renderer' },
+            { recid: 7, fname: "Sergei", lname: "Rachmaninov", email: "jdoe@gmail.com", sdate: 0, comment: "not styled" },
+        ]
+    });
+});
+</script>

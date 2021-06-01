@@ -30,36 +30,42 @@ $(function () {
         header : 'Auto-Generated Form',
         url    : 'server/post',
         focus  : 'last_name',
-        fields : [
-            { type: 'group', text: 'General', collapsible: false, style: '', titleStyle: '',
-                span: 5, column: 0, page: 0, attr: 'style="width: 200px"',
-                fields: [
-                    { field: 'first_name', type: 'text', required: true,
-                        html: { label: 'First Name' }
+        fields : {
+            "User Info": {
+                type: 'group',
+                attr: 'style="width: 200px"',
+                span: 4,
+                fields: {
+                    "user.first_name": {
+                        type: 'text',
+                        required: true,
+                        label: 'First Name'
                     },
-                    { field: 'last_name',  type: 'text', required: true,
-                        html: { label: 'Last Name' }
-                    },
-                    { field: 'comments', type: 'textarea',
-                        html: { label: 'Comments', attr: 'style="width: 500px; height: 60px"' }
+                    "user.last_name": {
+                        type: 'text',
+                        required: true,
+                        label: 'Last Name'
                     }
-                ]
+                }
             },
-            { type: 'group', text: 'Address', collapsible: false, style: 'background-color: #f3f9f0', titleStyle: '',
-                span: 5, attr: 'style="width: 200px"',
-                fields: [
-                    { field: 'city', type: 'text',
-                        html: { label: 'City' }
+            "Some KPIs": {
+                type: 'group',
+                attr: 'style="width: 200px"',
+                span: 4,
+                fields: {
+                    "kpi.param1": {
+                        type: 'int',
+                        required: false,
+                        label: 'Param 1'
                     },
-                    { field: 'zip', type: 'text',
-                        html: { label: 'Zip Code', attr: 'style="width: 100px"' }
-                    },
-                    { field: 'street', type: 'text',
-                        html: { label: 'Street' }
+                    'kpi.param2': {
+                        type: 'int',
+                        required: false,
+                        label: 'Param 2'
                     }
-                ]
+                }
             }
-        ],
+        },
         actions: {
             'Reset': function (event) {
                 this.clear();

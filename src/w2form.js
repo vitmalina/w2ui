@@ -1091,7 +1091,7 @@ class w2form extends w2event {
                     collapsible = '<span class="w2ui-icon-collapse" style="width: 15px; display: inline-block; position: relative; top: -2px;"></span>'
                 }
                 html += '\n <div class="w2ui-group">'
-                    + '\n   <div class="w2ui-group-title" style="'+ (field.html.groupTitleStyle || '') + '; ' +
+                    + '\n   <div class="w2ui-group-title" style="'+ (field.html.groupTitleStyle || '') + '; '
                                     + (collapsible != '' ? 'cursor: pointer; user-select: none' : '') + '"'
                     + (collapsible != '' ? 'data-group="' + w2utils.base64encode(field.html.group) + '"' : '')
                     + (collapsible != ''
@@ -1189,10 +1189,10 @@ class w2form extends w2event {
     toggleGroup(groupName, show) {
         let el = $(this.box).find('.w2ui-group-title[data-group="' + w2utils.base64encode(groupName) + '"]')
         if(!el || !el.length) return
+        let el_next = el.next()
         if (typeof show === 'undefined') {
             show = ( el_next.css('display') == 'none' )
         }
-        let el_next = el.next()
         if (show) {
             el_next.slideDown(300)
             el_next.next().remove()

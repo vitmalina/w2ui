@@ -66,11 +66,11 @@ $(function () {
     for (var i = 0; i < tmp.length; i++) {
         w2ui.grid.columns.push({
             field: tmp[i],
-            caption: '<div style="text-align: center">' + tmp[i].toUpperCase() + '</div>',
+            text: '<div style="text-align: center">' + tmp[i].toUpperCase() + '</div>',
             size: '15%',
             resizable: true,
             sortable: true,
-            editable: { type: 'd' }
+            editable: { type: 'text', inTag: 'placeholder="Type..."' }
         });
         values[tmp[i]] = '';
     }
