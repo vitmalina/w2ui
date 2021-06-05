@@ -30,10 +30,6 @@ p + p {
     margin-top: 1em;
 }
 
-input[type=text] {
-    padding: 4px !important;
-}
-
 #demo_layout {
     position: absolute;
     width: 100%;

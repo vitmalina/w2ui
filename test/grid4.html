@@ -8,15 +8,18 @@
 $(function () {
     $('#grid').w2grid({
         name: 'grid',
-        header: 'List of Names1',
+        header: 'List of Names',
         url: {
-            get: 'http://w2ui.com/web/pages/demo/infinite/index.php',
+            get: 'grid.json',
             save: 's',
             remove: 'd'
         },
         recid: 'userid',
-        // dataType: 'JSON',
-        // method: 'GET',
+        // dataType: 'HTTP',
+        // method: 'POST',
+        postData: {
+            cmd: 'get-records'
+        },
         // limit: 2000,
         // offset: 3690,
         autoLoad: true,
@@ -34,22 +37,24 @@ $(function () {
             toolbarSave: true,
             toolbarAdd: true
         },
-        onRequest1(event) {
-            getRecords(event.url, event.postData)
-            event.preventDefault()
-        },
-        onLoad(event) {
-            this.total = 1
-            this.records = [
-                { userid: 1, age: '20', fname: 'Vitali', lname: 'Malinouski' }
-            ]
-        },
+        // onRequest1(event) {
+        //     getRecords(event.url, event.postData)
+        //     event.preventDefault()
+        // },
+        // onLoad(event) {
+        //     this.total = 1
+        //     this.records = [
+        //         { userid: 1, age: '20', fname: 'Vitali', lname: 'Malinouski' }
+        //     ]
+        // },
         columns: [
             { field: 'userid', text: 'ID', size: '80px', sortable: true, hidden: true },
-            { field: 'age', text: 'Age', size: '80px', sortable: true, searchable: 'int' },
-            { field: 'fname', text: 'First Name', size: '180px', sortable: true, searchable: 'text', resizable: true, editable: { type: 'hex' } },
-            { field: 'lname', text: 'Last Name', size: '180px', sortable: true, resizable: true, editable: { type: 'color' } },
-            { field: 'email', text: 'Email', size: '100%', sortable: true, resizable: true, editable: { type: 'text' } }
+            { field: 'person.fname', text: 'First Name', size: '120px', sortable: true, searchable: 'text', resizable: true,
+                editable: { type: 'text' }
+            },
+            { field: 'person.lname', text: 'Last Name', size: '120px', sortable: true, resizable: true, editable: { type: 'color' } },
+            { field: 'email', text: 'Email', size: '160px', sortable: true, resizable: true, editable: { type: 'text' } },
+            { field: 'text', text: 'Text', size: '100%', sortable: true, resizable: true, editable: { type: 'text' } }
         ]
     });
 
@@ -79,9 +84,7 @@ $(function () {
 //]]>
 </script>
 </head>
-<body>
-    <input placeholder="before" style="margin-bottom: 5px;"/>
-    <div id="grid" style="width: 1024px; height: 568px;"></div>
-    <input placeholder="after" style="margin-top: 5px;"/>
+<body style="margin: 30px">
+    <div id="grid" style="width: 1100px; height: 600px;"></div>
 </body>
 </html>
