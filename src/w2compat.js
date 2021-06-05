@@ -60,7 +60,11 @@ import { w2toolbar } from './w2toolbar'
     function proc(options, type) {
         if ($.isPlainObject(options)) {
             let obj
-            if (type == 'w2form') obj = new w2form(options)
+            if (type == 'w2form') {
+                let html = this.html()
+                obj = new w2form(options)
+                if (html) obj.formHTML = html
+            }
             if (type == 'w2grid') obj = new w2grid(options)
             if (type == 'w2layout') obj = new w2layout(options)
             if (type == 'w2sidebar') obj = new w2sidebar(options)
@@ -906,7 +910,7 @@ import { w2toolbar } from './w2toolbar'
             let html = ''
             if (options.search) {
                 html          += '<div style="position: absolute; top: 0px; height: 40px; left: 0px; right: 0px; border-bottom: 1px solid silver; background-color: #ECECEC; padding: 8px 5px;">'+
-                    '    <div class="w2ui-icon icon-search" style="position: absolute; margin-top: 4px; margin-left: 6px; width: 11px; background-position: left !important;"></div>'+
+                    '    <div class="w2ui-icon w2ui-icon-search" style="position: absolute; margin-top: 4px; margin-left: 6px; width: 11px; background-position: left !important;"></div>'+
                     '    <input id="menu-search" type="text" style="width: 100%; outline: none; padding-left: 20px;" onclick="event.stopPropagation();"/>'+
                     '</div>'
                 options.style += ';background-color: #ECECEC'

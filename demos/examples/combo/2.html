@@ -30,10 +30,10 @@ var config = {
             toolbarDelete    : true
         },
         columns: [
-            { field: 'fname', caption: 'First Name', size: '33%', sortable: true, searchable: true },
-            { field: 'lname', caption: 'Last Name', size: '33%', sortable: true, searchable: true },
-            { field: 'email', caption: 'Email', size: '33%' },
-            { field: 'sdate', caption: 'Start Date', size: '120px', render: 'date' }
+            { field: 'fname', text: 'First Name', size: '33%', sortable: true, searchable: true },
+            { field: 'lname', text: 'Last Name', size: '33%', sortable: true, searchable: true },
+            { field: 'email', text: 'Email', size: '33%' },
+            { field: 'sdate', text: 'Start Date', size: '120px', render: 'date' }
         ],
         records: [
             { recid: 1, fname: 'John', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
@@ -67,11 +67,11 @@ var config = {
         header: 'Edit Record',
         name: 'form',
         fields: [
-            { name: 'recid', type: 'text', html: { caption: 'ID', attr: 'size="10" readonly' } },
-            { name: 'fname', type: 'text', required: true, html: { caption: 'First Name', attr: 'size="40" maxlength="40"' } },
-            { name: 'lname', type: 'text', required: true, html: { caption: 'Last Name', attr: 'size="40" maxlength="40"' } },
-            { name: 'email', type: 'email', html: { caption: 'Email', attr: 'size="30"' } },
-            { name: 'sdate', type: 'date', html: { caption: 'Date', attr: 'size="10"' } }
+            { field: 'recid', type: 'text', html: { label: 'ID', attr: 'size="10" readonly' } },
+            { field: 'fname', type: 'text', required: true, html: { label: 'First Name', attr: 'size="40" maxlength="40"' } },
+            { field: 'lname', type: 'text', required: true, html: { label: 'Last Name', attr: 'size="40" maxlength="40"' } },
+            { field: 'email', type: 'email', html: { label: 'Email', attr: 'size="30"' } },
+            { field: 'sdate', type: 'date', html: { label: 'Date', attr: 'size="10"' } }
         ],
         actions: {
             Reset: function () {
