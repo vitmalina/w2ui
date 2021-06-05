@@ -20,16 +20,16 @@ var config = {
     grid: { 
         name: 'grid',
         show: { 
-            footer    : true,
-            toolbar    : true
+            footer: true,
+            toolbar: true
         },
         columns: [                
-            { field: 'personid', caption: 'ID', size: '50px', sortable: true, searchable: 'int', resizable: true },
-            { field: 'fname', caption: 'First Name', size: '140px', sortable: true, searchable: 'text', resizable: true },
-            { field: 'lname', caption: 'Last Name', size: '140px', sortable: true, searchable: 'text', resizable: true },
-            { field: 'email', caption: 'Email', size: '100%', resizable: true, sortable: true },
-            { field: 'snumber', caption: 'Number', size: '120px', resizable: true, sortable: true, render: 'money' },
-            { field: 'sdate', caption: 'Date', size: '120px', resizable: true, sortable: true, render: 'date' }
+            { field: 'personid', text: 'ID', size: '50px', sortable: true, searchable: 'int', resizable: true },
+            { field: 'fname', text: 'First Name', size: '140px', sortable: true, searchable: 'text', resizable: true },
+            { field: 'lname', text: 'Last Name', size: '140px', sortable: true, searchable: 'text', resizable: true },
+            { field: 'email', text: 'Email', size: '100%', resizable: true, sortable: true },
+            { field: 'snumber', text: 'Number', size: '120px', resizable: true, sortable: true, render: 'money' },
+            { field: 'sdate', text: 'Date', size: '120px', resizable: true, sortable: true, render: 'date' }
         ]
     }
 };
@@ -52,7 +52,6 @@ $(function () {
             sdate: (new Date(Math.floor(Math.random() * 20000) * 100000000)).getTime()
         });
     }
-    w2ui.grid.refresh();
     $('#main').w2render('grid');
 });
 </script>

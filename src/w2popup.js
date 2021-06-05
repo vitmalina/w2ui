@@ -131,13 +131,13 @@ class w2dialog extends w2event {
                 let btn = ''
                 if (options.showClose) {
                     btn += `<div class="w2ui-popup-button w2ui-popup-close">
-                        <span class="w2ui-icon-cross w2ui-action" data-mousedown="stop" data-click="close"></span>
-                    </div>`
+                                <span class="w2ui-icon w2ui-icon-cross w2ui-action" data-mousedown="stop" data-click="close"></span>
+                            </div>`
                 }
                 if (options.showMax) {
                     btn += `<div class="w2ui-popup-button w2ui-popup-max">
-                        <span class="w2ui-icon-box w2ui-action" data-mousedown="stop" data-click="toggle"></span>
-                    </div>`
+                                <span class="w2ui-icon w2ui-icon-box w2ui-action" data-mousedown="stop" data-click="toggle"></span>
+                            </div>`
                 }
                 // first insert just body
                 msg = '<div id="w2ui-popup" class="w2ui-popup w2ui-popup-opening" style="left: '+ left +'px; top: '+ top +'px;'+
@@ -246,11 +246,15 @@ class w2dialog extends w2event {
                     $('#w2ui-popup .w2ui-popup-title')
                         .show()
                         .html((options.showClose
-                                ? '<div class="w2ui-popup-button w2ui-popup-close w2ui-action" data-mousedown="stop" data-click="close">Close</div>'
-                                : '') +
-                              (options.showMax
-                                ? '<div class="w2ui-popup-button w2ui-popup-max w2ui-action" data-mousedown="stop" data-click="toggle">Max</div>'
-                                : ''))
+                            ? `<div class="w2ui-popup-button w2ui-popup-close">
+                                 <span class="w2ui-icon w2ui-icon-cross w2ui-action" data-mousedown="stop" data-click="close"></span>
+                               </div>`
+                            : '') +
+                          (options.showMax
+                            ? `<div class="w2ui-popup-button w2ui-popup-max">
+                                  <span class="w2ui-icon w2ui-icon-box w2ui-action" data-mousedown="stop" data-click="toggle"></span>
+                               </div>`
+                            : ''))
                         .append(options.title)
                     $('#w2ui-popup .w2ui-popup-body').removeClass('w2ui-popup-no-title')
                     $('#w2ui-popup .w2ui-box, #w2ui-popup .w2ui-box-temp').css('top', '')
@@ -928,7 +932,7 @@ function w2alert(msg, title, callBack) {
     if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
         w2popup.message({
             width: 400,
-            height: 170,
+            height: 180,
             body: '<div class="w2ui-centered w2ui-alert-msg" style="font-size: 13px;">' + msg + '</div>',
             actions: {
                 Ok: {
@@ -996,7 +1000,7 @@ function w2confirm(msg, title, callBack) {
         msg: '',
         title: w2utils.lang('Confirmation'),
         width: ($('#w2ui-popup').length > 0 ? 400 : 450),
-        height: ($('#w2ui-popup').length > 0 ? 170 : 220),
+        height: ($('#w2ui-popup').length > 0 ? 180 : 220),
         btn_yes: {
             text: 'Yes',
             class: '',
@@ -1147,7 +1151,7 @@ function w2prompt(label, title, callBack) {
     let defaults = {
         title: w2utils.lang('Notification'),
         width: ($('#w2ui-popup').length > 0 ? 400 : 450),
-        height: ($('#w2ui-popup').length > 0 ? 170 : 220),
+        height: ($('#w2ui-popup').length > 0 ? 180 : 220),
         label: '',
         value: '',
         attrs: '',

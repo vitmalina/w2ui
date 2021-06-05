@@ -60,7 +60,11 @@ import { w2toolbar } from './w2toolbar'
     function proc(options, type) {
         if ($.isPlainObject(options)) {
             let obj
-            if (type == 'w2form') obj = new w2form(options)
+            if (type == 'w2form') {
+                let html = this.html()
+                obj = new w2form(options)
+                if (html) obj.formHTML = html
+            }
             if (type == 'w2grid') obj = new w2grid(options)
             if (type == 'w2layout') obj = new w2layout(options)
             if (type == 'w2sidebar') obj = new w2sidebar(options)

@@ -242,7 +242,7 @@ class w2grid extends w2event {
         this.hasFocus          = false
         this.autoLoad          = true // for infinite scroll
         this.fixedBody         = true // if false; then grid grows with data
-        this.recordHeight      = 32 // should be in prototype
+        this.recordHeight      = 32
         this.lineNumberWidth   = null
         this.keyboard          = true
         this.selectType        = 'row' // can be row|cell
