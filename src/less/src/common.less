@@ -316,11 +316,11 @@ input[type="checkbox"].w2ui-toggle {
     background-color: @overlay-background-color;
     border-color: @overlay-background-color;
     box-shadow: @overlay-shadow;
-    border-radius: 4px;
+    border-radius: 6px;
     text-align: left;
 
     & > div {
-        border-radius: 4px;
+        border-radius: 6px;
         position: relative;
         border: @overlay-border-width solid @overlay-border-color;
     }
@@ -340,17 +340,17 @@ input[type="checkbox"].w2ui-toggle {
         position: absolute;
         border-color: inherit;
         bottom: 100%;
-        left:@overlay-border-width + 1;
+        left: @overlay-border-width + 1;
     }
 
     &.top-arrow {
 
         &:before {
-            border-bottom: 12px solid darken(@overlay-border-color, 3%);
+            border-bottom: 10px solid darken(@overlay-border-color, 3%);
             border-right: 12px solid transparent;
             border-left: 12px solid transparent;
             bottom: 100%;
-            margin-bottom: -@overlay-border-width;
+            margin-bottom: -@overlay-border-width + 1;
         }
 
         &:after {
@@ -366,7 +366,7 @@ input[type="checkbox"].w2ui-toggle {
     &.bottom-arrow {
 
         &:before {
-            border-top: 12px solid darken(@overlay-border-color, 3%);
+            border-top: 10px solid darken(@overlay-border-color, 3%);
             border-right: 12px solid transparent;
             border-left: 12px solid transparent;
             top: 100%;
@@ -503,6 +503,7 @@ input[type="checkbox"].w2ui-toggle {
     position: absolute;
     top: 0px;
     bottom: 0px;
+    border-radius: 5px;
     table {
         font-family: @main-font-family;
         font-size: 12px;
