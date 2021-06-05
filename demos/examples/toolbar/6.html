@@ -8,7 +8,7 @@
 </div>
 
 <!--CODE-->
-<div id="toolbar" style="padding: 4px; border: 1px solid #dfdfdf; border-radius: 3px"></div>
+<div id="toolbar" style="padding: 5px; border: 1px solid #e4e4e4; border-radius: 3px"></div>
 <div style="height: 20px"></div>
 Hold cmd (or shift) button to keep the menu open.
 
@@ -21,7 +21,7 @@ $(function () {
             { type: 'menu-radio', id: 'item1', icon: 'fa fa-star',
                 text(item) {
                     let text = item.selected;
-                    let el = this.get('item2:' + item.selected);
+                    let el = this.get('item1:' + item.selected);
                     return 'Radio: ' + el.text;
                 },
                 selected: 'id3',
