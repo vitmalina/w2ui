@@ -18,15 +18,20 @@
     table {
         table-layout: auto !important;
         td {
+            padding: 1px !important;
             border: 0px !important;
         }
         &.w2ui-button {
-            margin: 0 1px 0 0;
+            margin: 0;
             border-radius: @toolbar-button-border-radius;
-            height: 24px;
-            min-width: 24px;
+            height: 30px;
+            min-width: 30px;
             border: @toolbar-button-border;
             background-color: @toolbar-button-background-color;
+
+            > tbody > tr > td {
+                padding-right: 4px !important;
+            }
 
             .w2ui-tb-image {
                 width: 22px;
