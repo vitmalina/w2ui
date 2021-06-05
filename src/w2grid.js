@@ -242,7 +242,7 @@ class w2grid extends w2event {
         this.hasFocus          = false
         this.autoLoad          = true // for infinite scroll
         this.fixedBody         = true // if false; then grid grows with data
-        this.recordHeight      = 24 // should be in prototype
+        this.recordHeight      = 32 // should be in prototype
         this.lineNumberWidth   = null
         this.keyboard          = true
         this.selectType        = 'row' // can be row|cell
@@ -331,7 +331,7 @@ class w2grid extends w2event {
             'reload'   : { type: 'button', id: 'w2ui-reload', icon: 'w2ui-icon-reload', tooltip: 'Reload data in the list' },
             'columns'  : { type: 'drop', id: 'w2ui-column-on-off', icon: 'w2ui-icon-columns', tooltip: 'Show/hide columns', arrow: false, html: '' },
             'search'   : { type: 'html', id: 'w2ui-search',
-                html: '<div class="w2ui-icon icon-search-down w2ui-search-down" '+
+                html: '<div class="w2ui-icon w2ui-icon-search w2ui-search-down" '+
                                   'onclick="let grid = w2ui[jQuery(this).parents(\'div.w2ui-grid\').attr(\'name\')]; grid.searchShowFields()"></div>'
             },
             'search-go': { type: 'drop', id: 'w2ui-search-advanced', icon: 'w2ui-icon-search', text: 'Search', tooltip: 'Open Search Fields' },
@@ -6608,7 +6608,7 @@ class w2grid extends w2event {
 
             if (obj.show.lineNumbers) {
                 html1 += '<td class="w2ui-head w2ui-col-number">'+
-                        '    <div style="height: '+ (obj.recordHeight+1) +'px">&#160;</div>'+
+                        '    <div>&#160;</div>'+
                         '</td>'
             }
             if (obj.show.selectColumn) {

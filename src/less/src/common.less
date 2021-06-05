@@ -525,11 +525,21 @@ input[type="checkbox"].w2ui-toggle {
         & .w2ui-item-even {
             color: @dropdown-item-even-color;
             background-color: @dropdown-item-even-background-color;
+            &.w2ui-disabled, &.w2ui-disabled .w2ui-icon {
+                opacity: 1;
+                background-color: @dropdown-item-even-background-color !important;
+                color: silver !important;
+            }
         }
 
         & .w2ui-item-odd {
             color: @dropdown-item-odd-color;
             background-color: @dropdown-item-odd-background-color;
+            &.w2ui-disabled, &.w2ui-disabled .w2ui-icon {
+                opacity: 1;
+                background-color: @dropdown-item-odd-background-color !important;
+                color: silver !important;
+            }
         }
 
         & .w2ui-item-group {

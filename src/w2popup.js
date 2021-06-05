@@ -130,10 +130,14 @@ class w2dialog extends w2event {
                 w2popup.lockScreen(options)
                 let btn = ''
                 if (options.showClose) {
-                    btn += '<div class="w2ui-popup-button w2ui-popup-close w2ui-action" data-mousedown="stop" data-click="close">Close</div>'
+                    btn += `<div class="w2ui-popup-button w2ui-popup-close">
+                        <span class="w2ui-icon-cross w2ui-action" data-mousedown="stop" data-click="close"></span>
+                    </div>`
                 }
                 if (options.showMax) {
-                    btn += '<div class="w2ui-popup-button w2ui-popup-max w2ui-action" data-mousedown="stop" data-click="toggle">Max</div>'
+                    btn += `<div class="w2ui-popup-button w2ui-popup-max">
+                        <span class="w2ui-icon-box w2ui-action" data-mousedown="stop" data-click="toggle"></span>
+                    </div>`
                 }
                 // first insert just body
                 msg = '<div id="w2ui-popup" class="w2ui-popup w2ui-popup-opening" style="left: '+ left +'px; top: '+ top +'px;'+
