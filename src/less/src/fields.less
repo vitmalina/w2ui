@@ -35,6 +35,18 @@
         border-top-color: #81C6FF;
     }
 
+    .w2ui-icon-search {
+        position: absolute;
+        margin: 8px 0px 0px -2px;
+        display: none;
+        color: #777777;
+        width: 21px !important;
+        font-size: 13px;
+
+        &.show-search {
+            display: block;
+        }
+    }
 }
 
 /*
@@ -511,11 +523,14 @@
 .w2ui-select {
     cursor: default;
     color: black !important;
-	.w2ui-select-background(url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAALCAQAAACnzwd+AAAAcklEQVR4AcXMsQFBQQDG4P9tAgC0gJYRQJZgKQMwCqCku6vVAAAA+NJHP4KHOk0aV2pRw61n4BBmyOxKQ8I4ehZeuhd3HTx6DQEGZ7sBfr2OOOOj3Yi43kMKs9sZknofOexqZ8npMygwWZTX51CipP+YA1OiZJbYYg9lAAAAAElFTkSuQmCC'),
-                            #fff, 20%, #f6f6f6, 50%, #EEE, 52%, #f4f4f4, 100%);
-    background-size: 17px 6px, 100% 100%;
-    background-position: right center, left top;
-    background-repeat: no-repeat, no-repeat;
+	background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAALCAQAAACnzwd+AAAAcklEQVR4AcXMsQFBQQDG4P9tAgC0gJYRQJZgKQMwCqCku6vVAAAA+NJHP4KHOk0aV2pRw61n4BBmyOxKQ8I4ehZeuhd3HTx6DQEGZ7sBfr2OOOOj3Yi43kMKs9sZknofOexqZ8npMygwWZTX51CipP+YA1OiZJbYYg9lAAAAAElFTkSuQmCC');
+    background-size: 17px 6px;
+    background-position: right center;
+    background-repeat: no-repeat;
+    &.has-focus {
+        outline: auto @input-focus-outline-color;
+        background-color: white !important;
+    }
 
     &[readonly], &[disabled] {
         background-image: none;
@@ -543,6 +558,11 @@
     line-height: 100%;
     .box-sizing;
     background-color: @list-background-color; // Needed for IE9+
+    &.has-focus,
+    &:focus-within {
+        outline: auto @input-focus-outline-color;
+        background-color: white;
+    }
 
     input[type=text] {
         .box-shadow;
@@ -556,10 +576,10 @@
 
         li {
             float: left;
-            margin: 2px 1px 0px 2px;
-            border-radius: 3px;
+            margin: 2px 0px 0px 5px;
+            border-radius: 15px;
             width: auto;
-            padding: 3px 10px 1px 7px;
+            padding: 3px 24px 1px 12px;
             border: @list-item-border;
             background-color: @list-item-background-color;
             white-space: nowrap;
@@ -596,13 +616,15 @@
 
             .w2ui-list-remove {
                 float: right;
-                width: 15px;
+                width: 16px;
                 height: 14px;
-                margin: -1px -9px 0px 3px;
+                margin: -1px -22px 0px 3px;
                 border-radius: 15px;
+                font-size: 13px;
                 &:hover {
                     background-color: #D77F7F;
                     color: white;
+                    opacity: 1;
                 }
                 &:before {
                     position: relative;

@@ -21,17 +21,18 @@
 
     .w2ui-form-header {
         position: absolute;
+        top: 0;
         left: 0;
         right: 0;
-        border-bottom: @form-header-border-bottom !important;
+        height: 36px;
+        padding: 10px;
         overflow: hidden;
+        font-size: 16px;
         color: @form-header-color;
-        font-size: 13px;
-        text-align: center;
-        padding: 8px;
         .linear-gradient-vertical(@form-header-linear-gradient-start, @form-header-linear-gradient-end);
-        border-top-left-radius: 3px;
-        border-top-right-radius: 3px;
+        border-top-left-radius: 2px;
+        border-top-right-radius: 2px;
+        border-bottom: @form-header-border-bottom !important;
     }
 
     .w2ui-form-toolbar {
@@ -39,7 +40,7 @@
         left: 0px;
         right: 0px;
         margin: 0px;
-        padding: 5px 3px;
+        padding: 10px 5px;
         // background-color: @form-buttons-background-color;
         border-bottom: @form-buttons-border-top;
     }
@@ -132,15 +133,15 @@
 // --- It is outside of the form on purpose
 
 .w2ui-group-title {
-    padding: 5px 2px 0px 2px;
-    color: #8D96A2;
+    padding: 5px 2px 0px 5px;
+    color: #656164cc;
     text-shadow: 1px 1px 2px rgb(253, 253, 253);
     font-size: 120%;
 }
 
 .w2ui-group-fields {
     background-color: @form-group-background-color;
-    margin: 5px 0px 10px 0px;
+    margin: 5px 0px 14px 0px;
     padding: 10px 5px;
     border-top: @form-group-border;
     border-bottom: @form-group-border;
@@ -150,8 +151,8 @@
     > label {
         display: block;
         float: left;
-        margin-top: 7px;
-        margin-bottom: 3px;
+        margin-top: 10px;
+        margin-bottom: 0px;
         width: 120px;
         padding: 0px;
         white-space: nowrap;
@@ -165,7 +166,7 @@
         /* do not include width */
         margin-bottom: 3px;
         margin-left: 128px;
-        padding: 3px;
+        padding: 4px;
         min-height: 28px;
         float: none;
     }
@@ -175,16 +176,20 @@
     &.w2ui-required:not(.w2ui-field-inline) > div::before {
         content: '*';
         position: absolute;
-        margin-top: 5px;
-        margin-left: -9px;
+        margin-top: 7px;
+        margin-left: -8px;
         color: @form-required-color;
     }
     &.w2ui-required.w2ui-field-inline > div::before {
         content: ''!important;
     }
     &.w2ui-disabled {
-        opacity: 0.3;
+        opacity: 0.45;
         background-color: transparent !important;
+        input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]), select, textarea {
+            border: 1px solid #bdc0c3 !important;
+            background-color: #f5f5f5 !important;
+        }
     }
     &.w2ui-span-none {
         > label {
