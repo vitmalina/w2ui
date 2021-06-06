@@ -375,8 +375,8 @@ class w2tabs extends w2event {
         if (!this.box) return false
         // render all buttons
         let html =`
+            <div class="w2ui-tabs-line"></div>
             <div class="w2ui-scroll-wrapper" onmousedown="var el=w2ui['${this.name}']; if (el) el.resize();">
-                <div class="w2ui-tabs-line"></div>
                 <div id="tabs_${this.name}_right" class="w2ui-tabs-right">${this.right}</div>
             </div>
             <div class="w2ui-scroll-left" onclick="var el=w2ui['${this.name}']; if (el) el.scroll('left');"></div>
