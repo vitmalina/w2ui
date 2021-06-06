@@ -61,9 +61,10 @@ import { w2toolbar } from './w2toolbar'
         if ($.isPlainObject(options)) {
             let obj
             if (type == 'w2form') {
-                let html = this.html()
                 obj = new w2form(options)
-                if (html) obj.formHTML = html
+                if (this.find('.w2ui-field').length > 0) {
+                    obj.formHTML = this.html()
+                }
             }
             if (type == 'w2grid') obj = new w2grid(options)
             if (type == 'w2layout') obj = new w2layout(options)
