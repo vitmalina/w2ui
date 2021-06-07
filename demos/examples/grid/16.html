@@ -22,11 +22,11 @@ $(function () {
         },
         multiSearch: true,
         searches: [
-            { field: 'recid', text: 'ID ', type: 'int' },
-            { field: 'lname', text: 'Last Name', type: 'text' },
-            { field: 'fname', text: 'First Name', type: 'text' },
-            { field: 'email', text: 'Email', type: 'list', options: { items: ['peter@gmail.com', 'jim@gmail.com', 'jdoe@gmail.com']} },
-            { field: 'sdate', text: 'Start Date', type: 'date' }
+            { field: 'recid', label: 'ID ', type: 'int' },
+            { field: 'lname', label: 'Last Name', type: 'text' },
+            { field: 'fname', label: 'First Name', type: 'text' },
+            { field: 'email', label: 'Email', type: 'list', options: { items: ['peter@gmail.com', 'jim@gmail.com', 'jdoe@gmail.com']} },
+            { field: 'sdate', label: 'Start Date', type: 'date' }
         ],
         columns: [
             { field: 'recid', text: 'ID', size: '50px', sortable: true, attr: 'align=center' },
