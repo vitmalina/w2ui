@@ -103,7 +103,8 @@ $(function () {
                         { id: 'grid/21', text: 'Inline Editing', icon: 'fa fa-table' },
                         { id: 'grid/22', text: 'Resizable Columns', icon: 'fa fa-table' },
                         { id: 'grid/24', text: 'Lock/Unlock Grid', icon: 'fa fa-table' },
-                        { id: 'grid/25', text: 'Reorder Columns', icon: 'fa fa-table' }
+                        { id: 'grid/25', text: 'Reorder Columns', icon: 'fa fa-table' },
+                        { id: 'grid/30', text: 'Events', icon: 'fa fa-table' },
                     ]
                 },
                 { id: 'grid-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
