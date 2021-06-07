@@ -4055,6 +4055,7 @@ class w2grid extends w2event {
 
     toggle(recid) {
         let rec  = this.get(recid)
+        if (rec == null) return
         rec.w2ui = rec.w2ui || {}
         if (rec.w2ui.expanded === true) return this.collapse(recid); else return this.expand(recid)
     }
