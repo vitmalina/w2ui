@@ -20,10 +20,10 @@ var config = {
         panels: [
             { type: 'left', size: 200, resizable: true, minSize: 120 },
             { type: 'main', overflow: 'hidden',
-                style: 'background-color: white; border: 1px solid silver; border-top: 0px; padding: 10px;',
+                style: 'background-color: white; border: 1px solid #efefef; border-top: 0px; border-left: 0; padding: 10px;',
                 tabs: {
                     active: 'tab0',
-                    tabs: [{ id: 'tab0', caption: 'Initial Tab' }],
+                    tabs: [{ id: 'tab0', text: 'Initial Tab' }],
                     onClick: function (event) {
                         w2ui.layout.html('main', 'Active tab: '+ event.target);
                     },
@@ -50,7 +50,7 @@ var config = {
                 tabs.select(event.target);
                 w2ui.layout.html('main', 'Tab Selected');
             } else {
-                tabs.add({ id: event.target, caption: 'Tab '+ event.target, closable: true });
+                tabs.add({ id: event.target, text: 'Tab '+ event.target, closable: true });
                 w2ui.layout.html('main', 'New tab added');
             }
         }

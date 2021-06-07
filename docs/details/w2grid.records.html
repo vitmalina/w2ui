@@ -64,11 +64,18 @@ record = {
     [field-2]  : '',     // field 2
     ...
     [field-N]  : '',     // field N
-    style      : '',     // additional CSS style for &lt;tr ...&gt; tag  or for &lt;td ...&gt; tag if it is an object
-    summary    : false,  // indicates if it is a summary record (summary records appear on the bottom)
-    editable   : true,   // indicate is record is editable (must have column.editable property set)
-    expanded   : 'none', // can be true | false | 'none' | 'spinner'
-    changes    : undefined  // readonly, object with user changes by inline editing
+    w2ui       : {
+        style        : '',     // additional CSS style for &lt;tr ...&gt; tag  or for &lt;td ...&gt; tag if it is an object
+        class        : '',     // additional CSS class for &lt;tr ...&gt; tag  or for &lt;td ...&gt; tag if it is an object
+        summary      : false,  // indicates if it is a summary record (summary records appear on the bottom)
+        editable     : true,   // indicate is record is editable (must have column.editable property set)
+        expanded     : 'none', // can be true | false | 'none' | 'spinner'
+        changes      : null,   // readonly, object with user changes by inline editing
+        colspan      : null,   // colspan object, e.g. { field: 5, ...}
+        hideCheckBox : false,  // hide checkbox for this record if grid.show.selectColumn is set
+        children     : [],     // array of record objects, can have sub children
+        parent_recid : null,   // (internally set, id of the parent record, when children are copied to records array)
+    }
 }
 </textarea>
 Where "field-1", ..., "field-N" have to correspond to the field property of the columns they need to be displayed in.

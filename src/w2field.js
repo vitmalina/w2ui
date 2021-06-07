@@ -77,7 +77,7 @@ class w2field extends w2event {
         if (typeof type == 'object' && options == null) {
             options = $.extend(true, {}, type)
         }
-        if (typeof type == 'string' && options == 'object') {
+        if (typeof type == 'string' && typeof options == 'object') {
             options.type = type
         }
         options.type = String(options.type).toLowerCase()
@@ -555,20 +555,22 @@ class w2field extends w2event {
                 // focus helper
                 let focus = obj.helpers.focus.find('input')
                 if ($(focus).val() === '') {
-                    $(focus).css('text-indent', '-9999em').prev().css('opacity', 0)
+                    $(focus).css({'text-indent': '-9999em', outline: 'none' })
+                        .prev().css('opacity', 0)
                     $(obj.el).val(selected && selected.text != null ? w2utils.lang(selected.text) : '')
                 } else {
                     $(focus).css('text-indent', 0).prev().css('opacity', 1)
                     $(obj.el).val('')
                     setTimeout(() => {
                         if (obj.helpers.prefix) obj.helpers.prefix.hide()
-                        let tmp = 'position: absolute; opacity: 0; margin: 4px 0px 0px 2px; background-position: left !important;'
                         if (options.icon) {
                             $(focus).css('margin-left', '17px')
-                            $(obj.helpers.focus).find('.icon-search').attr('style', tmp + 'width: 11px !important; opacity: 1; display: block')
+                            $(obj.helpers.focus).find('.w2ui-icon-search')
+                                .addClass('show-search')
                         } else {
                             $(focus).css('margin-left', '0px')
-                            $(obj.helpers.focus).find('.icon-search').attr('style', tmp + 'width: 0px !important; opacity: 0; display: none')
+                            $(obj.helpers.focus).find('.w2ui-icon-search')
+                                .removeClass('show-search')
                         }
                     }, 1)
                 }
@@ -901,6 +903,9 @@ class w2field extends w2event {
         // lists
         if (['list', 'combo', 'enum'].indexOf(this.type) !== -1) {
             if (!$(this.el).hasClass('has-focus')) this.focus(event)
+                if (this.type == 'combo') {
+                    this.updateOverlay()
+                }
         }
         // other fields with drops
         if (['date', 'time', 'color', 'datetime'].indexOf(this.type) !== -1) {
@@ -934,10 +939,6 @@ class w2field extends w2event {
             if (typeof obj.options._items_fun == 'function') {
                 obj.options.items = w2utils.normMenu.call(this, obj.options._items_fun)
             }
-        }
-        // file
-        if (obj.type === 'file') {
-            $(obj.helpers.multi).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '2px' })
         }
     }
 
@@ -1006,10 +1007,6 @@ class w2field extends w2event {
         // clear search input
         if (obj.type === 'enum') {
             $(obj.helpers.multi).find('input').val('').width(20)
-        }
-        // file
-        if (obj.type === 'file') {
-            $(obj.helpers.multi).css({ 'outline': 'none' })
         }
     }
 
@@ -1591,7 +1588,7 @@ class w2field extends w2event {
             obj.updateOverlay()
             setTimeout(() => {
                 let html = $('#w2ui-overlay').html() || ''
-                if (options.markSearch && html.indexOf('$.fn.w2menuHandler') !== -1) { // do not highlight when no items
+                if (options.markSearch && $('#w2ui-overlay .no-matches').length == 0) { // do not highlight when no items
                     $('#w2ui-overlay').w2marker(search)
                 }
             }, 1)
@@ -1953,7 +1950,7 @@ class w2field extends w2event {
                     msgNoItems = obj.tmp.lastError
                 }
                 if (msgNoItems) {
-                    msgNoItems = '<div style="white-space: normal; line-height: 1.3">' + msgNoItems + '</div>'
+                    msgNoItems = '<div class="no-matches" style="white-space: normal; line-height: 1.3">' + msgNoItems + '</div>'
                 }
 
                 params = $.extend(true, {}, options, {
@@ -2310,7 +2307,7 @@ class w2field extends w2event {
         // build helper
         let html =
             '<div class="w2ui-field-helper">'+
-            '    <div class="w2ui-icon icon-search" style="opacity: 0; display: none"></div>'+
+            '    <span class="w2ui-icon w2ui-icon-search"></span>'+
             '    <input '+ searchId +' type="text" tabIndex="'+ tabIndex +'" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"/>'+
             '</div>'
         $(obj.el).attr('tabindex', -1).before(html)
@@ -2327,7 +2324,6 @@ class w2field extends w2event {
             .css({
                 cursor   : 'default',
                 width    : '100%',
-                outline  : 'none',
                 opacity  : 1,
                 margin   : 0,
                 border   : '1px solid transparent',
@@ -2344,13 +2340,11 @@ class w2field extends w2event {
             })
             .on('focus', function(event) {
                 pholder = $(obj.el).attr('placeholder')
-                $(obj.el).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '2px' })
                 $(this).val('')
                 $(obj.el).triggerHandler('focus')
                 if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true
             })
             .on('blur', function(event) {
-                $(obj.el).css('outline', 'none')
                 $(this).val('')
                 obj.refresh()
                 $(obj.el).triggerHandler('blur')
@@ -2402,7 +2396,7 @@ class w2field extends w2event {
                     '    <div style="padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">'+
                     '    <ul>'+
                     '        <li style="padding-left: 0px; padding-right: 0px" class="nomouse">'+
-                    '            <input '+ searchId +' type="text" style="width: 20px; margin: -3px 0 0; padding: 2px 0; border-color: white" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"' +
+                    '            <input '+ searchId +' type="text" style="width: 20px; margin: -3px 0 0; padding: 2px 0; border-color: transparent" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"' +
                         ($(obj.el).prop('readonly') ? ' readonly="readonly"': '') + ($(obj.el).prop('disabled') ? ' disabled="disabled"': '') + ' tabindex="'+ tabIndex +'"/>'+
                     '        </li>'+
                     '    </ul>'+
@@ -2443,12 +2437,10 @@ class w2field extends w2event {
                     $(obj.el).triggerHandler('click')
                 })
                 .on('focus', function(event) {
-                    $(div).css({ 'outline': 'auto 5px #7DB4F3', 'outline-offset': '2px' })
                     $(obj.el).triggerHandler('focus')
                     if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true
                 })
                 .on('blur', function(event) {
-                    $(div).css('outline', 'none')
                     $(obj.el).triggerHandler('blur')
                     if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true
                 })
@@ -2459,7 +2451,6 @@ class w2field extends w2event {
             div.on('click', function(event) { $(this).find('input').focus() })
         }
         if (obj.type === 'file') {
-            $(obj.el).css('outline', 'none')
             div.find('input')
                 .off('.drag')
                 .on('click.drag', function(event) {

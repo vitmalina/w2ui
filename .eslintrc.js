@@ -29,7 +29,7 @@ module.exports = {
     'rules': {
         'indent': ['error', 4, {
             'SwitchCase': 1,
-            'ignoredNodes': ['ConditionalExpression'],
+            'ignoredNodes': ['ConditionalExpression', 'TemplateLiteral1 > *'],
             'FunctionDeclaration': {'parameters': 'first'}
         }],
         'linebreak-style': ['error', 'unix'],

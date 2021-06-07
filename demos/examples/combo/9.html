@@ -31,10 +31,10 @@ var config = {
         },
         limit: 50,
         columns: [
-            { field: 'recid', caption: 'ID', size: '100px' },
-            { field: 'fname', caption: 'First Name', size: '200px', searchable: 'text' },
-            { field: 'lname', caption: 'Last Name', size: '200px', searchable: 'text' },
-            { field: 'sdate', caption: 'Date Range', size: '100%' }
+            { field: 'recid', text: 'ID', size: '100px' },
+            { field: 'fname', text: 'First Name', size: '200px', searchable: 'text' },
+            { field: 'lname', text: 'Last Name', size: '200px', searchable: 'text' },
+            { field: 'sdate', text: 'Date Range', size: '100%' }
         ],
         onLoad: function(event) {
             let data = JSON.parse(event.xhr.responseText)

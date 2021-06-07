@@ -10,6 +10,9 @@
   },
   "main": "dist/w2ui.js",
   "style": "dist/w2ui.css",
+  "scripts": {
+    "test": "eslint src --ext js"
+  },
   "devDependencies": {
     "@babel/core": "^7.13.15",
     "del": "^6.0.0",
