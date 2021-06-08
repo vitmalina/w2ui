@@ -42,10 +42,10 @@ $(function () {
             { field: 'sdate', text: 'Start Date', size: '120px' }
         ],
         searches: [
-            { type: 'int',  field: 'recid', text: 'ID' },
-            { type: 'text', field: 'fname', text: 'First Name' },
-            { type: 'text', field: 'lname', text: 'Last Name' },
-            { type: 'date', field: 'sdate', text: 'Start Date' }
+            { type: 'int',  field: 'recid', label: 'ID' },
+            { type: 'text', field: 'fname', label: 'First Name' },
+            { type: 'text', field: 'lname', label: 'Last Name' },
+            { type: 'date', field: 'sdate', label: 'Start Date' }
         ],
         onExpand: function (event) {
             $('#'+event.box_id).html('<div style="padding: 10px; height: 100px">Expanded content</div>');
