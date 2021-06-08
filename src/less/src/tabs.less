@@ -22,7 +22,8 @@
         background-color: #e2e2e2;
     }
 
-    .w2ui-scroll-left, .w2ui-scroll-right {
+    .w2ui-scroll-left,
+    .w2ui-scroll-right {
         z-index: 30;
     }
 
@@ -48,7 +49,7 @@
             margin: 0px 1px;
             border-radius: 4px 4px 0 0;
             cursor: default;
-            .user-select;
+            user-select: none;
             &.active {
                 color: @tabs-tab-active-color;
                 background-color: @tabs-tab-active-background-color;
@@ -96,9 +97,10 @@
         }
 
         .w2ui-tabs-right {
-            padding: 5px;
+            padding: 8px 2px;
             width: 100%;
             text-align: right;
+            white-space: nowrap;
         }
     }
 
@@ -110,18 +112,13 @@
         }
         .w2ui-scroll-wrapper {
             .w2ui-tab {
-                // padding: 6px 20px;
                 border: @tabs-tab-border;
-                border-top: 1px solid @tabs-tab-active-background-color;
-                margin: -1px 1px 1px 0px;
+                border-top: @tabs-tab-active-border;
                 border-radius: 0 0 4px 4px;
                 &.active {
-                    color: @tabs-tab-active-color;
-                    background-color: @tabs-tab-active-background-color;
                     border: @tabs-tab-active-border;
-                    margin: 1px 1px 1px 0px;
-                    border-top: 2px solid @tabs-tab-active-background-color;
-                    margin-top: -2px;
+                    border-top: @tabs-tab-border-bottom;
+                    margin-top: 0px;
                 }
             }
         }

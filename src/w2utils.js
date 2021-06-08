@@ -14,6 +14,7 @@
 * == 2.0 changes
 *   - normMenu
 *   - w2utils.message - return a promise
+*   - bindEvents - common method to avoid inline events
 *
 ************************************************/
 import { w2event } from './w2event.js'
@@ -68,6 +69,7 @@ let w2utils = (($) => {
         decodeTags,
         escapeId,
         normMenu,
+        bindEvents,
         base64encode,
         base64decode,
         md5,
@@ -1717,6 +1719,50 @@ let w2utils = (($) => {
         } else if (typeof menu === 'object') {
             return Object.keys(menu).map(key => { return { id: key, text: menu[key] } })
         }
+    }
+
+    function bindEvents(selector, subject) {
+        $(selector).each((ind, el) => {
+            let actions = $(el).data()
+            Object.keys(actions).forEach(name => {
+                // format is
+                // <div ... data-<event>='["<method>","param1","param2",...]'>
+                // -- should be valid JSON
+                // -- can have "event", "stop", "stopPrevent" - as predefined objects
+                let params = $(el).data(name)
+                if (typeof params == 'string') params = [params]
+                let method = params[0]
+                params.shift()
+                $(el)
+                    .off(name + '.w2utils-bind')
+                    .on(name + '.w2utils-bind', function(event) {
+                        switch (method) {
+                            case 'stop':
+                                event.stopPropagation()
+                                break
+                            case 'prevent':
+                                event.preventDefault()
+                                break
+                            case 'stopPrevent':
+                                event.stopPropagation()
+                                event.preventDefault()
+                                return false
+                                break
+                            default:
+                                subject[method].apply(subject, params.map((key, ind) => {
+                                    switch (String(key).toLowerCase()) {
+                                        case 'event':
+                                            return event
+                                        case 'this':
+                                            return this
+                                        default:
+                                            return key
+                                    }
+                                }))
+                        }
+                    })
+            })
+        })
     }
 
 })(jQuery)
