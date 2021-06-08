@@ -9,11 +9,11 @@ $(function () {
     $('#grid').w2grid({
         name: 'grid',
         header: 'List of Names',
-        url: {
-            get: 'grid.json',
-            save: 's',
-            remove: 'd'
-        },
+        // url: {
+        //     get: 'grid.json',
+        //     save: 's',
+        //     remove: 'd'
+        // },
         recid: 'userid',
         // dataType: 'HTTP',
         // method: 'POST',
@@ -23,6 +23,7 @@ $(function () {
         // limit: 2000,
         // offset: 3690,
         autoLoad: true,
+        multiSearch: true,
         show: {
             toolbar: true,
             footer: true,
@@ -47,16 +48,21 @@ $(function () {
         //         { userid: 1, age: '20', fname: 'Vitali', lname: 'Malinouski' }
         //     ]
         // },
+        onSearchSave(event) {
+            console.log('save')
+        },
         columns: [
             { field: 'userid', text: 'ID', size: '80px', sortable: true, hidden: true },
             { field: 'person.fname', text: 'First Name', size: '120px', sortable: true, searchable: 'text', resizable: true,
                 editable: { type: 'text' }
             },
-            { field: 'person.lname', text: 'Last Name', size: '120px', sortable: true, resizable: true, editable: { type: 'color' } },
-            { field: 'email', text: 'Email', size: '160px', sortable: true, resizable: true, editable: { type: 'text' } },
+            { field: 'person.lname', text: 'Last Name', size: '120px', sortable: true, searchable: 'text', resizable: true, editable: { type: 'color' } },
+            { field: 'email', text: 'Email', size: '160px', sortable: true, searchable: 'text', resizable: true, editable: { type: 'text' } },
             { field: 'text', text: 'Text', size: '100%', sortable: true, resizable: true, editable: { type: 'text' } }
         ]
     });
+
+    w2ui.grid.load('grid.json')
 
     function getRecords(url, post) {
         $.ajax({
