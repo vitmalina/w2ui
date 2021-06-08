@@ -1214,7 +1214,7 @@ let w2utils = (($) => {
                 head.css('z-index', 1501)
                 // add message
                 $(where.box).find(where.body)
-                    .before('<div id="w2ui-message' + msgCount + '" onmousedown="event.stopPropagation();" '+
+                    .before('<div id="w2ui-message' + msgCount + '" data-mousedown="stop" '+
                             '   class="w2ui-message" style="display: none; z-index: 1500; ' +
                                 (head.length === 0 ? 'top: 0px;' : 'top: ' + w2utils.getSize(head, 'height') + 'px;') +
                                 (options.width != null ? 'width: ' + options.width + 'px; left: ' + ((pWidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
@@ -1222,10 +1222,11 @@ let w2utils = (($) => {
                                 w2utils.cssPrefix('transition', '.3s', true) + '"' +
                                 (options.hideOnClick === true
                                     ? where.param
-                                        ? 'onclick="'+ where.path +'.message(\''+ where.param +'\');"'
-                                        : 'onclick="'+ where.path +'.message();"'
+                                        ? `data-click='["message", "${where.param}"]`
+                                        : `data-click="message"`
                                     : '') + '>' +
                             '</div>')
+                bindEvents('#w2ui-message' + msgCount, this)
                 $(where.box).find('#w2ui-message'+ msgCount)
                     .data('options', options)
                     .data('prev_focus', $(':focus'))
@@ -1737,6 +1738,9 @@ let w2utils = (($) => {
                     .off(name + '.w2utils-bind')
                     .on(name + '.w2utils-bind', function(event) {
                         switch (method) {
+                            case 'alert':
+                                alert(params[0]) // for testing purposes
+                                break
                             case 'stop':
                                 event.stopPropagation()
                                 break

@@ -7,7 +7,6 @@
 *   - template(data, id)
 *   - open, load, message - return promise
 *   - options.actions = { text, class, onClick }
-*   - bindEvents
 *
 ************************************************************************/
 
@@ -190,7 +189,7 @@ class w2dialog extends w2event {
                 setTimeout(() => {
                     // event after
                     obj.trigger($.extend(edata, { phase: 'after' }))
-                    obj.bindEvents()
+                    w2utils.bindEvents('#w2ui-popup .w2ui-action', w2popup)
                     $('#w2ui-popup').find('.w2ui-popup-body').show()
                     resolve(edata)
                 }, 50)
@@ -284,7 +283,7 @@ class w2dialog extends w2event {
                 // call event onOpen
                 w2popup.status = 'open'
                 obj.trigger($.extend(edata, { phase: 'after' }))
-                obj.bindEvents()
+                w2utils.bindEvents('#w2ui-popup .w2ui-action', w2popup)
                 $('#w2ui-popup').find('.w2ui-popup-body').show()
                 resolve(edata)
             }
@@ -398,28 +397,6 @@ class w2dialog extends w2event {
             buttons: $html.find('[rel=buttons]').html(),
         })
         return w2popup.open(options)
-    }
-
-    bindEvents() {
-        $('#w2ui-popup .w2ui-action').each((ind, el) => {
-            let actions = $(el).data()
-            if (actions.mousedown == 'stop') {
-                $(el)
-                    .off('mousedown')
-                    .on('mousedown', (event) => { event.stopPropagation() })
-            }
-            if (actions.click) {
-                $(el)
-                    .off('click')
-                    .on('click', (event) => {
-                        let params = $(event.target).data('click')
-                        if (typeof params == 'string') params = [params]
-                        let method = params[0]
-                        params.shift()
-                        w2popup[method].apply(w2popup, params)
-                    })
-            }
-        })
     }
 
     action(action, msgId) {
@@ -653,7 +630,7 @@ class w2dialog extends w2event {
                     }
                     // event after
                     obj.trigger($.extend(edata, { phase: 'after' }))
-                    obj.bindEvents()
+                    w2utils.bindEvents('#w2ui-popup .w2ui-action', w2popup)
                     resolve(edata)
                 }, 150)
             } else {
@@ -710,7 +687,7 @@ class w2dialog extends w2event {
                         }
                         // event after
                         obj.trigger($.extend(edata, { phase: 'after' }))
-                        obj.bindEvents()
+                        w2utils.bindEvents('#w2ui-popup .w2ui-action', w2popup)
                         resolve(edata)
                     }, 350)
                 }
