@@ -306,23 +306,23 @@ class w2tabs extends w2event {
         if (tab.hidden) { addStyle += 'display: none;' }
         if (tab.disabled) { addStyle += 'opacity: 0.2;' }
         if (tab.closable && !tab.disabled) {
-            closable = `<div class="w2ui-tab-close${this.active === tab.id ? ' active' : ''}"
-                onmouseover= "w2ui['${this.name}'].tooltipShow('${tab.id}', event)"
-                onmouseout = "w2ui['${this.name}'].tooltipHide('${tab.id}', event)"
-                onmousedown= "event.stopPropagation()"
-                onmouseup  = "w2ui['${this.name}'].clickClose('${tab.id}', event); event.stopPropagation()">
+            closable = `<div class="w2ui-tab-close w2ui-action${this.active === tab.id ? ' active' : ''}"
+                data-mouseenter='["tooltipShow", "${tab.id}", "event"]'
+                data-mouseleave='["tooltipHide", "${tab.id}", "event"]'
+                data-mousedown="stop"
+                data-mouseup='["clickClose", "${tab.id}", "event"]'>
             </div>`
         }
-        let tabHTML = `
+        return `
             <div id="tabs_${this.name}_tab_${tab.id}" style="${addStyle} ${tab.style}"
-               class="w2ui-tab ${this.active === tab.id ? 'active' : ''} ${tab.closable ? 'closable' : ''} ${tab.class ? tab.class : ''}"
-               onmouseover = "w2ui['${this.name}'].tooltipShow('${tab.id}', event)"
-               onmouseout  = "w2ui['${this.name}'].tooltipHide('${tab.id}', event)"
-               onmousedown = "w2ui['${this.name}'].initReorder('${tab.id}', event)"
-               onclick     = "w2ui['${this.name}'].click('${tab.id}', event)">
+               class="w2ui-tab w2ui-action ${this.active === tab.id ? 'active' : ''} ${tab.closable ? 'closable' : ''} ${tab.class ? tab.class : ''}"
+               data-mouseenter ='["tooltipShow", "${tab.id}", "event"]'
+               data-mouseleave ='["tooltipHide", "${tab.id}", "event"]'
+               data-mousedown  ='["initReorder", "${tab.id}", "event"]'
+               data-click      ='["click", "${tab.id}", "event"]'
+               >
                     ${w2utils.lang(text) + closable}
             </div>`
-        return tabHTML
     }
 
     refresh(id) {
@@ -338,7 +338,8 @@ class w2tabs extends w2event {
             }
         } else {
             // create or refresh only one item
-            let $tab    = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(id))
+            let $id = '#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(id)
+            let $tab = $(this.box).find($id)
             let tabHTML = this.getTabHTML(id)
             if ($tab.length === 0) {
                 $(this.box).find('#tabs_'+ this.name +'_right').before(tabHTML)
@@ -347,6 +348,8 @@ class w2tabs extends w2event {
                     $tab.replaceWith(tabHTML)
                 }
             }
+            w2utils.bindEvents($id, this)
+            w2utils.bindEvents($($id).find('.w2ui-action'), this)
         }
         // right html
         $('#tabs_'+ this.name +'_right').html(this.right)
@@ -376,16 +379,19 @@ class w2tabs extends w2event {
         // render all buttons
         let html =`
             <div class="w2ui-tabs-line"></div>
-            <div class="w2ui-scroll-wrapper" onmousedown="var el=w2ui['${this.name}']; if (el) el.resize();">
+            <div class="w2ui-scroll-wrapper w2ui-action" data-mousedown="resize">
                 <div id="tabs_${this.name}_right" class="w2ui-tabs-right">${this.right}</div>
             </div>
-            <div class="w2ui-scroll-left" onclick="var el=w2ui['${this.name}']; if (el) el.scroll('left');"></div>
-            <div class="w2ui-scroll-right" onclick="var el=w2ui['${this.name}']; if (el) el.scroll('right');"></div>`
+            <div class="w2ui-scroll-left w2ui-action" data-click='["scroll","left"]'></div>
+            <div class="w2ui-scroll-right w2ui-action" data-click='["scroll","right"]'></div>`
         $(this.box)
             .attr('name', this.name)
             .addClass('w2ui-reset w2ui-tabs')
             .html(html)
-        if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style
+        if ($(this.box).length > 0) {
+            $(this.box)[0].style.cssText += this.style
+        }
+        w2utils.bindEvents($(this.box).find('.w2ui-action'), this)
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
         this.refresh()
@@ -492,20 +498,20 @@ class w2tabs extends w2event {
         let box = $(this.box)
         box.find('.w2ui-scroll-left, .w2ui-scroll-right').hide()
         let scrollBox  = box.find('.w2ui-scroll-wrapper')
-        let $right     = $(this.box).find('.w2ui-tabs-right')
+        let $right     = $(box).find('.w2ui-tabs-right')
         let boxWidth   = scrollBox.outerWidth()
         let itemsWidth = ($right.length > 0 ? $right[0].offsetLeft + $right[0].clientWidth : 0)
-        if (itemsWidth > boxWidth) {
-            // we have overflowed content
+        let padding    = parseInt(box.css('padding-right'))
+        if (boxWidth < itemsWidth - padding) {
+            // we have overflown content
             if (scrollBox.scrollLeft() > 0) {
                 box.find('.w2ui-scroll-left').show()
             }
-            let padding = parseInt(scrollBox.css('padding-right'))
-            if (boxWidth < itemsWidth - scrollBox.scrollLeft() - padding) {
+            let padding2 = parseInt(scrollBox.css('padding-right'))
+            if (boxWidth < itemsWidth - scrollBox.scrollLeft() - padding - padding2) {
                 box.find('.w2ui-scroll-right').show()
             }
         }
-
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
         return (new Date()).getTime() - time
@@ -568,6 +574,7 @@ class w2tabs extends w2event {
             this.trigger($.extend(edata, { phase: 'after' }))
             this.refresh()
         })
+        event.stopPropagation()
     }
 
     animateClose(id) {
