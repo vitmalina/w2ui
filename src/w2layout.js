@@ -198,9 +198,12 @@ class w2layout extends w2event {
                 width   : (options.length < 300 ? 350 : 550),
                 height  : (options.length < 300 ? 170: 250),
                 body    : '<div class="w2ui-centered">' + options + '</div>',
-                buttons : '<button class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message(\''+ panel +'\')">Ok</button>',
-                onOpen  (event) {
-                    setTimeout(() => { $(this.box).find('.w2ui-btn').focus() }, 25)
+                buttons : `<button class="w2ui-btn" data-click='["message", "${panel}"]'>Ok</button>`,
+                onOpen(event) {
+                    setTimeout(() => {
+                        w2utils.bindEvents($(obj.box).find('.w2ui-btn'), obj)
+                        $(obj.box).find('.w2ui-btn').focus()
+                    }, 25)
                 }
             }
         }
