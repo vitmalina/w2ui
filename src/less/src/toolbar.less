@@ -116,6 +116,14 @@
                 }
             }
 
+            &.checked {
+                border: @toolbar-button-checked-border;
+                background-color: @toolbar-button-checked-background-color;
+                & .w2ui-tb-text {
+                    color: @toolbar-button-checked-color;
+                }
+            }
+
             &.down {
                 border: @toolbar-button-down-border;
                 background-color: @toolbar-button-down-background-color;
@@ -124,13 +132,6 @@
                 }
             }
 
-            &.checked {
-                border: @toolbar-button-checked-border;
-                background-color: @toolbar-button-checked-background-color;
-                & .w2ui-tb-text {
-                    color: @toolbar-button-checked-color;
-                }
-            }
             &.no-icon .w2ui-tb-text {
                 margin-left: 0px;
             }

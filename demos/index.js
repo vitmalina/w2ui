@@ -30,7 +30,7 @@ $(function () {
                 { id: 'form', type: 'radio', text: 'Forms', icon: 'fa fa-pencil-square-o', route: 'form/1' },
                 { id: 'fields', type: 'radio', text: 'Fields', icon: 'fa fa-pencil-square-o', route: 'fields/1' },
                 { id: 'popup', type: 'radio', text: 'Popup', icon: 'fa fa-list-alt', route: 'popup/1' },
-                { id: 'utils', type: 'radio', text: 'Utilities', icon: 'fa fa-star-o', route: 'utils/1' }
+                { id: 'utils', type: 'radio', text: 'Utils', icon: 'fa fa-star-o', route: 'utils/1' }
             ]
         },
 
@@ -257,7 +257,7 @@ $(function () {
                 //         { id: 'popup/11', text: 'Promises', icon: 'fa fa-list-alt' }
                 //     ]
                 // },
-                { id: 'utils', text: 'Utilities Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                { id: 'utils', text: 'Utils Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'utils/1', text: 'Validation', icon: 'fa fa-star-o' },
                         { id: 'utils/2', text: 'Encoding', icon: 'fa fa-star-o' },
