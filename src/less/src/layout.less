@@ -31,8 +31,9 @@
                 right: 0px;
                 padding: 5px;
                 .linear-gradient-vertical(@layout-title-linear-gradient-start, @layout-title-linear-gradient-end);
+                color: #656164cc;
                 border: @layout-title-border;
-                border-bottom: @layout-title-border-bottom;
+                border-bottom: @layout-title-border-bottom !important;
             }
 
             .w2ui-panel-tabs {
@@ -43,8 +44,8 @@
                 z-index: 2;
                 display: none;
                 overflow: hidden;
-                background-color: @layout-toolbar-background-color;
-                padding: 4px 0px;
+                background-color: #fff;
+                padding: 0px;
 
                 > .w2ui-tab.active {
                     background-color : @layout-background-color;
@@ -60,8 +61,8 @@
                 display: none;
                 overflow: hidden;
                 background-color: @layout-toolbar-background-color;
-                border-bottom: 1px solid silver;
-                padding: 4px;
+                border-bottom: 1px solid #efefef;
+                padding: 2px;
             }
 
             .w2ui-panel-content {

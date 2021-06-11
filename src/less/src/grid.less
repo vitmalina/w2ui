@@ -20,16 +20,15 @@
         top: 0;
         left: 0;
         right: 0;
-        border-bottom: @grid-header-border-bottom !important;
-        height: 28px;
+        height: 36px;
+        padding: 10px;
         overflow: hidden;
+        font-size: 16px;
         color: @grid-header-color;
-        font-size: 13px;
-        text-align: center;
-        padding: 7px;
         .linear-gradient-vertical(@grid-header-linear-gradient-start, @grid-header-linear-gradient-end);
         border-top-left-radius: 2px;
         border-top-right-radius: 2px;
+        border-bottom: @grid-header-border-bottom !important;
     }
 
     // ===== Grid Toolbar =====
@@ -38,37 +37,118 @@
         position: absolute;
         border-bottom: @grid-toolbar-border;
         background-color: @grid-toolbar-background-color;
-        height: 38px;
-        padding: 6px 1px 4px 1px;
+        height: 52px;
+        padding: 9px 5px;
         margin: 0px;
         box-shadow: @grid-toolbar-shadow;
+
+        .w2ui-grid-searches {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            border-top: 1px solid #ececec;
+            background-color: #fcfdff;
+            margin: 7px -20px 0px -20px;
+            padding: 6px 40px 6px 20px;
+            > div {
+                white-space: nowrap;
+            }
+            > span {
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                border: 1px solid #88c3f7;
+                border-radius: 15px;
+                padding: 5px 12px;
+                margin: 0px 4px;
+                color: #4ab0fd;
+                font-size: 12px;
+                font-weight: bold;
+                background-color: #F5F9FE;
+
+                > span {
+                    font-size: 9px;
+                    position: relative;
+                    top: -1px;
+                    left: 2px;
+                }
+            }
+
+            .grid-search-line {
+                border-left: 1px solid #ececec;
+                width: 11px;
+                height: 22px;
+                margin-left: 7px;
+                margin-top: 1px;
+            }
+
+            .grid-search-name {
+                padding: 6px
+            }
+
+            button.grid-search-btn {
+                margin: 0px 3px;
+                padding: 0px;
+                height: 24px;
+                font-size: 11px;
+            }
+
+            .grid-search-count {
+                background-color: #4cb1fd;
+                border-radius: 10px;
+                color: white;
+                padding: 0px 6px 1px 6px;
+                font-size: 11px !important;
+                position: relative !important;
+                top: 0px !important;
+            }
+
+            .grid-search-list {
+                li {
+                    padding: 5px;
+                }
+                input {
+                    position: relative;
+                    top: 2px;
+                    left: -3px;
+                }
+            }
+
+        }
     }
 
     // ===== Grid Search =====
 
     .w2ui-toolbar-search {
         position: relative;
-        width: 160px;
+        width: 293px;
         margin-right: 3px;
 
         .w2ui-search-all {
             outline: none !important;
-            width: 160px !important;
-            border-radius: 3px !important;
+            border-radius: 4px !important;
             line-height: normal !important;
-            height: 23px !important;
+            height: 30px !important;
+            width: 290px !important;
             border: @grid-search-all-border !important;
             color: @grid-search-all-color !important;
-            background-color: @grid-search-all-background-color !important;
-            padding: 3px 18px 3px 21px !important;
+            background-color: @grid-search-all-background-color;
+            padding: 1px 25px 0px 25px !important;
             margin: 0px !important;
             margin-top: 1px !important;
+            font-size: 13px !important;
+            &:focus {
+                border: 1px solid #007cff !important;
+                background-color: white !important;
+            }
         }
 
         .w2ui-search-down {
             position: absolute;
-            margin-top: -7px;
-            margin-left: 4px;
+            margin-top: -6px;
+            margin-left: 6px;
+            color: #8c99a7;
+            font-size: 13px;
         }
 
         .w2ui-search-clear {
@@ -92,6 +172,26 @@
                 text-shadow: inherit;
                 content: 'x';
                 cursor: default;
+            }
+        }
+
+        .w2ui-search-drop {
+            position: relative;
+            left: -31px;
+            top: 0px;
+            height: 26px;
+            width: 26px;
+            font-size: 16px;
+            color: rgb(164, 173, 177);
+            cursor: pointer;
+            padding: 7px 2px 7px 2px;
+            border-radius: 4px;
+            background-color: transparent;
+
+            &:hover,
+            &.checked {
+                color: #fff;
+                background-color: #56a1e2;
             }
         }
     }
@@ -162,6 +262,7 @@
                     &.w2ui-odd {
                         color: @grid-row-color;
                         background-color: @grid-row-odd-background-color;
+                        border-bottom: 1px solid #f5f5f5;
                         &:hover, &.w2ui-record-hover {
                             color: @grid-row-hover-color;
                             background-color: @grid-row-hover-background-color;
@@ -173,6 +274,7 @@
                     &.w2ui-even {
                         color: @grid-row-color;
                         background-color: @grid-row-even-background-color;
+                        border-bottom: 1px dotted #f5f5f5;
                         &:hover, &.w2ui-record-hover {
                             color: @grid-row-hover-color;
                             background-color: @grid-row-hover-background-color;
@@ -184,6 +286,7 @@
                     &.w2ui-selected, td.w2ui-selected {
                         color: @grid-row-selected-color !important;
                         background-color: @grid-row-selected-background-color !important;
+                        border-bottom: 0px solid transparent;
                     }
                     &.w2ui-inactive, td.w2ui-inactive {
                         background-color: @grid-row-inactive-background-color !important;
@@ -245,6 +348,12 @@
             width: 1px; // otherwise auto and does not work
 
             .w2ui-head {
+                // border-right: 1px solid #dcdcdc;
+                // border-bottom: 1px solid #dadada;
+                // color: #656164;
+                // background-image: linear-gradient(#ffffff, #f9f9f9);
+                // box-shadow: none;
+
                 margin: 0px;
                 padding: 0px;
                 border-right: @grid-headers-border;
@@ -253,7 +362,7 @@
                 .linear-gradient-vertical(@grid-headers-linear-gradient-start, @grid-headers-linear-gradient-end);
 
                 > div {
-                    padding: 7px 3px;
+                    padding: 7px 6px;
                     white-space: nowrap;
                     text-overflow: ellipsis;
                     overflow: hidden;
@@ -324,13 +433,14 @@
 
                     .w2ui-info {
                         position: relative;
-                        top: 1px;
-                        font-size: 14px;
+                        top: -1px;
+                        left: -1px;
+                        font-size: 13px;
                         color: #8D99A7;
                         cursor: pointer;
                         width: 18px;
                         display: inline-block;
-                        margin-right: 2px;
+                        margin-right: 3px;
                         text-align: center;
                     }
 
@@ -350,7 +460,7 @@
                     }
 
                     & > div {
-                        padding: 3px 3px 3px 3px;
+                        padding: 3px 5px;
                         overflow: hidden;
                         white-space: nowrap;
                         text-overflow: ellipsis;
@@ -373,11 +483,15 @@
                 }
                 &:last-child {
                     border-right: 0px;
+                    div {
+                        text-overflow: clip;
+                    }
                 }
             }
 
             .w2ui-col-number {
                 width: 34px;
+                height: 26px;
                 color: @grid-row-number-color;
                 background-color: @grid-row-number-background-color;
                 div {
@@ -430,7 +544,7 @@
             }
 
             .w2ui-row-selected {
-                background-color: #d1d1d1 !important;
+                background-color: #e2e2e2 !important;
             }
         }
 
@@ -440,6 +554,7 @@
             overflow: hidden;
             padding-right: 10px !important;
         }
+
         div.w2ui-col-header > div.w2ui-sort-up {
             border: 4px solid transparent;
             border-bottom: 5px solid #8D99A7;
@@ -545,6 +660,7 @@
         margin: 0px;
         padding: 0px;
         text-align: center;
+        font-size: 11px;
         height: 24px;
         overflow: hidden;
         .user-select(text);
@@ -723,8 +839,8 @@
 
 .w2ui-info-bubble {
     table {
-        font-size: 11px;
         font-family: @main-font-family;
+        font-size: 12px;
         color: white;
         text-shadow: 1px 1px solid #999;
 
@@ -745,11 +861,44 @@
 
 // === Global Search slide down
 
+.w2ui-overlay .w2ui-saved-searches {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    padding: 10px;
+    background-color: white;
+    border-bottom: 1px solid #e6e6e6;
+    color: #444444;
+}
+
+.w2ui-overlay .w2ui-grid-single-search {
+    .operator {
+        display: inline-block;
+        color: black;
+        background-color: #e6e6e6;
+        border-radius: 4px;
+        margin: 8px 0 0 8px;
+        padding: 6px 10px;
+    }
+    .options {
+        padding: 10px 10px 10px 15px;
+        ul {
+            li {
+                list-style-type: disc;
+                margin-left: 25px;
+                padding: 5px 5px 5px 0;
+            }
+        }
+    }
+    .buttons {
+        text-align: left;
+        padding: 6px 10px 10px 10px;
+    }
+}
+
 .w2ui-overlay .w2ui-select-field {
     padding: 4px 0px;
     cursor: default;
     table {
-        font-size: 11px;
         font-family: @main-font-family;
         border-spacing: 0px;
         border-collapse: border-collapse;
@@ -803,6 +952,12 @@
     padding: 0px;
     border-top: 0px;
     background-color: @grid-searches-background-color;
+    .search-title {
+        padding: 20px 0px 9px 20px;
+        font-size: 17px;
+        font-weight: bold;
+        color: #555;
+    }
     table {
         padding: 4px;
         padding-top: 12px;
@@ -853,16 +1008,14 @@
                     height: 23px;
                 }
             }
-            &.actions {
-                border-right: 0px;
-                > div {
-                    margin: -7px;
-                    margin-top: 15px;
-                    padding: 13px 0px;
-                    text-align: center;
-                    background-color: @grid-searches-buttons-background-color;
-                    border-top: @grid-searches-inner-border;
-                }
+            &.actions:nth-child(1) {
+                padding: 25px 10px 10px 10px;
+                text-align: left;
+            }
+            &.actions:nth-child(2) {
+                padding: 25px 10px 10px 10px;
+                text-align: right;
+                background-color: @grid-searches-buttons-background-color;
             }
         }
     }

@@ -3,77 +3,109 @@
 */
 
 .w2ui-toolbar {
-    margin: 0px;
-    padding: 2px;
-    outline: 0px;
-    position: relative;
     background-color: @toolbar-background-color;
-    overflow: hidden !important;
-    .user-select;
+    user-select: none;
+
+    .w2ui-tb-line {
+        overflow: hidden !important;
+        position: relative;
+        min-height: 28px;
+        padding: 2px;
+        margin: 0px;
+    }
 
     .disabled {
         .opacity(0.3)
     }
 
-    table {
-        table-layout: auto !important;
-        td {
-            border: 0px !important;
-        }
-        &.w2ui-button {
-            margin: 0 1px 0 0;
-            border-radius: @toolbar-button-border-radius;
-            height: 24px;
-            min-width: 24px;
-            border: @toolbar-button-border;
-            background-color: @toolbar-button-background-color;
+    .w2ui-scroll-left,
+    .w2ui-scroll-right {
+        z-index: 30;
+    }
 
-            .w2ui-tb-image {
+    .w2ui-tb-line:nth-child(2),
+    .w2ui-tb-line:nth-child(3),
+    .w2ui-tb-line:nth-child(4) {
+        border-top: 1px solid #e7e7e7;
+        margin: 0;
+    }
+
+    .w2ui-scroll-wrapper {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        align-content: flex-start;
+        padding: 0;
+
+        .w2ui-tb-button {
+            position: relative;
+            z-index: 20;
+            height: 30px;
+            min-width: 30px;
+            padding: 2px;
+            border: @toolbar-button-border;
+            border-radius: @toolbar-button-border-radius;
+            background-color: @toolbar-button-background-color;
+            white-space: nowrap;
+            margin: 0px 1px;
+            cursor: default;
+            user-select: none;
+            flex-shrink: 0;
+            // border: 1px solid silver;
+
+            .w2ui-tb-icon {
+                display: inline-block;
+                float: left;
                 width: 22px;
-                height: 16px;
-                padding: 0;
-                margin: 5px 1px 3px 1px!important;
-                border: 0!important;
+                margin: 5px 0px 0px 1px!important;
                 text-align: center;
-                // for font icon
-                & > span {
+                > span {
                     font-size: 15px;
-                    display: block;
                     color: @toolbar-button-image-color;
-                    &:before {
-                        vertical-align: top !important;
+                }
+            }
+            .w2ui-tb-text {
+                margin-left: 20px;
+                color: @toolbar-button-color;
+                padding: 6px 5px 0px 5px;
+
+                .w2ui-tb-color-box {
+                    display: inline-block;
+                    height: 13px;
+                    width: 13px;
+                    margin: 0px -1px -2px 0px;
+                    border-radius: 1px;
+                    border: 1px solid #fff;
+                    box-shadow: 0px 0px 1px #fff;
+                }
+
+                .w2ui-tb-count {
+                    padding: 0px 3px 0px 7px !important;
+                    > span {
+                        border: @menu-node-count-border;
+                        border-radius: 11px;
+                        width: auto;
+                        height: 18px;
+                        padding: 0px 6px 1px 6px;
+                        background-color: @menu-node-count-background-color;
+                        color: @menu-node-count-color;
+                        box-shadow: @menu-node-count-shadow;
+                        text-shadow: @menu-node-count-text-shadow;
                     }
                 }
-            }
 
-            .w2ui-tb-text {
-                color: @toolbar-button-color;
-                padding: 0px 4px 0px 2px;
-            }
-
-            .w2ui-tb-count {
-                padding: 0px 3px 0px 1px;
-                & > span {
-                    border: @menu-node-count-border;
-                    border-radius: 11px;
-                    width: auto;
-                    height: 18px;
-                    padding: 0px 6px 1px 6px;
-                    background-color: @menu-node-count-background-color;
-                    color: @menu-node-count-color;
-                    box-shadow: @menu-node-count-shadow;
-                    text-shadow: @menu-node-count-text-shadow;
+                .w2ui-tb-down {
+                    display: inline-block;
+                    width: 8px;
+                    > span {
+                        position: relative;
+                        top: 12px;
+                        left: 2px;
+                        border: 4px solid transparent;
+                        border-top: 5px solid #8D99A7;
+                    }
                 }
-            }
-
-            .w2ui-tb-down {
-                padding: 1px 3px 1px 1px;
-            }
-
-            .w2ui-tb-down > div {
-                border: 4px solid transparent;
-                border-top: 5px solid #8D99A7;
-                margin-top: 5px;
             }
 
             &.over {
@@ -99,26 +131,31 @@
                     color: @toolbar-button-checked-color;
                 }
             }
+            &.no-icon .w2ui-tb-text {
+                margin-left: 0px;
+            }
         }
 
-        &.w2ui-button table {
-            height: 17px;
-            border-radius: @toolbar-button-border-radius;
-            cursor: default;
+        .w2ui-tb-right {
+            width: 100%;
+            text-align: right;
+            white-space: nowrap;
         }
-    }
 
-    .w2ui-toolbar-new-line {
-        border-top: 1px solid #dedede;
-        border-bottom: 1px solid white;
-        margin: 5px 0 5px 0;
-    }
+        .w2ui-tb-break {
+            .linear-gradient-dark-center(@toolbar-break-color);
+            width: 1px !important;
+            height: 24px;
+            padding: 0px;
+            margin: 3px 6px;
+       }
 
-    .w2ui-break {
-        .linear-gradient-dark-center(@toolbar-break-color);
-        width: 1px !important;
-        height: 22px;
-        padding: 0px;
-        margin: 0px 6px;
-   }
+        .w2ui-tb-html {
+            white-space: nowrap;
+        }
+
+       .w2ui-tb-spacer {
+            width: 100%;
+       }
+    }
 }

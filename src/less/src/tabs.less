@@ -7,7 +7,25 @@
     overflow: hidden !important;
     position: relative;
     background-color: @tabs-background-color;
-    padding: 3px 0px;
+    min-height: 28px;
+    padding: 0px;
+    margin: 0px;
+
+    .w2ui-tabs-line {
+        position: absolute;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        z-index: 1;
+        border: 0;
+        height: 1px;
+        background-color: #e2e2e2;
+    }
+
+    .w2ui-scroll-left,
+    .w2ui-scroll-right {
+        z-index: 30;
+    }
 
     .w2ui-scroll-wrapper {
         display: flex;
@@ -18,42 +36,33 @@
         padding: 0 7px;
         // position: relative;
         // height: 32px;
-
-        .w2ui-tabs-line {
-            border-bottom: 1px solid silver;
-            position: absolute;
-            left: 0px;
-            right: 0px;
-            top: 3px;
-            bottom: 3px;
-        }
-
         .w2ui-tab {
+            height: 28px;
             position: relative;
-            padding: 6px 20px;
+            z-index: 20;
+            padding: 7px 20px 4px 20px;
             text-align: center;
             color: @tabs-tab-color;
             background-color: @tabs-tab-background-color;
             border: @tabs-tab-border;
-            border-bottom: 1px solid @tabs-tab-background-color;
             white-space: nowrap;
-            margin: 1px 1px -1px 0px;
+            margin: 0px 1px;
             border-radius: 4px 4px 0 0;
             cursor: default;
-            .user-select;
+            user-select: none;
             &.active {
                 color: @tabs-tab-active-color;
                 background-color: @tabs-tab-active-background-color;
                 border: @tabs-tab-active-border;
-                border-bottom: 3px solid @tabs-tab-active-border;
-                margin-bottom: -3px;
+                border-bottom: @tabs-tab-border-bottom;
+                margin-bottom: 0px;
             }
             &.moving {
-                color: @tabs-tab-active-color;
-                background-color: #ddd;
+                color: inherit;
+                background-color: #eee;
                 border: @tabs-tab-active-border;
-                border-bottom: 3px solid @tabs-tab-active-border;
-                margin-bottom: -3px;
+                border-radius: 0px;
+                margin-bottom: 0px;
             }
             &.closable {
                 padding: 6px 28px 6px 20px
@@ -61,9 +70,8 @@
             .w2ui-tab-close {
                 position: absolute;
                 right: 3px;
-                top: 3px;
+                top: 4px;
                 color: #555;
-                text-shadow: 1px 1px 1px #bbb;
                 float: right;
                 padding: 0px 4px;
                 width: 16px;
@@ -73,10 +81,8 @@
                 border-top: 3px solid transparent;
                 border-radius: 9px;
                 &:hover {
-                    background-color: #D77F7F;
-                    color: white;
+                    color: red;
                     opacity: 1;
-                    text-shadow: 0px 0px 1px #777;
                     font-weight: bold;
                 }
                 &:before {
@@ -91,32 +97,28 @@
         }
 
         .w2ui-tabs-right {
-            padding: 5px;
+            padding: 8px 2px;
             width: 100%;
             text-align: right;
+            white-space: nowrap;
         }
     }
 
     // upwards tabs
     &.w2ui-tabs-up {
+        .w2ui-tabs-line {
+            top: 0px;
+            bottom: auto;
+        }
         .w2ui-scroll-wrapper {
-            .w2ui-tabs-line {
-                border-bottom: 1px solid transparent;
-                border-top: 1px solid silver;
-            }
             .w2ui-tab {
-                // padding: 6px 20px;
                 border: @tabs-tab-border;
-                border-top: 1px solid @tabs-tab-active-background-color;
-                margin: -1px 1px 1px 0px;
+                border-top: @tabs-tab-active-border;
                 border-radius: 0 0 4px 4px;
                 &.active {
-                    color: @tabs-tab-active-color;
-                    background-color: @tabs-tab-active-background-color;
                     border: @tabs-tab-active-border;
-                    margin: 1px 1px 1px 0px;
-                    border-top: 2px solid @tabs-tab-active-background-color;
-                    margin-top: -2px;
+                    border-top: @tabs-tab-border-bottom;
+                    margin-top: 0px;
                 }
             }
         }

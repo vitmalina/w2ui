@@ -7,7 +7,7 @@
 .w2ui-reset {
     .box-sizing;
     font-family: @main-font-family;
-    font-size: 11px;
+    font-size: 12px;
      * {
         color: default;
         line-height: 100%;
@@ -25,7 +25,7 @@
     }
     table tr th, table tr td {
         font-family: @main-font-family;
-        font-size: 11px;
+        font-size: 12px;
     }
     input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]),
     select, textarea {
@@ -33,14 +33,19 @@
         width: auto;
         height: auto;
         vertical-align: baseline;
-        padding: 4px;
+        padding: 6px;
         margin: 0;
-        font-size: 11px;
+        font-size: 12px;
+        background-color: @input-background-color;
+        border: @input-border;
+        &:focus {
+            background-color: white;
+        }
     }
     select {
-        padding: 1px;
-        height: 23px;
-        font-size: 11px;
+        padding: 5px;
+        height: 26px;
+        font-size: 12px;
     }
 }
 
@@ -56,7 +61,8 @@
     text-align: center;
 }
 
-.w2ui-disabled, .w2ui-readonly {
+.w2ui-disabled,
+.w2ui-readonly {
     background-color: #f1f1f1 !important;
     color: #777 !important;
     outline: none!important;
@@ -82,7 +88,7 @@
         right: 0px;
         overflow: auto;
         line-height: 1.5;
-        font-size: 14px;
+        font-size: 15px;
         & .w2ui-centered {
             line-height: 1.5
         }
@@ -94,7 +100,8 @@
         bottom: 0px;
         left: 0px;
         right: 0px;
-        border-top: 1px solid #e5e5e5;
+        border-top: 1px solid #efefef;
+        background-color: white;
         text-align: center;
         padding: 8px;
     }
@@ -122,9 +129,9 @@ div.w2ui-input:focus {
     outline-color: @input-focus-outline-color;
 }
 
-input:not([type=button]):not([type=submit]).w2ui-input,
+input:not([type=button]):not([type=submit]),
 textarea.w2ui-input {
-    padding: 4px;
+    padding: 6px;
     border: @input-border;
     border-radius: 3px;
     color: @input-color;
@@ -132,6 +139,7 @@ textarea.w2ui-input {
     line-height: normal;
     &:focus {
         outline-color: @input-focus-outline-color;
+        background-color: white;
     }
     &:disabled, &[readonly] {
         background-color: #f1f1f1;
@@ -153,13 +161,13 @@ input.w2ui-input:-ms-input-placeholder {
 
 select.w2ui-input {
     color: @input-color;
-    padding: 0px 15px 0px 7px;
+    padding: 0px 20px 0px 7px;
     line-height: 1.8;
     border-radius: 3px;
     border: @input-border;
     -webkit-appearance: none;
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAALCAQAAACnzwd+AAAAcklEQVR4AcXMsQFBQQDG4P9tAgC0gJYRQJZgKQMwCqCku6vVAAAA+NJHP4KHOk0aV2pRw61n4BBmyOxKQ8I4ehZeuhd3HTx6DQEGZ7sBfr2OOOOj3Yi43kMKs9sZknofOexqZ8npMygwWZTX51CipP+YA1OiZJbYYg9lAAAAAElFTkSuQmCC'),
-                      linear-gradient(to bottom,#FFF 20%,#f6f6f6 50%,#EEE 52%,#f4f4f4 100%);
+                      linear-gradient(to bottom, #f8f8f8 20%, #f8f8f8 50%, #f8f8f8 52%, #f8f8f8 100%);
     background-size: 17px 6px, 100% 100%;
     background-position: right center, left top;
     background-repeat: no-repeat, no-repeat;
@@ -308,11 +316,11 @@ input[type="checkbox"].w2ui-toggle {
     background-color: @overlay-background-color;
     border-color: @overlay-background-color;
     box-shadow: @overlay-shadow;
-    border-radius: 4px;
+    border-radius: 6px;
     text-align: left;
 
     & > div {
-        border-radius: 4px;
+        border-radius: 6px;
         position: relative;
         border: @overlay-border-width solid @overlay-border-color;
     }
@@ -332,17 +340,17 @@ input[type="checkbox"].w2ui-toggle {
         position: absolute;
         border-color: inherit;
         bottom: 100%;
-        left:@overlay-border-width + 1;
+        left: @overlay-border-width + 1;
     }
 
     &.top-arrow {
 
         &:before {
-            border-bottom: 12px solid darken(@overlay-border-color, 3%);
+            border-bottom: 10px solid darken(@overlay-border-color, 3%);
             border-right: 12px solid transparent;
             border-left: 12px solid transparent;
             bottom: 100%;
-            margin-bottom: -@overlay-border-width;
+            margin-bottom: -@overlay-border-width + 1;
         }
 
         &:after {
@@ -358,7 +366,7 @@ input[type="checkbox"].w2ui-toggle {
     &.bottom-arrow {
 
         &:before {
-            border-top: 12px solid darken(@overlay-border-color, 3%);
+            border-top: 10px solid darken(@overlay-border-color, 3%);
             border-right: 12px solid transparent;
             border-left: 12px solid transparent;
             top: 100%;
@@ -406,8 +414,8 @@ input[type="checkbox"].w2ui-toggle {
         margin-top: 0px;
         background-color: @bubble-tag-background-color;
         color: @bubble-tag-color !important;
-        font-size: 11px;
-        font-family: verdana;
+        font-size: 12px;
+        font-family: @main-font-family;
         text-shadow: 1px 1px 3px #000; // for sharper text in a bubble
         line-height: 1.4;
         letter-spacing: 0.1px;
@@ -495,9 +503,10 @@ input[type="checkbox"].w2ui-toggle {
     position: absolute;
     top: 0px;
     bottom: 0px;
+    border-radius: 5px;
     table {
-        font-family: verdana;
-        font-size: 11px;
+        font-family: @main-font-family;
+        font-size: 12px;
         width: 100%;
         color: @drop-menu-color;
         background-color: @drop-menu-background-color;
@@ -527,8 +536,8 @@ input[type="checkbox"].w2ui-toggle {
             background-color: @dropdown-item-even-background-color;
             &.w2ui-disabled, &.w2ui-disabled .w2ui-icon {
                 opacity: 1;
+                color: #c5c5c5 !important;
                 background-color: @dropdown-item-even-background-color !important;
-                color: silver !important;
             }
         }
 
@@ -537,8 +546,8 @@ input[type="checkbox"].w2ui-toggle {
             background-color: @dropdown-item-odd-background-color;
             &.w2ui-disabled, &.w2ui-disabled .w2ui-icon {
                 opacity: 1;
+                color: #c5c5c5 !important;
                 background-color: @dropdown-item-odd-background-color !important;
-                color: silver !important;
             }
         }
 
@@ -723,12 +732,6 @@ input[type="checkbox"].w2ui-toggle {
     overflow: hidden;
     margin: 2px 2px;
     display: inline-block;
-
-    &.icon-search, &.icon-search-down {
-        .background-image(@image-search, no-repeat, center, ~"!important");
-        background-size: 14px 12px !important;
-        opacity: 0.9;
-    }
 
     &.icon-folder {
         .background-image(@image-folder, no-repeat, center, ~"!important");
