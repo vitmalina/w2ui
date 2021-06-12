@@ -1285,7 +1285,7 @@ let w2utils = (($) => {
                 if ($focus && $focus.length > 0) {
                     $focus.focus()
                 } else {
-                    if (obj && obj.focus) obj.focus()
+                    if (obj && typeof obj.focus == 'function') obj.focus()
                 }
                 head.css('z-index', head.data('old-z-index'))
                 // event after
@@ -1723,15 +1723,21 @@ let w2utils = (($) => {
     }
 
     function bindEvents(selector, subject) {
+        // format is
+        // <div ... data-<event>='["<method>","param1","param2",...]'> -- should be valid JSON
+        // <div ... data-<event>="<method>|param1|param2">
+        // -- can have "event", "this", "stop", "stopPrevent", "alert" - as predefined objects
         $(selector).each((ind, el) => {
             let actions = $(el).data()
             Object.keys(actions).forEach(name => {
-                // format is
-                // <div ... data-<event>='["<method>","param1","param2",...]'>
-                // -- should be valid JSON
-                // -- can have "event", "stop", "stopPrevent" - as predefined objects
+                if (['click', 'dblclick', 'mouseenter', 'mouseleave', 'mouseover', 'mouseout', 'mousedown', 'mousemove', 'mouseup',
+                     'input', 'change', 'keydown', 'keyup', 'keypress'].indexOf(String(name).toLowerCase()) == -1) {
+                    return
+                }
                 let params = $(el).data(name)
-                if (typeof params == 'string') params = [params]
+                if (typeof params == 'string') {
+                    params = params.split('|')
+                }
                 let method = params[0]
                 params.shift()
                 $(el)

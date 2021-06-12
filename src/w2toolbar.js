@@ -515,7 +515,6 @@ class w2toolbar extends w2event {
         let html = this.getItemHTML(it)
         // hide tooltip
         this.tooltipHide(id, {})
-        console.log(it.id, it.line)
 
         // if there is a spacer, then right HTML is not 100%
         if (it.type == 'spacer') {

@@ -51,13 +51,20 @@ $(function () {
         onSearchSave(event) {
             console.log('save')
         },
+        onSearch(event) {
+            console.log('search', event.searchData)
+        },
+        searches: [
+            { field: 'userid', label: 'User Id', type: 'int' },
+            { field: 'person.fname', label: 'First Name', type: 'text' },
+            { field: 'person.lname', label: 'Last Name', type: 'text' },
+            { field: 'email', label: 'Email', type: 'color' }
+        ],
         columns: [
-            { field: 'userid', text: 'ID', size: '80px', sortable: true, hidden: true },
-            { field: 'person.fname', text: 'First Name', size: '120px', sortable: true, searchable: 'text', resizable: true,
-                editable: { type: 'text' }
-            },
-            { field: 'person.lname', text: 'Last Name', size: '120px', sortable: true, searchable: 'text', resizable: true, editable: { type: 'color' } },
-            { field: 'email', text: 'Email', size: '160px', sortable: true, searchable: 'text', resizable: true, editable: { type: 'text' } },
+            { field: 'userid', text: 'ID', size: '80px', sortable: true, hidden: false },
+            { field: 'person.fname', text: 'First Name', size: '120px', sortable: true, resizable: true, editable: { type: 'text' } },
+            { field: 'person.lname', text: 'Last Name', size: '120px', sortable: true, resizable: true, editable: { type: 'color' } },
+            { field: 'email', text: 'Email', size: '160px', sortable: true, resizable: true, editable: { type: 'text' } },
             { field: 'text', text: 'Text', size: '100%', sortable: true, resizable: true, editable: { type: 'text' } }
         ]
     });
