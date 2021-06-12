@@ -28,6 +28,8 @@ $(function () {
             toolbar: true,
             footer: true,
             header: true,
+            // searchSave: false,
+            // searchLogic: false,
             emptyRecords: true,
             selectColumn: false,
             expandColumn: false,
@@ -56,8 +58,25 @@ $(function () {
         },
         searches: [
             { field: 'userid', label: 'User Id', type: 'int' },
-            { field: 'person.fname', label: 'First Name', type: 'text' },
-            { field: 'person.lname', label: 'Last Name', type: 'text' },
+            { field: 'person.fname', label: 'First Name', type: 'text',
+                options: {
+                    autoAdd: true,
+                    openOnFocus: true,
+                    items: ['John', 'Jill'],
+                }
+             },
+            // { field: 'person.fname', label: 'First Name', type: 'list',
+            //     style: 'width: 100px',
+            //     options: {
+            //         items: ['John', 'Jill']
+            //     }
+            // },
+            // { field: 'person.lname', label: 'Last Name', type: 'list',
+            //     style: 'width: 100px',
+            //     options: {
+            //         items: ['John', 'Jill']
+            //     }
+            // },
             { field: 'email', label: 'Email', type: 'color' }
         ],
         columns: [

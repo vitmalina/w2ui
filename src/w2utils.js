@@ -1731,12 +1731,16 @@ let w2utils = (($) => {
             let actions = $(el).data()
             Object.keys(actions).forEach(name => {
                 if (['click', 'dblclick', 'mouseenter', 'mouseleave', 'mouseover', 'mouseout', 'mousedown', 'mousemove', 'mouseup',
-                     'input', 'change', 'keydown', 'keyup', 'keypress'].indexOf(String(name).toLowerCase()) == -1) {
+                     'focus', 'blur', 'input', 'change', 'keydown', 'keyup', 'keypress'].indexOf(String(name).toLowerCase()) == -1) {
                     return
                 }
                 let params = $(el).data(name)
                 if (typeof params == 'string') {
-                    params = params.split('|')
+                    params = params.split('|').map(key => {
+                        if (key === 'true') key = true
+                        if (key === 'false') key = false
+                        return key
+                    })
                 }
                 let method = params[0]
                 params.shift()

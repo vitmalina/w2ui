@@ -51,9 +51,37 @@
             .w2ui-search-down {
                 position: absolute;
                 top: 8px;
-                left: 3px;
+                left: 5px;
                 color: #8c99a7;
                 font-size: 13px;
+            }
+
+            .w2ui-grid-search-name {
+                position: absolute;
+                margin: 5px 0px 0px 3px;
+                padding: 4px 27px 4px 10px;
+                background-color: #fbfbfb;
+                border: 1px solid #b9b9b9;
+                border-radius: 15px;
+                pointer-events: none;
+                .name-icon {
+                    position: absolute;
+                    margin-left: -6px;
+                    color: #8c99a7;
+                }
+                .name-text {
+                    padding-left: 14px;
+                }
+                .name-cross {
+                    position: absolute;
+                    margin-top: -4px;
+                    margin-left: 7px;
+                    padding: 4px 5px;
+                    pointer-events: all;
+                    &:hover {
+                        color: red;
+                    }
+                }
             }
 
             .w2ui-search-all {
@@ -65,7 +93,7 @@
                 border: @grid-search-all-border !important;
                 color: @grid-search-all-color !important;
                 background-color: @grid-search-all-background-color;
-                padding: 1px 20px 0px 25px !important;
+                padding: 1px 28px 0px 28px !important;
                 margin: 0px !important;
                 margin-top: 1px !important;
                 font-size: 13px !important;
@@ -136,8 +164,9 @@
                 margin-top: 1px;
             }
 
-            .grid-search-name {
-                padding: 6px
+            .w2ui-grid-search-logic {
+                border: 1px solid #c8c9ca !important;
+                color: #676767 !important;
             }
 
             button.grid-search-btn {

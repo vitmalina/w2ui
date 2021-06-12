@@ -23,6 +23,7 @@
 *   - normmenu - remove, it is in w2utils now
 *
 * == 2.0 changes
+*   - enum options.autoAdd
 *
 ************************************************************************/
 
@@ -1254,6 +1255,16 @@ class w2field extends w2event {
                                 delete obj.tmp.force_open
                                 selected.push(item)
                                 $(obj.el).trigger('input').change()
+                                focus.val('').width(20)
+                                obj.refresh()
+                            }
+                            if (obj.options.autoAdd) {
+                                if (String(item.id).trim() == '') {
+                                    event.preventDefault()
+                                    return
+                                }
+                                let dt = $(obj.el).data('selected').concat([{ id: item.id, text: item.text }])
+                                $(obj.el).data('selected', dt)
                                 focus.val('').width(20)
                                 obj.refresh()
                             }
