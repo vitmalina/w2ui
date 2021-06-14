@@ -1223,7 +1223,7 @@ let w2utils = (($) => {
                                 (options.hideOnClick === true
                                     ? where.param
                                         ? `data-click='["message", "${where.param}"]`
-                                        : `data-click="message"`
+                                        : 'data-click="message"'
                                     : '') + '>' +
                             '</div>')
                 bindEvents('#w2ui-message' + msgCount, this)
@@ -1731,7 +1731,7 @@ let w2utils = (($) => {
             let actions = $(el).data()
             Object.keys(actions).forEach(name => {
                 if (['click', 'dblclick', 'mouseenter', 'mouseleave', 'mouseover', 'mouseout', 'mousedown', 'mousemove', 'mouseup',
-                     'focus', 'blur', 'input', 'change', 'keydown', 'keyup', 'keypress'].indexOf(String(name).toLowerCase()) == -1) {
+                    'focus', 'blur', 'input', 'change', 'keydown', 'keyup', 'keypress'].indexOf(String(name).toLowerCase()) == -1) {
                     return
                 }
                 let params = $(el).data(name)
