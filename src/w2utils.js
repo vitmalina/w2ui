@@ -14,6 +14,7 @@
 * == 2.0 changes
 *   - normMenu
 *   - w2utils.message - return a promise
+*   - bindEvents - common method to avoid inline events
 *
 ************************************************/
 import { w2event } from './w2event.js'
@@ -68,6 +69,7 @@ let w2utils = (($) => {
         decodeTags,
         escapeId,
         normMenu,
+        bindEvents,
         base64encode,
         base64decode,
         md5,
@@ -1212,7 +1214,7 @@ let w2utils = (($) => {
                 head.css('z-index', 1501)
                 // add message
                 $(where.box).find(where.body)
-                    .before('<div id="w2ui-message' + msgCount + '" onmousedown="event.stopPropagation();" '+
+                    .before('<div id="w2ui-message' + msgCount + '" data-mousedown="stop" '+
                             '   class="w2ui-message" style="display: none; z-index: 1500; ' +
                                 (head.length === 0 ? 'top: 0px;' : 'top: ' + w2utils.getSize(head, 'height') + 'px;') +
                                 (options.width != null ? 'width: ' + options.width + 'px; left: ' + ((pWidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
@@ -1220,10 +1222,11 @@ let w2utils = (($) => {
                                 w2utils.cssPrefix('transition', '.3s', true) + '"' +
                                 (options.hideOnClick === true
                                     ? where.param
-                                        ? 'onclick="'+ where.path +'.message(\''+ where.param +'\');"'
-                                        : 'onclick="'+ where.path +'.message();"'
+                                        ? `data-click='["message", "${where.param}"]`
+                                        : `data-click="message"`
                                     : '') + '>' +
                             '</div>')
+                bindEvents('#w2ui-message' + msgCount, this)
                 $(where.box).find('#w2ui-message'+ msgCount)
                     .data('options', options)
                     .data('prev_focus', $(':focus'))
@@ -1282,7 +1285,7 @@ let w2utils = (($) => {
                 if ($focus && $focus.length > 0) {
                     $focus.focus()
                 } else {
-                    if (obj && obj.focus) obj.focus()
+                    if (obj && typeof obj.focus == 'function') obj.focus()
                 }
                 head.css('z-index', head.data('old-z-index'))
                 // event after
@@ -1717,6 +1720,63 @@ let w2utils = (($) => {
         } else if (typeof menu === 'object') {
             return Object.keys(menu).map(key => { return { id: key, text: menu[key] } })
         }
+    }
+
+    function bindEvents(selector, subject) {
+        // format is
+        // <div ... data-<event>='["<method>","param1","param2",...]'> -- should be valid JSON
+        // <div ... data-<event>="<method>|param1|param2">
+        // -- can have "event", "this", "stop", "stopPrevent", "alert" - as predefined objects
+        $(selector).each((ind, el) => {
+            let actions = $(el).data()
+            Object.keys(actions).forEach(name => {
+                if (['click', 'dblclick', 'mouseenter', 'mouseleave', 'mouseover', 'mouseout', 'mousedown', 'mousemove', 'mouseup',
+                     'focus', 'blur', 'input', 'change', 'keydown', 'keyup', 'keypress'].indexOf(String(name).toLowerCase()) == -1) {
+                    return
+                }
+                let params = $(el).data(name)
+                if (typeof params == 'string') {
+                    params = params.split('|').map(key => {
+                        if (key === 'true') key = true
+                        if (key === 'false') key = false
+                        return key
+                    })
+                }
+                let method = params[0]
+                params.shift()
+                $(el)
+                    .off(name + '.w2utils-bind')
+                    .on(name + '.w2utils-bind', function(event) {
+                        switch (method) {
+                            case 'alert':
+                                alert(params[0]) // for testing purposes
+                                break
+                            case 'stop':
+                                event.stopPropagation()
+                                break
+                            case 'prevent':
+                                event.preventDefault()
+                                break
+                            case 'stopPrevent':
+                                event.stopPropagation()
+                                event.preventDefault()
+                                return false
+                                break
+                            default:
+                                subject[method].apply(subject, params.map((key, ind) => {
+                                    switch (String(key).toLowerCase()) {
+                                        case 'event':
+                                            return event
+                                        case 'this':
+                                            return this
+                                        default:
+                                            return key
+                                    }
+                                }))
+                        }
+                    })
+            })
+        })
     }
 
 })(jQuery)

@@ -4,9 +4,7 @@
 *
 * == TODO ==
 *   - include delta on save
-*   - form should read <select> <options> into items
 *   - two way data bindings
-*   - nested groups (so fields can be defined inside)
 *   - rename applyFocus -> focus
 *
 * == 1.5 changes
@@ -29,6 +27,8 @@
 *   - show/hide, enable/disable - return array of effected items
 *   - .message - returns a promise
 *   - field.type = 'group' - only in constructor
+*   - form.confirm
+*   - nested groups (so fields can be defined inside)
 *
 ************************************************************************/
 
@@ -401,7 +401,7 @@ class w2form extends w2event {
 
     error(msg) {
         let obj = this
-        // let the management of the error outside of the grid
+        // let the management of the error outside of the form
         let edata = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.last.xhr })
         if (edata.isCancelled === true) {
             return
@@ -418,7 +418,7 @@ class w2form extends w2event {
                 width   : (options.length < 300 ? 350 : 550),
                 height  : (options.length < 300 ? 170: 250),
                 body    : '<div class="w2ui-centered">' + options + '</div>',
-                buttons : '<button class="w2ui-btn" onclick="w2ui[\''+ this.name +'\'].message()">Ok</button>',
+                buttons : `<button class="w2ui-btn" onclick="w2ui['${this.name}'].message()">Ok</button>`,
                 onOpen  (event) {
                     setTimeout(() => {
                         $(event.box).find('.w2ui-btn').focus()
@@ -432,6 +432,84 @@ class w2form extends w2event {
             title : '.w2ui-form-header:visible',
             body  : '.w2ui-form-box'
         }, options)
+    }
+
+    confirm(options, callBack) {
+        let form = this
+        if (typeof options == 'string') {
+            options = {
+                width: (options.length < 300 ? 350 : 550),
+                height: (options.length < 300 ? 170: 250),
+                body: '<div class="w2ui-centered">' + options + '</div>'
+            }
+        }
+        let yes_click = () => {
+            if (typeof options.yes_click == 'function') {
+                options.yes_click('yes')
+            }
+            if (typeof callBack == 'function') {
+                callBack('yes')
+            }
+            form.message()
+        }
+        let no_click = () => {
+            if (typeof options.no_click == 'function') {
+                options.no_click('no')
+            }
+            if (typeof callBack == 'function') {
+                callBack('no')
+            }
+            form.message()
+        }
+        let btn1 = `<button type="button" class="w2ui-btn btn-yes ${options.yes_class || ''}">${w2utils.lang(options.yes_text || 'Yes')}</button>`
+        let btn2 = `<button type="button" class="w2ui-btn btn-no ${options.no_class || ''}">${w2utils.lang(options.no_text || 'No')}</button>`
+
+        Object.assign(options, {
+            buttons: w2utils.settings.macButtonOrder
+                ? btn2 + btn1
+                : btn1 + btn2,
+            onOpen(event) {
+                setTimeout(() => {
+                    let $btns = $(this.box).find('.w2ui-btn')
+                    $btns.off('.message')
+                        .on('blur.message', function(evt) {
+                            // last input
+                            if ($btns.index(evt.target) + 1 === $btns.length) {
+                                $btns.get(0).focus()
+                                evt.preventDefault()
+                            }
+                        })
+                        .on('keydown.message', function(evt) {
+                            if (evt.keyCode == 27) no_click() // esc
+                        })
+                        .focus()
+                    $(this.box).find('.w2ui-btn.btn-yes')
+                        .off('click')
+                        .on('click', yes_click)
+                    $(this.box).find('.w2ui-btn.btn-no')
+                        .off('click')
+                        .on('click', no_click)
+                }, 25)
+            }
+        })
+        w2utils.message.call(this, {
+            box   : this.box,
+            path  : 'w2ui.' + this.name,
+            title : '.w2ui-form-header:visible',
+            body  : '.w2ui-form-box'
+        }, options)
+
+        let prom = {
+            yes(callBack) {
+                options.yes_click = callBack
+                return prom
+            },
+            no(callBack) {
+                options.no_click = callBack
+                return prom
+            }
+        }
+        return prom
     }
 
     validate(showErrors) {

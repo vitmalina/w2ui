@@ -2,16 +2,17 @@
 
 @w2ui-btn-text-shadow: 0px 0px 1px #111;
 
+input[type=button],
 button.w2ui-btn {
     position: relative;
     display: inline-block;
-    border-radius: 4px;
-    margin: 0px 5px;
+    border-radius: 14px;
+    margin: 0px 3px;
     padding: 6px 12px; // do not use !important
     color: #666;
     font-size: 12px; // do not use !important
-    border: 1px solid #B6B6B6;
-    .linear-gradient-vertical4(#FFF, 0%, #E7E7E7, 100%);
+    border: 1px solid transparent;
+    .linear-gradient-vertical4(#E8E8EE, 0%, #E8E8EE, 100%);
     outline: none;
     box-shadow: 0px 1px 0px white;
     cursor: default;
@@ -22,13 +23,13 @@ button.w2ui-btn {
 
     &:hover {
         text-decoration: none;
-        border: 1px solid #bbb;
-        .linear-gradient-vertical4(#F7F7F7, 0%, #DDDDDD, 100%);
+        // border: 1px solid #bbb;
+        .linear-gradient-vertical4(#ddd, 0%, #DDDDDD, 100%);
         color: #333;
     }
 
     &:active, &.clicked {
-        border: 1px solid #999;
+        // border: 1px solid #999;
         .linear-gradient-vertical4(#ccc, 0%, #ccc, 100%);
         text-shadow: 1px 1px 1px #eee;
     }
@@ -43,7 +44,7 @@ button.w2ui-btn {
     &:focus:before {
         content: "";
         border: 1px dashed #aaa;
-        border-radius: 3px;
+        border-radius: 15px;
         position: absolute;
         top: 2px;
         bottom: 2px;
@@ -61,14 +62,14 @@ button.w2ui-btn {
 
 button.w2ui-btn-blue {
     color: white;
-    .linear-gradient-vertical4(#80C0F7, 0%, #269DF0, 100%);
-    border: 1px solid #538AB7;
+    .linear-gradient-vertical4(#269DF0, 0%, #269DF0, 100%);
+    border: 1px solid #269DF0;
     text-shadow: @w2ui-btn-text-shadow;
 
     &:hover {
         color: white;
-        .linear-gradient-vertical4(#73B6F0, 0%, #2391DD, 100%);
-        border: 1px solid #497BA3;
+        .linear-gradient-vertical4(#2391DD, 0%, #2391DD, 100%);
+        border: 1px solid #2391DD;
         text-shadow: @w2ui-btn-text-shadow;
     }
 
@@ -88,14 +89,14 @@ button.w2ui-btn-blue {
 
 button.w2ui-btn-green {
     color: white;
-    .linear-gradient-vertical4(#81CF81, 0%, #52A452, 100%);
-    border: 1px solid #479247;
+    .linear-gradient-vertical4(#52A452, 0%, #52A452, 100%);
+    border: 1px solid #52A452;
     text-shadow: @w2ui-btn-text-shadow;
 
     &:hover {
         color: white;
-        .linear-gradient-vertical4(#6ABE68, 0%, #3F8F3D, 100%);
-        border: 1px solid #479247;
+        .linear-gradient-vertical4(#3F8F3D, 0%, #3F8F3D, 100%);
+        border: 1px solid #3F8F3D;
         text-shadow: @w2ui-btn-text-shadow;
     }
 
@@ -115,14 +116,14 @@ button.w2ui-btn-green {
 
 button.w2ui-btn-orange {
     color: white;
-    .linear-gradient-vertical4(#FCC272, 0%, #FB8822, 100%);
-    border: 1px solid #B68B4C;
+    .linear-gradient-vertical4(#FB8822, 0%, #FB8822, 100%);
+    border: 1px solid #FB8822;
     text-shadow: @w2ui-btn-text-shadow;
 
     &:hover {
         color: white;
-        .linear-gradient-vertical4(#F4AD59, 0%, #F1731F, 100%);
-        border: 1px solid #B68B4C;
+        .linear-gradient-vertical4(#F1731F, 0%, #F1731F, 100%);
+        border: 1px solid #F1731F;
         text-shadow: @w2ui-btn-text-shadow;
     }
 
@@ -142,14 +143,14 @@ button.w2ui-btn-orange {
 
 button.w2ui-btn-red {
     color: white;
-    .linear-gradient-vertical4(#FF6E70, 0%, #C72D2D, 100%);
-    border: 1px solid #BB3C3E;
+    .linear-gradient-vertical4(#f9585a, 0%, #f9585a, 100%);
+    border: 1px solid #f9585a;
     text-shadow: @w2ui-btn-text-shadow;
 
     &:hover {
         color: white;
-        .linear-gradient-vertical4(#EE696C, 0%, #AE2527, 100%);
-        border: 1px solid #BB3C3E;
+        .linear-gradient-vertical4(#de4446, 0%, #de4446, 100%);
+        border: 1px solid #de4446;
         text-shadow: @w2ui-btn-text-shadow;
     }
 
@@ -169,6 +170,7 @@ button.w2ui-btn-red {
 
 button.w2ui-btn-small {
     padding: 5px !important;
+    border-radius: 4px;
     margin: 0px;
     min-width: 0px;
 
