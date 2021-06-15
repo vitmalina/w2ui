@@ -141,7 +141,6 @@
 *   - grid.tabIndex
 *   - onColumnAutoResize
 *   - col.sortMode = 'default', 'natural' or a function
-*   - advanceOnEdit
 *
 * == 2.0 changes
 *   - .message - returns a promise
