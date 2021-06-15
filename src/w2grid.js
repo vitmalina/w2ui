@@ -58,7 +58,7 @@
 *   - added null, not null filters
 *   - update(cells) - added argument cells
 *   - scrollIntoView(..., ..., instant) - added third argument
-*   - added onResizeDblClick
+*   - added onResizerDblClick
 *   - added onColumnDblClick
 *   - implemented showBubble
 *   - added w2grid.operators
@@ -141,7 +141,6 @@
 *   - grid.tabIndex
 *   - onColumnAutoResize
 *   - col.sortMode = 'default', 'natural' or a function
-*   - advanceOnEdit
 *
 * == 2.0 changes
 *   - .message - returns a promise
@@ -445,6 +444,10 @@ class w2grid extends w2event {
         this.onBlur             = null
         this.onReorderRow       = null
         this.onSearchSave       = null
+        this.onColumnSelect     = null
+        this.onColumnDragStart  = null
+        this.onColumnDragEnd    = null
+        this.onResizerDblClick  = null
 
         // need deep merge
         $.extend(true, this, options)
@@ -2287,7 +2290,7 @@ class w2grid extends w2event {
         let el = $(`#grid_${this.name}_search_all`)[0]
         if (Array.isArray(this.savedSearches) && this.savedSearches.length > 0) {
             $(el).w2menu({
-                align: "both",
+                align: 'both',
                 name: this.name + '-suggestOverlay',
                 items: this.savedSearches,
                 menuStyle: 'top: 34px',
@@ -2361,7 +2364,7 @@ class w2grid extends w2event {
         let sf = this.searches[ind]
         let sd = this.searchData[sd_ind]
         let operator = `<select id="grid_${this.name}_operator_${ind}" class="w2ui-input" style="padding: 1px 7px; font-size: 13px; height: 27px;"
-               onchange="w2ui['${this.name}'].initOperator(${ind})">${this.getOperators(sf.type, sf.operators)}</select>`;
+               onchange="w2ui['${this.name}'].initOperator(${ind})">${this.getOperators(sf.type, sf.operators)}</select>`
         let value = ''
         switch (sf.type) {
             case 'text':
@@ -2371,11 +2374,11 @@ class w2grid extends w2event {
             case 'list':
             case 'combo':
             case 'enum': {
-                let tmpStyle = 'width: 250px;';
-                if (['hex', 'color'].indexOf(sf.type) != -1) tmpStyle = 'width: 90px;';
+                let tmpStyle = 'width: 250px;'
+                if (['hex', 'color'].indexOf(sf.type) != -1) tmpStyle = 'width: 90px;'
                 value += '<input rel="search" type="text" id="grid_'+ this.name +'_field_'+ ind +'" name="'+ sf.field +'" '+
-                        '   class="w2ui-input" style="'+ tmpStyle + sf.style +'" '+ sf.inTag +'/>';
-                break;
+                        '   class="w2ui-input" style="'+ tmpStyle + sf.style +'" '+ sf.inTag +'/>'
+                break
             }
             case 'int':
             case 'float':
@@ -2385,20 +2388,20 @@ class w2grid extends w2event {
             case 'date':
             case 'time':
             case 'datetime':
-                var tmpStyle = 'width: 80px';
-                if (sf.type == 'datetime') tmpStyle = 'width: 140px;';
+                var tmpStyle = 'width: 80px'
+                if (sf.type == 'datetime') tmpStyle = 'width: 140px;'
                 value += '<input rel="search" type="text" class="w2ui-input" style="'+ tmpStyle + sf.style +'" id="grid_'+ this.name +'_field_'+ ind +'" name="'+ sf.field +'" '+ sf.inTag +'/>'+
                         '<span id="grid_'+ this.name +'_extra1_'+ ind +'" style="padding-left: 5px; color: #6f6f6f; font-size: 10px"></span>'+
                         '<span id="grid_'+ this.name +'_range_'+ ind +'" style="display: none">&#160;-&#160;&#160;'+
                         '<input rel="search" type="text" class="w2ui-input" style="'+ tmpStyle + sf.style +'" id="grid_'+ this.name +'_field2_'+ ind +'" name="'+ sf.field +'" '+ sf.inTag +'/>'+
                         '</span>'+
-                        '<span id="grid_'+ this.name +'_extra2_'+ ind +'" style="padding-left: 5px; color: #6f6f6f; font-size: 10px"></span>';
-                break;
+                        '<span id="grid_'+ this.name +'_extra2_'+ ind +'" style="padding-left: 5px; color: #6f6f6f; font-size: 10px"></span>'
+                break
 
             case 'select':
                 value += '<select rel="search" class="w2ui-input" style="'+ sf.style +'" id="grid_'+ this.name +'_field_'+ ind +'" '+
-                        ' name="'+ sf.field +'" '+ sf.inTag +'  onclick="event.stopPropagation();"></select>';
-                break;
+                        ' name="'+ sf.field +'" '+ sf.inTag +'  onclick="event.stopPropagation();"></select>'
+                break
 
         }
         let oper = sd.operator
@@ -3629,10 +3632,10 @@ class w2grid extends w2event {
                 body: `<div class="w2ui-centered">
                            ${w2utils.lang(this.msgDelete).replace('XX', recs.length).replace('records', (recs.length == 1 ? 'record' : 'records'))}
                        </div>`
-                })
-            .yes(() => {
-                this.delete(true)
             })
+                .yes(() => {
+                    this.delete(true)
+                })
             return
         }
         // call delete script
@@ -5103,7 +5106,7 @@ class w2grid extends w2event {
                        <button class="w2ui-btn grid-search-btn" data-click="searchSave">Save</button>
                       `
                     : ''
-                }
+}
                 <button class="w2ui-btn grid-search-btn btn-remove"
                     data-click="searchReset">X</button>
             `
@@ -6142,7 +6145,7 @@ class w2grid extends w2event {
             if (this.show.toolbarSearch) {
                 let html =`
                     <div class="w2ui-grid-search-input">
-                        ${this.buttons['search'].html}
+                        ${this.buttons.search.html}
                         <div id="grid_${this.name}_search_name" class="w2ui-grid-search-name">
                             <span class="name-icon w2ui-icon-search"></span>
                             <span class="name-text"></span>
@@ -6154,7 +6157,7 @@ class w2grid extends w2event {
                             data-focus="searchSuggest" data-blur="searchSuggest|true|true|this" data-click="stop"
                         >
                         <div class="w2ui-search-drop w2ui-action" data-click="searchOpen"
-                                style="${this.multiSearch ? '' :  'display: none'}">
+                                style="${this.multiSearch ? '' : 'display: none'}">
                             <span class="w2ui-icon-drop" style="position: relative; top: -2px;"></span>
                         </div>
                     </div>`
@@ -6172,20 +6175,20 @@ class w2grid extends w2event {
                                 let fld = jQuery(this).data('w2field')
                                 if (fld) val = fld.clean(val)
                                 if (fld && fld.type == 'list' && sel && typeof sel.id == 'undefined') {
-                                   grid.searchReset()
+                                    grid.searchReset()
                                 } else {
-                                   grid.search(grid.last.field, val)
+                                    grid.search(grid.last.field, val)
                                 }
                                 grid.searchSuggest(true, true, this)
                             })
-                            .on('keydown', function(event) {
-                                if (event.keyCode == 13 && w2utils.isIE) {
-                                    $(this).change()
-                                }
-                                if (event.keyCode == 40) {
-                                    grid.searchSuggest(true)
-                                }
-                            })
+                                .on('keydown', function(event) {
+                                    if (event.keyCode == 13 && w2utils.isIE) {
+                                        $(this).change()
+                                    }
+                                    if (event.keyCode == 40) {
+                                        grid.searchSuggest(true)
+                                    }
+                                })
                         })
                     }
                 })

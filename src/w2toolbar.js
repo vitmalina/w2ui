@@ -525,7 +525,7 @@ class w2toolbar extends w2event {
             let next = parseInt(this.get(id, true)) + 1
             let $next = $(this.box).find(`#tb_${this.name}_item_${w2utils.escapeId(this.items[next] ? this.items[next].id : '')}`)
             if ($next.length == 0) {
-                $next = $(this.box).find(`.w2ui-tb-line:nth-child(${it.line}`).find(`.w2ui-tb-right`).before(html)
+                $next = $(this.box).find(`.w2ui-tb-line:nth-child(${it.line}`).find('.w2ui-tb-right').before(html)
             } else {
                 $next.after(html)
             }
@@ -655,14 +655,13 @@ class w2toolbar extends w2event {
                 html = `
                     <div id="tb_${this.name}_item_${item.id}" style="${(item.hidden ? 'display: none' : '')}"
                         class="w2ui-tb-button${item.checked ? ' checked' : ''}${(item.class ? ' '+item.class : '')}${(item.disabled ? ' disabled' : '')}${(!icon ? ' no-icon' : '')}"
-                        ${!item.dsiabled
+                        ${!item.disabled
                             ? `data-click='["click","${item.id}"]'
                                data-mouseenter='["mouseAction", "event", "this", "enter", "${item.id}"]'
                                data-mouseleave='["mouseAction", "event", "this", "leave", "${item.id}"]'
                                data-mousedown='["mouseAction", "event", "this", "down", "${item.id}"]'
                                data-mouseup='["mouseAction", "event", "this", "up", "${item.id}"]'`
-                            : ''
-                        }
+                            : ''}
                     >
                         ${ icon }
                         ${ text != ''
@@ -677,8 +676,7 @@ class w2toolbar extends w2event {
                                         : ''
                                     }
                                 </div>`
-                            : ''
-                        }
+                            : ''}
                     </div>
                 `
                 break
@@ -689,7 +687,7 @@ class w2toolbar extends w2event {
 
             case 'spacer':
                 html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-spacer"></div>`
-                break;
+                break
 
             case 'html':
                 html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-html">${(typeof item.html == 'function' ? item.html.call(this, item) : item.html)}</div>`
@@ -836,17 +834,17 @@ class w2toolbar extends w2event {
             case 'enter':
                 $(target).addClass('over')
                 this.tooltipShow(id, event)
-                break;
+                break
             case 'leave':
                 $(target).removeClass('over').removeClass('down')
                 this.tooltipHide(id, event)
-                break;
+                break
             case 'down':
                 $(target).addClass('down')
-                break;
+                break
             case 'up':
                 $(target).removeClass('down')
-                break;
+                break
         }
     }
 }
