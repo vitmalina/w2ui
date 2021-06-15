@@ -904,9 +904,9 @@ class w2field extends w2event {
         // lists
         if (['list', 'combo', 'enum'].indexOf(this.type) !== -1) {
             if (!$(this.el).hasClass('has-focus')) this.focus(event)
-                if (this.type == 'combo') {
-                    this.updateOverlay()
-                }
+            if (this.type == 'combo') {
+                this.updateOverlay()
+            }
         }
         // other fields with drops
         if (['date', 'time', 'color', 'datetime'].indexOf(this.type) !== -1) {
