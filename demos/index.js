@@ -114,6 +114,7 @@ $(function () {
                         { id: 'grid/27', text: 'Frozen Columns', icon: 'fa fa-table' },
                         { id: 'grid/28', text: 'Info Bubble', icon: 'fa fa-table' },
                         { id: 'grid/29', text: 'Advanced Formatting', icon: 'fa fa-table' },
+                        { id: 'grid/31', text: 'Column Tooltip &amp; Title', icon: 'fa fa-table' },
                     ]
                 },
                 { id: 'toolbar', text: 'Toolbar Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,

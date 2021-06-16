@@ -48,7 +48,6 @@
 *   - added lineNumberWidth
 *   - getColumn without params returns fields of all columns
 *   - getSearch without params returns fields of all searches
-*   - added column.tooltip
 *   - added hasFocus, refactored w2utils.keyboard
 *   - do not clear selection when clicked and it was not in focus
 *   - added record.w2ui.colspan
@@ -110,7 +109,6 @@
 *   - getCellEditable(index, col_ind) -- return an 'editable' descriptor if cell is really editable
 *   - added stateId
 *   - rec.w2ui.class (and rec.w2ui.class { fname: '...' })
-*   - columnTooltip
 *   - expendable grids are still working
 *   - added getFirst
 *   - added stateColProps
@@ -2388,7 +2386,7 @@ class w2grid extends w2event {
             case 'date':
             case 'time':
             case 'datetime':
-                var tmpStyle = 'width: 80px'
+                let tmpStyle = 'width: 80px'
                 if (sf.type == 'datetime') tmpStyle = 'width: 140px;'
                 value += '<input rel="search" type="text" class="w2ui-input" style="'+ tmpStyle + sf.style +'" id="grid_'+ this.name +'_field_'+ ind +'" name="'+ sf.field +'" '+ sf.inTag +'/>'+
                         '<span id="grid_'+ this.name +'_extra1_'+ ind +'" style="padding-left: 5px; color: #6f6f6f; font-size: 10px"></span>'+
