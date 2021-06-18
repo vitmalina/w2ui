@@ -1,0 +1,34 @@
+Hides empty groups, shows non empty groups
+
+<div class="definition">
+    updateEmptyGroups()
+</div>
+
+Returns <i>undefined</i>.
+
+<h4>Description</h4>
+
+This method will hide all groups that have all fields hidden and show all groups that have visible fields. It is used internally when you show/hide fields. You can also call it to update empty groups.
+<div style="height: 10px"></div>
+
+If you have following form:
+<textarea class="javascript">
+$('#form').w2form({
+    name     : 'form',
+    formURL : '/server/path',
+    fields: [
+        { field: 'first_name', type: 'text', required: true, html: { group: 'General' } },
+        { field: 'last_name', type: 'text', required: true },
+        { field: 'email', type: 'email' }
+    ],
+    actions: {
+        "save": function (target, data) { this.validate(); },
+        "reset": function (target, data) { this.clear(); }
+    }
+})
+</textarea>
+
+You can do:
+<textarea class="javascript">
+w2ui.form.updateEmptyGroups()
+</textarea>

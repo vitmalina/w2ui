@@ -1,0 +1,87 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Better Groups</h1>
+        It is more expressive to define fields withing its group, see code below. Possible group properties are:
+        <ul>
+            <li><b>type</b>: "group"</li>
+            <li><b>text</b> - string, group name</li>
+            <li><b>collapsible</b> - boolean, if group is collapsible</li>
+            <li><b>style</b> - string, group style</li>
+            <li><b>titleStyle</b> - string, group title style</li>
+            <li><b>span</b> - number, (optional), default span for fields inside the group</li>
+            <li><b>column</b> - number, (optional), default column for fields inside the group</li>
+            <li><b>page</b> - number, (optional), default page for fields inside the group</li>
+            <li><b>attr</b> - string, (optional), default attr for fields inside the group</li>
+        </ul>
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="form" style="width: 750px;"></div>
+<br>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#form').w2form({
+        name   : 'form',
+        header : 'Auto-Generated Form',
+        url    : 'server/post',
+        focus  : 'last_name',
+        fields : {
+            "User Info": {
+                type: 'group',
+                attr: 'style="width: 200px"',
+                span: 4,
+                fields: {
+                    "user.first_name": {
+                        type: 'text',
+                        required: true,
+                        label: 'First Name'
+                    },
+                    "user.last_name": {
+                        type: 'text',
+                        required: true,
+                        label: 'Last Name'
+                    }
+                }
+            },
+            "Some KPIs": {
+                type: 'group',
+                attr: 'style="width: 200px"',
+                span: 4,
+                fields: {
+                    "kpi.param1": {
+                        type: 'int',
+                        required: false,
+                        label: 'Param 1'
+                    },
+                    'kpi.param2': {
+                        type: 'int',
+                        required: false,
+                        label: 'Param 2'
+                    }
+                }
+            }
+        },
+        actions: {
+            'Reset': function (event) {
+                this.clear();
+            },
+            'Save': function (event) {
+                if (w2ui.form.validate().length == 0) {
+                    w2popup.open({
+                        title: 'Form Data',
+                        with: 600,
+                        height: 550,
+                        body: `<pre>${JSON.stringify(this.getCleanRecord(), null, 4)}</pre>`,
+                        buttons: '<button class="w2ui-btn" onclick="w2popup.close()">Ok</button>'
+                    })
+                }
+            }
+        }
+    });
+});
+</script>

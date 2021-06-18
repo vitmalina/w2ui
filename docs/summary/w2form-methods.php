@@ -15,6 +15,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2form.change">change</a> <span>- change(field1, field2, ...)</span>
+</div>
+<div class="obj-property-desc">
+    Trigger change event for the specified field
+</div>
+
+<div class="obj-property">
     <a href="w2form.clear">clear</a> <span>- clear([field1, field2, ...])</span>
 </div>
 <div class="obj-property-desc">
@@ -89,6 +96,13 @@
 </div>
 <div class="obj-property-desc">
     Locks the form and displays a status message.
+</div>
+
+<div class="obj-property">
+    <a href="w2form.message">message</a> <span>- message(options)</span>
+</div>
+<div class="obj-property-desc">
+    Shows a context message for the form
 </div>
 
 <div class="obj-property">

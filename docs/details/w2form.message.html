@@ -1,22 +1,21 @@
-Display error message.
+Shows a context message for the form
 
 <div class="definition">
-    error(msg)
+    message(options)
 </div>
 
 <div class="arguments">
     <table>
     <tr>
-        <td>msg</td>
-        <td><b>string</b>, error message</td>
+        <td>options</td>
+        <td><b>string|object</b>, text of the message or additional options</td>
     </tr>
     </table>
 </div>
+
 Returns <i>undefined</i>.
 
-<h4>Description</h4>
-
-This method displays the error message and emits <a class="method" href="w2form.onError">.onError</a> event.
+This method displays a context message.
 <div style="height: 10px"></div>
 
 If you have following form:
@@ -34,5 +33,15 @@ $('#form').w2form({
 
 You can
 <textarea class="javascript">
-w2ui.form.error('Some error.');
+w2ui.form.message('Some message.')
+</textarea>
+
+Or
+<textarea class="javascript">
+w2ui.form.message({
+    width: 400,
+    height: 200,
+    body: 'Some message.',
+    buttons: '<button class="w2ui-btn" onclick="w2ui.form.message()">Ok</button>'
+})
 </textarea>

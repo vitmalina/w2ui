@@ -18,8 +18,13 @@ Returns array.
 <h4>Description</h4>
 
 The method will perform validation of the data, making sure all required fields are not blank and values are according to their field
-types. It will return an array of error objects. If this array is empty, then there are no errors. You can optionally supply
-<span class="argument">showErrors</span> argument that will make the method to display error bubbles next to the fields.
+types. It will return an array of error objects. If this array is empty, then there are no errors.
+<div style="height: 10px"></div>
+
+ It will populate <a href="w2form.last" class="method">last.errors</a> array with the errors it finds as well as it will return them.
+<div style="height: 10px"></div>
+
+You can optionally supply <span class="argument">showErrors</span> argument that will make the method to display error bubbles next to the fields.
 <div style="height: 10px"></div>
 
 If you have form defined in the following way:
@@ -38,10 +43,11 @@ $('#form').w2form({
         "save"  : function (target, data) { this.save(); },
         "reset" : function (target, data) { this.clear(); }
     }
-});
+})
 </textarea>
 
 You can do:
 <textarea class="javascript">
-console.log( w2ui.form.validate() );
+let errors = w2ui.form.validate()
+console.log(errors)
 </textarea>
