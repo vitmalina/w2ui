@@ -45,6 +45,11 @@ $(function () {
                 { id: 'w2form-props', text: 'Properties', icon: 'fa fa-star-o' },
                 { id: 'w2form-methods', text: 'Methods', icon: 'fa fa-cog' }
             ]},
+            { id: 'w2field', text: 'w2field', img: 'icon-folder', group1: true, nodes: [
+                { id: 'w2field-events', text: 'Events', icon: 'fa fa-tag' },
+                { id: 'w2field-props', text: 'Properties', icon: 'fa fa-star-o' },
+                { id: 'w2field-methods', text: 'Methods', icon: 'fa fa-cog' }
+            ]},
             { id: 'w2popup', text: 'w2popup', img: 'icon-folder', group1: true, nodes: [
                 { id: 'w2popup-events', text: 'Events', icon: 'fa fa-tag' },
                 { id: 'w2popup-props', text: 'Properties', icon: 'fa fa-star-o' },
@@ -77,6 +82,7 @@ $(function () {
     init('toolbar')
     init('tabs')
     init('form')
+    init('field', new w2field(''))
     init('popup', w2popup)
     initUtils()
 
