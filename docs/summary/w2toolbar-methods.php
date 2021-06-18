@@ -78,6 +78,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2toolbar.mouseAction">mouseAction</a> <span>- mouseAction(event, target, action, id)</span>
+</div>
+<div class="obj-property-desc">
+    Called when user uses the mouse to interact with a toolbar item.
+</div>
+
+<div class="obj-property">
     <a href="w2toolbar.remove">remove</a> <span>- remove(id1, [id2], ...)</span>
 </div>
 <div class="obj-property-desc">

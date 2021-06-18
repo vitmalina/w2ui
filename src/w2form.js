@@ -47,6 +47,7 @@ class w2form extends w2event {
         this.formURL      = '' // url where to get form HTML
         this.formHTML     = '' // form HTML (might be loaded from the url)
         this.page         = 0 // current page
+        this.pageStyle    = ''
         this.recid        = 0 // can be null or 0
         this.fields       = []
         this.actions      = {}
@@ -1007,20 +1008,20 @@ class w2form extends w2event {
         setTimeout(() => { w2utils.unlock(box, speed) }, 25) // needed timer so if server fast, it will not flash
     }
 
-    lockPage(page, msg){
+    lockPage(page, msg, spinner) {
         let $page = $(this.box).find('.page-' + page)
         if($page.length){
             // page found
-            w2utils.lock($page, msg)
+            w2utils.lock($page, msg, spinner)
             return true
         }
         // page with this id not found!
         return false
     }
 
-    unlockPage(page, speed){
+    unlockPage(page, speed) {
         let $page = $(this.box).find('.page-' + page)
-        if($page.length){
+        if ($page.length) {
             // page found
             w2utils.unlock($page, speed)
             return true

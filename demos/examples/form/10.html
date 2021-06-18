@@ -8,7 +8,7 @@
 </div>
 
 <!--CODE-->
-<div id="form" style="width: 750px; height: 500px">
+<div id="form" style="width: 750px; height: 550px">
 
 </div>
 
@@ -53,10 +53,10 @@ $(function () {
                     page: 0,
                     column: 1,
                     group: 'Additional Info',
-                    groupStyle: 'min-height: 115px',
+                    groupStyle: 'height: 140px',
                     label: 'Other',
                     span: -1,
-                    attr: 'style="width: 100%; resize: vertical"'
+                    attr: 'style="width: 100%; height: 90px; resize: vertical"'
                 }
             },
             { field: 'address1', type: 'text',
@@ -77,8 +77,9 @@ $(function () {
             { field: 'city', type: 'text',
                 html: {
                     page: 0,
+                    span: 3,
                     group: 'Address Group 2',
-                    groupStyle: 'height: 170px',
+                    groupStyle: 'height: 200px',
                     label: 'City',
                     column: 1,
                 }
@@ -86,6 +87,7 @@ $(function () {
             { field: 'state', type: 'text',
                 html: {
                     page: 0,
+                    span: 3,
                     label: 'State',
                     column: 1
                 }
@@ -93,6 +95,7 @@ $(function () {
             { field: 'zip', type: 'int',
                 html: {
                     page: 0,
+                    span: 3,
                     label: 'Zip',
                     column: 1
                 }

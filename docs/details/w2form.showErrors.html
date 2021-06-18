@@ -1,4 +1,4 @@
-Show error bubbles of the most recent errors next to the according fields.
+Show errors of the form
 
 <div class="definition">
     showErrors()
@@ -8,32 +8,46 @@ Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
-Show error bubbles of the most recent errors (caused by validation) next to the according fields.
-<div style="height: 10px"></div>
-For this method to do anything, you must either call <span class="argument">form.validate</span> or fill <span class="argument">form.last.errors</span> manually.
+This method shows error messages for each field is there are any. The list of errors is taken from <a href="w2form.last" class="method">last.errors</a>, which is populated by <a href="w2form.validate" class="method">validate</a> method.
 <div style="height: 10px"></div>
 
-If you have form defined in the following way:
+If you have following form that adds aditional error checks.
 <textarea class="javascript">
 $('#form').w2form({
-    name     : 'form',
-    recid    : 10,
-    url      : '/server/form/path',
-    formURL  : '/server/path',
+    name  : 'form',
     fields: [
-        { field: 'first_name', type: 'text', required: true },
-        { field: 'last_name', type: 'text', required: true },
-        { field: 'email', type: 'email' }
+        { field: 'fname', type: 'text', required: true },
+        { field: 'lname', type: 'text', required: true },
+        { field: 'type', type: 'list', required: true
+            options: {
+                items: [
+                    { id: 1, text: 'Some' },
+                    { id: 2, text: 'Other' }
+                ]
+            }
+        }
     ],
+    onValidate(event) {
+        if (String(this.record.fname).length < 4) {
+            event.errors.push({
+                field: this.get('fname'),
+                error: 'Has to be at least 3 charcaters in length.'
+            })
+        }
+    },
     actions: {
-        "save"  : function (target, data) { this.save(); },
-        "reset" : function (target, data) { this.clear(); }
+        Save(event) {
+            this.validate()
+        },
+        Reset(event) {
+            this.clear()
+        }
     }
 });
 </textarea>
 
 You can do:
 <textarea class="javascript">
-w2ui.form.validate(false)
+w2ui.form.validate()
 w2ui.form.showErrors()
 </textarea>

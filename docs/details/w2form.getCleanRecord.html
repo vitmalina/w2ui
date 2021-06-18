@@ -1,0 +1,58 @@
+Returns clean record object
+
+<div class="definition">
+    getCleanRecord([strict])
+</div>
+
+Returns <i>object</i>.
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>strict</td>
+        <td><b>boolan</b>, if true, it will remove all fields from record object that are not in fields array</td>
+    </tr>
+    </table>
+</div>
+
+
+<h4>Description</h4>
+
+This method cleans <a href="w2form.record" class="method">record</a> and returns it. Clean record is the one that has just ids for enum/list/combo fields and not the object with { id, text } values. Also, if you suply <span class="argument">strict</span> as true, it will remove all fields from record that are not described in <a href="w2form.fields" class="method">fields</a> array.
+<div style="height: 10px"></div>
+
+If you have following form:
+<textarea class="javascript">
+$('#form').w2form({
+    name  : 'form',
+    record: {
+        fname: 'Will',
+        lname: 'Turner',
+        type: { id: 1, text: 'Some' },
+        other: 1,
+        otherN: 'abc'
+    },
+    fields: [
+        { field: 'fname', type: 'text', required: true },
+        { field: 'lname', type: 'text', required: true },
+        { field: 'type', type: 'list',
+            options: {
+                items: [
+                    { id: 1, text: 'Some' },
+                    { id: 2, text: 'Other' }
+                ]
+            }
+        }
+    ],
+    actions: {
+        "save": function (target, data) { this.validate(); },
+        "reset": function (target, data) { this.clear(); }
+    }
+});
+</textarea>
+
+You can do:
+<textarea class="javascript">
+var changes = w2ui.form.getCleanRecord(true)
+console.log(changes)
+</textarea>
