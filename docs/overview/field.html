@@ -1,0 +1,80 @@
+<h3>Field Overview</h3>
+
+Most of the fields that can be used in a w2form can also be used stand-alone.
+<div style="height: 10px"></div>
+
+To create a w2field use <span class="method">$('#myField').w2field( <i>type</i>, <i>options</i> );</span>
+where <span class="method">type</span> is a string and <span class="method">options</span> is an optional object.
+The properties of <span class="method">options</span> vary based on the type.
+<div style="height: 10px"></div>
+
+<h4>Example</h4>
+
+Below is a simple example how to use fields. It shows the minimum HTML and JavaScript you need to have a simple w2field.
+
+<textarea class="html">
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.5.min.css" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.5.min.js"></script>
+</head>
+<body>
+    <input id="myField"></input>
+</body>
+<script>
+$(function () {
+    $('#myField').w2field('text');
+});
+</script>
+</html>
+</textarea>
+
+<h4>Valid types</h4>
+<ul>
+    <li>text</li>
+    <li>int</li>
+    <li>float</li>
+    <li>money</li>
+    <li>currency</li>
+    <li>percent</li>
+    <li>alphanumeric</li>
+    <li>bin</li>
+    <li>hex</li>
+    <li>color</li>
+    <li>date</li>
+    <li>time</li>
+    <li>datetime</li>
+    <li>list</li>
+    <li>combo</li>
+    <li>enum</li>
+    <li>file</li>
+</ul>
+
+<h4>Custom Types</h4>
+If built-in types are not enough for you, there is a way you can create custom types.
+
+<textarea class="javascript">
+$().w2field('addType', 'myType', function (options) {
+    $(this.el).on('keypress', function (event) {
+        if (event.metaKey || event.ctrlKey || event.altKey
+            || (event.charCode != event.keyCode && event.keyCode > 0)) return;
+        var ch = String.fromCharCode(event.charCode);
+        if (ch != 'a' && ch != 'b' && ch != 'c') {
+            if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
+            return false;
+        }
+    });
+    $(this.el).on('blur', function (event)  { // keyCode & charCode differ in FireFox
+        var ch = this.value;
+        if (ch != 'a' && ch != 'b' && ch != 'c') {
+            $(this).w2tag(w2utils.lang("Not a single character from the set of 'abc'"));
+        }
+    });
+});
+</textarea>
+After you defined this type, you can apply it in the following way:
+<textarea class="javascript">
+$('#id').w2field('myType');
+</textarea>

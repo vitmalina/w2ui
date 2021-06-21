@@ -48,7 +48,6 @@
 *   - added lineNumberWidth
 *   - getColumn without params returns fields of all columns
 *   - getSearch without params returns fields of all searches
-*   - added column.tooltip
 *   - added hasFocus, refactored w2utils.keyboard
 *   - do not clear selection when clicked and it was not in focus
 *   - added record.w2ui.colspan
@@ -110,7 +109,6 @@
 *   - getCellEditable(index, col_ind) -- return an 'editable' descriptor if cell is really editable
 *   - added stateId
 *   - rec.w2ui.class (and rec.w2ui.class { fname: '...' })
-*   - columnTooltip
 *   - expendable grids are still working
 *   - added getFirst
 *   - added stateColProps
@@ -185,31 +183,55 @@ class w2grid extends w2event {
 
         // internal
         this.last              = {
-            field     : '',
-            label     : '',
-            logic     : 'AND',
-            search    : '',
-            searchIds : [],
-            selection : {
+            field     : '',         // last search field, e.g. 'all'
+            label     : '',         // last search field label, e.g. 'All Fields'
+            logic     : 'AND',      // last search logic, e.g. 'AND' or 'OR'
+            search    : '',         // last search text
+            searchIds : [],         // last search IDs
+            selection : {           // last selection details
                 indexes : [],
                 columns : {}
             },
-            multi       : false,
-            scrollTop   : 0,
-            scrollLeft  : 0,
-            colStart    : 0, // for column virtual scrolling
-            colEnd      : 0,
-            sortData    : null,
-            sortCount   : 0,
-            xhr         : null,
-            loaded      : false,
-            range_start : null,
-            range_end   : null,
-            sel_ind     : null,
-            sel_col     : null,
-            sel_type    : null,
-            edit_col    : null,
-            isSafari    : (/^((?!chrome|android).)*safari/i).test(navigator.userAgent)
+            _selection  : null,     // last result of selectionSave()
+            multi       : false,    // last multi flag, true when searching for multiple fields
+            scrollTop   : 0,        // last scrollTop position
+            scrollLeft  : 0,        // last scrollLeft position
+            colStart    : 0,        // for column virtual scrolling
+            colEnd      : 0,        // for column virtual scrolling
+            xhr         : null,     // last jquery xhr requests
+            xhr_cmd     : '',       // last xhr command, e.g. 'get'
+            xhr_offset  : null,     // last xhr offset, integer
+            xhr_start   : 0,        // timestamp of start of last xhr request
+            xhr_response: 0,        // time it took to complete the last xhr request in seconds
+            xhr_hasMore : false,    // flag to indicate if there are more items to pull from the server
+            pull_more   : false,
+            pull_refresh: true,
+            loaded      : false,    // loaded state of grid
+            range_start : null,     // last range start cell
+            range_end   : null,     // last range end cell
+            sel_ind     : null,     // last selected cell index
+            sel_col     : null,     // last selected column
+            sel_type    : null,     // last selection type, e.g. 'click' or 'key'
+            sel_recid   : null,     // last selected record id
+            idCache     : {},       // object, id cache for get()
+            move        : null,     // object, move details
+            cancelClick : null,     // boolean flag to indicate if the click event should be ignored, set during mouseMove()
+            inEditMode  : false,    // flag to indicate if we're currently in edit mode during inline editing
+            _edit       : null,     // object with details on the last edited cell, { value, index, column, recid }
+            kbd_timer   : null,     // last id of blur() timer
+            marker_timer: null,     // last id of markSearch() timer
+            click_time  : null,     // timestamp of last click
+            click_recid : null,     // last clicked record id
+            bubbleEl    : null,     // last bubble element
+            colResizing : false,    // flag to indicate that a column is currently being resized
+            tmp         : null,     // object with last column resizing details
+            copy_event  : null,     // last copy event
+            userSelect  : '',       // last user select type, e.g. 'text'
+            columnDrag  : false,    // false or an object with a remove() method
+            state       : null,     // last grid state
+            show_extra  : 0,        // last show extra for virtual scrolling
+            _toolbar_height: 0,     // height of grid's toolbar
+            isSafari    : (/^((?!chrome|android).)*safari/i).test(navigator.userAgent), // boolean flag to indicate if we're running in a Safari browser
         }
         this.header            = ''
         this.url               = ''
@@ -2388,7 +2410,7 @@ class w2grid extends w2event {
             case 'date':
             case 'time':
             case 'datetime':
-                var tmpStyle = 'width: 80px'
+                let tmpStyle = 'width: 80px'
                 if (sf.type == 'datetime') tmpStyle = 'width: 140px;'
                 value += '<input rel="search" type="text" class="w2ui-input" style="'+ tmpStyle + sf.style +'" id="grid_'+ this.name +'_field_'+ ind +'" name="'+ sf.field +'" '+ sf.inTag +'/>'+
                         '<span id="grid_'+ this.name +'_extra1_'+ ind +'" style="padding-left: 5px; color: #6f6f6f; font-size: 10px"></span>'+
@@ -5369,7 +5391,7 @@ class w2grid extends w2event {
             if (event.which != 1) return // if not left mouse button
             // restore css user-select
             if (obj.last.userSelect == 'text') {
-                delete obj.last.userSelect
+                obj.last.userSelect = ''
                 $(obj.box).find('.w2ui-grid-body').css(w2utils.cssPrefix('user-select', 'none'))
             }
             // regular record select
@@ -5807,8 +5829,8 @@ class w2grid extends w2event {
         //throw error if using column groups
         if (this.columnGroups && this.columnGroups.length) throw 'Draggable columns are not currently supported with column groups.'
 
-        let obj           = this,
-            _dragData = {}
+        let obj           = this
+        let _dragData     = {}
         _dragData.lastInt = undefined
         _dragData.pressed = false
         _dragData.timeout = null;_dragData.columnHead = null
