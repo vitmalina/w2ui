@@ -4254,8 +4254,10 @@ class w2grid extends w2event {
         obj.trigger($.extend(edata, { phase: 'after' }))
 
         function selectTopRecord() {
+            if(!obj.records || obj.records.length === 0) return
             let ind = Math.floor(records[0].scrollTop / obj.recordHeight) + 1
             if (!obj.records[ind] || ind < 2) ind = 0
+            if(typeof obj.records[ind] === 'undefined') return
             obj.select({ recid: obj.records[ind].recid, column: 0})
         }
 
