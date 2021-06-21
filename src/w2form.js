@@ -19,7 +19,6 @@
 *   - options.items - can be an array
 *   - added form.pageStyle
 *   - added field.options.minLength, min/max for numbers can be done with int/float - min/max
-*   - added showErrors
 *   - updateEmptyGroups
 *   - tabs below some fields
 *
@@ -179,7 +178,7 @@ class w2form extends w2event {
                     Object.keys(fld).forEach((key => {
                         if (ignore.indexOf(key) != -1) return
                         if (['label', 'attr', 'style', 'text', 'span', 'page', 'column', 'anchor',
-                                'group', 'groupStyle', 'groupTitleStyle', 'groupCollapsible'].indexOf(key) != -1) {
+                            'group', 'groupStyle', 'groupTitleStyle', 'groupCollapsible'].indexOf(key) != -1) {
                             fld.html[key] = fld[key]
                             delete fld[key]
                         }
