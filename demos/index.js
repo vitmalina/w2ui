@@ -211,6 +211,7 @@ $(function () {
                         { id: 'form/18', text: 'Context Messages', icon: 'fa fa-pencil-square-o' },
                         { id: 'form/19', text: 'Collapsible Groups', icon: 'fa fa-pencil-square-o' },
                         { id: 'form/20', text: 'Form Actions', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/23', text: 'Lock/Unlock Form', icon: 'fa fa-pencil-square-o' },
                     ]
                 },
                 // { id: 'forms-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,

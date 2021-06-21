@@ -1,0 +1,49 @@
+Unlocks an individual page in the form.
+
+<div class="definition">
+    unlockPage(page)
+</div>
+
+<div class="arguments">
+    <table>
+        <tr>
+            <td>page</td>
+            <td><b>number</b>, zero indexed page number</td>
+        </tr>
+    </table>
+</div>
+
+Returns <i>undefined</i>.
+
+<h4>Description</h4>
+
+This method will unlock a page previously locked with <a href="w2form.lockPage" class="method">.lockPage()</a> method. This method will call
+<a href="w2utils.unlock" class="method">w2utils.unlock()</a> to perform the action.
+<div style="height: 10px"></div>
+
+If you have following form:
+<textarea class="javascript">
+$('#form').w2form({
+    name     : 'form',
+    formURL : '/server/path',
+    fields: [
+        { field: 'first_name', type: 'text', required: true },
+        { field: 'last_name', type: 'text', required: true },
+        { field: 'email', type: 'email' }
+    ],
+    actions: {
+        "save": function (target, data) { this.validate(); },
+        "reset": function (target, data) { this.clear(); }
+    }
+});
+</textarea>
+
+You can do:
+<textarea class="javascript">
+w2ui.form.unlockPage(0);
+</textarea>
+
+Or:
+<textarea class="javascript">
+w2ui.form.unlock(); // unlocks all locked pages at once
+</textarea>
