@@ -104,7 +104,8 @@ let w2utils = (($) => {
                  ? true : false),
         isIE : ((navigator.userAgent.toLowerCase().indexOf('msie') !== -1 ||
                  navigator.userAgent.toLowerCase().indexOf('trident') !== -1 )
-                 ? true : false)
+                 ? true : false),
+        isSafari : (/^((?!chrome|android).)*safari/i).test(navigator.userAgent),
     }
 
     function isBin (val) {
