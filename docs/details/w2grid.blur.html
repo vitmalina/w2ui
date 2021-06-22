@@ -1,0 +1,40 @@
+Processes blur events.
+
+<div class="definition">
+    blur(event)
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>event</td>
+        <td><b>DOM Event</b>, event object corresponding to blur event</td>
+    </tr>
+    </table>
+</div>
+
+Returns <i>undefined</i>.
+
+<h4>Description</h4>
+
+This method is called internally or externally to remove focus from the grid.
+This method emits <a class="method" href="w2grid.onBlur">.onBlur</a> event.
+<div style="height: 10px"></div>
+
+This method can be overwritten:
+<textarea class="javascript">
+$('#grid').w2grid({
+    name     : 'grid',
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
+    ],
+    blur: function (event) {
+        console.log('Custom blur event.');
+    }
+});
+</textarea>

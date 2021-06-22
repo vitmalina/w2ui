@@ -1,31 +1,44 @@
-Returns HTML for grid footer.
+Shows the info bubble on a cell.
 
 <div class="definition">
-    getFooterHTML()
+    showBubble(ind, col_ind)
 </div>
-Returns HTML text.
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>ind</td>
+        <td><b>integer</b>, record index</td>
+    </tr>
+    <tr>
+        <td>col_ind</td>
+        <td><b>integer</b>, column index</td>
+    </tr>
+    </table>
+</div>
+
+Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
-The method is used internally to generate HTML for grid's footer. Several other methods might use footer to display additional information. Such
-methods are <a class="property" href="w2grid.status">.status</a> and <a class="property" href="w2grid.scroll">.scroll</a>.
-It is possible to overwrite this method with a custom one.
+This method shows the info bubble on a specific cell.
+This requires the <a class="property" href="w2grid.columns">.column</a> of that field to have an info bubble set up.
 <div style="height: 10px"></div>
 
-If you have grid defined in the following way:
+If you have following grid:
 <textarea class="javascript">
 $('#grid').w2grid({
     name    : 'grid',
     columns: [
-        { field: 'recid', text: 'ID', size: '50px' },
-        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'recid', text: 'ID', size: '50px', info: { maxLength: 3, showEmpty: true} },
+        { field: 'lname', text: 'Last Name', size: '30%', info: { render: (rec, ind, col_ind) => { return rec.fname + ' ' + rec.lname }} },
         { field: 'fname', text: 'First Name', size: '30%' },
         { field: 'email', text: 'Email', size: '40%' },
         { field: 'sdate', text: 'Start Date', size: '120px' },
         { field: 'sdate', text: 'End Date', size: '120px' }
     ],
     records: [
-        { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
+        { recid: 1, fname: 'John', lname: 'Doe', email: '', sdate: '1/3/2012' },
         { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
         { recid: 3, fname: 'Jin', lname: 'Franson', email: '--', sdate: '4/23/2012' },
         { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
@@ -35,8 +48,8 @@ $('#grid').w2grid({
 });
 </textarea>
 
-You can get footer HTML:
+You can do:
 <textarea class="javascript">
-var html = w2ui['grid'].getFooterHTML();
-console.log(html);
+setTimeout( () => { w2ui.grid.showBubble(2, 1) }, 2000 )
+setTimeout( () => { w2ui.grid.showBubble(0, 0) }, 4000 )
 </textarea>
