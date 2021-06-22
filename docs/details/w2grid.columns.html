@@ -46,7 +46,7 @@ column = {
     style          : '',     // additional style for the td tag
     render         : null,   // string or render function
     title          : null,   // string or function for the title property for the column cells
-    tooltip        : null,   // string or function for the title property for the column header
+    tooltip        : null,   // string for the title property for the column header
     editable       : {},     // editable object if column fields are editable
     frozen         : false,  // indicates if the column is fixed to the left
     info           : null    // info bubble, can be bool/object
@@ -119,8 +119,9 @@ $('#grid').w2grid({
 </textarea>
 
 <h4>Editable</h4>
-The editable object indicates if column fields are editable. If this field is an object, then the record can be edited inline by the user. This
-object is of the following structure:
+The <i>editable</i> property indicates if column fields are editable.
+If this field is an object, then the record can be edited inline by the user.
+This object is of the following structure:
 <textarea class="javascript">
 editable = {
     type    : 'text',  // type of the field (see below)
@@ -129,6 +130,9 @@ editable = {
     ...                // you can pass additional properties to w2field object (for date, enum, etc.)
 }
 </textarea>
+If the <i>editable</i> property is a function, it should return an object as described above.
+<div style="height: 10px"></div>
+
 With this object you can supply other properties that will be passed to <span class="property">$('input').w2field(column.editable)</span> so you can
 use any field type supported by <span class="property">w2field</span> object. The type of the field can be one of the following:
 <ul>
@@ -151,6 +155,24 @@ use any field type supported by <span class="property">w2field</span> object. Th
     <li>select</li>
 </ul>
 
+<h4>Info</h4>
+The <i>info</i> property can be either <i>true</i> or an object with the following structure:
+<textarea class="javascript">
+info = {
+    icon        : null,     // string|function|object, icon used in the cell, default: 'w2ui-icon-info'
+    style       : null,     // string|function|object, style applied to the icon
+    fields      : null,     // Array of field names, or a function that returns an array of field names,
+                            // or an object in the form { 'caption_1': 'field_1', ..., 'caption_N': 'field_N' }
+    render      : null,     // function to render the info bubble, gets passed (record, index, column_index)
+    showEmpty   : false,    // flag to indicate if fields with empty values should be part of the bubble
+    maxLength   : null,     // integer, max length of individual field values, after which they are cut off
+    showOn      : 'click',  // string, e.g. 'mouseover|mouseenter|...',
+    hideOn      : '',       // string, e.g. 'mouseout|mouseleave|...',
+    options     : {},       // options that are passed to the w2tag constructor, e.g. options.position = 'top'
+    ...                     // you can pass additional properties
+}
+</textarea>
+There can only ever be one info bubble visible at a time. By default, the bubble will only show when you click the icon and will hide when you click anywhere else.
 <div style="height: 10px"></div>
 
 Use <a class="argument" href="w2grid.getChanged">.getChanged()</a> method to find what records have been changed. Then, you can call

@@ -1,14 +1,26 @@
-Returns HTML for grid footer.
+Returns the content of a cell.
 
 <div class="definition">
-    getFooterHTML()
+    getCellCopy(ind, col_ind)
 </div>
-Returns HTML text.
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>ind</td>
+        <td><b>integer</b>, index of the record</td>
+    </tr>
+    <tr>
+        <td>col_ind</td>
+        <td><b>integer</b>, index of the column</td>
+    </tr>
+    </table>
+</div>
+Returns <i>string</i>, cell content.
 
 <h4>Description</h4>
 
-The method is used internally to generate HTML for grid's footer. Several other methods might use footer to display additional information. Such
-methods are <a class="property" href="w2grid.status">.status</a> and <a class="property" href="w2grid.scroll">.scroll</a>.
+The method returns the content of a given cell, similar to <a class="method" href="w2grid.getCellHTML">.getCellHTML()</a>, however any HTML tags are stripped from the result.
 It is possible to overwrite this method with a custom one.
 <div style="height: 10px"></div>
 
@@ -35,8 +47,8 @@ $('#grid').w2grid({
 });
 </textarea>
 
-You can get footer HTML:
+You can get the cell content:
 <textarea class="javascript">
-var html = w2ui['grid'].getFooterHTML();
+var html = w2ui['grid'].getCellCopy(0, 2);
 console.log(html);
 </textarea>
