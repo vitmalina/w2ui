@@ -1449,6 +1449,10 @@ class w2field extends w2event {
                 if (w2utils.settings.dataType === 'HTTPJSON') {
                     ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) }
                 }
+                if (w2utils.settings.dataType === 'RESTFULLJSON') {
+                    ajaxOptions.data = JSON.stringify(ajaxOptions.data);
+                    ajaxOptions.contentType = 'application/json'
+                }
                 if (options.method != null) ajaxOptions.type = options.method
                 obj.tmp.xhr = $.ajax(ajaxOptions)
                     .done((data, status, xhr) => {
