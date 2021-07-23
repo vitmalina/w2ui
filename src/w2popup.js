@@ -156,7 +156,7 @@ class w2dialog extends w2event {
                     if (tmp.length > 0) options.body = tmp.html(); else options.body = parts.html()
                 }
                 // then content
-                msg = '<div class="w2ui-popup-title" style="'+ (!options.title ? 'display: none' : '') +'">' + btn + '</div>'+
+                msg = '<div class="w2ui-popup-title" style="text-align:center;'+ (!options.title ? 'display: none' : '') +'">' + btn + '</div>'+
                           '<div class="w2ui-box" style="'+ (!options.title ? 'top: 0px !important;' : '') +
                                     (!options.buttons ? 'bottom: 0px !important;' : '') + '">'+
                           '    <div class="w2ui-popup-body' + (!options.title ? ' w2ui-popup-no-title' : '') +
