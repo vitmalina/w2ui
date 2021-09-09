@@ -7,6 +7,21 @@
 *   - two way data bindings
 *   - rename applyFocus -> focus
 *
+* == 1.5 changes
+*   - when field is blank, set record.field = null
+*   - added ability to generate radio and select html in generateHTML()
+*   - refresh(field) - would refresh only one field
+*   - form.message
+*   - added field.html.column = 'before' && field.html.column = 'after'
+*   - added field.html.anchor
+*   - added nestedFields: use field name containing dots as separator to look into objects
+*   - added getCleanRecord(strict)
+*   - options.items - can be an array
+*   - added form.pageStyle
+*   - added field.options.minLength, min/max for numbers can be done with int/float - min/max
+*   - updateEmptyGroups
+*   - tabs below some fields
+*
 * == 2.0 changes
 *   - show/hide, enable/disable - return array of effected items
 *   - .message - returns a promise
@@ -164,7 +179,7 @@ class w2form extends w2event {
                     Object.keys(fld).forEach((key => {
                         if (ignore.indexOf(key) != -1) return
                         if (['label', 'attr', 'style', 'text', 'span', 'page', 'column', 'anchor',
-                                'group', 'groupStyle', 'groupTitleStyle', 'groupCollapsible'].indexOf(key) != -1) {
+                            'group', 'groupStyle', 'groupTitleStyle', 'groupCollapsible'].indexOf(key) != -1) {
                             fld.html[key] = fld[key]
                             delete fld[key]
                         }

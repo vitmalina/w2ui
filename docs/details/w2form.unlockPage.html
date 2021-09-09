@@ -1,23 +1,22 @@
-Unlocks the page of the form.
+Unlocks an individual page in the form.
 
 <div class="definition">
-    unlockPage()
+    unlockPage(page, [speed])
 </div>
 
 <div class="arguments">
     <table>
-    <tr>
-        <td>page</td>
-        <td><b>integer</b>, page number</td>
-    </tr>
-    <tr>
-        <td>speed</td>
-        <td><b>int</b>, duration in millisecond </td>
-    </tr>
+        <tr>
+            <td>page</td>
+            <td><b>number</b>, zero indexed page number</td>
+        </tr>
+        <tr>
+            <td>speed</td>
+            <td><b>int (optional)</b>, duration in millisecond </td>
+        </tr>
     </table>
 </div>
-
-Returns <i>boolean</i>.
+Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
@@ -44,5 +43,10 @@ $('#form').w2form({
 
 You can do:
 <textarea class="javascript">
-w2ui.form.unlockPage(1)
+w2ui.form.unlockPage(0)
+</textarea>
+
+Or:
+<textarea class="javascript">
+w2ui.form.unlock(); // unlocks all locked pages at once
 </textarea>

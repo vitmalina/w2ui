@@ -1,18 +1,18 @@
-Locks a single page of the form.
+Locks an individual page in the form and displays a status message.
 
 <div class="definition">
-    lockPage(page, message)
+    lockPage(page, [message])
 </div>
 
 <div class="arguments">
     <table>
-    <tr>
-        <td>page</td>
-        <td><b>integer</b>, page number</td>
-    </tr>
+        <tr>
+            <td>page</td>
+            <td><b>number</b>, zero indexed page number</td>
+        </tr>
     <tr>
         <td>message</td>
-        <td><b>string</b>, message</td>
+        <td><b>string</b>, <i>optional</i>,  message to display</td>
     </tr>
     </table>
 </div>
@@ -21,9 +21,9 @@ Returns <i>boolean</i>.
 
 <h4>Description</h4>
 
-This method will lock specified page of the form by adding a semi-transparent div on top of its content. The user will not be able to interact with
-the page or its content until the form is unlocked with <a href="w2form.unlockPage" class="method">.unlockPage()</a>. This method will call
-<a href="w2utils.lock" class="method">w2utils.unlock()</a> to perform the locking.
+This method will lock a page in the form by adding a semi-transparent div on top of its content. The user will not be able to interact with
+the page's content until the page is unlocked with <a href="w2form.unlockPage" class="method">.unlockPage()</a> or <a href="w2form.unlock" class="method">.unlock()</a>.
+This method will call <a href="w2utils.lock" class="method">w2utils.lock()</a> to perform the locking.
 <div style="height: 10px"></div>
 
 If you have following form:
