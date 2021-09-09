@@ -18,6 +18,7 @@
 <button class="w2ui-btn" onclick="var obj = w2ui['grid']; obj.show.lineNumbers = !obj.show.lineNumbers; w2ui['grid'].refresh();">Line Numbers</button>
 <button class="w2ui-btn" onclick="var obj = w2ui['grid']; obj.show.selectColumn = !obj.show.selectColumn; w2ui['grid'].refresh();">Select Column</button>
 <button class="w2ui-btn" onclick="var obj = w2ui['grid']; obj.show.expandColumn = !obj.show.expandColumn; w2ui['grid'].refresh();">Expand Column</button>
+<button class="w2ui-btn" onclick="var obj = w2ui['grid']; obj.show.orderColumn = !obj.show.orderColumn; w2ui['grid'].refresh();">Order Column (1.5+)</button>
 
 <!--CODE-->
 <script>
@@ -27,6 +28,7 @@ $(function () {
         header: 'List of Names',
         url: 'data/list.json',
         method: 'GET', // need this to avoid 412 error on Safari
+        reorderRows: true,
         show: {
             header         : true,
             toolbar     : true,
