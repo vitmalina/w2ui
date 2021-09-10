@@ -106,6 +106,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2form.multipart">multipart</a> <span>- Boolean, default = false</span>
+</div>
+<div class="obj-property-desc">
+    Indicates if form need to be submitted as multipart/form-data
+</div>
+
+<div class="obj-property">
     <a href="w2form.nestedFields">nestedFields</a> <span>- Boolean, default = true</span>
 </div>
 <div class="obj-property-desc">

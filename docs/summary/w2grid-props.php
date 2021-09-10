@@ -1,6 +1,13 @@
 <link rel="stylesheet" type="text/css" href="../summary.css"/> 
 <div class="container">
 <div class="obj-property">
+    <a href="w2grid.advanceOnEdit">advanceOnEdit</a> <span>- Boolean, default = true</span>
+</div>
+<div class="obj-property-desc">
+    Indicates if the next editable field should be focused when editing the current field is completed,
+</div>
+
+<div class="obj-property">
     <a href="w2grid.autoLoad">autoLoad</a> <span>- Boolean, default = true</span>
 </div>
 <div class="obj-property-desc">
@@ -19,6 +26,13 @@
 </div>
 <div class="obj-property-desc">
     Array of column group objects.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.columnTooltip">columnTooltip</a> <span>- String, default = 'top|bottom'</span>
+</div>
+<div class="obj-property-desc">
+    Defines the position of the column tooltip.
 </div>
 
 <div class="obj-property">

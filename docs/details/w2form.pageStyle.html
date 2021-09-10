@@ -1,0 +1,22 @@
+Additional style for each form page div
+
+<div class="definition">
+    String, default = ''
+</div>
+
+Setting this value can be useful if you have multiple auto-generated forms on the same page.
+<div style="height: 10px"></div>
+
+In this example, each page will have a red boder arround it
+<textarea class="javascript">
+$('#form').w2form({
+    name   : 'form',
+    pageStyle: 'border: 1px solid red',
+    fields : [
+        { field: 'first_name', type: 'text', html: { text: 'First Name', page: 1 } },
+        { field: 'zip', type: 'int', html: { text: 'Zip', page: 1 } },
+        { field: 'short_bio', type: 'text', html: { text: 'Short Bio', page: 1 } },
+        { field: 'description', type: 'text', html: { text: 'Talk Description', page: 1 } }
+    ]
+});
+</textarea>

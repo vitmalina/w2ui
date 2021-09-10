@@ -1,7 +1,7 @@
 <div class="content">
     <div id="example_title">
-        <h1>Apply Focus</h1>
-        You can define initial field to focus, or you can set focus later on.
+        <h1>Custom Errors</h1>
+        You can attach to the validate event and do custom validation and add them to the errors list.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -10,19 +10,13 @@
 <!--CODE-->
 <div id="form" style="width: 750px;"></div>
 <br>
-<button class="w2ui-btn" onClick="w2ui.form.applyFocus(0)">Focus 1st field</button>
-<button class="w2ui-btn" onClick="w2ui.form.applyFocus(5)">Focus 6th field</button>
-<button class="w2ui-btn" onClick="w2ui.form.applyFocus('comments')">Focus 'comments' field</button>
-<button class="w2ui-btn" onClick="w2ui.form.applyFocus()">Focus original focus field</button>
 
 <!--CODE-->
 <script>
 $(function () {
     $('#form').w2form({
         name   : 'form',
-        header : 'Auto-Generated Form',
         url    : 'server/post',
-        focus  : 'last_name',
         fields : [
             { field: 'first_name', type: 'text', required: true,
                 html: { label: 'First Name', attr: 'style="width: 200px"' }
@@ -36,6 +30,9 @@ $(function () {
             { field: 'city', type: 'text',
                 html: { label: 'City', attr: 'style="width: 200px"', column: 2, }
             },
+            { field: 'state', type: 'text',
+                html: { label: 'State', attr: 'style="width: 50px"', column: 2, }
+            },
             { field: 'zip', type: 'text',
                 html: { label: 'Zip Code', attr: 'style="width: 100px"', column: 2, }
             },
@@ -43,11 +40,20 @@ $(function () {
                 html: { label: 'Street', attr: 'style="width: 200px"', column: 2, }
             },
         ],
+        onValidate(event) {
+            if (String(this.record.state).length != 2) {
+                // add custom error
+                event.errors.push({
+                    error: 'Must be 2 characters long',
+                    field: this.get('state')
+                })
+            }
+        },
         actions: {
-            'Reset': function (event) {
+            Reset(event) {
                 this.clear();
             },
-            'Save': function (event) {
+            Save(event) {
                 if (w2ui.form.validate().length == 0) {
                     w2popup.open({
                         title: 'Form Data',
@@ -59,6 +65,6 @@ $(function () {
                 }
             }
         }
-    });
-});
+    })
+})
 </script>

@@ -19,6 +19,8 @@
 *   - allow enum in inline edit (see https://github.com/vitmalina/w2ui/issues/911#issuecomment-107341193)
 *   - if record has no recid, then it should be index in the array (should not be 0)
 *   - remote source, but localSort/localSearch
+*   - right click on columns
+*   - reload a single records (useful when need to update deep in buffered records)
 *
 * == DEMOS To create ==
 *
@@ -4254,8 +4256,10 @@ class w2grid extends w2event {
         obj.trigger($.extend(edata, { phase: 'after' }))
 
         function selectTopRecord() {
+            if(!obj.records || obj.records.length === 0) return
             let ind = Math.floor(records[0].scrollTop / obj.recordHeight) + 1
             if (!obj.records[ind] || ind < 2) ind = 0
+            if(typeof obj.records[ind] === 'undefined') return
             obj.select({ recid: obj.records[ind].recid, column: 0})
         }
 
@@ -8145,7 +8149,7 @@ class w2grid extends w2event {
                 }
                 if (info.showEmpty !== true && (val == null || val == '')) continue
                 if (info.maxLength != null && typeof val == 'string' && val.length > info.maxLength) val = val.substr(0, info.maxLength) + '...'
-                html += '<tr><td>' + caption + '</td><td>' + (val || '') + '</td></tr>'
+                html += '<tr><td>' + caption + '</td><td>' + ((val === 0 ? '0' : val) || '') + '</td></tr>'
             }
             html += '</table>'
         }

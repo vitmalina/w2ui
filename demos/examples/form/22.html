@@ -1,18 +1,7 @@
 <div class="content">
     <div id="example_title">
-        <h1>Better Groups</h1>
-        It is more expressive to define fields withing its group, see code below. Possible group properties are:
-        <ul>
-            <li><b>type</b>: "group"</li>
-            <li><b>text</b> - string, group name</li>
-            <li><b>collapsible</b> - boolean, if group is collapsible</li>
-            <li><b>style</b> - string, group style</li>
-            <li><b>titleStyle</b> - string, group title style</li>
-            <li><b>span</b> - number, (optional), default span for fields inside the group</li>
-            <li><b>column</b> - number, (optional), default column for fields inside the group</li>
-            <li><b>page</b> - number, (optional), default page for fields inside the group</li>
-            <li><b>attr</b> - string, (optional), default attr for fields inside the group</li>
-        </ul>
+        <h1>Apply Focus</h1>
+        You can define initial field to focus, or you can set focus later on.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -21,6 +10,10 @@
 <!--CODE-->
 <div id="form" style="width: 750px;"></div>
 <br>
+<button class="w2ui-btn" onClick="w2ui.form.applyFocus(0)">Focus 1st field</button>
+<button class="w2ui-btn" onClick="w2ui.form.applyFocus(5)">Focus 6th field</button>
+<button class="w2ui-btn" onClick="w2ui.form.applyFocus('comments')">Focus 'comments' field</button>
+<button class="w2ui-btn" onClick="w2ui.form.applyFocus()">Focus original focus field</button>
 
 <!--CODE-->
 <script>
@@ -30,42 +23,26 @@ $(function () {
         header : 'Auto-Generated Form',
         url    : 'server/post',
         focus  : 'last_name',
-        fields : {
-            "User Info": {
-                type: 'group',
-                attr: 'style="width: 200px"',
-                span: 4,
-                fields: {
-                    "user.first_name": {
-                        type: 'text',
-                        required: true,
-                        label: 'First Name'
-                    },
-                    "user.last_name": {
-                        type: 'text',
-                        required: true,
-                        label: 'Last Name'
-                    }
-                }
+        fields : [
+            { field: 'first_name', type: 'text', required: true,
+                html: { label: 'First Name', attr: 'style="width: 200px"' }
             },
-            "Some KPIs": {
-                type: 'group',
-                attr: 'style="width: 200px"',
-                span: 4,
-                fields: {
-                    "kpi.param1": {
-                        type: 'int',
-                        required: false,
-                        label: 'Param 1'
-                    },
-                    'kpi.param2': {
-                        type: 'int',
-                        required: false,
-                        label: 'Param 2'
-                    }
-                }
-            }
-        },
+            { field: 'last_name',  type: 'text', required: true,
+                html: { label: 'Last Name', attr: 'style="width: 200px"' }
+            },
+            { field: 'comments', type: 'textarea',
+                html: { label: 'Comments', attr: 'style="width: 200px; height: 60px"' }
+            },
+            { field: 'city', type: 'text',
+                html: { label: 'City', attr: 'style="width: 200px"', column: 2, }
+            },
+            { field: 'zip', type: 'text',
+                html: { label: 'Zip Code', attr: 'style="width: 100px"', column: 2, }
+            },
+            { field: 'street', type: 'text',
+                html: { label: 'Street', attr: 'style="width: 200px"', column: 2, }
+            },
+        ],
         actions: {
             'Reset': function (event) {
                 this.clear();

@@ -8,6 +8,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.onBlur">onBlur</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when grid looses focus.
+</div>
+
+<div class="obj-property">
     <a href="w2grid.onChange">onChange</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">
@@ -40,6 +47,13 @@
 </div>
 <div class="obj-property-desc">
     Called when user clicks a column.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.onColumnDblClick">onColumnDblClick</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when user double clicks a column.
 </div>
 
 <div class="obj-property">
@@ -113,6 +127,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.onFocus">onFocus</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when grid gets focus.
+</div>
+
+<div class="obj-property">
     <a href="w2grid.onKeydown">onKeydown</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">
@@ -148,6 +169,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.onReorderRow">onReorderRow</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when user changes the order of records.
+</div>
+
+<div class="obj-property">
     <a href="w2grid.onRequest">onRequest</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">
@@ -170,6 +198,13 @@
 
 <div class="obj-property">
     <a href="w2grid.onSearch">onSearch</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when user applies a search.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.onSearchOpen">onSearchOpen</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">
     Called when user applies a search.
