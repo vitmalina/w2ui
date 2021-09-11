@@ -108,10 +108,10 @@ class w2dialog extends w2event {
                 Object.keys(options.actions).forEach((action) => {
                     let handler = options.actions[action]
                     if (typeof handler == 'function') {
-                        options.buttons += `<button class="w2ui-btn w2ui-action" data-click='["action","${action}"]'>${action}</button>`
+                        options.buttons += `<button class="w2ui-btn w2ui-popup-action" data-click='["action","${action}"]'>${action}</button>`
                     }
                     if (typeof handler == 'object') {
-                        options.buttons += `<button class="w2ui-btn w2ui-action ${handler.class || ''}" data-click='["action","${action}"]'
+                        options.buttons += `<button class="w2ui-btn w2ui-popup-action ${handler.class || ''}" data-click='["action","${action}"]'
                             style="${handler.style}">${handler.text || action}</button>`
                     }
                     if (typeof handler == 'string') {
@@ -130,12 +130,12 @@ class w2dialog extends w2event {
                 let btn = ''
                 if (options.showClose) {
                     btn += `<div class="w2ui-popup-button w2ui-popup-close">
-                                <span class="w2ui-icon w2ui-icon-cross w2ui-action" data-mousedown="stop" data-click="close"></span>
+                                <span class="w2ui-icon w2ui-icon-cross w2ui-popup-action" data-mousedown="stop" data-click="close"></span>
                             </div>`
                 }
                 if (options.showMax) {
                     btn += `<div class="w2ui-popup-button w2ui-popup-max">
-                                <span class="w2ui-icon w2ui-icon-box w2ui-action" data-mousedown="stop" data-click="toggle"></span>
+                                <span class="w2ui-icon w2ui-icon-box w2ui-popup-action" data-mousedown="stop" data-click="toggle"></span>
                             </div>`
                 }
                 // first insert just body
@@ -189,7 +189,7 @@ class w2dialog extends w2event {
                 setTimeout(() => {
                     // event after
                     obj.trigger($.extend(edata, { phase: 'after' }))
-                    w2utils.bindEvents('#w2ui-popup .w2ui-action', w2popup)
+                    w2utils.bindEvents('#w2ui-popup .w2ui-popup-action', w2popup)
                     $('#w2ui-popup').find('.w2ui-popup-body').show()
                     resolve(edata)
                 }, 50)
@@ -246,12 +246,12 @@ class w2dialog extends w2event {
                         .show()
                         .html((options.showClose
                             ? `<div class="w2ui-popup-button w2ui-popup-close">
-                                 <span class="w2ui-icon w2ui-icon-cross w2ui-action" data-mousedown="stop" data-click="close"></span>
+                                 <span class="w2ui-icon w2ui-icon-cross w2ui-popup-action" data-mousedown="stop" data-click="close"></span>
                                </div>`
                             : '') +
                           (options.showMax
                             ? `<div class="w2ui-popup-button w2ui-popup-max">
-                                  <span class="w2ui-icon w2ui-icon-box w2ui-action" data-mousedown="stop" data-click="toggle"></span>
+                                  <span class="w2ui-icon w2ui-icon-box w2ui-popup-action" data-mousedown="stop" data-click="toggle"></span>
                                </div>`
                             : ''))
                         .append(options.title)
@@ -283,7 +283,7 @@ class w2dialog extends w2event {
                 // call event onOpen
                 w2popup.status = 'open'
                 obj.trigger($.extend(edata, { phase: 'after' }))
-                w2utils.bindEvents('#w2ui-popup .w2ui-action', w2popup)
+                w2utils.bindEvents('#w2ui-popup .w2ui-popup-action', w2popup)
                 $('#w2ui-popup').find('.w2ui-popup-body').show()
                 resolve(edata)
             }
@@ -589,10 +589,10 @@ class w2dialog extends w2event {
                 Object.keys(options.actions).forEach((action) => {
                     let handler = options.actions[action]
                     if (typeof handler == 'function') {
-                        options.buttons += `<button class="w2ui-btn w2ui-action" data-click='["action","${action}","${msgCount}"]'>${action}</button>`
+                        options.buttons += `<button class="w2ui-btn w2ui-popup-action" data-click='["action","${action}","${msgCount}"]'>${action}</button>`
                     }
                     if (typeof handler == 'object') {
-                        options.buttons += `<button class="w2ui-btn w2ui-action ${handler.class || ''}" style="${handler.style || ''}"
+                        options.buttons += `<button class="w2ui-btn w2ui-popup-action ${handler.class || ''}" style="${handler.style || ''}"
                             data-click='["action","${action}","${msgCount}"]'>${handler.text || action}</button>`
                     }
                     if (typeof handler == 'string') {
@@ -630,7 +630,7 @@ class w2dialog extends w2event {
                     }
                     // event after
                     obj.trigger($.extend(edata, { phase: 'after' }))
-                    w2utils.bindEvents('#w2ui-popup .w2ui-action', w2popup)
+                    w2utils.bindEvents('#w2ui-popup .w2ui-popup-action', w2popup)
                     resolve(edata)
                 }, 150)
             } else {
@@ -687,7 +687,7 @@ class w2dialog extends w2event {
                         }
                         // event after
                         obj.trigger($.extend(edata, { phase: 'after' }))
-                        w2utils.bindEvents('#w2ui-popup .w2ui-action', w2popup)
+                        w2utils.bindEvents('#w2ui-popup .w2ui-popup-action', w2popup)
                         resolve(edata)
                     }, 350)
                 }
