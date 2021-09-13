@@ -465,10 +465,10 @@ class w2field extends w2event {
             if (this.type !== 'list' && append) {
                 if ($(this.el).data('selected') == null) $(this.el).data('selected', [])
                 $(this.el).data('selected').push(val)
-                $(this.el).trigger('input').change()
+                $(this.el).trigger('input').trigger('change')
             } else {
                 let it = (this.type === 'enum' ? [val] : val)
-                $(this.el).data('selected', it).trigger('input').change()
+                $(this.el).data('selected', it).trigger('input').trigger('change')
             }
             this.refresh()
         } else {
@@ -483,10 +483,10 @@ class w2field extends w2event {
                 if (this.type !== 'list' && append) {
                     if ($(this.el).data('selected') == null) $(this.el).data('selected', [])
                     $(this.el).data('selected').push(items[ind])
-                    $(this.el).trigger('input').change()
+                    $(this.el).trigger('input').trigger('change')
                 } else {
                     let it = (this.type === 'enum' ? [items[ind]] : items[ind])
-                    $(this.el).data('selected', it).trigger('input').change()
+                    $(this.el).data('selected', it).trigger('input').trigger('change')
                 }
                 this.refresh()
                 return true
@@ -861,7 +861,7 @@ class w2field extends w2event {
             let new_val = this.format(this.clean($(this.el).val()))
             // if was modified
             if (val !== '' && val != new_val) {
-                $(this.el).val(new_val).trigger('input').change()
+                $(this.el).val(new_val).trigger('input').trigger('change')
                 // cancel event
                 event.stopPropagation()
                 event.preventDefault()
@@ -892,9 +892,9 @@ class w2field extends w2event {
             // convert linux timestamps
             let tmp = parseInt(obj.el.value)
             if (w2utils.isInt(obj.el.value) && tmp > 3000) {
-                if (this.type === 'time') $(obj.el).val(w2utils.formatTime(new Date(tmp), options.format)).trigger('input').change()
-                if (this.type === 'date') $(obj.el).val(w2utils.formatDate(new Date(tmp), options.format)).trigger('input').change()
-                if (this.type === 'datetime') $(obj.el).val(w2utils.formatDateTime(new Date(tmp), options.format)).trigger('input').change()
+                if (this.type === 'time') $(obj.el).val(w2utils.formatTime(new Date(tmp), options.format)).trigger('input').trigger('change')
+                if (this.type === 'date') $(obj.el).val(w2utils.formatDate(new Date(tmp), options.format)).trigger('input').trigger('change')
+                if (this.type === 'datetime') $(obj.el).val(w2utils.formatDateTime(new Date(tmp), options.format)).trigger('input').trigger('change')
             }
         }
     }
@@ -965,7 +965,7 @@ class w2field extends w2event {
         }
         if (['int', 'float', 'money', 'currency', 'percent'].indexOf(obj.type) !== -1) {
             if (val !== '' && !obj.checkType(val)) {
-                $(obj.el).val('').trigger('input').change()
+                $(obj.el).val('').trigger('input').trigger('change')
                 if (options.silent === false) {
                     $(obj.el).w2tag('Not a valid number')
                     setTimeout(() => { $(obj.el).w2tag('') }, 3000)
@@ -976,28 +976,28 @@ class w2field extends w2event {
         if (['date', 'time', 'datetime'].indexOf(obj.type) !== -1) {
             // check if in range
             if (val !== '' && !obj.inRange(obj.el.value)) {
-                $(obj.el).val('').removeData('selected').trigger('input').change()
+                $(obj.el).val('').removeData('selected').trigger('input').trigger('change')
                 if (options.silent === false) {
                     $(obj.el).w2tag('Not in range')
                     setTimeout(() => { $(obj.el).w2tag('') }, 3000)
                 }
             } else {
                 if (obj.type === 'date' && val !== '' && !w2utils.isDate(obj.el.value, options.format)) {
-                    $(obj.el).val('').removeData('selected').trigger('input').change()
+                    $(obj.el).val('').removeData('selected').trigger('input').trigger('change')
                     if (options.silent === false) {
                         $(obj.el).w2tag('Not a valid date')
                         setTimeout(() => { $(obj.el).w2tag('') }, 3000)
                     }
                 }
                 else if (obj.type === 'time' && val !== '' && !w2utils.isTime(obj.el.value)) {
-                    $(obj.el).val('').removeData('selected').trigger('input').change()
+                    $(obj.el).val('').removeData('selected').trigger('input').trigger('change')
                     if (options.silent === false) {
                         $(obj.el).w2tag('Not a valid time')
                         setTimeout(() => { $(obj.el).w2tag('') }, 3000)
                     }
                 }
                 else if (obj.type === 'datetime' && val !== '' && !w2utils.isDateTime(obj.el.value, options.format)) {
-                    $(obj.el).val('').removeData('selected').trigger('input').change()
+                    $(obj.el).val('').removeData('selected').trigger('input').trigger('change')
                     if (options.silent === false) {
                         $(obj.el).w2tag('Not a valid date')
                         setTimeout(() => { $(obj.el).w2tag('') }, 3000)
@@ -1046,13 +1046,13 @@ class w2field extends w2event {
                 case 38: // up
                     if (event.shiftKey) break // no action if shift key is pressed
                     newValue = (val + inc <= options.max || options.max == null ? Number((val + inc).toFixed(12)) : options.max)
-                    $(obj.el).val(newValue).trigger('input').change()
+                    $(obj.el).val(newValue).trigger('input').trigger('change')
                     cancel = true
                     break
                 case 40: // down
                     if (event.shiftKey) break // no action if shift key is pressed
                     newValue = (val - inc >= options.min || options.min == null ? Number((val - inc).toFixed(12)) : options.min)
-                    $(obj.el).val(newValue).trigger('input').change()
+                    $(obj.el).val(newValue).trigger('input').trigger('change')
                     cancel = true
                     break
             }
@@ -1077,14 +1077,14 @@ class w2field extends w2event {
                     if (event.shiftKey) break // no action if shift key is pressed
                     newDT = w2utils.formatDate(dt.getTime() + daymil, options.format)
                     if (inc == 10) newDT = w2utils.formatDate(new Date(dt.getFullYear(), dt.getMonth()+1, dt.getDate()), options.format)
-                    $(obj.el).val(newDT).trigger('input').change()
+                    $(obj.el).val(newDT).trigger('input').trigger('change')
                     cancel = true
                     break
                 case 40: // down
                     if (event.shiftKey) break // no action if shift key is pressed
                     newDT = w2utils.formatDate(dt.getTime() - daymil, options.format)
                     if (inc == 10) newDT = w2utils.formatDate(new Date(dt.getFullYear(), dt.getMonth()-1, dt.getDate()), options.format)
-                    $(obj.el).val(newDT).trigger('input').change()
+                    $(obj.el).val(newDT).trigger('input').trigger('change')
                     cancel = true
                     break
             }
@@ -1116,7 +1116,7 @@ class w2field extends w2event {
                     break
             }
             if (cancel) {
-                $(obj.el).val(obj.fromMin(time)).trigger('input').change()
+                $(obj.el).val(obj.fromMin(time)).trigger('input').trigger('change')
                 event.preventDefault()
                 setTimeout(() => {
                     // set cursor to the end
@@ -1138,14 +1138,14 @@ class w2field extends w2event {
                     if (event.shiftKey) break // no action if shift key is pressed
                     newDT = w2utils.formatDateTime(dt.getTime() + daymil, options.format)
                     if (inc == 10) newDT = w2utils.formatDateTime(new Date(dt.getFullYear(), dt.getMonth()+1, dt.getDate()), options.format)
-                    $(obj.el).val(newDT).trigger('input').change()
+                    $(obj.el).val(newDT).trigger('input').trigger('change')
                     cancel = true
                     break
                 case 40: // down
                     if (event.shiftKey) break // no action if shift key is pressed
                     newDT = w2utils.formatDateTime(dt.getTime() - daymil, options.format)
                     if (inc == 10) newDT = w2utils.formatDateTime(new Date(dt.getFullYear(), dt.getMonth()-1, dt.getDate()), options.format)
-                    $(obj.el).val(newDT).trigger('input').change()
+                    $(obj.el).val(newDT).trigger('input').trigger('change')
                     cancel = true
                     break
             }
@@ -1181,7 +1181,7 @@ class w2field extends w2event {
                 }
                 if (obj.el.nav && dir != null) {
                     newColor = obj.el.nav(dir)
-                    $(obj.el).val(newColor).trigger('input').change()
+                    $(obj.el).val(newColor).trigger('input').trigger('change')
                     event.preventDefault()
                 }
             }
@@ -1228,7 +1228,7 @@ class w2field extends w2event {
                     if ($('#w2ui-overlay').length === 0) break // no action if overlay not open
                     let item = options.items[options.index]
                     if (obj.type === 'enum') {
-                        if (item != null) {
+                        if (item != null && !item.hidden && !item.disabled) {
                             // trigger event
                             let edata = obj.trigger({ phase: 'before', type: 'add', target: obj.el, originalEvent: event.originalEvent, item: item })
                             if (edata.isCancelled === true) return
@@ -1238,7 +1238,7 @@ class w2field extends w2event {
                             delete item.hidden
                             delete obj.tmp.force_open
                             selected.push(item)
-                            $(obj.el).trigger('input').change()
+                            $(obj.el).trigger('input').trigger('change')
                             focus.val('').width(20)
                             obj.refresh()
                             // event after
@@ -1249,22 +1249,15 @@ class w2field extends w2event {
                             let edata = obj.trigger({ phase: 'before', type: 'new', target: obj.el, originalEvent: event.originalEvent, item: item })
                             if (edata.isCancelled === true) return
                             item = edata.item // need to reassign because it could be recreated by user
-                            // default behavior
-                            if (typeof obj.onNew === 'function') {
-                                if (selected.length >= options.max && options.max > 0) selected.pop()
-                                delete obj.tmp.force_open
-                                selected.push(item)
-                                $(obj.el).trigger('input').change()
-                                focus.val('').width(20)
-                                obj.refresh()
-                            }
                             if (obj.options.autoAdd) {
-                                if (String(item.id).trim() == '') {
+                                if (!item || typeof item.id === 'undefined' || String(item.id).trim() === '' || item.disabled || item.hidden) {
                                     event.preventDefault()
                                     return
                                 }
-                                let dt = $(obj.el).data('selected').concat([{ id: item.id, text: item.text }])
-                                $(obj.el).data('selected', dt)
+                                delete obj.tmp.force_open
+                                if (selected.length >= options.max && options.max > 0) selected.pop()
+                                selected.push(item)
+                                $(obj.el).trigger('input').trigger('change')
                                 focus.val('').width(20)
                                 obj.refresh()
                             }
@@ -1272,8 +1265,8 @@ class w2field extends w2event {
                             obj.trigger($.extend(edata, { phase: 'after' }))
                         }
                     } else {
-                        if (item) $(obj.el).data('selected', item).val(item.text).trigger('input').change()
-                        if ($(obj.el).val() === '' && $(obj.el).data('selected')) $(obj.el).removeData('selected').val('').trigger('input').change()
+                        if (item) $(obj.el).data('selected', item).val(item.text).trigger('input').trigger('change')
+                        if ($(obj.el).val() === '' && $(obj.el).data('selected')) $(obj.el).removeData('selected').val('').trigger('input').trigger('change')
                         if (obj.type === 'list') {
                             focus.val('')
                             obj.refresh()
@@ -1300,7 +1293,7 @@ class w2field extends w2event {
                         }
                     }
                     if (obj.type === 'list' && focus.val() === '') {
-                        $(obj.el).data('selected', {}).trigger('input').change()
+                        $(obj.el).data('selected', {}).trigger('input').trigger('change')
                         obj.refresh()
                     }
                     break
@@ -1511,7 +1504,7 @@ class w2field extends w2event {
                                     }
                                 })
                             }
-                            $(obj.el).data('selected', sel).removeData('find_selected').trigger('input').change()
+                            $(obj.el).data('selected', sel).removeData('find_selected').trigger('input').trigger('change')
                         }
                         obj.search()
                         // event after
@@ -1624,7 +1617,7 @@ class w2field extends w2event {
             },
             (color) => {
                 if (color == null) return
-                $(obj.el).val(color).trigger('input').change()
+                $(obj.el).val(color).trigger('input').trigger('change')
             })
         }
         // date
@@ -1705,7 +1698,7 @@ class w2field extends w2event {
                 $('#w2ui-overlay .w2ui-date')
                     .on('mousedown', function() {
                         let day = $(this).attr('date')
-                        $(obj.el).val(day).trigger('input').change()
+                        $(obj.el).val(day).trigger('input').trigger('change')
                         $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' })
                     })
                     .on('mouseup', function() {
@@ -1739,7 +1732,7 @@ class w2field extends w2event {
                 .on('mousedown', function(event) {
                     $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' })
                     let hour = $(this).attr('hour')
-                    $(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).trigger('input').change()
+                    $(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).trigger('input').trigger('change')
                 })
             if (this.options.noMinutes == null || this.options.noMinutes === false) {
                 $('#w2ui-overlay .w2ui-time')
@@ -1752,7 +1745,7 @@ class w2field extends w2event {
                             .on('mousedown', function() {
                                 $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' })
                                 let min = $(this).attr('min')
-                                $(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).trigger('input').change()
+                                $(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).trigger('input').trigger('change')
                             })
                             .on('mouseup', function() {
                                 setTimeout(() => { if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide() }, 10)
@@ -1828,7 +1821,7 @@ class w2field extends w2event {
                 $('#w2ui-overlay .w2ui-date')
                     .on('mousedown', function() {
                         let day = $(this).attr('date')
-                        $(obj.el).val(day).trigger('input').change()
+                        $(obj.el).val(day).trigger('input').trigger('change')
                         $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' })
                         selDate = new Date($(this).attr('data-date'))
                     })
@@ -1845,8 +1838,8 @@ class w2field extends w2event {
                                 selHour = $(this).attr('hour')
                                 selDate.setHours(selHour)
                                 let txt = w2utils.formatDateTime(selDate, obj.options.format)
-                                $(obj.el).val(txt).trigger('input').change()
-                                //$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).trigger('input').change();
+                                $(obj.el).val(txt).trigger('input').trigger('change')
+                                //$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).trigger('input').trigger('change');
                             })
                         if (obj.options.noMinutes == null || obj.options.noMinutes === false) {
                             $('#w2ui-overlay .w2ui-time')
@@ -1861,8 +1854,8 @@ class w2field extends w2event {
                                             selMin = $(this).attr('min')
                                             selDate.setHours(selHour, selMin)
                                             let txt = w2utils.formatDateTime(selDate, obj.options.format)
-                                            $(obj.el).val(txt).trigger('input').change()
-                                            //$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).trigger('input').change();
+                                            $(obj.el).val(txt).trigger('input').trigger('change')
+                                            //$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).trigger('input').trigger('change');
                                         })
                                         .on('mouseup', function() {
                                             setTimeout(() => { if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide() }, 10)
@@ -1890,7 +1883,7 @@ class w2field extends w2event {
                     .on('mousedown', function() {
                         // this currently ignores blocked days or start / end dates!
                         let tmp = w2utils.formatDateTime(new Date(), obj.options.format)
-                        $(obj.el).val(tmp).trigger('input').change()
+                        $(obj.el).val(tmp).trigger('input').trigger('change')
                         return false
                     })
                     .on('mouseup', function() {
@@ -1983,7 +1976,7 @@ class w2field extends w2event {
                                 if (selected.length >= options.max && options.max > 0) selected.pop()
                                 delete event.item.hidden
                                 selected.push(event.item)
-                                $(obj.el).data('selected', selected).trigger('input').change()
+                                $(obj.el).data('selected', selected).trigger('input').trigger('change')
                                 $(obj.helpers.multi).find('input').val('').width(20)
                                 obj.refresh()
                                 if (event.keepOpen !== true) {
@@ -1999,7 +1992,7 @@ class w2field extends w2event {
                                 obj.trigger($.extend(edata, { phase: 'after' }))
                             }
                         } else {
-                            $(obj.el).data('selected', event.item).val(event.item.text).trigger('input').change()
+                            $(obj.el).data('selected', event.item).val(event.item.text).trigger('input').trigger('change')
                             if (obj.helpers.focus) obj.helpers.focus.find('input').val('')
                         }
                     }
