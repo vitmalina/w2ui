@@ -4400,6 +4400,7 @@ class w2grid extends w2event {
     }
 
     contextMenu(recid, column, event) {
+        const obj = this
         if (this.last.userSelect == 'text') return
         if (event == null) event = { offsetX: 0, offsetY: 0, target: $('#grid_'+ this.name +'_rec_'+ recid)[0] }
         if (event.offsetX == null) {
@@ -4426,13 +4427,13 @@ class w2grid extends w2event {
         let edata = this.trigger({ phase: 'before', type: 'contextMenu', target: this.name, originalEvent: event, recid: recid, column: column })
         if (edata.isCancelled === true) return
         // default action
-        if (this.menu.length > 0) {
-            $(this.box).find(event.target)
-                .w2menu(this.menu, {
+        if (obj.menu.length > 0) {
+            $(obj.box).find(event.target)
+                .w2menu(obj.menu, {
                     originalEvent: event,
                     contextMenu: true,
                     onSelect(event) {
-                        this.menuClick(recid, event)
+                        obj.menuClick(recid, event)
                     }
                 })
         }
