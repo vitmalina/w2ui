@@ -60,31 +60,32 @@ w2popup.load('folder/popup.html');
 You can pass a map of following properties to the constructor of the popup (none of them are required):
 <textarea class="javascript">
 options: {
-    title      : '',        // html for title - empty by default
-    body       : '',        // html for body - empty by default
-    buttons    : '',        // html for buttons - empty by default
-    url        : null,      // url to load content from (see load method)
-    actions    : {},        // object with actions (buttons on the bottom)
-    width      : 500,       // width of the popup
-    height     : 300,       // height of the popup
-    style      : '',        // additional styles
-    color      : '#000',    // color of the screen lock
-    opacity    : 0.4,       // opacity of the screen lock
-    speed      : 0.3,       // speed popup appears
-    modal      : false,     // if modal, it cannot be closed by clicking on the screen lock
-    maximized  : false,     // by default it is not maximized
-    keyboard   : true,      // will close popup on ESC if not modal
-    showClose  : true,      // show closed button by default
-    showMax    : false,     // do not show max button by default
-    transition : null,      // no content transition by default
-    multiple   : false      // if popup already open, opens as a message
+    title         : '',        // html for title - empty by default
+    body          : '',        // html for body - empty by default
+    buttons       : '',        // html for buttons - empty by default
+    url           : null,      // url to load content from (see load method)
+    actions       : {},        // object with actions (buttons on the bottom)
+    width         : 500,       // width of the popup
+    height        : 300,       // height of the popup
+    style         : '',        // additional styles
+    color         : '#000',    // color of the screen lock
+    opacity       : 0.4,       // opacity of the screen lock
+    speed         : 0.3,       // speed popup appears
+    modal         : false,     // if modal, it cannot be closed by clicking on the screen lock
+    maximized     : false,     // maximized state
+    keyboard      : true,      // will close popup on ESC if not modal
+    showClose     : true,      // show closed button by default
+    showMax       : false,     // do not show max button by default
+    transition    : null,      // no content transition by default
+    multiple      : false,     // if popup already open, opens as a message
+    openMaximized : false,     // opens the popup maximized
     // events
-    onOpen     : null,      // event when dialog finished appearing
-    onClose    : null,      // event when closed
-    onMax      : null,      // event when maximized
-    onMin      : null,      // event when minimized
-    onToggle   : null,      // event when maximized/minimized
-    onKeydown  : null       // event when keyboard button is clicked
-    onMove     : null       // event when popup is moved
+    onOpen        : null,      // event when dialog finished appearing
+    onClose       : null,      // event when closed
+    onMax         : null,      // event when maximized
+    onMin         : null,      // event when minimized
+    onToggle      : null,      // event when maximized/minimized
+    onKeydown     : null       // event when keyboard button is clicked
+    onMove        : null       // event when popup is moved
 }
 </textarea>
