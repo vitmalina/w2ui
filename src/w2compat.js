@@ -1,12 +1,12 @@
 import { w2ui, w2utils } from './w2utils.js'
 import { w2popup, w2alert, w2confirm, w2prompt } from './w2popup.js'
-import { w2field, addType, removeType } from './w2field'
-import { w2form } from './w2form'
-import { w2grid } from './w2grid'
-import { w2layout } from './w2layout'
-import { w2sidebar } from './w2sidebar'
-import { w2tabs } from './w2tabs'
-import { w2toolbar } from './w2toolbar'
+import { w2field, addType, removeType } from './w2field.js'
+import { w2form } from './w2form.js'
+import { w2grid } from './w2grid.js'
+import { w2layout } from './w2layout.js'
+import { w2sidebar } from './w2sidebar.js'
+import { w2tabs } from './w2tabs.js'
+import { w2toolbar } from './w2toolbar.js'
 
 // Register jQuery plugins
 (function($) {
@@ -762,7 +762,7 @@ import { w2toolbar } from './w2toolbar'
             index        : null, // current selected
             items        : [],
             render       : null,
-            msgNoItems   : 'No items',
+            msgNoItems   : w2utils.lang('No items found'),
             onSelect     : null,
             hideOnRemove : false,
             tmp          : {}
@@ -1096,7 +1096,7 @@ import { w2toolbar } from './w2toolbar'
                             if (mitem.hotkey != null) count_dsp += '<span class="hotkey">' + mitem.hotkey + '</span>'
                         }
                         menu_html +=
-                            '<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+ (mitem.tooltip ? 'title="'+ w2utils.lang(mitem.tooltip) +'"' : '') +
+                            '<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+ (mitem.tooltip ? 'title="'+ w2utils.lang(mitem.tooltip, true) +'"' : '') +
                             ' class="'+ bg
                                 + (options.index === f ? ' w2ui-selected' : '')
                                 + (mitem.disabled === true ? ' w2ui-disabled' : '')
@@ -1108,7 +1108,7 @@ import { w2toolbar } from './w2toolbar'
                             '               if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
                             '               jQuery.fn.w2menuClick(event, '+ f +',  '+ parentIndex +');">'+
                                 (subMenu ? '<td></td>' : '') + imgd +
-                            '   <td class="menu-text" colspan="'+ colspan +'">'+ w2utils.lang(txt) +'</td>'+
+                            '   <td class="menu-text" colspan="'+ colspan +'">'+ w2utils.lang(txt, true) +'</td>'+
                             '   <td class="menu-count">'+ count_dsp +'</td>'+
                             '</tr>'+ subMenu_dsp
                         count++

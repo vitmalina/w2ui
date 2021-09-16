@@ -32,18 +32,114 @@ let w2utils = (($) => {
             'currencyPrefix'    : '$',
             'currencySuffix'    : '',
             'currencyPrecision' : 2,
-            'groupSymbol'       : ',',
+            'groupSymbol'       : ',', // aka "thousands separator"
             'decimalSymbol'     : '.',
             'shortmonths'       : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             'fullmonths'        : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
             'shortdays'         : ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
             'fulldays'          : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
             'weekStarts'        : 'M', // can be "M" for Monday or "S" for Sunday
-            'dataType'          : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
-            'phrases'           : {}, // empty object for english phrases
-            'dateStartYear'     : 1950, // start year for date-picker
-            'dateEndYear'       : 2030, // end year for date picker
-            'macButtonOrder'    : false // if true, Yes on the right side
+            'phrases'           : { // keep these up-to-date and in sorted order
+                '${count} letters or more...': '${count} letters or more...',
+                'Add new record': 'Add new record',
+                'Add New': 'Add New',
+                'Advanced Search': 'Advanced Search',
+                'after': 'after',
+                'AJAX error. See console for more details.': 'AJAX error. See console for more details.',
+                'All Fields': 'All Fields',
+                'All': 'All',
+                'Any': 'Any',
+                'Are you sure you want to delete ${count} ${records}?': 'Are you sure you want to delete ${count} ${records}?',
+                'Attach files by dragging and dropping or Click to Select': 'Attach files by dragging and dropping or Click to Select',
+                'before': 'before',
+                'begins with': 'begins with',
+                'begins': 'begins',
+                'between': 'between',
+                'buffered': 'buffered',
+                'Cancel': 'Cancel',
+                'Close': 'Close',
+                'Column': 'Column',
+                'Confirmation': 'Confirmation',
+                'contains': 'contains',
+                'Copied': 'Copied',
+                'Copy to clipboard': 'Copy to clipboard',
+                'Current Date & Time': 'Current Date & Time',
+                'Delete selected records': 'Delete selected records',
+                'Delete': 'Delete',
+                'Do you want to delete search item "${item}"?': 'Do you want to delete search item "${item}"?',
+                'Edit selected record': 'Edit selected record',
+                'Edit': 'Edit',
+                'Empty list': 'Empty list',
+                'ends with': 'ends with',
+                'ends': 'ends',
+                'Field should be at least ${count} characters.': 'Field should be at least ${count} characters.',
+                'Hide': 'Hide',
+                'in': 'in',
+                'is not': 'is not',
+                'is': 'is',
+                'less than': 'less than',
+                'Line #': 'Line #',
+                'Load ${count} more...': 'Load ${count} more...',
+                'Loading...': 'Loading...',
+                'Maximum number of files is ${count}': 'Maximum number of files is ${count}',
+                'Maximum total size is ${count}': 'Maximum total size is ${count}',
+                'Modified': 'Modified',
+                'more than': 'more than',
+                'Multiple Fields': 'Multiple Fields',
+                'Name': 'Name',
+                'No items found': 'No items found',
+                'No matches': 'No matches',
+                'No': 'No',
+                'none': 'none',
+                'Not a float': 'Not a float',
+                'Not a hex number': 'Not a hex number',
+                'Not a valid date': 'Not a valid date',
+                'Not a valid email': 'Not a valid email',
+                'Not alpha-numeric': 'Not alpha-numeric',
+                'Not an integer': 'Not an integer',
+                'Not in money format': 'Not in money format',
+                'not in': 'not in',
+                'Notification': 'Notification',
+                'of': 'of',
+                'Ok': 'Ok',
+                'Record ID': 'Record ID',
+                'record': 'record',
+                'records': 'records',
+                'Refreshing...': 'Refreshing...',
+                'Reload data in the list': 'Reload data in the list',
+                'Remove': 'Remove',
+                'Request aborted.': 'Request aborted.',
+                'Required field': 'Required field',
+                'Reset': 'Reset',
+                'Restore Default State': 'Restore Default State',
+                'Returned data is not in valid JSON format.': 'Returned data is not in valid JSON format.',
+                'Save changed records': 'Save changed records',
+                'Save Grid State': 'Save Grid State',
+                'Save': 'Save',
+                'Saved Searches': 'Saved Searches',
+                'Saving...': 'Saving...',
+                'Search took ${count} seconds': 'Search took ${count} seconds',
+                'Search': 'Search',
+                'Select Hour': 'Select Hour',
+                'Select Minute': 'Select Minute',
+                'selected': 'selected',
+                'Server Response ${count} seconds': 'Server Response ${count} seconds',
+                'Show/hide columns': 'Show/hide columns',
+                'Show': 'Show',
+                'Size': 'Size',
+                'Skip': 'Skip',
+                'Sorting took ${count} seconds': 'Sorting took ${count} seconds',
+                'Type to search...': 'Type to search...',
+                'Type': 'Type',
+                'Yes': 'Yes',
+                'Yesterday': 'Yesterday',
+                'Your remote data source record count has changed, reloading from the first record.': 'Your remote data source record count has changed, reloading from the first record.'
+            },
+            'dataType'                  : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
+            'dateStartYear'             : 1950,  // start year for date-picker
+            'dateEndYear'               : 2030,  // end year for date picker
+            'macButtonOrder'            : false, // if true, Yes on the right side
+            'warn_missing_translation'  : true,  // call console.warn if lang() encounters a missing translation
         },
         isBin,
         isInt,
@@ -78,6 +174,7 @@ let w2utils = (($) => {
         unlock,
         message,
         naturalCompare,
+        template_replacer,
         lang,
         locale,
         getSize,
@@ -1339,9 +1436,34 @@ let w2utils = (($) => {
         return w
     }
 
-    function lang (phrase) {
+    // w2utils.template_replacer("This is ${a} template ${string}, can't ${you} see?")
+    //      -> "This is ${a} template ${string}, can't ${you} see?"
+    // w2utils.template_replacer("This is ${a} template ${string}, can't ${you} see?", {})
+    //      -> "This is a template string, can't you see?"
+    // w2utils.str_replacer("This is ${a} template ${string}, can't ${you} see?", {a:"one fancy", string: "StRiNg"})
+    //      -> "This is one fancy template StRiNg, can't you see?"
+    function template_replacer (str, replace_obj) {
+        if(typeof str !== 'string' || !replace_obj || typeof replace_obj !== 'object') {
+            return str
+        }
+        return str.replace(/\${([^}]+)?}/g, function($1, $2) { return replace_obj[$2]||$2 })
+    }
+
+    function lang (phrase, replace_obj, no_warning) {
+        if (!phrase || typeof phrase !== 'string' || '<=>='.includes(phrase)) return phrase
+        if (replace_obj === true) {
+            replace_obj = undefined
+            no_warning = true
+        }
         let translation = this.settings.phrases[phrase]
-        if (translation == null) return phrase; else return translation
+        if (translation == null) {
+            translation = phrase
+            if(this.settings.warn_missing_translation && !no_warning) {
+                console.warn('Missing translation:', phrase)
+                this.settings.phrases[phrase] = translation // so we only warn once
+            }
+        }
+        return template_replacer(translation, replace_obj)
     }
 
     function locale (locale, callBack) {
