@@ -1,12 +1,12 @@
 import { w2ui, w2utils } from './w2utils.js'
 import { w2popup, w2alert, w2confirm, w2prompt } from './w2popup.js'
-import { w2field, addType, removeType } from './w2field'
-import { w2form } from './w2form'
-import { w2grid } from './w2grid'
-import { w2layout } from './w2layout'
-import { w2sidebar } from './w2sidebar'
-import { w2tabs } from './w2tabs'
-import { w2toolbar } from './w2toolbar'
+import { w2field, addType, removeType } from './w2field.js'
+import { w2form } from './w2form.js'
+import { w2grid } from './w2grid.js'
+import { w2layout } from './w2layout.js'
+import { w2sidebar } from './w2sidebar.js'
+import { w2tabs } from './w2tabs.js'
+import { w2toolbar } from './w2toolbar.js'
 
 // Register jQuery plugins
 (function($) {
