@@ -10,7 +10,8 @@
 *   - w2sidebar.node_template => w2sidebar.node
 *   - show/hide, enable/disable - return array of effected items
 *   - sb.each() - iterate through each node
-*   - sb.sort() - sort nodes
+*   - sb.sort() - sort nodes using w2utils.naturalCompare
+*   - node.order - for sorting purposes
 *   - sb.search() - search nodes
 *   - sb.tabIndex
 *   - handle.content - string/func
@@ -295,9 +296,10 @@ class w2sidebar extends w2event {
                     aText = aText.toLowerCase()
                     bText = bText.toLowerCase()
                 }
-                if (aText == bText) return 0
-                if (aText > bText) return !options.reverse ? 1 : -1
-                return !options.reverse ? -1 : 1
+                if (a.order != null) aText = a.order
+                if (b.order != null) bText = b.order
+                let cmp = w2utils.naturalCompare(aText, bText)
+                return (cmp === 1 || cmp === -1) & options.reverse ? -cmp : cmp
             }
             if (isAfolder && !isBfolder) {
                 return !options.reverse ? -1 : 1

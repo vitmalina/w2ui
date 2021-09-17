@@ -155,7 +155,7 @@
 *   - textSearch - deprecated in favor of defaultOperator
 *   - grid.confirm
 *   - grid.message returns a promise
-*   - search.type == 'text' can bave 'in' and 'not in' operators, then it will switch to enum
+*   - search.type == 'text' can have 'in' and 'not in' operators, then it will switch to enum
 *
 ************************************************************************/
 
@@ -401,7 +401,7 @@ class w2grid extends w2event {
             'color'   : 'begins'
         }
 
-        // map search field type to opeartor
+        // map search field type to operator
         this.operatorsMap = {
             'text'         : 'text',
             'int'          : 'number',
@@ -2749,7 +2749,7 @@ class w2grid extends w2event {
         if (field == 'all') {
             search = { field: 'all', label: w2utils.lang('All Fields') }
             // el.w2field('clear')
-            // el.change(); // triggering change will cause grid calling remote url twice
+            // el.trigger('change') // triggering change will cause grid calling remote url twice
         } else {
             search = this.getSearch(field)
             if (search == null) return
@@ -4400,6 +4400,7 @@ class w2grid extends w2event {
     }
 
     contextMenu(recid, column, event) {
+        const obj = this
         if (this.last.userSelect == 'text') return
         if (event == null) event = { offsetX: 0, offsetY: 0, target: $('#grid_'+ this.name +'_rec_'+ recid)[0] }
         if (event.offsetX == null) {
@@ -4426,13 +4427,13 @@ class w2grid extends w2event {
         let edata = this.trigger({ phase: 'before', type: 'contextMenu', target: this.name, originalEvent: event, recid: recid, column: column })
         if (edata.isCancelled === true) return
         // default action
-        if (this.menu.length > 0) {
-            $(this.box).find(event.target)
-                .w2menu(this.menu, {
+        if (obj.menu.length > 0) {
+            $(obj.box).find(event.target)
+                .w2menu(obj.menu, {
                     originalEvent: event,
                     contextMenu: true,
                     onSelect(event) {
-                        this.menuClick(recid, event)
+                        obj.menuClick(recid, event)
                     }
                 })
         }
@@ -5373,7 +5374,7 @@ class w2grid extends w2event {
             })
         // init mouse events for mouse selection
         let edataCol // event for column select
-        $(this.box).off('mousedown').on('mousedown', mouseStart)
+        $(this.box).off('mousedown.mouseStart').on('mousedown.mouseStart', mouseStart)
         this.updateToolbar()
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
@@ -5837,11 +5838,12 @@ class w2grid extends w2event {
         let _dragData     = {}
         _dragData.lastInt = undefined
         _dragData.pressed = false
-        _dragData.timeout = null;_dragData.columnHead = null
+        _dragData.timeout = null
+        _dragData.columnHead = null
 
         //attach original event listener
-        $(obj.box).on('mousedown', dragColStart)
-        $(obj.box).on('mouseup', catchMouseup)
+        $(obj.box).off('mousedown.colDrag').on('mousedown.colDrag', dragColStart)
+        $(obj.box).off('mouseup.colDrag').on('mouseup.colDrag', catchMouseup)
 
         function catchMouseup(){
             _dragData.pressed = false
@@ -5862,9 +5864,9 @@ class w2grid extends w2event {
                 // click may result in a bug where the column is ghosted to the screen,
                 // but can no longer be docked back into the header.  It simply floats and you
                 // can no longer interact with it.
-                // The erronius event thats fired will have _dragData.numberPreColumnsPresent === 0
+                // The erroneous event thats fired will have _dragData.numberPreColumnsPresent === 0
                 // populated, whereas a valid event will not.
-                // if we see the erronius event, do not allow that second click to register, which results
+                // if we see the erroneous event, do not allow that second click to register, which results
                 // in the floating column remaining under the mouse's control.
                 if (!_dragData.pressed || _dragData.numberPreColumnsPresent === 0) return
 
@@ -6072,8 +6074,8 @@ class w2grid extends w2event {
         //return an object to remove drag if it has ever been enabled
         return {
             remove(){
-                $(obj.box).off('mousedown', dragColStart)
-                $(obj.box).off('mouseup', catchMouseup)
+                $(obj.box).off('mousedown.colDrag', dragColStart)
+                $(obj.box).off('mouseup.colDrag', catchMouseup)
                 $(obj.box).find('.w2ui-head').removeAttr('draggable')
                 obj.last.columnDrag = false
             }
@@ -6209,7 +6211,7 @@ class w2grid extends w2event {
                             })
                                 .on('keydown', function(event) {
                                     if (event.keyCode == 13 && w2utils.isIE) {
-                                        $(this).change()
+                                        $(this).trigger('change')
                                     }
                                     if (event.keyCode == 40) {
                                         grid.searchSuggest(true)
@@ -6959,8 +6961,7 @@ class w2grid extends w2event {
             case 'not null':
                 $fld1.hide()
                 $fld1.val(oper) // need to insert something for search to activate
-                $fld1.change()
-                break
+                $fld1.trigger('change')
                 break
         }
 
@@ -7058,7 +7059,7 @@ class w2grid extends w2event {
             if (sdata && sdata.operator) {
                 operator = sdata.operator
             }
-            // default operartor
+            // default operator
             let def = this.defaultOperator[this.operatorsMap[search.type]]
             if (operators.indexOf(operator) == -1) {
                 operator = def
