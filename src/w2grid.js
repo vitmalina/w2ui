@@ -3214,7 +3214,7 @@ class w2grid extends w2event {
     }
 
     editField(recid, column, value, event) {
-        let obj = this, index
+        let obj = this, index, input
         if (this.last.inEditMode === true) { // already editing
             if (event.keyCode == 13) {
                 index  = this.last._edit.index
@@ -3335,7 +3335,7 @@ class w2grid extends w2event {
                         '></div>' + edit.outTag)
                 if (value == null) el.find('div.w2ui-input').text(typeof val != 'object' ? val : '')
                 // add blur listener
-                let input = el.find('div.w2ui-input').get(0)
+                input = el.find('div.w2ui-input').get(0)
                 setTimeout(() => {
                     let tmp = input
                     $(tmp).on('blur', function(event) {
@@ -3364,7 +3364,7 @@ class w2grid extends w2event {
                 }
                 if (value == null) el.find('input').val(typeof val != 'object' ? val : '')
                 // init w2field
-                let input = el.find('input').get(0)
+                input = el.find('input').get(0)
                 $(input).w2field(edit.type, $.extend(edit, { selected: val }))
                 // add blur listener
                 setTimeout(() => {
@@ -3386,7 +3386,7 @@ class w2grid extends w2event {
         }
 
         setTimeout(() => {
-            let input = el.find('input').get(0)
+            if(!input) input = el.find('input').get(0)
             if (!this.last.inEditMode) return
             el.find('input, select, div.w2ui-input')
                 .data('old_value', old_value)
