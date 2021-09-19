@@ -762,7 +762,7 @@ import { w2toolbar } from './w2toolbar.js'
             index        : null, // current selected
             items        : [],
             render       : null,
-            msgNoItems   : 'No items',
+            msgNoItems   : w2utils.lang('No items found'),
             onSelect     : null,
             hideOnRemove : false,
             tmp          : {}
@@ -1096,7 +1096,7 @@ import { w2toolbar } from './w2toolbar.js'
                             if (mitem.hotkey != null) count_dsp += '<span class="hotkey">' + mitem.hotkey + '</span>'
                         }
                         menu_html +=
-                            '<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+ (mitem.tooltip ? 'title="'+ w2utils.lang(mitem.tooltip) +'"' : '') +
+                            '<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+ (mitem.tooltip ? 'title="'+ w2utils.lang(mitem.tooltip, true) +'"' : '') +
                             ' class="'+ bg
                                 + (options.index === f ? ' w2ui-selected' : '')
                                 + (mitem.disabled === true ? ' w2ui-disabled' : '')
@@ -1108,7 +1108,7 @@ import { w2toolbar } from './w2toolbar.js'
                             '               if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
                             '               jQuery.fn.w2menuClick(event, '+ f +',  '+ parentIndex +');">'+
                                 (subMenu ? '<td></td>' : '') + imgd +
-                            '   <td class="menu-text" colspan="'+ colspan +'">'+ w2utils.lang(txt) +'</td>'+
+                            '   <td class="menu-text" colspan="'+ colspan +'">'+ w2utils.lang(txt, true) +'</td>'+
                             '   <td class="menu-count">'+ count_dsp +'</td>'+
                             '</tr>'+ subMenu_dsp
                         count++

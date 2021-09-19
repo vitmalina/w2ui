@@ -637,11 +637,11 @@ class w2toolbar extends w2event {
                 }
                 if (item.type == 'color') {
                     text = `<span class="w2ui-tb-color-box" style="background-color: ${(item.color != null ? item.color : '#fff')}"></span>
-                           ${(item.text ? `<div style="margin-left: 17px;">${w2utils.lang(item.text)}</div>` : '')}`
+                           ${(item.text ? `<div style="margin-left: 17px;">${w2utils.lang(item.text, true)}</div>` : '')}`
                 }
                 if (item.type == 'text-color') {
                     text = '<span style="color: '+ (item.color != null ? item.color : '#444') +';">'+
-                                (item.text ? w2utils.lang(item.text) : '<b>Aa</b>') +
+                                (item.text ? w2utils.lang(item.text, true) : '<b>Aa</b>') +
                            '</span>'
                 }
             case 'menu':
@@ -666,7 +666,7 @@ class w2toolbar extends w2event {
                         ${ icon }
                         ${ text != ''
                             ? `<div class="w2ui-tb-text" style="${(item.style ? item.style : '')}">
-                                    ${ w2utils.lang(text) }
+                                    ${ w2utils.lang(text, true) }
                                     ${ item.count != null
                                         ? `<span class="w2ui-tb-count"><span>${item.count}</span></span>`
                                         : ''
@@ -709,12 +709,12 @@ class w2toolbar extends w2event {
                 $el.prop('_mouse_tooltip', true)
                 // show tooltip
                 if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(item.type) != -1 && item.checked == true) return // not for opened drop downs
-                $el.w2tag(w2utils.lang(txt), { position: pos })
+                $el.w2tag(w2utils.lang(txt, true), { position: pos })
             }
         }, 0)
         // refresh only
         if ($el.prop('_mouse_tooltip') && forceRefresh == true) {
-            $el.w2tag(w2utils.lang(txt), { position: pos })
+            $el.w2tag(w2utils.lang(txt, true), { position: pos })
         }
     }
 
