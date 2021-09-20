@@ -155,7 +155,7 @@
 *   - textSearch - deprecated in favor of defaultOperator
 *   - grid.confirm
 *   - grid.message returns a promise
-*   - search.type == 'text' can bave 'in' and 'not in' operators, then it will switch to enum
+*   - search.type == 'text' can have 'in' and 'not in' operators, then it will switch to enum
 *   - removed msgDeleteBtn
 *
 ************************************************************************/

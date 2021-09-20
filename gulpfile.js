@@ -1,5 +1,5 @@
+/* eslint-env node */
 const gulp     = require('gulp')
-const { exec } = require('child_process')
 const header   = require('gulp-header')
 const iconfont = require('gulp-iconfont')
 const less     = require('gulp-less')
@@ -7,11 +7,12 @@ const cleanCSS = require('gulp-clean-css')
 const uglify   = require('gulp-uglify')
 const concat   = require('gulp-concat')
 const rename   = require('gulp-rename')
-const babel    = require('gulp-babel')
 const replace  = require('gulp-replace')
 const del      = require('del')
+// const babel    = require('gulp-babel')
+// const { exec } = require('child_process')
 const comments = {
-    w2ui : '/* w2ui 2.0.x (nightly) (c) http://w2ui.com, vitmalina@gmail.com */\n'
+    w2ui : '/* w2ui 2.0.x (nightly) ('+ (new Date()).toLocaleDateString('en-us') +') (c) http://w2ui.com, vitmalina@gmail.com */\n'
 }
 
 let tasks = {
@@ -48,6 +49,7 @@ let tasks = {
         return gulp
             .src([
                 'src/w2event.js', // order of files is important
+                'src/w2locale.js',
                 'src/w2utils.js',
                 'src/w2grid.js',
                 'src/w2layout.js',
@@ -67,6 +69,7 @@ let tasks = {
     build(cb) {
         gulp.src([
             'src/w2event.js', // order of files is important
+            'src/w2locale.js',
             'src/w2utils.js',
             'src/w2grid.js',
             'src/w2layout.js',
@@ -79,7 +82,7 @@ let tasks = {
             'src/w2compat.js' // must be last
         ])
             .pipe(concat('w2ui.js'))
-            .pipe(replace(/^import.*'$\n|^export.*}$\n/gm, ''))
+            .pipe(replace(/^(import.*'|export.*}|module\.exports.*})$\n/gm, ''))
             .pipe(replace('\n\n', '\n'))
             // .pipe(babel())
             .pipe(header(comments.w2ui))
@@ -137,7 +140,7 @@ let tasks = {
     <h1 style="font-family: arial; padding-left: 15px;">w2ui-font $count</h1>
 `
         let json = []
-        let prom = gulp.src(['src/less/icons/svg/*.svg'])
+        gulp.src(['src/less/icons/svg/*.svg'])
             .pipe(iconfont({
                 startUnicode: 65,
                 fontName: 'w2ui-font',
@@ -182,12 +185,61 @@ let tasks = {
         gulp.watch(['src/**/*.js'], tasks.pack) // only packs dist/w2ui.js
         gulp.watch(['src/less/**/*.less'], tasks.less)
         gulp.watch(['src/less/icons/svg/*.svg'], tasks.icons)
-    }
+    },
+
+    locales(cb) {
+        const fs = require('fs')
+        const path = require('path')
+        const isPrimitive = obj => obj === null || [ 'string', 'number', 'boolean' ].includes( typeof obj )
+        const isArrayOfPrimitive = obj => Array.isArray( obj ) && obj.every( isPrimitive )
+        const format = arr =>
+            `^^^[ ${
+                arr.map( val => JSON.stringify( val ) ).join( ', ' )
+            } ]`
+        const replacer = ( key, value ) => isArrayOfPrimitive( value ) ? format( value ) : value
+        const expand = str => str.replace(
+            /(?:"\^\^\^)(\[ .* \])(?:\")/g, ( match, a ) =>
+                a.replace( /\\"/g, '"' )
+        )
+        const stringify = (obj, space=4) => expand( JSON.stringify( obj, replacer, space ) )
+        function process_obj(m, o) {
+            Object.keys(o).forEach(k => {
+                if(typeof m[k] === 'undefined') delete o[k]
+            })
+            for (const [k, v] of Object.entries(m)) {
+                if(typeof o[k] === 'undefined') o[k] = v
+                if(typeof v === 'object' && Object.keys(o[k]).length) o[k] = process_obj(v, o[k])
+            }
+            return Object.assign(m, o)
+        }
+        function process_locales() {
+            const master = require('./src/w2locale.cjs').w2locale
+            const dir_locales = './src/locale'
+            fs.readdir(dir_locales, (err, files) => {
+                files.forEach(file => {
+                    let m = JSON.parse(JSON.stringify(master))
+                    let filepath = path.join(dir_locales, file)
+                    let o = JSON.parse( fs.readFileSync(filepath) )
+                    fs.writeFileSync(filepath, stringify(process_obj(m, o)) + '\n')
+                })
+            })
+        }
+        gulp.src(['src/w2locale.js'])
+            .pipe(replace(/^export {/gm, 'module.exports = {'))
+            .pipe(concat('w2locale.cjs'))
+            .pipe(gulp.dest('src/'))
+            .on('end', () => {
+                process_locales()
+                del('./src/w2locale.cjs')
+                cb()
+            })
+    },
 }
 
-exports.default = gulp.series(tasks.clean, tasks.less, tasks.build)
+exports.default = gulp.series(tasks.clean, tasks.less, tasks.locales, tasks.build)
 exports.build   = tasks.build
 exports.dev     = tasks.watch
 exports.clean   = tasks.clean
 exports.less    = gulp.series(tasks.clean, tasks.less)
 exports.icons   = gulp.series(tasks.icons, tasks.less)
+exports.locales = tasks.locales
