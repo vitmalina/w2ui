@@ -1,3 +1,4 @@
+import { w2locale } from './w2locale.js'
 import { w2ui, w2utils } from './w2utils.js'
 import { w2popup, w2alert, w2confirm, w2prompt } from './w2popup.js'
 import { w2field, addType, removeType } from './w2field.js'
@@ -140,7 +141,7 @@ import { w2toolbar } from './w2toolbar.js'
             left            : 0, // delta for left coordinate
             top             : 0, // delta for top coordinate
             maxWidth        : null, // max width
-            style           : '', // adition style for the tag
+            style           : '', // additional style for the tag
             css             : {}, // add css for input when tag is shown
             className       : '', // add class bubble
             inputClass      : '', // add class for input when tag is shown
@@ -1159,7 +1160,7 @@ import { w2toolbar } from './w2toolbar.js'
             transparent: true
         }
         if (options.onSelect == null && callBack != null) options.onSelect = callBack
-        // add remove transarent color
+        // add remove transparent color
         if (options.transparent && pal[0][1] == '333333') {
             pal[0].splice(1, 1)
             pal[0].push('')
@@ -1500,6 +1501,7 @@ import { w2toolbar } from './w2toolbar.js'
     }
 })(self, {
     w2ui,
+    w2locale,
     w2utils,
     w2popup,
     w2alert,
