@@ -261,10 +261,10 @@ class w2tabs extends w2event {
             if ($el.prop('_mouse_over') === true && $el.prop('_mouse_tooltip') !== true) {
                 $el.prop('_mouse_tooltip', true)
                 // show tooltip
-                $el.w2tag(w2utils.lang(txt), { position: pos })
+                $el.w2tag(w2utils.lang(txt, true), { position: pos })
             }
             if (forceRefresh == true) {
-                $el.w2tag(w2utils.lang(txt), { position: pos })
+                $el.w2tag(w2utils.lang(txt, true), { position: pos })
             }
         }, 1)
     }
@@ -321,7 +321,7 @@ class w2tabs extends w2event {
                data-mousedown  ='["initReorder", "${tab.id}", "event"]'
                data-click      ='["click", "${tab.id}", "event"]'
                >
-                    ${w2utils.lang(text) + closable}
+                    ${w2utils.lang(text, true) + closable}
             </div>`
     }
 

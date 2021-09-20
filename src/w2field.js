@@ -1927,7 +1927,7 @@ class w2field extends w2event {
                 if ($(input).val() !== '') delete obj.tmp.force_open
                 let msgNoItems = w2utils.lang('No matches')
                 if (options.url != null && String($(input).val()).length < options.minLength && obj.tmp.emptySet !== true) {
-                    msgNoItems = options.minLength + ' ' + w2utils.lang('letters or more...')
+                    msgNoItems = w2utils.lang('${count} letters or more...', {count: options.minLength})
                 }
                 if (options.url != null && $(input).val() === '' && obj.tmp.emptySet !== true) {
                     msgNoItems = w2utils.lang(options.msgSearch || 'Type to search...')
@@ -2531,7 +2531,7 @@ class w2field extends w2event {
             return
         }
         if (options.maxSize !== 0 && size + newItem.size > options.maxSize) {
-            err = w2utils.lang('Maximum total size is') + ' ' + w2utils.formatSize(options.maxSize)
+            err = w2utils.lang('Maximum total size is ${count}', {count: w2utils.formatSize(options.maxSize)})
             if (options.silent === false) {
                 $(obj.el).w2tag(err)
             } else {
@@ -2540,7 +2540,7 @@ class w2field extends w2event {
             return
         }
         if (options.max !== 0 && cnt >= options.max) {
-            err = w2utils.lang('Maximum number of files is') + ' '+ options.max
+            err = w2utils.lang('Maximum number of files is ${count}', {count: options.max})
             if (options.silent === false) {
                 $(obj.el).w2tag(err)
             } else {

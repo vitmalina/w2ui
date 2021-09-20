@@ -521,6 +521,11 @@ class w2form extends w2event {
             let field = this.fields[f]
             if (this.getValue(field.field) == null) this.setValue(field.field, '')
             switch (field.type) {
+                case 'alphanumeric':
+                    if (this.getValue(field.field) && !w2utils.isAlphaNumeric(this.getValue(field.field))) {
+                        errors.push({ field: field, error: w2utils.lang('Not alpha-numeric') })
+                    }
+                    break
                 case 'int':
                     if (this.getValue(field.field) && !w2utils.isInt(this.getValue(field.field))) {
                         errors.push({ field: field, error: w2utils.lang('Not an integer') })
@@ -574,7 +579,7 @@ class w2form extends w2event {
             if (field.options && field.hidden !== true && field.options.minLength > 0
                     && ['enum', 'list', 'combo'].indexOf(field.type) == -1 // since minLength is used there too
                     && this.getValue(field.field).length < field.options.minLength) {
-                errors.push({ field: field, error: w2utils.lang('Field should be at least XX characters.').replace('XX', field.options.minLength) })
+                errors.push({ field: field, error: w2utils.lang('Field should be at least ${count} characters.', {count: field.options.minLength}) })
             }
         }
         // event before
@@ -706,7 +711,7 @@ class w2form extends w2event {
         $.extend(params, postData)
         // event before
         let edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: this.url, postData: params, httpHeaders: this.httpHeaders })
-        if (edata.isCancelled === true) { if (typeof callBack === 'function') callBack({ status: 'error', message: 'Request aborted.' }); return }
+        if (edata.isCancelled === true) { if (typeof callBack === 'function') callBack({ status: 'error', message: w2utils.lang('Request aborted.') }); return }
         // default action
         this.record   = {}
         this.original = null
@@ -773,7 +778,7 @@ class w2form extends w2event {
                 // event before
                 let edata = obj.trigger({ phase: 'before', target: obj.name, type: 'load', data: data, xhr: xhr })
                 if (edata.isCancelled === true) {
-                    if (typeof callBack === 'function') callBack({ status: 'error', message: 'Request aborted.' })
+                    if (typeof callBack === 'function') callBack({ status: 'error', message: w2utils.lang('Request aborted.') })
                     return
                 }
                 // parse server response
@@ -1183,16 +1188,16 @@ class w2form extends w2event {
             if (field.html.anchor == null) {
                 let span = (field.html.span != null ? 'w2ui-span'+ field.html.span : '')
                 if (field.html.span == -1) span = 'w2ui-span-none'
-                let label = '<label'+ (span == 'none' ? ' style="display: none"' : '') +'>' + w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text) +'</label>'
+                let label = '<label'+ (span == 'none' ? ' style="display: none"' : '') +'>' + w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text, true) +'</label>'
                 if (!field.html.label) label = ''
                 html += '\n      <div class="w2ui-field '+ span +'" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
                         '\n         '+ label +
-                        ((field.type === 'empty') ? input : '\n         <div>'+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '') : '') + '</div>') +
+                        ((field.type === 'empty') ? input : '\n         <div>'+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '', true) : '') + '</div>') +
                         '\n      </div>'
             } else {
                 pages[field.html.page].anchors                    = pages[field.html.page].anchors || {}
                 pages[field.html.page].anchors[field.html.anchor] = '<div class="w2ui-field w2ui-field-inline" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
-                        ((field.type === 'empty') ? input : '<div>'+ w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text) + input + w2utils.lang(field.type != 'checkbox' ? field.html.text : '') + '</div>') +
+                        ((field.type === 'empty') ? input : '<div>'+ w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text, true) + input + w2utils.lang(field.type != 'checkbox' ? field.html.text : '', true) + '</div>') +
                         '</div>'
             }
             if (pages[field.html.page] == null) pages[field.html.page] = {}
@@ -1227,7 +1232,7 @@ class w2form extends w2event {
                     if (['save', 'update', 'create'].indexOf(a.toLowerCase()) !== -1) info.class = 'w2ui-btn-blue'; else info.class = ''
                 }
                 buttons += '\n    <button name="'+ a +'" class="w2ui-btn '+ info.class +'" style="'+ info.style +'" tabindex="'+ tabindex +'">'+
-                                        w2utils.lang(info.text) +'</button>'
+                                        w2utils.lang(info.text, true) +'</button>'
                 tabindex++
             }
             buttons += '\n</div>'

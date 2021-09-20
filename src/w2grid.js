@@ -155,7 +155,8 @@
 *   - textSearch - deprecated in favor of defaultOperator
 *   - grid.confirm
 *   - grid.message returns a promise
-*   - search.type == 'text' can have 'in' and 'not in' operators, then it will switch to enum
+*   - search.type == 'text' can bave 'in' and 'not in' operators, then it will switch to enum
+*   - removed msgDeleteBtn
 *
 ************************************************************************/
 
@@ -356,8 +357,7 @@ class w2grid extends w2event {
             info            : null // info bubble, can be bool/object
         }
 
-        this.msgDelete     = 'Are you sure you want to delete XX records?'
-        this.msgDeleteBtn  = 'Delete'
+        this.msgDelete     = 'Are you sure you want to delete ${count} ${records}?'
         this.msgNotJSON    = 'Returned data is not in valid JSON format.'
         this.msgAJAXerror  = 'AJAX error. See console for more details.'
         this.msgRefresh    = 'Refreshing...'
@@ -921,7 +921,7 @@ class w2grid extends w2event {
         time = (new Date()).getTime() - time
         if (silent !== true && this.show.statusSort) {
             setTimeout(() => {
-                this.status(w2utils.lang('Sorting took') + ' ' + time/1000 + ' ' + w2utils.lang('sec'))
+                this.status(w2utils.lang('Sorting took ${count} seconds', {count: time/1000}))
             }, 10)
         }
         return time
@@ -1109,7 +1109,7 @@ class w2grid extends w2event {
         time = (new Date()).getTime() - time
         if (silent !== true && this.show.statusSearch) {
             setTimeout(() => {
-                this.status(w2utils.lang('Search took') + ' ' + time/1000 + ' ' + w2utils.lang('sec'))
+                this.status(w2utils.lang('Search took ${count} seconds', {count: time/1000}))
             }, 10)
         }
         return time
@@ -2350,7 +2350,7 @@ class w2grid extends w2event {
                         event.preventDefault()
                         return
                     }
-                    grid.confirm(`${w2utils.lang('Please confirm you want to delete')} "${event.item.text}" ${w2utils.lang('search')}?`)
+                    grid.confirm(w2utils.lang('Do you want to delete search item "${item}"?', {item: event.item.text}))
                         .yes(() => {
                             // remove from local storage
                             if (w2utils.hasLocalStorage && this.useLocalStorage) {
@@ -2887,7 +2887,7 @@ class w2grid extends w2event {
         // event before
         if (cmd == 'get') {
             edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params, httpHeaders: this.httpHeaders })
-            if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' }); return }
+            if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: w2utils.lang('Request aborted.') }); return }
         } else {
             edata = { url: url, postData: params, httpHeaders: this.httpHeaders }
         }
@@ -2984,7 +2984,7 @@ class w2grid extends w2event {
         this.last.xhr_response = ((new Date()).getTime() - this.last.xhr_start)/1000
         setTimeout(() => {
             if (this.show.statusResponse) {
-                this.status(w2utils.lang('Server Response XX sec').replace('XX', this.last.xhr_response))
+                this.status(w2utils.lang('Server Response ${count} seconds', {count: this.last.xhr_response}))
             }
         }, 10)
         this.last.pull_more    = false
@@ -2996,7 +2996,7 @@ class w2grid extends w2event {
         if (this.last.xhr_cmd == 'delete') event_name = 'delete'
         let edata = this.trigger({ phase: 'before', target: this.name, type: event_name, xhr: xhr, status: status })
         if (edata.isCancelled === true) {
-            if (typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' })
+            if (typeof callBack == 'function') callBack({ status: 'error', message: w2utils.lang('Request aborted.') })
             return
         }
         // parse server response
@@ -3190,7 +3190,7 @@ class w2grid extends w2event {
         // event before
         let edata = this.trigger({ phase: 'before', target: this.name, type: 'save', changes: changes })
         if (edata.isCancelled === true) {
-            if (url && typeof callBack == 'function') callBack({ status: 'error', message: 'Request aborted.' })
+            if (url && typeof callBack == 'function') callBack({ status: 'error', message: w2utils.lang('Request aborted.') })
             return
         }
         if (url) {
@@ -3214,7 +3214,7 @@ class w2grid extends w2event {
     }
 
     editField(recid, column, value, event) {
-        let obj = this, index
+        let obj = this, index, input
         if (this.last.inEditMode === true) { // already editing
             if (event.keyCode == 13) {
                 index  = this.last._edit.index
@@ -3335,7 +3335,7 @@ class w2grid extends w2event {
                         '></div>' + edit.outTag)
                 if (value == null) el.find('div.w2ui-input').text(typeof val != 'object' ? val : '')
                 // add blur listener
-                let input = el.find('div.w2ui-input').get(0)
+                input = el.find('div.w2ui-input').get(0)
                 setTimeout(() => {
                     let tmp = input
                     $(tmp).on('blur', function(event) {
@@ -3364,7 +3364,7 @@ class w2grid extends w2event {
                 }
                 if (value == null) el.find('input').val(typeof val != 'object' ? val : '')
                 // init w2field
-                let input = el.find('input').get(0)
+                input = el.find('input').get(0)
                 $(input).w2field(edit.type, $.extend(edit, { selected: val }))
                 // add blur listener
                 setTimeout(() => {
@@ -3386,7 +3386,7 @@ class w2grid extends w2event {
         }
 
         setTimeout(() => {
-            let input = el.find('input').get(0)
+            if(!input) input = el.find('input').get(0)
             if (!this.last.inEditMode) return
             el.find('input, select, div.w2ui-input')
                 .data('old_value', old_value)
@@ -3647,15 +3647,17 @@ class w2grid extends w2event {
         let recs = this.getSelection()
         if (recs.length === 0) return
         if (this.msgDelete != '' && !force) {
+            let msg = w2utils.lang(this.msgDelete, {
+                count: recs.length,
+                records: w2utils.lang( recs.length == 1 ? 'record' : 'records')
+            })
             this.confirm({
                 width: 380,
                 height: 170,
                 yes_text: 'Delete',
                 yes_class: 'w2ui-btn-red',
                 no_text: 'Cancel',
-                body: `<div class="w2ui-centered">
-                           ${w2utils.lang(this.msgDelete).replace('XX', recs.length).replace('records', (recs.length == 1 ? 'record' : 'records'))}
-                       </div>`
+                body: '<div class="w2ui-centered">'+ msg +'</div>',
             })
                 .yes(() => {
                     this.delete(true)
@@ -5138,7 +5140,7 @@ class w2grid extends w2event {
                     data-click="searchReset">X</button>
             `
             $(this.box).find(`#grid_${this.name}_searches`).html(searches)
-            $(`#grid_${this.name}_search_logic`).html(this.last.logic == 'AND' ? 'ALL' : 'Any')
+            $(`#grid_${this.name}_search_logic`).html(w2utils.lang(this.last.logic == 'AND' ? 'All' : 'Any'))
         } else {
             $(this.box).find('.w2ui-grid-toolbar')
                 .css('height', this.last._toolbar_height)
@@ -5808,7 +5810,7 @@ class w2grid extends w2event {
                     '            onkeypress="if (event.keyCode == 13) { '+
                     '               w2ui[\''+ this.name +'\'].skip(this.value); '+
                     '               jQuery(\'.w2ui-overlay\')[0].hide(); '+
-                    '            }"/> '+ w2utils.lang('Records')+
+                    '            }"/> '+ w2utils.lang('records')+
                     '    </div>'+
                     '</td></tr>'
         }
@@ -6833,10 +6835,10 @@ class w2grid extends w2event {
     getSearchesHTML() {
         let html = `
             <div class="search-title">
-                Advanced Search
+                ${w2utils.lang('Advanced Search')}
                 <span style="float: right; padding-right: 10px; ${this.show.searchLogic ? '' : 'display: none'}">
                     <select id="grid_${this.name}_logic">
-                        <option value="AND" ${this.last.logic == 'AND' ? 'selected' : ''}>${w2utils.lang('ALL')}</option>
+                        <option value="AND" ${this.last.logic == 'AND' ? 'selected' : ''}>${w2utils.lang('All')}</option>
                         <option value="OR" ${this.last.logic == 'OR' ? 'selected' : ''}>${w2utils.lang('Any')}</option>
                     </select>
                 </span>
@@ -7678,7 +7680,7 @@ class w2grid extends w2event {
                 .find('td')
                 .html(obj.autoLoad
                     ? '<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>'
-                    : '<div style="padding-top: 15px">'+ w2utils.lang('Load') + ' ' + obj.limit + ' ' + w2utils.lang('More') + '...</div>'
+                    : '<div style="padding-top: 15px">'+ w2utils.lang('Load ${count} more...', {count: obj.limit}) + '</div>'
                 )
         }
 
@@ -8220,7 +8222,7 @@ class w2grid extends w2event {
             let sel     = this.getSelection()
             if (sel.length > 0) {
                 if (this.show.statusSelection && sel.length > 1) {
-                    msgLeft = String(sel.length).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,') + ' ' + w2utils.lang('selected')
+                    msgLeft = String(sel.length).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1' + w2utils.settings.groupSymbol) + ' ' + w2utils.lang('selected')
                 }
                 if (this.show.statusRecordID && sel.length == 1) {
                     let tmp = sel[0]
