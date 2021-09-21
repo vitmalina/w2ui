@@ -18,129 +18,20 @@
 *
 ************************************************/
 import { w2event } from './w2event.js'
+import { w2locale } from './w2locale.js'
 
 let w2ui    = {}
 let w2utils = (($) => {
     let tmp = {} // for some temp variables
     return {
         version  : '2.0.x',
-        settings : {
-            'locale'            : 'en-us',
-            'dateFormat'        : 'm/d/yyyy',
-            'timeFormat'        : 'hh:mi pm',
-            'datetimeFormat'    : 'm/d/yyyy|hh:mi pm',
-            'currencyPrefix'    : '$',
-            'currencySuffix'    : '',
-            'currencyPrecision' : 2,
-            'groupSymbol'       : ',', // aka "thousands separator"
-            'decimalSymbol'     : '.',
-            'shortmonths'       : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            'fullmonths'        : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-            'shortdays'         : ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
-            'fulldays'          : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-            'weekStarts'        : 'M', // can be "M" for Monday or "S" for Sunday
-            'phrases'           : { // keep these up-to-date and in sorted order
-                '${count} letters or more...': '${count} letters or more...',
-                'Add new record': 'Add new record',
-                'Add New': 'Add New',
-                'Advanced Search': 'Advanced Search',
-                'after': 'after',
-                'AJAX error. See console for more details.': 'AJAX error. See console for more details.',
-                'All Fields': 'All Fields',
-                'All': 'All',
-                'Any': 'Any',
-                'Are you sure you want to delete ${count} ${records}?': 'Are you sure you want to delete ${count} ${records}?',
-                'Attach files by dragging and dropping or Click to Select': 'Attach files by dragging and dropping or Click to Select',
-                'before': 'before',
-                'begins with': 'begins with',
-                'begins': 'begins',
-                'between': 'between',
-                'buffered': 'buffered',
-                'Cancel': 'Cancel',
-                'Close': 'Close',
-                'Column': 'Column',
-                'Confirmation': 'Confirmation',
-                'contains': 'contains',
-                'Copied': 'Copied',
-                'Copy to clipboard': 'Copy to clipboard',
-                'Current Date & Time': 'Current Date & Time',
-                'Delete selected records': 'Delete selected records',
-                'Delete': 'Delete',
-                'Do you want to delete search item "${item}"?': 'Do you want to delete search item "${item}"?',
-                'Edit selected record': 'Edit selected record',
-                'Edit': 'Edit',
-                'Empty list': 'Empty list',
-                'ends with': 'ends with',
-                'ends': 'ends',
-                'Field should be at least ${count} characters.': 'Field should be at least ${count} characters.',
-                'Hide': 'Hide',
-                'in': 'in',
-                'is not': 'is not',
-                'is': 'is',
-                'less than': 'less than',
-                'Line #': 'Line #',
-                'Load ${count} more...': 'Load ${count} more...',
-                'Loading...': 'Loading...',
-                'Maximum number of files is ${count}': 'Maximum number of files is ${count}',
-                'Maximum total size is ${count}': 'Maximum total size is ${count}',
-                'Modified': 'Modified',
-                'more than': 'more than',
-                'Multiple Fields': 'Multiple Fields',
-                'Name': 'Name',
-                'No items found': 'No items found',
-                'No matches': 'No matches',
-                'No': 'No',
-                'none': 'none',
-                'Not a float': 'Not a float',
-                'Not a hex number': 'Not a hex number',
-                'Not a valid date': 'Not a valid date',
-                'Not a valid email': 'Not a valid email',
-                'Not alpha-numeric': 'Not alpha-numeric',
-                'Not an integer': 'Not an integer',
-                'Not in money format': 'Not in money format',
-                'not in': 'not in',
-                'Notification': 'Notification',
-                'of': 'of',
-                'Ok': 'Ok',
-                'Record ID': 'Record ID',
-                'record': 'record',
-                'records': 'records',
-                'Refreshing...': 'Refreshing...',
-                'Reload data in the list': 'Reload data in the list',
-                'Remove': 'Remove',
-                'Request aborted.': 'Request aborted.',
-                'Required field': 'Required field',
-                'Reset': 'Reset',
-                'Restore Default State': 'Restore Default State',
-                'Returned data is not in valid JSON format.': 'Returned data is not in valid JSON format.',
-                'Save changed records': 'Save changed records',
-                'Save Grid State': 'Save Grid State',
-                'Save': 'Save',
-                'Saved Searches': 'Saved Searches',
-                'Saving...': 'Saving...',
-                'Search took ${count} seconds': 'Search took ${count} seconds',
-                'Search': 'Search',
-                'Select Hour': 'Select Hour',
-                'Select Minute': 'Select Minute',
-                'selected': 'selected',
-                'Server Response ${count} seconds': 'Server Response ${count} seconds',
-                'Show/hide columns': 'Show/hide columns',
-                'Show': 'Show',
-                'Size': 'Size',
-                'Skip': 'Skip',
-                'Sorting took ${count} seconds': 'Sorting took ${count} seconds',
-                'Type to search...': 'Type to search...',
-                'Type': 'Type',
-                'Yes': 'Yes',
-                'Yesterday': 'Yesterday',
-                'Your remote data source record count has changed, reloading from the first record.': 'Your remote data source record count has changed, reloading from the first record.'
-            },
+        settings : $.extend(true, {}, w2locale, {
             'dataType'                  : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
             'dateStartYear'             : 1950,  // start year for date-picker
             'dateEndYear'               : 2030,  // end year for date picker
             'macButtonOrder'            : false, // if true, Yes on the right side
             'warn_missing_translation'  : true,  // call console.warn if lang() encounters a missing translation
-        },
+        }),
         isBin,
         isInt,
         isFloat,
@@ -1268,7 +1159,7 @@ let w2utils = (($) => {
             if (options.originalWidth < 0) options.width = pWidth + options.originalWidth * 2 // x 2 because there is left and right margin
             let head = $(where.box).find(where.title)
 
-            // if some messages are closing, insta close them
+            // if some messages are closing, instantly close them
             let $tmp = $(where.box).find('.w2ui-message.w2ui-closing')
             if ($(where.box).find('.w2ui-message.w2ui-closing').length > 0) {
                 clearTimeout(closeTimer)
@@ -1471,7 +1362,7 @@ let w2utils = (($) => {
 
         // if the locale is an object, not a string, than we assume it's a
         if (typeof locale !== 'string' ) {
-            w2utils.settings = $.extend(true, w2utils.settings, locale)
+            w2utils.settings = $.extend(true, {}, w2utils.settings, w2locale, locale)
             return
         }
 
@@ -1486,7 +1377,7 @@ let w2utils = (($) => {
             type     : 'GET',
             dataType : 'JSON',
             success(data, status, xhr) {
-                w2utils.settings = $.extend(true, w2utils.settings, data)
+                w2utils.settings = $.extend(true, {}, w2utils.settings, w2locale, data)
                 if (typeof callBack === 'function') callBack()
             },
             error(xhr, status, msg) {
