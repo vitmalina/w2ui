@@ -32,63 +32,29 @@
 *
 * == 1.5 changes
 *   - $('#grid').w2grid() - if called w/o argument then it returns grid object
-*   - change selectAll() and selectNone() - return time it took
 *   - added vs_start and vs_extra
 *   - added update(cells) - updates only data in the grid (or cells)
 *   - add to docs onColumnDragStart, onColumnDragEnd
 *   - onSelect and onSelect should fire 1 time for selects with shift or selectAll(), selectNone()
-*   - record.w2ui.style[field_name]
-*   - use column field for style: { 1: 'color: red' }
-*   - added focus(), blur(), onFocus, onBlur
 *   - if .search(val) - search all fields
 *   - refactor reorderRow (not finished)
 *   - return JSON can now have summary array
-*   - frozen columns
 *   - added selectionSave, selectionRestore - for internal use
 *   - added additional search filter options for int, float, date, time
-*   - added getLineHTML
 *   - added lineNumberWidth
 *   - getColumn without params returns fields of all columns
 *   - getSearch without params returns fields of all searches
 *   - added hasFocus, refactored w2utils.keyboard
 *   - do not clear selection when clicked and it was not in focus
-*   - added record.w2ui.colspan
 *   - editable area extends with typing
 *   - removed onSubmit and onDeleted - now it uses onSave and onDelete
 *   - column.searchable - can be an object, which will create search
 *   - added null, not null filters
 *   - update(cells) - added argument cells
-*   - scrollIntoView(..., ..., instant) - added third argument
 *   - added onResizerDblClick
-*   - added onColumnDblClick
-*   - implemented showBubble
 *   - added w2grid.operators
 *   - added w2grid.operatorsMap
 *   - move events into prototype
-*   - move rec.summary, rec.style, rec.editable -> into rec.w2ui.summary, rec.w2ui.style, rec.w2ui.editable
-*   - record: {
-        recid
-        field1
-        ...
-        fieldN
-        w2ui: {
-            colspan: { field: 5, ...}
-            editable: true/false
-            hideCheckBox: true/false,
-            changes: {
-                field: changed_value,
-                ....
-            },
-            children: [
-                // similar to records array
-                // can have sub children
-            ]
-            parent_recid: (internally set, id of the parent record, when children are copied to records array)
-            summary: true/false
-            style: 'string' - for entire row OR { field: 'string', ...} - per field
-            class: 'string' - for entire row OR { field: 'string', ...} - per field
-        }
-    }
 *   - disableCVS
 *   - added nestedFields: use field name containing dots as separator to look into objects
 *   - grid.message
@@ -104,13 +70,10 @@
 *   - field.render(..., data) -- added last argument which is what grid thinks should be there
 *   - field.render can return { html, class, style } as an object
 *   - onSearchOpen (onSearch will have multi and reset flags)
-*   - added httpHeaders
 *   - col.editable can be a function which will be called with the same args as col.render()
 *   - col.clipboardCopy - display icon to copy to clipboard
 *   - clipboardCopy - new function on grid level
-*   - getCellEditable(index, col_ind) -- return an 'editable' descriptor if cell is really editable
 *   - added stateId
-*   - rec.w2ui.class (and rec.w2ui.class { fname: '...' })
 *   - expendable grids are still working
 *   - added getFirst
 *   - added stateColProps
@@ -122,15 +85,6 @@
 *   - added sortMap, searchMap
 *   - added column.hideable
 *   - added updateColumn
-*   - column.info {
-        icon    : string|function|object,
-        style   : string|function|object,
-        render  : function,
-        fields  : array|object,
-        showOn  : 'mouseover|mouseenter|...',
-        hideOn  : 'mouseout|mouseleave|...',
-        options : {} - will be passed to w2tag (for example options.potions = 'top')
-    }
 *   - added msgDeleteBtn
 *   - grid.toolbar.item batch
 *   - order.column
@@ -467,6 +421,8 @@ class w2grid extends w2event {
         this.onBlur             = null
         this.onReorderRow       = null
         this.onSearchSave       = null
+        this.onSearchRemove     = null
+        this.onSearchSelect     = null
         this.onColumnSelect     = null
         this.onColumnDragStart  = null
         this.onColumnDragEnd    = null
@@ -7318,7 +7274,7 @@ class w2grid extends w2event {
         return html
     }
 
-    columnTooltipShow(ind) {
+    columnTooltipShow(ind, event) {
         if (this.columnTooltip == 'normal') return
         let $el  = $(this.box).find('#grid_'+ this.name + '_column_'+ ind)
         let item = this.columns[ind]
@@ -7333,7 +7289,7 @@ class w2grid extends w2event {
         }, 1)
     }
 
-    columnTooltipHide(ind) {
+    columnTooltipHide(ind, event) {
         if (this.columnTooltip == 'normal') return
         let $el = $(this.box).find('#grid_'+ this.name + '_column_'+ ind)
         $el.removeProp('_mouse_over')
@@ -8080,8 +8036,9 @@ class w2grid extends w2event {
     }
 
     showBubble(ind, col_ind) {
-        let html = ''
         let info = this.columns[col_ind].info
+        if (!info) return
+        let html = ''
         let rec  = this.records[ind]
         let el   = $(this.box).find('#grid_'+ this.name +'_data_'+ ind +'_'+ col_ind + ' .w2ui-info')
         if (this.last.bubbleEl) $(this.last.bubbleEl).w2tag()

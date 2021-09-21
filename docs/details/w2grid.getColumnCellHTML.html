@@ -1,14 +1,22 @@
-Returns HTML for grid footer.
+Returns HTML of a grid column cell.
 
 <div class="definition">
-    getFooterHTML()
+    getColumnCellHTML(i)
 </div>
-Returns HTML text.
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>i</td>
+        <td><b>integer</b>, index of the column</td>
+    </tr>
+    </table>
+</div>
+Returns <i>string</i>, HTML text.
 
 <h4>Description</h4>
 
-The method is used internally to generate HTML for grid's footer. Several other methods might use footer to display additional information. Such
-methods are <a class="property" href="w2grid.status">.status</a> and <a class="property" href="w2grid.scroll">.scroll</a>.
+The method is used internally to generate HTML for a single column cell. If a column is hidden, it will not be in final HTML.
 It is possible to overwrite this method with a custom one.
 <div style="height: 10px"></div>
 
@@ -35,8 +43,8 @@ $('#grid').w2grid({
 });
 </textarea>
 
-You can get footer HTML:
+You can get columns HTML:
 <textarea class="javascript">
-var html = w2ui['grid'].getFooterHTML();
+var html = w2ui['grid'].getColumnCellHTML(1);
 console.log(html);
 </textarea>
