@@ -1,0 +1,31 @@
+Indicates if grid has keyboard focus. Read Only.
+
+<div class="definition">
+    Boolean, default = false
+</div>
+
+<div style="height: 10px"></div>
+
+If you define grid in the following way:
+<textarea class="javascript">
+$('#grid').w2grid({
+    name    : 'grid',
+    header  : 'Grid Header',
+    show : {
+        header : true
+    },
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
+    ]
+});
+</textarea>
+
+You can find if the grid has focus by:
+<textarea class="javascript">
+console.log(w2ui['grid'].hasFocus);
+</textarea>
