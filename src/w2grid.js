@@ -234,7 +234,6 @@ class w2grid extends w2event {
             state       : null,     // last grid state
             show_extra  : 0,        // last show extra for virtual scrolling
             _toolbar_height: 0,     // height of grid's toolbar
-            isSafari    : (/^((?!chrome|android).)*safari/i).test(navigator.userAgent), // boolean flag to indicate if we're running in a Safari browser
         }
         this.header            = ''
         this.url               = ''
@@ -4206,7 +4205,7 @@ class w2grid extends w2event {
                 // SLOW: 10k records take 7.0
                 if (empty) break
                 // in Safari need to copy to buffer on cmd or ctrl key (otherwise does not work)
-                if (obj.last.isSafari) {
+                if (w2utils.isSafari) {
                     obj.last.copy_event = obj.copy(false, event)
                     $('#grid_'+ obj.name + '_focus').val(obj.last.copy_event.text).select()
                 }
@@ -4215,7 +4214,7 @@ class w2grid extends w2event {
             case 67: // - c
                 // this fill trigger event.onComplete
                 if (event.metaKey || event.ctrlKey) {
-                    if (obj.last.isSafari) {
+                    if (w2utils.isSafari) {
                         obj.copy(obj.last.copy_event, event)
                     } else {
                         obj.last.copy_event = obj.copy(false, event)
@@ -4228,7 +4227,7 @@ class w2grid extends w2event {
             case 88: // x - cut
                 if (empty) break
                 if (event.ctrlKey || event.metaKey) {
-                    if (obj.last.isSafari) {
+                    if (w2utils.isSafari) {
                         obj.copy(obj.last.copy_event, event)
                     } else {
                         obj.last.copy_event = obj.copy(false, event)
