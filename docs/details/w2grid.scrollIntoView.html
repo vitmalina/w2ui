@@ -9,6 +9,14 @@ Called when user saves inline editing changes.
         <td>ind</td>
         <td><b>integer</b>, <i>optional</i>, index of the record in records array</td>
     </tr>
+    <tr>
+        <td>column</td>
+        <td><b>integer</b>, <i>optional</i>, index of the column in columns array</td>
+    </tr>
+    <tr>
+        <td>instant</td>
+        <td><b>boolean</b>, <i>optional</i>, instant scrolling</td>
+    </tr>
     </table>
 </div>
 Returns <i>undefined</i>.
@@ -17,6 +25,9 @@ Returns <i>undefined</i>.
 
 This method will scroll into view the record with <span class="method">ind</span> index. If you do not supply the
 <span class="method">ind</span> argument, the method will scroll into view first selected record.
+<div style="height: 10px"></div>
+
+By default the scrolling is animated, unless the <span class="method">instant</span> flag is set.
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:

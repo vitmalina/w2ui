@@ -1,18 +1,26 @@
-Returns HTML for grid footer.
+Returns HTML for a line-number cell.
 
 <div class="definition">
-    getFooterHTML()
+    getLineHTML(lineNum)
 </div>
-Returns HTML text.
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>lineNum</td>
+        <td><b>integer</b>, line number</td>
+    </tr>
+    </table>
+</div>
+Returns <i>string</i>, HTML text.
 
 <h4>Description</h4>
 
-The method is used internally to generate HTML for grid's footer. Several other methods might use footer to display additional information. Such
-methods are <a class="property" href="w2grid.status">.status</a> and <a class="property" href="w2grid.scroll">.scroll</a>.
+This method returns the HTML for a single line-number cell.
 It is possible to overwrite this method with a custom one.
 <div style="height: 10px"></div>
 
-If you have grid defined in the following way:
+If you have a grid defined in the following way:
 <textarea class="javascript">
 $('#grid').w2grid({
     name    : 'grid',
@@ -35,8 +43,8 @@ $('#grid').w2grid({
 });
 </textarea>
 
-You can get footer HTML:
+You can get line-number cell HTML:
 <textarea class="javascript">
-var html = w2ui['grid'].getFooterHTML();
+var html = w2ui['grid'].getLineHTML(2);
 console.log(html);
 </textarea>
