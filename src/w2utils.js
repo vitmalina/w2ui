@@ -15,6 +15,7 @@
 *   - normMenu
 *   - w2utils.message - return a promise
 *   - bindEvents - common method to avoid inline events
+*   - unescapeId
 *
 ************************************************/
 import { w2event } from './w2event.js'
@@ -55,6 +56,7 @@ let w2utils = (($) => {
         encodeTags,
         decodeTags,
         escapeId,
+        unescapeId,
         normMenu,
         bindEvents,
         base64encode,
@@ -549,7 +551,13 @@ let w2utils = (($) => {
 
     function escapeId (id) {
         if (id === '' || id == null) return ''
-        return String(id).replace(/([;&,\.\+\*\~'`:"\!\^#$%@\[\]\(\)=<>\|\/? {}\\])/g, '\\$1')
+        return $.escapeSelector(id)
+        // return String(id).replace(/([;&,\.\+\*\~'`:"\!\^#$%@\[\]\(\)=<>\|\/? {}\\])/g, '\\$1')
+    }
+
+    function unescapeId (id) {
+        if (id === '' || id == null) return ''
+        return $.find.selectors.preFilter.ATTR([null, id])[1]
     }
 
     function base64encode (input) {
