@@ -323,7 +323,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2utils.unlock">unlock</a> <span>- unlock(box)</span>
+    <a href="w2utils.unlock">unlock</a> <span>- unlock(box, [speed])</span>
 </div>
 <div class="obj-property-desc">
     Unlocks HTML element.

@@ -4,11 +4,14 @@ Array of field objects.
     Object, default = []
 </div>
 
+(<b>NEW in 2.0+</b>) more expressive way to define fields, see <a href="http://w2ui.com/web/demos/#/form/23" target="_blank">this demo</a>.
+<div style="height: 10px"></div>
+
 For each input or select control in the HTML template of the form, you need to define a corresponding object in the
 <span class="argument">fields</span> array. A field object has following structure:
 
 <textarea class="javascript">
-field : {
+field: {
     field  : '',              // id of field, must match name of input or select
     type   : null,            // type of field (same types as for w2field object)
     options: {

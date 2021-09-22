@@ -134,6 +134,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2form.pageStyle">pageStyle</a> <span>- String, default = ''</span>
+</div>
+<div class="obj-property-desc">
+    Additional style for each form page div
+</div>
+
+<div class="obj-property">
     <a href="w2form.postData">postData</a> <span>- Object, default = {}</span>
 </div>
 <div class="obj-property-desc">

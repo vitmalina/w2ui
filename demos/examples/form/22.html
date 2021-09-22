@@ -1,53 +1,133 @@
 <div class="content">
     <div id="example_title">
-        <h1>Apply Focus</h1>
-        You can define initial field to focus, or you can set focus later on.
+        <h1>Lock/Unlock Form</h1>
+        You can lock/unlock individual pages or lock/unlock the whole form.
+        <br>
+        Note that unlocking the whole form will also unlock all individually locked pages.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
 </div>
 
 <!--CODE-->
-<div id="form" style="width: 750px;"></div>
+<div id="form" style="width: 750px; height: 370px"></div>
 <br>
-<button class="w2ui-btn" onClick="w2ui.form.applyFocus(0)">Focus 1st field</button>
-<button class="w2ui-btn" onClick="w2ui.form.applyFocus(5)">Focus 6th field</button>
-<button class="w2ui-btn" onClick="w2ui.form.applyFocus('comments')">Focus 'comments' field</button>
-<button class="w2ui-btn" onClick="w2ui.form.applyFocus()">Focus original focus field</button>
+<button class="w2ui-btn" onclick="w2ui.form.lockPage(0, 'Message');">Lock page 0</button>
+<button class="w2ui-btn" onclick="w2ui.form.unlockPage(0);">Unlock page 0</button>
+<button class="w2ui-btn" onclick="w2ui.form.lockPage(1);">Lock page 1, no message</button>
+<button class="w2ui-btn" onclick="w2ui.form.unlockPage(1);">Unlock page 1</button>
+<button class="w2ui-btn" onclick="w2ui.form.lock('Message', true);">Lock Form</button>
+<button class="w2ui-btn" onclick="w2ui.form.unlock();">Unlock Form</button>
+<button class="w2ui-btn" onclick="w2ui.form.lock('', true);">Lock Form, only spinner</button>
 
 <!--CODE-->
 <script>
 $(function () {
     $('#form').w2form({
         name   : 'form',
-        header : 'Auto-Generated Form',
+        header : 'Form with Tabs',
         url    : 'server/post',
-        focus  : 'last_name',
-        fields : [
-            { field: 'first_name', type: 'text', required: true,
-                html: { label: 'First Name', attr: 'style="width: 200px"' }
+        fields: [
+            { field: 'name.first', type: 'text', required: true,
+                html: {
+                    page: 0,
+                    label: 'First Name',
+                    span: 4,
+                    attr: ''
+                }
             },
-            { field: 'last_name',  type: 'text', required: true,
-                html: { label: 'Last Name', attr: 'style="width: 200px"' }
+            { field: 'name.last',  type: 'text', required: true,
+                html: {
+                    page: 0,
+                    label: 'Last Name',
+                    span: 4,
+                    attr: ''
+                }
             },
             { field: 'comments', type: 'textarea',
-                html: { label: 'Comments', attr: 'style="width: 200px; height: 60px"' }
+                html: {
+                    page: 0,
+                    label: 'Comments',
+                    span: 4,
+                    attr: 'style="width: 100%; height: 60px; resize: none"'
+                }
             },
-            { field: 'city', type: 'text',
-                html: { label: 'City', attr: 'style="width: 200px"', column: 2, }
+            { field: 'address1', type: 'text', required: true,
+                html: {
+                    page: 1,
+                    groupStyle: 'width: 100%',
+                    label: 'Line 1',
+                    span: 4,
+                    attr: 'style="width: 200px"'
+                }
             },
-            { field: 'zip', type: 'text',
-                html: { label: 'Zip Code', attr: 'style="width: 100px"', column: 2, }
+            { field: 'address2', type: 'text',
+                html: {
+                    page: 1,
+                    label: 'Line 2',
+                    span: 4,
+                    attr: 'style="width: 200px"'
+                }
             },
-            { field: 'street', type: 'text',
-                html: { label: 'Street', attr: 'style="width: 200px"', column: 2, }
+            { field: 'city', type: 'text', required: true,
+                html: {
+                    page: 1,
+                    label: 'City',
+                    span: 4,
+                    attr: ''
+                }
             },
+            { field: 'state', type: 'text', required: true,
+                html: {
+                    page: 1,
+                    label: 'State',
+                    span: 4,
+                    attr: ''
+                }
+            },
+            { field: 'zip', type: 'int', required: true,
+                html: {
+                    page: 1,
+                    label: 'Zip',
+                    span: 4,
+                    attr: ''
+                }
+            },
+            { field: 'short_bio', type: 'textarea',
+                html: {
+                    page: 2,
+                    column: 'after',
+                    label: 'Short Bio',
+                    attr: 'style="width: 90%; height: 60px; resize: none"'
+                }
+            },
+            { field: 'talk_name', type: 'text', required: true,
+                html: {
+                    page: 2,
+                    column: 'after',
+                    label: 'Talk Name',
+                    attr: 'style="width: 90%"'
+                }
+            },
+            { field: 'description', type: 'textarea',
+                html: {
+                    page: 2,
+                    column: 'after',
+                    label: 'Description',
+                    attr: 'style="width: 90%; height: 60px; resize: none"'
+                }
+            }
+        ],
+        tabs: [
+            { id: 'tab1', text: 'General' },
+            { id: 'tab2', text: 'Address' },
+            { id: 'tab3', text: 'Other' }
         ],
         actions: {
-            'Reset': function (event) {
+            Reset: function () {
                 this.clear();
             },
-            'Save': function (event) {
+            Save: function () {
                 if (w2ui.form.validate().length == 0) {
                     w2popup.open({
                         title: 'Form Data',
@@ -56,6 +136,14 @@ $(function () {
                         body: `<pre>${JSON.stringify(this.getCleanRecord(), null, 4)}</pre>`,
                         buttons: '<button class="w2ui-btn" onclick="w2popup.close()">Ok</button>'
                     })
+                }
+            },
+            custom: {
+                text: '<span style="font-size: 16px">←</span> click to see data',
+                class: 'custom-class',
+                style: 'background-image: none; background-color: transparent; border: 0px; margin: 0 0 0 -10px;',
+                onClick() {
+                    w2alert('Not me!! The other button')
                 }
             }
         }

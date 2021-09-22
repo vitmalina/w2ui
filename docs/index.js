@@ -208,6 +208,8 @@ function doClick (cmd, data) {
     // load file
     $.get(path, function (data) {
         data = data.replace(/href="/g, 'href="#')
+        data = data.replace(/href="#http:\/\/w2ui.com/g, 'href="http://w2ui.com')
+        data = data.replace(/href="#https:\/\/w2ui.com/g, 'href="https://w2ui.com')
         data = data.replace(/href="#\/\/w2ui.com/g, 'href="//w2ui.com')
         w2ui.layout.html('main',
             '<div class="obj-desc">'+
