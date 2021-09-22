@@ -197,7 +197,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.getColumn">getColumn</a> <span>- getColumn(field, [returnIndex])</span>
+    <a href="w2grid.getColumn">getColumn</a> <span>- getColumn([field], [returnIndex])</span>
 </div>
 <div class="obj-property-desc">
     Finds the column and returns its object or index in columns array.
@@ -253,7 +253,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.getSearch">getSearch</a> <span>- getSearch(field, [returnIndex])</span>
+    <a href="w2grid.getSearch">getSearch</a> <span>- getSearch([field], [returnIndex])</span>
 </div>
 <div class="obj-property-desc">
     Finds the search and returns its object or index in searches array.
@@ -379,7 +379,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.menuClick">menuClick</a> <span>- menuClick(recid, index, event)</span>
+    <a href="w2grid.menuClick">menuClick</a> <span>- menuClick(recid, event)</span>
 </div>
 <div class="obj-property-desc">
     Called when user clicks on a context menu item.
@@ -547,7 +547,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.search">search</a> <span>- search(field, value)</span>
+    <a href="w2grid.search">search</a> <span>- search([field], value)</span>
 </div>
 <div class="obj-property-desc">
     Searches records in the grid.
@@ -600,6 +600,20 @@
 </div>
 <div class="obj-property-desc">
     Unselects all selected records in the grid.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.selectionRestore">selectionRestore</a> <span>- selectionRestore([noRefresh])</span>
+</div>
+<div class="obj-property-desc">
+    Restores last remembered selection
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.selectionSave">selectionSave</a> <span>- selectionSave()</span>
+</div>
+<div class="obj-property-desc">
+    Remembers current selection
 </div>
 
 <div class="obj-property">
@@ -719,6 +733,20 @@
 </div>
 <div class="obj-property-desc">
     Unselects records in the grid.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.update">update</a> <span>- update(cells)</span>
+</div>
+<div class="obj-property-desc">
+    Updates specified cells
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.updateColumn">updateColumn</a> <span>- updateColumn(fields, changes)</span>
+</div>
+<div class="obj-property-desc">
+    Updates column definition
 </div>
 
 </div>
