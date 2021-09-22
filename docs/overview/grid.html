@@ -126,6 +126,10 @@ The grid expects data in the JSON format from the server as it is described belo
         { "recid": 1, "field-1": "value-1", ... "field-N": "value-N" },
         ...
         { "recid": N, "field-1": "value-1", ... "field-N": "value-N" }
+    ],
+    /* optional */
+    "summary": [
+        { "recid": s1, "field-1": "value-1", ... "field-N": "value-N" }
     ]
 }
 </textarea>
@@ -150,7 +154,7 @@ If user selects several records in the grid and clicks the delete button on the 
 <textarea class="javascript">
 request: {
     "action":"delete",
-    "userid": [1,2]
+    "recid": [1,2]
 }
 </textarea>
 The ressponse can be

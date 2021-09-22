@@ -1,0 +1,12 @@
+Defines the number of records in the grid when to start virtualization
+
+<div class="definition">
+    Number, default = 150
+</div>
+
+Virtualization is the process when only records in the current scroll window are added to the actual DOM tree. This approach
+allows grid to have millions of records and still be snappy. So, if grid has less then 150 records, all of them will be available
+in the DOM, however, if more, only the records that are in the view.
+
+<div style="height: 10px"></div>
+You should not normally change this property.

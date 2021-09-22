@@ -1,0 +1,25 @@
+Defines default operator for each search type group
+
+<div class="definition">
+    Object, default = {...} // see below
+</div>
+
+Each search type group should have a default operator that is defined by this property.
+
+<textarea class="javascript">
+defaultOperator = {
+    'text'    : 'begins',
+    'number'  : '=',
+    'date'    : 'is',
+    'list'    : 'is',
+    'enum'    : 'in',
+    'hex'     : 'begins',
+    'color'   : 'begins'
+}
+</textarea>
+
+See also
+<ul>
+    <li><a href="w2grid.operators" class="method">.operators</a> - default operators for each search type</li>
+    <li><a href="w2grid.operatorsMap" class="method">.operatorsMap</a> - defaykt operator for each search type</li>
+</ul>
