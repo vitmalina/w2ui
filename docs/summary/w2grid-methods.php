@@ -29,6 +29,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.blur">blur</a> <span>- blur(event)</span>
+</div>
+<div class="obj-property-desc">
+    Processes blur events.
+</div>
+
+<div class="obj-property">
     <a href="w2grid.clear">clear</a> <span>- clear([noRefresh])</span>
 </div>
 <div class="obj-property-desc">
@@ -40,6 +47,13 @@
 </div>
 <div class="obj-property-desc">
     Called when user clicks on a record.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.clipboardCopy">clipboardCopy</a> <span>- clipboardCopy(ind, col_ind)</span>
+</div>
+<div class="obj-property-desc">
+    Copies the content of a cell to the clipboard.
 </div>
 
 <div class="obj-property">
@@ -61,6 +75,20 @@
 </div>
 <div class="obj-property-desc">
     Called when user opens grid settings (on grids toolbar) and selects an item.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.columnTooltipHide">columnTooltipHide</a> <span>- columnTooltipHide(ind, [event])</span>
+</div>
+<div class="obj-property-desc">
+    Hides tooltip of specific column.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.columnTooltipShow">columnTooltipShow</a> <span>- columnTooltipShow(ind, [event])</span>
+</div>
+<div class="obj-property-desc">
+    Displays tooltip of specific column.
 </div>
 
 <div class="obj-property">
@@ -120,10 +148,31 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.focus">focus</a> <span>- focus(event)</span>
+</div>
+<div class="obj-property-desc">
+    Processes focus events.
+</div>
+
+<div class="obj-property">
     <a href="w2grid.get">get</a> <span>- get(recid, [returnIndex])</span>
 </div>
 <div class="obj-property-desc">
     Finds the record and returns its object or index in records array.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.getCellCopy">getCellCopy</a> <span>- getCellCopy(ind, col_ind)</span>
+</div>
+<div class="obj-property-desc">
+    Returns the content of a cell.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.getCellEditable">getCellEditable</a> <span>- getCellEditable(ind, col_ind)</span>
+</div>
+<div class="obj-property-desc">
+    Returns null or the editable object if the given cell is editable.
 </div>
 
 <div class="obj-property">
@@ -155,6 +204,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.getColumnCellHTML">getColumnCellHTML</a> <span>- getColumnCellHTML(i)</span>
+</div>
+<div class="obj-property-desc">
+    Returns HTML of a grid column cell.
+</div>
+
+<div class="obj-property">
     <a href="w2grid.getColumnsHTML">getColumnsHTML</a> <span>- getColumnsHTML()</span>
 </div>
 <div class="obj-property-desc">
@@ -166,6 +222,13 @@
 </div>
 <div class="obj-property-desc">
     Returns HTML for grid footer.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.getLineHTML">getLineHTML</a> <span>- getLineHTML(lineNum)</span>
+</div>
+<div class="obj-property-desc">
+    Returns HTML for a line-number cell.
 </div>
 
 <div class="obj-property">
@@ -544,6 +607,13 @@
 </div>
 <div class="obj-property-desc">
     Finds the record and extends it with provided object.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.showBubble">showBubble</a> <span>- showBubble(ind, col_ind)</span>
+</div>
+<div class="obj-property-desc">
+    Shows the info bubble on a cell.
 </div>
 
 <div class="obj-property">

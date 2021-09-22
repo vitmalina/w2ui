@@ -71,6 +71,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2form.getCleanRecord">getCleanRecord</a> <span>- getCleanRecord([strict])</span>
+</div>
+<div class="obj-property-desc">
+    Returns clean record object
+</div>
+
+<div class="obj-property">
     <a href="w2form.getValue">getValue</a> <span>- getValue(field)</span>
 </div>
 <div class="obj-property-desc">
@@ -96,6 +103,13 @@
 </div>
 <div class="obj-property-desc">
     Locks the form and displays a status message.
+</div>
+
+<div class="obj-property">
+    <a href="w2form.lockPage">lockPage</a> <span>- lockPage(page, [message])</span>
+</div>
+<div class="obj-property-desc">
+    Locks an individual page in the form and displays a status message.
 </div>
 
 <div class="obj-property">
@@ -148,6 +162,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2form.showErrors">showErrors</a> <span>- showErrors()</span>
+</div>
+<div class="obj-property-desc">
+    Show errors of the form
+</div>
+
+<div class="obj-property">
     <a href="w2form.submit">submit</a> <span>- submit([postData], [callBack])</span>
 </div>
 <div class="obj-property-desc">
@@ -166,6 +187,20 @@
 </div>
 <div class="obj-property-desc">
     Unlocks the form.
+</div>
+
+<div class="obj-property">
+    <a href="w2form.unlockPage">unlockPage</a> <span>- unlockPage(page, [speed])</span>
+</div>
+<div class="obj-property-desc">
+    Unlocks an individual page in the form.
+</div>
+
+<div class="obj-property">
+    <a href="w2form.updateEmptyGroups">updateEmptyGroups</a> <span>- updateEmptyGroups()</span>
+</div>
+<div class="obj-property-desc">
+    Hides empty groups, shows non empty groups
 </div>
 
 <div class="obj-property">

@@ -6,21 +6,7 @@
 *   - include delta on save
 *   - two way data bindings
 *   - rename applyFocus -> focus
-*
-* == 1.5 changes
-*   - when field is blank, set record.field = null
-*   - added ability to generate radio and select html in generateHTML()
-*   - refresh(field) - would refresh only one field
-*   - form.message
-*   - added field.html.column = 'before' && field.html.column = 'after'
-*   - added field.html.anchor
-*   - added nestedFields: use field name containing dots as separator to look into objects
-*   - added getCleanRecord(strict)
-*   - options.items - can be an array
-*   - added form.pageStyle
-*   - added field.options.minLength, min/max for numbers can be done with int/float - min/max
-*   - updateEmptyGroups
-*   - tabs below some fields
+*   - tabs below some fields (could already be implemented)
 *
 * == 2.0 changes
 *   - show/hide, enable/disable - return array of effected items
@@ -28,6 +14,7 @@
 *   - field.type = 'group' - only in constructor
 *   - form.confirm
 *   - nested groups (so fields can be defined inside)
+*   - better groups (nested fields)
 *
 ************************************************************************/
 
