@@ -29,6 +29,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.defaultOperator">defaultOperator</a> <span>- Object, default = {...} // see below</span>
+</div>
+<div class="obj-property-desc">
+    Defines default operator for each search type group
+</div>
+
+<div class="obj-property">
     <a href="w2grid.fixedBody">fixedBody</a> <span>- Boolean, default = true</span>
 </div>
 <div class="obj-property-desc">
@@ -68,6 +75,13 @@
 </div>
 <div class="obj-property-desc">
     Number of records to return from remote data source per attempt.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.lineNumberWidth">lineNumberWidth</a> <span>- Integer, default = 34</span>
+</div>
+<div class="obj-property-desc">
+    Width for the line number column.
 </div>
 
 <div class="obj-property">
@@ -148,6 +162,20 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.operators">operators</a> <span>- Object, default = {...} // see below</span>
+</div>
+<div class="obj-property-desc">
+    Defines operators for different types of search fields
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.operatorsMap">operatorsMap</a> <span>- Object, default = {...} // see below</span>
+</div>
+<div class="obj-property-desc">
+    Defines a map of search types and operators for it
+</div>
+
+<div class="obj-property">
     <a href="w2grid.parser">parser</a> <span>- Function, default = null</span>
 </div>
 <div class="obj-property-desc">
@@ -218,6 +246,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.searchMap">searchMap</a> <span>- Object, default = {}</span>
+</div>
+<div class="obj-property-desc">
+    Map for search fields (local to remote).
+</div>
+
+<div class="obj-property">
     <a href="w2grid.searches">searches</a> <span>- Array, default = []</span>
 </div>
 <div class="obj-property-desc">
@@ -246,10 +281,24 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.sortMap">sortMap</a> <span>- Object, default = {}</span>
+</div>
+<div class="obj-property-desc">
+    Map for sort fields (local to remote).
+</div>
+
+<div class="obj-property">
     <a href="w2grid.summary">summary</a> <span>- Array, default = []</span>
 </div>
 <div class="obj-property-desc">
     Summary records that displayed on the bottom
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.tabIndex">tabIndex</a> <span>- Number, default = null</span>
+</div>
+<div class="obj-property-desc">
+    Defines tab index for the grid.
 </div>
 
 <div class="obj-property">
@@ -278,6 +327,20 @@
 </div>
 <div class="obj-property-desc">
     URL to the remote data source.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.vs_extra">vs_extra</a> <span>- Number, default = 15</span>
+</div>
+<div class="obj-property-desc">
+    Defines the number of extra records to display when virtualizing
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.vs_start">vs_start</a> <span>- Number, default = 150</span>
+</div>
+<div class="obj-property-desc">
+    Defines the number of records in the grid when to start virtualization
 </div>
 
 </div>

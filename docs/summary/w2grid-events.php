@@ -43,6 +43,20 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.onColumnDragEnd">onColumnDragEnd</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when user drops a column he was dragging.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.onColumnDragStart">onColumnDragStart</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when user starts dragging a draggable column.
+</div>
+
+<div class="obj-property">
     <a href="w2grid.onColumnOnOff">onColumnOnOff</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">
@@ -54,6 +68,13 @@
 </div>
 <div class="obj-property-desc">
     Called when user resizes a column.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.onColumnSelect">onColumnSelect</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when user selects a columng.
 </div>
 
 <div class="obj-property">
@@ -152,6 +173,13 @@
 </div>
 <div class="obj-property-desc">
     Called on any server request.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.onResizerDblClick">onResizerDblClick</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when user double clicks on the column resizer (between columns)
 </div>
 
 <div class="obj-property">

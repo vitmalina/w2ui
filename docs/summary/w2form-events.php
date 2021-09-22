@@ -43,13 +43,6 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2form.onSubmit">onSubmit</a> <span>- function (event)</span>
-</div>
-<div class="obj-property-desc">
-    Called before form submits request to save record.
-</div>
-
-<div class="obj-property">
     <a href="w2form.onToolbar">onToolbar</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">
