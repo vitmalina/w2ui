@@ -1,0 +1,24 @@
+Defines tab index for the grid.
+
+<div class="definition">
+    Number, default = null
+</div>
+
+If defined, will add tabindex attribute to the grid, so that it can receive focus when user clicks tab.
+<div style="height: 10px"></div>
+
+This property can be set during object creation:
+<textarea class="javascript">
+$('#grid').w2grid({
+    name: 'grid',
+    tabIndex: 100,
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
+    ]
+});
+</textarea>

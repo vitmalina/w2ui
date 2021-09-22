@@ -1,0 +1,34 @@
+Map for search fields (local to remote).
+
+<div class="definition">
+    Object, default = {}
+</div>
+
+By default, if you search, it will submit column field to the searchData array to send to the server side for searching.
+However, sometimes column field names are not the same as search names. The <span class="property">.searchMap</span> allows to map search
+fields differently.
+<div style="height: 10px"></div>
+
+You can defined it during object creation:
+<textarea class="javascript">
+$('#grid').w2grid({
+    name : 'grid',
+    url  : 'url/to/server',
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
+    ],
+    searchMap: {
+        lname : 'lastName',
+        fname : 'firstName'
+    }
+});
+</textarea>
+
+Or any time during the run-time:
+<textarea class="javascript">
+w2ui.grid.searchMap['email'] = 'main.email';
+</textarea>

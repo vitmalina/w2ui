@@ -27,7 +27,7 @@ $('#grid').w2grid({
 Each column is an object with properties listed below:
 <textarea class="javascript">
 column = {
-    text           : '',     // column caption
+    text           : '',     // column caption (can be a function)
     field          : '',     // field name to map column to a record
     size           : null,   // size of column in px or %
     min            : 20,     // minimum width of column in px
@@ -37,8 +37,8 @@ column = {
     sizeCalculated : null,   // read only, size in px (see explanation below)
     hidden         : false,  // indicates if column is hidden
     sortable       : false,  // indicates if column is sortable
-    sortMode       : null,   // sort mode or custom compare function
-    searchable     : false,  // indicates if column is searchable, bool/string: int,float,date,...
+    sortMode       : null,   // sort mode ('default'|'natural') or custom compare function
+    searchable     : false,  // bool/string: int,float,date,... or an object to create search field
     resizable      : true,   // indicates if column is resizable
     autoResize     : true,   // indicates if column can be auto-resized by double clicking on the resizer
     hideable       : true,   // indicates if column can be hidden

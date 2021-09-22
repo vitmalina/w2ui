@@ -1,0 +1,34 @@
+Map for sort fields (local to remote).
+
+<div class="definition">
+    Object, default = {}
+</div>
+
+By default, if you click on the column, it will add column field to the sortData array to send to the server side for sorting.
+However, sometimes column field names are not the same as sort names. The <span class="property">.sortMap</span> allows to map sort
+fields differently.
+<div style="height: 10px"></div>
+
+You can defined it during object creation:
+<textarea class="javascript">
+$('#grid').w2grid({
+    name : 'grid',
+    url  : 'url/to/server',
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
+    ],
+    sortMap: {
+        lname : 'lastName',
+        fname : 'firstName'
+    }
+});
+</textarea>
+
+Or any time during the run-time:
+<textarea class="javascript">
+w2ui.grid.sortMap['email'] = 'main.email';
+</textarea>

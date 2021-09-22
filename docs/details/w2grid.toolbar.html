@@ -56,6 +56,14 @@ show = {
 There are other items in the <a class="property" href="w2grid.show">.show</a> property besides those relevant to toolbar.
 <div style="height: 10px"></div>
 
+<h3>Auto enable/disable toolbar buttons</h3>
+
+Toolbar items might have optional <span class="property">.batch</span> property. If it is a positive integer, then the button will only
+be enabled if same number of records is selected in the grid. If it is true (used to be if it is 0), it will only be enabled if at least one record
+is selected. It also can be a function, so that if selection changes, you can determine if button should be enabled or disabled.
+
+<h3>Toolbar object</h3>
+
 Once the grid object has been created, the <span class="property">.toolbar</span> property becomes w2toolbar object. The name of this
 object is the name of the grid + '_toolbar'. If you have the grid created, you can access w2toolbar object in the following way:
 
