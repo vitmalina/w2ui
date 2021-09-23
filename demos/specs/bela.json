@@ -1,0 +1,27 @@
+{
+    "start": "manifest",
+    "pauseOnError": false,
+    "autoExpand": true,
+    "baseURL": "http://localhost/w2ui/demos/",
+    "specs": [
+        "specs/combo/demo1.spec.js",
+        "specs/combo/demo2.spec.js",
+        "specs/combo/demo8.spec.js",
+        "specs/combo/demo10.spec.js",
+        "specs/combo/demo11.spec.js",
+        "specs/layout/demo1.spec.js",
+        "specs/layout/demo2.spec.js",
+        "specs/layout/demo3.spec.js",
+        "specs/layout/demo4.spec.js",
+        "specs/grid/demo1.spec.js",
+        "specs/grid/demo2.spec.js",
+        "specs/grid/demo3.spec.js",
+        "specs/grid/demo23.spec.js",
+        "specs/grid/demo29.spec.js",
+        "specs/grid/demo31.spec.js"
+    ],
+    "libs": [
+        "specs/w2ui.js",
+        "specs/custom.js"
+    ]
+}
