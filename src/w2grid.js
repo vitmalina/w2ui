@@ -21,46 +21,26 @@
 *   - remote source, but localSort/localSearch
 *   - right click on columns
 *   - reload a single records (useful when need to update deep in buffered records)
+*   - need to update PHP example
+*   - return structure status -> replace with success
 *
 * == DEMOS To create ==
+*   - batch for disabled buttons
+*   - naturla sort
+*   - resize on max content
 *
 * == KNOWN ISSUES ==
 *   - reorder records with school - not correct
 *   - reorder columns not working
 *   - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
 *   - Shift-click/Ctrl-click/Ctrl-Shift-Click selection is not as robust as it should be
+*   - refactor reorderRow (not finished)
 *
 * == 1.5 changes
-*   - $('#grid').w2grid() - if called w/o argument then it returns grid object
-*   - added vs_start and vs_extra
-*   - added update(cells) - updates only data in the grid (or cells)
-*   - add to docs onColumnDragStart, onColumnDragEnd
-*   - onSelect and onSelect should fire 1 time for selects with shift or selectAll(), selectNone()
-*   - if .search(val) - search all fields
-*   - refactor reorderRow (not finished)
-*   - return JSON can now have summary array
-*   - added selectionSave, selectionRestore - for internal use
-*   - added additional search filter options for int, float, date, time
-*   - added lineNumberWidth
-*   - getColumn without params returns fields of all columns
-*   - getSearch without params returns fields of all searches
-*   - added hasFocus, refactored w2utils.keyboard
-*   - do not clear selection when clicked and it was not in focus
-*   - editable area extends with typing
-*   - removed onSubmit and onDeleted - now it uses onSave and onDelete
-*   - column.searchable - can be an object, which will create search
-*   - added null, not null filters
-*   - update(cells) - added argument cells
-*   - added onResizerDblClick
-*   - added w2grid.operators
-*   - added w2grid.operatorsMap
-*   - move events into prototype
 *   - disableCVS
 *   - added nestedFields: use field name containing dots as separator to look into objects
 *   - grid.message
 *   - added noReset option to localSort()
-*   - onColumnSelect
-*   - need to update PHP example
 *   - added scrollToColumn(field)
 *   - textSearch: 'begins' (default), 'contains', 'is', ...
 *   - added refreshBody
@@ -82,19 +62,6 @@
 *   - deprecated columnGroup.caption -> columnGroup.text
 *   - moved a lot of properties into prototype
 *   - showExtraOnSearch
-*   - added sortMap, searchMap
-*   - added column.hideable
-*   - added updateColumn
-*   - added msgDeleteBtn
-*   - grid.toolbar.item batch
-*   - order.column
-*   - fixed select/unselect, not it can take array of ids
-*   - menuClick - changed parameters
-*   - column.text can be a function
-*   - columnGroup.text can be a function
-*   - grid.tabIndex
-*   - onColumnAutoResize
-*   - col.sortMode = 'default', 'natural' or a function
 *
 * == 2.0 changes
 *   - .message - returns a promise
@@ -110,7 +77,6 @@
 *   - grid.confirm
 *   - grid.message returns a promise
 *   - search.type == 'text' can have 'in' and 'not in' operators, then it will switch to enum
-*   - removed msgDeleteBtn
 *
 ************************************************************************/
 
@@ -128,18 +94,19 @@ class w2grid extends w2event {
         this.records      = [] // { recid: int(required), field1: 'value1', ... fieldN: 'valueN', style: 'string',  changes: object }
         this.summary      = [] // array of summary records, same structure as records array
         this.searches     = [] // { type, label, field, inTag, outTag, hidden }
-        this.sortMap      = {} // remap sort Fields
         this.toolbar      = {} // if not empty object; then it is toolbar object
         this.ranges       = []
         this.menu         = []
+        this.searchMap    = {} // re-map search fields
         this.searchData   = []
+        this.sortMap      = {} // re-map sort fields
         this.sortData     = []
         this.savedSearches= []
         this.total        = 0 // server total
         this.recid        = null // field from records to be used as recid
 
         // internal
-        this.last              = {
+        this.last = {
             field     : '',         // last search field, e.g. 'all'
             label     : '',         // last search field label, e.g. 'All Fields'
             logic     : 'AND',      // last search logic, e.g. 'AND' or 'OR'
@@ -234,7 +201,7 @@ class w2grid extends w2event {
         this.autoLoad          = true // for infinite scroll
         this.fixedBody         = true // if false; then grid grows with data
         this.recordHeight      = 32
-        this.lineNumberWidth   = null
+        this.lineNumberWidth   = 34
         this.keyboard          = true
         this.selectType        = 'row' // can be row|cell
         this.multiSearch       = true
@@ -250,6 +217,7 @@ class w2grid extends w2event {
         this.vs_start          = 150
         this.vs_extra          = 15
         this.style             = ''
+        this.tabIndex          = null
         this.method            = null // if defined, then overwrites ajax method
         this.dataType          = null // if defined, then overwrites w2utils.settings.dataType
         this.parser            = null
@@ -705,10 +673,10 @@ class w2grid extends w2event {
         return null
     }
 
-    updateColumn(names, updates) {
+    updateColumn(fields, updates) {
         let effected = 0
-        names        = (Array.isArray(names) ? names : [names])
-        names.forEach((colName) => {
+        fields = (Array.isArray(fields) ? fields : [fields])
+        fields.forEach((colName) => {
             this.columns.forEach((col) => {
                 if (col.field == colName) {
                     let _updates = $.extend(true, {}, updates)
@@ -1898,7 +1866,7 @@ class w2grid extends w2event {
         })
 
         function _checkItem(item, prefix) {
-            if (item.batch === 0) {
+            if (item.batch === true) {
                 if (cnt > 0) obj.toolbar.enable(prefix + item.id); else obj.toolbar.disable(prefix + item.id)
             }
             if (item.batch != null && !isNaN(item.batch) && item.batch > 0) {

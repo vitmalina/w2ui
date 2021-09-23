@@ -1,18 +1,18 @@
 Finds the search and returns its object or index in searches array.
 
 <div class="definition">
-    getSearch(field, [returnIndex])
+    getSearch([field], [returnIndex])
 </div>
 
 <div class="arguments">
     <table>
     <tr>
         <td>field</td>
-        <td><b>string</b>, field name of the search</td>
+        <td><b>string</b>, <i>optional</i> field name of the search</td>
     </tr>
     <tr>
         <td>returnIndex</td>
-        <td><b>boolean</b>, indicates if return a search or its index in searches array</td>
+        <td><b>boolean</b>, <i>optional</i> indicates if return a search or its index in searches array</td>
     </tr>
     </table>
 </div>
@@ -23,6 +23,9 @@ Returns object, integer or null.
 
 The search is identified by the <span class="argument">.field</span> property, which is a required property for each search object. The
 method loops through the <a class="property" href="w2grid.searches">.searches</a> array to find the search object.
+<div style="height: 10px"></div>
+
+If called w/o parameters, it will return array of search names.
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:

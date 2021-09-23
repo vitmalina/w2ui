@@ -10,7 +10,7 @@ class w2event {
     constructor(name) {
         this.handlers = []
         // register globally
-        if (name) {
+        if (typeof name !== 'undefined') {
             window.w2ui = window.w2ui || {}
             if (!w2utils.checkName(name)) return
             window.w2ui[name] = this

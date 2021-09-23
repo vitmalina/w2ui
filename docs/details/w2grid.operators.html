@@ -1,0 +1,40 @@
+Defines operators for different types of search fields
+
+<div class="definition">
+    Object, default = {...} // see below
+</div>
+
+This operators are used for different type of search fields. Default operators are:
+
+<textarea class="javascript">
+{
+    'text'    : ['is', 'begins', 'contains', 'ends'], // could have "in" and "not in"
+    'number'  : ['=', 'between', '>', '<', '>=', '<='],
+    'date'    : ['is', 'between', { oper: 'less', text: 'before'}, { oper: 'more', text: 'after' }],
+    'list'    : ['is'],
+    'hex'     : ['is', 'between'],
+    'color'   : ['is', 'begins', 'contains', 'ends'],
+    'enum'    : ['in', 'not in']
+}
+</textarea>
+All possible operators are:
+<ul>
+    <li><b>is</b> - same as =</li>
+    <li><b>begins</b> - for text only</li>
+    <li><b>contains</b> - for text only</li>
+    <li><b>ends</b> - for text only</li>
+    <li><b>more</b> - same as ></li>
+    <li><b>less</b> - same as <</li>
+    <li><b>=, >, >=, <, <=</b> - for numbers and dates</li>
+    <li><b>between</b> - for numbes and dates</li>
+    <li><b>in</b> - for sets</li>
+    <li><b>not in</b> - for sets</li>
+    <li><b>null</b></li>
+    <li><b>not null</b></li>
+</ul>
+
+See also
+<ul>
+    <li><a href="w2grid.operatorsMap" class="method">.operatorsMap</a> - map of search type to oeprators</li>
+    <li><a href="w2grid.defaultOperator" class="method">.defaultOperator</a> - defaykt operator for each search type</li>
+</ul>

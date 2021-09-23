@@ -1,0 +1,30 @@
+Width for the line number column.
+
+<div class="definition">
+    Integer, default = 34
+</div>
+
+This property width of the line number column. This property can be set during object creation:
+<textarea class="javascript">
+$('#grid').w2grid({
+    name: 'grid',
+    show: {
+        lineNumbers: true
+    },
+    lineNumberWidth: 50,
+    columns : [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
+    ]
+});
+</textarea>
+
+Or any time during run-time:
+<textarea class="javascript">
+w2ui.grid.lineNumberWidth = 100;
+w2ui.grid.refresh();
+</textarea>

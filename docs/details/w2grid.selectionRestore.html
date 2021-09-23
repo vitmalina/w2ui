@@ -1,33 +1,28 @@
-Finds the column and returns its object or index in columns array.
+Restores last remembered selection
 
 <div class="definition">
-    getColumn([field], [returnIndex])
+    selectionRestore([noRefresh])
 </div>
 
 <div class="arguments">
     <table>
     <tr>
-        <td>field</td>
-        <td><b>string</b>, <i>optional</i> field name of the column</td>
-    </tr>
-    <tr>
-        <td>returnIndex</td>
-        <td><b>boolean</b>, <i>optional</i> indicates if return a column or its index in columns array</td>
+        <td>noRefresh</td>
+        <td><b>boolean</b>, <i>optional</i> indicates if to refresh the grid</td>
     </tr>
     </table>
 </div>
-Returns object, integer or null.
+
+Returns time it took to restore selection.
+<div style="height: 10px;"></div>
 
 <h4>Description</h4>
 
-The column is identified by the <span class="argument">.field</span> property, which is a required property for each column object. The
-method loops through the <a class="property" href="w2grid.columns">.columns</a> array to find the column object.
-<div style="height: 10px"></div>
+This method restores last saved selection from <span class="property">.last._selection</span> property. It is used internally to remember
+and then restore selection after local sort and grid reload methods.
+<div style="height: 10px;"></div>
 
-If called w/o parameters, it will return array of column names.
-<div style="height: 10px"></div>
-
-If you have grid defined in the following way:
+If you have a grid defined in the following way:
 <textarea class="javascript">
 $('#grid').w2grid({
     name    : 'grid',
@@ -50,7 +45,9 @@ $('#grid').w2grid({
 });
 </textarea>
 
-You can get the column:
+You can do:
 <textarea class="javascript">
-console.log( w2ui['grid'].getColumn('recid') );
+grid.selectionSave();
+// do some grid changes
+grid.selectionRestore();
 </textarea>

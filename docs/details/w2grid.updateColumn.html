@@ -1,33 +1,29 @@
-Finds the column and returns its object or index in columns array.
+Updates column definition
 
 <div class="definition">
-    getColumn([field], [returnIndex])
+    updateColumn(fields, changes)
 </div>
 
 <div class="arguments">
     <table>
     <tr>
-        <td>field</td>
-        <td><b>string</b>, <i>optional</i> field name of the column</td>
+        <td>fields</td>
+        <td><b>array of string</b>, field names of columns to update</td>
     </tr>
     <tr>
-        <td>returnIndex</td>
-        <td><b>boolean</b>, <i>optional</i> indicates if return a column or its index in columns array</td>
+        <td>changes</td>
+        <td><b>object</b>, object with changes</td>
     </tr>
     </table>
 </div>
-Returns object, integer or null.
+Returns <i>number</i> of effected columns.
 
 <h4>Description</h4>
 
-The column is identified by the <span class="argument">.field</span> property, which is a required property for each column object. The
-method loops through the <a class="property" href="w2grid.columns">.columns</a> array to find the column object.
+This method will update corresponding columns and refresh the grid.
 <div style="height: 10px"></div>
 
-If called w/o parameters, it will return array of column names.
-<div style="height: 10px"></div>
-
-If you have grid defined in the following way:
+If you have following grid:
 <textarea class="javascript">
 $('#grid').w2grid({
     name    : 'grid',
@@ -36,7 +32,6 @@ $('#grid').w2grid({
         { field: 'lname', text: 'Last Name', size: '30%' },
         { field: 'fname', text: 'First Name', size: '30%' },
         { field: 'email', text: 'Email', size: '40%' },
-        { field: 'sdate', text: 'Start Date', size: '120px' },
         { field: 'sdate', text: 'End Date', size: '120px' }
     ],
     records: [
@@ -50,7 +45,7 @@ $('#grid').w2grid({
 });
 </textarea>
 
-You can get the column:
+And if the grid is locked, you can unlock it by
 <textarea class="javascript">
-console.log( w2ui['grid'].getColumn('recid') );
+w2ui.grid.updateColumns(['fname', 'lname'], { hidden: true });
 </textarea>
