@@ -13297,6 +13297,7 @@ class w2tabs extends w2event {
 *   - show/hide, enable/disable, check/uncheck - return array of effected items
 *   - button.img - deprecated
 *   - this.right - string or array
+*   - added tmp object for runtime variables
 *
 ************************************************************************/
 class w2toolbar extends w2event {
@@ -13340,7 +13341,8 @@ class w2toolbar extends w2event {
             onClick: null,
             onRefresh: null
         }
-        let items          = options.items
+        this.tmp = {}
+        let items = options.items
         delete options.items
         // mix in options
         $.extend(true, this, options)
@@ -13601,18 +13603,28 @@ class w2toolbar extends w2event {
                                     if (Array.isArray(it.selected) && it.selected.indexOf(item.id) != -1) item.checked = true; else item.checked = false
                                 })
                             }
-                            el.w2menu($.extend({ name: obj.name, items: items, left: left, top: 3, data: { 'tb-item': it.id } }, it.overlay, {
-                                type: menuType,
-                                remove(event) {
-                                    obj.menuClick({ name: obj.name, remove: true, item: it, subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
-                                },
-                                select(event) {
-                                    obj.menuClick({ name: obj.name, item: it, subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
-                                },
-                                onHide(event) {
-                                    hideDrop()
+                            obj.tmp.overlayEl = el
+                            el.w2menu($.extend({
+                                    name: obj.name,
+                                    items: items,
+                                    left: left,
+                                    top: 3,
+                                    data: { 'tb-item': it.id }
+                                }, it.overlay, {
+                                    type: menuType,
+                                    remove(event) {
+                                        obj.menuClick({ name: obj.name, remove: true, item: it,
+                                            subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
+                                    },
+                                    select(event) {
+                                        obj.menuClick({ name: obj.name, item: it,
+                                            subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
+                                    },
+                                    onHide(event) {
+                                        hideDrop()
+                                    }
                                 }
-                            }))
+                            ))
                         }
                         if (['color', 'text-color'].indexOf(it.type) != -1) {
                             $(el).w2color($.extend({
@@ -13794,7 +13806,7 @@ class w2toolbar extends w2event {
                         drop[0].hide()
                     } else {
                         if (['menu', 'menu-radio', 'menu-check'].indexOf(it.type) != -1) {
-                            drop.w2menu('refresh', { items: it.items })
+                            $(this.tmp.overlayEl).w2menu('refresh', { items: it.items })
                         }
                     }
                 }
@@ -16047,6 +16059,9 @@ class w2field extends w2event {
     }
     focus(event) {
         let obj = this
+        if ($(obj.el).hasClass('has-focus')) {
+            return
+        }
         $(obj.el).addClass('has-focus')
         // color, date, time
         if (['color', 'date', 'time', 'datetime'].indexOf(obj.type) !== -1) {
@@ -16064,8 +16079,8 @@ class w2field extends w2event {
                     $(obj.helpers.focus).find('input').focus()
                     return
                 }
+                obj.updateOverlay()
                 obj.search()
-                setTimeout(() => { obj.updateOverlay() }, 1)
             }, 1)
             // regenerate items
             if (typeof obj.options._items_fun == 'function') {
@@ -16351,7 +16366,10 @@ class w2field extends w2event {
                     // indexOnly = true;
                     break
                 case 13: { // enter
-                    if ($('#w2ui-overlay').length === 0) break // no action if overlay not open
+                    if ($('#w2ui-overlay').length === 0) {
+                        obj.updateOverlay()
+                        break // no action if overlay not open
+                    }
                     let item = options.items[options.index]
                     if (obj.type === 'enum') {
                         if (item != null && !item.hidden && !item.disabled) {
@@ -16424,6 +16442,10 @@ class w2field extends w2event {
                     }
                     break
                 case 38: // up
+                    if ($('#w2ui-overlay').length === 0) {
+                        obj.updateOverlay()
+                        break // no action if overlay not open
+                    }
                     options.index = w2utils.isInt(options.index) ? parseInt(options.index) : 0
                     options.index--
                     while (options.index > 0 && (options.items[options.index].hidden || options.items[options.index].disabled)) options.index--
@@ -16433,6 +16455,10 @@ class w2field extends w2event {
                     indexOnly = true
                     break
                 case 40: // down
+                    if ($('#w2ui-overlay').length === 0) {
+                        obj.updateOverlay()
+                        break // no action if overlay not open
+                    }
                     options.index = w2utils.isInt(options.index) ? parseInt(options.index) : -1
                     options.index++
                     while (options.index < options.items.length-1 && (options.items[options.index].hidden || options.items[options.index].disabled)) options.index++
@@ -16446,6 +16472,11 @@ class w2field extends w2event {
                         indexOnly = true
                     }
                     break
+                default:
+                    // show popup on search
+                    if ($('#w2ui-overlay').length === 0) {
+                        obj.updateOverlay()
+                    }
             }
             if (indexOnly) {
                 if (options.index < 0) options.index = 0
@@ -16711,7 +16742,6 @@ class w2field extends w2event {
             while (items[options.index] && items[options.index].hidden) options.index++
             if (shown <= 0) options.index = -1
             options.spinner = false
-            obj.updateOverlay()
             setTimeout(() => {
                 let html = $('#w2ui-overlay').html() || ''
                 if (options.markSearch && $('#w2ui-overlay .no-matches').length == 0) { // do not highlight when no items
@@ -16721,6 +16751,9 @@ class w2field extends w2event {
         } else {
             items.splice(0, options.cacheMax)
             options.spinner = true
+        }
+        // only update overlay when it is displayed already
+        if ($('#w2ui-overlay').length > 0) {
             obj.updateOverlay()
         }
     }
@@ -17117,7 +17150,15 @@ class w2field extends w2event {
                         }
                     }
                 })
-                $(el).w2menu((!indexOnly ? 'refresh' : 'refresh-index'), params)
+                if (indexOnly) {
+                    $(el).w2menu('refresh-index', params)
+                } else {
+                    if ($('#w2ui-overlay').length > 0) {
+                        $(el).w2menu('refresh', params)
+                    } else {
+                        $(el).w2menu(params)
+                    }
+                }
             }
         }
     }
@@ -17449,8 +17490,12 @@ class w2field extends w2event {
         // INPUT events
         helper.find('input')
             .on('click', function(event) {
-                if ($('#w2ui-overlay').length === 0) obj.focus(event)
-                event.stopPropagation()
+                // menu is shown on focus, so need to not hide it on click
+                if ($('#w2ui-overlay').length == 0) {
+                    obj.updateOverlay()
+                } else {
+                    $('#w2ui-overlay').data('keepOpen', true)
+                }
             })
             .on('focus', function(event) {
                 pholder = $(obj.el).attr('placeholder')
@@ -20507,6 +20552,7 @@ class w2form extends w2event {
             }
         }
     }
+    $.fn.w2tmp = {} // store runtime variables
     $.fn.w2menu = function(menu, options) {
         /*
         ITEM STRUCTURE
@@ -20539,20 +20585,21 @@ class w2form extends w2event {
             tmp          : {}
         }
         let ret
-        let obj      = this
-        let name     = ''
+        let obj  = this
+        let name = ''
         if (menu === 'refresh') {
             // if not show - call blur
-            if ($.fn.w2menuOptions && $.fn.w2menuOptions.name) name = '-' + $.fn.w2menuOptions.name
+            if ($.fn.w2tmp.menuOptions && $.fn.w2tmp.menuOptions.name) name = '-' + $.fn.w2tmp.menuOptions.name
             if (options.name) name = '-' + options.name
-            if ($('#w2ui-overlay'+ name).length > 0) {
-                options    = $.extend($.fn.w2menuOptions, options)
+            let anchor = $('#w2ui-overlay'+ name).data('element')
+            if ($('#w2ui-overlay'+ name).length == 0 || (anchor != null && anchor != this[0])) {
+                $(this).w2menu(options)
+            } else {
+                options    = $.extend($.fn.w2tmp.menuOptions, options)
                 let scrTop = $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop()
                 $('#w2ui-overlay'+ name +' div.w2ui-menu').html(getMenuHTML())
                 $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop(scrTop)
                 mresize()
-            } else {
-                $(this).w2menu(options)
             }
         } else if (menu === 'refresh-index') {
             let $menu  = $('#w2ui-overlay'+ name +' div.w2ui-menu')
@@ -20574,13 +20621,13 @@ class w2form extends w2event {
             if (arguments.length === 1) options = menu; else options.items = menu
             if (typeof options !== 'object') options = {}
             options            = $.extend({}, defaults, options)
-            $.fn.w2menuOptions = options
+            $.fn.w2tmp.menuOptions = options
             if (options.name) name = '-' + options.name
             if (typeof options.select === 'function' && typeof options.onSelect !== 'function') options.onSelect = options.select
             if (typeof options.remove === 'function' && typeof options.onRemove !== 'function') options.onRemove = options.remove
             if (typeof options.onRender === 'function' && typeof options.render !== 'function') options.render = options.onRender
             // since only one overlay can exist at a time
-            $.fn.w2menuClick = function w2menuClick(event, index, parentIndex) {
+            $.fn.w2tmp.menuClick = function w2menuClick(event, index, parentIndex) {
                 let keepOpen = false, items
                 let $tr      = $(event.target).closest('tr')
                 if (event.shiftKey || event.metaKey || event.ctrlKey) {
@@ -20639,7 +20686,7 @@ class w2form extends w2event {
                     }
                 }
             }
-            $.fn.w2menuDown = function w2menuDown(event, index, parentIndex) {
+            $.fn.w2tmp.menuDown = function (event, index, parentIndex) {
                 let items
                 let $el = $(event.target).closest('tr')
                 let tmp = $($el.get(0)).find('.w2ui-icon')
@@ -20706,7 +20753,7 @@ class w2form extends w2event {
                     $('#w2ui-overlay'+ name +' #menu-search').focus()
                 }
                 mresize()
-            }, 250)
+            }, 1)
             mresize()
             // map functions
             let div = $('#w2ui-overlay'+ name)
@@ -20749,12 +20796,12 @@ class w2form extends w2event {
             switch (key) {
                 case 13: // enter
                     $('#w2ui-overlay'+ name).remove()
-                    $.fn.w2menuClick(event, options.index)
+                    $.fn.w2tmp.menuClick(event, options.index)
                     break
                 case 9: // tab
                 case 27: // escape
                     $('#w2ui-overlay'+ name).remove()
-                    $.fn.w2menuClick(event, -1)
+                    $.fn.w2tmp.menuClick(event, -1)
                     break
                 case 38: // up
                     options.index = w2utils.isInt(options.index) ? parseInt(options.index) : 0
@@ -20803,10 +20850,12 @@ class w2form extends w2event {
         }
         function getMenuHTML(items, subMenu, expanded, parentIndex) {
             if (options.spinner) {
-                return '<table><tbody><tr><td style="padding: 5px 10px 13px 10px; text-align: center">'+
-                        '    <div class="w2ui-spinner" style="width: 18px; height: 18px; position: relative; top: 5px;"></div> '+
-                        '    <div style="display: inline-block; padding: 3px; color: #999;">'+ w2utils.lang('Loading...') +'</div>'+
-                        '</td></tr></tbody></table>'
+                return `<table><tr>
+                    <td style="padding: 5px 10px 13px 10px; text-align: center">
+                        <div class="w2ui-spinner" style="width: 18px; height: 18px; position: relative; top: 5px;"></div>
+                        <div style="display: inline-block; padding: 3px; color: #999;">${w2utils.lang('Loading...')}</div>
+                    </td>
+                </tr></table>`
             }
             let count     = 0
             let menu_html = '<table cellspacing="0" cellpadding="0" class="'+ (subMenu ? ' sub-menu' : '') +'"><tbody>'
@@ -20871,10 +20920,10 @@ class w2form extends w2event {
                                 + (subMenu_dsp !== '' ? ' has-sub-menu' + (mitem.expanded ? ' expanded' : ' collapsed') : '')
                                 + '"'+
                             '        onmousedown="if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
-                            '               jQuery.fn.w2menuDown(event, '+ f +',  '+ parentIndex +');"'+
+                            '               jQuery.fn.w2tmp.menuDown(event, '+ f +',  '+ parentIndex +');"'+
                             '        onclick="event.stopPropagation(); '+
                             '               if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
-                            '               jQuery.fn.w2menuClick(event, '+ f +',  '+ parentIndex +');">'+
+                            '               jQuery.fn.w2tmp.menuClick(event, '+ f +',  '+ parentIndex +');">'+
                                 (subMenu ? '<td></td>' : '') + imgd +
                             '   <td class="menu-text" colspan="'+ colspan +'">'+ w2utils.lang(txt, true) +'</td>'+
                             '   <td class="menu-count">'+ count_dsp +'</td>'+
@@ -20892,7 +20941,13 @@ class w2form extends w2event {
                 items[f] = mitem
             }
             if (count === 0 && options.msgNoItems) {
-                menu_html += '<tr><td style="padding: 13px; color: #999; text-align: center">'+ options.msgNoItems +'</div></td></tr>'
+                menu_html += `<tr>
+                    <td style="padding: 5px 10px 13px 10px; text-align: center">
+                        <div style="display: inline-block; padding-top: 3px; color: #999;">
+                            ${w2utils.lang(options.msgNoItems)}
+                        </div>
+                    </td>
+                </tr>`
             }
             menu_html += '</tbody></table>'
             return menu_html
