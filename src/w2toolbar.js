@@ -10,6 +10,7 @@
 *   - show/hide, enable/disable, check/uncheck - return array of effected items
 *   - button.img - deprecated
 *   - this.right - string or array
+*   - added tmp object for runtime variables
 *
 ************************************************************************/
 import { w2event } from './w2event.js'
@@ -56,7 +57,8 @@ class w2toolbar extends w2event {
             onClick: null,
             onRefresh: null
         }
-        let items          = options.items
+        this.tmp = {}
+        let items = options.items
         delete options.items
         // mix in options
         $.extend(true, this, options)
@@ -336,18 +338,28 @@ class w2toolbar extends w2event {
                                     if (Array.isArray(it.selected) && it.selected.indexOf(item.id) != -1) item.checked = true; else item.checked = false
                                 })
                             }
-                            el.w2menu($.extend({ name: obj.name, items: items, left: left, top: 3, data: { 'tb-item': it.id } }, it.overlay, {
-                                type: menuType,
-                                remove(event) {
-                                    obj.menuClick({ name: obj.name, remove: true, item: it, subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
-                                },
-                                select(event) {
-                                    obj.menuClick({ name: obj.name, item: it, subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
-                                },
-                                onHide(event) {
-                                    hideDrop()
+                            obj.tmp.overlayEl = el
+                            el.w2menu($.extend({
+                                    name: obj.name,
+                                    items: items,
+                                    left: left,
+                                    top: 3,
+                                    data: { 'tb-item': it.id }
+                                }, it.overlay, {
+                                    type: menuType,
+                                    remove(event) {
+                                        obj.menuClick({ name: obj.name, remove: true, item: it,
+                                            subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
+                                    },
+                                    select(event) {
+                                        obj.menuClick({ name: obj.name, item: it,
+                                            subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
+                                    },
+                                    onHide(event) {
+                                        hideDrop()
+                                    }
                                 }
-                            }))
+                            ))
                         }
                         if (['color', 'text-color'].indexOf(it.type) != -1) {
                             $(el).w2color($.extend({
@@ -538,7 +550,7 @@ class w2toolbar extends w2event {
                         drop[0].hide()
                     } else {
                         if (['menu', 'menu-radio', 'menu-check'].indexOf(it.type) != -1) {
-                            drop.w2menu('refresh', { items: it.items })
+                            $(this.tmp.overlayEl).w2menu('refresh', { items: it.items })
                         }
                     }
                 }

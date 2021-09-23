@@ -7,10 +7,9 @@
 </head>
 <body>
 
-    <div id="layout" style="position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px;"></div>
-    <div id="content_main" style="position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px;">
-        <div id="tab1" style="position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px;"></div>
-    </div>
+    <div id="form" style="width: 750px; height: 300px"></div>
+    <br><br><br>
+    Click "Menu", then click on the list.
 
 <script type="module">
 import '../src/w2compat.js'
@@ -23,39 +22,47 @@ import { w2field, addType, removeType } from '../src/w2field.js'
 import { w2form } from '../src/w2form.js'
 import { w2grid } from '../src/w2grid.js'
 
-$(function () {
-    var pstyle = 'border: 1px solid #dfdfdf; padding: 5px;';
-    $('#layout').w2layout({
-        name: 'layout',
-        panels: [
-            {
-                type: 'main', style: pstyle + 'border-top: 0px;', html: $('#content_main'),
-                tabs: {
-                    active: 'tab1',
-                    tabs: [
-                        { id: 'tab1', text: 'Tab 1', closable: true },
-                        { id: 'tab2', text: 'Tab 2', closable: true }
-                    ]
-                }
+$(function() {
+  $('#form').w2form({
+    name: 'form',
+    focus: -1,
+    fields: [
+        { field: 1, type: 'text', icon: 'icon-empty' },
+        {
+            field: 'field1',
+            type: 'list',
+            required: true,
+            options: {
+                items: [
+                    { id: 1, text: 'Item 1', icon: 'icon-empty' },
+                    { id: 2, text: 'Item 2', icon: 'icon-empty' },
+                    { id: 3, text: 'About 1', icon: 'icon-empty' },
+                    { id: 4, text: 'About 2', icon: 'icon-empty' },
+                    { id: 5, text: 'Some 1', icon: 'icon-empty' },
+                    { id: 6, text: 'Some 2', icon: 'icon-empty' },
+                ]
+            },
+            html: {
+                label: 'Last Name',
+                attr: ''
             }
+        },
+        { field: 2, type: 'text', icon: 'icon-empty' },
+    ],
+    toolbar: {
+      items: [
+          {
+            type: 'menu',
+            id: 'item1',
+            text: 'Menu',
+            items: [
+                { text: 'Item 1', icon: 'icon-empty' },
+                { text: 'Item 2', icon: 'icon-empty' }
+            ]
+          },
         ]
-    });
-});
-
-$(function () {
-    $('#tab1').w2grid({
-        name: 'tab1',
-        columns: [
-            { field: 'recid', text: 'ID', size: '50px' },
-            { field: 'fname', text: 'First Name', size: '30%' },
-            { field: 'lname', text: 'Last Name', size: '30%' },
-            { field: 'email', text: 'Email', size: '40%' },
-            { field: 'sdate', text: 'Start Date', size: '120px' }
-        ],
-        records: [
-            { recid: 1, fname: 'John', lname: 'doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
-        ]
-    });
+    }
+  });
 });
 </script>
 

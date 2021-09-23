@@ -916,6 +916,9 @@ class w2field extends w2event {
 
     focus(event) {
         let obj = this
+        if ($(obj.el).hasClass('has-focus')) {
+            return
+        }
         $(obj.el).addClass('has-focus')
         // color, date, time
         if (['color', 'date', 'time', 'datetime'].indexOf(obj.type) !== -1) {
@@ -933,8 +936,8 @@ class w2field extends w2event {
                     $(obj.helpers.focus).find('input').focus()
                     return
                 }
+                obj.updateOverlay()
                 obj.search()
-                setTimeout(() => { obj.updateOverlay() }, 1)
             }, 1)
             // regenerate items
             if (typeof obj.options._items_fun == 'function') {
@@ -1225,7 +1228,10 @@ class w2field extends w2event {
                     // indexOnly = true;
                     break
                 case 13: { // enter
-                    if ($('#w2ui-overlay').length === 0) break // no action if overlay not open
+                    if ($('#w2ui-overlay').length === 0) {
+                        obj.updateOverlay()
+                        break // no action if overlay not open
+                    }
                     let item = options.items[options.index]
                     if (obj.type === 'enum') {
                         if (item != null && !item.hidden && !item.disabled) {
@@ -1298,6 +1304,10 @@ class w2field extends w2event {
                     }
                     break
                 case 38: // up
+                    if ($('#w2ui-overlay').length === 0) {
+                        obj.updateOverlay()
+                        break // no action if overlay not open
+                    }
                     options.index = w2utils.isInt(options.index) ? parseInt(options.index) : 0
                     options.index--
                     while (options.index > 0 && (options.items[options.index].hidden || options.items[options.index].disabled)) options.index--
@@ -1307,6 +1317,10 @@ class w2field extends w2event {
                     indexOnly = true
                     break
                 case 40: // down
+                    if ($('#w2ui-overlay').length === 0) {
+                        obj.updateOverlay()
+                        break // no action if overlay not open
+                    }
                     options.index = w2utils.isInt(options.index) ? parseInt(options.index) : -1
                     options.index++
                     while (options.index < options.items.length-1 && (options.items[options.index].hidden || options.items[options.index].disabled)) options.index++
@@ -1320,6 +1334,11 @@ class w2field extends w2event {
                         indexOnly = true
                     }
                     break
+                default:
+                    // show popup on search
+                    if ($('#w2ui-overlay').length === 0) {
+                        obj.updateOverlay()
+                    }
             }
             if (indexOnly) {
                 if (options.index < 0) options.index = 0
@@ -1589,7 +1608,6 @@ class w2field extends w2event {
             while (items[options.index] && items[options.index].hidden) options.index++
             if (shown <= 0) options.index = -1
             options.spinner = false
-            obj.updateOverlay()
             setTimeout(() => {
                 let html = $('#w2ui-overlay').html() || ''
                 if (options.markSearch && $('#w2ui-overlay .no-matches').length == 0) { // do not highlight when no items
@@ -1599,6 +1617,9 @@ class w2field extends w2event {
         } else {
             items.splice(0, options.cacheMax)
             options.spinner = true
+        }
+        // only update overlay when it is displayed already
+        if ($('#w2ui-overlay').length > 0) {
             obj.updateOverlay()
         }
     }
@@ -1997,7 +2018,15 @@ class w2field extends w2event {
                         }
                     }
                 })
-                $(el).w2menu((!indexOnly ? 'refresh' : 'refresh-index'), params)
+                if (indexOnly) {
+                    $(el).w2menu('refresh-index', params)
+                } else {
+                    if ($('#w2ui-overlay').length > 0) {
+                        $(el).w2menu('refresh', params)
+                    } else {
+                        $(el).w2menu(params)
+                    }
+                }
             }
         }
     }
@@ -2339,8 +2368,12 @@ class w2field extends w2event {
         // INPUT events
         helper.find('input')
             .on('click', function(event) {
-                if ($('#w2ui-overlay').length === 0) obj.focus(event)
-                event.stopPropagation()
+                // menu is shown on focus, so need to not hide it on click
+                if ($('#w2ui-overlay').length == 0) {
+                    obj.updateOverlay()
+                } else {
+                    $('#w2ui-overlay').data('keepOpen', true)
+                }
             })
             .on('focus', function(event) {
                 pholder = $(obj.el).attr('placeholder')
