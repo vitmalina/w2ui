@@ -2174,35 +2174,35 @@ class w2grid extends w2event {
     searchOpen() {
         if (!this.box) return
         if (this.searches.length === 0) return
-        let obj = this
-        let it  = obj.toolbar.get('w2ui-search')
+        let grid = this
+        let it  = grid.toolbar.get('w2ui-search')
         // event before
         let edata = this.trigger({ phase: 'before', type: 'searchOpen', target: this.name })
         if (edata.isCancelled === true) {
             return
         }
-        let $btn = $(obj.box).find('.w2ui-grid-search-input .w2ui-search-drop')
+        let $btn = $(grid.box).find('.w2ui-grid-search-input .w2ui-search-drop')
         $btn.addClass('checked')
         // show search
-        $('#grid_'+ obj.name +'_search_all').w2overlay({
+        $('#grid_'+ grid.name +'_search_all').w2overlay({
             html  : this.getSearchesHTML(),
             name  : this.name + '-searchOverlay',
             align : 'left',
             class : 'w2ui-grid-search-advanced',
             onShow() {
-                obj.initSearches()
-                obj.last.search_opened = true
-                $(`#w2ui-overlay-${obj.name}-searchOverlay .w2ui-grid-search-advanced`).data('grid-name', obj.name)
-                w2utils.bindEvents($(`#w2ui-overlay-${obj.name}-searchOverlay`).find('select, input, button'), obj)
+                grid.initSearches()
+                grid.last.search_opened = true
+                $(`#w2ui-overlay-${grid.name}-searchOverlay .w2ui-grid-search-advanced`).data('grid-name', grid.name)
+                w2utils.bindEvents($(`#w2ui-overlay-${grid.name}-searchOverlay`).find('select, input, button'), grid)
                 // init first field
-                let sfields = $(`#w2ui-overlay-${obj.name}-searchOverlay *[rel=search]`)
+                let sfields = $(`#w2ui-overlay-${grid.name}-searchOverlay *[rel=search]`)
                 if (sfields.length > 0) sfields[0].focus()
                 // event after
-                obj.trigger($.extend(edata, { phase: 'after' }))
+                grid.trigger($.extend(edata, { phase: 'after' }))
             },
             onHide() {
                 $btn.removeClass('checked')
-                obj.last.search_opened = false
+                grid.last.search_opened = false
             }
         })
     }
@@ -5052,13 +5052,12 @@ class w2grid extends w2event {
             })
             // clear and save
             searches += `
-
                 ${this.show.searchSave
                     ? `<div class="grid-search-line"></div>
                        <button class="w2ui-btn grid-search-btn" data-click="searchSave">Save</button>
                       `
                     : ''
-}
+                }
                 <button class="w2ui-btn grid-search-btn btn-remove"
                     data-click="searchReset">X</button>
             `
@@ -5077,7 +5076,7 @@ class w2grid extends w2event {
             $(this.box).find(`#grid_${this.name}_search_all`).prop('readOnly', false)
             $(this.box).find(`#grid_${this.name}_search_name`).hide().find('.name-text').html('')
         }
-        w2utils.bindEvents('.w2ui-action, button', this)
+        w2utils.bindEvents(`#grid_${this.name}_searches .w2ui-action, #grid_${this.name}_searches button`, this)
     }
 
     refreshBody() {
