@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (9/22/2021) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (9/23/2021) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -9,7 +9,7 @@ class w2event {
     constructor(name) {
         this.handlers = []
         // register globally
-        if (name) {
+        if (typeof name !== 'undefined') {
             window.w2ui = window.w2ui || {}
             if (!w2utils.checkName(name)) return
             window.w2ui[name] = this
@@ -287,8 +287,10 @@ const w2locale = {
 *
 * == 2.0 changes
 *   - normMenu
-*   - w2utils.message - return a promise
+*   - w2utils.message - returns a promise
 *   - bindEvents - common method to avoid inline events
+*   - unescapeId
+*   - settings.warn_missing_translation
 *
 ************************************************/
 let w2ui    = {}
@@ -326,6 +328,7 @@ let w2utils = (($) => {
         encodeTags,
         decodeTags,
         escapeId,
+        unescapeId,
         normMenu,
         bindEvents,
         base64encode,
@@ -784,7 +787,12 @@ let w2utils = (($) => {
     }
     function escapeId (id) {
         if (id === '' || id == null) return ''
-        return String(id).replace(/([;&,\.\+\*\~'`:"\!\^#$%@\[\]\(\)=<>\|\/? {}\\])/g, '\\$1')
+        return $.escapeSelector(id)
+        // return String(id).replace(/([;&,\.\+\*\~'`:"\!\^#$%@\[\]\(\)=<>\|\/? {}\\])/g, '\\$1')
+    }
+    function unescapeId (id) {
+        if (id === '' || id == null) return ''
+        return $.find.selectors.preFilter.ATTR([null, id])[1]
     }
     function base64encode (input) {
         let output = ''
@@ -2063,6 +2071,8 @@ if (self) {
 *   - remote source, but localSort/localSearch
 *   - right click on columns
 *   - reload a single records (useful when need to update deep in buffered records)
+*   - need to update PHP example
+*   - return structure status -> replace with success
 *
 * == DEMOS To create ==
 *   - batch for disabled buttons
@@ -2074,38 +2084,13 @@ if (self) {
 *   - reorder columns not working
 *   - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
 *   - Shift-click/Ctrl-click/Ctrl-Shift-Click selection is not as robust as it should be
+*   - refactor reorderRow (not finished)
 *
 * == 1.5 changes
-*   - $('#grid').w2grid() - if called w/o argument then it returns grid object
-*   - added vs_start and vs_extra
-*   - added update(cells) - updates only data in the grid (or cells)
-*   - add to docs onColumnDragStart, onColumnDragEnd
-*   - onSelect and onSelect should fire 1 time for selects with shift or selectAll(), selectNone()
-*   - if .search(val) - search all fields
-*   - refactor reorderRow (not finished)
-*   - return JSON can now have summary array
-*   - added selectionSave, selectionRestore - for internal use
-*   - added additional search filter options for int, float, date, time
-*   - added lineNumberWidth
-*   - getColumn without params returns fields of all columns
-*   - getSearch without params returns fields of all searches
-*   - added hasFocus, refactored w2utils.keyboard
-*   - do not clear selection when clicked and it was not in focus
-*   - editable area extends with typing
-*   - removed onSubmit and onDeleted - now it uses onSave and onDelete
-*   - column.searchable - can be an object, which will create search
-*   - added null, not null filters
-*   - update(cells) - added argument cells
-*   - added onResizerDblClick
-*   - added w2grid.operators
-*   - added w2grid.operatorsMap
-*   - move events into prototype
 *   - disableCVS
 *   - added nestedFields: use field name containing dots as separator to look into objects
 *   - grid.message
 *   - added noReset option to localSort()
-*   - onColumnSelect
-*   - need to update PHP example
 *   - added scrollToColumn(field)
 *   - textSearch: 'begins' (default), 'contains', 'is', ...
 *   - added refreshBody
@@ -2261,7 +2246,7 @@ class w2grid extends w2event {
         this.autoLoad          = true // for infinite scroll
         this.fixedBody         = true // if false; then grid grows with data
         this.recordHeight      = 32
-        this.lineNumberWidth   = null
+        this.lineNumberWidth   = 34
         this.keyboard          = true
         this.selectType        = 'row' // can be row|cell
         this.multiSearch       = true
@@ -2713,10 +2698,10 @@ class w2grid extends w2event {
         }
         return null
     }
-    updateColumn(names, updates) {
+    updateColumn(fields, updates) {
         let effected = 0
-        names        = (Array.isArray(names) ? names : [names])
-        names.forEach((colName) => {
+        fields = (Array.isArray(fields) ? fields : [fields])
+        fields.forEach((colName) => {
             this.columns.forEach((col) => {
                 if (col.field == colName) {
                     let _updates = $.extend(true, {}, updates)
@@ -4162,35 +4147,35 @@ class w2grid extends w2event {
     searchOpen() {
         if (!this.box) return
         if (this.searches.length === 0) return
-        let obj = this
-        let it  = obj.toolbar.get('w2ui-search')
+        let grid = this
+        let it  = grid.toolbar.get('w2ui-search')
         // event before
         let edata = this.trigger({ phase: 'before', type: 'searchOpen', target: this.name })
         if (edata.isCancelled === true) {
             return
         }
-        let $btn = $(obj.box).find('.w2ui-grid-search-input .w2ui-search-drop')
+        let $btn = $(grid.box).find('.w2ui-grid-search-input .w2ui-search-drop')
         $btn.addClass('checked')
         // show search
-        $('#grid_'+ obj.name +'_search_all').w2overlay({
+        $('#grid_'+ grid.name +'_search_all').w2overlay({
             html  : this.getSearchesHTML(),
             name  : this.name + '-searchOverlay',
             align : 'left',
             class : 'w2ui-grid-search-advanced',
             onShow() {
-                obj.initSearches()
-                obj.last.search_opened = true
-                $(`#w2ui-overlay-${obj.name}-searchOverlay .w2ui-grid-search-advanced`).data('grid-name', obj.name)
-                w2utils.bindEvents($(`#w2ui-overlay-${obj.name}-searchOverlay`).find('select, input, button'), obj)
+                grid.initSearches()
+                grid.last.search_opened = true
+                $(`#w2ui-overlay-${grid.name}-searchOverlay .w2ui-grid-search-advanced`).data('grid-name', grid.name)
+                w2utils.bindEvents($(`#w2ui-overlay-${grid.name}-searchOverlay`).find('select, input, button'), grid)
                 // init first field
-                let sfields = $(`#w2ui-overlay-${obj.name}-searchOverlay *[rel=search]`)
+                let sfields = $(`#w2ui-overlay-${grid.name}-searchOverlay *[rel=search]`)
                 if (sfields.length > 0) sfields[0].focus()
                 // event after
-                obj.trigger($.extend(edata, { phase: 'after' }))
+                grid.trigger($.extend(edata, { phase: 'after' }))
             },
             onHide() {
                 $btn.removeClass('checked')
-                obj.last.search_opened = false
+                grid.last.search_opened = false
             }
         })
     }
@@ -6952,7 +6937,7 @@ class w2grid extends w2event {
                        <button class="w2ui-btn grid-search-btn" data-click="searchSave">Save</button>
                       `
                     : ''
-}
+                }
                 <button class="w2ui-btn grid-search-btn btn-remove"
                     data-click="searchReset">X</button>
             `
@@ -6971,7 +6956,7 @@ class w2grid extends w2event {
             $(this.box).find(`#grid_${this.name}_search_all`).prop('readOnly', false)
             $(this.box).find(`#grid_${this.name}_search_name`).hide().find('.name-text').html('')
         }
-        w2utils.bindEvents('.w2ui-action, button', this)
+        w2utils.bindEvents(`#grid_${this.name}_searches .w2ui-action, #grid_${this.name}_searches button`, this)
     }
     refreshBody() {
         // -- separate summary
@@ -13001,7 +12986,7 @@ class w2tabs extends w2event {
         if (tab.hidden) { addStyle += 'display: none;' }
         if (tab.disabled) { addStyle += 'opacity: 0.2;' }
         if (tab.closable && !tab.disabled) {
-            closable = `<div class="w2ui-tab-close w2ui-action${this.active === tab.id ? ' active' : ''}"
+            closable = `<div class="w2ui-tab-close w2ui-action ${this.active === tab.id ? 'active' : ''}"
                 data-mouseenter='["tooltipShow", "${tab.id}", "event"]'
                 data-mouseleave='["tooltipHide", "${tab.id}", "event"]'
                 data-mousedown="stop"
@@ -13032,8 +13017,8 @@ class w2tabs extends w2event {
             }
         } else {
             // create or refresh only one item
-            let $id = '#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(id)
-            let $tab = $(this.box).find($id)
+            let selector = '#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(id)
+            let $tab = $(this.box).find(selector)
             let tabHTML = this.getTabHTML(id)
             if ($tab.length === 0) {
                 $(this.box).find('#tabs_'+ this.name +'_right').before(tabHTML)
@@ -13042,8 +13027,7 @@ class w2tabs extends w2event {
                     $tab.replaceWith(tabHTML)
                 }
             }
-            w2utils.bindEvents($id, this)
-            w2utils.bindEvents($($id).find('.w2ui-action'), this)
+            w2utils.bindEvents(`${selector}, ${selector} .w2ui-action`, this)
         }
         // right html
         $('#tabs_'+ this.name +'_right').html(this.right)
@@ -13738,11 +13722,11 @@ class w2toolbar extends w2event {
                 line++
                 html += `
                     <div class="w2ui-tb-line">
-                        <div class="w2ui-scroll-wrapper" data-mousedown="resize">
+                        <div class="w2ui-scroll-wrapper w2ui-action" data-mousedown="resize">
                             <div class="w2ui-tb-right">${this.right[line-1] || ''}</div>
                         </div>
-                        <div class="w2ui-scroll-left" data-click='["scroll", "left", "${line}"]'></div>
-                        <div class="w2ui-scroll-right" data-click='["scroll", "right", "${line}"]'></div>
+                        <div class="w2ui-scroll-left w2ui-action" data-click='["scroll", "left", "${line}"]'></div>
+                        <div class="w2ui-scroll-right w2ui-action" data-click='["scroll", "right", "${line}"]'></div>
                     </div>
                 `
             }
@@ -13755,7 +13739,7 @@ class w2toolbar extends w2event {
         if ($(this.box).length > 0) {
             $(this.box)[0].style.cssText += this.style
         }
-        w2utils.bindEvents('.w2ui-scroll-left, .w2ui-scroll-right, .w2ui-scroll-wrapper', this)
+        w2utils.bindEvents($(this.box).find('.w2ui-tb-line .w2ui-action'), this)
         // refresh all
         this.refresh()
         this.resize()
