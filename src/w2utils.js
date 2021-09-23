@@ -13,9 +13,10 @@
 *
 * == 2.0 changes
 *   - normMenu
-*   - w2utils.message - return a promise
+*   - w2utils.message - returns a promise
 *   - bindEvents - common method to avoid inline events
 *   - unescapeId
+*   - settings.warn_missing_translation
 *
 ************************************************/
 import { w2event } from './w2event.js'

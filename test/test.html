@@ -3,70 +3,61 @@
 <head>
     <title>W2UI Demo: combo-9</title>
     <link rel="stylesheet" type="text/css" href="../dist/w2ui.min.css" />
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
-    <script src="http://underscorejs.org/underscore.js"></script>
-    <script type="text/javascript" src="../dist/w2ui.min.js"></script>
-    <script type="text/javascript" src="../src/w2utils.js"></script>
-    <script type="text/javascript" src="../src/w2sidebar.js"></script>
-    <script type="text/javascript" src="../src/w2tabs.js"></script>
-    <script type="text/javascript" src="../src/w2toolbar.js"></script>
-    <script type="text/javascript" src="../src/w2layout.js"></script>
-    <script type="text/javascript" src="../src/w2popup.js"></script>
-    <script type="text/javascript" src="../src/w2grid.js"></script>
-    <script type="text/javascript" src="../src/w2field.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.js"></script>
 </head>
 <body>
 
-<div id="main" style="height: 500px; width: 500px;">
-</div>
+    <div id="layout" style="position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px;"></div>
+    <div id="content_main" style="position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px;">
+        <div id="tab1" style="position: absolute; top: 0px; left: 0px; bottom: 0px; right: 0px;"></div>
+    </div>
 
-<script type="text/javascript">
+<script type="module">
+import '../src/w2compat.js'
+import { w2popup, w2alert, w2confirm, w2prompt } from '../src/w2popup.js'
+import { w2tabs } from '../src/w2tabs.js'
+import { w2toolbar } from '../src/w2toolbar.js'
+import { w2sidebar } from '../src/w2sidebar.js'
+import { w2layout } from '../src/w2layout.js'
+import { w2field, addType, removeType } from '../src/w2field.js'
+import { w2form } from '../src/w2form.js'
+import { w2grid } from '../src/w2grid.js'
+
 $(function () {
     var pstyle = 'border: 1px solid #dfdfdf; padding: 5px;';
-   $().w2layout({
-        name: 'layout2',
+    $('#layout').w2layout({
+        name: 'layout',
         panels: [
-            {type: 'top',content: 'inner layout'},
-            { type: 'main', style: 'border: 1px solid #dfdfdf; padding: 5px;border-top: 0px;', content: 'Nested',
-                toolbar: [
-                    { type: 'button', caption: 'Button 1' },
-                    { type: 'button', caption: 'Button 2' }
-                ],
+            {
+                type: 'main', style: pstyle + 'border-top: 0px;', html: $('#content_main'),
                 tabs: {
                     active: 'tab1',
                     tabs: [
-                        { id: 'tab1', caption: 'Tab 11' },
-                        { id: 'tab2', caption: 'Tab 22' },
-                        { id: 'tab3', caption: 'Tab 33' },
-                    ],
-                    onClick: function (event) {
-                        this.owner.content('main', event.target);
-                    }
+                        { id: 'tab1', text: 'Tab 1', closable: true },
+                        { id: 'tab2', text: 'Tab 2', closable: true }
+                    ]
                 }
             }
         ]
     });
-    $('#main').w2layout({
-        name: 'layout1',
-        panels: [
-            { type: 'top', size: 50, resizable: true, style: pstyle, content: 'top' },
-            { type: 'left', size: 300, resizable: true, style: pstyle, content: w2ui['layout2'] },
-            { type: 'main', style: pstyle + 'border-top: 0px;', content: 'Tab 1',
-                tabs: {
-                    active: 'tab1',
-                    tabs: [
-                        { id: 'tab1', caption: 'Tab 1' },
-                        { id: 'tab2', caption: 'Tab 2' },
-                        { id: 'tab3', caption: 'Tab 3' },
-                    ],
-                    onClick: function (event) {
-                        this.owner.content('main', event.target);
-                    }
-                }
-            }
+});
+
+$(function () {
+    $('#tab1').w2grid({
+        name: 'tab1',
+        columns: [
+            { field: 'recid', text: 'ID', size: '50px' },
+            { field: 'fname', text: 'First Name', size: '30%' },
+            { field: 'lname', text: 'Last Name', size: '30%' },
+            { field: 'email', text: 'Email', size: '40%' },
+            { field: 'sdate', text: 'Start Date', size: '120px' }
+        ],
+        records: [
+            { recid: 1, fname: 'John', lname: 'doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
         ]
     });
-});</script>
+});
+</script>
 
 </body>
 </html>
