@@ -12,8 +12,43 @@ const del      = require('del')
 // const babel    = require('gulp-babel')
 // const { exec } = require('child_process')
 const comments = {
-    w2ui : '/* w2ui 2.0.x (nightly) ('+ (new Date()).toLocaleDateString('en-us') +') (c) http://w2ui.com, vitmalina@gmail.com */\n'
+    w2ui : '/* w2ui 2.0.x (nightly) ('+ (new Date()).toLocaleString('en-us') +') (c) http://w2ui.com, vitmalina@gmail.com */\n'
 }
+
+const legacy_code = `
+// Compatibility with CommonJS and AMD modules
+(function(global, w2ui) {
+if (typeof define == 'function' && define.amd) {
+    return define(() => w2ui)
+}
+if (typeof exports != 'undefined') {
+    if (typeof module != 'undefined' && module.exports) {
+        return exports = module.exports = w2ui
+    }
+    global = exports
+}
+if (global) {
+    Object.keys(w2ui).forEach(key => {
+        global[key] = w2ui[key]
+    })
+}
+})(self, { w2ui, w2locale, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
+    w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType })`
+
+const files_js = [
+    'src/w2event.js', // order of files is important
+    'src/w2locale.js',
+    'src/w2utils.js',
+    'src/w2grid.js',
+    'src/w2layout.js',
+    'src/w2popup.js',
+    'src/w2tabs.js',
+    'src/w2toolbar.js',
+    'src/w2sidebar.js',
+    'src/w2field.js',
+    'src/w2form.js',
+    'src/w2compat.js' // must be last
+]
 
 let tasks = {
 
@@ -46,42 +81,37 @@ let tasks = {
     },
 
     pack(cb) {
+        console.log(' -- update only dist/w2ui.js')
         return gulp
-            .src([
-                'src/w2event.js', // order of files is important
-                'src/w2locale.js',
-                'src/w2utils.js',
-                'src/w2grid.js',
-                'src/w2layout.js',
-                'src/w2popup.js',
-                'src/w2tabs.js',
-                'src/w2toolbar.js',
-                'src/w2sidebar.js',
-                'src/w2field.js',
-                'src/w2form.js',
-                'src/w2compat.js' // must be last
-            ])
+            .src(files_js)
             .pipe(concat('w2ui.js'))
+            .pipe(replace(/^(import.*'|export.*}|module\.exports.*})$\n/gm, ''))
+            .pipe(replace('\n\n', '\n'))
             .pipe(header(comments.w2ui))
             .pipe(gulp.dest('dist/'))
+            .on('end', () => {
+                cb()
+            })
     },
 
     build(cb) {
-        gulp.src([
-            'src/w2event.js', // order of files is important
-            'src/w2locale.js',
-            'src/w2utils.js',
-            'src/w2grid.js',
-            'src/w2layout.js',
-            'src/w2popup.js',
-            'src/w2tabs.js',
-            'src/w2toolbar.js',
-            'src/w2sidebar.js',
-            'src/w2field.js',
-            'src/w2form.js',
-            'src/w2compat.js' // must be last
-        ])
+        return gulp
+            .src(files_js)
             .pipe(concat('w2ui.js'))
+            .pipe(replace(/^(import.*'|export.*}|module\.exports.*})$\n/gm, ''))
+            .pipe(replace('\n\n', '\n'))
+            .pipe(replace(`export { w2ui, w2locale, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
+    w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType }`, legacy_code))
+            .pipe(header(comments.w2ui))
+            .pipe(gulp.dest('dist/'))
+            .on('end', () => {
+                cb()
+            })
+    },
+
+    build_es6(cb) {
+        gulp.src(files_js)
+            .pipe(concat('w2ui.es6.js'))
             .pipe(replace(/^(import.*'|export.*}|module\.exports.*})$\n/gm, ''))
             .pipe(replace('\n\n', '\n'))
             // .pipe(babel())
@@ -237,7 +267,7 @@ let tasks = {
 }
 
 exports.default = gulp.series(tasks.clean, tasks.less, tasks.locales, tasks.build)
-exports.build   = tasks.build
+exports.build   = gulp.series(tasks.build_es6, tasks.build)
 exports.dev     = tasks.watch
 exports.clean   = tasks.clean
 exports.less    = gulp.series(tasks.clean, tasks.less)

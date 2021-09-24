@@ -1,7 +1,6 @@
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
-*
 **/
 
 import { w2utils } from './w2utils.js'
