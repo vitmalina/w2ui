@@ -9,12 +9,18 @@
 // jQuery.noConflict();
 jQuery(function () {
     jQuery('#sidebar').w2sidebar({
-        name        : 'sidebar',
-        img         : null,
-        topHTML     : '<div style="padding: 10px 5px; border-bottom: 1px solid #aaa;">This is text<input/> <select><option>one</option></select></div>',
-        bottomHTML  : '<div style="padding: 10px 5px; border-top: 1px solid #aaa;">Bottom</div>',
-        style       : 'border: 1px solid silver',
-        routeData   : { id: 59, vid: '23.323.4' },
+        name   : 'sidebar',
+        img    : null,
+        topHTML: `
+            <div style="padding: 10px 5px; border-bottom: 1px solid #eee;">
+                This is text<input/> <select><option>one</option></select>
+            </div>`,
+        bottomHTML: `
+            <div style="padding: 10px 5px; border-top: 1px solid #eee;">
+                Bottom
+            </div>`,
+        // style       : 'border: 1px solid silver',
+        routeData: { id: 59, vid: '23.323.4' },
         flatButton: true,
         // flat: true,
         onFlat(event) {

@@ -4,6 +4,7 @@
     <title>W2UI Demo: combo-9</title>
     <link rel="stylesheet" type="text/css" href="../dist/w2ui.min.css" />
     <script src="//ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.js"></script>
+    <script type="module" src="../src/w2compat.js"></script>
 </head>
 <body>
 
@@ -12,15 +13,6 @@
     Click "Menu", then click on the list.
 
 <script type="module">
-import '../src/w2compat.js'
-import { w2popup, w2alert, w2confirm, w2prompt } from '../src/w2popup.js'
-import { w2tabs } from '../src/w2tabs.js'
-import { w2toolbar } from '../src/w2toolbar.js'
-import { w2sidebar } from '../src/w2sidebar.js'
-import { w2layout } from '../src/w2layout.js'
-import { w2field, addType, removeType } from '../src/w2field.js'
-import { w2form } from '../src/w2form.js'
-import { w2grid } from '../src/w2grid.js'
 
 $(function() {
   $('#form').w2form({

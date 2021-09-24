@@ -6110,7 +6110,7 @@ class w2grid extends w2event {
                         >
                         <div class="w2ui-search-drop w2ui-action" data-click="searchOpen"
                                 style="${this.multiSearch ? '' : 'display: none'}">
-                            <span class="w2ui-icon-drop" style="position: relative; top: -2px;"></span>
+                            <span class="w2ui-icon-drop"></span>
                         </div>
                     </div>`
                 this.toolbar.items.push({
@@ -6758,7 +6758,7 @@ class w2grid extends w2event {
         let html = `
             <div class="search-title">
                 ${w2utils.lang('Advanced Search')}
-                <span style="float: right; padding-right: 10px; ${this.show.searchLogic ? '' : 'display: none'}">
+                <span class="search-logic" style="${this.show.searchLogic ? '' : 'display: none'}">
                     <select id="grid_${this.name}_logic">
                         <option value="AND" ${this.last.logic == 'AND' ? 'selected' : ''}>${w2utils.lang('All')}</option>
                         <option value="OR" ${this.last.logic == 'OR' ? 'selected' : ''}>${w2utils.lang('Any')}</option>
