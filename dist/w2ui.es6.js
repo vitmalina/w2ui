@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (9/24/2021, 2:16:03 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (9/24/2021, 2:59:30 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils

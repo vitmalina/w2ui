@@ -104,6 +104,14 @@ let tasks = {
     w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType }`, legacy_code))
             .pipe(header(comments.w2ui))
             .pipe(gulp.dest('dist/'))
+            // min file
+            .pipe(uglify({
+                warnings: false,
+                sourceMap: false
+            }))
+            .pipe(rename({ suffix: '.min' }))
+            .pipe(header(comments.w2ui))
+            .pipe(gulp.dest('dist/'))
             .on('end', () => {
                 cb()
             })
@@ -114,9 +122,9 @@ let tasks = {
             .pipe(concat('w2ui.es6.js'))
             .pipe(replace(/^(import.*'|export.*}|module\.exports.*})$\n/gm, ''))
             .pipe(replace('\n\n', '\n'))
-            // .pipe(babel())
             .pipe(header(comments.w2ui))
             .pipe(gulp.dest('dist/'))
+            // min file
             .pipe(uglify({
                 warnings: false,
                 sourceMap: false
@@ -266,7 +274,7 @@ let tasks = {
     },
 }
 
-exports.default = gulp.series(tasks.clean, tasks.less, tasks.locales, tasks.build)
+exports.default = gulp.series(tasks.clean, tasks.less, tasks.locales, tasks.build_es6, tasks.build)
 exports.build   = gulp.series(tasks.build_es6, tasks.build)
 exports.dev     = tasks.watch
 exports.clean   = tasks.clean
