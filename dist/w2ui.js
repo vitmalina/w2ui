@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (9/24/2021, 10:51:48 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (9/24/2021, 2:16:03 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -21311,5 +21311,5 @@ if (global) {
         global[key] = w2ui[key]
     })
 }
-})(self, { w2ui, w2locale, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
+})(self, { w2ui, w2locale, w2event, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
     w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType })
