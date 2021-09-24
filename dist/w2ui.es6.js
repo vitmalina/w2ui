@@ -21294,22 +21294,5 @@ class w2form extends w2event {
         }
     }
 })(jQuery);
-
-// Compatibility with CommonJS and AMD modules
-(function(global, w2ui) {
-if (typeof define == 'function' && define.amd) {
-    return define(() => w2ui)
-}
-if (typeof exports != 'undefined') {
-    if (typeof module != 'undefined' && module.exports) {
-        return exports = module.exports = w2ui
-    }
-    global = exports
-}
-if (global) {
-    Object.keys(w2ui).forEach(key => {
-        global[key] = w2ui[key]
-    })
-}
-})(self, { w2ui, w2locale, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
-    w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType })
+export { w2ui, w2locale, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
+    w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType }
