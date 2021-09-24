@@ -1493,5 +1493,5 @@ import { w2toolbar } from './w2toolbar.js'
 
 })(jQuery);
 
-export { w2ui, w2locale, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
+export { w2ui, w2locale, w2event, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
     w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType }

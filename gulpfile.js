@@ -32,7 +32,7 @@ if (global) {
         global[key] = w2ui[key]
     })
 }
-})(self, { w2ui, w2locale, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
+})(self, { w2ui, w2locale, w2event, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
     w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType })`
 
 const files_js = [
@@ -100,7 +100,7 @@ let tasks = {
             .pipe(concat('w2ui.js'))
             .pipe(replace(/^(import.*'|export.*}|module\.exports.*})$\n/gm, ''))
             .pipe(replace('\n\n', '\n'))
-            .pipe(replace(`export { w2ui, w2locale, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
+            .pipe(replace(`export { w2ui, w2locale, w2event, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
     w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType }`, legacy_code))
             .pipe(header(comments.w2ui))
             .pipe(gulp.dest('dist/'))

@@ -138,20 +138,7 @@ table.list td {
 
 /* -- Demo Toolbar -- */
 
-#demo_toolbar .w2ui-button:hover {
-    border: 1px solid #fff !important;
-    background-color: #f5f5f5 !important;
-}
-
-#demo_toolbar .w2ui-button.checked {
-    border: 1px solid #a7afd6 !important;
-    background-color: #f3f5ff !important;
-}
-
-#layout_demo_layout_panel_left .w2ui-sidebar .w2ui-sidebar-body .w2ui-selected {
+#1layout_demo_layout_panel_left .w2ui-sidebar .w2ui-sidebar-body .w2ui-selected {
     background-color: #f3f5ff !important;
     border: 1px solid #a7afd6 !important;
-}
-.w2ui-sidebar .w2ui-sidebar-body .w2ui-node-group {
-    color: #a18d9e
 }
