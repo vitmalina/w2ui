@@ -1,4 +1,5 @@
 import { w2locale } from './w2locale.js'
+import { w2event } from './w2event.js'
 import { w2ui, w2utils } from './w2utils.js'
 import { w2popup, w2alert, w2confirm, w2prompt } from './w2popup.js'
 import { w2field, addType, removeType } from './w2field.js'
