@@ -5,25 +5,6 @@
 *        - $().w2field    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
-* == NICE TO HAVE ==
-*   - upload (regular files)
-*   - BUG with prefix/postfix and arrows (test in different contexts)
-*   - multiple date selection
-*   - month selection, year selections
-*   - arrows no longer work (for int)
-*   - form to support custom types
-*   - rewrite suffix and prefix positioning with translateY()
-*   - prefix and suffix are slow (100ms or so)
-*   - MultiSelect - Allow Copy/Paste for single and multi values
-*   - add routeData to list/enum
-*   - for type: list -> read value from attr('value')
-*   - ENUM, LIST: should have same as grid (limit, offset, search, sort)
-*   - ENUM, LIST: should support wild chars
-*   - add selection of predefined times (used for appointments)
-*   - options.items - can be an array
-*   - options.msgSearch - message to search for user
-*   - options.msgNoItems - can be a function
-*
 ************************************************************************/
 
 (function ($) {

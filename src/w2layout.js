@@ -5,17 +5,6 @@
 *        - $().w2layout    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2tabs
 *
-* == changes
-*   - negative values for left, right panel
-*   - onResize for layout as well as onResizing
-*   - panel.callBack - one time
-*   - layout.html().replaced(function () {})
-*
-* == NICE TO HAVE ==
-*   - onResize for the panel
-*   - add more panel title positions (left=rotated, right=rotated, bottom)
-*   - bug: when you assign content before previous transition completed.
-*
 ************************************************************************/
 
 (function ($) {

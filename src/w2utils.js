@@ -16,38 +16,6 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *        - w2utils.event    - generic event object
 *  - Dependencies: jQuery
 *
-* == NICE TO HAVE ==
-*   - overlay should be displayed where more space (on top or on bottom)
-*   - write and article how to replace certain framework functions
-*   - add maxHeight for the w2menu
-*   - add time zone
-*   - TEST On IOS
-*   - $().w2marker() -- only unmarks first instance
-*   - subitems for w2menus()
-*   - add w2utils.lang wrap for all captions in all buttons.
-*   - $().w2date(), $().w2dateTime()
-*
-* == 1.5 change
-*   - parseColor(str) returns rgb
-*   - rgb2hsv, hsv2rgb
-*   - color.onSelect
-*   - color.html
-*   - refactored w2tag object, it has more potential with $().data('w2tag')
-*   - added w2utils.tooltip
-*   - w2tag options.hideOnFocus
-*   - w2tag options.maxWidth
-*   - w2tag options.auto - if set to true, then tag will show on mouseover
-*   - w2tag options.showOn, hideOn - if set to true, then tag will show on mouseover
-*   - w2tag options.className: 'w2ui-light' - for light color tag
-*   - w2menu options.items... remove t/f
-*   - w2menu options.items... keepOpen t/f
-*   - w2menu options.onRemove
-*   - w2menu options.hideOnRemove
-*   - w2menu - can not nest items, item.items and item.expanded
-*   - w2menu.options.topHTML
-*   - w2menu.options.menuStyle
-*   - naturalCompare
-*
 ************************************************/
 
 var w2utils = (function ($) {

@@ -5,18 +5,6 @@
 *        - $().w2tabs    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
-* == NICE TO HAVE ==
-*   - align = left, right, center ??
-*
-* == 1.5 changes ==
-*   - tab.caption - deprecated
-*   - getTabHTML()
-*   - refactored with display: flex
-*   - reorder
-*   - initReorder
-*   - dragMove
-*   - tmp
-*
 ************************************************************************/
 
 (function ($) {

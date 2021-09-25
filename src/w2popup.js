@@ -5,19 +5,6 @@
 *        - $().w2popup  - jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
-* == changes
-*   - added onMove event
-*   - w2prompt.options.ok_class, cancel_class
-*   - w2confirm.options.onOpen, w2confirm.options.onClose
-*   - w2prompt.options.onOpen, w2prompt.options.onClose
-*   - w2popup.actions, w2popup.action, w2popup.onAction
-*   - w2popup.onMsgOpen, w2popup.onMsgClose
-*   - options.multiple
-*
-* == NICE TO HAVE ==
-*   - hide overlay on esc
-*   - make popup width/height in %
-*
 ************************************************************************/
 
 var w2popup = {};

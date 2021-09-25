@@ -5,21 +5,6 @@
 *        - $().w2toolbar    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2field
 *
-* == NICE TO HAVE ==
-*   - vertical toolbar
-*
-* == 1.5 changes ==
-*   - menu drop down can have groups now
-*   - item.caption - deprecated
-*   - item.text - can be a function
-*   - item.icon - can be a function
-*   - item.tooltip - can be a function
-*   - item.color
-*   - item.options
-*   - event.item.get - finds selected item
-*   - item.keepOpen, drop down will not close
-*   - item.type = 'new-line'
-*
 ************************************************************************/
 
 (function ($) {
