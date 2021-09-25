@@ -1,7 +1,7 @@
 Confirmation message when user clicks the delete button.
 
 <div class="definition">
-    String, default = 'Are you sure you want to delete selected record(s)?'
+    String, default = 'Are you sure you want to delete ${count} ${records}?'
 </div>
 
 If you do not like default message, you are welcome to define your own.
@@ -19,9 +19,4 @@ $('#grid').w2grid({
         { field: 'sdate', text: 'End Date', size: '120px' }
     ]
 });
-</textarea>
-
-You can also overwrite this message in prototype, then all grids will have same message:
-<textarea class="javascript">
-w2obj.grid.prototype.msgDelete = 'Delete?';
 </textarea>

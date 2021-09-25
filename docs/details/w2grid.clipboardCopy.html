@@ -1,0 +1,88 @@
+Copies the content of a cell to the clipboard.
+
+<div class="definition">
+    clipboardCopy(ind, col_ind)
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>ind</td>
+        <td><b>integer</b>, index of the record</td>
+    </tr>
+    <tr>
+        <td>col_ind</td>
+        <td><b>integer</b>, index of the column</td>
+    </tr>
+    </table>
+</div>
+Returns <i>undefined</i>.
+
+<h4>Description</h4>
+
+The method copies the content of a given cell to the user's clipboard.
+<div style="height: 10px"></div>
+
+If you have grid defined in the following way:
+<textarea class="javascript">
+$('#grid').w2grid({
+    name: 'grid',
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%',
+            clipboardCopy: true
+        },
+        { field: 'email', text: 'Email', size: '40%',
+            clipboardCopy: 'Email coppied!!'
+        },
+        { field: 'sdate', text: 'Start Date', size: '120px',
+            clipboardCopy(ind, col_ind) {
+                let rec = this.records[ind]
+                return rec.lname + ', ' + rec.fname
+            }
+        },
+        { field: 'sdate', text: 'End Date', size: '120px' }
+    ],
+    records: [
+        { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
+        { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
+        { recid: 3, fname: 'Jin', lname: 'Franson', email: '--', sdate: '4/23/2012' },
+        { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
+        { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
+    ]
+});
+</textarea>
+
+You can copy a cell's content to the clipboard:
+<textarea class="javascript">
+w2ui.grid.clipboardCopy(0, 2);
+</textarea>
+
+It is possible to overwrite this method with a custom one.
+<textarea class="javascript">
+    $('#grid').w2grid({
+        name: 'grid',
+        clipboardCopy(ind, col_ind) {
+            let rec = this.records[ind]
+            return rec.lname + ', ' + rec.fname
+        },
+        columns: [
+            { field: 'recid', text: 'ID', size: '50px' },
+            { field: 'lname', text: 'Last Name', size: '30%' },
+            { field: 'fname', text: 'First Name', size: '30%', clipboardCopy: true },
+            { field: 'email', text: 'Email', size: '40%', clipboardCopy: true },
+            { field: 'sdate', text: 'Start Date', size: '120px' },
+            { field: 'sdate', text: 'End Date', size: '120px' }
+        ],
+        records: [
+            { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
+            { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
+            { recid: 3, fname: 'Jin', lname: 'Franson', email: '--', sdate: '4/23/2012' },
+            { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
+            { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+            { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
+        ]
+    });
+    </textarea>

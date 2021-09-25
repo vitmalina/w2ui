@@ -1,28 +1,34 @@
-Resets previous search to the default values.
+Called when user double clicks on the column.
 
 <div class="definition">
-    searchReset([noRefresh])
+    columnDblClick(field, [event])
 </div>
+
 <div class="arguments">
     <table>
     <tr>
-        <td>noRefresh</td>
-        <td><b>boolean</b>, indicates if to refresh the grid after reset</td>
+        <td>field</td>
+        <td><b>string</b>, column field name</td>
+    </tr>
+    <tr>
+        <td>event</td>
+        <td><b>object</b>, <i>optional</i>, DOM Event Object</td>
     </tr>
     </table>
 </div>
-
 Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
-It is the same if user would have clicked the "Reset" button in the search dialog.
+This method is called when user double clicks on the column. The method emits the
+<a class="method" href="w2grid.onColumnDblClick">.onColumnDblClick</a> event. There is no default behavior.
+
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:
 <textarea class="javascript">
 $('#grid').w2grid({
-    name    : 'grid',
+    name : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
         { field: 'lname', text: 'Last Name', size: '30%' },
@@ -42,12 +48,7 @@ $('#grid').w2grid({
 });
 </textarea>
 
-You could:
+You can emulate click on the column by:
 <textarea class="javascript">
-w2ui['grid'].searchReset()
+w2ui.grid.columnDblClick('fname');
 </textarea>
-
-<h4>See Also</h4>
-
-<a href="w2grid.clear">clear()</a><br>
-<a href="w2grid.reset">reset()</a><br>

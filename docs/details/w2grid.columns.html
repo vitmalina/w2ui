@@ -27,28 +27,32 @@ $('#grid').w2grid({
 Each column is an object with properties listed below:
 <textarea class="javascript">
 column = {
-    text           : '',     // column caption (can be a function)
-    field          : '',     // field name to map column to a record
-    size           : null,   // size of column in px or %
-    min            : 20,     // minimum width of column in px
-    max            : null,   // maximum width of column in px
-    gridMinWidth   : null,   // minimum width of the grid when column is visible
-    sizeCorrected  : null,   // read only, corrected size (see explanation below)
-    sizeCalculated : null,   // read only, size in px (see explanation below)
-    hidden         : false,  // indicates if column is hidden
-    sortable       : false,  // indicates if column is sortable
-    sortMode       : null,   // sort mode ('default'|'natural') or custom compare function
-    searchable     : false,  // bool/string: int,float,date,... or an object to create search field
-    resizable      : true,   // indicates if column is resizable
-    autoResize     : true,   // indicates if column can be auto-resized by double clicking on the resizer
-    hideable       : true,   // indicates if column can be hidden
-    attr           : '',     // string that will be inside the &lt;td ... attr&gt; tag
-    style          : '',     // additional style for the td tag
-    render         : null,   // string or render function
-    title          : null,   // string or function for the title property for the column cells
-    editable       : {},     // editable object if column fields are editable
-    frozen         : false,  // indicates if the column is fixed to the left
-    info           : null    // info bubble, can be bool/object
+    text           : '',    // column text (can be a function)
+    field          : '',    // field name to map the column to a record
+    size           : null,  // size of column in px or %
+    min            : 20,    // minimum width of column in px
+    max            : null,  // maximum width of column in px
+    gridMinWidth   : null,  // minimum width of the grid when column is visible
+    sizeCorrected  : null,  // read only, corrected size (see explanation below)
+    sizeCalculated : null,  // read only, size in px (see explanation below)
+    sizeOriginal   : null,  // size as defined
+    sizeType       : null,  // px or %
+    hidden         : false, // indicates if column is hidden
+    sortable       : false, // indicates if column is sortable
+    sortMode       : null,  // sort mode ('default'|'natural') or custom compare function
+    searchable     : false, // bool/string: int,float,date,... or an object to create search field
+    resizable      : true,  // indicates if column is resizable
+    hideable       : true,  // indicates if column can be hidden
+    autoResize     : null,  // indicates if column can be auto-resized by double clicking on the resizer
+    attr           : '',    // string that will be inside the <td ... attr> tag
+    style          : '',    // additional style for the td tag
+    render         : null,  // string or render function
+    title          : null,  // string or function for the title property for the column cells
+    tooltip        : null,  // string for the title property for the column header
+    editable       : {},    // editable object (see explanation below)
+    frozen         : false, // indicates if the column is fixed to the left
+    info           : null,  // info bubble, can be bool/object
+    clipboardCopy  : false, // if true (or string or function), it will display clipboard copy icon
 }
 </textarea>
 
@@ -61,15 +65,16 @@ the remaining width between the columns defined in %. If total sum of columns de
 and record new size in <span class="property">.sizeCorrected</span>.
 <div style="height: 10px"></div>
 
-<h4>sortMode</h4>
+<h4>SortMode</h4>
 If set to "natural", a compare function is used that will result in an order that feels more natural to humans. This can be useful for IP addresses,
 or when numbers are used in strings, so that "48" (as a string) comes after "9" (as a string) - whereas the default sorting would put it the other way round.
 You can also pass a compare function in the same way you would use it as argument for <span class="property">Array.prototype.sort()</span>.
 
 <h4>Render</h4>
-The render <span class="property">function(record, [index], [column_index])</span> can be used to format the column data.
+The render <span class="property">function(record, [index], [column_index], [data])</span> can be used to format the column data.
 If the function is defined then it will be executed for each cell in the column and anything this function returns will be
-used instead of the original column data. Using this function you can create columns that output results from multiple fields.
+used instead of the original column data. The last argument <span class="property">data</span> is processed data that grid
+thinks should be there. It is a result of <span class="property">getCellValue</span> function.
 
 <textarea class="javascript">
 $('#grid').w2grid({
@@ -86,6 +91,19 @@ $('#grid').w2grid({
         { field: 'sdate', text: 'End Date', size: '120px' }
     ]
 });
+</textarea>
+
+If render function returns an object, it can be used to add a class and a style to the cell. For example/
+<textarea class="javascript">
+{ field: 'full-name', text: 'Full Name', size: '60%',
+    render: function (record) {
+        return {
+            html: '<div>' + record.fname + ' ' + record.lname + '</div>';
+            style: '1px solid red',
+            class: 'custom-class'
+        }
+    }
+}
 </textarea>
 
 There are several predefined formatters. They are (for number and float, XX - defines number of digits after dot):
@@ -118,8 +136,9 @@ $('#grid').w2grid({
 </textarea>
 
 <h4>Editable</h4>
-The editable object indicates if column fields are editable. If this field is an object, then the record can be edited inline by the user. This
-object is of the following structure:
+The <i>editable</i> property indicates if column fields are editable.
+If this field is an object, then the record can be edited inline by the user.
+This object is of the following structure:
 <textarea class="javascript">
 editable = {
     type    : 'text',  // type of the field (see below)
@@ -128,6 +147,10 @@ editable = {
     ...                // you can pass additional properties to w2field object (for date, enum, etc.)
 }
 </textarea>
+If the <i>editable</i> property is a function, it should return an object as described above. It will get same arguments as
+a render function would.
+<div style="height: 10px"></div>
+
 With this object you can supply other properties that will be passed to <span class="property">$('input').w2field(column.editable)</span> so you can
 use any field type supported by <span class="property">w2field</span> object. The type of the field can be one of the following:
 <ul>
@@ -150,6 +173,29 @@ use any field type supported by <span class="property">w2field</span> object. Th
     <li>select</li>
 </ul>
 
+You can make some of the reocrds not editable, for example:
+<textarea class="javascript">
+{ recid: 1, ... w2ui: { editable: false } }
+</textarea>
+
+<h4>Info</h4>
+The <i>info</i> property can be either <i>true</i> or an object with the following structure:
+<textarea class="javascript">
+info = {
+    icon        : null,     // string|function|object, icon used in the cell, default: 'w2ui-icon-info'
+    style       : null,     // string|function|object, style applied to the icon
+    fields      : null,     // Array of field names, or a function that returns an array of field names,
+                            // or an object in the form { 'caption_1': 'field_1', ..., 'caption_N': 'field_N' }
+    render      : null,     // function to render the info bubble, gets passed (record, index, column_index)
+    showEmpty   : false,    // flag to indicate if fields with empty values should be part of the bubble
+    maxLength   : null,     // integer, max length of individual field values, after which they are cut off
+    showOn      : 'click',  // string, e.g. 'mouseover|mouseenter|...',
+    hideOn      : '',       // string, e.g. 'mouseout|mouseleave|...',
+    options     : {},       // options that are passed to the w2tag constructor, e.g. options.position = 'top'
+    ...                     // you can pass additional properties
+}
+</textarea>
+There can only ever be one info bubble visible at a time. By default, the bubble will only show when you click the icon and will hide when you click anywhere else.
 <div style="height: 10px"></div>
 
 Use <a class="argument" href="w2grid.getChanged">.getChanged()</a> method to find what records have been changed. Then, you can call

@@ -1,0 +1,45 @@
+Returns parsed color object.
+
+<div class="definition">
+    parseColor(color)
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>color</td>
+        <td><b>string</b> web color</td>
+    </tr>
+    </table>
+</div>
+
+Returns object.
+
+<h4>Description</h4>
+The <span class="argument">color</span> argument is a web color.
+
+Valid notations include 3, 6 or 8 hex digits with an optional leading hash symbol,
+as well as rgb() or rgba() notations.
+
+Example:
+
+<textarea class="javascript">
+w2utils.parseColor('49A4DF01')
+</textarea>
+
+Returns
+<textarea class="javascript">
+{ r: 73, g: 164, b: 223, a: 1 }
+</textarea>
+
+It can be used to convert to rgb(...) or rgba(...) notation
+
+<textarea class="javascript">
+let c = w2utils.parseColor('49A4DF01')
+console.log(`rgba(${c.r}, ${c.g}, ${c.b}, ${c.a})`)
+</textarea>
+
+<h4>See Also</h4>
+
+<a href="w2utils.rgb2hsv">rgb2hsv</a><br>
+<a href="w2utils.hsv2rgb">hsv2rgb</a><br>

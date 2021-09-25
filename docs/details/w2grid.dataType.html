@@ -1,15 +1,18 @@
-Message that appears when grid refreshes.
+Defines dateType for the grid
 
 <div class="definition">
-    String, default = 'Refreshing...'
+    String, default = null
 </div>
 
-If you do not like default message, you are welcome to define your own.
+If dataType is not defined, the default one comes from
+<a href="w2utils.settings" class="method">w2utils.settings.dataType</a>.
+<div style="height: 10px"></div>
 
+This property can be set during object creation:
 <textarea class="javascript">
 $('#grid').w2grid({
-    name     : 'grid',
-    msgRefresh: 'Zip-Zap',
+    name: 'grid',
+    dataType: 'JSON',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
         { field: 'lname', text: 'Last Name', size: '30%' },
@@ -19,4 +22,9 @@ $('#grid').w2grid({
         { field: 'sdate', text: 'End Date', size: '120px' }
     ]
 });
+</textarea>
+
+Or any time during run-time:
+<textarea class="javascript">
+w2ui['grid'].method = 'POST';
 </textarea>

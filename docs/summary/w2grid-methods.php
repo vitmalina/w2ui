@@ -330,6 +330,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.message">message</a> <span>- message(options)</span>
+</div>
+<div class="obj-property-desc">
+    Shows a context message for the form
+</div>
+
+<div class="obj-property">
     <a href="w2grid.nextCell">nextCell</a> <span>- nextCell(col_ind, editable)</span>
 </div>
 <div class="obj-property-desc">

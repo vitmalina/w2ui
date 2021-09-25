@@ -1,15 +1,15 @@
-Message that appears when grid refreshes.
+Message that is displaed when total number of records on the server changed, and a reload from top is needed.
 
 <div class="definition">
-    String, default = 'Refreshing...'
+    String, default = 'Your remote data source record count has changed, reloading from the first record.'
 </div>
 
 If you do not like default message, you are welcome to define your own.
 
 <textarea class="javascript">
 $('#grid').w2grid({
-    name     : 'grid',
-    msgRefresh: 'Zip-Zap',
+    name: 'grid',
+    msgEmpty: 'Neeed reload...',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
         { field: 'lname', text: 'Last Name', size: '30%' },

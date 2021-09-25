@@ -1,15 +1,17 @@
-Message that appears when grid refreshes.
+Defines state id to save to local storage
 
 <div class="definition">
-    String, default = 'Refreshing...'
+    String, default = null
 </div>
 
-If you do not like default message, you are welcome to define your own.
+When grid state is save into local storage, it will normally use grid's name. However, you can define a custom state id.
+<div style="height: 10px"></div>
 
+This property can be set during object creation:
 <textarea class="javascript">
 $('#grid').w2grid({
-    name     : 'grid',
-    msgRefresh: 'Zip-Zap',
+    name: 'grid',
+    stateId: 'some-state'
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
         { field: 'lname', text: 'Last Name', size: '30%' },
@@ -19,4 +21,10 @@ $('#grid').w2grid({
         { field: 'sdate', text: 'End Date', size: '120px' }
     ]
 });
+w2ui.grid.saveState()
+</textarea>
+
+Or any time during run-time:
+<textarea class="javascript">
+w2ui.grid.stateId = 'some-state';
 </textarea>
