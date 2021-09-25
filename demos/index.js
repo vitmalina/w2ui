@@ -157,12 +157,12 @@ $(function () {
                         { id: 'sidebar/13', text: 'Node Handle', icon: 'fa fa-hand-o-up' },
                     ]
                 },
-                // { id: 'sidebar-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
-                //     nodes: [
-                //         { id: 'sidebar/14', text: 'Sort Nodes', icon: 'fa fa-hand-o-up' },
-                //         { id: 'sidebar/15', text: 'Search Nodes', icon: 'fa fa-hand-o-up' }
-                //     ]
-                // },
+                { id: 'sidebar-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'sidebar/14', text: 'Sort Nodes', icon: 'fa fa-hand-o-up' },
+                        { id: 'sidebar/15', text: 'Search Nodes', icon: 'fa fa-hand-o-up' }
+                    ]
+                },
                 { id: 'tabs', text: 'Tabs Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'tabs/1', text: 'Simple Tabs', icon: 'fa fa-folder-o' },
@@ -180,11 +180,11 @@ $(function () {
                         { id: 'tabs/9', text: 'Tab Reorder', icon: 'fa fa-folder-o' }
                     ]
                 },
-                // { id: 'tabs-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
-                //     nodes: [
-                //         { id: 'tabs/10', text: 'Smooth Add/Remove', icon: 'fa fa-folder-o' }
-                //     ]
-                // },
+                { id: 'tabs-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'tabs/10', text: 'Smooth Add/Remove', icon: 'fa fa-folder-o' }
+                    ]
+                },
                 { id: 'forms', text: 'Forms Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'form/1', text: 'Simple Form', icon: 'fa fa-pencil-square-o' },
@@ -215,12 +215,12 @@ $(function () {
                         { id: 'form/22', text: 'Lock/Unlock Form', icon: 'fa fa-pencil-square-o' },
                     ]
                 },
-                // { id: 'forms-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
-                //     nodes: [
-                //         { id: 'form/23', text: 'Better Groups', icon: 'fa fa-pencil-square-o' },
-                //         { id: 'form/24', text: 'Apply Focus', icon: 'fa fa-pencil-square-o' },
-                //     ]
-                // },
+                { id: 'forms-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'form/23', text: 'Better Groups', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/24', text: 'Apply Focus', icon: 'fa fa-pencil-square-o' },
+                    ]
+                },
                 { id: 'fields', text: 'Fields Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'fields/1', text: 'Numeric', icon: 'fa fa-pencil-square-o' },
@@ -255,11 +255,11 @@ $(function () {
                         { id: 'popup/10', text: 'Actions', icon: 'fa fa-list-alt' }
                     ]
                 },
-                // { id: 'popup-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
-                //     nodes: [
-                //         { id: 'popup/11', text: 'Promises', icon: 'fa fa-list-alt' }
-                //     ]
-                // },
+                { id: 'popup-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'popup/11', text: 'Promises', icon: 'fa fa-list-alt' }
+                    ]
+                },
                 { id: 'utils', text: 'Utils Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'utils/1', text: 'Validation', icon: 'fa fa-star-o' },
@@ -302,8 +302,8 @@ $(function () {
                         console.log('ERROR: cannot parse example.', data)
                         return
                     }
-                    let w2ui_js  = 'http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.js'
-                    let w2ui_css = 'http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css'
+                    let w2ui_js  = 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.js'
+                    let w2ui_css = 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css'
                     let html     = tmp[1] ? $.trim(tmp[1]) : ''
                     let js       = tmp[2] ? $.trim(tmp[2]) : ''
                     let css      = tmp[3] ? $.trim(tmp[3]) : ''

@@ -43,10 +43,6 @@
 *   - Shift-click/Ctrl-click/Ctrl-Shift-Click selection is not as robust as it should be
 *   - refactor reorderRow (not finished)
 *
-* == 1.5 changes
-*   - added stateColProps
-*   - added colDefaults
-*
 * == 2.0 changes
 *   - .message - returns a promise
 *   - toolbarInput - deprecated, toolbarSearch stays
