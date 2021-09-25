@@ -1,0 +1,46 @@
+Defines which column properties when state is saved
+
+<div class="definition">
+    Object, default = {...} see below
+</div>
+
+You can overwrite default method for every AJAX request if you define your own grid.method property. Otherwise, it will take a method
+as it is defined by <a href="w2utils.settings" class="method">$('#id')w2utils.settings.dataType</a> property.
+<div style="height: 10px"></div>
+
+This property can be set during object creation:
+<textarea class="javascript">
+{
+    text            : false,
+    field           : true,
+    size            : true,
+    min             : false,
+    max             : false,
+    gridMinWidth    : false,
+    sizeCorrected   : false,
+    sizeCalculated  : true,
+    sizeOriginal    : true,
+    sizeType        : true,
+    hidden          : true,
+    sortable        : false,
+    sortMode        : true,
+    searchable      : false,
+    resizable       : false,
+    hideable        : false,
+    autoResize      : false,
+    attr            : false,
+    style           : false,
+    render          : false,
+    title           : false,
+    tooltip         : false,
+    editable        : false,
+    frozen          : true,
+    info            : false,
+    clipboardCopy   : false
+}
+</textarea>
+
+<h4>See Also</h4>
+<a href="w2grid.stateSave">stateSave</a><br>
+<a href="w2grid.stateRestore">stateRestore</a><br>
+<a href="w2grid.stateReset">stateReset</a><br>

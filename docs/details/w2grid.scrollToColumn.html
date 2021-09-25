@@ -1,21 +1,13 @@
-Scrolls to the specified records
+Scrolls to the specified column
 
 <div class="definition">
-    scrollIntoView([ind], [column], [instant])
+    scrollToColumn(field)
 </div>
 <div class="arguments">
     <table>
     <tr>
-        <td>ind</td>
-        <td><b>integer</b>, <i>optional</i>, index of the record in records array</td>
-    </tr>
-    <tr>
-        <td>column</td>
-        <td><b>integer</b>, <i>optional</i>, index of the column in columns array</td>
-    </tr>
-    <tr>
-        <td>instant</td>
-        <td><b>boolean</b>, <i>optional</i>, instant scrolling</td>
+        <td>field</td>
+        <td><b>string</b>, column name to scroll to</td>
     </tr>
     </table>
 </div>
@@ -23,11 +15,7 @@ Returns <i>undefined</i>.
 
 <h4>Description</h4>
 
-This method will scroll into view the record with <span class="method">ind</span> index. If you do not supply the
-<span class="method">ind</span> argument, the method will scroll into view first selected record.
-<div style="height: 10px"></div>
-
-By default the scrolling is animated, unless the <span class="method">instant</span> flag is set.
+This method will scroll into view horizontally to column with <span class="method">field</span> index.
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:
@@ -56,5 +44,5 @@ $('#grid').w2grid({
 
 You can do:
 <textarea class="javascript">
-w2ui.grid.scrollIntoView(100);
+w2ui.grid.scrollToColumn('sdate');
 </textarea>

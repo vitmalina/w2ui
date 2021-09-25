@@ -1,15 +1,15 @@
-Message that appears when grid refreshes.
+Message that appears in the middle of the grid when remote srouce returns no records.
 
 <div class="definition">
-    String, default = 'Refreshing...'
+    String, default = ''
 </div>
 
 If you do not like default message, you are welcome to define your own.
 
 <textarea class="javascript">
 $('#grid').w2grid({
-    name     : 'grid',
-    msgRefresh: 'Zip-Zap',
+    name: 'grid',
+    msgEmpty: 'Zip-Zap',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
         { field: 'lname', text: 'Last Name', size: '30%' },

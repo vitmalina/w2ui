@@ -1,19 +1,19 @@
-Overwrites method for ajax requests.
+Number of records to show that are before and after the matched record
 
 <div class="definition">
-    String, default = null
+    Integer, default = 0
 </div>
 
-You can overwrite default method for every AJAX request if you define your own grid.method property. Otherwise, it will be set
-based on the data type defined in <a href="w2utils.settings" class="method">$('#id')w2utils.settings.dataType</a>.
+Once the search is applied, sometimes it is useful to know what records are before andr after the searched record
+(to know the context).
 <div style="height: 10px"></div>
 
 This property can be set during object creation:
 <textarea class="javascript">
 $('#grid').w2grid({
     name: 'grid',
-    method: 'POST',
-    columns: [
+    showExtraOnSearch: 1,
+    columns : [
         { field: 'recid', text: 'ID', size: '50px' },
         { field: 'lname', text: 'Last Name', size: '30%' },
         { field: 'fname', text: 'First Name', size: '30%' },
@@ -26,5 +26,5 @@ $('#grid').w2grid({
 
 Or any time during run-time:
 <textarea class="javascript">
-w2ui['grid'].method = 'POST';
+w2ui.grid.showExtraOnSearch = 1;
 </textarea>

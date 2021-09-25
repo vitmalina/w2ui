@@ -50,6 +50,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.disableCVS">disableCVS</a> <span>- Boolean, default = false</span>
+</div>
+<div class="obj-property-desc">
+    Indicates if column vertical scsoll (virtualization) is enabled.
+</div>
+
+<div class="obj-property">
     <a href="w2grid.fixedBody">fixedBody</a> <span>- Boolean, default = true</span>
 </div>
 <div class="obj-property-desc">
@@ -173,6 +180,13 @@
 </div>
 <div class="obj-property-desc">
     Indicates if column multi sort is allowed.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.nestedFields">nestedFields</a> <span>- Boolean, default = true</span>
+</div>
+<div class="obj-property-desc">
+    Indicates if field names should be parsed
 </div>
 
 <div class="obj-property">
