@@ -4,7 +4,6 @@
 <script type="text/javascript" src="../libs/jquery/jquery-3.5.1.min.js"></script>
 <script type="module" src="../src/w2compat.js"></script>
 <script>
-//<![CDATA[
 $(function () {
 
     // -- LAYOUT
@@ -118,10 +117,9 @@ $(function () {
     });
 
     // -- INITIATE
-    w2ui['layout'].content('main', w2ui['grid']);
-    w2ui['layout'].content('right', w2ui['form']);
+    w2ui.layout.html('main', w2ui.grid);
+    w2ui.layout.html('right', w2ui.form);
 });
-//]]>
 </script>
 </head>
 <body>

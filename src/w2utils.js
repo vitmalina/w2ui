@@ -1766,7 +1766,7 @@ let w2utils = (($) => {
                     })
                 }
                 let method = params[0]
-                params.shift()
+                params = params.slice(1) // should be new array
                 $(el)
                     .off(name + '.w2utils-bind')
                     .on(name + '.w2utils-bind', function(event) {

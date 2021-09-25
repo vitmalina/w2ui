@@ -7,6 +7,7 @@
 *   - two way data bindings
 *   - rename applyFocus -> focus
 *   - tabs below some fields (could already be implemented)
+*   - form with toolbar & tabs
 *
 * == 2.0 changes
 *   - show/hide, enable/disable - return array of effected items

@@ -11,9 +11,9 @@ $(function () {
         name: 'tabs',
         active: 'tab1',
         tabs: [
-            { id: 'tab1', caption: 'Edit' },
-            { id: 'tab2', caption: 'List 1' },
-            { id: 'tab3', caption: 'List 2' }
+            { id: 'tab1', text: 'Edit' },
+            { id: 'tab2', text: 'List 1' },
+            { id: 'tab3', text: 'List 2' }
         ],
         onClick: function (event) {
             switch (event.target) {
@@ -32,12 +32,12 @@ $(function () {
 
     // -- Form
     $('#contents').w2form({
-        name    : 'form',
-        url     : 'server/post',
-        style     : 'border: 0px',
+        name: 'form',
+        url: 'server/post',
+        style: 'border: 0px',
         fields: [
-            { name: 'fname', type: 'text', required: true },
-            { name: 'lname', type: 'text', required: true }
+            { field: 'fname', type: 'text', required: true },
+            { field: 'lname', type: 'text', required: true }
         ],
         actions: {
             reset: function () {
@@ -55,9 +55,9 @@ $(function () {
         header: 'Grid 1',
         style: 'border-top: 0px',
         columns: [
-            { field: 'recid', caption: 'ID', size: '50px', sortable: true, resizable: true },
-            { field: 'lname', caption: 'Last Name', size: '30%', sortable: true, resizable: true },
-            { field: 'fname', caption: 'First Name', size: '30%', sortable: true, resizable: true }
+            { field: 'recid', text: 'ID', size: '50px', sortable: true, resizable: true },
+            { field: 'lname', text: 'Last Name', size: '30%', sortable: true, resizable: true },
+            { field: 'fname', text: 'First Name', size: '30%', sortable: true, resizable: true }
         ],
         records: [
             { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
@@ -71,12 +71,12 @@ $(function () {
         name: 'grid2',
         style: 'border-top: 0px',
         columns: [
-            { field: 'recid', caption: 'ID', size: '50px', sortable: true, resizable: true },
-            { field: 'lname', caption: 'Last Name', size: '30%', sortable: true, resizable: true },
-            { field: 'fname', caption: 'First Name', size: '30%', sortable: true, resizable: true },
-            { field: 'ldate', caption: 'Last Update', size: '90px', sortable: true, resizable: true },
-            { field: 'ldate', caption: 'Last User', size: '90px', sortable: true, resizable: true },
-            { field: 'ldate', caption: 'Created On', size: '90px', sortable: true, resizable: true }
+            { field: 'recid', text: 'ID', size: '50px', sortable: true, resizable: true },
+            { field: 'lname', text: 'Last Name', size: '30%', sortable: true, resizable: true },
+            { field: 'fname', text: 'First Name', size: '30%', sortable: true, resizable: true },
+            { field: 'ldate', text: 'Last Update', size: '90px', sortable: true, resizable: true },
+            { field: 'ldate', text: 'Last User', size: '90px', sortable: true, resizable: true },
+            { field: 'ldate', text: 'Created On', size: '90px', sortable: true, resizable: true }
         ],
         records: [
             { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
@@ -88,7 +88,7 @@ $(function () {
 //]]>
 </script>
 <body>
-    <div id="tabs" style="background-color: red !important;"></div>
+    <div id="tabs" style=""></div>
     <div id="contents" style="border: 1px solid silver; height: 400px;">
         <!-- HTML below is needed only to init the form -->
         <div class="w2ui-form">
