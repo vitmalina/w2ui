@@ -23,11 +23,18 @@
 *   - reload a single records (useful when need to update deep in buffered records)
 *   - need to update PHP example
 *   - return structure status -> replace with success
+*   - msg* - should be in prototype
+*   - search fields not finised
+*   - row reorder not finished
+*   - expendable grids are still working
+*   - moved a lot of properties into prototype
 *
 * == DEMOS To create ==
 *   - batch for disabled buttons
 *   - naturla sort
 *   - resize on max content
+*   - context message
+*   - clipboard copy
 *
 * == KNOWN ISSUES ==
 *   - reorder records with school - not correct
@@ -37,31 +44,8 @@
 *   - refactor reorderRow (not finished)
 *
 * == 1.5 changes
-*   - disableCVS
-*   - added nestedFields: use field name containing dots as separator to look into objects
-*   - grid.message
-*   - added noReset option to localSort()
-*   - added scrollToColumn(field)
-*   - textSearch: 'begins' (default), 'contains', 'is', ...
-*   - added refreshBody
-*   - added response.total = -1 (or not present) to indicate that number of records is unknown
-*   - message(.., callBack) - added callBack
-*   - grid.msgEmpty
-*   - field.render(..., data) -- added last argument which is what grid thinks should be there
-*   - field.render can return { html, class, style } as an object
-*   - onSearchOpen (onSearch will have multi and reset flags)
-*   - col.editable can be a function which will be called with the same args as col.render()
-*   - col.clipboardCopy - display icon to copy to clipboard
-*   - clipboardCopy - new function on grid level
-*   - added stateId
-*   - expendable grids are still working
-*   - added getFirst
 *   - added stateColProps
-*   - added stateColDefaults
-*   - deprecated column.caption -> column.text
-*   - deprecated columnGroup.caption -> columnGroup.text
-*   - moved a lot of properties into prototype
-*   - showExtraOnSearch
+*   - added colDefaults
 *
 * == 2.0 changes
 *   - .message - returns a promise
@@ -224,6 +208,36 @@ class w2grid extends w2event {
         this.advanceOnEdit     = true // automatically begin editing the next cell after submitting an inline edit?
         this.useLocalStorage   = true
 
+        // default values for the column
+        this.colDefaults = {
+            text           : '',    // column text (can be a function)
+            field          : '',    // field name to map the column to a record
+            size           : null,  // size of column in px or %
+            min            : 20,    // minimum width of column in px
+            max            : null,  // maximum width of column in px
+            gridMinWidth   : null,  // minimum width of the grid when column is visible
+            sizeCorrected  : null,  // read only, corrected size (see explanation below)
+            sizeCalculated : null,  // read only, size in px (see explanation below)
+            sizeOriginal   : null,  // size as defined
+            sizeType       : null,  // px or %
+            hidden         : false, // indicates if column is hidden
+            sortable       : false, // indicates if column is sortable
+            sortMode       : null,  // sort mode ('default'|'natural') or custom compare function
+            searchable     : false, // bool/string: int,float,date,... or an object to create search field
+            resizable      : true,  // indicates if column is resizable
+            hideable       : true,  // indicates if column can be hidden
+            autoResize     : null,  // indicates if column can be auto-resized by double clicking on the resizer
+            attr           : '',    // string that will be inside the <td ... attr> tag
+            style          : '',    // additional style for the td tag
+            render         : null,  // string or render function
+            title          : null,  // string or function for the title property for the column cells
+            tooltip        : null,  // string for the title property for the column header
+            editable       : {},    // editable object (see explanation below)
+            frozen         : false, // indicates if the column is fixed to the left
+            info           : null,  // info bubble, can be bool/object
+            clipboardCopy  : false, // if true (or string or function), it will display clipboard copy icon
+        }
+
         // these column properties will be saved in stateSave()
         this.stateColProps = {
             text            : false,
@@ -238,44 +252,20 @@ class w2grid extends w2event {
             sizeType        : true,
             hidden          : true,
             sortable        : false,
+            sortMode        : true,
             searchable      : false,
-            clipboardCopy   : false,
             resizable       : false,
             hideable        : false,
+            autoResize      : false,
             attr            : false,
             style           : false,
             render          : false,
             title           : false,
+            tooltip         : false,
             editable        : false,
             frozen          : true,
             info            : false,
-        }
-
-        // these are the stateSave() fallback values if the property to save is not a property of the column object
-        this.stateColDefaults = {
-            text            : '', // column text
-            field           : '', // field name to map column to a record
-            size            : null, // size of column in px or %
-            min             : 20, // minimum width of column in px
-            max             : null, // maximum width of column in px
-            gridMinWidth    : null, // minimum width of the grid when column is visible
-            sizeCorrected   : null, // read only, corrected size (see explanation below)
-            sizeCalculated  : null, // read only, size in px (see explanation below)
-            sizeOriginal    : null,
-            sizeType        : null,
-            hidden          : false, // indicates if column is hidden
-            sortable        : false, // indicates if column is sortable
-            searchable      : false, // indicates if column is searchable, bool/string: int,float,date,...
-            clipboardCopy   : false,
-            resizable       : true, // indicates if column is resizable
-            hideable        : true, // indicates if column can be hidden
-            attr            : '', // string that will be inside the <td ... attr> tag
-            style           : '', // additional style for the td tag
-            render          : null, // string or render function
-            title           : null, // string or function for the title property for the column cells
-            editable        : {}, // editable object if column fields are editable
-            frozen          : false, // indicates if the column is fixed to the left
-            info            : null // info bubble, can be bool/object
+            clipboardCopy   : false
         }
 
         this.msgDelete     = 'Are you sure you want to delete ${count} ${records}?'
@@ -412,7 +402,9 @@ class w2grid extends w2event {
         }
         // add searches
         if (Array.isArray(this.columns)) {
-            this.columns.forEach(col => {
+            this.columns.forEach((col, ind) => {
+                col = $.extend({}, this.colDefaults, col)
+                this.columns[ind] = col
                 let search = col.searchable
                 if (search == null || search === false || this.getSearch(col.field) != null) return
                 if ($.isPlainObject(search)) {
@@ -583,13 +575,13 @@ class w2grid extends w2event {
         }
     }
 
-    getFirst() {
+    getFirst(index) {
         if (this.records.length == 0) return null
         let recid = this.records[0].recid
         let tmp   = this.last.searchIds
         if (this.searchData.length > 0) {
             if (Array.isArray(tmp) && tmp.length > 0) {
-                recid = this.records[tmp[0]].recid
+                recid = this.records[tmp[index || 0]]
             } else {
                 recid = null
             }
@@ -627,7 +619,8 @@ class w2grid extends w2event {
         }
         if (!Array.isArray(columns)) columns = [columns]
         for (let i = 0; i < columns.length; i++) {
-            this.columns.splice(before, 0, columns[i])
+            let col = $.extend({}, this.colDefaults, columns[i])
+            this.columns.splice(before, 0, col)
             // if column is searchable, add search field
             if (columns[i].searchable) {
                 let stype = columns[i].searchable
@@ -1853,7 +1846,7 @@ class w2grid extends w2event {
         return (new Date()).getTime() - time
     }
 
-    updateToolbar(sel, areAllSelected) {
+    updateToolbar(sel) {
         let obj = this
         let cnt = sel && sel.indexes ? sel.indexes.length : 0
         this.toolbar.items.forEach((item) => {
@@ -4292,6 +4285,29 @@ class w2grid extends w2event {
         }
     }
 
+    scrollToColumn(field) {
+        if (field == null)
+            return
+        let sWidth = 0
+        let found  = false
+        for (let i = 0; i < this.columns.length; i++) {
+            let col = this.columns[i]
+            if (col.field == field) {
+                found = true
+                break
+            }
+            if (col.frozen || col.hidden)
+                continue
+            let cSize = parseInt(col.sizeCalculated ? col.sizeCalculated : col.size)
+            sWidth   += cSize
+        }
+        if (!found)
+            return
+        this.last.scrollLeft = sWidth+1
+        this.scroll()
+    }
+
+
     dblClick(recid, event) {
         // find columns
         let column = null
@@ -4702,7 +4718,7 @@ class w2grid extends w2event {
             if (rec == null) continue
             for (let dt = 0; dt < tmp.length; dt++) {
                 if (!this.columns[col + cnt]) continue
-                this.setCellPaste(rec, col + cnt, tmp[dt])
+                setCellPaste(rec, this.columns[col + cnt].field, tmp[dt])
                 cols.push(col + cnt)
                 cnt++
             }
@@ -4714,19 +4730,12 @@ class w2grid extends w2event {
         this.refresh()
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
-    }
 
-    /**
-     * Sets record field using clipboard text
-     * @param rec record
-     * @param col_ind column index
-     * @param paste sub part of the pasted text
-     */
-    setCellPaste(rec, col_ind, paste) {
-        let field               = this.columns[col_ind].field
-        rec.w2ui                = rec.w2ui || {}
-        rec.w2ui.changes        = rec.w2ui.changes || {}
-        rec.w2ui.changes[field] = paste
+        function setCellPaste(rec, field, paste) {
+            rec.w2ui = rec.w2ui || {}
+            rec.w2ui.changes = rec.w2ui.changes || {}
+            rec.w2ui.changes[field] = paste
+        }
     }
 
     // ==================================================
@@ -6055,28 +6064,6 @@ class w2grid extends w2event {
         this.trigger($.extend(edata, { phase: 'after' }))
     }
 
-    scrollToColumn(field) {
-        if (field == null)
-            return
-        let sWidth = 0
-        let found  = false
-        for (let i = 0; i < this.columns.length; i++) {
-            let col = this.columns[i]
-            if (col.field == field) {
-                found = true
-                break
-            }
-            if (col.frozen || col.hidden)
-                continue
-            let cSize = parseInt(col.sizeCalculated ? col.sizeCalculated : col.size)
-            sWidth   += cSize
-        }
-        if (!found)
-            return
-        this.last.scrollLeft = sWidth+1
-        this.scroll()
-    }
-
     initToolbar() {
         let grid = this
         // -- if toolbar is true
@@ -6840,13 +6827,12 @@ class w2grid extends w2event {
             </td>
         </tr></tbody></table>`
         return html
-
     }
 
-    getOperators(type, fieldOperators) {
+    getOperators(type, opers) {
         let operators = this.operators[this.operatorsMap[type]] || []
-        if (fieldOperators != null && Array.isArray(fieldOperators)) {
-            operators = fieldOperators
+        if (opers != null && Array.isArray(opers)) {
+            operators = fieldOpers
         }
         let html = ''
         operators.forEach(oper => {
@@ -8207,7 +8193,7 @@ class w2grid extends w2event {
                         prop_val = col[prop]
                     } else {
                         // use fallback or null
-                        prop_val = this.stateColDefaults[prop] || null
+                        prop_val = this.colDefaults[prop] || null
                     }
                     col_save_obj[prop] = prop_val
                 }
