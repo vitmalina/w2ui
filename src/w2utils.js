@@ -1396,7 +1396,7 @@ let w2utils = (($) => {
         })
     }
 
-    function scrollBarSize () {
+    function scrollBarSize() {
         if (tmp.scrollBarSize) return tmp.scrollBarSize
         let html =
             '<div id="_scrollbar_width" style="position: absolute; top: -300px; width: 100px; height: 100px; overflow-y: scroll;">'+
@@ -1914,10 +1914,11 @@ w2utils.formatters = {
     }
 }
 
+// register globals
 if (self) {
+    w2ui = self.w2ui || {}
+    self.w2ui = w2ui
     self.w2utils = w2utils
-    self.w2ui    = self.w2ui || {}
-    w2ui         = self.w2ui
 }
 
 export { w2ui, w2utils }

@@ -92,6 +92,8 @@ import { w2toolbar } from './w2toolbar.js'
     $.fn.w2popup = function(options) {
         if (this.length > 0 ) {
             w2popup.template(this[0], null, options)
+        } else if (options.url) {
+            w2popup.load(options)
         }
     }
 

@@ -955,7 +955,7 @@ class w2field extends w2event {
 
         // hide overlay
         if (['color', 'date', 'time', 'list', 'combo', 'enum', 'datetime'].indexOf(obj.type) !== -1) {
-            let closeTimeout = window.setTimeout(() => {
+            let closeTimeout = setTimeout(() => {
                 if ($overlay.data('keepOpen') !== true) $overlay.hide()
             }, 0)
 

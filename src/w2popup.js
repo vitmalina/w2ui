@@ -637,7 +637,6 @@ class w2dialog extends w2event {
                     }
                     // event after
                     obj.trigger($.extend(edata, { phase: 'after' }))
-                    w2utils.bindEvents('#w2ui-popup .w2ui-popup-action', w2popup)
                     resolve(edata)
                 }, 150)
             } else {
@@ -694,7 +693,7 @@ class w2dialog extends w2event {
                         }
                         // event after
                         obj.trigger($.extend(edata, { phase: 'after' }))
-                        w2utils.bindEvents('#w2ui-popup .w2ui-popup-action', w2popup)
+                        w2utils.bindEvents(`#w2ui-popup #w2ui-message${msgCount} .w2ui-popup-action`, w2popup)
                         resolve(edata)
                     }, 350)
                 }
@@ -903,11 +902,6 @@ class w2dialog extends w2event {
             }
         }
     }
-}
-
-let w2popup = new w2dialog()
-if (window) {
-    window.w2popup = w2popup
 }
 
 function w2alert(msg, title, callBack) {
@@ -1336,5 +1330,14 @@ function w2prompt(label, title, callBack) {
             return this
         }
     }
+}
+
+// register globals
+let w2popup = new w2dialog()
+if (self) {
+    self.w2popup = w2popup
+    self.w2alert = w2alert
+    self.w2confirm = w2confirm
+    self.w2prompt = w2prompt
 }
 export { w2dialog, w2popup, w2alert, w2confirm, w2prompt }
