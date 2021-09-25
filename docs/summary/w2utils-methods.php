@@ -127,6 +127,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2utils.hsv2rgb">hsv2rgb</a> <span>- hsv2rgb(color)</span>
+</div>
+<div class="obj-property-desc">
+    Converts HSV to RGB color definition
+</div>
+
+<div class="obj-property">
     <a href="w2utils.interval">interval</a> <span>- interval(intStr)</span>
 </div>
 <div class="obj-property-desc">
@@ -239,10 +246,24 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2utils.parseColor">parseColor</a> <span>- parseColor(color)</span>
+</div>
+<div class="obj-property-desc">
+    Returns parsed color object.
+</div>
+
+<div class="obj-property">
     <a href="w2utils.parseRoute">parseRoute</a> <span>- parseRoute(route)</span>
 </div>
 <div class="obj-property-desc">
     Returns parse route object.
+</div>
+
+<div class="obj-property">
+    <a href="w2utils.rgb2hsv">rgb2hsv</a> <span>- rgb2hsv(color)</span>
+</div>
+<div class="obj-property-desc">
+    Converts RGB to HSV color definition
 </div>
 
 <div class="obj-property">

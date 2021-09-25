@@ -203,4 +203,11 @@
     Unselects sidebar node with <span class="argument">id</span>.
 </div>
 
+<div class="obj-property">
+    <a href="w2sidebar.update">update</a> <span>- update(id, options)</span>
+</div>
+<div class="obj-property-desc">
+    Quick refresh of a node if possible
+</div>
+
 </div>
