@@ -28,6 +28,8 @@
 *   - row reorder not finished
 *   - expendable grids are still working
 *   - moved a lot of properties into prototype
+*   - promise for request, load, save, etc.
+*   - remote date local sort/search
 *
 * == DEMOS To create ==
 *   - batch for disabled buttons
@@ -35,6 +37,7 @@
 *   - resize on max content
 *   - context message
 *   - clipboard copy
+*   - save searches, custom searches
 *
 * == KNOWN ISSUES ==
 *   - reorder records with school - not correct
@@ -57,6 +60,7 @@
 *   - grid.confirm
 *   - grid.message returns a promise
 *   - search.type == 'text' can have 'in' and 'not in' operators, then it will switch to enum
+*   - grid.find(..., displayedOnly)
 *
 ************************************************************************/
 
@@ -387,14 +391,23 @@ class w2grid extends w2event {
 
         // check if there are records without recid
         if (Array.isArray(this.records)) {
-            this.records.forEach(rec => {
+            let remove = [] // remove from records as they are summary
+            this.records.forEach((rec, ind) => {
                 if (rec[this.recid] != null) {
                     rec.recid = rec[this.recid]
                 }
                 if (rec.recid == null) {
                     console.log('ERROR: Cannot add records without recid. (obj: '+ this.name +')')
                 }
+                if (rec.w2ui && rec.w2ui.summary === true) {
+                    this.summary.push(rec)
+                    remove.push(ind) // cannot remove here as it will mess up array walk thru
+                }
             })
+            remove.sort()
+            for (let t = remove.length-1; t >= 0; t--) {
+                this.records.splice(remove[t], 1)
+            }
         }
         // add searches
         if (Array.isArray(this.columns)) {
@@ -474,14 +487,17 @@ class w2grid extends w2event {
         return added
     }
 
-    find(obj, returnIndex) {
+    find(obj, returnIndex, displayedOnly) {
         if (obj == null) obj = {}
         let recs    = []
         let hasDots = false
         // check if property is nested - needed for speed
         for (let o in obj) if (String(o).indexOf('.') != -1) hasDots = true
         // look for an item
-        for (let i = 0; i < this.records.length; i++) {
+        let start = displayedOnly ? this.last.range_start : 0
+        let end   = displayedOnly ? this.last.range_end + 1: this.records.length
+        if (end > this.records.length) end = this.records.length
+        for (let i = start; i < end; i++) {
             let match = true
             for (let o in obj) {
                 let val = this.records[i][o]
@@ -2937,68 +2953,70 @@ class w2grid extends w2event {
                     }
                 }
             }
-            if (Array.isArray(data.records)) {
-                // make sure each record has recid
-                data.records.forEach((rec, ind) => {
-                    if (this.recid) {
-                        rec.recid = this.parseField(rec, this.recid)
-                    }
-                    if (rec.recid == null) {
-                        rec.recid = 'recid-' + ind
-                    }
-                })
-            }
             if (data.status == 'error') {
                 this.error(data.message)
-            } else {
-                if (cmd == 'get') {
-                    if (data.total == null) data.total = -1
-                    if (data.records == null) {
-                        data.records = []
-                    }
-                    if (data.records.length == this.limit) {
-                        let loaded            = this.records.length + data.records.length
-                        this.last.xhr_hasMore = (loaded == this.total ? false : true)
-                    } else {
-                        this.last.xhr_hasMore = false
-                        this.total            = this.offset + this.last.xhr_offset + data.records.length
-                    }
-                    if (!this.last.xhr_hasMore) {
-                        // if no more records, then hide spinner
-                        $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more').hide()
-                    }
-                    if (this.last.xhr_offset === 0) {
-                        this.records = []
-                        this.summary = []
-                        if (w2utils.isInt(data.total)) this.total = parseInt(data.total)
-                    } else {
-                        if (data.total != -1 && parseInt(data.total) != parseInt(this.total)) {
-                            this.message(w2utils.lang(this.msgNeedReload), () => {
-                                delete this.last.xhr_offset
-                                this.reload()
-                            })
-                            return
-                        }
-                    }
-                    // records
-                    if (data.records) {
-                        for (let r = 0; r < data.records.length; r++) {
-                            this.records.push(data.records[r])
-                        }
-                    }
-                    // summary records (if any)
-                    if (data.summary) {
-                        this.summary = []
-                        for (let r = 0; r < data.summary.length; r++) {
-                            this.summary.push(data.summary[r])
-                        }
+            } else if (cmd == 'get') {
+                if (data.total == null) data.total = -1
+                if (data.records == null) {
+                    data.records = []
+                }
+                if (data.records.length == this.limit) {
+                    let loaded            = this.records.length + data.records.length
+                    this.last.xhr_hasMore = (loaded == this.total ? false : true)
+                } else {
+                    this.last.xhr_hasMore = false
+                    this.total            = this.offset + this.last.xhr_offset + data.records.length
+                }
+                if (!this.last.xhr_hasMore) {
+                    // if no more records, then hide spinner
+                    $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more').hide()
+                }
+                if (this.last.xhr_offset === 0) {
+                    this.records = []
+                    this.summary = []
+                    if (w2utils.isInt(data.total)) this.total = parseInt(data.total)
+                } else {
+                    if (data.total != -1 && parseInt(data.total) != parseInt(this.total)) {
+                        this.message(w2utils.lang(this.msgNeedReload), () => {
+                            delete this.last.xhr_offset
+                            this.reload()
+                        })
+                        return
                     }
                 }
-                if (cmd == 'delete') {
-                    this.reset() // unselect old selections
-                    this.reload()
-                    return
+                // records
+                if (data.records) {
+                    data.records.forEach(rec => {
+                        if (this.recid) {
+                            rec.recid = this.parseField(rec, this.recid)
+                        }
+                        if (rec.recid == null) {
+                            rec.recid = 'recid-' + this.records.length
+                        }
+                        if (rec.w2ui && rec.w2ui.summary === true) {
+                            this.summary.push(rec)
+                        } else {
+                            this.records.push(rec)
+                        }
+                    })
                 }
+                // summary records (if any)
+                if (data.summary) {
+                    this.summary = [] // reset summary with each call
+                    data.summary.forEach(rec => {
+                        if (this.recid) {
+                            rec.recid = this.parseField(rec, this.recid)
+                        }
+                        if (rec.recid == null) {
+                            rec.recid = 'recid-' + this.summary.length
+                        }
+                        this.summary.push(rec)
+                    })
+                }
+            } else if (cmd == 'delete') {
+                this.reset() // unselect old selections
+                this.reload()
+                return
             }
         } else {
             data = {
@@ -4957,7 +4975,7 @@ class w2grid extends w2event {
         // show number of selected
         this.status()
         // collapse all records
-        let rows = this.find({ 'w2ui.expanded': true }, true)
+        let rows = this.find({ 'w2ui.expanded': true }, true, true)
         for (let r = 0; r < rows.length; r++) {
             let tmp = this.records[rows[r]].w2ui
             if (tmp && !Array.isArray(tmp.children)) {
@@ -5085,14 +5103,6 @@ class w2grid extends w2event {
     }
 
     refreshBody() {
-        // -- separate summary
-        let obj = this,
-            tmp = this.find({ 'w2ui.summary': true }, true)
-        if (tmp.length > 0) {
-            for (let t = 0; t < tmp.length; t++) this.summary.push(this.records[tmp[t]])
-            for (let t = tmp.length-1; t >= 0; t--) this.records.splice(tmp[t], 1)
-        }
-
         // -- body
         this.scroll() // need to calculate virtual scrolling for columns
         let recHTML  = this.getRecordsHTML()
@@ -5173,7 +5183,6 @@ class w2grid extends w2event {
                 amount *= (Math.round(records.height() / obj.recordHeight) - 1) * obj.recordHeight / 4
                 recordsContainer.stop().animate({ 'scrollTop': newScrollTop + amount }, 250, 'linear')
             })
-
         if (this.records.length === 0 && this.msgEmpty) {
             $('#grid_'+ this.name +'_body')
                 .append('<div id="grid_'+ this.name + '_empty_msg" class="w2ui-grid-empty-msg"><div>'+ this.msgEmpty +'</div></div>')
