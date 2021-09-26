@@ -1,10 +1,10 @@
 <div class="content">
     <div id="example_title">
-        <h1>Buffered Scroll</h1>
-        As of version 1.3 by default there is no pagination in the grid. Records are shown and hidden as user scrolls. The grid has
-        been tested to allow up to 1,000,000 records in grid.records array. Only the records in the visible area plus a few records on 
-        top and bottom will be rendered. Records are dynamically added and removed as user scrolls. The grid below has 25k random 
-        records and implements local data source.
+        <h1>Virtual Scroll</h1>
+        If you have lots of records in the grid, it will only render in the DOM those that are in the view. Records are
+        dynamically added and removed as user scrolls. The grid below has
+        <span class="prop">25,000</span>
+        random records and uses local data source.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -17,13 +17,13 @@
 <script>
 // widget configuration
 var config = {
-    grid: { 
+    grid: {
         name: 'grid',
-        show: { 
+        show: {
             footer: true,
             toolbar: true
         },
-        columns: [                
+        columns: [
             { field: 'personid', text: 'ID', size: '50px', sortable: true, searchable: 'int', resizable: true },
             { field: 'fname', text: 'First Name', size: '140px', sortable: true, searchable: 'text', resizable: true },
             { field: 'lname', text: 'Last Name', size: '140px', sortable: true, searchable: 'text', resizable: true },
@@ -35,6 +35,7 @@ var config = {
 };
 
 $(function () {
+    let time = (new Date()).getTime()
     // initialization
     $().w2grid(config.grid);
     // generate data
@@ -42,10 +43,10 @@ $(function () {
     var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
     // add 25k records
     for (var i = 0; i < 25000; i++) {
-        w2ui['grid'].records.push({ 
+        w2ui['grid'].records.push({
             recid : i+1,
             personid: i+1,
-            fname: fname[Math.floor(Math.random() * fname.length)], 
+            fname: fname[Math.floor(Math.random() * fname.length)],
             lname: lname[Math.floor(Math.random() * lname.length)],
             email: 'vm@gmail.com', manager: '--',
             snumber: Math.floor(Math.random() * 8000),

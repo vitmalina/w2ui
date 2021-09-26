@@ -47,6 +47,14 @@ p + p {
     margin-bottom: 30px;
 }
 
+.prop, .property, .method {
+    display: inline-block;
+    padding: 1px 7px;
+    background-color: #eaeaea;
+    border-radius: 4px;
+    color: #5b4d7b;
+}
+
 .content {
     padding: 10px;
     line-height: 150%;

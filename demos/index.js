@@ -43,7 +43,7 @@ $(function () {
                         { id: 'combo/1', text: 'Sidebar & Grid', icon: 'fa fa-star-o' },
                         { id: 'combo/2', text: 'Grid & Edit', icon: 'fa fa-star-o' },
                         { id: 'combo/3', text: 'Spreadsheet Like Grid', icon: 'fa fa-star-o' },
-                        { id: 'combo/4', text: 'Buffered Scroll', icon: 'fa fa-star-o' },
+                        { id: 'combo/4', text: 'Virtual Scroll', icon: 'fa fa-star-o' },
                         { id: 'combo/9', text: 'Infinite Scroll', icon: 'fa fa-star-o' },
                         { id: 'combo/5', text: 'Tabs With Content', icon: 'fa fa-star-o' },
                         { id: 'combo/6', text: 'Layout & Dynamic Tabs', icon: 'fa fa-star-o' },
