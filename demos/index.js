@@ -54,7 +54,9 @@ $(function () {
                 },
                 { id: 'combo-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
-                        { id: 'combo/11', text: 'Flat Sidebar', icon: 'fa fa-star-o' }
+                        { id: 'combo/11', text: 'Flat Sidebar', icon: 'fa fa-star-o' },
+                        { id: 'combo/12', text: 'Context Menus', icon: 'fa fa-star-o' },
+                        { id: 'combo/13', text: 'Inline Tooltips', icon: 'fa fa-star-o' }
                     ]
                 },
                 { id: 'layout', text: 'Layout Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
@@ -74,8 +76,13 @@ $(function () {
                 { id: 'layout-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'layout/11', text: 'Panel Messages', icon: 'fa fa-columns' },
-                        { id: 'layout/12', text: 'Fixed Size Main', icon: 'fa fa-columns' },
-                        { id: 'layout/13', text: 'Content Replaced', icon: 'fa fa-columns' }
+                        { id: 'layout/12', text: 'Fixed Size Main Panel', icon: 'fa fa-columns' },
+                        { id: 'layout/13', text: 'Content Changed', icon: 'fa fa-columns' }
+                    ]
+                },
+                { id: 'layout-2/0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'layout/14', text: 'Promises', icon: 'fa fa-columns' },
                     ]
                 },
                 { id: 'grid', text: 'Grid Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
@@ -97,7 +104,7 @@ $(function () {
                         { id: 'grid/15', text: 'Simple Search', icon: 'fa fa-table' },
                         { id: 'grid/16', text: 'Advanced Search', icon: 'fa fa-table' },
                         { id: 'grid/17', text: 'Grid Toolbar', icon: 'fa fa-table' },
-                        { id: 'grid/18', text: 'Master -> Detail', icon: 'fa fa-table' },
+                        { id: 'grid/18', text: 'Main -> Detail', icon: 'fa fa-table' },
                         { id: 'grid/19', text: 'Two Grids', icon: 'fa fa-table' },
                         { id: 'grid/20', text: 'Render to a New Box', icon: 'fa fa-table' },
                         { id: 'grid/21', text: 'Inline Editing', icon: 'fa fa-table' },
@@ -356,6 +363,14 @@ $(function () {
                         '    <textarea name="wrap">l</textarea>'+
                         '</form>'+
                         '</div>')
+
+                    $('.json').each((ind, el) => {
+                        _code(el, $.trim($(el).val()), 'json')
+                    })
+                    $('.javascript').each((ind, el) => {
+                        _code(el, $.trim($(el).val()), 'javascript')
+                    })
+
                 })
             }
         }
@@ -403,38 +418,28 @@ $(function () {
 
 function initCode() {
     // CodeMirror
-    let text = $('#example_code .preview')
-    if (text.length > 0) {
-        let cm = CodeMirror(
-            function(elt) { text[0].parentNode.replaceChild(elt, text[0]) },
-            {
-                value        : $.trim(text.val()),
-                mode        : 'text/html',
-                readOnly    : true,
-                gutter        : true,
-                lineNumbers    : true
-            }
-        )
-        cm.setSize(null, cm.doc.height + 15)
-    }
-    text = $('#example_code .json')
-    if (text.length > 0) {
-        let cm = CodeMirror(
-            function(elt) { text[0].parentNode.replaceChild(elt, text[0]) },
-            {
-                value        : $.trim(text.val()),
-                mode        : 'javascript',
-                readOnly    : true,
-                gutter        : true,
-                lineNumbers    : true
-            }
-        )
-        cm.setSize(null, cm.doc.height + 15)
-    }
+    $('#example_code .preview').each((ind, el) => {
+        _code(el, $.trim($(el).val()), 'text/html')
+    })
+    $('#example_code .json').each((ind, el) => {
+        _code(el, $.trim($(el).val()), 'javascript')
+    })
     $('#example_code .jsfiddle').on('click', function () {
         // $('#fiddleForm textarea[name=html]').val(html || '')
         // $('#fiddleForm textarea[name=js]').val(js || '')
         // $('#fiddleForm textarea[name=css]').val(css || '')
         $('#fiddleForm').submit()
     })
+}
+function _code(el, code, lang) {
+    let cm = CodeMirror(
+        function(elt) { el.parentNode.replaceChild(elt, el) },
+        {
+            value: code,
+            mode: lang,
+            readOnly: true,
+            gutter: true,
+            lineNumbers: true
+        })
+    cm.setSize(null, cm.doc.height + 15)
 }

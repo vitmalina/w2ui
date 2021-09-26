@@ -3,12 +3,12 @@ $(function () {
     $('#main_layout').w2layout({
         name: 'layout',
         panels: [
-            { type: 'top', size: 45, style: 'border: 0px; border-bottom: 1px solid silver; background-color: #fff; color: #555;', overflow: 'hidden'},
-            { type: 'left', size: 240, resizable: true, style: 'border-right: 1px solid silver;' },
+            { type: 'top', size: 45, style: 'border: 0px; border-bottom: 1px solid #efefef; background-color: #fff; color: #555;', overflow: 'hidden'},
+            { type: 'left', size: 240, resizable: true, style: 'border-right: 1px solid #efefef;' },
             { type: 'main', style: 'background-color: white;' }
         ]
     })
-    w2ui.layout.html('top', '<div style="padding: 12px 20px; font-size: 18px;">W2UI 1.5 Documentation</div>')
+    w2ui.layout.html('top', '<div style="padding: 12px 20px; font-size: 18px;">W2UI 2.0 Documentation</div>')
     // init sidebar
     w2ui.layout.html('left', $().w2sidebar({
         name: 'docs',

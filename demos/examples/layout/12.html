@@ -21,13 +21,14 @@
 <!--CODE-->
 <script>
 $(function () {
-    var pstyle = 'border: 1px solid #efefef; padding: 5px;';
+    let pstyle = 'border: 1px solid #efefef; padding: 5px;';
+    let pstyle2 = 'background-color: #efefbbad; border: 1px solid #efefef; padding: 5px;'
     $('#layout').w2layout({
         name: 'layout',
         padding: 5,
         panels: [
             { type: 'left', size: 200, resizable: true, style: pstyle, content: 'left' },
-            { type: 'main', style: pstyle, content: 'main' },
+            { type: 'main', style: pstyle2, content: 'main' },
             { type: 'right', style: pstyle, size: -300, content: 'right', resizable: true }
         ]
     });

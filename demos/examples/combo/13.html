@@ -1,0 +1,79 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Inline Tooltips</h1>
+        Tooltips can be part of generated HTML. Below are teh examples how to do it.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div style="display: inline-block; height: 90px; width: 400px; user-select: none; border: 1px #efefef; color: silver; background-color: #f2f2f2; text-align: center; padding-top: 30px">
+    <span id="span1">&nbsp;</span>
+</div>
+<div style="display: inline-block; height: 90px; width: 400px; user-select: none; border: 1px #efefef; color: silver; background-color: #f2f2f2; text-align: center; padding-top: 30px">
+    <span id="span2">&nbsp;</span>
+</div>
+
+<div id="grid" style="width: 804px; height: 250px; margin-top: 10px"></div>
+
+<!--CODE-->
+<script>
+$(() => {
+    let text = `The message for the tag can be quite big<br>
+                and contain any html.`
+    $("#span1").html(`
+        <span ${w2utils.tooltip(text, { position: 'top|bottom', className: 'w2ui-light' })}>
+            Light theme (move over me)
+        </span>`)
+
+    $("#span2").html(`
+        <span ${w2utils.tooltip(text, { position: 'top|bottom' })}>
+            Old dark theme (move over me)
+        </span>`)
+    // grid
+    $('#grid').w2grid({
+        name: 'grid',
+        show: { recordTitles: false },
+        columns: [
+            { field: 'fname', text: 'First Name', size: '30%',
+                render(rec, ind, col_ind) {
+                    let rec_text = rec[this.columns[col_ind].field]
+                    return `${rec_text}
+                        <span style="color: gray" ${
+                            w2utils.tooltip(`${rec_text} <div style="height: 5px"></div>${text}`,
+                                { position: 'top|bottom', className: 'w2ui-light' }
+                            )}>
+                            - move over me
+                        </span>`
+                }
+            },
+            { field: 'lname', text: 'Last Name', size: '30%',
+                render(rec, ind, col_ind) {
+                    let rec_text = rec[this.columns[col_ind].field]
+                    return `${rec_text}
+                        <span style="color: gray" ${
+                            w2utils.tooltip(`${rec_text} <div style="height: 5px"></div>${text}`,
+                                { position: 'top|bottom' }
+                            )}>
+                            - move over me
+                        </span>`
+                }
+            },
+            { field: 'email', text: 'Email', size: '40%' },
+            { field: 'sdate', text: 'Start Date', size: '120px' }
+        ],
+        records: [
+            { "recid": 1, "fname": "John", "lname": "Doe", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+            { "recid": 2, "fname": "Stuart", "lname": "Motzart", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+            { "recid": 3, "fname": "Jin", "lname": "Franson", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+            { "recid": 4, "fname": "Susan", "lname": "Ottie", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+            { "recid": 5, "fname": "Kelly", "lname": "Silver", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+            { "recid": 6, "fname": "Francis", "lname": "Gatos", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+            { "recid": 7, "fname": "Mark", "lname": "Welldo", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+            { "recid": 8, "fname": "Thomas", "lname": "Bahh", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+            { "recid": 9, "fname": "Sergei", "lname": "Rachmaninov", "email": "jdoe@gmail.com", "sdate": "4/3/2012" }
+        ]
+    });
+})
+</script>
