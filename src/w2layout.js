@@ -6,7 +6,7 @@
 *   - layout.content - deprecated
 *   - panel.callBack -> panel.removed
 *   - panel.onContent -> panel.onChange
-*   - .message - returns a promise
+*   - load, message - returns a promise
 *
 ************************************************************************/
 
@@ -230,26 +230,23 @@ class w2layout extends w2event {
         }, options)
     }
 
-    load(panel, url, transition, onLoad) {
-        let obj = this
-        if (panel == 'css') {
-            $.get(url, (data, status, xhr) => { // should always be $.get as it is template
-                let prom = obj.html(panel, xhr.responseText)
-                if (onLoad) onLoad(prom)
-            })
-            return true
-        }
-        if (this.get(panel) != null) {
-            $.get(url, (data, status, xhr) => { // should always be $.get as it is template
-                let prom = obj.html(panel, xhr.responseText, transition)
-                if (onLoad) onLoad(prom)
-                // IE Hack
-                obj.resize()
-                if (window.navigator.userAgent.indexOf('MSIE') != -1) setTimeout(() => { obj.resize() }, 100)
-            })
-            return true
-        }
-        return false
+    load(panel, url, transition) {
+        return new Promise((resolve, reject) => {
+            let obj = this
+            if (panel == 'css' && url != null) {
+                $.get(url, (data, status, xhr) => { // should always be $.get as it is template
+                    obj.resize()
+                    resolve(obj.html(panel, xhr.responseText, transition))
+                })
+            } else if (this.get(panel) != null && url != null) {
+                $.get(url, (data, status, xhr) => { // should always be $.get as it is template
+                    obj.resize()
+                    resolve(obj.html(panel, xhr.responseText, transition))
+                })
+            } else {
+                reject()
+            }
+        })
     }
 
     sizeTo(panel, size, instant) {

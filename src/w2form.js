@@ -8,6 +8,7 @@
 *   - rename applyFocus -> focus
 *   - tabs below some fields (could already be implemented)
 *   - form with toolbar & tabs
+*   - promise for load, save, etc.
 *
 * == 2.0 changes
 *   - show/hide, enable/disable - return array of effected items
@@ -1962,7 +1963,7 @@ class w2form extends w2event {
         }
         let $input
         // focus field by index
-        if(w2utils.isInt(focus)){
+        if (w2utils.isInt(focus)){
             if(focus < 0) {
                 return
             }
@@ -1979,7 +1980,7 @@ class w2form extends w2event {
         else if (typeof focus === 'string') {
             $input = $(this.box).find('[name=\''+focus+'\']').first()
         }
-        if($input){
+        if ($input){
             $input.trigger('focus')
         }
         return $input

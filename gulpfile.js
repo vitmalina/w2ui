@@ -81,17 +81,33 @@ let tasks = {
     },
 
     pack(cb) {
-        console.log(' -- update only dist/w2ui.js')
-        return gulp
+        let count = 0
+        console.log('  - update dist/w2ui.js')
+        console.log('  - update dist/w2ui_es6.js')
+        let task1 = gulp
             .src(files_js)
             .pipe(concat('w2ui.js'))
             .pipe(replace(/^(import.*'|export.*}|module\.exports.*})$\n/gm, ''))
             .pipe(replace('\n\n', '\n'))
+            .pipe(replace(`export { w2ui, w2locale, w2event, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
+    w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType }`, legacy_code))
             .pipe(header(comments.w2ui))
             .pipe(gulp.dest('dist/'))
-            .on('end', () => {
-                cb()
-            })
+            .on('end', () => { check() })
+
+        let task2 = gulp
+            .src(files_js)
+            .pipe(concat('w2ui.es6.js'))
+            .pipe(replace(/^(import.*'|export.*}|module\.exports.*})$\n/gm, ''))
+            .pipe(replace('\n\n', '\n'))
+            .pipe(header(comments.w2ui))
+            .pipe(gulp.dest('dist/'))
+            .on('end', () => { check() })
+
+        function check() {
+            count++
+            if (count == 2) cb()
+        }
     },
 
     build(cb) {
@@ -118,7 +134,8 @@ let tasks = {
     },
 
     build_es6(cb) {
-        gulp.src(files_js)
+        return gulp
+            .src(files_js)
             .pipe(concat('w2ui.es6.js'))
             .pipe(replace(/^(import.*'|export.*}|module\.exports.*})$\n/gm, ''))
             .pipe(replace('\n\n', '\n'))
@@ -278,6 +295,7 @@ exports.default = gulp.series(tasks.clean, tasks.less, tasks.locales, tasks.buil
 exports.build   = gulp.series(tasks.build_es6, tasks.build)
 exports.dev     = tasks.watch
 exports.clean   = tasks.clean
+exports.pack    = tasks.pack
 exports.less    = gulp.series(tasks.clean, tasks.less)
 exports.icons   = gulp.series(tasks.icons, tasks.less)
 exports.locales = tasks.locales
