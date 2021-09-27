@@ -30,6 +30,7 @@
 *   - moved a lot of properties into prototype
 *   - promise for request, load, save, etc.
 *   - remote date local sort/search
+*   - colDefaults -> col_template as in tabs, toolbar, etc
 *
 * == DEMOS To create ==
 *   - batch for disabled buttons
