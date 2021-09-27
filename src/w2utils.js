@@ -17,6 +17,7 @@
 *   - bindEvents - common method to avoid inline events
 *   - unescapeId
 *   - settings.warn_missing_translation
+*   - internationalCompare
 *
 ************************************************/
 import { w2event } from './w2event.js'
@@ -68,6 +69,7 @@ let w2utils = (($) => {
         unlock,
         message,
         naturalCompare,
+        internationalCompare: Intl.Collator().compare,
         template_replacer,
         lang,
         locale,

@@ -1,0 +1,60 @@
+<div class="content">
+    <div id="example_title">
+        <h1>International Compare</h1>
+        There is a function, w2utils.internationalCompare, that can be used for language-sensitive sorting of arrays.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div style="width: 170px; float: left">
+    International Order
+    <div style="height: 10px"></div>
+    <div id="grid1" style="width: 150px; height: 260px;"></div>
+</div>
+<div style="width: 170px; float: left">
+    Default Order
+    <div style="height: 10px"></div>
+    <div id="grid2" style="width: 150px; height: 260px;"></div>
+</div>
+<div style="clear: both; height: 20px;"></div>
+
+You can sort any array in the following way:
+<div style="height: 10px;"></div>
+<span style="font-size: 13px; font-family: monaco, monospace">Array.sort(w2utils.internationalCompare)</span>
+
+<!--CODE-->
+<script>
+$(function () {
+    let records = [
+        'a', 'á', 'ä',
+        'e', 'è', 'ę́',
+        'i', 'î', 'i̧',
+        'n', 'ñ',
+        'o', 'ō', 'ö' , 'ø',
+        'u', 'ü',
+        'z'
+    ].map((char, recid) => { return { recid, char }});
+
+    $('#grid1').w2grid({
+        name: 'grid1',
+        columns: [
+            { field: 'char', caption: 'Character', size: '30%', sortable: true, sortMode: 'international' },
+        ],
+        records: records,
+        sortData: [{ field: 'char', direction: 'asc' }]
+    })
+    $('#grid2').w2grid({
+        name: 'grid2',
+        columns: [
+            { field: 'char', caption: 'Character', size: '30%', sortable: true },
+        ],
+        records: records,
+        sortData: [{ field: 'char', direction: 'asc' }]
+    })
+
+    w2ui.grid1.localSort()
+    w2ui.grid2.localSort()
+})
+</script>

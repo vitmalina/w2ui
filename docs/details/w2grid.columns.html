@@ -39,7 +39,7 @@ column = {
     sizeType       : null,  // px or %
     hidden         : false, // indicates if column is hidden
     sortable       : false, // indicates if column is sortable
-    sortMode       : null,  // sort mode ('default'|'natural') or custom compare function
+    sortMode       : null,  // sort mode ('default'|'natural'|'international') or custom compare function
     searchable     : false, // bool/string: int,float,date,... or an object to create search field
     resizable      : true,  // indicates if column is resizable
     hideable       : true,  // indicates if column can be hidden
@@ -68,7 +68,12 @@ and record new size in <span class="property">.sizeCorrected</span>.
 <h4>SortMode</h4>
 If set to "natural", a compare function is used that will result in an order that feels more natural to humans. This can be useful for IP addresses,
 or when numbers are used in strings, so that "48" (as a string) comes after "9" (as a string) - whereas the default sorting would put it the other way round.
+<br>
+If set to "international", a compare function is used that takes into account diacritical marks. For example, the letter "ä" would be sorted after "z" in default sort mode,
+while in "international" sort mode, the letter "ä" would be sorted between "a" and "b".
+<br>
 You can also pass a compare function in the same way you would use it as argument for <span class="property">Array.prototype.sort()</span>.
+<div style="height: 10px"></div>
 
 <h4>Render</h4>
 The render <span class="property">function(record, [index], [column_index], [data])</span> can be used to format the column data.

@@ -134,6 +134,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2utils.internationalCompare">internationalCompare</a> <span>- internationalCompare(a, b);</span>
+</div>
+<div class="obj-property-desc">
+    Compares two strings and returns 0, 1, or -1.
+</div>
+
+<div class="obj-property">
     <a href="w2utils.interval">interval</a> <span>- interval(intStr)</span>
 </div>
 <div class="obj-property-desc">
