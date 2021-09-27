@@ -38,7 +38,7 @@ $(function () {
             name: 'demo_sidebar',
             img: null,
             nodes: [
-                { id: 'combo', text: 'Combinations', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                { id: 'combo', text: 'Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'combo/1', text: 'Sidebar & Grid', icon: 'fa fa-star-o' },
                         { id: 'combo/2', text: 'Grid & Edit', icon: 'fa fa-star-o' },

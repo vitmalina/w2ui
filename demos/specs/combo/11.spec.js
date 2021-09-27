@@ -1,4 +1,4 @@
-context("1:Combo", () => {
+context("1: Combo", () => {
     context("1.5", () => {
         test("1:Flat Sidebar", () => {
             bela

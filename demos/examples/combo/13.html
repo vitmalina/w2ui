@@ -42,7 +42,7 @@ $(() => {
                     return `${rec_text}
                         <span style="color: gray" ${
                             w2utils.tooltip(`${rec_text} <div style="height: 5px"></div>${text}`,
-                                { position: 'top|bottom', className: 'w2ui-light' }
+                                { position: 'top|bottom', className: 'w2ui-light', name: `rec-${ind}-${col_ind}` }
                             )}>
                             - move over me
                         </span>`
@@ -54,7 +54,7 @@ $(() => {
                     return `${rec_text}
                         <span style="color: gray" ${
                             w2utils.tooltip(`${rec_text} <div style="height: 5px"></div>${text}`,
-                                { position: 'top|bottom' }
+                                { position: 'top|bottom', name: `rec-${ind}-${col_ind}` }
                             )}>
                             - move over me
                         </span>`

@@ -109,6 +109,7 @@ bela.custom.overwrite('should', function(param, options = {}) { // cannot be arr
         switch (param) {
             case 'have.records': {
                 if (value) {
+                    if (!isNaN(value)) value = '==' + value
                     if (eval(`${grid.records.length}${value}`) === true) {
                         res.success = true
                         res.msg = `record count ${value}`
@@ -149,7 +150,11 @@ bela.custom.overwrite('should', function(param, options = {}) { // cannot be arr
                 break
             }
             default: {
-                res = { success: false, msg: `Unrecognized parameter "${param}"`}
+                res = {
+                    success: false,
+                    msg: `Unrecognized parameter "${param}"`,
+                    details: 'Support only, "have.records" and "have.subset"'
+                }
             }
         }
         return res
