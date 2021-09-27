@@ -9,6 +9,7 @@
 
 <!--CODE-->
 <div id="tabs" style="width: 600px;"></div>
+<div id="content">&nbsp;</div>
 <br><br>
 
 <!--CODE-->
@@ -30,7 +31,10 @@ $(function () {
             { id: 'tab11', text: 'Tab 11 Text' },
             { id: 'tab12', text: 'Tab 12 Text' },
             { id: 'tab13', text: 'Tab 13 Text' },
-        ]
+        ],
+        onClick: function(event) {
+            $("#content").html('Clicked: ' + event.tab.id + ' - ' + event.tab.text)
+        }
     });
 });
 </script>

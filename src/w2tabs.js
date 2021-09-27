@@ -7,6 +7,8 @@
 *   - show/hide, enable/disable, check/uncheck - return array of affected items
 *   - fixed animateInsert, animateClose to be smooth and return promise
 *   - clickClose
+*   - scrollIntoView
+*   - scroll - added "instant"
 *
 ************************************************************************/
 
@@ -461,30 +463,48 @@ class w2tabs extends w2event {
             })
     }
 
-    scroll(direction) {
+    scroll(direction, instant) {
         let box        = $(this.box)
         let obj        = this
         let scrollBox  = box.find('.w2ui-scroll-wrapper')
         let scrollLeft = scrollBox.scrollLeft()
-        let $right     = $(this.box).find('.w2ui-tabs-right')
+        let $right     = box.find('.w2ui-tabs-right')
         let width1     = scrollBox.outerWidth()
         let width2     = scrollLeft + parseInt($right.offset().left) + parseInt($right.width())
-        let scroll
+        let scroll     = false
 
         switch (direction) {
             case 'left':
                 scroll = scrollLeft - width1 + 50 // 35 is width of both button
                 if (scroll <= 0) scroll = 0
-                scrollBox.animate({ scrollLeft: scroll }, 300)
                 break
 
             case 'right':
                 scroll = scrollLeft + width1 - 50 // 35 is width of both button
                 if (scroll >= width2 - width1) scroll = width2 - width1
-                scrollBox.animate({ scrollLeft: scroll }, 300)
                 break
         }
-        setTimeout(() => { obj.resize() }, 350)
+
+        if (scroll !== false){
+            scrollBox.animate({ scrollLeft: scroll }, instant ? 0 : 300, function(){ obj.resize() })
+        }
+    }
+
+    scrollIntoView(id, instant, callBack) {
+        let obj = this
+        if (id == null) id = obj.active
+        let tab = obj.get(id)
+        if (tab == null) return
+
+        let box         = $(obj.box)
+        let $scrollBox  = box.find('.w2ui-scroll-wrapper')
+        let $tab        = box.find('#tabs_' + obj.name + '_tab_' + w2utils.escapeId(id))
+        let offset      = $tab.offset().left - $scrollBox.offset().left
+
+        $scrollBox.animate({ 'scrollLeft': $scrollBox.scrollLeft() + offset - $scrollBox.width() / 2 + $tab.width() }, instant ? 0 : 350, 'linear', function(){
+            obj.resize()
+            if (typeof callBack === 'function') callBack(id, tab)
+        })
     }
 
     resize() {
