@@ -1,8 +1,7 @@
 <div class="content">
     <div id="example_title">
         <h1>Sidebar & Grid</h1>
-        The demo below features a resiabled layout with two panels, a sidebar with two elements and two grids. One grid is rendered on load,
-        the second one is initialized in memory and rendered on request.
+        Layout with sidebar in the left panel and some content in the main panel.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -27,9 +26,9 @@ var config = {
         name: 'sidebar',
         nodes: [
             { id: 'general', text: 'General', group: true, expanded: true, nodes: [
-                { id: 'grid1', text: 'Grid 1', img: 'icon-page', selected: true },
-                { id: 'grid2', text: 'Grid 2', img: 'icon-page' },
-                { id: 'html', text: 'Some HTML', img: 'icon-page' }
+                { id: 'grid1', text: 'Grid 1', icon: 'fa fa-pencil-square-o', selected: true },
+                { id: 'grid2', text: 'Grid 2', icon: 'fa fa-pencil-square-o' },
+                { id: 'html', text: 'Some HTML', icon: 'fa fa-list-alt' }
             ]}
         ],
         onClick: function (event) {
@@ -45,7 +44,7 @@ var config = {
                     $(w2ui.layout.el('main'))
                         .removeClass('w2ui-grid')
                         .css({
-                            'border-left': '1px solid silver'
+                            'border-left': '1px solid #efefef'
                         });
                     break;
             }

@@ -16,7 +16,7 @@
     $(function () {
         $('.tags')
             .on('focus', function (event) {
-                $(this).w2tag('Some Text', { position: 'top|bottom', style: 'width: 300px'});
+                $(this).w2tag('Some Text', { position: 'top|bottom' });
             })
             .on('blur', function (event) {
                 $(this).w2tag();
@@ -26,7 +26,7 @@
                 Some very long or not so long text. Some very long or not so long text.
                 Some very long or not so long text. Some very long or not so long text.
                 Some very long or not so long text. Some very long or not so long text.
-                `, { position: 'bottom', maxWidth: 400, className: 'w2ui-light1' });
+                `, { position: 'bottom', maxWidth: 400, className: 'w2ui-light' });
         })
     });
     </script>

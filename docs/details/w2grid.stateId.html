@@ -1,0 +1,30 @@
+Defines state id to save to local storage
+
+<div class="definition">
+    String, default = null
+</div>
+
+When grid state is save into local storage, it will normally use grid's name. However, you can define a custom state id.
+<div style="height: 10px"></div>
+
+This property can be set during object creation:
+<textarea class="javascript">
+$('#grid').w2grid({
+    name: 'grid',
+    stateId: 'some-state'
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
+    ]
+});
+w2ui.grid.saveState()
+</textarea>
+
+Or any time during run-time:
+<textarea class="javascript">
+w2ui.grid.stateId = 'some-state';
+</textarea>

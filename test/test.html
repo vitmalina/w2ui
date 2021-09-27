@@ -3,70 +3,60 @@
 <head>
     <title>W2UI Demo: combo-9</title>
     <link rel="stylesheet" type="text/css" href="../dist/w2ui.min.css" />
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
-    <script src="http://underscorejs.org/underscore.js"></script>
-    <script type="text/javascript" src="../dist/w2ui.min.js"></script>
-    <script type="text/javascript" src="../src/w2utils.js"></script>
-    <script type="text/javascript" src="../src/w2sidebar.js"></script>
-    <script type="text/javascript" src="../src/w2tabs.js"></script>
-    <script type="text/javascript" src="../src/w2toolbar.js"></script>
-    <script type="text/javascript" src="../src/w2layout.js"></script>
-    <script type="text/javascript" src="../src/w2popup.js"></script>
-    <script type="text/javascript" src="../src/w2grid.js"></script>
-    <script type="text/javascript" src="../src/w2field.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.js"></script>
+    <script type="module" src="../src/w2compat.js"></script>
 </head>
 <body>
 
-<div id="main" style="height: 500px; width: 500px;">
-</div>
+    <div id="form" style="width: 750px; height: 300px"></div>
+    <br><br><br>
+    Click "Menu", then click on the list.
 
-<script type="text/javascript">
-$(function () {
-    var pstyle = 'border: 1px solid #dfdfdf; padding: 5px;';
-   $().w2layout({
-        name: 'layout2',
-        panels: [
-            {type: 'top',content: 'inner layout'},
-            { type: 'main', style: 'border: 1px solid #dfdfdf; padding: 5px;border-top: 0px;', content: 'Nested',
-                toolbar: [
-                    { type: 'button', caption: 'Button 1' },
-                    { type: 'button', caption: 'Button 2' }
-                ],
-                tabs: {
-                    active: 'tab1',
-                    tabs: [
-                        { id: 'tab1', caption: 'Tab 11' },
-                        { id: 'tab2', caption: 'Tab 22' },
-                        { id: 'tab3', caption: 'Tab 33' },
-                    ],
-                    onClick: function (event) {
-                        this.owner.content('main', event.target);
-                    }
-                }
+<script type="module">
+
+$(function() {
+  $('#form').w2form({
+    name: 'form',
+    focus: -1,
+    fields: [
+        { field: 1, type: 'text', icon: 'icon-empty' },
+        {
+            field: 'field1',
+            type: 'list',
+            required: true,
+            options: {
+                items: [
+                    { id: 1, text: 'Item 1', icon: 'icon-empty' },
+                    { id: 2, text: 'Item 2', icon: 'icon-empty' },
+                    { id: 3, text: 'About 1', icon: 'icon-empty' },
+                    { id: 4, text: 'About 2', icon: 'icon-empty' },
+                    { id: 5, text: 'Some 1', icon: 'icon-empty' },
+                    { id: 6, text: 'Some 2', icon: 'icon-empty' },
+                ]
+            },
+            html: {
+                label: 'Last Name',
+                attr: ''
             }
+        },
+        { field: 2, type: 'text', icon: 'icon-empty' },
+    ],
+    toolbar: {
+      items: [
+          {
+            type: 'menu',
+            id: 'item1',
+            text: 'Menu',
+            items: [
+                { text: 'Item 1', icon: 'icon-empty' },
+                { text: 'Item 2', icon: 'icon-empty' }
+            ]
+          },
         ]
-    });
-    $('#main').w2layout({
-        name: 'layout1',
-        panels: [
-            { type: 'top', size: 50, resizable: true, style: pstyle, content: 'top' },
-            { type: 'left', size: 300, resizable: true, style: pstyle, content: w2ui['layout2'] },
-            { type: 'main', style: pstyle + 'border-top: 0px;', content: 'Tab 1',
-                tabs: {
-                    active: 'tab1',
-                    tabs: [
-                        { id: 'tab1', caption: 'Tab 1' },
-                        { id: 'tab2', caption: 'Tab 2' },
-                        { id: 'tab3', caption: 'Tab 3' },
-                    ],
-                    onClick: function (event) {
-                        this.owner.content('main', event.target);
-                    }
-                }
-            }
-        ]
-    });
-});</script>
+    }
+  });
+});
+</script>
 
 </body>
 </html>

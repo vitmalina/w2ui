@@ -38,12 +38,12 @@ $(function () {
             name: 'demo_sidebar',
             img: null,
             nodes: [
-                { id: 'combo', text: 'Combinations', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                { id: 'combo', text: 'Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'combo/1', text: 'Sidebar & Grid', icon: 'fa fa-star-o' },
                         { id: 'combo/2', text: 'Grid & Edit', icon: 'fa fa-star-o' },
                         { id: 'combo/3', text: 'Spreadsheet Like Grid', icon: 'fa fa-star-o' },
-                        { id: 'combo/4', text: 'Buffered Scroll', icon: 'fa fa-star-o' },
+                        { id: 'combo/4', text: 'Virtual Scroll', icon: 'fa fa-star-o' },
                         { id: 'combo/9', text: 'Infinite Scroll', icon: 'fa fa-star-o' },
                         { id: 'combo/5', text: 'Tabs With Content', icon: 'fa fa-star-o' },
                         { id: 'combo/6', text: 'Layout & Dynamic Tabs', icon: 'fa fa-star-o' },
@@ -54,7 +54,9 @@ $(function () {
                 },
                 { id: 'combo-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
-                        { id: 'combo/11', text: 'Flat Sidebar', icon: 'fa fa-star-o' }
+                        { id: 'combo/11', text: 'Flat Sidebar', icon: 'fa fa-star-o' },
+                        { id: 'combo/12', text: 'Context Menus', icon: 'fa fa-star-o' },
+                        { id: 'combo/13', text: 'Inline Tooltips', icon: 'fa fa-star-o' }
                     ]
                 },
                 { id: 'layout', text: 'Layout Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
@@ -74,8 +76,13 @@ $(function () {
                 { id: 'layout-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'layout/11', text: 'Panel Messages', icon: 'fa fa-columns' },
-                        { id: 'layout/12', text: 'Fixed Size Main', icon: 'fa fa-columns' },
-                        { id: 'layout/13', text: 'Content Replaced', icon: 'fa fa-columns' }
+                        { id: 'layout/12', text: 'Fixed Size Main Panel', icon: 'fa fa-columns' },
+                        { id: 'layout/13', text: 'Content Changed', icon: 'fa fa-columns' }
+                    ]
+                },
+                { id: 'layout-2/0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'layout/14', text: 'Promises', icon: 'fa fa-columns' },
                     ]
                 },
                 { id: 'grid', text: 'Grid Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
@@ -97,7 +104,7 @@ $(function () {
                         { id: 'grid/15', text: 'Simple Search', icon: 'fa fa-table' },
                         { id: 'grid/16', text: 'Advanced Search', icon: 'fa fa-table' },
                         { id: 'grid/17', text: 'Grid Toolbar', icon: 'fa fa-table' },
-                        { id: 'grid/18', text: 'Master -> Detail', icon: 'fa fa-table' },
+                        { id: 'grid/18', text: 'Main -> Detail', icon: 'fa fa-table' },
                         { id: 'grid/19', text: 'Two Grids', icon: 'fa fa-table' },
                         { id: 'grid/20', text: 'Render to a New Box', icon: 'fa fa-table' },
                         { id: 'grid/21', text: 'Inline Editing', icon: 'fa fa-table' },
@@ -157,12 +164,12 @@ $(function () {
                         { id: 'sidebar/13', text: 'Node Handle', icon: 'fa fa-hand-o-up' },
                     ]
                 },
-                // { id: 'sidebar-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
-                //     nodes: [
-                //         { id: 'sidebar/14', text: 'Sort Nodes', icon: 'fa fa-hand-o-up' },
-                //         { id: 'sidebar/15', text: 'Search Nodes', icon: 'fa fa-hand-o-up' }
-                //     ]
-                // },
+                { id: 'sidebar-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'sidebar/14', text: 'Sort Nodes', icon: 'fa fa-hand-o-up' },
+                        { id: 'sidebar/15', text: 'Search Nodes', icon: 'fa fa-hand-o-up' }
+                    ]
+                },
                 { id: 'tabs', text: 'Tabs Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'tabs/1', text: 'Simple Tabs', icon: 'fa fa-folder-o' },
@@ -180,11 +187,11 @@ $(function () {
                         { id: 'tabs/9', text: 'Tab Reorder', icon: 'fa fa-folder-o' }
                     ]
                 },
-                // { id: 'tabs-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
-                //     nodes: [
-                //         { id: 'tabs/10', text: 'Smooth Add/Remove', icon: 'fa fa-folder-o' }
-                //     ]
-                // },
+                { id: 'tabs-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'tabs/10', text: 'Smooth Add/Remove', icon: 'fa fa-folder-o' }
+                    ]
+                },
                 { id: 'forms', text: 'Forms Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'form/1', text: 'Simple Form', icon: 'fa fa-pencil-square-o' },
@@ -215,12 +222,12 @@ $(function () {
                         { id: 'form/22', text: 'Lock/Unlock Form', icon: 'fa fa-pencil-square-o' },
                     ]
                 },
-                // { id: 'forms-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
-                //     nodes: [
-                //         { id: 'form/23', text: 'Better Groups', icon: 'fa fa-pencil-square-o' },
-                //         { id: 'form/24', text: 'Apply Focus', icon: 'fa fa-pencil-square-o' },
-                //     ]
-                // },
+                { id: 'forms-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'form/23', text: 'Better Groups', icon: 'fa fa-pencil-square-o' },
+                        { id: 'form/24', text: 'Apply Focus', icon: 'fa fa-pencil-square-o' },
+                    ]
+                },
                 { id: 'fields', text: 'Fields Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'fields/1', text: 'Numeric', icon: 'fa fa-pencil-square-o' },
@@ -255,11 +262,11 @@ $(function () {
                         { id: 'popup/10', text: 'Actions', icon: 'fa fa-list-alt' }
                     ]
                 },
-                // { id: 'popup-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
-                //     nodes: [
-                //         { id: 'popup/11', text: 'Promises', icon: 'fa fa-list-alt' }
-                //     ]
-                // },
+                { id: 'popup-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'popup/11', text: 'Promises', icon: 'fa fa-list-alt' }
+                    ]
+                },
                 { id: 'utils', text: 'Utils Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'utils/1', text: 'Validation', icon: 'fa fa-star-o' },
@@ -302,8 +309,8 @@ $(function () {
                         console.log('ERROR: cannot parse example.', data)
                         return
                     }
-                    let w2ui_js  = 'http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.js'
-                    let w2ui_css = 'http://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css'
+                    let w2ui_js  = 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.js'
+                    let w2ui_css = 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css'
                     let html     = tmp[1] ? $.trim(tmp[1]) : ''
                     let js       = tmp[2] ? $.trim(tmp[2]) : ''
                     let css      = tmp[3] ? $.trim(tmp[3]) : ''
@@ -356,6 +363,14 @@ $(function () {
                         '    <textarea name="wrap">l</textarea>'+
                         '</form>'+
                         '</div>')
+
+                    $('.json').each((ind, el) => {
+                        _code(el, $.trim($(el).val()), 'json')
+                    })
+                    $('.javascript').each((ind, el) => {
+                        _code(el, $.trim($(el).val()), 'javascript')
+                    })
+
                 })
             }
         }
@@ -403,38 +418,28 @@ $(function () {
 
 function initCode() {
     // CodeMirror
-    let text = $('#example_code .preview')
-    if (text.length > 0) {
-        let cm = CodeMirror(
-            function(elt) { text[0].parentNode.replaceChild(elt, text[0]) },
-            {
-                value        : $.trim(text.val()),
-                mode        : 'text/html',
-                readOnly    : true,
-                gutter        : true,
-                lineNumbers    : true
-            }
-        )
-        cm.setSize(null, cm.doc.height + 15)
-    }
-    text = $('#example_code .json')
-    if (text.length > 0) {
-        let cm = CodeMirror(
-            function(elt) { text[0].parentNode.replaceChild(elt, text[0]) },
-            {
-                value        : $.trim(text.val()),
-                mode        : 'javascript',
-                readOnly    : true,
-                gutter        : true,
-                lineNumbers    : true
-            }
-        )
-        cm.setSize(null, cm.doc.height + 15)
-    }
+    $('#example_code .preview').each((ind, el) => {
+        _code(el, $.trim($(el).val()), 'text/html')
+    })
+    $('#example_code .json').each((ind, el) => {
+        _code(el, $.trim($(el).val()), 'javascript')
+    })
     $('#example_code .jsfiddle').on('click', function () {
         // $('#fiddleForm textarea[name=html]').val(html || '')
         // $('#fiddleForm textarea[name=js]').val(js || '')
         // $('#fiddleForm textarea[name=css]').val(css || '')
         $('#fiddleForm').submit()
     })
+}
+function _code(el, code, lang) {
+    let cm = CodeMirror(
+        function(elt) { el.parentNode.replaceChild(elt, el) },
+        {
+            value: code,
+            mode: lang,
+            readOnly: true,
+            gutter: true,
+            lineNumbers: true
+        })
+    cm.setSize(null, cm.doc.height + 15)
 }

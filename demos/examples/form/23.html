@@ -1,7 +1,25 @@
 <div class="content">
     <div id="example_title">
         <h1>Better Groups</h1>
-        It is more expressive to define fields withing its group, see code below. Possible group properties are:
+        It would be more expressive if fields could be defind within the group, and field name would be object keys.
+        <div style="width: 500px">
+        <textarea class="javascript">
+fields: {
+    "User Info": {
+        type: 'group',
+        fields: {
+            "user.first_name": { label: 'First Name' },
+            "user.last_name": { label: 'Last Name' }
+        }
+    }
+    ...
+}</textarea>
+</div>
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+    <div id="example_title"></div>
+        Possible group properties are:
         <ul>
             <li><b>type</b>: "group"</li>
             <li><b>text</b> - string, group name</li>
@@ -14,8 +32,6 @@
             <li><b>attr</b> - string, (optional), default attr for fields inside the group</li>
         </ul>
     </div>
-    <div id="example_view"></div>
-    <div id="example_code"></div>
 </div>
 
 <!--CODE-->

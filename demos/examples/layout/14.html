@@ -1,0 +1,59 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Promises</h1>
+        <p>
+            Load and message methods will now return a promise which is resolved when html is inserted into the DOM and ready.
+        </p>
+
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="layout" style="width: 100%; height: 300px;"></div>
+
+<div style="height: 20px;"></div>
+
+<button class="w2ui-btn" onclick="showMessage('main')">Show Message</button>
+<button class="w2ui-btn" onclick="loadContent('main', 1)">Load Content 1</button>
+<button class="w2ui-btn" onclick="loadContent('main', 2)">Load Content 2</button>
+<span id="msg-log"></span>
+
+<!--CODE-->
+<script>
+$(function () {
+    var pstyle = 'border: 1px solid #efefef; padding: 5px;';
+    $('#layout').w2layout({
+        name: 'layout',
+        panels: [
+            { type: 'left', size: 200, resizable: true, style: pstyle, content: 'left' },
+            { type: 'main', style: pstyle, content: 'main' }
+        ]
+    });
+});
+
+
+function loadContent(panel, ind) {
+    $('#msg-log').html('')
+    w2ui.layout
+        .load(panel, `data/content${ind}.html`)
+        .then(event => {
+            $('#msg-log').html(`content ${ind} is loaded`)
+        })
+}
+
+function showMessage(panel) {
+    $('#msg-log').html('')
+    w2ui.layout
+        .message('main', {
+            width: 300,
+            height: 150,
+            body: '<div class="w2ui-centered">Some Text '+ (new Date()).getTime() +'</div>',
+            buttons: '<button class="w2ui-btn" onclick="w2ui.layout.message(\'main\')">Ok</button>'
+        })
+        .then(event => {
+            $('#msg-log').html('message is ready')
+        })
+}
+</script>

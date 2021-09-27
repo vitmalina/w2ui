@@ -6,7 +6,7 @@
     position: relative;
     cursor: default;
     overflow: hidden !important;
-    background-color: @sidebar-background-color !important;
+    background-color: #fbfbfb !important;
     .box-sizing(border-box);
 
     * {
@@ -35,9 +35,9 @@
             background-size: 16px 12px;
             background-position: center center;
             background-repeat: no-repeat;
-            background-color: @sidebar-background-color;
+            background-color: #fbfbfb;
             &:hover {
-                background-color: @sidebar-node-hover-background-color-start;
+                background-color: #f1f1f1;
             }
         }
         .w2ui-flat-left {
@@ -72,19 +72,18 @@
         .user-select;
         .w2ui-node {
             position: relative;
-            .linear-gradient-vertical(@sidebar-node-linear-gradient-start, @sidebar-node-linear-gradient-end);
-            border: @sidebar-node-border;
             border-radius: 4px;
             margin: 0px 3px;
             padding: 1px 0px;
+            border: 1px solid transparent;
             .w2ui-node-text,
             .w2ui-node-image,
             .w2ui-node-image > span {
-                color: @sidebar-node-color;
-                text-shadow: @sidebar-node-text-shadow;
+                color: black;
+                text-shadow: 0px 0px 0px #fff;
                 pointer-events: none;
                 &:hover {
-                    color: @sidebar-node-hover-color;
+                    color: inherit;
                 }
             }
 
@@ -97,9 +96,7 @@
             }
 
             &:hover {
-                border-top: 1px solid @sidebar-node-hover-border-color;
-                border-bottom: 1px solid @sidebar-node-hover-border-color;
-                .linear-gradient-vertical(@sidebar-node-hover-background-color-start, @sidebar-node-hover-background-color-end);
+                background-color: #f1f1f1;
             }
 
             // font icon default
@@ -108,7 +105,7 @@
                 text-align: center;
                 pointer-events: none;
                 > span {
-                    color: @sidebar-node-image-color !important;
+                    color: #888 !important;
                 }
             }
 
@@ -120,15 +117,15 @@
 
         .w2ui-selected,
         .w2ui-selected:hover {
+            background-color: #f3f5ff;
             position: relative;
-            .linear-gradient-vertical(@sidebar-node-selected-linear-gradient-start, @sidebar-node-selected-linear-gradient-end);
-            border: @sidebar-node-selected-border;
+            border: 1px solid #dee1ff;
 
             .w2ui-node-text,
             .w2ui-node-image,
             .w2ui-node-image > span {
-                color: @sidebar-node-selected-color !important;
-                text-shadow: @sidebar-node-selected-text-shadow !important;
+                color: inherit !important;
+                text-shadow: 0px 0px 0px #fff !important;
             }
         }
 
@@ -145,20 +142,19 @@
         }
 
         &.w2ui-focus .w2ui-selected:before {
-            border: 1px solid #cccccc;
+            border: 1px solid #a7afd6;
         }
 
         .w2ui-disabled,
         .w2ui-disabled:hover {
             background: transparent !important;
-            border: @sidebar-node-border;
 
             .w2ui-node-text,
             .w2ui-node-image,
             .w2ui-node-image > span {
                 .opacity(0.4);
-                color: @sidebar-node-color !important;
-                text-shadow: @sidebar-node-text-shadow !important;
+                color: black !important;
+                text-shadow: 0px 0px 0px #fff !important;
             }
         }
 
@@ -177,8 +173,8 @@
             padding: 10px 0px 10px 10px;
             margin: 0px;
             cursor: default;
-            color: @sidebar-group-color;
-            background-color: @sidebar-group-background-color;
+            color: #6a5e88;
+            background-color: transparent;
 
             :nth-child(1) {
                 /* show / hide link */
@@ -207,8 +203,8 @@
                 // for font-awesome icons
                 & > span {
                     font-size: 16px;
-                    color: @sidebar-node-color;
-                    text-shadow: @sidebar-node-text-shadow;
+                    color: black;
+                    text-shadow: 0px 0px 0px #fff;
                 }
                 &.w2ui-icon {
                     margin-top: 3px;
@@ -217,16 +213,16 @@
 
             .w2ui-node-count {
                 float: right;
-                border: @sidebar-node-count-border;
+                border: 1px solid #F6FCF4;
                 border-radius: 20px;
                 width: auto;
                 height: 18px;
                 padding: 2px 7px;
                 margin: 3px 4px -2px 0;
-                background-color: @sidebar-node-count-background-color;
-                color: @sidebar-node-count-color;
-                box-shadow: @sidebar-node-count-shadow;
-                text-shadow: @sidebar-node-count-text-shadow;
+                background-color: #F2F8F0;
+                color: #666;
+                box-shadow: 0px 0px 2px #474545;
+                text-shadow: 1px 1px 0px #FFF;
                 position: relative;
                 z-index: 2;
             }
@@ -279,8 +275,8 @@
                 padding: 1px 0px;
                 & > span {
                     font-size: 16px;
-                    color: @sidebar-node-color;
-                    text-shadow: @sidebar-node-text-shadow;
+                    color: black;
+                    text-shadow: 0px 0px 0px #fff;
                 }
                 &.w2ui-icon {
                     width: 21px;

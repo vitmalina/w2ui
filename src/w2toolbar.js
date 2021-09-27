@@ -10,6 +10,7 @@
 *   - show/hide, enable/disable, check/uncheck - return array of effected items
 *   - button.img - deprecated
 *   - this.right - string or array
+*   - added tmp object for runtime variables
 *
 ************************************************************************/
 import { w2event } from './w2event.js'
@@ -56,7 +57,8 @@ class w2toolbar extends w2event {
             onClick: null,
             onRefresh: null
         }
-        let items          = options.items
+        this.tmp = {}
+        let items = options.items
         delete options.items
         // mix in options
         $.extend(true, this, options)
@@ -336,18 +338,28 @@ class w2toolbar extends w2event {
                                     if (Array.isArray(it.selected) && it.selected.indexOf(item.id) != -1) item.checked = true; else item.checked = false
                                 })
                             }
-                            el.w2menu($.extend({ name: obj.name, items: items, left: left, top: 3, data: { 'tb-item': it.id } }, it.overlay, {
-                                type: menuType,
-                                remove(event) {
-                                    obj.menuClick({ name: obj.name, remove: true, item: it, subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
-                                },
-                                select(event) {
-                                    obj.menuClick({ name: obj.name, item: it, subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
-                                },
-                                onHide(event) {
-                                    hideDrop()
+                            obj.tmp.overlayEl = el
+                            el.w2menu($.extend({
+                                    name: obj.name,
+                                    items: items,
+                                    left: left,
+                                    top: 3,
+                                    data: { 'tb-item': it.id }
+                                }, it.overlay, {
+                                    type: menuType,
+                                    remove(event) {
+                                        obj.menuClick({ name: obj.name, remove: true, item: it,
+                                            subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
+                                    },
+                                    select(event) {
+                                        obj.menuClick({ name: obj.name, item: it,
+                                            subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
+                                    },
+                                    onHide(event) {
+                                        hideDrop()
+                                    }
                                 }
-                            }))
+                            ))
                         }
                         if (['color', 'text-color'].indexOf(it.type) != -1) {
                             $(el).w2color($.extend({
@@ -463,11 +475,11 @@ class w2toolbar extends w2event {
                 line++
                 html += `
                     <div class="w2ui-tb-line">
-                        <div class="w2ui-scroll-wrapper" data-mousedown="resize">
+                        <div class="w2ui-scroll-wrapper w2ui-action" data-mousedown="resize">
                             <div class="w2ui-tb-right">${this.right[line-1] || ''}</div>
                         </div>
-                        <div class="w2ui-scroll-left" data-click='["scroll", "left", "${line}"]'></div>
-                        <div class="w2ui-scroll-right" data-click='["scroll", "right", "${line}"]'></div>
+                        <div class="w2ui-scroll-left w2ui-action" data-click='["scroll", "left", "${line}"]'></div>
+                        <div class="w2ui-scroll-right w2ui-action" data-click='["scroll", "right", "${line}"]'></div>
                     </div>
                 `
             }
@@ -480,7 +492,7 @@ class w2toolbar extends w2event {
         if ($(this.box).length > 0) {
             $(this.box)[0].style.cssText += this.style
         }
-        w2utils.bindEvents('.w2ui-scroll-left, .w2ui-scroll-right, .w2ui-scroll-wrapper', this)
+        w2utils.bindEvents($(this.box).find('.w2ui-tb-line .w2ui-action'), this)
         // refresh all
         this.refresh()
         this.resize()
@@ -538,7 +550,7 @@ class w2toolbar extends w2event {
                         drop[0].hide()
                     } else {
                         if (['menu', 'menu-radio', 'menu-check'].indexOf(it.type) != -1) {
-                            drop.w2menu('refresh', { items: it.items })
+                            $(this.tmp.overlayEl).w2menu('refresh', { items: it.items })
                         }
                     }
                 }

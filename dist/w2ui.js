@@ -1,15 +1,14 @@
-/* w2ui 2.0.x (nightly) (9/22/2021) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (9/26/2021, 10:16:39 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
-*
 **/
 
 class w2event {
     constructor(name) {
         this.handlers = []
         // register globally
-        if (name) {
+        if (typeof name !== 'undefined') {
             window.w2ui = window.w2ui || {}
             if (!w2utils.checkName(name)) return
             window.w2ui[name] = this
@@ -287,8 +286,10 @@ const w2locale = {
 *
 * == 2.0 changes
 *   - normMenu
-*   - w2utils.message - return a promise
+*   - w2utils.message - returns a promise
 *   - bindEvents - common method to avoid inline events
+*   - unescapeId
+*   - settings.warn_missing_translation
 *
 ************************************************/
 let w2ui    = {}
@@ -326,6 +327,7 @@ let w2utils = (($) => {
         encodeTags,
         decodeTags,
         escapeId,
+        unescapeId,
         normMenu,
         bindEvents,
         base64encode,
@@ -784,7 +786,12 @@ let w2utils = (($) => {
     }
     function escapeId (id) {
         if (id === '' || id == null) return ''
-        return String(id).replace(/([;&,\.\+\*\~'`:"\!\^#$%@\[\]\(\)=<>\|\/? {}\\])/g, '\\$1')
+        return $.escapeSelector(id)
+        // return String(id).replace(/([;&,\.\+\*\~'`:"\!\^#$%@\[\]\(\)=<>\|\/? {}\\])/g, '\\$1')
+    }
+    function unescapeId (id) {
+        if (id === '' || id == null) return ''
+        return $.find.selectors.preFilter.ATTR([null, id])[1]
     }
     function base64encode (input) {
         let output = ''
@@ -1556,7 +1563,7 @@ let w2utils = (($) => {
             }
         })
     }
-    function scrollBarSize () {
+    function scrollBarSize() {
         if (tmp.scrollBarSize) return tmp.scrollBarSize
         let html =
             '<div id="_scrollbar_width" style="position: absolute; top: -300px; width: 100px; height: 100px; overflow-y: scroll;">'+
@@ -1907,7 +1914,7 @@ let w2utils = (($) => {
                     })
                 }
                 let method = params[0]
-                params.shift()
+                params = params.slice(1) // should be new array
                 $(el)
                     .off(name + '.w2utils-bind')
                     .on(name + '.w2utils-bind', function(event) {
@@ -2035,10 +2042,11 @@ w2utils.formatters = {
         return ret
     }
 }
+// register globals
 if (self) {
+    w2ui = self.w2ui || {}
+    self.w2ui = w2ui
     self.w2utils = w2utils
-    self.w2ui    = self.w2ui || {}
-    w2ui         = self.w2ui
 }
 /************************************************************************
 *   Part of w2ui 2.0 library
@@ -2063,70 +2071,30 @@ if (self) {
 *   - remote source, but localSort/localSearch
 *   - right click on columns
 *   - reload a single records (useful when need to update deep in buffered records)
+*   - need to update PHP example
+*   - return structure status -> replace with success
+*   - msg* - should be in prototype
+*   - search fields not finised
+*   - row reorder not finished
+*   - expendable grids are still working
+*   - moved a lot of properties into prototype
+*   - promise for request, load, save, etc.
+*   - remote date local sort/search
 *
 * == DEMOS To create ==
 *   - batch for disabled buttons
 *   - naturla sort
 *   - resize on max content
+*   - context message
+*   - clipboard copy
+*   - save searches, custom searches
 *
 * == KNOWN ISSUES ==
 *   - reorder records with school - not correct
 *   - reorder columns not working
 *   - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
 *   - Shift-click/Ctrl-click/Ctrl-Shift-Click selection is not as robust as it should be
-*
-* == 1.5 changes
-*   - $('#grid').w2grid() - if called w/o argument then it returns grid object
-*   - added vs_start and vs_extra
-*   - added update(cells) - updates only data in the grid (or cells)
-*   - add to docs onColumnDragStart, onColumnDragEnd
-*   - onSelect and onSelect should fire 1 time for selects with shift or selectAll(), selectNone()
-*   - if .search(val) - search all fields
 *   - refactor reorderRow (not finished)
-*   - return JSON can now have summary array
-*   - added selectionSave, selectionRestore - for internal use
-*   - added additional search filter options for int, float, date, time
-*   - added lineNumberWidth
-*   - getColumn without params returns fields of all columns
-*   - getSearch without params returns fields of all searches
-*   - added hasFocus, refactored w2utils.keyboard
-*   - do not clear selection when clicked and it was not in focus
-*   - editable area extends with typing
-*   - removed onSubmit and onDeleted - now it uses onSave and onDelete
-*   - column.searchable - can be an object, which will create search
-*   - added null, not null filters
-*   - update(cells) - added argument cells
-*   - added onResizerDblClick
-*   - added w2grid.operators
-*   - added w2grid.operatorsMap
-*   - move events into prototype
-*   - disableCVS
-*   - added nestedFields: use field name containing dots as separator to look into objects
-*   - grid.message
-*   - added noReset option to localSort()
-*   - onColumnSelect
-*   - need to update PHP example
-*   - added scrollToColumn(field)
-*   - textSearch: 'begins' (default), 'contains', 'is', ...
-*   - added refreshBody
-*   - added response.total = -1 (or not present) to indicate that number of records is unknown
-*   - message(.., callBack) - added callBack
-*   - grid.msgEmpty
-*   - field.render(..., data) -- added last argument which is what grid thinks should be there
-*   - field.render can return { html, class, style } as an object
-*   - onSearchOpen (onSearch will have multi and reset flags)
-*   - col.editable can be a function which will be called with the same args as col.render()
-*   - col.clipboardCopy - display icon to copy to clipboard
-*   - clipboardCopy - new function on grid level
-*   - added stateId
-*   - expendable grids are still working
-*   - added getFirst
-*   - added stateColProps
-*   - added stateColDefaults
-*   - deprecated column.caption -> column.text
-*   - deprecated columnGroup.caption -> columnGroup.text
-*   - moved a lot of properties into prototype
-*   - showExtraOnSearch
 *
 * == 2.0 changes
 *   - .message - returns a promise
@@ -2142,6 +2110,7 @@ if (self) {
 *   - grid.confirm
 *   - grid.message returns a promise
 *   - search.type == 'text' can have 'in' and 'not in' operators, then it will switch to enum
+*   - grid.find(..., displayedOnly)
 *
 ************************************************************************/
 
@@ -2261,7 +2230,7 @@ class w2grid extends w2event {
         this.autoLoad          = true // for infinite scroll
         this.fixedBody         = true // if false; then grid grows with data
         this.recordHeight      = 32
-        this.lineNumberWidth   = null
+        this.lineNumberWidth   = 34
         this.keyboard          = true
         this.selectType        = 'row' // can be row|cell
         this.multiSearch       = true
@@ -2283,6 +2252,35 @@ class w2grid extends w2event {
         this.parser            = null
         this.advanceOnEdit     = true // automatically begin editing the next cell after submitting an inline edit?
         this.useLocalStorage   = true
+        // default values for the column
+        this.colDefaults = {
+            text           : '',    // column text (can be a function)
+            field          : '',    // field name to map the column to a record
+            size           : null,  // size of column in px or %
+            min            : 20,    // minimum width of column in px
+            max            : null,  // maximum width of column in px
+            gridMinWidth   : null,  // minimum width of the grid when column is visible
+            sizeCorrected  : null,  // read only, corrected size (see explanation below)
+            sizeCalculated : null,  // read only, size in px (see explanation below)
+            sizeOriginal   : null,  // size as defined
+            sizeType       : null,  // px or %
+            hidden         : false, // indicates if column is hidden
+            sortable       : false, // indicates if column is sortable
+            sortMode       : null,  // sort mode ('default'|'natural') or custom compare function
+            searchable     : false, // bool/string: int,float,date,... or an object to create search field
+            resizable      : true,  // indicates if column is resizable
+            hideable       : true,  // indicates if column can be hidden
+            autoResize     : null,  // indicates if column can be auto-resized by double clicking on the resizer
+            attr           : '',    // string that will be inside the <td ... attr> tag
+            style          : '',    // additional style for the td tag
+            render         : null,  // string or render function
+            title          : null,  // string or function for the title property for the column cells
+            tooltip        : null,  // string for the title property for the column header
+            editable       : {},    // editable object (see explanation below)
+            frozen         : false, // indicates if the column is fixed to the left
+            info           : null,  // info bubble, can be bool/object
+            clipboardCopy  : false, // if true (or string or function), it will display clipboard copy icon
+        }
         // these column properties will be saved in stateSave()
         this.stateColProps = {
             text            : false,
@@ -2297,43 +2295,20 @@ class w2grid extends w2event {
             sizeType        : true,
             hidden          : true,
             sortable        : false,
+            sortMode        : true,
             searchable      : false,
-            clipboardCopy   : false,
             resizable       : false,
             hideable        : false,
+            autoResize      : false,
             attr            : false,
             style           : false,
             render          : false,
             title           : false,
+            tooltip         : false,
             editable        : false,
             frozen          : true,
             info            : false,
-        }
-        // these are the stateSave() fallback values if the property to save is not a property of the column object
-        this.stateColDefaults = {
-            text            : '', // column text
-            field           : '', // field name to map column to a record
-            size            : null, // size of column in px or %
-            min             : 20, // minimum width of column in px
-            max             : null, // maximum width of column in px
-            gridMinWidth    : null, // minimum width of the grid when column is visible
-            sizeCorrected   : null, // read only, corrected size (see explanation below)
-            sizeCalculated  : null, // read only, size in px (see explanation below)
-            sizeOriginal    : null,
-            sizeType        : null,
-            hidden          : false, // indicates if column is hidden
-            sortable        : false, // indicates if column is sortable
-            searchable      : false, // indicates if column is searchable, bool/string: int,float,date,...
-            clipboardCopy   : false,
-            resizable       : true, // indicates if column is resizable
-            hideable        : true, // indicates if column can be hidden
-            attr            : '', // string that will be inside the <td ... attr> tag
-            style           : '', // additional style for the td tag
-            render          : null, // string or render function
-            title           : null, // string or function for the title property for the column cells
-            editable        : {}, // editable object if column fields are editable
-            frozen          : false, // indicates if the column is fixed to the left
-            info            : null // info bubble, can be bool/object
+            clipboardCopy   : false
         }
         this.msgDelete     = 'Are you sure you want to delete ${count} ${records}?'
         this.msgNotJSON    = 'Returned data is not in valid JSON format.'
@@ -2452,18 +2427,29 @@ class w2grid extends w2event {
         $.extend(true, this, options)
         // check if there are records without recid
         if (Array.isArray(this.records)) {
-            this.records.forEach(rec => {
+            let remove = [] // remove from records as they are summary
+            this.records.forEach((rec, ind) => {
                 if (rec[this.recid] != null) {
                     rec.recid = rec[this.recid]
                 }
                 if (rec.recid == null) {
                     console.log('ERROR: Cannot add records without recid. (obj: '+ this.name +')')
                 }
+                if (rec.w2ui && rec.w2ui.summary === true) {
+                    this.summary.push(rec)
+                    remove.push(ind) // cannot remove here as it will mess up array walk thru
+                }
             })
+            remove.sort()
+            for (let t = remove.length-1; t >= 0; t--) {
+                this.records.splice(remove[t], 1)
+            }
         }
         // add searches
         if (Array.isArray(this.columns)) {
-            this.columns.forEach(col => {
+            this.columns.forEach((col, ind) => {
+                col = $.extend({}, this.colDefaults, col)
+                this.columns[ind] = col
                 let search = col.searchable
                 if (search == null || search === false || this.getSearch(col.field) != null) return
                 if ($.isPlainObject(search)) {
@@ -2534,14 +2520,17 @@ class w2grid extends w2event {
         this.refresh() // ??  should it be reload?
         return added
     }
-    find(obj, returnIndex) {
+    find(obj, returnIndex, displayedOnly) {
         if (obj == null) obj = {}
         let recs    = []
         let hasDots = false
         // check if property is nested - needed for speed
         for (let o in obj) if (String(o).indexOf('.') != -1) hasDots = true
         // look for an item
-        for (let i = 0; i < this.records.length; i++) {
+        let start = displayedOnly ? this.last.range_start : 0
+        let end   = displayedOnly ? this.last.range_end + 1: this.records.length
+        if (end > this.records.length) end = this.records.length
+        for (let i = start; i < end; i++) {
             let match = true
             for (let o in obj) {
                 let val = this.records[i][o]
@@ -2628,13 +2617,13 @@ class w2grid extends w2event {
             return null
         }
     }
-    getFirst() {
+    getFirst(index) {
         if (this.records.length == 0) return null
         let recid = this.records[0].recid
         let tmp   = this.last.searchIds
         if (this.searchData.length > 0) {
             if (Array.isArray(tmp) && tmp.length > 0) {
-                recid = this.records[tmp[0]].recid
+                recid = this.records[tmp[index || 0]]
             } else {
                 recid = null
             }
@@ -2670,7 +2659,8 @@ class w2grid extends w2event {
         }
         if (!Array.isArray(columns)) columns = [columns]
         for (let i = 0; i < columns.length; i++) {
-            this.columns.splice(before, 0, columns[i])
+            let col = $.extend({}, this.colDefaults, columns[i])
+            this.columns.splice(before, 0, col)
             // if column is searchable, add search field
             if (columns[i].searchable) {
                 let stype = columns[i].searchable
@@ -2713,10 +2703,10 @@ class w2grid extends w2event {
         }
         return null
     }
-    updateColumn(names, updates) {
+    updateColumn(fields, updates) {
         let effected = 0
-        names        = (Array.isArray(names) ? names : [names])
-        names.forEach((colName) => {
+        fields = (Array.isArray(fields) ? fields : [fields])
+        fields.forEach((colName) => {
             this.columns.forEach((col) => {
                 if (col.field == colName) {
                     let _updates = $.extend(true, {}, updates)
@@ -3849,7 +3839,7 @@ class w2grid extends w2event {
         this.trigger($.extend(edata, { phase: 'after' }))
         return (new Date()).getTime() - time
     }
-    updateToolbar(sel, areAllSelected) {
+    updateToolbar(sel) {
         let obj = this
         let cnt = sel && sel.indexes ? sel.indexes.length : 0
         this.toolbar.items.forEach((item) => {
@@ -4162,35 +4152,35 @@ class w2grid extends w2event {
     searchOpen() {
         if (!this.box) return
         if (this.searches.length === 0) return
-        let obj = this
-        let it  = obj.toolbar.get('w2ui-search')
+        let grid = this
+        let it  = grid.toolbar.get('w2ui-search')
         // event before
         let edata = this.trigger({ phase: 'before', type: 'searchOpen', target: this.name })
         if (edata.isCancelled === true) {
             return
         }
-        let $btn = $(obj.box).find('.w2ui-grid-search-input .w2ui-search-drop')
+        let $btn = $(grid.box).find('.w2ui-grid-search-input .w2ui-search-drop')
         $btn.addClass('checked')
         // show search
-        $('#grid_'+ obj.name +'_search_all').w2overlay({
+        $('#grid_'+ grid.name +'_search_all').w2overlay({
             html  : this.getSearchesHTML(),
             name  : this.name + '-searchOverlay',
             align : 'left',
             class : 'w2ui-grid-search-advanced',
             onShow() {
-                obj.initSearches()
-                obj.last.search_opened = true
-                $(`#w2ui-overlay-${obj.name}-searchOverlay .w2ui-grid-search-advanced`).data('grid-name', obj.name)
-                w2utils.bindEvents($(`#w2ui-overlay-${obj.name}-searchOverlay`).find('select, input, button'), obj)
+                grid.initSearches()
+                grid.last.search_opened = true
+                $(`#w2ui-overlay-${grid.name}-searchOverlay .w2ui-grid-search-advanced`).data('grid-name', grid.name)
+                w2utils.bindEvents($(`#w2ui-overlay-${grid.name}-searchOverlay`).find('select, input, button'), grid)
                 // init first field
-                let sfields = $(`#w2ui-overlay-${obj.name}-searchOverlay *[rel=search]`)
+                let sfields = $(`#w2ui-overlay-${grid.name}-searchOverlay *[rel=search]`)
                 if (sfields.length > 0) sfields[0].focus()
                 // event after
-                obj.trigger($.extend(edata, { phase: 'after' }))
+                grid.trigger($.extend(edata, { phase: 'after' }))
             },
             onHide() {
                 $btn.removeClass('checked')
-                obj.last.search_opened = false
+                grid.last.search_opened = false
             }
         })
     }
@@ -4910,68 +4900,70 @@ class w2grid extends w2event {
                     }
                 }
             }
-            if (Array.isArray(data.records)) {
-                // make sure each record has recid
-                data.records.forEach((rec, ind) => {
-                    if (this.recid) {
-                        rec.recid = this.parseField(rec, this.recid)
-                    }
-                    if (rec.recid == null) {
-                        rec.recid = 'recid-' + ind
-                    }
-                })
-            }
             if (data.status == 'error') {
                 this.error(data.message)
-            } else {
-                if (cmd == 'get') {
-                    if (data.total == null) data.total = -1
-                    if (data.records == null) {
-                        data.records = []
-                    }
-                    if (data.records.length == this.limit) {
-                        let loaded            = this.records.length + data.records.length
-                        this.last.xhr_hasMore = (loaded == this.total ? false : true)
-                    } else {
-                        this.last.xhr_hasMore = false
-                        this.total            = this.offset + this.last.xhr_offset + data.records.length
-                    }
-                    if (!this.last.xhr_hasMore) {
-                        // if no more records, then hide spinner
-                        $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more').hide()
-                    }
-                    if (this.last.xhr_offset === 0) {
-                        this.records = []
-                        this.summary = []
-                        if (w2utils.isInt(data.total)) this.total = parseInt(data.total)
-                    } else {
-                        if (data.total != -1 && parseInt(data.total) != parseInt(this.total)) {
-                            this.message(w2utils.lang(this.msgNeedReload), () => {
-                                delete this.last.xhr_offset
-                                this.reload()
-                            })
-                            return
-                        }
-                    }
-                    // records
-                    if (data.records) {
-                        for (let r = 0; r < data.records.length; r++) {
-                            this.records.push(data.records[r])
-                        }
-                    }
-                    // summary records (if any)
-                    if (data.summary) {
-                        this.summary = []
-                        for (let r = 0; r < data.summary.length; r++) {
-                            this.summary.push(data.summary[r])
-                        }
+            } else if (cmd == 'get') {
+                if (data.total == null) data.total = -1
+                if (data.records == null) {
+                    data.records = []
+                }
+                if (data.records.length == this.limit) {
+                    let loaded            = this.records.length + data.records.length
+                    this.last.xhr_hasMore = (loaded == this.total ? false : true)
+                } else {
+                    this.last.xhr_hasMore = false
+                    this.total            = this.offset + this.last.xhr_offset + data.records.length
+                }
+                if (!this.last.xhr_hasMore) {
+                    // if no more records, then hide spinner
+                    $('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more').hide()
+                }
+                if (this.last.xhr_offset === 0) {
+                    this.records = []
+                    this.summary = []
+                    if (w2utils.isInt(data.total)) this.total = parseInt(data.total)
+                } else {
+                    if (data.total != -1 && parseInt(data.total) != parseInt(this.total)) {
+                        this.message(w2utils.lang(this.msgNeedReload), () => {
+                            delete this.last.xhr_offset
+                            this.reload()
+                        })
+                        return
                     }
                 }
-                if (cmd == 'delete') {
-                    this.reset() // unselect old selections
-                    this.reload()
-                    return
+                // records
+                if (data.records) {
+                    data.records.forEach(rec => {
+                        if (this.recid) {
+                            rec.recid = this.parseField(rec, this.recid)
+                        }
+                        if (rec.recid == null) {
+                            rec.recid = 'recid-' + this.records.length
+                        }
+                        if (rec.w2ui && rec.w2ui.summary === true) {
+                            this.summary.push(rec)
+                        } else {
+                            this.records.push(rec)
+                        }
+                    })
                 }
+                // summary records (if any)
+                if (data.summary) {
+                    this.summary = [] // reset summary with each call
+                    data.summary.forEach(rec => {
+                        if (this.recid) {
+                            rec.recid = this.parseField(rec, this.recid)
+                        }
+                        if (rec.recid == null) {
+                            rec.recid = 'recid-' + this.summary.length
+                        }
+                        this.summary.push(rec)
+                    })
+                }
+            } else if (cmd == 'delete') {
+                this.reset() // unselect old selections
+                this.reload()
+                return
             }
         } else {
             data = {
@@ -6214,6 +6206,28 @@ class w2grid extends w2event {
             }
         }
     }
+    scrollToColumn(field) {
+        if (field == null)
+            return
+        let sWidth = 0
+        let found  = false
+        for (let i = 0; i < this.columns.length; i++) {
+            let col = this.columns[i]
+            if (col.field == field) {
+                found = true
+                break
+            }
+            if (col.frozen || col.hidden)
+                continue
+            let cSize = parseInt(col.sizeCalculated ? col.sizeCalculated : col.size)
+            sWidth   += cSize
+        }
+        if (!found)
+            return
+        this.last.scrollLeft = sWidth+1
+        this.scroll()
+    }
+
     dblClick(recid, event) {
         // find columns
         let column = null
@@ -6611,7 +6625,7 @@ class w2grid extends w2event {
             if (rec == null) continue
             for (let dt = 0; dt < tmp.length; dt++) {
                 if (!this.columns[col + cnt]) continue
-                this.setCellPaste(rec, col + cnt, tmp[dt])
+                setCellPaste(rec, this.columns[col + cnt].field, tmp[dt])
                 cols.push(col + cnt)
                 cnt++
             }
@@ -6623,18 +6637,11 @@ class w2grid extends w2event {
         this.refresh()
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
-    }
-    /**
-     * Sets record field using clipboard text
-     * @param rec record
-     * @param col_ind column index
-     * @param paste sub part of the pasted text
-     */
-    setCellPaste(rec, col_ind, paste) {
-        let field               = this.columns[col_ind].field
-        rec.w2ui                = rec.w2ui || {}
-        rec.w2ui.changes        = rec.w2ui.changes || {}
-        rec.w2ui.changes[field] = paste
+        function setCellPaste(rec, field, paste) {
+            rec.w2ui = rec.w2ui || {}
+            rec.w2ui.changes = rec.w2ui.changes || {}
+            rec.w2ui.changes[field] = paste
+        }
     }
     // ==================================================
     // --- Common functions
@@ -6850,7 +6857,7 @@ class w2grid extends w2event {
         // show number of selected
         this.status()
         // collapse all records
-        let rows = this.find({ 'w2ui.expanded': true }, true)
+        let rows = this.find({ 'w2ui.expanded': true }, true, true)
         for (let r = 0; r < rows.length; r++) {
             let tmp = this.records[rows[r]].w2ui
             if (tmp && !Array.isArray(tmp.children)) {
@@ -6952,7 +6959,7 @@ class w2grid extends w2event {
                        <button class="w2ui-btn grid-search-btn" data-click="searchSave">Save</button>
                       `
                     : ''
-}
+                }
                 <button class="w2ui-btn grid-search-btn btn-remove"
                     data-click="searchReset">X</button>
             `
@@ -6971,16 +6978,9 @@ class w2grid extends w2event {
             $(this.box).find(`#grid_${this.name}_search_all`).prop('readOnly', false)
             $(this.box).find(`#grid_${this.name}_search_name`).hide().find('.name-text').html('')
         }
-        w2utils.bindEvents('.w2ui-action, button', this)
+        w2utils.bindEvents(`#grid_${this.name}_searches .w2ui-action, #grid_${this.name}_searches button`, this)
     }
     refreshBody() {
-        // -- separate summary
-        let obj = this,
-            tmp = this.find({ 'w2ui.summary': true }, true)
-        if (tmp.length > 0) {
-            for (let t = 0; t < tmp.length; t++) this.summary.push(this.records[tmp[t]])
-            for (let t = tmp.length-1; t >= 0; t--) this.records.splice(tmp[t], 1)
-        }
         // -- body
         this.scroll() // need to calculate virtual scrolling for columns
         let recHTML  = this.getRecordsHTML()
@@ -7885,27 +7885,6 @@ class w2grid extends w2event {
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
     }
-    scrollToColumn(field) {
-        if (field == null)
-            return
-        let sWidth = 0
-        let found  = false
-        for (let i = 0; i < this.columns.length; i++) {
-            let col = this.columns[i]
-            if (col.field == field) {
-                found = true
-                break
-            }
-            if (col.frozen || col.hidden)
-                continue
-            let cSize = parseInt(col.sizeCalculated ? col.sizeCalculated : col.size)
-            sWidth   += cSize
-        }
-        if (!found)
-            return
-        this.last.scrollLeft = sWidth+1
-        this.scroll()
-    }
     initToolbar() {
         let grid = this
         // -- if toolbar is true
@@ -7937,7 +7916,7 @@ class w2grid extends w2event {
                         >
                         <div class="w2ui-search-drop w2ui-action" data-click="searchOpen"
                                 style="${this.multiSearch ? '' : 'display: none'}">
-                            <span class="w2ui-icon-drop" style="position: relative; top: -2px;"></span>
+                            <span class="w2ui-icon-drop"></span>
                         </div>
                     </div>`
                 this.toolbar.items.push({
@@ -8564,7 +8543,7 @@ class w2grid extends w2event {
         let html = `
             <div class="search-title">
                 ${w2utils.lang('Advanced Search')}
-                <span style="float: right; padding-right: 10px; ${this.show.searchLogic ? '' : 'display: none'}">
+                <span class="search-logic" style="${this.show.searchLogic ? '' : 'display: none'}">
                     <select id="grid_${this.name}_logic">
                         <option value="AND" ${this.last.logic == 'AND' ? 'selected' : ''}>${w2utils.lang('All')}</option>
                         <option value="OR" ${this.last.logic == 'OR' ? 'selected' : ''}>${w2utils.lang('Any')}</option>
@@ -8642,10 +8621,10 @@ class w2grid extends w2event {
         </tr></tbody></table>`
         return html
     }
-    getOperators(type, fieldOperators) {
+    getOperators(type, opers) {
         let operators = this.operators[this.operatorsMap[type]] || []
-        if (fieldOperators != null && Array.isArray(fieldOperators)) {
-            operators = fieldOperators
+        if (opers != null && Array.isArray(opers)) {
+            operators = fieldOpers
         }
         let html = ''
         operators.forEach(oper => {
@@ -9974,7 +9953,7 @@ class w2grid extends w2event {
                         prop_val = col[prop]
                     } else {
                         // use fallback or null
-                        prop_val = this.stateColDefaults[prop] || null
+                        prop_val = this.colDefaults[prop] || null
                     }
                     col_save_obj[prop] = prop_val
                 }
@@ -10359,7 +10338,7 @@ class w2grid extends w2event {
 *   - layout.content - deprecated
 *   - panel.callBack -> panel.removed
 *   - panel.onContent -> panel.onChange
-*   - .message - returns a promise
+*   - load, message - returns a promise
 *
 ************************************************************************/
 
@@ -10571,26 +10550,23 @@ class w2layout extends w2event {
             body  : '.w2ui-panel-content'
         }, options)
     }
-    load(panel, url, transition, onLoad) {
-        let obj = this
-        if (panel == 'css') {
-            $.get(url, (data, status, xhr) => { // should always be $.get as it is template
-                let prom = obj.html(panel, xhr.responseText)
-                if (onLoad) onLoad(prom)
-            })
-            return true
-        }
-        if (this.get(panel) != null) {
-            $.get(url, (data, status, xhr) => { // should always be $.get as it is template
-                let prom = obj.html(panel, xhr.responseText, transition)
-                if (onLoad) onLoad(prom)
-                // IE Hack
-                obj.resize()
-                if (window.navigator.userAgent.indexOf('MSIE') != -1) setTimeout(() => { obj.resize() }, 100)
-            })
-            return true
-        }
-        return false
+    load(panel, url, transition) {
+        return new Promise((resolve, reject) => {
+            let obj = this
+            if (panel == 'css' && url != null) {
+                $.get(url, (data, status, xhr) => { // should always be $.get as it is template
+                    obj.resize()
+                    resolve(obj.html(panel, xhr.responseText, transition))
+                })
+            } else if (this.get(panel) != null && url != null) {
+                $.get(url, (data, status, xhr) => { // should always be $.get as it is template
+                    obj.resize()
+                    resolve(obj.html(panel, xhr.responseText, transition))
+                })
+            } else {
+                reject()
+            }
+        })
     }
     sizeTo(panel, size, instant) {
         let obj = this
@@ -12034,7 +12010,6 @@ class w2dialog extends w2event {
                     }
                     // event after
                     obj.trigger($.extend(edata, { phase: 'after' }))
-                    w2utils.bindEvents('#w2ui-popup .w2ui-popup-action', w2popup)
                     resolve(edata)
                 }, 150)
             } else {
@@ -12091,7 +12066,7 @@ class w2dialog extends w2event {
                         }
                         // event after
                         obj.trigger($.extend(edata, { phase: 'after' }))
-                        w2utils.bindEvents('#w2ui-popup .w2ui-popup-action', w2popup)
+                        w2utils.bindEvents(`#w2ui-popup #w2ui-message${msgCount} .w2ui-popup-action`, w2popup)
                         resolve(edata)
                     }, 350)
                 }
@@ -12290,10 +12265,6 @@ class w2dialog extends w2event {
             }
         }
     }
-}
-let w2popup = new w2dialog()
-if (window) {
-    window.w2popup = w2popup
 }
 function w2alert(msg, title, callBack) {
     let $ = jQuery
@@ -12712,6 +12683,14 @@ function w2prompt(label, title, callBack) {
         }
     }
 }
+// register globals
+let w2popup = new w2dialog()
+if (self) {
+    self.w2popup = w2popup
+    self.w2alert = w2alert
+    self.w2confirm = w2confirm
+    self.w2prompt = w2prompt
+}
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -13001,7 +12980,7 @@ class w2tabs extends w2event {
         if (tab.hidden) { addStyle += 'display: none;' }
         if (tab.disabled) { addStyle += 'opacity: 0.2;' }
         if (tab.closable && !tab.disabled) {
-            closable = `<div class="w2ui-tab-close w2ui-action${this.active === tab.id ? ' active' : ''}"
+            closable = `<div class="w2ui-tab-close w2ui-action ${this.active === tab.id ? 'active' : ''}"
                 data-mouseenter='["tooltipShow", "${tab.id}", "event"]'
                 data-mouseleave='["tooltipHide", "${tab.id}", "event"]'
                 data-mousedown="stop"
@@ -13032,8 +13011,8 @@ class w2tabs extends w2event {
             }
         } else {
             // create or refresh only one item
-            let $id = '#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(id)
-            let $tab = $(this.box).find($id)
+            let selector = '#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(id)
+            let $tab = $(this.box).find(selector)
             let tabHTML = this.getTabHTML(id)
             if ($tab.length === 0) {
                 $(this.box).find('#tabs_'+ this.name +'_right').before(tabHTML)
@@ -13042,8 +13021,7 @@ class w2tabs extends w2event {
                     $tab.replaceWith(tabHTML)
                 }
             }
-            w2utils.bindEvents($id, this)
-            w2utils.bindEvents($($id).find('.w2ui-action'), this)
+            w2utils.bindEvents(`${selector}, ${selector} .w2ui-action`, this)
         }
         // right html
         $('#tabs_'+ this.name +'_right').html(this.right)
@@ -13313,6 +13291,7 @@ class w2tabs extends w2event {
 *   - show/hide, enable/disable, check/uncheck - return array of effected items
 *   - button.img - deprecated
 *   - this.right - string or array
+*   - added tmp object for runtime variables
 *
 ************************************************************************/
 class w2toolbar extends w2event {
@@ -13356,7 +13335,8 @@ class w2toolbar extends w2event {
             onClick: null,
             onRefresh: null
         }
-        let items          = options.items
+        this.tmp = {}
+        let items = options.items
         delete options.items
         // mix in options
         $.extend(true, this, options)
@@ -13617,18 +13597,28 @@ class w2toolbar extends w2event {
                                     if (Array.isArray(it.selected) && it.selected.indexOf(item.id) != -1) item.checked = true; else item.checked = false
                                 })
                             }
-                            el.w2menu($.extend({ name: obj.name, items: items, left: left, top: 3, data: { 'tb-item': it.id } }, it.overlay, {
-                                type: menuType,
-                                remove(event) {
-                                    obj.menuClick({ name: obj.name, remove: true, item: it, subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
-                                },
-                                select(event) {
-                                    obj.menuClick({ name: obj.name, item: it, subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
-                                },
-                                onHide(event) {
-                                    hideDrop()
+                            obj.tmp.overlayEl = el
+                            el.w2menu($.extend({
+                                    name: obj.name,
+                                    items: items,
+                                    left: left,
+                                    top: 3,
+                                    data: { 'tb-item': it.id }
+                                }, it.overlay, {
+                                    type: menuType,
+                                    remove(event) {
+                                        obj.menuClick({ name: obj.name, remove: true, item: it,
+                                            subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
+                                    },
+                                    select(event) {
+                                        obj.menuClick({ name: obj.name, item: it,
+                                            subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
+                                    },
+                                    onHide(event) {
+                                        hideDrop()
+                                    }
                                 }
-                            }))
+                            ))
                         }
                         if (['color', 'text-color'].indexOf(it.type) != -1) {
                             $(el).w2color($.extend({
@@ -13738,11 +13728,11 @@ class w2toolbar extends w2event {
                 line++
                 html += `
                     <div class="w2ui-tb-line">
-                        <div class="w2ui-scroll-wrapper" data-mousedown="resize">
+                        <div class="w2ui-scroll-wrapper w2ui-action" data-mousedown="resize">
                             <div class="w2ui-tb-right">${this.right[line-1] || ''}</div>
                         </div>
-                        <div class="w2ui-scroll-left" data-click='["scroll", "left", "${line}"]'></div>
-                        <div class="w2ui-scroll-right" data-click='["scroll", "right", "${line}"]'></div>
+                        <div class="w2ui-scroll-left w2ui-action" data-click='["scroll", "left", "${line}"]'></div>
+                        <div class="w2ui-scroll-right w2ui-action" data-click='["scroll", "right", "${line}"]'></div>
                     </div>
                 `
             }
@@ -13755,7 +13745,7 @@ class w2toolbar extends w2event {
         if ($(this.box).length > 0) {
             $(this.box)[0].style.cssText += this.style
         }
-        w2utils.bindEvents('.w2ui-scroll-left, .w2ui-scroll-right, .w2ui-scroll-wrapper', this)
+        w2utils.bindEvents($(this.box).find('.w2ui-tb-line .w2ui-action'), this)
         // refresh all
         this.refresh()
         this.resize()
@@ -13810,7 +13800,7 @@ class w2toolbar extends w2event {
                         drop[0].hide()
                     } else {
                         if (['menu', 'menu-radio', 'menu-check'].indexOf(it.type) != -1) {
-                            drop.w2menu('refresh', { items: it.items })
+                            $(this.tmp.overlayEl).w2menu('refresh', { items: it.items })
                         }
                     }
                 }
@@ -16063,6 +16053,9 @@ class w2field extends w2event {
     }
     focus(event) {
         let obj = this
+        if ($(obj.el).hasClass('has-focus')) {
+            return
+        }
         $(obj.el).addClass('has-focus')
         // color, date, time
         if (['color', 'date', 'time', 'datetime'].indexOf(obj.type) !== -1) {
@@ -16080,8 +16073,8 @@ class w2field extends w2event {
                     $(obj.helpers.focus).find('input').focus()
                     return
                 }
+                obj.updateOverlay()
                 obj.search()
-                setTimeout(() => { obj.updateOverlay() }, 1)
             }, 1)
             // regenerate items
             if (typeof obj.options._items_fun == 'function') {
@@ -16097,7 +16090,7 @@ class w2field extends w2event {
         $(obj.el).removeClass('has-focus')
         // hide overlay
         if (['color', 'date', 'time', 'list', 'combo', 'enum', 'datetime'].indexOf(obj.type) !== -1) {
-            let closeTimeout = window.setTimeout(() => {
+            let closeTimeout = setTimeout(() => {
                 if ($overlay.data('keepOpen') !== true) $overlay.hide()
             }, 0)
             $('.menu', $overlay).one('focus', function() {
@@ -16367,7 +16360,10 @@ class w2field extends w2event {
                     // indexOnly = true;
                     break
                 case 13: { // enter
-                    if ($('#w2ui-overlay').length === 0) break // no action if overlay not open
+                    if ($('#w2ui-overlay').length === 0) {
+                        obj.updateOverlay()
+                        break // no action if overlay not open
+                    }
                     let item = options.items[options.index]
                     if (obj.type === 'enum') {
                         if (item != null && !item.hidden && !item.disabled) {
@@ -16440,6 +16436,10 @@ class w2field extends w2event {
                     }
                     break
                 case 38: // up
+                    if ($('#w2ui-overlay').length === 0) {
+                        obj.updateOverlay()
+                        break // no action if overlay not open
+                    }
                     options.index = w2utils.isInt(options.index) ? parseInt(options.index) : 0
                     options.index--
                     while (options.index > 0 && (options.items[options.index].hidden || options.items[options.index].disabled)) options.index--
@@ -16449,6 +16449,10 @@ class w2field extends w2event {
                     indexOnly = true
                     break
                 case 40: // down
+                    if ($('#w2ui-overlay').length === 0) {
+                        obj.updateOverlay()
+                        break // no action if overlay not open
+                    }
                     options.index = w2utils.isInt(options.index) ? parseInt(options.index) : -1
                     options.index++
                     while (options.index < options.items.length-1 && (options.items[options.index].hidden || options.items[options.index].disabled)) options.index++
@@ -16462,6 +16466,11 @@ class w2field extends w2event {
                         indexOnly = true
                     }
                     break
+                default:
+                    // show popup on search
+                    if ($('#w2ui-overlay').length === 0) {
+                        obj.updateOverlay()
+                    }
             }
             if (indexOnly) {
                 if (options.index < 0) options.index = 0
@@ -16727,7 +16736,6 @@ class w2field extends w2event {
             while (items[options.index] && items[options.index].hidden) options.index++
             if (shown <= 0) options.index = -1
             options.spinner = false
-            obj.updateOverlay()
             setTimeout(() => {
                 let html = $('#w2ui-overlay').html() || ''
                 if (options.markSearch && $('#w2ui-overlay .no-matches').length == 0) { // do not highlight when no items
@@ -16737,6 +16745,9 @@ class w2field extends w2event {
         } else {
             items.splice(0, options.cacheMax)
             options.spinner = true
+        }
+        // only update overlay when it is displayed already
+        if ($('#w2ui-overlay').length > 0) {
             obj.updateOverlay()
         }
     }
@@ -17133,7 +17144,15 @@ class w2field extends w2event {
                         }
                     }
                 })
-                $(el).w2menu((!indexOnly ? 'refresh' : 'refresh-index'), params)
+                if (indexOnly) {
+                    $(el).w2menu('refresh-index', params)
+                } else {
+                    if ($('#w2ui-overlay').length > 0) {
+                        $(el).w2menu('refresh', params)
+                    } else {
+                        $(el).w2menu(params)
+                    }
+                }
             }
         }
     }
@@ -17465,8 +17484,12 @@ class w2field extends w2event {
         // INPUT events
         helper.find('input')
             .on('click', function(event) {
-                if ($('#w2ui-overlay').length === 0) obj.focus(event)
-                event.stopPropagation()
+                // menu is shown on focus, so need to not hide it on click
+                if ($('#w2ui-overlay').length == 0) {
+                    obj.updateOverlay()
+                } else {
+                    $('#w2ui-overlay').data('keepOpen', true)
+                }
             })
             .on('focus', function(event) {
                 pholder = $(obj.el).attr('placeholder')
@@ -17888,6 +17911,8 @@ class w2field extends w2event {
 *   - two way data bindings
 *   - rename applyFocus -> focus
 *   - tabs below some fields (could already be implemented)
+*   - form with toolbar & tabs
+*   - promise for load, save, etc.
 *
 * == 2.0 changes
 *   - show/hide, enable/disable - return array of effected items
@@ -19785,7 +19810,7 @@ class w2form extends w2event {
         }
         let $input
         // focus field by index
-        if(w2utils.isInt(focus)){
+        if (w2utils.isInt(focus)){
             if(focus < 0) {
                 return
             }
@@ -19802,7 +19827,7 @@ class w2form extends w2event {
         else if (typeof focus === 'string') {
             $input = $(this.box).find('[name=\''+focus+'\']').first()
         }
-        if($input){
+        if ($input){
             $input.trigger('focus')
         }
         return $input
@@ -19902,6 +19927,8 @@ class w2form extends w2event {
     $.fn.w2popup = function(options) {
         if (this.length > 0 ) {
             w2popup.template(this[0], null, options)
+        } else if (options.url) {
+            w2popup.load(options)
         }
     }
     $.fn.w2marker = function() {
@@ -20523,6 +20550,7 @@ class w2form extends w2event {
             }
         }
     }
+    $.fn.w2tmp = {} // store runtime variables
     $.fn.w2menu = function(menu, options) {
         /*
         ITEM STRUCTURE
@@ -20555,20 +20583,21 @@ class w2form extends w2event {
             tmp          : {}
         }
         let ret
-        let obj      = this
-        let name     = ''
+        let obj  = this
+        let name = ''
         if (menu === 'refresh') {
             // if not show - call blur
-            if ($.fn.w2menuOptions && $.fn.w2menuOptions.name) name = '-' + $.fn.w2menuOptions.name
+            if ($.fn.w2tmp.menuOptions && $.fn.w2tmp.menuOptions.name) name = '-' + $.fn.w2tmp.menuOptions.name
             if (options.name) name = '-' + options.name
-            if ($('#w2ui-overlay'+ name).length > 0) {
-                options    = $.extend($.fn.w2menuOptions, options)
+            let anchor = $('#w2ui-overlay'+ name).data('element')
+            if ($('#w2ui-overlay'+ name).length == 0 || (anchor != null && anchor != this[0])) {
+                $(this).w2menu(options)
+            } else {
+                options    = $.extend($.fn.w2tmp.menuOptions, options)
                 let scrTop = $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop()
                 $('#w2ui-overlay'+ name +' div.w2ui-menu').html(getMenuHTML())
                 $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop(scrTop)
                 mresize()
-            } else {
-                $(this).w2menu(options)
             }
         } else if (menu === 'refresh-index') {
             let $menu  = $('#w2ui-overlay'+ name +' div.w2ui-menu')
@@ -20590,13 +20619,13 @@ class w2form extends w2event {
             if (arguments.length === 1) options = menu; else options.items = menu
             if (typeof options !== 'object') options = {}
             options            = $.extend({}, defaults, options)
-            $.fn.w2menuOptions = options
+            $.fn.w2tmp.menuOptions = options
             if (options.name) name = '-' + options.name
             if (typeof options.select === 'function' && typeof options.onSelect !== 'function') options.onSelect = options.select
             if (typeof options.remove === 'function' && typeof options.onRemove !== 'function') options.onRemove = options.remove
             if (typeof options.onRender === 'function' && typeof options.render !== 'function') options.render = options.onRender
             // since only one overlay can exist at a time
-            $.fn.w2menuClick = function w2menuClick(event, index, parentIndex) {
+            $.fn.w2tmp.menuClick = function w2menuClick(event, index, parentIndex) {
                 let keepOpen = false, items
                 let $tr      = $(event.target).closest('tr')
                 if (event.shiftKey || event.metaKey || event.ctrlKey) {
@@ -20655,7 +20684,7 @@ class w2form extends w2event {
                     }
                 }
             }
-            $.fn.w2menuDown = function w2menuDown(event, index, parentIndex) {
+            $.fn.w2tmp.menuDown = function (event, index, parentIndex) {
                 let items
                 let $el = $(event.target).closest('tr')
                 let tmp = $($el.get(0)).find('.w2ui-icon')
@@ -20722,7 +20751,7 @@ class w2form extends w2event {
                     $('#w2ui-overlay'+ name +' #menu-search').focus()
                 }
                 mresize()
-            }, 250)
+            }, 1)
             mresize()
             // map functions
             let div = $('#w2ui-overlay'+ name)
@@ -20765,12 +20794,12 @@ class w2form extends w2event {
             switch (key) {
                 case 13: // enter
                     $('#w2ui-overlay'+ name).remove()
-                    $.fn.w2menuClick(event, options.index)
+                    $.fn.w2tmp.menuClick(event, options.index)
                     break
                 case 9: // tab
                 case 27: // escape
                     $('#w2ui-overlay'+ name).remove()
-                    $.fn.w2menuClick(event, -1)
+                    $.fn.w2tmp.menuClick(event, -1)
                     break
                 case 38: // up
                     options.index = w2utils.isInt(options.index) ? parseInt(options.index) : 0
@@ -20819,10 +20848,12 @@ class w2form extends w2event {
         }
         function getMenuHTML(items, subMenu, expanded, parentIndex) {
             if (options.spinner) {
-                return '<table><tbody><tr><td style="padding: 5px 10px 13px 10px; text-align: center">'+
-                        '    <div class="w2ui-spinner" style="width: 18px; height: 18px; position: relative; top: 5px;"></div> '+
-                        '    <div style="display: inline-block; padding: 3px; color: #999;">'+ w2utils.lang('Loading...') +'</div>'+
-                        '</td></tr></tbody></table>'
+                return `<table><tr>
+                    <td style="padding: 5px 10px 13px 10px; text-align: center">
+                        <div class="w2ui-spinner" style="width: 18px; height: 18px; position: relative; top: 5px;"></div>
+                        <div style="display: inline-block; padding: 3px; color: #999;">${w2utils.lang('Loading...')}</div>
+                    </td>
+                </tr></table>`
             }
             let count     = 0
             let menu_html = '<table cellspacing="0" cellpadding="0" class="'+ (subMenu ? ' sub-menu' : '') +'"><tbody>'
@@ -20887,10 +20918,10 @@ class w2form extends w2event {
                                 + (subMenu_dsp !== '' ? ' has-sub-menu' + (mitem.expanded ? ' expanded' : ' collapsed') : '')
                                 + '"'+
                             '        onmousedown="if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
-                            '               jQuery.fn.w2menuDown(event, '+ f +',  '+ parentIndex +');"'+
+                            '               jQuery.fn.w2tmp.menuDown(event, '+ f +',  '+ parentIndex +');"'+
                             '        onclick="event.stopPropagation(); '+
                             '               if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
-                            '               jQuery.fn.w2menuClick(event, '+ f +',  '+ parentIndex +');">'+
+                            '               jQuery.fn.w2tmp.menuClick(event, '+ f +',  '+ parentIndex +');">'+
                                 (subMenu ? '<td></td>' : '') + imgd +
                             '   <td class="menu-text" colspan="'+ colspan +'">'+ w2utils.lang(txt, true) +'</td>'+
                             '   <td class="menu-count">'+ count_dsp +'</td>'+
@@ -20908,7 +20939,13 @@ class w2form extends w2event {
                 items[f] = mitem
             }
             if (count === 0 && options.msgNoItems) {
-                menu_html += '<tr><td style="padding: 13px; color: #999; text-align: center">'+ options.msgNoItems +'</div></td></tr>'
+                menu_html += `<tr>
+                    <td style="padding: 5px 10px 13px 10px; text-align: center">
+                        <div style="display: inline-block; padding-top: 3px; color: #999;">
+                            ${w2utils.lang(options.msgNoItems)}
+                        </div>
+                    </td>
+                </tr>`
             }
             menu_html += '</tbody></table>'
             return menu_html
@@ -21256,37 +21293,22 @@ class w2form extends w2event {
         }
     }
 })(jQuery);
+
 // Compatibility with CommonJS and AMD modules
 (function(global, w2ui) {
-    if (typeof define == 'function' && define.amd) {
-        return define(() => w2ui)
+if (typeof define == 'function' && define.amd) {
+    return define(() => w2ui)
+}
+if (typeof exports != 'undefined') {
+    if (typeof module != 'undefined' && module.exports) {
+        return exports = module.exports = w2ui
     }
-    if (typeof exports != 'undefined') {
-        if (typeof module != 'undefined' && module.exports) {
-            return exports = module.exports = w2ui
-        }
-        global = exports
-    }
-    if (global) {
-        Object.keys(w2ui).forEach(key => {
-            global[key] = w2ui[key]
-        })
-    }
-})(self, {
-    w2ui,
-    w2locale,
-    w2utils,
-    w2popup,
-    w2alert,
-    w2confirm,
-    w2prompt,
-    w2field,
-    w2form,
-    w2grid,
-    w2layout,
-    w2sidebar,
-    w2tabs,
-    w2toolbar,
-    addType,
-    removeType
-})
+    global = exports
+}
+if (global) {
+    Object.keys(w2ui).forEach(key => {
+        global[key] = w2ui[key]
+    })
+}
+})(self, { w2ui, w2locale, w2event, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
+    w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType })

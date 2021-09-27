@@ -306,7 +306,7 @@ class w2tabs extends w2event {
         if (tab.hidden) { addStyle += 'display: none;' }
         if (tab.disabled) { addStyle += 'opacity: 0.2;' }
         if (tab.closable && !tab.disabled) {
-            closable = `<div class="w2ui-tab-close w2ui-action${this.active === tab.id ? ' active' : ''}"
+            closable = `<div class="w2ui-tab-close w2ui-action ${this.active === tab.id ? 'active' : ''}"
                 data-mouseenter='["tooltipShow", "${tab.id}", "event"]'
                 data-mouseleave='["tooltipHide", "${tab.id}", "event"]'
                 data-mousedown="stop"
@@ -338,8 +338,8 @@ class w2tabs extends w2event {
             }
         } else {
             // create or refresh only one item
-            let $id = '#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(id)
-            let $tab = $(this.box).find($id)
+            let selector = '#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(id)
+            let $tab = $(this.box).find(selector)
             let tabHTML = this.getTabHTML(id)
             if ($tab.length === 0) {
                 $(this.box).find('#tabs_'+ this.name +'_right').before(tabHTML)
@@ -348,8 +348,7 @@ class w2tabs extends w2event {
                     $tab.replaceWith(tabHTML)
                 }
             }
-            w2utils.bindEvents($id, this)
-            w2utils.bindEvents($($id).find('.w2ui-action'), this)
+            w2utils.bindEvents(`${selector}, ${selector} .w2ui-action`, this)
         }
         // right html
         $('#tabs_'+ this.name +'_right').html(this.right)

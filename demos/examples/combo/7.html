@@ -1,8 +1,7 @@
 <div class="content">
     <div id="example_title">
         <h1>Popup &amp; Grid</h1>
-        The demo below features a popup with a resizable layout with two panels. One panel has a grid and the second has a form. The grid
-        and the form are connected to each other.
+        Popup with a layout in it. Layout has 2 panels, one with grid another with from.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -27,6 +26,7 @@ var config = {
     },
     grid: {
         name: 'grid',
+        style: 'border: 1px solid #efefef',
         columns: [
             { field: 'fname', text: 'First Name', size: '33%', sortable: true, searchable: true },
             { field: 'lname', text: 'Last Name', size: '33%', sortable: true, searchable: true },
@@ -62,6 +62,7 @@ var config = {
     form: {
         header: 'Edit Record',
         name: 'form',
+        style: 'border: 1px solid #efefef',
         fields: [
             { field: 'recid', type: 'text', html: { label: 'ID', attr: 'size="10" readonly' } },
             { field: 'fname', type: 'text', required: true, html: { label: 'First Name', attr: 'size="40" maxlength="40"' } },
@@ -99,23 +100,19 @@ $(function () {
 
 function openPopup() {
     w2popup.open({
-        title   : 'Popup',
-        width   : 900,
-        height  : 600,
-        showMax : true,
-        body    : '<div id="main" style="position: absolute; left: 1px; top: 1px; right: 1px; bottom: 1px;"></div>',
-        onOpen  : function (event) {
-            event.onComplete = function () {
-                $('#w2ui-popup #main').w2render('layout');
-                w2ui.layout.html('left', w2ui.grid);
-                w2ui.layout.html('main', w2ui.form);
-            };
-        },
-        onToggle: function (event) {
-            event.onComplete = function () {
-                w2ui.layout.resize();
-            }
+        title: 'Popup',
+        width: 900,
+        height: 600,
+        showMax: true,
+        body: '<div id="main" style="position: absolute; left: 2px; right: 2px; top: 0px; bottom: 3px;"></div>',
+        onToggle(event) {
+            event.done(() => { w2ui.layout.resize() })
         }
-    });
+    })
+    .then(e => {
+        $('#w2ui-popup #main').w2render('layout');
+        w2ui.layout.html('left', w2ui.grid);
+        w2ui.layout.html('main', w2ui.form);
+    })
 }
 </script>

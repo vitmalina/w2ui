@@ -71,6 +71,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.columnDblClick">columnDblClick</a> <span>- columnDblClick(field, [event])</span>
+</div>
+<div class="obj-property-desc">
+    Called when user double clicks on the column.
+</div>
+
+<div class="obj-property">
     <a href="w2grid.columnOnOff">columnOnOff</a> <span>- columnOnOff(el, event, field, value)</span>
 </div>
 <div class="obj-property-desc">
@@ -218,6 +225,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.getFirst">getFirst</a> <span>- getFirst([index])</span>
+</div>
+<div class="obj-property-desc">
+    Returns first record displayed in the grid
+</div>
+
+<div class="obj-property">
     <a href="w2grid.getFooterHTML">getFooterHTML</a> <span>- getFooterHTML()</span>
 </div>
 <div class="obj-property-desc">
@@ -229,6 +243,13 @@
 </div>
 <div class="obj-property-desc">
     Returns HTML for a line-number cell.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.getOperators">getOperators</a> <span>- getOperators(fieldType, fieldOpers)</span>
+</div>
+<div class="obj-property-desc">
+    Returns the content of a cell.
 </div>
 
 <div class="obj-property">
@@ -365,7 +386,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.localSort">localSort</a> <span>- localSort([silent])</span>
+    <a href="w2grid.localSort">localSort</a> <span>- localSort([silent], [noResetRefresh])</span>
 </div>
 <div class="obj-property-desc">
     Performs sort on local data set.
@@ -390,6 +411,13 @@
 </div>
 <div class="obj-property-desc">
     Merges user changes into the records array.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.message">message</a> <span>- message(options, [callback])</span>
+</div>
+<div class="obj-property-desc">
+    Shows a context message for the grid
 </div>
 
 <div class="obj-property">
@@ -432,6 +460,13 @@
 </div>
 <div class="obj-property-desc">
     Returns previous row or null if it is the very first row.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.refreshBody">refreshBody</a> <span>- refreshBody()</span>
+</div>
+<div class="obj-property-desc">
+    Refreshes only the portion of grid that has records.
 </div>
 
 <div class="obj-property">
@@ -540,10 +575,17 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.scrollIntoView">scrollIntoView</a> <span>- scrollIntoView(ind)</span>
+    <a href="w2grid.scrollIntoView">scrollIntoView</a> <span>- scrollIntoView([ind], [column], [instant])</span>
 </div>
 <div class="obj-property-desc">
-    Called when user saves inline editing changes.
+    Scrolls to the specified records
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.scrollToColumn">scrollToColumn</a> <span>- scrollToColumn(field)</span>
+</div>
+<div class="obj-property-desc">
+    Scrolls to the specified column
 </div>
 
 <div class="obj-property">
@@ -747,6 +789,13 @@
 </div>
 <div class="obj-property-desc">
     Updates column definition
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.updateToolbar">updateToolbar</a> <span>- updateToolbar(sel)</span>
+</div>
+<div class="obj-property-desc">
+    Enable/disable toobar buttons based on record selection
 </div>
 
 </div>

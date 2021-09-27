@@ -1,0 +1,22 @@
+Message that appears in the middle of the grid when remote srouce returns no records.
+
+<div class="definition">
+    String, default = ''
+</div>
+
+If you do not like default message, you are welcome to define your own.
+
+<textarea class="javascript">
+$('#grid').w2grid({
+    name: 'grid',
+    msgEmpty: 'Zip-Zap',
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
+    ]
+});
+</textarea>

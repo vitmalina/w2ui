@@ -1,0 +1,69 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Context Menus</h1>
+        Popup menus are part of w2utils. Here is an example how to use it as context menus.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div style="display: inline-block; height: 90px; width: 400px; user-select: none; border: 1px #efefef; color: silver; background-color: #f2f2f2; text-align: center; padding-top: 30px"
+        oncontextmenu="contextMenu(event, 1)">
+    Right click for the context menu
+</div>
+<div style="display: inline-block; height: 90px; width: 400px; user-select: none; border: 1px #efefef; color: silver; background-color: #f2f2f2; text-align: center; padding-top: 30px"
+        oncontextmenu="contextMenu(event, 2)">
+    Context menu with all built-in icons
+</div>
+
+<div style="padding-top: 10px">
+    <span id="msg-log">&nbsp;</span>
+</div>
+
+<!--CODE-->
+<script>
+// widget configuration
+function contextMenu(event, type) {
+    let items = [
+        { id: 'folder', text: 'Folder', icon: 'w2ui-icon-info', expanded: false,
+            items: [
+                    { id: 'frist', text: 'First item', count: 4, icon: 'w2ui-icon-empty' },
+                    { id: 'second', text: 'Second item', count: 2, icon: 'w2ui-icon-empty' }
+                ]
+        },
+        { id: 'page', text: 'Colors', icon: 'w2ui-icon-colors' },
+        { text: '--' },
+        { id: 'delete', text: 'Delete', icon: 'w2ui-icon-cross' },
+    ]
+    if (type == 2) {
+        items = [
+           { id: 'icon-folder', text: 'icon-folder', icon: 'icon-folder' },
+            { id: 'icon-page', text: 'icon-page', icon: 'icon-page' },
+            { text: '--' },
+            { id: 'w2ui-icon-box', text: 'w2ui-icon-box', icon: 'w2ui-icon-box' },
+            { id: 'w2ui-icon-check', text: 'w2ui-icon-check', icon: 'w2ui-icon-check' },
+            { id: 'w2ui-icon-colors', text: 'w2ui-icon-colors', icon: 'w2ui-icon-colors' },
+            { id: 'w2ui-icon-columns', text: 'w2ui-icon-columns', icon: 'w2ui-icon-columns' },
+            { id: 'w2ui-icon-cross', text: 'w2ui-icon-cross', icon: 'w2ui-icon-cross' },
+            { id: 'w2ui-icon-drop', text: 'w2ui-icon-drop', icon: 'w2ui-icon-drop' },
+            { id: 'w2ui-icon-empty', text: 'w2ui-icon-empty', icon: 'w2ui-icon-empty' },
+            { id: 'w2ui-icon-info', text: 'w2ui-icon-info', icon: 'w2ui-icon-info' },
+            { id: 'w2ui-icon-paste', text: 'w2ui-icon-paste', icon: 'w2ui-icon-paste' },
+            { id: 'w2ui-icon-pencil', text: 'w2ui-icon-pencil', icon: 'w2ui-icon-pencil' },
+            { id: 'w2ui-icon-plus', text: 'w2ui-icon-plus', icon: 'w2ui-icon-plus' },
+            { id: 'w2ui-icon-reload', text: 'w2ui-icon-reload', icon: 'w2ui-icon-reload' },
+            { id: 'w2ui-icon-search', text: 'w2ui-icon-search', icon: 'w2ui-icon-search' }
+        ]
+    }
+    $('body').w2menu({
+        items,
+        onSelect(event) {
+            $('#msg-log').html(event.item.text)
+            console.log('select', event);
+        },
+        originalEvent: event
+    })
+    event.preventDefault();
+}
+</script>

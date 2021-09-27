@@ -13,9 +13,10 @@
 *
 * == 2.0 changes
 *   - normMenu
-*   - w2utils.message - return a promise
+*   - w2utils.message - returns a promise
 *   - bindEvents - common method to avoid inline events
 *   - unescapeId
+*   - settings.warn_missing_translation
 *
 ************************************************/
 import { w2event } from './w2event.js'
@@ -1395,7 +1396,7 @@ let w2utils = (($) => {
         })
     }
 
-    function scrollBarSize () {
+    function scrollBarSize() {
         if (tmp.scrollBarSize) return tmp.scrollBarSize
         let html =
             '<div id="_scrollbar_width" style="position: absolute; top: -300px; width: 100px; height: 100px; overflow-y: scroll;">'+
@@ -1765,7 +1766,7 @@ let w2utils = (($) => {
                     })
                 }
                 let method = params[0]
-                params.shift()
+                params = params.slice(1) // should be new array
                 $(el)
                     .off(name + '.w2utils-bind')
                     .on(name + '.w2utils-bind', function(event) {
@@ -1913,10 +1914,11 @@ w2utils.formatters = {
     }
 }
 
+// register globals
 if (self) {
+    w2ui = self.w2ui || {}
+    self.w2ui = w2ui
     self.w2utils = w2utils
-    self.w2ui    = self.w2ui || {}
-    w2ui         = self.w2ui
 }
 
 export { w2ui, w2utils }

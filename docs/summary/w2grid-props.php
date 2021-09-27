@@ -22,6 +22,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.colDefaults">colDefaults</a> <span>- Object, default = {...} see below</span>
+</div>
+<div class="obj-property-desc">
+    Default values for the column
+</div>
+
+<div class="obj-property">
     <a href="w2grid.columnGroups">columnGroups</a> <span>- Array, default = []</span>
 </div>
 <div class="obj-property-desc">
@@ -43,10 +50,24 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.dataType">dataType</a> <span>- String, default = null</span>
+</div>
+<div class="obj-property-desc">
+    Defines dateType for the grid
+</div>
+
+<div class="obj-property">
     <a href="w2grid.defaultOperator">defaultOperator</a> <span>- Object, default = {...} // see below</span>
 </div>
 <div class="obj-property-desc">
     Defines default operator for each search type group
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.disableCVS">disableCVS</a> <span>- Boolean, default = false</span>
+</div>
+<div class="obj-property-desc">
+    Indicates if column vertical scsoll (virtualization) is enabled.
 </div>
 
 <div class="obj-property">
@@ -134,10 +155,24 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.msgDelete">msgDelete</a> <span>- String, default = 'Are you sure you want to delete selected record(s)?'</span>
+    <a href="w2grid.msgDelete">msgDelete</a> <span>- String, default = 'Are you sure you want to delete ${count} ${records}?'</span>
 </div>
 <div class="obj-property-desc">
     Confirmation message when user clicks the delete button.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.msgEmpty">msgEmpty</a> <span>- String, default = ''</span>
+</div>
+<div class="obj-property-desc">
+    Message that appears in the middle of the grid when remote srouce returns no records.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.msgNeedReload">msgNeedReload</a> <span>- String, default = 'Your remote data source record count has changed, reloading from the first record.'</span>
+</div>
+<div class="obj-property-desc">
+    Message that is displaed when total number of records on the server changed, and a reload from top is needed.
 </div>
 
 <div class="obj-property">
@@ -176,6 +211,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.nestedFields">nestedFields</a> <span>- Boolean, default = true</span>
+</div>
+<div class="obj-property-desc">
+    Indicates if field names should be parsed
+</div>
+
+<div class="obj-property">
     <a href="w2grid.offset">offset</a> <span>- Integer, default = 0</span>
 </div>
 <div class="obj-property-desc">
@@ -193,7 +235,7 @@
     <a href="w2grid.operatorsMap">operatorsMap</a> <span>- Object, default = {...} // see below</span>
 </div>
 <div class="obj-property-desc">
-    Defines a map of search types and operators for it
+    Defines a map of search type to operator type
 </div>
 
 <div class="obj-property">
@@ -295,6 +337,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.showExtraOnSearch">showExtraOnSearch</a> <span>- Integer, default = 0</span>
+</div>
+<div class="obj-property-desc">
+    Number of records to show that are before and after the matched record
+</div>
+
+<div class="obj-property">
     <a href="w2grid.sortData">sortData</a> <span>- Array, default = []</span>
 </div>
 <div class="obj-property-desc">
@@ -306,6 +355,20 @@
 </div>
 <div class="obj-property-desc">
     Map for sort fields (local to remote).
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.stateColProps">stateColProps</a> <span>- Object, default = {...} see below</span>
+</div>
+<div class="obj-property-desc">
+    Defines which column properties when state is saved
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.stateId">stateId</a> <span>- String, default = null</span>
+</div>
+<div class="obj-property-desc">
+    Defines state id to save to local storage
 </div>
 
 <div class="obj-property">

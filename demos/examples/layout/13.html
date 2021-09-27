@@ -1,8 +1,9 @@
-div class="content">
+<div class="content">
     <div id="example_title">
         <h1>When Content is Removed</h1>
         <p>
-        If you need to clean up in case new content was loaded to the panel, you can use it as a promise.
+        If you need to do a clean up once new content was loaded into the panel and old one was removed, you can use either onChange event,
+        or a promise like removed() function.
         </p>
 
     </div>
@@ -15,8 +16,8 @@ div class="content">
 
 <div style="height: 20px;"></div>
 
-<button class="w2ui-btn" onclick="w2ui.layout.html('main', 'Content of the panel').removed(removed)">Content 1</button>
-<button class="w2ui-btn" onclick="w2ui.layout.html('main', 'Some other content').removed(removed)">Content 2</button>
+<button class="w2ui-btn" onclick="content1()">Content 1</button>
+<button class="w2ui-btn" onclick="content2()">Content 2</button>
 <span id="log"></span>
 
 <!--CODE-->
@@ -32,11 +33,27 @@ $(function () {
                     $('#log').html('Original content is removed')
                 }
             }
-        ]
+        ],
+        onChange(event) {
+            console.log('Content changed', event)
+        }
     })
 })
 
+function content1() {
+    w2ui.layout
+        .html('main', 'Content of the panel')
+        .removed(removed)
+}
+
+function content2() {
+    w2ui.layout
+        .html('main', 'Some other content')
+        .removed(removed)
+}
+
 function removed(event) {
-    $('#log').html(`Content "<span style="color: gray">${event.content}</span>" is replaced with "<span style="color: gray">${event.new_content}</span>"`)
+    $('#log').html(`Panel: ${event.panel}, content "<span style="color: gray">${event.html}</span>" is replaced
+        with "<span style="color: gray">${event.html_new}</span>"`)
 }
 </script>
