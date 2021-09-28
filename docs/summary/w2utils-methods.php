@@ -1,4 +1,4 @@
-<link rel="stylesheet" type="text/css" href="../summary.css"/> 
+<link rel="stylesheet" type="text/css" href="../summary.css"/>
 <div class="container">
 <div class="obj-property">
     <a href="w2utils.age">age</a> <span>- age(dateStr)</span>
@@ -134,7 +134,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2utils.internationalCompare">internationalCompare</a> <span>- internationalCompare(a, b);</span>
+    <a href="w2utils.i18nCompare">i18nCompare</a> <span>- i18nCompare(a, b);</span>
 </div>
 <div class="obj-property-desc">
     Compares two strings and returns 0, 1, or -1.

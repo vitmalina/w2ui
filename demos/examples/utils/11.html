@@ -1,7 +1,7 @@
 <div class="content">
     <div id="example_title">
         <h1>International Compare</h1>
-        There is a function, w2utils.internationalCompare, that can be used for language-sensitive sorting of arrays.
+        There is a function, w2utils.i18nCompare, that can be used for language-sensitive sorting of arrays.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -22,7 +22,7 @@
 
 You can sort any array in the following way:
 <div style="height: 10px;"></div>
-<span style="font-size: 13px; font-family: monaco, monospace">Array.sort(w2utils.internationalCompare)</span>
+<span style="font-size: 13px; font-family: monaco, monospace">Array.sort(w2utils.i18nCompare)</span>
 
 <!--CODE-->
 <script>
@@ -40,7 +40,7 @@ $(function () {
     $('#grid1').w2grid({
         name: 'grid1',
         columns: [
-            { field: 'char', caption: 'Character', size: '30%', sortable: true, sortMode: 'international' },
+            { field: 'char', caption: 'Character', size: '30%', sortable: true, sortMode: 'i18n' },
         ],
         records: records,
         sortData: [{ field: 'char', direction: 'asc' }]

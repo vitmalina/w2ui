@@ -222,7 +222,7 @@ class w2grid extends w2event {
             sizeType       : null,  // px or %
             hidden         : false, // indicates if column is hidden
             sortable       : false, // indicates if column is sortable
-            sortMode       : null,  // sort mode ('default'|'natural'|'international') or custom compare function
+            sortMode       : null,  // sort mode ('default'|'natural'|'i18n') or custom compare function
             searchable     : false, // bool/string: int,float,date,... or an object to create search field
             resizable      : true,  // indicates if column is resizable
             hideable       : true,  // indicates if column can be hidden
@@ -972,8 +972,8 @@ class w2grid extends w2event {
                 case 'natural':
                     sortMode = w2utils.naturalCompare
                     break
-                case 'international':
-                    sortMode = w2utils.internationalCompare
+                case 'i18n':
+                    sortMode = w2utils.i18nCompare
                     break
             }
 
