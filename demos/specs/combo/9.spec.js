@@ -1,30 +1,31 @@
 context("1: Combo", () => {
     context("1: Basic", () => {
-        test("6: Tabs With Content", () => {
+        test("9: Popup & Layout", () => {
             bela
-                .ready('/w2ui/demos/#/combo/5')
-                .begin('Check tabs')
-                    .get('#tab1')
-                    .should('be.visible')
-                    .get('#tab2')
-                    .should('be.hidden')
-                    .get('#tab3')
-                    .should('be.hidden')
-                    .get('#tabs_tabs_tab_tab2')
-                    .should('contain.text', 'Tab 2')
-                    .click()
-                    .get('#tab2')
-                    .should('be.visible')
-                    .get('#tabs_tabs_tab_tab3')
-                    .should('contain.text', 'Tab 3')
-                    .click()
-                    .get('#tab1')
-                    .should('be.hidden')
-                    .get('#tab2')
-                    .should('be.hidden')
-                    .get('#tab3')
-                    .should('be.visible')
+                .ready('/w2ui/demos/#/combo/9')
+                .get('button:contains(Open Popup)')
+                .click()
+                .wait('#w2ui-popup', 'to.be.visible')
+                .begin('Check grid')
+                    .grid('grid')
+                    .should({
+                        'have.records': '>=3',
+                        'have.subset': [
+                            { state: 'Open', priority: 2 },
+                            { state: 'Closed', priority: 1 }
+                        ]
+                    })
                 .end()
-      })
+                .begin('Check Some HTML')
+                    .get('#w2ui-popup [name=sidebar] #node_html')
+                    .click()
+                    .wait(1) // wait for text to display
+                    .get('#layout_layout_panel_main .w2ui-panel-content')
+                    .should('contain.text', 'Some HTML')
+                    .get('#w2ui-popup [data-click=close]')
+                    .click()
+                    .wait('#w2ui-popup', 'to.disappear')
+                .end()
+        })
     })
 })

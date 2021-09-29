@@ -1,59 +1,56 @@
 <div class="content">
     <div id="example_title">
-        <h1>Tabs with Content</h1>
-        Since w2tab is just a tab strip, you need to create a container for the data. Below is the example of tabs with such
-        containers.
+        <h1>Infinite Scroll</h1>
+        Records can be loaded on demand as user scrolls. The grid below points to a set of 50 generated
+        records that can be loaded indefinetly.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
 </div>
 
 <!--CODE-->
-<style>
-.tab {
-    width: 100%;
-    height: 400px;
-    background-color: #fafafa;
-    border-top: 0px;
-    display: none;
-    padding: 10px;
-    overflow: auto;
-}
-</style>
-
-<div id="tab-example">
-    <div id="tabs" style="width: 100%;"></div>
-    <div id="tab1" class="tab">
-        First tab.
-    </div>
-    <div id="tab2" class="tab">
-        Second tab, with some HTML in it. :)
-    </div>
-    <div id="tab3" class="tab">
-        What did you expect, of course it is the third tab.
-    </div>
-</div>
+<div id="main" style="width: 100%; height: 400px;"></div>
+<br>
+<label>
+    <input type="checkbox" id="autoLoad" onclick="refreshGrid(this.checked)" checked>
+    Auto Load
+</label>
 
 <!--CODE-->
 <script>
+// widget configuration
 var config = {
-    tabs: {
-        name: 'tabs',
-        active: 'tab1',
-        tabs: [
-            { id: 'tab1', text: 'Tab 1' },
-            { id: 'tab2', text: 'Tab 2' },
-            { id: 'tab3', text: 'Tab 3' },
+    grid: {
+        name: 'grid',
+        url : 'data/list3.json',
+        show: {
+            footer: true,
+            toolbar: true,
+            lineNumbers: true
+        },
+        limit: 50,
+        columns: [
+            { field: 'recid', text: 'ID', size: '100px' },
+            { field: 'fname', text: 'First Name', size: '200px', searchable: 'text' },
+            { field: 'lname', text: 'Last Name', size: '200px', searchable: 'text' },
+            { field: 'sdate', text: 'Date Range', size: '100%' }
         ],
-        onClick: function (event) {
-            $('#tab-example .tab').hide();
-            $('#tab-example #' + event.target).show();
+        onLoad: function(event) {
+            let data = JSON.parse(event.xhr.responseText)
+            data.records.forEach((rec, ind) => {
+                rec.recid = 'recid-' + (this.records.length + ind)
+            })
+            event.xhr.responseText = data
         }
     }
+};
+
+function refreshGrid(auto) {
+    w2ui.grid.autoLoad = auto;
+    w2ui.grid.skip(0);
 }
 
 $(function () {
-    $('#tabs').w2tabs(config.tabs);
-    $('#tab1').show();
+    $('#main').w2grid(config.grid);
 });
 </script>

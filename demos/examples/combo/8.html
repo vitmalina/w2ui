@@ -1,7 +1,7 @@
 <div class="content">
     <div id="example_title">
-        <h1>Popup & Layout</h1>
-        Popup with a layout in it. Layout has 2 panels, one with sidebar another with grid/html.
+        <h1>Popup &amp; Grid</h1>
+        Popup with a layout in it. Layout has 2 panels, one with grid another with from.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -18,73 +18,101 @@
 var config = {
     layout: {
         name: 'layout',
-        padding: 0,
+        padding: 4,
         panels: [
-            { type: 'left', size: 200, resizable: true, minSize: 120 },
-            { type: 'main', minSize: 350, overflow: 'hidden' }
+            { type: 'left', size: '50%', resizable: true, minSize: 300 },
+            { type: 'main', minSize: 300 }
         ]
-    },
-    sidebar: {
-        name: 'sidebar',
-        nodes: [
-            { id: 'general', text: 'General', group: true, expanded: true,
-                nodes: [
-                    { id: 'grid', text: 'Grid', icon: 'fa fa-pencil-square-o', selected: true },
-                    { id: 'html', text: 'Some HTML', icon: 'fa fa-list-alt' }
-                ]
-            }
-        ],
-        onClick: function (event) {
-            switch (event.target) {
-                case 'grid':
-                    w2ui.layout.html('main', w2ui.grid);
-                    break;
-                case 'html':
-                    w2ui.layout.html('main', '<div style="padding: 10px">Some HTML</div>');
-                    $(w2ui.layout.el('main'))
-                        .removeClass('w2ui-grid')
-                    break;
-            }
-        }
     },
     grid: {
         name: 'grid',
-        style: 'border: 0px; border-left: 1px solid #efefef',
+        style: 'border: 1px solid #efefef',
         columns: [
-            { field: 'state', text: 'State', size: '80px' },
-            { field: 'title', text: 'Title', size: '100%' },
-            { field: 'priority', text: 'Priority', size: '80px', attr: 'align="center"' }
+            { field: 'fname', text: 'First Name', size: '33%', sortable: true, searchable: true },
+            { field: 'lname', text: 'Last Name', size: '33%', sortable: true, searchable: true },
+            { field: 'email', text: 'Email', size: '33%' },
+            { field: 'sdate', text: 'Start Date', size: '120px', render: 'date' }
         ],
         records: [
-            { recid: 1, state: 'Open', title: 'Short title for the record', priority: 2 },
-            { recid: 2, state: 'Open', title: 'Short title for the record', priority: 3 },
-            { recid: 3, state: 'Closed', title: 'Short title for the record', priority: 1 }
-        ]
+            { recid: 1, fname: 'John', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+            { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+            { recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+            { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+            { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+            { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+            { recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+            { recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+            { recid: 9, fname: 'Sergei', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
+        ],
+        onClick: function(event) {
+            var grid = this;
+            var form = w2ui.form;
+            event.onComplete = function () {
+                var sel = grid.getSelection();
+                if (sel.length == 1) {
+                    form.recid  = sel[0];
+                    form.record = $.extend(true, {}, grid.get(sel[0]));
+                    form.refresh();
+                } else {
+                    form.clear();
+                }
+            }
+        }
+    },
+    form: {
+        header: 'Edit Record',
+        name: 'form',
+        style: 'border: 1px solid #efefef',
+        fields: [
+            { field: 'recid', type: 'text', html: { label: 'ID', attr: 'size="10" readonly' } },
+            { field: 'fname', type: 'text', required: true, html: { label: 'First Name', attr: 'size="40" maxlength="40"' } },
+            { field: 'lname', type: 'text', required: true, html: { label: 'Last Name', attr: 'size="40" maxlength="40"' } },
+            { field: 'email', type: 'email', html: { label: 'Email', attr: 'size="30"' } },
+            { field: 'sdate', type: 'date', html: { label: 'Date', attr: 'size="10"' } }
+        ],
+        actions: {
+            Reset: function () {
+                this.clear();
+            },
+            Save: function () {
+                var errors = this.validate();
+                if (errors.length > 0) return;
+                if (this.recid == 0) {
+                    w2ui.grid.add($.extend(true, { recid: w2ui.grid.records.length + 1 }, this.record));
+                    w2ui.grid.selectNone();
+                    this.clear();
+                } else {
+                    w2ui.grid.set(this.recid, this.record);
+                    w2ui.grid.selectNone();
+                    this.clear();
+                }
+            }
+        }
     }
 };
 
 $(function () {
     // initialization in memory
     $().w2layout(config.layout);
-    $().w2sidebar(config.sidebar);
     $().w2grid(config.grid);
+    $().w2form(config.form);
 });
 
 function openPopup() {
     w2popup.open({
         title: 'Popup',
-        width: 800,
+        width: 900,
         height: 600,
         showMax: true,
-        body: '<div id="main" style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px;"></div>',
+        body: '<div id="main" style="position: absolute; left: 2px; right: 2px; top: 0px; bottom: 3px;"></div>',
         onToggle(event) {
             event.done(() => { w2ui.layout.resize() })
         }
     })
-    .then(() => {
-        $('#w2ui-popup #main').w2render('layout')
-        w2ui.layout.html('left', w2ui.sidebar)
-        w2ui.layout.html('main', w2ui.grid)
+    .then(e => {
+        $('#w2ui-popup #main').w2render('layout');
+        w2ui.layout.html('left', w2ui.grid);
+        w2ui.layout.html('main', w2ui.form);
     })
 }
 </script>

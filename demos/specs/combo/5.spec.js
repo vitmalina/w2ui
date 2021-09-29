@@ -2,7 +2,7 @@ context("1: Combo", () => {
     context("1: Basic", () => {
         test("5: Infinite Scroll", () => {
             bela
-                .ready('/w2ui/demos/#/combo/9')
+                .ready('/w2ui/demos/#/combo/5')
                 .begin('Grid auto load')
                     .grid('grid')
                     .should('have.records', '==50')
