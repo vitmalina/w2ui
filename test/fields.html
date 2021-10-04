@@ -31,7 +31,7 @@
         jQuery('.time').w2field('time', { start: '8:15am', end: '4:30pm' });
         jQuery('.time_without_minutes').w2field('time', { noMinutes: true });
         jQuery('.color').w2field('color');
-        jQuery('.int').w2field({ type: 'int', min: -36000, max: 36000 });
+        jQuery('.int').w2field({ type: 'int', min: -36, max: 1234, autoCorrect: true });
         jQuery('.float').w2field('float');
         jQuery('.percent').w2field('percent', { precision: 0, min: 0, max: 100 });
         jQuery('.money').w2field('currency');
