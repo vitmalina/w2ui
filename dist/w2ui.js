@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (9/26/2021, 10:16:39 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/4/2021, 7:37:20 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -290,6 +290,7 @@ const w2locale = {
 *   - bindEvents - common method to avoid inline events
 *   - unescapeId
 *   - settings.warn_missing_translation
+*   - i18nCompare
 *
 ************************************************/
 let w2ui    = {}
@@ -338,6 +339,7 @@ let w2utils = (($) => {
         unlock,
         message,
         naturalCompare,
+        i18nCompare: Intl.Collator().compare,
         template_replacer,
         lang,
         locale,
@@ -2080,6 +2082,7 @@ if (self) {
 *   - moved a lot of properties into prototype
 *   - promise for request, load, save, etc.
 *   - remote date local sort/search
+*   - colDefaults -> col_template as in tabs, toolbar, etc
 *
 * == DEMOS To create ==
 *   - batch for disabled buttons
@@ -2266,7 +2269,7 @@ class w2grid extends w2event {
             sizeType       : null,  // px or %
             hidden         : false, // indicates if column is hidden
             sortable       : false, // indicates if column is sortable
-            sortMode       : null,  // sort mode ('default'|'natural') or custom compare function
+            sortMode       : null,  // sort mode ('default'|'natural'|'i18n') or custom compare function
             searchable     : false, // bool/string: int,float,date,... or an object to create search field
             resizable      : true,  // indicates if column is resizable
             hideable       : true,  // indicates if column can be hidden
@@ -2976,6 +2979,9 @@ class w2grid extends w2event {
             switch (sortMode) {
                 case 'natural':
                     sortMode = w2utils.naturalCompare
+                    break
+                case 'i18n':
+                    sortMode = w2utils.i18nCompare
                     break
             }
             if (typeof sortMode == 'function') {
@@ -6959,7 +6965,7 @@ class w2grid extends w2event {
                        <button class="w2ui-btn grid-search-btn" data-click="searchSave">Save</button>
                       `
                     : ''
-                }
+}
                 <button class="w2ui-btn grid-search-btn btn-remove"
                     data-click="searchReset">X</button>
             `
@@ -12700,6 +12706,8 @@ if (self) {
 *   - show/hide, enable/disable, check/uncheck - return array of affected items
 *   - fixed animateInsert, animateClose to be smooth and return promise
 *   - clickClose
+*   - scrollIntoView
+*   - scroll - added "instant"
 *
 ************************************************************************/
 
@@ -13129,28 +13137,42 @@ class w2tabs extends w2event {
                 }, 100)
             })
     }
-    scroll(direction) {
+    scroll(direction, instant) {
         let box        = $(this.box)
         let obj        = this
         let scrollBox  = box.find('.w2ui-scroll-wrapper')
         let scrollLeft = scrollBox.scrollLeft()
-        let $right     = $(this.box).find('.w2ui-tabs-right')
+        let $right     = box.find('.w2ui-tabs-right')
         let width1     = scrollBox.outerWidth()
         let width2     = scrollLeft + parseInt($right.offset().left) + parseInt($right.width())
-        let scroll
+        let scroll     = false
         switch (direction) {
             case 'left':
                 scroll = scrollLeft - width1 + 50 // 35 is width of both button
                 if (scroll <= 0) scroll = 0
-                scrollBox.animate({ scrollLeft: scroll }, 300)
                 break
             case 'right':
                 scroll = scrollLeft + width1 - 50 // 35 is width of both button
                 if (scroll >= width2 - width1) scroll = width2 - width1
-                scrollBox.animate({ scrollLeft: scroll }, 300)
                 break
         }
-        setTimeout(() => { obj.resize() }, 350)
+        if (scroll !== false){
+            scrollBox.animate({ scrollLeft: scroll }, instant ? 0 : 300, function(){ obj.resize() })
+        }
+    }
+    scrollIntoView(id, instant, callBack) {
+        let obj = this
+        if (id == null) id = obj.active
+        let tab = obj.get(id)
+        if (tab == null) return
+        let box         = $(obj.box)
+        let $scrollBox  = box.find('.w2ui-scroll-wrapper')
+        let $tab        = box.find('#tabs_' + obj.name + '_tab_' + w2utils.escapeId(id))
+        let offset      = $tab.offset().left - $scrollBox.offset().left
+        $scrollBox.animate({ 'scrollLeft': $scrollBox.scrollLeft() + offset - $scrollBox.width() / 2 + $tab.width() }, instant ? 0 : 350, 'linear', function(){
+            obj.resize()
+            if (typeof callBack === 'function') callBack(id, tab)
+        })
     }
     resize() {
         let time = (new Date()).getTime()
@@ -15198,6 +15220,8 @@ class w2sidebar extends w2event {
 *
 * == 2.0 changes
 *   - enum options.autoAdd
+*   - [numeric, date] - options.autoCorrect to enforce range and validity
+*   - silent only left for files, removed form the rest
 *
 ************************************************************************/
 
@@ -15314,6 +15338,7 @@ class w2field extends w2event {
                     max                : null,
                     step               : 1,
                     autoFormat         : true,
+                    autoCorrect        : true,
                     currencyPrefix     : w2utils.settings.currencyPrefix,
                     currencySuffix     : w2utils.settings.currencySuffix,
                     currencyPrecision  : w2utils.settings.currencyPrecision,
@@ -15322,7 +15347,6 @@ class w2field extends w2event {
                     arrows             : false,
                     keyboard           : true,
                     precision          : null,
-                    silent             : true,
                     prefix             : '',
                     suffix             : ''
                 }
@@ -15359,7 +15383,7 @@ class w2field extends w2event {
                 defaults     = {
                     format       : w2utils.settings.dateFormat, // date format
                     keyboard     : true,
-                    silent       : true,
+                    autoCorrect  : true,
                     start        : '', // string or jquery object
                     end          : '', // string or jquery object
                     blocked      : {}, // { '4/11/2011': 'yes' }
@@ -15372,12 +15396,12 @@ class w2field extends w2event {
                 break
             case 'time':
                 defaults     = {
-                    format    : w2utils.settings.timeFormat,
-                    keyboard  : true,
-                    silent    : true,
-                    start     : '',
-                    end       : '',
-                    noMinutes : false
+                    format      : w2utils.settings.timeFormat,
+                    keyboard    : true,
+                    autoCorrect : true,
+                    start       : '',
+                    end         : '',
+                    noMinutes   : false
                 }
                 this.options = $.extend(true, {}, defaults, options)
                 options      = this.options // since object is re-created, need to re-assign
@@ -15387,7 +15411,7 @@ class w2field extends w2event {
                 defaults     = {
                     format      : w2utils.settings.dateFormat + ' | ' + w2utils.settings.timeFormat,
                     keyboard    : true,
-                    silent      : true,
+                    autoCorrect : true,
                     start       : '', // string or jquery object or Date object
                     end         : '', // string or jquery object or Date object
                     blocked     : [], // [ '4/11/2011', '4/12/2011' ] or [ new Date(2011, 4, 11), new Date(2011, 4, 12) ]
@@ -15417,7 +15441,6 @@ class w2field extends w2event {
                     maxDropWidth    : null, // if null then auto set
                     minDropWidth    : null, // if null then auto set
                     match           : 'begins', // ['contains', 'is', 'begins', 'ends']
-                    silent          : true,
                     icon            : null,
                     iconStyle       : '',
                     align           : 'both', // same width as control
@@ -15493,7 +15516,6 @@ class w2field extends w2event {
                     maxDropHeight   : 350, // max height for drop down menu
                     maxDropWidth    : null, // if null then auto set
                     match           : 'contains', // ['contains', 'is', 'begins', 'ends']
-                    silent          : true,
                     align           : 'both', // same width as control
                     altRows         : true, // alternate row color
                     openOnFocus     : false, // if to show overlay onclick or when typing
@@ -15958,10 +15980,6 @@ class w2field extends w2event {
                 if (options.autoFormat && ['int', 'float'].indexOf(this.type) !== -1) val = String(val).replace(options.numberRE, '')
                 val = val.replace(/\s+/g, '').replace(w2utils.settings.groupSymbol, '').replace(w2utils.settings.decimalSymbol, '.')
             }
-            if (parseFloat(val) == val) {
-                if (options.min != null && val < options.min) { val = options.min; $(this.el).val(options.min) }
-                if (options.max != null && val > options.max) { val = options.max; $(this.el).val(options.max) }
-            }
             if (val !== '' && w2utils.isFloat(val)) val = Number(val); else val = ''
         }
         return val
@@ -16101,11 +16119,28 @@ class w2field extends w2event {
             })
         }
         if (['int', 'float', 'money', 'currency', 'percent'].indexOf(obj.type) !== -1) {
-            if (val !== '' && !obj.checkType(val)) {
-                $(obj.el).val('').trigger('input').trigger('change')
-                if (options.silent === false) {
-                    $(obj.el).w2tag('Not a valid number')
-                    setTimeout(() => { $(obj.el).w2tag('') }, 3000)
+            if (val !== '') {
+                let newVal = val
+                let error = ''
+                if (!obj.checkType(val)) {
+                    newVal = ''
+                } else {
+                    let rVal = this.clean(val)
+                    if (options.min != null && rVal < options.min) {
+                        newVal = options.min
+                        error = `Should be >= ${options.min}`
+                    }
+                    if (options.max != null && rVal > options.max) {
+                        newVal = options.max
+                        error = `Should be <= ${options.max}`
+                    }
+                }
+                if (options.autoCorrect) {
+                    $(obj.el).val(newVal).trigger('input').trigger('change')
+                    if (error) {
+                        $(obj.el).w2tag(error)
+                        setTimeout(() => { $(obj.el).w2tag('') }, 3000)
+                    }
                 }
             }
         }
@@ -16113,31 +16148,23 @@ class w2field extends w2event {
         if (['date', 'time', 'datetime'].indexOf(obj.type) !== -1) {
             // check if in range
             if (val !== '' && !obj.inRange(obj.el.value)) {
-                $(obj.el).val('').removeData('selected').trigger('input').trigger('change')
-                if (options.silent === false) {
-                    $(obj.el).w2tag('Not in range')
-                    setTimeout(() => { $(obj.el).w2tag('') }, 3000)
+                if (options.autoCorrect) {
+                    $(obj.el).val('').removeData('selected').trigger('input').trigger('change')
                 }
             } else {
                 if (obj.type === 'date' && val !== '' && !w2utils.isDate(obj.el.value, options.format)) {
-                    $(obj.el).val('').removeData('selected').trigger('input').trigger('change')
-                    if (options.silent === false) {
-                        $(obj.el).w2tag('Not a valid date')
-                        setTimeout(() => { $(obj.el).w2tag('') }, 3000)
+                    if (options.autoCorrect) {
+                        $(obj.el).val('').removeData('selected').trigger('input').trigger('change')
                     }
                 }
                 else if (obj.type === 'time' && val !== '' && !w2utils.isTime(obj.el.value)) {
-                    $(obj.el).val('').removeData('selected').trigger('input').trigger('change')
-                    if (options.silent === false) {
-                        $(obj.el).w2tag('Not a valid time')
-                        setTimeout(() => { $(obj.el).w2tag('') }, 3000)
+                    if (options.autoCorrect) {
+                        $(obj.el).val('').removeData('selected').trigger('input').trigger('change')
                     }
                 }
                 else if (obj.type === 'datetime' && val !== '' && !w2utils.isDateTime(obj.el.value, options.format)) {
-                    $(obj.el).val('').removeData('selected').trigger('input').trigger('change')
-                    if (options.silent === false) {
-                        $(obj.el).w2tag('Not a valid date')
-                        setTimeout(() => { $(obj.el).w2tag('') }, 3000)
+                    if (options.autoCorrect) {
+                        $(obj.el).val('').removeData('selected').trigger('input').trigger('change')
                     }
                 }
             }
@@ -16589,6 +16616,10 @@ class w2field extends w2event {
                 }
                 if (w2utils.settings.dataType === 'HTTPJSON') {
                     ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) }
+                }
+                if (w2utils.settings.dataType === 'RESTFULLJSON') {
+                    ajaxOptions.data = JSON.stringify(ajaxOptions.data);
+                    ajaxOptions.contentType = 'application/json'
                 }
                 if (options.method != null) ajaxOptions.type = options.method
                 obj.tmp.xhr = $.ajax(ajaxOptions)
@@ -17678,18 +17709,16 @@ class w2field extends w2event {
             err = w2utils.lang('Maximum total size is ${count}', {count: w2utils.formatSize(options.maxSize)})
             if (options.silent === false) {
                 $(obj.el).w2tag(err)
-            } else {
-                console.log('ERROR: '+ err)
             }
+            console.log('ERROR: '+ err)
             return
         }
         if (options.max !== 0 && cnt >= options.max) {
             err = w2utils.lang('Maximum number of files is ${count}', {count: options.max})
             if (options.silent === false) {
                 $(obj.el).w2tag(err)
-            } else {
-                console.log('ERROR: '+ err)
             }
+            console.log('ERROR: '+ err)
             return
         }
         selected.push(newItem)
@@ -17902,6 +17931,7 @@ class w2field extends w2event {
         return ret
     }
 }
+
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2tabs
@@ -18386,6 +18416,18 @@ class w2form extends w2event {
         for (let f = 0; f < this.fields.length; f++) {
             let field = this.fields[f]
             if (this.getValue(field.field) == null) this.setValue(field.field, '')
+            if (['int', 'float', 'currency', 'money'].indexOf(field.type) != -1) {
+                let w2field = $(field.el).data().w2field
+                let val = this.getValue(field.field)
+                let min = field.options.min
+                let max = field.options.max
+                if (min != null && val < min) {
+                    errors.push({ field: field, error: w2utils.lang(`Should be more than ${min}`) })
+                }
+                if (max != null && val > max) {
+                    errors.push({ field: field, error: w2utils.lang(`Should be less than ${max}`) })
+                }
+            }
             switch (field.type) {
                 case 'alphanumeric':
                     if (this.getValue(field.field) && !w2utils.isAlphaNumeric(this.getValue(field.field))) {
@@ -18397,6 +18439,7 @@ class w2form extends w2event {
                         errors.push({ field: field, error: w2utils.lang('Not an integer') })
                     }
                     break
+                case 'percent':
                 case 'float':
                     if (this.getValue(field.field) && !w2utils.isFloat(this.getValue(field.field))) {
                         errors.push({ field: field, error: w2utils.lang('Not a float') })
