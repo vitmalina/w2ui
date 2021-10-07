@@ -509,6 +509,18 @@ class w2form extends w2event {
         for (let f = 0; f < this.fields.length; f++) {
             let field = this.fields[f]
             if (this.getValue(field.field) == null) this.setValue(field.field, '')
+            if (['int', 'float', 'currency', 'money'].indexOf(field.type) != -1) {
+                let w2field = $(field.el).data().w2field
+                let val = this.getValue(field.field)
+                let min = field.options.min
+                let max = field.options.max
+                if (min != null && val < min) {
+                    errors.push({ field: field, error: w2utils.lang(`Should be more than ${min}`) })
+                }
+                if (max != null && val > max) {
+                    errors.push({ field: field, error: w2utils.lang(`Should be less than ${max}`) })
+                }
+            }
             switch (field.type) {
                 case 'alphanumeric':
                     if (this.getValue(field.field) && !w2utils.isAlphaNumeric(this.getValue(field.field))) {
@@ -520,6 +532,7 @@ class w2form extends w2event {
                         errors.push({ field: field, error: w2utils.lang('Not an integer') })
                     }
                     break
+                case 'percent':
                 case 'float':
                     if (this.getValue(field.field) && !w2utils.isFloat(this.getValue(field.field))) {
                         errors.push({ field: field, error: w2utils.lang('Not a float') })

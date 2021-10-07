@@ -43,7 +43,8 @@ bela.custom.add('grid', { timeout: 15000 }, function(gridName, options={}) { // 
 
 bela.custom.overwrite('should', function(param, options = {}) { // cannot be arrow function, as it has not this
     let grid = this.proc.subject
-    if (grid && grid.name && this.win.w2ui[grid.name]) {
+    let globals = ['exist', 'not.exist'] // subject does not matter
+    if (globals.indexOf(param) == -1 && grid && grid.name && this.win.w2ui[grid.name]) {
         let value = options.args[1]
         let res = {
             msg: `${options.args[0]} ${options.args[1]||''}`,

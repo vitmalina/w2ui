@@ -1,56 +1,90 @@
 <div class="content">
     <div id="example_title">
-        <h1>Infinite Scroll</h1>
-        Records can be loaded on demand as user scrolls. The grid below points to a set of 50 generated
-        records that can be loaded indefinetly.
+        <h1>Popup & Layout</h1>
+        Popup with a layout in it. Layout has 2 panels, one with sidebar another with grid/html.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
 </div>
 
 <!--CODE-->
-<div id="main" style="width: 100%; height: 400px;"></div>
-<br>
-<label>
-    <input type="checkbox" id="autoLoad" onclick="refreshGrid(this.checked)" checked>
-    Auto Load
-</label>
+<div style="padding: 20px 0px">
+    <button class="w2ui-btn" onclick="openPopup()">Open Popup</button>
+</div>
 
 <!--CODE-->
 <script>
 // widget configuration
 var config = {
+    layout: {
+        name: 'layout',
+        padding: 0,
+        panels: [
+            { type: 'left', size: 200, resizable: true, minSize: 120 },
+            { type: 'main', minSize: 350, overflow: 'hidden' }
+        ]
+    },
+    sidebar: {
+        name: 'sidebar',
+        nodes: [
+            { id: 'general', text: 'General', group: true, expanded: true,
+                nodes: [
+                    { id: 'grid', text: 'Grid', icon: 'fa fa-pencil-square-o', selected: true },
+                    { id: 'html', text: 'Some HTML', icon: 'fa fa-list-alt' }
+                ]
+            }
+        ],
+        onClick: function (event) {
+            switch (event.target) {
+                case 'grid':
+                    w2ui.layout.html('main', w2ui.grid);
+                    break;
+                case 'html':
+                    w2ui.layout.html('main', '<div style="padding: 10px">Some HTML</div>');
+                    $(w2ui.layout.el('main'))
+                        .removeClass('w2ui-grid')
+                    break;
+            }
+        }
+    },
     grid: {
         name: 'grid',
-        url : 'data/list3.json',
-        show: {
-            footer: true,
-            toolbar: true,
-            lineNumbers: true
-        },
-        limit: 50,
+        style: 'border: 0px; border-left: 1px solid #efefef',
         columns: [
-            { field: 'recid', text: 'ID', size: '100px' },
-            { field: 'fname', text: 'First Name', size: '200px', searchable: 'text' },
-            { field: 'lname', text: 'Last Name', size: '200px', searchable: 'text' },
-            { field: 'sdate', text: 'Date Range', size: '100%' }
+            { field: 'state', text: 'State', size: '80px' },
+            { field: 'title', text: 'Title', size: '100%' },
+            { field: 'priority', text: 'Priority', size: '80px', attr: 'align="center"' }
         ],
-        onLoad: function(event) {
-            let data = JSON.parse(event.xhr.responseText)
-            data.records.forEach((rec, ind) => {
-                rec.recid = 'recid-' + (this.records.length + ind)
-            })
-            event.xhr.responseText = data
-        }
+        records: [
+            { recid: 1, state: 'Open', title: 'Short title for the record', priority: 2 },
+            { recid: 2, state: 'Open', title: 'Short title for the record', priority: 3 },
+            { recid: 3, state: 'Closed', title: 'Short title for the record', priority: 1 }
+        ]
     }
 };
 
-function refreshGrid(auto) {
-    w2ui.grid.autoLoad = auto;
-    w2ui.grid.skip(0);
-}
-
 $(function () {
-    $('#main').w2grid(config.grid);
+    // initialization in memory
+    $().w2layout(config.layout);
+    $().w2sidebar(config.sidebar);
+    $().w2grid(config.grid);
 });
+
+function openPopup() {
+    w2popup.open({
+        title: 'Popup',
+        width: 800,
+        height: 600,
+        showMax: true,
+        body: '<div id="main" style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px;"></div>',
+        onToggle(event) {
+            event.done(() => { w2ui.layout.resize() })
+        }
+    })
+    .then(() => {
+        $('#w2ui-popup #main').w2render('layout')
+        w2ui.layout.html('left', w2ui.sidebar)
+        w2ui.layout.html('main', w2ui.grid)
+    })
+}
 </script>

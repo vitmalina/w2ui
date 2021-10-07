@@ -44,11 +44,11 @@ $(function () {
                         { id: 'combo/2', text: 'Grid & Edit', icon: 'fa fa-star-o' },
                         { id: 'combo/3', text: 'Spreadsheet Like Grid', icon: 'fa fa-star-o' },
                         { id: 'combo/4', text: 'Virtual Scroll', icon: 'fa fa-star-o' },
-                        { id: 'combo/9', text: 'Infinite Scroll', icon: 'fa fa-star-o' },
-                        { id: 'combo/5', text: 'Tabs With Content', icon: 'fa fa-star-o' },
-                        { id: 'combo/6', text: 'Layout & Dynamic Tabs', icon: 'fa fa-star-o' },
-                        { id: 'combo/7', text: 'Popup & Grid', icon: 'fa fa-star-o' },
-                        { id: 'combo/8', text: 'Popup & Layout', icon: 'fa fa-star-o' },
+                        { id: 'combo/5', text: 'Infinite Scroll', icon: 'fa fa-star-o' },
+                        { id: 'combo/6', text: 'Tabs With Content', icon: 'fa fa-star-o' },
+                        { id: 'combo/7', text: 'Layout & Dynamic Tabs', icon: 'fa fa-star-o' },
+                        { id: 'combo/8', text: 'Popup & Grid', icon: 'fa fa-star-o' },
+                        { id: 'combo/9', text: 'Popup & Layout', icon: 'fa fa-star-o' },
                         { id: 'combo/10', text: 'Dependent Fields', icon: 'fa fa-star-o' }
                     ]
                 },
@@ -80,7 +80,7 @@ $(function () {
                         { id: 'layout/13', text: 'Content Changed', icon: 'fa fa-columns' }
                     ]
                 },
-                { id: 'layout-2/0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                { id: 'layout-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'layout/14', text: 'Promises', icon: 'fa fa-columns' },
                     ]
@@ -284,7 +284,12 @@ $(function () {
                         { id: 'utils/8', text: 'Text Marker', icon: 'fa fa-star-o' },
                         { id: 'utils/10', text: 'Natural Compare', icon: 'fa fa-star-o' },
                     ]
-                }
+                },
+                { id: 'utils-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'utils/11', text: 'International Compare', icon: 'fa fa-star-o' },
+                    ]
+                },
             ],
             onClick: function (event) {
                 let cmd = event.target
@@ -354,7 +359,7 @@ $(function () {
                             '')+
                         '</div>'+
                         '<div style="display: none">'+
-                        '<form id="fiddleForm" target="_blank" action="http://jsfiddle.net/api/post/jquery/2.1/" method="post">'+
+                        '<form id="fiddleForm" target="_blank" action="http://jsfiddle.net/api/post/jquery/3.4/" method="post">'+
                         '    <textarea name="title">W2UI Demo: '+ cmd +'</textarea>'+
                         '    <textarea name="resources">'+ w2ui_js +','+ w2ui_css +'</textarea>'+
                         '    <textarea name="html">'+ html.replace(/<textarea/gi, '&lt;textarea').replace(/<\/textarea>/gi, '&lt;/textarea&gt;') +'</textarea>'+

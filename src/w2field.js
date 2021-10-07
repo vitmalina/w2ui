@@ -24,6 +24,10 @@
 *
 * == 2.0 changes
 *   - enum options.autoAdd
+*   - [numeric, date] - options.autoCorrect to enforce range and validity
+*   - silent only left for files, removed form the rest
+*   - remote source response items => records or just an array
+*   - deprecated "success" field for remote source response
 *
 ************************************************************************/
 
@@ -154,6 +158,7 @@ class w2field extends w2event {
                     max                : null,
                     step               : 1,
                     autoFormat         : true,
+                    autoCorrect        : true,
                     currencyPrefix     : w2utils.settings.currencyPrefix,
                     currencySuffix     : w2utils.settings.currencySuffix,
                     currencyPrecision  : w2utils.settings.currencyPrecision,
@@ -162,7 +167,6 @@ class w2field extends w2event {
                     arrows             : false,
                     keyboard           : true,
                     precision          : null,
-                    silent             : true,
                     prefix             : '',
                     suffix             : ''
                 }
@@ -201,7 +205,7 @@ class w2field extends w2event {
                 defaults     = {
                     format       : w2utils.settings.dateFormat, // date format
                     keyboard     : true,
-                    silent       : true,
+                    autoCorrect  : true,
                     start        : '', // string or jquery object
                     end          : '', // string or jquery object
                     blocked      : {}, // { '4/11/2011': 'yes' }
@@ -215,12 +219,12 @@ class w2field extends w2event {
 
             case 'time':
                 defaults     = {
-                    format    : w2utils.settings.timeFormat,
-                    keyboard  : true,
-                    silent    : true,
-                    start     : '',
-                    end       : '',
-                    noMinutes : false
+                    format      : w2utils.settings.timeFormat,
+                    keyboard    : true,
+                    autoCorrect : true,
+                    start       : '',
+                    end         : '',
+                    noMinutes   : false
                 }
                 this.options = $.extend(true, {}, defaults, options)
                 options      = this.options // since object is re-created, need to re-assign
@@ -231,7 +235,7 @@ class w2field extends w2event {
                 defaults     = {
                     format      : w2utils.settings.dateFormat + ' | ' + w2utils.settings.timeFormat,
                     keyboard    : true,
-                    silent      : true,
+                    autoCorrect : true,
                     start       : '', // string or jquery object or Date object
                     end         : '', // string or jquery object or Date object
                     blocked     : [], // [ '4/11/2011', '4/12/2011' ] or [ new Date(2011, 4, 11), new Date(2011, 4, 12) ]
@@ -262,7 +266,6 @@ class w2field extends w2event {
                     maxDropWidth    : null, // if null then auto set
                     minDropWidth    : null, // if null then auto set
                     match           : 'begins', // ['contains', 'is', 'begins', 'ends']
-                    silent          : true,
                     icon            : null,
                     iconStyle       : '',
                     align           : 'both', // same width as control
@@ -339,7 +342,6 @@ class w2field extends w2event {
                     maxDropHeight   : 350, // max height for drop down menu
                     maxDropWidth    : null, // if null then auto set
                     match           : 'contains', // ['contains', 'is', 'begins', 'ends']
-                    silent          : true,
                     align           : 'both', // same width as control
                     altRows         : true, // alternate row color
                     openOnFocus     : false, // if to show overlay onclick or when typing
@@ -817,10 +819,6 @@ class w2field extends w2event {
                 if (options.autoFormat && ['int', 'float'].indexOf(this.type) !== -1) val = String(val).replace(options.numberRE, '')
                 val = val.replace(/\s+/g, '').replace(w2utils.settings.groupSymbol, '').replace(w2utils.settings.decimalSymbol, '.')
             }
-            if (parseFloat(val) == val) {
-                if (options.min != null && val < options.min) { val = options.min; $(this.el).val(options.min) }
-                if (options.max != null && val > options.max) { val = options.max; $(this.el).val(options.max) }
-            }
             if (val !== '' && w2utils.isFloat(val)) val = Number(val); else val = ''
         }
         return val
@@ -967,11 +965,28 @@ class w2field extends w2event {
             })
         }
         if (['int', 'float', 'money', 'currency', 'percent'].indexOf(obj.type) !== -1) {
-            if (val !== '' && !obj.checkType(val)) {
-                $(obj.el).val('').trigger('input').trigger('change')
-                if (options.silent === false) {
-                    $(obj.el).w2tag('Not a valid number')
-                    setTimeout(() => { $(obj.el).w2tag('') }, 3000)
+            if (val !== '') {
+                let newVal = val
+                let error = ''
+                if (!obj.checkType(val)) {
+                    newVal = ''
+                } else {
+                    let rVal = this.clean(val)
+                    if (options.min != null && rVal < options.min) {
+                        newVal = options.min
+                        error = `Should be >= ${options.min}`
+                    }
+                    if (options.max != null && rVal > options.max) {
+                        newVal = options.max
+                        error = `Should be <= ${options.max}`
+                    }
+                }
+                if (options.autoCorrect) {
+                    $(obj.el).val(newVal).trigger('input').trigger('change')
+                    if (error) {
+                        $(obj.el).w2tag(error)
+                        setTimeout(() => { $(obj.el).w2tag('') }, 3000)
+                    }
                 }
             }
         }
@@ -979,31 +994,23 @@ class w2field extends w2event {
         if (['date', 'time', 'datetime'].indexOf(obj.type) !== -1) {
             // check if in range
             if (val !== '' && !obj.inRange(obj.el.value)) {
-                $(obj.el).val('').removeData('selected').trigger('input').trigger('change')
-                if (options.silent === false) {
-                    $(obj.el).w2tag('Not in range')
-                    setTimeout(() => { $(obj.el).w2tag('') }, 3000)
+                if (options.autoCorrect) {
+                    $(obj.el).val('').removeData('selected').trigger('input').trigger('change')
                 }
             } else {
                 if (obj.type === 'date' && val !== '' && !w2utils.isDate(obj.el.value, options.format)) {
-                    $(obj.el).val('').removeData('selected').trigger('input').trigger('change')
-                    if (options.silent === false) {
-                        $(obj.el).w2tag('Not a valid date')
-                        setTimeout(() => { $(obj.el).w2tag('') }, 3000)
+                    if (options.autoCorrect) {
+                        $(obj.el).val('').removeData('selected').trigger('input').trigger('change')
                     }
                 }
                 else if (obj.type === 'time' && val !== '' && !w2utils.isTime(obj.el.value)) {
-                    $(obj.el).val('').removeData('selected').trigger('input').trigger('change')
-                    if (options.silent === false) {
-                        $(obj.el).w2tag('Not a valid time')
-                        setTimeout(() => { $(obj.el).w2tag('') }, 3000)
+                    if (options.autoCorrect) {
+                        $(obj.el).val('').removeData('selected').trigger('input').trigger('change')
                     }
                 }
                 else if (obj.type === 'datetime' && val !== '' && !w2utils.isDateTime(obj.el.value, options.format)) {
-                    $(obj.el).val('').removeData('selected').trigger('input').trigger('change')
-                    if (options.silent === false) {
-                        $(obj.el).w2tag('Not a valid date')
-                        setTimeout(() => { $(obj.el).w2tag('') }, 3000)
+                    if (options.autoCorrect) {
+                        $(obj.el).val('').removeData('selected').trigger('input').trigger('change')
                     }
                 }
             }
@@ -1474,14 +1481,24 @@ class w2field extends w2event {
                         // default behavior
                         data = edata2.data
                         if (typeof data === 'string') data = JSON.parse(data)
+                        // if server just returns array
+                        if (Array.isArray(data)) {
+                            data = { records: data }
+                        }
+                        // needed for backward compatibility
                         if (data.records == null && data.items != null) {
-                            // needed for backward compatibility
                             data.records = data.items
                             delete data.items
                         }
-                        if (data.status === 'success' && data.records == null) { data.records = [] } // handles Golang marshal of empty arrays to null
-                        if (data.status !== 'success' || !Array.isArray(data.records)) {
-                            console.log('ERROR: server did not return proper structure. It should return', { status: 'success', records: [{ id: 1, text: 'item' }] })
+                        // handles Golang marshal of empty arrays to null
+                        if (data.status == 'success' && data.records == null) {
+                            data.records = []
+                        }
+                        if (!Array.isArray(data.records)) {
+                            console.error('ERROR: server did not return proper data structure', '\n',
+                                        ' - it should return', { status: "success", records: [{ id: 1, text: 'item' }] }, '\n',
+                                        ' - or just an array ', [{ id: 1, text: 'item' }], '\n',
+                                        ' - actual response', typeof data === 'object' ? data : xhr.responseText)
                             return
                         }
                         // remove all extra items if more then needed for cache
@@ -1542,10 +1559,10 @@ class w2field extends w2event {
                         if (status !== 'abort') {
                             let data
                             try { data = JSON.parse(xhr.responseText) } catch (e) {}
-                            console.log('ERROR: Server communication failed.',
-                                '\n   EXPECTED:', { status: 'success', records: [{ id: 1, text: 'item' }] },
-                                '\n         OR:', { status: 'error', message: 'error message' },
-                                '\n   RECEIVED:', typeof data === 'object' ? data : xhr.responseText)
+                            console.error('ERROR: server did not return proper data structure', '\n',
+                                        ' - it should return', { status: "success", records: [{ id: 1, text: 'item' }] }, '\n',
+                                        ' - or just an array ', [{ id: 1, text: 'item' }], '\n',
+                                        ' - actual response', typeof data === 'object' ? data : xhr.responseText)
                         }
                         // reset stats
                         obj.tmp.xhr_loading = false
@@ -2571,18 +2588,16 @@ class w2field extends w2event {
             err = w2utils.lang('Maximum total size is ${count}', {count: w2utils.formatSize(options.maxSize)})
             if (options.silent === false) {
                 $(obj.el).w2tag(err)
-            } else {
-                console.log('ERROR: '+ err)
             }
+            console.log('ERROR: '+ err)
             return
         }
         if (options.max !== 0 && cnt >= options.max) {
             err = w2utils.lang('Maximum number of files is ${count}', {count: options.max})
             if (options.silent === false) {
                 $(obj.el).w2tag(err)
-            } else {
-                console.log('ERROR: '+ err)
             }
+            console.log('ERROR: '+ err)
             return
         }
         selected.push(newItem)

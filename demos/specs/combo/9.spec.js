@@ -2,7 +2,7 @@ context("1: Combo", () => {
     context("1: Basic", () => {
         test("9: Popup & Layout", () => {
             bela
-                .ready('/w2ui/demos/#/combo/8')
+                .ready('/w2ui/demos/#/combo/9')
                 .get('button:contains(Open Popup)')
                 .click()
                 .wait('#w2ui-popup', 'to.be.visible')

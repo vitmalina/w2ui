@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (9/26/2021, 7:16:24 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/7/2021, 4:28:19 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 @font-face {
   font-family: "w2ui-font";
   src: url("data:application/x-font-woff;charset=utf-8;base64,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") format("woff");
@@ -819,7 +819,7 @@ input[type="checkbox"].w2ui-toggle.green:checked + div > div {
   background: #F7F7F7 url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAAz0lEQVR4Ae2UG7TGMBCEr1vd4la3uMUtuli3utWtbnGLW9zi9l/bDMzJG7u12cfJfLunf1+UEC9Bv0vVQwJ8hjRCaZafflb1C9RQf4OD0gSDE+i+PiJAabFhQc1y1AYYsJGLY3lgxM17uWPO56yPiFDqVPWgRtpIHSd1zPnwkBsdI58OlNwx4fP2X0TgfMTOoHSdKOXkpyNvEyQh7ul+4swxJSTQuwNDxz68l/ukVNbu0Neen5Z+KvzWxBAqHds349uPFJ/jVOrPjxUq++OLf+20q5+noXo0AAAAAElFTkSuQmCC') center center no-repeat;
   background-size: 15px 13px;
 }
-input[type=button],
+input[type=button].w2ui-btn,
 button.w2ui-btn {
   position: relative;
   display: inline-block;
@@ -842,27 +842,27 @@ button.w2ui-btn {
   user-select: none;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
-input[type=button]:hover,
+input[type=button].w2ui-btn:hover,
 button.w2ui-btn:hover {
   text-decoration: none;
   background-image: linear-gradient(#ddd 0%, #DDDDDD 100%);
   color: #333;
 }
-input[type=button]:active,
+input[type=button].w2ui-btn:active,
 button.w2ui-btn:active,
-input[type=button].clicked,
+input[type=button].w2ui-btn.clicked,
 button.w2ui-btn.clicked {
   background-image: linear-gradient(#ccc 0%, #ccc 100%);
   text-shadow: 1px 1px 1px #eee;
 }
-input[type=button]:disabled,
+input[type=button].w2ui-btn:disabled,
 button.w2ui-btn:disabled {
   border: 1px solid #bbb !important;
   background: #f7f7f7 !important;
   color: #bdbcbc !important;
   text-shadow: none !important;
 }
-input[type=button]:focus:before,
+input[type=button].w2ui-btn:focus:before,
 button.w2ui-btn:focus:before {
   content: "";
   border: 1px dashed #aaa;
@@ -874,104 +874,126 @@ button.w2ui-btn:focus:before {
   right: 2px;
   pointer-events: none;
 }
-input[type=button]::-moz-focus-inner,
+input[type=button].w2ui-btn::-moz-focus-inner,
 button.w2ui-btn::-moz-focus-inner {
   border: 0;
 }
+input[type=button].w2ui-btn-blue,
 button.w2ui-btn-blue {
   color: white;
   background-image: linear-gradient(#269DF0 0%, #269DF0 100%);
   border: 1px solid #269DF0;
   text-shadow: 0px 0px 1px #111;
 }
+input[type=button].w2ui-btn-blue:hover,
 button.w2ui-btn-blue:hover {
   color: white;
   background-image: linear-gradient(#2391DD 0%, #2391DD 100%);
   border: 1px solid #2391DD;
   text-shadow: 0px 0px 1px #111;
 }
+input[type=button].w2ui-btn-blue:active,
 button.w2ui-btn-blue:active,
+input[type=button].w2ui-btn-blue.clicked,
 button.w2ui-btn-blue.clicked {
   color: white;
   background-image: linear-gradient(#1E83C9 0%, #1E83C9 100%);
   border: 1px solid #1268A6;
   text-shadow: 0px 0px 1px #111;
 }
+input[type=button].w2ui-btn-blue:focus:before,
 button.w2ui-btn-blue:focus:before {
   border: 1px dashed #e8e8e8;
 }
+input[type=button].w2ui-btn-green,
 button.w2ui-btn-green {
   color: white;
   background-image: linear-gradient(#52A452 0%, #52A452 100%);
   border: 1px solid #52A452;
   text-shadow: 0px 0px 1px #111;
 }
+input[type=button].w2ui-btn-green:hover,
 button.w2ui-btn-green:hover {
   color: white;
   background-image: linear-gradient(#3F8F3D 0%, #3F8F3D 100%);
   border: 1px solid #3F8F3D;
   text-shadow: 0px 0px 1px #111;
 }
+input[type=button].w2ui-btn-green:active,
 button.w2ui-btn-green:active,
+input[type=button].w2ui-btn-green.clicked,
 button.w2ui-btn-green.clicked {
   color: white;
   background-image: linear-gradient(#377D36 0%, #377D36 100%);
   border: 1px solid #555 !important;
   text-shadow: 0px 0px 1px #111;
 }
+input[type=button].w2ui-btn-green:focus:before,
 button.w2ui-btn-green:focus:before {
   border: 1px dashed #e8e8e8;
 }
+input[type=button].w2ui-btn-orange,
 button.w2ui-btn-orange {
   color: white;
   background-image: linear-gradient(#FB8822 0%, #FB8822 100%);
   border: 1px solid #FB8822;
   text-shadow: 0px 0px 1px #111;
 }
+input[type=button].w2ui-btn-orange:hover,
 button.w2ui-btn-orange:hover {
   color: white;
   background-image: linear-gradient(#F1731F 0%, #F1731F 100%);
   border: 1px solid #F1731F;
   text-shadow: 0px 0px 1px #111;
 }
+input[type=button].w2ui-btn-orange:active,
 button.w2ui-btn-orange:active,
+input[type=button].w2ui-btn-orange.clicked,
 button.w2ui-btn-orange.clicked {
   color: white;
   border: 1px solid #666;
   background-image: linear-gradient(#B98747 0%, #B98747 100%);
   text-shadow: 0px 0px 1px #111;
 }
+input[type=button].w2ui-btn-orange:focus:before,
 button.w2ui-btn-orange:focus:before {
   border: 1px dashed #f9f9f9;
 }
+input[type=button].w2ui-btn-red,
 button.w2ui-btn-red {
   color: white;
   background-image: linear-gradient(#f9585a 0%, #f9585a 100%);
   border: 1px solid #f9585a;
   text-shadow: 0px 0px 1px #111;
 }
+input[type=button].w2ui-btn-red:hover,
 button.w2ui-btn-red:hover {
   color: white;
   background-image: linear-gradient(#de4446 0%, #de4446 100%);
   border: 1px solid #de4446;
   text-shadow: 0px 0px 1px #111;
 }
+input[type=button].w2ui-btn-red:active,
 button.w2ui-btn-red:active,
+input[type=button].w2ui-btn-red.clicked,
 button.w2ui-btn-red.clicked {
   color: white;
   border: 1px solid #861C1E;
   background-image: linear-gradient(#9C2123 0%, #9C2123 100%);
   text-shadow: 0px 0px 1px #111;
 }
+input[type=button].w2ui-btn-red:focus:before,
 button.w2ui-btn-red:focus:before {
   border: 1px dashed #ddd;
 }
+input[type=button].w2ui-btn-small,
 button.w2ui-btn-small {
   padding: 5px !important;
   border-radius: 4px;
   margin: 0px;
   min-width: 0px;
 }
+input[type=button].w2ui-btn-small:focus:before,
 button.w2ui-btn-small:focus:before {
   border-radius: 2px;
   top: 2px;

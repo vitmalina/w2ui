@@ -1,0 +1,42 @@
+Compares two strings and returns 0, 1, or -1.
+
+<div class="definition">
+    i18nCompare(a, b);
+</div>
+<div class="arguments">
+    <table>
+    <tr>
+        <td>a</td>
+        <td><b>string</b>, string to compare</td>
+    </tr>
+    <tr>
+        <td>b</td>
+        <td><b>string</b>, string to compare</td>
+    </tr>
+    </table>
+</div>
+
+Compare strings containing a mix of letters and numbers in the way a human being would in sort order. This is described as a "language-sensitive". Can be used
+
+<textarea class="javascript">
+Standard sorting:   International sorting:
+    a                   a
+    b                   ä
+    z                   b
+    ä                   z
+</textarea>
+
+For example
+
+<textarea class="javascript">
+var a = ["ö", "1", "ä", "2", "20", "u", "ú", "z", "e", "10", "i", "3", "ü", "o", "a", "é"];
+a.sort();
+a.sort(w2utils.i18nCompare);
+</textarea>
+
+returns
+
+<textarea class="javascript">
+["1", "10", "2", "20", "3", "a", "e", "i", "o", "u", "z", "ä", "é", "ö", "ú", "ü"]
+["1", "10", "2", "20", "3", "a", "ä", "e", "é", "i", "o", "ö", "u", "ú", "ü", "z"]
+</textarea>

@@ -137,7 +137,7 @@ jQuery(() => {
             // second page
             { field: 'field.email', type: 'email', required: true, html: { page: 1 } },
             { field: 'field.password', type: 'pass', required: false, html: { page: 1 } },
-            { field: 'field.int', type: 'int', options: { arrows: true }, required: false, html: { page: 1 } },
+            { field: 'field.int', type: 'int', options: { arrows: true, max: 100, autoCorrect: true }, required: false, html: { page: 1 } },
             { field: 'field.float', type: 'float', required: false, html: { page: 1 } },
             { field: 'field.money', type: 'money', required: false, html: { page: 1 } },
             { field: 'field.currency', type: 'currency', required: false, html: { page: 1 } },
