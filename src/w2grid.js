@@ -7881,11 +7881,11 @@ class w2grid extends w2event {
             if (typeof col.render == 'function') {
                 let html = col.render.call(this, record, ind, col_ind, data)
                 if (html != null && typeof html == 'object') {
-                    data     = (html.html || '').trim()
+                    data     = String(html.html || '').trim()
                     addClass = html.class || ''
                     addStyle = html.style || ''
                 } else {
-                    data = (html || '').trim()
+                    data = String(html || '').trim()
                 }
                 if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') {
                     data = '<div style="'+ style +'" title="'+ getTitle(data) +'">' + infoBubble + String(data) + '</div>'
