@@ -32,60 +32,22 @@
 <!--CODE-->
 <script>
 $('#list').w2field('list', {
-    url: 'http://w2ui.com/web/pages/demo/infinite/enum.php',
-    renderItem: function (item) {
-        return item.fname + ' ' + item.lname;
+    url: 'data/enum.json',
+    onRequest(event) {
+        console.log(`Request: ${event.url} Search: ${event.search}`)
     },
-    renderDrop: function (item) {
-        return item.fname + ' ' + item.lname;
-    },
-    compare: function (item, search) {
-        var fname = search, 
-            lname = search;
-        if (search.indexOf(' ') != -1) {
-            fname = search.split(' ')[0];
-            lname = search.split(' ')[1];
-        }
-        var match = false;
-        var re1 = new RegExp(fname, 'i');
-        var re2 = new RegExp(lname, 'i');
-        if (fname == lname) {
-            if (re1.test(item.fname) || re2.test(item.lname)) match = true;
-        } else {
-            if (re1.test(item.fname) && re2.test(item.lname)) match = true;
-        }
-        return match;
+    onLoad(event) {
+        console.log('Response:', event.data)
     }
 });
 
 $('#enum').w2field('enum', {
-    url: 'http://w2ui.com/web/pages/demo/infinite/enum.php',
-    renderItem: function (item) {
-        return item.fname + ' ' + item.lname;
+    url: 'data/enum.json',
+    onRequest(event) {
+        console.log(`Request: ${event.url} Search: ${event.search}`)
     },
-    renderDrop: function (item) {
-        return item.fname + ' ' + item.lname;
-    },
-    compare: function (item, search) {
-        var fname = search, 
-            lname = search;
-        if (search.indexOf(' ') != -1) {
-            fname = search.split(' ')[0];
-            lname = search.split(' ')[1];
-        }
-        var match = false;
-        var re1 = new RegExp(fname, 'i');
-        var re2 = new RegExp(lname, 'i');
-        if (fname == lname) {
-            if (re1.test(item.fname) || re2.test(item.lname)) match = true;
-        } else {
-            if (re1.test(item.fname) && re2.test(item.lname)) match = true;
-        }
-        return match;
-    },
-    onNew: function (event) {
-        console.log('++ New Item: Do not forget to submit it to the server too', event);
-        $.extend(event.item, { fname: '', lname : event.item.text });
+    onLoad(event) {
+        console.log('Response:', event.data)
     }
 });
 </script>
