@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/4/2021, 7:37:20 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/7/2021, 3:59:14 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -15222,6 +15222,8 @@ class w2sidebar extends w2event {
 *   - enum options.autoAdd
 *   - [numeric, date] - options.autoCorrect to enforce range and validity
 *   - silent only left for files, removed form the rest
+*   - remote source response items => records or just an array
+*   - deprecated "success" field for remote source response
 *
 ************************************************************************/
 
@@ -16630,14 +16632,24 @@ class w2field extends w2event {
                         // default behavior
                         data = edata2.data
                         if (typeof data === 'string') data = JSON.parse(data)
+                        // if server just returns array
+                        if (Array.isArray(data)) {
+                            data = { records: data }
+                        }
+                        // needed for backward compatibility
                         if (data.records == null && data.items != null) {
-                            // needed for backward compatibility
                             data.records = data.items
                             delete data.items
                         }
-                        if (data.status === 'success' && data.records == null) { data.records = [] } // handles Golang marshal of empty arrays to null
-                        if (data.status !== 'success' || !Array.isArray(data.records)) {
-                            console.log('ERROR: server did not return proper structure. It should return', { status: 'success', records: [{ id: 1, text: 'item' }] })
+                        // handles Golang marshal of empty arrays to null
+                        if (data.status == 'success' && data.records == null) {
+                            data.records = []
+                        }
+                        if (!Array.isArray(data.records)) {
+                            console.error('ERROR: server did not return proper data structure', '\n',
+                                        ' - it should return', { status: "success", records: [{ id: 1, text: 'item' }] }, '\n',
+                                        ' - or just an array ', [{ id: 1, text: 'item' }], '\n',
+                                        ' - actual response', typeof data === 'object' ? data : xhr.responseText)
                             return
                         }
                         // remove all extra items if more then needed for cache
@@ -16698,10 +16710,10 @@ class w2field extends w2event {
                         if (status !== 'abort') {
                             let data
                             try { data = JSON.parse(xhr.responseText) } catch (e) {}
-                            console.log('ERROR: Server communication failed.',
-                                '\n   EXPECTED:', { status: 'success', records: [{ id: 1, text: 'item' }] },
-                                '\n         OR:', { status: 'error', message: 'error message' },
-                                '\n   RECEIVED:', typeof data === 'object' ? data : xhr.responseText)
+                            console.error('ERROR: server did not return proper data structure', '\n',
+                                        ' - it should return', { status: "success", records: [{ id: 1, text: 'item' }] }, '\n',
+                                        ' - or just an array ', [{ id: 1, text: 'item' }], '\n',
+                                        ' - actual response', typeof data === 'object' ? data : xhr.responseText)
                         }
                         // reset stats
                         obj.tmp.xhr_loading = false
