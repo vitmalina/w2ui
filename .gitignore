@@ -1,0 +1,17 @@
+tmp/*
+node_modules/
+/npm-debug.log
+npm-shrinkwrap.json
+package-lock.json
+clazzes-maven/target
+copy-shield.sh
+dist/w2ui-*.tgz
+.DS_Store
+*.txt
+.idea
+.vscode
+*.iml
+*.ipr
+*.iws
+.DAV
+*~
