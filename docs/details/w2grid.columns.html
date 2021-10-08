@@ -68,10 +68,10 @@ and record new size in <span class="property">.sizeCorrected</span>.
 <h4>SortMode</h4>
 If set to "natural", a compare function is used that will result in an order that feels more natural to humans. This can be useful for IP addresses,
 or when numbers are used in strings, so that "48" (as a string) comes after "9" (as a string) - whereas the default sorting would put it the other way round.
-<br>
+<div style="height: 10px"></div>
 If set to "i18n", a compare function is used that takes into account diacritical marks. For example, the letter "ä" would be sorted after "z" in default sort mode,
 while in "i18n" sort mode, the letter "ä" would be sorted between "a" and "b".
-<br>
+<div style="height: 10px"></div>
 You can also pass a compare function in the same way you would use it as argument for <span class="property">Array.prototype.sort()</span>.
 <div style="height: 10px"></div>
 
@@ -111,24 +111,25 @@ If render function returns an object, it can be used to add a class and a style 
 }
 </textarea>
 
-There are several predefined formatters. They are (for number and float, XX - defines number of digits after dot):
+If render property is a string, then it is a formatter function from <a class="argument" href="w2utils.formatters">w2utils.formatters</a>,
+you can add custom formatter functions. Below is the list of predefined formatters:
 <ul>
-    <li>age</li>
-    <li>currency</li>
-    <li>date:date_format, <i>where date_format is the date format, or empty for default format</i></li>
-    <li>datetime:date_format|time_format</li>
-    <li>float:XX, <i>where XX is number digits after comma</i></li>
-    <li>gmt, <i>time in GMT</i></li>
-    <li>int</li>
-    <li>interval, <i>time interval in human readable format</i></li>
-    <li>money</li>
-    <li>number:XX, <i>where XX is number digits after comma</i></li>
-    <li>password</li>
-    <li>percent</li>
-    <li>size, <i>file size in human readbale format</i></li>
-    <li>time:time_format, <i>where time_format is the time format, or empty for default format</i></li>
-    <li>timestamp<i>where time_format is the time format, or empty for default format</i></li>
-    <li>toggle</li>
+    <li><b>age</b> - age in human readable format</li>
+    <li><b>currency</b> - money format</li>
+    <li><b>date:date_format</b> - date, see <a class="argument" href="w2utils.settings">w2utils.settings</a></li>
+    <li><b>datetime:date_format|time_format</b> - date & time, see <a class="argument" href="w2utils.settings">w2utils.settings</a></li>
+    <li><b>float:XX</b> - formatted number, where XX is number digits after comma</li>
+    <li><b>gmt</b> - time in GMT</li>
+    <li><b>int</b> - formatted integer, see <a class="argument" href="w2utils.settings">w2utils.settings</a></li>
+    <li><b>interval</b> - time interval in human readable format</li>
+    <li><b>money</b> - money format, see <a class="argument" href="w2utils.settings">w2utils.settings</a></li>
+    <li><b>number:XX</b>, - formatted number, where XX is number digits after comma</li>
+    <li><b>password</b> - password ****</li>
+    <li><b>percent</b> - formatted percent</li>
+    <li><b>size</b>, - file size in human readable format</li>
+    <li><b>time:time_format</b>, - time, see <a class="argument" href="w2utils.settings">w2utils.settings</a> </li>
+    <li><b>timestamp</b> - timestamp, see <a class="argument" href="w2utils.settings">w2utils.settings</a></li>
+    <li><b>toggle</b> - yes/no text</li>
 </ul>
 You can use them int he following way:
 <textarea class="javascript">
@@ -143,7 +144,6 @@ $('#grid').w2grid({
     ]
 });
 </textarea>
-You can add your own custom formatting functions, see <a class="argument" href="w2utils.formatters">w2utils.formatters</a>
 
 <h4>Editable</h4>
 The <i>editable</i> property indicates if column fields are editable.
@@ -188,6 +188,13 @@ You can make some of the reocrds not editable, for example:
 { recid: 1, ... w2ui: { editable: false } }
 </textarea>
 
+<div style="height: 10px"></div>
+See also,
+<ul>
+    <li><a class="argument" href="w2grid.getChanges">.getChanges()</a></li>
+    <li><a class="argument" href="w2grid.save">.save()</a></li>
+</ul>
+
 <h4>Info</h4>
 The <i>info</i> property can be either <i>true</i> or an object with the following structure:
 <textarea class="javascript">
@@ -206,8 +213,3 @@ info = {
 }
 </textarea>
 There can only ever be one info bubble visible at a time. By default, the bubble will only show when you click the icon and will hide when you click anywhere else.
-<div style="height: 10px"></div>
-
-Use <a class="argument" href="w2grid.getChanged">.getChanged()</a> method to find what records have been changed. Then, you can call
-<a class="argument" href="w2grid.save">.save()</a> method to submit all changed records to the <a class="argument" href="w2grid.url">.url</a>. You can optionally
-add a save button to the grid's toolbar setting <a class="argument" href="w2grid.show">show.toolbarSave</a> to true during grid's creation.

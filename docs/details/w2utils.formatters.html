@@ -14,20 +14,22 @@ This object provides formatters for all widgets (especially in the grid). You ca
 
 Below is the list of formatters that are already implemented:
 <ul>
-	<li>number</li>
-	<li>float</li>
-	<li>int</li>
-	<li>money</li>
-	<li>currency</li>
-	<li>percent</li>
-	<li>size</li>
-	<li>date</li>
-	<li>datetime</li>
-	<li>time</li>
-	<li>timestamp</li>
-	<li>gmt</li>
-	<li>age</li>
-	<li>toggle</li>
+    <li><b>age</b> - age in human readable format</li>
+    <li><b>currency</b> - money format</li>
+    <li><b>date:date_format</b> - date, see <a class="argument" href="w2utils.settings">w2utils.settings</a></li>
+    <li><b>datetime:date_format|time_format</b> - date & time, see <a class="argument" href="w2utils.settings">w2utils.settings</a></li>
+    <li><b>float:XX</b> - formatted number, where XX is number digits after comma</li>
+    <li><b>gmt</b> - time in GMT</li>
+    <li><b>int</b> - formatted integer, see <a class="argument" href="w2utils.settings">w2utils.settings</a></li>
+    <li><b>interval</b> - time interval in human readable format</li>
+    <li><b>money</b> - money format, see <a class="argument" href="w2utils.settings">w2utils.settings</a></li>
+    <li><b>number:XX</b>, - formatted number, where XX is number digits after comma</li>
+    <li><b>password</b> - password ****</li>
+    <li><b>percent</b> - formatted percent</li>
+    <li><b>size</b>, - file size in human readable format</li>
+    <li><b>time:time_format</b>, - time, see <a class="argument" href="w2utils.settings">w2utils.settings</a> </li>
+    <li><b>timestamp</b> - timestamp, see <a class="argument" href="w2utils.settings">w2utils.settings</a></li>
+    <li><b>toggle</b> - yes/no text</li>
 </ul>
 
 You can use them in grid when you define columns in the following way:
