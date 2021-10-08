@@ -3866,7 +3866,8 @@ class w2grid extends w2event {
         }
         let ind      = obj.get(recid, true)
         let ind2     = obj.get(recid2, true)
-        let recEL    = $('#grid_'+ obj.name +'_rec_'+ (ind != null ? w2utils.escapeId(obj.records[ind].recid) : 'none'))
+        let recEL    = $(`#grid_${obj.name}_rec_${(ind != null ? w2utils.escapeId(obj.records[ind].recid) : 'none')}`)
+        let pageSize = Math.floor($(`#grid_${obj.name}_records`).height() / obj.recordHeight)
         let cancel   = false
         let key      = event.keyCode
         let shiftKey = event.shiftKey
@@ -3917,146 +3918,40 @@ class w2grid extends w2event {
                 break
 
             case 37: // left
-                if (empty) { // no selection
-                    selectTopRecord()
-                    break
-                }
-                if (this.selectType == 'row') {
-                    if (recEL.length <= 0) break
-                    let tmp = this.records[ind].w2ui || {}
-                    if (tmp && tmp.parent_recid != null && (!Array.isArray(tmp.children) || tmp.children.length === 0 || !tmp.expanded)) {
-                        obj.unselect(recid)
-                        obj.collapse(tmp.parent_recid, event)
-                        obj.select(tmp.parent_recid)
-                    } else {
-                        obj.collapse(recid, event)
-                    }
-                } else {
-                    let prev = obj.prevCell(ind, columns[0])
-                    if (!shiftKey && prev == null) {
-                        this.selectNone()
-                        prev = 0
-                    }
-                    if (prev != null) {
-                        if (shiftKey && obj.multiSelect) {
-                            if (tmpUnselect()) return
-                            let tmp    = []
-                            let newSel = []
-                            let unSel  = []
-                            if (columns.indexOf(this.last.sel_col) === 0 && columns.length > 1) {
-                                for (let i = 0; i < sel.length; i++) {
-                                    if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid)
-                                    unSel.push({ recid: sel[i].recid, column: columns[columns.length-1] })
-                                }
-                                obj.unselect(unSel)
-                                obj.scrollIntoView(ind, columns[columns.length-1], true)
-                            } else {
-                                for (let i = 0; i < sel.length; i++) {
-                                    if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid)
-                                    newSel.push({ recid: sel[i].recid, column: prev })
-                                }
-                                obj.select(newSel)
-                                obj.scrollIntoView(ind, prev, true)
-                            }
-                        } else {
-                            event.metaKey = false
-                            obj.click({ recid: recid, column: prev }, event)
-                            obj.scrollIntoView(ind, prev, true)
-                        }
-                    } else {
-                        // if selected more then one, then select first
-                        if (!shiftKey) {
-                            if (sel.length > 1) {
-                                obj.selectNone()
-                            } else {
-                                for (let s = 1; s < sel.length; s++) obj.unselect(sel[s])
-                            }
-                        }
-                    }
-                }
-                cancel = true
+                moveLeft()
                 break
 
             case 39: // right
-                if (empty) {
-                    selectTopRecord()
-                    break
-                }
-                if (this.selectType == 'row') {
-                    if (recEL.length <= 0) break
-                    obj.expand(recid, event)
-                } else {
-                    let next = obj.nextCell(ind, columns[columns.length-1]) // columns is an array of selected columns
-                    if (!shiftKey && next == null) {
-                        this.selectNone()
-                        next = this.columns.length-1
-                    }
-                    if (next != null) {
-                        if (shiftKey && key == 39 && obj.multiSelect) {
-                            if (tmpUnselect()) return
-                            let tmp    = []
-                            let newSel = []
-                            let unSel  = []
-                            if (columns.indexOf(this.last.sel_col) == columns.length-1 && columns.length > 1) {
-                                for (let i = 0; i < sel.length; i++) {
-                                    if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid)
-                                    unSel.push({ recid: sel[i].recid, column: columns[0] })
-                                }
-                                obj.unselect(unSel)
-                                obj.scrollIntoView(ind, columns[0], true)
-                            } else {
-                                for (let i = 0; i < sel.length; i++) {
-                                    if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid)
-                                    newSel.push({ recid: sel[i].recid, column: next })
-                                }
-                                obj.select(newSel)
-                                obj.scrollIntoView(ind, next, true)
-                            }
-                        } else {
-                            event.metaKey = false
-                            obj.click({ recid: recid, column: next }, event)
-                            obj.scrollIntoView(ind, next, true)
-                        }
-                    } else {
-                        // if selected more then one, then select first
-                        if (!shiftKey) {
-                            if (sel.length > 1) {
-                                obj.selectNone()
-                            } else {
-                                for (let s = 0; s < sel.length-1; s++) obj.unselect(sel[s])
-                            }
-                        }
-                    }
-                }
-                cancel = true
+                moveRight()
                 break
 
             case 33: // <PgUp>
-                  moveUp(this, 20)
-                  break
+                moveUp(pageSize)
+                break
 
             case 34: // <PgDn>
-                moveDown(this, 20)
+                moveDown(pageSize)
                 break
 
             case 35: // <End>
-                moveDown(this, -1)
+                moveDown(-1)
                 break
 
             case 36: // <Home>
-                moveUp(this, -1)
+                moveUp(-1)
                 break
 
             case 38: // up
-                moveUp(this, 1)
+                // ctrl (or cmd) + up -> same as home
+                moveUp(event.metaKey || event.ctrlKey ? -1 : 1)
                 break
 
             case 40: // down
-                moveDown( this, 1 )
+                // ctrl (or cmd) + up -> same as end
+                moveDown(event.metaKey || event.ctrlKey ? -1 : 1)
                 break
 
-                // copy & paste
-
+            // copy & paste
             case 17: // ctrl key
             case 91: // cmd key
                 // SLOW: 10k records take 7.0
@@ -4113,14 +4008,129 @@ class w2grid extends w2event {
         // event after
         obj.trigger($.extend(edata, { phase: 'after' }))
 
-        function moveUp(self, numRows) {
+        function moveLeft() {
+            if (empty) { // no selection
+                selectTopRecord()
+                return
+            }
+            if (obj.selectType == 'row') {
+                if (recEL.length <= 0) return
+                let tmp = obj.records[ind].w2ui || {}
+                if (tmp && tmp.parent_recid != null && (!Array.isArray(tmp.children) || tmp.children.length === 0 || !tmp.expanded)) {
+                    obj.unselect(recid)
+                    obj.collapse(tmp.parent_recid, event)
+                    obj.select(tmp.parent_recid)
+                } else {
+                    obj.collapse(recid, event)
+                }
+            } else {
+                let prev = obj.prevCell(ind, columns[0])
+                if (!shiftKey && prev == null) {
+                    obj.selectNone()
+                    prev = 0
+                }
+                if (prev != null) {
+                    if (shiftKey && obj.multiSelect) {
+                        if (tmpUnselect()) return
+                        let tmp    = []
+                        let newSel = []
+                        let unSel  = []
+                        if (columns.indexOf(obj.last.sel_col) === 0 && columns.length > 1) {
+                            for (let i = 0; i < sel.length; i++) {
+                                if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid)
+                                unSel.push({ recid: sel[i].recid, column: columns[columns.length-1] })
+                            }
+                            obj.unselect(unSel)
+                            obj.scrollIntoView(ind, columns[columns.length-1], true)
+                        } else {
+                            for (let i = 0; i < sel.length; i++) {
+                                if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid)
+                                newSel.push({ recid: sel[i].recid, column: prev })
+                            }
+                            obj.select(newSel)
+                            obj.scrollIntoView(ind, prev, true)
+                        }
+                    } else {
+                        event.metaKey = false
+                        obj.click({ recid: recid, column: prev }, event)
+                        obj.scrollIntoView(ind, prev, true)
+                    }
+                } else {
+                    // if selected more then one, then select first
+                    if (!shiftKey) {
+                        if (sel.length > 1) {
+                            obj.selectNone()
+                        } else {
+                            for (let s = 1; s < sel.length; s++) obj.unselect(sel[s])
+                        }
+                    }
+                }
+            }
+            cancel = true
+        }
+
+        function moveRight() {
+            if (empty) {
+                selectTopRecord()
+                return
+            }
+            if (obj.selectType == 'row') {
+                if (recEL.length <= 0) return
+                obj.expand(recid, event)
+            } else {
+                let next = obj.nextCell(ind, columns[columns.length-1]) // columns is an array of selected columns
+                if (!shiftKey && next == null) {
+                    obj.selectNone()
+                    next = obj.columns.length-1
+                }
+                if (next != null) {
+                    if (shiftKey && key == 39 && obj.multiSelect) {
+                        if (tmpUnselect()) return
+                        let tmp    = []
+                        let newSel = []
+                        let unSel  = []
+                        if (columns.indexOf(obj.last.sel_col) == columns.length-1 && columns.length > 1) {
+                            for (let i = 0; i < sel.length; i++) {
+                                if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid)
+                                unSel.push({ recid: sel[i].recid, column: columns[0] })
+                            }
+                            obj.unselect(unSel)
+                            obj.scrollIntoView(ind, columns[0], true)
+                        } else {
+                            for (let i = 0; i < sel.length; i++) {
+                                if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid)
+                                newSel.push({ recid: sel[i].recid, column: next })
+                            }
+                            obj.select(newSel)
+                            obj.scrollIntoView(ind, next, true)
+                        }
+                    } else {
+                        event.metaKey = false
+                        obj.click({ recid: recid, column: next }, event)
+                        obj.scrollIntoView(ind, next, true)
+                    }
+                } else {
+                    // if selected more then one, then select first
+                    if (!shiftKey) {
+                        if (sel.length > 1) {
+                            obj.selectNone()
+                        } else {
+                            for (let s = 0; s < sel.length-1; s++) obj.unselect(sel[s])
+                        }
+                    }
+                }
+            }
+            cancel = true
+        }
+
+        function moveUp(numRows) {
             if (empty) selectTopRecord()
             if (recEL.length <= 0) return
             // move to the previous record
-            let prev = obj.prevRow(ind, columns[0], numRows)
+            let prev = obj.prevRow(ind, 0, numRows)
             if (!shiftKey && prev == null) {
-                if (self.searchData.length != 0 && !url) {
-                    prev = self.last.searchIds[0]
+                if (obj.searchData.length != 0 && !url) {
+                    prev = obj.last.searchIds[0]
                 } else {
                     prev = 0
                 }
@@ -4147,10 +4157,10 @@ class w2grid extends w2event {
                         }
                     }
                 } else { // move selected record
-                    if (sel.length > 300) self.selectNone(); else self.unselect(sel)
+                    if (sel.length > 300) obj.selectNone(); else obj.unselect(sel)
                     obj.click({ recid: obj.records[prev].recid, column: columns[0] }, event)
                 }
-                obj.scrollIntoView(prev)
+                obj.scrollIntoView(prev, null, false, numRows != 1) // top align record
                 if (event.preventDefault) event.preventDefault()
             } else {
                 // if selected more then one, then select first
@@ -4164,29 +4174,29 @@ class w2grid extends w2event {
             }
         }
 
-        function moveDown(self, numRows) {
+        function moveDown(numRows) {
             if (empty) selectTopRecord()
             if (recEL.length <= 0) return
             // move to the next record
-            let next = obj.nextRow(ind2, columns[0], numRows)
+            let next = obj.nextRow(ind2, 0, numRows)
             if (!shiftKey && next == null) {
-                if (self.searchData.length != 0 && !url) {
-                    next = self.last.searchIds[self.last.searchIds.length - 1]
+                if (obj.searchData.length != 0 && !url) {
+                    next = obj.last.searchIds[obj.last.searchIds.length - 1]
                 } else {
-                    next = self.records.length - 1
+                    next = obj.records.length - 1
                 }
             }
             if (next != null) {
                 if (shiftKey && obj.multiSelect) { // expand selection
                     if (tmpUnselect()) return
                     if (obj.selectType == 'row') {
-                        if (self.last.sel_ind < next && self.last.sel_ind != ind) {
+                        if (obj.last.sel_ind < next && obj.last.sel_ind != ind) {
                             obj.unselect(obj.records[ind].recid)
                         } else {
                             obj.select(obj.records[next].recid)
                         }
                     } else {
-                        if (self.last.sel_ind < next && self.last.sel_ind != ind) {
+                        if (obj.last.sel_ind < next && obj.last.sel_ind != ind) {
                             next    = ind
                             let tmp = []
                             for (let c = 0; c < columns.length; c++) tmp.push({ recid: obj.records[next].recid, column: columns[c] })
@@ -4198,10 +4208,10 @@ class w2grid extends w2event {
                         }
                     }
                 } else { // move selected record
-                    if (sel.length > 300) self.selectNone(); else self.unselect(sel)
+                    if (sel.length > 300) obj.selectNone(); else obj.unselect(sel)
                     obj.click({ recid: obj.records[next].recid, column: columns[0] }, event)
                 }
-                obj.scrollIntoView(next)
+                obj.scrollIntoView(next, null, false, numRows != 1) // top align record
                 cancel = true
             } else {
                 // if selected more then one, then select first
@@ -4250,7 +4260,7 @@ class w2grid extends w2event {
         }
     }
 
-    scrollIntoView(ind, column, instant) {
+    scrollIntoView(ind, column, instant, recTop) {
         let buffered = this.records.length
         if (this.searchData.length != 0 && !this.url) buffered = this.last.searchIds.length
         if (buffered === 0) return
@@ -4296,6 +4306,14 @@ class w2grid extends w2event {
                 } else {
                     records.stop()
                     records.animate({ 'scrollTop': (ind - 1) * this.recordHeight }, 250, 'linear')
+                }
+            }
+            if (recTop === true) {
+                if (instant === true) {
+                    records.prop({ 'scrollTop': ind * this.recordHeight })
+                } else {
+                    records.stop()
+                    records.animate({ 'scrollTop': ind * this.recordHeight }, 250, 'linear')
                 }
             }
         }
@@ -5152,7 +5170,7 @@ class w2grid extends w2event {
             '</div>'
 
         let gridBody = $('#grid_'+ this.name +'_body', this.box).html(bodyHTML),
-            records = $('#grid_'+ this.name +'_records', this.box)
+            records  = $('#grid_'+ this.name +'_records', this.box)
         let frecords = $('#grid_'+ this.name +'_frecords', this.box)
         let self     = this
         if (this.selectType == 'row') {

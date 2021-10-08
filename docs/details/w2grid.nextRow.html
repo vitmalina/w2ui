@@ -1,15 +1,23 @@
 Returns next row or null if it is the last row.
 
 <div class="definition">
-     nextRow(index)
+     nextRow(index, [col_index], [numRows=1])
 </div>
 
 <div class="arguments">
     <table>
-    <tr>
-        <td>index</td>
-        <td><b>integer</b>, row index in records array</td>
-    </tr>
+        <tr>
+            <td>index</td>
+            <td><b>integer</b>, row index in records array</td>
+        </tr>
+        <tr>
+            <td>col_index</td>
+            <td><b>integer</b>, <i>optional</i>, column index (it will skip the row is colspan for this recrod more then 1)</td>
+        </tr>
+        <tr>
+            <td>numRows</td>
+            <td><b>integer</b>, <i>optional</i>, number of rows to advance</td>
+        </tr>
     </table>
 </div>
 Returns integer or null.
