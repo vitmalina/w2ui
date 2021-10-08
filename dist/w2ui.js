@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/7/2021, 8:38:33 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/8/2021, 4:10:23 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -5096,7 +5096,7 @@ class w2grid extends w2event {
                 recid  = this.last._edit.recid
                 this.editChange({ type: 'custom', value: this.last._edit.value }, this.get(recid, true), column, event)
                 if(this.advanceOnEdit) {
-                    let next = event.shiftKey ? this.prevRow(index, column) : this.nextRow(index, column)
+                    let next = event.shiftKey ? this.prevRow(index, column, 1) : this.nextRow(index, column, 1)
                     if (next != null && next != index) {
                         setTimeout(() => {
                             if (this.selectType != 'row') {
@@ -5312,7 +5312,7 @@ class w2grid extends w2event {
                                 let next_col = event.shiftKey ? obj.prevCell(index, column, true) : obj.nextCell(index, column, true)
                                 // next or prev row
                                 if (next_col == null) {
-                                    let tmp = event.shiftKey ? obj.prevRow(index, column) : obj.nextRow(index, column)
+                                    let tmp = event.shiftKey ? obj.prevRow(index, column, 1) : obj.nextRow(index, column, 1)
                                     if (tmp != null && tmp != index) {
                                         next_rec = obj.records[tmp].recid
                                         // find first editable row
@@ -5343,7 +5343,7 @@ class w2grid extends w2event {
                             case 13: { // enter
                                 el.blur()
                                 if(obj.advanceOnEdit) {
-                                    let next = event.shiftKey ? obj.prevRow(index, column) : obj.nextRow(index, column)
+                                    let next = event.shiftKey ? obj.prevRow(index, column, 1) : obj.nextRow(index, column, 1)
                                     if (next != null && next != index) {
                                         setTimeout(() => {
                                             if (obj.selectType != 'row') {
@@ -5793,7 +5793,8 @@ class w2grid extends w2event {
         }
         let ind      = obj.get(recid, true)
         let ind2     = obj.get(recid2, true)
-        let recEL    = $('#grid_'+ obj.name +'_rec_'+ (ind != null ? w2utils.escapeId(obj.records[ind].recid) : 'none'))
+        let recEL    = $(`#grid_${obj.name}_rec_${(ind != null ? w2utils.escapeId(obj.records[ind].recid) : 'none')}`)
+        let pageSize = Math.floor($(`#grid_${obj.name}_records`).height() / obj.recordHeight)
         let cancel   = false
         let key      = event.keyCode
         let shiftKey = event.shiftKey
@@ -5839,219 +5840,32 @@ class w2grid extends w2event {
                 }
                 break
             case 37: // left
-                if (empty) { // no selection
-                    selectTopRecord()
-                    break
-                }
-                if (this.selectType == 'row') {
-                    if (recEL.length <= 0) break
-                    let tmp = this.records[ind].w2ui || {}
-                    if (tmp && tmp.parent_recid != null && (!Array.isArray(tmp.children) || tmp.children.length === 0 || !tmp.expanded)) {
-                        obj.unselect(recid)
-                        obj.collapse(tmp.parent_recid, event)
-                        obj.select(tmp.parent_recid)
-                    } else {
-                        obj.collapse(recid, event)
-                    }
-                } else {
-                    let prev = obj.prevCell(ind, columns[0])
-                    if (!shiftKey && prev == null) {
-                        this.selectNone()
-                        prev = 0
-                    }
-                    if (prev != null) {
-                        if (shiftKey && obj.multiSelect) {
-                            if (tmpUnselect()) return
-                            let tmp    = []
-                            let newSel = []
-                            let unSel  = []
-                            if (columns.indexOf(this.last.sel_col) === 0 && columns.length > 1) {
-                                for (let i = 0; i < sel.length; i++) {
-                                    if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid)
-                                    unSel.push({ recid: sel[i].recid, column: columns[columns.length-1] })
-                                }
-                                obj.unselect(unSel)
-                                obj.scrollIntoView(ind, columns[columns.length-1], true)
-                            } else {
-                                for (let i = 0; i < sel.length; i++) {
-                                    if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid)
-                                    newSel.push({ recid: sel[i].recid, column: prev })
-                                }
-                                obj.select(newSel)
-                                obj.scrollIntoView(ind, prev, true)
-                            }
-                        } else {
-                            event.metaKey = false
-                            obj.click({ recid: recid, column: prev }, event)
-                            obj.scrollIntoView(ind, prev, true)
-                        }
-                    } else {
-                        // if selected more then one, then select first
-                        if (!shiftKey) {
-                            if (sel.length > 1) {
-                                obj.selectNone()
-                            } else {
-                                for (let s = 1; s < sel.length; s++) obj.unselect(sel[s])
-                            }
-                        }
-                    }
-                }
-                cancel = true
+                moveLeft()
                 break
             case 39: // right
-                if (empty) {
-                    selectTopRecord()
-                    break
-                }
-                if (this.selectType == 'row') {
-                    if (recEL.length <= 0) break
-                    obj.expand(recid, event)
-                } else {
-                    let next = obj.nextCell(ind, columns[columns.length-1]) // columns is an array of selected columns
-                    if (!shiftKey && next == null) {
-                        this.selectNone()
-                        next = this.columns.length-1
-                    }
-                    if (next != null) {
-                        if (shiftKey && key == 39 && obj.multiSelect) {
-                            if (tmpUnselect()) return
-                            let tmp    = []
-                            let newSel = []
-                            let unSel  = []
-                            if (columns.indexOf(this.last.sel_col) == columns.length-1 && columns.length > 1) {
-                                for (let i = 0; i < sel.length; i++) {
-                                    if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid)
-                                    unSel.push({ recid: sel[i].recid, column: columns[0] })
-                                }
-                                obj.unselect(unSel)
-                                obj.scrollIntoView(ind, columns[0], true)
-                            } else {
-                                for (let i = 0; i < sel.length; i++) {
-                                    if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid)
-                                    newSel.push({ recid: sel[i].recid, column: next })
-                                }
-                                obj.select(newSel)
-                                obj.scrollIntoView(ind, next, true)
-                            }
-                        } else {
-                            event.metaKey = false
-                            obj.click({ recid: recid, column: next }, event)
-                            obj.scrollIntoView(ind, next, true)
-                        }
-                    } else {
-                        // if selected more then one, then select first
-                        if (!shiftKey) {
-                            if (sel.length > 1) {
-                                obj.selectNone()
-                            } else {
-                                for (let s = 0; s < sel.length-1; s++) obj.unselect(sel[s])
-                            }
-                        }
-                    }
-                }
-                cancel = true
+                moveRight()
+                break
+            case 33: // <PgUp>
+                moveUp(pageSize)
+                break
+            case 34: // <PgDn>
+                moveDown(pageSize)
+                break
+            case 35: // <End>
+                moveDown(-1)
+                break
+            case 36: // <Home>
+                moveUp(-1)
                 break
             case 38: // up
-                if (empty) selectTopRecord()
-                if (recEL.length <= 0) break
-                // move to the previous record
-                let prev = obj.prevRow(ind, columns[0])
-                if (!shiftKey && prev == null) {
-                    if (this.searchData.length != 0 && !url) {
-                        prev = this.last.searchIds[0]
-                    } else {
-                        prev = 0
-                    }
-                }
-                if (prev != null) {
-                    if (shiftKey && obj.multiSelect) { // expand selection
-                        if (tmpUnselect()) return
-                        if (obj.selectType == 'row') {
-                            if (obj.last.sel_ind > prev && obj.last.sel_ind != ind2) {
-                                obj.unselect(obj.records[ind2].recid)
-                            } else {
-                                obj.select(obj.records[prev].recid)
-                            }
-                        } else {
-                            if (obj.last.sel_ind > prev && obj.last.sel_ind != ind2) {
-                                prev    = ind2
-                                let tmp = []
-                                for (let c = 0; c < columns.length; c++) tmp.push({ recid: obj.records[prev].recid, column: columns[c] })
-                                obj.unselect(tmp)
-                            } else {
-                                let tmp = []
-                                for (let c = 0; c < columns.length; c++) tmp.push({ recid: obj.records[prev].recid, column: columns[c] })
-                                obj.select(tmp)
-                            }
-                        }
-                    } else { // move selected record
-                        if (sel.length > 300) this.selectNone(); else this.unselect(sel)
-                        obj.click({ recid: obj.records[prev].recid, column: columns[0] }, event)
-                    }
-                    obj.scrollIntoView(prev)
-                    if (event.preventDefault) event.preventDefault()
-                } else {
-                    // if selected more then one, then select first
-                    if (!shiftKey) {
-                        if (sel.length > 1) {
-                            obj.selectNone()
-                        } else {
-                            for (let s = 1; s < sel.length; s++) obj.unselect(sel[s])
-                        }
-                    }
-                }
+                // ctrl (or cmd) + up -> same as home
+                moveUp(event.metaKey || event.ctrlKey ? -1 : 1)
                 break
             case 40: // down
-                if (empty) selectTopRecord()
-                if (recEL.length <= 0) break
-                // move to the next record
-                let next = obj.nextRow(ind2, columns[0])
-                if (!shiftKey && next == null) {
-                    if (this.searchData.length != 0 && !url) {
-                        next = this.last.searchIds[this.last.searchIds.length - 1]
-                    } else {
-                        next = this.records.length - 1
-                    }
-                }
-                if (next != null) {
-                    if (shiftKey && obj.multiSelect) { // expand selection
-                        if (tmpUnselect()) return
-                        if (obj.selectType == 'row') {
-                            if (this.last.sel_ind < next && this.last.sel_ind != ind) {
-                                obj.unselect(obj.records[ind].recid)
-                            } else {
-                                obj.select(obj.records[next].recid)
-                            }
-                        } else {
-                            if (this.last.sel_ind < next && this.last.sel_ind != ind) {
-                                next    = ind
-                                let tmp = []
-                                for (let c = 0; c < columns.length; c++) tmp.push({ recid: obj.records[next].recid, column: columns[c] })
-                                obj.unselect(tmp)
-                            } else {
-                                let tmp = []
-                                for (let c = 0; c < columns.length; c++) tmp.push({ recid: obj.records[next].recid, column: columns[c] })
-                                obj.select(tmp)
-                            }
-                        }
-                    } else { // move selected record
-                        if (sel.length > 300) this.selectNone(); else this.unselect(sel)
-                        obj.click({ recid: obj.records[next].recid, column: columns[0] }, event)
-                    }
-                    obj.scrollIntoView(next)
-                    cancel = true
-                } else {
-                    // if selected more then one, then select first
-                    if (!shiftKey) {
-                        if (sel.length > 1) {
-                            obj.selectNone()
-                        } else {
-                            for (let s = 0; s < sel.length-1; s++) obj.unselect(sel[s])
-                        }
-                    }
-                }
+                // ctrl (or cmd) + up -> same as end
+                moveDown(event.metaKey || event.ctrlKey ? -1 : 1)
                 break
-                // copy & paste
+            // copy & paste
             case 17: // ctrl key
             case 91: // cmd key
                 // SLOW: 10k records take 7.0
@@ -6105,6 +5919,219 @@ class w2grid extends w2event {
         }
         // event after
         obj.trigger($.extend(edata, { phase: 'after' }))
+        function moveLeft() {
+            if (empty) { // no selection
+                selectTopRecord()
+                return
+            }
+            if (obj.selectType == 'row') {
+                if (recEL.length <= 0) return
+                let tmp = obj.records[ind].w2ui || {}
+                if (tmp && tmp.parent_recid != null && (!Array.isArray(tmp.children) || tmp.children.length === 0 || !tmp.expanded)) {
+                    obj.unselect(recid)
+                    obj.collapse(tmp.parent_recid, event)
+                    obj.select(tmp.parent_recid)
+                } else {
+                    obj.collapse(recid, event)
+                }
+            } else {
+                let prev = obj.prevCell(ind, columns[0])
+                if (!shiftKey && prev == null) {
+                    obj.selectNone()
+                    prev = 0
+                }
+                if (prev != null) {
+                    if (shiftKey && obj.multiSelect) {
+                        if (tmpUnselect()) return
+                        let tmp    = []
+                        let newSel = []
+                        let unSel  = []
+                        if (columns.indexOf(obj.last.sel_col) === 0 && columns.length > 1) {
+                            for (let i = 0; i < sel.length; i++) {
+                                if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid)
+                                unSel.push({ recid: sel[i].recid, column: columns[columns.length-1] })
+                            }
+                            obj.unselect(unSel)
+                            obj.scrollIntoView(ind, columns[columns.length-1], true)
+                        } else {
+                            for (let i = 0; i < sel.length; i++) {
+                                if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid)
+                                newSel.push({ recid: sel[i].recid, column: prev })
+                            }
+                            obj.select(newSel)
+                            obj.scrollIntoView(ind, prev, true)
+                        }
+                    } else {
+                        event.metaKey = false
+                        obj.click({ recid: recid, column: prev }, event)
+                        obj.scrollIntoView(ind, prev, true)
+                    }
+                } else {
+                    // if selected more then one, then select first
+                    if (!shiftKey) {
+                        if (sel.length > 1) {
+                            obj.selectNone()
+                        } else {
+                            for (let s = 1; s < sel.length; s++) obj.unselect(sel[s])
+                        }
+                    }
+                }
+            }
+            cancel = true
+        }
+        function moveRight() {
+            if (empty) {
+                selectTopRecord()
+                return
+            }
+            if (obj.selectType == 'row') {
+                if (recEL.length <= 0) return
+                obj.expand(recid, event)
+            } else {
+                let next = obj.nextCell(ind, columns[columns.length-1]) // columns is an array of selected columns
+                if (!shiftKey && next == null) {
+                    obj.selectNone()
+                    next = obj.columns.length-1
+                }
+                if (next != null) {
+                    if (shiftKey && key == 39 && obj.multiSelect) {
+                        if (tmpUnselect()) return
+                        let tmp    = []
+                        let newSel = []
+                        let unSel  = []
+                        if (columns.indexOf(obj.last.sel_col) == columns.length-1 && columns.length > 1) {
+                            for (let i = 0; i < sel.length; i++) {
+                                if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid)
+                                unSel.push({ recid: sel[i].recid, column: columns[0] })
+                            }
+                            obj.unselect(unSel)
+                            obj.scrollIntoView(ind, columns[0], true)
+                        } else {
+                            for (let i = 0; i < sel.length; i++) {
+                                if (tmp.indexOf(sel[i].recid) == -1) tmp.push(sel[i].recid)
+                                newSel.push({ recid: sel[i].recid, column: next })
+                            }
+                            obj.select(newSel)
+                            obj.scrollIntoView(ind, next, true)
+                        }
+                    } else {
+                        event.metaKey = false
+                        obj.click({ recid: recid, column: next }, event)
+                        obj.scrollIntoView(ind, next, true)
+                    }
+                } else {
+                    // if selected more then one, then select first
+                    if (!shiftKey) {
+                        if (sel.length > 1) {
+                            obj.selectNone()
+                        } else {
+                            for (let s = 0; s < sel.length-1; s++) obj.unselect(sel[s])
+                        }
+                    }
+                }
+            }
+            cancel = true
+        }
+        function moveUp(numRows) {
+            if (empty) selectTopRecord()
+            if (recEL.length <= 0) return
+            // move to the previous record
+            let prev = obj.prevRow(ind, 0, numRows)
+            if (!shiftKey && prev == null) {
+                if (obj.searchData.length != 0 && !url) {
+                    prev = obj.last.searchIds[0]
+                } else {
+                    prev = 0
+                }
+            }
+            if (prev != null) {
+                if (shiftKey && obj.multiSelect) { // expand selection
+                    if (tmpUnselect()) return
+                    if (obj.selectType == 'row') {
+                        if (obj.last.sel_ind > prev && obj.last.sel_ind != ind2) {
+                            obj.unselect(obj.records[ind2].recid)
+                        } else {
+                            obj.select(obj.records[prev].recid)
+                        }
+                    } else {
+                        if (obj.last.sel_ind > prev && obj.last.sel_ind != ind2) {
+                            prev    = ind2
+                            let tmp = []
+                            for (let c = 0; c < columns.length; c++) tmp.push({ recid: obj.records[prev].recid, column: columns[c] })
+                            obj.unselect(tmp)
+                        } else {
+                            let tmp = []
+                            for (let c = 0; c < columns.length; c++) tmp.push({ recid: obj.records[prev].recid, column: columns[c] })
+                            obj.select(tmp)
+                        }
+                    }
+                } else { // move selected record
+                    if (sel.length > 300) obj.selectNone(); else obj.unselect(sel)
+                    obj.click({ recid: obj.records[prev].recid, column: columns[0] }, event)
+                }
+                obj.scrollIntoView(prev, null, false, numRows != 1) // top align record
+                if (event.preventDefault) event.preventDefault()
+            } else {
+                // if selected more then one, then select first
+                if (!shiftKey) {
+                    if (sel.length > 1) {
+                        obj.selectNone()
+                    } else {
+                        for (let s = 1; s < sel.length; s++) obj.unselect(sel[s])
+                    }
+                }
+            }
+        }
+        function moveDown(numRows) {
+            if (empty) selectTopRecord()
+            if (recEL.length <= 0) return
+            // move to the next record
+            let next = obj.nextRow(ind2, 0, numRows)
+            if (!shiftKey && next == null) {
+                if (obj.searchData.length != 0 && !url) {
+                    next = obj.last.searchIds[obj.last.searchIds.length - 1]
+                } else {
+                    next = obj.records.length - 1
+                }
+            }
+            if (next != null) {
+                if (shiftKey && obj.multiSelect) { // expand selection
+                    if (tmpUnselect()) return
+                    if (obj.selectType == 'row') {
+                        if (obj.last.sel_ind < next && obj.last.sel_ind != ind) {
+                            obj.unselect(obj.records[ind].recid)
+                        } else {
+                            obj.select(obj.records[next].recid)
+                        }
+                    } else {
+                        if (obj.last.sel_ind < next && obj.last.sel_ind != ind) {
+                            next    = ind
+                            let tmp = []
+                            for (let c = 0; c < columns.length; c++) tmp.push({ recid: obj.records[next].recid, column: columns[c] })
+                            obj.unselect(tmp)
+                        } else {
+                            let tmp = []
+                            for (let c = 0; c < columns.length; c++) tmp.push({ recid: obj.records[next].recid, column: columns[c] })
+                            obj.select(tmp)
+                        }
+                    }
+                } else { // move selected record
+                    if (sel.length > 300) obj.selectNone(); else obj.unselect(sel)
+                    obj.click({ recid: obj.records[next].recid, column: columns[0] }, event)
+                }
+                obj.scrollIntoView(next, null, false, numRows != 1) // top align record
+                cancel = true
+            } else {
+                // if selected more then one, then select first
+                if (!shiftKey) {
+                    if (sel.length > 1) {
+                        obj.selectNone()
+                    } else {
+                        for (let s = 0; s < sel.length-1; s++) obj.unselect(sel[s])
+                    }
+                }
+            }
+        }
         function selectTopRecord() {
             if(!obj.records || obj.records.length === 0) return
             let ind = Math.floor(records[0].scrollTop / obj.recordHeight) + 1
@@ -6138,7 +6165,7 @@ class w2grid extends w2event {
             }
         }
     }
-    scrollIntoView(ind, column, instant) {
+    scrollIntoView(ind, column, instant, recTop) {
         let buffered = this.records.length
         if (this.searchData.length != 0 && !this.url) buffered = this.last.searchIds.length
         if (buffered === 0) return
@@ -6183,6 +6210,14 @@ class w2grid extends w2event {
                 } else {
                     records.stop()
                     records.animate({ 'scrollTop': (ind - 1) * this.recordHeight }, 250, 'linear')
+                }
+            }
+            if (recTop === true) {
+                if (instant === true) {
+                    records.prop({ 'scrollTop': ind * this.recordHeight })
+                } else {
+                    records.stop()
+                    records.animate({ 'scrollTop': ind * this.recordHeight }, 250, 'linear')
                 }
             }
         }
@@ -7007,7 +7042,7 @@ class w2grid extends w2event {
             '    <table><tbody>'+ colHTML[1] +'</tbody></table>'+
             '</div>'
         let gridBody = $('#grid_'+ this.name +'_body', this.box).html(bodyHTML),
-            records = $('#grid_'+ this.name +'_records', this.box)
+            records  = $('#grid_'+ this.name +'_records', this.box)
         let frecords = $('#grid_'+ this.name +'_frecords', this.box)
         let self     = this
         if (this.selectType == 'row') {
@@ -9649,11 +9684,21 @@ class w2grid extends w2event {
             if (typeof col.render == 'function') {
                 let html = col.render.call(this, record, ind, col_ind, data)
                 if (html != null && typeof html == 'object') {
-                    data     = String(html.html || '').trim()
+                    if (typeof html.html == 'string') {
+                        data = (html.html || '').trim()
+                    } else {
+                        data = ''
+                        console.log('ERROR: if render function returns an object, its html property should be a string.', { html: '...', class: '...', style: '...' })
+                    }
                     addClass = html.class || ''
                     addStyle = html.style || ''
                 } else {
-                    data = String(html || '').trim()
+                    if (typeof html == 'string') {
+                        data = (html || '').trim()
+                    } else {
+                        data = ''
+                        console.log('ERROR: render function should return a string or an object.', { html: '...', class: '...', style: '...' })
+                    }
                 }
                 if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') {
                     data = '<div style="'+ style +'" title="'+ getTitle(data) +'">' + infoBubble + String(data) + '</div>'
@@ -10163,44 +10208,50 @@ class w2grid extends w2event {
         }
         return check
     }
-    nextRow(ind, col_ind) {
+    nextRow(ind, col_ind, numRows) {
         let sids = this.last.searchIds
         let ret  = null
-        if ((ind + 1 < this.records.length && sids.length === 0) // if there are more records
-                || (sids.length > 0 && ind < sids[sids.length-1])) {
-            ind++
+        if (numRows == -1) {
+            return this.records.length-1
+        }
+        if ((ind + numRows < this.records.length && sids.length === 0) // if there are more records
+                || (sids.length > 0 && ind < sids[sids.length-numRows])) {
+            ind += numRows
             if (sids.length > 0) while (true) {
                 if ($.inArray(ind, sids) != -1 || ind > this.records.length) break
-                ind++
+                ind += numRows
             }
             // colspan
             let tmp  = this.records[ind].w2ui
             let col  = this.columns[col_ind]
             let span = (tmp && tmp.colspan && col != null && !isNaN(tmp.colspan[col.field]) ? parseInt(tmp.colspan[col.field]) : 1)
             if (span === 0) {
-                ret = this.nextRow(ind, col_ind)
+                ret = this.nextRow(ind, col_ind, numRows)
             } else {
                 ret = ind
             }
         }
         return ret
     }
-    prevRow(ind, col_ind) {
+    prevRow(ind, col_ind, numRows) {
         let sids = this.last.searchIds
         let ret  = null
-        if ((ind > 0 && sids.length === 0) // if there are more records
+        if (numRows == -1) {
+            return 0
+        }
+        if ((ind - numRows > 0 && sids.length === 0) // if there are more records
                 || (sids.length > 0 && ind > sids[0])) {
-            ind--
+            ind -= numRows
             if (sids.length > 0) while (true) {
                 if ($.inArray(ind, sids) != -1 || ind < 0) break
-                ind--
+                ind -= numRows
             }
             // colspan
             let tmp  = this.records[ind].w2ui
             let col  = this.columns[col_ind]
             let span = (tmp && tmp.colspan && col != null && !isNaN(tmp.colspan[col.field]) ? parseInt(tmp.colspan[col.field]) : 1)
             if (span === 0) {
-                ret = this.prevRow(ind, col_ind)
+                ret = this.prevRow(ind, col_ind, numRows)
             } else {
                 ret = ind
             }
