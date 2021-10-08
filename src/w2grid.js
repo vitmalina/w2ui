@@ -7923,11 +7923,21 @@ class w2grid extends w2event {
             if (typeof col.render == 'function') {
                 let html = col.render.call(this, record, ind, col_ind, data)
                 if (html != null && typeof html == 'object') {
-                    data     = String(html.html || '').trim()
+                    if (typeof html.html == 'string') {
+                        data = (html.html || '').trim()
+                    } else {
+                        data = ''
+                        console.log('ERROR: if render function returns an object, its html property should be a string.', { html: '...', class: '...', style: '...' })
+                    }
                     addClass = html.class || ''
                     addStyle = html.style || ''
                 } else {
-                    data = String(html || '').trim()
+                    if (typeof html == 'string') {
+                        data = (html || '').trim()
+                    } else {
+                        data = ''
+                        console.log('ERROR: render function should return a string or an object.', { html: '...', class: '...', style: '...' })
+                    }
                 }
                 if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') {
                     data = '<div style="'+ style +'" title="'+ getTitle(data) +'">' + infoBubble + String(data) + '</div>'

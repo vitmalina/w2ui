@@ -79,7 +79,7 @@ You can also pass a compare function in the same way you would use it as argumen
 The render <span class="property">function(record, [index], [column_index], [data])</span> can be used to format the column data.
 If the function is defined then it will be executed for each cell in the column and anything this function returns will be
 used instead of the original column data. The last argument <span class="property">data</span> is processed data that grid
-thinks should be there. It is a result of <span class="property">getCellValue</span> function.
+thinks should be there. It is the result of <span class="property">getCellValue</span> function.
 
 <textarea class="javascript">
 $('#grid').w2grid({
@@ -98,7 +98,7 @@ $('#grid').w2grid({
 });
 </textarea>
 
-If render function returns an object, it can be used to add a class and a style to the cell. For example/
+If render function returns an object, it can be used to add a class and a style to the cell. For example:
 <textarea class="javascript">
 { field: 'full-name', text: 'Full Name', size: '60%',
     render: function (record) {
@@ -113,18 +113,22 @@ If render function returns an object, it can be used to add a class and a style 
 
 There are several predefined formatters. They are (for number and float, XX - defines number of digits after dot):
 <ul>
-    <li>int</li>
-    <li>float:XX, <i>where XX is number digits after comma</i></li>
-    <li>number:XX, <i>where XX is number digits after comma</i></li>
-    <li>money</li>
-    <li>currency</li>
-    <li>percent</li>
     <li>age</li>
+    <li>currency</li>
     <li>date:date_format, <i>where date_format is the date format, or empty for default format</i></li>
-    <li>time:time_format, <i>where time_format is the time format, or empty for default format</i></li>
     <li>datetime:date_format|time_format</li>
+    <li>float:XX, <i>where XX is number digits after comma</i></li>
+    <li>gmt, <i>time in GMT</i></li>
+    <li>int</li>
+    <li>interval, <i>time interval in human readable format</i></li>
+    <li>money</li>
+    <li>number:XX, <i>where XX is number digits after comma</i></li>
+    <li>password</li>
+    <li>percent</li>
+    <li>size, <i>file size in human readbale format</i></li>
+    <li>time:time_format, <i>where time_format is the time format, or empty for default format</i></li>
+    <li>timestamp<i>where time_format is the time format, or empty for default format</i></li>
     <li>toggle</li>
-	<li>password</li>
 </ul>
 You can use them int he following way:
 <textarea class="javascript">
@@ -139,6 +143,7 @@ $('#grid').w2grid({
     ]
 });
 </textarea>
+You can add your own custom formatting functions, see <a class="argument" href="w2utils.formatters">w2utils.formatters</a>
 
 <h4>Editable</h4>
 The <i>editable</i> property indicates if column fields are editable.
