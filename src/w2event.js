@@ -3,16 +3,15 @@
 *   - Dependencies: jQuery, w2utils
 **/
 
-import { w2utils } from './w2utils.js'
+import { w2ui, w2utils } from './w2utils.js'
 
 class w2event {
     constructor(name) {
         this.handlers = []
         // register globally
         if (typeof name !== 'undefined') {
-            window.w2ui = window.w2ui || {}
             if (!w2utils.checkName(name)) return
-            window.w2ui[name] = this
+            w2ui[name] = this
         }
     }
 

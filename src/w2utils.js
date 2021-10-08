@@ -1,9 +1,6 @@
 /************************************************************************
 *   Part of w2ui 2.0 library
-*   - Dependencies: jQuery
-*        - w2ui             - object that will contain all widgets
-*        - w2utils          - basic utilities
-*        - w2utils.event    - generic event object
+*   - Dependencies: jQuery, w2utils
 *
 * == TODO ==
 *   - overlay should be displayed where more space (on top or on bottom)
@@ -23,7 +20,7 @@
 import { w2event } from './w2event.js'
 import { w2locale } from './w2locale.js'
 
-let w2ui    = {}
+let w2ui = {}
 let w2utils = (($) => {
     let tmp = {} // for some temp variables
     return {
@@ -1914,13 +1911,6 @@ w2utils.formatters = {
         }
         return ret
     }
-}
-
-// register globals
-if (self) {
-    w2ui = self.w2ui || {}
-    self.w2ui = w2ui
-    self.w2utils = w2utils
 }
 
 export { w2ui, w2utils }

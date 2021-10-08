@@ -13,7 +13,7 @@
 ************************************************************************/
 
 import { w2event } from './w2event.js'
-import { w2utils } from './w2utils.js'
+import { w2ui, w2utils } from './w2utils.js'
 
 class w2tabs extends w2event {
     constructor(options) {

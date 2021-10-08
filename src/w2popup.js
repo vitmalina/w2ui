@@ -12,7 +12,7 @@
 ************************************************************************/
 
 import { w2event } from './w2event.js'
-import { w2utils } from './w2utils.js'
+import { w2ui, w2utils } from './w2utils.js'
 
 class w2dialog extends w2event {
     constructor(options) {
@@ -1332,12 +1332,5 @@ function w2prompt(label, title, callBack) {
     }
 }
 
-// register globals
 let w2popup = new w2dialog()
-if (self) {
-    self.w2popup = w2popup
-    self.w2alert = w2alert
-    self.w2confirm = w2confirm
-    self.w2prompt = w2prompt
-}
 export { w2dialog, w2popup, w2alert, w2confirm, w2prompt }
