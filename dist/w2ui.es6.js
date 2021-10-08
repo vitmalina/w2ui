@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/8/2021, 4:10:23 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/8/2021, 5:14:54 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -9,9 +9,8 @@ class w2event {
         this.handlers = []
         // register globally
         if (typeof name !== 'undefined') {
-            window.w2ui = window.w2ui || {}
             if (!w2utils.checkName(name)) return
-            window.w2ui[name] = this
+            w2ui[name] = this
         }
     }
     on(edata, handler) {
@@ -273,10 +272,7 @@ const w2locale = {
 
 /************************************************************************
 *   Part of w2ui 2.0 library
-*   - Dependencies: jQuery
-*        - w2ui             - object that will contain all widgets
-*        - w2utils          - basic utilities
-*        - w2utils.event    - generic event object
+*   - Dependencies: jQuery, w2utils
 *
 * == TODO ==
 *   - overlay should be displayed where more space (on top or on bottom)
@@ -293,7 +289,7 @@ const w2locale = {
 *   - i18nCompare
 *
 ************************************************/
-let w2ui    = {}
+let w2ui = {}
 let w2utils = (($) => {
     let tmp = {} // for some temp variables
     return {
@@ -2043,12 +2039,6 @@ w2utils.formatters = {
         }
         return ret
     }
-}
-// register globals
-if (self) {
-    w2ui = self.w2ui || {}
-    self.w2ui = w2ui
-    self.w2utils = w2utils
 }
 /************************************************************************
 *   Part of w2ui 2.0 library
@@ -10386,7 +10376,6 @@ class w2grid extends w2event {
         return prom
     }
 }
-
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2tabs
@@ -12740,14 +12729,7 @@ function w2prompt(label, title, callBack) {
         }
     }
 }
-// register globals
 let w2popup = new w2dialog()
-if (self) {
-    self.w2popup = w2popup
-    self.w2alert = w2alert
-    self.w2confirm = w2confirm
-    self.w2prompt = w2prompt
-}
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -17994,7 +17976,6 @@ class w2field extends w2event {
         return ret
     }
 }
-
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2tabs
