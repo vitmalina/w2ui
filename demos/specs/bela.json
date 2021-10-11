@@ -2,7 +2,7 @@
     "start": "manifest",
     "pauseOnError": false,
     "autoExpand": true,
-    "baseURL": "http://localhost/w2ui/demos/",
+    "specsBaseURL": "http://localhost/w2ui/demos/",
     "specs": [
         "specs/combo/1.spec.js",
         "specs/combo/2.spec.js",
