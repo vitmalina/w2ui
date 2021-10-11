@@ -88,6 +88,7 @@ let tasks = {
             .src(files_js)
             .pipe(concat('w2ui.js'))
             .pipe(replace(/^(import.*'|export.*}|module\.exports.*})$\n/gm, ''))
+            .pipe(replace('import.meta.url', 'undefined'))
             .pipe(replace('\n\n', '\n'))
             .pipe(replace(`export { w2ui, w2locale, w2event, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
     w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType }`, legacy_code))
@@ -115,6 +116,7 @@ let tasks = {
             .src(files_js)
             .pipe(concat('w2ui.js'))
             .pipe(replace(/^(import.*'|export.*}|module\.exports.*})$\n/gm, ''))
+            .pipe(replace('import.meta.url', 'undefined'))
             .pipe(replace('\n\n', '\n'))
             .pipe(replace(`export { w2ui, w2locale, w2event, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
     w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType }`, legacy_code))

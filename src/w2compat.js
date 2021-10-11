@@ -15,6 +15,21 @@ import { w2toolbar } from './w2toolbar.js'
     // if jQuery is not defined, then exit
     if (!$) return
 
+    // register globals if needed
+    $.w2globals = function() {
+        (function (win, obj) {
+            Object.keys(obj).forEach(key => {
+                win[key] = obj[key]
+            })
+        })(window, { w2ui, w2locale, w2event, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
+            w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType })
+    }
+    // if url has globals at the end, then register globals
+    let param = String(import.meta.url).split('?')[1] || ''
+    if (param == 'globals' || param.substr(0, 8) == 'globals=') {
+        $.w2globals()
+    }
+
     $.fn.w2render = function(name) {
         if ($(this).length > 0) {
             if (typeof name === 'string' && w2ui[name]) w2ui[name].render($(this)[0])
