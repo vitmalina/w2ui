@@ -480,11 +480,12 @@ class w2grid extends w2event {
             this.localSort(false, true)
             this.localSearch()
             // do not call this.refresh(), this is unnecessary, heavy, and messes with the toolbar.
-            this.refreshBody()
-            this.resizeRecords()
-            return added
+            // this.refreshBody()
+            // this.resizeRecords()
+            this.refresh()
+        } else {
+            this.refresh() // ??  should it be reload?
         }
-        this.refresh() // ??  should it be reload?
         return added
     }
 
@@ -3150,7 +3151,7 @@ class w2grid extends w2event {
     editField(recid, column, value, event) {
         let obj = this, index, input
         if (this.last.inEditMode === true) { // already editing
-            if (event.keyCode == 13) {
+            if (event && event.keyCode == 13) {
                 index  = this.last._edit.index
                 column = this.last._edit.column
                 recid  = this.last._edit.recid
