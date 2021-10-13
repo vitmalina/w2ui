@@ -830,7 +830,7 @@ import { w2toolbar } from './w2toolbar.js'
             if (typeof options.remove === 'function' && typeof options.onRemove !== 'function') options.onRemove = options.remove
             if (typeof options.onRender === 'function' && typeof options.render !== 'function') options.render = options.onRender
             // since only one overlay can exist at a time
-            $.fn.w2tmp.menuClick = function w2menuClick(event, index, parentIndex) {
+            $.fn.w2tmp.menuClick = function menuClick(event, index, parentIndex) {
                 let keepOpen = false, items
                 let $tr      = $(event.target).closest('tr')
                 if (event.shiftKey || event.metaKey || event.ctrlKey) {
@@ -1287,7 +1287,6 @@ import { w2toolbar } from './w2toolbar.js'
             if (color.v != null) hsv.v = color.v
             if (color.a != null) { rgb.a = color.a; hsv.a = color.a }
             rgb = w2utils.hsv2rgb(hsv)
-            // console.log(rgb)
             let newColor = 'rgba('+ rgb.r +','+ rgb.g +','+ rgb.b +','+ rgb.a +')'
             let cl       = [
                 Number(rgb.r).toString(16).toUpperCase(),
@@ -1509,7 +1508,7 @@ import { w2toolbar } from './w2toolbar.js'
         }
     }
 
-})(jQuery);
+})(jQuery)
 
 export { w2ui, w2locale, w2event, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
     w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType }

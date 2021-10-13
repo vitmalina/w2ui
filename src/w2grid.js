@@ -3570,7 +3570,6 @@ class w2grid extends w2event {
     }
 
     'delete'(force) {
-        let obj = this
         // event before
         let edata = this.trigger({ phase: 'before', target: this.name, type: 'delete', force: force })
         if (force) this.message() // close message
@@ -5227,7 +5226,7 @@ class w2grid extends w2event {
                 gridBody.data('scrolldata', scrolldata)
 
                 // make scroll amount dependent on visible rows
-                amount *= (Math.round(records.height() / obj.recordHeight) - 1) * obj.recordHeight / 4
+                amount *= (Math.round(records.height() / self.recordHeight) - 1) * self.recordHeight / 4
                 recordsContainer.stop().animate({ 'scrollTop': newScrollTop + amount }, 250, 'linear')
             })
         if (this.records.length === 0 && this.msgEmpty) {
@@ -5517,7 +5516,6 @@ class w2grid extends w2event {
             if (Math.abs(mv.divX) <= 1 && Math.abs(mv.divY) <= 1) return // only if moved more then 1px
             obj.last.cancelClick = true
             if (obj.reorderRows == true && obj.last.move.reorder) {
-                let recs  = $(obj.box).find('.w2ui-grid-records')
                 let tmp   = $(event.target).parents('tr')
                 let recid = tmp.attr('recid')
                 if (recid == '-none-') recid = 'bottom'
@@ -7029,7 +7027,6 @@ class w2grid extends w2event {
             $(`#grid_${this.name}_operator_${ind}`).val(operator)
             this.initOperator(ind)
             // populate field value
-            let $oper = $(`#grid_${this.name}_operator_${ind}`)
             let $fld1 = $(`#grid_${this.name}_field_${ind}`)
             let $fld2 = $(`#grid_${this.name}_field2_${ind}`)
             if (sdata != null) {
