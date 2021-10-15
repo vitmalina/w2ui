@@ -340,25 +340,25 @@ class w2toolbar extends w2event {
                             }
                             obj.tmp.overlayEl = el
                             el.w2menu($.extend({
-                                    name: obj.name,
-                                    items: items,
-                                    left: left,
-                                    top: 3,
-                                    data: { 'tb-item': it.id }
-                                }, it.overlay, {
-                                    type: menuType,
-                                    remove(event) {
-                                        obj.menuClick({ name: obj.name, remove: true, item: it,
-                                            subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
-                                    },
-                                    select(event) {
-                                        obj.menuClick({ name: obj.name, item: it,
-                                            subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
-                                    },
-                                    onHide(event) {
-                                        hideDrop()
-                                    }
+                                name: obj.name,
+                                items: items,
+                                left: left,
+                                top: 3,
+                                data: { 'tb-item': it.id }
+                            }, it.overlay, {
+                                type: menuType,
+                                remove(event) {
+                                    obj.menuClick({ name: obj.name, remove: true, item: it,
+                                        subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
+                                },
+                                select(event) {
+                                    obj.menuClick({ name: obj.name, item: it,
+                                        subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
+                                },
+                                onHide(event) {
+                                    hideDrop()
                                 }
+                            }
                             ))
                         }
                         if (['color', 'text-color'].indexOf(it.type) != -1) {

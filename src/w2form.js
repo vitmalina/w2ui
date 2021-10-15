@@ -510,7 +510,6 @@ class w2form extends w2event {
             let field = this.fields[f]
             if (this.getValue(field.field) == null) this.setValue(field.field, '')
             if (['int', 'float', 'currency', 'money'].indexOf(field.type) != -1) {
-                let w2field = $(field.el).data().w2field
                 let val = this.getValue(field.field)
                 let min = field.options.min
                 let max = field.options.max

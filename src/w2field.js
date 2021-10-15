@@ -1469,7 +1469,7 @@ class w2field extends w2event {
                     ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) }
                 }
                 if (w2utils.settings.dataType === 'RESTFULLJSON') {
-                    ajaxOptions.data = JSON.stringify(ajaxOptions.data);
+                    ajaxOptions.data = JSON.stringify(ajaxOptions.data)
                     ajaxOptions.contentType = 'application/json'
                 }
                 if (options.method != null) ajaxOptions.type = options.method
@@ -1496,9 +1496,9 @@ class w2field extends w2event {
                         }
                         if (!Array.isArray(data.records)) {
                             console.error('ERROR: server did not return proper data structure', '\n',
-                                        ' - it should return', { status: "success", records: [{ id: 1, text: 'item' }] }, '\n',
-                                        ' - or just an array ', [{ id: 1, text: 'item' }], '\n',
-                                        ' - actual response', typeof data === 'object' ? data : xhr.responseText)
+                                ' - it should return', { status: 'success', records: [{ id: 1, text: 'item' }] }, '\n',
+                                ' - or just an array ', [{ id: 1, text: 'item' }], '\n',
+                                ' - actual response', typeof data === 'object' ? data : xhr.responseText)
                             return
                         }
                         // remove all extra items if more then needed for cache
@@ -1560,9 +1560,9 @@ class w2field extends w2event {
                             let data
                             try { data = JSON.parse(xhr.responseText) } catch (e) {}
                             console.error('ERROR: server did not return proper data structure', '\n',
-                                        ' - it should return', { status: "success", records: [{ id: 1, text: 'item' }] }, '\n',
-                                        ' - or just an array ', [{ id: 1, text: 'item' }], '\n',
-                                        ' - actual response', typeof data === 'object' ? data : xhr.responseText)
+                                ' - it should return', { status: 'success', records: [{ id: 1, text: 'item' }] }, '\n',
+                                ' - or just an array ', [{ id: 1, text: 'item' }], '\n',
+                                ' - actual response', typeof data === 'object' ? data : xhr.responseText)
                         }
                         // reset stats
                         obj.tmp.xhr_loading = false
@@ -1630,7 +1630,6 @@ class w2field extends w2event {
             if (shown <= 0) options.index = -1
             options.spinner = false
             setTimeout(() => {
-                let html = $('#w2ui-overlay').html() || ''
                 if (options.markSearch && $('#w2ui-overlay .no-matches').length == 0) { // do not highlight when no items
                     $('#w2ui-overlay').w2marker(search)
                 }
