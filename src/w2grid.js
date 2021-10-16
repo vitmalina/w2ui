@@ -291,7 +291,7 @@ class w2grid extends w2event {
 
         this.operators = { // for search fields
             'text'    : ['is', 'begins', 'contains', 'ends'], // could have "in" and "not in"
-            'number'  : ['=', 'between', '>', '<', '>=', '<='],
+            'number'  : ['equal', 'between', '>', '<', '>=', '<='],
             'date'    : ['is', 'between', { oper: 'less', text: 'before'}, { oper: 'more', text: 'after' }],
             'list'    : ['is'],
             'hex'     : ['is', 'between'],
