@@ -1,5 +1,5 @@
 {
-    "locale": "en-us",
+    "locale": "hu-HU",
     "dateFormat": "yyyy.mm.dd",
     "timeFormat": "h24",
     "datetimeFormat": "m/d/yyyy|hh:mi pm",
@@ -76,6 +76,7 @@
         "Notification": "Értesítés",
         "of": "ebből",
         "Ok": "Ok",
+        "Opacity": "Opacity",
         "Record ID": "Belső azonosító",
         "record": "record",
         "records": "records",

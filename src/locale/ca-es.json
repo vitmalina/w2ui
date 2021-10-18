@@ -1,5 +1,5 @@
 {
-    "locale": "ca-es",
+    "locale": "ca-ES",
     "dateFormat": "dd/mm/yyyy",
     "timeFormat": "h24",
     "datetimeFormat": "m/d/yyyy|hh:mi pm",
@@ -76,6 +76,7 @@
         "Notification": "Notificació",
         "of": "de",
         "Ok": "Ok",
+        "Opacity": "Opacity",
         "Record ID": "ID del registre",
         "record": "record",
         "records": "records",

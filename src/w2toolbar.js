@@ -72,7 +72,10 @@ class w2toolbar extends w2event {
 
     insert(id, items) {
         if (!Array.isArray(items)) items = [items]
-        items.forEach(item => {
+        items.forEach((item, idx, arr) => {
+            if(typeof item === 'string') {
+                item = arr[idx] = { id: item, text: item }
+            }
             // checks
             let valid = ['button', 'check', 'radio', 'drop', 'menu', 'menu-radio', 'menu-check', 'color', 'text-color', 'html',
                 'break', 'spacer', 'new-line']
@@ -95,6 +98,9 @@ class w2toolbar extends w2event {
                 if (!Array.isArray(newItem.selected)) newItem.selected = []
                 if (Array.isArray(newItem.items)) {
                     newItem.items.forEach(it => {
+                        if(typeof it === 'string') {
+                            it = arr[idx] = { id: it, text: it }
+                        }
                         if (it.checked && newItem.selected.indexOf(it.id) == -1) newItem.selected.push(it.id)
                         if (!it.checked && newItem.selected.indexOf(it.id) != -1) it.checked = true
                         if (it.checked == null) it.checked = false
@@ -102,7 +108,10 @@ class w2toolbar extends w2event {
                 }
             } else if (newItem.type == 'menu-radio') {
                 if (Array.isArray(newItem.items)) {
-                    newItem.items.forEach(it => {
+                    newItem.items.forEach((it, idx, arr) => {
+                        if(typeof it === 'string') {
+                            it = arr[idx] = { id: it, text: it }
+                        }
                         if (it.checked && newItem.selected == null) newItem.selected = it.id; else it.checked = false
                         if (!it.checked && newItem.selected == it.id) it.checked = true
                         if (it.checked == null) it.checked = false

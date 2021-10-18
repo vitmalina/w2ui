@@ -1369,16 +1369,15 @@ let w2utils = (($) => {
     function locale (locale, callBack) {
         if (!locale) locale = 'en-us'
 
-        // if the locale is an object, not a string, than we assume it's a
+        // if the locale is not a string, we assume it is an object and merge it with w2utils.settings
         if (typeof locale !== 'string' ) {
             w2utils.settings = $.extend(true, {}, w2utils.settings, w2locale, locale)
             return
         }
 
-        if (locale.length === 5) locale = 'locale/'+ locale +'.json'
-
-        // clear phrases from language before
-        w2utils.settings.phrases = {}
+        if (locale.length === 5) {
+            locale = 'locale/'+ locale.toLowerCase() +'.json'
+        }
 
         // load from the file
         $.ajax({
@@ -1386,6 +1385,8 @@ let w2utils = (($) => {
             type     : 'GET',
             dataType : 'JSON',
             success(data, status, xhr) {
+                // clear phrases from language before
+                w2utils.settings.phrases = {}
                 w2utils.settings = $.extend(true, {}, w2utils.settings, w2locale, data)
                 if (typeof callBack === 'function') callBack()
             },

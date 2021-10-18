@@ -1,5 +1,5 @@
 {
-    "locale": "gl-gl",
+    "locale": "gl-ES",
     "dateFormat": "dd/mm/yyyy",
     "timeFormat": "h24",
     "datetimeFormat": "m/d/yyyy|hh:mi pm",
@@ -76,6 +76,7 @@
         "Notification": "Notificación",
         "of": "de",
         "Ok": "Ok",
+        "Opacity": "Opacity",
         "Record ID": "ID do rexistro",
         "record": "record",
         "records": "records",

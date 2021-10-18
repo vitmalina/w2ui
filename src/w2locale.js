@@ -3,8 +3,13 @@
 *   These are the master locale settings that will be used by w2utils
 ************************************************************************/
 
+/**
+ * "locale" should be the IETF language tag in the form xx-YY,
+ * where xx is the ISO 639-1 language code ( see https://en.wikipedia.org/wiki/ISO_639-1 ) and
+ * YY is the ISO 3166-1 alpha-2 country code ( see https://en.wikipedia.org/wiki/ISO_3166-2 )
+ */
 const w2locale = {
-    'locale'            : 'en-us',
+    'locale'            : 'en-US',
     'dateFormat'        : 'm/d/yyyy',
     'timeFormat'        : 'hh:mi pm',
     'datetimeFormat'    : 'm/d/yyyy|hh:mi pm',
@@ -81,6 +86,7 @@ const w2locale = {
         'Notification': 'Notification',
         'of': 'of',
         'Ok': 'Ok',
+        'Opacity': 'Opacity',
         'Record ID': 'Record ID',
         'record': 'record',
         'records': 'records',
