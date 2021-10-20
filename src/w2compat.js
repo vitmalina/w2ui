@@ -1480,7 +1480,7 @@ import { w2toolbar } from './w2toolbar.js'
                         '           <span>B</span> <input name="b" maxlength="3" max="255" tabindex="106">'+
                         '       </div>'+
                         '       <div class="color-part" style="margin: 30px 0px 0px 2px">'+
-                        '           <span style="width: 40px">Opacity</span> '+
+                        '           <span style="width: 40px">'+ w2utils.lang('Opacity') +'</span> '+
                         '           <input name="a" maxlength="5" max="1" style="width: 32px !important" tabindex="107">'+
                         '       </div>'+
                         '   </div>'+

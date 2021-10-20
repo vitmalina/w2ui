@@ -1,5 +1,5 @@
 {
-    "locale": "no-no",
+    "locale": "no-NO",
     "dateFormat": "d/m/yyyy",
     "timeFormat": "h24",
     "datetimeFormat": "m/d/yyyy|hh:mi pm",
@@ -76,6 +76,7 @@
         "Notification": "Melding",
         "of": "/",
         "Ok": "Ok",
+        "Opacity": "Opacity",
         "Record ID": "ID",
         "record": "record",
         "records": "records",

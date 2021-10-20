@@ -84,8 +84,7 @@ let tasks = {
         let count = 0
         console.log('  - update dist/w2ui.js')
         console.log('  - update dist/w2ui_es6.js')
-        let task1 = gulp
-            .src(files_js)
+        gulp.src(files_js)
             .pipe(concat('w2ui.js'))
             .pipe(replace(/^(import.*'|export.*}|module\.exports.*})$\n/gm, ''))
             .pipe(replace('import.meta.url', 'undefined'))
@@ -96,8 +95,7 @@ let tasks = {
             .pipe(gulp.dest('dist/'))
             .on('end', () => { check() })
 
-        let task2 = gulp
-            .src(files_js)
+        gulp.src(files_js)
             .pipe(concat('w2ui.es6.js'))
             .pipe(replace(/^(import.*'|export.*}|module\.exports.*})$\n/gm, ''))
             .pipe(replace('\n\n', '\n'))

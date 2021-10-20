@@ -1,5 +1,6 @@
-
 $(function () {
+    let w2utils_locale = sessionStorage.w2ui_demo_locale || w2utils.settings.locale.toLowerCase()
+    w2utils.locale( w2utils_locale )
     let last_hash
     let conf = {
         demo_layout: {
@@ -30,8 +31,35 @@ $(function () {
                 { id: 'form', type: 'radio', text: 'Forms', icon: 'fa fa-pencil-square-o', route: 'form/1' },
                 { id: 'fields', type: 'radio', text: 'Fields', icon: 'fa fa-pencil-square-o', route: 'fields/1' },
                 { id: 'popup', type: 'radio', text: 'Popup', icon: 'fa fa-list-alt', route: 'popup/1' },
-                { id: 'utils', type: 'radio', text: 'Utils', icon: 'fa fa-star-o', route: 'utils/1' }
-            ]
+                { id: 'utils', type: 'radio', text: 'Utils', icon: 'fa fa-star-o', route: 'utils/1' },
+                { type: 'spacer' },
+                { type: 'menu-radio', id: 'locale', icon: 'fa fa-language',
+                    text: function (item) {
+                        let el   = this.get('locale:' + item.selected)
+                        return 'Locale: ' + el.text
+                    },
+                    selected: w2utils_locale,
+                    items: ['az-az', 'ba-ba', 'bg-bg', 'ca-es', 'de-de', 'en-gb', 'en-us', 'es-es', 'es-mx', 'fr-fr', 'gl-es', 'hr-hr', 'hu-hu', 'id-id', 'it-it', 'ja-jp', 'ko-kr', 'lt-lt', 'nl-nl', 'no-no', 'pl-pl', 'pt-br', 'ru-ru', 'sk-sk', 'sl-si', 'tr-tr', 'zh-cn']
+                },
+            ],
+            onClick(event) {
+                if (event.subItem == null) return
+                event.done(function () {
+                    if(event.item.id === 'locale') {
+                        w2utils_locale = event.item.selected
+                        // change locale
+                        w2utils.locale(w2utils_locale, () => {
+                            sessionStorage.w2ui_demo_locale = w2utils_locale
+                            location.reload() // reloading the page makes things so much easier than refreshing all the w2ui objects
+                            // Object.values(w2ui).forEach(obj => {
+                            //     if(obj instanceof w2event && !(obj instanceof w2layout)) {
+                            //         obj.refresh()
+                            //     }
+                            // })
+                        })
+                    }
+                })
+            }
         },
 
         demo_sidebar: {

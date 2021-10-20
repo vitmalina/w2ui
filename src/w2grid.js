@@ -2703,7 +2703,7 @@ class w2grid extends w2event {
             this.last.field = search.field
             this.last.label = search.label
         }
-        el.attr('placeholder', w2utils.lang('Search') + ' ' + w2utils.lang(search.label || search.caption || search.field))
+        el.attr('placeholder', w2utils.lang('Search') + ' ' + w2utils.lang(search.label || search.caption || search.field, true))
         $().w2overlay({ name: this.name + '-searchFields' })
     }
 
@@ -4991,7 +4991,7 @@ class w2grid extends w2event {
             el.attr('placeholder', '[' + w2utils.lang('Multiple Fields') + ']')
             el.w2field('clear')
         } else {
-            el.attr('placeholder', w2utils.lang('Search') + ' ' + w2utils.lang(this.last.label))
+            el.attr('placeholder', w2utils.lang('Search') + ' ' + w2utils.lang(this.last.label, true))
         }
         if (el.val() != this.last.search) {
             let val = this.last.search
@@ -6142,7 +6142,7 @@ class w2grid extends w2event {
                         </div>
                         <input type="text" id="grid_${this.name}_search_all" class="w2ui-search-all" tabindex="-1"
                             autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"
-                            placeholder="${w2utils.lang(this.last.label)}" value="${this.last.search}"
+                            placeholder="${w2utils.lang(this.last.label, true)}" value="${this.last.search}"
                             data-focus="searchSuggest" data-blur="searchSuggest|true|true|this" data-click="stop"
                         >
                         <div class="w2ui-search-drop w2ui-action" data-click="searchOpen"
