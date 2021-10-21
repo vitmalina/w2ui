@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/12/2021, 10:48:46 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/21/2021, 8:23:20 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -157,8 +157,13 @@ class w2event {
 *   Part of w2ui 2.0 library
 *   These are the master locale settings that will be used by w2utils
 ************************************************************************/
+/**
+ * "locale" should be the IETF language tag in the form xx-YY,
+ * where xx is the ISO 639-1 language code ( see https://en.wikipedia.org/wiki/ISO_639-1 ) and
+ * YY is the ISO 3166-1 alpha-2 country code ( see https://en.wikipedia.org/wiki/ISO_3166-2 )
+ */
 const w2locale = {
-    'locale'            : 'en-us',
+    'locale'            : 'en-US',
     'dateFormat'        : 'm/d/yyyy',
     'timeFormat'        : 'hh:mi pm',
     'datetimeFormat'    : 'm/d/yyyy|hh:mi pm',
@@ -235,6 +240,7 @@ const w2locale = {
         'Notification': 'Notification',
         'of': 'of',
         'Ok': 'Ok',
+        'Opacity': 'Opacity',
         'Record ID': 'Record ID',
         'record': 'record',
         'records': 'records',
@@ -1539,20 +1545,22 @@ let w2utils = (($) => {
     }
     function locale (locale, callBack) {
         if (!locale) locale = 'en-us'
-        // if the locale is an object, not a string, than we assume it's a
+        // if the locale is not a string, we assume it is an object and merge it with w2utils.settings
         if (typeof locale !== 'string' ) {
             w2utils.settings = $.extend(true, {}, w2utils.settings, w2locale, locale)
             return
         }
-        if (locale.length === 5) locale = 'locale/'+ locale +'.json'
-        // clear phrases from language before
-        w2utils.settings.phrases = {}
+        if (locale.length === 5) {
+            locale = 'locale/'+ locale.toLowerCase() +'.json'
+        }
         // load from the file
         $.ajax({
             url      : locale,
             type     : 'GET',
             dataType : 'JSON',
             success(data, status, xhr) {
+                // clear phrases from language before
+                w2utils.settings.phrases = {}
                 w2utils.settings = $.extend(true, {}, w2utils.settings, w2locale, data)
                 if (typeof callBack === 'function') callBack()
             },
@@ -4652,7 +4660,7 @@ class w2grid extends w2event {
             this.last.field = search.field
             this.last.label = search.label
         }
-        el.attr('placeholder', w2utils.lang('Search') + ' ' + w2utils.lang(search.label || search.caption || search.field))
+        el.attr('placeholder', w2utils.lang('Search') + ' ' + w2utils.lang(search.label || search.caption || search.field, true))
         $().w2overlay({ name: this.name + '-searchFields' })
     }
     // clears records and related params
@@ -5493,7 +5501,6 @@ class w2grid extends w2event {
         this.last.inEditMode = false
     }
     'delete'(force) {
-        let obj = this
         // event before
         let edata = this.trigger({ phase: 'before', target: this.name, type: 'delete', force: force })
         if (force) this.message() // close message
@@ -6861,7 +6868,7 @@ class w2grid extends w2event {
             el.attr('placeholder', '[' + w2utils.lang('Multiple Fields') + ']')
             el.w2field('clear')
         } else {
-            el.attr('placeholder', w2utils.lang('Search') + ' ' + w2utils.lang(this.last.label))
+            el.attr('placeholder', w2utils.lang('Search') + ' ' + w2utils.lang(this.last.label, true))
         }
         if (el.val() != this.last.search) {
             let val = this.last.search
@@ -7082,7 +7089,7 @@ class w2grid extends w2event {
                 }
                 gridBody.data('scrolldata', scrolldata)
                 // make scroll amount dependent on visible rows
-                amount *= (Math.round(records.height() / obj.recordHeight) - 1) * obj.recordHeight / 4
+                amount *= (Math.round(records.height() / self.recordHeight) - 1) * self.recordHeight / 4
                 recordsContainer.stop().animate({ 'scrollTop': newScrollTop + amount }, 250, 'linear')
             })
         if (this.records.length === 0 && this.msgEmpty) {
@@ -7368,7 +7375,6 @@ class w2grid extends w2event {
             if (Math.abs(mv.divX) <= 1 && Math.abs(mv.divY) <= 1) return // only if moved more then 1px
             obj.last.cancelClick = true
             if (obj.reorderRows == true && obj.last.move.reorder) {
-                let recs  = $(obj.box).find('.w2ui-grid-records')
                 let tmp   = $(event.target).parents('tr')
                 let recid = tmp.attr('recid')
                 if (recid == '-none-') recid = 'bottom'
@@ -7943,7 +7949,7 @@ class w2grid extends w2event {
                         </div>
                         <input type="text" id="grid_${this.name}_search_all" class="w2ui-search-all" tabindex="-1"
                             autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"
-                            placeholder="${w2utils.lang(this.last.label)}" value="${this.last.search}"
+                            placeholder="${w2utils.lang(this.last.label, true)}" value="${this.last.search}"
                             data-focus="searchSuggest" data-blur="searchSuggest|true|true|this" data-click="stop"
                         >
                         <div class="w2ui-search-drop w2ui-action" data-click="searchOpen"
@@ -8795,7 +8801,6 @@ class w2grid extends w2event {
             $(`#grid_${this.name}_operator_${ind}`).val(operator)
             this.initOperator(ind)
             // populate field value
-            let $oper = $(`#grid_${this.name}_operator_${ind}`)
             let $fld1 = $(`#grid_${this.name}_field_${ind}`)
             let $fld2 = $(`#grid_${this.name}_field2_${ind}`)
             if (sdata != null) {
@@ -13404,7 +13409,10 @@ class w2toolbar extends w2event {
     }
     insert(id, items) {
         if (!Array.isArray(items)) items = [items]
-        items.forEach(item => {
+        items.forEach((item, idx, arr) => {
+            if(typeof item === 'string') {
+                item = arr[idx] = { id: item, text: item }
+            }
             // checks
             let valid = ['button', 'check', 'radio', 'drop', 'menu', 'menu-radio', 'menu-check', 'color', 'text-color', 'html',
                 'break', 'spacer', 'new-line']
@@ -13427,6 +13435,9 @@ class w2toolbar extends w2event {
                 if (!Array.isArray(newItem.selected)) newItem.selected = []
                 if (Array.isArray(newItem.items)) {
                     newItem.items.forEach(it => {
+                        if(typeof it === 'string') {
+                            it = arr[idx] = { id: it, text: it }
+                        }
                         if (it.checked && newItem.selected.indexOf(it.id) == -1) newItem.selected.push(it.id)
                         if (!it.checked && newItem.selected.indexOf(it.id) != -1) it.checked = true
                         if (it.checked == null) it.checked = false
@@ -13434,7 +13445,10 @@ class w2toolbar extends w2event {
                 }
             } else if (newItem.type == 'menu-radio') {
                 if (Array.isArray(newItem.items)) {
-                    newItem.items.forEach(it => {
+                    newItem.items.forEach((it, idx, arr) => {
+                        if(typeof it === 'string') {
+                            it = arr[idx] = { id: it, text: it }
+                        }
                         if (it.checked && newItem.selected == null) newItem.selected = it.id; else it.checked = false
                         if (!it.checked && newItem.selected == it.id) it.checked = true
                         if (it.checked == null) it.checked = false
@@ -13655,25 +13669,25 @@ class w2toolbar extends w2event {
                             }
                             obj.tmp.overlayEl = el
                             el.w2menu($.extend({
-                                    name: obj.name,
-                                    items: items,
-                                    left: left,
-                                    top: 3,
-                                    data: { 'tb-item': it.id }
-                                }, it.overlay, {
-                                    type: menuType,
-                                    remove(event) {
-                                        obj.menuClick({ name: obj.name, remove: true, item: it,
-                                            subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
-                                    },
-                                    select(event) {
-                                        obj.menuClick({ name: obj.name, item: it,
-                                            subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
-                                    },
-                                    onHide(event) {
-                                        hideDrop()
-                                    }
+                                name: obj.name,
+                                items: items,
+                                left: left,
+                                top: 3,
+                                data: { 'tb-item': it.id }
+                            }, it.overlay, {
+                                type: menuType,
+                                remove(event) {
+                                    obj.menuClick({ name: obj.name, remove: true, item: it,
+                                        subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
+                                },
+                                select(event) {
+                                    obj.menuClick({ name: obj.name, item: it,
+                                        subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
+                                },
+                                onHide(event) {
+                                    hideDrop()
                                 }
+                            }
                             ))
                         }
                         if (['color', 'text-color'].indexOf(it.type) != -1) {
@@ -16654,7 +16668,7 @@ class w2field extends w2event {
                     ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) }
                 }
                 if (w2utils.settings.dataType === 'RESTFULLJSON') {
-                    ajaxOptions.data = JSON.stringify(ajaxOptions.data);
+                    ajaxOptions.data = JSON.stringify(ajaxOptions.data)
                     ajaxOptions.contentType = 'application/json'
                 }
                 if (options.method != null) ajaxOptions.type = options.method
@@ -16681,9 +16695,9 @@ class w2field extends w2event {
                         }
                         if (!Array.isArray(data.records)) {
                             console.error('ERROR: server did not return proper data structure', '\n',
-                                        ' - it should return', { status: "success", records: [{ id: 1, text: 'item' }] }, '\n',
-                                        ' - or just an array ', [{ id: 1, text: 'item' }], '\n',
-                                        ' - actual response', typeof data === 'object' ? data : xhr.responseText)
+                                ' - it should return', { status: 'success', records: [{ id: 1, text: 'item' }] }, '\n',
+                                ' - or just an array ', [{ id: 1, text: 'item' }], '\n',
+                                ' - actual response', typeof data === 'object' ? data : xhr.responseText)
                             return
                         }
                         // remove all extra items if more then needed for cache
@@ -16745,9 +16759,9 @@ class w2field extends w2event {
                             let data
                             try { data = JSON.parse(xhr.responseText) } catch (e) {}
                             console.error('ERROR: server did not return proper data structure', '\n',
-                                        ' - it should return', { status: "success", records: [{ id: 1, text: 'item' }] }, '\n',
-                                        ' - or just an array ', [{ id: 1, text: 'item' }], '\n',
-                                        ' - actual response', typeof data === 'object' ? data : xhr.responseText)
+                                ' - it should return', { status: 'success', records: [{ id: 1, text: 'item' }] }, '\n',
+                                ' - or just an array ', [{ id: 1, text: 'item' }], '\n',
+                                ' - actual response', typeof data === 'object' ? data : xhr.responseText)
                         }
                         // reset stats
                         obj.tmp.xhr_loading = false
@@ -16814,7 +16828,6 @@ class w2field extends w2event {
             if (shown <= 0) options.index = -1
             options.spinner = false
             setTimeout(() => {
-                let html = $('#w2ui-overlay').html() || ''
                 if (options.markSearch && $('#w2ui-overlay .no-matches').length == 0) { // do not highlight when no items
                     $('#w2ui-overlay').w2marker(search)
                 }
@@ -18462,7 +18475,6 @@ class w2form extends w2event {
             let field = this.fields[f]
             if (this.getValue(field.field) == null) this.setValue(field.field, '')
             if (['int', 'float', 'currency', 'money'].indexOf(field.type) != -1) {
-                let w2field = $(field.el).data().w2field
                 let val = this.getValue(field.field)
                 let min = field.options.min
                 let max = field.options.max
@@ -20727,7 +20739,7 @@ class w2form extends w2event {
             if (typeof options.remove === 'function' && typeof options.onRemove !== 'function') options.onRemove = options.remove
             if (typeof options.onRender === 'function' && typeof options.render !== 'function') options.render = options.onRender
             // since only one overlay can exist at a time
-            $.fn.w2tmp.menuClick = function w2menuClick(event, index, parentIndex) {
+            $.fn.w2tmp.menuClick = function menuClick(event, index, parentIndex) {
                 let keepOpen = false, items
                 let $tr      = $(event.target).closest('tr')
                 if (event.shiftKey || event.metaKey || event.ctrlKey) {
@@ -21178,7 +21190,6 @@ class w2form extends w2event {
             if (color.v != null) hsv.v = color.v
             if (color.a != null) { rgb.a = color.a; hsv.a = color.a }
             rgb = w2utils.hsv2rgb(hsv)
-            // console.log(rgb)
             let newColor = 'rgba('+ rgb.r +','+ rgb.g +','+ rgb.b +','+ rgb.a +')'
             let cl       = [
                 Number(rgb.r).toString(16).toUpperCase(),
@@ -21367,7 +21378,7 @@ class w2form extends w2event {
                         '           <span>B</span> <input name="b" maxlength="3" max="255" tabindex="106">'+
                         '       </div>'+
                         '       <div class="color-part" style="margin: 30px 0px 0px 2px">'+
-                        '           <span style="width: 40px">Opacity</span> '+
+                        '           <span style="width: 40px">'+ w2utils.lang('Opacity') +'</span> '+
                         '           <input name="a" maxlength="5" max="1" style="width: 32px !important" tabindex="107">'+
                         '       </div>'+
                         '   </div>'+
@@ -21394,7 +21405,7 @@ class w2form extends w2event {
             return html
         }
     }
-})(jQuery);
+})(jQuery)
 
 // Compatibility with CommonJS and AMD modules
 (function(global, w2ui) {
