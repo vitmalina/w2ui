@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/21/2021, 8:23:20 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/22/2021, 10:28:06 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -7856,7 +7856,7 @@ class w2grid extends w2event {
                         return i + 1
                     }
                 }
-                return intersection
+                return 0
             }
         }
         function trackGhost(cursorX, cursorY){
@@ -8662,7 +8662,7 @@ class w2grid extends w2event {
     getOperators(type, opers) {
         let operators = this.operators[this.operatorsMap[type]] || []
         if (opers != null && Array.isArray(opers)) {
-            operators = fieldOpers
+            operators = opers
         }
         let html = ''
         operators.forEach(oper => {
@@ -20950,7 +20950,6 @@ class w2form extends w2event {
                         if (re.test(item.text) || item.text === '...') item.hidden = false; else item.hidden = true
                     } catch (e) {}
                     // do not show selected items
-                    if (obj.type === 'enum' && $.inArray(item.id, ids) !== -1) item.hidden = true
                     if (item.hidden !== true) shown++
                 }
                 options.index = 0
