@@ -138,7 +138,7 @@ table.list td {
     position: absolute;
     top: 13px;
     left: 233px;
-    width: 880px;
+    right: 0px;
     height: 38px;
     padding: 4px;
     background-color: transparent;

@@ -296,6 +296,6 @@ exports.build   = gulp.series(tasks.build_es6, tasks.build)
 exports.dev     = tasks.watch
 exports.clean   = tasks.clean
 exports.pack    = tasks.pack
-exports.less    = gulp.series(tasks.clean, tasks.less)
+exports.less    = gulp.series(tasks.less)
 exports.icons   = gulp.series(tasks.icons, tasks.less)
 exports.locales = tasks.locales

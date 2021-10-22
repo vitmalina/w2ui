@@ -1,6 +1,6 @@
 $(function () {
     let w2utils_locale = sessionStorage.w2ui_demo_locale || w2utils.settings.locale.toLowerCase()
-    w2utils.locale( w2utils_locale )
+    w2utils.locale(w2utils_locale)
     let last_hash
     let conf = {
         demo_layout: {
@@ -35,11 +35,39 @@ $(function () {
                 { type: 'spacer' },
                 { type: 'menu-radio', id: 'locale', icon: 'fa fa-language',
                     text: function (item) {
-                        let el   = this.get('locale:' + item.selected)
-                        return 'Locale: ' + el.text
+                        let el = this.get('locale:' + item.selected)
+                        return el.text
                     },
                     selected: w2utils_locale,
-                    items: ['az-az', 'ba-ba', 'bg-bg', 'ca-es', 'de-de', 'en-gb', 'en-us', 'es-es', 'es-mx', 'fr-fr', 'gl-es', 'hr-hr', 'hu-hu', 'id-id', 'it-it', 'ja-jp', 'ko-kr', 'lt-lt', 'nl-nl', 'no-no', 'pl-pl', 'pt-br', 'ru-ru', 'sk-sk', 'sl-si', 'tr-tr', 'zh-cn']
+                    items: [
+                        'az-az',
+                        'ba-ba',
+                        'bg-bg',
+                        'ca-es',
+                        'de-de',
+                        { id: 'en-gb', text: 'English (UK)' },
+                        { id: 'en-us', text: 'English (US)' },
+                        'es-es',
+                        'es-mx',
+                        { id: 'fr-fr', text: 'French' },
+                        'gl-es',
+                        'hr-hr',
+                        'hu-hu',
+                        'id-id',
+                        'it-it',
+                        'ja-jp',
+                        'ko-kr',
+                        'lt-lt',
+                        'nl-nl',
+                        'no-no',
+                        'pl-pl',
+                        'pt-br',
+                        { id: 'ru-ru', text: 'Russian' },
+                        'sk-sk',
+                        'sl-si',
+                        'tr-tr',
+                        'zh-cn'
+                    ]
                 },
             ],
             onClick(event) {
