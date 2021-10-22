@@ -6043,7 +6043,7 @@ class w2grid extends w2event {
                         return i + 1
                     }
                 }
-                return intersection
+                return 0
             }
         }
 
@@ -6882,7 +6882,7 @@ class w2grid extends w2event {
     getOperators(type, opers) {
         let operators = this.operators[this.operatorsMap[type]] || []
         if (opers != null && Array.isArray(opers)) {
-            operators = fieldOpers
+            operators = opers
         }
         let html = ''
         operators.forEach(oper => {

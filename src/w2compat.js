@@ -1043,7 +1043,6 @@ import { w2toolbar } from './w2toolbar.js'
                         if (re.test(item.text) || item.text === '...') item.hidden = false; else item.hidden = true
                     } catch (e) {}
                     // do not show selected items
-                    if (obj.type === 'enum' && $.inArray(item.id, ids) !== -1) item.hidden = true
                     if (item.hidden !== true) shown++
                 }
                 options.index = 0
