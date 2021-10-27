@@ -8,7 +8,7 @@
 * == 2.0 changes
 *   - w2toolbar.item => w2toolbar.item_template
 *   - show/hide, enable/disable, check/uncheck - return array of effected items
-*   - button.img - deprecated
+*   - item.img - deprecated
 *   - this.right - string or array
 *   - added tmp object for runtime variables
 *
@@ -58,9 +58,9 @@ class w2toolbar extends w2event {
             onRefresh: null
         }
         this.tmp = {}
+        // mix in options, w/o items
         let items = options.items
         delete options.items
-        // mix in options
         $.extend(true, this, options)
         // add item via method to makes sure item_template is applied
         if (Array.isArray(items)) this.add(items)
@@ -185,6 +185,14 @@ class w2toolbar extends w2event {
             }
         }
         return null
+    }
+
+    setCount(id, count, className, style) {
+        let $it = $(`#tb_${this.name}_item_${id} .w2ui-tb-count`)
+        $it.removeClass().addClass(`w2ui-tb-count ${className || ''}`)
+        $it.find('>span').text(count)[0].style.cssText = style || ''
+        let item = this.get(id)
+        item.count = count
     }
 
     show() {

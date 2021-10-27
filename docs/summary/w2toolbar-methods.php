@@ -106,6 +106,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2toolbar.setCount">setCount</a> <span>- setCount(id, count, [className], [style])</span>
+</div>
+<div class="obj-property-desc">
+    Updates badge text and style for the toolbar item with <span class="argument">id</span>.
+</div>
+
+<div class="obj-property">
     <a href="w2toolbar.show">show</a> <span>- show(id1, [id2], ...)</span>
 </div>
 <div class="obj-property-desc">
