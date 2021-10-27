@@ -30,9 +30,9 @@ If you have toolbar defined in the following way:
 $('#toolbar').w2toolbar({
     name  : 'toolbar',
     items : [
-        { type: 'check',  id: 'item1', text: 'Check', img: 'icon-page', checked: false },
-        { type: 'radio',  id: 'item3',  group: '1', text: 'R-1', img: 'icon-add' },
-        { type: 'radio',  id: 'item4',  group: '1', text: 'R-2', img: 'icon-add' },
+        { type: 'check',  id: 'item1', text: 'Check', icon: 'icon-page', checked: false },
+        { type: 'radio',  id: 'item3',  group: '1', text: 'R-1', icon: 'icon-add' },
+        { type: 'radio',  id: 'item4',  group: '1', text: 'R-2', icon: 'icon-add' },
         { type: 'menu',   id: 'item5', text: 'Drop Down',
             items: [
                 { id: 'id1', text: 'menu 1' },
@@ -46,10 +46,10 @@ $('#toolbar').w2toolbar({
 
 You can check toolbar item:
 <textarea class="javascript">
-w2ui['toolbar'].click('item1');
+w2ui.toolbar.click('item1');
 </textarea>
 
 You can also click toolbar menu item:
 <textarea class="javascript">
-w2ui['toolbar'].click('item5:id2');
+w2ui.toolbar.click('item5:id2');
 </textarea>

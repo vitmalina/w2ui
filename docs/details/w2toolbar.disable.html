@@ -27,9 +27,9 @@ If you have toolbar defined in the following way:
 $('#toolbar').w2toolbar({
     name  : 'toolbar',
     items : [
-        { type: 'check',  id: 'item1', text: 'Check', img: 'icon-page', checked: true },
-        { type: 'radio',  id: 'item3',  group: '1', text: 'R-1', img: 'icon-add', disabled: true },
-        { type: 'radio',  id: 'item4',  group: '1', text: 'R-2', img: 'icon-add' },
+        { type: 'check',  id: 'item1', text: 'Check', icon: 'icon-page', checked: true },
+        { type: 'radio',  id: 'item3',  group: '1', text: 'R-1', icon: 'icon-add', disabled: true },
+        { type: 'radio',  id: 'item4',  group: '1', text: 'R-2', icon: 'icon-add' },
         { type: 'menu',   id: 'item5', text: 'Drop Down',
             items: [
                 { id: 'id1', text: 'menu 1' },
@@ -43,10 +43,10 @@ $('#toolbar').w2toolbar({
 
 You can disable toolbar item:
 <textarea class="javascript">
-w2ui['toolbar'].disable('item3', 'item4');
+w2ui.toolbar.disable('item3', 'item4');
 </textarea>
 
 You can also disable toolbar menu item:
 <textarea class="javascript">
-w2ui['toolbar'].disable('item5:id2', 'item5:id3');
+w2ui.toolbar.disable('item5:id2', 'item5:id3');
 </textarea>

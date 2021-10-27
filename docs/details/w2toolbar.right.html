@@ -14,15 +14,15 @@ $('#toolbar').w2toolbar({
     name  : 'toolbar',
     right : 'text on the right',
     items : [
-        { type: 'check',  id: 'item1', text: 'Check', img: 'icon-page', checked: true },
-        { type: 'radio',  id: 'item3',  group: '1', text: 'Radio 1', img: 'icon-add' },
-        { type: 'radio',  id: 'item4',  group: '1', text: 'Radio 2', img: 'icon-add' }
+        { type: 'check',  id: 'item1', text: 'Check', icon: 'icon-page', checked: true },
+        { type: 'radio',  id: 'item3',  group: '1', text: 'Radio 1', icon: 'icon-add' },
+        { type: 'radio',  id: 'item4',  group: '1', text: 'Radio 2', icon: 'icon-add' }
     ]
 });
 </textarea>
 
 Or any time during run-time:
 <textarea class="javascript">
-w2ui['toolbar'].right = 'text on the right';
-w2ui['toolbar'].refresh();
+w2ui.toolbar.right = 'text on the right';
+w2ui.toolbar.refresh();
 </textarea>

@@ -27,20 +27,20 @@ If you have toolbar defined in the following way:
 $('#toolbar').w2toolbar({
     name  : 'toolbar',
     items : [
-        { type: 'check',  id: 'item1', text: 'Check', img: 'icon-page', checked: true },
-        { type: 'radio',  id: 'item3',  group: '1', text: 'Radio 1', img: 'icon-add' },
-        { type: 'radio',  id: 'item4',  group: '1', text: 'Radio 2', img: 'icon-add' }
+        { type: 'check',  id: 'item1', text: 'Check', icon: 'icon-page', checked: true },
+        { type: 'radio',  id: 'item3',  group: '1', text: 'Radio 1', icon: 'icon-add' },
+        { type: 'radio',  id: 'item4',  group: '1', text: 'Radio 2', icon: 'icon-add' }
     ]
 });
 </textarea>
 
 You can add toolbar items:
 <textarea class="javascript">
-w2ui['toolbar'].add({ type: 'radio',  id: 'item31',  group: '1', text: 'Radio 3', img: 'icon-add' });
+w2ui.toolbar.add({ type: 'radio',  id: 'item31',  group: '1', text: 'Radio 3', icon: 'icon-add' });
 // or
-w2ui['toolbar'].add([
-    { type: 'radio',  id: 'item5',  group: '1', text: 'Radio 5', img: 'icon-add' },
-    { type: 'radio',  id: 'item6',  group: '1', text: 'Radio 6', img: 'icon-add' },
-    { type: 'radio',  id: 'item7',  group: '1', text: 'Radio 7', img: 'icon-add' }
+w2ui.toolbar.add([
+    { type: 'radio',  id: 'item5',  group: '1', text: 'Radio 5', icon: 'icon-add' },
+    { type: 'radio',  id: 'item6',  group: '1', text: 'Radio 6', icon: 'icon-add' },
+    { type: 'radio',  id: 'item7',  group: '1', text: 'Radio 7', icon: 'icon-add' }
 ]);
 </textarea>

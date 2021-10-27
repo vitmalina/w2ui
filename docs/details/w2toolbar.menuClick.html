@@ -26,8 +26,8 @@ If you have toolbar defined in the following way:
 $('#toolbar').w2toolbar({
     name  : 'toolbar',
     items : [
-        { type: 'check', id: 'item1', text: 'Check', img: 'icon-page', checked: false },
-        { type: 'menu',  id: 'item2',  group: '1', text: 'Menu', img: 'icon-add',
+        { type: 'check', id: 'item1', text: 'Check', icon: 'icon-page', checked: false },
+        { type: 'menu',  id: 'item2',  group: '1', text: 'Menu', icon: 'icon-add',
             items: ['item1', 'item2', 'item3', 'item4']
         }
     ]
@@ -36,7 +36,7 @@ $('#toolbar').w2toolbar({
 
 You can emulate menu click in the following way:
 <textarea class="javascript">
-var tb = w2ui['toolbar'];
+var tb = w2ui.toolbar;
 tb.menuClick({ name: tb.name, item: tb.get('item2'), subItem: tb.get('item2:item1'),
     originalEvent: {} });
 </textarea>

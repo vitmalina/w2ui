@@ -428,7 +428,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.nextRow">nextRow</a> <span>- nextRow(index)</span>
+    <a href="w2grid.nextRow">nextRow</a> <span>- nextRow(index, [col_index], [numRows=1])</span>
 </div>
 <div class="obj-property-desc">
     Returns next row or null if it is the last row.
@@ -456,7 +456,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.prevRow">prevRow</a> <span>- prevRow(index)</span>
+    <a href="w2grid.prevRow">prevRow</a> <span>- prevRow(index, [col_index], [numRows=1])</span>
 </div>
 <div class="obj-property-desc">
     Returns previous row or null if it is the very first row.
@@ -575,7 +575,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.scrollIntoView">scrollIntoView</a> <span>- scrollIntoView([ind], [column], [instant])</span>
+    <a href="w2grid.scrollIntoView">scrollIntoView</a> <span>- scrollIntoView([ind], [column], [instant], [recTop])</span>
 </div>
 <div class="obj-property-desc">
     Scrolls to the specified records
