@@ -1,0 +1,50 @@
+Updates badge text and style of the sidebar node with <span class="argument">id</span>.
+
+<div class="definition">
+    setCount(id, count, [className], [style])
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>id</td>
+        <td><b>string</b>, id of the sidebar node</td>
+    </tr>
+    <tr>
+        <td>count</td>
+        <td><b>text</b>, count for the sidebar node, can be plain text</td>
+    </tr>
+    <tr>
+        <td>className</td>
+        <td><b>text</b>, (<i>optional</i>) custom class for the badge</td>
+    </tr>
+    <tr>
+        <td>style</td>
+        <td><b>text</b>, (<i>optional</i>) additional style for the badge</td>
+    </tr>
+    </table>
+</div>
+
+Returns undefined.
+
+<h4>Description</h4>
+
+The first argument <span class="argument">id</span> is the id of the sidebar node you used when you created sidebar.
+
+If you have toolbar defined in the following way:
+<textarea class="javascript">
+    $('#sidebar').w2sidebar({
+        name : 'sidebar',
+        img  : 'icon-page',
+        nodes: [
+            { id: 'id-1', text: 'Level 1' },
+            { id: 'id-2', text: 'Level 2' },
+            { id: 'id-3', text: 'Level 3' }
+        ]
+    });
+</textarea>
+
+You can update badge by
+<textarea class="javascript">
+w2ui.sidebar.setCount('id-1', '50', '', 'color: red');
+</textarea>

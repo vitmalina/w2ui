@@ -1,0 +1,38 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Badge control</h1>
+        In order to update badge text and style, you can use setCount method.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="sidebar" style="height: 600px; width: 200px; float: left"></div>
+<div style="padding: 10px">
+    <button class="w2ui-btn" onclick="setCount('item1', 25, 'custom', 'color: red')">Set Count</button>
+    <button class="w2ui-btn" onclick="setCount('item1', 'text', 'custom', 'color: purple; border: 2px solid blue')">Set Text</button>
+    <button class="w2ui-btn" onclick="setCount('item1', '1')">Reset</button>
+</div>
+<div style="clear: both"/>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#sidebar').w2sidebar({
+        name: 'sidebar',
+        nodes: [
+            { id: 'level-1', text: 'Level 1', img: 'icon-folder', expanded: true, group: true,
+              nodes: [ { id: 'item1', text: 'Item 1', icon: 'fa fa-star-o', count: 1 },
+                       { id: 'item2', text: 'Item 2', icon: 'fa fa-star-o' },
+                       { id: 'item3', text: 'Item 3', icon: 'fa fa-star-o' }
+                     ]
+            }
+        ]
+    });
+});
+
+function setCount(id, count, className, style) {
+    w2ui.sidebar.setCount(id, count, className, style)
+}
+</script>

@@ -199,6 +199,11 @@ $(function () {
                         { id: 'toolbar/11', text: 'Multiline Toolbars', icon: 'fa fa-hand-o-up' }
                     ]
                 },
+                { id: 'toolbar-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'toolbar/12', text: 'Badge Control', icon: 'fa fa-hand-o-up' },
+                    ]
+                },
                 { id: 'sidebar', text: 'Sidebar Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'sidebar/1', text: 'Simple Sidebar', icon: 'fa fa-hand-o-left' },
@@ -223,7 +228,8 @@ $(function () {
                 { id: 'sidebar-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'sidebar/14', text: 'Sort Nodes', icon: 'fa fa-hand-o-up' },
-                        { id: 'sidebar/15', text: 'Search Nodes', icon: 'fa fa-hand-o-up' }
+                        { id: 'sidebar/15', text: 'Search Nodes', icon: 'fa fa-hand-o-up' },
+                        { id: 'sidebar/16', text: 'Badge Control', icon: 'fa fa-hand-o-up' }
                     ]
                 },
                 { id: 'tabs', text: 'Tabs Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,

@@ -15,6 +15,7 @@
 *   - sb.search() - search nodes
 *   - sb.tabIndex
 *   - handle.content - string/func
+*   - this.tmp
 *
 ************************************************************************/
 
@@ -85,6 +86,9 @@ class w2sidebar extends w2event {
             // internal
             parent: null, // node object
             sidebar: null
+        }
+        this.tmp = {
+            badge: {}
         }
         let nodes          = options.nodes
         delete options.nodes
@@ -250,6 +254,19 @@ class w2sidebar extends w2event {
             }
             return null
         }
+    }
+
+    setCount(id, count, className, style) {
+        let $it = $(`#node_${id} .w2ui-node-count`)
+        $it.removeClass()
+            .addClass(`w2ui-node-count ${className || ''}`)
+            .text(count)[0].style.cssText = style || ''
+        this.tmp.badge[id] = {
+            className: className || '',
+            style: style || ''
+        }
+        let item = this.get(id)
+        item.count = count
     }
 
     find(parent, params, results) { // can be just called find({ selected: true })
@@ -1042,7 +1059,12 @@ class w2sidebar extends w2event {
                 }
                 let text   = nd.text
                 let expand = ''
-                let counts = (nd.count != null ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '')
+                let counts = (nd.count != null
+                    ? `<div class="w2ui-node-count ${obj.tmp.badge[nd.id] ? obj.tmp.badge[nd.id].className || '' : ''}"
+                            style="${obj.tmp.badge[nd.id] ? obj.tmp.badge[nd.id].style || '' : ''}">
+                                ${nd.count}
+                       </div>`
+                    : '')
                 if (nd.collapsible === true) {
                     expand = '<div class="w2ui-' + (nd.expanded ? 'expanded' : 'collapsed') + '"><span></span></div>'
                 }
