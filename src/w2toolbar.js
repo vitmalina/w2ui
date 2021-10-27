@@ -5,13 +5,6 @@
 * == TODO ==
 *   - vertical toolbar
 *
-* == 2.0 changes
-*   - w2toolbar.item => w2toolbar.item_template
-*   - show/hide, enable/disable, check/uncheck - return array of effected items
-*   - item.img - deprecated
-*   - this.right - string or array
-*   - added tmp object for runtime variables
-*
 ************************************************************************/
 import { w2event } from './w2event.js'
 import { w2ui, w2utils } from './w2utils.js'

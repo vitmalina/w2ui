@@ -1,12 +1,17 @@
 Defines HTML in the right corner of the toolbar.
 
 <div class="definition">
-    String, default = ''
+    Array of strings, default = ['']
 </div>
 
-If you set <span class="argument">.right</span> property it will appear in the right corner of the toolbar. You can also render buttons
-in the right corner of the toolbar if you add a toolbar item of <span class="argument">type</span> = spacer. If you add a spacer, all
-following toolbar items will be aligned to the right.
+You can define a custom HTML to appear in the right corner of the toolbar if you set <span class="argument">.right</span> property.
+If it is a single string, it will be converted to an single cell array. You can render buttons
+in the right corner of the toolbar if you add a toolbar item of <span class="argument">type</span> = spacer.
+If you add a spacer, all of the toolbar items that follow will be aligned to the right, but right text will still be on the right
+from them.
+
+In case of multi line toolbar (see <a href="http://w2ui.com/web/demos/#/toolbar/11">demo</a>), you can
+define <span class="argument">.right</span> property as an array of strings.
 
 You can defined it during object creation:
 <textarea class="javascript">
@@ -23,6 +28,6 @@ $('#toolbar').w2toolbar({
 
 Or any time during run-time:
 <textarea class="javascript">
-w2ui.toolbar.right = 'text on the right';
-w2ui.toolbar.refresh();
+w2ui.toolbar.right = ['text on the right']
+w2ui.toolbar.refresh()
 </textarea>
