@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/22/2021, 10:28:06 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/27/2021, 2:56:51 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -13347,13 +13347,6 @@ class w2tabs extends w2event {
 * == TODO ==
 *   - vertical toolbar
 *
-* == 2.0 changes
-*   - w2toolbar.item => w2toolbar.item_template
-*   - show/hide, enable/disable, check/uncheck - return array of effected items
-*   - button.img - deprecated
-*   - this.right - string or array
-*   - added tmp object for runtime variables
-*
 ************************************************************************/
 class w2toolbar extends w2event {
     constructor(options) {
@@ -13396,10 +13389,12 @@ class w2toolbar extends w2event {
             onClick: null,
             onRefresh: null
         }
-        this.tmp = {}
+        this.tmp = {
+            badge: {}
+        }
+        // mix in options, w/o items
         let items = options.items
         delete options.items
-        // mix in options
         $.extend(true, this, options)
         // add item via method to makes sure item_template is applied
         if (Array.isArray(items)) this.add(items)
@@ -13519,6 +13514,18 @@ class w2toolbar extends w2event {
             }
         }
         return null
+    }
+    setCount(id, count, className, style) {
+        let $it = $(`#tb_${this.name}_item_${id} .w2ui-tb-count > span`)
+        $it.removeClass()
+            .addClass(className || '')
+            .text(count)[0].style.cssText = style || ''
+        this.tmp.badge[id] = {
+            className: className || '',
+            style: style || ''
+        }
+        let item = this.get(id)
+        item.count = count
     }
     show() {
         let effected = []
@@ -13995,7 +14002,12 @@ class w2toolbar extends w2event {
                             ? `<div class="w2ui-tb-text" style="${(item.style ? item.style : '')}">
                                     ${ w2utils.lang(text, true) }
                                     ${ item.count != null
-                                        ? `<span class="w2ui-tb-count"><span>${item.count}</span></span>`
+                                        ? `<span class="w2ui-tb-count">
+                                                <span class="${this.tmp.badge[item.id] ? this.tmp.badge[item.id].className || '' : ''}"
+                                                    style="${this.tmp.badge[item.id] ? this.tmp.badge[item.id].style || '' : ''}">
+                                                        ${item.count}
+                                                </span>
+                                           </span>`
                                         : ''
                                     }
                                     ${ arrow
@@ -14181,6 +14193,7 @@ class w2toolbar extends w2event {
 *   - sb.search() - search nodes
 *   - sb.tabIndex
 *   - handle.content - string/func
+*   - this.tmp
 *
 ************************************************************************/
 
@@ -14248,6 +14261,9 @@ class w2sidebar extends w2event {
             // internal
             parent: null, // node object
             sidebar: null
+        }
+        this.tmp = {
+            badge: {}
         }
         let nodes          = options.nodes
         delete options.nodes
@@ -14408,6 +14424,18 @@ class w2sidebar extends w2event {
             }
             return null
         }
+    }
+    setCount(id, count, className, style) {
+        let $it = $(`#node_${id} .w2ui-node-count`)
+        $it.removeClass()
+            .addClass(`w2ui-node-count ${className || ''}`)
+            .text(count)[0].style.cssText = style || ''
+        this.tmp.badge[id] = {
+            className: className || '',
+            style: style || ''
+        }
+        let item = this.get(id)
+        item.count = count
     }
     find(parent, params, results) { // can be just called find({ selected: true })
         // TODO: rewrite with this.each()
@@ -15164,7 +15192,12 @@ class w2sidebar extends w2event {
                 }
                 let text   = nd.text
                 let expand = ''
-                let counts = (nd.count != null ? '<div class="w2ui-node-count">'+ nd.count +'</div>' : '')
+                let counts = (nd.count != null
+                    ? `<div class="w2ui-node-count ${obj.tmp.badge[nd.id] ? obj.tmp.badge[nd.id].className || '' : ''}"
+                            style="${obj.tmp.badge[nd.id] ? obj.tmp.badge[nd.id].style || '' : ''}">
+                                ${nd.count}
+                       </div>`
+                    : '')
                 if (nd.collapsible === true) {
                     expand = '<div class="w2ui-' + (nd.expanded ? 'expanded' : 'collapsed') + '"><span></span></div>'
                 }
