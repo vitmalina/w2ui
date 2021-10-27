@@ -1,0 +1,43 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Badge control</h1>
+        In order to update badge text and style, you can use setCount method.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="toolbar" style="padding: 2px"></div>
+
+<div style="height: 40px"></div>
+<div style="padding: 10px">
+    <button class="w2ui-btn" onclick="setCount('item1', 25, 'custom', 'color: red')">Set Count</button>
+    <button class="w2ui-btn" onclick="setCount('item1', 'text', 'custom', 'color: purple; border: 2px solid blue')">Set Text</button>
+    <button class="w2ui-btn" onclick="setCount('item1', '1')">Reset</button>
+</div>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#toolbar').w2toolbar({
+        name: 'toolbar',
+        tooltip: 'top',
+        items: [
+            { type: 'button', id: 'item1', text: 'button', icon: 'fa fa-star', count: 3 },
+            { type: 'break'},
+            { type: 'menu',   id: 'item2', text: 'Menu', icon: 'fa fa-table', count: 17,
+                items: [
+                    { text: 'Item 1', icon: 'fa fa-camera', count: 5 },
+                    { text: 'Item 2', icon: 'fa fa-picture-o', disabled: true },
+                    { text: 'Item 3', icon: 'fa fa-glass', count: 12 }
+                ]
+            }
+        ]
+    })
+})
+
+function setCount(id, count, className, style) {
+    w2ui.toolbar.setCount(id, count, className, style)
+}
+</script>

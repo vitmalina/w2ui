@@ -50,7 +50,9 @@ class w2toolbar extends w2event {
             onClick: null,
             onRefresh: null
         }
-        this.tmp = {}
+        this.tmp = {
+            badge: {}
+        }
         // mix in options, w/o items
         let items = options.items
         delete options.items
@@ -181,9 +183,14 @@ class w2toolbar extends w2event {
     }
 
     setCount(id, count, className, style) {
-        let $it = $(`#tb_${this.name}_item_${id} .w2ui-tb-count`)
-        $it.removeClass().addClass(`w2ui-tb-count ${className || ''}`)
-        $it.find('>span').text(count)[0].style.cssText = style || ''
+        let $it = $(`#tb_${this.name}_item_${id} .w2ui-tb-count > span`)
+        $it.removeClass()
+            .addClass(className || '')
+            .text(count)[0].style.cssText = style || ''
+        this.tmp.badge[id] = {
+            className: className || '',
+            style: style || ''
+        }
         let item = this.get(id)
         item.count = count
     }
@@ -690,7 +697,12 @@ class w2toolbar extends w2event {
                             ? `<div class="w2ui-tb-text" style="${(item.style ? item.style : '')}">
                                     ${ w2utils.lang(text, true) }
                                     ${ item.count != null
-                                        ? `<span class="w2ui-tb-count"><span>${item.count}</span></span>`
+                                        ? `<span class="w2ui-tb-count">
+                                                <span class="${this.tmp.badge[item.id] ? this.tmp.badge[item.id].className || '' : ''}"
+                                                    style="${this.tmp.badge[item.id] ? this.tmp.badge[item.id].style || '' : ''}">
+                                                        ${item.count}
+                                                </span>
+                                           </span>`
                                         : ''
                                     }
                                     ${ arrow
