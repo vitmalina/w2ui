@@ -17,7 +17,7 @@ const comments = {
 
 const legacy_code = `
 // Compatibility with CommonJS and AMD modules
-(function(global, w2ui) {
+!(function(global, w2ui) {
 if (typeof define == 'function' && define.amd) {
     return define(() => w2ui)
 }
