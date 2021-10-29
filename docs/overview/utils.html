@@ -1,10 +1,25 @@
 <h3>Overview</h3>
-In w2ui library there are several global variables.
+In w2ui library there are several global variables. However, starting with version 2.0, you can load libaray as ES6 module
+and this variables will not be registered globally. If you link w2ui as a JS script, you will have global variables.
+<textarea class="html">
+&lt;script type="text/javascript" src="w2ui.min.js"&gt;&lt;/script&gt;
+</textarea>
+
+If you link w2ui as a module, for example
+<textarea class="html">
+&lt;script type="module" src="w2ui.es6.min.js?globals"&gt;&lt;/script&gt;
+</textarea>
+
+You will only have globals if you provide "globals" is the link URL. You can also load then as ES6 modules with
+
+<textarea class="javascript">
+import { w2ui, w2utils, w2grid } from "w2ui.es6.min.js"
+</textarea>
 
 <h4>w2ui</h4>
 
-All objects you create - layouts, grids, toolbars, sidebars, tabs, forms - will be attached to global w2ui object. 
-Initially it is an empty object, but as soon as you start creating widgets, they will become part of 
+All objects you create - layouts, grids, toolbars, sidebars, tabs, forms - will be attached to global w2ui object.
+Initially it is an empty object, but as soon as you start creating widgets, they will become part of
 this object. This object serves two important purposes:
 <ul class="general">
     <li>It provides a common and uniform way for accessing created objects</li>
@@ -19,18 +34,6 @@ w2ui['myGrid'].get(3); // returns record with id=3
 w2ui.myGrid.get(3);
 </textarea>
 
-<h4>w2obj</h4>
-
-If you need to add custom methods to the prototype of layout, grid, etc, you can use w2obj global variable,
-so that a method will be instantly available for all objects of that type. You can also overwrite default methods for 
-all widgets. For example:
-
-<textarea class="javascript">
-w2obj.grid.prototype.myFunction = function () {
-    console.log('This function exists in all grids. ', this);
-}
-</textarea>
-
 <h4>w2utils</h4>
 
 This global variable has useful generic functions for data validation, data sanitation, data formatting, encoding, etc.
@@ -41,3 +44,19 @@ w2utils.isEmail('som@email.com'); // returns true if the string is a valid email
 </textarea>
 
 See <a href="<?=$site_root?>/docs/utils/methods">w2utils.methods</a> for more information.
+
+<h4>w2popup</h4>
+
+There are also a set of global variables to work with popups, they are w2popup, w2alert, w2confirm, w2prompt. So you can use
+<textarea class="javascript">
+w2alert('some alert')
+// or
+w2confirm('Question')
+    .yes(() => { ... })
+    .no(() => { ... })
+// or
+w2popup.open({
+    title: 'Title',
+    body: 'Body'
+})
+</textarea>
