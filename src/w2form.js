@@ -11,12 +11,6 @@
 *   - promise for load, save, etc.
 *
 * == 2.0 changes
-*   - show/hide, enable/disable - return array of effected items
-*   - .message - returns a promise
-*   - field.type = 'group' - only in constructor
-*   - form.confirm
-*   - nested groups (so fields can be defined inside)
-*   - better groups (nested fields)
 *
 ************************************************************************/
 
@@ -423,7 +417,7 @@ class w2form extends w2event {
         }, options)
     }
 
-    confirm(options, callBack) {
+    confirm(options) {
         let form = this
         if (typeof options == 'string') {
             options = {
@@ -436,8 +430,8 @@ class w2form extends w2event {
             if (typeof options.yes_click == 'function') {
                 options.yes_click('yes')
             }
-            if (typeof callBack == 'function') {
-                callBack('yes')
+            if (typeof options.callBack == 'function') {
+                options.callBack('yes')
             }
             form.message()
         }
@@ -445,8 +439,8 @@ class w2form extends w2event {
             if (typeof options.no_click == 'function') {
                 options.no_click('no')
             }
-            if (typeof callBack == 'function') {
-                callBack('no')
+            if (typeof options.callBack == 'function') {
+                options.callBack('no')
             }
             form.message()
         }
@@ -495,6 +489,10 @@ class w2form extends w2event {
             },
             no(callBack) {
                 options.no_click = callBack
+                return prom
+            },
+            then(callBack) {
+                options.callBack = callBack
                 return prom
             }
         }
