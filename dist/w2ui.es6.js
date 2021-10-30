@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/29/2021, 11:55:54 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/30/2021, 12:03:56 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -10306,7 +10306,7 @@ class w2grid extends w2event {
             body  : '.w2ui-grid-box'
         }, options)
     }
-    confirm(options, callBack) {
+    confirm(options) {
         let grid = this
         if (typeof options == 'string') {
             options = {
@@ -10319,8 +10319,8 @@ class w2grid extends w2event {
             if (typeof options.yes_click == 'function') {
                 options.yes_click('yes')
             }
-            if (typeof callBack == 'function') {
-                callBack('yes')
+            if (typeof options.callBack == 'function') {
+                options.callBack('yes')
             }
             grid.message()
         }
@@ -10328,8 +10328,8 @@ class w2grid extends w2event {
             if (typeof options.no_click == 'function') {
                 options.no_click('no')
             }
-            if (typeof callBack == 'function') {
-                callBack('no')
+            if (typeof options.callBack == 'function') {
+                options.callBack('no')
             }
             grid.message()
         }
@@ -10376,6 +10376,10 @@ class w2grid extends w2event {
             },
             no(callBack) {
                 options.no_click = callBack
+                return prom
+            },
+            then(callBack) {
+                options.callBack = callBack
                 return prom
             }
         }
@@ -10580,8 +10584,8 @@ class w2layout extends w2event {
                 }
             }
         }
-        let p           = this.get(panel)
-        let $el         = $('#layout_'+ this.name + '_panel_'+ p.type)
+        let p = this.get(panel)
+        let $el = $('#layout_'+ this.name + '_panel_'+ p.type)
         let oldOverflow = $el.css('overflow')
         let oldOnClose
         if (options) {
@@ -10601,6 +10605,100 @@ class w2layout extends w2event {
             title : '.w2ui-panel-title:visible',
             body  : '.w2ui-panel-content'
         }, options)
+    }
+    confirm(panel, options) {
+        let layout = this
+        if (typeof options == 'string') {
+            options = {
+                width: (options.length < 300 ? 350 : 550),
+                height: (options.length < 300 ? 170: 250),
+                body: '<div class="w2ui-centered">' + options + '</div>'
+            }
+        }
+        let yes_click = () => {
+            if (typeof options.yes_click == 'function') {
+                options.yes_click('yes')
+            }
+            if (typeof options.callBack == 'function') {
+                options.callBack('yes')
+            }
+            layout.message(panel)
+        }
+        let no_click = () => {
+            if (typeof options.no_click == 'function') {
+                options.no_click('no')
+            }
+            if (typeof options.callBack == 'function') {
+                options.callBack('no')
+            }
+            layout.message(panel)
+        }
+        let btn1 = `<button type="button" class="w2ui-btn btn-yes ${options.yes_class || ''}">${w2utils.lang(options.yes_text || 'Yes')}</button>`
+        let btn2 = `<button type="button" class="w2ui-btn btn-no ${options.no_class || ''}">${w2utils.lang(options.no_text || 'No')}</button>`
+        Object.assign(options, {
+            buttons: w2utils.settings.macButtonOrder
+                ? btn2 + btn1
+                : btn1 + btn2,
+            onOpen(event) {
+                setTimeout(() => {
+                    let $btns = $(this.box).find('.w2ui-btn')
+                    $btns.off('.message')
+                        .on('blur.message', function(evt) {
+                            // last input
+                            if ($btns.index(evt.target) + 1 === $btns.length) {
+                                $btns.get(0).focus()
+                                evt.preventDefault()
+                            }
+                        })
+                        .on('keydown.message', function(evt) {
+                            if (evt.keyCode == 27) no_click() // esc
+                        })
+                        .focus()
+                    $(this.box).find('.w2ui-btn.btn-yes')
+                        .off('click')
+                        .on('click', yes_click)
+                    $(this.box).find('.w2ui-btn.btn-no')
+                        .off('click')
+                        .on('click', no_click)
+                }, 25)
+            }
+        })
+        let p = this.get(panel)
+        let $el = $('#layout_'+ this.name + '_panel_'+ p.type)
+        let oldOverflow = $el.css('overflow')
+        let oldOnClose
+        if (options) {
+            if (options.onClose) oldOnClose = options.onClose
+            options.onClose = (event) => {
+                if (typeof oldOnClose == 'function') oldOnClose(event)
+                event.done(() => {
+                    $('#layout_'+ layout.name + '_panel_'+ p.type).css('overflow', oldOverflow)
+                })
+            }
+        }
+        $('#layout_'+ this.name + '_panel_'+ p.type).css('overflow', 'hidden')
+        w2utils.message.call(this, {
+            box   : $('#layout_'+ this.name + '_panel_'+ p.type),
+            param : panel,
+            path  : 'w2ui.' + this.name,
+            title : '.w2ui-panel-title:visible',
+            body  : '.w2ui-panel-content'
+        }, options)
+        let prom = {
+            yes(callBack) {
+                options.yes_click = callBack
+                return prom
+            },
+            no(callBack) {
+                options.no_click = callBack
+                return prom
+            },
+            then(callBack) {
+                options.callBack = callBack
+                return prom
+            }
+        }
+        return prom
     }
     load(panel, url, transition) {
         return new Promise((resolve, reject) => {
@@ -18036,12 +18134,6 @@ class w2field extends w2event {
 *   - promise for load, save, etc.
 *
 * == 2.0 changes
-*   - show/hide, enable/disable - return array of effected items
-*   - .message - returns a promise
-*   - field.type = 'group' - only in constructor
-*   - form.confirm
-*   - nested groups (so fields can be defined inside)
-*   - better groups (nested fields)
 *
 ************************************************************************/
 
@@ -18424,7 +18516,7 @@ class w2form extends w2event {
             body  : '.w2ui-form-box'
         }, options)
     }
-    confirm(options, callBack) {
+    confirm(options) {
         let form = this
         if (typeof options == 'string') {
             options = {
@@ -18437,8 +18529,8 @@ class w2form extends w2event {
             if (typeof options.yes_click == 'function') {
                 options.yes_click('yes')
             }
-            if (typeof callBack == 'function') {
-                callBack('yes')
+            if (typeof options.callBack == 'function') {
+                options.callBack('yes')
             }
             form.message()
         }
@@ -18446,8 +18538,8 @@ class w2form extends w2event {
             if (typeof options.no_click == 'function') {
                 options.no_click('no')
             }
-            if (typeof callBack == 'function') {
-                callBack('no')
+            if (typeof options.callBack == 'function') {
+                options.callBack('no')
             }
             form.message()
         }
@@ -18494,6 +18586,10 @@ class w2form extends w2event {
             },
             no(callBack) {
                 options.no_click = callBack
+                return prom
+            },
+            then(callBack) {
+                options.callBack = callBack
                 return prom
             }
         }
