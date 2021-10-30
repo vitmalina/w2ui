@@ -207,8 +207,8 @@ class w2layout extends w2event {
                 }
             }
         }
-        let p           = this.get(panel)
-        let $el         = $('#layout_'+ this.name + '_panel_'+ p.type)
+        let p = this.get(panel)
+        let $el = $('#layout_'+ this.name + '_panel_'+ p.type)
         let oldOverflow = $el.css('overflow')
         let oldOnClose
         if (options) {
@@ -228,6 +228,103 @@ class w2layout extends w2event {
             title : '.w2ui-panel-title:visible',
             body  : '.w2ui-panel-content'
         }, options)
+    }
+
+    confirm(panel, options) {
+        let layout = this
+        if (typeof options == 'string') {
+            options = {
+                width: (options.length < 300 ? 350 : 550),
+                height: (options.length < 300 ? 170: 250),
+                body: '<div class="w2ui-centered">' + options + '</div>'
+            }
+        }
+        let yes_click = () => {
+            if (typeof options.yes_click == 'function') {
+                options.yes_click('yes')
+            }
+            if (typeof options.callBack == 'function') {
+                options.callBack('yes')
+            }
+            layout.message(panel)
+        }
+        let no_click = () => {
+            if (typeof options.no_click == 'function') {
+                options.no_click('no')
+            }
+            if (typeof options.callBack == 'function') {
+                options.callBack('no')
+            }
+            layout.message(panel)
+        }
+        let btn1 = `<button type="button" class="w2ui-btn btn-yes ${options.yes_class || ''}">${w2utils.lang(options.yes_text || 'Yes')}</button>`
+        let btn2 = `<button type="button" class="w2ui-btn btn-no ${options.no_class || ''}">${w2utils.lang(options.no_text || 'No')}</button>`
+
+        Object.assign(options, {
+            buttons: w2utils.settings.macButtonOrder
+                ? btn2 + btn1
+                : btn1 + btn2,
+            onOpen(event) {
+                setTimeout(() => {
+                    let $btns = $(this.box).find('.w2ui-btn')
+                    $btns.off('.message')
+                        .on('blur.message', function(evt) {
+                            // last input
+                            if ($btns.index(evt.target) + 1 === $btns.length) {
+                                $btns.get(0).focus()
+                                evt.preventDefault()
+                            }
+                        })
+                        .on('keydown.message', function(evt) {
+                            if (evt.keyCode == 27) no_click() // esc
+                        })
+                        .focus()
+                    $(this.box).find('.w2ui-btn.btn-yes')
+                        .off('click')
+                        .on('click', yes_click)
+                    $(this.box).find('.w2ui-btn.btn-no')
+                        .off('click')
+                        .on('click', no_click)
+                }, 25)
+            }
+        })
+        let p = this.get(panel)
+        let $el = $('#layout_'+ this.name + '_panel_'+ p.type)
+        let oldOverflow = $el.css('overflow')
+        let oldOnClose
+        if (options) {
+            if (options.onClose) oldOnClose = options.onClose
+            options.onClose = (event) => {
+                if (typeof oldOnClose == 'function') oldOnClose(event)
+                event.done(() => {
+                    $('#layout_'+ layout.name + '_panel_'+ p.type).css('overflow', oldOverflow)
+                })
+            }
+        }
+        $('#layout_'+ this.name + '_panel_'+ p.type).css('overflow', 'hidden')
+        w2utils.message.call(this, {
+            box   : $('#layout_'+ this.name + '_panel_'+ p.type),
+            param : panel,
+            path  : 'w2ui.' + this.name,
+            title : '.w2ui-panel-title:visible',
+            body  : '.w2ui-panel-content'
+        }, options)
+
+        let prom = {
+            yes(callBack) {
+                options.yes_click = callBack
+                return prom
+            },
+            no(callBack) {
+                options.no_click = callBack
+                return prom
+            },
+            then(callBack) {
+                options.callBack = callBack
+                return prom
+            }
+        }
+        return prom
     }
 
     load(panel, url, transition) {
