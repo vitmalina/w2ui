@@ -8573,7 +8573,7 @@ class w2grid extends w2event {
         }, options)
     }
 
-    confirm(options, callBack) {
+    confirm(options) {
         let grid = this
         if (typeof options == 'string') {
             options = {
@@ -8586,8 +8586,8 @@ class w2grid extends w2event {
             if (typeof options.yes_click == 'function') {
                 options.yes_click('yes')
             }
-            if (typeof callBack == 'function') {
-                callBack('yes')
+            if (typeof options.callBack == 'function') {
+                options.callBack('yes')
             }
             grid.message()
         }
@@ -8595,8 +8595,8 @@ class w2grid extends w2event {
             if (typeof options.no_click == 'function') {
                 options.no_click('no')
             }
-            if (typeof callBack == 'function') {
-                callBack('no')
+            if (typeof options.callBack == 'function') {
+                options.callBack('no')
             }
             grid.message()
         }
@@ -8645,6 +8645,10 @@ class w2grid extends w2event {
             },
             no(callBack) {
                 options.no_click = callBack
+                return prom
+            },
+            then(callBack) {
+                options.callBack = callBack
                 return prom
             }
         }
