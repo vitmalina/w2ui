@@ -1,0 +1,32 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Context Messages</h1>
+        You can open a message or a confirmation dialog within the grid.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="grid" style="width: 800px; height: 250px"></div>
+<br>
+<button class="w2ui-btn" onclick="w2ui.grid.message('Message')">Show Message</button>
+<button class="w2ui-btn" onclick="w2ui.grid.confirm('Confirmation').then(btn => { console.log(btn) })">Show Confirmation (2.0+)</button>
+
+<!--CODE-->
+<script>
+$(function () {
+    $('#grid').w2grid({
+        name: 'grid',
+        header: 'List of Names',
+        url: 'data/list.json',
+        method: 'GET', // need this to avoid 412 error on Safari
+        columns: [
+            { field: 'fname', text: 'First Name', size: '150px' },
+            { field: 'lname', text: 'Last Name', size: '150px' },
+            { field: 'email', text: 'Email', size: '200px' },
+            { field: 'sdate', text: 'Start Date', size: '200px' }
+        ],
+    });
+});
+</script>

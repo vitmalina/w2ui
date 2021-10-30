@@ -131,7 +131,6 @@ $(function () {
                 },
                 { id: 'layout-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
-                        { id: 'layout/11', text: 'Panel Messages', icon: 'fa fa-columns' },
                         { id: 'layout/12', text: 'Fixed Size Main Panel', icon: 'fa fa-columns' },
                         { id: 'layout/13', text: 'Content Changed', icon: 'fa fa-columns' }
                     ]
@@ -139,6 +138,7 @@ $(function () {
                 { id: 'layout-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'layout/14', text: 'Promises', icon: 'fa fa-columns' },
+                        { id: 'layout/11', text: 'Panel Messages', icon: 'fa fa-columns' },
                     ]
                 },
                 { id: 'grid', text: 'Grid Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
@@ -178,6 +178,11 @@ $(function () {
                         { id: 'grid/28', text: 'Info Bubble', icon: 'fa fa-table' },
                         { id: 'grid/29', text: 'Advanced Formatting', icon: 'fa fa-table' },
                         { id: 'grid/31', text: 'Column Tooltip &amp; Title', icon: 'fa fa-table' },
+                    ]
+                },
+                { id: 'grid-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'grid/32', text: 'Context Messages', icon: 'fa fa-table' },
                     ]
                 },
                 { id: 'toolbar', text: 'Toolbar Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
