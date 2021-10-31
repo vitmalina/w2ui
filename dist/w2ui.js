@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/30/2021, 12:03:56 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/31/2021, 4:06:56 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -2098,7 +2098,6 @@ w2utils.formatters = {
 *   - refactor reorderRow (not finished)
 *
 * == 2.0 changes
-*   - .message - returns a promise
 *   - toolbarInput - deprecated, toolbarSearch stays
 *   - searchSuggest
 *   - searchSave, searchSelected, savedSearches, useLocalStorage, searchFieldDrop
@@ -4929,9 +4928,13 @@ class w2grid extends w2event {
                     if (w2utils.isInt(data.total)) this.total = parseInt(data.total)
                 } else {
                     if (data.total != -1 && parseInt(data.total) != parseInt(this.total)) {
-                        this.message(w2utils.lang(this.msgNeedReload), () => {
-                            delete this.last.xhr_offset
-                            this.reload()
+                        let grid = this
+                        this.message({
+                            body: `<div class="w2ui-centered">${w2utils.lang(grid.msgNeedReload)}</div>`,
+                            onClose(event) {
+                                delete grid.last.xhr_offset
+                                grid.reload()
+                            }
                         })
                         return
                     }
@@ -10282,29 +10285,28 @@ class w2grid extends w2event {
         if (noRefresh !== true) this.refresh()
         return (new Date()).getTime() - time
     }
-    message(options, callBack) {
+    message(options) {
         if (typeof options == 'string') {
             options = {
-                width   : (options.length < 300 ? 350 : 550),
-                height  : (options.length < 300 ? 170: 250),
-                body    : '<div class="w2ui-centered">' + options + '</div>',
-                buttons : `<button type="button" class="w2ui-btn" onclick="w2ui['${this.name}'].message()">${w2utils.lang('Ok')}</button>`,
+                width : (options.length < 300 ? 350 : 550),
+                height: (options.length < 300 ? 170: 250),
+                body  : `<div class="w2ui-centered">${options}</div>`,
                 onOpen(event) {
-                    setTimeout(() => {
-                        $(this.box).find('.w2ui-btn').focus()
-                    }, 25)
-                },
-                onClose(even) {
-                    if (typeof callBack == 'function') callBack()
+                    setTimeout(() => { $(event.box).find('.w2ui-btn').focus() }, 25)
                 }
             }
         }
+        if (options && options.buttons == null) {
+            options.buttons = `<button type="button" class="w2ui-btn" onclick="w2ui['${this.name}'].message()">
+                ${w2utils.lang('Ok')}
+            </button>`
+        }
         return w2utils.message.call(this, {
-            box   : this.box,
-            path  : 'w2ui.' + this.name,
-            title : '.w2ui-grid-header:visible',
-            body  : '.w2ui-grid-box'
-        }, options)
+                    box   : this.box,
+                    path  : 'w2ui.' + this.name,
+                    title : '.w2ui-grid-header:visible',
+                    body  : '.w2ui-grid-box'
+                }, options)
     }
     confirm(options) {
         let grid = this
@@ -10394,7 +10396,6 @@ class w2grid extends w2event {
 *   - layout.content - deprecated
 *   - panel.callBack -> panel.removed
 *   - panel.onContent -> panel.onChange
-*   - load, message - returns a promise
 *
 ************************************************************************/
 
@@ -18496,25 +18497,27 @@ class w2form extends w2event {
         this.trigger($.extend(edata, { phase: 'after' }))
     }
     message(options) {
-        if (typeof options === 'string') {
+        if (typeof options == 'string') {
             options = {
-                width   : (options.length < 300 ? 350 : 550),
-                height  : (options.length < 300 ? 170: 250),
-                body    : '<div class="w2ui-centered">' + options + '</div>',
-                buttons : `<button class="w2ui-btn" onclick="w2ui['${this.name}'].message()">Ok</button>`,
-                onOpen  (event) {
-                    setTimeout(() => {
-                        $(event.box).find('.w2ui-btn').focus()
-                    }, 25)
+                width : (options.length < 300 ? 350 : 550),
+                height: (options.length < 300 ? 170: 250),
+                body  : `<div class="w2ui-centered">${options}</div>`,
+                onOpen(event) {
+                    setTimeout(() => { $(event.box).find('.w2ui-btn').focus() }, 25)
                 }
             }
         }
+        if (options && options.buttons == null) {
+            options.buttons = `<button type="button" class="w2ui-btn" onclick="w2ui['${this.name}'].message()">
+                ${w2utils.lang('Ok')}
+            </button>`
+        }
         return w2utils.message.call(this, {
-            box   : this.box,
-            path  : 'w2ui.' + this.name,
-            title : '.w2ui-form-header:visible',
-            body  : '.w2ui-form-box'
-        }, options)
+                    box   : this.box,
+                    path  : 'w2ui.' + this.name,
+                    title : '.w2ui-form-header:visible',
+                    body  : '.w2ui-form-box'
+                }, options)
     }
     confirm(options) {
         let form = this
