@@ -6,7 +6,6 @@
 *   - layout.content - deprecated
 *   - panel.callBack -> panel.removed
 *   - panel.onContent -> panel.onChange
-*   - load, message - returns a promise
 *
 ************************************************************************/
 

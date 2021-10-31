@@ -1,7 +1,7 @@
 Shows a context message for the grid
 
 <div class="definition">
-    message(options, [callback])
+    message(options)
 </div>
 
 <div class="arguments">
@@ -10,16 +10,11 @@ Shows a context message for the grid
         <td>options</td>
         <td><b>string|object</b>, text of the message or additional options</td>
     </tr>
-    <tr>
-        <td>callback</td>
-        <td><b>function</b>, <i>optional</i> a call back dunction when message is closed</td>
-    </tr>
     </table>
 </div>
 
-Returns <i>undefined</i>.
+Returns <i>pormise</i> that is resolved when message is opened.
 
-This method displays a context message.
 <div style="height: 10px"></div>
 
 If you have following grid:
@@ -47,14 +42,18 @@ $('#grid').w2grid({
 You can
 <textarea class="javascript">
 w2ui.grid.message('Some message.')
+    .then(() => { console.log('message is opened') })
 </textarea>
 
 Or
 <textarea class="javascript">
 w2ui.grid.message({
-    width: 400,
-    height: 200,
-    body: 'Some message.',
-    buttons: '<button class="w2ui-btn" onclick="w2ui.form.message()">Ok</button>'
-})
+        width: 400,
+        height: 200,
+        body: 'Some message.',
+        onClose(event) {
+            console.log('message is closed')
+        }
+    })
+    .then(() => { console.log('message is opened') })
 </textarea>

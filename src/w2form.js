@@ -396,25 +396,27 @@ class w2form extends w2event {
     }
 
     message(options) {
-        if (typeof options === 'string') {
+        if (typeof options == 'string') {
             options = {
-                width   : (options.length < 300 ? 350 : 550),
-                height  : (options.length < 300 ? 170: 250),
-                body    : '<div class="w2ui-centered">' + options + '</div>',
-                buttons : `<button class="w2ui-btn" onclick="w2ui['${this.name}'].message()">Ok</button>`,
-                onOpen  (event) {
-                    setTimeout(() => {
-                        $(event.box).find('.w2ui-btn').focus()
-                    }, 25)
+                width : (options.length < 300 ? 350 : 550),
+                height: (options.length < 300 ? 170: 250),
+                body  : `<div class="w2ui-centered">${options}</div>`,
+                onOpen(event) {
+                    setTimeout(() => { $(event.box).find('.w2ui-btn').focus() }, 25)
                 }
             }
         }
+        if (options && options.buttons == null) {
+            options.buttons = `<button type="button" class="w2ui-btn" onclick="w2ui['${this.name}'].message()">
+                ${w2utils.lang('Ok')}
+            </button>`
+        }
         return w2utils.message.call(this, {
-            box   : this.box,
-            path  : 'w2ui.' + this.name,
-            title : '.w2ui-form-header:visible',
-            body  : '.w2ui-form-box'
-        }, options)
+                    box   : this.box,
+                    path  : 'w2ui.' + this.name,
+                    title : '.w2ui-form-header:visible',
+                    body  : '.w2ui-form-box'
+                }, options)
     }
 
     confirm(options) {
