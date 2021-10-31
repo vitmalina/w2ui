@@ -8,6 +8,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2layout.confirm">confirm</a> <span>- confirm(panel, options)</span>
+</div>
+<div class="obj-property-desc">
+    Shows a context confirmation dialog for the panel
+</div>
+
+<div class="obj-property">
     <a href="w2layout.el">el</a> <span>- el(type)</span>
 </div>
 <div class="obj-property-desc">
@@ -50,7 +57,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2layout.load">load</a> <span>- load(type, url, [transition], [onLoad])</span>
+    <a href="w2layout.load">load</a> <span>- load(panel, url, [transition])</span>
 </div>
 <div class="obj-property-desc">
     Loads content and renders it inside the panel.
@@ -64,10 +71,10 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2layout.message">message</a> <span>- message(panel, msgOptions);</span>
+    <a href="w2layout.message">message</a> <span>- message(panel, options);</span>
 </div>
 <div class="obj-property-desc">
-    Displays a message at the top of panel.
+    Displays a context message for the panel.
 </div>
 
 <div class="obj-property">

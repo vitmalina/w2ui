@@ -29,6 +29,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2form.confirm">confirm</a> <span>- confirm(options)</span>
+</div>
+<div class="obj-property-desc">
+    Shows a context confirmation dialog for the form
+</div>
+
+<div class="obj-property">
     <a href="w2form.disable">disable</a> <span>- disable(field1, field2, ...)</span>
 </div>
 <div class="obj-property-desc">

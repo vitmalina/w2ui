@@ -190,6 +190,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2sidebar.setCount">setCount</a> <span>- setCount(id, count, [className], [style])</span>
+</div>
+<div class="obj-property-desc">
+    Updates badge text and style of the sidebar node with <span class="argument">id</span>.
+</div>
+
+<div class="obj-property">
     <a href="w2sidebar.show">show</a> <span>- show(id1, [id2], ...)</span>
 </div>
 <div class="obj-property-desc">

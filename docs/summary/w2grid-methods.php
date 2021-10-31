@@ -99,6 +99,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.confirm">confirm</a> <span>- confirm(options)</span>
+</div>
+<div class="obj-property-desc">
+    Shows a context confirmation dialog for the grid
+</div>
+
+<div class="obj-property">
     <a href="w2grid.contextMenu">contextMenu</a> <span>- contextMenu(recid, [event])</span>
 </div>
 <div class="obj-property-desc">
@@ -414,7 +421,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.message">message</a> <span>- message(options, [callback])</span>
+    <a href="w2grid.message">message</a> <span>- message(options)</span>
 </div>
 <div class="obj-property-desc">
     Shows a context message for the grid
