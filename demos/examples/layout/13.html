@@ -27,8 +27,8 @@ $(function () {
     $('#layout').w2layout({
         name: 'layout',
         panels: [
-            { type: 'left', size: 200, resizable: true, style: pstyle, content: 'left' },
-            { type: 'main', style: pstyle, content: 'main',
+            { type: 'left', size: 200, resizable: true, style: pstyle, html: 'left' },
+            { type: 'main', style: pstyle, html: 'main',
                 callBack(event) {
                     $('#log').html('Original content is removed')
                 }

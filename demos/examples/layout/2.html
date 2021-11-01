@@ -1,8 +1,8 @@
 <div class="content">
     <div id="example_title">
         <h1>Resizable Panels</h1>
-        Any panel can be resizable by simply setting resizable property to true. You can defining the size of the panels in pixels or percentage. 
-        If you define an integer as the size, it will apply it in pixels, if you define as a string in the format 'xx%' it 
+        Any panel can be resizable by simply setting resizable property to true. You can defining the size of the panels in pixels or percentage.
+        If you define an integer as the size, it will apply it in pixels, if you define as a string in the format 'xx%' it
         will calculate percentage.
     </div>
     <div id="example_view"></div>
@@ -20,10 +20,10 @@ $(function () {
         name: 'layout',
         padding: 4,
         panels: [
-            { type: 'top', size: 50, resizable: true, style: pstyle, content: 'top' },
-            { type: 'left', size: 200, resizable: true, style: pstyle, content: 'left' },
-            { type: 'main', style: pstyle, content: 'main' },
-            { type: 'right', size: 200, resizable: true, style: pstyle, content: 'right' }
+            { type: 'top', size: 50, resizable: true, style: pstyle, html: 'top' },
+            { type: 'left', size: 200, resizable: true, style: pstyle, html: 'left' },
+            { type: 'main', style: pstyle, html: 'main' },
+            { type: 'right', size: 200, resizable: true, style: pstyle, html: 'right' }
         ]
     });
 });

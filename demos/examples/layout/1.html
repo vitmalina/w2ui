@@ -3,7 +3,7 @@
         <h1>Simple Layout</h1>
         This simple layout below has 3 panels, none of them are resizable. Layouts can be completely transparent, however, in the
         example below I have define border and background to see its structure.
-        The layout listens window resize event and resizes itself when window is resized. Try to resize the window and 
+        The layout listens window resize event and resizes itself when window is resized. Try to resize the window and
         see how layout picks up the new size.
     </div>
     <div id="example_view"></div>
@@ -20,9 +20,9 @@ $(function () {
     $('#layout').w2layout({
         name: 'layout',
         panels: [
-            { type: 'top', size: 50, style: pstyle, content: 'top' },
-            { type: 'left', size: 200, style: pstyle, content: 'left' },
-            { type: 'main', style: pstyle, content: 'main' }
+            { type: 'top', size: 50, style: pstyle, html: 'top' },
+            { type: 'left', size: 200, style: pstyle, html: 'left' },
+            { type: 'main', style: pstyle, html: 'main' }
         ]
     });
 });

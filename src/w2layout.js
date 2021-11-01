@@ -3,9 +3,6 @@
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2tabs
 *
 * == 2.0 changes
-*   - layout.content - deprecated
-*   - panel.callBack -> panel.removed
-*   - panel.onContent -> panel.onChange
 *
 ************************************************************************/
 

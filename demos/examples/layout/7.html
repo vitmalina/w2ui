@@ -35,24 +35,24 @@ $(function () {
     $('#layout').w2layout({
         name: 'layout',
         panels: [
-            { type: 'top', size: 50, resizable: true, style: pstyle, content: 'top' },
-            { type: 'left', size: 200, resizable: true, style: pstyle, content: 'left' },
+            { type: 'top', size: 50, resizable: true, style: pstyle, html: 'top' },
+            { type: 'left', size: 200, resizable: true, style: pstyle, html: 'left' },
             { type: 'main', style: 'background-color: white;', overflow: 'hidden' },
-            { type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle, content: 'preview' },
-            { type: 'right', size: 200, resizable: true, style: pstyle, content: 'right' },
-            { type: 'bottom', size: 50, resizable: true, hidden: true, style: pstyle, content: 'bottom' }
+            { type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle, html: 'preview' },
+            { type: 'right', size: 200, resizable: true, style: pstyle, html: 'right' },
+            { type: 'bottom', size: 50, resizable: true, hidden: true, style: pstyle, html: 'bottom' }
         ]
     });
     var pstyle = 'background-color: #efefbbad; border: 1px solid #efefef; padding: 5px;';
     $().w2layout({
         name: 'layout2',
         panels: [
-            { type: 'top', size: 40, resizable: true, style: pstyle, content: 'top' },
-            { type: 'left', size: 80, resizable: true, style: pstyle, content: 'left' },
+            { type: 'top', size: 40, resizable: true, style: pstyle, html: 'top' },
+            { type: 'left', size: 80, resizable: true, style: pstyle, html: 'left' },
             { type: 'main', style: pstyle },
-            { type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle, content: 'preview' },
-            { type: 'right', size: 80, resizable: true, style: pstyle, content: 'right' },
-            { type: 'bottom', size: 40, resizable: true, hidden: true, style: pstyle, content: 'bottom' }
+            { type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle, html: 'preview' },
+            { type: 'right', size: 80, resizable: true, style: pstyle, html: 'right' },
+            { type: 'bottom', size: 40, resizable: true, hidden: true, style: pstyle, html: 'bottom' }
         ]
     });
 

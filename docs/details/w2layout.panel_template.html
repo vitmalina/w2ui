@@ -18,6 +18,7 @@ All panels are created when in the contructor and all panels will inherit follow
     overflow: 'auto',   // overflow property of the panel, can have same values as similar CSS property
     style: '',          // additional css styles for the panel
     html: '',           // content of the panel, can be a string or an object with .render(box) method
+    removed: null,      // a one time call function when content current content is removed
     width: null,        // width of the panel, read only
     height: null,       // height of the panel, read only
     tabs: null,         // w2tabs object for the panel
@@ -26,8 +27,8 @@ All panels are created when in the contructor and all panels will inherit follow
         tabs    : false,
         toolbar : false
     },
-    callBack: null,     // function to call when content is overwritten
     // events
+    onChange: null,     // fires when content of the panel changed
     onRefresh: null,    // refresh event for the panel
     onResizing: null,   // resizing event for the panel
     onShow: null,       // show event for the panel
