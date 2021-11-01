@@ -1,13 +1,6 @@
 <link rel="stylesheet" type="text/css" href="../summary.css"/> 
 <div class="container">
 <div class="obj-property">
-    <a href="w2utils.event">event</a> <span>- Object</span>
-</div>
-<div class="obj-property-desc">
-    An object to work with custom events.
-</div>
-
-<div class="obj-property">
     <a href="w2utils.formatters">formatters</a> <span>- Object</span>
 </div>
 <div class="obj-property-desc">
@@ -25,7 +18,7 @@
     <a href="w2utils.isIE">isIE</a> <span>- Boolean, read only</span>
 </div>
 <div class="obj-property-desc">
-    Indicates if it is IE
+    Indicates if current browser is IE
 </div>
 
 <div class="obj-property">
@@ -33,6 +26,13 @@
 </div>
 <div class="obj-property-desc">
     Indicates if it is iOS
+</div>
+
+<div class="obj-property">
+    <a href="w2utils.isSafari">isSafari</a> <span>- Boolean, read only</span>
+</div>
+<div class="obj-property-desc">
+    Indicates if current browser is Safari
 </div>
 
 <div class="obj-property">

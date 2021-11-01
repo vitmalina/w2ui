@@ -50,7 +50,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2layout.html">html</a> <span>- html(type, [content], [transition])</span>
+    <a href="w2layout.html">html</a> <span>- html(type, html, [transition])</span>
 </div>
 <div class="obj-property-desc">
     Sets or retrieves panel content.

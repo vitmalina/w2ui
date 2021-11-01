@@ -1,22 +1,49 @@
 <h3>Overview</h3>
-In w2ui library there are several global variables. However, starting with version 2.0, you can load libaray as ES6 module
-and this variables will not be registered globally. If you link w2ui as a JS script, you will have global variables.
+In w2ui library there are several global variables. If you link w2ui.js as "text/javascript":
 <textarea class="html">
 &lt;script type="text/javascript" src="w2ui.min.js"&gt;&lt;/script&gt;
 </textarea>
 
-If you link w2ui as a module, for example
+Following global object and function will be defined:
+<ul>
+    <li><b><a href="#w2ui">w2ui</a></b> - object that holds all created widgets</li>
+    <li><b><a href="#w2locale">w2locale</a></b> - locale object</li>
+    <li><b><a href="#w2utils">w2utils</a></b> - utilities object</li>
+    <li><b><a href="#w2popup">w2popup</a></b> - popop object</li>
+    <li><b><a href="#w2alert">w2alert</a></b> - alert function</li>
+    <li><b><a href="#w2confirm">w2confirm</a></b> - confirm function</li>
+    <li><b><a href="#w2prompt">w2prompt</a></b> - prompot function</li>
+</ul>
+And following global classes (see <a href="#extend">extending w2ui</a>)
+<ul>
+    <li><b>w2event</b> - event class, can be exteded</li>
+    <li><b>w2field</b> - field class, can be extended</li>
+    <li><b>w2form</b> - form class, can be extended</li>
+    <li><b>w2grid</b> - grid class, can be extended</li>
+    <li><b>w2layout</b> - layout class, can be extended</li>
+    <li><b>w2sidebar</b> - sidebar class, can be extended</li>
+    <li><b>w2tabs</b> - tabs class, can be extended</li>
+    <li><b>w2toolbar</b> - toolbar class, can be extended</li>
+</ul>
+
+However, starting with version 2.0, you can load libaray as ES6 module and these variables will not be registered globally
+by default. If you link w2ui as type "module"
 <textarea class="html">
-&lt;script type="module" src="w2ui.es6.min.js?globals"&gt;&lt;/script&gt;
+&lt;script type="module" src="w2ui.es6.min.js"&gt;&lt;/script&gt;
 </textarea>
 
-You will only have globals if you provide "globals" is the link URL. You can also load then as ES6 modules with
-
+There will be no global variables and it makes no sense to link it this way, but load proper class for each script where
+you need it
 <textarea class="javascript">
 import { w2ui, w2utils, w2grid } from "w2ui.es6.min.js"
 </textarea>
 
-<h4>w2ui</h4>
+You can also link ES6 modules and auto-register globals if you do
+<textarea class="html">
+    &lt;script type="module" src="w2ui.es6.min.js?globals"&gt;&lt;/script&gt;
+</textarea>
+
+<h4 id="w2ui">w2ui</h4>
 
 All objects you create - layouts, grids, toolbars, sidebars, tabs, forms - will be attached to global w2ui object.
 Initially it is an empty object, but as soon as you start creating widgets, they will become part of
@@ -34,9 +61,17 @@ w2ui['myGrid'].get(3); // returns record with id=3
 w2ui.myGrid.get(3);
 </textarea>
 
-<h4>w2utils</h4>
+<h4 id="w2locale">w2locale</h4>
 
-This global variable has useful generic functions for data validation, data sanitation, data formatting, encoding, etc.
+This object holds all variables for localization purposes, such as date and tiem format, currency format, number format,
+days of weeks, months names, and translation phrases.
+<div style="height: 20px"></div>
+
+To load different locale use <a href="w2utils.locale">w2utils.locale</a>
+
+<h4 id="w2utils">w2utils</h4>
+
+This global object has useful functions for data validation, data sanitation, data formatting, encoding, etc.
 For example, you can check if a string is in email format by:
 
 <textarea class="javascript">
@@ -45,18 +80,55 @@ w2utils.isEmail('som@email.com'); // returns true if the string is a valid email
 
 See <a href="<?=$site_root?>/docs/utils/methods">w2utils.methods</a> for more information.
 
-<h4>w2popup</h4>
+<h4 id="w2popup">w2popup</h4>
 
-There are also a set of global variables to work with popups, they are w2popup, w2alert, w2confirm, w2prompt. So you can use
+Generic dialog object
 <textarea class="javascript">
-w2alert('some alert')
-// or
-w2confirm('Question')
-    .yes(() => { ... })
-    .no(() => { ... })
-// or
 w2popup.open({
     title: 'Title',
     body: 'Body'
 })
+</textarea>
+
+<h4 id="w2alert">w2alert</h4>
+
+Alert dialog
+<textarea class="javascript">
+w2alert('some alert')
+</textarea>
+
+<h4 id="w2confirm">w2confirm</h4>
+
+Confirm dialog
+<textarea class="javascript">
+w2confirm('Question')
+    .yes(() => { ... })
+    .no(() => { ... })
+</textarea>
+
+<h4 id="w2prompt">w2prompt</h4>
+
+Generic prompt dialog
+<textarea class="javascript">
+w2prompt('Enter age')
+    .change(() => { ... })
+    .ok(() => { ... })
+</textarea>
+
+<h3>Extended w2ui</h3>
+
+All w2ui classes can be extended and in such way a new and/or custom functionality can be added to grid, toolbar,
+sidebar, tabs, etc. For example, to extend a grid, do the following:
+
+<textarea class="javascript">
+import { w2grid } from "w2ui.es6.min.js"
+
+class w2customGrid extends w2grid {
+    constructor() {
+        super()
+        ...
+    }
+
+    // custom methods
+}
 </textarea>

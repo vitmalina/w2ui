@@ -71,6 +71,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2utils.fillTemplate">fillTemplate</a> <span>- fillTemplate(str, obj)</span>
+</div>
+<div class="obj-property-desc">
+    Fills out a template with provided variables
+</div>
+
+<div class="obj-property">
     <a href="w2utils.formatDate">formatDate</a> <span>- formatDate(dateStr, format)</span>
 </div>
 <div class="obj-property-desc">
@@ -327,6 +334,13 @@
 </div>
 <div class="obj-property-desc">
     Transitions two absolute DIVs.
+</div>
+
+<div class="obj-property">
+    <a href="w2utils.unescapeId">unescapeId</a> <span>- unescapeId(id)</span>
+</div>
+<div class="obj-property-desc">
+    Unescapes id.
 </div>
 
 <div class="obj-property">

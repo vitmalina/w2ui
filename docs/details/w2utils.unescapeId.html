@@ -1,0 +1,21 @@
+Unescapes id.
+
+<div class="definition">
+    unescapeId(id)
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>id</td>
+        <td><b>string</b>, id to escape</td>
+    </tr>
+    </table>
+</div>
+
+Use this function to undo result of <a href="w2utils.escapeId">w2utils.escapeId</a>.
+
+<textarea class="javascript">
+var a = w2utils.unescapeId('id\\.with\\.levels\\ and\\ spaces');
+console.log(a);
+</textarea>

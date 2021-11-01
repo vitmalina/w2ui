@@ -8,13 +8,6 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2layout.onContent">onContent</a> <span>- function (event)</span>
-</div>
-<div class="obj-property-desc">
-    Called when a panel content is set or changed.
-</div>
-
-<div class="obj-property">
     <a href="w2layout.onHide">onHide</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">

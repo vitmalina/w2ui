@@ -1,0 +1,79 @@
+Binds events found as data-* tags to the current object
+
+<div class="definition">
+    bindEvents(selector, subject)
+</div>
+<div class="arguments">
+    <table>
+    <tr>
+        <td>selector</td>
+        <td><b>string</b>, selector where to inspect data-* properties</td>
+    </tr>
+    <tr>
+        <td>subject</td>
+        <td><b>object</b>, this subject should have correct methods</td>
+    </tr>
+    </table>
+</div>
+
+This function allows you to define events in HTML and then bind them to the object. It is used internally for all
+of the objects to avoid using inline events with JavaScript as it is a potential security volnurability. Most recent
+Content Security Policies (CSP) have a quick qay to disable inline JavaScript.
+
+<div style="height: 20px"></div>
+For eample if you have a div defined in HTML as
+<textarea class="html">
+<div id="div1" data-click='["handleClick","event","this"]'>
+    ...
+</div>
+</textarea>
+
+You can bind events to a custom object in the folliwing way
+<textarea class="javascript">
+let obj = {
+    handleClick(event, obj) {
+        console.log('clicked', event, obj)
+    }
+}
+w2utils.bindEvents('#div1', obj)
+</textarea>
+
+The general format is
+<textarea class="html">
+<div ... data-<event>='["<method>","param1","param2",...]'> -- should be valid JSON (so double quotes)
+<div ... data-<event>="<method>|param1|param2|..."> -- alternative way with pipe
+</textarea>
+
+Here is the list of events that you can use
+<ul>
+    <li>click</li>
+    <li>dblclick</li>
+    <li>mouseenter</li>
+    <li>mouseleave</li>
+    <li>mouseover</li>
+    <li>mouseout</li>
+    <li>mousedown</li>
+    <li>mousemove</li>
+    <li>mouseup</li>
+    <li>focus</li>
+    <li>blur</li>
+    <li>input</li>
+    <li>change</li>
+    <li>keydown</li>
+    <li>keyup</li>
+    <li>keypress</li>
+</ul>
+
+Here is the list of predefined methods you can use
+<ul>
+    <li>alert - for testing purporse, displays a js alert</li>
+    <li>stop - calls event.stopPropagation()</li>
+    <li>prevent - calls event.preventDefault()</li>
+    <li>stopPrevent - calls event.stopPropagation() and event.preventDefault()</li>
+</ul>
+
+Here is the list of predefined argumnets you can use
+<ul>
+    <li>event - js event object</li>
+    <li>this - current object</li>
+</ul>

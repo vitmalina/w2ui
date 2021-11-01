@@ -1,0 +1,34 @@
+Fills out a template with provided variables
+
+<div class="definition">
+    execTemplate(str, obj)
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>str</td>
+        <td><b>string</b>, a template to fill out</td>
+    </tr>
+    <tr>
+        <td>obj</td>
+        <td><b>Object</b>, variables for the template</td>
+    </tr>
+    </table>
+</div>
+
+The <span class="argument">str</span> argument is a template with variables in it. The second argument <span class="argument">obj</span> is an
+object with variables.
+<textarea class="javascript">
+w2utils.execTemplate("This is ${a} template ${string}, can't ${you} see?")
+// returns: "This is ${a} template ${string}, can't ${you} see?"
+
+w2utils.execTemplate("This is ${a} template ${string}, can't ${you} see?", {})
+// returns: "This is a template string, can't you see?"
+
+w2utils.execTemplate("This is ${a} template ${string}, can't ${you} see?", {
+    a: "one fancy",
+    string: "StRiNg"
+})
+// returns: "This is one fancy template StRiNg, can't you see?"
+</textarea>
