@@ -99,10 +99,17 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2tabs.scroll">scroll</a> <span>- scroll(direction)</span>
+    <a href="w2tabs.scroll">scroll</a> <span>- scroll(direction, [instant])</span>
 </div>
 <div class="obj-property-desc">
     Scrolls tabs if they overflow.
+</div>
+
+<div class="obj-property">
+    <a href="w2tabs.scrollIntoView">scrollIntoView</a> <span>- scrollIntoView(id, [instant], [callBack])</span>
+</div>
+<div class="obj-property-desc">
+    Scrolls specified tab into the veiw.
 </div>
 
 <div class="obj-property">

@@ -11,7 +11,7 @@
     <a href="common.handlers">handlers</a> <span>- Array, default = []</span>
 </div>
 <div class="obj-property-desc">
-    Array of event handlers. 
+    Array of event handlers.
 </div>
 
 <div class="obj-property">
@@ -25,7 +25,7 @@
     <a href="common.style">style</a> <span>- String, default = ''</span>
 </div>
 <div class="obj-property-desc">
-    Additional style for the <a class="method" href="common.box">.box</a> where the object is rendered. 
+    Additional style for the <a class="method" href="common.box">.box</a> where the object is rendered.
 </div>
 
 </div>

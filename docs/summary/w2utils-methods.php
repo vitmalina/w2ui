@@ -22,6 +22,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2utils.bindEvents">bindEvents</a> <span>- bindEvents(selector, subject)</span>
+</div>
+<div class="obj-property-desc">
+    Binds events found as data-* tags to the current object
+</div>
+
+<div class="obj-property">
     <a href="w2utils.checkName">checkName</a> <span>- checkName(params, component)</span>
 </div>
 <div class="obj-property-desc">
@@ -71,7 +78,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2utils.fillTemplate">fillTemplate</a> <span>- fillTemplate(str, obj)</span>
+    <a href="w2utils.execTemplate">execTemplate</a> <span>- execTemplate(str, obj)</span>
 </div>
 <div class="obj-property-desc">
     Fills out a template with provided variables

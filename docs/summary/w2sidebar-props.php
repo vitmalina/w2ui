@@ -120,10 +120,17 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2sidebar.tabIndex">tabIndex</a> <span>- Number, default = 0</span>
+    <a href="w2sidebar.tabIndex">tabIndex</a> <span>- Number, default = null</span>
 </div>
 <div class="obj-property-desc">
     Defines tabIndex for sidebar element.
+</div>
+
+<div class="obj-property">
+    <a href="w2sidebar.tmp">tmp</a> <span>- Object</span>
+</div>
+<div class="obj-property-desc">
+    Runtime variables
 </div>
 
 <div class="obj-property">
