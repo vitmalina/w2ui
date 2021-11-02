@@ -51,7 +51,7 @@ properties is using <a href="w2layout.set">w2layout.set()</a> method, which will
 
 Below is an example how to find panel object:
 <textarea class="javascript">
-$('#layout').w2layout({
+let layout = new w2layout({
     name    : 'layout',
     panels  : [
         { type: 'top', size: 40 },
@@ -60,5 +60,5 @@ $('#layout').w2layout({
     ]
 });
 
-console.log(w2ui['layout'].get('preview'));
+console.log(w2ui.layout.get('preview'));
 </textarea>

@@ -51,7 +51,7 @@ panel: {
 Please note that the panel is not replaced with <span class="argument">object</span>, but extended using
 <span class="argument">$.extend()</span> method. Below is an example how to extend panel object:
 <textarea class="javascript">
-$('#layout').w2layout({
+let layout = new w2layout({
     name    : 'layout',
     panels  : [
         { type: 'top', size: 40 },
@@ -60,5 +60,5 @@ $('#layout').w2layout({
     ]
 });
 
-w2ui['layout'].set('preview', { resizable: true, minSize: 100 });
+w2ui.layout.set('preview', { resizable: true, minSize: 100 });
 </textarea>

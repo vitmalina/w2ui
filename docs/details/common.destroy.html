@@ -13,7 +13,7 @@ grid's toolbar. This method emits <a class="method" href="w2grid.onDestroy">.onD
 <div style="height: 10px"></div>
 
 <textarea class="javascript">
-$('#layout').w2layout({
+let layout = new w2layout({
     name    : 'layout',
     panels  : [
         { type: 'top', size: 40 },
@@ -26,7 +26,7 @@ $('#layout').w2layout({
 // some code
 // ...
 
-w2ui['layout'].destroy();
+w2ui.layout.destroy();
 </textarea>
 
 You can also use <span class="argument">w2destroy()</span> method defined in <a href="utils">utilities</a>.

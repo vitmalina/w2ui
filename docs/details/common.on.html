@@ -44,7 +44,7 @@ The simplest way to add an event listener is to provide the name of the event an
 layout (for grid, toolbar, etc. it is exactly the same) defined as follows:
 
 <textarea class="javascript">
-$('#layout').w2layout({
+let layout = new w2layout({
     name    : 'layout',
     panels  : [
         { type: 'top', size: 40 },
@@ -57,7 +57,7 @@ $('#layout').w2layout({
 You can add an event listener in the following way:
 
 <textarea class="javascript">
-w2ui['layout'].on('refresh', function (event) {
+w2ui.layout.on('refresh', function (event) {
     console.log(event.target, event);
 });
 </textarea>
@@ -65,7 +65,7 @@ w2ui['layout'].on('refresh', function (event) {
 Or to execute at the end of event cycle:
 
 <textarea class="javascript">
-w2ui['layout'].on('refresh:after', function (event) {
+w2ui.layout.on('refresh:after', function (event) {
     console.log(event.target, event);
 });
 </textarea>
@@ -73,7 +73,7 @@ w2ui['layout'].on('refresh:after', function (event) {
 You could also add event listener in the following way:
 
 <textarea class="javascript">
-w2ui['layout'].on({ type : 'refresh' }, function (event) {
+w2ui.layout.on({ type : 'refresh' }, function (event) {
     console.log(event.target, event);
 });
 </textarea>
@@ -98,10 +98,10 @@ event = {
 <h4>Event Namespace</h4>
 While adding an event listener, you can provide a namespace for the event:
 <textarea class="javascript">
-w2ui['layout'].on('render.myplugin', function (event) {
+w2ui.layout.on('render.myplugin', function (event) {
     console.log(event.target, event);
 });
-w2ui['layout'].on('refresh.myplugin', function (event) {
+w2ui.layout.on('refresh.myplugin', function (event) {
     console.log(event.target, event);
 });
 </textarea>
@@ -109,7 +109,7 @@ w2ui['layout'].on('refresh.myplugin', function (event) {
 It provides you with a convenience to remove events listener in an easy way without specifying all events and functions
 they were registered with:
 <textarea class="javascript">
-w2ui['layout'].off('.myplugin')
+w2ui.layout.off('.myplugin')
 </textarea>
 
 <h4>Event Names</h4>
@@ -121,7 +121,7 @@ lower case first letter. For example, if the object has "onResize" event, you ca
 
 You can attach event listener to all events if you do the following:
 <textarea class="javascript">
-w2ui['layout'].on('*', function (event) {
+w2ui.layout.on('*', function (event) {
     console.log(event.type, event);
 });
 </textarea>

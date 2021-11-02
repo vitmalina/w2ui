@@ -1,15 +1,15 @@
-Array of event handlers. 
+Array of event handlers.
 
 <div class="definition">
     Array, default = []
 </div>
 
 There is no need to change this array directly. You should use <a href="common.on" class="method">.on()</a>
-method to add event listener and <a class="method" href="common.off">.off()</a> to remove it. 
+method to add event listener and <a class="method" href="common.off">.off()</a> to remove it.
 However, it might be useful to iterate the array to see what event handlers have been added.
 
 <textarea class="javascript">
-$('#layout').w2layout({
+let layout = new w2layout({
     name    : 'layout',
     panels  : [
         { type: 'top', size: 40 },
@@ -18,13 +18,13 @@ $('#layout').w2layout({
 });
 
 // add event listener for all events
-w2ui['layout'].on('*', function (target, eventData) {
+w2ui.layout.on('*', function (target, eventData) {
     console.log(target);
     console.log(eventData);
 });
 
 // iterating through event handlers
-for (var i in w2ui['layout'].handlers) {
-    console.log(w2ui['layout'].handlers[i]);
+for (var i in w2ui.layout.handlers) {
+    console.log(w2ui.layout.handlers[i]);
 }
 </textarea>

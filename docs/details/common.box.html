@@ -4,25 +4,13 @@ The DOM element where to render the object.
     DOM Element, default = null
 </div>
 
-Usually it is a DIV, but can be any block element. 
-If you change <span class="method">.box</span> property you will need to call <a class="method" href="common.render">.render()</a> method 
-to render widget inside the new DOM element. If you specify a selector, there is no need to define <a href="common.box">.box</a> because 
+Usually it is a DIV, but can be any block element.
+If you change <span class="method">.box</span> property you will need to call <a class="method" href="common.render">.render()</a> method
+to render widget inside the new DOM element. If you specify a selector, there is no need to define <a href="common.box">.box</a> because
 it will be automatically set.
 
 <textarea class="javascript">
-$('#layout').w2layout({
-    name    : 'layout',
-    panels  : [
-        { type: 'top', size: 40 },
-        { type: 'preview', size: 200 }
-    ]
-});
-</textarea>
-
-However, you could have created a layout without rendering it anywhere:
-
-<textarea class="javascript">
-$().w2layout({
+let layout = new w2layout({
     name    : 'layout',
     panels  : [
         { type: 'top', size: 40 },
@@ -40,12 +28,12 @@ $('#layout').w2render('layout'); // preferred way
 or
 
 <textarea class="javascript">
-w2ui['layout'].render($('#layout')[0]);
+w2ui.layout.render($('#layout')[0]);
 </textarea>
 
-or 
+or
 
 <textarea class="javascript">
-w2ui['layout'].box = $('#layout')[0];
-w2ui['layout'].render();
+w2ui.layout.box = $('#layout')[0];
+w2ui.layout.render();
 </textarea>

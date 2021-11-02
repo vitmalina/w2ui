@@ -52,7 +52,7 @@ The transition is done using <a href="w2utils.transition">w2utils.transition()</
 
 Below is an example  how to set content to the layout panel:
 <textarea class="javascript">
-$('#layout').w2layout({
+let layout = new w2layout({
     name: 'layout',
     panels: [
         { type: 'top', size: 40 },
@@ -62,6 +62,6 @@ $('#layout').w2layout({
 });
 
 // return current content
-w2ui['layout'].load('main', 'http://domain.com/path/to/file', 'slide-left')
+w2ui.layout.load('main', 'http://domain.com/path/to/file', 'slide-left')
     .then(() => { console.log('Content is loaded')})
 </textarea>

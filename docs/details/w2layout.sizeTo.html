@@ -43,7 +43,7 @@ you defined.
 
 An example below illustrates the use of <span class="argument">resizeTo</span> method:
 <textarea class="javascript">
-$('#layout').w2layout({
+let layout = new w2layout({
     name    : 'layout',
     panels  : [
         { type: 'top', size: 40 },
@@ -53,5 +53,5 @@ $('#layout').w2layout({
     ]
 });
 
-w2ui['layout'].sizeTo('right', 100);
+w2ui.layout.sizeTo('right', 100);
 </textarea>

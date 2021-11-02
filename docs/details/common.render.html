@@ -16,15 +16,15 @@ Returns number of milliseconds it took to render.
 
 <h4>Description</h4>
 
-If the <span class="argument">box</span> argument is not specified, the widget will be rendered into the DOM element 
-specified by the <span class="argument">.box</span> property. The <span class="method">.render()</span> method will also 
-create related objects by calling their <span class="method">.render()</span> methods. For example, each w2grid has a toolbar, 
+If the <span class="argument">box</span> argument is not specified, the widget will be rendered into the DOM element
+specified by the <span class="argument">.box</span> property. The <span class="method">.render()</span> method will also
+create related objects by calling their <span class="method">.render()</span> methods. For example, each w2grid has a toolbar,
 which is a w2toolbar object. When grid is rendered, the toolbar object will be rendered as well.
 <div style="height: 10px"></div>
 
 If you pass a selector during object creation it will be automatically rendered into that element:
 <textarea class="javascript">
-$('#layout').w2layout({
+let layout = new w2layout({
     name    : 'layout',
     panels  : [
         { type: 'top', size: 40 },
@@ -36,7 +36,7 @@ $('#layout').w2layout({
 
 You could have created layout in the following way:
 <textarea class="javascript">
-$().w2layout({
+let layout = new w2layout({
     name    : 'layout',
     panels  : [
         { type: 'top', size: 40 },
@@ -46,9 +46,9 @@ $().w2layout({
 });
 </textarea>
 
-The widget will be created in memory and you can render it by: 
+The widget will be created in memory and you can render it by:
 <textarea class="javascript">
-w2ui['layout'].render($('#layout')[0]);
+w2ui.layout.render($('#layout')[0]);
 </textarea>
 
 But preferred way to do:

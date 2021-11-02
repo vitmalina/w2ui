@@ -23,7 +23,7 @@ if you have changed object's properties.
 <div style="height: 10px"></div>
 
 <textarea class="javascript">
-$('#layout').w2layout({
+let layout = new w2layout({
     name    : 'layout',
     panels  : [
         { type: 'top', size: 40 },
@@ -39,7 +39,7 @@ $('#layout').w2layout({
 w2ui.layout.refresh();
 </textarea>
 
-If no arguments provided, the entire widget will be refreshed. However, for some widget an optional second parameter can be 
+If no arguments provided, the entire widget will be refreshed. However, for some widget an optional second parameter can be
 specified to refresh that portion only.
 <div style="height: 10px"></div>
 
@@ -68,4 +68,3 @@ For w2toolbar it is id of the toolbar item:
 <textarea class="javascript">
 w2ui.toolbar.refresh('toolbar-id');
 </textarea>
-    

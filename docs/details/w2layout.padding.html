@@ -4,14 +4,14 @@ Padding between panels in px.
     Integer, default = 1
 </div>
 
-If padding is 0 the panels will be next to each other. If you change padding during run-time you will need to call 
+If padding is 0 the panels will be next to each other. If you change padding during run-time you will need to call
 <a href="w2layout.resize">.resize()</a> method to resize to apply new padding.
 
 <br><br>
-Padding can be set during object creation: 
+Padding can be set during object creation:
 
 <textarea class="javascript">
-$('#layout').w2layout({
+let layout = new w2layout({
     name    : 'layout',
     padding : 2,
     panels  : [
@@ -24,6 +24,6 @@ $('#layout').w2layout({
 Or any time after the layout has been created:
 
 <textarea class="javascript">
-w2ui['layout'].padding = 2;
-w2ui['layout'].resize();
+w2ui.layout.padding = 2;
+w2ui.layout.resize();
 </textarea>

@@ -47,11 +47,11 @@ The first argument <span class="argument">type</span> is the name of the panel. 
 As of 1.3 there is a hidden panel named css. If you define content for this panel, it will be set within style tag.
 You can also load content for the css panel <a class="argument" href="w2layout.load">w2layout.load</a> method.
 <textarea class="javascript">
-w2ui['layout'].html('css', '.class1 { color: red }');
+w2ui.layout.html('css', '.class1 { color: red }');
 </textarea>
 or
 <textarea class="javascript">
-w2ui['layout'].load('css', 'file.css');
+w2ui.layout.load('css', 'file.css');
 </textarea>
 
 <div style="height: 10px"></div>
@@ -73,7 +73,7 @@ If the argument <span class="argument">content</span> is not specified the metho
 
 <textarea class="javascript">
 // return current content
-var content = w2ui['layout'].html('main');
+var content = w2ui.layout.html('main');
 console.log('main panel content is', content);
 </textarea>
 
@@ -94,7 +94,7 @@ The transition is done using <a href="w2utils.transition">w2utils.transition()</
 
 You can set content during object creation:
 <textarea class="javascript">
-$('#layout').w2layout({
+let layout = new w2layout({
     name    : 'layout',
     panels  : [
         { type: 'top', size: 40 },
@@ -107,9 +107,9 @@ $('#layout').w2layout({
 Or anytime during run-time:
 <textarea class="javascript">
 // set new content
-w2ui['layout'].html('main', 'HTML content');
+w2ui.layout.html('main', 'HTML content');
 // set content as an object
-w2ui['layout'].html('main', w2ui['grid']);
+w2ui.layout.html('main', w2ui['grid']);
 </textarea>
 
 You can set some content and defined a function to be called when this content was replaced

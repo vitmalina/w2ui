@@ -1,4 +1,4 @@
-Called when resizer is clicked. 
+Called when resizer is clicked.
 
 <div class="definition">
     onResizerClick = function(event)
@@ -7,7 +7,7 @@ Called when resizer is clicked.
 You can add event listener during the object creation:
 
 <textarea class="javascript">
-$('#layout').w2layout({
+let layout = new w2layout({
     name    : 'layout',
     panels  : [
         { type: 'top', size: 40 },
@@ -15,7 +15,7 @@ $('#layout').w2layout({
     ],
     onResizerClick: function(event) {
         console.log('Resizer is clicked.');
-    }        
+    }
 });
 </textarea>
 
@@ -28,7 +28,7 @@ w2ui.layout.on('resizerClick', function(event) {
 </textarea>
 
 The event handler is called before the default action of the event is triggered. You can cancel the default action by calling
-<span class="method">event.preventDefault()</span>. To perform an action 
-after the event is fully processed, define <span class="method">event.onComplete</span> function. 
+<span class="method">event.preventDefault()</span>. To perform an action
+after the event is fully processed, define <span class="method">event.onComplete</span> function.
 <div style="height: 10px;"></div>
 See <a href="utils/events">events</a> page in utilities for more details.

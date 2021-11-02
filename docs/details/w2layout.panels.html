@@ -12,7 +12,7 @@ the screen. It is not recommended to change this array after the object has been
 method to change panels dynamically, which will refresh the panel you changed.
 
 <textarea class="javascript">
-$('#layout').w2layout({
+let layout = new w2layout({
     name    : 'layout',
     panels  : [
         { type: 'top', size: 40 },
@@ -20,12 +20,12 @@ $('#layout').w2layout({
     ]
 });
 
-w2ui['layout'].set('top', { size: 50 });
+w2ui.layout.set('top', { size: 50 });
 </textarea>
 
 As of version 1.2+ you can add w2tabs or/and w2toolbar object at the top of the panel.
 <textarea class="javascript">
-$('#layout').w2layout({
+let layout = new w2layout({
     name    : 'layout',
     panels  : [
         { type: 'top', size: 40 },

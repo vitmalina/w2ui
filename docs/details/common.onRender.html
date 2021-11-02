@@ -1,15 +1,15 @@
-Called when object is rendered. 
+Called when object is rendered.
 
 <div class="definition">
     onRender = function(event)
 </div>
 
-This event is common for all w2ui widgets (layout, grid, toolbar, sidebar, tabs, form). 
+This event is common for all w2ui widgets (layout, grid, toolbar, sidebar, tabs, form).
 <div style="height: 10px;"></div>
 You can add event listener during the object creation:
 
 <textarea class="javascript">
-$('#layout').w2layout({
+let layout = new w2layout({
     name    : 'layout',
     panels  : [
         { type: 'top', size: 40 },
@@ -17,20 +17,20 @@ $('#layout').w2layout({
     ],
     onRender: function(event) {
         console.log('object '+ this.name + ' is rendered');
-    }        
+    }
 });
 </textarea>
 
 or after the object has been created:
 
 <textarea class="javascript">
-w2ui['layout'].on('render', function(event) {
+w2ui.layout.on('render', function(event) {
     console.log('object '+ this.name + ' is rendered');
 });
 </textarea>
 
 The event handler is called before the default action of the event is triggered. You can cancel the default action by calling
-<span class="method">event.preventDefault()</span>. To perform an action 
-after the event is fully processed, define <span class="method">event.onComplete</span> function. 
+<span class="method">event.preventDefault()</span>. To perform an action
+after the event is fully processed, define <span class="method">event.onComplete</span> function.
 <div style="height: 10px;"></div>
 See <a href="utils/events">events</a> page in utilities for more details.

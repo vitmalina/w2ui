@@ -43,7 +43,7 @@ Returns <i>undefined</i>.
 You can remove a specific listener for a specific event, all listener for a specific event, or all listener for all events. For example, if you
 have a layout (same for grid, toolbar, etc.) defined as follows:
 <textarea class="javascript">
-$('#layout').w2layout({
+let layout = new w2layout({
     name    : 'layout',
     panels  : [
         { type: 'top', size: 40 },
@@ -56,28 +56,28 @@ $('#layout').w2layout({
 You can remove a specific event listener (note that the handler cannot be an anonymous function):
 
 <textarea class="javascript">
-w2ui['layout'].off('refresh', handler);
+w2ui.layout.off('refresh', handler);
 </textarea>
 
 All listeners for the event:
 
 <textarea class="javascript">
-w2ui['layout'].off('refresh');
+w2ui.layout.off('refresh');
 </textarea>
 
 All listeners for all events:
 
 <textarea class="javascript">
-w2ui['layout'].off('*');
+w2ui.layout.off('*');
 </textarea>
 
 <h4>Event Namespace</h4>
 While adding an event listener, you can provide a namespace for the event:
 <textarea class="javascript">
-w2ui['layout'].on('render.myplugin', function (event) {
+w2ui.layout.on('render.myplugin', function (event) {
     console.log(event.target, event);
 });
-w2ui['layout'].on('refresh.myplugin', function (event) {
+w2ui.layout.on('refresh.myplugin', function (event) {
     console.log(event.target, event);
 });
 </textarea>
@@ -85,5 +85,5 @@ w2ui['layout'].on('refresh.myplugin', function (event) {
 It provides you with a convenience to remove events listener in an easy way without specifying all events and functions
 they were registered with:
 <textarea class="javascript">
-w2ui['layout'].off('.myplugin')
+w2ui.layout.off('.myplugin')
 </textarea>

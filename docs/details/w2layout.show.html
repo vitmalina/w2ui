@@ -34,7 +34,7 @@ argument <span class="argument">immediate</span> to true.
 
 If you have a layout defined as:
 <textarea class="javascript">
-$('#layout').w2layout({
+let layout = new w2layout({
     name    : 'layout',
     panels  : [
         { type: 'top', size: 40 },
@@ -46,10 +46,10 @@ $('#layout').w2layout({
 
 You can show with animation
 <textarea class="javascript">
-w2ui['layout'].show('preview');
+w2ui.layout.show('preview');
 </textarea>
 
 Or without animation
 <textarea class="javascript">
-w2ui['layout'].show('preview', true);
+w2ui.layout.show('preview', true);
 </textarea>

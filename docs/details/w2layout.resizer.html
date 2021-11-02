@@ -8,10 +8,10 @@ The size (width for vertical, height for horizontal) of the draggable resize bar
 during run-time, call <a href="w2layout.resize">.resize()</a> method to apply changes.
 
 <br><br>
-Resizer can be set during object creation: 
+Resizer can be set during object creation:
 
 <textarea class="javascript">
-$('#layout').w2layout({
+let layout = new w2layout({
     name    : 'layout',
     resizer : 2,
     panels  : [
@@ -24,6 +24,6 @@ $('#layout').w2layout({
 Or any time after the layout has been created:
 
 <textarea class="javascript">
-w2ui['layout'].resizer = 2;
-w2ui['layout'].resize();
+w2ui.layout.resizer = 2;
+w2ui.layout.resize();
 </textarea>

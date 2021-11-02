@@ -13,7 +13,7 @@ you need to call it when you change the size of the container.
 <div style="height: 10px"></div>
 
 <textarea class="javascript">
-$('#layout').w2layout({
+let layout = new w2layout({
     name    : 'layout',
     panels  : [
         { type: 'top', size: 40 },
@@ -26,5 +26,5 @@ $('#layout').w2layout({
 // some code
 // ...
 
-w2ui['layout'].resize();
+w2ui.layout.resize();
 </textarea>

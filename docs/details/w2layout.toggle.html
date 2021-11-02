@@ -22,7 +22,7 @@ Toggles the panel.
 If the panel is hidden the <span class="argument">toggle()</span> method will call <a href="w2layout.show">w2layout.show()</a>
 method, if hidden - <a href="w2layout.show">w2layout.hide()</a>. Below is an example how to toggle a panel:
 <textarea class="javascript">
-$('#layout').w2layout({
+let layout = new w2layout({
     name    : 'layout',
     panels  : [
         { type: 'top', size: 40 },
@@ -32,9 +32,8 @@ $('#layout').w2layout({
 });
 
 // with animation
-w2ui['layout'].toggle('preview');
+w2ui.layout.toggle('preview');
 
 // without animation
-w2ui['layout'].toggle('preview', true);
+w2ui.layout.toggle('preview', true);
 </textarea>
-
