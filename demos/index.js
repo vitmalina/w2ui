@@ -317,20 +317,20 @@ $(function () {
                         { id: 'popup/2', text: 'Popup Elements', icon: 'fa fa-list-alt' },
                         { id: 'popup/3', text: 'Popup Content', icon: 'fa fa-list-alt' },
                         { id: 'popup/4', text: 'Lock/Unlock', icon: 'fa fa-list-alt' },
-                        { id: 'popup/5', text: 'Slide a Message', icon: 'fa fa-list-alt' },
+                        { id: 'popup/5', text: 'Context Message', icon: 'fa fa-list-alt' },
                         { id: 'popup/6', text: 'Transitions', icon: 'fa fa-list-alt' }
                     ]
                 },
                 { id: 'popup-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'popup/7', text: 'Common Dialogs', icon: 'fa fa-list-alt' },
-                        { id: 'popup/8', text: 'Messages', icon: 'fa fa-list-alt' },
-                        { id: 'popup/9', text: 'Better Events', icon: 'fa fa-list-alt' },
-                        { id: 'popup/10', text: 'Actions', icon: 'fa fa-list-alt' }
+                        { id: 'popup/8', text: 'Context Dialogs', icon: 'fa fa-list-alt' },
+                        { id: 'popup/9', text: 'Better Event Flow', icon: 'fa fa-list-alt' },
                     ]
                 },
                 { id: 'popup-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
+                        { id: 'popup/10', text: 'Actions', icon: 'fa fa-list-alt' },
                         { id: 'popup/11', text: 'Promises', icon: 'fa fa-list-alt' }
                     ]
                 },

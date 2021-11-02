@@ -13,9 +13,11 @@ Loads new content for the popup from the server.
     </table>
 </div>
 
+Retuns a <i>promise</i> that is resolved when popup content is loaded.
+
 <h4>Description</h4>
 
-The first argument <span class="argument">options</span> is a map of properties for the popup (see <a href="popup">overview</a> page
+The first argument <span class="argument">options</span> is a map of properties (or just a url) for the popup (see <a href="popup">overview</a> page
 for valid options). The <span class="argument">options</span> argument must have <span class="argument">url</span> property defined,
 which will be called to retrieve popup content.
 
@@ -45,7 +47,7 @@ below:
 <div style="height: 10px;"></div>
 When you are loading content from the server, you can optionally add <span class="argument">#id</span> at the end of your url. This allows to select a particular popup element by id, if server returns multiple in the same file.
 <textarea class="javascript">
-w2popup.load('server/url/page.html');
+w2popup.load('server/url/page.html').then(() => { console.log('Content is loaded') })
 // OR
-w2popup.load({ url: 'server/url/page.html#id1' });
+w2popup.load({ url: 'server/url/page.html#id1' }).then(() => { console.log('Content is loaded') })
 </textarea>

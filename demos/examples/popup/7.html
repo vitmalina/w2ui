@@ -39,10 +39,13 @@ function showPrompt() {
         height: 200
     })
     .change((event) => {
-        console.log('change', event);
+        console.log('change', event)
     })
-    .ok((event) => {
-        console.log('ok', event);
+    .ok((value) => {
+        console.log('ok, value=', value)
+    })
+    .cancel(() => {
+        console.log('cancel')
     });
 }
 </script>

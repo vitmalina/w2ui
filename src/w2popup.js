@@ -3,11 +3,6 @@
 *   - Dependencies: jQuery, w2utils
 *
 * == 2.0 changes
-*   - load(url)
-*   - template(data, id)
-*   - open, load, message - return promise
-*   - options.actions = { text, class, onClick }
-*   - added options.openMaximized
 *
 ************************************************************************/
 

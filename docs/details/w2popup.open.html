@@ -13,7 +13,7 @@ Opens new popup or transitions to new content.
     </table>
 </div>
 
-OR 
+OR
 
 <div class="definition">
     $('#id-content').w2popup('open', options);
@@ -28,13 +28,15 @@ OR
     </table>
 </div>
 
+Returns <i>promise</i> that is resolved when message is opened.
+
 <h4>Description</h4>
 
 The first argument <span class="argument">open</span> is the default and can be omitted.
 <div style="height: 10px;"></div>
 
-The second argument <span class="argument">options</span> is a map of properties for the popup (see <a href="popup">overview</a> page 
-for valid options). Please note that options will not be replaces, but extended. If a popup is already displayed you can change the 
+The second argument <span class="argument">options</span> is a map of properties for the popup (see <a href="popup">overview</a> page
+for valid options). Please note that options will not be replaces, but extended. If a popup is already displayed you can change the
 width/height (or any other property) in the following way:
 
 <textarea class="javascript">
