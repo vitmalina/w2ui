@@ -11,7 +11,7 @@ retrieve records, it will submit <span class="argument">.limit</span> as the num
 
 This property can be set during object creation:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     limit     : 500,
     columns : [
@@ -27,5 +27,5 @@ $('#grid').w2grid({
 
 Or any time during run-time:
 <textarea class="javascript">
-w2ui['grid'].limit = 500;
+grid.limit = 500;
 </textarea>

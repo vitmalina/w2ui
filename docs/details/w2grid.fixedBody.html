@@ -11,7 +11,7 @@ false, the grid will have dynamic height depending on the number of records in i
 
 This property can be defined during object creation:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name      : 'grid',
     fixedBody : false,
     columns: [
@@ -28,6 +28,6 @@ $('#grid').w2grid({
 Or any time after the grid has been created:
 
 <textarea class="javascript">
-w2ui['grid'].fixedBody = true;
-w2ui['grid'].refresh();
+grid.fixedBody = true;
+grid.refresh();
 </textarea>

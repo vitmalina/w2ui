@@ -7,7 +7,7 @@ Called when user copies selected records to clipboard (ctrl+c or cmd+c).
 The normal behavior is to copy the text to the clipboard. You can add event listener during the object creation:
 
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },

@@ -5,10 +5,10 @@ Total number of records.
 </div>
 
 If your data source is remote the data source should return you total number of records and then this property is ReadOnly. If your data
-source is local, then this property should be set to the length of <a class="argument" href="w2grid.records">.records</a> array. If you change this 
-array directly, do not forget to update the <span class="argument">.total</span> property. If you use <a class="argument" href="w2grid.add">.add()</a> 
+source is local, then this property should be set to the length of <a class="argument" href="w2grid.records">.records</a> array. If you change this
+array directly, do not forget to update the <span class="argument">.total</span> property. If you use <a class="argument" href="w2grid.add">.add()</a>
 method, this property will be updated automatically.
 
 <textarea class="javascript">
-w2ui['grid'].total = w2ui['grid'].records.length;
+grid.total = grid.records.length;
 </textarea>

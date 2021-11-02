@@ -8,7 +8,7 @@ If multi select is allowed, user can select more then one record at a time. This
 during object creation:
 
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name        : 'grid',
     header      : 'Grid Header',
     multiSelect : false,
@@ -26,7 +26,7 @@ $('#grid').w2grid({
 Or any time after the grid has been created:
 
 <textarea class="javascript">
-w2ui['grid'].multiSelect = true;
+grid.multiSelect = true;
 </textarea>
 
 You can optionally enable <span class="property">.show.selectColumn</span>. See <a class="argument" href="w2grid.show">w2grid.show</a> for

@@ -16,7 +16,7 @@ in the <span class="property">.records</span> array instead of their recids.
 
 If you have grid defined in the following way:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
@@ -39,7 +39,7 @@ $('#grid').w2grid({
 
 You can get selected records:
 <textarea class="javascript">
-console.log( w2ui['grid'].getSelection() );
+console.log( grid.getSelection() );
 </textarea>
 
 Please note if you try to get selection in onClick event, you need to:

@@ -14,7 +14,7 @@ to generate each summary record.
 
 If you have grid defined in the following way:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
@@ -37,6 +37,6 @@ $('#grid').w2grid({
 
 You can get summary records HTML:
 <textarea class="javascript">
-var html = w2ui['grid'].getSummaryHTML();
+var html = grid.getSummaryHTML();
 console.log(html);
 </textarea>

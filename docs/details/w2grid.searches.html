@@ -10,7 +10,7 @@ during the run-time. There is no need to refresh the grid because this array wil
 
 Searches can be defined during object creation:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name : 'grid',
     show : { toolbar : true },
     columns : [
@@ -36,7 +36,7 @@ $('#grid').w2grid({
 Or it can be changed during run-time:
 
 <textarea class="javascript">
-w2ui['grid'].searches[0] = { field: 'recid', text: 'ID', type: 'int' };
+grid.searches[0] = { field: 'recid', text: 'ID', type: 'int' };
 </textarea>
 
 Because the only way for the user to trigger the search is from the toolbar, the <a class="argument" href="w2grid.show">.show.toolbar</a> and

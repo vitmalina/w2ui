@@ -19,7 +19,7 @@ Removes all records from the <span class="method">.records</span> array, resets 
 <span class="method">.buffered</span> properties and refreshes the grid. If you have grid defined in the
 following way:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
@@ -42,7 +42,7 @@ $('#grid').w2grid({
 
 You can remove all records:
 <textarea class="javascript">
-w2ui['grid'].clear();
+grid.clear();
 </textarea>
 
 <h4>See Also</h4>

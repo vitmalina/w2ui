@@ -8,7 +8,7 @@ You can define records during object creation or during run-time. Generally, the
 and remote. If you do not defined the <a class="property" href="w2grid.url">.url</a> property the data source is local and you can add
 records to the grid in the following way:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     url     : 'server/side/path/to/records',
     columns: [
@@ -37,7 +37,7 @@ do not forget to call <a class="argument" href="w2grid.refresh">.refresh</a> met
 If you defined the <a class="property" href="w2grid.url">.url</a>, the records will be loaded from this url overwriting any
 locally defined records.
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     url     : 'server/side/path/to/records',
     columns: [

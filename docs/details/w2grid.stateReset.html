@@ -13,7 +13,7 @@ This method restores grid state to the default if wipes out state stored in the 
 
 If you have grid defined in the following way:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name: 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
@@ -36,5 +36,5 @@ $('#grid').w2grid({
 
 You can do:
 <textarea class="javascript">
-w2ui['grid'].saveReset();
+grid.saveReset();
 </textarea>

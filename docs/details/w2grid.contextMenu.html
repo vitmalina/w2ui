@@ -27,7 +27,7 @@ The first argument <span class="argument">recid</span> is the id of the record. 
 
 If you have grid defined in the following way:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name           : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
@@ -50,5 +50,5 @@ $('#grid').w2grid({
 
 You can do:
 <textarea class="javascript">
-w2ui['grid'].contextMenu(4);
+grid.contextMenu(4);
 </textarea>

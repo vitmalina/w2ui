@@ -11,7 +11,7 @@ only search one field at a time and he will not see the "Search..." button. He a
 
 This property can be defined during object creation:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name        : 'grid',
     header      : 'Grid Header',
     multiSearch : false,
@@ -29,8 +29,8 @@ $('#grid').w2grid({
 Or any time after the grid has been created:
 
 <textarea class="javascript">
-w2ui['grid'].multiSearch = true;
-w2ui['grid'].refresh();
+grid.multiSearch = true;
+grid.refresh();
 </textarea>
 
 If you do allow multi field search, but want to hide the "Search..." button, you can do so setting

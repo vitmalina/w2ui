@@ -10,7 +10,7 @@ If dataType is not defined, the default one comes from
 
 This property can be set during object creation:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name: 'grid',
     dataType: 'JSON',
     columns: [
@@ -26,5 +26,5 @@ $('#grid').w2grid({
 
 Or any time during run-time:
 <textarea class="javascript">
-w2ui['grid'].method = 'POST';
+grid.method = 'POST';
 </textarea>

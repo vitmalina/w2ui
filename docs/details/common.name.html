@@ -18,7 +18,7 @@ let layout = new w2layout({
 });
 
 // grid
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     columns : [
         { field: 'fname', text: 'First Name', size: '30%' },
@@ -32,7 +32,7 @@ In the example above two objects are created - a layout and a grid. You can acce
 
 <textarea class="javascript">
 w2ui.layout.refresh();   // layout
-w2ui['grid'].refresh();     // grid
+grid.refresh();     // grid
 </textarea>
 
 You can destroy any object by name

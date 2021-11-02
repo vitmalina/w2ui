@@ -30,7 +30,7 @@ If called w/o parameters, it will return array of search names.
 
 If you have grid defined in the following way:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
@@ -58,5 +58,5 @@ $('#grid').w2grid({
 
 You can get the search:
 <textarea class="javascript">
-console.log( w2ui['grid'].getSearch('recid') );
+console.log( grid.getSearch('recid') );
 </textarea>

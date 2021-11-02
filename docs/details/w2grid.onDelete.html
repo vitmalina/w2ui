@@ -11,7 +11,7 @@ If you change <span class="method">event.force</span> to true on the first call,
  You can add event listener during the object creation:
 
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },

@@ -24,7 +24,7 @@ Selects a record or records in the <span class="method">.records</span> array an
 
 If you have grid defined in the following way:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
@@ -47,9 +47,9 @@ $('#grid').w2grid({
 
 You can select records:
 <textarea class="javascript">
-w2ui['grid'].select(2, 5, 6);
+grid.select(2, 5, 6);
 // or
-w2ui['grid'].select([2, 5, 6]);
+grid.select([2, 5, 6]);
 </textarea>
 
 There are two events related to selection of records: <a class="property" href="w2grid.onSelect">onSelect</a> and

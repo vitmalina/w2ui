@@ -10,7 +10,7 @@ event you will selected menu item in the event object.
 
 This property can be set during object creation:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name : 'grid',
     show : {
         toolbar    : true,
@@ -44,7 +44,7 @@ $('#grid').w2grid({
 
 Or any time during run-time:
 <textarea class="javascript">
-w2ui['grid'].menu = [
+grid.menu = [
     { id: 1, text: 'Select Item', icon: 'fa fa-star' },
     { id: 2, text: 'View Item', icon: 'fa fa-camera' },
     { id: 4, text: 'Delete Item', icon: 'fa fa-minus' }

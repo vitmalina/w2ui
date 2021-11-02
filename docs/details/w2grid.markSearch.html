@@ -11,7 +11,7 @@ in utilities.
 
 This property can be set during object creation:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name : 'grid',
     markSearch : false,
     columns : [
@@ -27,5 +27,5 @@ $('#grid').w2grid({
 
 Or any time during run-time:
 <textarea class="javascript">
-w2ui['grid'].markSearch = false;
+grid.markSearch = false;
 </textarea>

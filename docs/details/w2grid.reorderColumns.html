@@ -8,7 +8,7 @@ If reordering of columns is allowed, user can reorder columns by dragging them a
 during object creation:
 
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name: 'grid',
     reorderColumns: true,
     columns: [
@@ -33,5 +33,5 @@ $('#grid').w2grid({
 Or any time after the grid has been created:
 
 <textarea class="javascript">
-w2ui['grid'].reorderColumns = true;
+grid.reorderColumns = true;
 </textarea>

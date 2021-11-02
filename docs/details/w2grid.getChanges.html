@@ -19,7 +19,7 @@ By default, all records in the grid's <a class="argument" href="w2grid.records">
 
 If you have a grid defined in the following way:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
@@ -42,5 +42,5 @@ $('#grid').w2grid({
 
 You can get all the changed records:
 <textarea class="javascript">
-console.log( w2ui['grid'].getChanges() );
+console.log( grid.getChanges() );
 </textarea>

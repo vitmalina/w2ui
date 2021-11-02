@@ -28,7 +28,7 @@ the <a class="argument" href="w2grid.records">.records</a> array. If the record 
 
 If you have grid defined in the following way:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
@@ -51,6 +51,6 @@ $('#grid').w2grid({
 
 You can get the record:
 <textarea class="javascript">
-var record = w2ui['grid'].get(2);
+var record = grid.get(2);
 console.log(record);
 </textarea>

@@ -27,7 +27,7 @@ emits <a class="method" href="w2grid.onPaste">.onPaste</a> event.
 
 If you have grid defined in the following way:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name           : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
@@ -50,5 +50,5 @@ $('#grid').w2grid({
 
 Select several records and then call:
 <textarea class="javascript">
-console.log(w2ui['grid'].copy());
+console.log(grid.copy());
 </textarea>

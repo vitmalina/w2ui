@@ -11,7 +11,7 @@ ways to defined summary records.
 
 You may define them during object creating as summary property:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
@@ -37,7 +37,7 @@ $('#grid').w2grid({
 
 Or you may define them inside records array
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },

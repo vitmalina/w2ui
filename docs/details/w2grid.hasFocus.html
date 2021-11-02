@@ -8,7 +8,7 @@ Indicates if grid has keyboard focus. Read Only.
 
 If you define grid in the following way:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     header  : 'Grid Header',
     show : {
@@ -27,5 +27,5 @@ $('#grid').w2grid({
 
 You can find if the grid has focus by:
 <textarea class="javascript">
-console.log(w2ui['grid'].hasFocus);
+console.log(grid.hasFocus);
 </textarea>

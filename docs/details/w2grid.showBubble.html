@@ -27,7 +27,7 @@ This requires the <a class="property" href="w2grid.columns">.column</a> of that 
 
 If you have following grid:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px', info: { maxLength: 3, showEmpty: true} },

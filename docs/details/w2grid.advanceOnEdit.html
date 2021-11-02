@@ -12,7 +12,7 @@ This property only influence the behavior of <i>TAB</i>.
 
 This property can be set during object creation:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     advanceOnEdit: false,
     columns : [
@@ -33,5 +33,5 @@ $('#grid').w2grid({
 
 Or any time during run-time:
 <textarea class="javascript">
-w2ui['grid'].advanceOnEdit = false;
+grid.advanceOnEdit = false;
 </textarea>

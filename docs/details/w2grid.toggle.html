@@ -22,7 +22,7 @@ call <a class="method" href="w2grid.expand">.expand()</a> or <a class="method" h
 
 If you have grid defined in the following way:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name : 'grid',
     show : { expandColumn: true },
     columns: [
@@ -49,5 +49,5 @@ $('#grid').w2grid({
 
 You can toggle record:
 <textarea class="javascript">
-w2ui['grid'].toggleColumn('recid', 'fname');
+grid.toggleColumn('recid', 'fname');
 </textarea>

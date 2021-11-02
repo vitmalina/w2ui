@@ -29,7 +29,7 @@ If called w/o parameters, it will return array of column names.
 
 If you have grid defined in the following way:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
@@ -52,5 +52,5 @@ $('#grid').w2grid({
 
 You can get the column:
 <textarea class="javascript">
-console.log( w2ui['grid'].getColumn('recid') );
+console.log( grid.getColumn('recid') );
 </textarea>

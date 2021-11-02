@@ -11,7 +11,7 @@ during run-time, you will need to call <a class="argument" href="w2grid.refresh"
 Column groups can be defined during object creation:
 
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name : 'grid',
     columnGroups : [
         { span: 1, text: '', main: true },
@@ -33,13 +33,13 @@ $('#grid').w2grid({
 Or any time after the grid has been created:
 
 <textarea class="javascript">
-w2ui['grid'].columnGroups = [
+grid.columnGroups = [
     { span: 1, text: '', main: true },
     { span: 2, text: 'Name' },
     { span: 1, text: '', main: true },
     { span: 2, text: 'Dates' }
 ];
-w2ui['grid'].refresh();
+grid.refresh();
 </textarea>
 
 Column groups object is of following structure:

@@ -12,7 +12,7 @@ of loading records automatically, the grid will display "Load More..." button as
 
 This property can be set during object creation:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     autoLoad: false,
     columns : [
@@ -28,7 +28,7 @@ $('#grid').w2grid({
 
 Or any time during run-time:
 <textarea class="javascript">
-w2ui['grid'].autoLoad = false;
+grid.autoLoad = false;
 </textarea>
 
 You do not need to refresh the grid because <span class="argument">.autoLoad</span> will only be used when more records need to

@@ -23,7 +23,7 @@ changed rows, but only specified one.
 
 If you have grid defined in the following way:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name: 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
@@ -46,6 +46,6 @@ $('#grid').w2grid({
 
 You can do:
 <textarea class="javascript">
-w2ui['grid'].get(3).fname = 'other';
-w2ui['grid'].refreshRow(3);
+grid.get(3).fname = 'other';
+grid.refreshRow(3);
 </textarea>

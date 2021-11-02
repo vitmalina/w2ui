@@ -22,7 +22,7 @@ Removes a column or columns from the <a class="property" href="w2grid.columns">.
 
 If you have following grid:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
@@ -45,5 +45,5 @@ $('#grid').w2grid({
 
 You can remove columns by:
 <textarea class="javascript">
-w2ui['grid'].removeColumn('recid', 'fname');
+grid.removeColumn('recid', 'fname');
 </textarea>

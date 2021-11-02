@@ -9,7 +9,7 @@ object creation because after the object is created, the w2toolbar is created to
 buttons to the toolbar in the following way:
 
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     header  : 'Grid Header',
     show : {
@@ -68,7 +68,7 @@ Once the grid object has been created, the <span class="property">.toolbar</span
 object is the name of the grid + '_toolbar'. If you have the grid created, you can access w2toolbar object in the following way:
 
 <textarea class="javascript">
-w2ui['grid'].toolbar.disable('mybutton');
+grid.toolbar.disable('mybutton');
 </textarea>
 
 or

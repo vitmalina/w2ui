@@ -11,7 +11,7 @@ multi-field search. Regardless of the way, the grid will generate the search arr
 
 As a developer you can define initial searches during object creation:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     url     : 'server/side/path/to/records',
     columns: [
@@ -51,4 +51,3 @@ search = {
 </textarea>
 
 You can use <a href="w2grid.search" class="method">.search()</a> method to submit searches.
-

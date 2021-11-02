@@ -7,7 +7,7 @@ Called when user triggers automatic resizing by double clicking a column resizer
 You can add the event listener during the grid object creation:
 
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },

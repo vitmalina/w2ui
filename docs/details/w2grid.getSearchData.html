@@ -26,7 +26,7 @@ The <span class="property">field</span> argument is the name of the search field
 
 If you have grid defined in the following way:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
@@ -54,7 +54,7 @@ $('#grid').w2grid({
 
 And if user applied search, you can find applied search object:
 <textarea class="javascript">
-console.log( w2ui['grid'].getSearchData('recid') );
+console.log( grid.getSearchData('recid') );
 </textarea>
 
 If user did not apply any search, this method will return null.

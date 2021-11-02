@@ -23,7 +23,7 @@ icon. Returns the number of toggled searches.
 
 If you have grid defined in the following way:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
@@ -51,5 +51,5 @@ $('#grid').w2grid({
 
 You can toggle columns by:
 <textarea class="javascript">
-w2ui['grid'].toggleSearch('recid', 'fname');
+grid.toggleSearch('recid', 'fname');
 </textarea>

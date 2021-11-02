@@ -27,7 +27,7 @@ match = { type: 1, status: 'Open' } then it will return all records where type i
 
 If you have following grid:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
@@ -49,6 +49,6 @@ $('#grid').w2grid({
 
 You can find
 <textarea class="javascript">
-var recs = w2ui['grid'].find({ email: 'jdoe@gmail.com' });
+var recs = grid.find({ email: 'jdoe@gmail.com' });
 console.log(recs);
 </textarea>

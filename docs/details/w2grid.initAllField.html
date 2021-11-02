@@ -25,7 +25,7 @@ This method is called internally when user selects search field from global sear
 
 If you have grid defined in the following way:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name: 'grid',
     show: {
     	header  : true,
@@ -44,5 +44,5 @@ $('#grid').w2grid({
 
 And if you change columns directly, you will need to:
 <textarea class="javascript">
-w2ui['grid'].initAllField('fname');
+grid.initAllField('fname');
 </textarea>

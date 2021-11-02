@@ -11,7 +11,7 @@ If you change the columns array, you will need to call <a class="property" href=
 During object creation:
 
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
@@ -82,7 +82,7 @@ used instead of the original column data. The last argument <span class="propert
 thinks should be there. It is the result of <span class="property">getCellValue</span> function.
 
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
@@ -133,7 +133,7 @@ you can add custom formatter functions. Below is the list of predefined formatte
 </ul>
 You can use them int he following way:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px', render: 'float:2' },

@@ -8,7 +8,7 @@ If multi sort is allowed, user can sort by more then one column at a time (holdi
 during object creation:
 
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name      : 'grid',
     header    : 'Grid Header',
     multiSort : false,
@@ -26,7 +26,7 @@ $('#grid').w2grid({
 Or any time after the grid has been created:
 
 <textarea class="javascript">
-w2ui['grid'].multiSort = true;
+grid.multiSort = true;
 </textarea>
 
 Please note, you need to enable column sort when you define <span class="property">.columns</span> for the grid.

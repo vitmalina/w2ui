@@ -28,7 +28,7 @@ This method triggers <a class="method" href="w2grid.onDelete">.onDelete</a> even
 
 If you have grid defined in the following way:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name           : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
@@ -51,5 +51,5 @@ $('#grid').w2grid({
 
 You can do:
 <textarea class="javascript">
-w2ui['grid'].toolbarDelete();
+grid.toolbarDelete();
 </textarea>

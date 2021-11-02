@@ -25,7 +25,7 @@ The method copies the content of a given cell to the user's clipboard.
 
 If you have grid defined in the following way:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name: 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
@@ -62,7 +62,7 @@ w2ui.grid.clipboardCopy(0, 2);
 
 It is possible to overwrite this method with a custom one.
 <textarea class="javascript">
-    $('#grid').w2grid({
+    let grid = new w2grid({
         name: 'grid',
         clipboardCopy(ind, col_ind) {
             let rec = this.records[ind]

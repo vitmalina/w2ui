@@ -10,7 +10,7 @@ generate sort objects and submit it to the data source to apply sorting.
 
 As a developer you can define initial sorting during object creation.
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },

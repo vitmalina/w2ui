@@ -26,7 +26,7 @@ It is possible to overwrite this method with a custom one.
 
 If you have grid defined in the following way:
 <textarea class="javascript">
-$('#grid').w2grid({
+let grid = new w2grid({
     name    : 'grid',
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
@@ -49,6 +49,6 @@ $('#grid').w2grid({
 
 You can get the editable object:
 <textarea class="javascript">
-console.log( w2ui['grid'].getCellEditable(0, 1) ); // { type: 'text' }
-console.log( w2ui['grid'].getCellEditable(1, 1) ); // null
+console.log( grid.getCellEditable(0, 1) ); // { type: 'text' }
+console.log( grid.getCellEditable(1, 1) ); // null
 </textarea>
