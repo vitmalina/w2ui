@@ -12,11 +12,11 @@ Enables sidebar node or nodes with <span class="argument">id</span>.
     </tr>
     </table>
 </div>
-Returns integer.
+Returns array of effected nodes.
 
 <h4>Description</h4>
 
-The node(s) must exists in the <a class="method" href="w2sidebar.nodes">.nodes</a> array of the sidebar or its nested nodes. The node is 
+The node(s) must exists in the <a class="method" href="w2sidebar.nodes">.nodes</a> array of the sidebar or its nested nodes. The node is
 identified by the <span class="property">.id</span> property. The method will set <span class="property">.disabled</span> property of the node to false.
 It returns the number of enabled nodes that were disabled before.
 <div style="height: 10px"></div>
@@ -26,7 +26,7 @@ If you have defined object in the following way:
 $('#sidebar').w2sidebar({
     name : 'sidebar',
     img  : 'icon-page',
-    nodes: [ 
+    nodes: [
         { id: 'id-1', text: 'Level 1', disabled: true },
         { id: 'id-2', text: 'Level 2' },
         { id: 'id-3', text: 'Level 3' }

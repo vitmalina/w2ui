@@ -7,15 +7,6 @@
 *   - node.style is misleading - should be there to apply color for example
 *
 * == 2.0 changes
-*   - w2sidebar.node_template => w2sidebar.node
-*   - show/hide, enable/disable - return array of effected items
-*   - sb.each() - iterate through each node
-*   - sb.sort() - sort nodes using w2utils.naturalCompare
-*   - node.order - for sorting purposes
-*   - sb.search() - search nodes
-*   - sb.tabIndex
-*   - handle.content - string/func
-*   - this.tmp
 *
 ************************************************************************/
 
@@ -44,7 +35,7 @@ class w2sidebar extends w2event {
         this.hasFocus      = false
         this.levelPadding  = 12
         this.skipRefresh   = false
-        this.tabIndex      = 0 // will only be set if > 0
+        this.tabIndex      = null // will only be set if > 0 and not null
         this.handle        = { size: 0, style: '', content: '' },
         this.onClick       = null // Fire when user click on Node Text
         this.onDblClick    = null // Fire when user dbl clicks
@@ -63,6 +54,7 @@ class w2sidebar extends w2event {
         this.node_template = {
             id: null,
             text: '',
+            order: null,
             count: null,
             img: null,
             icon: null,
