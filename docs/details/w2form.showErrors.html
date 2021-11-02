@@ -13,7 +13,7 @@ This method shows error messages for each field is there are any. The list of er
 
 If you have following form that adds aditional error checks.
 <textarea class="javascript">
-$('#form').w2form({
+let form = new w2form({
     name  : 'form',
     fields: [
         { field: 'fname', type: 'text', required: true },

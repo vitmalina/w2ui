@@ -11,7 +11,7 @@ the form will attempt to load record data from the remote data source. The data 
 
 You can defined URL as a string:
 <textarea class="javascript">
-$('#form').w2form({
+let form = new w2form({
     name     : 'form',
     recid    : 10,
     url      : '/server/url',
@@ -39,7 +39,7 @@ $('#form').w2form({
 
 Or you can defined different URL for retrieving and saving the record:
 <textarea class="javascript">
-$('#form').w2form({
+let form = new w2form({
     name     : 'form',
     recid    : 10,
     url      : {
