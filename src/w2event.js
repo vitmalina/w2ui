@@ -1,6 +1,8 @@
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
+*   - there is a doc file ../details/w2event.html
+*   - on/off/trigger methods id not showing in help
 **/
 
 import { w2ui, w2utils } from './w2utils.js'

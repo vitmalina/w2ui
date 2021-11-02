@@ -1,0 +1,15 @@
+A class that all w2ui widgets are extended from.
+
+<div class="definition">
+    Object
+</div>
+
+This class provides basic event functionality and only has one property and three methods:
+<ul>
+	<li><b>handlers</b>, - an array of all event handlers defined for the class</li>
+	<li><b>on(event, handler)</b> - method to add an event</li>
+	<li><b>off(event, [handler])</b> - method to remove an event</li>
+	<li><b>trigger(eventData)</b> - method to trigger an event</li>
+</ul>
+
+That you can use it to add event listeners and trigger events. See <a href="utils/events" class="method">Events</a> for additional information.
