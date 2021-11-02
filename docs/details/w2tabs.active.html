@@ -10,7 +10,7 @@ method to update the tab. If you need to simulate a click on a tab see <a class=
 
 Active tab can be defined during object creation:
 <textarea class="javascript">
-$('#tabs').w2tabs({
+let tabs = new w2tabs({
     name: 'tabs',
     active: 'tab1',
     tabs: [
@@ -24,6 +24,6 @@ $('#tabs').w2tabs({
 
 Or during run-time:
 <textarea class="javascript">
-w2ui['tabs'].active = 'tab2';
-w2ui['tabs'].refresh();
+w2ui.tabs.active = 'tab2';
+w2ui.tabs.refresh();
 </textarea>

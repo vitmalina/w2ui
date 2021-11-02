@@ -10,7 +10,7 @@ The <span class="argument">.tooltip</span> can be either 'top', 'bottom', 'left'
 
 You can defined it during object creation:
 <textarea class="javascript">
-$('#tabs').w2tabs({
+let tabs = new w2tabs({
     name: 'tabs',
     tooltip: 'bottom',
     tabs: [
@@ -22,7 +22,7 @@ $('#tabs').w2tabs({
 
 Or any time during run-time:
 <textarea class="javascript">
-w2ui['tabs'].tooltip = 'top';
+w2ui.tabs.tooltip = 'top';
 </textarea>
 
 No refresh is needed

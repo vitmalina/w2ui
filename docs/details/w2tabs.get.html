@@ -32,7 +32,7 @@ The second optional argument <span class="argument">returnIndex</span> indicates
 
 If you have tabs defined in the following way:
 <textarea class="javascript">
-$('#tabs').w2tabs({
+let tabs = new w2tabs({
     name: 'tabs',
     active: 'tab1',
     tabs: [
@@ -46,5 +46,5 @@ $('#tabs').w2tabs({
 
 You can add tabs:
 <textarea class="javascript">
-console.log( w2ui['tabs'].get('tab5') );
+console.log( w2ui.tabs.get('tab5') );
 </textarea>

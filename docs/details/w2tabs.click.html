@@ -27,7 +27,7 @@ emits <a class="method" href="w2tabs.onClick">.onClick</a> event.
 
 If you have tabs defined in the following way:
 <textarea class="javascript">
-$('#tabs').w2tabs({
+let tabs = new w2tabs({
     name: 'tabs',
     active: 'tab1',
     tabs: [
@@ -41,5 +41,5 @@ $('#tabs').w2tabs({
 
 You can add tabs:
 <textarea class="javascript">
-w2ui['tabs'].click('tab3');
+w2ui.tabs.click('tab3');
 </textarea>

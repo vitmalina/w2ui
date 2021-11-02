@@ -9,7 +9,7 @@ The <span class="argument">.flow</span> can be either 'up' or 'down' and define 
 
 You can defined it during object creation:
 <textarea class="javascript">
-$('#tabs').w2tabs({
+let tabs = new w2tabs({
     name: 'tabs',
     flow: 'up',
     tabs: [
@@ -23,6 +23,6 @@ $('#tabs').w2tabs({
 
 Or any time during run-time:
 <textarea class="javascript">
-w2ui['tabs'].flow = 'down';
-w2ui['tabs'].refresh();
+w2ui.tabs.flow = 'down';
+w2ui.tabs.refresh();
 </textarea>

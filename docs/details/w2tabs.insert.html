@@ -27,7 +27,7 @@ to <a class="property" href="w2tabs.tabs">.tabs</a> array. If it is an array the
 
 If you have tabs defined in the following way:
 <textarea class="javascript">
-$('#tabs').w2tabs({
+let tabs = new w2tabs({
     name: 'tabs',
     active: 'tab1',
     tabs: [
@@ -41,9 +41,9 @@ $('#tabs').w2tabs({
 
 You can add tabs:
 <textarea class="javascript">
-w2ui['tabs'].insert('tab3', { id: 'tab5', text: 'Tab 5' });
+w2ui.tabs.insert('tab3', { id: 'tab5', text: 'Tab 5' });
 // or
-w2ui['tabs'].insert('tab3', [
+w2ui.tabs.insert('tab3', [
     { id: 'tab6', text: 'Tab 6' },
     { id: 'tab7', text: 'Tab 7' },
     { id: 'tab8', text: 'Tab 8' }

@@ -27,7 +27,7 @@ argument can be either 'left' or 'right'.
 
 If you have tabs defined in the following way:
 <textarea class="javascript">
-$('#tabs').w2tabs({
+let tabs = new w2tabs({
     name: 'tabs',
     active: 'tab1',
     tabs: [
@@ -41,5 +41,5 @@ $('#tabs').w2tabs({
 
 You can trigger scroll in the following way:
 <textarea class="javascript">
-w2ui['tabs'].scroll('right');
+w2ui.tabs.scroll('right');
 </textarea>
