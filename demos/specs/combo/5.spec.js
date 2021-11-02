@@ -8,7 +8,7 @@ context("1: Combo", () => {
                     .should('have.records', '==50')
                     .get('#grid_grid_records')
                     .invoke('scrollTop', 50000).tag('scroll to bottom')
-                    .wait(1) // need to wait for scroll to apply
+                    .wait(20) // need to wait for scroll to apply
                     .grid('grid')
                     .should('have.records', '==100')
                 .end()

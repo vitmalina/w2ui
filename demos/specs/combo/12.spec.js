@@ -22,7 +22,7 @@ context("1: Combo", () => {
                     .trigger('contextmenu')
                     .wait('#w2ui-overlay', 'to.appear')
                     .get('#w2ui-overlay .w2ui-menu .menu-text')
-                    .should('have.length', 15)
+                    .should('have.length', 16)
                     .get('body')
                     .click()
                 .end()
