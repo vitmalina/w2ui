@@ -4,19 +4,19 @@ The id of the selected node. Read Only.
     String, default = ''
 </div>
 
-Each node has <span class="argument">.selected</span> property that determines if the node is selected. It is time consuming 
+Each node has <span class="argument">.selected</span> property that determines if the node is selected. It is time consuming
 to loop through all the nodes to find selected, therefore the <span class="argument">.selected</span> property was added.
 It holds the id of the last selected node. You can use <a class="argument" href="w2sidebar.select">.select()</a> and
 <a class="argument" href="w2sidebar.unselect">.unselect()</a> to select/unselect nodes.
 <div style="height: 10px"></div>
 
-You can define it during object creation: 
+You can define it during object creation:
 
 <textarea class="javascript">
-$('#sidebar').w2sidebar({
+let sidebar = new w2sidebar({
     name : 'sidebar',
     icon : 'fa fa-start',
-    nodes: [ 
+    nodes: [
         { id: 'id-1', text: 'Level 1' },
         { id: 'id-2', text: 'Level 2' },
         { id: 'id-3', text: 'Level 3' }
@@ -27,5 +27,5 @@ $('#sidebar').w2sidebar({
 You can find selected node by.
 
 <textarea class="javascript">
-console.log( w2ui['sidebar'].selected );
+console.log( w2ui.sidebar.selected );
 </textarea>

@@ -7,9 +7,9 @@ Called when user selects and item from the context menu.
 You can add event listener during the object creation:
 
 <textarea class="javascript">
-$('#sidebar').w2sidebar({
+let sidebar = new w2sidebar({
     name : 'sidebar',
-    nodes: [ 
+    nodes: [
         { id: 'id-1', text: 'Level 1' },
         { id: 'id-2', text: 'Level 2' },
         { id: 'id-3', text: 'Level 3' }
@@ -28,12 +28,12 @@ w2ui.sidebar.on('menuClick', function(event) {
 });
 </textarea>
 
-The event will only be triggered if you defined the <a href="w2sidebar.menu" class="property">.menu</a> property for the sidebar. This property 
+The event will only be triggered if you defined the <a href="w2sidebar.menu" class="property">.menu</a> property for the sidebar. This property
 is used for context menu when any of the sidebar items is clicked.
 <div style="height: 10px;"></div>
 
 The event handler is called before the default action of the event is triggered. You can cancel the default action by calling
-<span class="method">event.preventDefault()</span>. To perform an action 
-after the event is fully processed, define <span class="method">event.onComplete</span> function. 
+<span class="method">event.preventDefault()</span>. To perform an action
+after the event is fully processed, define <span class="method">event.onComplete</span> function.
 <div style="height: 10px;"></div>
 See <a href="utils/events">events</a> page in utilities for more details.

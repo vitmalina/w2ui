@@ -23,10 +23,10 @@ This method emits <a class="method" href="w2sidebar.onKeydown">.onKeydown</a> ev
 
 This method can be overwritten:
 <textarea class="javascript">
-$('#sidebar').w2sidebar({
+let sidebar = new w2sidebar({
     name : 'sidebar',
     img  : 'icon-page',
-    nodes: [ 
+    nodes: [
         { id: 'id-1', text: 'Level 1' },
         { id: 'id-2', text: 'Level 2' },
         { id: 'id-3', text: 'Level 3' }

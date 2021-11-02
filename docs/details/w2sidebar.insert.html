@@ -25,18 +25,18 @@ Returns object.
 
 <h4>Description</h4>
 
-The <span class="argument">nodes</span> argument can be either an object or array of objects. If it is an object it 
+The <span class="argument">nodes</span> argument can be either an object or array of objects. If it is an object it
 represents a sidebar node that will be added to <a class="property" href="w2sidebar.nodes">.nodes</a> array of the
-<span class="argument">parent</span> node. If it is an array then each element of the array will be treated as a 
+<span class="argument">parent</span> node. If it is an array then each element of the array will be treated as a
 separate sidebar node object.
 <div style="height: 10px"></div>
 
 The first optional argument <span class="argument">parent</span> is an id of the parent node or parent node itself. If
 parent node is not specified, new nodes will be inserted to the parent of the <span class="argument">before</span> node.
 <div style="height: 10px"></div>
-                
-New nodes will be inserted before node <span class="argument">before</span>, which is an id of the node or node object. If you 
-want to append nodes, the <span class="argument">before</span> argument should be null. You can also use 
+
+New nodes will be inserted before node <span class="argument">before</span>, which is an id of the node or node object. If you
+want to append nodes, the <span class="argument">before</span> argument should be null. You can also use
 <a href="w2sidebar.add" class="method">.add()</a> method.
 <div style="height: 10px"></div>
 
@@ -45,10 +45,10 @@ This method returns last inserted node object.
 
 If you defined the object in the following way:
 <textarea class="javascript">
-$('#sidebar').w2sidebar({
+let sidebar = new w2sidebar({
     name : 'sidebar',
     img  : 'icon-page',
-    nodes: [ 
+    nodes: [
         { id: 'id-1', text: 'Level 1' },
         { id: 'id-2', text: 'Level 2' },
         { id: 'id-3', text: 'Level 3' }
@@ -58,9 +58,9 @@ $('#sidebar').w2sidebar({
 
 You can:
 <textarea class="javascript">
-w2ui['sidebar'].insert('id-2', { id: 'id-1-1', text: 'Level 1-1' });
+w2ui.sidebar.insert('id-2', { id: 'id-1-1', text: 'Level 1-1' });
 // or
-w2ui['sidebar'].insert('id-3', [
+w2ui.sidebar.insert('id-3', [
     { id: 'id-2-1', text: 'Level 2-1' },
     { id: 'id-2-2', text: 'Level 2-2' },
     { id: 'id-2-3', text: 'Level 2-3' }

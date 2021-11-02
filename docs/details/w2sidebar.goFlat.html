@@ -14,7 +14,7 @@ This method emits <a class="method" href="w2sidebar.onFlat">.onFlat</a> event.
 
 If you have sidebar defined in the following way:
 <textarea class="javascript">
-$('#sidebar').w2sidebar({
+let sidebar = new w2sidebar({
     name : 'sidebar',
     nodes: [
         { id: 'id-1', text: 'Level 1', hidden: true },
@@ -36,5 +36,5 @@ $('#sidebar').w2sidebar({
 
 You can click on the node:
 <textarea class="javascript">
-w2ui['sidebar'].goFlat();
+w2ui.sidebar.goFlat();
 </textarea>

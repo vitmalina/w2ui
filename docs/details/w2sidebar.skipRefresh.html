@@ -14,7 +14,7 @@ If you need to add a lot of nodes, it might be useful not to refresh during each
 
 If you have a sidebar defined in the following way, you can add/remove/insert items
 <textarea class="javascript">
-$('#sidebar').w2sidebar({
+let sidebar = new w2sidebar({
     name: 'sidebar',
     skipRefresh: true,
     nodes: [

@@ -22,16 +22,16 @@ Returns <i>undefined</i>.
 <h4>Description</h4>
 
 This method is called when user right clicks on the node. It is used internally, but you can use it to emulate right clicks.
-If <a class="method" href="w2sidebar.menu">.menu</a> property is defined a context menu will be displayed. 
+If <a class="method" href="w2sidebar.menu">.menu</a> property is defined a context menu will be displayed.
 This method emits <a class="method" href="w2sidebar.onContextMenu">.onContextMenu</a> event.
 <div style="height: 10px"></div>
 
 If you have sidebar defined in the following way:
 <textarea class="javascript">
-$('#sidebar').w2sidebar({
+let sidebar = new w2sidebar({
     name : 'sidebar',
     img  : 'icon-page',
-    nodes: [ 
+    nodes: [
         { id: 'id-1', text: 'Level 1', hidden: true },
         { id: 'id-2', text: 'Level 2', expanded: true, nodes: [
             { id: 'id-2-1', text: 'Level 2.1' },
@@ -44,5 +44,5 @@ $('#sidebar').w2sidebar({
 
 You can click on the node:
 <textarea class="javascript">
-w2ui['sidebar'].contextMenu('id-1');
+w2ui.sidebar.contextMenu('id-1');
 </textarea>

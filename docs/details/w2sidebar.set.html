@@ -25,23 +25,23 @@ Returns boolean.
 
 <h4>Description</h4>
 
-The <span class="argument">id</span> argument is the id of the sidebar node used during its creation. 
-Nodes can be nested. Each node has <a class="argument" href="w2sidebar.nodes">.nodes</a> array that holds its children. 
-The sidebar node object is not replaced with <span class="argument">node</span>, but extended by it. If you call this 
+The <span class="argument">id</span> argument is the id of the sidebar node used during its creation.
+Nodes can be nested. Each node has <a class="argument" href="w2sidebar.nodes">.nodes</a> array that holds its children.
+The sidebar node object is not replaced with <span class="argument">node</span>, but extended by it. If you call this
 method during run-time, you will need to call <a class="method" href="w2sidebar.refresh">.refresh()</a> method.
 If node was successfully extended the method will return true, otherwise false.
 <div style="height: 10px"></div>
 
-You can optionally specify <span class="argument">parent</span>, which is an id of the parent node. If parent is specified 
+You can optionally specify <span class="argument">parent</span>, which is an id of the parent node. If parent is specified
 then it will limit the search scope to that parent and its subnodes.
 <div style="height: 10px"></div>
 
 If you defined the object in the following way:
 <textarea class="javascript">
-$('#sidebar').w2sidebar({
+let sidebar = new w2sidebar({
     name : 'sidebar',
     img  : 'icon-page',
-    nodes: [ 
+    nodes: [
         { id: 'id-1', text: 'Level 1' },
         { id: 'id-2', text: 'Level 2' },
         { id: 'id-3', text: 'Level 3' }
@@ -51,6 +51,6 @@ $('#sidebar').w2sidebar({
 
 You can get sidebar node:
 <textarea class="javascript">
-w2ui['sidebar'].set('id-2', { text: 'level one'});
-w2ui['sidebar'].refresh();
+w2ui.sidebar.set('id-2', { text: 'level one'});
+w2ui.sidebar.refresh();
 </textarea>

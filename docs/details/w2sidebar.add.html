@@ -1,4 +1,4 @@
-Adds a sidebar node or nodes. 
+Adds a sidebar node or nodes.
 
 <div class="definition">
     add([parent], nodes)
@@ -21,8 +21,8 @@ Returns object.
 
 <h4>Description</h4>
 
-The <span class="argument">nodes</span> argument can be either an object or array of objects. If it is an object it 
-represents a sidebar node that will be added to <a class="property" href="w2sidebar.nodes">.nodes</a> array. 
+The <span class="argument">nodes</span> argument can be either an object or array of objects. If it is an object it
+represents a sidebar node that will be added to <a class="property" href="w2sidebar.nodes">.nodes</a> array.
 If it is an array then each element of the array will be treated as a separate sidebar node object.
 <div style="height: 10px"></div>
 
@@ -30,15 +30,15 @@ The first optional argument <span class="argument">parent</span> is an id of the
 parent node is not specified, new nodes will be inserted at the root level.
 <div style="height: 10px"></div>
 
-The method will return last inserted node.                
+The method will return last inserted node.
 <div style="height: 10px"></div>
 
 If you defined the object in the following way:
 <textarea class="javascript">
-$('#sidebar').w2sidebar({
+let sidebar = new w2sidebar({
     name : 'sidebar',
     img  : 'icon-page',
-    nodes: [ 
+    nodes: [
         { id: 'id-1', text: 'Level 1' },
         { id: 'id-2', text: 'Level 2' },
         { id: 'id-3', text: 'Level 3' }
@@ -48,9 +48,9 @@ $('#sidebar').w2sidebar({
 
 You can:
 <textarea class="javascript">
-w2ui['sidebar'].add('id-1', { id: 'id-1-1', text: 'Level 1-1' });
+w2ui.sidebar.add('id-1', { id: 'id-1-1', text: 'Level 1-1' });
 // or
-w2ui['sidebar'].add('id-2', [
+w2ui.sidebar.add('id-2', [
     { id: 'id-2-1', text: 'Level 2-1' },
     { id: 'id-2-2', text: 'Level 2-2' },
     { id: 'id-2-3', text: 'Level 2-3' }

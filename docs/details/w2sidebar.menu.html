@@ -15,16 +15,16 @@ item = {
 }
 </textarea>
 
-You can define it during object creation: 
+You can define it during object creation:
 <textarea class="javascript">
-$('#sidebar').w2sidebar({
+let sidebar = new w2sidebar({
     name : 'sidebar',
     menu : [
         { id: 1, text: 'Item 1', img: 'icon-page' },
         { id: 2, text: 'Item 2', img: 'icon-page' },
         { id: 3, text: 'Item 3', img: 'icon-page' },
     ],
-    nodes: [ 
+    nodes: [
         { id: 'id-1', text: 'Level 1', hidden: true },
         { id: 'id-2', text: 'Level 2', expanded: true, nodes: [
             { id: 'id-2-1', text: 'Level 2.1' },
@@ -38,7 +38,7 @@ $('#sidebar').w2sidebar({
 Or any time after the object has been created:
 
 <textarea class="javascript">
-w2ui['sidebar'].menu = [
+w2ui.sidebar.menu = [
     { id: 1, text: 'Item 1', img: 'icon-page' },
     { id: 2, text: 'Item 2', img: 'icon-page' },
     { id: 3, text: 'Item 3', img: 'icon-page' },

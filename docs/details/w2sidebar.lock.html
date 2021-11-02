@@ -23,15 +23,15 @@ Returns <i>undefined</i>.
 
 This method will lock the sidebar by added a semi-transparent div on top of its content. The user will not be able to interact with
 the sidebar or its content until the sidebar is unlocked with <a href="w2sidebar.unlock" class="method">.unlock()</a>. This method will call
-<a href="w2utils.lock" class="method">w2utils.lock()</a> to perform the locking. 
+<a href="w2utils.lock" class="method">w2utils.lock()</a> to perform the locking.
 <div style="height: 10px"></div>
 
 If you have following sidebar:
 <textarea class="javascript">
-$('#sidebar').w2sidebar({
+let sidebar = new w2sidebar({
     name : 'sidebar',
     img  : 'icon-page',
-    nodes: [ 
+    nodes: [
         { id: 'id-1', text: 'Level 1' },
         { id: 'id-2', text: 'Level 2' },
         { id: 'id-3', text: 'Level 3' }

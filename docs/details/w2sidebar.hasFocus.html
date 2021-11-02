@@ -10,7 +10,7 @@ work if sidebar has focus.
 
 If you define sidebar in the following way:
 <textarea class="javascript">
-$('#sidebar').w2sidebar({
+let sidebar = new w2sidebar({
     name : 'sidebar',
     nodes: [
         { id: 'id-1', text: 'Level 1' },
@@ -22,5 +22,5 @@ $('#sidebar').w2sidebar({
 
 You can find if sidebar has focus by:
 <textarea class="javascript">
-console.log(w2ui['sidebar'].hasFocus);
+console.log(w2ui.sidebar.hasFocus);
 </textarea>

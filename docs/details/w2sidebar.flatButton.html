@@ -11,7 +11,7 @@ on the flat button <span class="property">onFlat</span> event will be generated.
 You can define it during object creation:
 
 <textarea class="javascript">
-$('#sidebar').w2sidebar({
+let sidebar = new w2sidebar({
     name: 'sidebar',
     flatButton: true,
     nodes: [
@@ -25,6 +25,6 @@ $('#sidebar').w2sidebar({
 or during run-time:
 
 <textarea class="javascript">
-w2ui['sidebar'].flatButton = true;
-w2ui['sidebar'].refresh();
+w2ui.sidebar.flatButton = true;
+w2ui.sidebar.refresh();
 </textarea>

@@ -4,7 +4,7 @@ Default node icon.
     String, default = ''
 </div>
 
-For any node if its <span class="argument">icon</span> property is not defined, then default <span class="argument">icon</span> will be used. 
+For any node if its <span class="argument">icon</span> property is not defined, then default <span class="argument">icon</span> will be used.
 The <span class="argument">icon</span> property is a css class for the icon span. See <a class="method" href="w2sidebar.nodes">.nodes</a> to see how to
 use icon for nodes.
 
@@ -16,13 +16,13 @@ The difference between <span class="argument">img</span> and <span class="argume
 uses a div and a background image. The <span class="argument">icon</span> property uses a span and icon fonts, such as font-awesome.
 <div style="height: 10px;"></div>
 
-You can define it during object creation: 
+You can define it during object creation:
 
 <textarea class="javascript">
-$('#sidebar').w2sidebar({
+let sidebar = new w2sidebar({
     name : 'sidebar',
     icon : 'fa fa-start',
-    nodes: [ 
+    nodes: [
         { id: 'id-1', text: 'Level 1' },
         { id: 'id-2', text: 'Level 2' },
         { id: 'id-3', text: 'Level 3' }
@@ -33,5 +33,5 @@ $('#sidebar').w2sidebar({
 Or any time after the object has been created:
 
 <textarea class="javascript">
-w2ui['sidebar'].icon = 'fa fa-star';
+w2ui.sidebar.icon = 'fa fa-star';
 </textarea>
