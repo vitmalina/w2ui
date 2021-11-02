@@ -3,12 +3,6 @@
 *   - Dependencies: jQuery, w2utils
 *
 * == 2.0 changes
-*   - w2tabs.tab => w2tabs.tab_template
-*   - show/hide, enable/disable, check/uncheck - return array of affected items
-*   - fixed animateInsert, animateClose to be smooth and return promise
-*   - clickClose
-*   - scrollIntoView
-*   - scroll - added "instant"
 *
 ************************************************************************/
 
