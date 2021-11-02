@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/31/2021, 4:06:56 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (11/1/2021, 3:59:24 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -290,7 +290,6 @@ const w2locale = {
 *   - normMenu
 *   - w2utils.message - returns a promise
 *   - bindEvents - common method to avoid inline events
-*   - unescapeId
 *   - settings.warn_missing_translation
 *   - i18nCompare
 *
@@ -342,7 +341,7 @@ let w2utils = (($) => {
         message,
         naturalCompare,
         i18nCompare: Intl.Collator().compare,
-        template_replacer,
+        fillTemplate,
         lang,
         locale,
         getSize,
@@ -372,19 +371,19 @@ let w2utils = (($) => {
                  ? true : false),
         isSafari : (/^((?!chrome|android).)*safari/i).test(navigator.userAgent),
     }
-    function isBin (val) {
+    function isBin(val) {
         let re = /^[0-1]+$/
         return re.test(val)
     }
-    function isInt (val) {
+    function isInt(val) {
         let re = /^[-+]?[0-9]+$/
         return re.test(val)
     }
-    function isFloat (val) {
+    function isFloat(val) {
         if (typeof val === 'string') val = val.replace(/\s+/g, '').replace(w2utils.settings.groupSymbol, '').replace(w2utils.settings.decimalSymbol, '.')
         return (typeof val === 'number' || (typeof val === 'string' && val !== '')) && !isNaN(Number(val))
     }
-    function isMoney (val) {
+    function isMoney(val) {
         if (typeof val === 'object' || val === '') return false
         if(isFloat(val)) return true
         let se = w2utils.settings
@@ -396,26 +395,26 @@ let w2utils = (($) => {
         }
         return re.test(val)
     }
-    function isHex (val) {
+    function isHex(val) {
         let re = /^(0x)?[0-9a-fA-F]+$/
         return re.test(val)
     }
-    function isAlphaNumeric (val) {
+    function isAlphaNumeric(val) {
         let re = /^[a-zA-Z0-9_-]+$/
         return re.test(val)
     }
-    function isEmail (val) {
+    function isEmail(val) {
         let email = /^[a-zA-Z0-9._%\-+]+@[а-яА-Яa-zA-Z0-9.-]+\.[а-яА-Яa-zA-Z]+$/
         return email.test(val)
     }
-    function isIpAddress (val) {
+    function isIpAddress(val) {
         let re = new RegExp('^' +
                             '((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}' +
                             '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' +
                             '$')
         return re.test(val)
     }
-    function isDate (val, format, retDate) {
+    function isDate(val, format, retDate) {
         if (!val) return false
         let dt = 'Invalid Date'
         let month, day, year
@@ -474,7 +473,7 @@ let w2utils = (($) => {
         if ((dt.getMonth() + 1 !== month) || (dt.getDate() !== day) || (dt.getFullYear() !== year)) return false
         if (retDate === true) return dt; else return true
     }
-    function isTime (val, retTime) {
+    function isTime(val, retTime) {
         // Both formats 10:20pm and 22:20
         if (val == null) return false
         let max, am, pm
@@ -509,7 +508,7 @@ let w2utils = (($) => {
         }
         return true
     }
-    function isDateTime (val, format, retDate) {
+    function isDateTime(val, format, retDate) {
         if (typeof val.getFullYear === 'function') { // date object
             if (retDate !== true) return true
             return val
@@ -589,7 +588,7 @@ let w2utils = (($) => {
         }
         return amount + ' ' + type + (amount > 1 ? 's' : '')
     }
-    function interval (value) {
+    function interval(value) {
         let ret = ''
         if (value < 1000) {
             ret = '< 1 sec'
@@ -608,7 +607,7 @@ let w2utils = (($) => {
         }
         return ret
     }
-    function date (dateStr) {
+    function date(dateStr) {
         if (dateStr === '' || dateStr == null || (typeof dateStr === 'object' && !dateStr.getMonth)) return ''
         let d1 = new Date(dateStr)
         if (w2utils.isInt(dateStr)) d1 = new Date(Number(dateStr)) // for unix timestamps
@@ -627,7 +626,7 @@ let w2utils = (($) => {
         if (dd1 === dd3) dsp = w2utils.lang('Yesterday')
         return '<span title="'+ dd1 +' ' + time2 +'">'+ dsp +'</span>'
     }
-    function formatSize (sizeStr) {
+    function formatSize(sizeStr) {
         if (!w2utils.isFloat(sizeStr) || sizeStr === '') return ''
         sizeStr = parseFloat(sizeStr)
         if (sizeStr === 0) return 0
@@ -635,7 +634,7 @@ let w2utils = (($) => {
         let i     = parseInt( Math.floor( Math.log(sizeStr) / Math.log(1024) ) )
         return (Math.floor(sizeStr / Math.pow(1024, i) * 10) / 10).toFixed(i === 0 ? 0 : 1) + ' ' + (sizes[i] || '??')
     }
-    function formatNumber (val, fraction, useGrouping) {
+    function formatNumber(val, fraction, useGrouping) {
         if (val == null || val === '' || typeof val === 'object') return ''
         let options = {
             minimumFractionDigits : fraction,
@@ -648,7 +647,7 @@ let w2utils = (($) => {
         }
         return parseFloat(val).toLocaleString(w2utils.settings.locale, options)
     }
-    function formatDate (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
+    function formatDate(dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
         if (!format) format = this.settings.dateFormat
         if (dateStr === '' || dateStr == null || (typeof dateStr === 'object' && !dateStr.getMonth)) return ''
         let dt = new Date(dateStr)
@@ -672,7 +671,7 @@ let w2utils = (($) => {
             .replace(/(^|[^a-z$])m/g, '$1' + (month + 1)) // only y's that are not preceded by a letter
             .replace(/(^|[^a-z$])d/g, '$1' + date) // only y's that are not preceded by a letter
     }
-    function formatTime (dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
+    function formatTime(dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
         if (!format) format = this.settings.timeFormat
         if (dateStr === '' || dateStr == null || (typeof dateStr === 'object' && !dateStr.getMonth)) return ''
         let dt = new Date(dateStr)
@@ -725,7 +724,7 @@ let w2utils = (($) => {
         if (fmt[1] === 'h24') fmt[1] = 'h24:m'
         return this.formatDate(dateStr, fmt[0]) + ' ' + this.formatTime(dateStr, fmt[1])
     }
-    function stripTags (html) {
+    function stripTags(html) {
         if (html == null) return html
         switch (typeof html) {
             case 'number':
@@ -746,7 +745,7 @@ let w2utils = (($) => {
         }
         return html
     }
-    function encodeTags (html) {
+    function encodeTags(html) {
         if (html == null) return html
         switch (typeof html) {
             case 'number':
@@ -767,7 +766,7 @@ let w2utils = (($) => {
         }
         return html
     }
-    function decodeTags (html) {
+    function decodeTags(html) {
         if (html == null) return html
         switch (typeof html) {
             case 'number':
@@ -788,16 +787,16 @@ let w2utils = (($) => {
         }
         return html
     }
-    function escapeId (id) {
+    function escapeId(id) {
         if (id === '' || id == null) return ''
         return $.escapeSelector(id)
         // return String(id).replace(/([;&,\.\+\*\~'`:"\!\^#$%@\[\]\(\)=<>\|\/? {}\\])/g, '\\$1')
     }
-    function unescapeId (id) {
+    function unescapeId(id) {
         if (id === '' || id == null) return ''
         return $.find.selectors.preFilter.ATTR([null, id])[1]
     }
-    function base64encode (input) {
+    function base64encode(input) {
         let output = ''
         let chr1, chr2, chr3, enc1, enc2, enc3, enc4
         let i      = 0
@@ -840,7 +839,7 @@ let w2utils = (($) => {
         }
         return output
     }
-    function base64decode (input) {
+    function base64decode(input) {
         let output = ''
         let chr1, chr2, chr3
         let enc1, enc2, enc3, enc4
@@ -864,7 +863,7 @@ let w2utils = (($) => {
             }
         }
         output = utf8_decode(output)
-        function utf8_decode (utftext) {
+        function utf8_decode(utftext) {
             let string = ''
             let i      = 0
             let c      = 0, c2, c3
@@ -1117,7 +1116,7 @@ let w2utils = (($) => {
         }
         return __pj_crypt_hex_md5(input)
     }
-    function transition (div_old, div_new, type, callBack) {
+    function transition(div_old, div_new, type, callBack) {
         let width  = $(div_old).width()
         let height = $(div_old).height()
         let time   = 0.5
@@ -1271,7 +1270,7 @@ let w2utils = (($) => {
             if (typeof callBack === 'function') callBack()
         }, time * 1000)
     }
-    function lock (box, msg, spinner) {
+    function lock(box, msg, spinner) {
         let options = {}
         if (typeof msg === 'object') {
             options = msg
@@ -1298,7 +1297,7 @@ let w2utils = (($) => {
             mess.html(options.msg).show(0)
         }
     }
-    function unlock (box, speed) {
+    function unlock(box, speed) {
         if (isInt(speed)) {
             $(box).find('.w2ui-lock').fadeOut(speed)
             setTimeout(() => {
@@ -1474,7 +1473,7 @@ let w2utils = (($) => {
             }
         })
     }
-    function getSize (el, type) {
+    function getSize(el, type) {
         let $el    = $(el)
         let bwidth = {
             left    : parseInt($el.css('border-left-width')) || 0,
@@ -1506,7 +1505,7 @@ let w2utils = (($) => {
         }
         return 0
     }
-    function getStrWidth (str, styles) {
+    function getStrWidth(str, styles) {
         let w, html = '<div id="_tmp_width" style="position: absolute; top: -900px;'+ (styles || '') +'">'+
                         encodeTags(str) +
                       '</div>'
@@ -1515,19 +1514,19 @@ let w2utils = (($) => {
         $('#_tmp_width').remove()
         return w
     }
-    // w2utils.template_replacer("This is ${a} template ${string}, can't ${you} see?")
+    // w2utils.fillTemplate("This is ${a} template ${string}, can't ${you} see?")
     //      -> "This is ${a} template ${string}, can't ${you} see?"
-    // w2utils.template_replacer("This is ${a} template ${string}, can't ${you} see?", {})
+    // w2utils.fillTemplate("This is ${a} template ${string}, can't ${you} see?", {})
     //      -> "This is a template string, can't you see?"
     // w2utils.str_replacer("This is ${a} template ${string}, can't ${you} see?", {a:"one fancy", string: "StRiNg"})
     //      -> "This is one fancy template StRiNg, can't you see?"
-    function template_replacer (str, replace_obj) {
+    function fillTemplate(str, replace_obj) {
         if(typeof str !== 'string' || !replace_obj || typeof replace_obj !== 'object') {
             return str
         }
         return str.replace(/\${([^}]+)?}/g, function($1, $2) { return replace_obj[$2]||$2 })
     }
-    function lang (phrase, replace_obj, no_warning) {
+    function lang(phrase, replace_obj, no_warning) {
         if (!phrase || typeof phrase !== 'string' || '<=>='.includes(phrase)) return phrase
         if (replace_obj === true) {
             replace_obj = undefined
@@ -1541,9 +1540,9 @@ let w2utils = (($) => {
                 this.settings.phrases[phrase] = translation // so we only warn once
             }
         }
-        return template_replacer(translation, replace_obj)
+        return fillTemplate(translation, replace_obj)
     }
-    function locale (locale, callBack) {
+    function locale(locale, callBack) {
         if (!locale) locale = 'en-us'
         // if the locale is not a string, we assume it is an object and merge it with w2utils.settings
         if (typeof locale !== 'string' ) {
@@ -1581,7 +1580,7 @@ let w2utils = (($) => {
         if (String(navigator.userAgent).indexOf('MSIE') >= 0) tmp.scrollBarSize = tmp.scrollBarSize / 2 // need this for IE9+
         return tmp.scrollBarSize
     }
-    function checkName (name) {
+    function checkName(name) {
         if (name == null) {
             console.log('ERROR: Property "name" is required but not supplied.')
             return false
@@ -1596,7 +1595,7 @@ let w2utils = (($) => {
         }
         return true
     }
-    function checkUniqueId (id, items, desc, obj) { // was w2checkUniqueId
+    function checkUniqueId(id, items, desc, obj) { // was w2checkUniqueId
         if (!Array.isArray(items)) items = [items]
         for (let i = 0; i < items.length; i++) {
             if (items[i].id === id) {
@@ -10393,9 +10392,6 @@ class w2grid extends w2event {
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2tabs
 *
 * == 2.0 changes
-*   - layout.content - deprecated
-*   - panel.callBack -> panel.removed
-*   - panel.onContent -> panel.onChange
 *
 ************************************************************************/
 
