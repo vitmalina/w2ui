@@ -11,10 +11,14 @@ jQuery(function () {
         name: 'layout',
         panels: [
             { type: 'top', size: '100px', resizable: true,
-                html: 'some',
+                html: `
+                    <button class="w2ui-btn" onclick="w2ui.layout.html('left', 'New content', 'slide-left')">Set content</button>
+                    <button class="w2ui-btn" onclick="w2ui.layout.hide('left')">Hide Left</button>
+                    <button class="w2ui-btn" onclick="w2ui.layout.show('left')">Show Left</button>
+                `,
                 html1: '<iframe style="width: 100%; height: 100%; border: 1px solid red;" src="http://refdesk.com"></iframe>',
              },
-            { type: 'left', size: '200', resizable: true, title: 'Some Title' },
+            { type: 'left', size: '200', resizable: true, title: 'Some Title', html: 'left panel' },
             { type: 'main',
                 style: 'border: 1px solid green',
                 tabs: {

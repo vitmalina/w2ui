@@ -154,6 +154,7 @@ class w2layout extends w2event {
             if (!p.hidden) {
                 if (transition != null && transition !== '') {
                     // apply transition
+                    $(this.box).addClass('animating')
                     let div1 = $(pname + '> .w2ui-panel-content')
                     div1.after('<div class="w2ui-panel-content new-panel" style="'+ div1[0].style.cssText +'"></div>')
                     let div2 = $(pname + '> .w2ui-panel-content.new-panel')
@@ -163,7 +164,7 @@ class w2layout extends w2event {
                         data.box = div2[0] // do not do .render(box);
                         data.render()
                     } else {
-                        div2.html(data)
+                        div2.hide().html(data)
                     }
                     w2utils.transition(div1[0], div2[0], transition, () => {
                         div1.remove()
@@ -173,17 +174,19 @@ class w2layout extends w2event {
                         $(pname + '> .w2ui-panel-content').slice(1).remove()
                         // IE Hack
                         obj.resize()
-                        if (window.navigator.userAgent.indexOf('MSIE') != -1) setTimeout(() => { obj.resize() }, 100)
+                        $(obj.box).removeClass('animating')
+                        obj.refresh(panel)
                     })
+                } else {
+                    this.refresh(panel)
                 }
             }
-            this.refresh(panel)
+
         }
         // event after
         obj.trigger($.extend(edata, { phase: 'after' }))
         // IE Hack
         obj.resize()
-        if (window.navigator.userAgent.indexOf('MSIE') != -1) setTimeout(() => { obj.resize() }, 100)
         return promise
     }
 
@@ -370,13 +373,17 @@ class w2layout extends w2event {
         if (p == null) return false
         p.hidden = false
         if (immediate === true) {
-            $('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '1' })
+            $('#layout_'+ obj.name +'_panel_'+panel)
+                .css({ 'opacity': '1' })
             obj.trigger($.extend(edata, { phase: 'after' }))
             obj.resize()
         } else {
             // resize
-            $('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0' })
-            $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '.2s'))
+            $(obj.box).addClass('animating')
+            $('#layout_'+ obj.name +'_panel_'+panel)
+                .css({ 'opacity': '0' })
+            $(obj.box).find(' > div > .w2ui-panel')
+                .css(w2utils.cssPrefix('transition', '.2s'))
             setTimeout(() => { obj.resize() }, 1)
             // show
             setTimeout(() => {
@@ -384,7 +391,9 @@ class w2layout extends w2event {
             }, 250)
             // clean
             setTimeout(() => {
-                $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '0s'))
+                $(obj.box).find(' > div > .w2ui-panel')
+                    .css(w2utils.cssPrefix('transition', '0s'))
+                $(obj.box).removeClass('animating')
                 obj.trigger($.extend(edata, { phase: 'after' }))
                 obj.resize()
             }, 500)
@@ -402,17 +411,23 @@ class w2layout extends w2event {
         if (p == null) return false
         p.hidden = true
         if (immediate === true) {
-            $('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0' })
+            $('#layout_'+ obj.name +'_panel_'+panel)
+                .css({ 'opacity': '0' })
             obj.trigger($.extend(edata, { phase: 'after' }))
             obj.resize()
         } else {
             // hide
-            $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '.2s'))
-            $('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0' })
+            $(obj.box).addClass('animating')
+            $(obj.box).find(' > div > .w2ui-panel')
+                .css(w2utils.cssPrefix('transition', '.2s'))
+            $('#layout_'+ obj.name +'_panel_'+panel)
+                .css({ 'opacity': '0' })
             setTimeout(() => { obj.resize() }, 1)
             // clean
             setTimeout(() => {
-                $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '0s'))
+                $(obj.box).find(' > div > .w2ui-panel')
+                    .css(w2utils.cssPrefix('transition', '0s'))
+                $(obj.box).removeClass('animating')
                 obj.trigger($.extend(edata, { phase: 'after' }))
                 obj.resize()
             }, 500)
@@ -956,7 +971,6 @@ class w2layout extends w2event {
             h = height - (stop ? ptop.sizeCalculated + this.padding : 0) -
                     (sbottom ? pbottom.sizeCalculated + this.padding : 0)
             e = $('#layout_'+ this.name +'_panel_left')
-            if (window.navigator.userAgent.indexOf('MSIE') != -1 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17 // IE hack
             e.css({
                 'display': 'block',
                 'left': l + 'px',
@@ -1084,7 +1098,6 @@ class w2layout extends w2event {
             (sbottom ? pbottom.sizeCalculated + this.padding : 0) -
             (sprev ? pprev.sizeCalculated + this.padding : 0)
         e = $('#layout_'+ this.name +'_panel_main')
-        if (window.navigator.userAgent.indexOf('MSIE') != -1 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17 // IE hack
         e.css({
             'display': 'block',
             'left': l + 'px',
@@ -1103,7 +1116,6 @@ class w2layout extends w2event {
                 (sright ? pright.sizeCalculated + this.padding : 0)
             h = pprev.sizeCalculated
             e = $('#layout_'+ this.name +'_panel_preview')
-            if (window.navigator.userAgent.indexOf('MSIE') != -1 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17 // IE hack
             e.css({
                 'display': 'block',
                 'left': l + 'px',
