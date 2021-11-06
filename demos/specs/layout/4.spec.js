@@ -13,7 +13,7 @@ context("2:Layout", () => {
                 .click({ multiple: true })
                 .wait('network', { url: '**/demos/data/content1.html', count: 2 })
                 .get('#layout_layout_panel_left .w2ui-panel-content')
-                .should('not.contain.text', 'Correct English text')
+                .should('not.contain.text', 'This is some content')
                 .should('contain.text', 'Lorem ipsum')
             .end()
     })

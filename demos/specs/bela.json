@@ -21,6 +21,7 @@
         "specs/layout/2.spec.js",
         "specs/layout/3.spec.js",
         "specs/layout/4.spec.js",
+        "specs/layout/5.spec.js",
         "specs/grid/1.spec.js",
         "specs/grid/2.spec.js",
         "specs/grid/3.spec.js",
