@@ -1,7 +1,9 @@
-/* w2ui 2.0.x (nightly) (11/1/2021, 3:59:24 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (11/6/2021, 6:05:28 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
+*   - there is a doc file ../details/w2event.html
+*   - on/off/trigger methods id not showing in help
 **/
 
 class w2event {
@@ -285,13 +287,9 @@ const w2locale = {
 *   - add maxHeight for the w2menu
 *   - add w2utils.lang wrap for all captions in all buttons.
 *   - message.options - should have actions
+*   - stricter CSP (work in progress)
 *
 * == 2.0 changes
-*   - normMenu
-*   - w2utils.message - returns a promise
-*   - bindEvents - common method to avoid inline events
-*   - settings.warn_missing_translation
-*   - i18nCompare
 *
 ************************************************/
 let w2ui = {}
@@ -300,11 +298,11 @@ let w2utils = (($) => {
     return {
         version  : '2.0.x',
         settings : $.extend(true, {}, w2locale, {
-            'dataType'                  : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
-            'dateStartYear'             : 1950,  // start year for date-picker
-            'dateEndYear'               : 2030,  // end year for date picker
-            'macButtonOrder'            : false, // if true, Yes on the right side
-            'warn_missing_translation'  : true,  // call console.warn if lang() encounters a missing translation
+            'dataType'       : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
+            'dateStartYear'  : 1950,  // start year for date-picker
+            'dateEndYear'    : 2030,  // end year for date picker
+            'macButtonOrder' : false, // if true, Yes on the right side
+            'warnNoPhrase'   : true,  // call console.warn if lang() encounters a missing phrase
         }),
         isBin,
         isInt,
@@ -341,7 +339,7 @@ let w2utils = (($) => {
         message,
         naturalCompare,
         i18nCompare: Intl.Collator().compare,
-        fillTemplate,
+        execTemplate,
         lang,
         locale,
         getSize,
@@ -1514,14 +1512,8 @@ let w2utils = (($) => {
         $('#_tmp_width').remove()
         return w
     }
-    // w2utils.fillTemplate("This is ${a} template ${string}, can't ${you} see?")
-    //      -> "This is ${a} template ${string}, can't ${you} see?"
-    // w2utils.fillTemplate("This is ${a} template ${string}, can't ${you} see?", {})
-    //      -> "This is a template string, can't you see?"
-    // w2utils.str_replacer("This is ${a} template ${string}, can't ${you} see?", {a:"one fancy", string: "StRiNg"})
-    //      -> "This is one fancy template StRiNg, can't you see?"
-    function fillTemplate(str, replace_obj) {
-        if(typeof str !== 'string' || !replace_obj || typeof replace_obj !== 'object') {
+    function execTemplate(str, replace_obj) {
+        if (typeof str !== 'string' || !replace_obj || typeof replace_obj !== 'object') {
             return str
         }
         return str.replace(/\${([^}]+)?}/g, function($1, $2) { return replace_obj[$2]||$2 })
@@ -1535,12 +1527,12 @@ let w2utils = (($) => {
         let translation = this.settings.phrases[phrase]
         if (translation == null) {
             translation = phrase
-            if(this.settings.warn_missing_translation && !no_warning) {
+            if(this.settings.warnNoPhrase  && !no_warning) {
                 console.warn('Missing translation:', phrase)
                 this.settings.phrases[phrase] = translation // so we only warn once
             }
         }
-        return fillTemplate(translation, replace_obj)
+        return execTemplate(translation, replace_obj)
     }
     function locale(locale, callBack) {
         if (!locale) locale = 'en-us'
@@ -10533,6 +10525,7 @@ class w2layout extends w2event {
             if (!p.hidden) {
                 if (transition != null && transition !== '') {
                     // apply transition
+                    $(this.box).addClass('animating')
                     let div1 = $(pname + '> .w2ui-panel-content')
                     div1.after('<div class="w2ui-panel-content new-panel" style="'+ div1[0].style.cssText +'"></div>')
                     let div2 = $(pname + '> .w2ui-panel-content.new-panel')
@@ -10542,7 +10535,7 @@ class w2layout extends w2event {
                         data.box = div2[0] // do not do .render(box);
                         data.render()
                     } else {
-                        div2.html(data)
+                        div2.hide().html(data)
                     }
                     w2utils.transition(div1[0], div2[0], transition, () => {
                         div1.remove()
@@ -10552,17 +10545,18 @@ class w2layout extends w2event {
                         $(pname + '> .w2ui-panel-content').slice(1).remove()
                         // IE Hack
                         obj.resize()
-                        if (window.navigator.userAgent.indexOf('MSIE') != -1) setTimeout(() => { obj.resize() }, 100)
+                        $(obj.box).removeClass('animating')
+                        obj.refresh(panel)
                     })
+                } else {
+                    this.refresh(panel)
                 }
             }
-            this.refresh(panel)
         }
         // event after
         obj.trigger($.extend(edata, { phase: 'after' }))
         // IE Hack
         obj.resize()
-        if (window.navigator.userAgent.indexOf('MSIE') != -1) setTimeout(() => { obj.resize() }, 100)
         return promise
     }
     message(panel, options) {
@@ -10741,13 +10735,17 @@ class w2layout extends w2event {
         if (p == null) return false
         p.hidden = false
         if (immediate === true) {
-            $('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '1' })
+            $('#layout_'+ obj.name +'_panel_'+panel)
+                .css({ 'opacity': '1' })
             obj.trigger($.extend(edata, { phase: 'after' }))
             obj.resize()
         } else {
             // resize
-            $('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0' })
-            $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '.2s'))
+            $(obj.box).addClass('animating')
+            $('#layout_'+ obj.name +'_panel_'+panel)
+                .css({ 'opacity': '0' })
+            $(obj.box).find(' > div > .w2ui-panel')
+                .css(w2utils.cssPrefix('transition', '.2s'))
             setTimeout(() => { obj.resize() }, 1)
             // show
             setTimeout(() => {
@@ -10755,7 +10753,9 @@ class w2layout extends w2event {
             }, 250)
             // clean
             setTimeout(() => {
-                $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '0s'))
+                $(obj.box).find(' > div > .w2ui-panel')
+                    .css(w2utils.cssPrefix('transition', '0s'))
+                $(obj.box).removeClass('animating')
                 obj.trigger($.extend(edata, { phase: 'after' }))
                 obj.resize()
             }, 500)
@@ -10771,17 +10771,23 @@ class w2layout extends w2event {
         if (p == null) return false
         p.hidden = true
         if (immediate === true) {
-            $('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0' })
+            $('#layout_'+ obj.name +'_panel_'+panel)
+                .css({ 'opacity': '0' })
             obj.trigger($.extend(edata, { phase: 'after' }))
             obj.resize()
         } else {
             // hide
-            $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '.2s'))
-            $('#layout_'+ obj.name +'_panel_'+panel).css({ 'opacity': '0' })
+            $(obj.box).addClass('animating')
+            $(obj.box).find(' > div > .w2ui-panel')
+                .css(w2utils.cssPrefix('transition', '.2s'))
+            $('#layout_'+ obj.name +'_panel_'+panel)
+                .css({ 'opacity': '0' })
             setTimeout(() => { obj.resize() }, 1)
             // clean
             setTimeout(() => {
-                $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '0s'))
+                $(obj.box).find(' > div > .w2ui-panel')
+                    .css(w2utils.cssPrefix('transition', '0s'))
+                $(obj.box).removeClass('animating')
                 obj.trigger($.extend(edata, { phase: 'after' }))
                 obj.resize()
             }, 500)
@@ -11297,7 +11303,6 @@ class w2layout extends w2event {
             h = height - (stop ? ptop.sizeCalculated + this.padding : 0) -
                     (sbottom ? pbottom.sizeCalculated + this.padding : 0)
             e = $('#layout_'+ this.name +'_panel_left')
-            if (window.navigator.userAgent.indexOf('MSIE') != -1 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17 // IE hack
             e.css({
                 'display': 'block',
                 'left': l + 'px',
@@ -11425,7 +11430,6 @@ class w2layout extends w2event {
             (sbottom ? pbottom.sizeCalculated + this.padding : 0) -
             (sprev ? pprev.sizeCalculated + this.padding : 0)
         e = $('#layout_'+ this.name +'_panel_main')
-        if (window.navigator.userAgent.indexOf('MSIE') != -1 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17 // IE hack
         e.css({
             'display': 'block',
             'left': l + 'px',
@@ -11443,7 +11447,6 @@ class w2layout extends w2event {
                 (sright ? pright.sizeCalculated + this.padding : 0)
             h = pprev.sizeCalculated
             e = $('#layout_'+ this.name +'_panel_preview')
-            if (window.navigator.userAgent.indexOf('MSIE') != -1 && e.length > 0 && e[0].clientHeight < e[0].scrollHeight) w += 17 // IE hack
             e.css({
                 'display': 'block',
                 'left': l + 'px',
@@ -11556,11 +11559,6 @@ class w2layout extends w2event {
 *   - Dependencies: jQuery, w2utils
 *
 * == 2.0 changes
-*   - load(url)
-*   - template(data, id)
-*   - open, load, message - return promise
-*   - options.actions = { text, class, onClick }
-*   - added options.openMaximized
 *
 ************************************************************************/
 
@@ -12836,12 +12834,6 @@ let w2popup = new w2dialog()
 *   - Dependencies: jQuery, w2utils
 *
 * == 2.0 changes
-*   - w2tabs.tab => w2tabs.tab_template
-*   - show/hide, enable/disable, check/uncheck - return array of affected items
-*   - fixed animateInsert, animateClose to be smooth and return promise
-*   - clickClose
-*   - scrollIntoView
-*   - scroll - added "instant"
 *
 ************************************************************************/
 
@@ -14280,15 +14272,6 @@ class w2toolbar extends w2event {
 *   - node.style is misleading - should be there to apply color for example
 *
 * == 2.0 changes
-*   - w2sidebar.node_template => w2sidebar.node
-*   - show/hide, enable/disable - return array of effected items
-*   - sb.each() - iterate through each node
-*   - sb.sort() - sort nodes using w2utils.naturalCompare
-*   - node.order - for sorting purposes
-*   - sb.search() - search nodes
-*   - sb.tabIndex
-*   - handle.content - string/func
-*   - this.tmp
 *
 ************************************************************************/
 
@@ -14314,7 +14297,7 @@ class w2sidebar extends w2event {
         this.hasFocus      = false
         this.levelPadding  = 12
         this.skipRefresh   = false
-        this.tabIndex      = 0 // will only be set if > 0
+        this.tabIndex      = null // will only be set if > 0 and not null
         this.handle        = { size: 0, style: '', content: '' },
         this.onClick       = null // Fire when user click on Node Text
         this.onDblClick    = null // Fire when user dbl clicks
@@ -14333,6 +14316,7 @@ class w2sidebar extends w2event {
         this.node_template = {
             id: null,
             text: '',
+            order: null,
             count: null,
             img: null,
             icon: null,
