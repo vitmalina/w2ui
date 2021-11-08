@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (11/6/2021, 6:05:28 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (11/8/2021, 10:51:51 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -588,8 +588,12 @@ let w2utils = (($) => {
     }
     function interval(value) {
         let ret = ''
-        if (value < 1000) {
-            ret = '< 1 sec'
+        if (value < 100) {
+            ret = '< 0.01 sec'
+        } else if (value < 1000) {
+            ret = (Math.floor(value / 10) / 100) + ' sec'
+        } else if (value < 10000) {
+            ret = (Math.floor(value / 100) / 10) + ' sec'
         } else if (value < 60000) {
             ret = Math.floor(value / 1000) + ' secs'
         } else if (value < 3600000) {
@@ -1371,7 +1375,7 @@ let w2utils = (($) => {
                 $msg.css(w2utils.cssPrefix({
                     'transition': '0.15s',
                     'transform': 'translateY(-' + options.height + 'px)'
-                })).addClass('w2ui-closing')
+                })).addClass('w2ui-closing animating')
                 if (msgCount === 1) {
                     if (this.unlock) {
                         if (where.param) this.unlock(where.param, 150); else this.unlock(150)
@@ -1405,6 +1409,7 @@ let w2utils = (($) => {
                             '</div>')
                 bindEvents('#w2ui-message' + msgCount, this)
                 $(where.box).find('#w2ui-message'+ msgCount)
+                    .addClass('animating')
                     .data('options', options)
                     .data('prev_focus', $(':focus'))
                 let display = $(where.box).find('#w2ui-message'+ msgCount).css('display')
@@ -1435,7 +1440,10 @@ let w2utils = (($) => {
                     }
                     setTimeout(() => {
                         // has to be on top of lock
-                        $(where.box).find('#w2ui-message'+ msgCount).css(w2utils.cssPrefix({ 'transition': '0s' }))
+                        $(where.box)
+                            .find('#w2ui-message'+ msgCount)
+                            .removeClass('animating')
+                            .css(w2utils.cssPrefix({ 'transition': '0s' }))
                         // event after
                         if (options.trigger) {
                             options.trigger($.extend(edata, { phase: 'after' }))
