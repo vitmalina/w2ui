@@ -1188,7 +1188,7 @@ let w2utils = (($) => {
                 $msg.css(w2utils.cssPrefix({
                     'transition': '0.15s',
                     'transform': 'translateY(-' + options.height + 'px)'
-                })).addClass('w2ui-closing')
+                })).addClass('w2ui-closing animating')
                 if (msgCount === 1) {
                     if (this.unlock) {
                         if (where.param) this.unlock(where.param, 150); else this.unlock(150)
@@ -1224,6 +1224,7 @@ let w2utils = (($) => {
                             '</div>')
                 bindEvents('#w2ui-message' + msgCount, this)
                 $(where.box).find('#w2ui-message'+ msgCount)
+                    .addClass('animating')
                     .data('options', options)
                     .data('prev_focus', $(':focus'))
                 let display = $(where.box).find('#w2ui-message'+ msgCount).css('display')
@@ -1254,7 +1255,10 @@ let w2utils = (($) => {
                     }
                     setTimeout(() => {
                         // has to be on top of lock
-                        $(where.box).find('#w2ui-message'+ msgCount).css(w2utils.cssPrefix({ 'transition': '0s' }))
+                        $(where.box)
+                            .find('#w2ui-message'+ msgCount)
+                            .removeClass('animating')
+                            .css(w2utils.cssPrefix({ 'transition': '0s' }))
                         // event after
                         if (options.trigger) {
                             options.trigger($.extend(edata, { phase: 'after' }))
