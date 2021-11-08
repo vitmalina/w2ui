@@ -329,8 +329,12 @@ let w2utils = (($) => {
 
     function interval(value) {
         let ret = ''
-        if (value < 1000) {
-            ret = '< 1 sec'
+        if (value < 100) {
+            ret = '< 0.01 sec'
+        } else if (value < 1000) {
+            ret = (Math.floor(value / 10) / 100) + ' sec'
+        } else if (value < 10000) {
+            ret = (Math.floor(value / 100) / 10) + ' sec'
         } else if (value < 60000) {
             ret = Math.floor(value / 1000) + ' secs'
         } else if (value < 3600000) {
