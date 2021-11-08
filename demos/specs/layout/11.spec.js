@@ -1,0 +1,26 @@
+context("2:Layout", () => {
+    context("2.0+", () => {
+        test("15: Panel Messages", () => {
+            bela
+                .ready('/w2ui/demos/#/layout/11')
+                .begin('Click buttons')
+                    .get('button:contains(Show Message)')
+                    .click()
+                    .wait('#w2ui-message0', 'to.not.have.class', 'animating')
+                    .get('#w2ui-message0')
+                    .should('contain.text', 'Some Text')
+                    .get('#w2ui-message0 button:contains(Ok)')
+                    .click()
+                    .wait('#w2ui-message0', 'to.disappear')
+                    .get('button:contains("Show Confirmation (2.0+)")')
+                    .click()
+                    .wait('#w2ui-message0', 'to.not.have.class', 'animating')
+                    .get('#w2ui-message0')
+                    .should('contain.text', 'Confirmation')
+                    .get('#w2ui-message0 button:contains(Yes)')
+                    .click()
+                    .wait('#w2ui-message0', 'to.disappear')
+                .end()
+        })
+    })
+})
