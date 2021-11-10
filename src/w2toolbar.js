@@ -295,6 +295,8 @@ class w2toolbar extends w2event {
             let edata = this.trigger({ phase: 'before', type: 'click', target: (id != null ? id : this.name),
                 item: it, object: it, originalEvent: event })
             if (edata.isCancelled === true) return
+            // read items again, they might have been changed in the click event handler
+            items = (it && it.items ? w2utils.normMenu.call(this, it.items, it) : [])
 
             let btn = '#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id)
             $(btn).removeClass('down') // need to re-query at the moment -- as well as elsewhere in this function
