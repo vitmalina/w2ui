@@ -145,8 +145,8 @@ $(function () {
                     nodes: [
                         { id: 'grid/1', text: 'Simple Grid', icon: 'fa fa-table' },
                         { id: 'grid/3', text: 'Grid Elements', icon: 'fa fa-table' },
-                        { id: 'grid/2', text: 'Row Formatting', icon: 'fa fa-table' },
-                        { id: 'grid/23',text: 'Cell Formatting', icon: 'fa fa-table' },
+                        { id: 'grid/2', text: 'Row Styling', icon: 'fa fa-table' },
+                        { id: 'grid/23',text: 'Cell Renderers', icon: 'fa fa-table' },
                         { id: 'grid/4', text: 'Data Source', icon: 'fa fa-table' },
                         { id: 'grid/5', text: 'Load Data Once', icon: 'fa fa-table' },
                         { id: 'grid/6', text: 'Single or Multi Select', icon: 'fa fa-table' },
@@ -176,7 +176,7 @@ $(function () {
                         { id: 'grid/7', text: 'Tree-Like Grid', icon: 'fa fa-table' },
                         { id: 'grid/27', text: 'Frozen Columns', icon: 'fa fa-table' },
                         { id: 'grid/28', text: 'Info Bubble', icon: 'fa fa-table' },
-                        { id: 'grid/29', text: 'Advanced Formatting', icon: 'fa fa-table' },
+                        { id: 'grid/29', text: 'Advanced Styling', icon: 'fa fa-table' },
                         { id: 'grid/31', text: 'Column Tooltip &amp; Title', icon: 'fa fa-table' },
                     ]
                 },
