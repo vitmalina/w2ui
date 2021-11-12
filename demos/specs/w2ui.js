@@ -110,6 +110,8 @@ bela.custom.overwrite('should', function(param, options = {}) { // cannot be arr
         switch (param) {
             case 'have.records': {
                 if (value) {
+                    if (value === true) value = '>0'
+                    if (value === false) value = '==0'
                     if (!isNaN(value)) value = '==' + value
                     if (eval(`${grid.records.length}${value}`) === true) {
                         res.success = true
@@ -150,11 +152,33 @@ bela.custom.overwrite('should', function(param, options = {}) { // cannot be arr
                 }
                 break
             }
+            case 'have.selection': {
+                if (value) {
+                    if (value === true) value = '>0'
+                    if (value === false) value = '==0'
+                    if (!isNaN(value)) value = '==' + value
+                    let sel = grid.getSelection()
+                    if (eval(`${sel.length}${value}`) === true) {
+                        res.success = true
+                        res.msg = `selected ${value}`
+                    } else {
+                        Object.assign(res, {
+                            success: false,
+                            details: `Selection count is ${sel.length}, but condition is ${value}`
+                        })
+                    }
+                } else if (sel.length > 0 ) {
+                    Object.assign(res, { success: true })
+                } else {
+                    res = { success: false, details: 'Grid has no selected records.' }
+                }
+                break
+            }
             default: {
                 res = {
                     success: false,
                     msg: `Unrecognized parameter "${param}"`,
-                    details: 'Support only, "have.records" and "have.subset"'
+                    details: 'Support only, "have.records", "have.selection" and "have.subset"'
                 }
             }
         }

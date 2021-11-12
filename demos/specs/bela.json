@@ -34,6 +34,9 @@
         "specs/grid/1.spec.js",
         "specs/grid/2.spec.js",
         "specs/grid/3.spec.js",
+        "specs/grid/4.spec.js",
+        "specs/grid/5.spec.js",
+        "specs/grid/6.spec.js",
         "specs/grid/23.spec.js",
         "specs/grid/29.spec.js",
         "specs/grid/31.spec.js"
