@@ -421,7 +421,7 @@ $(function () {
                         '</textarea>'+
                         (json != '' ?
                             '<h2>JSON file</h2>'+
-                            '<textarea class="json" id="json">'+ json +'</textarea>'
+                            '<textarea class="json" style="height: 300px" id="json">'+ json +'</textarea>'
                             :
                             '')+
                         '</div>'+
@@ -436,9 +436,9 @@ $(function () {
                         '</form>'+
                         '</div>')
 
-                    $('.json').each((ind, el) => {
-                        _code(el, $.trim($(el).val()), 'json')
-                    })
+                    // $('.json').each((ind, el) => {
+                    //     _code(el, $.trim($(el).val()), 'json')
+                    // })
                     $('.javascript').each((ind, el) => {
                         _code(el, $.trim($(el).val()), 'javascript')
                     })
@@ -494,7 +494,7 @@ function initCode() {
         _code(el, $.trim($(el).val()), 'text/html')
     })
     $('#example_code .json').each((ind, el) => {
-        _code(el, $.trim($(el).val()), 'javascript')
+        _code(el, $.trim($(el).val()), 'json')
     })
     $('#example_code .jsfiddle').on('click', function () {
         // $('#fiddleForm textarea[name=html]').val(html || '')
@@ -505,8 +505,9 @@ function initCode() {
 }
 function _code(el, code, lang) {
     let cm = CodeMirror(
-        function(elt) { el.parentNode.replaceChild(elt, el) },
-        {
+        function (elt) {
+            el.parentNode.replaceChild(elt, el)
+        }, {
             value: code,
             mode: lang,
             readOnly: true,
