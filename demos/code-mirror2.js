@@ -4,7 +4,6 @@
 $(function () {
     $('head').append(
         '<!-- CODE MIRROR -->\n'+
-        '<link rel="stylesheet" href="code-mirror.css">\n'+
         '<link href="../js/CodeMirror-5.63/lib/codemirror.css" rel="stylesheet">\n'+
         '<script src="../js/CodeMirror-5.63/lib/codemirror.js"></script>\n'+
         '<script src="../js/CodeMirror-5.63/mode/javascript/javascript.js"></script>\n'+
