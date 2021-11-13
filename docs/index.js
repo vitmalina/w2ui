@@ -218,42 +218,26 @@ function doClick (cmd, data) {
             '</div>')
         // javascript
         $('textarea.javascript').each(function (index, el) {
-            let obj = this
-            // resize to context
-            let ta = $(this)
-            $(ta).height(ta.scrollHeight + 2)
+            $(this).val($(this).val().trim())
             // init Code Mirror
-            let cm = CodeMirror(
-                function (elt) {
-                    obj.parentNode.replaceChild(elt, obj)
-                }, {
-                    value        : $.trim($(obj).val()),
-                    mode        : 'javascript',
-                    readOnly    : true,
-                    gutter        : true,
-                    lineNumbers    : true
-                }
-            )
+            let cm = CodeMirror.fromTextArea(this, {
+                mode: 'javascript',
+                readOnly: true,
+                gutter: true,
+                lineNumbers: true
+            })
             cm.setSize(null, cm.doc.height + 15)
         })
         // html
         $('textarea.html').each(function (index, el) {
-            let obj = this
-            // resize to context
-            let ta = $(this)
-            $(ta).height(ta.scrollHeight + 2)
+            $(this).val($(this).val().trim())
             // init Code Mirror
-            let cm = CodeMirror(
-                function (elt) {
-                    obj.parentNode.replaceChild(elt, obj)
-                }, {
-                    value        : $.trim($(obj).val()),
-                    mode        : 'xml',
-                    readOnly    : true,
-                    gutter        : true,
-                    lineNumbers    : true
-                }
-            )
+            let cm = CodeMirror.fromTextArea(this, {
+                mode: 'htmlmixed',
+                readOnly: true,
+                gutter: true,
+                lineNumbers: true
+            })
             cm.setSize(null, cm.doc.height + 15)
         })
     })

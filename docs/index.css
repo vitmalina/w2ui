@@ -48,9 +48,8 @@ ul {
 .CodeMirror {
     border: 1px solid silver;
     border-radius: 4px;
-    background-color: #fafafa;
+    background-color: #fcfcfc !important;
     font-size: 12px;
-    overflow: auto;
     margin-top: 15px !important;
     margin-bottom: 15px !important;
     line-height: 160% !important;
