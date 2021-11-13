@@ -82,12 +82,14 @@ class w2sidebar extends w2event {
         this.tmp = {
             badge: {}
         }
-        let nodes          = options.nodes
+        let nodes = options.nodes
         delete options.nodes
         // mix in options
         $.extend(true, this, options)
         // add item via method to makes sure item_template is applied
         if (Array.isArray(nodes)) this.add(nodes)
+        // need to reassign back to keep it in config
+        options.nodes = nodes
     }
 
     add(parent, nodes) {

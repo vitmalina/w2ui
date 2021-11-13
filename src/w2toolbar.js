@@ -59,6 +59,8 @@ class w2toolbar extends w2event {
         $.extend(true, this, options)
         // add item via method to makes sure item_template is applied
         if (Array.isArray(items)) this.add(items)
+        // need to reassign back to keep it in config
+        options.items = items
     }
 
     add(items) {

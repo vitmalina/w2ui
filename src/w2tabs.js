@@ -42,12 +42,14 @@ class w2tabs extends w2event {
             onRefresh: null,
             onClose: null
         }
-        let tabs          = options.tabs
+        let tabs = options.tabs
         delete options.tabs
         // mix in options
         $.extend(true, this, options)
         // add item via method to makes sure item_template is applied
         if (Array.isArray(tabs)) this.add(tabs)
+        // need to reassign back to keep it in config
+        options.tabs = tabs
     }
 
     add(tab) {
