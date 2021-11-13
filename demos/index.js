@@ -115,6 +115,12 @@ $(function () {
                         { id: 'combo/13', text: 'Inline Tooltips', icon: 'fa fa-star-o' }
                     ]
                 },
+                // ES6 modules not fully ready yet
+                // { id: 'combo-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                //     nodes: [
+                //         { id: 'combo/14', text: 'ES6 Modules', icon: 'fa fa-star-o' }
+                //     ]
+                // },
                 { id: 'layout', text: 'Layout Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'layout/1', text: 'Simple Layout', icon: 'fa fa-columns' },
@@ -376,6 +382,7 @@ $(function () {
                 // load example
                 $.get('examples/'+ cmd +'.html', function (data) {
                     let tmp = data.split('<!--CODE-->')
+                    let es6 = false
                     if (tmp.length == 1) {
                         alert('ERROR: cannot parse example.')
                         console.log('ERROR: cannot parse example.', data)
@@ -387,6 +394,10 @@ $(function () {
                     let js       = tmp[2] ? $.trim(tmp[2]) : ''
                     let css      = tmp[3] ? $.trim(tmp[3]) : ''
                     let json     = tmp[4] ? $.trim(tmp[4]) : ''
+                    if (js.trim().substr(0, 21) == '<script type="module"') {
+                        es6 = true
+                        w2ui_js  = 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.es6.min.js'
+                    }
                     js   = js.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '')
                     js   = $.trim(js)
                     css  = css.replace(/^<style[^>]*>/, '').replace(/<\/style>$/, '')
@@ -396,19 +407,22 @@ $(function () {
                     w2ui.demo_layout.html('main', tmp[0])
                     $('#example_view').html(
                         '<h2>Preview</h2>'+ html +
-                            '<script type="text/javascript">' + js + '</script>' +
+                            `<script type="${es6 ? 'module' : 'text/javascript'}">${js}</script>`+
                             '<style>' + css + '</style>')
                     let code = '<!DOCTYPE html>\n'+
                                '<html>\n'+
                                '<head>\n'+
                                '    <title>W2UI Demo: '+ cmd +'</title>\n'+
-                               '    <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>\n'+
-                               '    <script type="text/javascript" src="'+ w2ui_js +'"></script>\n'+
+                               (!es6
+                                   ? '    <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>\n'+
+                                     '    <script type="text/javascript" src="'+ w2ui_js +'"></script>\n'
+                                   : ''
+                                ) +
                                '    <link rel="stylesheet" type="text/css" href="'+ w2ui_css +'" />\n'+
                                '</head>\n'+
                                '<body>\n\n'+
                                html + '\n\n'+
-                               (js != '' ? '<script type="text/javascript">\n' + js + '\n</script>\n\n' : '') +
+                               (js != '' ? `<script type="${es6 ? 'module' : 'text/javascript'}">\n` + js + '\n</script>\n\n' : '') +
                                (css != '' ? '<style>\n' + css + '</style>\n\n' : '') +
                                '</body>\n'+
                                '</html>'
@@ -429,8 +443,8 @@ $(function () {
                         '<form id="fiddleForm" target="_blank" action="http://jsfiddle.net/api/post/jquery/3.4/" method="post">'+
                         '    <textarea name="title">W2UI Demo: '+ cmd +'</textarea>'+
                         '    <textarea name="resources">'+ w2ui_js +','+ w2ui_css +'</textarea>'+
-                        '    <textarea name="html">'+ html.replace(/<textarea/gi, '&lt;textarea').replace(/<\/textarea>/gi, '&lt;/textarea&gt;') +'</textarea>'+
                         '    <textarea name="js">'+ js +'</textarea>'+
+                        '    <textarea name="html">'+ html.replace(/<textarea/gi, '&lt;textarea').replace(/<\/textarea>/gi, '&lt;/textarea&gt;') +'</textarea>'+
                         '    <textarea name="css">'+ css +'</textarea>'+
                         '    <textarea name="wrap">l</textarea>'+
                         '</form>'+

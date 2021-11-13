@@ -1,0 +1,38 @@
+<div class="content">
+    <div id="example_title">
+        <h1>ES6 Modules</h1>
+        Staring with w2ui 2.0, you can use components `import` syntax. Below is the example how to do it.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="main" style="width: 100%; height: 400px;"></div>
+
+<!--CODE-->
+<script type="module">
+// import { w2ui, w2layout, w2grid } from 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.es6.js'
+import { w2ui, w2layout, w2sidebar, w2grid } from '../src/w2compat.js'
+import conf from './data/es6-conf.js'
+
+// register app globally
+window.app = { w2ui }
+
+if (w2ui.layout) {
+    w2ui.layout.destroy()
+    w2ui.sidebar.destroy()
+    w2ui.grid1.destroy()
+    w2ui.grid2.destroy()
+}
+
+let layout = new w2layout(conf.layout)
+let sidebar = new w2sidebar(conf.sidebar)
+let grid1 = new w2grid(conf.grid1)
+let grid2 = new w2grid(conf.grid2)
+
+
+layout.render($('#main'))
+layout.html('left', sidebar)
+layout.html('main', grid1)
+</script>
