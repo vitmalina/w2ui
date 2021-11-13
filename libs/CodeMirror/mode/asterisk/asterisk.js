@@ -1,3 +1,6 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: https://codemirror.net/LICENSE
+
 /*
  * =====================================================================================
  *
@@ -6,13 +9,23 @@
  *    Description:  CodeMirror mode for Asterisk dialplan
  *
  *        Created:  05/17/2012 09:20:25 PM
- *       Revision:  none
+ *       Revision:  08/05/2019 AstLinux Project: Support block-comments
  *
  *         Author:  Stas Kobzar (stas@modulis.ca),
  *        Company:  Modulis.ca Inc.
  *
  * =====================================================================================
  */
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
 
 CodeMirror.defineMode("asterisk", function() {
   var atoms    = ["exten", "same", "include","ignorepat","switch"],
@@ -52,10 +65,28 @@ CodeMirror.defineMode("asterisk", function() {
 
   function basicToken(stream,state){
     var cur = '';
-    var ch  = '';
-    ch = stream.next();
+    var ch = stream.next();
     // comment
+    if (state.blockComment) {
+      if (ch == "-" && stream.match("-;", true)) {
+        state.blockComment = false;
+      } else if (stream.skipTo("--;")) {
+        stream.next();
+        stream.next();
+        stream.next();
+        state.blockComment = false;
+      } else {
+        stream.skipToEnd();
+      }
+      return "comment";
+    }
     if(ch == ";") {
+      if (stream.match("--", true)) {
+        if (!stream.match("-", false)) {  // Except ;--- is not a block comment
+          state.blockComment = true;
+          return "comment";
+        }
+      }
       stream.skipToEnd();
       return "comment";
     }
@@ -112,6 +143,7 @@ CodeMirror.defineMode("asterisk", function() {
   return {
     startState: function() {
       return {
+        blockComment: false,
         extenStart: false,
         extenSame:  false,
         extenInclude: false,
@@ -123,7 +155,6 @@ CodeMirror.defineMode("asterisk", function() {
     token: function(stream, state) {
 
       var cur = '';
-      var ch  = '';
       if(stream.eatSpace()) return null;
       // extension started
       if(state.extenStart){
@@ -157,7 +188,7 @@ CodeMirror.defineMode("asterisk", function() {
       } else if(state.extenPriority) {
         state.extenPriority = false;
         state.extenApplication = true;
-        ch = stream.next(); // get comma
+        stream.next(); // get comma
         if(state.extenSame) return null;
         stream.eatWhile(/[^,]/);
         return "number";
@@ -176,8 +207,14 @@ CodeMirror.defineMode("asterisk", function() {
       }
 
       return null;
-    }
+    },
+
+    blockCommentStart: ";--",
+    blockCommentEnd: "--;",
+    lineComment: ";"
   };
 });
 
 CodeMirror.defineMIME("text/x-asterisk", "asterisk");
+
+});

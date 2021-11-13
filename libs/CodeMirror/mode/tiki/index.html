@@ -1,16 +1,31 @@
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: Tiki wiki mode</title>
-    <link rel="stylesheet" href="../../lib/codemirror.css">
-    <script src="../../lib/codemirror.js"></script>
-    <script src="tiki.js"></script>
-    <link rel="stylesheet" href="tiki.css">
-    <link rel="stylesheet" href="../../doc/docs.css">
-    <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
-  </head>
-  <body style="padding: 20px;">
-    <h1>CodeMirror: Tiki wiki mode</h1>
+<!doctype html>
+
+<title>CodeMirror: Tiki wiki mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<link rel="stylesheet" href="tiki.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="tiki.js"></script>
+<style>.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+<div id=nav>
+  <a href="https://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png" alt=""></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">Tiki wiki</a>
+  </ul>
+</div>
+
+<article>
+<h2>Tiki wiki mode</h2>
+
 
 <div><textarea id="code" name="code">
 Headings
@@ -70,12 +85,11 @@ Plugin (inline):
 {plugin attr="my attr"}
 </textarea></div>
 
-<script type="text/javascript">
-    var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+<script>
+	var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         mode: 'tiki',      
         lineNumbers: true
     });
 </script>
 
-</body>
-</html>
+</article>

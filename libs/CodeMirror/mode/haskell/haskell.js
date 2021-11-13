@@ -1,4 +1,17 @@
-CodeMirror.defineMode("haskell", function() {
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: https://codemirror.net/LICENSE
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
+CodeMirror.defineMode("haskell", function(_config, modeConfig) {
 
   function switchState(source, setState, f) {
     setState(f);
@@ -8,10 +21,10 @@ CodeMirror.defineMode("haskell", function() {
   // These should all be Unicode extended, as per the Haskell 2010 report
   var smallRE = /[a-z_]/;
   var largeRE = /[A-Z]/;
-  var digitRE = /[0-9]/;
+  var digitRE = /\d/;
   var hexitRE = /[0-9A-Fa-f]/;
   var octitRE = /[0-7]/;
-  var idRE = /[a-z_A-Z0-9']/;
+  var idRE = /[a-z_A-Z0-9'\xa1-\uffff]/;
   var symbolRE = /[-!#$%&*+.\/<=>?@\\^|~:]/;
   var specialRE = /[(),;[\]`{}]/;
   var whiteCharRE = /[ \t\v\f]/; // newlines are handled in tokenizer
@@ -43,7 +56,7 @@ CodeMirror.defineMode("haskell", function() {
       if (source.eat('\'')) {
         return "string";
       }
-      return "error";
+      return "string error";
     }
 
     if (ch == '"') {
@@ -76,9 +89,8 @@ CodeMirror.defineMode("haskell", function() {
       }
       source.eatWhile(digitRE);
       var t = "number";
-      if (source.eat('.')) {
+      if (source.match(/^\.\d+/)) {
         t = "number";
-        source.eatWhile(digitRE); // should require at least 1
       }
       if (source.eat(/[eE]/)) {
         t = "number";
@@ -87,6 +99,9 @@ CodeMirror.defineMode("haskell", function() {
       }
       return t;
     }
+
+    if (ch == "." && source.eat("."))
+      return "keyword";
 
     if (symbolRE.test(ch)) {
       if (ch == '-' && source.eat(/-/)) {
@@ -151,7 +166,7 @@ CodeMirror.defineMode("haskell", function() {
       }
     }
     setState(normal);
-    return "error";
+    return "string error";
   }
 
   function stringGap(source, setState) {
@@ -179,16 +194,17 @@ CodeMirror.defineMode("haskell", function() {
       "module", "newtype", "of", "then", "type", "where", "_");
 
     setType("keyword")(
-      "\.\.", ":", "::", "=", "\\", "\"", "<-", "->", "@", "~", "=>");
+      "\.\.", ":", "::", "=", "\\", "<-", "->", "@", "~", "=>");
 
     setType("builtin")(
-      "!!", "$!", "$", "&&", "+", "++", "-", ".", "/", "/=", "<", "<=", "=<<",
-      "==", ">", ">=", ">>", ">>=", "^", "^^", "||", "*", "**");
+      "!!", "$!", "$", "&&", "+", "++", "-", ".", "/", "/=", "<", "<*", "<=",
+      "<$>", "<*>", "=<<", "==", ">", ">=", ">>", ">>=", "^", "^^", "||", "*",
+      "*>", "**");
 
     setType("builtin")(
-      "Bool", "Bounded", "Char", "Double", "EQ", "Either", "Enum", "Eq",
-      "False", "FilePath", "Float", "Floating", "Fractional", "Functor", "GT",
-      "IO", "IOError", "Int", "Integer", "Integral", "Just", "LT", "Left",
+      "Applicative", "Bool", "Bounded", "Char", "Double", "EQ", "Either", "Enum",
+      "Eq", "False", "FilePath", "Float", "Floating", "Fractional", "Functor",
+      "GT", "IO", "IOError", "Int", "Integer", "Integral", "Just", "LT", "Left",
       "Maybe", "Monad", "Nothing", "Num", "Ord", "Ordering", "Rational", "Read",
       "ReadS", "Real", "RealFloat", "RealFrac", "Right", "Show", "ShowS",
       "String", "True");
@@ -208,7 +224,7 @@ CodeMirror.defineMode("haskell", function() {
       "lcm", "length", "lex", "lines", "log", "logBase", "lookup", "map",
       "mapM", "mapM_", "max", "maxBound", "maximum", "maybe", "min", "minBound",
       "minimum", "mod", "negate", "not", "notElem", "null", "odd", "or",
-      "otherwise", "pi", "pred", "print", "product", "properFraction",
+      "otherwise", "pi", "pred", "print", "product", "properFraction", "pure",
       "putChar", "putStr", "putStrLn", "quot", "quotRem", "read", "readFile",
       "readIO", "readList", "readLn", "readParen", "reads", "readsPrec",
       "realToFrac", "recip", "rem", "repeat", "replicate", "return", "reverse",
@@ -220,6 +236,10 @@ CodeMirror.defineMode("haskell", function() {
       "toRational", "truncate", "uncurry", "undefined", "unlines", "until",
       "unwords", "unzip", "unzip3", "userError", "words", "writeFile", "zip",
       "zip3", "zipWith", "zipWith3");
+
+    var override = modeConfig.overrideKeywords;
+    if (override) for (var word in override) if (override.hasOwnProperty(word))
+      wkw[word] = override[word];
 
     return wkw;
   })();
@@ -233,7 +253,7 @@ CodeMirror.defineMode("haskell", function() {
     token: function(stream, state) {
       var t = state.f(stream, function(s) { state.f = s; });
       var w = stream.current();
-      return (w in wellKnownWords) ? wellKnownWords[w] : t;
+      return wellKnownWords.hasOwnProperty(w) ? wellKnownWords[w] : t;
     },
 
     blockCommentStart: "{-",
@@ -244,3 +264,5 @@ CodeMirror.defineMode("haskell", function() {
 });
 
 CodeMirror.defineMIME("text/x-haskell", "haskell");
+
+});

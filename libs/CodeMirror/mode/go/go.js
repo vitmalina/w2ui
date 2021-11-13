@@ -1,3 +1,16 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: https://codemirror.net/LICENSE
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
 CodeMirror.defineMode("go", function(config) {
   var indentUnit = config.indentUnit;
 
@@ -10,12 +23,13 @@ CodeMirror.defineMode("go", function(config) {
     "bool":true, "byte":true, "complex64":true, "complex128":true,
     "float32":true, "float64":true, "int8":true, "int16":true, "int32":true,
     "int64":true, "string":true, "uint8":true, "uint16":true, "uint32":true,
-    "uint64":true, "int":true, "uint":true, "uintptr":true
+    "uint64":true, "int":true, "uint":true, "uintptr":true, "error": true,
+    "rune":true
   };
 
   var atoms = {
     "true":true, "false":true, "iota":true, "nil":true, "append":true,
-    "cap":true, "close":true, "complex":true, "copy":true, "imag":true,
+    "cap":true, "close":true, "complex":true, "copy":true, "delete":true, "imag":true,
     "len":true, "make":true, "new":true, "panic":true, "print":true,
     "println":true, "real":true, "recover":true
   };
@@ -58,7 +72,7 @@ CodeMirror.defineMode("go", function(config) {
       stream.eatWhile(isOperatorChar);
       return "operator";
     }
-    stream.eatWhile(/[\w\$_]/);
+    stream.eatWhile(/[\w\$_\xa1-\uffff]/);
     var cur = stream.current();
     if (keywords.propertyIsEnumerable(cur)) {
       if (cur == "case" || cur == "default") curPunc = "case";
@@ -73,7 +87,7 @@ CodeMirror.defineMode("go", function(config) {
       var escaped = false, next, end = false;
       while ((next = stream.next()) != null) {
         if (next == quote && !escaped) {end = true; break;}
-        escaped = !escaped && next == "\\";
+        escaped = !escaped && quote != "`" && next == "\\";
       }
       if (end || !(escaped || quote == "`"))
         state.tokenize = tokenBase;
@@ -104,6 +118,7 @@ CodeMirror.defineMode("go", function(config) {
     return state.context = new Context(state.indented, col, type, null, state.context);
   }
   function popContext(state) {
+    if (!state.context.prev) return;
     var t = state.context.type;
     if (t == ")" || t == "]" || t == "}")
       state.indented = state.context.indented;
@@ -140,14 +155,14 @@ CodeMirror.defineMode("go", function(config) {
       else if (curPunc == "[") pushContext(state, stream.column(), "]");
       else if (curPunc == "(") pushContext(state, stream.column(), ")");
       else if (curPunc == "case") ctx.type = "case";
-      else if (curPunc == "}" && ctx.type == "}") ctx = popContext(state);
+      else if (curPunc == "}" && ctx.type == "}") popContext(state);
       else if (curPunc == ctx.type) popContext(state);
       state.startOfLine = false;
       return style;
     },
 
     indent: function(state, textAfter) {
-      if (state.tokenize != tokenBase && state.tokenize != null) return 0;
+      if (state.tokenize != tokenBase && state.tokenize != null) return CodeMirror.Pass;
       var ctx = state.context, firstChar = textAfter && textAfter.charAt(0);
       if (ctx.type == "case" && /^(?:case|default)\b/.test(textAfter)) {
         state.context.type = "}";
@@ -158,7 +173,9 @@ CodeMirror.defineMode("go", function(config) {
       else return ctx.indented + (closing ? 0 : indentUnit);
     },
 
-    electricChars: "{}:",
+    electricChars: "{}):",
+    closeBrackets: "()[]{}''\"\"``",
+    fold: "brace",
     blockCommentStart: "/*",
     blockCommentEnd: "*/",
     lineComment: "//"
@@ -166,3 +183,5 @@ CodeMirror.defineMode("go", function(config) {
 });
 
 CodeMirror.defineMIME("text/x-go", "go");
+
+});

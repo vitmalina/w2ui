@@ -1,4 +1,18 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: https://codemirror.net/LICENSE
+
 //mIRC mode by Ford_Lawnmower :: Based on Velocity mode by Steve O'Hara
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
 CodeMirror.defineMIME("text/mirc", "mirc");
 CodeMirror.defineMode("mirc", function() {
   function parseWords(str) {
@@ -116,7 +130,7 @@ CodeMirror.defineMode("mirc", function() {
       }
     }
     else if (ch == "%") {
-      stream.eatWhile(/[^,^\s^\(^\)]/);
+      stream.eatWhile(/[^,\s()]/);
       state.beforeParams = true;
       return "string";
     }
@@ -174,4 +188,6 @@ CodeMirror.defineMode("mirc", function() {
       return state.tokenize(stream, state);
     }
   };
+});
+
 });

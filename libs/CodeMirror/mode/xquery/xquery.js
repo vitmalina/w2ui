@@ -1,68 +1,70 @@
-/*
-Copyright (C) 2011 by MarkLogic Corporation
-Author: Mike Brevoort <mike@brevoort.com>
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: https://codemirror.net/LICENSE
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
 CodeMirror.defineMode("xquery", function() {
 
   // The keywords object is set to the result of this self executing
   // function. Each keyword is a property of the keywords object whose
   // value is {type: atype, style: astyle}
   var keywords = function(){
-    // conveinence functions used to build keywords object
+    // convenience functions used to build keywords object
     function kw(type) {return {type: type, style: "keyword"};}
-    var A = kw("keyword a")
-      , B = kw("keyword b")
-      , C = kw("keyword c")
-      , operator = kw("operator")
+    var operator = kw("operator")
       , atom = {type: "atom", style: "atom"}
       , punctuation = {type: "punctuation", style: null}
       , qualifier = {type: "axis_specifier", style: "qualifier"};
 
     // kwObj is what is return from this function at the end
     var kwObj = {
-      'if': A, 'switch': A, 'while': A, 'for': A,
-      'else': B, 'then': B, 'try': B, 'finally': B, 'catch': B,
-      'element': C, 'attribute': C, 'let': C, 'implements': C, 'import': C, 'module': C, 'namespace': C,
-      'return': C, 'super': C, 'this': C, 'throws': C, 'where': C, 'private': C,
-      ',': punctuation,
-      'null': atom, 'fn:false()': atom, 'fn:true()': atom
+      ',': punctuation
     };
 
     // a list of 'basic' keywords. For each add a property to kwObj with the value of
     // {type: basic[i], style: "keyword"} e.g. 'after' --> {type: "after", style: "keyword"}
-    var basic = ['after','ancestor','ancestor-or-self','and','as','ascending','assert','attribute','before',
-    'by','case','cast','child','comment','declare','default','define','descendant','descendant-or-self',
-    'descending','document','document-node','element','else','eq','every','except','external','following',
-    'following-sibling','follows','for','function','if','import','in','instance','intersect','item',
-    'let','module','namespace','node','node','of','only','or','order','parent','precedes','preceding',
-    'preceding-sibling','processing-instruction','ref','return','returns','satisfies','schema','schema-element',
-    'self','some','sortby','stable','text','then','to','treat','typeswitch','union','variable','version','where',
-    'xquery', 'empty-sequence'];
+    var basic = ['after', 'all', 'allowing', 'ancestor', 'ancestor-or-self', 'any', 'array', 'as',
+    'ascending', 'at', 'attribute', 'base-uri', 'before', 'boundary-space', 'by', 'case', 'cast',
+    'castable', 'catch', 'child', 'collation', 'comment', 'construction', 'contains', 'content',
+    'context', 'copy', 'copy-namespaces', 'count', 'decimal-format', 'declare', 'default', 'delete',
+    'descendant', 'descendant-or-self', 'descending', 'diacritics', 'different', 'distance',
+    'document', 'document-node', 'element', 'else', 'empty', 'empty-sequence', 'encoding', 'end',
+    'entire', 'every', 'exactly', 'except', 'external', 'first', 'following', 'following-sibling',
+    'for', 'from', 'ftand', 'ftnot', 'ft-option', 'ftor', 'function', 'fuzzy', 'greatest', 'group',
+    'if', 'import', 'in', 'inherit', 'insensitive', 'insert', 'instance', 'intersect', 'into',
+    'invoke', 'is', 'item', 'language', 'last', 'lax', 'least', 'let', 'levels', 'lowercase', 'map',
+    'modify', 'module', 'most', 'namespace', 'next', 'no', 'node', 'nodes', 'no-inherit',
+    'no-preserve', 'not', 'occurs', 'of', 'only', 'option', 'order', 'ordered', 'ordering',
+    'paragraph', 'paragraphs', 'parent', 'phrase', 'preceding', 'preceding-sibling', 'preserve',
+    'previous', 'processing-instruction', 'relationship', 'rename', 'replace', 'return',
+    'revalidation', 'same', 'satisfies', 'schema', 'schema-attribute', 'schema-element', 'score',
+    'self', 'sensitive', 'sentence', 'sentences', 'sequence', 'skip', 'sliding', 'some', 'stable',
+    'start', 'stemming', 'stop', 'strict', 'strip', 'switch', 'text', 'then', 'thesaurus', 'times',
+    'to', 'transform', 'treat', 'try', 'tumbling', 'type', 'typeswitch', 'union', 'unordered',
+    'update', 'updating', 'uppercase', 'using', 'validate', 'value', 'variable', 'version',
+    'weight', 'when', 'where', 'wildcards', 'window', 'with', 'without', 'word', 'words', 'xquery'];
     for(var i=0, l=basic.length; i < l; i++) { kwObj[basic[i]] = kw(basic[i]);};
 
     // a list of types. For each add a property to kwObj with the value of
     // {type: "atom", style: "atom"}
-    var types = ['xs:string', 'xs:float', 'xs:decimal', 'xs:double', 'xs:integer', 'xs:boolean', 'xs:date', 'xs:dateTime',
-    'xs:time', 'xs:duration', 'xs:dayTimeDuration', 'xs:time', 'xs:yearMonthDuration', 'numeric', 'xs:hexBinary',
-    'xs:base64Binary', 'xs:anyURI', 'xs:QName', 'xs:byte','xs:boolean','xs:anyURI','xf:yearMonthDuration'];
+    var types = ['xs:anyAtomicType', 'xs:anySimpleType', 'xs:anyType', 'xs:anyURI',
+    'xs:base64Binary', 'xs:boolean', 'xs:byte', 'xs:date', 'xs:dateTime', 'xs:dateTimeStamp',
+    'xs:dayTimeDuration', 'xs:decimal', 'xs:double', 'xs:duration', 'xs:ENTITIES', 'xs:ENTITY',
+    'xs:float', 'xs:gDay', 'xs:gMonth', 'xs:gMonthDay', 'xs:gYear', 'xs:gYearMonth', 'xs:hexBinary',
+    'xs:ID', 'xs:IDREF', 'xs:IDREFS', 'xs:int', 'xs:integer', 'xs:item', 'xs:java', 'xs:language',
+    'xs:long', 'xs:Name', 'xs:NCName', 'xs:negativeInteger', 'xs:NMTOKEN', 'xs:NMTOKENS',
+    'xs:nonNegativeInteger', 'xs:nonPositiveInteger', 'xs:normalizedString', 'xs:NOTATION',
+    'xs:numeric', 'xs:positiveInteger', 'xs:precisionDecimal', 'xs:QName', 'xs:short', 'xs:string',
+    'xs:time', 'xs:token', 'xs:unsignedByte', 'xs:unsignedInt', 'xs:unsignedLong',
+    'xs:unsignedShort', 'xs:untyped', 'xs:untypedAtomic', 'xs:yearMonthDuration'];
     for(var i=0, l=types.length; i < l; i++) { kwObj[types[i]] = atom;};
 
     // each operator will add a property to kwObj with value of {type: "operator", style: "keyword"}
@@ -76,15 +78,6 @@ CodeMirror.defineMode("xquery", function() {
 
     return kwObj;
   }();
-
-  // Used as scratch variables to communicate multiple values without
-  // consing up tons of objects.
-  var type, content;
-
-  function ret(tp, style, cont) {
-    type = tp; content = cont;
-    return style;
-  }
 
   function chain(stream, state, f) {
     state.tokenize = f;
@@ -104,7 +97,7 @@ CodeMirror.defineMode("xquery", function() {
 
       if(stream.match("![CDATA", false)) {
         state.tokenize = tokenCDATA;
-        return ret("tag", "tag");
+        return "tag";
       }
 
       if(stream.match("?", false)) {
@@ -120,29 +113,29 @@ CodeMirror.defineMode("xquery", function() {
     }
     // start code block
     else if(ch == "{") {
-      pushStateStack(state,{ type: "codeblock"});
-      return ret("", null);
+      pushStateStack(state, { type: "codeblock"});
+      return null;
     }
     // end code block
     else if(ch == "}") {
       popStateStack(state);
-      return ret("", null);
+      return null;
     }
     // if we're in an XML block
     else if(isInXmlBlock(state)) {
       if(ch == ">")
-        return ret("tag", "tag");
+        return "tag";
       else if(ch == "/" && stream.eat(">")) {
         popStateStack(state);
-        return ret("tag", "tag");
+        return "tag";
       }
       else
-        return ret("word", "variable");
+        return "variable";
     }
     // if a number
     else if (/\d/.test(ch)) {
       stream.match(/^\d*(?:\.\d*)?(?:E[+\-]?\d+)?/);
-      return ret("number", "atom");
+      return "atom";
     }
     // comment start
     else if (ch === "(" && stream.eat(":")) {
@@ -150,7 +143,7 @@ CodeMirror.defineMode("xquery", function() {
       return chain(stream, state, tokenComment);
     }
     // quoted string
-    else if (  !isEQName && (ch === '"' || ch === "'"))
+    else if (!isEQName && (ch === '"' || ch === "'"))
       return chain(stream, state, tokenString(ch));
     // variable
     else if(ch === "$") {
@@ -158,27 +151,27 @@ CodeMirror.defineMode("xquery", function() {
     }
     // assignment
     else if(ch ===":" && stream.eat("=")) {
-      return ret("operator", "keyword");
+      return "keyword";
     }
     // open paren
     else if(ch === "(") {
       pushStateStack(state, { type: "paren"});
-      return ret("", null);
+      return null;
     }
     // close paren
     else if(ch === ")") {
       popStateStack(state);
-      return ret("", null);
+      return null;
     }
     // open paren
     else if(ch === "[") {
       pushStateStack(state, { type: "bracket"});
-      return ret("", null);
+      return null;
     }
     // close paren
     else if(ch === "]") {
       popStateStack(state);
-      return ret("", null);
+      return null;
     }
     else {
       var known = keywords.propertyIsEnumerable(ch) && keywords[ch];
@@ -213,15 +206,14 @@ CodeMirror.defineMode("xquery", function() {
       // if the previous word was element, attribute, axis specifier, this word should be the name of that
       if(isInXmlConstructor(state)) {
         popStateStack(state);
-        return ret("word", "variable", word);
+        return "variable";
       }
       // as previously checked, if the word is element,attribute, axis specifier, call it an "xmlconstructor" and
       // push the stack so we know to look for it on the next word
       if(word == "element" || word == "attribute" || known.type == "axis_specifier") pushStateStack(state, {type: "xmlconstructor"});
 
       // if the word is known, return the details of that else just call this a generic 'word'
-      return known ? ret(known.type, known.style, word) :
-                     ret("word", "variable", word);
+      return known ? known.style : "variable";
     }
   }
 
@@ -244,7 +236,7 @@ CodeMirror.defineMode("xquery", function() {
       maybeNested = (ch == "(");
     }
 
-    return ret("comment", "comment");
+    return "comment";
   }
 
   // tokenizer for string literals
@@ -256,7 +248,7 @@ CodeMirror.defineMode("xquery", function() {
       if(isInString(state) && stream.current() == quote) {
         popStateStack(state);
         if(f) state.tokenize = f;
-        return ret("string", "string");
+        return "string";
       }
 
       pushStateStack(state, { type: "string", name: quote, tokenize: tokenString(quote, f) });
@@ -264,7 +256,7 @@ CodeMirror.defineMode("xquery", function() {
       // if we're in a string and in an XML block, allow an embedded code block
       if(stream.match("{", false) && isInXmlAttributeBlock(state)) {
         state.tokenize = tokenBase;
-        return ret("string", "string");
+        return "string";
       }
 
 
@@ -278,13 +270,13 @@ CodeMirror.defineMode("xquery", function() {
           // if we're in a string and in an XML block, allow an embedded code block in an attribute
           if(stream.match("{", false) && isInXmlAttributeBlock(state)) {
             state.tokenize = tokenBase;
-            return ret("string", "string");
+            return "string";
           }
 
         }
       }
 
-      return ret("string", "string");
+      return "string";
     };
   }
 
@@ -302,7 +294,7 @@ CodeMirror.defineMode("xquery", function() {
     }
     stream.eatWhile(isVariableChar);
     state.tokenize = tokenBase;
-    return ret("variable", "variable");
+    return "variable";
   }
 
   // tokenizer for XML tags
@@ -312,19 +304,19 @@ CodeMirror.defineMode("xquery", function() {
       if(isclose && stream.eat(">")) {
         popStateStack(state);
         state.tokenize = tokenBase;
-        return ret("tag", "tag");
+        return "tag";
       }
       // self closing tag without attributes?
       if(!stream.eat("/"))
         pushStateStack(state, { type: "tag", name: name, tokenize: tokenBase});
       if(!stream.eat(">")) {
         state.tokenize = tokenAttribute;
-        return ret("tag", "tag");
+        return "tag";
       }
       else {
         state.tokenize = tokenBase;
       }
-      return ret("tag", "tag");
+      return "tag";
     };
   }
 
@@ -335,20 +327,20 @@ CodeMirror.defineMode("xquery", function() {
     if(ch == "/" && stream.eat(">")) {
       if(isInXmlAttributeBlock(state)) popStateStack(state);
       if(isInXmlBlock(state)) popStateStack(state);
-      return ret("tag", "tag");
+      return "tag";
     }
     if(ch == ">") {
       if(isInXmlAttributeBlock(state)) popStateStack(state);
-      return ret("tag", "tag");
+      return "tag";
     }
     if(ch == "=")
-      return ret("", null);
+      return null;
     // quoted string
     if (ch == '"' || ch == "'")
       return chain(stream, state, tokenString(ch, tokenAttribute));
 
     if(!isInXmlAttributeBlock(state))
-      pushStateStack(state, { type: "attribute", name: name, tokenize: tokenAttribute});
+      pushStateStack(state, { type: "attribute", tokenize: tokenAttribute});
 
     stream.eat(/[a-zA-Z_:]/);
     stream.eatWhile(/[-a-zA-Z0-9_:.]/);
@@ -360,7 +352,7 @@ CodeMirror.defineMode("xquery", function() {
       state.tokenize = tokenBase;
     }
 
-    return ret("attribute", "attribute");
+    return "attribute";
   }
 
   // handle comments, including nested
@@ -369,7 +361,7 @@ CodeMirror.defineMode("xquery", function() {
     while (ch = stream.next()) {
       if (ch == "-" && stream.match("->", true)) {
         state.tokenize = tokenBase;
-        return ret("comment", "comment");
+        return "comment";
       }
     }
   }
@@ -381,7 +373,7 @@ CodeMirror.defineMode("xquery", function() {
     while (ch = stream.next()) {
       if (ch == "]" && stream.match("]", true)) {
         state.tokenize = tokenBase;
-        return ret("comment", "comment");
+        return "comment";
       }
     }
   }
@@ -392,7 +384,7 @@ CodeMirror.defineMode("xquery", function() {
     while (ch = stream.next()) {
       if (ch == "?" && stream.match(">", true)) {
         state.tokenize = tokenBase;
-        return ret("comment", "comment meta");
+        return "comment meta";
       }
     }
   }
@@ -442,9 +434,15 @@ CodeMirror.defineMode("xquery", function() {
       if (stream.eatSpace()) return null;
       var style = state.tokenize(stream, state);
       return style;
-    }
+    },
+
+    blockCommentStart: "(:",
+    blockCommentEnd: ":)"
+
   };
 
 });
 
 CodeMirror.defineMIME("application/xquery", "xquery");
+
+});

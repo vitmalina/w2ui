@@ -1,17 +1,30 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CodeMirror: sTeX mode</title>
-    <link rel="stylesheet" href="../../lib/codemirror.css">
-    <script src="../../lib/codemirror.js"></script>
-    <script src="stex.js"></script>
-    <style>.CodeMirror {background: #f8f8f8;}</style>
-    <link rel="stylesheet" href="../../doc/docs.css">
-  </head>
-  <body>
-    <h1>CodeMirror: sTeX mode</h1>
-     <form><textarea id="code" name="code">
+
+<title>CodeMirror: sTeX mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="stex.js"></script>
+<style>.CodeMirror {background: #f8f8f8;}</style>
+<div id=nav>
+  <a href="https://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png" alt=""></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">sTeX</a>
+  </ul>
+</div>
+
+<article>
+<h2>sTeX mode</h2>
+<form><textarea id="code" name="code">
 \begin{module}[id=bbt-size]
 \importmodule[balanced-binary-trees]{balanced-binary-trees}
 \importmodule[\KWARCslides{dmath/en/cardinality}]{cardinality}
@@ -58,7 +71,7 @@
       \end{spfcases}
     \end{sproof}
   \item 
-    \begin{assertion}[id=fbbt,type=corollary]    
+    \begin{assertion}[id=fbbt,type=corollary]	
       A fully balanced tree of depth $d$ has $\power2{d+1}-1$ nodes.
     \end{assertion}
   \item
@@ -90,9 +103,14 @@
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {});
     </script>
 
+    <p>sTeX mode supports this option:</p>
+    <d1>
+      <dt><code>inMathMode: boolean</code></dt>
+      <dd>Whether to start parsing in math mode (default: <code>false</code>).</dd>
+    </d1>
+
     <p><strong>MIME types defined:</strong> <code>text/x-stex</code>.</p>
 
     <p><strong>Parsing/Highlighting Tests:</strong> <a href="../../test/index.html#stex_*">normal</a>,  <a href="../../test/index.html#verbose,stex_*">verbose</a>.</p>
 
-  </body>
-</html>
+  </article>
