@@ -10,9 +10,7 @@ context("3:Grid", () => {
                     // hide
                     .get('button:contains(Hide First Column)')
                     .click()
-                    .if('#grid_grid_column_0', 'exists', (event) => {
-                        bela.error('First column should be hidden')
-                    })
+                    .should('not.exist', '#grid_grid_column_0')
                     // show
                     .get('button:contains(Show First Column)')
                     .click()
@@ -22,9 +20,7 @@ context("3:Grid", () => {
                 .begin('Toggle last column')
                     .get('button:contains(Toggle Last Column)')
                     .click()
-                    .if('#grid_grid_column_3', 'exists', (event) => {
-                        bela.error('Last column should be hidden')
-                    })
+                    .should('not.exist', '#grid_grid_column_3')
                     .get('button:contains(Toggle Last Column)')
                     .click()
                     .get('#grid_grid_column_3')

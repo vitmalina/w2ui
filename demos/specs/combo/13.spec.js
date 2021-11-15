@@ -43,9 +43,7 @@ context("1: Combo", () => {
                     .should('have.length', 18)
                     .get('@grid1').tag('All tooltips')
                     .trigger('mouseleave', { delay: 1, multiple: true })
-                    .if('.w2ui-tag', event => {
-                        bela.error('Tags did not hide')
-                    })
+                    .should('not.exist', '.w2ui-tag')
                 .end()
         })
 
