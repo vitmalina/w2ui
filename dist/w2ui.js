@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (11/8/2021, 10:51:51 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (11/16/2021, 7:03:20 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -10209,6 +10209,7 @@ class w2grid extends w2event {
     nextRow(ind, col_ind, numRows) {
         let sids = this.last.searchIds
         let ret  = null
+        if (numRows == null) numRows = 1
         if (numRows == -1) {
             return this.records.length-1
         }
@@ -10234,6 +10235,7 @@ class w2grid extends w2event {
     prevRow(ind, col_ind, numRows) {
         let sids = this.last.searchIds
         let ret  = null
+        if (numRows == null) numRows = 1
         if (numRows == -1) {
             return 0
         }
@@ -12878,12 +12880,14 @@ class w2tabs extends w2event {
             onRefresh: null,
             onClose: null
         }
-        let tabs          = options.tabs
+        let tabs = options.tabs
         delete options.tabs
         // mix in options
         $.extend(true, this, options)
         // add item via method to makes sure item_template is applied
         if (Array.isArray(tabs)) this.add(tabs)
+        // need to reassign back to keep it in config
+        options.tabs = tabs
     }
     add(tab) {
         return this.insert(null, tab)
@@ -13493,6 +13497,8 @@ class w2toolbar extends w2event {
         $.extend(true, this, options)
         // add item via method to makes sure item_template is applied
         if (Array.isArray(items)) this.add(items)
+        // need to reassign back to keep it in config
+        options.items = items
     }
     add(items) {
         this.insert(null, items)
@@ -13715,6 +13721,8 @@ class w2toolbar extends w2event {
             let edata = this.trigger({ phase: 'before', type: 'click', target: (id != null ? id : this.name),
                 item: it, object: it, originalEvent: event })
             if (edata.isCancelled === true) return
+            // read items again, they might have been changed in the click event handler
+            items = (it && it.items ? w2utils.normMenu.call(this, it.items, it) : [])
             let btn = '#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id)
             $(btn).removeClass('down') // need to re-query at the moment -- as well as elsewhere in this function
             if (it.type == 'radio') {
@@ -14352,12 +14360,14 @@ class w2sidebar extends w2event {
         this.tmp = {
             badge: {}
         }
-        let nodes          = options.nodes
+        let nodes = options.nodes
         delete options.nodes
         // mix in options
         $.extend(true, this, options)
         // add item via method to makes sure item_template is applied
         if (Array.isArray(nodes)) this.add(nodes)
+        // need to reassign back to keep it in config
+        options.nodes = nodes
     }
     add(parent, nodes) {
         if (arguments.length == 1) {
