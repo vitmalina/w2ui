@@ -4486,7 +4486,9 @@ class w2grid extends w2event {
                 if (child.w2ui.children == null) child.w2ui.children = []
             })
             this.records.splice.apply(this.records, [ind + 1, 0].concat(children))
-            this.total += children.length
+            if (this.total !== -1) {
+                this.total += children.length
+            }
             let url     = (typeof this.url != 'object' ? this.url : this.url.get)
             if (!url) {
                 this.localSort(true, true)
@@ -4573,7 +4575,9 @@ class w2grid extends w2event {
                 end++
             }
             this.records.splice(start, end - start + 1)
-            this.total -= end - start + 1
+            if (this.total !== -1) {
+                this.total -= end - start + 1
+            }
             let url     = (typeof this.url != 'object' ? this.url : this.url.get)
             if (!url) {
                 if (this.searchData.length > 0) {
@@ -8567,11 +8571,11 @@ class w2grid extends w2event {
             </button>`
         }
         return w2utils.message.call(this, {
-                    box   : this.box,
-                    path  : 'w2ui.' + this.name,
-                    title : '.w2ui-grid-header:visible',
-                    body  : '.w2ui-grid-box'
-                }, options)
+            box   : this.box,
+            path  : 'w2ui.' + this.name,
+            title : '.w2ui-grid-header:visible',
+            body  : '.w2ui-grid-box'
+        }, options)
     }
 
     confirm(options) {
