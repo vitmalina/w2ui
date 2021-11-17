@@ -8472,6 +8472,7 @@ class w2grid extends w2event {
     nextRow(ind, col_ind, numRows) {
         let sids = this.last.searchIds
         let ret  = null
+        if (numRows == null) numRows = 1
         if (numRows == -1) {
             return this.records.length-1
         }
@@ -8498,6 +8499,7 @@ class w2grid extends w2event {
     prevRow(ind, col_ind, numRows) {
         let sids = this.last.searchIds
         let ret  = null
+        if (numRows == null) numRows = 1
         if (numRows == -1) {
             return 0
         }
