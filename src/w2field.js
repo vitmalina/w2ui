@@ -1666,18 +1666,7 @@ class w2field extends w2event {
             if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return
             if ($('#w2ui-overlay').length === 0) {
                 $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar"></div>', {
-                    css: { 'background-color': '#f5f5f5' },
-                    onShow(event) {
-                        // this needed for IE 11 compatibility
-                        if (w2utils.isIE) {
-                            $('.w2ui-calendar').on('mousedown', function(event) {
-                                let $tg = $(event.target)
-                                if ($tg.length === 1 && $tg[0].id === 'w2ui-jump-year') {
-                                    $('#w2ui-overlay').data('keepOpen', true)
-                                }
-                            })
-                        }
-                    }
+                    css: { 'background-color': '#f5f5f5' }
                 })
             }
             dt = w2utils.isDate($(obj.el).val(), obj.options.format, true)
@@ -1806,18 +1795,7 @@ class w2field extends w2event {
             if ($('#w2ui-overlay .w2ui-time').length > 0) $('#w2ui-overlay')[0].hide()
             if ($('#w2ui-overlay').length === 0) {
                 $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar" onclick="event.stopPropagation();"></div>', {
-                    css: { 'background-color': '#f5f5f5' },
-                    onShow(event) {
-                        // this needed for IE 11 compatibility
-                        if (w2utils.isIE) {
-                            $('.w2ui-calendar').on('mousedown', function(event) {
-                                let $tg = $(event.target)
-                                if ($tg.length === 1 && $tg[0].id === 'w2ui-jump-year') {
-                                    $('#w2ui-overlay').data('keepOpen', true)
-                                }
-                            })
-                        }
-                    }
+                    css: { 'background-color': '#f5f5f5' }
                 })
             }
             dt = w2utils.isDateTime($(obj.el).val(), obj.options.format, true)

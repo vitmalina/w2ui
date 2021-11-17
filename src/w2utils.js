@@ -81,16 +81,11 @@ let w2utils = (($) => {
         testLocalStorage,
         hasLocalStorage: testLocalStorage(),
         // some internal variables
-        isIOS : ((navigator.userAgent.toLowerCase().indexOf('iphone') !== -1 ||
-                 navigator.userAgent.toLowerCase().indexOf('ipod') !== -1 ||
-                 navigator.userAgent.toLowerCase().indexOf('ipad') !== -1 ||
-                 navigator.userAgent.toLowerCase().indexOf('mobile') !== -1 ||
-                 navigator.userAgent.toLowerCase().indexOf('android') !== -1)
-                 ? true : false),
-        isIE : ((navigator.userAgent.toLowerCase().indexOf('msie') !== -1 ||
-                 navigator.userAgent.toLowerCase().indexOf('trident') !== -1 )
-                 ? true : false),
-        isSafari : (/^((?!chrome|android).)*safari/i).test(navigator.userAgent),
+        isMac: /Mac/i.test(navigator.platform),
+        isMobile: /(iphone|ipod|ipad|mobile|android)/i.test(navigator.userAgent),
+        isIOS: /(iphone|ipod|ipad)/i.test(navigator.platform),
+        isAndroid: /(android)/i.test(navigator.userAgent),
+        isSafari: /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
     }
 
     function isBin(val) {

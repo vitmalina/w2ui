@@ -6174,9 +6174,6 @@ class w2grid extends w2event {
                                 grid.searchSuggest(true, true, this)
                             })
                                 .on('keydown', function(event) {
-                                    if (event.keyCode == 13 && w2utils.isIE) {
-                                        $(this).trigger('change')
-                                    }
                                     if (event.keyCode == 40) {
                                         grid.searchSuggest(true)
                                     }
