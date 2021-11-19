@@ -2978,7 +2978,6 @@ class w2grid extends w2event {
                 if (this.last.xhr_offset === 0) {
                     this.records = []
                     this.summary = []
-                    if (w2utils.isInt(data.total)) this.total = parseInt(data.total)
                 } else {
                     if (data.total != -1 && parseInt(data.total) != parseInt(this.total)) {
                         let grid = this
@@ -2992,6 +2991,7 @@ class w2grid extends w2event {
                         return
                     }
                 }
+                if (w2utils.isInt(data.total)) this.total = parseInt(data.total)
                 // records
                 if (data.records) {
                     data.records.forEach(rec => {
