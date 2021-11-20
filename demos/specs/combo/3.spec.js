@@ -1,6 +1,7 @@
 context("1: Combo", () => {
     context("1: Basic", () => {
         test("3: Spreadsheet Like Grid", () => {
+            let range = '#grid_grid_range'
             bela
                 .ready('/w2ui/demos/#/combo/3')
                 .begin('Check ghe grid')
@@ -14,12 +15,11 @@ context("1: Combo", () => {
                     })
                 .end()
                 .begin('Check ranges')
-                    .let('@range', '#grid_grid_range')
-                    .should('not.exist', '@range')
+                    .should('not.exist', range)
                     .get('button:contains(Mark Range)')
                     .click()
-                    .should('exist', '@range')
-                    .get('@range')
+                    .should('exist', range)
+                    .get(range)
                     .should({
                         'have.class': 'w2ui-selection',
                         'have.css': {
@@ -29,7 +29,7 @@ context("1: Combo", () => {
                     .wait(100) // for visual purposes
                     .get('button:contains(Remove Range)')
                     .click()
-                    .should('not.exist', '@range')
+                    .should('not.exist', range)
                 .end()
                 .begin('Check cell format')
                     .get('button:contains(Cell Format)')
