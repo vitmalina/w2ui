@@ -15,7 +15,7 @@ context("2:Layout", () => {
                     .click()
                     .get(sel.preview)
                     .click()
-                    .wait('[name="layout2"]', 'to.not.have.class', 'animating')
+                    .wait('[name="layout2"]', 'not.to.have.class', 'animating')
                     .then(event => {
                         event.win.instant = true
                     })

@@ -201,7 +201,7 @@ bela.custom.overwrite('click', function(button, options = {}) { // cannot be arr
         } else if (typeof button == 'string') {  // click on toolbar button
             bela
                 .tag(`button "${button}"`)
-                .wait(`#grid_${grid.name}_toolbar .w2ui-tb-button:has(.w2ui-tb-text:contains(${button}))`, 'to.not.have.class', 'disabled')
+                .wait(`#grid_${grid.name}_toolbar .w2ui-tb-button:has(.w2ui-tb-text:contains(${button}))`, 'not.to.have.class', 'disabled')
                     .tag('when clickable')
                 .get(`#grid_${grid.name}_toolbar .w2ui-tb-button .w2ui-tb-text:contains(${button})`)
                 .click(options).tag(`toolbar button`)
@@ -446,7 +446,7 @@ bela.custom.add('formFill', function(selector, data={}) { // cannot be arrow fun
     }
     bela
         .wait(selector, 'to.appear')
-        .wait(`${selector} .w2ui-lock`, 'to.not.exist')
+        .wait(`${selector} .w2ui-lock`, 'not.to.exist')
 
     Object.keys(data).forEach(prop => {
         let val = data[prop],
@@ -481,7 +481,7 @@ bela.custom.add('formFill', function(selector, data={}) { // cannot be arrow fun
                     .wait(`#w2ui-overlay`, 'to.be.visible')
                     .get(`#w2ui-overlay tr[index=${index}]`, { timeout: 15000 })
                     .click()
-                    .wait(`#w2ui-overlay`, 'to.not.exist')
+                    .wait(`#w2ui-overlay`, 'not.to.exist')
                     .get(`${selector} #${fld}`)
                     .blur()
             } else {
@@ -492,7 +492,7 @@ bela.custom.add('formFill', function(selector, data={}) { // cannot be arrow fun
                     .wait(`#w2ui-overlay`, 'to.be.visible')
                     .get(`#w2ui-overlay td.menu-text:contains(${select})`, { timeout: 15000 })
                     .click()
-                    .wait(`#w2ui-overlay`, 'to.not.exist')
+                    .wait(`#w2ui-overlay`, 'not.to.exist')
                     .get(`${selector} #${fld}`)
                     .blur()
             }

@@ -6,7 +6,7 @@ context("2:Layout", () => {
                 .begin('Click buttons')
                     .get('button:contains(Show Message)')
                     .click()
-                    .wait('#w2ui-message0', 'to.not.have.class', 'animating')
+                    .wait('#w2ui-message0', 'not.to.have.class', 'animating')
                     .get('#msg-log')
                     .should('have.text', 'message is ready')
                     .get('#w2ui-message0 button:contains(Ok)')

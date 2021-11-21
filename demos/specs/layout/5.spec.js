@@ -8,7 +8,7 @@ context("2:Layout", () => {
                     .click({ multiple: true })
                     .get('#layout')
                     .should('have.class', 'animating')
-                    .wait('#layout', 'to.not.have.class', 'animating')
+                    .wait('#layout', 'not.to.have.class', 'animating')
                     .get('#layout_layout_panel_left .w2ui-panel-content')
                     .should({
                         'have.length': 1,
@@ -21,7 +21,7 @@ context("2:Layout", () => {
                     .wait('network', { url: '**/demos/data/content2.html', count: 2 })
                     .get('#layout')
                     .should('have.class', 'animating')
-                    .wait('#layout', 'to.not.have.class', 'animating')
+                    .wait('#layout', 'not.to.have.class', 'animating')
                     .get('#layout_layout_panel_left .w2ui-panel-content')
                     .should({
                         'not.contain.text': 'This is some content',

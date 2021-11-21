@@ -15,7 +15,7 @@ context("2:Layout", () => {
 
                 bela.tag(panel[0].toUpperCase() + panel.substr(1) + ' show/hide')
                     .get(sel[panel]).click()
-                    .wait('#layout', 'to.not.have.class', 'animating')
+                    .wait('#layout', 'not.to.have.class', 'animating')
                     .get(sel.main)
                     .should({
                         'not.contain.text': 'hide: ' + panel,
@@ -23,7 +23,7 @@ context("2:Layout", () => {
                     })
                     .get(sel.clear).click()
                     .get(sel[panel]).click()
-                    .wait('#layout', 'to.not.have.class', 'animating')
+                    .wait('#layout', 'not.to.have.class', 'animating')
                     .get(sel.main)
                     .should({
                         'contain.text': 'hide: ' + panel,

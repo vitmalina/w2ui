@@ -8,6 +8,6 @@ bela.custom.add('ready', (param, options) => {
     bela.if('#w2ui-popup', event => {
         event.win.w2popup.close()
         bela.tag('Close popup, if any')
-        bela.wait('#w2ui-popup', 'to.not.exist')
+        bela.wait('#w2ui-popup', 'not.to.exist')
     })
 })
