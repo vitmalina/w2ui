@@ -29,6 +29,21 @@
 <!--CODE-->
 <script>
 $(function () {
+    setTimeout( function() {
+        w2ui.grid.get(8).w2ui = {
+            style: {
+                0: 'text-decoration: underline overline;',
+                1: 'background-color: silver !important; font-weight: bold;',
+            }
+        }
+        w2ui.grid.get(9).w2ui = {
+            class: {
+                1: 'cell1',
+                2: 'cell2',
+            }
+        }
+        w2ui.grid.refresh()
+    }, 2000 )
     w2utils.formatters.custom_centered = function(value, params, record) {
         if(!value) {
             return 'Bad Date!'
@@ -57,6 +72,8 @@ $(function () {
             { recid: 5, fname: "Kelly", lname: "Silver", email: "jdoe@gmail.com", sdate: "4/3/2012", comment: 'w2ui: { class: { fname: "cell1", sdate: "cell2" } }', w2ui: { class: { fname: "cell1", sdate: "cell2" } } },
             { recid: 6, fname: "Francis", lname: "W2ui", email: "jdoe@gmail.com", sdate: "4/3/2012", comment: '"Last Name" modified by column renderer' },
             { recid: 7, fname: "Sergei", lname: "Rachmaninov", email: "jdoe@gmail.com", sdate: 0, comment: "not styled" },
+            { recid: 8, fname: "Mike", lname: "Scotty", email: "mscotty@gmail.com", sdate: "11/11/2022", comment: "styled on timer with w2ui.style.column" },
+            { recid: 9, fname: "Pat", lname: "Tobson", email: "ptob@gmail.com", sdate: "12/12/2012", comment: "styled on timer with w2ui.class.column" },
         ]
     });
 });
