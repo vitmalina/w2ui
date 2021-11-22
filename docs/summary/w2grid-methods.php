@@ -57,7 +57,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.collapse">collapse</a> <span>- collapse(recid)</span>
+    <a href="w2grid.collapse">collapse</a> <span>- collapse(recid, [noRefresh])</span>
 </div>
 <div class="obj-property-desc">
     Called when user clicks on the collapse record icon.
@@ -148,7 +148,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.expand">expand</a> <span>- expand(recid)</span>
+    <a href="w2grid.expand">expand</a> <span>- expand(recid, [noRefresh])</span>
 </div>
 <div class="obj-property-desc">
     Called when user clicks on the expand record icon.
@@ -645,13 +645,6 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.selectNone">selectNone</a> <span>- selectNone()</span>
-</div>
-<div class="obj-property-desc">
-    Unselects all selected records in the grid.
-</div>
-
-<div class="obj-property">
     <a href="w2grid.selectionRestore">selectionRestore</a> <span>- selectionRestore([noRefresh])</span>
 </div>
 <div class="obj-property-desc">
@@ -663,6 +656,13 @@
 </div>
 <div class="obj-property-desc">
     Remembers current selection
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.selectNone">selectNone</a> <span>- selectNone()</span>
+</div>
+<div class="obj-property-desc">
+    Unselects all selected records in the grid.
 </div>
 
 <div class="obj-property">
