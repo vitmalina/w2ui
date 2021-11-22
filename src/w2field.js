@@ -2422,10 +2422,11 @@ class w2field extends w2event {
         }
         if (obj.type === 'enum') {
             // remember original tabindex
-            let tabIndex = $(obj.el).attr('tabIndex')
-            if (tabIndex && tabIndex !== -1) obj.el._tabIndex = tabIndex
+            let tabIndex = parseInt($(obj.el).attr('tabIndex'))
+            if (!isNaN(tabIndex) && tabIndex !== -1) obj.el._tabIndex = tabIndex
             if (obj.el._tabIndex) tabIndex = obj.el._tabIndex
-            if (tabIndex == null) tabIndex = 0 // default tabindex
+            if (tabIndex == null) tabIndex = 0
+            if (isNaN(tabIndex)) tabIndex = 0
 
             html = '<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box">'+
                     '    <div style="padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">'+
