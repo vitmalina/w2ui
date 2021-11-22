@@ -4468,7 +4468,7 @@ class w2grid extends w2event {
         if (rec.w2ui.expanded === true) return this.collapse(recid); else return this.expand(recid)
     }
 
-    expand(recid) {
+    expand(recid, noRefresh) {
         let ind      = this.get(recid, true)
         let rec      = this.records[ind]
         rec.w2ui     = rec.w2ui || {}
@@ -4496,7 +4496,7 @@ class w2grid extends w2event {
                     this.localSearch(true)
                 }
             }
-            this.refresh()
+            if (noRefresh !== true) this.refresh()
             this.trigger($.extend(edata, { phase: 'after' }))
         } else {
             if ($('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').length > 0 || this.show.expandColumn !== true) return false
@@ -4549,7 +4549,7 @@ class w2grid extends w2event {
         return true
     }
 
-    collapse(recid) {
+    collapse(recid, noRefresh) {
         let ind      = this.get(recid, true)
         let rec      = this.records[ind]
         rec.w2ui     = rec.w2ui || {}
@@ -4584,7 +4584,7 @@ class w2grid extends w2event {
                     this.localSearch(true)
                 }
             }
-            this.refresh()
+            if (noRefresh !== true) this.refresh()
             this.trigger($.extend(edata, { phase: 'after' }))
         } else {
             if ($('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').length === 0 || this.show.expandColumn !== true) return false
