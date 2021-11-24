@@ -25,25 +25,52 @@
 }
 </style>
 <div id="grid" style="width: 100%; height: 350px;"></div>
+<br>
+<button class="w2ui-btn" onclick="style_toggle(2)">Toggle #2</button>
+<button class="w2ui-btn" onclick="style_toggle(3)">Toggle #3</button>
+<button class="w2ui-btn" onclick="style_toggle(4)">Toggle #4</button>
+<button class="w2ui-btn" onclick="style_toggle(5)">Toggle #5</button>
+<button class="w2ui-btn" onclick="style_toggle(8)">Toggle #8</button>
+<button class="w2ui-btn" onclick="style_toggle(9)">Toggle #9</button>
 
 <!--CODE-->
 <script>
-$(function () {
-    setTimeout( function() {
-        w2ui.grid.get(8).w2ui = {
+function style_toggle(recid) {
+    const record = w2ui.grid.get(recid);
+    if(record.w2ui) {
+        delete record.w2ui
+    }
+    else if(recid === 2) {
+        record.w2ui = { style: "background-color: #C2F5B4" }
+    }
+    else if(recid === 3) {
+        record.w2ui = { class: "row" }
+    }
+    else if(recid === 4) {
+        record.w2ui = { style: { lname: "background: red;", email: "font-weight: bold;" } }
+    }
+    else if(recid === 5) {
+        record.w2ui = { class: { fname: "cell1", sdate: "cell2" } }
+    }
+    else if(recid === 8) {
+        record.w2ui = {
             style: {
                 0: 'text-decoration: underline overline;',
                 1: 'background-color: silver !important; font-weight: bold;',
             }
         }
-        w2ui.grid.get(9).w2ui = {
+    }
+    else if (recid === 9) {
+        record.w2ui = {
             class: {
                 1: 'cell1',
                 2: 'cell2',
             }
         }
-        w2ui.grid.refresh()
-    }, 2000 )
+    }
+    w2ui.grid.refresh()
+}
+$(function () {
     w2utils.formatters.custom_centered = function(value, params, record) {
         if(!value) {
             return 'Bad Date!'
@@ -52,6 +79,9 @@ $(function () {
     }
     $('#grid').w2grid({
         name: 'grid',
+        show: {
+            lineNumbers: true,
+        },
         columns: [
             { field: 'fname', text: 'First Name', size: '150px', info: true },
             { field: 'lname', text: 'Last Name', size: '150px', render: function(record, index, column_index, value){
@@ -72,8 +102,8 @@ $(function () {
             { recid: 5, fname: "Kelly", lname: "Silver", email: "jdoe@gmail.com", sdate: "4/3/2012", comment: 'w2ui: { class: { fname: "cell1", sdate: "cell2" } }', w2ui: { class: { fname: "cell1", sdate: "cell2" } } },
             { recid: 6, fname: "Francis", lname: "W2ui", email: "jdoe@gmail.com", sdate: "4/3/2012", comment: '"Last Name" modified by column renderer' },
             { recid: 7, fname: "Sergei", lname: "Rachmaninov", email: "jdoe@gmail.com", sdate: 0, comment: "not styled" },
-            { recid: 8, fname: "Mike", lname: "Scotty", email: "mscotty@gmail.com", sdate: "11/11/2022", comment: "styled on timer with w2ui.style.column" },
-            { recid: 9, fname: "Pat", lname: "Tobson", email: "ptob@gmail.com", sdate: "12/12/2012", comment: "styled on timer with w2ui.class.column" },
+            { recid: 8, fname: "Mike", lname: "Scotty", email: "mscotty@gmail.com", sdate: "11/11/2022", comment: "styled on button click with w2ui.style.column #" },
+            { recid: 9, fname: "Pat", lname: "Tobson", email: "ptob@gmail.com", sdate: "12/12/2012", comment: "styled on button click with w2ui.class.column #" },
         ]
     });
 });
