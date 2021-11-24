@@ -1,7 +1,7 @@
 Refreshes one row on the screen.
 
 <div class="definition">
-      refreshRow(recid)
+      refreshRow(recid, [ind])
 </div>
 
 <div class="arguments">
@@ -9,6 +9,10 @@ Refreshes one row on the screen.
     <tr>
         <td>recid</td>
         <td><b>string</b>, recid of the record</td>
+    </tr>
+    <tr>
+        <td>ind</td>
+        <td><b>integer</b>, index of record in records array</td>
     </tr>
     </table>
 </div>
@@ -18,7 +22,8 @@ Returns <i>undefined</i>.
 
 This method refreshes one given row on the screen. It is here to allow a quick way to refresh data really fast if only one row is
 changed. It will be much faster then calling <a href="w2grid.refresh" class="argument">.refresh</a>, though will not refresh all
-changed rows, but only specified one.
+changed rows, but only specified one. If <span class="argument">ind</span> is specified, it will use it instead of finding the record
+by recid.
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:
