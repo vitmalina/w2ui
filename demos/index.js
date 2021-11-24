@@ -1,6 +1,11 @@
 $(function () {
     let w2utils_locale = sessionStorage.w2ui_demo_locale || w2utils.settings.locale.toLowerCase()
-    w2utils.locale(w2utils_locale)
+    w2utils.locale(w2utils_locale).then(() => {
+        // w2utils.settings.warnNoPhrase = true
+        Object.values(w2ui).forEach(obj => {
+            if (typeof obj.refresh == 'function') obj.refresh()
+        })
+    })
     let last_hash
     let conf = {
         demo_layout: {
@@ -40,16 +45,18 @@ $(function () {
                     },
                     selected: w2utils_locale,
                     items: [
+                        { id: 'en-us', text: 'English (US)' },
+                        { id: 'ru-ru', text: 'Russian' },
+                        '--',
                         'az-az',
                         'ba-ba',
                         'bg-bg',
                         'ca-es',
                         'de-de',
-                        { id: 'en-gb', text: 'English (UK)' },
-                        { id: 'en-us', text: 'English (US)' },
+                        'en-gb',
                         'es-es',
                         'es-mx',
-                        { id: 'fr-fr', text: 'French' },
+                        'fr-fr',
                         'gl-es',
                         'hr-hr',
                         'hu-hu',
@@ -62,7 +69,6 @@ $(function () {
                         'no-no',
                         'pl-pl',
                         'pt-br',
-                        { id: 'ru-ru', text: 'Russian' },
                         'sk-sk',
                         'sl-si',
                         'tr-tr',
@@ -311,7 +317,7 @@ $(function () {
                         { id: 'fields/6', text: 'Remote Source', icon: 'fa fa-pencil-square-o' }
                     ]
                 },
-                { id: 'fields-1.5', text: 'Features 1.5', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                { id: 'fields-1.5', text: 'Features 1.5+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'fields/7', text: 'Get/Set Value', icon: 'fa fa-pencil-square-o' },
                         { id: 'fields/8', text: 'Color Picker', icon: 'fa fa-pencil-square-o' }

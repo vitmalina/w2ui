@@ -44,11 +44,11 @@ $(function () {
         ],
         toolbar: {
             items: [
-                { id: 'bt1', type: 'button', caption: 'Button 1', img: 'icon-folder' },
-                { id: 'bt2', type: 'button', caption: 'Button 2', img: 'icon-folder' },
+                { id: 'bt1', type: 'button', text: 'Button 1', img: 'icon-folder' },
+                { id: 'bt2', type: 'button', text: 'Button 2', img: 'icon-folder' },
                 { id: 'bt3', type: 'spacer' },
-                { id: 'bt4', type: 'button', caption: 'Reset', img: 'icon-page' },
-                { id: 'bt5', type: 'button', caption: 'Save', img: 'icon-page' }
+                { id: 'bt4', type: 'button', text: 'Reset', img: 'icon-page' },
+                { id: 'bt5', type: 'button', text: 'Save', img: 'icon-page' }
             ],
             onClick: function (event) {
                 if (event.target == 'bt4') w2ui.form.clear();
