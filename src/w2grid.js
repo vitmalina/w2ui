@@ -1409,15 +1409,17 @@ class w2grid extends w2event {
                     $range.find('.w2ui-selection-resizer').hide()
                 }
                 if (first.recid != null && last.recid != null && td1f.length > 0 && td2f.length > 0) {
-                    sLeft = 0 // frozen columns do not need left offset
-                    sTop  = rec2.scrollTop()
-                    // work around jQuery inconsistency between vers >3.2 and <=3.3
-                    if (td1f.find('>div').position().top < 8) {
-                        sLeft = 0
-                        sTop  = 0
-                    }
-                    _left = (td1f.position().left - 0 + sLeft)
-                    _top  = (td1f.position().top - 0 + sTop)
+                    // sLeft = 0 // frozen columns do not need left offset
+                    // sTop  = rec2.scrollTop()
+                    // // work around jQuery inconsistency between vers >3.2 and <=3.3
+                    // if (td1f.find('>div').position().top < 8) {
+                    //     sLeft = 0
+                    //     sTop  = 0
+                    // }
+                    // _left = (td1f.position().left - 0 + sLeft)
+                    // _top  = (td1f.position().top - 0 + sTop)
+                    _left  = (td1f.position().left + td1f.scrollLeft())
+                    _top  = (td1f.position().top - td1f.scrollTop())
                     $range.show().css({
                         left    : (_left > 0 ? _left : 0) + 'px',
                         top     : (_top > 0 ? _top : 0) + 'px',
@@ -1449,15 +1451,17 @@ class w2grid extends w2event {
                     $range.css('border-left', '0px')
                 }
                 if (first.recid != null && last.recid != null && td1.length > 0 && td2.length > 0) {
-                    sLeft = rec2.scrollLeft()
-                    sTop  = rec2.scrollTop()
-                    // work around jQuery inconsistency between vers >3.2 and <=3.3
-                    if (td2.find('>div').position().top < 8) {
-                        sLeft = 0
-                        sTop  = 0
-                    }
-                    _left = (td1.position().left - 0 + sLeft)
-                    _top  = (td1.position().top - 0 + sTop)
+                    // sLeft = rec2.scrollLeft()
+                    // sTop  = rec2.scrollTop()
+                    // // work around jQuery inconsistency between vers >3.2 and <=3.3
+                    // if (td2.find('>div').position().top < 8) {
+                    //     sLeft = 0
+                    //     sTop  = 0
+                    // }
+                    // _left = (td1.position().left - 0 + sLeft) // fails if scrolled right
+                    // _top  = (td1.position().top - 0 + sTop) // fails if scrolled down
+                    _left  = (td1.position().left + td1.scrollLeft())
+                    _top  = (td1.position().top - td1.scrollTop())
                     // console.log('top', td1.position().top, rec2.scrollTop(), td1.find('>div').position().top)
                     $range.show().css({
                         left    : (_left > 0 ? _left : 0) + 'px',
@@ -5514,6 +5518,12 @@ class w2grid extends w2event {
         }
 
         function mouseMove (event) {
+            if(!event.target.tagName) {
+                // element has no tagName - most likely the target is the #document itself
+                // this can happen is you click+drag and move the mouse out of the DOM area,
+                // e.g. into the browser's toolbar area
+                return
+            }
             let mv = obj.last.move
             if (!mv || ['select', 'select-column'].indexOf(mv.type) == -1) return
             mv.divX = (event.screenX - mv.x)
