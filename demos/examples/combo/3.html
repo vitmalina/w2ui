@@ -18,9 +18,9 @@
 <div id="main" style="width: 100%; height: 300px; margin-bottom: 10px;"></div>
 <button class="w2ui-btn" onclick="mark()">Mark Range C3:D7</button>
 <button class="w2ui-btn" onclick="w2ui.grid.removeRange('range')">Remove Range</button>
-&nbsp;&nbsp;&nbsp;
 <button class="w2ui-btn" onclick="cellFormat(true)">Cell Format</button>
 <button class="w2ui-btn" onclick="cellFormat(false)">Remove Cell Format</button>
+<button class="w2ui-btn" onclick="frozenToggle(['a', 'b', 'c'])">Toggle columns ABC frozen</button>
 
 <!--CODE-->
 <script>
@@ -114,5 +114,9 @@ function cellFormat(flag) {
     }
     w2ui.grid.refreshRow(rec1.recid);
     w2ui.grid.refreshRow(rec2.recid);
+}
+
+function frozenToggle(fields) {
+    w2ui.grid.updateColumn(fields, { frozen(col) { return !col.frozen } })
 }
 </script>
