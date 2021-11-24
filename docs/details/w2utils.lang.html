@@ -1,7 +1,7 @@
 Returns translation for the <span class="argument">phrase</span>.
 
 <div class="definition">
-    lang(phrase);
+    lang(phrase, params);
 </div>
 <div class="arguments">
     <table>
@@ -9,13 +9,20 @@ Returns translation for the <span class="argument">phrase</span>.
         <td>phrase</td>
         <td><b>string</b>, phrase to translate</td>
     </tr>
+    <tr>
+        <td>params</td>
+        <td><b>object</b>, values to be replaces</td>
+    </tr>
     </table>
 </div>
 
-If you have provided translations for your locale, you can use this method to find translated phrases. All translations are stored in 
+If you have provided translations for your locale, you can use this method to find translated phrases. All translations are stored in
 <span class="method">w2utils.settings.phrases</span> and loaded with <a class="method" href="w2utils.locale">.locale()</a>
 
 <textarea class="javascript">
-var a = w2utils.lang('Today');
-console.log(a);
+// simple text
+console.log(w2utils.lang('Today'))
+
+// text with variables
+console.log(w2utils.lang("Are you sure you want to delete ${count} records", { count: 10 }))
 </textarea>

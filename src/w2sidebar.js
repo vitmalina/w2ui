@@ -1030,14 +1030,20 @@ class w2sidebar extends w2event {
             }
             if (Array.isArray(nd.nodes) && nd.nodes.length > 0) nd.collapsible = true
             if (nd.group) {
+                let text = w2utils.lang(typeof nd.text == 'function' ? nd.text.call(obj, nd) : nd.text)
+                if (String(text).substr(0, 5) != '<span') {
+                    text = `<span class="w2ui-group-text">${text}</span>`
+                }
                 html =
                     '<div class="w2ui-node-group w2ui-level-'+ level + (nd.class ? ' ' + nd.class : '') +'" id="node_'+ nd.id +'" data-level="'+ level + '"'+
                     '   style="'+ (nd.hidden ? 'display: none' : '') +'" onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
                     '   oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
                     '   onmouseout="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
                     '   onmouseover="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
-                    ((nd.groupShowHide && nd.collapsible) ? '<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>' : '<span></span>') +
-                    (typeof nd.text == 'function' ? nd.text.call(obj, nd) : '<span class="w2ui-group-text">'+ nd.text +'</span>') +
+                        ((nd.groupShowHide && nd.collapsible)
+                            ? '<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>'
+                            : '<span></span>') +
+                        text +
                     '</div>'+
                     '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>'
                 if (obj.flat) {
@@ -1051,7 +1057,6 @@ class w2sidebar extends w2event {
                 if (icon) {
                     tmp = '<div class="w2ui-node-image"><span class="' + (typeof icon == 'function' ? icon.call(obj, nd) : icon) + '"></span></div>'
                 }
-                let text   = nd.text
                 let expand = ''
                 let counts = (nd.count != null
                     ? `<div class="w2ui-node-count ${obj.tmp.badge[nd.id] ? obj.tmp.badge[nd.id].className || '' : ''}"
@@ -1062,7 +1067,7 @@ class w2sidebar extends w2event {
                 if (nd.collapsible === true) {
                     expand = '<div class="w2ui-' + (nd.expanded ? 'expanded' : 'collapsed') + '"><span></span></div>'
                 }
-                if (typeof nd.text == 'function') text = nd.text.call(obj, nd)
+                let text = w2utils.lang(typeof nd.text == 'function' ? nd.text.call(obj, nd) : nd.text)
                 html = '<div class="w2ui-node w2ui-level-'+ level + (nd.selected ? ' w2ui-selected' : '') + (nd.disabled ? ' w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '') +'"'+
                         '    id="node_'+ nd.id +'" data-level="'+ level +'" style="position: relative; '+ (nd.hidden ? 'display: none;' : '') +'"'+
                         '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+

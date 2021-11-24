@@ -2563,7 +2563,7 @@ class w2field extends w2event {
             return
         }
         if (options.maxSize !== 0 && size + newItem.size > options.maxSize) {
-            err = w2utils.lang('Maximum total size is ${count}', {count: w2utils.formatSize(options.maxSize)})
+            err = w2utils.lang('Maximum total size is ${count}', { count: w2utils.formatSize(options.maxSize) })
             if (options.silent === false) {
                 $(obj.el).w2tag(err)
             }
@@ -2571,7 +2571,7 @@ class w2field extends w2event {
             return
         }
         if (options.max !== 0 && cnt >= options.max) {
-            err = w2utils.lang('Maximum number of files is ${count}', {count: options.max})
+            err = w2utils.lang('Maximum number of files is ${count}', { count: options.max })
             if (options.silent === false) {
                 $(obj.el).w2tag(err)
             }

@@ -20,13 +20,13 @@ let w2utils = (($) => {
     let tmp = {} // for some temp variables
     return {
         version  : '2.0.x',
-        settings : $.extend(true, {}, w2locale, {
+        settings : $.extend(true, {}, {
             'dataType'       : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
             'dateStartYear'  : 1950,  // start year for date-picker
             'dateEndYear'    : 2030,  // end year for date picker
             'macButtonOrder' : false, // if true, Yes on the right side
-            'warnNoPhrase'   : true,  // call console.warn if lang() encounters a missing phrase
-        }),
+            'warnNoPhrase'   : false,  // call console.warn if lang() encounters a missing phrase
+        }, w2locale, { phrases: null }), // if there are no phrases, then it is original language
         isBin,
         isInt,
         isFloat,
@@ -1341,50 +1341,63 @@ let w2utils = (($) => {
         return str.replace(/\${([^}]+)?}/g, function($1, $2) { return replace_obj[$2]||$2 })
     }
 
-    function lang(phrase, replace_obj, no_warning) {
-        if (!phrase || typeof phrase !== 'string' || '<=>='.includes(phrase)) return phrase
-        if (replace_obj === true) {
-            replace_obj = undefined
-            no_warning = true
+    function lang(phrase, params) {
+        if (!phrase || this.settings.phrases == null // if no phrases at all
+                || typeof phrase !== 'string' || '<=>='.includes(phrase)) {
+            return phrase
         }
         let translation = this.settings.phrases[phrase]
         if (translation == null) {
             translation = phrase
-            if(this.settings.warnNoPhrase  && !no_warning) {
-                console.warn('Missing translation:', phrase)
-                this.settings.phrases[phrase] = translation // so we only warn once
+            if (this.settings.warnNoPhrase) {
+                if (!this.settings.missing) {
+                    this.settings.missing = {}
+                }
+                this.settings.missing[phrase] = '---' // collect phrases for translation, warn once
+                this.settings.phrases[phrase] = '---'
+                console.log(`Missing translation for "%c${phrase}%c", see %c w2utils.settings.phrases %c with value "---"`,
+                    'color: orange', '',
+                    'color: #999', '')
             }
+        } else if (translation === '---' && !this.settings.warnNoPhrase) {
+            translation = phrase
         }
-        return execTemplate(translation, replace_obj)
+        if (translation === '---') {
+            translation = `<span ${w2utils.tooltip(phrase)}>---</span>`
+        }
+        return execTemplate(translation, params)
     }
 
     function locale(locale, callBack) {
-        if (!locale) locale = 'en-us'
+        return new Promise((resolve, reject) => {
+            if (!locale) locale = 'en-us'
 
-        // if the locale is not a string, we assume it is an object and merge it with w2utils.settings
-        if (typeof locale !== 'string' ) {
-            w2utils.settings = $.extend(true, {}, w2utils.settings, w2locale, locale)
-            return
-        }
-
-        if (locale.length === 5) {
-            locale = 'locale/'+ locale.toLowerCase() +'.json'
-        }
-
-        // load from the file
-        $.ajax({
-            url      : locale,
-            type     : 'GET',
-            dataType : 'JSON',
-            success(data, status, xhr) {
-                // clear phrases from language before
-                w2utils.settings.phrases = {}
-                w2utils.settings = $.extend(true, {}, w2utils.settings, w2locale, data)
-                if (typeof callBack === 'function') callBack()
-            },
-            error(xhr, status, msg) {
-                console.log('ERROR: Cannot load locale '+ locale)
+            // if the locale is not a string, we assume it is an object and merge it with w2utils.settings
+            if (typeof locale !== 'string' ) {
+                w2utils.settings = $.extend(true, {}, w2utils.settings, w2locale, locale)
+                return
             }
+
+            if (locale.length === 5) {
+                locale = 'locale/'+ locale.toLowerCase() +'.json'
+            }
+
+            // load from the file
+            $.ajax({
+                url: locale,
+                type: 'GET',
+                dataType: 'JSON',
+                success(data, status, xhr) {
+                    // clear phrases from language before
+                    w2utils.settings = $.extend(true, {}, w2utils.settings, w2locale, { phrases: null }, data)
+                    if (typeof callBack === 'function') callBack()
+                    resolve()
+                },
+                error(xhr, status, msg) {
+                    console.log('ERROR: Cannot load locale '+ locale)
+                    reject()
+                }
+            })
         })
     }
 

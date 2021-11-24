@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (11/16/2021, 7:03:20 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (11/24/2021, 10:53:54 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -158,12 +158,11 @@ class w2event {
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   These are the master locale settings that will be used by w2utils
-************************************************************************/
-/**
- * "locale" should be the IETF language tag in the form xx-YY,
- * where xx is the ISO 639-1 language code ( see https://en.wikipedia.org/wiki/ISO_639-1 ) and
- * YY is the ISO 3166-1 alpha-2 country code ( see https://en.wikipedia.org/wiki/ISO_3166-2 )
- */
+*
+*   "locale" should be the IETF language tag in the form xx-YY,
+*   where xx is the ISO 639-1 language code ( see https://en.wikipedia.org/wiki/ISO_639-1 ) and
+*   YY is the ISO 3166-1 alpha-2 country code ( see https://en.wikipedia.org/wiki/ISO_3166-2 )
+**/
 const w2locale = {
     'locale'            : 'en-US',
     'dateFormat'        : 'm/d/yyyy',
@@ -179,105 +178,107 @@ const w2locale = {
     'shortdays'         : ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
     'fulldays'          : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
     'weekStarts'        : 'M', // can be "M" for Monday or "S" for Sunday
-    'phrases'           : { // keep these up-to-date and in sorted order
-        '${count} letters or more...': '${count} letters or more...',
-        'Add new record': 'Add new record',
-        'Add New': 'Add New',
-        'Advanced Search': 'Advanced Search',
-        'after': 'after',
-        'AJAX error. See console for more details.': 'AJAX error. See console for more details.',
-        'All Fields': 'All Fields',
-        'All': 'All',
-        'Any': 'Any',
-        'Are you sure you want to delete ${count} ${records}?': 'Are you sure you want to delete ${count} ${records}?',
-        'Attach files by dragging and dropping or Click to Select': 'Attach files by dragging and dropping or Click to Select',
-        'before': 'before',
-        'begins with': 'begins with',
-        'begins': 'begins',
-        'between': 'between',
-        'buffered': 'buffered',
-        'Cancel': 'Cancel',
-        'Close': 'Close',
-        'Column': 'Column',
-        'Confirmation': 'Confirmation',
-        'contains': 'contains',
-        'Copied': 'Copied',
-        'Copy to clipboard': 'Copy to clipboard',
-        'Current Date & Time': 'Current Date & Time',
-        'Delete selected records': 'Delete selected records',
-        'Delete': 'Delete',
-        'Do you want to delete search item "${item}"?': 'Do you want to delete search item "${item}"?',
-        'Edit selected record': 'Edit selected record',
-        'Edit': 'Edit',
-        'Empty list': 'Empty list',
-        'ends with': 'ends with',
-        'ends': 'ends',
-        'Field should be at least ${count} characters.': 'Field should be at least ${count} characters.',
-        'Hide': 'Hide',
-        'in': 'in',
-        'is not': 'is not',
-        'is': 'is',
-        'less than': 'less than',
-        'Line #': 'Line #',
-        'Load ${count} more...': 'Load ${count} more...',
-        'Loading...': 'Loading...',
-        'Maximum number of files is ${count}': 'Maximum number of files is ${count}',
-        'Maximum total size is ${count}': 'Maximum total size is ${count}',
-        'Modified': 'Modified',
-        'more than': 'more than',
-        'Multiple Fields': 'Multiple Fields',
-        'Name': 'Name',
-        'No items found': 'No items found',
-        'No matches': 'No matches',
-        'No': 'No',
-        'none': 'none',
-        'Not a float': 'Not a float',
-        'Not a hex number': 'Not a hex number',
-        'Not a valid date': 'Not a valid date',
-        'Not a valid email': 'Not a valid email',
-        'Not alpha-numeric': 'Not alpha-numeric',
-        'Not an integer': 'Not an integer',
-        'Not in money format': 'Not in money format',
-        'not in': 'not in',
-        'Notification': 'Notification',
-        'of': 'of',
-        'Ok': 'Ok',
-        'Opacity': 'Opacity',
-        'Record ID': 'Record ID',
-        'record': 'record',
-        'records': 'records',
-        'Refreshing...': 'Refreshing...',
-        'Reload data in the list': 'Reload data in the list',
-        'Remove': 'Remove',
-        'Request aborted.': 'Request aborted.',
-        'Required field': 'Required field',
-        'Reset': 'Reset',
-        'Restore Default State': 'Restore Default State',
-        'Returned data is not in valid JSON format.': 'Returned data is not in valid JSON format.',
-        'Save changed records': 'Save changed records',
-        'Save Grid State': 'Save Grid State',
-        'Save': 'Save',
-        'Saved Searches': 'Saved Searches',
-        'Saving...': 'Saving...',
-        'Search took ${count} seconds': 'Search took ${count} seconds',
-        'Search': 'Search',
-        'Select Hour': 'Select Hour',
-        'Select Minute': 'Select Minute',
-        'selected': 'selected',
-        'Server Response ${count} seconds': 'Server Response ${count} seconds',
-        'Show/hide columns': 'Show/hide columns',
-        'Show': 'Show',
-        'Size': 'Size',
-        'Skip': 'Skip',
-        'Sorting took ${count} seconds': 'Sorting took ${count} seconds',
-        'Type to search...': 'Type to search...',
-        'Type': 'Type',
-        'Yes': 'Yes',
-        'Yesterday': 'Yesterday',
-        'Your remote data source record count has changed, reloading from the first record.': 'Your remote data source record count has changed, reloading from the first record.'
+    // phrases used in w2ui, should be empty for original language
+    // keep these up-to-date and in sorted order
+    // value = "---" to easier see what to translate
+    'phrases': {
+        '${count} letters or more...': '---',
+        'Add new record': '---',
+        'Add New': '---',
+        'Advanced Search': '---',
+        'after': '---',
+        'AJAX error. See console for more details.': '---',
+        'All Fields': '---',
+        'All': '---',
+        'Any': '---',
+        'Are you sure you want to delete ${count} ${records}?': '---',
+        'Attach files by dragging and dropping or Click to Select': '---',
+        'before': '---',
+        'begins with': '---',
+        'begins': '---',
+        'between': '---',
+        'buffered': '---',
+        'Cancel': '---',
+        'Close': '---',
+        'Column': '---',
+        'Confirmation': '---',
+        'contains': '---',
+        'Copied': '---',
+        'Copy to clipboard': '---',
+        'Current Date & Time': '---',
+        'Delete selected records': '---',
+        'Delete': '---',
+        'Do you want to delete search item "${item}"?': '---',
+        'Edit selected record': '---',
+        'Edit': '---',
+        'Empty list': '---',
+        'ends with': '---',
+        'ends': '---',
+        'Field should be at least ${count} characters.': '---',
+        'Hide': '---',
+        'in': '---',
+        'is not': '---',
+        'is': '---',
+        'less than': '---',
+        'Line #': '---',
+        'Load ${count} more...': '---',
+        'Loading...': '---',
+        'Maximum number of files is ${count}': '---',
+        'Maximum total size is ${count}': '---',
+        'Modified': '---',
+        'more than': '---',
+        'Multiple Fields': '---',
+        'Name': '---',
+        'No items found': '---',
+        'No matches': '---',
+        'No': '---',
+        'none': '---',
+        'Not a float': '---',
+        'Not a hex number': '---',
+        'Not a valid date': '---',
+        'Not a valid email': '---',
+        'Not alpha-numeric': '---',
+        'Not an integer': '---',
+        'Not in money format': '---',
+        'not in': '---',
+        'Notification': '---',
+        'of': '---',
+        'Ok': '---',
+        'Opacity': '---',
+        'Record ID': '---',
+        'record': '---',
+        'records': '---',
+        'Refreshing...': '---',
+        'Reload data in the list': '---',
+        'Remove': '---',
+        'Request aborted.': '---',
+        'Required field': '---',
+        'Reset': '---',
+        'Restore Default State': '---',
+        'Returned data is not in valid JSON format.': '---',
+        'Save changed records': '---',
+        'Save Grid State': '---',
+        'Save': '---',
+        'Saved Searches': '---',
+        'Saving...': '---',
+        'Search took ${count} seconds': '---',
+        'Search': '---',
+        'Select Hour': '---',
+        'Select Minute': '---',
+        'selected': '---',
+        'Server Response ${count} seconds': '---',
+        'Show/hide columns': '---',
+        'Show': '---',
+        'Size': '---',
+        'Skip': '---',
+        'Sorting took ${count} seconds': '---',
+        'Type to search...': '---',
+        'Type': '---',
+        'Yes': '---',
+        'Yesterday': '---',
+        'Your remote data source record count has changed, reloading from the first record.': '---'
     }
 }
-
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -297,13 +298,13 @@ let w2utils = (($) => {
     let tmp = {} // for some temp variables
     return {
         version  : '2.0.x',
-        settings : $.extend(true, {}, w2locale, {
+        settings : $.extend(true, {}, {
             'dataType'       : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
             'dateStartYear'  : 1950,  // start year for date-picker
             'dateEndYear'    : 2030,  // end year for date picker
             'macButtonOrder' : false, // if true, Yes on the right side
-            'warnNoPhrase'   : true,  // call console.warn if lang() encounters a missing phrase
-        }),
+            'warnNoPhrase'   : false,  // call console.warn if lang() encounters a missing phrase
+        }, w2locale, { phrases: null }), // if there are no phrases, then it is original language
         isBin,
         isInt,
         isFloat,
@@ -358,16 +359,11 @@ let w2utils = (($) => {
         testLocalStorage,
         hasLocalStorage: testLocalStorage(),
         // some internal variables
-        isIOS : ((navigator.userAgent.toLowerCase().indexOf('iphone') !== -1 ||
-                 navigator.userAgent.toLowerCase().indexOf('ipod') !== -1 ||
-                 navigator.userAgent.toLowerCase().indexOf('ipad') !== -1 ||
-                 navigator.userAgent.toLowerCase().indexOf('mobile') !== -1 ||
-                 navigator.userAgent.toLowerCase().indexOf('android') !== -1)
-                 ? true : false),
-        isIE : ((navigator.userAgent.toLowerCase().indexOf('msie') !== -1 ||
-                 navigator.userAgent.toLowerCase().indexOf('trident') !== -1 )
-                 ? true : false),
-        isSafari : (/^((?!chrome|android).)*safari/i).test(navigator.userAgent),
+        isMac: /Mac/i.test(navigator.platform),
+        isMobile: /(iphone|ipod|ipad|mobile|android)/i.test(navigator.userAgent),
+        isIOS: /(iphone|ipod|ipad)/i.test(navigator.platform),
+        isAndroid: /(android)/i.test(navigator.userAgent),
+        isSafari: /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
     }
     function isBin(val) {
         let re = /^[0-1]+$/
@@ -1526,46 +1522,59 @@ let w2utils = (($) => {
         }
         return str.replace(/\${([^}]+)?}/g, function($1, $2) { return replace_obj[$2]||$2 })
     }
-    function lang(phrase, replace_obj, no_warning) {
-        if (!phrase || typeof phrase !== 'string' || '<=>='.includes(phrase)) return phrase
-        if (replace_obj === true) {
-            replace_obj = undefined
-            no_warning = true
+    function lang(phrase, params) {
+        if (!phrase || this.settings.phrases == null // if no phrases at all
+                || typeof phrase !== 'string' || '<=>='.includes(phrase)) {
+            return phrase
         }
         let translation = this.settings.phrases[phrase]
         if (translation == null) {
             translation = phrase
-            if(this.settings.warnNoPhrase  && !no_warning) {
-                console.warn('Missing translation:', phrase)
-                this.settings.phrases[phrase] = translation // so we only warn once
+            if (this.settings.warnNoPhrase) {
+                if (!this.settings.missing) {
+                    this.settings.missing = {}
+                }
+                this.settings.missing[phrase] = '---' // collect phrases for translation, warn once
+                this.settings.phrases[phrase] = '---'
+                console.log(`Missing translation for "%c${phrase}%c", see %c w2utils.settings.phrases %c with value "---"`,
+                    'color: orange', '',
+                    'color: #999', '')
             }
+        } else if (translation === '---' && !this.settings.warnNoPhrase) {
+            translation = phrase
         }
-        return execTemplate(translation, replace_obj)
+        if (translation === '---') {
+            translation = `<span ${w2utils.tooltip(phrase)}>---</span>`
+        }
+        return execTemplate(translation, params)
     }
     function locale(locale, callBack) {
-        if (!locale) locale = 'en-us'
-        // if the locale is not a string, we assume it is an object and merge it with w2utils.settings
-        if (typeof locale !== 'string' ) {
-            w2utils.settings = $.extend(true, {}, w2utils.settings, w2locale, locale)
-            return
-        }
-        if (locale.length === 5) {
-            locale = 'locale/'+ locale.toLowerCase() +'.json'
-        }
-        // load from the file
-        $.ajax({
-            url      : locale,
-            type     : 'GET',
-            dataType : 'JSON',
-            success(data, status, xhr) {
-                // clear phrases from language before
-                w2utils.settings.phrases = {}
-                w2utils.settings = $.extend(true, {}, w2utils.settings, w2locale, data)
-                if (typeof callBack === 'function') callBack()
-            },
-            error(xhr, status, msg) {
-                console.log('ERROR: Cannot load locale '+ locale)
+        return new Promise((resolve, reject) => {
+            if (!locale) locale = 'en-us'
+            // if the locale is not a string, we assume it is an object and merge it with w2utils.settings
+            if (typeof locale !== 'string' ) {
+                w2utils.settings = $.extend(true, {}, w2utils.settings, w2locale, locale)
+                return
             }
+            if (locale.length === 5) {
+                locale = 'locale/'+ locale.toLowerCase() +'.json'
+            }
+            // load from the file
+            $.ajax({
+                url: locale,
+                type: 'GET',
+                dataType: 'JSON',
+                success(data, status, xhr) {
+                    // clear phrases from language before
+                    w2utils.settings = $.extend(true, {}, w2utils.settings, w2locale, { phrases: null }, data)
+                    if (typeof callBack === 'function') callBack()
+                    resolve()
+                },
+                error(xhr, status, msg) {
+                    console.log('ERROR: Cannot load locale '+ locale)
+                    reject()
+                }
+            })
         })
     }
     function scrollBarSize() {
@@ -4352,7 +4361,7 @@ class w2grid extends w2event {
                             <ul>${options}</ul>
                         </div>
                         <div class="buttons">
-                            <button id="remove" class="w2ui-btn">Remove This Field</button>
+                            <button id="remove" class="w2ui-btn">${w2utils.lang('Remove This Field')}</button>
                         </div>
                     </div>`,
                 onShow(event) {
@@ -4378,11 +4387,11 @@ class w2grid extends w2event {
                 html: `
                     <div class="w2ui-grid-search-single">
                         <div class="options">
-                            <span class="operator">${oper}</span>
+                            <span class="operator">${w2utils.lang(oper)}</span>
                             "<span>${val}</span>"
                         </div>
                         <div class="buttons">
-                            <button id="remove" class="w2ui-btn">Remove This Field</button>
+                            <button id="remove" class="w2ui-btn">${w2utils.lang('Remove This Field')}</button>
                         </div>
                     </div>`,
                 onShow(event) {
@@ -4411,12 +4420,12 @@ class w2grid extends w2event {
             width: 350,
             height: 150,
             body: `<div style="padding-top: 29px; text-align: center;">
-                <span style="width: 280px; display: inline-block; text-align: left; padding-bottom: 4px;">Save Search</span>
-                <input class="search-name" placeholder="Search name" style="width: 280px">
+                <span style="width: 280px; display: inline-block; text-align: left; padding-bottom: 4px;">${w2utils.lang('Save Search')}</span>
+                <input class="search-name" placeholder="${w2utils.lang('Search name')}" style="width: 280px">
             </div>`,
             buttons: `
-                <button id="grid-search-cancel" class="w2ui-btn">Cancel</button>
-                <button id="grid-search-save" class="w2ui-btn w2ui-btn-blue" ${String(value).trim() == '' ? 'disabled': ''}>Save</button>
+                <button id="grid-search-cancel" class="w2ui-btn">${w2utils.lang('Cancel')}</button>
+                <button id="grid-search-save" class="w2ui-btn w2ui-btn-blue" ${String(value).trim() == '' ? 'disabled': ''}>${w2utils.lang('Save')}</button>
             `,
             onOpen(event) {
                 setTimeout(() => {
@@ -4556,7 +4565,7 @@ class w2grid extends w2event {
                 }
             } else {
                 this.last.field = 'all'
-                this.last.label = w2utils.lang('All Fields')
+                this.last.label = 'All Fields'
             }
         }
         this.last.multi      = false
@@ -4586,16 +4595,16 @@ class w2grid extends w2event {
             let sField  = (search ? search.field : null)
             let column  = this.getColumn(sField)
             let disable = false
-            let msg     = 'This column is hidden'
+            let msg     = w2utils.lang('This column is hidden')
             if (this.show.searchHiddenMsg == true && s != -1 && (column == null || (column.hidden === true && column.hideable !== false))) {
                 disable = true
                 if (column == null) {
-                    msg = 'This column does not exist'
+                    msg = w2utils.lang('This column does not exist')
                 }
             }
             if (s == -1) { // -1 is All Fields search
                 if (!this.multiSearch || !this.show.searchAll) continue
-                search = { field: 'all', label: w2utils.lang('All Fields') }
+                search = { field: 'all', label: 'All Fields' }
             } else {
                 if (column != null && column.hideable === false) continue
                 // don't show hidden searches
@@ -4620,7 +4629,7 @@ class w2grid extends w2event {
                     '   <td>'+
                     '       <span class="w2ui-column-check w2ui-icon-'+ (search.field == this.last.field ? 'check' : 'empty') +'"></span>'+
                     '   </td>'+
-                    '   <td>'+ search.label +'</td>'+
+                    '   <td>'+ w2utils.lang(search.label) +'</td>'+
                     '</tr>'
         }
         html += '</tbody></table></div>'
@@ -4924,7 +4933,6 @@ class w2grid extends w2event {
                 if (this.last.xhr_offset === 0) {
                     this.records = []
                     this.summary = []
-                    if (w2utils.isInt(data.total)) this.total = parseInt(data.total)
                 } else {
                     if (data.total != -1 && parseInt(data.total) != parseInt(this.total)) {
                         let grid = this
@@ -4938,6 +4946,7 @@ class w2grid extends w2event {
                         return
                     }
                 }
+                if (w2utils.isInt(data.total)) this.total = parseInt(data.total)
                 // records
                 if (data.records) {
                     data.records.forEach(rec => {
@@ -5514,6 +5523,7 @@ class w2grid extends w2event {
         let recs = this.getSelection()
         if (recs.length === 0) return
         if (this.msgDelete != '' && !force) {
+            debugger
             let msg = w2utils.lang(this.msgDelete, {
                 count: recs.length,
                 records: w2utils.lang( recs.length == 1 ? 'record' : 'records')
@@ -6362,7 +6372,7 @@ class w2grid extends w2event {
         rec.w2ui = rec.w2ui || {}
         if (rec.w2ui.expanded === true) return this.collapse(recid); else return this.expand(recid)
     }
-    expand(recid) {
+    expand(recid, noRefresh) {
         let ind      = this.get(recid, true)
         let rec      = this.records[ind]
         rec.w2ui     = rec.w2ui || {}
@@ -6380,7 +6390,9 @@ class w2grid extends w2event {
                 if (child.w2ui.children == null) child.w2ui.children = []
             })
             this.records.splice.apply(this.records, [ind + 1, 0].concat(children))
-            this.total += children.length
+            if (this.total !== -1) {
+                this.total += children.length
+            }
             let url     = (typeof this.url != 'object' ? this.url : this.url.get)
             if (!url) {
                 this.localSort(true, true)
@@ -6388,7 +6400,7 @@ class w2grid extends w2event {
                     this.localSearch(true)
                 }
             }
-            this.refresh()
+            if (noRefresh !== true) this.refresh()
             this.trigger($.extend(edata, { phase: 'after' }))
         } else {
             if ($('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').length > 0 || this.show.expandColumn !== true) return false
@@ -6438,7 +6450,7 @@ class w2grid extends w2event {
         }
         return true
     }
-    collapse(recid) {
+    collapse(recid, noRefresh) {
         let ind      = this.get(recid, true)
         let rec      = this.records[ind]
         rec.w2ui     = rec.w2ui || {}
@@ -6464,14 +6476,16 @@ class w2grid extends w2event {
                 end++
             }
             this.records.splice(start, end - start + 1)
-            this.total -= end - start + 1
+            if (this.total !== -1) {
+                this.total -= end - start + 1
+            }
             let url     = (typeof this.url != 'object' ? this.url : this.url.get)
             if (!url) {
                 if (this.searchData.length > 0) {
                     this.localSearch(true)
                 }
             }
-            this.refresh()
+            if (noRefresh !== true) this.refresh()
             this.trigger($.extend(edata, { phase: 'after' }))
         } else {
             if ($('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').length === 0 || this.show.expandColumn !== true) return false
@@ -6832,7 +6846,7 @@ class w2grid extends w2event {
         if (edata.isCancelled === true) return
         // -- header
         if (this.show.header) {
-            $('#grid_'+ this.name +'_header').html(this.header +'&#160;').show()
+            $('#grid_'+ this.name +'_header').html(w2utils.lang(this.header) +'&#160;').show()
         } else {
             $('#grid_'+ this.name +'_header').hide()
         }
@@ -6997,7 +7011,7 @@ class w2grid extends w2event {
             searches += `
                 ${this.show.searchSave
                     ? `<div class="grid-search-line"></div>
-                       <button class="w2ui-btn grid-search-btn" data-click="searchSave">Save</button>
+                       <button class="w2ui-btn grid-search-btn" data-click="searchSave">${w2utils.lang('Save')}</button>
                       `
                     : ''
 }
@@ -7144,7 +7158,7 @@ class w2grid extends w2event {
                 }
             } else {
                 this.last.field = 'all'
-                this.last.label = w2utils.lang('All Fields')
+                this.last.label = 'All Fields'
             }
         }
         // insert elements
@@ -7980,9 +7994,6 @@ class w2grid extends w2event {
                                 grid.searchSuggest(true, true, this)
                             })
                                 .on('keydown', function(event) {
-                                    if (event.keyCode == 13 && w2utils.isIE) {
-                                        $(this).trigger('change')
-                                    }
                                     if (event.keyCode == 40) {
                                         grid.searchSuggest(true)
                                     }
@@ -8608,7 +8619,7 @@ class w2grid extends w2event {
                     ${this.getOperators(s.type, s.operators)}
                 </select>`
             html += `<tr>
-                        <td class="caption">${(s.label || '')}</td>
+                        <td class="caption">${(w2utils.lang(s.label) || '')}</td>
                         <td class="operator">${operator}</td>
                         <td class="value">`
             let tmpStyle
@@ -8913,7 +8924,7 @@ class w2grid extends w2event {
                     if (col.resizable !== false) {
                         resizer = '<div class="w2ui-resizer" name="'+ ii +'"></div>'
                     }
-                    let text = (typeof col.text == 'function' ? col.text(col) : col.text)
+                    let text = w2utils.lang(typeof col.text == 'function' ? col.text(col) : col.text)
                     tmpf     = '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head '+ sortStyle +'" col="'+ ii + '" '+
                            '    rowspan="2" colspan="'+ colspan +'" '+
                            '    oncontextmenu = "w2ui[\''+ obj.name +'\'].contextMenu(null, '+ ii +', event);"'+
@@ -8927,7 +8938,7 @@ class w2grid extends w2event {
                            '</td>'
                     if (col && col.frozen) html1 += tmpf; else html2 += tmpf
                 } else {
-                    let gText = (typeof colg.text == 'function' ? colg.text(colg) : colg.text)
+                    let gText = w2utils.lang(typeof colg.text == 'function' ? colg.text(colg) : colg.text)
                     tmpf      = '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head" col="'+ ii + '" '+
                            '        colspan="'+ colspan +'">'+
                            '    <div class="w2ui-col-group">'+
@@ -9029,9 +9040,10 @@ class w2grid extends w2event {
                 if (tmp[t][si] == i) selected = true
             }
         }
-        let text = (typeof col.text == 'function' ? col.text(col) : col.text)
+        let text = w2utils.lang(typeof col.text == 'function' ? col.text(col) : col.text)
+        let tooltip = w2utils.lang(typeof col.tooltip == 'function' ? col.tooltip(col) : col.tooltip)
         let html = '<td id="grid_'+ this.name + '_column_' + i +'" col="'+ i +'" class="w2ui-head '+ sortStyle + reorderCols + '" ' +
-                         (this.columnTooltip == 'normal' && col.tooltip ? 'title="'+ col.tooltip +'" ' : '') +
+                         (this.columnTooltip == 'normal' && tooltip ? 'title="'+ tooltip +'" ' : '') +
                     '    onmouseEnter = "w2ui[\''+ this.name +'\'].columnTooltipShow(\''+ i +'\', event);"'+
                     '    onmouseLeave  = "w2ui[\''+ this.name +'\'].columnTooltipHide(\''+ i +'\', event);"'+
                     '    oncontextmenu = "w2ui[\''+ this.name +'\'].contextMenu(null, '+ i +', event);"'+
@@ -10303,11 +10315,11 @@ class w2grid extends w2event {
             </button>`
         }
         return w2utils.message.call(this, {
-                    box   : this.box,
-                    path  : 'w2ui.' + this.name,
-                    title : '.w2ui-grid-header:visible',
-                    body  : '.w2ui-grid-box'
-                }, options)
+            box   : this.box,
+            path  : 'w2ui.' + this.name,
+            title : '.w2ui-grid-header:visible',
+            body  : '.w2ui-grid-box'
+        }, options)
     }
     confirm(options) {
         let grid = this
@@ -11724,7 +11736,7 @@ class w2dialog extends w2event {
                           '<div class="w2ui-popup-buttons" style="'+ (!options.buttons ? 'display: none' : '') +'"></div>'+
                           '<input class="w2ui-popup-hidden" style="position: absolute; top: -100px"/>' // this is needed to keep focus in popup
                 $('#w2ui-popup').html(msg)
-                if (options.title) $('#w2ui-popup .w2ui-popup-title').append(options.title)
+                if (options.title) $('#w2ui-popup .w2ui-popup-title').append(w2utils.lang(options.title))
                 if (options.buttons) $('#w2ui-popup .w2ui-popup-buttons').append(options.buttons)
                 if (options.body) $('#w2ui-popup .w2ui-popup-body').append(options.body)
                 // allow element to render
@@ -13085,10 +13097,10 @@ class w2tabs extends w2event {
             if ($el.prop('_mouse_over') === true && $el.prop('_mouse_tooltip') !== true) {
                 $el.prop('_mouse_tooltip', true)
                 // show tooltip
-                $el.w2tag(w2utils.lang(txt, true), { position: pos })
+                $el.w2tag(w2utils.lang(txt), { position: pos })
             }
             if (forceRefresh == true) {
-                $el.w2tag(w2utils.lang(txt, true), { position: pos })
+                $el.w2tag(w2utils.lang(txt), { position: pos })
             }
         }, 1)
     }
@@ -13141,7 +13153,7 @@ class w2tabs extends w2event {
                data-mousedown  ='["initReorder", "${tab.id}", "event"]'
                data-click      ='["click", "${tab.id}", "event"]'
                >
-                    ${w2utils.lang(text, true) + closable}
+                    ${w2utils.lang(text) + closable}
             </div>`
     }
     refresh(id) {
@@ -13393,7 +13405,7 @@ class w2tabs extends w2event {
             this.trigger($.extend(edata, { phase: 'after' }))
             this.refresh()
         })
-        event.stopPropagation()
+        if (event) event.stopPropagation()
     }
     animateClose(id) {
         return new Promise((resolve, reject) => {
@@ -14074,11 +14086,11 @@ class w2toolbar extends w2event {
                 }
                 if (item.type == 'color') {
                     text = `<span class="w2ui-tb-color-box" style="background-color: ${(item.color != null ? item.color : '#fff')}"></span>
-                           ${(item.text ? `<div style="margin-left: 17px;">${w2utils.lang(item.text, true)}</div>` : '')}`
+                           ${(item.text ? `<div style="margin-left: 17px;">${w2utils.lang(item.text)}</div>` : '')}`
                 }
                 if (item.type == 'text-color') {
                     text = '<span style="color: '+ (item.color != null ? item.color : '#444') +';">'+
-                                (item.text ? w2utils.lang(item.text, true) : '<b>Aa</b>') +
+                                (item.text ? w2utils.lang(item.text) : '<b>Aa</b>') +
                            '</span>'
                 }
             case 'menu':
@@ -14103,7 +14115,7 @@ class w2toolbar extends w2event {
                         ${ icon }
                         ${ text != ''
                             ? `<div class="w2ui-tb-text" style="${(item.style ? item.style : '')}">
-                                    ${ w2utils.lang(text, true) }
+                                    ${ w2utils.lang(text) }
                                     ${ item.count != null
                                         ? `<span class="w2ui-tb-count">
                                                 <span class="${this.tmp.badge[item.id] ? this.tmp.badge[item.id].className || '' : ''}"
@@ -14147,12 +14159,12 @@ class w2toolbar extends w2event {
                 $el.prop('_mouse_tooltip', true)
                 // show tooltip
                 if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(item.type) != -1 && item.checked == true) return // not for opened drop downs
-                $el.w2tag(w2utils.lang(txt, true), { position: pos })
+                $el.w2tag(w2utils.lang(txt), { position: pos })
             }
         }, 0)
         // refresh only
         if ($el.prop('_mouse_tooltip') && forceRefresh == true) {
-            $el.w2tag(w2utils.lang(txt, true), { position: pos })
+            $el.w2tag(w2utils.lang(txt), { position: pos })
         }
     }
     tooltipHide(id, event) {
@@ -15266,14 +15278,20 @@ class w2sidebar extends w2event {
             }
             if (Array.isArray(nd.nodes) && nd.nodes.length > 0) nd.collapsible = true
             if (nd.group) {
+                let text = w2utils.lang(typeof nd.text == 'function' ? nd.text.call(obj, nd) : nd.text)
+                if (String(text).substr(0, 5) != '<span') {
+                    text = `<span class="w2ui-group-text">${text}</span>`
+                }
                 html =
                     '<div class="w2ui-node-group w2ui-level-'+ level + (nd.class ? ' ' + nd.class : '') +'" id="node_'+ nd.id +'" data-level="'+ level + '"'+
                     '   style="'+ (nd.hidden ? 'display: none' : '') +'" onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
                     '   oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
                     '   onmouseout="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
                     '   onmouseover="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
-                    ((nd.groupShowHide && nd.collapsible) ? '<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>' : '<span></span>') +
-                    (typeof nd.text == 'function' ? nd.text.call(obj, nd) : '<span class="w2ui-group-text">'+ nd.text +'</span>') +
+                        ((nd.groupShowHide && nd.collapsible)
+                            ? '<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>'
+                            : '<span></span>') +
+                        text +
                     '</div>'+
                     '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>'
                 if (obj.flat) {
@@ -15287,7 +15305,6 @@ class w2sidebar extends w2event {
                 if (icon) {
                     tmp = '<div class="w2ui-node-image"><span class="' + (typeof icon == 'function' ? icon.call(obj, nd) : icon) + '"></span></div>'
                 }
-                let text   = nd.text
                 let expand = ''
                 let counts = (nd.count != null
                     ? `<div class="w2ui-node-count ${obj.tmp.badge[nd.id] ? obj.tmp.badge[nd.id].className || '' : ''}"
@@ -15298,7 +15315,7 @@ class w2sidebar extends w2event {
                 if (nd.collapsible === true) {
                     expand = '<div class="w2ui-' + (nd.expanded ? 'expanded' : 'collapsed') + '"><span></span></div>'
                 }
-                if (typeof nd.text == 'function') text = nd.text.call(obj, nd)
+                let text = w2utils.lang(typeof nd.text == 'function' ? nd.text.call(obj, nd) : nd.text)
                 html = '<div class="w2ui-node w2ui-level-'+ level + (nd.selected ? ' w2ui-selected' : '') + (nd.disabled ? ' w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '') +'"'+
                         '    id="node_'+ nd.id +'" data-level="'+ level +'" style="position: relative; '+ (nd.hidden ? 'display: none;' : '') +'"'+
                         '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
@@ -16993,18 +17010,7 @@ class w2field extends w2event {
             if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return
             if ($('#w2ui-overlay').length === 0) {
                 $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar"></div>', {
-                    css: { 'background-color': '#f5f5f5' },
-                    onShow(event) {
-                        // this needed for IE 11 compatibility
-                        if (w2utils.isIE) {
-                            $('.w2ui-calendar').on('mousedown', function(event) {
-                                let $tg = $(event.target)
-                                if ($tg.length === 1 && $tg[0].id === 'w2ui-jump-year') {
-                                    $('#w2ui-overlay').data('keepOpen', true)
-                                }
-                            })
-                        }
-                    }
+                    css: { 'background-color': '#f5f5f5' }
                 })
             }
             dt = w2utils.isDate($(obj.el).val(), obj.options.format, true)
@@ -17133,18 +17139,7 @@ class w2field extends w2event {
             if ($('#w2ui-overlay .w2ui-time').length > 0) $('#w2ui-overlay')[0].hide()
             if ($('#w2ui-overlay').length === 0) {
                 $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar" onclick="event.stopPropagation();"></div>', {
-                    css: { 'background-color': '#f5f5f5' },
-                    onShow(event) {
-                        // this needed for IE 11 compatibility
-                        if (w2utils.isIE) {
-                            $('.w2ui-calendar').on('mousedown', function(event) {
-                                let $tg = $(event.target)
-                                if ($tg.length === 1 && $tg[0].id === 'w2ui-jump-year') {
-                                    $('#w2ui-overlay').data('keepOpen', true)
-                                }
-                            })
-                        }
-                    }
+                    css: { 'background-color': '#f5f5f5' }
                 })
             }
             dt = w2utils.isDateTime($(obj.el).val(), obj.options.format, true)
@@ -17759,10 +17754,11 @@ class w2field extends w2event {
         }
         if (obj.type === 'enum') {
             // remember original tabindex
-            let tabIndex = $(obj.el).attr('tabIndex')
-            if (tabIndex && tabIndex !== -1) obj.el._tabIndex = tabIndex
+            let tabIndex = parseInt($(obj.el).attr('tabIndex'))
+            if (!isNaN(tabIndex) && tabIndex !== -1) obj.el._tabIndex = tabIndex
             if (obj.el._tabIndex) tabIndex = obj.el._tabIndex
-            if (tabIndex == null) tabIndex = 0 // default tabindex
+            if (tabIndex == null) tabIndex = 0
+            if (isNaN(tabIndex)) tabIndex = 0
             html = '<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box">'+
                     '    <div style="padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">'+
                     '    <ul>'+
@@ -17895,7 +17891,7 @@ class w2field extends w2event {
             return
         }
         if (options.maxSize !== 0 && size + newItem.size > options.maxSize) {
-            err = w2utils.lang('Maximum total size is ${count}', {count: w2utils.formatSize(options.maxSize)})
+            err = w2utils.lang('Maximum total size is ${count}', { count: w2utils.formatSize(options.maxSize) })
             if (options.silent === false) {
                 $(obj.el).w2tag(err)
             }
@@ -17903,7 +17899,7 @@ class w2field extends w2event {
             return
         }
         if (options.max !== 0 && cnt >= options.max) {
-            err = w2utils.lang('Maximum number of files is ${count}', {count: options.max})
+            err = w2utils.lang('Maximum number of files is ${count}', { count: options.max })
             if (options.silent === false) {
                 $(obj.el).w2tag(err)
             }
@@ -18609,10 +18605,10 @@ class w2form extends w2event {
                 let min = field.options.min
                 let max = field.options.max
                 if (min != null && val < min) {
-                    errors.push({ field: field, error: w2utils.lang(`Should be more than ${min}`) })
+                    errors.push({ field: field, error: w2utils.lang('Should be more than ${min}', { min }) })
                 }
                 if (max != null && val > max) {
-                    errors.push({ field: field, error: w2utils.lang(`Should be less than ${max}`) })
+                    errors.push({ field: field, error: w2utils.lang('Should be less than ${max}', { max }) })
                 }
             }
             switch (field.type) {
@@ -19244,7 +19240,7 @@ class w2form extends w2event {
                     break
             }
             if (group !== '') {
-                if(page != field.html.page || column != field.html.column || (field.html.group && (group != field.html.group))){
+                if (page != field.html.page || column != field.html.column || (field.html.group && (group != field.html.group))) {
                     pages[page][column] += '\n   </div>\n  </div>'
                     group                = ''
                 }
@@ -19262,23 +19258,23 @@ class w2form extends w2event {
                         ? 'onclick="w2ui[\'' + this.name + '\'].toggleGroup(\'' + field.html.group + '\')"'
                         : '')
                     + '>'
-                    + collapsible + field.html.group + '</div>\n'
+                    + collapsible + w2utils.lang(field.html.group) + '</div>\n'
                     + '   <div class="w2ui-group-fields" style="'+ (field.html.groupStyle || '') +'">'
                 group = field.html.group
             }
             if (field.html.anchor == null) {
                 let span = (field.html.span != null ? 'w2ui-span'+ field.html.span : '')
                 if (field.html.span == -1) span = 'w2ui-span-none'
-                let label = '<label'+ (span == 'none' ? ' style="display: none"' : '') +'>' + w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text, true) +'</label>'
+                let label = '<label'+ (span == 'none' ? ' style="display: none"' : '') +'>' + w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text) +'</label>'
                 if (!field.html.label) label = ''
                 html += '\n      <div class="w2ui-field '+ span +'" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
                         '\n         '+ label +
-                        ((field.type === 'empty') ? input : '\n         <div>'+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '', true) : '') + '</div>') +
+                        ((field.type === 'empty') ? input : '\n         <div>'+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '') : '') + '</div>') +
                         '\n      </div>'
             } else {
                 pages[field.html.page].anchors                    = pages[field.html.page].anchors || {}
                 pages[field.html.page].anchors[field.html.anchor] = '<div class="w2ui-field w2ui-field-inline" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
-                        ((field.type === 'empty') ? input : '<div>'+ w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text, true) + input + w2utils.lang(field.type != 'checkbox' ? field.html.text : '', true) + '</div>') +
+                        ((field.type === 'empty') ? input : '<div>'+ w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text, true) + input + w2utils.lang(field.type != 'checkbox' ? field.html.text : '') + '</div>') +
                         '</div>'
             }
             if (pages[field.html.page] == null) pages[field.html.page] = {}
@@ -19312,7 +19308,7 @@ class w2form extends w2event {
                     if (['save', 'update', 'create'].indexOf(a.toLowerCase()) !== -1) info.class = 'w2ui-btn-blue'; else info.class = ''
                 }
                 buttons += '\n    <button name="'+ a +'" class="w2ui-btn '+ info.class +'" style="'+ info.style +'" tabindex="'+ tabindex +'">'+
-                                        w2utils.lang(info.text, true) +'</button>'
+                                        w2utils.lang(info.text) +'</button>'
                 tabindex++
             }
             buttons += '\n</div>'
@@ -19463,7 +19459,7 @@ class w2form extends w2event {
             // default action
             $(this.box).find('.w2ui-page').hide()
             $(this.box).find('.w2ui-page.page-' + this.page).show()
-            $(this.box).find('.w2ui-form-header').html(this.header)
+            $(this.box).find('.w2ui-form-header').html(w2utils.lang(this.header))
             // refresh tabs if needed
             if (typeof this.tabs === 'object' && Array.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) {
                 $('#form_'+ this.name +'_tabs').show()
@@ -19966,7 +19962,7 @@ class w2form extends w2event {
         let edata = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (box != null ? box : this.box) })
         if (edata.isCancelled === true) return
         let html = '<div class="w2ui-form-box">' +
-                    (this.header !== '' ? '<div class="w2ui-form-header">' + this.header + '</div>' : '') +
+                    (this.header !== '' ? '<div class="w2ui-form-header">' + w2utils.lang(this.header) + '</div>' : '') +
                     '    <div id="form_'+ this.name +'_toolbar" class="w2ui-form-toolbar" style="display: none"></div>' +
                     '    <div id="form_'+ this.name +'_tabs" class="w2ui-form-tabs" style="display: none"></div>' +
                         this.formHTML +
@@ -21154,7 +21150,7 @@ class w2form extends w2event {
                             if (mitem.hotkey != null) count_dsp += '<span class="hotkey">' + mitem.hotkey + '</span>'
                         }
                         menu_html +=
-                            '<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+ (mitem.tooltip ? 'title="'+ w2utils.lang(mitem.tooltip, true) +'"' : '') +
+                            '<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+ (mitem.tooltip ? 'title="'+ w2utils.lang(mitem.tooltip) +'"' : '') +
                             ' class="'+ bg
                                 + (options.index === f ? ' w2ui-selected' : '')
                                 + (mitem.disabled === true ? ' w2ui-disabled' : '')
@@ -21166,7 +21162,7 @@ class w2form extends w2event {
                             '               if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
                             '               jQuery.fn.w2tmp.menuClick(event, '+ f +',  '+ parentIndex +');">'+
                                 (subMenu ? '<td></td>' : '') + imgd +
-                            '   <td class="menu-text" colspan="'+ colspan +'">'+ w2utils.lang(txt, true) +'</td>'+
+                            '   <td class="menu-text" colspan="'+ colspan +'">'+ w2utils.lang(txt) +'</td>'+
                             '   <td class="menu-count">'+ count_dsp +'</td>'+
                             '</tr>'+ subMenu_dsp
                         count++

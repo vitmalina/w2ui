@@ -514,10 +514,10 @@ class w2form extends w2event {
                 let min = field.options.min
                 let max = field.options.max
                 if (min != null && val < min) {
-                    errors.push({ field: field, error: w2utils.lang(`Should be more than ${min}`) })
+                    errors.push({ field: field, error: w2utils.lang('Should be more than ${min}', { min }) })
                 }
                 if (max != null && val > max) {
-                    errors.push({ field: field, error: w2utils.lang(`Should be less than ${max}`) })
+                    errors.push({ field: field, error: w2utils.lang('Should be less than ${max}', { max }) })
                 }
             }
             switch (field.type) {
@@ -1164,7 +1164,7 @@ class w2form extends w2event {
 
             }
             if (group !== '') {
-                if(page != field.html.page || column != field.html.column || (field.html.group && (group != field.html.group))){
+                if (page != field.html.page || column != field.html.column || (field.html.group && (group != field.html.group))) {
                     pages[page][column] += '\n   </div>\n  </div>'
                     group                = ''
                 }
@@ -1182,23 +1182,23 @@ class w2form extends w2event {
                         ? 'onclick="w2ui[\'' + this.name + '\'].toggleGroup(\'' + field.html.group + '\')"'
                         : '')
                     + '>'
-                    + collapsible + field.html.group + '</div>\n'
+                    + collapsible + w2utils.lang(field.html.group) + '</div>\n'
                     + '   <div class="w2ui-group-fields" style="'+ (field.html.groupStyle || '') +'">'
                 group = field.html.group
             }
             if (field.html.anchor == null) {
                 let span = (field.html.span != null ? 'w2ui-span'+ field.html.span : '')
                 if (field.html.span == -1) span = 'w2ui-span-none'
-                let label = '<label'+ (span == 'none' ? ' style="display: none"' : '') +'>' + w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text, true) +'</label>'
+                let label = '<label'+ (span == 'none' ? ' style="display: none"' : '') +'>' + w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text) +'</label>'
                 if (!field.html.label) label = ''
                 html += '\n      <div class="w2ui-field '+ span +'" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
                         '\n         '+ label +
-                        ((field.type === 'empty') ? input : '\n         <div>'+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '', true) : '') + '</div>') +
+                        ((field.type === 'empty') ? input : '\n         <div>'+ input + (field.type != 'array' && field.type != 'map' ? w2utils.lang(field.type != 'checkbox' ? field.html.text : '') : '') + '</div>') +
                         '\n      </div>'
             } else {
                 pages[field.html.page].anchors                    = pages[field.html.page].anchors || {}
                 pages[field.html.page].anchors[field.html.anchor] = '<div class="w2ui-field w2ui-field-inline" style="'+ (field.hidden ? 'display: none;' : '') + field.html.style +'">'+
-                        ((field.type === 'empty') ? input : '<div>'+ w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text, true) + input + w2utils.lang(field.type != 'checkbox' ? field.html.text : '', true) + '</div>') +
+                        ((field.type === 'empty') ? input : '<div>'+ w2utils.lang(field.type != 'checkbox' ? field.html.label : field.html.text, true) + input + w2utils.lang(field.type != 'checkbox' ? field.html.text : '') + '</div>') +
                         '</div>'
             }
             if (pages[field.html.page] == null) pages[field.html.page] = {}
@@ -1233,7 +1233,7 @@ class w2form extends w2event {
                     if (['save', 'update', 'create'].indexOf(a.toLowerCase()) !== -1) info.class = 'w2ui-btn-blue'; else info.class = ''
                 }
                 buttons += '\n    <button name="'+ a +'" class="w2ui-btn '+ info.class +'" style="'+ info.style +'" tabindex="'+ tabindex +'">'+
-                                        w2utils.lang(info.text, true) +'</button>'
+                                        w2utils.lang(info.text) +'</button>'
                 tabindex++
             }
             buttons += '\n</div>'
@@ -1389,7 +1389,7 @@ class w2form extends w2event {
             // default action
             $(this.box).find('.w2ui-page').hide()
             $(this.box).find('.w2ui-page.page-' + this.page).show()
-            $(this.box).find('.w2ui-form-header').html(this.header)
+            $(this.box).find('.w2ui-form-header').html(w2utils.lang(this.header))
             // refresh tabs if needed
             if (typeof this.tabs === 'object' && Array.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) {
                 $('#form_'+ this.name +'_tabs').show()
@@ -1898,7 +1898,7 @@ class w2form extends w2event {
         let edata = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (box != null ? box : this.box) })
         if (edata.isCancelled === true) return
         let html = '<div class="w2ui-form-box">' +
-                    (this.header !== '' ? '<div class="w2ui-form-header">' + this.header + '</div>' : '') +
+                    (this.header !== '' ? '<div class="w2ui-form-header">' + w2utils.lang(this.header) + '</div>' : '') +
                     '    <div id="form_'+ this.name +'_toolbar" class="w2ui-form-toolbar" style="display: none"></div>' +
                     '    <div id="form_'+ this.name +'_tabs" class="w2ui-form-tabs" style="display: none"></div>' +
                         this.formHTML +

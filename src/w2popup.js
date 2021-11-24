@@ -165,7 +165,7 @@ class w2dialog extends w2event {
                           '<input class="w2ui-popup-hidden" style="position: absolute; top: -100px"/>' // this is needed to keep focus in popup
                 $('#w2ui-popup').html(msg)
 
-                if (options.title) $('#w2ui-popup .w2ui-popup-title').append(options.title)
+                if (options.title) $('#w2ui-popup .w2ui-popup-title').append(w2utils.lang(options.title))
                 if (options.buttons) $('#w2ui-popup .w2ui-popup-buttons').append(options.buttons)
                 if (options.body) $('#w2ui-popup .w2ui-popup-body').append(options.body)
 

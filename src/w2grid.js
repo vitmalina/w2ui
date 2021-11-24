@@ -2387,7 +2387,7 @@ class w2grid extends w2event {
                             <ul>${options}</ul>
                         </div>
                         <div class="buttons">
-                            <button id="remove" class="w2ui-btn">Remove This Field</button>
+                            <button id="remove" class="w2ui-btn">${w2utils.lang('Remove This Field')}</button>
                         </div>
                     </div>`,
                 onShow(event) {
@@ -2414,11 +2414,11 @@ class w2grid extends w2event {
                 html: `
                     <div class="w2ui-grid-search-single">
                         <div class="options">
-                            <span class="operator">${oper}</span>
+                            <span class="operator">${w2utils.lang(oper)}</span>
                             "<span>${val}</span>"
                         </div>
                         <div class="buttons">
-                            <button id="remove" class="w2ui-btn">Remove This Field</button>
+                            <button id="remove" class="w2ui-btn">${w2utils.lang('Remove This Field')}</button>
                         </div>
                     </div>`,
                 onShow(event) {
@@ -2449,12 +2449,12 @@ class w2grid extends w2event {
             width: 350,
             height: 150,
             body: `<div style="padding-top: 29px; text-align: center;">
-                <span style="width: 280px; display: inline-block; text-align: left; padding-bottom: 4px;">Save Search</span>
-                <input class="search-name" placeholder="Search name" style="width: 280px">
+                <span style="width: 280px; display: inline-block; text-align: left; padding-bottom: 4px;">${w2utils.lang('Save Search')}</span>
+                <input class="search-name" placeholder="${w2utils.lang('Search name')}" style="width: 280px">
             </div>`,
             buttons: `
-                <button id="grid-search-cancel" class="w2ui-btn">Cancel</button>
-                <button id="grid-search-save" class="w2ui-btn w2ui-btn-blue" ${String(value).trim() == '' ? 'disabled': ''}>Save</button>
+                <button id="grid-search-cancel" class="w2ui-btn">${w2utils.lang('Cancel')}</button>
+                <button id="grid-search-save" class="w2ui-btn w2ui-btn-blue" ${String(value).trim() == '' ? 'disabled': ''}>${w2utils.lang('Save')}</button>
             `,
             onOpen(event) {
                 setTimeout(() => {
@@ -2596,7 +2596,7 @@ class w2grid extends w2event {
                 }
             } else {
                 this.last.field = 'all'
-                this.last.label = w2utils.lang('All Fields')
+                this.last.label = 'All Fields'
             }
         }
         this.last.multi      = false
@@ -2627,16 +2627,16 @@ class w2grid extends w2event {
             let sField  = (search ? search.field : null)
             let column  = this.getColumn(sField)
             let disable = false
-            let msg     = 'This column is hidden'
+            let msg     = w2utils.lang('This column is hidden')
             if (this.show.searchHiddenMsg == true && s != -1 && (column == null || (column.hidden === true && column.hideable !== false))) {
                 disable = true
                 if (column == null) {
-                    msg = 'This column does not exist'
+                    msg = w2utils.lang('This column does not exist')
                 }
             }
             if (s == -1) { // -1 is All Fields search
                 if (!this.multiSearch || !this.show.searchAll) continue
-                search = { field: 'all', label: w2utils.lang('All Fields') }
+                search = { field: 'all', label: 'All Fields' }
             } else {
                 if (column != null && column.hideable === false) continue
                 // don't show hidden searches
@@ -2662,7 +2662,7 @@ class w2grid extends w2event {
                     '   <td>'+
                     '       <span class="w2ui-column-check w2ui-icon-'+ (search.field == this.last.field ? 'check' : 'empty') +'"></span>'+
                     '   </td>'+
-                    '   <td>'+ search.label +'</td>'+
+                    '   <td>'+ w2utils.lang(search.label) +'</td>'+
                     '</tr>'
         }
         html += '</tbody></table></div>'
@@ -3584,6 +3584,7 @@ class w2grid extends w2event {
         let recs = this.getSelection()
         if (recs.length === 0) return
         if (this.msgDelete != '' && !force) {
+            debugger
             let msg = w2utils.lang(this.msgDelete, {
                 count: recs.length,
                 records: w2utils.lang( recs.length == 1 ? 'record' : 'records')
@@ -4960,7 +4961,7 @@ class w2grid extends w2event {
         if (edata.isCancelled === true) return
         // -- header
         if (this.show.header) {
-            $('#grid_'+ this.name +'_header').html(this.header +'&#160;').show()
+            $('#grid_'+ this.name +'_header').html(w2utils.lang(this.header) +'&#160;').show()
         } else {
             $('#grid_'+ this.name +'_header').hide()
         }
@@ -5130,7 +5131,7 @@ class w2grid extends w2event {
             searches += `
                 ${this.show.searchSave
                     ? `<div class="grid-search-line"></div>
-                       <button class="w2ui-btn grid-search-btn" data-click="searchSave">Save</button>
+                       <button class="w2ui-btn grid-search-btn" data-click="searchSave">${w2utils.lang('Save')}</button>
                       `
                     : ''
 }
@@ -5287,7 +5288,7 @@ class w2grid extends w2event {
                 }
             } else {
                 this.last.field = 'all'
-                this.last.label = w2utils.lang('All Fields')
+                this.last.label = 'All Fields'
             }
         }
         // insert elements
@@ -6825,7 +6826,7 @@ class w2grid extends w2event {
                 </select>`
 
             html += `<tr>
-                        <td class="caption">${(s.label || '')}</td>
+                        <td class="caption">${(w2utils.lang(s.label) || '')}</td>
                         <td class="operator">${operator}</td>
                         <td class="value">`
 
@@ -7144,7 +7145,7 @@ class w2grid extends w2event {
                     if (col.resizable !== false) {
                         resizer = '<div class="w2ui-resizer" name="'+ ii +'"></div>'
                     }
-                    let text = (typeof col.text == 'function' ? col.text(col) : col.text)
+                    let text = w2utils.lang(typeof col.text == 'function' ? col.text(col) : col.text)
                     tmpf     = '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head '+ sortStyle +'" col="'+ ii + '" '+
                            '    rowspan="2" colspan="'+ colspan +'" '+
                            '    oncontextmenu = "w2ui[\''+ obj.name +'\'].contextMenu(null, '+ ii +', event);"'+
@@ -7158,7 +7159,7 @@ class w2grid extends w2event {
                            '</td>'
                     if (col && col.frozen) html1 += tmpf; else html2 += tmpf
                 } else {
-                    let gText = (typeof colg.text == 'function' ? colg.text(colg) : colg.text)
+                    let gText = w2utils.lang(typeof colg.text == 'function' ? colg.text(colg) : colg.text)
                     tmpf      = '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head" col="'+ ii + '" '+
                            '        colspan="'+ colspan +'">'+
                            '    <div class="w2ui-col-group">'+
@@ -7262,9 +7263,10 @@ class w2grid extends w2event {
                 if (tmp[t][si] == i) selected = true
             }
         }
-        let text = (typeof col.text == 'function' ? col.text(col) : col.text)
+        let text = w2utils.lang(typeof col.text == 'function' ? col.text(col) : col.text)
+        let tooltip = w2utils.lang(typeof col.tooltip == 'function' ? col.tooltip(col) : col.tooltip)
         let html = '<td id="grid_'+ this.name + '_column_' + i +'" col="'+ i +'" class="w2ui-head '+ sortStyle + reorderCols + '" ' +
-                         (this.columnTooltip == 'normal' && col.tooltip ? 'title="'+ col.tooltip +'" ' : '') +
+                         (this.columnTooltip == 'normal' && tooltip ? 'title="'+ tooltip +'" ' : '') +
                     '    onmouseEnter = "w2ui[\''+ this.name +'\'].columnTooltipShow(\''+ i +'\', event);"'+
                     '    onmouseLeave  = "w2ui[\''+ this.name +'\'].columnTooltipHide(\''+ i +'\', event);"'+
                     '    oncontextmenu = "w2ui[\''+ this.name +'\'].contextMenu(null, '+ i +', event);"'+
