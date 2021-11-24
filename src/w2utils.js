@@ -1350,7 +1350,7 @@ let w2utils = (($) => {
         let translation = this.settings.phrases[phrase]
         if (translation == null) {
             translation = phrase
-            if(this.settings.warnNoPhrase  && !no_warning) {
+            if(this.settings.warnNoPhrase && !no_warning) {
                 console.warn('Missing translation:', phrase)
                 this.settings.phrases[phrase] = translation // so we only warn once
             }

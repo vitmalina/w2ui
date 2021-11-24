@@ -2184,7 +2184,6 @@ class w2grid extends w2event {
         if (!this.box) return
         if (this.searches.length === 0) return
         let grid = this
-        let it  = grid.toolbar.get('w2ui-search')
         // event before
         let edata = this.trigger({ phase: 'before', type: 'searchOpen', target: this.name })
         if (edata.isCancelled === true) {
@@ -2435,10 +2434,8 @@ class w2grid extends w2event {
 
     searchSave() {
         let value = ''
-        let isDefault = false
         if (this.searchSelected) {
             value = this.searchSelected.name
-            isDefault = this.searchSelected.isDefault
         }
         let grid = this
         // event before
