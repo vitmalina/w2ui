@@ -26,31 +26,46 @@
 </style>
 <div id="grid" style="width: 100%; height: 350px;"></div>
 <br>
-<button class="w2ui-btn" onclick="style_toggle(2)">Toggle #2</button>
-<button class="w2ui-btn" onclick="style_toggle(3)">Toggle #3</button>
-<button class="w2ui-btn" onclick="style_toggle(4)">Toggle #4</button>
-<button class="w2ui-btn" onclick="style_toggle(5)">Toggle #5</button>
-<button class="w2ui-btn" onclick="style_toggle(8)">Toggle #8</button>
-<button class="w2ui-btn" onclick="style_toggle(9)">Toggle #9</button>
+<button class="w2ui-btn" onclick="styleToggle(2)">Toggle #2</button>
+<button class="w2ui-btn" onclick="styleToggle(3)">Toggle #3</button>
+<button class="w2ui-btn" onclick="styleToggle(4)">Toggle #4</button>
+<button class="w2ui-btn" onclick="styleToggle(5)">Toggle #5</button>
+<button class="w2ui-btn" onclick="styleToggle(8)">Toggle #8</button>
+<button class="w2ui-btn" onclick="styleToggle(9)">Toggle #9</button>
 
 <!--CODE-->
 <script>
-function style_toggle(recid) {
-    const record = w2ui.grid.get(recid);
+function styleToggle(recid) {
+    const ind = w2ui.grid.get(recid, true)
+    const record = w2ui.grid.records[ind]
     if(record.w2ui) {
         delete record.w2ui
     }
     else if(recid === 2) {
-        record.w2ui = { style: "background-color: #C2F5B4" }
+        record.w2ui = {
+            style: "background-color: #C2F5B4"
+        }
     }
     else if(recid === 3) {
-        record.w2ui = { class: "row" }
+        record.w2ui = {
+            class: "row"
+        }
     }
     else if(recid === 4) {
-        record.w2ui = { style: { lname: "background: red;", email: "font-weight: bold;" } }
+        record.w2ui = {
+            style: {
+                lname: "background: red;",
+                email: "font-weight: bold;"
+            }
+        }
     }
     else if(recid === 5) {
-        record.w2ui = { class: { fname: "cell1", sdate: "cell2" } }
+        record.w2ui = {
+            class: {
+                fname: "cell1",
+                sdate: "cell2"
+            }
+        }
     }
     else if(recid === 8) {
         record.w2ui = {
@@ -68,7 +83,7 @@ function style_toggle(recid) {
             }
         }
     }
-    w2ui.grid.refresh()
+    w2ui.grid.refreshRow(recid, ind)
 }
 $(function () {
     w2utils.formatters.custom_centered = function(value, params, record) {
