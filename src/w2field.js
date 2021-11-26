@@ -28,6 +28,7 @@
 *   - silent only left for files, removed form the rest
 *   - remote source response items => records or just an array
 *   - deprecated "success" field for remote source response
+*   - CSP - fixed inline events
 *
 ************************************************************************/
 
@@ -687,30 +688,55 @@ class w2field extends w2event {
                         if (obj.type === 'file') {
                             let preview = ''
                             if ((/image/i).test(item.type)) { // image
-                                preview = '<div style="padding: 3px;">'+
-                                    '    <img src="'+ (item.content ? 'data:'+ item.type +';base64,'+ item.content : '') +'" style="max-width: 300px;" '+
-                                    '        onload="var w = jQuery(this).width(); var h = jQuery(this).height(); '+
-                                    '            if (w < 300 & h < 300) return; '+
-                                    '            if (w >= h && w > 300) jQuery(this).width(300);'+
-                                    '            if (w < h && h > 300) jQuery(this).height(300);"'+
-                                    '        onerror="this.style.display = \'none\'"'+
-                                    '    >'+
-                                    '</div>'
+                                preview = `
+                                    <div style="padding: 3px">
+                                        <img data-src="${(item.content ? 'data:'+ item.type +';base64,'+ item.content : '')}"
+                                            style="max-width: 300px">
+                                    </div>`
                             }
-                            let td1  = 'style="padding: 3px; text-align: right; color: #777;"'
+                            let td1  = 'style="padding: 3px; text-align: right; color: #777"'
                             let td2  = 'style="padding: 3px"'
-                            preview += '<div style="padding: 8px;">'+
-                                '    <table cellpadding="2"><tbody>'+
-                                '    <tr><td '+ td1 +'>'+ w2utils.lang('Name') +':</td><td '+ td2 +'>'+ item.name +'</td></tr>'+
-                                '    <tr><td '+ td1 +'>'+ w2utils.lang('Size') +':</td><td '+ td2 +'>'+ w2utils.formatSize(item.size) +'</td></tr>'+
-                                '    <tr><td '+ td1 +'>'+ w2utils.lang('Type') +':</td><td '+ td2 +'>' +
-                                '        <span style="width: 200px; display: block-inline; overflow: hidden; text-overflow: ellipsis; white-space: nowrap="nowrap";">'+ item.type +'</span>'+
-                                '    </td></tr>'+
-                                '    <tr><td '+ td1 +'>'+ w2utils.lang('Modified') +':</td><td '+ td2 +'>'+ w2utils.date(item.modified) +'</td></tr>'+
-                                '    </tbody></table>'+
-                                '</div>'
+                            preview += `
+                                <div style="padding: 8px;">
+                                    <table cellpadding="2">
+                                    <tr>
+                                        <td ${td1}>${w2utils.lang('Name')}</td>
+                                        <td ${td2}>${item.name}</td>
+                                    </tr>
+                                    <tr>
+                                        <td ${td1}>${w2utils.lang('Size')}</td>
+                                        <td ${td2}>${w2utils.formatSize(item.size)}</td>
+                                    </tr>
+                                    <tr>
+                                        <td ${td1}>${w2utils.lang('Type')}</td>
+                                        <td ${td2}>
+                                            <span style="width: 200px; display: block-inline; overflow: hidden;
+                                                text-overflow: ellipsis; white-space: nowrap="nowrap";">${item.type}</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td ${td1}>${w2utils.lang('Modified')}</td>
+                                        <td ${td2}>${w2utils.date(item.modified)}</td>
+                                    </tr>
+                                    </table>
+                                </div>`
                             $('#w2ui-overlay').remove()
-                            $(target).w2overlay(preview)
+                            $(target).w2overlay(preview, {
+                                onShow(event) {
+                                    let $img = $('#w2ui-overlay img')
+                                    $img.on('load', function (event) {
+                                        let w = $(this).width()
+                                        let h = $(this).height()
+                                        if (w < 300 & h < 300) return
+                                        if (w >= h && w > 300) $(this).width(300)
+                                        if (w < h && h > 300) $(this).height(300)
+                                    })
+                                    .on('error', function (event) {
+                                        this.style.display = 'none'
+                                    })
+                                    .attr('src', $img.data('src'))
+                                }
+                            })
                         } // event after
                         obj.trigger($.extend(edata, { phase: 'after' }))
                     }
@@ -754,7 +780,14 @@ class w2field extends w2event {
             if (inpHeight > cntHeight) cntHeight = inpHeight
             $(div).css({ 'height': cntHeight + 'px', overflow: (cntHeight == options.maxHeight ? 'auto' : 'hidden') })
             if (cntHeight < options.maxHeight) $(div).prop('scrollTop', 0)
-            $(this.el).css({ 'height' : (cntHeight + 0) + 'px' })
+            // min height
+            let minHeight = parseInt($(this.el).css('min-height'))
+            if (minHeight > cntHeight) {
+                cntHeight = minHeight
+                $(obj.helpers.multi).css('height', cntHeight + 'px')
+            }
+            $(this.el).css({ 'height': cntHeight + 'px' })
+
             // update size
             if (obj.type === 'enum') {
                 let tmp = obj.helpers.multi.find('input')
@@ -942,6 +975,9 @@ class w2field extends w2event {
                 obj.options.items = w2utils.normMenu.call(this, obj.options._items_fun)
             }
         }
+        if (this.type == 'file') {
+            $(this.el).prev().addClass('has-focus')
+        }
     }
 
     blur(event) {
@@ -1018,6 +1054,9 @@ class w2field extends w2event {
         // clear search input
         if (obj.type === 'enum') {
             $(obj.helpers.multi).find('input').val('').width(20)
+        }
+        if (this.type == 'file') {
+            $(this.el).prev().removeClass('has-focus')
         }
     }
 
@@ -1752,7 +1791,7 @@ class w2field extends w2event {
         if (this.type === 'time') {
             if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return
             if ($('#w2ui-overlay').length === 0) {
-                $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time" onclick="event.stopPropagation();"></div>', {
+                $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time"></div>', {
                     css: { 'background-color': '#fff' }
                 })
             }
@@ -1794,7 +1833,7 @@ class w2field extends w2event {
             // hide overlay if we are in the time selection
             if ($('#w2ui-overlay .w2ui-time').length > 0) $('#w2ui-overlay')[0].hide()
             if ($('#w2ui-overlay').length === 0) {
-                $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar" onclick="event.stopPropagation();"></div>', {
+                $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar"></div>', {
                     css: { 'background-color': '#f5f5f5' }
                 })
             }
@@ -2428,26 +2467,37 @@ class w2field extends w2event {
             if (tabIndex == null) tabIndex = 0
             if (isNaN(tabIndex)) tabIndex = 0
 
-            html = '<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box">'+
-                    '    <div style="padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">'+
-                    '    <ul>'+
-                    '        <li style="padding-left: 0px; padding-right: 0px" class="nomouse">'+
-                    '            <input '+ searchId +' type="text" style="width: 20px; margin: -3px 0 0; padding: 2px 0; border-color: transparent" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"' +
-                        ($(obj.el).prop('readonly') ? ' readonly="readonly"': '') + ($(obj.el).prop('disabled') ? ' disabled="disabled"': '') + ' tabindex="'+ tabIndex +'"/>'+
-                    '        </li>'+
-                    '    </ul>'+
-                    '    </div>'+
-                    '</div>'
+            html = `
+            <div class="w2ui-field-helper w2ui-list" style="${margin}; box-sizing: border-box">
+                <div style="padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">
+                <ul>
+                    <li style="padding-left: 0px; padding-right: 0px" class="nomouse">
+                        <input ${searchId} type="text" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"
+                            style="width: 20px; margin: -3px 0 0; padding: 2px 0; border-color: transparent" tabindex="${tabIndex}"
+                            ${ $(obj.el).prop('readonly') ? ' readonly="readonly"': '' }
+                            ${ $(obj.el).prop('disabled') ? ' disabled="disabled"': '' }/>
+                    </li>
+                </ul>
+                </div>
+            </div>`
         }
         if (obj.type === 'file') {
-            html = '<div class="w2ui-field-helper w2ui-list" style="'+ margin + '; box-sizing: border-box">'+
-                    '   <div style="position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px;">'+
-                    '       <input '+ searchId +' name="attachment" class="file-input" type="file" style="width: 100%; height: 100%; opacity: 0;" tabindex="-1"' + (obj.options.max !== 1 ? ' multiple="multiple"': '') + ($(obj.el).prop('readonly') ? ' readonly="readonly"': '') + ($(obj.el).prop('disabled') ? ' disabled="disabled"': '') + ($(obj.el).attr('accept') ? ' accept="'+ $(obj.el).attr('accept') +'"': '') + '/>'+
-                    '   </div>'+
-                    '    <div style="position: absolute; padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">'+
-                    '        <ul><li style="padding-left: 0px; padding-right: 0px" class="nomouse"></li></ul>'+
-                    '    </div>'+
-                    '</div>'
+            html = `
+            <div class="w2ui-field-helper w2ui-list" style="${margin}; box-sizing: border-box">
+                <div style="position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px;">
+                    <input ${searchId} name="attachment" class="file-input" type="file" tabindex="-1"'
+                        style="width: 100%; height: 100%; opacity: 0"
+                        ${ obj.options.max !== 1 ? ' multiple="multiple"' : '' }
+                        ${ $(obj.el).prop('readonly') ? ' readonly="readonly"': '' }
+                        ${ $(obj.el).prop('disabled') ? ' disabled="disabled"': '' }
+                        ${ $(obj.el).attr('accept') ? ' accept="'+ $(obj.el).attr('accept') +'"': '' }/>
+                </div>
+                <div style="position: absolute; padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">
+                    <ul>
+                        <li style="padding-left: 0px; padding-right: 0px" class="nomouse"></li>
+                    </ul>
+                </div>
+            </div>`
         }
         // old bg and border
         let tmp                     = $(obj.el).data('tmp') || {}
