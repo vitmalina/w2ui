@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (11/27/2021, 12:09:07 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (11/27/2021, 2:39:53 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -1918,8 +1918,9 @@ let w2utils = (($) => {
         $(selector).each((ind, el) => {
             let actions = $(el).data()
             Object.keys(actions).forEach(name => {
-                if (['click', 'dblclick', 'mouseenter', 'mouseleave', 'mouseover', 'mouseout', 'mousedown', 'mousemove', 'mouseup',
-                    'focus', 'blur', 'input', 'change', 'keydown', 'keyup', 'keypress'].indexOf(String(name).toLowerCase()) == -1) {
+                let events = ['click', 'dblclick', 'mouseenter', 'mouseleave', 'mouseover', 'mouseout', 'mousedown', 'mousemove', 'mouseup',
+                    'contextmenu', 'focus', 'blur', 'input', 'change', 'keydown', 'keyup', 'keypress']
+                if (events.indexOf(String(name).toLowerCase()) == -1) {
                     return
                 }
                 let params = $(el).data(name)
@@ -11696,10 +11697,10 @@ class w2dialog extends w2event {
                 Object.keys(options.actions).forEach((action) => {
                     let handler = options.actions[action]
                     if (typeof handler == 'function') {
-                        options.buttons += `<button class="w2ui-btn w2ui-popup-action" data-click='["action","${action}"]'>${action}</button>`
+                        options.buttons += `<button class="w2ui-btn w2ui-eaction" data-click='["action","${action}"]'>${action}</button>`
                     }
                     if (typeof handler == 'object') {
-                        options.buttons += `<button class="w2ui-btn w2ui-popup-action ${handler.class || ''}" data-click='["action","${action}"]'
+                        options.buttons += `<button class="w2ui-btn w2ui-eaction ${handler.class || ''}" data-click='["action","${action}"]'
                             style="${handler.style}">${handler.text || action}</button>`
                     }
                     if (typeof handler == 'string') {
@@ -11718,12 +11719,12 @@ class w2dialog extends w2event {
                 let btn = ''
                 if (options.showClose) {
                     btn += `<div class="w2ui-popup-button w2ui-popup-close">
-                                <span class="w2ui-icon w2ui-icon-cross w2ui-popup-action" data-mousedown="stop" data-click="close"></span>
+                                <span class="w2ui-icon w2ui-icon-cross w2ui-eaction" data-mousedown="stop" data-click="close"></span>
                             </div>`
                 }
                 if (options.showMax) {
                     btn += `<div class="w2ui-popup-button w2ui-popup-max">
-                                <span class="w2ui-icon w2ui-icon-box w2ui-popup-action" data-mousedown="stop" data-click="toggle"></span>
+                                <span class="w2ui-icon w2ui-icon-box w2ui-eaction" data-mousedown="stop" data-click="toggle"></span>
                             </div>`
                 }
                 // first insert just body
@@ -11776,7 +11777,7 @@ class w2dialog extends w2event {
                 setTimeout(() => {
                     // event after
                     obj.trigger($.extend(edata, { phase: 'after' }))
-                    w2utils.bindEvents('#w2ui-popup .w2ui-popup-action', w2popup)
+                    w2utils.bindEvents('#w2ui-popup .w2ui-eaction', w2popup)
                     $('#w2ui-popup').find('.w2ui-popup-body').show()
                     resolve(edata)
                 }, 50)
@@ -11830,12 +11831,12 @@ class w2dialog extends w2event {
                         .show()
                         .html((options.showClose
                             ? `<div class="w2ui-popup-button w2ui-popup-close">
-                                 <span class="w2ui-icon w2ui-icon-cross w2ui-popup-action" data-mousedown="stop" data-click="close"></span>
+                                 <span class="w2ui-icon w2ui-icon-cross w2ui-eaction" data-mousedown="stop" data-click="close"></span>
                                </div>`
                             : '') +
                           (options.showMax
                             ? `<div class="w2ui-popup-button w2ui-popup-max">
-                                  <span class="w2ui-icon w2ui-icon-box w2ui-popup-action" data-mousedown="stop" data-click="toggle"></span>
+                                  <span class="w2ui-icon w2ui-icon-box w2ui-eaction" data-mousedown="stop" data-click="toggle"></span>
                                </div>`
                             : ''))
                         .append(options.title)
@@ -11867,7 +11868,7 @@ class w2dialog extends w2event {
                 // call event onOpen
                 w2popup.status = 'open'
                 obj.trigger($.extend(edata, { phase: 'after' }))
-                w2utils.bindEvents('#w2ui-popup .w2ui-popup-action', w2popup)
+                w2utils.bindEvents('#w2ui-popup .w2ui-eaction', w2popup)
                 $('#w2ui-popup').find('.w2ui-popup-body').show()
                 resolve(edata)
             }
@@ -12156,10 +12157,10 @@ class w2dialog extends w2event {
                 Object.keys(options.actions).forEach((action) => {
                     let handler = options.actions[action]
                     if (typeof handler == 'function') {
-                        options.buttons += `<button class="w2ui-btn w2ui-popup-action" data-click='["action","${action}","${msgCount}"]'>${action}</button>`
+                        options.buttons += `<button class="w2ui-btn w2ui-eaction" data-click='["action","${action}","${msgCount}"]'>${action}</button>`
                     }
                     if (typeof handler == 'object') {
-                        options.buttons += `<button class="w2ui-btn w2ui-popup-action ${handler.class || ''}" style="${handler.style || ''}"
+                        options.buttons += `<button class="w2ui-btn w2ui-eaction ${handler.class || ''}" style="${handler.style || ''}"
                             data-click='["action","${action}","${msgCount}"]'>${handler.text || action}</button>`
                     }
                     if (typeof handler == 'string') {
@@ -12213,7 +12214,7 @@ class w2dialog extends w2event {
                 }
                 // add message
                 $('#w2ui-popup .w2ui-box')
-                    .before('<div id="w2ui-message' + msgCount + '" class="w2ui-message w2ui-popup-action" style="display: none; z-index: 1500; ' +
+                    .before('<div id="w2ui-message' + msgCount + '" class="w2ui-message w2ui-eaction" style="display: none; z-index: 1500; ' +
                                 (head.length === 0 ? 'top: 0px;' : 'top: ' + w2utils.getSize(head, 'height') + 'px;') +
                                 (options.width != null ? 'width: ' + options.width + 'px; left: ' + ((pWidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
                                 (options.height != null ? 'height: ' + options.height + 'px;' : 'bottom: 6px;') +
@@ -12252,7 +12253,7 @@ class w2dialog extends w2event {
                         }
                         // event after
                         obj.trigger($.extend(edata, { phase: 'after' }))
-                        w2utils.bindEvents(`#w2ui-popup #w2ui-message${msgCount}, #w2ui-popup #w2ui-message${msgCount} .w2ui-popup-action`, w2popup)
+                        w2utils.bindEvents(`#w2ui-popup #w2ui-message${msgCount}, #w2ui-popup #w2ui-message${msgCount} .w2ui-eaction`, w2popup)
                         resolve(edata)
                     }, 350)
                 }
@@ -13158,7 +13159,7 @@ class w2tabs extends w2event {
         if (tab.hidden) { addStyle += 'display: none;' }
         if (tab.disabled) { addStyle += 'opacity: 0.2;' }
         if (tab.closable && !tab.disabled) {
-            closable = `<div class="w2ui-tab-close w2ui-action ${this.active === tab.id ? 'active' : ''}"
+            closable = `<div class="w2ui-tab-close w2ui-eaction ${this.active === tab.id ? 'active' : ''}"
                 data-mouseenter='["tooltipShow", "${tab.id}", "event"]'
                 data-mouseleave='["tooltipHide", "${tab.id}", "event"]'
                 data-mousedown="stop"
@@ -13167,7 +13168,7 @@ class w2tabs extends w2event {
         }
         return `
             <div id="tabs_${this.name}_tab_${tab.id}" style="${addStyle} ${tab.style}"
-               class="w2ui-tab w2ui-action ${this.active === tab.id ? 'active' : ''} ${tab.closable ? 'closable' : ''} ${tab.class ? tab.class : ''}"
+               class="w2ui-tab w2ui-eaction ${this.active === tab.id ? 'active' : ''} ${tab.closable ? 'closable' : ''} ${tab.class ? tab.class : ''}"
                data-mouseenter ='["tooltipShow", "${tab.id}", "event"]'
                data-mouseleave ='["tooltipHide", "${tab.id}", "event"]'
                data-mousedown  ='["initReorder", "${tab.id}", "event"]'
@@ -13199,7 +13200,7 @@ class w2tabs extends w2event {
                     $tab.replaceWith(tabHTML)
                 }
             }
-            w2utils.bindEvents(`${selector}, ${selector} .w2ui-action`, this)
+            w2utils.bindEvents(`${selector}, ${selector} .w2ui-eaction`, this)
         }
         // right html
         $('#tabs_'+ this.name +'_right').html(this.right)
@@ -13228,11 +13229,11 @@ class w2tabs extends w2event {
         // render all buttons
         let html =`
             <div class="w2ui-tabs-line"></div>
-            <div class="w2ui-scroll-wrapper w2ui-action" data-mousedown="resize">
+            <div class="w2ui-scroll-wrapper w2ui-eaction" data-mousedown="resize">
                 <div id="tabs_${this.name}_right" class="w2ui-tabs-right">${this.right}</div>
             </div>
-            <div class="w2ui-scroll-left w2ui-action" data-click='["scroll","left"]'></div>
-            <div class="w2ui-scroll-right w2ui-action" data-click='["scroll","right"]'></div>`
+            <div class="w2ui-scroll-left w2ui-eaction" data-click='["scroll","left"]'></div>
+            <div class="w2ui-scroll-right w2ui-eaction" data-click='["scroll","right"]'></div>`
         $(this.box)
             .attr('name', this.name)
             .addClass('w2ui-reset w2ui-tabs')
@@ -13240,7 +13241,7 @@ class w2tabs extends w2event {
         if ($(this.box).length > 0) {
             $(this.box)[0].style.cssText += this.style
         }
-        w2utils.bindEvents($(this.box).find('.w2ui-action'), this)
+        w2utils.bindEvents($(this.box).find('.w2ui-eaction'), this)
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
         this.refresh()
@@ -13943,11 +13944,11 @@ class w2toolbar extends w2event {
                 line++
                 html += `
                     <div class="w2ui-tb-line">
-                        <div class="w2ui-scroll-wrapper w2ui-action" data-mousedown="resize">
+                        <div class="w2ui-scroll-wrapper w2ui-eaction" data-mousedown="resize">
                             <div class="w2ui-tb-right">${this.right[line-1] || ''}</div>
                         </div>
-                        <div class="w2ui-scroll-left w2ui-action" data-click='["scroll", "left", "${line}"]'></div>
-                        <div class="w2ui-scroll-right w2ui-action" data-click='["scroll", "right", "${line}"]'></div>
+                        <div class="w2ui-scroll-left w2ui-eaction" data-click='["scroll", "left", "${line}"]'></div>
+                        <div class="w2ui-scroll-right w2ui-eaction" data-click='["scroll", "right", "${line}"]'></div>
                     </div>
                 `
             }
@@ -13960,7 +13961,7 @@ class w2toolbar extends w2event {
         if ($(this.box).length > 0) {
             $(this.box)[0].style.cssText += this.style
         }
-        w2utils.bindEvents($(this.box).find('.w2ui-tb-line .w2ui-action'), this)
+        w2utils.bindEvents($(this.box).find('.w2ui-tb-line .w2ui-eaction'), this)
         // refresh all
         this.refresh()
         this.resize()
@@ -14321,8 +14322,11 @@ class w2toolbar extends w2event {
 * == TODO ==
 *   - dbl click should be like it is in grid (with timer not HTML dbl click event)
 *   - node.style is misleading - should be there to apply color for example
+*   - node.plus - is not working
 *
 * == 2.0 changes
+*   - deprecarted obj.img, node.img
+*   - CSP - fixed inline events
 *
 ************************************************************************/
 
@@ -14337,7 +14341,6 @@ class w2sidebar extends w2event {
         this.menu          = []
         this.routeData     = {} // data for dynamic routes
         this.selected      = null // current selected node (readonly)
-        this.img           = null
         this.icon          = null
         this.style         = ''
         this.topHTML       = ''
@@ -14349,7 +14352,7 @@ class w2sidebar extends w2event {
         this.levelPadding  = 12
         this.skipRefresh   = false
         this.tabIndex      = null // will only be set if > 0 and not null
-        this.handle        = { size: 0, style: '', content: '' },
+        this.handle        = { size: 0, style: '', html: '' },
         this.onClick       = null // Fire when user click on Node Text
         this.onDblClick    = null // Fire when user dbl clicks
         this.onContextMenu = null
@@ -14369,7 +14372,6 @@ class w2sidebar extends w2event {
             text: '',
             order: null,
             count: null,
-            img: null,
             icon: null,
             nodes: [],
             style: '', // additional style for subitems
@@ -14442,11 +14444,11 @@ class w2sidebar extends w2event {
         if (!Array.isArray(nodes)) nodes = [nodes]
         for (let o = 0; o < nodes.length; o++) {
             node = nodes[o]
+            if (node.caption != null && node.text == null) {
+                console.log('NOTICE: sidebar node.caption property is deprecated, please use node.text')
+                node.text = node.caption
+            }
             if (typeof node.id == null) {
-                if (node.caption != null && node.text == null) {
-                    console.log('NOTICE: sidebar node.caption property is deprecated, please use node.text')
-                    node.text = node.caption
-                }
                 txt = node.text
                 console.log('ERROR: Cannot insert node "'+ txt +'" because it has no id.')
                 continue
@@ -14765,7 +14767,9 @@ class w2sidebar extends w2event {
         if (edata.isCancelled === true) return
         // default action
         $(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideUp(200)
-        $(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-expanded').removeClass('w2ui-expanded').addClass('w2ui-collapsed')
+        $(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-expanded')
+            .removeClass('w2ui-expanded')
+            .addClass('w2ui-collapsed')
         nd.expanded = false
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
@@ -14791,7 +14795,9 @@ class w2sidebar extends w2event {
         if (edata.isCancelled === true) return
         // default action
         $(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideDown(200)
-        $(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-collapsed').removeClass('w2ui-collapsed').addClass('w2ui-expanded')
+        $(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-collapsed')
+            .removeClass('w2ui-collapsed')
+            .addClass('w2ui-expanded')
         nd.expanded = true
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
@@ -15165,10 +15171,10 @@ class w2sidebar extends w2event {
                 }
             } else {
                 if (options.icon) {
-                    let $img = $el.find('.w2ui-node-image > span')
-                    if ($img.length > 0) {
-                        nd.icon           = options.icon
-                        $img[0].className = (typeof nd.icon == 'function' ? nd.icon.call(this, nd) : nd.icon)
+                    let $icon = $el.find('.w2ui-node-image > span')
+                    if ($icon.length > 0) {
+                        nd.icon = options.icon
+                        $icon[0].className = (typeof nd.icon == 'function' ? nd.icon.call(this, nd) : nd.icon)
                         delete options.icon
                     }
                 }
@@ -15200,6 +15206,7 @@ class w2sidebar extends w2event {
         return options
     }
     refresh(id) {
+        if (this.box == null) return
         let time = (new Date()).getTime()
         // event before
         let edata = this.trigger({ phase: 'before', type: 'refresh', target: (id != null ? id : this.name),
@@ -15232,60 +15239,62 @@ class w2sidebar extends w2event {
             this.add(this, tmp)
         }
         let obj = this
-        let node, nd
-        let nm
+        let node
+        let nodeSubId
         if (id == null) {
             node = this
-            nm   = '.w2ui-sidebar-body'
+            nodeSubId = '.w2ui-sidebar-body'
         } else {
             node = this.get(id)
             if (node == null) return
-            nm = '#node_'+ w2utils.escapeId(node.id) + '_sub'
+            nodeSubId = '#node_'+ w2utils.escapeId(node.id) + '_sub'
         }
+        let nodeId = '#node_'+ w2utils.escapeId(node.id)
         let nodeHTML
         if (node !== this) {
-            let tmp  = '#node_'+ w2utils.escapeId(node.id)
             nodeHTML = getNodeHTML(node)
-            $(this.box).find(tmp).before('<div id="sidebar_'+ this.name + '_tmp"></div>')
-            $(this.box).find(tmp).remove()
-            $(this.box).find(nm).remove()
+            $(this.box).find(nodeId).before('<div id="sidebar_'+ this.name + '_tmp"></div>')
+            $(this.box).find(nodeId).remove()
+            $(this.box).find(nodeSubId).remove()
             $('#sidebar_'+ this.name + '_tmp').before(nodeHTML)
             $('#sidebar_'+ this.name + '_tmp').remove()
         }
         // remember scroll position
         let scroll = {
-            top: $(this.box).find(nm).scrollTop(),
-            left: $(this.box).find(nm).scrollLeft()
+            top: $(this.box).find(nodeSubId).scrollTop(),
+            left: $(this.box).find(nodeSubId).scrollLeft()
         }
         // refresh sub nodes
-        $(this.box).find(nm).html('')
+        $(this.box).find(nodeSubId).html('')
         for (let i = 0; i < node.nodes.length; i++) {
-            nd       = node.nodes[i]
-            nodeHTML = getNodeHTML(nd)
-            $(this.box).find(nm).append(nodeHTML)
-            if (nd.nodes.length !== 0) {
-                this.refresh(nd.id)
+            let subNode = node.nodes[i]
+            nodeHTML = getNodeHTML(subNode)
+            $(this.box).find(nodeSubId).append(nodeHTML)
+            if (subNode.nodes.length !== 0) {
+                this.refresh(subNode.id)
             } else {
                 // trigger event
-                let edata2 = this.trigger({ phase: 'before', type: 'refresh', target: nd.id })
+                let edata2 = this.trigger({ phase: 'before', type: 'refresh', target: subNode.id })
                 if (edata2.isCancelled === true) return
                 // event after
                 this.trigger($.extend(edata2, { phase: 'after' }))
             }
         }
         // reset scroll
-        $(this.box).find(nm).scrollLeft(scroll.left).scrollTop(scroll.top)
+        $(this.box).find(nodeSubId).scrollLeft(scroll.left).scrollTop(scroll.top)
+        // bind events
+        if (id) {
+            let els = $(this.box).find(`${nodeId}.w2ui-eaction, ${nodeSubId} .w2ui-eaction`)
+            console.log (`"${node.id}"`, els.length, els)
+            w2utils.bindEvents(els, this)
+        }
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
         return (new Date()).getTime() - time
         function getNodeHTML(nd) {
             let html = ''
-            let img  = nd.img
             let icon = nd.icon
-            if (icon == null && img == null) {
-                if (icon == null) icon = obj.icon
-                if (img == null) img = obj.img
-            }
+            if (icon == null) icon = obj.icon
             // -- find out level
             let tmp   = nd.parent
             let level = 0
@@ -15305,28 +15314,33 @@ class w2sidebar extends w2event {
                 if (String(text).substr(0, 5) != '<span') {
                     text = `<span class="w2ui-group-text">${text}</span>`
                 }
-                html =
-                    '<div class="w2ui-node-group w2ui-level-'+ level + (nd.class ? ' ' + nd.class : '') +'" id="node_'+ nd.id +'" data-level="'+ level + '"'+
-                    '   style="'+ (nd.hidden ? 'display: none' : '') +'" onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
-                    '   oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
-                    '   onmouseout="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
-                    '   onmouseover="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
-                        ((nd.groupShowHide && nd.collapsible)
-                            ? '<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>'
-                            : '<span></span>') +
-                        text +
-                    '</div>'+
-                    '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>'
+                html = `
+                    <div id="node_${nd.id}" data-level="${level}" style="${nd.hidden ? 'display: none' : ''}"
+                        class="w2ui-node-group w2ui-level-${level} ${nd.class ? nd.class : ''} w2ui-eaction"
+                        data-click="toggle|${nd.id}"
+                        data-contextmenu="contextMenu|${nd.id}|event"
+                        data-mouseenter="showPlus|this|inherit"
+                        data-mouseleave="showPlus|this|transparent">
+                        ${nd.groupShowHide && nd.collapsible
+                            ? `<span>${!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')}</span>`
+                            : '<span></span>'
+                        } ${text}
+                    </div>
+                    <div class="w2ui-node-sub" id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}">
+                </div>`
                 if (obj.flat) {
-                    html = '<div class="w2ui-node-group" id="node_'+ nd.id +'"><span>&#160;</span></div>'+
-                           '<div id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>'
+                    html = `
+                        <div class="w2ui-node-group" id="node_${nd.id}"><span>&#160;</span></div>
+                        <div id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}"></div>`
                 }
             } else {
                 if (nd.selected && !nd.disabled) obj.selected = nd.id
                 tmp = ''
-                if (img) tmp = '<div class="w2ui-node-image w2ui-icon '+ img + (nd.selected && !nd.disabled ? ' w2ui-icon-selected' : '') +'"></div>'
                 if (icon) {
-                    tmp = '<div class="w2ui-node-image"><span class="' + (typeof icon == 'function' ? icon.call(obj, nd) : icon) + '"></span></div>'
+                    tmp = `
+                    <div class="w2ui-node-image">
+                        <span class="${typeof icon == 'function' ? icon.call(obj, nd) : icon}"></span>
+                    </div>`
                 }
                 let expand = ''
                 let counts = (nd.count != null
@@ -15336,42 +15350,61 @@ class w2sidebar extends w2event {
                        </div>`
                     : '')
                 if (nd.collapsible === true) {
-                    expand = '<div class="w2ui-' + (nd.expanded ? 'expanded' : 'collapsed') + '"><span></span></div>'
+                    expand = `<div class="w2ui-${nd.expanded ? 'expanded' : 'collapsed'}"><span></span></div>`
                 }
                 let text = w2utils.lang(typeof nd.text == 'function' ? nd.text.call(obj, nd) : nd.text)
-                html = '<div class="w2ui-node w2ui-level-'+ level + (nd.selected ? ' w2ui-selected' : '') + (nd.disabled ? ' w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '') +'"'+
-                        '    id="node_'+ nd.id +'" data-level="'+ level +'" style="position: relative; '+ (nd.hidden ? 'display: none;' : '') +'"'+
-                        '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
-                        '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
-                        '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
-                        (obj.handle.content
-                            ? '<div class="w2ui-node-handle" style="width: '+ obj.handle.size +'px; '+ obj.handle.style + '">'+
-                                   (typeof obj.handle.content == 'function' ? obj.handle.content.call(obj, nd) : obj.handle.content) +
-                              '</div>'
+                // array with classes
+                let classes = ['w2ui-node', `w2ui-level-${level}`, 'w2ui-eaction']
+                if (nd.selected) classes.push('w2ui-selected')
+                if (nd.disabled) classes.push('w2ui-disabled')
+                if (nd.class) classes.push(nd.class)
+                html = `
+                    <div id="node_${nd.id}" class="${classes.join(' ')}" data-level="${level}"
+                        style="position: relative; ${nd.hidden ? 'display: none;' : ''}"
+                        data-click="click|${nd.id}|event"
+                        data-dblclick="dblClick|${nd.id}|event"
+                        data-contextmenu="contextMenu|${nd.id}|event">
+                        ${obj.handle.html
+                            ? `<div class="w2ui-node-handle" style="width: ${obj.handle.size}px; ${obj.handle.style}">
+                                   ${typeof obj.handle.html == 'function' ? obj.handle.html.call(obj, nd) : obj.handle.html}
+                              </div>`
                             : ''
-                        ) +
-                        '   <div class="w2ui-node-data" style="margin-left:'+ (level * obj.levelPadding + obj.handle.size) +'px">'+
-                                expand + tmp + counts +
-                                '<div class="w2ui-node-text w2ui-node-caption" style="'+ (nd.style || '') +'">'+ text +'</div>'+
-                        '   </div>'+
-                        '</div>'+
-                        '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>'
+                        }
+                      <div class="w2ui-node-data" style="margin-left: ${level * obj.levelPadding + obj.handle.size}px">
+                            ${expand} ${tmp} ${counts}
+                            <div class="w2ui-node-text w2ui-node-caption" style="${nd.style || ''}">${text}</div>
+                       </div>
+                    </div>
+                    <div class="w2ui-node-sub" id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}"></div>`
                 if (obj.flat) {
-                    html = '<div class="w2ui-node w2ui-level-'+ level +' '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
-                            '    onmouseover="jQuery(this).find(\'.w2ui-node-data\').w2tag(w2utils.base64decode(\''+
-                                            w2utils.base64encode(text + (nd.count || nd.count === 0 ? ' - <span class="w2ui-node-count">'+ nd.count +'</span>' : '')) + '\'), '+
-                            '               { id: \'' + nd.id + '\', left: -5 })"'+
-                            '    onmouseout="jQuery(this).find(\'.w2ui-node-data\').w2tag(null, { id: \'' + nd.id + '\' })"'+
-                            '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
-                            '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
-                            '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
-                            '<div class="w2ui-node-data w2ui-node-flat">'+ tmp +'</div>'+
-                            '</div>'+
-                            '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>'
+                    let tooltip = w2utils.base64encode(text + (nd.count || nd.count === 0 ? ' - <span class="w2ui-node-count">'+ nd.count +'</span>' : ''))
+                    html = `
+                        <div id="node_${nd.id}" class="${classes.join(' ')}" style="${nd.hidden ? 'display: none;' : ''}"
+                            data-click="click|${nd.id}|event"
+                            data-dblclick="dblClick|${nd.id}|event"
+                            data-contextmenu="contextMenu|${nd.id}|event"
+                            data-mouseenter="tooltip|this|${tooltip}|${nd.id}"
+                            data-mouseleave="tooltip|this|">
+                            <div class="w2ui-node-data w2ui-node-flat">${tmp}</div>
+                        </div>
+                        <div class="w2ui-node-sub" id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}"></div>`
                 }
             }
             return html
         }
+    }
+    tooltip(el, text, id) {
+        let $el = $(el).find('.w2ui-node-data')
+        if (text !== '') {
+            // show
+            $(el).find('.w2ui-node-data').w2tag(w2utils.base64decode(text), { id, left: -5 })
+        } else {
+             // hide
+            $el.w2tag()
+        }
+    }
+    showPlus(el, color) {
+        $(el).find('span:nth-child(1)').css('color', color)
     }
     resize() {
         let time = (new Date()).getTime()
@@ -19328,7 +19361,7 @@ class w2form extends w2event {
                     collapsible = '<span class="w2ui-icon-collapse" style="width: 15px; display: inline-block; position: relative; top: -2px;"></span>'
                 }
                 html += '\n <div class="w2ui-group">'
-                    + '\n   <div class="w2ui-group-title w2ui-events" style="'+ (field.html.groupTitleStyle || '') + '; '
+                    + '\n   <div class="w2ui-group-title w2ui-eaction" style="'+ (field.html.groupTitleStyle || '') + '; '
                                     + (collapsible != '' ? 'cursor: pointer; user-select: none' : '') + '"'
                     + (collapsible != '' ? 'data-group="' + w2utils.base64encode(field.html.group) + '"' : '')
                     + (collapsible != ''
@@ -20048,7 +20081,7 @@ class w2form extends w2event {
             .addClass('w2ui-reset w2ui-form')
             .html(html)
         if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style
-        w2utils.bindEvents($(this.box).find('.w2ui-events'), this)
+        w2utils.bindEvents($(this.box).find('.w2ui-eaction'), this)
         // init toolbar regardless it is defined or not
         if (typeof this.toolbar.render !== 'function') {
             this.toolbar = new w2toolbar($.extend({}, this.toolbar, { name: this.name +'_toolbar', owner: this }))
@@ -21492,13 +21525,13 @@ class w2form extends w2event {
         if ($('#w2ui-overlay').length === 0) {
             $(el).w2overlay(getColorHTML(options), options)
             setTimeout(() => {
-                w2utils.bindEvents($('#w2ui-overlay .w2ui-events'), colorEvents)
+                w2utils.bindEvents($('#w2ui-overlay .w2ui-eaction'), colorEvents)
             }, 1)
         } else { // only refresh contents
             $('#w2ui-overlay .w2ui-colors').parent().html(getColorHTML(options))
             $('#w2ui-overlay').show()
             setTimeout(() => {
-                w2utils.bindEvents($('#w2ui-overlay .w2ui-events'), colorEvents)
+                w2utils.bindEvents($('#w2ui-overlay .w2ui-eaction'), colorEvents)
             }, 1)
         }
         // bind events
@@ -21732,7 +21765,7 @@ class w2form extends w2event {
         }
         function getColorHTML(options) {
             let bor
-            let html = '<div class="w2ui-colors w2ui-events" data-mousedown="keepOpen|this">'+
+            let html = '<div class="w2ui-colors w2ui-eaction" data-mousedown="keepOpen|this">'+
                         '<div class="w2ui-color-palette">'+
                         '<table cellspacing="5"><tbody>'
             for (let i = 0; i < pal.length; i++) {
@@ -21786,8 +21819,8 @@ class w2form extends w2event {
                         '</div>'
             }
             html += '<div class="w2ui-color-tabs">'+
-                    '   <div class="w2ui-color-tab selected w2ui-events" data-click="colorClick|this"><span class="w2ui-icon w2ui-icon-colors"></span></div>'+
-                    '   <div class="w2ui-color-tab w2ui-events" data-click="colorClick2|this"><span class="w2ui-icon w2ui-icon-settings"></span></div>'+
+                    '   <div class="w2ui-color-tab selected w2ui-eaction" data-click="colorClick|this"><span class="w2ui-icon w2ui-icon-colors"></span></div>'+
+                    '   <div class="w2ui-color-tab w2ui-eaction" data-click="colorClick2|this"><span class="w2ui-icon w2ui-icon-settings"></span></div>'+
                     '   <div style="padding: 8px; text-align: right;">' + (typeof options.html == 'string' ? options.html : '') + '</div>' +
                     '</div>'+
                     '</div>'+
