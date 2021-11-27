@@ -5,8 +5,11 @@
 * == TODO ==
 *   - dbl click should be like it is in grid (with timer not HTML dbl click event)
 *   - node.style is misleading - should be there to apply color for example
+*   - node.plus - is not working
 *
 * == 2.0 changes
+*   - deprecarted obj.img, node.img
+*   - CSP - fixed inline events
 *
 ************************************************************************/
 
@@ -24,7 +27,6 @@ class w2sidebar extends w2event {
         this.menu          = []
         this.routeData     = {} // data for dynamic routes
         this.selected      = null // current selected node (readonly)
-        this.img           = null
         this.icon          = null
         this.style         = ''
         this.topHTML       = ''
@@ -36,7 +38,7 @@ class w2sidebar extends w2event {
         this.levelPadding  = 12
         this.skipRefresh   = false
         this.tabIndex      = null // will only be set if > 0 and not null
-        this.handle        = { size: 0, style: '', content: '' },
+        this.handle        = { size: 0, style: '', html: '' },
         this.onClick       = null // Fire when user click on Node Text
         this.onDblClick    = null // Fire when user dbl clicks
         this.onContextMenu = null
@@ -56,7 +58,6 @@ class w2sidebar extends w2event {
             text: '',
             order: null,
             count: null,
-            img: null,
             icon: null,
             nodes: [],
             style: '', // additional style for subitems
@@ -131,11 +132,11 @@ class w2sidebar extends w2event {
         if (!Array.isArray(nodes)) nodes = [nodes]
         for (let o = 0; o < nodes.length; o++) {
             node = nodes[o]
+            if (node.caption != null && node.text == null) {
+                console.log('NOTICE: sidebar node.caption property is deprecated, please use node.text')
+                node.text = node.caption
+            }
             if (typeof node.id == null) {
-                if (node.caption != null && node.text == null) {
-                    console.log('NOTICE: sidebar node.caption property is deprecated, please use node.text')
-                    node.text = node.caption
-                }
                 txt = node.text
                 console.log('ERROR: Cannot insert node "'+ txt +'" because it has no id.')
                 continue
@@ -472,7 +473,9 @@ class w2sidebar extends w2event {
         if (edata.isCancelled === true) return
         // default action
         $(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideUp(200)
-        $(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-expanded').removeClass('w2ui-expanded').addClass('w2ui-collapsed')
+        $(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-expanded')
+            .removeClass('w2ui-expanded')
+            .addClass('w2ui-collapsed')
         nd.expanded = false
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
@@ -500,7 +503,9 @@ class w2sidebar extends w2event {
         if (edata.isCancelled === true) return
         // default action
         $(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideDown(200)
-        $(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-collapsed').removeClass('w2ui-collapsed').addClass('w2ui-expanded')
+        $(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-collapsed')
+            .removeClass('w2ui-collapsed')
+            .addClass('w2ui-expanded')
         nd.expanded = true
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
@@ -892,10 +897,10 @@ class w2sidebar extends w2event {
                 }
             } else {
                 if (options.icon) {
-                    let $img = $el.find('.w2ui-node-image > span')
-                    if ($img.length > 0) {
-                        nd.icon           = options.icon
-                        $img[0].className = (typeof nd.icon == 'function' ? nd.icon.call(this, nd) : nd.icon)
+                    let $icon = $el.find('.w2ui-node-image > span')
+                    if ($icon.length > 0) {
+                        nd.icon = options.icon
+                        $icon[0].className = (typeof nd.icon == 'function' ? nd.icon.call(this, nd) : nd.icon)
                         delete options.icon
                     }
                 }
@@ -928,6 +933,7 @@ class w2sidebar extends w2event {
     }
 
     refresh(id) {
+        if (this.box == null) return
         let time = (new Date()).getTime()
         // event before
         let edata = this.trigger({ phase: 'before', type: 'refresh', target: (id != null ? id : this.name),
@@ -960,61 +966,63 @@ class w2sidebar extends w2event {
             this.add(this, tmp)
         }
         let obj = this
-        let node, nd
-        let nm
+        let node
+        let nodeSubId
         if (id == null) {
             node = this
-            nm   = '.w2ui-sidebar-body'
+            nodeSubId = '.w2ui-sidebar-body'
         } else {
             node = this.get(id)
             if (node == null) return
-            nm = '#node_'+ w2utils.escapeId(node.id) + '_sub'
+            nodeSubId = '#node_'+ w2utils.escapeId(node.id) + '_sub'
         }
+        let nodeId = '#node_'+ w2utils.escapeId(node.id)
         let nodeHTML
         if (node !== this) {
-            let tmp  = '#node_'+ w2utils.escapeId(node.id)
             nodeHTML = getNodeHTML(node)
-            $(this.box).find(tmp).before('<div id="sidebar_'+ this.name + '_tmp"></div>')
-            $(this.box).find(tmp).remove()
-            $(this.box).find(nm).remove()
+            $(this.box).find(nodeId).before('<div id="sidebar_'+ this.name + '_tmp"></div>')
+            $(this.box).find(nodeId).remove()
+            $(this.box).find(nodeSubId).remove()
             $('#sidebar_'+ this.name + '_tmp').before(nodeHTML)
             $('#sidebar_'+ this.name + '_tmp').remove()
         }
         // remember scroll position
         let scroll = {
-            top: $(this.box).find(nm).scrollTop(),
-            left: $(this.box).find(nm).scrollLeft()
+            top: $(this.box).find(nodeSubId).scrollTop(),
+            left: $(this.box).find(nodeSubId).scrollLeft()
         }
         // refresh sub nodes
-        $(this.box).find(nm).html('')
+        $(this.box).find(nodeSubId).html('')
         for (let i = 0; i < node.nodes.length; i++) {
-            nd       = node.nodes[i]
-            nodeHTML = getNodeHTML(nd)
-            $(this.box).find(nm).append(nodeHTML)
-            if (nd.nodes.length !== 0) {
-                this.refresh(nd.id)
+            let subNode = node.nodes[i]
+            nodeHTML = getNodeHTML(subNode)
+            $(this.box).find(nodeSubId).append(nodeHTML)
+            if (subNode.nodes.length !== 0) {
+                this.refresh(subNode.id)
             } else {
                 // trigger event
-                let edata2 = this.trigger({ phase: 'before', type: 'refresh', target: nd.id })
+                let edata2 = this.trigger({ phase: 'before', type: 'refresh', target: subNode.id })
                 if (edata2.isCancelled === true) return
                 // event after
                 this.trigger($.extend(edata2, { phase: 'after' }))
             }
         }
         // reset scroll
-        $(this.box).find(nm).scrollLeft(scroll.left).scrollTop(scroll.top)
+        $(this.box).find(nodeSubId).scrollLeft(scroll.left).scrollTop(scroll.top)
+        // bind events
+        if (id) {
+            let els = $(this.box).find(`${nodeId}.w2ui-eaction, ${nodeSubId} .w2ui-eaction`)
+            console.log (`"${node.id}"`, els.length, els)
+            w2utils.bindEvents(els, this)
+        }
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
         return (new Date()).getTime() - time
 
         function getNodeHTML(nd) {
             let html = ''
-            let img  = nd.img
             let icon = nd.icon
-            if (icon == null && img == null) {
-                if (icon == null) icon = obj.icon
-                if (img == null) img = obj.img
-            }
+            if (icon == null) icon = obj.icon
             // -- find out level
             let tmp   = nd.parent
             let level = 0
@@ -1034,28 +1042,33 @@ class w2sidebar extends w2event {
                 if (String(text).substr(0, 5) != '<span') {
                     text = `<span class="w2ui-group-text">${text}</span>`
                 }
-                html =
-                    '<div class="w2ui-node-group w2ui-level-'+ level + (nd.class ? ' ' + nd.class : '') +'" id="node_'+ nd.id +'" data-level="'+ level + '"'+
-                    '   style="'+ (nd.hidden ? 'display: none' : '') +'" onclick="w2ui[\''+ obj.name +'\'].toggle(\''+ nd.id +'\')"'+
-                    '   oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
-                    '   onmouseout="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'transparent\')" '+
-                    '   onmouseover="jQuery(this).find(\'span:nth-child(1)\').css(\'color\', \'inherit\')">'+
-                        ((nd.groupShowHide && nd.collapsible)
-                            ? '<span>'+ (!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')) +'</span>'
-                            : '<span></span>') +
-                        text +
-                    '</div>'+
-                    '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>'
+                html = `
+                    <div id="node_${nd.id}" data-level="${level}" style="${nd.hidden ? 'display: none' : ''}"
+                        class="w2ui-node-group w2ui-level-${level} ${nd.class ? nd.class : ''} w2ui-eaction"
+                        data-click="toggle|${nd.id}"
+                        data-contextmenu="contextMenu|${nd.id}|event"
+                        data-mouseenter="showPlus|this|inherit"
+                        data-mouseleave="showPlus|this|transparent">
+                        ${nd.groupShowHide && nd.collapsible
+                            ? `<span>${!nd.hidden && nd.expanded ? w2utils.lang('Hide') : w2utils.lang('Show')}</span>`
+                            : '<span></span>'
+                        } ${text}
+                    </div>
+                    <div class="w2ui-node-sub" id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}">
+                </div>`
                 if (obj.flat) {
-                    html = '<div class="w2ui-node-group" id="node_'+ nd.id +'"><span>&#160;</span></div>'+
-                           '<div id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>'
+                    html = `
+                        <div class="w2ui-node-group" id="node_${nd.id}"><span>&#160;</span></div>
+                        <div id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}"></div>`
                 }
             } else {
                 if (nd.selected && !nd.disabled) obj.selected = nd.id
                 tmp = ''
-                if (img) tmp = '<div class="w2ui-node-image w2ui-icon '+ img + (nd.selected && !nd.disabled ? ' w2ui-icon-selected' : '') +'"></div>'
                 if (icon) {
-                    tmp = '<div class="w2ui-node-image"><span class="' + (typeof icon == 'function' ? icon.call(obj, nd) : icon) + '"></span></div>'
+                    tmp = `
+                    <div class="w2ui-node-image">
+                        <span class="${typeof icon == 'function' ? icon.call(obj, nd) : icon}"></span>
+                    </div>`
                 }
                 let expand = ''
                 let counts = (nd.count != null
@@ -1065,42 +1078,64 @@ class w2sidebar extends w2event {
                        </div>`
                     : '')
                 if (nd.collapsible === true) {
-                    expand = '<div class="w2ui-' + (nd.expanded ? 'expanded' : 'collapsed') + '"><span></span></div>'
+                    expand = `<div class="w2ui-${nd.expanded ? 'expanded' : 'collapsed'}"><span></span></div>`
                 }
+
                 let text = w2utils.lang(typeof nd.text == 'function' ? nd.text.call(obj, nd) : nd.text)
-                html = '<div class="w2ui-node w2ui-level-'+ level + (nd.selected ? ' w2ui-selected' : '') + (nd.disabled ? ' w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '') +'"'+
-                        '    id="node_'+ nd.id +'" data-level="'+ level +'" style="position: relative; '+ (nd.hidden ? 'display: none;' : '') +'"'+
-                        '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
-                        '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
-                        '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
-                        (obj.handle.content
-                            ? '<div class="w2ui-node-handle" style="width: '+ obj.handle.size +'px; '+ obj.handle.style + '">'+
-                                   (typeof obj.handle.content == 'function' ? obj.handle.content.call(obj, nd) : obj.handle.content) +
-                              '</div>'
+                // array with classes
+                let classes = ['w2ui-node', `w2ui-level-${level}`, 'w2ui-eaction']
+                if (nd.selected) classes.push('w2ui-selected')
+                if (nd.disabled) classes.push('w2ui-disabled')
+                if (nd.class) classes.push(nd.class)
+                html = `
+                    <div id="node_${nd.id}" class="${classes.join(' ')}" data-level="${level}"
+                        style="position: relative; ${nd.hidden ? 'display: none;' : ''}"
+                        data-click="click|${nd.id}|event"
+                        data-dblclick="dblClick|${nd.id}|event"
+                        data-contextmenu="contextMenu|${nd.id}|event">
+                        ${obj.handle.html
+                            ? `<div class="w2ui-node-handle" style="width: ${obj.handle.size}px; ${obj.handle.style}">
+                                   ${typeof obj.handle.html == 'function' ? obj.handle.html.call(obj, nd) : obj.handle.html}
+                              </div>`
                             : ''
-                        ) +
-                        '   <div class="w2ui-node-data" style="margin-left:'+ (level * obj.levelPadding + obj.handle.size) +'px">'+
-                                expand + tmp + counts +
-                                '<div class="w2ui-node-text w2ui-node-caption" style="'+ (nd.style || '') +'">'+ text +'</div>'+
-                        '   </div>'+
-                        '</div>'+
-                        '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>'
+                        }
+                      <div class="w2ui-node-data" style="margin-left: ${level * obj.levelPadding + obj.handle.size}px">
+                            ${expand} ${tmp} ${counts}
+                            <div class="w2ui-node-text w2ui-node-caption" style="${nd.style || ''}">${text}</div>
+                       </div>
+                    </div>
+                    <div class="w2ui-node-sub" id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}"></div>`
                 if (obj.flat) {
-                    html = '<div class="w2ui-node w2ui-level-'+ level +' '+ (nd.selected ? 'w2ui-selected' : '') +' '+ (nd.disabled ? 'w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '') +'" id="node_'+ nd.id +'" style="'+ (nd.hidden ? 'display: none;' : '') +'"'+
-                            '    onmouseover="jQuery(this).find(\'.w2ui-node-data\').w2tag(w2utils.base64decode(\''+
-                                            w2utils.base64encode(text + (nd.count || nd.count === 0 ? ' - <span class="w2ui-node-count">'+ nd.count +'</span>' : '')) + '\'), '+
-                            '               { id: \'' + nd.id + '\', left: -5 })"'+
-                            '    onmouseout="jQuery(this).find(\'.w2ui-node-data\').w2tag(null, { id: \'' + nd.id + '\' })"'+
-                            '    ondblclick="w2ui[\''+ obj.name +'\'].dblClick(\''+ nd.id +'\', event);"'+
-                            '    oncontextmenu="w2ui[\''+ obj.name +'\'].contextMenu(\''+ nd.id +'\', event);"'+
-                            '    onClick="w2ui[\''+ obj.name +'\'].click(\''+ nd.id +'\', event); ">'+
-                            '<div class="w2ui-node-data w2ui-node-flat">'+ tmp +'</div>'+
-                            '</div>'+
-                            '<div class="w2ui-node-sub" id="node_'+ nd.id +'_sub" style="'+ nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;') +'"></div>'
+                    let tooltip = w2utils.base64encode(text + (nd.count || nd.count === 0 ? ' - <span class="w2ui-node-count">'+ nd.count +'</span>' : ''))
+                    html = `
+                        <div id="node_${nd.id}" class="${classes.join(' ')}" style="${nd.hidden ? 'display: none;' : ''}"
+                            data-click="click|${nd.id}|event"
+                            data-dblclick="dblClick|${nd.id}|event"
+                            data-contextmenu="contextMenu|${nd.id}|event"
+                            data-mouseenter="tooltip|this|${tooltip}|${nd.id}"
+                            data-mouseleave="tooltip|this|">
+                            <div class="w2ui-node-data w2ui-node-flat">${tmp}</div>
+                        </div>
+                        <div class="w2ui-node-sub" id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}"></div>`
                 }
             }
             return html
         }
+    }
+
+    tooltip(el, text, id) {
+        let $el = $(el).find('.w2ui-node-data')
+        if (text !== '') {
+            // show
+            $(el).find('.w2ui-node-data').w2tag(w2utils.base64decode(text), { id, left: -5 })
+        } else {
+             // hide
+            $el.w2tag()
+        }
+    }
+
+    showPlus(el, color) {
+        $(el).find('span:nth-child(1)').css('color', color)
     }
 
     resize() {

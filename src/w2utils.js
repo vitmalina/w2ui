@@ -1761,8 +1761,9 @@ let w2utils = (($) => {
         $(selector).each((ind, el) => {
             let actions = $(el).data()
             Object.keys(actions).forEach(name => {
-                if (['click', 'dblclick', 'mouseenter', 'mouseleave', 'mouseover', 'mouseout', 'mousedown', 'mousemove', 'mouseup',
-                    'focus', 'blur', 'input', 'change', 'keydown', 'keyup', 'keypress'].indexOf(String(name).toLowerCase()) == -1) {
+                let events = ['click', 'dblclick', 'mouseenter', 'mouseleave', 'mouseover', 'mouseout', 'mousedown', 'mousemove', 'mouseup',
+                    'contextmenu', 'focus', 'blur', 'input', 'change', 'keydown', 'keyup', 'keypress']
+                if (events.indexOf(String(name).toLowerCase()) == -1) {
                     return
                 }
                 let params = $(el).data(name)
