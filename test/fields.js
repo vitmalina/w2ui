@@ -79,16 +79,16 @@ jQuery(function () {
                 { id: 'item3', icon: 'fa fa-star', disabled: true, text: 'item ' + Math.round(Math.random()*100) },
                 { id: 'item4', icon: 'fa fa-star', disabled: true, text: 'item ' + Math.round(Math.random()*100) },
                 { id: 'item5', icon: 'fa fa-link', disabled: true, text: 'item ' + Math.round(Math.random()*100) },
-                { id: 'item6', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
-                { id: 'item7', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) },
-                { id: 'item8', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) },
-                { id: 'item9', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) },
                 { id: 3, text: 'Sub Items', icon: 'icon-empty', expanded: true,
                     items: [
                         { id: 'sub1', text: 'subitem 1' },
                         { id: 'sub2', text: 'subitem 2' },
                     ]
-                }
+                },
+                { id: 'item6', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
+                { id: 'item7', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) },
+                { id: 'item8', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) },
+                { id: 'item9', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) },
             ]
         },
         items1: items,

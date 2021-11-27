@@ -1,3 +1,11 @@
+/************************************************************************
+*   Part of w2ui 2.0 library
+*
+* == 2.0 changes
+*   - CSP - fixed inline events
+*
+************************************************************************/
+
 import { w2locale } from './w2locale.js'
 import { w2event } from './w2event.js'
 import { w2ui, w2utils } from './w2utils.js'
@@ -1003,6 +1011,7 @@ import { w2toolbar } from './w2toolbar.js'
             if (div.length > 0) {
                 div[0].mresize = mresize
                 div[0].change  = change
+                div[0].getCurrent = getCurrent
             }
         }
         return ret
@@ -1032,6 +1041,23 @@ import { w2toolbar } from './w2toolbar.js'
                     }
                 }
             }, 1)
+        }
+
+        function getCurrent() {
+            // index
+            let last  = options.index.length-1
+            let index = options.index[last]
+            let parents = options.index.slice(0, options.index.length-1).join('-')
+            index = w2utils.isInt(index) ? parseInt(index) : 0
+            // items
+            let items = options.items
+            options.index.forEach((id, ind) => {
+                // do not go to the last one
+                if (ind < options.index.length - 1) {
+                    items = items[id].items
+                }
+            })
+            return { last, index, items, item: items[index], parents }
         }
 
         function change(event) {
@@ -1155,23 +1181,6 @@ import { w2toolbar } from './w2toolbar.js'
                 return count
             }
 
-            function getCurrent() {
-                // index
-                let last  = options.index.length-1
-                let index = options.index[last]
-                let parents = options.index.slice(0, options.index.length-1).join('-')
-                index = w2utils.isInt(index) ? parseInt(index) : 0
-                // items
-                let items = options.items
-                options.index.forEach((id, ind) => {
-                    // do not go to the last one
-                    if (ind < options.index.length - 1) {
-                        items = items[id].items
-                    }
-                })
-                return { last, index, items, item: items[index], parents }
-            }
-
             function getActiveChain(items, parents, res, noSave) {
                 if (activeChain != null) {
                     return activeChain
@@ -1189,7 +1198,6 @@ import { w2toolbar } from './w2toolbar.js'
                     }
                 })
                 if (noSave == null) {
-                    console.log('new chain', res)
                     activeChain = res
                 }
                 return res
@@ -1359,11 +1367,37 @@ import { w2toolbar } from './w2toolbar.js'
         if (typeof options.color === 'string' && options.color.substr(0,1) === '#') options.color = options.color.substr(1)
         if (options.fireChange == null) options.fireChange = true
 
+        let colorEvents = {
+            keepOpen(el) {
+                $(el).parents('.w2ui-overlay').data('keepOpen', true)
+            },
+            colorClick(el) {
+                $(el).addClass('selected').next().removeClass('selected')
+                    .parents('.w2ui-overlay').find('.w2ui-color-advanced').hide()
+                    .parent().find('.w2ui-color-palette').show()
+                $.fn._colorAdvanced = false
+                $('#w2ui-overlay')[0].resize()
+            },
+            colorClick2(el) {
+                $(el).addClass('selected').prev().removeClass('selected')
+                    .parents('.w2ui-overlay').find('.w2ui-color-advanced').show()
+                    .parent().find('.w2ui-color-palette').hide()
+                $.fn._colorAdvanced = true
+                $('#w2ui-overlay')[0].resize()
+            }
+        }
+
         if ($('#w2ui-overlay').length === 0) {
             $(el).w2overlay(getColorHTML(options), options)
+            setTimeout(() => {
+                w2utils.bindEvents($('#w2ui-overlay .w2ui-events'), colorEvents)
+            }, 1)
         } else { // only refresh contents
             $('#w2ui-overlay .w2ui-colors').parent().html(getColorHTML(options))
             $('#w2ui-overlay').show()
+            setTimeout(() => {
+                w2utils.bindEvents($('#w2ui-overlay .w2ui-events'), colorEvents)
+            }, 1)
         }
         // bind events
         $('#w2ui-overlay .w2ui-color')
@@ -1602,7 +1636,7 @@ import { w2toolbar } from './w2toolbar.js'
 
         function getColorHTML(options) {
             let bor
-            let html = '<div class="w2ui-colors" onmousedown="jQuery(this).parents(\'.w2ui-overlay\').data(\'keepOpen\', true)">'+
+            let html = '<div class="w2ui-colors w2ui-events" data-mousedown="keepOpen|this">'+
                         '<div class="w2ui-color-palette">'+
                         '<table cellspacing="5"><tbody>'
             for (let i = 0; i < pal.length; i++) {
@@ -1656,8 +1690,8 @@ import { w2toolbar } from './w2toolbar.js'
                         '</div>'
             }
             html += '<div class="w2ui-color-tabs">'+
-                    '   <div class="w2ui-color-tab selected" onclick="jQuery(this).addClass(\'selected\').next().removeClass(\'selected\').parents(\'.w2ui-overlay\').find(\'.w2ui-color-advanced\').hide().parent().find(\'.w2ui-color-palette\').show(); jQuery.fn._colorAdvanced = false; jQuery(\'#w2ui-overlay\')[0].resize()"><span class="w2ui-icon w2ui-icon-colors"></span></div>'+
-                    '   <div class="w2ui-color-tab" onclick="jQuery(this).addClass(\'selected\').prev().removeClass(\'selected\').parents(\'.w2ui-overlay\').find(\'.w2ui-color-advanced\').show().parent().find(\'.w2ui-color-palette\').hide(); jQuery.fn._colorAdvanced = true; jQuery(\'#w2ui-overlay\')[0].resize()"><span class="w2ui-icon w2ui-icon-settings"></span></div>'+
+                    '   <div class="w2ui-color-tab selected w2ui-events" data-click="colorClick|this"><span class="w2ui-icon w2ui-icon-colors"></span></div>'+
+                    '   <div class="w2ui-color-tab w2ui-events" data-click="colorClick2|this"><span class="w2ui-icon w2ui-icon-settings"></span></div>'+
                     '   <div style="padding: 8px; text-align: right;">' + (typeof options.html == 'string' ? options.html : '') + '</div>' +
                     '</div>'+
                     '</div>'+

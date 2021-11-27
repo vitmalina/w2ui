@@ -1269,16 +1269,12 @@ class w2field extends w2event {
                         event.stopPropagation() // escape in field should not close popup
                     }
                     break
-                case 37: // left
-                case 39: // right
-                    // indexOnly = true;
-                    break
                 case 13: { // enter
                     if ($('#w2ui-overlay').length === 0) {
                         obj.updateOverlay()
                         break // no action if overlay not open
                     }
-                    let item = options.items[options.index]
+                    let { item } = $('#w2ui-overlay')[0].getCurrent()
                     if (obj.type === 'enum') {
                         if (item != null && !item.hidden && !item.disabled) {
                             // trigger event
@@ -1349,35 +1345,29 @@ class w2field extends w2event {
                         obj.refresh()
                     }
                     break
+                case 37: // left
+                case 39: { // right
+                    if ($('#w2ui-overlay').length != 0) {
+                        $('#w2ui-overlay')[0].change(event)
+                    }
+                    break
+                }
                 case 38: // up
                     if ($('#w2ui-overlay').length === 0) {
                         obj.updateOverlay()
                         break // no action if overlay not open
                     }
-                    options.index = w2utils.isInt(options.index) ? parseInt(options.index) : 0
-                    options.index--
-                    while (options.index > 0 && (options.items[options.index].hidden || options.items[options.index].disabled)) options.index--
-                    if (options.index === 0 && (options.items[options.index].hidden || options.items[options.index].disabled)) {
-                        while (options.items[options.index] && (options.items[options.index].hidden || options.items[options.index].disabled)) options.index++
-                    }
-                    indexOnly = true
+                    $('#w2ui-overlay')[0].change(event)
                     break
                 case 40: // down
                     if ($('#w2ui-overlay').length === 0) {
                         obj.updateOverlay()
                         break // no action if overlay not open
                     }
-                    options.index = w2utils.isInt(options.index) ? parseInt(options.index) : -1
-                    options.index++
-                    while (options.index < options.items.length-1 && (options.items[options.index].hidden || options.items[options.index].disabled)) options.index++
-                    if (options.index == options.items.length-1 && (options.items[options.index].hidden || options.items[options.index].disabled)) {
-                        while (options.items[options.index] && (options.items[options.index].hidden || options.items[options.index].disabled)) options.index--
-                    }
+                    $('#w2ui-overlay')[0].change(event)
                     // show overlay if not shown
                     if (focus.val() === '' && $('#w2ui-overlay').length === 0) {
                         obj.tmp.force_open = true
-                    } else {
-                        indexOnly = true
                     }
                     break
                 default:
@@ -1387,8 +1377,6 @@ class w2field extends w2event {
                     }
             }
             if (indexOnly) {
-                if (options.index < 0) options.index = 0
-                if (options.index >= options.items.length) options.index = options.items.length -1
                 obj.updateOverlay(indexOnly)
                 // cancel event
                 event.preventDefault()
@@ -1664,9 +1652,7 @@ class w2field extends w2event {
                 if (item.hidden !== true) { shown++; delete item.hidden }
             }
             // preselect first item
-            options.index = -1
-            while (items[options.index] && items[options.index].hidden) options.index++
-            if (shown <= 0) options.index = -1
+            options.index = []
             options.spinner = false
             setTimeout(() => {
                 if (options.markSearch && $('#w2ui-overlay .no-matches').length == 0) { // do not highlight when no items
@@ -1961,12 +1947,28 @@ class w2field extends w2event {
             }
             if (this.type === 'list') {
                 let sel = $(input).data('selected')
-                if ($.isPlainObject(sel) && !$.isEmptyObject(sel) && options.index == -1) {
-                    options.items.forEach((item, ind) => {
-                        if (item.id === sel.id) {
-                            options.index = ind
-                        }
-                    })
+                if ($.isPlainObject(sel) && !$.isEmptyObject(sel)) {
+                    let ind = _findItem(options.items, sel.id)
+                    if (ind.length > 0) {
+                        options.index = ind
+                    }
+
+                    function _findItem(items, search, parents) {
+                        let ids = []
+                        if (!parents) parents = []
+                        items.forEach((item, ind) => {
+                            if (item.id === search) {
+                                ids = parents.concat([ind])
+                                options.index = [ind]
+                            }
+                            if (ids.length == 0 && item.items && item.items.length > 0) {
+                                parents.push(ind)
+                                ids = _findItem(item.items, search, parents)
+                                parents.pop()
+                            }
+                        })
+                        return ids
+                    }
                 }
                 input = $(this.helpers.focus).find('input')
             }
