@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (11/26/2021, 9:22:24 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (11/27/2021, 12:09:07 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -291,6 +291,7 @@ const w2locale = {
 *   - stricter CSP (work in progress)
 *
 * == 2.0 changes
+*   - CSP - fixed inline events
 *
 ************************************************/
 let w2ui = {}
@@ -1443,7 +1444,9 @@ let w2utils = (($) => {
                         // event after
                         if (options.trigger) {
                             options.trigger($.extend(edata, { phase: 'after' }))
-                            resolve()
+                            resolve({
+                                box: $(where.box).find('#w2ui-message'+ msgCount)
+                            })
                         }
                     }, 350)
                 }
@@ -10309,18 +10312,22 @@ class w2grid extends w2event {
         return (new Date()).getTime() - time
     }
     message(options) {
+        let obj = this
         if (typeof options == 'string') {
             options = {
                 width : (options.length < 300 ? 350 : 550),
                 height: (options.length < 300 ? 170: 250),
                 body  : `<div class="w2ui-centered">${options}</div>`,
                 onOpen(event) {
-                    setTimeout(() => { $(event.box).find('.w2ui-btn').focus() }, 25)
+                    setTimeout(() => {
+                        w2utils.bindEvents($(obj.box).find('.w2ui-btn'), obj)
+                        $(event.box).find('.w2ui-btn').focus()
+                    }, 25)
                 }
             }
         }
         if (options && options.buttons == null) {
-            options.buttons = `<button type="button" class="w2ui-btn" onclick="w2ui['${this.name}'].message()">
+            options.buttons = `<button type="button" class="w2ui-btn" data-click="message">
                 ${w2utils.lang('Ok')}
             </button>`
         }
@@ -10416,6 +10423,7 @@ class w2grid extends w2event {
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2tabs
 *
 * == 2.0 changes
+*   - CSP - fixed inline events
 *
 ************************************************************************/
 
@@ -11591,6 +11599,7 @@ class w2layout extends w2event {
 *   - Dependencies: jQuery, w2utils
 *
 * == 2.0 changes
+*   - CSP - fixed inline events
 *
 ************************************************************************/
 
@@ -12204,12 +12213,12 @@ class w2dialog extends w2event {
                 }
                 // add message
                 $('#w2ui-popup .w2ui-box')
-                    .before('<div id="w2ui-message' + msgCount + '" class="w2ui-message" style="display: none; z-index: 1500; ' +
+                    .before('<div id="w2ui-message' + msgCount + '" class="w2ui-message w2ui-popup-action" style="display: none; z-index: 1500; ' +
                                 (head.length === 0 ? 'top: 0px;' : 'top: ' + w2utils.getSize(head, 'height') + 'px;') +
                                 (options.width != null ? 'width: ' + options.width + 'px; left: ' + ((pWidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
                                 (options.height != null ? 'height: ' + options.height + 'px;' : 'bottom: 6px;') +
                                 w2utils.cssPrefix('transition', '0s', true) + '" data-msgId="' + msgCount +'" ' +
-                                (options.hideOnClick === true ? 'onclick="w2popup.message();"' : '') + '>' +
+                                (options.hideOnClick === true ? 'data-click="message"' : '') + '>' +
                             '</div>')
                 $('#w2ui-popup #w2ui-message'+ msgCount).data('options', options)
                 let display = $('#w2ui-popup #w2ui-message'+ msgCount).css('display')
@@ -12243,7 +12252,7 @@ class w2dialog extends w2event {
                         }
                         // event after
                         obj.trigger($.extend(edata, { phase: 'after' }))
-                        w2utils.bindEvents(`#w2ui-popup #w2ui-message${msgCount} .w2ui-popup-action`, w2popup)
+                        w2utils.bindEvents(`#w2ui-popup #w2ui-message${msgCount}, #w2ui-popup #w2ui-message${msgCount} .w2ui-popup-action`, w2popup)
                         resolve(edata)
                     }, 350)
                 }
@@ -12866,6 +12875,7 @@ let w2popup = new w2dialog()
 *   - Dependencies: jQuery, w2utils
 *
 * == 2.0 changes
+*   - CSP - fixed inline events
 *
 ************************************************************************/
 
@@ -13467,6 +13477,9 @@ class w2tabs extends w2event {
 *
 * == TODO ==
 *   - vertical toolbar
+*
+* == 2.0 changes
+*   - CSP - fixed inline events
 *
 ************************************************************************/
 class w2toolbar extends w2event {
@@ -18183,12 +18196,12 @@ class w2field extends w2event {
 * == TODO ==
 *   - include delta on save
 *   - two way data bindings
-*   - rename applyFocus -> focus
 *   - tabs below some fields (could already be implemented)
 *   - form with toolbar & tabs
 *   - promise for load, save, etc.
 *
 * == 2.0 changes
+*   - CSP - fixed inline events
 *
 ************************************************************************/
 
@@ -18551,18 +18564,22 @@ class w2form extends w2event {
         this.trigger($.extend(edata, { phase: 'after' }))
     }
     message(options) {
+        let obj = this
         if (typeof options == 'string') {
             options = {
                 width : (options.length < 300 ? 350 : 550),
                 height: (options.length < 300 ? 170: 250),
                 body  : `<div class="w2ui-centered">${options}</div>`,
                 onOpen(event) {
-                    setTimeout(() => { $(event.box).find('.w2ui-btn').focus() }, 25)
+                    setTimeout(() => {
+                        w2utils.bindEvents($(obj.box).find('.w2ui-btn'), obj)
+                        $(event.box).find('.w2ui-btn').focus()
+                    }, 25)
                 }
             }
         }
         if (options && options.buttons == null) {
-            options.buttons = `<button type="button" class="w2ui-btn" onclick="w2ui['${this.name}'].message()">
+            options.buttons = `<button type="button" class="w2ui-btn" data-click="message">
                 ${w2utils.lang('Ok')}
             </button>`
         }
@@ -19311,11 +19328,11 @@ class w2form extends w2event {
                     collapsible = '<span class="w2ui-icon-collapse" style="width: 15px; display: inline-block; position: relative; top: -2px;"></span>'
                 }
                 html += '\n <div class="w2ui-group">'
-                    + '\n   <div class="w2ui-group-title" style="'+ (field.html.groupTitleStyle || '') + '; '
+                    + '\n   <div class="w2ui-group-title w2ui-events" style="'+ (field.html.groupTitleStyle || '') + '; '
                                     + (collapsible != '' ? 'cursor: pointer; user-select: none' : '') + '"'
                     + (collapsible != '' ? 'data-group="' + w2utils.base64encode(field.html.group) + '"' : '')
                     + (collapsible != ''
-                        ? 'onclick="w2ui[\'' + this.name + '\'].toggleGroup(\'' + field.html.group + '\')"'
+                        ? 'data-click="toggleGroup|' + field.html.group + '"'
                         : '')
                     + '>'
                     + collapsible + w2utils.lang(field.html.group) + '</div>\n'
@@ -20031,6 +20048,7 @@ class w2form extends w2event {
             .addClass('w2ui-reset w2ui-form')
             .html(html)
         if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style
+        w2utils.bindEvents($(this.box).find('.w2ui-events'), this)
         // init toolbar regardless it is defined or not
         if (typeof this.toolbar.render !== 'function') {
             this.toolbar = new w2toolbar($.extend({}, this.toolbar, { name: this.name +'_toolbar', owner: this }))
