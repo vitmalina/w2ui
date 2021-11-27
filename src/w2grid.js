@@ -8564,18 +8564,22 @@ class w2grid extends w2event {
     }
 
     message(options) {
+        let obj = this
         if (typeof options == 'string') {
             options = {
                 width : (options.length < 300 ? 350 : 550),
                 height: (options.length < 300 ? 170: 250),
                 body  : `<div class="w2ui-centered">${options}</div>`,
                 onOpen(event) {
-                    setTimeout(() => { $(event.box).find('.w2ui-btn').focus() }, 25)
+                    setTimeout(() => {
+                        w2utils.bindEvents($(obj.box).find('.w2ui-btn'), obj)
+                        $(event.box).find('.w2ui-btn').focus()
+                    }, 25)
                 }
             }
         }
         if (options && options.buttons == null) {
-            options.buttons = `<button type="button" class="w2ui-btn" onclick="w2ui['${this.name}'].message()">
+            options.buttons = `<button type="button" class="w2ui-btn" data-click="message">
                 ${w2utils.lang('Ok')}
             </button>`
         }

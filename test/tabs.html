@@ -1,77 +1,14 @@
 <html>
 <head>
     <link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data:; script-src-elem 'self' 'unsafe-inline'; style-src 'unsafe-inline'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data:; style-src 'self' 'unsafe-inline';">
     <script type="text/javascript" src="../libs/jquery/jquery-3.5.1.min.js"></script>
     <script type="module" src="../src/w2compat.js?globals"></script>
-<script>
-jQuery(function () {
-    jQuery('#tabs').w2tabs({
-        name     : 'tabs',
-        active   : 'tab1',
-        right    : '12',
-        flow     : 'down',
-        tooltip  : 'top',
-        routeData: { id: 8, vid: '2.32.3' },
-        reorder: true,
-        tabs : [
-            { id: 'tab1', text: 'Tab 1', route: '/tab1', tooltip: 'some tooltip', style1: 'background-color: red; color: white' },
-            { id: 'tab2', text: 'Tab 2', route: '/tab2/:id', closable: false, tooltip: 'some other', hidden1: true },
-            { id: 'tab3', text: 'Tab 3', route: '/tab3/:id/view', closable: false, tooltip: 'none', hidden1: true, style: 'min-width1: 400px' },
-            { id: 'tab4', text: 'Tab 4', route: '/tab4/:id/some', closable: false, disabled1: true },
-            { id: 'tab5', text: 'Tab 5', route: '/tab5/ok/:vid', closable: false },
-            // { id: 'tab6', text: 'Tab 6', route: '/tab6/:id/:vid-:id', closable: true, class: 'classssssss' },
-            // { id: 'tab7', text: 'Tab 7', route: '/tab7/:id', closable: true },
-            // { id: 'tab8', text: 'Tab 8', route: '/tab8/:id', closable: false },
-            // { id: 'tab81', text: 'Tab 81', route: '/tab8/:id', closable: true },
-            // { id: 'tab82', text: 'Tab 82', route: '/tab8/:id', closable: true },
-            // { id: 'tab83', text: 'Tab 83', route: '/tab8/:id', closable: true },
-            // { id: 'tab84', text: 'Tab 84', route: '/tab8/:id', closable: true },
-            // { id: 'tab85', text: 'Tab 85', route: '/tab8/:id', closable: true },
-            // { id: 'tab6.1', text: 'Tab 6.1', route: '/tab8/:id', closable: true },
-            // { id: 'tab6.2', text: 'Tab 6.2', route: '/tab8/:id', closable: true },
-            { id: 'new', text: '+', style: 'padding-left: 10px; padding-right: 10px; font-weight: bold;' },
-        ],
-        onReorder(event) {
-            // console.log('start', JSON.stringify(event))
-            if (event.target == 'new') {
-                event.preventDefault()
-                return
-            }
-            this.hide('new')
-            event.done(() => {
-                // console.log('end', JSON.stringify(event))
-                this.show('new')
-            })
-        },
-        onClick(event) {
-            if (event.target == 'new') {
-                this.insert('new', { id: 'tab-' + (new Date()).getTime(), text: 'Text ' + this.tabs.length, closable: true })
-                this.scroll('right')
-            }
-        },
-        onClose(event) {
-        }
-    });
-    // w2ui.tabs.right = '<span style="white-space: nowrap">new right</span>';
-    w2ui.tabs.refresh();
-});
-
-function changeTab() {
-    w2ui.tabs.get('tab2').text = `<div style="width: 200px; border: 1px solid red;">Tab ${(new Date).getTime()}</div>`;
-    // w2ui.tabs.scroll('right')
-    w2ui.tabs.refresh();
-}
-
-function insertTab() {
-    w2ui.tabs.insert('new', { id: 'tab-'+(new Date()).getTime(), text: `Tab ${(new Date).getTime()}`, closable: true });
-    w2ui.tabs.scroll('right')
-}
-</script>
+    <script src="tabs.js"></script>
 <body>
     <br/><br/>
     <div id="tabs" style="position: absolute; left: 200px; width: 800px; height1: 50px; top: 175px; border1: 1px solid red"></div>
     <br/>
-    <button class="w2ui-btn" onclick1="changeTab()">Change Tab 2</button>
-    <button class="w2ui-btn" onclick1="insertTab()">Insert Tab</button>
+    <button class="w2ui-btn" id="changeTab">Change Tab 2</button>
+    <button class="w2ui-btn" id="insertTab">Insert Tab</button>
 </body>

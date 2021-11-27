@@ -5,12 +5,12 @@
 * == TODO ==
 *   - include delta on save
 *   - two way data bindings
-*   - rename applyFocus -> focus
 *   - tabs below some fields (could already be implemented)
 *   - form with toolbar & tabs
 *   - promise for load, save, etc.
 *
 * == 2.0 changes
+*   - CSP - fixed inline events
 *
 ************************************************************************/
 
@@ -396,18 +396,22 @@ class w2form extends w2event {
     }
 
     message(options) {
+        let obj = this
         if (typeof options == 'string') {
             options = {
                 width : (options.length < 300 ? 350 : 550),
                 height: (options.length < 300 ? 170: 250),
                 body  : `<div class="w2ui-centered">${options}</div>`,
                 onOpen(event) {
-                    setTimeout(() => { $(event.box).find('.w2ui-btn').focus() }, 25)
+                    setTimeout(() => {
+                        w2utils.bindEvents($(obj.box).find('.w2ui-btn'), obj)
+                        $(event.box).find('.w2ui-btn').focus()
+                    }, 25)
                 }
             }
         }
         if (options && options.buttons == null) {
-            options.buttons = `<button type="button" class="w2ui-btn" onclick="w2ui['${this.name}'].message()">
+            options.buttons = `<button type="button" class="w2ui-btn" data-click="message">
                 ${w2utils.lang('Ok')}
             </button>`
         }
@@ -1175,11 +1179,11 @@ class w2form extends w2event {
                     collapsible = '<span class="w2ui-icon-collapse" style="width: 15px; display: inline-block; position: relative; top: -2px;"></span>'
                 }
                 html += '\n <div class="w2ui-group">'
-                    + '\n   <div class="w2ui-group-title" style="'+ (field.html.groupTitleStyle || '') + '; '
+                    + '\n   <div class="w2ui-group-title w2ui-events" style="'+ (field.html.groupTitleStyle || '') + '; '
                                     + (collapsible != '' ? 'cursor: pointer; user-select: none' : '') + '"'
                     + (collapsible != '' ? 'data-group="' + w2utils.base64encode(field.html.group) + '"' : '')
                     + (collapsible != ''
-                        ? 'onclick="w2ui[\'' + this.name + '\'].toggleGroup(\'' + field.html.group + '\')"'
+                        ? 'data-click="toggleGroup|' + field.html.group + '"'
                         : '')
                     + '>'
                     + collapsible + w2utils.lang(field.html.group) + '</div>\n'
@@ -1907,6 +1911,7 @@ class w2form extends w2event {
             .addClass('w2ui-reset w2ui-form')
             .html(html)
         if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style
+        w2utils.bindEvents($(this.box).find('.w2ui-events'), this)
 
         // init toolbar regardless it is defined or not
         if (typeof this.toolbar.render !== 'function') {

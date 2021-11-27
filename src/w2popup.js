@@ -3,6 +3,7 @@
 *   - Dependencies: jQuery, w2utils
 *
 * == 2.0 changes
+*   - CSP - fixed inline events
 *
 ************************************************************************/
 
@@ -649,12 +650,12 @@ class w2dialog extends w2event {
                 }
                 // add message
                 $('#w2ui-popup .w2ui-box')
-                    .before('<div id="w2ui-message' + msgCount + '" class="w2ui-message" style="display: none; z-index: 1500; ' +
+                    .before('<div id="w2ui-message' + msgCount + '" class="w2ui-message w2ui-popup-action" style="display: none; z-index: 1500; ' +
                                 (head.length === 0 ? 'top: 0px;' : 'top: ' + w2utils.getSize(head, 'height') + 'px;') +
                                 (options.width != null ? 'width: ' + options.width + 'px; left: ' + ((pWidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
                                 (options.height != null ? 'height: ' + options.height + 'px;' : 'bottom: 6px;') +
                                 w2utils.cssPrefix('transition', '0s', true) + '" data-msgId="' + msgCount +'" ' +
-                                (options.hideOnClick === true ? 'onclick="w2popup.message();"' : '') + '>' +
+                                (options.hideOnClick === true ? 'data-click="message"' : '') + '>' +
                             '</div>')
                 $('#w2ui-popup #w2ui-message'+ msgCount).data('options', options)
                 let display = $('#w2ui-popup #w2ui-message'+ msgCount).css('display')
@@ -688,7 +689,7 @@ class w2dialog extends w2event {
                         }
                         // event after
                         obj.trigger($.extend(edata, { phase: 'after' }))
-                        w2utils.bindEvents(`#w2ui-popup #w2ui-message${msgCount} .w2ui-popup-action`, w2popup)
+                        w2utils.bindEvents(`#w2ui-popup #w2ui-message${msgCount}, #w2ui-popup #w2ui-message${msgCount} .w2ui-popup-action`, w2popup)
                         resolve(edata)
                     }, 350)
                 }

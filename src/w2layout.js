@@ -3,6 +3,7 @@
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2tabs
 *
 * == 2.0 changes
+*   - CSP - fixed inline events
 *
 ************************************************************************/
 

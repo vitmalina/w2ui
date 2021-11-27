@@ -10,6 +10,7 @@
 *   - stricter CSP (work in progress)
 *
 * == 2.0 changes
+*   - CSP - fixed inline events
 *
 ************************************************/
 import { w2event } from './w2event.js'
@@ -1257,7 +1258,9 @@ let w2utils = (($) => {
                         // event after
                         if (options.trigger) {
                             options.trigger($.extend(edata, { phase: 'after' }))
-                            resolve()
+                            resolve({
+                                box: $(where.box).find('#w2ui-message'+ msgCount)
+                            })
                         }
                     }, 350)
                 }

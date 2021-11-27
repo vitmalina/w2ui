@@ -5,6 +5,9 @@
 * == TODO ==
 *   - vertical toolbar
 *
+* == 2.0 changes
+*   - CSP - fixed inline events
+*
 ************************************************************************/
 import { w2event } from './w2event.js'
 import { w2ui, w2utils } from './w2utils.js'
