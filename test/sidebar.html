@@ -1,89 +1,11 @@
 <html>
 <head>
-<link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui-1.5.css" />
-<link rel="stylesheet" type="text/css" media="screen" href="../libs/font-awesome/css/font-awesome.css" />
-<script type="text/javascript" src="../libs/jquery/jquery-3.5.1.min.js"></script>
-<script type="module" src="../src/w2compat.js?globals"></script>
-<script>
-$(function () {
-    $('#sidebar').w2sidebar({
-        name: 'sidebar',
-        nodes: [
-            {
-                id: 'level-1',
-                text: 'Level 1',
-                img: 'icon-folder',
-                expanded: true,
-                group: true,
-                nodes: [{
-                        id: 'level-1-1',
-                        text: 'Level 1.1',
-                        icon: 'fa-home'
-                    },
-                    {
-                        id: 'level-1-2',
-                        text: 'Level 1.2',
-                        icon: 'fa-star'
-                    },
-                    {
-                        id: 'level-1-3',
-                        text: 'Level 1.3',
-                        icon: 'fa-star-empty'
-                    }
-                ]
-            },
-            {
-                id: 'level-2',
-                text: 'Level 2',
-                img: 'icon-folder',
-                expanded: true,
-                group: true,
-                nodes: [{
-                        id: 'level-2-1',
-                        text: 'Level 2.1',
-                        img: 'icon-folder',
-                        count: 3,
-                        nodes: [
-                            {
-                                id: 'level-2-1-1',
-                                text: 'Level 2.1.1',
-                                icon: 'fa-star-empty'
-                            },
-                            {
-                                id: 'level-2-1-2',
-                                text: 'Level 2.1.2',
-                                icon: 'fa-star-empty',
-                                count: 67
-                            },
-                            {
-                                id: 'level-2-1-3',
-                                text: 'Level 2.1.3',
-                                icon: 'fa-star-empty'
-                            }
-
-                        ]
-                    },
-
-                    {
-                        id: 'level-2-2',
-                        text: 'Level 2.2',
-                        icon: 'fa-star-empty'
-                    },
-
-                    {
-                        id: 'level-2-3',
-                        text: 'Level 2.3',
-                        icon: 'fa-star-empty'
-                    }
-
-                ]
-
-            }
-        ]
-
-    });
-})
-    </script>
+    <link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui-1.5.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="../libs/font-awesome/css/font-awesome.css" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data:; style-src 'self' 'unsafe-inline';">
+    <script type="text/javascript" src="../libs/jquery/jquery-3.5.1.min.js"></script>
+    <script type="module" src="../src/w2compat.js?globals"></script>
+    <script src="sidebar.js"></script>
 </head>
 <body>
     <input placeholder="before sidebar" class="w2ui-input" style="margin: 10px 0px;"/>
