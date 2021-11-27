@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (11/27/2021, 2:39:53 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (11/27/2021, 2:46:55 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -15285,7 +15285,6 @@ class w2sidebar extends w2event {
         // bind events
         if (id) {
             let els = $(this.box).find(`${nodeId}.w2ui-eaction, ${nodeSubId} .w2ui-eaction`)
-            console.log (`"${node.id}"`, els.length, els)
             w2utils.bindEvents(els, this)
         }
         // event after
