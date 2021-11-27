@@ -499,11 +499,11 @@ class w2toolbar extends w2event {
                 line++
                 html += `
                     <div class="w2ui-tb-line">
-                        <div class="w2ui-scroll-wrapper w2ui-action" data-mousedown="resize">
+                        <div class="w2ui-scroll-wrapper w2ui-eaction" data-mousedown="resize">
                             <div class="w2ui-tb-right">${this.right[line-1] || ''}</div>
                         </div>
-                        <div class="w2ui-scroll-left w2ui-action" data-click='["scroll", "left", "${line}"]'></div>
-                        <div class="w2ui-scroll-right w2ui-action" data-click='["scroll", "right", "${line}"]'></div>
+                        <div class="w2ui-scroll-left w2ui-eaction" data-click='["scroll", "left", "${line}"]'></div>
+                        <div class="w2ui-scroll-right w2ui-eaction" data-click='["scroll", "right", "${line}"]'></div>
                     </div>
                 `
             }
@@ -516,7 +516,7 @@ class w2toolbar extends w2event {
         if ($(this.box).length > 0) {
             $(this.box)[0].style.cssText += this.style
         }
-        w2utils.bindEvents($(this.box).find('.w2ui-tb-line .w2ui-action'), this)
+        w2utils.bindEvents($(this.box).find('.w2ui-tb-line .w2ui-eaction'), this)
         // refresh all
         this.refresh()
         this.resize()

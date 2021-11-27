@@ -1179,7 +1179,7 @@ class w2form extends w2event {
                     collapsible = '<span class="w2ui-icon-collapse" style="width: 15px; display: inline-block; position: relative; top: -2px;"></span>'
                 }
                 html += '\n <div class="w2ui-group">'
-                    + '\n   <div class="w2ui-group-title w2ui-events" style="'+ (field.html.groupTitleStyle || '') + '; '
+                    + '\n   <div class="w2ui-group-title w2ui-eaction" style="'+ (field.html.groupTitleStyle || '') + '; '
                                     + (collapsible != '' ? 'cursor: pointer; user-select: none' : '') + '"'
                     + (collapsible != '' ? 'data-group="' + w2utils.base64encode(field.html.group) + '"' : '')
                     + (collapsible != ''
@@ -1911,7 +1911,7 @@ class w2form extends w2event {
             .addClass('w2ui-reset w2ui-form')
             .html(html)
         if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style
-        w2utils.bindEvents($(this.box).find('.w2ui-events'), this)
+        w2utils.bindEvents($(this.box).find('.w2ui-eaction'), this)
 
         // init toolbar regardless it is defined or not
         if (typeof this.toolbar.render !== 'function') {

@@ -1390,13 +1390,13 @@ import { w2toolbar } from './w2toolbar.js'
         if ($('#w2ui-overlay').length === 0) {
             $(el).w2overlay(getColorHTML(options), options)
             setTimeout(() => {
-                w2utils.bindEvents($('#w2ui-overlay .w2ui-events'), colorEvents)
+                w2utils.bindEvents($('#w2ui-overlay .w2ui-eaction'), colorEvents)
             }, 1)
         } else { // only refresh contents
             $('#w2ui-overlay .w2ui-colors').parent().html(getColorHTML(options))
             $('#w2ui-overlay').show()
             setTimeout(() => {
-                w2utils.bindEvents($('#w2ui-overlay .w2ui-events'), colorEvents)
+                w2utils.bindEvents($('#w2ui-overlay .w2ui-eaction'), colorEvents)
             }, 1)
         }
         // bind events
@@ -1636,7 +1636,7 @@ import { w2toolbar } from './w2toolbar.js'
 
         function getColorHTML(options) {
             let bor
-            let html = '<div class="w2ui-colors w2ui-events" data-mousedown="keepOpen|this">'+
+            let html = '<div class="w2ui-colors w2ui-eaction" data-mousedown="keepOpen|this">'+
                         '<div class="w2ui-color-palette">'+
                         '<table cellspacing="5"><tbody>'
             for (let i = 0; i < pal.length; i++) {
@@ -1690,8 +1690,8 @@ import { w2toolbar } from './w2toolbar.js'
                         '</div>'
             }
             html += '<div class="w2ui-color-tabs">'+
-                    '   <div class="w2ui-color-tab selected w2ui-events" data-click="colorClick|this"><span class="w2ui-icon w2ui-icon-colors"></span></div>'+
-                    '   <div class="w2ui-color-tab w2ui-events" data-click="colorClick2|this"><span class="w2ui-icon w2ui-icon-settings"></span></div>'+
+                    '   <div class="w2ui-color-tab selected w2ui-eaction" data-click="colorClick|this"><span class="w2ui-icon w2ui-icon-colors"></span></div>'+
+                    '   <div class="w2ui-color-tab w2ui-eaction" data-click="colorClick2|this"><span class="w2ui-icon w2ui-icon-settings"></span></div>'+
                     '   <div style="padding: 8px; text-align: right;">' + (typeof options.html == 'string' ? options.html : '') + '</div>' +
                     '</div>'+
                     '</div>'+

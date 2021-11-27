@@ -305,7 +305,7 @@ class w2tabs extends w2event {
         if (tab.hidden) { addStyle += 'display: none;' }
         if (tab.disabled) { addStyle += 'opacity: 0.2;' }
         if (tab.closable && !tab.disabled) {
-            closable = `<div class="w2ui-tab-close w2ui-action ${this.active === tab.id ? 'active' : ''}"
+            closable = `<div class="w2ui-tab-close w2ui-eaction ${this.active === tab.id ? 'active' : ''}"
                 data-mouseenter='["tooltipShow", "${tab.id}", "event"]'
                 data-mouseleave='["tooltipHide", "${tab.id}", "event"]'
                 data-mousedown="stop"
@@ -314,7 +314,7 @@ class w2tabs extends w2event {
         }
         return `
             <div id="tabs_${this.name}_tab_${tab.id}" style="${addStyle} ${tab.style}"
-               class="w2ui-tab w2ui-action ${this.active === tab.id ? 'active' : ''} ${tab.closable ? 'closable' : ''} ${tab.class ? tab.class : ''}"
+               class="w2ui-tab w2ui-eaction ${this.active === tab.id ? 'active' : ''} ${tab.closable ? 'closable' : ''} ${tab.class ? tab.class : ''}"
                data-mouseenter ='["tooltipShow", "${tab.id}", "event"]'
                data-mouseleave ='["tooltipHide", "${tab.id}", "event"]'
                data-mousedown  ='["initReorder", "${tab.id}", "event"]'
@@ -347,7 +347,7 @@ class w2tabs extends w2event {
                     $tab.replaceWith(tabHTML)
                 }
             }
-            w2utils.bindEvents(`${selector}, ${selector} .w2ui-action`, this)
+            w2utils.bindEvents(`${selector}, ${selector} .w2ui-eaction`, this)
         }
         // right html
         $('#tabs_'+ this.name +'_right').html(this.right)
@@ -377,11 +377,11 @@ class w2tabs extends w2event {
         // render all buttons
         let html =`
             <div class="w2ui-tabs-line"></div>
-            <div class="w2ui-scroll-wrapper w2ui-action" data-mousedown="resize">
+            <div class="w2ui-scroll-wrapper w2ui-eaction" data-mousedown="resize">
                 <div id="tabs_${this.name}_right" class="w2ui-tabs-right">${this.right}</div>
             </div>
-            <div class="w2ui-scroll-left w2ui-action" data-click='["scroll","left"]'></div>
-            <div class="w2ui-scroll-right w2ui-action" data-click='["scroll","right"]'></div>`
+            <div class="w2ui-scroll-left w2ui-eaction" data-click='["scroll","left"]'></div>
+            <div class="w2ui-scroll-right w2ui-eaction" data-click='["scroll","right"]'></div>`
         $(this.box)
             .attr('name', this.name)
             .addClass('w2ui-reset w2ui-tabs')
@@ -389,7 +389,7 @@ class w2tabs extends w2event {
         if ($(this.box).length > 0) {
             $(this.box)[0].style.cssText += this.style
         }
-        w2utils.bindEvents($(this.box).find('.w2ui-action'), this)
+        w2utils.bindEvents($(this.box).find('.w2ui-eaction'), this)
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
         this.refresh()
