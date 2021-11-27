@@ -261,7 +261,7 @@ import { w2toolbar } from './w2toolbar.js'
                     }
                     // insert
                     $('body').append(
-                        '<div onclick="event.stopPropagation()" style="display: none;" id="w2ui-tag-'+ tag.id +'" '+
+                        '<div data-click="stop" style="display: none;" id="w2ui-tag-'+ tag.id +'" '+
                         '       class="w2ui-tag '+ ($(tag.attachedTo).parents('.w2ui-popup, .w2ui-overlay-popup, .w2ui-message').length > 0 ? 'w2ui-tag-popup' : '') + '">'+
                         '   <div style="margin: -2px 0px 0px -2px; '+ tagStyles +'">'+
                         '      <div class="w2ui-tag-body '+ tag.options.className +'" style="'+ (tag.options.style || '') +'">'+ text +'</div>'+
@@ -269,6 +269,7 @@ import { w2toolbar } from './w2toolbar.js'
                         '</div>')
                     tag.box = $('#w2ui-tag-' + tmpID)
                     $(tag.attachedTo).data('w2tag', tag) // make available to element tag attached to
+                    w2utils.bindEvents(tag.box, {})
                     setTimeout(init, 1)
                 }
                 return
@@ -784,12 +785,14 @@ import { w2toolbar } from './w2toolbar.js'
             render       : null,
             msgNoItems   : w2utils.lang('No items found'),
             onSelect     : null,
+            hideOnSelect : true,
             hideOnRemove : false,
             tmp          : {}
         }
         let ret
         let obj  = this
         let name = ''
+        let activeChain
         if (menu === 'refresh') {
             // if not show - call blur
             if ($.fn.w2tmp.menuOptions && $.fn.w2tmp.menuOptions.name) name = '-' + $.fn.w2tmp.menuOptions.name
@@ -802,11 +805,17 @@ import { w2toolbar } from './w2toolbar.js'
                 let scrTop = $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop()
                 $('#w2ui-overlay'+ name +' div.w2ui-menu').html(getMenuHTML())
                 $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop(scrTop)
-                mresize()
+                setTimeout(() => {
+                    w2utils.bindEvents(`#w2ui-overlay${name} .w2ui-menu-item`, jQuery.fn.w2tmp)
+                    mresize()
+                }, 1)
             }
         } else if (menu === 'refresh-index') {
+            if (!Array.isArray(options.index) && w2utils.isInt(options.index) && parseInt(options.index) >= 0) {
+                options.index = [options.index]
+            }
             let $menu  = $('#w2ui-overlay'+ name +' div.w2ui-menu')
-            let cur    = $menu.find('tr[index='+ options.index +']')
+            let cur    = $menu.find('tr[index="'+ (Array.isArray(options.index) ? options.index.join('-') : '') +'"]')
             let scrTop = $menu.scrollTop()
             $menu.find('tr.w2ui-selected').removeClass('w2ui-selected') // clear all
             cur.addClass('w2ui-selected') // select current
@@ -823,23 +832,33 @@ import { w2toolbar } from './w2toolbar.js'
         } else {
             if (arguments.length === 1) options = menu; else options.items = menu
             if (typeof options !== 'object') options = {}
-            options            = $.extend({}, defaults, options)
+            options = $.extend({}, defaults, options)
+            if (w2utils.isInt(options.index) && parseInt(options.index) >= 0) {
+                options.index = [options.index]
+            }
+            options.items = w2utils.normMenu(options.items)
             $.fn.w2tmp.menuOptions = options
             if (options.name) name = '-' + options.name
             if (typeof options.select === 'function' && typeof options.onSelect !== 'function') options.onSelect = options.select
             if (typeof options.remove === 'function' && typeof options.onRemove !== 'function') options.onRemove = options.remove
             if (typeof options.onRender === 'function' && typeof options.render !== 'function') options.render = options.onRender
+
             // since only one overlay can exist at a time
             $.fn.w2tmp.menuClick = function menuClick(event, index, parentIndex) {
-                let keepOpen = false, items
+                let keepOpen = false
+                let items    = options.items
                 let $tr      = $(event.target).closest('tr')
                 if (event.shiftKey || event.metaKey || event.ctrlKey) {
                     keepOpen = true
                 }
-                if (parentIndex == null) {
-                    items = options.items
-                } else {
-                    items = options.items[parentIndex].items
+                if (typeof parentIndex == 'string' && parentIndex !== '') {
+                    let ids = parentIndex.split('-')
+                    ids.forEach(id => {
+                        items = items[id].items
+                    })
+                }
+                if (items[index].disabled) {
+                    return
                 }
                 if ($(event.target).hasClass('remove')) {
                     if (typeof options.onRemove === 'function') {
@@ -855,13 +874,21 @@ import { w2toolbar } from './w2toolbar.js'
                     $(event.target).closest('tr').remove()
                     mresize()
                 } else if ($tr.hasClass('has-sub-menu')) {
+                    // add overflow hidden so scrollbar would not flash
+                    let menu = $('#w2ui-overlay'+ name +' div.w2ui-menu')
+                    if (menu.length > 0) menu.css('overflow-y', 'hidden')
+                    // --
                     keepOpen = true
                     if ($tr.hasClass('expanded')) {
                         items[index].expanded = false
                         $tr.removeClass('expanded').addClass('collapsed').next().hide()
+                        activeChain = null // reset active chain
+                        options.index = $tr.attr('index').split('-')
                     } else {
                         items[index].expanded = true
                         $tr.addClass('expanded').removeClass('collapsed').next().show()
+                        activeChain = null // reset active chain
+                        options.index = $tr.attr('index').split('-')
                     }
                     mresize()
                 } else if (typeof options.onSelect === 'function') {
@@ -881,7 +908,7 @@ import { w2toolbar } from './w2toolbar.js'
                     })
                 }
                 // -- hide
-                if (items[index] == null || items[index].keepOpen !== true) {
+                if (options.hideOnSelect && (items[index] == null || items[index].keepOpen !== true)) {
                     let div = $('#w2ui-overlay'+ name)
                     div.removeData('keepOpen')
                     if (div.length > 0 && typeof div[0].hide === 'function' && !keepOpen) {
@@ -889,16 +916,21 @@ import { w2toolbar } from './w2toolbar.js'
                     }
                 }
             }
+
             $.fn.w2tmp.menuDown = function (event, index, parentIndex) {
-                let items
+                let items = options.items
                 let $el = $(event.target).closest('tr')
                 let tmp = $($el.get(0)).find('.w2ui-icon')
-                if (parentIndex == null) {
-                    items = options.items
-                } else {
-                    items = options.items[parentIndex].items
+                if (typeof parentIndex == 'string' && parentIndex !== '') {
+                    let ids = parentIndex.split('-')
+                    ids.forEach(id => {
+                        items = items[id].items
+                    })
                 }
                 let item = items[index]
+                if (item.disabled) {
+                    return
+                }
                 if ((options.type === 'check' || options.type === 'radio') && item.group !== false
                             && !$(event.target).hasClass('remove')
                             && !$(event.target).closest('tr').hasClass('has-sub-menu')) {
@@ -931,31 +963,39 @@ import { w2toolbar } from './w2toolbar.js'
             }
             let html = ''
             if (options.search) {
-                html          += '<div style="position: absolute; top: 0px; height: 40px; left: 0px; right: 0px; border-bottom: 1px solid silver; background-color: #ECECEC; padding: 8px 5px;">'+
-                    '    <div class="w2ui-icon w2ui-icon-search" style="position: absolute; margin-top: 4px; margin-left: 6px; width: 11px; background-position: left !important;"></div>'+
-                    '    <input id="menu-search" type="text" style="width: 100%; outline: none; padding-left: 20px;" onclick="event.stopPropagation();"/>'+
-                    '</div>'
-                options.style += ';background-color: #ECECEC'
-                options.index  = 0
+                html += `
+                    <div class="w2ui-menu-search">
+                        <div class="w2ui-icon w2ui-icon-search"></div>
+                        <input id="menu-search" type="text"/>
+                    </div>`
                 for (let i = 0; i < options.items.length; i++) options.items[i].hidden = false
             }
             html += (options.topHTML || '') +
-                    '<div class="w2ui-menu" style="top: '+ (options.search ? 40 : 0) + 'px;' + (options.menuStyle || '') + '">' +
-                        getMenuHTML() +
-                    '</div>'
-            ret   = $(this).w2overlay(html, options)
+                    `<div class="w2ui-menu" style="top: ${options.search ? 40 : 0}px; ${options.menuStyle || ''}">
+                        ${getMenuHTML()}
+                    </div>`
+            ret = $(this).w2overlay(html, options)
+            activeChain = null // reset active chain
             setTimeout(() => {
-                $('#w2ui-overlay'+ name +' #menu-search')
-                    .on('keyup', change)
-                    .on('keydown', function(event) {
-                        // cancel tab key
-                        if (event.keyCode === 9) { event.stopPropagation(); event.preventDefault() }
+                $(`#w2ui-overlay${name} #menu-search`)
+                    .on('click', function (event) {
+                        event.stopPropagation()
                     })
+                    .on('keyup', change)
+                    .on('keydown', function (event) {
+                        // cancel left/right arrows
+                        if ([40, 38].indexOf(event.keyCode) !== -1) {
+                            event.stopPropagation()
+                            event.preventDefault()
+                        }
+                    })
+                w2utils.bindEvents(`#w2ui-overlay${name} .w2ui-menu-item`, jQuery.fn.w2tmp)
+                mresize()
+                // should be last (moves focus if needed)
                 if (options.search) {
                     if (['text', 'password'].indexOf($(obj)[0].type) !== -1 || $(obj)[0].tagName.toUpperCase() === 'TEXTAREA') return
-                    $('#w2ui-overlay'+ name +' #menu-search').focus()
+                    $(`#w2ui-overlay${name} #menu-search`).focus()
                 }
-                mresize()
             }, 1)
             mresize()
             // map functions
@@ -971,11 +1011,11 @@ import { w2toolbar } from './w2toolbar.js'
             setTimeout(() => {
                 // show selected
                 $('#w2ui-overlay'+ name +' tr.w2ui-selected').removeClass('w2ui-selected')
-                let cur    = $('#w2ui-overlay'+ name +' tr[index='+ options.index +']')
+                let cur    = $('#w2ui-overlay'+ name +' tr[index="'+ (Array.isArray(options.index) ? options.index.join('-') : '') +'"]')
                 let scrTop = $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop()
                 cur.addClass('w2ui-selected')
                 if (options.tmp) {
-                    options.tmp.contentHeight = $('#w2ui-overlay'+ name +' table').height() + (options.search ? 50 : 10)
+                    options.tmp.contentHeight = $('#w2ui-overlay'+ name +' table').height() + 12
                         + (parseInt($('#w2ui-overlay'+ name +' .w2ui-menu').css('top')) || 0) // it menu is moved with menuStyle
                         + (parseInt($('#w2ui-overlay'+ name +' .w2ui-menu').css('bottom')) || 0) // it menu is moved with menuStyle
                     options.tmp.contentWidth  = $('#w2ui-overlay'+ name +' table').width()
@@ -984,7 +1024,7 @@ import { w2toolbar } from './w2toolbar.js'
                 // scroll into view
                 if (cur.length > 0) {
                     let top    = cur[0].offsetTop - 5 // 5 is margin top
-                    let el     = $('#w2ui-overlay'+ name +' div.w2ui-menu')
+                    let el     = $('#w2ui-overlay'+ name +' div.w2ui-menu table')
                     let height = el.height()
                     $('#w2ui-overlay'+ name +' div.w2ui-menu').scrollTop(scrTop)
                     if (top < scrTop || top + cur.height() > scrTop + height) {
@@ -997,70 +1037,180 @@ import { w2toolbar } from './w2toolbar.js'
         function change(event) {
             let search = this.value
             let key    = event.keyCode
-            let cancel = false
+            let filter = true
+            let refreshIndex = false
             switch (key) {
-                case 13: // enter
-                    $('#w2ui-overlay'+ name).remove()
-                    $.fn.w2tmp.menuClick(event, options.index)
+                case 13: { // enter
+                    let { item, index, parents } = getCurrent()
+                    // do not hide if folder
+                    if (Array.isArray(item.items) && item.items.length > 0) {
+                        event.target = $('#w2ui-overlay'+ name).find('.w2ui-selected')[0]
+                        activeChain = null
+                    } else {
+                        getCurrent()
+                        $('#w2ui-overlay'+ name)[0].hide()
+                    }
+                    $.fn.w2tmp.menuClick(event, index, parents)
+                    filter = false
                     break
+                }
                 case 9: // tab
                 case 27: // escape
-                    $('#w2ui-overlay'+ name).remove()
-                    $.fn.w2tmp.menuClick(event, -1)
+                    filter = false
+                    $('#w2ui-overlay'+ name)[0].hide()
                     break
-                case 38: // up
-                    options.index = w2utils.isInt(options.index) ? parseInt(options.index) : 0
-                    options.index--
-                    while (options.index > 0 && options.items[options.index].hidden) options.index--
-                    if (options.index === 0 && options.items[options.index].hidden) {
-                        while (options.items[options.index] && options.items[options.index].hidden) options.index++
+                case 37: { // left
+                    let { item, index, parents } = getCurrent()
+                    if (Array.isArray(item.items) && item.items.length > 0 && item.expanded) {
+                        event.target = $('#w2ui-overlay'+ name).find('.w2ui-selected')[0]
+                        $.fn.w2tmp.menuClick(event, index, parents)
                     }
-                    if (options.index < 0) options.index = 0
-                    cancel = true
+                    filter = false
                     break
-                case 40: // down
-                    options.index = w2utils.isInt(options.index) ? parseInt(options.index) : 0
-                    options.index++
-                    while (options.index < options.items.length-1 && options.items[options.index].hidden) options.index++
-                    if (options.index === options.items.length-1 && options.items[options.index].hidden) {
-                        while (options.items[options.index] && options.items[options.index].hidden) options.index--
+                }
+                case 39: { // right
+                    let { item, index, parents } = getCurrent()
+                    if (Array.isArray(item.items) && item.items.length > 0 && !item.expanded) {
+                        event.target = $('#w2ui-overlay'+ name).find('.w2ui-selected')[0]
+                        $.fn.w2tmp.menuClick(event, index, parents)
                     }
-                    if (options.index >= options.items.length) options.index = options.items.length - 1
-                    cancel = true
+                    filter = false
                     break
+                }
+                case 38: { // up
+                    let chain = getActiveChain(options.items)
+                    if (Array.isArray(options.index) && options.index.length == 0) {
+                        options.index = [chain[chain.length-1]]
+                    } else {
+                        let ind = chain.indexOf(options.index.join('-'))
+                        if (ind > 0) {
+                            options.index = chain[ind - 1].split('-')
+                        }
+                    }
+                    filter = false
+                    refreshIndex = true
+                    event.preventDefault()
+                    break
+                }
+                case 40: { // down
+                    let chain = getActiveChain(options.items)
+                    if (Array.isArray(options.index) && options.index.length == 0) {
+                        options.index = [chain[0]]
+                    } else {
+                        let ind = chain.indexOf(options.index.join('-'))
+                        if (ind != -1 && ind < chain.length - 1) {
+                            options.index = chain[ind + 1].split('-')
+                        }
+                    }
+                    filter = false
+                    refreshIndex = true
+                    event.preventDefault()
+                    break
+                }
             }
             // filter
-            if (!cancel) {
-                let shown = 0
-                for (let i = 0; i < options.items.length; i++) {
-                    let item   = options.items[i]
+            if (filter) {
+                let count = applyFilter(options.items, search)
+                if (count > 0) {
+                    let chain = getActiveChain(options.items)
+                    options.index = chain.length > 0 ? [chain[0].split('-')[0]] : []
+                } else {
+                    options.index = []
+                }
+                $(obj).w2menu('refresh', options)
+            }
+            if (refreshIndex) {
+                $(obj).w2menu('refresh-index', options)
+            }
+
+            function applyFilter(items, search) {
+                let count = 0
+                for (let i = 0; i < items.length; i++) {
+                    let item   = items[i]
                     let prefix = ''
                     let suffix = ''
                     if (['is', 'begins with'].indexOf(options.match) !== -1) prefix = '^'
                     if (['is', 'ends with'].indexOf(options.match) !== -1) suffix = '$'
                     try {
                         let re = new RegExp(prefix + search + suffix, 'i')
-                        if (re.test(item.text) || item.text === '...') item.hidden = false; else item.hidden = true
+                        if (re.test(item.text) || item.text === '...') {
+                            item.hidden = false
+                        } else {
+                            item.hidden = true
+                        }
                     } catch (e) {}
                     // do not show selected items
-                    if (item.hidden !== true) shown++
+                    if (Array.isArray(item.items) && item.items.length > 0) {
+                        delete item._noSearchInside
+                        let subCount = applyFilter(item.items, search)
+                        if (subCount > 0) {
+                            count += subCount
+                            if (item.hidden) item._noSearchInside = true
+                            item.expanded = true
+                            item.hidden = false
+                        }
+                    }
+                    if (item.hidden !== true) count++
                 }
-                options.index = 0
-                while (options.index < options.items.length-1 && options.items[options.index].hidden) options.index++
-                if (shown <= 0) options.index = -1
+                return count
             }
-            $(obj).w2menu('refresh', options)
-            mresize()
+
+            function getCurrent() {
+                // index
+                let last  = options.index.length-1
+                let index = options.index[last]
+                let parents = options.index.slice(0, options.index.length-1).join('-')
+                index = w2utils.isInt(index) ? parseInt(index) : 0
+                // items
+                let items = options.items
+                options.index.forEach((id, ind) => {
+                    // do not go to the last one
+                    if (ind < options.index.length - 1) {
+                        items = items[id].items
+                    }
+                })
+                return { last, index, items, item: items[index], parents }
+            }
+
+            function getActiveChain(items, parents, res, noSave) {
+                if (activeChain != null) {
+                    return activeChain
+                }
+                if (res == null) res = []
+                if (parents == null) parents = []
+                items.forEach((item, ind) => {
+                    if (!item.hidden && !item.disabled) {
+                        res.push(parents.concat([ind]).join('-'))
+                        if (Array.isArray(item.items) && item.items.length > 0 && item.expanded) {
+                            parents.push(ind)
+                            getActiveChain(item.items, parents, res, true)
+                            parents.pop()
+                        }
+                    }
+                })
+                if (noSave == null) {
+                    console.log('new chain', res)
+                    activeChain = res
+                }
+                return res
+            }
         }
 
         function getMenuHTML(items, subMenu, expanded, parentIndex) {
             if (options.spinner) {
-                return `<table><tr>
-                    <td style="padding: 5px 10px 13px 10px; text-align: center">
-                        <div class="w2ui-spinner" style="width: 18px; height: 18px; position: relative; top: 5px;"></div>
-                        <div style="display: inline-block; padding: 3px; color: #999;">${w2utils.lang('Loading...')}</div>
-                    </td>
-                </tr></table>`
+                return `
+                    <table>
+                        <tr><td class="w2ui-no-items">
+                            <div class="w2ui-spinner" style="width: 18px; height: 18px; position: relative; top: 5px;"></div>
+                            <div class="w2ui-no-items-label">${w2utils.lang('Loading...')}</div>
+                        </td></tr>
+                    </table>`
+            }
+            if (!parentIndex) parentIndex = []
+            // normalize options.index
+            if (options.index == null || options.index == -1) options.index = []
+            if (!Array.isArray(options.index) && w2utils.isInt(options.index) && parseInt(options.index) >= 0) {
+                options.index = [options.index]
             }
             let count     = 0
             let menu_html = '<table cellspacing="0" cellpadding="0" class="'+ (subMenu ? ' sub-menu' : '') +'"><tbody>'
@@ -1084,8 +1234,8 @@ import { w2toolbar } from './w2toolbar.js'
                     if (mitem.checked === true) icon = 'w2ui-icon-check'; else icon = 'w2ui-icon-empty'
                 }
                 if (mitem.hidden !== true) {
-                    let imgd        = ''
-                    let txt         = mitem.text
+                    let imgd = ''
+                    let txt  = mitem.text
                     let subMenu_dsp = ''
                     if (typeof options.render === 'function') txt = options.render(mitem, options)
                     if (typeof txt == 'function') txt = txt(mitem, options)
@@ -1093,8 +1243,10 @@ import { w2toolbar } from './w2toolbar.js'
                     if (icon) imgd = '<td class="menu-icon" align="center"><span class="w2ui-icon '+ icon +'"></span></td>'
                     // render only if non-empty
                     if (mitem.type !== 'break' && txt != null && txt !== '' && String(txt).substr(0, 2) != '--') {
-                        let bg = (count % 2 === 0 ? 'w2ui-item-even' : 'w2ui-item-odd')
-                        if (options.altRows !== true) bg = ''
+                        let classes = ['w2ui-menu-item']
+                        if (options.altRows == true) {
+                            classes.push(count % 2 === 0 ? 'w2ui-item-even' : 'w2ui-item-odd')
+                        }
                         let colspan = 1
                         if (imgd === '') colspan++
                         if (mitem.count == null && mitem.hotkey == null && mitem.remove !== true && mitem.items == null) colspan++
@@ -1110,34 +1262,44 @@ import { w2toolbar } from './w2toolbar.js'
                                 _items = mitem.items
                             }
                             count_dsp   = '<span></span>'
-                            subMenu_dsp = '<tr style="'+ (mitem.expanded ? '' : 'display: none') +'">'+
-                                          '     <td colspan="3">' + getMenuHTML(_items, true, !mitem.expanded, f) + '</td>'+
-                                          '<tr>'
+                            subMenu_dsp = `
+                                <tr style="${mitem.expanded ? '' : 'display: none'}">
+                                    <td colspan="4" style="padding: 0px !important">
+                                        ${getMenuHTML(_items, true, !mitem.expanded, parentIndex.concat(f))}
+                                    </td>
+                                <tr>`
                         } else {
                             if (mitem.count != null) count_dsp += '<span>' + mitem.count + '</span>'
                             if (mitem.hotkey != null) count_dsp += '<span class="hotkey">' + mitem.hotkey + '</span>'
                         }
-                        menu_html +=
-                            '<tr index="'+ f + '" style="'+ (mitem.style ? mitem.style : '') +'" '+ (mitem.tooltip ? 'title="'+ w2utils.lang(mitem.tooltip) +'"' : '') +
-                            ' class="'+ bg
-                                + (options.index === f ? ' w2ui-selected' : '')
-                                + (mitem.disabled === true ? ' w2ui-disabled' : '')
-                                + (subMenu_dsp !== '' ? ' has-sub-menu' + (mitem.expanded ? ' expanded' : ' collapsed') : '')
-                                + '"'+
-                            '        onmousedown="if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
-                            '               jQuery.fn.w2tmp.menuDown(event, '+ f +',  '+ parentIndex +');"'+
-                            '        onclick="event.stopPropagation(); '+
-                            '               if ('+ (mitem.disabled === true ? 'true' : 'false') + ') return;'+
-                            '               jQuery.fn.w2tmp.menuClick(event, '+ f +',  '+ parentIndex +');">'+
-                                (subMenu ? '<td></td>' : '') + imgd +
-                            '   <td class="menu-text" colspan="'+ colspan +'">'+ w2utils.lang(txt) +'</td>'+
-                            '   <td class="menu-count">'+ count_dsp +'</td>'+
-                            '</tr>'+ subMenu_dsp
+                        if (options.index.join('-') == parentIndex.concat([f]).join('-')) {
+                            classes.push('w2ui-selected')
+                        }
+                        if (mitem.disabled === true) classes.push('w2ui-disabled')
+                        if (mitem._noSearchInside === true) classes.push('w2ui-no-search-inside')
+                        if (subMenu_dsp !== '') {
+                            classes.push('has-sub-menu')
+                            if (mitem.expanded) {
+                                classes.push('expanded')
+                            } else {
+                                classes.push('collapsed')
+                            }
+                        }
+                        menu_html += `<tr index="${(parentIndex.length > 0 ? parentIndex.join('-') + '-' : '') + f}" class="${classes.join(' ')}"
+                            ${mitem.style ? `style="${mitem.style}"` : ''}
+                            ${mitem.tooltip ? `title="${w2utils.lang(mitem.tooltip)}"` : ''}
+                            data-mousedown='["menuDown", "event", ${f}, "${parentIndex.join('-')}"]'
+                            data-click='["menuClick", "event", ${f}, "${parentIndex.join('-')}"]'>
+                                ${subMenu ? '<td></td>' : ''} ${imgd}
+                               <td class="menu-text" colspan="${colspan}">${w2utils.lang(txt)}</td>
+                               <td class="menu-count">${count_dsp}</td>
+                            </tr>
+                            ${subMenu_dsp}`
                         count++
                     } else {
                         // horizontal line
                         let divText = txt.replace(/^-+/g, '')
-                        menu_html  += '<tr><td colspan="3" class="menu-divider '+ (divText != '' ? 'divider-text' : '') +'">'+
+                        menu_html  += '<tr><td colspan="4" class="menu-divider '+ (divText != '' ? 'divider-text' : '') +'">'+
                                      '   <div class="line">'+ divText +'</div>'+
                                      '   <div class="text">'+ divText +'</div>'+
                                      '</td></tr>'
@@ -1146,13 +1308,10 @@ import { w2toolbar } from './w2toolbar.js'
                 items[f] = mitem
             }
             if (count === 0 && options.msgNoItems) {
-                menu_html += `<tr>
-                    <td style="padding: 5px 10px 13px 10px; text-align: center">
-                        <div style="display: inline-block; padding-top: 3px; color: #999;">
-                            ${w2utils.lang(options.msgNoItems)}
-                        </div>
-                    </td>
-                </tr>`
+                menu_html += `
+                    <tr><td class="w2ui-no-items">
+                        <div class="w2ui-no-items-label">${w2utils.lang(options.msgNoItems)}</div>
+                    </td></tr>`
             }
             menu_html += '</tbody></table>'
             return menu_html

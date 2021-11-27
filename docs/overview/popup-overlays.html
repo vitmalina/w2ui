@@ -71,14 +71,17 @@ The plugin will display an overlay under (or above) the element. If element is b
 displayed in the visible portion of the page.
 
 <textarea class="javascript">
-<input id="input" onclick="
-    var html = '<div style=\'padding: 10px\'>This is an overlay.<br>Can be multi line HTML.</div>';
-    $(this).w2overlay(html)">
+let html = `
+    <div style="padding: 10px; line-height: 1.5">
+        This is an overlay.<br>Can be multi line HTML.
+    </div>`
+$('#input-overlay').w2overlay({ html, align: 'both' })
 </textarea>
 
 <h5>Preview</h5>
 
-<input id="input" onclick="$(this).w2overlay('<div style=\'padding: 10px\'>This is an overlay.<br>Can be multi line HTML.</div>')">
+<input id="input-overlay"
+    onclick="let html =`<div style=\'padding: 10px; line-height: 1.5\'>This is an overlay.<br>Can be multi line HTML.</div>`; $(this).w2overlay({ html, align: 'both' })">
 <div style="height: 10px"></div>
 
 <i>Click on this field</i>
@@ -117,29 +120,100 @@ options: {
 </textarea>
 <div style="height: 20px"></div>
 
+<h4>$().w2menu(menu, options)</h4>
+Displays popup menu
+For example:
+
+<textarea class="javascript">
+$('#id').w2menu({
+    items: [
+        { id: 1, text: 'Item 1', icon: 'icon-page' },
+        { id: 2, text: 'Item 2', icon: 'icon-page' },
+        { id: 3, text: 'Item 3', icon: 'icon-page' },
+    ],
+    align: 'both',
+    onSelect(event) {
+        $('#input-menu').val(event.item.text)
+    }
+})
+</textarea>
+
+<h5>Preview</h5>
+<input id="input-menu" onclick="
+    $(this).w2menu({
+        items: [
+            { id: 1, text: 'Item 1', icon: 'icon-page' },
+            { id: 2, text: 'Item 2', icon: 'icon-page' },
+            { id: 3, text: 'Item 3', icon: 'icon-page' },
+        ],
+        align: 'both',
+        onSelect(event) {
+            $('#input-menu').val(event.item.text)
+        }
+    })">
+
+<i>Click on this field</i>
+<div style="height: 20px"></div>
+
+You can use any valid overlay option for the w2memnu as well. In addition it has following options:
+<textarea class="javascript">
+{
+    type         : 'normal',    // can be normal, radio, check
+    index        : null,        // current selected
+    items        : [],          // menu items
+    render       : null,        // custom renderer
+    msgNoItems   : 'No items found',
+    hideOnSelect : true,        // hide menu when item selected
+    hideOnRemove : false,       // hide menu if item removed
+    onSelect     : null,        // select event
+    onRemove     : null         // remove event
+}
+</textarea>
+Items is an array of objects
+<textarea class="javascript">
+item: {
+    id       : null,
+    text     : '',
+    style    : '',
+    img      : '',
+    icon     : '',
+    count    : '',
+    tooltip  : '',
+    hidden   : false,
+    checked  : null,
+    disabled : false
+    ...
+}
+</textarea>
+
 <h4>$().w2color(options, callBack)</h4>
 Displays color picker menu for the element. It is used in w2toolbar for color and text-color menus.
 For example:
 
 <textarea class="javascript">
-<input id="input-color" size="10" onclick="
-    $(this).w2color({
-        color: '#000000',
-        transparent: true,
-        html: 'Custom Colors'
-    }, function (color) {
-        $('#input-color').val(color)
-    })">
+$('#id').w2color({
+    color: $(this).val(),
+    transparent: true,
+    html: 'Custom Colors',
+    onSelect(color) {
+        $('#input-color')
+            .val(color)
+            .w2overlay() // hide
+    }
+})
 </textarea>
 
 <h5>Preview</h5>
 <input id="input-color" size="10" onclick="
     $(this).w2color({
-        color: '#000000',
+        color: $(this).val(),
         transparent: true,
-        html: 'Custom Colors'
-    }, function (color) {
-        $('#input-color').val(color)
+        html: 'Custom Colors',
+        onSelect(color) {
+            $('#input-color')
+                .val(color)
+                .w2overlay() // hide
+        }
     })">
 
 <i>Click on this field</i>

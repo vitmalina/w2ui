@@ -1752,7 +1752,7 @@ let w2utils = (($) => {
 
     function bindEvents(selector, subject) {
         // format is
-        // <div ... data-<event>='["<method>","param1","param2",...]'> -- should be valid JSON
+        // <div ... data-<event>='["<method>","param1","param2",...]'> -- should be valid JSON (no undefined)
         // <div ... data-<event>="<method>|param1|param2">
         // -- can have "event", "this", "stop", "stopPrevent", "alert" - as predefined objects
         $(selector).each((ind, el) => {
@@ -1767,6 +1767,9 @@ let w2utils = (($) => {
                     params = params.split('|').map(key => {
                         if (key === 'true') key = true
                         if (key === 'false') key = false
+                        if (key === 'undefined') key = undefined
+                        if (key === 'null') key = null
+                        if (parseFloat(key) == key) key = parseFloat(key)
                         return key
                     })
                 }

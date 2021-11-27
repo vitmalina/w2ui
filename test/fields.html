@@ -2,220 +2,10 @@
 <head>
 <link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
 <link rel="stylesheet" type="text/css" media="screen" href="../libs/font-awesome/css/font-awesome.css" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' data:; style-src 'self' 'unsafe-inline';">
 <script type="text/javascript" src="../libs/jquery/jquery-3.5.1.min.js"></script>
 <script type="module" src="../src/w2compat.js?globals"></script>
-<script>
-    // jQuery.noConflict();
-    //<![CDATA[
-    jQuery(function () {
-        w2utils.settings.dataType = 'HTTP';
-        var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
-        var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
-        var items = [];
-        // add 10k records
-        for (var i = 0; i < 50; i++) {
-            var item = {
-                id         : (i + 1),
-                fname    : fname[Math.floor(Math.random() * fname.length)],
-                lname    : lname[Math.floor(Math.random() * lname.length)],
-                email    : 'vm@gmail.com', manager: '--',
-                snumber  : Math.floor(Math.random() * 10000000),
-                sdate    : (new Date(Math.floor(Math.random() * 20000) * 100000000)).getTime()
-            };
-            item.text = item.fname + ' ' + item.lname;
-            items.push(item);
-        }
-        jQuery('.date').w2field('date', { silent: false, format: 'dd/mm/yyyy' });
-        jQuery('.date-with-blocked-weekends').w2field('date', { silent: false, format: 'yyyy-m-d', blockWeekDays: [0,6] })
-        jQuery('.datetime').w2field('datetime', {});
-        jQuery('.time').w2field('time', { start: '8:15am', end: '4:30pm' });
-        jQuery('.time_without_minutes').w2field('time', { noMinutes: true });
-        jQuery('.color').w2field('color');
-        jQuery('.int').w2field({ type: 'int', min: -36, max: 1234, autoCorrect: true });
-        jQuery('.float').w2field('float');
-        jQuery('.percent').w2field('percent', { precision: 0, min: 0, max: 100 });
-        jQuery('.money').w2field('currency');
-        jQuery('.hex').w2field('hex');
-        jQuery('.alphanumeric').w2field('alphanumeric');
-        jQuery('.combo').w2field('combo', {
-            openOnFocus: true,
-            match: 'contains',
-            filter: false,
-            markSearch: true,
-            // minLength: 1,
-            // url: 'http://w2ui.com/web/pages/demo/infinite/index.php?request={"cmd":"get","selected":[],"limit":100,"offset":0}',
-            recId: 'recid',
-            recText: function (item) { return item.fname + ' ' + item.lname },
-            items: function(el) {
-                // console.log('Element', el)
-                // console.log(this)
-                return [
-                    { id: 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
-                    { id: 'item2', icon: 'fa fa-star', disabled: true, text: 'item ' + Math.round(Math.random()*100) },
-                    { id: 'item3', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) },
-                    { id: 'item4', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) },
-                    { id: 'item5', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) }
-                ]
-            },
-            items1: items,
-            onRequest: function (event) {
-                // console.log('request', event);
-            },
-            onLoad: function (event) {
-                // console.log('load', event);
-            }
-        });
-        jQuery('.list').w2field('list', {
-            icon: 'fa fa-star',
-            onIconClick: function (event) {
-                jQuery(event.el).w2overlay('<div style="padding: 10px">Message for the icon</div>');
-                // console.log(event.el);
-            },
-            // search: false,
-            filter: true,
-            match: 'contains',
-            markSearch: true,
-            minLength: 0,
-            // url: 'http://w2ui.com/web/pages/demo/infinite/index.php?request={"cmd":"get","selected":[],"limit":100,"offset":0}',
-            recId: 'recid',
-            recText: function (item) { return item.fname + ' ' + item.lname },
-            items: function(el) {
-                // console.log('Element', el)
-                // console.log(this)
-                return [
-                    { id: 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
-                    { id: 'item2', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) },
-                    { id: 'item3', icon: 'fa fa-star', disabled: true, text: 'item ' + Math.round(Math.random()*100) },
-                    { id: 'item4', icon: 'fa fa-star', disabled: true, text: 'item ' + Math.round(Math.random()*100) },
-                    { id: 'item5', icon: 'fa fa-link', disabled: true, text: 'item ' + Math.round(Math.random()*100) },
-                    { id: 'item6', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
-                    { id: 'item7', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) },
-                    { id: 'item8', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) },
-                    { id: 'item9', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) },
-                ]
-            },
-            items1: items,
-            onRequest: function (event) {
-                // console.log('list request', event);
-            },
-            onLoad: function (event) {
-                // console.log('list load', event);
-            },
-            onError: function (event) {
-                // console.log('list error', event);
-            }
-        }).on('blur', function (event) {
-            // console.log('BLUR: user', jQuery(this).data());
-
-        }).on('focus', function (event) {
-            // console.log('FOCUS: user', jQuery(this).data());
-
-        });
-        jQuery('.enum').w2field('enum', {
-            // url: 'http://w2ui.com/web/pages/demo/infinite/index.php?request={"cmd":"get","selected":[],"search":"122",limit":100,"offset":0}',
-            recId: 'recid',
-            spinner: true,
-            msgSearch: 'Type to search...',
-            // msgNoItems: function (event) {
-            //     console.log('event', event.remote, event.options.items)
-            //     return `Cannot find "${event.search}"`
-            // },
-            // minLength: 3,
-            recText: function (item) { return item.fname + ' ' + item.lname },
-            openOnFocus: true,
-            items: [
-                { id: 'item1', keepOpen: true, icon: 'fa fa-link', text: 'item 1' },
-                { id: 'item2', keepOpen: true, icon: 'fa fa-star', disabled: true, text: 'item 2'},
-                { id: 'item3', keepOpen: true, icon: 'fa fa-star', text: 'item 3' },
-                { id: 'item4', keepOpen: true, icon: 'fa fa-star', text: 'item 4' },
-                { id: 'item5', keepOpen: true, icon: 'fa fa-star', text: 'item 5' },
-                { id: 'item6', keepOpen: true, icon: 'fa fa-star', text: 'item 6' },
-                { id: 'item7', keepOpen: true, icon: 'fa fa-star', text: 'item 7' },
-                { id: 'item8', keepOpen: true, icon: 'fa fa-star', text: 'item 8' },
-                { id: 'item9', keepOpen: true, icon: 'fa fa-star', text: 'item 9' },
-            ],
-            items1: function(el) {
-                // console.log('Element', el)
-                // console.log(this)
-                return [
-                    { id: 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*10) },
-                    { id: 'item2', icon: 'fa fa-star', disabled: true, text: 'item ' + Math.round(Math.random()*10) },
-                    { id: 'item3', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*10) },
-                    { id: 'item4', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*10) },
-                    { id: 'item5', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*10) },
-                    { id: 'item6', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*10) },
-                    { id: 'item7', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*10) },
-                    { id: 'item8', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*10) },
-                    { id: 'item9', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*10) },
-                ]
-            },
-            items1: items,
-            selected: [],
-            renderItem1: function (item, options, del) {
-                return item.text + del;
-            },
-            renderDrop1: function (item) {
-                return '<div style="border: 1px solid red; padding: 10px;" onclick="event.stopPropagation()">' +item.text + '</div>';
-            },
-            select: function (event) {
-                // console.log(event);
-                event.preventDefault();
-            },
-            // items: items
-            onRequest: function (event) {
-                // console.log('enum request', event);
-            },
-            onLoad: function (event) {
-                // console.log('enum load', event);
-            },
-            onError: function (event) {
-                // console.log('enum error', event);
-            },
-            onClick: function (event) {
-                // console.log('enum click', event);
-            },
-            onMouseOver: function (event) {
-                // console.log('enum over', event);
-            },
-            onMouseOut: function (event) {
-                // console.log('enum out', event);
-            },
-            onRemove: function (event) {
-                // console.log('enum remove', event.item);
-            },
-            onAdd: function (event) {
-                // console.log('enum add', event);
-            },
-            onNew: function (event) {
-                // console.log('enum new', event);
-                jQuery().w2popup({'title':'test'})
-            }
-        });
-        jQuery('.file').w2field('file', {
-            onAdd: function (event) {
-                // console.log('add', event);
-            },
-            onRemove: function (event) {
-                // console.log('remove', event);
-            }
-        });
-
-        // date range
-        jQuery('#date1').w2field('date', { end: jQuery('#date2'), blocked: ['12/12/2013'] });
-        jQuery('#date2').w2field('date', { start: jQuery('#date1'), blocked: ['12/12/2013'] });
-
-        // resiabled elements
-        jQuery('#resize_list').w2field('list', { icon: 'fa fa-star', items: items, selected: jQuery.parseJSON('{"id":4,"fname":"Thomas","lname":"Cuban","email":"vm@gmail.com","manager":"--","snumber":2651849,"sdate":1566800000000,"text":"Thomas Cuban","hidden":false}') });
-        jQuery('#resize_enum').w2field('enum', { icon: 'fa fa-star', items: items });
-        jQuery('#resize_file').w2field('file', { icon: 'fa fa-star', items: items });
-
-        // off screen
-        jQuery('.screen').w2field('date');
-        jQuery('.screenc').w2field('color');
-
-    });
-//]]>
-</script>
+<script src="fields.js"></script>
 <body>
     <div class="corners">
         <div style="position: absolute; top: 5px; right: 5px; width: 80px; height: 24px; background-color: #efefef; padding: 5px;">
@@ -231,15 +21,18 @@
         </div>
     </div>
     <div class="buttons" style="margin: 20px 0;">
-        <button class="w2ui-btn" onclick="jQuery('input, textarea, select').prop('readonly', true).change()">Read Only</button>
-        <button class="w2ui-btn" onclick="jQuery('input, textarea, select').prop('readonly', false).change()">Clear Readonly</button>
-        <button class="w2ui-btn" onclick="jQuery('input, textarea, select').not('[type=button]').prop('disabled', true).change()">Disable</button>
-        <button class="w2ui-btn" onclick="jQuery('input, textarea, select').not('[type=button]').prop('disabled', false).change()">Enable</button>
+        <button class="w2ui-btn" data-click="1">Read Only</button>
+        <button class="w2ui-btn" data-click="2">Clear Readonly</button>
+        <button class="w2ui-btn" data-click="3">Disable</button>
+        <button class="w2ui-btn" data-click="4">Enable</button>
         &#160;&#160;&#160;
-        <button class="w2ui-btn" onclick="jQuery('input').each(function () { if (jQuery(this).w2field()) jQuery(this).w2field().clear() }).length">Reset All</button>
+        <button class="w2ui-btn" data-click="5">Reset All</button>
         &#160;&#160;&#160;
-        <button class="w2ui-btn" onclick="jQuery('#extra').show()">Show</button>
-        <button class="w2ui-btn" onclick="jQuery('#extra').hide()">Hide</button>
+        <button class="w2ui-btn" data-click="6">Show</button>
+        <button class="w2ui-btn" data-click="7">Hide</button>
+        &#160;&#160;&#160;
+        <button class="w2ui-btn" data-click="8">Show Tag</button>
+        <button class="w2ui-btn" data-click="9">Show Overlay</button>
     </div>
     <div id="extra" style="display: none">
         <div style="border: 1px solid silver; background-color: #eee; width: 50%; padding: 20px; margin-top: 5px; border-radius: 2px">

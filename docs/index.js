@@ -164,8 +164,8 @@ $(function () {
             return
         }
         let hash = String(document.location.hash).substr(1)
+        doClick(hash)
         if (w2ui.docs.get(hash) != null) {
-            doClick(hash)
             w2ui.docs.collapseAll()
             w2ui.docs.select(hash)
             w2ui.docs.expandParents(hash)
@@ -175,13 +175,19 @@ $(function () {
     setTimeout(goHash, 1)
 })
 
-function doClick (cmd, data) {
+function doClick(cmd, data) {
     let path
     if (cmd.indexOf('.') == -1) {
+        let cmds = cmd.split('-')
         if (cmd.indexOf('-') == -1) {
             path = 'overview/'+ cmd.substr(2) +'.html'
         } else {
-            path = 'summary/'+ cmd +'.php'
+            if (cmds.length == 2) {
+                path = 'overview/'+ cmd +'.html'
+            } else {
+                path = 'summary/'+ cmd +'.php'
+            }
+
         }
     } else {
         let tmp = cmd.split('.')

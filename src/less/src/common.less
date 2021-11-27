@@ -303,100 +303,8 @@ input[type="checkbox"].w2ui-toggle {
 }
 
 /*************************************************
-* ---- Overlay and Bubble ----
+* ---- Tag & Overlay
 */
-
-.w2ui-overlay {
-    position: absolute;
-    margin-top: 4px;
-    margin-left: -17px;
-    display: none;
-    z-index: 1300;
-    color: @overlay-color;
-    background-color: @overlay-background-color;
-    border-color: @overlay-background-color;
-    box-shadow: @overlay-shadow;
-    border-radius: 6px;
-    text-align: left;
-
-    & > div {
-        border-radius: 6px;
-        position: relative;
-        border: @overlay-border-width solid @overlay-border-color;
-    }
-
-    table td {
-        color: @overlay-color;
-    }
-
-    &:before {
-        content: "";
-        position: absolute;
-        border-color: inherit;
-    }
-
-    &:after {
-        content: "";
-        position: absolute;
-        border-color: inherit;
-        bottom: 100%;
-        left: @overlay-border-width + 1;
-    }
-
-    &.top-arrow {
-
-        &:before {
-            border-bottom: 10px solid darken(@overlay-border-color, 3%);
-            border-right: 12px solid transparent;
-            border-left: 12px solid transparent;
-            bottom: 100%;
-            margin-bottom: -@overlay-border-width + 1;
-        }
-
-        &:after {
-            border-bottom: (12px - @overlay-border-width - 1) solid black;
-            border-bottom-color: inherit;
-            border-right: (12px - @overlay-border-width - 1) solid transparent;
-            border-left: (12px - @overlay-border-width - 1) solid transparent;
-            bottom: 100%;
-            margin-bottom: -@overlay-border-width;
-        }
-    }
-
-    &.bottom-arrow {
-
-        &:before {
-            border-top: 10px solid darken(@overlay-border-color, 3%);
-            border-right: 12px solid transparent;
-            border-left: 12px solid transparent;
-            top: 100%;
-            margin-top: -@overlay-border-width;
-        }
-
-        &:after {
-            border-top: (12px - @overlay-border-width - 1) solid black;
-            border-top-color: inherit;
-            border-right: (12px - @overlay-border-width - 1) solid transparent;
-            border-left: (12px - @overlay-border-width - 1) solid transparent;
-            top: 100%;
-            margin-top: -@overlay-border-width;
-        }
-    }
-
-    &.w2ui-overlay-popup {    // if it is inside popup
-        z-index: 1700;
-    }
-
-    .w2ui-grid-searches {
-        border-top: @overlay-border-width solid @overlay-border-color !important;
-    }
-
-    .w2ui-no-color {
-        border: 1px solid #eee;
-        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABlBMVEX/////TgCFoIUYAAAAGUlEQVR42uXHIQEAAACDsNO/NJ4Kn9uC8wsJkAARUrXAjwAAAABJRU5ErkJggg==');
-        background-size: 15px 15px;
-    }
-}
 
 .w2ui-tag {
     position: absolute;
@@ -495,9 +403,124 @@ input[type="checkbox"].w2ui-toggle {
     }
 }
 
-/*
-*    Drop down menu
-*/
+.w2ui-overlay {
+    position: absolute;
+    margin-top: 4px;
+    margin-left: -17px;
+    display: none;
+    z-index: 1300;
+    color: @overlay-color;
+    background-color: @overlay-background-color;
+    border-color: @overlay-background-color;
+    box-shadow: @overlay-shadow;
+    border-radius: 6px;
+    text-align: left;
+
+    & > div {
+        border-radius: 6px;
+        position: relative;
+        border: @overlay-border-width solid @overlay-border-color;
+    }
+
+    table td {
+        color: @overlay-color;
+    }
+
+    &:before {
+        content: "";
+        position: absolute;
+        border-color: inherit;
+    }
+
+    &:after {
+        content: "";
+        position: absolute;
+        border-color: inherit;
+        bottom: 100%;
+        left: @overlay-border-width + 1;
+    }
+
+    &.top-arrow {
+
+        &:before {
+            border-bottom: 10px solid darken(@overlay-border-color, 3%);
+            border-right: 12px solid transparent;
+            border-left: 12px solid transparent;
+            bottom: 100%;
+            margin-bottom: -@overlay-border-width + 1;
+        }
+
+        &:after {
+            border-bottom: (12px - @overlay-border-width - 1) solid black;
+            border-bottom-color: inherit;
+            border-right: (12px - @overlay-border-width - 1) solid transparent;
+            border-left: (12px - @overlay-border-width - 1) solid transparent;
+            bottom: 100%;
+            margin-bottom: -@overlay-border-width;
+        }
+    }
+
+    &.bottom-arrow {
+
+        &:before {
+            border-top: 10px solid darken(@overlay-border-color, 3%);
+            border-right: 12px solid transparent;
+            border-left: 12px solid transparent;
+            top: 100%;
+            margin-top: -@overlay-border-width;
+        }
+
+        &:after {
+            border-top: (12px - @overlay-border-width - 1) solid black;
+            border-top-color: inherit;
+            border-right: (12px - @overlay-border-width - 1) solid transparent;
+            border-left: (12px - @overlay-border-width - 1) solid transparent;
+            top: 100%;
+            margin-top: -@overlay-border-width;
+        }
+    }
+
+    &.w2ui-overlay-popup {    // if it is inside popup
+        z-index: 1700;
+    }
+
+    .w2ui-grid-searches {
+        border-top: @overlay-border-width solid @overlay-border-color !important;
+    }
+
+    .w2ui-no-color {
+        border: 1px solid #eee;
+        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABlBMVEX/////TgCFoIUYAAAAGUlEQVR42uXHIQEAAACDsNO/NJ4Kn9uC8wsJkAARUrXAjwAAAABJRU5ErkJggg==');
+        background-size: 15px 15px;
+    }
+
+    .w2ui-menu-search {
+        position: absolute;
+        top: 0px;
+        height: 40px;
+        left: 0px;
+        right: 0px;
+        border-bottom: 1px solid #d7d7d7;
+        background-color: #ffffff;
+        padding: 6px 6px;
+        border-radius: 5px 5px 0 0;
+
+        input#menu-search {
+            width: 100% !important;
+            padding-left: 25px;
+        }
+
+        .w2ui-icon-search {
+            position: absolute;
+            margin-top: 7px;
+            margin-left: 6px;
+            width: 18px;
+            background-position: left !important;
+            color: #727272;
+            font-size: 13px;
+        }
+    }
+}
 
 .w2ui-menu {
     position: absolute;
@@ -505,6 +528,7 @@ input[type="checkbox"].w2ui-toggle {
     bottom: 0px;
     border-radius: 5px;
     overflow-x: hidden;
+
     table {
         font-family: @main-font-family;
         font-size: 12px;
@@ -535,7 +559,9 @@ input[type="checkbox"].w2ui-toggle {
         & .w2ui-item-even {
             color: @dropdown-item-even-color;
             background-color: @dropdown-item-even-background-color;
-            &.w2ui-disabled, &.w2ui-disabled .w2ui-icon {
+            &.w2ui-disabled,
+            &.w2ui-disabled .w2ui-icon,
+            &.w2ui-no-search-inside {
                 opacity: 1;
                 color: #c5c5c5 !important;
                 background-color: @dropdown-item-even-background-color !important;
@@ -545,7 +571,9 @@ input[type="checkbox"].w2ui-toggle {
         & .w2ui-item-odd {
             color: @dropdown-item-odd-color;
             background-color: @dropdown-item-odd-background-color;
-            &.w2ui-disabled, &.w2ui-disabled .w2ui-icon {
+            &.w2ui-disabled,
+            &.w2ui-disabled .w2ui-icon,
+            &.w2ui-no-search-inside {
                 opacity: 1;
                 color: #c5c5c5 !important;
                 background-color: @dropdown-item-odd-background-color !important;
@@ -688,22 +716,15 @@ input[type="checkbox"].w2ui-toggle {
             display: inline-block;
             padding-top: 4px;
         }
-    }
-}
 
-.w2ui-menu-inline {
-    padding: 0;
-    margin: 0;
-
-    .w2ui-menu {
-        position: static;
-        > table {
-            padding: 0px;
-
-        }
-        table td.menu-icon,
-        table td.menu-text {
-            padding: 1px 1px 1px 5px;
+        td.w2ui-no-items {
+            padding: 5px 10px 10px 10px;
+            text-align: center;
+            > div.w2ui-no-items-label {
+                display: inline-block;
+                padding-top: 3px;
+                color: #999;
+            }
         }
     }
 }
