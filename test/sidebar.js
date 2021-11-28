@@ -9,6 +9,7 @@ $(function () {
             content: '12'
         },
         nodes: [
+            { id: 'level-0', text: 'Level 0', icon: 'w2ui-icon-colors' },
             {
                 id: 'level-1',
                 text: 'Level 1',

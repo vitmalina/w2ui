@@ -664,6 +664,12 @@ class w2toolbar extends w2event {
                        <span class="${(typeof item.icon == 'function' ? item.icon.call(this, item) : item.icon)}"></span>
                    </div>`
         }
+        let classes = ['w2ui-tb-button']
+        if (item.checked) classes.push('checked')
+        if (item.disabled) classes.push('disabled')
+        if (item.hidden) classes.push('hidden')
+        if (!icon) classes.push('no-icon')
+
         switch (item.type) {
             case 'color':
             case 'text-color':
@@ -686,11 +692,11 @@ class w2toolbar extends w2event {
             case 'button':
             case 'check':
             case 'radio':
-            case 'drop':
+            case 'drop': {
                 let arrow = item.arrow === true || (item.arrow !== false && ['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(item.type) != -1)
                 html = `
                     <div id="tb_${this.name}_item_${item.id}" style="${(item.hidden ? 'display: none' : '')}"
-                        class="w2ui-tb-button${item.checked ? ' checked' : ''}${(item.class ? ' '+item.class : '')}${(item.disabled ? ' disabled' : '')}${(!icon ? ' no-icon' : '')}"
+                        class="${classes.join(' ')} ${(item.class ? item.class : '')}"
                         ${!item.disabled
                             ? `data-click='["click","${item.id}"]'
                                data-mouseenter='["mouseAction", "event", "this", "enter", "${item.id}"]'
@@ -721,6 +727,7 @@ class w2toolbar extends w2event {
                     </div>
                 `
                 break
+            }
 
             case 'break':
                 html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-break">&#160;</div>`
@@ -731,7 +738,11 @@ class w2toolbar extends w2event {
                 break
 
             case 'html':
-                html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-html">${(typeof item.html == 'function' ? item.html.call(this, item) : item.html)}</div>`
+                html = `
+                    <div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-html ${classes.join(' ')}"
+                            style="${(item.hidden ? 'display: none' : '')}; ${(item.style ? item.style : '')}">
+                        ${(typeof item.html == 'function' ? item.html.call(this, item) : item.html)}
+                </div>`
                 break
         }
         return html

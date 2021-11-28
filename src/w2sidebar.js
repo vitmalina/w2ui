@@ -932,7 +932,7 @@ class w2sidebar extends w2event {
         return options
     }
 
-    refresh(id) {
+    refresh(id, noBinding) {
         if (this.box == null) return
         let time = (new Date()).getTime()
         // event before
@@ -998,7 +998,7 @@ class w2sidebar extends w2event {
             nodeHTML = getNodeHTML(subNode)
             $(this.box).find(nodeSubId).append(nodeHTML)
             if (subNode.nodes.length !== 0) {
-                this.refresh(subNode.id)
+                this.refresh(subNode.id, true)
             } else {
                 // trigger event
                 let edata2 = this.trigger({ phase: 'before', type: 'refresh', target: subNode.id })
@@ -1010,7 +1010,7 @@ class w2sidebar extends w2event {
         // reset scroll
         $(this.box).find(nodeSubId).scrollLeft(scroll.left).scrollTop(scroll.top)
         // bind events
-        if (id) {
+        if (!noBinding) {
             let els = $(this.box).find(`${nodeId}.w2ui-eaction, ${nodeSubId} .w2ui-eaction`)
             w2utils.bindEvents(els, this)
         }

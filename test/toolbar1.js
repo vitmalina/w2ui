@@ -33,6 +33,7 @@ jQuery(function () {
             { type: 'button', id: 'itemA9', icon: 'w2ui-icon-search', text: 'button',  tooltip: 'Some' },
             { type: 'button', id: 'itemA10', icon: 'w2ui-icon-search', text: 'button2',  tooltip: 'Some2' },
             { type: 'button', id: 'itemA11', icon: 'w2ui-icon-search', text: 'button',  tooltip: 'Some' },
+            { type: 'html', id: 'html', html: 'some', style: 'color: red' },
 
             { type: 'spacer' },
             { type: 'menu', id: 'item2', icon: 'fa fa-heart', text: 'Radio Menu',
