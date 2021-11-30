@@ -1,11 +1,11 @@
 $(function () {
     let w2utils_locale = sessionStorage.w2ui_demo_locale || w2utils.settings.locale.toLowerCase()
-    w2utils.locale(w2utils_locale).then(() => {
+    w2utils.locale(['https://rawgit.com/vitmalina/w2ui/master/src/locale/'+w2utils_locale+'.json', w2utils_locale]).then(() => {
         // w2utils.settings.warnNoPhrase = true
         Object.values(w2ui).forEach(obj => {
             if (typeof obj.refresh == 'function') obj.refresh()
         })
-    })
+    }).catch(err => {})
     let last_hash
     let conf = {
         demo_layout: {
@@ -47,12 +47,12 @@ $(function () {
                     items: [
                         { id: 'en-us', text: 'English (US)' },
                         { id: 'ru-ru', text: 'Russian' },
+                        { id: 'de-de', text: 'Deutsch' },
                         '--',
                         'az-az',
                         'ba-ba',
                         'bg-bg',
                         'ca-es',
-                        'de-de',
                         'en-gb',
                         'es-es',
                         'es-mx',
@@ -79,10 +79,11 @@ $(function () {
             onClick(event) {
                 if (event.subItem == null) return
                 event.done(function () {
-                    if(event.item.id === 'locale') {
+                    if (event.item.id === 'locale') {
                         w2utils_locale = event.item.selected
+                        console.log( 'w2utils_locale: ', w2utils_locale )
                         // change locale
-                        w2utils.locale(w2utils_locale, () => {
+                        w2utils.locale(['https://rawgit.com/vitmalina/w2ui/master/src/locale/'+w2utils_locale+'.json', w2utils_locale], () => {
                             sessionStorage.w2ui_demo_locale = w2utils_locale
                             location.reload() // reloading the page makes things so much easier than refreshing all the w2ui objects
                             // Object.values(w2ui).forEach(obj => {
@@ -423,7 +424,7 @@ $(function () {
                                    ? '    <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>\n'+
                                      '    <script type="text/javascript" src="'+ w2ui_js +'"></script>\n'
                                    : ''
-                                ) +
+                               ) +
                                '    <link rel="stylesheet" type="text/css" href="'+ w2ui_css +'" />\n'+
                                '</head>\n'+
                                '<body>\n\n'+

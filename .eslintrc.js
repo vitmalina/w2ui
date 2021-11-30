@@ -63,6 +63,7 @@ module.exports = {
         // "func-names": ["warn", "always"],
         'no-inner-declarations': 'off',
         'no-undef': 'error',
-        'no-unreachable': 'off'
+        'no-unreachable': 'off',
+        'keyword-spacing': ['error', { 'before': true, 'after': true }],
     }
 }
