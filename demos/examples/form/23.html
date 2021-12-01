@@ -1,7 +1,8 @@
 <div class="content">
     <div id="example_title">
         <h1>Better Groups</h1>
-        It would be more expressive if fields could be defind within the group, and field name would be object keys.
+        It would be more expressive if fields could be defind within the group (and groups within the tabs, if any).
+        It would also be easier to read that field names would be keys of the object, for example
         <div style="width: 500px">
         <textarea class="javascript">
 fields: {
@@ -19,17 +20,28 @@ fields: {
     <div id="example_view"></div>
     <div id="example_code"></div>
     <div id="example_title"></div>
+        Possible tab properties are:
+        <ul>
+            <li><b>type</b>: "tab"</li>
+            <li><b>style</b> - string, tab style</li>
+            <li><b>span</b> - number, (optional), default span for fields inside the tab</li>
+            <li><b>column</b> - number, (optional), default column for fields inside the tab</li>
+            <li><b>attr</b> - string, (optional), default attr for fields inside the tab</li>
+            <li><b>label</b> - string, (optional), default label for fields inside the tab</li>
+            <li><b>text</b> - string, (optional), default text for fields inside the tab</li>
+        </ul>
         Possible group properties are:
         <ul>
             <li><b>type</b>: "group"</li>
-            <li><b>text</b> - string, group name</li>
-            <li><b>collapsible</b> - boolean, if group is collapsible</li>
             <li><b>style</b> - string, group style</li>
             <li><b>titleStyle</b> - string, group title style</li>
+            <li><b>collapsible</b> - boolean, if group is collapsible</li>
             <li><b>span</b> - number, (optional), default span for fields inside the group</li>
             <li><b>column</b> - number, (optional), default column for fields inside the group</li>
             <li><b>page</b> - number, (optional), default page for fields inside the group</li>
             <li><b>attr</b> - string, (optional), default attr for fields inside the group</li>
+            <li><b>label</b> - string, (optional), default label for fields inside the group</li>
+            <li><b>text</b> - string, (optional), default text for fields inside the group</li>
         </ul>
     </div>
 </div>
@@ -47,37 +59,65 @@ $(function () {
         url    : 'server/post',
         focus  : 'last_name',
         fields : {
-            "User Info": {
-                type: 'group',
-                attr: 'style="width: 200px"',
-                span: 4,
+            "Info": {
+                type: 'tab',
+                span: 5,
+                // text: '111',
                 fields: {
-                    "user.first_name": {
-                        type: 'text',
-                        required: true,
-                        label: 'First Name'
-                    },
-                    "user.last_name": {
-                        type: 'text',
-                        required: true,
-                        label: 'Last Name'
+                    "User Info": {
+                        type: 'group',
+                        attr: 'style="width: 300px"',
+                        // text: '222',
+                        fields: {
+                            "user.first_name": {
+                                type: 'text',
+                                required: true,
+                                label: 'First Name'
+                            },
+                            "user.last_name": {
+                                type: 'text',
+                                required: true,
+                                label: 'Last Name'
+                            }
+                        }
                     }
                 }
             },
-            "Some KPIs": {
-                type: 'group',
-                attr: 'style="width: 200px"',
-                span: 4,
+            "KPIs": {
+                type: 'tab',
                 fields: {
-                    "kpi.param1": {
-                        type: 'int',
-                        required: false,
-                        label: 'Param 1'
+                    "All KPIs": {
+                        type: 'group',
+                        attr: 'style="width: 200px"',
+                        span: 4,
+                        fields: {
+                            "kpi.param1": {
+                                type: 'int',
+                                required: false,
+                                label: 'Param 1'
+                            },
+                            'kpi.param2': {
+                                type: 'int',
+                                required: false,
+                                label: 'Param 2'
+                            }
+                        }
                     },
-                    'kpi.param2': {
-                        type: 'int',
-                        required: false,
-                        label: 'Param 2'
+                    "Other KPIs": {
+                        type: 'group',
+                        span: 4,
+                        fields: {
+                            "kpi.param3": {
+                                type: 'int',
+                                required: false,
+                                label: 'Param 3'
+                            },
+                            'kpi.param4': {
+                                type: 'int',
+                                required: false,
+                                label: 'Param 4'
+                            }
+                        }
                     }
                 }
             }
