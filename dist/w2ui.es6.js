@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (11/27/2021, 3:53:43 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/1/2021, 7:59:25 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -18244,6 +18244,7 @@ class w2field extends w2event {
 *
 * == 2.0 changes
 *   - CSP - fixed inline events
+*   - better groups support tabs now
 *
 ************************************************************************/
 
@@ -18311,6 +18312,15 @@ class w2form extends w2event {
         let tabs     = options.tabs
         // extend items
         $.extend(this, { record: {}, original: null, fields: [], tabs: {}, toolbar: {}, handlers: [] })
+        // preprocess fields
+        if (fields) {
+            let sub =_processFields(fields)
+            this.fields = sub.fields
+            if (!tabs && sub.tabs.length > 0) {
+                tabs = sub.tabs
+            }
+        }
+        // prepare tabs
         if (Array.isArray(tabs)) {
             $.extend(true, this.tabs, { tabs: [] })
             for (let t = 0; t < tabs.length; t++) {
@@ -18328,10 +18338,6 @@ class w2form extends w2event {
             $.extend(true, this.tabs, tabs)
         }
         $.extend(true, this.toolbar, toolbar)
-        // preprocess fields
-        if (fields) {
-            this.fields = _processFields(fields)
-        }
         for (let p in record) { // it is an object
             if ($.isPlainObject(record[p])) {
                 this.record[p] = $.extend(true, {}, record[p])
@@ -18358,6 +18364,7 @@ class w2form extends w2event {
         }
         function _processFields(fields) {
             let newFields = []
+            let tabs = []
             // if it is an object
             if ($.isPlainObject(fields)) {
                 let tmp = fields
@@ -18375,10 +18382,26 @@ class w2form extends w2event {
                                 fld.fields.push(_process(fld2))
                             })
                         }
+                        fields.push(fld)
+                    } else if (fld.type == 'tab') {
+                        // add tab
+                        let tab = { id: key, text: key }
+                        if (fld.style) {
+                            tab.style = fld.style
+                        }
+                        tabs.push(tab)
+                        // add page to fields
+                        let sub = _processFields(fld.fields).fields
+                        sub.forEach(fld2 => {
+                            fld2.html = fld2.html || {}
+                            fld2.html.page = tabs.length -1
+                            _process2(fld, fld2)
+                        })
+                        fields.push(...sub)
                     } else {
                         fld.field = key
+                        fields.push(_process(fld))
                     }
-                    fields.push(fld.type == 'group' ? fld : _process(fld))
                 })
                 function _process(fld) {
                     let ignore = ['html']
@@ -18392,6 +18415,17 @@ class w2form extends w2event {
                         }
                     }))
                     return fld
+                }
+                function _process2(fld, fld2) {
+                    let ignore = ['style', 'html']
+                    Object.keys(fld).forEach((key => {
+                        if (ignore.indexOf(key) != -1) return
+                        if (['span', 'column', 'attr', 'text', 'label'].indexOf(key) != -1) {
+                            if (fld[key] && !fld2.html[key]) {
+                                fld2.html[key] = fld[key]
+                            }
+                        }
+                    }))
                 }
             }
             // process groups
@@ -18410,7 +18444,7 @@ class w2form extends w2event {
                             let fld = $.extend(true, {}, gfield)
                             if (fld.html == null) fld.html = {}
                             $.extend(fld.html, group)
-                            Array('span', 'page', 'column', 'attr').forEach(key => {
+                            Array('span', 'column', 'attr', 'label', 'page').forEach(key => {
                                 if (fld.html[key] == null && field[key] != null) {
                                     fld.html[key] = field[key]
                                 }
@@ -18431,7 +18465,7 @@ class w2form extends w2event {
                     newFields.push(fld)
                 }
             })
-            return newFields
+            return { fields: newFields, tabs }
         }
     }
     get(field, returnIndex) {
