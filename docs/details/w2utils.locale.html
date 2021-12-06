@@ -1,7 +1,7 @@
 Loads a new locale.
 
 <div class="definition">
-    locale(locale);
+    locale(locale, [callBack], [keepPhrases]);
 </div>
 
 Returns a <i>promise</i>.
@@ -10,16 +10,25 @@ Returns a <i>promise</i>.
     <table>
     <tr>
         <td>locale</td>
-        <td><b>string</b> or <b>path</b> or <b>object</b>, name of the locale or path to the locale file, or settings object with the locale</td>
+        <td><b>string</b> or <b>path</b> or <b>object</b> or <b>array</b>, name of the locale or path to the locale file, or settings object with the locale</td>
+    </tr>
+    <tr>
+        <td>callBack</td>
+        <td><b>function</b>, <i>optional</i>, call back function when locale is loaded</td>
+    </tr>
+    <tr>
+        <td>keepPhrases</td>
+        <td><b>boolean</b>, <i>optional</i>, keep phrases when mergin locale objects</td>
     </tr>
     </table>
 </div>
 
 <h4>Description</h4>
 
-The first parameter can be a string or a path to the file or an object. If it is a string (ex: ru-ru) it is the name of the locale. It will attempt
-to load file from the /locale folder. If you want to load locale file from some other folder, you need to provide full path to it.
+The first parameter can be a string or a path to the file or an object or an array of strings/pathes. If it is a string (ex: ru-ru) it is the name of the locale. It will attempt
+to load the JSON file from the /locale folder. If you want to load locale file from some other folder, you need to provide full path to it.
 If it's an object than the settings object will be extended with properties of this locale object.
+If it's an array of strings or pathes, all JSON files will be loaded in order and then be merged.
 <div style="height: 10px"></div>
 
 The method will perform <b>synchronous</b> load of the locale, so it will pause until locale is loaded.
@@ -36,4 +45,6 @@ w2utils.locale({
     dataType       : 'RESTFULLJSON'
     dateStartYear  : 1990
 });
+// or
+w2utils.locale(['ru-ru', '/path/to/locale/ru-ru.json', '/path/to/another/locale/ru-ru.json']);
 </textarea>

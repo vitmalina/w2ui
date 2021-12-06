@@ -1384,7 +1384,7 @@ let w2utils = (($) => {
         return new Promise((resolve, reject) => {
             if (!locale) locale = 'en-us'
 
-            // if locale is an object and merge it with w2utils.settings
+            // if locale is an object, then merge it with w2utils.settings
             if ($.isPlainObject(locale)) {
                 w2utils.settings = $.extend(true, {}, w2utils.settings, w2locale, locale)
                 return
