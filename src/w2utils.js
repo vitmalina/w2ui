@@ -1371,17 +1371,21 @@ let w2utils = (($) => {
         return execTemplate(translation, params)
     }
 
-    function locale(locale, callBack, keepPhrases) {
-        // if locale is an array we call this function recursively and merge the results
-        if (Array.isArray(locale)) {
-            w2utils.settings.phrases = {}
-            const promise = locale.reduce((p, l) => {
-                return p.then(() => w2utils.locale(l, null, true)).catch(err => {})
-            }, Promise.resolve())
-            if (typeof callBack === 'function') callBack()
-            return promise
-        }
+    function locale(locale, keepPhrases) {
         return new Promise((resolve, reject) => {
+            // if locale is an array we call this function recursively and merge the results
+            if (Array.isArray(locale)) {
+                w2utils.settings.phrases = {}
+                let proms = []
+                locale.forEach(file => {
+                    proms.push(w2utils.locale(file, true))
+                })
+                Promise.allSettled(proms)
+                    .then(res => {
+                        resolve(res.map(r => r.value))
+                    })
+                return
+            }
             if (!locale) locale = 'en-us'
 
             // if locale is an object, then merge it with w2utils.settings
@@ -1407,12 +1411,11 @@ let w2utils = (($) => {
                         // clear phrases from language before merging
                         w2utils.settings = $.extend(true, {}, w2utils.settings, w2locale, { phrases: {} }, data)
                     }
-                    if (typeof callBack === 'function') callBack()
-                    resolve()
+                    resolve(data)
                 },
                 error(xhr, status, msg) {
                     console.log('ERROR: Cannot load locale '+ locale)
-                    reject()
+                    reject(msg)
                 }
             })
         })
