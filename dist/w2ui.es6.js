@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (12/1/2021, 7:59:25 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/8/2021, 9:24:52 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -380,7 +380,7 @@ let w2utils = (($) => {
     }
     function isMoney(val) {
         if (typeof val === 'object' || val === '') return false
-        if(isFloat(val)) return true
+        if (isFloat(val)) return true
         let se = w2utils.settings
         let re = new RegExp('^'+ (se.currencyPrefix ? '\\' + se.currencyPrefix + '?' : '') +
                             '[-+]?'+ (se.currencyPrefix ? '\\' + se.currencyPrefix + '?' : '') +
@@ -824,7 +824,7 @@ let w2utils = (($) => {
                 if (c < 128) {
                     utftext += String.fromCharCode(c)
                 }
-                else if((c > 127) && (c < 2048)) {
+                else if ((c > 127) && (c < 2048)) {
                     utftext += String.fromCharCode((c >> 6) | 192)
                     utftext += String.fromCharCode((c & 63) | 128)
                 }
@@ -872,7 +872,7 @@ let w2utils = (($) => {
                     string += String.fromCharCode(c)
                     i++
                 }
-                else if((c > 191) && (c < 224)) {
+                else if ((c > 191) && (c < 224)) {
                     c2      = utftext.charCodeAt(i+1)
                     string += String.fromCharCode(((c & 31) << 6) | (c2 & 63))
                     i      += 2
@@ -1551,11 +1551,24 @@ let w2utils = (($) => {
         }
         return execTemplate(translation, params)
     }
-    function locale(locale, callBack) {
+    function locale(locale, keepPhrases) {
         return new Promise((resolve, reject) => {
+            // if locale is an array we call this function recursively and merge the results
+            if (Array.isArray(locale)) {
+                w2utils.settings.phrases = {}
+                let proms = []
+                locale.forEach(file => {
+                    proms.push(w2utils.locale(file, true))
+                })
+                Promise.allSettled(proms)
+                    .then(res => {
+                        resolve(res.map(r => r.value))
+                    })
+                return
+            }
             if (!locale) locale = 'en-us'
-            // if the locale is not a string, we assume it is an object and merge it with w2utils.settings
-            if (typeof locale !== 'string' ) {
+            // if locale is an object, then merge it with w2utils.settings
+            if ($.isPlainObject(locale)) {
                 w2utils.settings = $.extend(true, {}, w2utils.settings, w2locale, locale)
                 return
             }
@@ -1568,14 +1581,18 @@ let w2utils = (($) => {
                 type: 'GET',
                 dataType: 'JSON',
                 success(data, status, xhr) {
-                    // clear phrases from language before
-                    w2utils.settings = $.extend(true, {}, w2utils.settings, w2locale, { phrases: null }, data)
-                    if (typeof callBack === 'function') callBack()
-                    resolve()
+                    if (keepPhrases) {
+                        // keep phrases, useful for recursive calls
+                        w2utils.settings = $.extend(true, {}, w2utils.settings, data)
+                    } else {
+                        // clear phrases from language before merging
+                        w2utils.settings = $.extend(true, {}, w2utils.settings, w2locale, { phrases: {} }, data)
+                    }
+                    resolve(data)
                 },
                 error(xhr, status, msg) {
                     console.log('ERROR: Cannot load locale '+ locale)
-                    reject()
+                    reject(msg)
                 }
             })
         })
@@ -4286,7 +4303,7 @@ class w2grid extends w2event {
                                             localStorage.w2ui = JSON.stringify(tmp)
                                         }
                                     }
-                                } catch(e) {
+                                } catch (e) {
                                 }
                             }
                             // remove from searches
@@ -5113,7 +5130,7 @@ class w2grid extends w2event {
                 column = this.last._edit.column
                 recid  = this.last._edit.recid
                 this.editChange({ type: 'custom', value: this.last._edit.value }, this.get(recid, true), column, event)
-                if(this.advanceOnEdit) {
+                if (this.advanceOnEdit) {
                     let next = event.shiftKey ? this.prevRow(index, column, 1) : this.nextRow(index, column, 1)
                     if (next != null && next != index) {
                         setTimeout(() => {
@@ -5276,7 +5293,7 @@ class w2grid extends w2event {
             }
         }
         setTimeout(() => {
-            if(!input) input = el.find('input').get(0)
+            if (!input) input = el.find('input').get(0)
             if (!this.last.inEditMode) return
             el.find('input, select, div.w2ui-input')
                 .data('old_value', old_value)
@@ -5360,7 +5377,7 @@ class w2grid extends w2event {
                             }
                             case 13: { // enter
                                 el.blur()
-                                if(obj.advanceOnEdit) {
+                                if (obj.advanceOnEdit) {
                                     let next = event.shiftKey ? obj.prevRow(index, column, 1) : obj.nextRow(index, column, 1)
                                     if (next != null && next != index) {
                                         setTimeout(() => {
@@ -5531,7 +5548,6 @@ class w2grid extends w2event {
         let recs = this.getSelection()
         if (recs.length === 0) return
         if (this.msgDelete != '' && !force) {
-            debugger
             let msg = w2utils.lang(this.msgDelete, {
                 count: recs.length,
                 records: w2utils.lang( recs.length == 1 ? 'record' : 'records')
@@ -6151,10 +6167,10 @@ class w2grid extends w2event {
             }
         }
         function selectTopRecord() {
-            if(!obj.records || obj.records.length === 0) return
+            if (!obj.records || obj.records.length === 0) return
             let ind = Math.floor(records[0].scrollTop / obj.recordHeight) + 1
             if (!obj.records[ind] || ind < 2) ind = 0
-            if(typeof obj.records[ind] === 'undefined') return
+            if (typeof obj.records[ind] === 'undefined') return
             obj.select({ recid: obj.records[ind].recid, column: 0})
         }
         function tmpUnselect () {
@@ -6542,7 +6558,7 @@ class w2grid extends w2event {
                 if (this.sortData[sortIndex] == null) {
                     direction = 'asc'
                 } else {
-                    if(this.sortData[sortIndex].direction == null) {
+                    if (this.sortData[sortIndex].direction == null) {
                         this.sortData[sortIndex].direction = ''
                     }
                     switch (this.sortData[sortIndex].direction.toLowerCase()) {
@@ -7077,7 +7093,7 @@ class w2grid extends w2event {
                     $('#grid_'+ self.name +'_rec_' + w2utils.escapeId($(this).attr('recid'))).toggleClass('w2ui-record-hover', event.type == 'mouseover')
                 })
         }
-        if(w2utils.isIOS)
+        if (w2utils.isIOS)
             records.add(frecords)
                 .on('click', 'tr', function(ev) {
                     self.dblClick($(this).attr('recid'), ev)
@@ -7392,7 +7408,7 @@ class w2grid extends w2event {
             event.stopPropagation()
         }
         function mouseMove (event) {
-            if(!event.target.tagName) {
+            if (!event.target.tagName) {
                 // element has no tagName - most likely the target is the #document itself
                 // this can happen is you click+drag and move the mouse out of the DOM area,
                 // e.g. into the browser's toolbar area
@@ -9786,7 +9802,7 @@ class w2grid extends w2event {
         if (isRowSelected && $.inArray(col_ind, sel.columns[ind]) != -1) isCellSelected = true
         // clipboardCopy
         let clipboardTxt, clipboardIcon
-        if(col.clipboardCopy){
+        if (col.clipboardCopy){
             clipboardTxt  = (typeof col.clipboardCopy == 'string' ? col.clipboardCopy : w2utils.lang('Copy to clipboard'))
             clipboardIcon = '<span onmouseEnter="jQuery(this).w2tag(\'' + clipboardTxt +'\', { position: \'top|bottom\' })"'
                 + 'onclick="w2ui[\''+ this.name + '\'].clipboardCopy('+ ind +', '+ col_ind +'); jQuery(this).w2tag(w2utils.lang(\'Copied\'), { position: \'top|bottom\' }); event.stopPropagation();" '
@@ -10022,9 +10038,9 @@ class w2grid extends w2event {
             let col_save_obj = {}
             // iterate properties to save
             Object.keys(this.stateColProps).forEach((prop, idx) => {
-                if(this.stateColProps[prop]){
+                if (this.stateColProps[prop]){
                     // check if the property is defined on the column
-                    if(col[prop] !== undefined){
+                    if (col[prop] !== undefined){
                         prop_val = col[prop]
                     } else {
                         // use fallback or null
