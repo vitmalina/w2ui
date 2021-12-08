@@ -4947,7 +4947,7 @@
                         var ghost = $('#grid_'+ obj.name + '_ghost');
                         var recs  = $(obj.box).find('.w2ui-grid-records');
                         ghost.css({
-                            top  : mv.pos.top + recs.scrollTop(),
+                            top  : mv.pos.top,
                             left : mv.pos.left,
                             "border-top"    : '1px solid #aaa',
                             "border-bottom" : '1px solid #aaa'
@@ -4989,7 +4989,7 @@
                         var ghost_line = $('#grid_'+ obj.name + '_ghost_line');
                         if (pos) {
                             ghost_line.css({
-                                top  : pos.top + recs.scrollTop(),
+                                top  : pos.top,
                                 left : mv.pos.left,
                                 'border-top': '2px solid #769EFC'
                             });
@@ -5001,7 +5001,7 @@
                     }
                     var ghost = $('#grid_'+ obj.name + '_ghost');
                     ghost.css({
-                        top  : mv.pos.top + mv.divY + recs.scrollTop(),
+                        top  : mv.pos.top + mv.divY,
                         left : mv.pos.left
                     });
                     return;
