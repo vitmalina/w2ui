@@ -81,9 +81,8 @@ $(function () {
                 event.done(function () {
                     if (event.item.id === 'locale') {
                         w2utils_locale = event.item.selected
-                        console.log( 'w2utils_locale: ', w2utils_locale )
                         // change locale
-                        w2utils.locale(['https://rawgit.com/vitmalina/w2ui/master/src/locale/'+w2utils_locale+'.json', w2utils_locale], () => {
+                        w2utils.locale(['https://rawgit.com/vitmalina/w2ui/master/src/locale/'+w2utils_locale+'.json', w2utils_locale]).then( () => {
                             sessionStorage.w2ui_demo_locale = w2utils_locale
                             location.reload() // reloading the page makes things so much easier than refreshing all the w2ui objects
                             // Object.values(w2ui).forEach(obj => {
