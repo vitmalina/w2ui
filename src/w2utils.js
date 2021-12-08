@@ -106,7 +106,7 @@ let w2utils = (($) => {
 
     function isMoney(val) {
         if (typeof val === 'object' || val === '') return false
-        if(isFloat(val)) return true
+        if (isFloat(val)) return true
         let se = w2utils.settings
         let re = new RegExp('^'+ (se.currencyPrefix ? '\\' + se.currencyPrefix + '?' : '') +
                             '[-+]?'+ (se.currencyPrefix ? '\\' + se.currencyPrefix + '?' : '') +
@@ -587,7 +587,7 @@ let w2utils = (($) => {
                 if (c < 128) {
                     utftext += String.fromCharCode(c)
                 }
-                else if((c > 127) && (c < 2048)) {
+                else if ((c > 127) && (c < 2048)) {
                     utftext += String.fromCharCode((c >> 6) | 192)
                     utftext += String.fromCharCode((c & 63) | 128)
                 }
@@ -640,7 +640,7 @@ let w2utils = (($) => {
                     string += String.fromCharCode(c)
                     i++
                 }
-                else if((c > 191) && (c < 224)) {
+                else if ((c > 191) && (c < 224)) {
                     c2      = utftext.charCodeAt(i+1)
                     string += String.fromCharCode(((c & 31) << 6) | (c2 & 63))
                     i      += 2
@@ -1371,12 +1371,21 @@ let w2utils = (($) => {
         return execTemplate(translation, params)
     }
 
-    function locale(locale, callBack) {
+    function locale(locale, callBack, keepPhrases) {
+        // if locale is an array we call this function recursively and merge the results
+        if (Array.isArray(locale)) {
+            w2utils.settings.phrases = {}
+            const promise = locale.reduce((p, l) => {
+                return p.then(() => w2utils.locale(l, null, true)).catch(err => {})
+            }, Promise.resolve())
+            if (typeof callBack === 'function') callBack()
+            return promise
+        }
         return new Promise((resolve, reject) => {
             if (!locale) locale = 'en-us'
 
-            // if the locale is not a string, we assume it is an object and merge it with w2utils.settings
-            if (typeof locale !== 'string' ) {
+            // if locale is an object, then merge it with w2utils.settings
+            if ($.isPlainObject(locale)) {
                 w2utils.settings = $.extend(true, {}, w2utils.settings, w2locale, locale)
                 return
             }
@@ -1391,8 +1400,13 @@ let w2utils = (($) => {
                 type: 'GET',
                 dataType: 'JSON',
                 success(data, status, xhr) {
-                    // clear phrases from language before
-                    w2utils.settings = $.extend(true, {}, w2utils.settings, w2locale, { phrases: null }, data)
+                    if (keepPhrases) {
+                        // keep phrases, useful for recursive calls
+                        w2utils.settings = $.extend(true, {}, w2utils.settings, data)
+                    } else {
+                        // clear phrases from language before merging
+                        w2utils.settings = $.extend(true, {}, w2utils.settings, w2locale, { phrases: {} }, data)
+                    }
                     if (typeof callBack === 'function') callBack()
                     resolve()
                 },
