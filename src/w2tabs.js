@@ -185,9 +185,9 @@ class w2tabs extends w2event {
         let tab  = this.tabs[info.index]
         let next = _find(info.index, 1)
         let prev = _find(info.index, -1)
-        let $el  = $('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(tab.id))
+        let $el  = $(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(tab.id))
         if (info.divX > 0 && next) {
-            let $nextEl = $('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(next.id))
+            let $nextEl = $(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(next.id))
             let width1  = parseInt($el.css('width'))
             let width2  = parseInt($nextEl.css('width'))
             if (width1 < width2) {
@@ -212,7 +212,7 @@ class w2tabs extends w2event {
             }
         }
         if (info.divX < 0 && prev) {
-            let $prevEl = $('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(prev.id))
+            let $prevEl = $(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(prev.id))
             let width1  = parseInt($el.css('width'))
             let width2  = parseInt($prevEl.css('width'))
             if (width1 < width2) {
@@ -350,7 +350,7 @@ class w2tabs extends w2event {
             w2utils.bindEvents(`${selector}, ${selector} .w2ui-eaction`, this)
         }
         // right html
-        $('#tabs_'+ this.name +'_right').html(this.right)
+        $(this.box).find('#tabs_'+ this.name +'_right').html(this.right)
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
         // this.resize();
@@ -400,7 +400,7 @@ class w2tabs extends w2event {
     initReorder(id, event) {
         if (!this.reorder) return
         let obj      = this
-        let $tab     = $('#tabs_' + this.name + '_tab_' + w2utils.escapeId(id))
+        let $tab     = $(this.box).find('#tabs_' + this.name + '_tab_' + w2utils.escapeId(id))
         let tabIndex = this.get(id, true)
         let $ghost   = $tab.clone()
         let edata
@@ -417,7 +417,7 @@ class w2tabs extends w2event {
             opacity: $tab.css('opacity')
         }
 
-        $('body')
+        $(document)
             .off('.w2uiTabReorder')
             .on('mousemove.w2uiTabReorder', function(event) {
                 if (!obj.tmp.reordering) {
@@ -442,7 +442,7 @@ class w2tabs extends w2event {
                 obj.dragMove(event)
             })
             .on('mouseup.w2uiTabReorder', function() {
-                $('body').off('.w2uiTabReorder')
+                $(document).off('.w2uiTabReorder')
                 $ghost.css({
                     'transition': '0.1s',
                     'left': obj.tmp.moving.$tab.offset().left - obj.tmp.moving.parentX
@@ -620,7 +620,7 @@ class w2tabs extends w2event {
                 // insert at the end and find width
                 $tab.css({ opacity: 0 })
                 $(this.box).find('#tabs_tabs_right').before($tab)
-                let $tmp  = $('#'+$tab.attr('id'))
+                let $tmp  = $(this.box).find('#'+$tab.attr('id'))
                 let width = parseInt($tmp.css('width') || 0)
                 let $anim = $('<div class="tab-animate-insert" style="display: inline-block; flex-shrink: 0; width: 0px; transition: width 0.25s"></div>')
                 $before.before($anim)

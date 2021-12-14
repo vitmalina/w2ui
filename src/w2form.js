@@ -932,8 +932,8 @@ class w2form extends w2event {
                             if (edata3.isCancelled === true) return
                             // only show % if it takes time
                             let percent = Math.round(evt.loaded / evt.total * 100)
-                            if ((percent && percent != 100) || $('#'+ obj.name + '_progress').text() != '') {
-                                $('#'+ obj.name + '_progress').text(''+ percent + '%')
+                            if ((percent && percent != 100) || $(obj.box).find('#'+ obj.name + '_progress').text() != '') {
+                                $(obj.box).find('#'+ obj.name + '_progress').text(''+ percent + '%')
                             }
                             // event after
                             obj.trigger($.extend(edata3, { phase: 'after' }))
@@ -1079,6 +1079,8 @@ class w2form extends w2event {
     goto(page) {
         if (this.page === page) return // already on this page
         if (page != null) this.page = page
+        // apply element in focus
+        $(this.box).find(':focus').change() // trigger onchange
         // if it was auto size, resize it
         if ($(this.box).data('auto-size') === true) $(this.box).height(0)
         this.refresh()
@@ -1432,18 +1434,18 @@ class w2form extends w2event {
             $(this.box).find('.w2ui-form-header').html(w2utils.lang(this.header))
             // refresh tabs if needed
             if (typeof this.tabs === 'object' && Array.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) {
-                $('#form_'+ this.name +'_tabs').show()
+                $(this.box).find('#form_'+ this.name +'_tabs').show()
                 this.tabs.active = this.tabs.tabs[this.page].id
                 this.tabs.refresh()
             } else {
-                $('#form_'+ this.name +'_tabs').hide()
+                $(this.box).find('#form_'+ this.name +'_tabs').hide()
             }
             // refresh tabs if needed
             if (typeof this.toolbar === 'object' && Array.isArray(this.toolbar.items) && this.toolbar.items.length > 0) {
-                $('#form_'+ this.name +'_toolbar').show()
+                $(this.box).find('#form_'+ this.name +'_toolbar').show()
                 this.toolbar.refresh()
             } else {
-                $('#form_'+ this.name +'_toolbar').hide()
+                $(this.box).find('#form_'+ this.name +'_toolbar').hide()
             }
         }
         // refresh values of fields
@@ -1960,7 +1962,7 @@ class w2form extends w2event {
             })
         }
         if (typeof this.toolbar === 'object' && typeof this.toolbar.render === 'function') {
-            this.toolbar.render($('#form_'+ this.name +'_toolbar')[0])
+            this.toolbar.render($(this.box).find('#form_'+ this.name +'_toolbar')[0])
         }
         // init tabs regardless it is defined or not
         if (typeof this.tabs.render !== 'function') {
@@ -1970,7 +1972,7 @@ class w2form extends w2event {
             })
         }
         if (typeof this.tabs === 'object' && typeof this.tabs.render === 'function') {
-            this.tabs.render($('#form_'+ this.name +'_tabs')[0])
+            this.tabs.render($(this.box).find('#form_'+ this.name +'_tabs')[0])
             if(this.tabs.active) this.tabs.click(this.tabs.active)
         }
         // event after
@@ -1984,7 +1986,7 @@ class w2form extends w2event {
             this.refresh()
         }
         // attach to resize event
-        if ($('.w2ui-layout').length === 0) { // if there is layout, it will send a resize event
+        if ($(this.box).closest('.w2ui-layout').length === 0) { // if there is layout, it will send a resize event
             this.tmp_resize = function tmp_resize(event) {
                 if (w2ui[obj.name] == null) {
                     $(window).off('resize.w2uiResize', obj.tmp_resize)

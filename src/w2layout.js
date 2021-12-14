@@ -117,7 +117,7 @@ class w2layout extends w2event {
         }
         // if it is CSS panel
         if (panel == 'css') {
-            $('#layout_'+ obj.name +'_panel_css').html('<style>'+ data +'</style>')
+            $(this.box).find('#layout_'+ obj.name +'_panel_css').html('<style>'+ data +'</style>')
             promise.status = true
             return promise
         }
@@ -141,10 +141,10 @@ class w2layout extends w2event {
             return promise
         }
         let pname    = '#layout_'+ this.name + '_panel_'+ p.type
-        let current  = $(pname + '> .w2ui-panel-content')
+        let current  = $(this.box).find(pname + '> .w2ui-panel-content')
         let panelTop = 0
         if (current.length > 0) {
-            $(pname).scrollTop(0)
+            $(this.box).find(pname).scrollTop(0)
             panelTop = $(current).position().top
         }
         if (p.html === '') {
@@ -156,9 +156,9 @@ class w2layout extends w2event {
                 if (transition != null && transition !== '') {
                     // apply transition
                     $(this.box).addClass('animating')
-                    let div1 = $(pname + '> .w2ui-panel-content')
+                    let div1 = $(this.box).find(pname + '> .w2ui-panel-content')
                     div1.after('<div class="w2ui-panel-content new-panel" style="'+ div1[0].style.cssText +'"></div>')
-                    let div2 = $(pname + '> .w2ui-panel-content.new-panel')
+                    let div2 = $(this.box).find(pname + '> .w2ui-panel-content.new-panel')
                     div1.css('top', panelTop)
                     div2.css('top', panelTop)
                     if (typeof data == 'object') {
@@ -172,7 +172,7 @@ class w2layout extends w2event {
                         div2.removeClass('new-panel')
                         div2.css('overflow', p.overflow)
                         // make sure only one content left
-                        $(pname + '> .w2ui-panel-content').slice(1).remove()
+                        $(obj.box).find(pname + '> .w2ui-panel-content').slice(1).remove()
                         // IE Hack
                         obj.resize()
                         $(obj.box).removeClass('animating')
@@ -208,7 +208,7 @@ class w2layout extends w2event {
             }
         }
         let p = this.get(panel)
-        let $el = $('#layout_'+ this.name + '_panel_'+ p.type)
+        let $el = $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type)
         let oldOverflow = $el.css('overflow')
         let oldOnClose
         if (options) {
@@ -216,13 +216,13 @@ class w2layout extends w2event {
             options.onClose = (event) => {
                 if (typeof oldOnClose == 'function') oldOnClose(event)
                 event.done(() => {
-                    $('#layout_'+ obj.name + '_panel_'+ p.type).css('overflow', oldOverflow)
+                    $(obj.box).find('#layout_'+ obj.name + '_panel_'+ p.type).css('overflow', oldOverflow)
                 })
             }
         }
-        $('#layout_'+ this.name + '_panel_'+ p.type).css('overflow', 'hidden')
+        $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type).css('overflow', 'hidden')
         return w2utils.message.call(this, {
-            box   : $('#layout_'+ this.name + '_panel_'+ p.type),
+            box   : $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type),
             param : panel,
             path  : 'w2ui.' + this.name,
             title : '.w2ui-panel-title:visible',
@@ -231,7 +231,7 @@ class w2layout extends w2event {
     }
 
     confirm(panel, options) {
-        let layout = this
+        let self = this
         if (typeof options == 'string') {
             options = {
                 width: (options.length < 300 ? 350 : 550),
@@ -246,7 +246,7 @@ class w2layout extends w2event {
             if (typeof options.callBack == 'function') {
                 options.callBack('yes')
             }
-            layout.message(panel)
+            self.message(panel)
         }
         let no_click = () => {
             if (typeof options.no_click == 'function') {
@@ -255,7 +255,7 @@ class w2layout extends w2event {
             if (typeof options.callBack == 'function') {
                 options.callBack('no')
             }
-            layout.message(panel)
+            self.message(panel)
         }
         let btn1 = `<button type="button" class="w2ui-btn btn-yes ${options.yes_class || ''}">${w2utils.lang(options.yes_text || 'Yes')}</button>`
         let btn2 = `<button type="button" class="w2ui-btn btn-no ${options.no_class || ''}">${w2utils.lang(options.no_text || 'No')}</button>`
@@ -266,7 +266,7 @@ class w2layout extends w2event {
                 : btn1 + btn2,
             onOpen(event) {
                 setTimeout(() => {
-                    let $btns = $(this.box).find('.w2ui-btn')
+                    let $btns = $(self.box).find('.w2ui-btn')
                     $btns.off('.message')
                         .on('blur.message', function(evt) {
                             // last input
@@ -279,17 +279,17 @@ class w2layout extends w2event {
                             if (evt.keyCode == 27) no_click() // esc
                         })
                         .focus()
-                    $(this.box).find('.w2ui-btn.btn-yes')
+                    $(self.box).find('.w2ui-btn.btn-yes')
                         .off('click')
                         .on('click', yes_click)
-                    $(this.box).find('.w2ui-btn.btn-no')
+                    $(self.box).find('.w2ui-btn.btn-no')
                         .off('click')
                         .on('click', no_click)
                 }, 25)
             }
         })
         let p = this.get(panel)
-        let $el = $('#layout_'+ this.name + '_panel_'+ p.type)
+        let $el = $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type)
         let oldOverflow = $el.css('overflow')
         let oldOnClose
         if (options) {
@@ -297,13 +297,13 @@ class w2layout extends w2event {
             options.onClose = (event) => {
                 if (typeof oldOnClose == 'function') oldOnClose(event)
                 event.done(() => {
-                    $('#layout_'+ layout.name + '_panel_'+ p.type).css('overflow', oldOverflow)
+                    $(self.box).find('#layout_'+ self.name + '_panel_'+ p.type).css('overflow', oldOverflow)
                 })
             }
         }
-        $('#layout_'+ this.name + '_panel_'+ p.type).css('overflow', 'hidden')
+        $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type).css('overflow', 'hidden')
         w2utils.message.call(this, {
-            box   : $('#layout_'+ this.name + '_panel_'+ p.type),
+            box   : $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type),
             param : panel,
             path  : 'w2ui.' + this.name,
             title : '.w2ui-panel-title:visible',
@@ -374,21 +374,21 @@ class w2layout extends w2event {
         if (p == null) return false
         p.hidden = false
         if (immediate === true) {
-            $('#layout_'+ obj.name +'_panel_'+panel)
+            $(obj.box).find('#layout_'+ obj.name +'_panel_'+panel)
                 .css({ 'opacity': '1' })
             obj.trigger($.extend(edata, { phase: 'after' }))
             obj.resize()
         } else {
             // resize
             $(obj.box).addClass('animating')
-            $('#layout_'+ obj.name +'_panel_'+panel)
+            $(obj.box).find('#layout_'+ obj.name +'_panel_'+panel)
                 .css({ 'opacity': '0' })
             $(obj.box).find(' > div > .w2ui-panel')
                 .css(w2utils.cssPrefix('transition', '.2s'))
             setTimeout(() => { obj.resize() }, 1)
             // show
             setTimeout(() => {
-                $('#layout_'+ obj.name +'_panel_'+ panel).css({ 'opacity': '1' })
+                $(obj.box).find('#layout_'+ obj.name +'_panel_'+ panel).css({ 'opacity': '1' })
             }, 250)
             // clean
             setTimeout(() => {
@@ -412,7 +412,7 @@ class w2layout extends w2event {
         if (p == null) return false
         p.hidden = true
         if (immediate === true) {
-            $('#layout_'+ obj.name +'_panel_'+panel)
+            $(obj.box).find('#layout_'+ obj.name +'_panel_'+panel)
                 .css({ 'opacity': '0' })
             obj.trigger($.extend(edata, { phase: 'after' }))
             obj.resize()
@@ -421,7 +421,7 @@ class w2layout extends w2event {
             $(obj.box).addClass('animating')
             $(obj.box).find(' > div > .w2ui-panel')
                 .css(w2utils.cssPrefix('transition', '.2s'))
-            $('#layout_'+ obj.name +'_panel_'+panel)
+            $(obj.box).find('#layout_'+ obj.name +'_panel_'+panel)
                 .css({ 'opacity': '0' })
             setTimeout(() => { obj.resize() }, 1)
             // clean
@@ -465,7 +465,7 @@ class w2layout extends w2event {
     }
 
     el(panel) {
-        let el = $('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-content')
+        let el = $(this.box).find('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-content')
         if (el.length != 1) return null
         return el[0]
     }
@@ -474,7 +474,7 @@ class w2layout extends w2event {
         let pan = this.get(panel)
         if (!pan) return
         pan.show.toolbar = false
-        $('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-toolbar').hide()
+        $(this.box).find('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-toolbar').hide()
         this.resize()
     }
 
@@ -482,7 +482,7 @@ class w2layout extends w2event {
         let pan = this.get(panel)
         if (!pan) return
         pan.show.toolbar = true
-        $('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-toolbar').show()
+        $(this.box).find('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-toolbar').show()
         this.resize()
     }
 
@@ -516,7 +516,7 @@ class w2layout extends w2event {
         let pan = this.get(panel)
         if (!pan) return
         pan.show.tabs = false
-        $('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-tabs').hide()
+        $(this.box).find('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-tabs').hide()
         this.resize()
     }
 
@@ -524,7 +524,7 @@ class w2layout extends w2event {
         let pan = this.get(panel)
         if (!pan) return
         pan.show.tabs = true
-        $('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-tabs').show()
+        $(this.box).find('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-tabs').show()
         this.resize()
     }
 
@@ -620,10 +620,10 @@ class w2layout extends w2event {
                 }
             }
             if (type == 'left' || type == 'right') {
-                obj.tmp.resize.value = parseInt($('#layout_'+ obj.name +'_resizer_'+ type)[0].style.left)
+                obj.tmp.resize.value = parseInt($(obj.box).find('#layout_'+ obj.name +'_resizer_'+ type)[0].style.left)
             }
             if (type == 'top' || type == 'preview' || type == 'bottom') {
-                obj.tmp.resize.value = parseInt($('#layout_'+ obj.name +'_resizer_'+ type)[0].style.top)
+                obj.tmp.resize.value = parseInt($(obj.box).find('#layout_'+ obj.name +'_resizer_'+ type)[0].style.top)
             }
         }
 
@@ -686,7 +686,7 @@ class w2layout extends w2event {
                 }
                 obj.resize()
             }
-            $('#layout_'+ obj.name + '_resizer_'+ obj.tmp.resize.type).removeClass('active')
+            $(obj.box).find('#layout_'+ obj.name + '_resizer_'+ obj.tmp.resize.type).removeClass('active')
             delete obj.tmp.resize
         }
 
@@ -701,7 +701,7 @@ class w2layout extends w2event {
                 panel: tmp ? tmp.type : 'all', diff_x: tmp ? tmp.diff_x : 0, diff_y: tmp ? tmp.diff_y : 0 })
             if (edata.isCancelled === true) return
 
-            let p         = $('#layout_'+ obj.name + '_resizer_'+ tmp.type)
+            let p         = $(obj.box).find('#layout_'+ obj.name + '_resizer_'+ tmp.type)
             let resize_x  = (evnt.screenX - tmp.x)
             let resize_y  = (evnt.screenY - tmp.y)
             let mainPanel = obj.get('main')
@@ -795,15 +795,15 @@ class w2layout extends w2event {
             let pname = '#layout_'+ obj.name + '_panel_'+ p.type
             let rname = '#layout_'+ obj.name +'_resizer_'+ p.type
             // apply properties to the panel
-            $(pname).css({ display: p.hidden ? 'none' : 'block' })
-            if (p.resizable) $(rname).show(); else $(rname).hide()
+            $(obj.box).find(pname).css({ display: p.hidden ? 'none' : 'block' })
+            if (p.resizable) $(obj.box).find(rname).show(); else $(obj.box).find(rname).hide()
             // insert content
             if (typeof p.html == 'object' && typeof p.html.render === 'function') {
-                p.html.box = $(pname +'> .w2ui-panel-content')[0]
+                p.html.box = $(obj.box).find(pname +'> .w2ui-panel-content')[0]
                 setTimeout(() => {
                     // need to remove unnecessary classes
-                    if ($(pname +'> .w2ui-panel-content').length > 0) {
-                        $(pname +'> .w2ui-panel-content')
+                    if ($(obj.box).find(pname +'> .w2ui-panel-content').length > 0) {
+                        $(obj.box).find(pname +'> .w2ui-panel-content')
                             .removeClass()
                             .removeAttr('name')
                             .addClass('w2ui-panel-content')
@@ -815,8 +815,8 @@ class w2layout extends w2event {
                 }, 1)
             } else {
                 // need to remove unnecessary classes
-                if ($(pname +'> .w2ui-panel-content').length > 0) {
-                    $(pname +'> .w2ui-panel-content')
+                if ($(obj.box).find(pname +'> .w2ui-panel-content').length > 0) {
+                    $(obj.box).find(pname +'> .w2ui-panel-content')
                         .removeClass()
                         .removeAttr('name')
                         .addClass('w2ui-panel-content')
@@ -845,7 +845,7 @@ class w2layout extends w2event {
                 tmp.html('').hide()
             }
         } else {
-            if ($('#layout_'+ obj.name +'_panel_main').length === 0) {
+            if ($(obj.box).find('#layout_'+ obj.name +'_panel_main').length === 0) {
                 obj.render()
                 return
             }
@@ -929,7 +929,7 @@ class w2layout extends w2event {
             t = 0
             w = width
             h = ptop.sizeCalculated
-            $('#layout_'+ this.name +'_panel_top').css({
+            $(this.box).find('#layout_'+ this.name +'_panel_top').css({
                 'display': 'block',
                 'left': l + 'px',
                 'top': t + 'px',
@@ -942,7 +942,7 @@ class w2layout extends w2event {
             if (ptop.resizable) {
                 t = ptop.sizeCalculated - (this.padding === 0 ? this.resizer : 0)
                 h = (this.resizer > this.padding ? this.resizer : this.padding)
-                $('#layout_'+ this.name +'_resizer_top').show().css({
+                $(this.box).find('#layout_'+ this.name +'_resizer_top').show().css({
                     'display': 'block',
                     'left': l + 'px',
                     'top': t + 'px',
@@ -961,8 +961,8 @@ class w2layout extends w2event {
                 })
             }
         } else {
-            $('#layout_'+ this.name +'_panel_top').hide()
-            $('#layout_'+ this.name +'_resizer_top').hide()
+            $(this.box).find('#layout_'+ this.name +'_panel_top').hide()
+            $(this.box).find('#layout_'+ this.name +'_resizer_top').hide()
         }
         // left if any
         if (pleft != null && pleft.hidden !== true) {
@@ -971,7 +971,7 @@ class w2layout extends w2event {
             w = pleft.sizeCalculated
             h = height - (stop ? ptop.sizeCalculated + this.padding : 0) -
                     (sbottom ? pbottom.sizeCalculated + this.padding : 0)
-            e = $('#layout_'+ this.name +'_panel_left')
+            e = $(this.box).find('#layout_'+ this.name +'_panel_left')
             e.css({
                 'display': 'block',
                 'left': l + 'px',
@@ -985,7 +985,7 @@ class w2layout extends w2event {
             if (pleft.resizable) {
                 l = pleft.sizeCalculated - (this.padding === 0 ? this.resizer : 0)
                 w = (this.resizer > this.padding ? this.resizer : this.padding)
-                $('#layout_'+ this.name +'_resizer_left').show().css({
+                $(this.box).find('#layout_'+ this.name +'_resizer_left').show().css({
                     'display': 'block',
                     'left': l + 'px',
                     'top': t + 'px',
@@ -1004,8 +1004,8 @@ class w2layout extends w2event {
                 })
             }
         } else {
-            $('#layout_'+ this.name +'_panel_left').hide()
-            $('#layout_'+ this.name +'_resizer_left').hide()
+            $(this.box).find('#layout_'+ this.name +'_panel_left').hide()
+            $(this.box).find('#layout_'+ this.name +'_resizer_left').hide()
         }
         // right if any
         if (pright != null && pright.hidden !== true) {
@@ -1014,7 +1014,7 @@ class w2layout extends w2event {
             w = pright.sizeCalculated
             h = height - (stop ? ptop.sizeCalculated + this.padding : 0) -
                 (sbottom ? pbottom.sizeCalculated + this.padding : 0)
-            $('#layout_'+ this.name +'_panel_right').css({
+            $(this.box).find('#layout_'+ this.name +'_panel_right').css({
                 'display': 'block',
                 'left': l + 'px',
                 'top': t + 'px',
@@ -1027,7 +1027,7 @@ class w2layout extends w2event {
             if (pright.resizable) {
                 l = l - this.padding
                 w = (this.resizer > this.padding ? this.resizer : this.padding)
-                $('#layout_'+ this.name +'_resizer_right').show().css({
+                $(this.box).find('#layout_'+ this.name +'_resizer_right').show().css({
                     'display': 'block',
                     'left': l + 'px',
                     'top': t + 'px',
@@ -1046,8 +1046,8 @@ class w2layout extends w2event {
                 })
             }
         } else {
-            $('#layout_'+ this.name +'_panel_right').hide()
-            $('#layout_'+ this.name +'_resizer_right').hide()
+            $(this.box).find('#layout_'+ this.name +'_panel_right').hide()
+            $(this.box).find('#layout_'+ this.name +'_resizer_right').hide()
         }
         // bottom if any
         if (pbottom != null && pbottom.hidden !== true) {
@@ -1055,7 +1055,7 @@ class w2layout extends w2event {
             t = height - pbottom.sizeCalculated
             w = width
             h = pbottom.sizeCalculated
-            $('#layout_'+ this.name +'_panel_bottom').css({
+            $(this.box).find('#layout_'+ this.name +'_panel_bottom').css({
                 'display': 'block',
                 'left': l + 'px',
                 'top': t + 'px',
@@ -1068,7 +1068,7 @@ class w2layout extends w2event {
             if (pbottom.resizable) {
                 t = t - (this.padding === 0 ? 0 : this.padding)
                 h = (this.resizer > this.padding ? this.resizer : this.padding)
-                $('#layout_'+ this.name +'_resizer_bottom').show().css({
+                $(this.box).find('#layout_'+ this.name +'_resizer_bottom').show().css({
                     'display': 'block',
                     'left': l + 'px',
                     'top': t + 'px',
@@ -1087,8 +1087,8 @@ class w2layout extends w2event {
                 })
             }
         } else {
-            $('#layout_'+ this.name +'_panel_bottom').hide()
-            $('#layout_'+ this.name +'_resizer_bottom').hide()
+            $(this.box).find('#layout_'+ this.name +'_panel_bottom').hide()
+            $(this.box).find('#layout_'+ this.name +'_resizer_bottom').hide()
         }
         // main - always there
         l = 0 + (sleft ? pleft.sizeCalculated + this.padding : 0)
@@ -1098,7 +1098,7 @@ class w2layout extends w2event {
         h = height - (stop ? ptop.sizeCalculated + this.padding : 0) -
             (sbottom ? pbottom.sizeCalculated + this.padding : 0) -
             (sprev ? pprev.sizeCalculated + this.padding : 0)
-        e = $('#layout_'+ this.name +'_panel_main')
+        e = $(this.box).find('#layout_'+ this.name +'_panel_main')
         e.css({
             'display': 'block',
             'left': l + 'px',
@@ -1116,7 +1116,7 @@ class w2layout extends w2event {
             w = width - (sleft ? pleft.sizeCalculated + this.padding : 0) -
                 (sright ? pright.sizeCalculated + this.padding : 0)
             h = pprev.sizeCalculated
-            e = $('#layout_'+ this.name +'_panel_preview')
+            e = $(this.box).find('#layout_'+ this.name +'_panel_preview')
             e.css({
                 'display': 'block',
                 'left': l + 'px',
@@ -1130,7 +1130,7 @@ class w2layout extends w2event {
             if (pprev.resizable) {
                 t = t - (this.padding === 0 ? 0 : this.padding)
                 h = (this.resizer > this.padding ? this.resizer : this.padding)
-                $('#layout_'+ this.name +'_resizer_preview').show().css({
+                $(this.box).find('#layout_'+ this.name +'_resizer_preview').show().css({
                     'display': 'block',
                     'left': l + 'px',
                     'top': t + 'px',
@@ -1149,8 +1149,8 @@ class w2layout extends w2event {
                 })
             }
         } else {
-            $('#layout_'+ this.name +'_panel_preview').hide()
-            $('#layout_'+ this.name +'_resizer_preview').hide()
+            $(this.box).find('#layout_'+ this.name +'_panel_preview').hide()
+            $(this.box).find('#layout_'+ this.name +'_resizer_preview').hide()
         }
 
         // display tabs and toolbar if needed
@@ -1160,18 +1160,18 @@ class w2layout extends w2event {
             let tabHeight = 0
             if (pan) {
                 if (pan.title) {
-                    tabHeight += w2utils.getSize($(tmp2 + 'title').css({ top: tabHeight + 'px', display: 'block' }), 'height')
+                    tabHeight += w2utils.getSize($(this.box).find(tmp2 + 'title').css({ top: tabHeight + 'px', display: 'block' }), 'height')
                 }
                 if (pan.show.tabs) {
                     if (pan.tabs != null && w2ui[this.name +'_'+ w2panels[p1] +'_tabs']) w2ui[this.name +'_'+ w2panels[p1] +'_tabs'].resize()
-                    tabHeight += w2utils.getSize($(tmp2 + 'tabs').css({ top: tabHeight + 'px', display: 'block' }), 'height')
+                    tabHeight += w2utils.getSize($(this.box).find(tmp2 + 'tabs').css({ top: tabHeight + 'px', display: 'block' }), 'height')
                 }
                 if (pan.show.toolbar) {
                     if (pan.toolbar != null && w2ui[this.name +'_'+ w2panels[p1] +'_toolbar']) w2ui[this.name +'_'+ w2panels[p1] +'_toolbar'].resize()
-                    tabHeight += w2utils.getSize($(tmp2 + 'toolbar').css({ top: tabHeight + 'px', display: 'block' }), 'height')
+                    tabHeight += w2utils.getSize($(this.box).find(tmp2 + 'toolbar').css({ top: tabHeight + 'px', display: 'block' }), 'height')
                 }
             }
-            $(tmp2 + 'content').css({ display: 'block' }).css({ top: tabHeight + 'px' })
+            $(this.box).find(tmp2 + 'content').css({ display: 'block' }).css({ top: tabHeight + 'px' })
         }
         // send resize to all objects
         clearTimeout(this._resize_timer)

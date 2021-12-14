@@ -252,7 +252,7 @@ class w2sidebar extends w2event {
     }
 
     setCount(id, count, className, style) {
-        let $it = $(`#node_${id} .w2ui-node-count`)
+        let $it = $(this.box).find(`#node_${id} .w2ui-node-count`)
         $it.removeClass()
             .addClass(`w2ui-node-count ${className || ''}`)
             .text(count)[0].style.cssText = style || ''
@@ -983,8 +983,8 @@ class w2sidebar extends w2event {
             $(this.box).find(nodeId).before('<div id="sidebar_'+ this.name + '_tmp"></div>')
             $(this.box).find(nodeId).remove()
             $(this.box).find(nodeSubId).remove()
-            $('#sidebar_'+ this.name + '_tmp').before(nodeHTML)
-            $('#sidebar_'+ this.name + '_tmp').remove()
+            $(this.box).find('#sidebar_'+ this.name + '_tmp').before(nodeHTML)
+            $(this.box).find('#sidebar_'+ this.name + '_tmp').remove()
         }
         // remember scroll position
         let scroll = {

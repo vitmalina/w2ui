@@ -188,7 +188,7 @@ class w2toolbar extends w2event {
     }
 
     setCount(id, count, className, style) {
-        let $it = $(`#tb_${this.name}_item_${id} .w2ui-tb-count > span`)
+        let $it = $(this.box).find(`#tb_${this.name}_item_${id} .w2ui-tb-count > span`)
         $it.removeClass()
             .addClass(className || '')
             .text(count)[0].style.cssText = style || ''
@@ -270,7 +270,7 @@ class w2toolbar extends w2event {
             if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1 && it.checked) {
                 // hide overlay
                 setTimeout(() => {
-                    let el = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id))
+                    let el = $(obj.box).find('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id))
                     el.w2overlay({ name: obj.name, data: { 'tb-item': it.id }})
                 }, 1)
             }
@@ -304,7 +304,7 @@ class w2toolbar extends w2event {
             items = (it && it.items ? w2utils.normMenu.call(this, it.items, it) : [])
 
             let btn = '#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id)
-            $(btn).removeClass('down') // need to re-query at the moment -- as well as elsewhere in this function
+            $(this.box).find(btn).removeClass('down') // need to re-query at the moment -- as well as elsewhere in this function
 
             if (it.type == 'radio') {
                 for (let i = 0; i < this.items.length; i++) {
@@ -316,7 +316,7 @@ class w2toolbar extends w2event {
                     }
                 }
                 it.checked = true
-                $(btn).addClass('checked')
+                $(this.box).find(btn).addClass('checked')
             }
 
             if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
@@ -326,7 +326,7 @@ class w2toolbar extends w2event {
                     // if it was already checked, second click will hide it
                     setTimeout(() => {
                         // hide overlay
-                        let el = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id))
+                        let el = $(obj.box).find('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id))
                         el.w2overlay({ name: obj.name, data: { 'tb-item': it.id }})
                         // uncheck
                         it.checked = false
@@ -337,7 +337,7 @@ class w2toolbar extends w2event {
 
                     // show overlay
                     setTimeout(() => {
-                        let el = $('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id))
+                        let el = $(obj.box).find('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id))
                         if (!$.isPlainObject(it.overlay)) it.overlay = {}
                         let left = (el.width() - 50) / 2
                         if (left > 19) left = 19
@@ -568,7 +568,7 @@ class w2toolbar extends w2event {
             w2utils.bindEvents(`#tb_${this.name}_item_${w2utils.escapeId(it.id)}`, this)
         } else {
             if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
-                let drop = $('#w2ui-overlay-'+ this.name)
+                let drop = $(this.box).find('#w2ui-overlay-'+ this.name)
                 if (drop.length > 0) {
                     if (it.checked == false) {
                         drop[0].hide()
