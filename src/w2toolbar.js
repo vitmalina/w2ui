@@ -7,6 +7,7 @@
 *
 * == 2.0 changes
 *   - CSP - fixed inline events
+*   - item.icon - can be class or <custom-icon-component> or <svg>
 *
 ************************************************************************/
 import { w2event } from './w2event.js'
@@ -565,7 +566,7 @@ class w2toolbar extends w2event {
             } else {
                 $next.after(html)
             }
-            w2utils.bindEvents(`#tb_${this.name}_item_${w2utils.escapeId(it.id)}`, this)
+            w2utils.bindEvents($(this.box).find(`#tb_${this.name}_item_${w2utils.escapeId(it.id)}`), this)
         } else {
             if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
                 let drop = $(this.box).find('#w2ui-overlay-'+ this.name)
@@ -583,7 +584,7 @@ class w2toolbar extends w2event {
             el.replaceWith($(html))
             if (it.hidden) { el.css('display', 'none') } else { el.css('display', '') }
             if (it.disabled) { el.addClass('disabled') } else { el.removeClass('disabled') }
-            w2utils.bindEvents(`#tb_${this.name}_item_${w2utils.escapeId(it.id)}`, this)
+            w2utils.bindEvents($(this.box).find(`#tb_${this.name}_item_${w2utils.escapeId(it.id)}`), this)
         }
         // event after
         if (typeof it.onRefresh == 'function') {
@@ -660,9 +661,14 @@ class w2toolbar extends w2event {
         let icon = ''
         let text = (typeof item.text == 'function' ? item.text.call(this, item) : item.text)
         if (item.icon) {
-            icon = `<div class="w2ui-tb-icon">
-                       <span class="${(typeof item.icon == 'function' ? item.icon.call(this, item) : item.icon)}"></span>
-                   </div>`
+            icon = item.icon
+            if (typeof item.icon == 'function') {
+                icon = item.icon.call(this, item)
+            }
+            if (String(icon).substr(0, 1) !== '<') {
+                icon = `<span class="${icon}"></span>`
+            }
+            icon = `<div class="w2ui-tb-icon">${icon}</div>`
         }
         let classes = ['w2ui-tb-button']
         if (item.checked) classes.push('checked')

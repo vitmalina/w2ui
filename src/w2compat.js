@@ -159,25 +159,26 @@ import { w2toolbar } from './w2toolbar.js'
         }
         // default options
         options = $.extend({
-            id              : null, // id for the tag, otherwise input id is used
-            auto            : null, // if auto true, then tag will show on mouseEnter and hide on mouseLeave
-            html            : text, // or html
+            id              : null,     // id for the tag, otherwise input id is used
+            auto            : null,     // if auto true, then tag will show on mouseEnter and hide on mouseLeave
+            html            : text,     // or html
             position        : 'right|top', // can be left, right, top, bottom
-            align           : 'none', // can be none, left, right (only works for position: top | bottom)
-            left            : 0, // delta for left coordinate
-            top             : 0, // delta for top coordinate
-            maxWidth        : null, // max width
-            style           : '', // additional style for the tag
-            css             : {}, // add css for input when tag is shown
-            className       : '', // add class bubble
-            inputClass      : '', // add class for input when tag is shown
-            onShow          : null, // callBack when shown
-            onHide          : null, // callBack when hidden
-            hideOnKeyPress  : true, // hide tag if key pressed
-            hideOnFocus     : false, // hide tag on focus
-            hideOnBlur      : false, // hide tag on blur
-            hideOnClick     : false, // hide tag on document click
-            hideOnChange    : true
+            align           : 'none',   // can be none, left, right (only works for position: top | bottom)
+            left            : 0,        // delta for left coordinate
+            top             : 0,        // delta for top coordinate
+            maxWidth        : null,     // max width
+            style           : '',       // additional style for the tag
+            css             : {},       // add css for input when tag is shown
+            attachTo        : null,     // when should it be created (for exmaple shadowRoot)
+            className       : '',       // add class bubble
+            inputClass      : '',       // add class for input when tag is shown
+            onShow          : null,     // callBack when shown
+            onHide          : null,     // callBack when hidden
+            hideOnKeyPress  : true,     // hide tag if key pressed
+            hideOnFocus     : false,    // hide tag on focus
+            hideOnBlur      : false,    // hide tag on blur
+            hideOnClick     : false,    // hide tag on document click
+            hideOnChange    : true      // hides when input changes
         }, options)
         if (options.name != null && options.id == null) options.id = options.name
 
@@ -267,8 +268,10 @@ import { w2toolbar } from './w2toolbar.js'
                     if (tag.options.maxWidth && w2utils.getStrWidth(text) > tag.options.maxWidth) {
                         tagStyles = 'width: '+ tag.options.maxWidth + 'px'
                     }
+                    // check if shadow root
+                    let topEl = $(el).parents('*').last()[0];
                     // insert
-                    $('body').append(
+                    $(topEl.tagName == 'HTML' ? 'body' : topEl).append(
                         '<div data-click="stop" style="display: none;" id="w2ui-tag-'+ tag.id +'" '+
                         '       class="w2ui-tag '+ ($(tag.attachedTo).parents('.w2ui-popup, .w2ui-overlay-popup, .w2ui-message').length > 0 ? 'w2ui-tag-popup' : '') + '">'+
                         '   <div style="margin: -2px 0px 0px -2px; '+ tagStyles +'">'+

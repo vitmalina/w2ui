@@ -347,7 +347,7 @@ class w2tabs extends w2event {
                     $tab.replaceWith(tabHTML)
                 }
             }
-            w2utils.bindEvents(`${selector}, ${selector} .w2ui-eaction`, this)
+            w2utils.bindEvents($(this.box).find(`${selector}, ${selector} .w2ui-eaction`), this)
         }
         // right html
         $(this.box).find('#tabs_'+ this.name +'_right').html(this.right)

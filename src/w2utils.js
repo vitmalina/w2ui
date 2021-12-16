@@ -1347,7 +1347,7 @@ let w2utils = (($) => {
     function lang(phrase, params) {
         if (!phrase || this.settings.phrases == null // if no phrases at all
                 || typeof phrase !== 'string' || '<=>='.includes(phrase)) {
-            return phrase
+            return execTemplate(phrase, params)
         }
         let translation = this.settings.phrases[phrase]
         if (translation == null) {

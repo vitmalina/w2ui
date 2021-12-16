@@ -3,7 +3,7 @@
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2field
 *
 * == TODO ==
-*   - check $(window), $(document), w2ui-overlay to work with web components
+*   - w2ui-overlay to work with web components
 *   - column autosize based on largest content
 *   - problem with .set() and arrays, array get extended too, but should be replaced
 *   - after edit stay on the same record option
@@ -851,7 +851,7 @@ class w2grid extends w2event {
         time = (new Date()).getTime() - time
         if (silent !== true && this.show.statusSort) {
             setTimeout(() => {
-                this.status(w2utils.lang('Sorting took ${count} seconds', {count: time/1000}))
+                this.status(w2utils.lang('Sorting took ${count} seconds', { count: time/1000 }))
             }, 10)
         }
         return time
@@ -1042,7 +1042,7 @@ class w2grid extends w2event {
         time = (new Date()).getTime() - time
         if (silent !== true && this.show.statusSearch) {
             setTimeout(() => {
-                this.status(w2utils.lang('Search took ${count} seconds', {count: time/1000}))
+                this.status(w2utils.lang('Search took ${count} seconds', { count: time/1000 }))
             }, 10)
         }
         return time
@@ -4659,7 +4659,7 @@ class w2grid extends w2event {
         // if local
         let url = (typeof this.url != 'object' ? this.url : this.url.get)
         if (!url) {
-            this.localSort(true, true)
+            this.localSort(false, true)
             if (this.searchData.length > 0) this.localSearch(true)
             // reset vertical scroll
             this.last.scrollTop = 0
@@ -5154,7 +5154,7 @@ class w2grid extends w2event {
             $(this.box).find(`#grid_${this.name}_search_all`).prop('readOnly', false)
             $(this.box).find(`#grid_${this.name}_search_name`).hide().find('.name-text').html('')
         }
-        w2utils.bindEvents(`#grid_${this.name}_searches .w2ui-action, #grid_${this.name}_searches button`, this)
+        w2utils.bindEvents($(this.box).find(`#grid_${this.name}_searches .w2ui-action, #grid_${this.name}_searches button`), this)
     }
 
     refreshBody() {
