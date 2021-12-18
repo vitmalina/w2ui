@@ -42,19 +42,31 @@ options: {
 
 To display the message
 <textarea class="javascript">
-w2layout.message('main', {
-        width: 200,
-        height: 60,
-        html: `<div class="w2ui-centered">message</div>>`,
-        onClose(event) {
-            console.log('message is closed')
-        }
+w2ui.layout.message('main', 'some message')
+    .then(event => {
+        console.log('message is opened', event)
     })
-    .then(() => { console.log('message is opened') })
+    .ok(event => {
+        console.log('ok clicked', event)
+    })
 </textarea>
 
 Call it again to close the message
 <textarea class="javascript">
-w2layout.message('main')
-    .then(() => { console.log('message is opened') })
+w2ui.layout.message('main', {
+        width: 500,
+        height: 160,
+        body: 'some message',
+        buttons: '<button class="w2ui-btn">Ok</button>',
+        onClose(event) {
+            console.log('custom close')
+        }
+    })
+    .then(event => {
+        $(event.box).find('button').on('click', () => {
+            w2ui.layout.message('main')
+        })
+        console.log('message is opened', event)
+    })
+
 </textarea>

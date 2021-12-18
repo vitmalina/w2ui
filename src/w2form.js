@@ -443,6 +443,11 @@ class w2form extends w2event {
                         w2utils.bindEvents($(obj.box).find('.w2ui-btn'), obj)
                         $(event.box).find('.w2ui-btn').focus()
                     }, 25)
+                },
+                onClose(event) {
+                    if (typeof options.callBack == 'function') {
+                        options.callBack(event)
+                    }
                 }
             }
         }
@@ -451,12 +456,29 @@ class w2form extends w2event {
                 ${w2utils.lang('Ok')}
             </button>`
         }
-        return w2utils.message.call(this, {
-            box   : this.box,
-            path  : 'w2ui.' + this.name,
-            title : '.w2ui-form-header:visible',
-            body  : '.w2ui-form-box'
-        }, options)
+        w2utils.message.call(this, {
+                box   : this.box,
+                path  : 'w2ui.' + this.name,
+                title : '.w2ui-form-header:visible',
+                body  : '.w2ui-form-box'
+            }, options)
+        .then((event) => {
+            if (typeof options.then == 'function') {
+                options.then(event)
+            }
+        })
+
+        let prom = {
+            ok(callBack) {
+                options.callBack = callBack
+                return prom
+            },
+            then(callBack) {
+                options.then = callBack
+                return prom
+            }
+        }
+        return prom
     }
 
     confirm(options) {
@@ -468,21 +490,21 @@ class w2form extends w2event {
                 body: '<div class="w2ui-centered">' + options + '</div>'
             }
         }
-        let yes_click = () => {
+        let yes_click = (event) => {
             if (typeof options.yes_click == 'function') {
-                options.yes_click('yes')
+                options.yes_click(event)
             }
             if (typeof options.callBack == 'function') {
-                options.callBack('yes')
+                options.callBack(Object.assign(event, { answer: 'yes' }))
             }
             form.message()
         }
-        let no_click = () => {
+        let no_click = (event) => {
             if (typeof options.no_click == 'function') {
-                options.no_click('no')
+                options.no_click(event)
             }
             if (typeof options.callBack == 'function') {
-                options.callBack('no')
+                options.callBack(Object.assign(event, { answer: 'no' }))
             }
             form.message()
         }
@@ -505,24 +527,29 @@ class w2form extends w2event {
                             }
                         })
                         .on('keydown.message', function(evt) {
-                            if (evt.keyCode == 27) no_click() // esc
+                            if (evt.keyCode == 27) no_click(event) // esc
                         })
                         .focus()
                     $(this.box).find('.w2ui-btn.btn-yes')
                         .off('click')
-                        .on('click', yes_click)
+                        .on('click', () => { yes_click(event) })
                     $(this.box).find('.w2ui-btn.btn-no')
                         .off('click')
-                        .on('click', no_click)
+                        .on('click', () => { no_click(event) })
                 }, 25)
             }
         })
         w2utils.message.call(this, {
-            box   : this.box,
-            path  : 'w2ui.' + this.name,
-            title : '.w2ui-form-header:visible',
-            body  : '.w2ui-form-box'
-        }, options)
+                box   : this.box,
+                path  : 'w2ui.' + this.name,
+                title : '.w2ui-form-header:visible',
+                body  : '.w2ui-form-box'
+            }, options)
+        .then((res) => {
+            if (typeof options.then == 'function') {
+                options.then(res)
+            }
+        })
 
         let prom = {
             yes(callBack) {
@@ -533,8 +560,12 @@ class w2form extends w2event {
                 options.no_click = callBack
                 return prom
             },
-            then(callBack) {
+            answer(callBack) {
                 options.callBack = callBack
+                return prom
+            },
+            then(callBack) {
+                options.then = callBack
                 return prom
             }
         }

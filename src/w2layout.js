@@ -204,6 +204,11 @@ class w2layout extends w2event {
                         w2utils.bindEvents($(obj.box).find('.w2ui-btn'), obj)
                         $(obj.box).find('.w2ui-btn').focus()
                     }, 25)
+                },
+                onClose(event) {
+                    if (typeof options.callBack == 'function') {
+                        options.callBack(event)
+                    }
                 }
             }
         }
@@ -221,13 +226,30 @@ class w2layout extends w2event {
             }
         }
         $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type).css('overflow', 'hidden')
-        return w2utils.message.call(this, {
-            box   : $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type),
-            param : panel,
-            path  : 'w2ui.' + this.name,
-            title : '.w2ui-panel-title:visible',
-            body  : '.w2ui-panel-content'
-        }, options)
+        w2utils.message.call(this, {
+                box   : $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type),
+                param : panel,
+                path  : 'w2ui.' + this.name,
+                title : '.w2ui-panel-title:visible',
+                body  : '.w2ui-panel-content'
+            }, options)
+        .then((event) => {
+            if (typeof options.then == 'function') {
+                options.then(event)
+            }
+        })
+
+        let prom = {
+            ok(callBack) {
+                options.callBack = callBack
+                return prom
+            },
+            then(callBack) {
+                options.then = callBack
+                return prom
+            }
+        }
+        return prom
     }
 
     confirm(panel, options) {
@@ -239,21 +261,21 @@ class w2layout extends w2event {
                 body: '<div class="w2ui-centered">' + options + '</div>'
             }
         }
-        let yes_click = () => {
+        let yes_click = (event) => {
             if (typeof options.yes_click == 'function') {
-                options.yes_click('yes')
+                options.yes_click(event)
             }
             if (typeof options.callBack == 'function') {
-                options.callBack('yes')
+                options.callBack(Object.assign(event, { answer: 'yes' }))
             }
             self.message(panel)
         }
-        let no_click = () => {
+        let no_click = (event) => {
             if (typeof options.no_click == 'function') {
-                options.no_click('no')
+                options.no_click(event)
             }
             if (typeof options.callBack == 'function') {
-                options.callBack('no')
+                options.callBack(Object.assign(event, { answer: 'no' }))
             }
             self.message(panel)
         }
@@ -276,15 +298,15 @@ class w2layout extends w2event {
                             }
                         })
                         .on('keydown.message', function(evt) {
-                            if (evt.keyCode == 27) no_click() // esc
+                            if (evt.keyCode == 27) no_click(event) // esc
                         })
                         .focus()
                     $(self.box).find('.w2ui-btn.btn-yes')
                         .off('click')
-                        .on('click', yes_click)
+                        .on('click', () => { yes_click(event) })
                     $(self.box).find('.w2ui-btn.btn-no')
                         .off('click')
-                        .on('click', no_click)
+                        .on('click', () => { no_click(event) })
                 }, 25)
             }
         })
@@ -303,12 +325,17 @@ class w2layout extends w2event {
         }
         $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type).css('overflow', 'hidden')
         w2utils.message.call(this, {
-            box   : $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type),
-            param : panel,
-            path  : 'w2ui.' + this.name,
-            title : '.w2ui-panel-title:visible',
-            body  : '.w2ui-panel-content'
-        }, options)
+                box   : $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type),
+                param : panel,
+                path  : 'w2ui.' + this.name,
+                title : '.w2ui-panel-title:visible',
+                body  : '.w2ui-panel-content'
+            }, options)
+        .then((res) => {
+            if (typeof options.then == 'function') {
+                options.then(res)
+            }
+        })
 
         let prom = {
             yes(callBack) {
@@ -319,8 +346,12 @@ class w2layout extends w2event {
                 options.no_click = callBack
                 return prom
             },
-            then(callBack) {
+            answer(callBack) {
                 options.callBack = callBack
+                return prom
+            },
+            then(callBack) {
+                options.then = callBack
                 return prom
             }
         }

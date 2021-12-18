@@ -2,6 +2,8 @@
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
 *
+* TODO:
+* - for poppup.message, w2alert, w2cofirm, w2propt - use w2utils.message
 * == 2.0 changes
 *   - CSP - fixed inline events
 *
@@ -588,6 +590,7 @@ class w2dialog extends w2event {
 
             // convert action arrays into buttons
             if (options.actions != null) {
+                if (options.html && !options.body) options.body = options.html
                 options.buttons = ''
                 Object.keys(options.actions).forEach((action) => {
                     let handler = options.actions[action]
@@ -902,6 +905,7 @@ class w2dialog extends w2event {
 
 function w2alert(msg, title, callBack) {
     let $ = jQuery
+    let thenCallBack
     if (title == null) title = w2utils.lang('Notification')
     if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
         w2popup.message({
@@ -916,11 +920,14 @@ function w2alert(msg, title, callBack) {
                     }
                 }
             },
-            onOpen() {
-                $('#w2ui-popup .w2ui-message .w2ui-popup-btn').focus()
+            onOpen(event) {
+                setTimeout(() => {
+                    $('#w2ui-popup .w2ui-message .w2ui-popup-btn').focus()
+                    if (typeof thenCallBack == 'function') thenCallBack(event)
+                }, 1)
             },
-            onClose() {
-                if (typeof callBack == 'function') callBack()
+            onClose(event) {
+                if (typeof callBack == 'function') callBack(event)
             }
         })
     } else {
@@ -941,30 +948,30 @@ function w2alert(msg, title, callBack) {
             },
             onOpen(event) {
                 // do not use onComplete as it is slower
-                setTimeout(() => { $('#w2ui-popup .w2ui-popup-btn').focus() }, 1)
+                setTimeout(() => {
+                    $('#w2ui-popup .w2ui-popup-btn').focus()
+                    if (typeof thenCallBack == 'function') thenCallBack(event)
+                }, 1)
             },
             onKeydown(event) {
                 $('#w2ui-popup .w2ui-popup-btn').focus().addClass('clicked')
             },
-            onClose() {
-                if (typeof callBack == 'function') callBack()
+            onClose(event) {
+                if (typeof callBack == 'function') callBack(event)
             }
         })
     }
-    return {
+    let prom = {
         ok(fun) {
             callBack = fun
             return this
         },
-        done(fun) {
-            callBack = fun
-            return this
-        },
         then(fun) {
-            callBack = fun
+            thenCallBack = fun
             return this
         }
     }
+    return prom
 }
 
 function w2confirm(msg, title, callBack) {
@@ -1037,18 +1044,19 @@ function w2confirm(msg, title, callBack) {
                     w2popup._confirm_btn = event.target.id
                     w2popup.message()
                 })
-                if (typeof options.onOpen == 'function') options.onOpen()
+                if (typeof options.onOpen == 'function') options.onOpen(event)
+                if (typeof options.then == 'function') options.then(event)
             },
             onClose(event) {
                 // needed this because there might be other messages
                 $('#w2ui-popup .w2ui-message .w2ui-btn').off('click.w2confirm')
-                // need to wait for message to slide up
-                setTimeout(() => {
+                    // need to wait for message to slide up
+                    setTimeout(() => {
                     if (typeof options.callBack == 'function') options.callBack(w2popup._confirm_btn)
-                    if (w2popup._confirm_btn == 'Yes' && typeof options.btn_yes.click == 'function') options.btn_yes.click()
-                    if (w2popup._confirm_btn == 'No' && typeof options.btn_no.click == 'function') options.btn_no.click()
+                    if (w2popup._confirm_btn == 'Yes' && typeof options.btn_yes.click == 'function') options.btn_yes.click(event)
+                    if (w2popup._confirm_btn == 'No' && typeof options.btn_no.click == 'function') options.btn_no.click(event)
                 }, 300)
-                if (typeof options.onClose == 'function') options.onClose()
+                if (typeof options.onClose == 'function') options.onClose(event)
             }
             // onKeydown will not work here
         })
@@ -1075,19 +1083,20 @@ function w2confirm(msg, title, callBack) {
                     $('#w2ui-popup .w2ui-popup-btn').on('click', function(event) {
                         w2popup.close()
                         if (typeof options.callBack == 'function') options.callBack(event.target.id)
-                        if (event.target.id == 'Yes' && typeof options.btn_yes.click == 'function') options.btn_yes.click()
-                        if (event.target.id == 'No' && typeof options.btn_no.click == 'function') options.btn_no.click()
+                        if (event.target.id == 'Yes' && typeof options.btn_yes.click == 'function') options.btn_yes.click(event)
+                        if (event.target.id == 'No' && typeof options.btn_no.click == 'function') options.btn_no.click(event)
                     })
-                    if(options.focus_to_no){
+                    if (options.focus_to_no) {
                         $('#w2ui-popup .w2ui-popup-btn#No').focus()
-                    }else{
+                    } else {
                         $('#w2ui-popup .w2ui-popup-btn#Yes').focus()
                     }
-                    if (typeof options.onOpen == 'function') options.onOpen()
+                    if (typeof options.onOpen == 'function') options.onOpen(event)
+                    if (typeof options.then == 'function') options.then(event)
                 }, 1)
             },
             onClose(event) {
-                if (typeof options.onClose == 'function') options.onClose()
+                if (typeof options.onClose == 'function') options.onClose(event)
             },
             onKeydown(event) {
                 // if there are no messages
@@ -1107,16 +1116,25 @@ function w2confirm(msg, title, callBack) {
         })
     }
 
-    return {
+    let prom = {
         yes(fun) {
             options.btn_yes.click = fun
-            return this
+            return prom
         },
         no(fun) {
             options.btn_no.click = fun
-            return this
+            return prom
+        },
+        answer(fun) {
+            options.callBack = fun
+            return prom
+        },
+        then(fun) {
+            options.then = fun
+            return prom
         }
     }
+    return prom
 }
 
 function w2prompt(label, title, callBack) {
@@ -1199,7 +1217,7 @@ function w2prompt(label, title, callBack) {
                 : '<button id="Ok" class="w2ui-popup-btn w2ui-btn '+ options.btn_ok.class +'" style="'+ options.btn_ok.style +'">' + options.btn_ok.text + '</button>' +
                   '<button id="Cancel" class="w2ui-popup-btn w2ui-btn '+ options.btn_cancel.class +'" style="'+ options.btn_cancel.style +'">' + options.btn_cancel.text + '</button>'
             ),
-            onOpen() {
+            onOpen(event) {
                 $('#w2prompt').val(options.value).off('.w2prompt').on('keydown.w2prompt', function(event) {
                     if (event.keyCode == 13) {
                         $('#w2ui-popup .w2ui-message .w2ui-btn#Ok').click()
@@ -1218,17 +1236,18 @@ function w2prompt(label, title, callBack) {
                 // set focus
                 setTimeout(() => { $('#w2prompt').focus() }, 100)
                 // some event
-                if (typeof options.onOpen == 'function') options.onOpen()
+                if (typeof options.onOpen == 'function') options.onOpen(event)
+                if (typeof options.then == 'function') options.then(event)
             },
-            onClose() {
+            onClose(event) {
                 // needed this because there might be other messages
                 $('#w2ui-popup .w2ui-message .w2ui-btn').off('click.w2prompt')
                 // need to wait for message to slide up
                 setTimeout(() => {
-                    btnClick(w2popup.tmp.btn, w2popup.tmp.value)
+                    btnClick(w2popup.tmp.btn, w2popup.tmp.value, event)
                 }, 300)
                 // some event
-                if (typeof options.onClose == 'function') options.onClose()
+                if (typeof options.onClose == 'function') options.onClose(event)
             }
             // onKeydown will not work here
         })
@@ -1277,13 +1296,14 @@ function w2prompt(label, title, callBack) {
                     // set focus
                     setTimeout(() => { $('#w2prompt').focus() }, 100)
                     // some event
-                    if (typeof options.onOpen == 'function') options.onOpen()
+                    if (typeof options.onOpen == 'function') options.onOpen(event)
+                    if (typeof options.then == 'function') options.then(event)
                 }, 1)
             },
             onClose(event) {
                 // some event
-                btnClick(w2popup.tmp.btn, w2popup.tmp.value)
-                if (typeof options.onClose == 'function') options.onClose()
+                btnClick(w2popup.tmp.btn, w2popup.tmp.value, event)
+                if (typeof options.onClose == 'function') options.onClose(event)
             },
             onKeydown(event) {
                 // if there are no messages
@@ -1301,31 +1321,40 @@ function w2prompt(label, title, callBack) {
             }
         })
     }
-    function btnClick(btn, value) {
+    function btnClick(btn, value, event) {
         if (btn == 'ok' && typeof options.btn_ok.click == 'function') {
-            options.btn_ok.click(value)
+            options.btn_ok.click(value, event)
         }
         if (btn == 'cancel' && typeof options.btn_cancel.click == 'function') {
-            options.btn_cancel.click(value)
+            options.btn_cancel.click(value, event)
         }
         if (typeof options.callBack == 'function') {
-            options.callBack(btn, value)
+            options.callBack(btn, value, event)
         }
     }
-    return {
-        change(fun) {
-            $('#w2prompt').on('keyup', fun).keyup()
-            return this
-        },
+    let prom = {
         ok(fun) {
             options.btn_ok.click = fun
-            return this
+            return prom
         },
         cancel(fun) {
             options.btn_cancel.click = fun
-            return this
+            return prom
+        },
+        answer(fun) {
+            options.callBack = fun
+            return prom
+        },
+        change(fun) {
+            $('#w2prompt').on('keyup', fun).keyup()
+            return prom
+        },
+        then(fun) {
+            options.then = fun
+            return prom
         }
     }
+    return prom
 }
 
 let w2popup = new w2dialog()

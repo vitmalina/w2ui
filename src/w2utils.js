@@ -1119,7 +1119,7 @@ let w2utils = (($) => {
     }
 
     /**
-    *  Used in w2popup, w2grid, w2form, w2layout
+    *  Used in w2grid, w2form, w2layout (should be in w2popup too)
     *  should be called with .call(...) method
     */
 
@@ -1270,7 +1270,7 @@ let w2utils = (($) => {
                 if (edata == null) {
                     // before event
                     if (options.trigger) {
-                        edata = options.trigger({ phase: 'before', type: 'open', target: 'self' })
+                        edata = options.trigger({ phase: 'before', type: 'close', target: 'self' })
                         if (edata.isCancelled === true) {
                             head.css('z-index', head.data('old-z-index'))
                             $(where.box).find('#w2ui-message'+ msgCount).remove()

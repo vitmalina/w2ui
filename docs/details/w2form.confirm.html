@@ -34,14 +34,17 @@ let form = new w2form({
 You can
 <textarea class="javascript">
 w2ui.form.confirm('Some message.')
-    .yes(() => {
-        console.log('yes')
+    .yes(event => {
+        console.log('yes', event)
     })
-    .no(() => {
-        console.log('no')
+    .no(event => {
+        console.log('no', event)
     })
-    .then(btn => {
-        console.log(btn)
+    .answer(event => {
+        console.log(event.answer event)
+    })
+    .then(event => {
+        console.log('confirm is ready', event)
     })
 </textarea>
 
