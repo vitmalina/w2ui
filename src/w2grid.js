@@ -8572,7 +8572,13 @@ class w2grid extends w2event {
                 onOpen(event) {
                     setTimeout(() => {
                         w2utils.bindEvents($(obj.box).find('.w2ui-btn'), obj)
-                        $(event.box).find('.w2ui-btn').focus()
+                        $(event.box).find('.w2ui-btn')
+                            .off('.message')
+                            .on('keydown.message', function(evt) {
+                                if (evt.keyCode == 27) $(evt.target).click() // esc
+                            })
+                            .focus()
+
                     }, 25)
                 },
                 onClose(event) {

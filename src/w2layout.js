@@ -202,7 +202,12 @@ class w2layout extends w2event {
                 onOpen(event) {
                     setTimeout(() => {
                         w2utils.bindEvents($(obj.box).find('.w2ui-btn'), obj)
-                        $(obj.box).find('.w2ui-btn').focus()
+                        $(obj.box).find('.w2ui-btn')
+                            .off('.message')
+                            .on('keydown.message', function(evt) {
+                                if (evt.keyCode == 27) $(evt.target).click() // esc
+                            })
+                            .focus()
                     }, 25)
                 },
                 onClose(event) {

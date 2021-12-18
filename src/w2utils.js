@@ -1093,7 +1093,12 @@ let w2utils = (($) => {
         )
         let $lock = $(box).find('.w2ui-lock')
         let mess  = $(box).find('.w2ui-lock-msg')
-        if (!options.msg) mess.css({ 'background-color': 'transparent', 'border': '0px' })
+        if (!options.msg) mess.css({
+            'background-color': 'transparent',
+            'background-image': 'none',
+            'border': '0px',
+            'box-shadow': 'none'
+        })
         if (options.spinner === true) options.msg = '<div class="w2ui-spinner" '+ (!options.msg ? 'style="width: 35px; height: 35px"' : '') +'></div>' + options.msg
         if (options.opacity != null) $lock.css('opacity', options.opacity)
         if (typeof $lock.fadeIn === 'function') {
