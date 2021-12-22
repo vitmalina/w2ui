@@ -3,6 +3,11 @@
 <link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
 <script type="text/javascript" src="../libs/jquery/jquery-3.5.1.min.js"></script>
 <script type="module" src="../src/w2compat.js?globals"></script>
+<style>
+    .custom-class {
+        outline: 1px solid red;
+    }
+</style>
 <script>
 //<![CDATA[
 $(function () {
@@ -80,15 +85,53 @@ $(function () {
             { field: 'email', label: 'Email', type: 'color' }
         ],
         columns: [
-            { field: 'userid', text: 'ID', size: '80px', sortable: true, hidden: false },
-            { field: 'person.fname', text: 'First Name', size: '120px', sortable: true, resizable: true, editable: { type: 'text' } },
-            { field: 'person.lname', text: 'Last Name', size: '120px', sortable: true, resizable: true, editable: { type: 'color' } },
-            { field: 'email', text: 'Email', size: '160px', sortable: true, resizable: true, editable: { type: 'text' } },
-            { field: 'text', text: 'Text', size: '100%', sortable: true, resizable: true, editable: { type: 'text' } }
+            { field: 'userid', text: 'ID', size: '80px', sortable: true, hidden: false,
+                render(rec, ind, column, data) {
+                    return data + 10
+                }
+            },
+            { field: 'person.fname', text: 'First Name', size: '120px', sortable: true, resizable: true,
+                info: true,
+                editable: { type: 'text' }
+            },
+            { field: 'person.lname', text: 'Last Name', size: '120px', sortable: true, resizable: true,
+                editable: { type: 'text' }
+            },
+            { field: 'email', text: 'Email', size: '160px', sortable: true, resizable: true,
+                editable: { type: 'color' }
+            },
+            { field: 'text', text: 'Text', size: '100%', sortable: true, resizable: true,
+                style: 'text-align: center;',
+                editable1: { type: 'text' },
+                render1(rec, ind, column, data) {
+                    return {
+                        html: '<span style="color: red">' + (ind + 10) + '</span>',
+                        attrs: 'disabled'
+                    }
+                }
+            }
         ]
     });
 
-    w2ui.grid.load('grid.json')
+    w2ui.grid.load('grid.json', rec => {
+        rec.records[1].w2ui = {
+            style: {
+                4: 'text-align: center; color: red;'
+            },
+            class: {
+                4: 'custom-class'
+            }
+        }
+        // copy records
+        for (let i=1; i<10; i++) {
+            let recs = w2ui.grid.records.map((rec, ind) => {
+                return $.extend(true, {}, rec, { recid: 'rec-'+ (w2ui.grid.records.length + 1 + ind) })
+            })
+            w2ui.grid.records.push(...recs)
+        }
+        w2ui.grid.total = w2ui.grid.records.length
+        w2ui.grid.refresh()
+    })
 
     function getRecords(url, post) {
         $.ajax({
