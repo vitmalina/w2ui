@@ -1,0 +1,45 @@
+Extends an object or an array
+
+<div class="definition">
+    extend(target, source1, source2, ...)
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>target</td>
+        <td><b>object</b> or <b>array</b>, object to clone</td>
+    </tr>
+    <tr>
+        <td>source1</td>
+        <td><b>object</b> or <b>array</b>, object to clone</td>
+    </tr>
+    </table>
+</div>
+
+Returns <i>Object</i> or <i>Array</i>
+<div style="height: 10px"></div>
+
+Extends the specified object or the array. If target is an array, then the source-N can only be an array too. It
+will perform a concatination of arrays, cloning each item. If target is an object, then the source-N can only be objects
+and it will extend target with all keys in the source, cloning them. It is not a deep merge, but rather copy of top level
+keys cloning if they are objects
+<div style="height: 10px"></div>
+
+<textarea class="javascript">
+var a = {
+    c: 1,
+    d: 2,
+    k: {
+        k1: 1,
+        k2: 2
+    }
+}
+var b = w2utils.extend({}, a, {
+    k: {
+        k2: 5
+    }
+})
+// there will be no b.k.k1 key in the target
+console.log(a.k.k2, b.k.k2);
+</textarea>

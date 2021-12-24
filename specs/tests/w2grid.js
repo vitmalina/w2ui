@@ -1,16 +1,46 @@
 // **********************************
 // -- Unit Tests: w2grid
 
+let defColumn = {
+    "attr": "",
+    "autoResize": null,
+    "clipboardCopy": false,
+    "editable": {},
+    "frozen": false,
+    "gridMinWidth": null,
+    "hidden": false,
+    "hideable": true,
+    "info": null,
+    "max": null,
+    "min": 20,
+    "render": null,
+    "resizable": true,
+    "searchable": false,
+    "size": null,
+    "sizeCalculated": null,
+    "sizeCorrected": null,
+    "sizeOriginal": null,
+    "sizeType": null,
+    "sortMode": null,
+    "sortable": false,
+    "style": "",
+    "text": "",
+    "title": null,
+    "tooltip": null
+}
+
 // === Columns
 
 test( "w2grid().getColumn()", function() {
-
     $().w2grid({
         name: 'grid',
         columns: [{ field: 'recid', caption: 'ID' }, { field: 'recid2', caption: 'ID' }]
     });
 
-    deepEqual(w2ui['grid'].getColumn('recid'), { field: 'recid', caption: 'ID' }, 'Get column #1');
+
+    deepEqual(w2ui['grid'].getColumn('recid'),
+        Object.assign({}, defColumn, { field: 'recid', caption: 'ID' }),
+        'Get column #1');
     deepEqual(w2ui['grid'].getColumn('recid1'), null, 'Get column #2');
     equal(w2ui['grid'].getColumn('recid2', true), 1, 'Get column #3');
 
@@ -21,16 +51,23 @@ test( "w2grid().addColumn(), w2grid.removeColumn()", function() {
     $().w2grid({ name: 'grid' });
 
     w2ui['grid'].addColumn({ field: 'recid', caption: 'ID' });
-    deepEqual(w2ui['grid'].columns, [{ field: 'recid', caption: 'ID' }], 'Add column #1');
+    deepEqual(w2ui['grid'].columns, [Object.assign({}, defColumn, { field: 'recid', caption: 'ID' })], 'Add column #1');
 
     w2ui['grid'].addColumn('recid', { field: 'recid2', caption: 'ID' });
-    deepEqual(w2ui['grid'].columns, [{ field: 'recid2', caption: 'ID' }, { field: 'recid', caption: 'ID' }], 'Add column #2');
+    deepEqual(w2ui['grid'].columns,[
+            Object.assign({}, defColumn, { field: 'recid2', caption: 'ID' }),
+            Object.assign({}, defColumn, { field: 'recid', caption: 'ID' })
+        ],
+        'Add column #2');
 
     w2ui['grid'].removeColumn('recid', 'recid2');
     deepEqual(w2ui['grid'].columns, [], 'Remove column #1');
 
     w2ui['grid'].addColumn([{ field: 'recid', caption: 'ID' }, { field: 'recid2', caption: 'ID' }]);
-    deepEqual(w2ui['grid'].columns, [{ field: 'recid', caption: 'ID' }, { field: 'recid2', caption: 'ID' }], 'Add column #3');
+    deepEqual(w2ui['grid'].columns, [
+        Object.assign({}, defColumn, { field: 'recid', caption: 'ID' }),
+        Object.assign({}, defColumn, { field: 'recid2', caption: 'ID' })
+    ], 'Add column #3');
 
     equal(w2ui['grid'].removeColumn('recid', 'recid2'), 2, 'Remove column #2');
 

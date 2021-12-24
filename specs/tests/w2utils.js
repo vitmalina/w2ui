@@ -1,7 +1,7 @@
 // **********************************
 // -- Unit Tests: w2utils
 
-test( "w2utils.date()", function () {
+test( "w2utils.date()", () => {
     var dt  = new Date();
     var dt2 = (new Date()).getTime() -  86400000 * 5;
     equal( w2utils.date(), '',          "- no argument -" );
@@ -14,7 +14,7 @@ test( "w2utils.date()", function () {
     equal( w2utils.stripTags(w2utils.date((new Date()).getTime() -  86400000 )), w2utils.stripTags('Yesterday'), "Yesterday" );
 });
 
-test( "w2utils.age()", function () {
+test( "w2utils.age()", () => {
     var dt  = new Date();
     equal( w2utils.age(), '',          "- no argument -" );
     equal( w2utils.age(''), '',        "- blank -" );
@@ -40,7 +40,7 @@ test( "w2utils.age()", function () {
     equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 365 * 20)), '19.9 years', "arround 20 years" );
 });
 
-test( "w2utils.formatNumber()", function () {
+test( "w2utils.formatNumber()", () => {
     var values = {
         '1,000'       : '1000',
         '1,000.01'    : '1000.01',
@@ -58,7 +58,7 @@ test( "w2utils.formatNumber()", function () {
     }
 });
 
-test( "w2utils.formatDate()", function () {
+test( "w2utils.formatDate()", () => {
     var values = {
         '2014-01-05 => mm/dd/yyyy'     : '01/05/2014',
         '2014-01-05 => m/d/yyyy'       : '1/5/2014',
@@ -120,7 +120,7 @@ test( "w2utils.formatDate()", function () {
     // equal(fm, '0001/05/01', 'Format: 0001/05/01 => yyyy/mm/dd => ' + fm);
 });
 
-test( "w2utils.formatTime()", function () {
+test( "w2utils.formatTime()", () => {
     var values = {
         '21:40:00 => hh:mi pm'     : '9:40 pm',
         '21:40:00 => hh:mi am'     : '9:40 pm',
@@ -153,7 +153,7 @@ test( "w2utils.formatTime()", function () {
     }
 });
 
-test( "w2utils.formatDateTime()", function () {
+test( "w2utils.formatDateTime()", () => {
     var values = {
         '2014-01-05 21:40:05 => mm/dd/yyyy|hh:mi pm'     : '01/05/2014 9:40 pm',
         '2014-01-05 21:40:05 => mm/dd/yyyy|hh:mi:ss pm'  : '01/05/2014 9:40:05 pm',
@@ -180,7 +180,7 @@ test( "w2utils.formatDateTime()", function () {
     }
 });
 
-test( "w2utils.formatSize()", function() {
+test( "w2utils.formatSize()", () => {
     var values = {
         ''          : 0,
         '1 Bt'      : 1,
@@ -206,7 +206,7 @@ test( "w2utils.formatSize()", function() {
     }
 });
 
-test( "w2utils.isInt()", function() {
+test( "w2utils.isInt()", () => {
     var values = {
         1       : true,
         0       : true,
@@ -233,7 +233,7 @@ test( "w2utils.isInt()", function() {
     }
 });
 
-test( "w2utils.isFloat()", function() {
+test( "w2utils.isFloat()", () => {
     var values = {
         1           : true,
         0           : true,
@@ -269,14 +269,14 @@ test( "w2utils.isFloat()", function() {
     }
 });
 
-test( "w2utils.isMoney() - Default Format", function() {
+test( "w2utils.isMoney() - Default Format", () => {
     var values = {
         1           : true,
         0           : true,
         '2'         : true,
         '-1'        : true,
         '+1'        : true,
-        '1.'        : false,
+        '1.'        : true,
         '1.0'       : true,
         '1.0.0'     : false,
         '1-0'       : false,
@@ -306,7 +306,7 @@ test( "w2utils.isMoney() - Default Format", function() {
     }
 });
 
-test( "w2utils.isMoney() - EU Format", function() {
+test( "w2utils.isMoney() - EU Format", () => {
     // $\€\£\¥
     $.extend(w2utils.settings, { currencyPrefix: "", currencySuffix: "€", groupSymbol : " " });
     var values = {
@@ -315,7 +315,7 @@ test( "w2utils.isMoney() - EU Format", function() {
         '2'         : true,
         '-1'        : true,
         '+1'        : true,
-        '1.'        : false,
+        '1.'        : true,
         '1.0'       : true,
         '1.0.0'     : false,
         '1-0'       : false,
@@ -343,7 +343,7 @@ test( "w2utils.isMoney() - EU Format", function() {
     $.extend(w2utils.settings, { currencyPrefix: "$", currencySuffix: "", groupSymbol : "," });
 });
 
-test( "w2utils.isDate()", function() {
+test( "w2utils.isDate()", () => {
     ok( w2utils.isDate('1/31/2013', 'mm/dd/yyyy') === true, "'1/31/2013', 'mm/dd/yyyy'" );
     ok( w2utils.isDate('1.31.2013', 'mm.dd.yyyy') === true, "'1.31.2013', 'mm.dd.yyyy'" );
     ok( w2utils.isDate('1-31-2013', 'mm-dd-yyyy') === true, "'1-31-2013', 'mm-dd-yyyy'" );
@@ -380,7 +380,7 @@ test( "w2utils.isDate()", function() {
     ok( w2utils.isDate(500.5) === false,        "- number -" );
 });
 
-test( "w2utils.isTime()", function() {
+test( "w2utils.isTime()", () => {
     var values = {
         1               : false,
         0               : false,
@@ -455,7 +455,7 @@ test( "w2utils.isTime()", function() {
     }
 });
 
-test( "w2utils.base64encode(), w2utils.base64decode()", function() {
+test( "w2utils.base64encode(), w2utils.base64decode()", () => {
     ok(
         w2utils.base64decode(w2utils.base64encode('Some text')) === 'Some text',
         "Simple text"
@@ -466,7 +466,127 @@ test( "w2utils.base64encode(), w2utils.base64decode()", function() {
     );
 });
 
-test( "md5", function() {
+test( "md5", () => {
     ok(w2utils.md5('some')  === '03d59e663c1af9ac33a9949d1193505a', "md5('some')");
     ok(w2utils.md5('other') === '795f3202b17cb6bc3d4b771d8c6c9eaf', "md5('other')");
+});
+
+test( "w2utils.clone()", () => {
+    var values = [
+        {
+            source: {},
+            expect: {}
+        },
+        {
+            source: [],
+            expect: []
+        },
+        {
+            source: { a: 1 },
+            expect: { a: 1 }
+        },
+        {
+            source: [1, 2, 3],
+            expect: [1, 2, 3]
+        },
+        {
+            source: [{ a: 1, b: [1,2,3] }, null, 3],
+            expect: [{ a: 1, b: [1,2,3] }, null, 3]
+        },
+        {
+            source: { a: 1, b: [{ a: 1, b: 5 }, 2, undefined, null] },
+            expect: { a: 1, b: [{ a: 1, b: 5 }, 2, undefined, null] },
+        },
+    ];
+    equal( w2utils.clone(), undefined, "- no argument -" );
+    equal( w2utils.clone(''), '',      "- blank -" );
+    equal( w2utils.clone(null), null,  "- null -" );
+    equal( w2utils.clone(undefined), undefined, "- undefined -" );
+
+    values.forEach(val => {
+        let res = w2utils.clone(val.source)
+        deepEqual(res, val.expect, 'Test: ' + val.source);
+        notEqual(res, val.expect, 'Not same reference')
+    })
+});
+
+test( "w2utils.extend()", (assert) => {
+    var values = [
+        {
+            target: {},
+            source: [{}],
+            expect: {}
+        },
+        {
+            target: [],
+            source: [[1, 2, 3]],
+            expect: [1, 2, 3]
+        },
+        {
+            target: [],
+            source: [[1, 2, {a: 3}]],
+            expect: [1, 2, {a: 3}]
+        },
+        {
+            target: [],
+            source: [[1, 2, 3], [4, 5, 1]],
+            expect: [1, 2, 3, 4, 5, 1]
+        },
+        {
+            target: [],
+            source: [[{a: 1, b: 2}], { c: 3}, [{a: 1, b: 2}, { c: 3}]],
+            expect: false
+        },
+        {
+            target: [],
+            source: [[{a: 1, b: 2}, { c: 3}], [{a: 1, b: 2}, { c: 3}]],
+            expect: [{a: 1, b: 2}, { c: 3}, {a: 1, b: 2}, { c: 3}]
+        },
+        {
+            target: {},
+            source: [{ a: 1 }],
+            expect: { a: 1 }
+        },
+        {
+            target: { a: 5 },
+            source: [{ a: 1 }],
+            expect: { a: 1 }
+        },
+        {
+            target: { b: 5 },
+            source: [{ a: 1 }],
+            expect: { a: 1, b: 5 }
+        },
+        {
+            target: { b: 5 },
+            source: [{ a: 1 }, { c: 6, d: 6}],
+            expect: { a: 1, b: 5, c: 6, d: 6 }
+        },
+        {
+            target: { b: 5 },
+            source: [{ a: 1 }, { c: { d: 6 }}],
+            expect: { a: 1, b: 5, c: { d: 6 }}
+        },
+    ];
+    let error = function () {
+        throw new Error("Object is not extendable, only {} or [] can be extended.")
+    }
+    assert.throws(() => { w2utils.extend() }, "- no argument -" );
+    assert.throws(() => { w2utils.extend('') }, "- blank -" );
+    assert.throws(() => { w2utils.extend(null) }, "- null -" );
+    assert.throws(() => { w2utils.extend(undefined) }, "- undefined -" );
+    assert.throws(() => { w2utils.extend(1) }, "- number -" );
+    assert.throws(() => { w2utils.extend(true) }, "- bool -" );
+    assert.throws(() => { w2utils.extend('s') }, "- string -" );
+    assert.throws(() => { w2utils.extend(()=>{}) }, "- function -" );
+
+    values.forEach(val => {
+        if (val.expect === false) {
+            assert.throws(() => { w2utils.extend(target, ...val.source) }, 'Test: ' + JSON.stringify(...val.source) );
+        } else {
+            let target = w2utils.clone(val.target)
+            w2utils.extend(target, ...val.source)
+            deepEqual(target, val.expect, 'Test: ' + JSON.stringify(...val.source));
+        }
+    })
 });

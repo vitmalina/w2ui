@@ -1,0 +1,36 @@
+Clones an object or an array
+
+<div class="definition">
+    clone(obj)
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>obj</td>
+        <td><b>object</b> or <b>array</b>, object to clone</td>
+    </tr>
+    </table>
+</div>
+
+Returns <i>Object</i> or <i>Array</i>
+<div style="height: 10px"></div>
+
+Makes a deep copy of the specified object or the array. Similar to Object.assign, except it makes a deep copy. If you pass an array
+is specified, it will return array. If you pass an object, it will return an object.
+<div style="height: 10px"></div>
+
+<textarea class="javascript">
+var a = {
+    c: 1,
+    d: 2,
+    k: {
+        k1: 1,
+        k2: 2
+    }
+}
+var b = w2utils.clonse(a);
+// change a deep key
+a.k.k1 = 5;
+console.log(a.k.k1, b.k.k1);
+</textarea>

@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (12/24/2021, 1:24:00 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/24/2021, 3:26:57 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -356,6 +356,7 @@ let w2utils = (($) => {
         rgb2hsv,
         tooltip,
         clone,
+        extend,
         getCursorPosition,
         setCursorPosition,
         testLocalStorage,
@@ -376,7 +377,10 @@ let w2utils = (($) => {
         return re.test(val)
     }
     function isFloat(val) {
-        if (typeof val === 'string') val = val.replace(/\s+/g, '').replace(w2utils.settings.groupSymbol, '').replace(w2utils.settings.decimalSymbol, '.')
+        if (typeof val === 'string') {
+            val = val.replace(w2utils.settings.groupSymbol, '')
+                     .replace(w2utils.settings.decimalSymbol, '.')
+        }
         return (typeof val === 'number' || (typeof val === 'string' && val !== '')) && !isNaN(Number(val))
     }
     function isMoney(val) {
@@ -1887,7 +1891,7 @@ let w2utils = (($) => {
                 + ` on${hideOn}="jQuery(this).${isOverlay ? 'w2overlay' : 'w2tag'}()"`
         return actions
     }
-    // deep copy object or array
+    // deep copy of an object or an array
     function clone(obj) {
         let ret
         if (Array.isArray(obj)) {
@@ -1907,7 +1911,32 @@ let w2utils = (($) => {
         }
         return ret
     }
+    // deep extend an object or an array, if an array, it does concat, cloning objects in the process
+    // target, source1, source2, ...
     function extend(target, source) {
+        if (Array.isArray(target)) {
+            if (Array.isArray(source)) {
+                source.forEach(s => { target.push(clone(s)) })
+            } else {
+                throw new Error('Arrays can be extended with arrays only')
+            }
+        } else if (target && typeof target == 'object') {
+            if (source == null || typeof source != 'object') {
+                throw new Error("Object can be extended with other objects only.")
+            }
+            Object.keys(source).forEach(key => {
+                target[key] = clone(source[key])
+            })
+        } else {
+            throw new Error("Object is not extendable, only {} or [] can be extended.")
+        }
+        // other arguments
+        if (arguments.length > 2) {
+            for (let i = 2; i < arguments.length; i++) {
+                extend(target, arguments[i])
+            }
+        }
+        return target
     }
     /*
      * @author     Lauri Rooden (https://github.com/litejs/natural-compare-lite)
@@ -6947,7 +6976,6 @@ class w2grid extends w2event {
         if (this.total <= 0 && !url && this.searchData.length === 0) {
             this.total = this.records.length
         }
-        this.toolbar.disable('w2ui-edit', 'w2ui-delete')
         if (!this.box) return
         // event before
         let edata = this.trigger({ phase: 'before', target: this.name, type: 'refresh' })
@@ -6960,6 +6988,7 @@ class w2grid extends w2event {
         }
         // -- toolbar
         if (this.show.toolbar) {
+            this.toolbar.disable('w2ui-edit', 'w2ui-delete')
             // if select-column is checked - no toolbar refresh
             if (this.toolbar && this.toolbar.get('w2ui-column-on-off') && this.toolbar.get('w2ui-column-on-off').checked) {
                 // no action

@@ -77,6 +77,8 @@ let w2utils = (($) => {
         hsv2rgb,
         rgb2hsv,
         tooltip,
+        clone,
+        extend,
         getCursorPosition,
         setCursorPosition,
         testLocalStorage,
@@ -100,7 +102,10 @@ let w2utils = (($) => {
     }
 
     function isFloat(val) {
-        if (typeof val === 'string') val = val.replace(/\s+/g, '').replace(w2utils.settings.groupSymbol, '').replace(w2utils.settings.decimalSymbol, '.')
+        if (typeof val === 'string') {
+            val = val.replace(w2utils.settings.groupSymbol, '')
+                     .replace(w2utils.settings.decimalSymbol, '.')
+        }
         return (typeof val === 'number' || (typeof val === 'string' && val !== '')) && !isNaN(Number(val))
     }
 
@@ -1691,9 +1696,18 @@ let w2utils = (($) => {
         }
     }
 
-    function tooltip(msg, options) {
-        let actions, showOn = 'mouseenter', hideOn = 'mouseleave'
-        options             = options || {}
+    function tooltip(html, options) {
+        let actions,
+            showOn = 'mouseenter',
+            hideOn = 'mouseleave',
+            isOverlay = false
+        if (typeof html == 'object') {
+            options = html
+        }
+        options = options || {}
+        if (typeof html == 'string') {
+            options.html = html
+        }
         if (options.showOn) {
             showOn = options.showOn
             delete options.showOn
@@ -1702,12 +1716,65 @@ let w2utils = (($) => {
             hideOn = options.hideOn
             delete options.hideOn
         }
+        if (options.overlay === true) {
+            isOverlay = true
+            delete options.overlay
+        }
         // base64 is needed to avoid '"<> and other special chars conflicts
-        actions = 'on'+ showOn +'="$(this).w2tag(w2utils.base64decode(\'' + w2utils.base64encode(msg) + '\'),'
-                + 'JSON.parse(w2utils.base64decode(\'' + w2utils.base64encode(JSON.stringify(options)) + '\')))"'
-                + 'on'+ hideOn +'="$(this).w2tag()"'
+        actions = ` on${showOn}="jQuery(this).${isOverlay ? 'w2overlay' : 'w2tag'}(`
+                + ` JSON.parse(w2utils.base64decode('${w2utils.base64encode(JSON.stringify(options))}')))"`
+                + ` on${hideOn}="jQuery(this).${isOverlay ? 'w2overlay' : 'w2tag'}()"`
 
         return actions
+    }
+
+    // deep copy of an object or an array
+    function clone(obj) {
+        let ret
+        if (Array.isArray(obj)) {
+            ret = Array.from(obj)
+            ret.forEach((value, ind) => {
+                ret[ind] = clone(value)
+            })
+        } else if (obj != null && typeof obj == 'object') {
+            ret = {}
+            Object.assign(ret, obj)
+            Object.keys(ret).forEach(key => {
+                ret[key] = clone(ret[key])
+            })
+        } else {
+            // primitive variable or function, both remain the same
+            ret = obj
+        }
+        return ret
+    }
+
+    // deep extend an object or an array, if an array, it does concat, cloning objects in the process
+    // target, source1, source2, ...
+    function extend(target, source) {
+        if (Array.isArray(target)) {
+            if (Array.isArray(source)) {
+                source.forEach(s => { target.push(clone(s)) })
+            } else {
+                throw new Error('Arrays can be extended with arrays only')
+            }
+        } else if (target && typeof target == 'object') {
+            if (source == null || typeof source != 'object') {
+                throw new Error("Object can be extended with other objects only.")
+            }
+            Object.keys(source).forEach(key => {
+                target[key] = clone(source[key])
+            })
+        } else {
+            throw new Error("Object is not extendable, only {} or [] can be extended.")
+        }
+        // other arguments
+        if (arguments.length > 2) {
+            for (let i = 2; i < arguments.length; i++) {
+                extend(target, arguments[i])
+            }
+        }
+        return target
     }
 
     /*

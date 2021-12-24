@@ -4996,7 +4996,6 @@ class w2grid extends w2event {
         if (this.total <= 0 && !url && this.searchData.length === 0) {
             this.total = this.records.length
         }
-        this.toolbar.disable('w2ui-edit', 'w2ui-delete')
         if (!this.box) return
         // event before
         let edata = this.trigger({ phase: 'before', target: this.name, type: 'refresh' })
@@ -5009,6 +5008,7 @@ class w2grid extends w2event {
         }
         // -- toolbar
         if (this.show.toolbar) {
+            this.toolbar.disable('w2ui-edit', 'w2ui-delete')
             // if select-column is checked - no toolbar refresh
             if (this.toolbar && this.toolbar.get('w2ui-column-on-off') && this.toolbar.get('w2ui-column-on-off').checked) {
                 // no action
