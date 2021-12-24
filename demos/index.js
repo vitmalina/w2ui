@@ -1,5 +1,6 @@
 $(async function () {
     let w2utils_locale = sessionStorage.w2ui_demo_locale || w2utils.settings.locale.toLowerCase()
+    // need await otherwise sometimes demos do not show
     await w2utils.locale(['https://rawgit.com/vitmalina/w2ui/master/src/locale/'+w2utils_locale+'.json', w2utils_locale])
         .then(() => {
             // w2utils.settings.warnNoPhrase = true
@@ -123,12 +124,11 @@ $(async function () {
                         { id: 'combo/13', text: 'Inline Tooltips', icon: 'fa fa-star-o' }
                     ]
                 },
-                // ES6 modules not fully ready yet
-                // { id: 'combo-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
-                //     nodes: [
-                //         { id: 'combo/14', text: 'ES6 Modules', icon: 'fa fa-star-o' }
-                //     ]
-                // },
+                { id: 'combo-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'combo/14', text: 'ES6 Modules', icon: 'fa fa-star-o' }
+                    ]
+                },
                 { id: 'layout', text: 'Layout Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'layout/1', text: 'Simple Layout', icon: 'fa fa-columns' },
@@ -405,7 +405,7 @@ $(async function () {
                     let json     = tmp[4] ? $.trim(tmp[4]) : ''
                     if (js.trim().substr(0, 21) == '<script type="module"') {
                         es6 = true
-                        w2ui_js  = 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.es6.min.js'
+                        w2ui_js  = '' // no need to link w2ui globally
                     }
                     js   = js.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '')
                     js   = $.trim(js)
@@ -451,7 +451,7 @@ $(async function () {
                         '<div style="display: none">'+
                         '<form id="fiddleForm" target="_blank" action="http://jsfiddle.net/api/post/jquery/3.4/" method="post">'+
                         '    <textarea name="title">W2UI Demo: '+ cmd +'</textarea>'+
-                        '    <textarea name="resources">'+ w2ui_js +','+ w2ui_css +'</textarea>'+
+                        `    <textarea name="resources">${w2ui_css}${w2ui_js ? ',' + w2ui_js : ''}</textarea>`+
                         '    <textarea name="js">'+ js +'</textarea>'+
                         '    <textarea name="html">'+ html.replace(/<textarea/gi, '&lt;textarea').replace(/<\/textarea>/gi, '&lt;/textarea&gt;') +'</textarea>'+
                         '    <textarea name="css">'+ css +'</textarea>'+
