@@ -1,11 +1,13 @@
-$(function () {
+$(async function () {
     let w2utils_locale = sessionStorage.w2ui_demo_locale || w2utils.settings.locale.toLowerCase()
-    w2utils.locale(['https://rawgit.com/vitmalina/w2ui/master/src/locale/'+w2utils_locale+'.json', w2utils_locale]).then(() => {
-        // w2utils.settings.warnNoPhrase = true
-        Object.values(w2ui).forEach(obj => {
-            if (typeof obj.refresh == 'function') obj.refresh()
+    await w2utils.locale(['https://rawgit.com/vitmalina/w2ui/master/src/locale/'+w2utils_locale+'.json', w2utils_locale])
+        .then(() => {
+            // w2utils.settings.warnNoPhrase = true
+            Object.values(w2ui).forEach(obj => {
+                if (typeof obj.refresh == 'function') obj.refresh()
+            })
         })
-    }).catch(err => {})
+        .catch(err => {})
     let last_hash
     let conf = {
         demo_layout: {
