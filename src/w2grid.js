@@ -4848,14 +4848,14 @@ class w2grid extends w2event {
                 rec.w2ui = rec.w2ui ?? {}
                 rec.w2ui._update = rec.w2ui._update ?? { cells: [] }
                 let row = rec.w2ui._update.row
-                if (row == null) {
+                if (row == null || !row.isConnected) {
                     row = this.box.querySelector(`#grid_${this.name}_rec_${w2utils.escapeId(rec.recid)}`)
                     rec.w2ui._update.row = row
                 }
                 _update(rec, row, index, column)
             }
         } else {
-            for (let index = this.last.range_start; index < this.last.range_end; index++) {
+            for (let index = this.last.range_start-1; index < this.last.range_end; index++) {
                 // if search is applied
                 if (index < 0) continue
                 let rec = this.records[index] ?? {}
@@ -4866,7 +4866,7 @@ class w2grid extends w2event {
                 rec.w2ui = rec.w2ui ?? {}
                 rec.w2ui._update = rec.w2ui._update ?? { cells: [] }
                 let row = rec.w2ui._update.row
-                if (row == null) {
+                if (row == null || !row.isConnected) {
                     row = this.box.querySelector(`#grid_${this.name}_rec_${w2utils.escapeId(rec.recid)}`)
                     rec.w2ui._update.row = row
                 }
@@ -4878,7 +4878,7 @@ class w2grid extends w2event {
 
         function _update(rec, row, index, column) {
             let cell = rec.w2ui._update.cells[column]
-            if (cell == null) {
+            if (cell == null || !cell.isConnected) {
                 cell = self.box.querySelector(`#grid_${self.name}_data_${index}_${column}`)
                 rec.w2ui._update.cells[column] = cell
             }
@@ -4890,9 +4890,25 @@ class w2grid extends w2event {
                 rec.w2ui._update.cells[column] = cell
             } else {
                 let div = cell.children[0] // there is always a div inside a cell
-                let newHTML = self.getCellValue(index, column, false)
-                if (div.innerHTML != newHTML) {
-                    div.innerHTML = newHTML
+                // addStyle, addClass, attrCell - cell level
+                // attrData - div level
+                let { data, addStyle, addClass, attrCell, attrData } = self.getCellValue(index, column, false, true)
+                if (div.innerHTML != data) {
+                    div.innerHTML = data
+                }
+                if (addStyle != '' && cell.style.cssText != addStyle) {
+                    cell.style.cssText = addStyle
+                }
+                if (addClass != '') {
+                    let ignore = ['w2ui-grid-data']
+                    let remove = []
+                    let add = addClass.split(' ').filter(cl => !!cl) // remove empty
+                    cell.classList.forEach(cl => { if (!ignore.includes(cl)) remove.push(cl)})
+                    cell.classList.remove(...remove)
+                    cell.classList.add(...add)
+                }
+                if (attrCell != '' || attrData != '') {
+                    console.log('Render function returned attributes that required full cell refresh (grid.update is not enough)')
                 }
             }
             // column styles if any (lower priority)
@@ -4900,18 +4916,28 @@ class w2grid extends w2event {
                 cell.style.cssText = self.columns[column].style ?? ''
             }
             // record class if any
-            if (rec.w2ui.class != null && !$.isEmptyObject(rec.w2ui.class)) {
+            if (rec.w2ui.class != null) {
                 if (typeof rec.w2ui.class == 'string') {
-                    row.classList.add(rec.w2ui.class.split(' '))
+                    let ignore = ['w2ui-odd', 'w2ui-even', 'w2ui-record']
+                    let remove = []
+                    let add = rec.w2ui.class.split(' ').filter(cl => !!cl) // remove empty
+                    row.classList.forEach(cl => { if (!ignore.includes(cl)) remove.push(cl)})
+                    row.classList.remove(...remove)
+                    row.classList.add(...add)
                 }
                 if ($.isPlainObject(rec.w2ui.class) && typeof rec.w2ui.class[column] == 'string') {
-                    cell.classList.add(rec.w2ui.class[column].split(' '))
+                    let ignore = ['w2ui-grid-data']
+                    let remove = []
+                    let add = rec.w2ui.class[column].split(' ').filter(cl => !!cl)
+                    cell.classList.forEach(cl => { if (!ignore.includes(cl)) remove.push(cl)})
+                    cell.classList.remove(...remove)
+                    cell.classList.add(...add)
                 }
             }
             // record styles if any
-            if (rec.w2ui.style != null && !$.isEmptyObject(rec.w2ui.style)) {
+            if (rec.w2ui.style != null) {
                 if (typeof rec.w2ui.style == 'string' && row.style.cssText !== rec.w2ui.style) {
-                    row.style.cssText = rec.w2ui.style
+                    row.style.cssText = 'height: '+ self.recordHeight + 'px;' + rec.w2ui.style
                 }
                 if ($.isPlainObject(rec.w2ui.style) && typeof rec.w2ui.style[column] == 'string'
                         && cell.style.cssText !== rec.w2ui.style[column]) {
@@ -7586,11 +7612,6 @@ class w2grid extends w2event {
                 tmp2 = records.find('#grid_'+ this.name +'_rec_top').next()
                 if (tmp2.attr('line') == 'bottom') break
                 if (parseInt(tmp2.attr('line')) < start) {
-                    // clear temp variable
-                    let rec = this.records[tmp2.attr('index')]
-                    if (rec && rec.w2ui && rec.w2ui._update) {
-                        delete rec.w2ui._update
-                    }
                     tmp1.remove();
                     tmp2.remove()
                 } else {
@@ -7621,11 +7642,6 @@ class w2grid extends w2event {
                 tmp2 = records.find('#grid_'+ this.name +'_rec_bottom').prev()
                 if (tmp2.attr('line') == 'top') break
                 if (parseInt(tmp2.attr('line')) > end) {
-                    // clear temp variable
-                    let rec = this.records[tmp2.attr('index')]
-                    if (rec && rec.w2ui && rec.w2ui._update) {
-                        delete rec.w2ui._update
-                    }
                     tmp1.remove();
                     tmp2.remove()
                 } else {
@@ -7892,7 +7908,7 @@ class w2grid extends w2event {
         let col = this.columns[col_ind]
         if (col == null) return ''
         let record  = (summary !== true ? this.records[ind] : this.summary[ind])
-        let { data, addStyle, addClass, attrs } = this.getCellValue(ind, col_ind, summary, true)
+        let { data, addStyle, addClass, attrCell, attrData } = this.getCellValue(ind, col_ind, summary, true)
         let edit = (ind !== -1 ? this.getCellEditable(ind, col_ind) : '')
         let style = 'max-height: '+ parseInt(this.recordHeight) +'px;' + (col.clipboardCopy ? 'margin-right: 20px' : '')
         let isChanged = !summary && record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null
@@ -7972,7 +7988,7 @@ class w2grid extends w2event {
                     '"/>'
             infoBubble    = ''
         }
-        data = `<div style="${style}" ${getTitle(data)} ${attrs}>${infoBubble} ${String(data)}</div>`
+        data = `<div style="${style}" ${getTitle(data)} ${attrData}>${infoBubble} ${String(data)}</div>`
         if (data == null) data = ''
         // --> cell TD
         if (typeof col.render == 'string') {
@@ -8003,11 +8019,10 @@ class w2grid extends w2event {
         }
         // data
         data = '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') + ' ' + addClass +
-                    (isChanged ? ' w2ui-changed' : '') +
-                    '" '+
+                    (isChanged ? ' w2ui-changed' : '') + '" '+
                 '   id="grid_'+ this.name +'_data_'+ ind +'_'+ col_ind +'" col="'+ col_ind +'" '+
                 '   style="'+ addStyle + (col.style != null ? col.style : '') +'" '+
-                    (col.attr != null ? col.attr : '') +
+                    (col.attr != null ? col.attr : '') + attrCell +
                     (col_span > 1 ? 'colspan="'+ col_span + '"' : '') +
                 '>' + data + (clipboardIcon && w2utils.stripTags(data) ? clipboardIcon : '') +'</td>'
         // summary top row
@@ -8152,9 +8167,9 @@ class w2grid extends w2event {
         let col = this.columns[col_ind]
         let record = (summary !== true ? this.records[ind] : this.summary[ind])
         let data = this.parseField(record, col.field)
-        let addClass = '', addStyle = '', attrs = ''
+        let addClass = '', addStyle = '', attrCell = '', attrData = ''
         if (col.render != null && ind !== -1) {
-            if (typeof col.render == 'function') {
+            if (typeof col.render == 'function' && record != null) {
                 let html = col.render.call(this, record, ind, col_ind, data)
                 if (html != null && typeof html == 'object') {
                     if (typeof html.html == 'string') {
@@ -8162,18 +8177,19 @@ class w2grid extends w2event {
                     } else {
                         data = ''
                         console.log('ERROR: render function should return a primitive or an object of the following structure.',
-                            { html: '...', attrs: '...', class: '...', style: '...' })
+                            { html: '...', class: '...', style: '...', attrCell: '...', attrData: '...' })
                     }
                     addClass = html.class ?? ''
                     addStyle = html.style ?? ''
-                    attrs = html.attrs ?? ''
+                    attrCell = html.attrCell ?? ''
+                    attrData = html.attrData ?? ''
                 } else {
                     if (typeof html !== 'object' && typeof html !== 'function') {
                         data = String(html || '').trim()
                     } else {
                         data = ''
                         console.log('ERROR: render function should return a string or an object of the following structure.',
-                            { html: '...', attrs: '...', class: '...', style: '...' })
+                            { html: '...', class: '...', style: '...', attrCell: '...', attrData: '...' })
                     }
                 }
             }
@@ -8222,7 +8238,7 @@ class w2grid extends w2event {
             }
         }
         if (data == null) data = ''
-        return !extra ? data : { data, addStyle, addClass, attrs }
+        return !extra ? data : { data, attrCell, attrData, addClass, addStyle }
     }
 
     getFooterHTML() {

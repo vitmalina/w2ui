@@ -195,6 +195,7 @@ $(function () {
                 { id: 'grid-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'grid/32', text: 'Context Messages', icon: 'fa fa-table' },
+                        { id: 'grid/33', text: 'Live Updates', icon: 'fa fa-table' },
                     ]
                 },
                 { id: 'toolbar', text: 'Toolbar Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,

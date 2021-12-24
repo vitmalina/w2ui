@@ -10,8 +10,9 @@
 <!--CODE-->
 <div id="grid" style="width: 800px; height: 250px"></div>
 <br>
-<button class="w2ui-btn" onclick="w2ui.grid.message('Message')">Show Message</button>
-<button class="w2ui-btn" onclick="w2ui.grid.confirm('Confirmation').then(btn => { console.log(btn) })">Show Confirmation (2.0+)</button>
+<button class="w2ui-btn" onclick="showMessage()">Show Message</button>
+<button class="w2ui-btn" onclick="showConfirm()">Show Confirmation (2.0+)</button>
+<span id="log"></span>
 
 <!--CODE-->
 <script>
@@ -29,4 +30,31 @@ $(function () {
         ],
     });
 });
+
+function showMessage() {
+    let grid = w2ui.grid
+    grid.message('Message <span id="ready"></span>')
+        .then(() => {
+            $(grid.box).find('.w2ui-message #ready').html('- ready')
+            $('#log').html('Message is opened.')
+        })
+        .ok(() => {
+            $('#log').html('Ok is clicked.')
+        })
+}
+
+function showConfirm() {
+    let grid = w2ui.grid
+    grid.confirm('Message <span id="ready"></span>')
+        .then(() => {
+            $(grid.box).find('.w2ui-message #ready').html('- ready')
+            $('#log').html('Message is opened.')
+        })
+        .yes(() => {
+            $('#log').html('Yes clicked.')
+        })
+        .no(() => {
+            $('#log').html('No clicked.')
+        })
+}
 </script>
