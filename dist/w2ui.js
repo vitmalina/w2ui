@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (12/17/2021, 8:46:16 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/24/2021, 1:24:00 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -355,6 +355,7 @@ let w2utils = (($) => {
         hsv2rgb,
         rgb2hsv,
         tooltip,
+        clone,
         getCursorPosition,
         setCursorPosition,
         testLocalStorage,
@@ -1285,7 +1286,12 @@ let w2utils = (($) => {
         )
         let $lock = $(box).find('.w2ui-lock')
         let mess  = $(box).find('.w2ui-lock-msg')
-        if (!options.msg) mess.css({ 'background-color': 'transparent', 'border': '0px' })
+        if (!options.msg) mess.css({
+            'background-color': 'transparent',
+            'background-image': 'none',
+            'border': '0px',
+            'box-shadow': 'none'
+        })
         if (options.spinner === true) options.msg = '<div class="w2ui-spinner" '+ (!options.msg ? 'style="width: 35px; height: 35px"' : '') +'></div>' + options.msg
         if (options.opacity != null) $lock.css('opacity', options.opacity)
         if (typeof $lock.fadeIn === 'function') {
@@ -1851,9 +1857,18 @@ let w2utils = (($) => {
             a: (a != null ? a : 1)
         }
     }
-    function tooltip(msg, options) {
-        let actions, showOn = 'mouseenter', hideOn = 'mouseleave'
-        options             = options || {}
+    function tooltip(html, options) {
+        let actions,
+            showOn = 'mouseenter',
+            hideOn = 'mouseleave',
+            isOverlay = false
+        if (typeof html == 'object') {
+            options = html
+        }
+        options = options || {}
+        if (typeof html == 'string') {
+            options.html = html
+        }
         if (options.showOn) {
             showOn = options.showOn
             delete options.showOn
@@ -1862,11 +1877,37 @@ let w2utils = (($) => {
             hideOn = options.hideOn
             delete options.hideOn
         }
+        if (options.overlay === true) {
+            isOverlay = true
+            delete options.overlay
+        }
         // base64 is needed to avoid '"<> and other special chars conflicts
-        actions = 'on'+ showOn +'="$(this).w2tag(w2utils.base64decode(\'' + w2utils.base64encode(msg) + '\'),'
-                + 'JSON.parse(w2utils.base64decode(\'' + w2utils.base64encode(JSON.stringify(options)) + '\')))"'
-                + 'on'+ hideOn +'="$(this).w2tag()"'
+        actions = ` on${showOn}="jQuery(this).${isOverlay ? 'w2overlay' : 'w2tag'}(`
+                + ` JSON.parse(w2utils.base64decode('${w2utils.base64encode(JSON.stringify(options))}')))"`
+                + ` on${hideOn}="jQuery(this).${isOverlay ? 'w2overlay' : 'w2tag'}()"`
         return actions
+    }
+    // deep copy object or array
+    function clone(obj) {
+        let ret
+        if (Array.isArray(obj)) {
+            ret = Array.from(obj)
+            ret.forEach((value, ind) => {
+                ret[ind] = clone(value)
+            })
+        } else if (obj != null && typeof obj == 'object') {
+            ret = {}
+            Object.assign(ret, obj)
+            Object.keys(ret).forEach(key => {
+                ret[key] = clone(ret[key])
+            })
+        } else {
+            // primitive variable or function, both remain the same
+            ret = obj
+        }
+        return ret
+    }
+    function extend(target, source) {
     }
     /*
      * @author     Lauri Rooden (https://github.com/litejs/natural-compare-lite)
@@ -2253,7 +2294,7 @@ class w2grid extends w2event {
             statusResponse  : true,
             statusSort      : false,
             statusSearch    : false,
-            recordTitles    : true,
+            recordTitles    : false,
             selectionBorder : true,
             skipRecords     : true,
             saveRestoreState: true
@@ -2651,18 +2692,18 @@ class w2grid extends w2event {
             return null
         }
     }
-    getFirst(index) {
+    getFirst(offset) {
         if (this.records.length == 0) return null
-        let recid = this.records[0].recid
-        let tmp   = this.last.searchIds
+        let rec = this.records[0]
+        let tmp = this.last.searchIds
         if (this.searchData.length > 0) {
             if (Array.isArray(tmp) && tmp.length > 0) {
-                recid = this.records[tmp[index || 0]]
+                rec = this.records[tmp[offset || 0]]
             } else {
-                recid = null
+                rec = null
             }
         }
-        return recid
+        return rec
     }
     remove() {
         let removed = 0
@@ -2960,7 +3001,7 @@ class w2grid extends w2event {
                     bb = obj.parseField(b, sortFld)
                 }
                 let col = obj.getColumn(fld)
-                if (col && col.editable != null) { // for drop editable fields and drop downs
+                if (col && Object.keys(col.editable).length > 0) { // for drop editable fields and drop downs
                     if ($.isPlainObject(aa) && aa.text) aa = aa.text
                     if ($.isPlainObject(bb) && bb.text) bb = bb.text
                 }
@@ -5196,7 +5237,9 @@ class w2grid extends w2event {
         if (edit.outTag == null) edit.outTag = ''
         if (edit.style == null) edit.style = ''
         if (edit.items == null) edit.items = []
-        let val = (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes[col.field] != null ? w2utils.stripTags(rec.w2ui.changes[col.field]) : w2utils.stripTags(rec[col.field]))
+        let val = (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes[col.field] != null
+            ? w2utils.stripTags(rec.w2ui.changes[col.field])
+            : w2utils.stripTags(obj.parseField(rec, col.field)))
         if (val == null) val = ''
         let old_value = (typeof val != 'object' ? val : '')
         if (edata.old_value != null) old_value = edata.old_value
@@ -5260,8 +5303,7 @@ class w2grid extends w2event {
                 let font = 'font-family: '+ $tmp.css('font-family') + '; font-size: '+ $tmp.css('font-size')
                 el.addClass('w2ui-editable')
                     .html('<input id="grid_'+ this.name +'_edit_'+ recid +'_'+ column +'" autocorrect="off" autocomplete="off" spellcheck="false" type="text" '+
-                        '    style="'+ font +'; width: 100%; height: 100%; padding: 3px; border-color: transparent; outline: none; border-radius: 0; '+
-                        '       pointer-events: auto; '+ addStyle + edit.style +'" '+
+                        '    style="'+ font +'; '+ addStyle + edit.style +'" '+
                         '    field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" class="w2ui-input"'+ edit.inTag +
                         '/>' + edit.outTag)
                 // issue #499
@@ -6744,42 +6786,11 @@ class w2grid extends w2event {
         this.trigger($.extend(edata, { phase: 'after' }))
         return (new Date()).getTime() - time
     }
-    update(cells) {
+    update(cells, fullCellRefresh) {
         let time = (new Date()).getTime()
+        let self = this
         if (this.box == null) return 0
-        if (cells == null) {
-            for (let index = this.last.range_start - 1; index <= this.last.range_end - 1; index++) {
-                if (index < 0) continue
-                let rec = this.records[index] || {}
-                if (!rec.w2ui) rec.w2ui = {}
-                for (let column = 0; column < this.columns.length; column++) {
-                    let row  = $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid))
-                    let cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ column)
-                    cell.replaceWith(this.getCellHTML(index, column, false))
-                    cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ column) // need to reselect as it was replaced
-                    // assign style
-                    if (rec.w2ui.style != null && !$.isEmptyObject(rec.w2ui.style)) {
-                        if (typeof rec.w2ui.style == 'string') {
-                            row.attr('style', rec.w2ui.style)
-                        }
-                        if ($.isPlainObject(rec.w2ui.style) && typeof rec.w2ui.style[column] == 'string') {
-                            cell.attr('style', rec.w2ui.style[column])
-                        }
-                    } else {
-                        cell.attr('style', '')
-                    }
-                    // assign class
-                    if (rec.w2ui.class != null && !$.isEmptyObject(rec.w2ui.class)) {
-                        if (typeof rec.w2ui.class == 'string') {
-                            row.addClass(rec.w2ui.class)
-                        }
-                        if ($.isPlainObject(rec.w2ui.class) && typeof rec.w2ui.class[column] == 'string') {
-                            cell.addClass(rec.w2ui.class[column])
-                        }
-                    }
-                }
-            }
-        } else {
+        if (Array.isArray(cells)) {
             for (let i = 0; i < cells.length; i++) {
                 let index  = cells[i].index
                 let column = cells[i].column
@@ -6788,31 +6799,103 @@ class w2grid extends w2event {
                     console.log('ERROR: Wrong argument for grid.update(cells), cells should be [{ index: X, column: Y }, ...]')
                     continue
                 }
-                let rec  = this.records[index] || {}
-                let row  = $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(rec.recid))
-                let cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ column)
-                if (!rec.w2ui) rec.w2ui = {}
-                cell.replaceWith(this.getCellHTML(index, column, false))
-                cell = $(this.box).find('#grid_'+ this.name + '_data_'+ index +'_'+ column) // need to reselect as it was replaced
-                // assign style
-                if (rec.w2ui.style != null && !$.isEmptyObject(rec.w2ui.style)) {
-                    if (typeof rec.w2ui.style == 'string') {
-                        row.attr('style', rec.w2ui.style)
-                    }
-                    if ($.isPlainObject(rec.w2ui.style) && typeof rec.w2ui.style[column] == 'string') {
-                        cell.attr('style', rec.w2ui.style[column])
-                    }
-                } else {
-                    cell.attr('style', '')
+                let rec  = this.records[index] ?? {}
+                rec.w2ui = rec.w2ui ?? {}
+                rec.w2ui._update = rec.w2ui._update ?? { cells: [] }
+                let row = rec.w2ui._update.row
+                if (row == null || !row.isConnected) {
+                    row = this.box.querySelector(`#grid_${this.name}_rec_${w2utils.escapeId(rec.recid)}`)
+                    rec.w2ui._update.row = row
                 }
-                // assign class
-                if (rec.w2ui.class != null && !$.isEmptyObject(rec.w2ui.class)) {
-                    if (typeof rec.w2ui.class == 'string') {
-                        row.addClass(rec.w2ui.class)
-                    }
-                    if ($.isPlainObject(rec.w2ui.class) && typeof rec.w2ui.class[column] == 'string') {
-                        cell.addClass(rec.w2ui.class[column])
-                    }
+                _update(rec, row, index, column)
+            }
+        } else {
+            for (let index = this.last.range_start-1; index < this.last.range_end; index++) {
+                // if search is applied
+                if (index < 0) continue
+                let rec = this.records[index] ?? {}
+                if (this.last.searchIds.length > 0) {
+                    index = this.last.searchIds[index]
+                    rec = this.records[index]
+                }
+                rec.w2ui = rec.w2ui ?? {}
+                rec.w2ui._update = rec.w2ui._update ?? { cells: [] }
+                let row = rec.w2ui._update.row
+                if (row == null || !row.isConnected) {
+                    row = this.box.querySelector(`#grid_${this.name}_rec_${w2utils.escapeId(rec.recid)}`)
+                    rec.w2ui._update.row = row
+                }
+                for (let column = 0; column < this.columns.length; column++) {
+                    _update(rec, row, index, column)
+                }
+            }
+        }
+        function _update(rec, row, index, column) {
+            let cell = rec.w2ui._update.cells[column]
+            if (cell == null || !cell.isConnected) {
+                cell = self.box.querySelector(`#grid_${self.name}_data_${index}_${column}`)
+                rec.w2ui._update.cells[column] = cell
+            }
+            if (cell == null) return
+            if (fullCellRefresh) {
+                $(cell).replaceWith(self.getCellHTML(index, column, false))
+                // need to reselect as it was replaced
+                cell = self.box.querySelector(`#grid_${self.name}_data_${index}_${column}`)
+                rec.w2ui._update.cells[column] = cell
+            } else {
+                let div = cell.children[0] // there is always a div inside a cell
+                // addStyle, addClass, attrCell - cell level
+                // attrData - div level
+                let { data, addStyle, addClass, attrCell, attrData } = self.getCellValue(index, column, false, true)
+                if (div.innerHTML != data) {
+                    div.innerHTML = data
+                }
+                if (addStyle != '' && cell.style.cssText != addStyle) {
+                    cell.style.cssText = addStyle
+                }
+                if (addClass != '') {
+                    let ignore = ['w2ui-grid-data']
+                    let remove = []
+                    let add = addClass.split(' ').filter(cl => !!cl) // remove empty
+                    cell.classList.forEach(cl => { if (!ignore.includes(cl)) remove.push(cl)})
+                    cell.classList.remove(...remove)
+                    cell.classList.add(...add)
+                }
+                if (attrCell != '' || attrData != '') {
+                    console.log('Render function returned attributes that required full cell refresh (grid.update is not enough)')
+                }
+            }
+            // column styles if any (lower priority)
+            if (self.columns[column].style && self.columns[column].style != cell.style.cssText) {
+                cell.style.cssText = self.columns[column].style ?? ''
+            }
+            // record class if any
+            if (rec.w2ui.class != null) {
+                if (typeof rec.w2ui.class == 'string') {
+                    let ignore = ['w2ui-odd', 'w2ui-even', 'w2ui-record']
+                    let remove = []
+                    let add = rec.w2ui.class.split(' ').filter(cl => !!cl) // remove empty
+                    row.classList.forEach(cl => { if (!ignore.includes(cl)) remove.push(cl)})
+                    row.classList.remove(...remove)
+                    row.classList.add(...add)
+                }
+                if ($.isPlainObject(rec.w2ui.class) && typeof rec.w2ui.class[column] == 'string') {
+                    let ignore = ['w2ui-grid-data']
+                    let remove = []
+                    let add = rec.w2ui.class[column].split(' ').filter(cl => !!cl)
+                    cell.classList.forEach(cl => { if (!ignore.includes(cl)) remove.push(cl)})
+                    cell.classList.remove(...remove)
+                    cell.classList.add(...add)
+                }
+            }
+            // record styles if any
+            if (rec.w2ui.style != null) {
+                if (typeof rec.w2ui.style == 'string' && row.style.cssText !== rec.w2ui.style) {
+                    row.style.cssText = 'height: '+ self.recordHeight + 'px;' + rec.w2ui.style
+                }
+                if ($.isPlainObject(rec.w2ui.style) && typeof rec.w2ui.style[column] == 'string'
+                        && cell.style.cssText !== rec.w2ui.style[column]) {
+                    cell.style.cssText = rec.w2ui.style[column]
                 }
             }
         }
@@ -9365,7 +9448,12 @@ class w2grid extends w2event {
                 tmp1 = frecords.find('#grid_'+ this.name +'_frec_top').next()
                 tmp2 = records.find('#grid_'+ this.name +'_rec_top').next()
                 if (tmp2.attr('line') == 'bottom') break
-                if (parseInt(tmp2.attr('line')) < start) { tmp1.remove(); tmp2.remove() } else break
+                if (parseInt(tmp2.attr('line')) < start) {
+                    tmp1.remove();
+                    tmp2.remove()
+                } else {
+                    break
+                }
             }
             // add at bottom
             tmp       = records.find('#grid_'+ this.name +'_rec_bottom').prev()
@@ -9390,7 +9478,12 @@ class w2grid extends w2event {
                 tmp1 = frecords.find('#grid_'+ this.name +'_frec_bottom').prev()
                 tmp2 = records.find('#grid_'+ this.name +'_rec_bottom').prev()
                 if (tmp2.attr('line') == 'top') break
-                if (parseInt(tmp2.attr('line')) > end) { tmp1.remove(); tmp2.remove() } else break
+                if (parseInt(tmp2.attr('line')) > end) {
+                    tmp1.remove();
+                    tmp2.remove()
+                } else {
+                    break
+                }
             }
             // add at top
             tmp       = records.find('#grid_'+ this.name +'_rec_top').next()
@@ -9647,14 +9740,12 @@ class w2grid extends w2event {
         let obj = this
         let col = this.columns[col_ind]
         if (col == null) return ''
-        let record        = (summary !== true ? this.records[ind] : this.summary[ind])
-        let data = (ind !== -1 ? this.getCellValue(ind, col_ind, summary) : '')
+        let record  = (summary !== true ? this.records[ind] : this.summary[ind])
+        let { data, addStyle, addClass, attrCell, attrData } = this.getCellValue(ind, col_ind, summary, true)
         let edit = (ind !== -1 ? this.getCellEditable(ind, col_ind) : '')
-        let style         = 'max-height: '+ parseInt(this.recordHeight) +'px;' + (col.clipboardCopy ? 'margin-right: 20px' : '')
-        let isChanged     = !summary && record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null
-        let addStyle      = ''
-        let addClass      = ''
-        let sel           = this.last.selection
+        let style = 'max-height: '+ parseInt(this.recordHeight) +'px;' + (col.clipboardCopy ? 'margin-right: 20px' : '')
+        let isChanged = !summary && record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null
+        let sel = this.last.selection
         let isRowSelected = false
         let infoBubble    = ''
         if (sel.indexes.indexOf(ind) != -1) isRowSelected = true
@@ -9720,73 +9811,24 @@ class w2grid extends w2event {
                 '="let grid = w2ui[\''+ this.name + '\']; if (grid.last.bubbleEl) { $(grid.last.bubbleEl).w2tag() } grid.last.bubbleEl = null;"'+
                 '></span>'
         }
-        if (col.render != null && ind !== -1) {
-            if (typeof col.render == 'function') {
-                let html = col.render.call(this, record, ind, col_ind, data)
-                if (html != null && typeof html == 'object') {
-                    if (typeof html.html == 'string') {
-                        data = (html.html || '').trim()
-                    } else {
-                        data = ''
-                        console.log('ERROR: if render function returns an object, its html property should be a string.', { html: '...', class: '...', style: '...' })
-                    }
-                    addClass = html.class || ''
-                    addStyle = html.style || ''
-                } else {
-                    if (typeof html == 'string') {
-                        data = (html || '').trim()
-                    } else {
-                        data = ''
-                        console.log('ERROR: render function should return a string or an object.', { html: '...', class: '...', style: '...' })
-                    }
-                }
-                if (data.length < 4 || data.substr(0, 4).toLowerCase() != '<div') {
-                    data = '<div style="'+ style +'" title="'+ getTitle(data) +'">' + infoBubble + String(data) + '</div>'
-                }
-            }
-            // if it is an object
-            if (typeof col.render == 'object') {
-                let dsp = col.render[data]
-                if (dsp == null || dsp === '') dsp = data
-                data = '<div style="'+ style +'" title="'+ getTitle(dsp) +'">' + infoBubble + String(dsp) + '</div>'
-            }
-            // formatters
-            if (typeof col.render == 'string') {
-                let t   = col.render.toLowerCase().indexOf(':')
-                let tmp = []
-                if (t == -1) {
-                    tmp[0] = col.render.toLowerCase()
-                    tmp[1] = ''
-                } else {
-                    tmp[0] = col.render.toLowerCase().substr(0, t)
-                    tmp[1] = col.render.toLowerCase().substr(t+1)
-                }
-                // formatters
-                let func = w2utils.formatters[tmp[0]]
-                if (col.options && col.options.autoFormat === false) {
-                    func = null
-                }
-                data = (typeof func == 'function' ? func(data, tmp[1], record) : '')
-                data = '<div style="'+ style +'" title="'+ getTitle(data) +'">' + infoBubble + String(data) + '</div>'
-            }
-        } else {
-            // if editable checkbox
-            if (edit && ['checkbox', 'check'].indexOf(edit.type) != -1) {
-                let changeInd = summary ? -(ind + 1) : ind
-                style        += 'text-align: center;'
-                data          = '<input tabindex="-1" type="checkbox" '+ (data ? 'checked="checked"' : '') +' onclick="' +
-                       '    let obj = w2ui[\''+ this.name + '\']; '+
-                       '    obj.editChange.call(obj, this, '+ changeInd +', '+ col_ind +', event); ' +
-                       '"/>'
-                infoBubble    = ''
-            }
-            data = '<div style="'+ style +'" title="'+ getTitle(data) +'">' + infoBubble + String(data) + '</div>'
+        // if editable checkbox
+        if (edit && ['checkbox', 'check'].indexOf(edit.type) != -1) {
+            let changeInd = summary ? -(ind + 1) : ind
+            style        += 'text-align: center;'
+            data          = '<input tabindex="-1" type="checkbox" '+ (data ? 'checked="checked"' : '') +' onclick="' +
+                    '    let obj = w2ui[\''+ this.name + '\']; '+
+                    '    obj.editChange.call(obj, this, '+ changeInd +', '+ col_ind +', event); ' +
+                    '"/>'
+            infoBubble    = ''
         }
+        data = `<div style="${style}" ${getTitle(data)} ${attrData}>${infoBubble} ${String(data)}</div>`
         if (data == null) data = ''
         // --> cell TD
         if (typeof col.render == 'string') {
             let tmp = col.render.toLowerCase().split(':')
-            if (['number', 'int', 'float', 'money', 'currency', 'percent', 'size'].indexOf(tmp[0]) != -1) addStyle += 'text-align: right;'
+            if (['number', 'int', 'float', 'money', 'currency', 'percent', 'size'].indexOf(tmp[0]) != -1) {
+                addStyle += 'text-align: right;'
+            }
         }
         if (record && record.w2ui) {
             if (typeof record.w2ui.style == 'object') {
@@ -9810,11 +9852,10 @@ class w2grid extends w2event {
         }
         // data
         data = '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') + ' ' + addClass +
-                    (isChanged ? ' w2ui-changed' : '') +
-                    '" '+
+                    (isChanged ? ' w2ui-changed' : '') + '" '+
                 '   id="grid_'+ this.name +'_data_'+ ind +'_'+ col_ind +'" col="'+ col_ind +'" '+
                 '   style="'+ addStyle + (col.style != null ? col.style : '') +'" '+
-                    (col.attr != null ? col.attr : '') +
+                    (col.attr != null ? col.attr : '') + attrCell +
                     (col_span > 1 ? 'colspan="'+ col_span + '"' : '') +
                 '>' + data + (clipboardIcon && w2utils.stripTags(data) ? clipboardIcon : '') +'</td>'
         // summary top row
@@ -9825,7 +9866,7 @@ class w2grid extends w2event {
         }
         return data
         function getTitle(cellData){
-            let title = ''
+            let title
             if (obj.show.recordTitles) {
                 if (col.title != null) {
                     if (typeof col.title == 'function') title = col.title.call(obj, record, ind, col_ind)
@@ -9834,7 +9875,7 @@ class w2grid extends w2event {
                     title = w2utils.stripTags(String(cellData).replace(/"/g, '\'\''))
                 }
             }
-            return (title != null) ? String(title) : ''
+            return (title != null) ? 'title="' + String(title) + '"' : ''
         }
     }
     clipboardCopy(ind, col_ind) {
@@ -9940,7 +9981,7 @@ class w2grid extends w2event {
         let edit = (rec.w2ui ? rec.w2ui.editable : null)
         if (edit === false) return null
         if (edit == null || edit === true) {
-            edit = (col ? col.editable : null)
+            edit = (col && Object.keys(col.editable).length > 0 ? col.editable : null)
             if (typeof(edit) === 'function') {
                 let data = this.getCellValue(ind, col_ind, false)
                 // same arguments as col.render()
@@ -9949,25 +9990,82 @@ class w2grid extends w2event {
         }
         return edit
     }
-    getCellValue(ind, col_ind, summary) {
-        let col    = this.columns[col_ind]
+    getCellValue(ind, col_ind, summary, extra) {
+        let col = this.columns[col_ind]
         let record = (summary !== true ? this.records[ind] : this.summary[ind])
-        let data   = this.parseField(record, col.field)
-        if (record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null) {
-            data = record.w2ui.changes[col.field]
-        }
-        if ($.isPlainObject(data) /*&& col.editable*/) { //It can be an object btw
-            if (col.options && col.options.items) {
-                let val = col.options.items.find((item) => { return item.id == data.id })
-                if (val) data = val.text
-                else data = data.id
-            } else {
-                if (data.text != null) data = data.text
-                if (data.id != null) data = data.id
+        let data = this.parseField(record, col.field)
+        let addClass = '', addStyle = '', attrCell = '', attrData = ''
+        if (col.render != null && ind !== -1) {
+            if (typeof col.render == 'function' && record != null) {
+                let html = col.render.call(this, record, ind, col_ind, data)
+                if (html != null && typeof html == 'object') {
+                    if (typeof html.html == 'string') {
+                        data = (html.html || '').trim()
+                    } else {
+                        data = ''
+                        console.log('ERROR: render function should return a primitive or an object of the following structure.',
+                            { html: '...', class: '...', style: '...', attrCell: '...', attrData: '...' })
+                    }
+                    addClass = html.class ?? ''
+                    addStyle = html.style ?? ''
+                    attrCell = html.attrCell ?? ''
+                    attrData = html.attrData ?? ''
+                } else {
+                    if (typeof html !== 'object' && typeof html !== 'function') {
+                        data = String(html || '').trim()
+                    } else {
+                        data = ''
+                        console.log('ERROR: render function should return a string or an object of the following structure.',
+                            { html: '...', class: '...', style: '...', attrCell: '...', attrData: '...' })
+                    }
+                }
+            }
+            // if it is an object
+            if (typeof col.render == 'object') {
+                let tmp = col.render[data]
+                if (tmp != null && tmp !== '') {
+                    data = tmp
+                }
+            }
+            // formatters
+            if (typeof col.render == 'string') {
+                let strInd = col.render.toLowerCase().indexOf(':')
+                let tmp = []
+                if (strInd == -1) {
+                    tmp[0] = col.render.toLowerCase()
+                    tmp[1] = ''
+                } else {
+                    tmp[0] = col.render.toLowerCase().substr(0, t)
+                    tmp[1] = col.render.toLowerCase().substr(t+1)
+                }
+                // formatters
+                let func = w2utils.formatters[tmp[0]]
+                if (col.options && col.options.autoFormat === false) {
+                    func = null
+                }
+                data = (typeof func == 'function' ? func(data, tmp[1], record) : '')
+            }
+        } else {
+            // if edited
+            if (record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null) {
+                data = record.w2ui.changes[col.field]
+            }
+            if ($.isPlainObject(data) && Object.keys(col.editable).length > 0) { // if editable object
+                if (col.options && col.options.items) {
+                    let val = col.options.items.find((item) => { return item.id == data.id })
+                    if (val) {
+                        data = val.text
+                    } else {
+                        data = data.id
+                    }
+                } else {
+                    if (data.id != null) data = data.id
+                    if (data.text != null) data = data.text
+                }
             }
         }
         if (data == null) data = ''
-        return data
+        return !extra ? data : { data, attrCell, attrData, addClass, addStyle }
     }
     getFooterHTML() {
         return '<div>'+
@@ -10338,7 +10436,12 @@ class w2grid extends w2event {
                 onOpen(event) {
                     setTimeout(() => {
                         w2utils.bindEvents($(obj.box).find('.w2ui-btn'), obj)
-                        $(event.box).find('.w2ui-btn').focus()
+                        $(event.box).find('.w2ui-btn')
+                            .off('.message')
+                            .on('keydown.message', function(evt) {
+                                if (evt.keyCode == 27) $(evt.target).click() // esc
+                            })
+                            .focus()
                     }, 25)
                 },
                 onClose(event) {
@@ -10657,7 +10760,12 @@ class w2layout extends w2event {
                 onOpen(event) {
                     setTimeout(() => {
                         w2utils.bindEvents($(obj.box).find('.w2ui-btn'), obj)
-                        $(obj.box).find('.w2ui-btn').focus()
+                        $(obj.box).find('.w2ui-btn')
+                            .off('.message')
+                            .on('keydown.message', function(evt) {
+                                if (evt.keyCode == 27) $(evt.target).click() // esc
+                            })
+                            .focus()
                     }, 25)
                 },
                 onClose(event) {
@@ -18760,7 +18868,12 @@ class w2form extends w2event {
                 onOpen(event) {
                     setTimeout(() => {
                         w2utils.bindEvents($(obj.box).find('.w2ui-btn'), obj)
-                        $(event.box).find('.w2ui-btn').focus()
+                        $(event.box).find('.w2ui-btn')
+                            .off('.message')
+                            .on('keydown.message', function(evt) {
+                                if (evt.keyCode == 27) $(evt.target).click() // esc
+                            })
+                            .focus()
                     }, 25)
                 },
                 onClose(event) {
