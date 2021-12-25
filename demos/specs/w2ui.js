@@ -478,8 +478,9 @@ bela.custom.add('formFill', function(selector, data={}) { // cannot be arrow fun
                 bela.get(`${selector} #${fld}`)
                     .focus()
                     .click()
-                    .wait(`#w2ui-overlay`, 'to.be.visible')
-                    .get(`#w2ui-overlay tr[index=${index}]`, { timeout: 15000 })
+                    .wait(`#w2ui-overlay tr[index=${index}]`, 'to.exist', { timeout: 8000 })
+                    .wait(10) // wait to appear
+                    .get(`#w2ui-overlay tr[index=${index}]`)
                     .click()
                     .wait(`#w2ui-overlay`, 'not.to.exist')
                     .get(`${selector} #${fld}`)
@@ -489,8 +490,9 @@ bela.custom.add('formFill', function(selector, data={}) { // cannot be arrow fun
                     .focus()
                     .click()
                     .type(val)
-                    .wait(`#w2ui-overlay`, 'to.be.visible')
-                    .get(`#w2ui-overlay td.menu-text:contains(${select})`, { timeout: 15000 })
+                    .wait(`#w2ui-overlay td.menu-text:contains(${select})`, 'to.exist', { timeout: 8000 })
+                    .wait(10) // wait to appear
+                    .get(`#w2ui-overlay td.menu-text:contains(${select})`)
                     .click()
                     .wait(`#w2ui-overlay`, 'not.to.exist')
                     .get(`${selector} #${fld}`)

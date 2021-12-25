@@ -18,9 +18,9 @@ context("1: Combo", () => {
                     .grid('grid').tag('grid is reloaded')
                     .get('#grid_grid_records')
                     .invoke('scrollTop', 50000).tag('scroll to bottom')
-                    .wait(1) // need to wait for scroll to apply
+                    .wait(10) // need to wait for scroll to apply
                     .invoke('scrollTop', 50000).tag('scroll to bottom')
-                    .wait(1) // need to wait for scroll to apply
+                    .wait(10) // need to wait for scroll to apply
                     .grid('grid')
                     .should('have.records', '==50')
                     .get('#grid_grid_rec_more')

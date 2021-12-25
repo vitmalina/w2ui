@@ -7,6 +7,7 @@ context("2:Layout", () => {
                     .get('button:contains(Set Content)')
                     .click({ multiple: true })
                     .get('#layout_layout_panel_left .w2ui-panel-content')
+                    .wait(10) // wait for content to be set
                     .should('have.text', 'This is some content set manually')
                 .end()
                 .begin('Load content')
