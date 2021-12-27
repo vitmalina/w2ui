@@ -15,6 +15,7 @@
 ************************************************/
 import { w2event } from './w2event.js'
 import { w2locale } from './w2locale.js'
+import { query } from './query.js'
 
 let w2ui = {}
 let w2utils = (($) => {
@@ -1338,13 +1339,13 @@ let w2utils = (($) => {
     }
 
     function getStrWidth(str, styles) {
-        let w, html = '<div id="_tmp_width" style="position: absolute; top: -900px;'+ (styles || '') +'">'+
-                        encodeTags(str) +
-                      '</div>'
-        $('body').append(html)
-        w = $('#_tmp_width').width()
-        $('#_tmp_width').remove()
-        return w
+        query('body').append(`
+            <div id="_tmp_width" style="position: absolute; top: -9000px; ${styles || ''}">
+                ${encodeTags(str)}
+            </div>`)
+        let width = query('#_tmp_width')[0].clientWidth
+        query('#_tmp_width').remove()
+        return width
     }
 
     function execTemplate(str, replace_obj) {
