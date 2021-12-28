@@ -32,6 +32,7 @@
 *   - promise for request, load, save, etc.
 *   - remote date local sort/search
 *   - colDefaults -> col_template as in tabs, toolbar, etc
+*   - prepareData needs help page
 *
 * == DEMOS To create ==
 *   - batch for disabled buttons
