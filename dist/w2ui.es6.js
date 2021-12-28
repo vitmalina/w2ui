@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (12/24/2021, 3:26:57 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/27/2021, 2:40:45 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -1888,7 +1888,11 @@ let w2utils = (($) => {
         // base64 is needed to avoid '"<> and other special chars conflicts
         actions = ` on${showOn}="jQuery(this).${isOverlay ? 'w2overlay' : 'w2tag'}(`
                 + ` JSON.parse(w2utils.base64decode('${w2utils.base64encode(JSON.stringify(options))}')))"`
-                + ` on${hideOn}="jQuery(this).${isOverlay ? 'w2overlay' : 'w2tag'}()"`
+                + ` on${hideOn}="jQuery(this).${isOverlay ? 'w2overlay' : 'w2tag'}(`
+                + `${isOverlay && options.name != null
+                    ? `JSON.parse(w2utils.base64decode('${w2utils.base64encode(JSON.stringify({ name: options.name }))}'))`
+                    : ''}`
+                + ')"'
         return actions
     }
     // deep copy of an object or an array
@@ -3962,14 +3966,20 @@ class w2grid extends w2event {
             }
         })
         function _checkItem(item, prefix) {
-            if (item.batch === true) {
-                if (cnt > 0) obj.toolbar.enable(prefix + item.id); else obj.toolbar.disable(prefix + item.id)
-            }
-            if (item.batch != null && !isNaN(item.batch) && item.batch > 0) {
-                if (cnt == item.batch) obj.toolbar.enable(prefix + item.id); else obj.toolbar.disable(prefix + item.id)
-            }
-            if (typeof item.batch == 'function') {
-                item.batch(obj.selectType == 'cell' ? sel : (sel ? sel.indexes : null))
+            if (item.batch != null) {
+                let enabled = false
+                if (item.batch === true) {
+                    if (cnt > 0) enabled = true
+                } else if (typeof item.batch == 'number') {
+                    if (cnt === item.batch) enabled = true
+                } else if (typeof item.batch == 'function') {
+                    enabled = item.batch({ cnt, sel })
+                }
+                if (enabled) {
+                    obj.toolbar.enable(prefix + item.id)
+                } else {
+                    obj.toolbar.disable(prefix + item.id)
+                }
             }
         }
     }
@@ -6815,7 +6825,7 @@ class w2grid extends w2event {
         this.trigger($.extend(edata, { phase: 'after' }))
         return (new Date()).getTime() - time
     }
-    update(cells, fullCellRefresh) {
+    update({ cells, fullCellRefresh, ignoreColumns }) {
         let time = (new Date()).getTime()
         let self = this
         if (this.box == null) return 0
@@ -6825,7 +6835,7 @@ class w2grid extends w2event {
                 let column = cells[i].column
                 if (index < 0) continue
                 if (index == null || column == null) {
-                    console.log('ERROR: Wrong argument for grid.update(cells), cells should be [{ index: X, column: Y }, ...]')
+                    console.log('ERROR: Wrong argument for grid.update({ cells }), cells should be [{ index: X, column: Y }, ...]')
                     continue
                 }
                 let rec  = this.records[index] ?? {}
@@ -6839,14 +6849,15 @@ class w2grid extends w2event {
                 _update(rec, row, index, column)
             }
         } else {
-            for (let index = this.last.range_start-1; index < this.last.range_end; index++) {
-                // if search is applied
-                if (index < 0) continue
-                let rec = this.records[index] ?? {}
-                if (this.last.searchIds.length > 0) {
-                    index = this.last.searchIds[index]
-                    rec = this.records[index]
+            for (let i = this.last.range_start-1; i <= this.last.range_end; i++) {
+                let index = i
+                if (this.last.searchIds.length > 0) { // if search is applied
+                    index = this.last.searchIds[i]
+                } else {
+                    index = i
                 }
+                let rec = this.records[index]
+                if (index < 0 || rec == null) continue
                 rec.w2ui = rec.w2ui ?? {}
                 rec.w2ui._update = rec.w2ui._update ?? { cells: [] }
                 let row = rec.w2ui._update.row
@@ -6859,7 +6870,12 @@ class w2grid extends w2event {
                 }
             }
         }
+        return (new Date()).getTime() - time
         function _update(rec, row, index, column) {
+            let pcol = self.columns[column]
+            if (Array.isArray(ignoreColumns) && (ignoreColumns.includes(column) || ignoreColumns.includes(pcol.field))) {
+                return
+            }
             let cell = rec.w2ui._update.cells[column]
             if (cell == null || !cell.isConnected) {
                 cell = self.box.querySelector(`#grid_${self.name}_data_${index}_${column}`)
@@ -6928,7 +6944,6 @@ class w2grid extends w2event {
                 }
             }
         }
-        return (new Date()).getTime() - time
     }
     refreshCell(recid, field) {
         let index     = this.get(recid, true)
@@ -9251,15 +9266,15 @@ class w2grid extends w2event {
             html1   += rec_html[0]
             html2   += rec_html[1]
         }
-        let h2                = (buffered - limit) * this.recordHeight
-        html1                += '<tr id="grid_' + this.name + '_frec_bottom" rec="bottom" line="bottom" style="height: ' + h2 + 'px; vertical-align: top">' +
+        let h2 = (buffered - limit) * this.recordHeight
+        html1 += '<tr id="grid_' + this.name + '_frec_bottom" rec="bottom" line="bottom" style="height: ' + h2 + 'px; vertical-align: top">' +
                 '    <td colspan="2000" style="border-right: 1px solid #D6D5D7;"></td>'+
                 '</tr>'+
                 '<tr id="grid_'+ this.name +'_frec_more" style="display: none; ">'+
                 '    <td colspan="2000" class="w2ui-load-more"></td>'+
                 '</tr>'+
                 '</tbody></table>'
-        html2                += '<tr id="grid_' + this.name + '_rec_bottom" rec="bottom" line="bottom" style="height: ' + h2 + 'px; vertical-align: top">' +
+        html2 += '<tr id="grid_' + this.name + '_rec_bottom" rec="bottom" line="bottom" style="height: ' + h2 + 'px; vertical-align: top">' +
                 '    <td colspan="2000" style="border: 0"></td>'+
                 '</tr>'+
                 '<tr id="grid_'+ this.name +'_rec_more" style="display: none">'+
@@ -20972,10 +20987,18 @@ class w2form extends w2event {
             return $(this)
         }
         // hide previous if any
-        if ($('#w2ui-overlay'+ name).length > 0) {
-            tmp_hide = $('#w2ui-overlay'+ name)[0].hide
-            $(document).off('.w2overlay'+ name)
-            if (typeof tmp_hide === 'function') tmp_hide()
+        let div1 = $('#w2ui-overlay'+ name)
+        let div2 = div1.find(' > div')
+        if (div1.length > 0) {
+            let prevOptions = div1.data('options')
+            if ((options.name == null || options.name == '') && prevOptions.name != options.name) {
+                tmp_hide = $('#w2ui-overlay'+ name)[0].hide
+                $(document).off('.w2overlay'+ name)
+                if (typeof tmp_hide === 'function') tmp_hide()
+            } else {
+                div2.attr('style', `min-width: 100%; ${options.style}`)
+                    .attr('class', options.class)
+            }
         }
         if (obj.length > 0 && (obj[0].tagName == null || obj[0].tagName.toUpperCase() === 'BODY')) options.contextMenu = true
         if (options.contextMenu && options.originalEvent) {
@@ -20992,16 +21015,18 @@ class w2form extends w2event {
             })
         }
         // append
-        $('body').append(
-            '<div id="w2ui-overlay'+ name +'" style="display: none; left: 0px; top: 0px; '+ options.overlayStyle +'" '+ data_str +
-            '        class="w2ui-reset w2ui-overlay '+ ($(this).parents('.w2ui-popup, .w2ui-overlay-popup, .w2ui-message').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
-            '    <style></style>'+
-            '    <div style="min-width: 100%; '+ options.style +'" class="'+ options.class +'"></div>'+
-            '</div>'
-        )
+        if (div1.length == 0) {
+            $('body').append(
+                '<div id="w2ui-overlay'+ name +'" style="display: none; left: 0px; top: 0px; '+ options.overlayStyle +'" '+ data_str +
+                '        class="w2ui-reset w2ui-overlay '+ ($(this).parents('.w2ui-popup, .w2ui-overlay-popup, .w2ui-message').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
+                '    <style></style>'+
+                '    <div style="min-width: 100%; '+ options.style +'" class="'+ options.class +'"></div>'+
+                '</div>'
+            )
+            div1 = $('#w2ui-overlay'+ name)
+            div2 = div1.find(' > div')
+        }
         // init
-        let div1 = $('#w2ui-overlay'+ name)
-        let div2 = div1.find(' > div')
         div2.html(options.html)
         // pick bg color of first div
         let bc = div2.css('background-color')

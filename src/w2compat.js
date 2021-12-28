@@ -487,10 +487,18 @@ import { w2toolbar } from './w2toolbar.js'
             return $(this)
         }
         // hide previous if any
-        if ($('#w2ui-overlay'+ name).length > 0) {
-            tmp_hide = $('#w2ui-overlay'+ name)[0].hide
-            $(document).off('.w2overlay'+ name)
-            if (typeof tmp_hide === 'function') tmp_hide()
+        let div1 = $('#w2ui-overlay'+ name)
+        let div2 = div1.find(' > div')
+        if (div1.length > 0) {
+            let prevOptions = div1.data('options')
+            if ((options.name == null || options.name == '') && prevOptions.name != options.name) {
+                tmp_hide = $('#w2ui-overlay'+ name)[0].hide
+                $(document).off('.w2overlay'+ name)
+                if (typeof tmp_hide === 'function') tmp_hide()
+            } else {
+                div2.attr('style', `min-width: 100%; ${options.style}`)
+                    .attr('class', options.class)
+            }
         }
         if (obj.length > 0 && (obj[0].tagName == null || obj[0].tagName.toUpperCase() === 'BODY')) options.contextMenu = true
         if (options.contextMenu && options.originalEvent) {
@@ -507,16 +515,18 @@ import { w2toolbar } from './w2toolbar.js'
             })
         }
         // append
-        $('body').append(
-            '<div id="w2ui-overlay'+ name +'" style="display: none; left: 0px; top: 0px; '+ options.overlayStyle +'" '+ data_str +
-            '        class="w2ui-reset w2ui-overlay '+ ($(this).parents('.w2ui-popup, .w2ui-overlay-popup, .w2ui-message').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
-            '    <style></style>'+
-            '    <div style="min-width: 100%; '+ options.style +'" class="'+ options.class +'"></div>'+
-            '</div>'
-        )
+        if (div1.length == 0) {
+            $('body').append(
+                '<div id="w2ui-overlay'+ name +'" style="display: none; left: 0px; top: 0px; '+ options.overlayStyle +'" '+ data_str +
+                '        class="w2ui-reset w2ui-overlay '+ ($(this).parents('.w2ui-popup, .w2ui-overlay-popup, .w2ui-message').length > 0 ? 'w2ui-overlay-popup' : '') +'">'+
+                '    <style></style>'+
+                '    <div style="min-width: 100%; '+ options.style +'" class="'+ options.class +'"></div>'+
+                '</div>'
+            )
+            div1 = $('#w2ui-overlay'+ name)
+            div2 = div1.find(' > div')
+        }
         // init
-        let div1 = $('#w2ui-overlay'+ name)
-        let div2 = div1.find(' > div')
         div2.html(options.html)
         // pick bg color of first div
         let bc = div2.css('background-color')

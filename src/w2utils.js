@@ -1724,8 +1724,11 @@ let w2utils = (($) => {
         // base64 is needed to avoid '"<> and other special chars conflicts
         actions = ` on${showOn}="jQuery(this).${isOverlay ? 'w2overlay' : 'w2tag'}(`
                 + ` JSON.parse(w2utils.base64decode('${w2utils.base64encode(JSON.stringify(options))}')))"`
-                + ` on${hideOn}="jQuery(this).${isOverlay ? 'w2overlay' : 'w2tag'}()"`
-
+                + ` on${hideOn}="jQuery(this).${isOverlay ? 'w2overlay' : 'w2tag'}(`
+                + `${isOverlay && options.name != null
+                    ? `JSON.parse(w2utils.base64decode('${w2utils.base64encode(JSON.stringify({ name: options.name }))}'))`
+                    : ''}`
+                + ')"'
         return actions
     }
 
