@@ -1,24 +1,39 @@
 Updates specified cells
 
 <div class="definition">
-    update(cells)
+    update(options)
 </div>
 
 <div class="arguments">
     <table>
     <tr>
-        <td>cells</td>
-        <td><b>array of objects</b>, <i>optional</i> cells to update</td>
+        <td>options</td>
+        <td><b>objects</b>, <i>optional</i> an object with parameters for the update</td>
     </tr>
     </table>
 </div>
 Returns time it took to update (in milliseconds).
 
 <h4>Description</h4>
-
-If called without arguments, it will update entire grid, but without full refresh. The update funtion will transform data through renderers,
-if any defined for the cell, it will also keep selection and add custom styles if any.
+This method is super fast and update grid within a few milliseconds (<span class="property">grid.refresh()</span>
+in comparison take about 30-80ms depending on the data). It will only update records within the virtual scroll and
+those that changed.
 <div style="height: 10px"></div>
+
+If called without arguments, it will update entire grid. If column value did not change, (DOM has same html as
+what <span class="property">grid.getCellValue()</span> returns for the specified cell), it will not reinsert HTML into the DOM.
+The update function will transform data through renderers, and also take into account classes and styles defined on the
+column or record level. It will keep current selection in the grid, if any.
+<div style="height: 10px"></div>
+
+The options
+<textarea class="javascript">
+{
+    cells: [],              // array of { index, column } pairs to update
+    fullCellRefresh: false, // weather full-cell refresh is needed (TD level), othewiser only inside TD`
+    ignoreColumns: []       // array of column indexes or column field names
+}
+</textarea>
 
 If you have following grid:
 <textarea class="javascript">
@@ -42,8 +57,24 @@ let grid = new w2grid({
 });
 </textarea>
 
-You can update specific cells this way:
+Update what's changed:
 <textarea class="javascript">
 w2ui.grid.records[2].fname = 'Another'
-w2ui.grid.updat([{ index: 2, column: 1}]);
+w2ui.grid.update();
+</textarea>
+
+Update specific cells:
+<textarea class="javascript">
+w2ui.grid.records[2].fname = 'Another'
+w2ui.grid.update({ cells: [{ index: 2, column: 1}] });
+</textarea>
+
+Update all cells on screen except cells in the specified columns:
+<textarea class="javascript">
+w2ui.grid.update({ ignoreColumns: [0, 'email'] }); // can be either index or column.field
+</textarea>
+
+Update all cells that changed with full cell refresh (not frequent):
+<textarea class="javascript">
+w2ui.grid.update({ fullCellRefresh: true });
 </textarea>

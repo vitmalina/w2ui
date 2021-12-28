@@ -829,7 +829,7 @@ class w2grid extends w2event {
         // process sortData
         for (let i = 0; i < this.sortData.length; i++) {
             let column = this.getColumn(this.sortData[i].field)
-            if (!column) return
+            if (!column) return // TODO: ability to sort columns when they are not part of colums array
             if (typeof column.render == 'string') {
                 if (['date', 'age'].indexOf(column.render.split(':')[0]) != -1) {
                     this.sortData[i].field_ = column.field + '_'
@@ -1880,14 +1880,20 @@ class w2grid extends w2event {
         })
 
         function _checkItem(item, prefix) {
-            if (item.batch === true) {
-                if (cnt > 0) obj.toolbar.enable(prefix + item.id); else obj.toolbar.disable(prefix + item.id)
-            }
-            if (item.batch != null && !isNaN(item.batch) && item.batch > 0) {
-                if (cnt == item.batch) obj.toolbar.enable(prefix + item.id); else obj.toolbar.disable(prefix + item.id)
-            }
-            if (typeof item.batch == 'function') {
-                item.batch(obj.selectType == 'cell' ? sel : (sel ? sel.indexes : null))
+            if (item.batch != null) {
+                let enabled = false
+                if (item.batch === true) {
+                    if (cnt > 0) enabled = true
+                } else if (typeof item.batch == 'number') {
+                    if (cnt === item.batch) enabled = true
+                } else if (typeof item.batch == 'function') {
+                    enabled = item.batch({ cnt, sel })
+                }
+                if (enabled) {
+                    obj.toolbar.enable(prefix + item.id)
+                } else {
+                    obj.toolbar.disable(prefix + item.id)
+                }
             }
         }
     }
@@ -4831,7 +4837,7 @@ class w2grid extends w2event {
         return (new Date()).getTime() - time
     }
 
-    update(cells, fullCellRefresh) {
+    update({ cells, fullCellRefresh, ignoreColumns } = {}) {
         let time = (new Date()).getTime()
         let self = this
         if (this.box == null) return 0
@@ -4841,7 +4847,7 @@ class w2grid extends w2event {
                 let column = cells[i].column
                 if (index < 0) continue
                 if (index == null || column == null) {
-                    console.log('ERROR: Wrong argument for grid.update(cells), cells should be [{ index: X, column: Y }, ...]')
+                    console.log('ERROR: Wrong argument for grid.update({ cells }), cells should be [{ index: X, column: Y }, ...]')
                     continue
                 }
                 let rec  = this.records[index] ?? {}
@@ -4855,14 +4861,15 @@ class w2grid extends w2event {
                 _update(rec, row, index, column)
             }
         } else {
-            for (let index = this.last.range_start-1; index < this.last.range_end; index++) {
-                // if search is applied
-                if (index < 0) continue
-                let rec = this.records[index] ?? {}
-                if (this.last.searchIds.length > 0) {
-                    index = this.last.searchIds[index]
-                    rec = this.records[index]
+            for (let i = this.last.range_start-1; i <= this.last.range_end; i++) {
+                let index = i
+                if (this.last.searchIds.length > 0) { // if search is applied
+                    index = this.last.searchIds[i]
+                } else {
+                    index = i
                 }
+                let rec = this.records[index]
+                if (index < 0 || rec == null) continue
                 rec.w2ui = rec.w2ui ?? {}
                 rec.w2ui._update = rec.w2ui._update ?? { cells: [] }
                 let row = rec.w2ui._update.row
@@ -4875,8 +4882,13 @@ class w2grid extends w2event {
                 }
             }
         }
+        return (new Date()).getTime() - time
 
         function _update(rec, row, index, column) {
+            let pcol = self.columns[column]
+            if (Array.isArray(ignoreColumns) && (ignoreColumns.includes(column) || ignoreColumns.includes(pcol.field))) {
+                return
+            }
             let cell = rec.w2ui._update.cells[column]
             if (cell == null || !cell.isConnected) {
                 cell = self.box.querySelector(`#grid_${self.name}_data_${index}_${column}`)
@@ -4906,9 +4918,6 @@ class w2grid extends w2event {
                     cell.classList.forEach(cl => { if (!ignore.includes(cl)) remove.push(cl)})
                     cell.classList.remove(...remove)
                     cell.classList.add(...add)
-                }
-                if (attrCell != '' || attrData != '') {
-                    console.log('Render function returned attributes that required full cell refresh (grid.update is not enough)')
                 }
             }
             // column styles if any (lower priority)
@@ -4945,7 +4954,6 @@ class w2grid extends w2event {
                 }
             }
         }
-        return (new Date()).getTime() - time
     }
 
     refreshCell(recid, field) {
@@ -7988,7 +7996,7 @@ class w2grid extends w2event {
                     '"/>'
             infoBubble    = ''
         }
-        data = `<div style="${style}" ${getTitle(data)} ${attrData}>${infoBubble}${String(data)}</div>`
+        data = `<div style="${style}" ${getTitle(data)} ${attrData}>${infoBubble} ${String(data)}</div>`
         if (data == null) data = ''
         // --> cell TD
         if (typeof col.render == 'string') {
