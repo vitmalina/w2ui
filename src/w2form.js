@@ -464,7 +464,7 @@ class w2form extends w2event {
         w2utils.message.call(this, {
                 box   : this.box,
                 path  : 'w2ui.' + this.name,
-                title : '.w2ui-form-header:visible',
+                title : '.w2ui-form-header',
                 body  : '.w2ui-form-box'
             }, options)
         .then((event) => {
@@ -547,7 +547,7 @@ class w2form extends w2event {
         w2utils.message.call(this, {
                 box   : this.box,
                 path  : 'w2ui.' + this.name,
-                title : '.w2ui-form-header:visible',
+                title : '.w2ui-form-header',
                 body  : '.w2ui-form-box'
             }, options)
         .then((res) => {

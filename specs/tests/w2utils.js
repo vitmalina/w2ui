@@ -4,40 +4,40 @@
 test( "w2utils.date()", () => {
     var dt  = new Date();
     var dt2 = (new Date()).getTime() -  86400000 * 5;
-    equal( w2utils.date(), '',          "- no argument -" );
-    equal( w2utils.date(''), '',        "- blank -" );
-    equal( w2utils.date(null), '',      "- null -" );
-    equal( w2utils.date(undefined), '', "- undefined -" );
-    equal( w2utils.date({}), '',        "- object -" );
-    equal( w2utils.date([]), '',        "- array -" );
-    equal( w2utils.stripTags(w2utils.date(new Date())), w2utils.formatTime(dt), "Today" );
-    equal( w2utils.stripTags(w2utils.date((new Date()).getTime() -  86400000 )), w2utils.stripTags('Yesterday'), "Yesterday" );
+    equal(w2utils.date(), '',          "- no argument -" );
+    equal(w2utils.date(''), '',        "- blank -" );
+    equal(w2utils.date(null), '',      "- null -" );
+    equal(w2utils.date(undefined), '', "- undefined -" );
+    equal(w2utils.date({}), '',        "- object -" );
+    equal(w2utils.date([]), '',        "- array -" );
+    equal(w2utils.stripTags(w2utils.date(new Date())), w2utils.formatTime(dt), "Today" );
+    equal(w2utils.stripTags(w2utils.date((new Date()).getTime() -  86400000 )), w2utils.stripTags('Yesterday'), "Yesterday" );
 });
 
 test( "w2utils.age()", () => {
     var dt  = new Date();
-    equal( w2utils.age(), '',          "- no argument -" );
-    equal( w2utils.age(''), '',        "- blank -" );
-    equal( w2utils.age(null), '',      "- null -" );
-    equal( w2utils.age(undefined), '', "- undefined -" );
-    equal( w2utils.age({}), '',        "- object -" );
-    equal( w2utils.age([]), '',        "- array -" );
-    equal( w2utils.stripTags(w2utils.age(new Date())), '0 sec', "Now" );
-    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  4000 )), '4 secs', "4 secs" );
-    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() +  4000 )), '0 sec', "future" );
-    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  1000 * 60 * 5 )), '5 mins', "5 mins" );
-    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  1000 * 60 * 45 )), '45 mins', "45 mins" );
-    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  1000 * 60 * 60 * 2 )), '2 hours', "2 hours" );
-    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000)), '1 day', "Yesterday" );
-    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 1.5)), '1 day', "Yesterday" );
-    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 5)), '5 days', "5 days" );
-    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 30)), '1 month', "1 month" );
-    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 33)), '1.1 months', "over a month" );
-    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 50)), '1.6 months', "over a month" );
-    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 145)), '4.8 months', "over 4 months" );
-    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 365)), '1 year', "one year" );
-    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 420)), '1.1 years', "over one year" );
-    equal( w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 365 * 20)), '19.9 years', "arround 20 years" );
+    equal(w2utils.age(), '',          "- no argument -" );
+    equal(w2utils.age(''), '',        "- blank -" );
+    equal(w2utils.age(null), '',      "- null -" );
+    equal(w2utils.age(undefined), '', "- undefined -" );
+    equal(w2utils.age({}), '',        "- object -" );
+    equal(w2utils.age([]), '',        "- array -" );
+    equal(w2utils.stripTags(w2utils.age(new Date())), '0 sec', "Now" );
+    equal(w2utils.stripTags(w2utils.age((new Date()).getTime() -  4000 )), '4 secs', "4 secs" );
+    equal(w2utils.stripTags(w2utils.age((new Date()).getTime() +  4000 )), '0 sec', "future" );
+    equal(w2utils.stripTags(w2utils.age((new Date()).getTime() -  1000 * 60 * 5 )), '5 mins', "5 mins" );
+    equal(w2utils.stripTags(w2utils.age((new Date()).getTime() -  1000 * 60 * 45 )), '45 mins', "45 mins" );
+    equal(w2utils.stripTags(w2utils.age((new Date()).getTime() -  1000 * 60 * 60 * 2 )), '2 hours', "2 hours" );
+    equal(w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000)), '1 day', "Yesterday" );
+    equal(w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 1.5)), '1 day', "Yesterday" );
+    equal(w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 5)), '5 days', "5 days" );
+    equal(w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 30)), '1 month', "1 month" );
+    equal(w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 33)), '1.1 months', "over a month" );
+    equal(w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 50)), '1.6 months', "over a month" );
+    equal(w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 145)), '4.8 months', "over 4 months" );
+    equal(w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 365)), '1 year', "one year" );
+    equal(w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 420)), '1.1 years', "over one year" );
+    equal(w2utils.stripTags(w2utils.age((new Date()).getTime() -  86400000 * 365 * 20)), '19.9 years', "arround 20 years" );
 });
 
 test( "w2utils.formatNumber()", () => {
@@ -46,15 +46,15 @@ test( "w2utils.formatNumber()", () => {
         '1,000.01'    : '1000.01',
         '1,000.0001'  : '1000.0001'
     };
-    equal( w2utils.formatNumber(), '',          "- no argument -" );
-    equal( w2utils.formatNumber(''), '',        "- blank -" );
-    equal( w2utils.formatNumber(null), '',      "- null -" );
-    equal( w2utils.formatNumber(undefined), '', "- undefined -" );
-    equal( w2utils.formatNumber({}), '',        "- object -" );
-    equal( w2utils.formatNumber([]), '',        "- array -" );
+    equal(w2utils.formatNumber(), '',          "- no argument -" );
+    equal(w2utils.formatNumber(''), '',        "- blank -" );
+    equal(w2utils.formatNumber(null), '',      "- null -" );
+    equal(w2utils.formatNumber(undefined), '', "- undefined -" );
+    equal(w2utils.formatNumber({}), '',        "- object -" );
+    equal(w2utils.formatNumber([]), '',        "- array -" );
 
     for (var v in values) {
-        equal( w2utils.formatNumber(values[v]), v, 'Test: ' + values[v] + ' = ' + v);
+        equal(w2utils.formatNumber(values[v]), v, 'Test: ' + values[v] + ' = ' + v);
     }
 });
 
@@ -79,12 +79,12 @@ test( "w2utils.formatDate()", () => {
         '2014-01-05 => m/d/yyy'        : '1/5/2014',
         '2014-01-05 => m/d/yyyy'       : '1/5/2014'
     };
-    equal( w2utils.formatDate(), '',          "- no argument -" );
-    equal( w2utils.formatDate(''), '',        "- blank -" );
-    equal( w2utils.formatDate(null), '',      "- null -" );
-    equal( w2utils.formatDate(undefined), '', "- undefined -" );
-    equal( w2utils.formatDate({}), '',        "- object -" );
-    equal( w2utils.formatDate([]), '',        "- array -" );
+    equal(w2utils.formatDate(), '',          "- no argument -" );
+    equal(w2utils.formatDate(''), '',        "- blank -" );
+    equal(w2utils.formatDate(null), '',      "- null -" );
+    equal(w2utils.formatDate(undefined), '', "- undefined -" );
+    equal(w2utils.formatDate({}), '',        "- object -" );
+    equal(w2utils.formatDate([]), '',        "- array -" );
 
     for (var v in values) {
         var tmp = v.split(' => ');
@@ -134,12 +134,12 @@ test( "w2utils.formatTime()", () => {
         '0:05:00 => hh:mi am'      : '12:05 am',
         '1:05:00 => hh:mi am'      : '1:05 am'
     };
-    equal( w2utils.formatTime(), '',          "- no argument -" );
-    equal( w2utils.formatTime(''), '',        "- blank -" );
-    equal( w2utils.formatTime(null), '',      "- null -" );
-    equal( w2utils.formatTime(undefined), '', "- undefined -" );
-    equal( w2utils.formatTime({}), '',        "- object -" );
-    equal( w2utils.formatTime([]), '',        "- array -" );
+    equal(w2utils.formatTime(), '',          "- no argument -" );
+    equal(w2utils.formatTime(''), '',        "- blank -" );
+    equal(w2utils.formatTime(null), '',      "- null -" );
+    equal(w2utils.formatTime(undefined), '', "- undefined -" );
+    equal(w2utils.formatTime({}), '',        "- object -" );
+    equal(w2utils.formatTime([]), '',        "- array -" );
 
     for (var v in values) {
         var tmp = v.split(' => ');
@@ -149,7 +149,7 @@ test( "w2utils.formatTime()", () => {
         dt.setMinutes(parseInt(tm2[1]));
         dt.setSeconds(parseInt(tm2[2]));
         var fm  = w2utils.formatTime(dt, tmp[1]);
-        equal( fm, values[v], 'Format: ' + tmp[0] + ' => ' + tmp[1] + ' =>  ' + fm);
+        equal(fm, values[v], 'Format: ' + tmp[0] + ' => ' + tmp[1] + ' =>  ' + fm);
     }
 });
 
@@ -159,9 +159,9 @@ test( "w2utils.formatDateTime()", () => {
         '2014-01-05 21:40:05 => mm/dd/yyyy|hh:mi:ss pm'  : '01/05/2014 9:40:05 pm',
         '2014-01-05 21:40:05 => mm/dd/yyyy|h24:mi:ss'    : '01/05/2014 21:40:05',
     };
-    equal( w2utils.formatDateTime(), '',          "- no argument -" );
-    equal( w2utils.formatDateTime(''), '',        "- blank -" );
-    equal( w2utils.formatDateTime(null), '',      "- null -" );
+    equal(w2utils.formatDateTime(), '',          "- no argument -" );
+    equal(w2utils.formatDateTime(''), '',        "- blank -" );
+    equal(w2utils.formatDateTime(null), '',      "- null -" );
     equal( w2utils.formatDateTime(undefined), '', "- undefined -" );
     equal( w2utils.formatDateTime({}), '',        "- object -" );
     equal( w2utils.formatDateTime([]), '',        "- array -" );
@@ -471,6 +471,63 @@ test( "md5", () => {
     ok(w2utils.md5('other') === '795f3202b17cb6bc3d4b771d8c6c9eaf', "md5('other')");
 });
 
+test("w2utils.stripTags()", () => {
+    equal(w2utils.stripTags(), undefined, "- no argument -" );
+    equal(w2utils.stripTags(''), '',      "- blank -" );
+    equal(w2utils.stripTags(null), null,  "- null -" );
+    equal(w2utils.stripTags(undefined), undefined, "- undefined -" );
+    equal(w2utils.stripTags('<b>1</b>,2{1}</i>'), '1,2{1}', "String" );
+    deepEqual(w2utils.stripTags(['<b>1</b>,2{1}</i>', '<b>', '1']), ['1,2{1}', '', '1'], "Array" );
+    deepEqual(w2utils.stripTags({ a: '<b>1</b>,2{1}</i>', b: '<b>', c: '1' }), { a: '1,2{1}', b: '', c: '1' }, "Object" );
+})
+
+test("w2utils.encodeTags()", () => {
+    equal(w2utils.encodeTags(), undefined, "- no argument -" );
+    equal(w2utils.encodeTags(''), '',      "- blank -" );
+    equal(w2utils.encodeTags(null), null,  "- null -" );
+    equal(w2utils.encodeTags(undefined), undefined, "- undefined -" );
+    equal(w2utils.encodeTags('<b>1</b>,2{1}</i>'), '&lt;b&gt;1&lt;/b&gt;,2{1}&lt;/i&gt;', "String" );
+    deepEqual(w2utils.encodeTags(
+        ['<b>1</b>,2{1}</i>', '<b>', '1']),
+        ['&lt;b&gt;1&lt;/b&gt;,2{1}&lt;/i&gt;', '&lt;b&gt;', '1'], "Array" );
+    deepEqual(w2utils.encodeTags(
+        { a: '<b>1</b>,2{1}</i>', b: '<b>', c: '1' }),
+        { a: '&lt;b&gt;1&lt;/b&gt;,2{1}&lt;/i&gt;', b: '&lt;b&gt;', c: '1' }, "Object" );
+})
+
+test("w2utils.escapeId(), w2utils.unescapeId(), ", () => {
+    equal(w2utils.escapeId(), '', "- no argument -" );
+    equal(w2utils.escapeId(''), '', "- blank -" );
+    equal(w2utils.escapeId(null), '', "- null -" );
+    equal(w2utils.escapeId(undefined), '', "- undefined -" );
+    equal(w2utils.escapeId('some id'), 'some\\ id', "with a space" );
+    equal(w2utils.escapeId('"double"'), '\\"double\\"', 'double quites');
+    equal(w2utils.escapeId("`~!@#$%^&*()_+-=[]\\{}|;':,./<>?"),
+        "\\`\\~\\!\\@\\#\\$\\%\\^\\&\\*\\(\\)_\\+-\\=\\[\\]\\\\\\{\\}\\|\\;\\'\\:\\,\\.\\/\\<\\>\\?",
+        "special characters" );
+    equal(w2utils.escapeId('Ψ'), 'Ψ', 'unicode char');
+    equal(w2utils.escapeId('&#100;'), '\\&\\#100\\;', 'unicode code');
+
+    equal(w2utils.unescapeId('some\\ id'), 'some id', "with a space" );
+    equal(w2utils.unescapeId("\\`\\~\\!\\@\\#\\$\\%\\^\\&\\*\\(\\)_\\+-\\=\\[\\]\\\\\\{\\}\\|\\;\\'\\:\\,\\.\\/\\<\\>\\?"),
+        "`~!@#$%^&*()_+-=[]\\{}|;':,./<>?",
+        "special characters" );
+    equal(w2utils.unescapeId('Ψ'), 'Ψ', 'unicode char');
+    equal(w2utils.unescapeId('\\&\\#100\\;'), '&#100;', 'unicode code');
+})
+
+test("w2utils.decodeTags()", () => {
+    equal(w2utils.decodeTags(), undefined, "- no argument -" );
+    equal(w2utils.decodeTags(''), '',      "- blank -" );
+    equal(w2utils.decodeTags(null), null,  "- null -" );
+    equal(w2utils.decodeTags(undefined), undefined, "- undefined -" );
+    equal(w2utils.decodeTags('&lt;b&gt;1&lt;/b&gt;,2{1}&lt;/i&gt;'), '<b>1</b>,2{1}</i>', "String" );
+    deepEqual(w2utils.decodeTags(['&lt;b&gt;1&lt;/b&gt;,2{1}&lt;/i&gt;', '&lt;b&gt;', '1']),
+        ['<b>1</b>,2{1}</i>', '<b>', '1'], "Array" );
+    deepEqual(w2utils.decodeTags({ a: '&lt;b&gt;1&lt;/b&gt;,2{1}&lt;/i&gt;', b: '&lt;b&gt;', c: '1' }),
+        { a: '<b>1</b>,2{1}</i>', b: '<b>', c: '1' }, "Object" );
+})
+
 test( "w2utils.clone()", () => {
     var values = [
         {
@@ -498,10 +555,14 @@ test( "w2utils.clone()", () => {
             expect: { a: 1, b: [{ a: 1, b: 5 }, 2, undefined, null] },
         },
     ];
-    equal( w2utils.clone(), undefined, "- no argument -" );
-    equal( w2utils.clone(''), '',      "- blank -" );
-    equal( w2utils.clone(null), null,  "- null -" );
-    equal( w2utils.clone(undefined), undefined, "- undefined -" );
+    equal(w2utils.clone(), undefined, "- no argument -" );
+    equal(w2utils.clone(''), '',      "- blank -" );
+    equal(w2utils.clone(null), null,  "- null -" );
+    equal(w2utils.clone(undefined), undefined, "- undefined -" );
+    //
+    let el = document.createElement('div')
+    let el2 = document.createElement('input')
+    deepEqual(w2utils.clone({ a: 1, el, el2 }), { a: 1, el, el2 }, "Dont clone HTML elements" );
 
     values.forEach(val => {
         let res = w2utils.clone(val.source)

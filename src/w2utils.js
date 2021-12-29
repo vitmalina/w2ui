@@ -7,10 +7,12 @@
 *   - add maxHeight for the w2menu
 *   - add w2utils.lang wrap for all captions in all buttons.
 *   - message.options - should have actions
-*   - stricter CSP (work in progress)
+*   - cssPrefix should be deprecated
 *
 * == 2.0 changes
 *   - CSP - fixed inline events
+*   - transition returns a promise
+*   - nearly removed jQuery
 *
 ************************************************/
 import { w2event } from './w2event.js'
@@ -22,7 +24,7 @@ let w2utils = (($) => {
     let tmp = {} // for some temp variables
     return {
         version  : '2.0.x',
-        settings : $.extend(true, {}, {
+        settings : extend({}, {
             'dataType'       : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
             'dateStartYear'  : 1950,  // start year for date-picker
             'dateEndYear'    : 2030,  // end year for date picker
@@ -495,11 +497,15 @@ let w2utils = (($) => {
             case 'object':
                 // does not modify original object, but creates a copy
                 if (Array.isArray(html)) {
-                    html = $.extend(true, [], html)
-                    for (let i = 0; i < html.length; i++) html[i] = this.stripTags(html[i])
+                    html = extend([], html)
+                    html.forEach((key, ind) => {
+                        html[ind] = stripTags(key)
+                    })
                 } else {
-                    html = $.extend(true, {}, html)
-                    for (let i in html) html[i] = this.stripTags(html[i])
+                    html = extend({}, html)
+                    Object.keys(html).forEach(key => {
+                        html[key] = stripTags(html[key])
+                    })
                 }
                 break
         }
@@ -517,11 +523,15 @@ let w2utils = (($) => {
             case 'object':
                 // does not modify original object, but creates a copy
                 if (Array.isArray(html)) {
-                    html = $.extend(true, [], html)
-                    for (let i = 0; i < html.length; i++) html[i] = this.encodeTags(html[i])
+                    html = extend([], html)
+                    html.forEach((key, ind) => {
+                        html[ind] = encodeTags(key)
+                    })
                 } else {
-                    html = $.extend(true, {}, html)
-                    for (let i in html) html[i] = this.encodeTags(html[i])
+                    html = extend({}, html)
+                    Object.keys(html).forEach(key => {
+                        html[key] = encodeTags(html[key])
+                    })
                 }
                 break
         }
@@ -539,11 +549,15 @@ let w2utils = (($) => {
             case 'object':
                 // does not modify original object, but creates a copy
                 if (Array.isArray(html)) {
-                    html = $.extend(true, [], html)
-                    for (let i = 0; i < html.length; i++) html[i] = this.decodeTags(html[i])
+                    html = extend([], html)
+                    html.forEach((key, ind) => {
+                        html[ind] = decodeTags(key)
+                    })
                 } else {
-                    html = $.extend(true, {}, html)
-                    for (let i in html) html[i] = this.decodeTags(html[i])
+                    html = extend({}, html)
+                    Object.keys(html).forEach(key => {
+                        html[key] = decodeTags(html[key])
+                    })
                 }
                 break
         }
@@ -551,14 +565,28 @@ let w2utils = (($) => {
     }
 
     function escapeId(id) {
+        // This logic is borrowed from jQuery
         if (id === '' || id == null) return ''
-        return $.escapeSelector(id)
-        // return String(id).replace(/([;&,\.\+\*\~'`:"\!\^#$%@\[\]\(\)=<>\|\/? {}\\])/g, '\\$1')
+        let re = /([\0-\x1f\x7f]|^-?\d)|^-$|[^\0-\x1f\x7f-\uFFFF\w-]/g
+        return (id + '').replace(re, (ch, asCodePoint) => {
+            if (asCodePoint) {
+                if (ch === "\0") return "\uFFFD"
+                return ch.slice( 0, -1 ) + "\\" + ch.charCodeAt( ch.length - 1 ).toString( 16 ) + " "
+            }
+            return "\\" + ch
+        })
     }
 
     function unescapeId(id) {
+        // This logic is borrowed from jQuery
         if (id === '' || id == null) return ''
-        return $.find.selectors.preFilter.ATTR([null, id])[1]
+        let re = /\\[\da-fA-F]{1,6}[\x20\t\r\n\f]?|\\([^\r\n\f])/g
+        return id.replace(re, (escape, nonHex) => {
+            var high = "0x" + escape.slice( 1 ) - 0x10000
+            return nonHex ? nonHex : high < 0
+                    ? String.fromCharCode(high + 0x10000 )
+                    : String.fromCharCode(high >> 10 | 0xD800, high & 0x3FF | 0xDC00)
+        })
     }
 
     function base64encode(input) {
@@ -915,217 +943,235 @@ let w2utils = (($) => {
     }
 
     function transition(div_old, div_new, type, callBack) {
-        let width  = $(div_old).width()
-        let height = $(div_old).height()
-        let time   = 0.5
+        return new Promise((resolve, reject) => {
+            let styles = div_old.computedStyleMap()
+            let width  = styles.get('width').value
+            let height = styles.get('height').value
+            let time   = 0.5
 
-        if (!div_old || !div_new) {
-            console.log('ERROR: Cannot do transition when one of the divs is null')
-            return
-        }
-
-        div_old.parentNode.style.cssText += 'perspective: 900px; overflow: hidden;'
-        div_old.style.cssText            += '; position: absolute; z-index: 1019; backface-visibility: hidden'
-        div_new.style.cssText            += '; position: absolute; z-index: 1020; backface-visibility: hidden'
-
-        switch (type) {
-            case 'slide-left':
-                // init divs
-                div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)'
-                div_new.style.cssText += 'overflow: hidden; transform: translate3d('+ width + 'px, 0, 0)'
-                $(div_new).show()
-                // -- need a timing function because otherwise not working
-                setTimeout(() => {
-                    div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)'
-                    div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d(-'+ width +'px, 0, 0)'
-                }, 1)
-                break
-
-            case 'slide-right':
-                // init divs
-                div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)'
-                div_new.style.cssText += 'overflow: hidden; transform: translate3d(-'+ width +'px, 0, 0)'
-                $(div_new).show()
-                // -- need a timing function because otherwise not working
-                setTimeout(() => {
-                    div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0px, 0, 0)'
-                    div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d('+ width +'px, 0, 0)'
-                }, 1)
-                break
-
-            case 'slide-down':
-                // init divs
-                div_old.style.cssText += 'overflow: hidden; z-index: 1; transform: translate3d(0, 0, 0)'
-                div_new.style.cssText += 'overflow: hidden; z-index: 0; transform: translate3d(0, 0, 0)'
-                $(div_new).show()
-                // -- need a timing function because otherwise not working
-                setTimeout(() => {
-                    div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)'
-                    div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, '+ height +'px, 0)'
-                }, 1)
-                break
-
-            case 'slide-up':
-                // init divs
-                div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)'
-                div_new.style.cssText += 'overflow: hidden; transform: translate3d(0, '+ height +'px, 0)'
-                $(div_new).show()
-                // -- need a timing function because otherwise not working
-                setTimeout(() => {
-                    div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)'
-                    div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)'
-                }, 1)
-                break
-
-            case 'flip-left':
-                // init divs
-                div_old.style.cssText += 'overflow: hidden; transform: rotateY(0deg)'
-                div_new.style.cssText += 'overflow: hidden; transform: rotateY(-180deg)'
-                $(div_new).show()
-                // -- need a timing function because otherwise not working
-                setTimeout(() => {
-                    div_new.style.cssText += 'transition: '+ time +'s; transform: rotateY(0deg)'
-                    div_old.style.cssText += 'transition: '+ time +'s; transform: rotateY(180deg)'
-                }, 1)
-                break
-
-            case 'flip-right':
-                // init divs
-                div_old.style.cssText += 'overflow: hidden; transform: rotateY(0deg)'
-                div_new.style.cssText += 'overflow: hidden; transform: rotateY(180deg)'
-                $(div_new).show()
-                // -- need a timing function because otherwise not working
-                setTimeout(() => {
-                    div_new.style.cssText += 'transition: '+ time +'s; transform: rotateY(0deg)'
-                    div_old.style.cssText += 'transition: '+ time +'s; transform: rotateY(-180deg)'
-                }, 1)
-                break
-
-            case 'flip-down':
-                // init divs
-                div_old.style.cssText += 'overflow: hidden; transform: rotateX(0deg)'
-                div_new.style.cssText += 'overflow: hidden; transform: rotateX(180deg)'
-                $(div_new).show()
-                // -- need a timing function because otherwise not working
-                setTimeout(() => {
-                    div_new.style.cssText += 'transition: '+ time +'s; transform: rotateX(0deg)'
-                    div_old.style.cssText += 'transition: '+ time +'s; transform: rotateX(-180deg)'
-                }, 1)
-                break
-
-            case 'flip-up':
-                // init divs
-                div_old.style.cssText += 'overflow: hidden; transform: rotateX(0deg)'
-                div_new.style.cssText += 'overflow: hidden; transform: rotateX(-180deg)'
-                $(div_new).show()
-                // -- need a timing function because otherwise not working
-                setTimeout(() => {
-                    div_new.style.cssText += 'transition: '+ time +'s; transform: rotateX(0deg)'
-                    div_old.style.cssText += 'transition: '+ time +'s; transform: rotateX(180deg)'
-                }, 1)
-                break
-
-            case 'pop-in':
-                // init divs
-                div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)'
-                div_new.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0); transform: scale(.8); opacity: 0;'
-                $(div_new).show()
-                // -- need a timing function because otherwise not working
-                setTimeout(() => {
-                    div_new.style.cssText += 'transition: '+ time +'s; transform: scale(1); opacity: 1;'
-                    div_old.style.cssText += 'transition: '+ time +'s;'
-                }, 1)
-                break
-
-            case 'pop-out':
-                // init divs
-                div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0); transform: scale(1); opacity: 1;'
-                div_new.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0); opacity: 0;'
-                $(div_new).show()
-                // -- need a timing function because otherwise not working
-                setTimeout(() => {
-                    div_new.style.cssText += 'transition: '+ time +'s; opacity: 1;'
-                    div_old.style.cssText += 'transition: '+ time +'s; transform: scale(1.7); opacity: 0;'
-                }, 1)
-                break
-
-            default:
-                // init divs
-                div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)'
-                div_new.style.cssText += 'overflow: hidden; translate3d(0, 0, 0); opacity: 0;'
-                $(div_new).show()
-                // -- need a timing function because otherwise not working
-                setTimeout(() => {
-                    div_new.style.cssText += 'transition: '+ time +'s; opacity: 1;'
-                    div_old.style.cssText += 'transition: '+ time +'s'
-                }, 1)
-                break
-        }
-
-        setTimeout(() => {
-            if (type === 'slide-down') {
-                $(div_old).css('z-index', '1019')
-                $(div_new).css('z-index', '1020')
+            if (!div_old || !div_new) {
+                console.log('ERROR: Cannot do transition when one of the divs is null')
+                return
             }
-            if (div_new) {
-                $(div_new).css({ 'opacity': '1' }).css(w2utils.cssPrefix({
-                    'transition': '',
-                    'transform' : ''
-                }))
+
+            div_old.parentNode.style.cssText += 'perspective: 900px; overflow: hidden;'
+            div_old.style.cssText            += '; position: absolute; z-index: 1019; backface-visibility: hidden'
+            div_new.style.cssText            += '; position: absolute; z-index: 1020; backface-visibility: hidden'
+
+            switch (type) {
+                case 'slide-left':
+                    // init divs
+                    div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)'
+                    div_new.style.cssText += 'overflow: hidden; transform: translate3d('+ width + 'px, 0, 0)'
+                    query(div_new).show()
+                    // -- need a timing function because otherwise not working
+                    setTimeout(() => {
+                        div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)'
+                        div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d(-'+ width +'px, 0, 0)'
+                    }, 1)
+                    break
+
+                case 'slide-right':
+                    // init divs
+                    div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)'
+                    div_new.style.cssText += 'overflow: hidden; transform: translate3d(-'+ width +'px, 0, 0)'
+                    query(div_new).show()
+                    // -- need a timing function because otherwise not working
+                    setTimeout(() => {
+                        div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0px, 0, 0)'
+                        div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d('+ width +'px, 0, 0)'
+                    }, 1)
+                    break
+
+                case 'slide-down':
+                    // init divs
+                    div_old.style.cssText += 'overflow: hidden; z-index: 1; transform: translate3d(0, 0, 0)'
+                    div_new.style.cssText += 'overflow: hidden; z-index: 0; transform: translate3d(0, 0, 0)'
+                    query(div_new).show()
+                    // -- need a timing function because otherwise not working
+                    setTimeout(() => {
+                        div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)'
+                        div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, '+ height +'px, 0)'
+                    }, 1)
+                    break
+
+                case 'slide-up':
+                    // init divs
+                    div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)'
+                    div_new.style.cssText += 'overflow: hidden; transform: translate3d(0, '+ height +'px, 0)'
+                    query(div_new).show()
+                    // -- need a timing function because otherwise not working
+                    setTimeout(() => {
+                        div_new.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)'
+                        div_old.style.cssText += 'transition: '+ time +'s; transform: translate3d(0, 0, 0)'
+                    }, 1)
+                    break
+
+                case 'flip-left':
+                    // init divs
+                    div_old.style.cssText += 'overflow: hidden; transform: rotateY(0deg)'
+                    div_new.style.cssText += 'overflow: hidden; transform: rotateY(-180deg)'
+                    query(div_new).show()
+                    // -- need a timing function because otherwise not working
+                    setTimeout(() => {
+                        div_new.style.cssText += 'transition: '+ time +'s; transform: rotateY(0deg)'
+                        div_old.style.cssText += 'transition: '+ time +'s; transform: rotateY(180deg)'
+                    }, 1)
+                    break
+
+                case 'flip-right':
+                    // init divs
+                    div_old.style.cssText += 'overflow: hidden; transform: rotateY(0deg)'
+                    div_new.style.cssText += 'overflow: hidden; transform: rotateY(180deg)'
+                    query(div_new).show()
+                    // -- need a timing function because otherwise not working
+                    setTimeout(() => {
+                        div_new.style.cssText += 'transition: '+ time +'s; transform: rotateY(0deg)'
+                        div_old.style.cssText += 'transition: '+ time +'s; transform: rotateY(-180deg)'
+                    }, 1)
+                    break
+
+                case 'flip-down':
+                    // init divs
+                    div_old.style.cssText += 'overflow: hidden; transform: rotateX(0deg)'
+                    div_new.style.cssText += 'overflow: hidden; transform: rotateX(180deg)'
+                    query(div_new).show()
+                    // -- need a timing function because otherwise not working
+                    setTimeout(() => {
+                        div_new.style.cssText += 'transition: '+ time +'s; transform: rotateX(0deg)'
+                        div_old.style.cssText += 'transition: '+ time +'s; transform: rotateX(-180deg)'
+                    }, 1)
+                    break
+
+                case 'flip-up':
+                    // init divs
+                    div_old.style.cssText += 'overflow: hidden; transform: rotateX(0deg)'
+                    div_new.style.cssText += 'overflow: hidden; transform: rotateX(-180deg)'
+                    query(div_new).show()
+                    // -- need a timing function because otherwise not working
+                    setTimeout(() => {
+                        div_new.style.cssText += 'transition: '+ time +'s; transform: rotateX(0deg)'
+                        div_old.style.cssText += 'transition: '+ time +'s; transform: rotateX(180deg)'
+                    }, 1)
+                    break
+
+                case 'pop-in':
+                    // init divs
+                    div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)'
+                    div_new.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0); transform: scale(.8); opacity: 0;'
+                    query(div_new).show()
+                    // -- need a timing function because otherwise not working
+                    setTimeout(() => {
+                        div_new.style.cssText += 'transition: '+ time +'s; transform: scale(1); opacity: 1;'
+                        div_old.style.cssText += 'transition: '+ time +'s;'
+                    }, 1)
+                    break
+
+                case 'pop-out':
+                    // init divs
+                    div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0); transform: scale(1); opacity: 1;'
+                    div_new.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0); opacity: 0;'
+                    query(div_new).show()
+                    // -- need a timing function because otherwise not working
+                    setTimeout(() => {
+                        div_new.style.cssText += 'transition: '+ time +'s; opacity: 1;'
+                        div_old.style.cssText += 'transition: '+ time +'s; transform: scale(1.7); opacity: 0;'
+                    }, 1)
+                    break
+
+                default:
+                    // init divs
+                    div_old.style.cssText += 'overflow: hidden; transform: translate3d(0, 0, 0)'
+                    div_new.style.cssText += 'overflow: hidden; translate3d(0, 0, 0); opacity: 0;'
+                    query(div_new).show()
+                    // -- need a timing function because otherwise not working
+                    setTimeout(() => {
+                        div_new.style.cssText += 'transition: '+ time +'s; opacity: 1;'
+                        div_old.style.cssText += 'transition: '+ time +'s'
+                    }, 1)
+                    break
             }
-            if (div_old) {
-                $(div_old).css({ 'opacity': '1' }).css(w2utils.cssPrefix({
-                    'transition': '',
-                    'transform' : ''
-                }))
-            }
-            if (typeof callBack === 'function') callBack()
-        }, time * 1000)
+
+            setTimeout(() => {
+                if (type === 'slide-down') {
+                    query(div_old).css('z-index', '1019')
+                    query(div_new).css('z-index', '1020')
+                }
+                if (div_new) {
+                    query(div_new)
+                        .css({ 'opacity': '1' })
+                        .css({ 'transition': '', 'transform' : '' })
+                }
+                if (div_old) {
+                    query(div_old)
+                        .css({ 'opacity': '1' })
+                        .css({ 'transition': '', 'transform' : '' })
+                }
+                if (typeof callBack === 'function') callBack()
+                resolve()
+            }, time * 1000)
+        })
     }
 
-    function lock(box, msg, spinner) {
-        let options = {}
-        if (typeof msg === 'object') {
-            options = msg
-        } else {
-            options.msg     = msg
-            options.spinner = spinner
+    function lock(box, options = {}) {
+        if (typeof options == 'string') {
+            options = { msg: options }
+        }
+        if (arguments[2]) {
+            options.spinner = arguments[2]
+        }
+        options = extend({
+            // opacity: 0.3, // default comes from css
+            spinner: false
+        }, options)
+        // for backward compatibility
+        if (box && !(box instanceof HTMLElement) && box[0] instanceof HTMLElement) {
+            box = box.get()
         }
         if (!options.msg && options.msg !== 0) options.msg = ''
         w2utils.unlock(box)
-        $(box).prepend(
+        query(box).prepend(
             '<div class="w2ui-lock"></div>'+
             '<div class="w2ui-lock-msg"></div>'
         )
-        let $lock = $(box).find('.w2ui-lock')
-        let mess  = $(box).find('.w2ui-lock-msg')
-        if (!options.msg) mess.css({
-            'background-color': 'transparent',
-            'background-image': 'none',
-            'border': '0px',
-            'box-shadow': 'none'
-        })
-        if (options.spinner === true) options.msg = '<div class="w2ui-spinner" '+ (!options.msg ? 'style="width: 35px; height: 35px"' : '') +'></div>' + options.msg
-        if (options.opacity != null) $lock.css('opacity', options.opacity)
-        if (typeof $lock.fadeIn === 'function') {
-            $lock.fadeIn(200)
-            mess.html(options.msg).fadeIn(200)
-        } else {
-            $lock.show()
-            mess.html(options.msg).show(0)
+        let $lock = query(box).find('.w2ui-lock')
+        let $mess = query(box).find('.w2ui-lock-msg')
+        if (!options.msg) {
+            $mess.css({
+                'background-color': 'transparent',
+                'background-image': 'none',
+                'border': '0px',
+                'box-shadow': 'none'
+            })
         }
+        if (options.spinner === true) {
+            options.msg = `<div class="w2ui-spinner" ${(!options.msg ? 'style="width: 35px; height: 35px"' : '')}></div>`
+                + options.msg
+        }
+        if (options.opacity != null) {
+            $lock.css('opacity', options.opacity)
+        }
+        $lock.css({ display: 'block' })
+        $mess.html(options.msg).css('display', 'block')
     }
 
     function unlock(box, speed) {
+        // for backward compatibility
+        if (box && !(box instanceof HTMLElement) && box[0] instanceof HTMLElement) {
+            box = box.get()
+        }
         if (isInt(speed)) {
-            $(box).find('.w2ui-lock').fadeOut(speed)
+            query(box).find('.w2ui-lock').css({
+                transition: (speed/1000) + 's',
+                opacity: 0,
+            })
+            query(box).find('.w2ui-lock-msg').remove()
             setTimeout(() => {
-                $(box).find('.w2ui-lock').remove()
-                $(box).find('.w2ui-lock-msg').remove()
+                query(box).find('.w2ui-lock').remove()
             }, speed)
         } else {
-            $(box).find('.w2ui-lock').remove()
-            $(box).find('.w2ui-lock-msg').remove()
+            query(box).find('.w2ui-lock').remove()
+            query(box).find('.w2ui-lock-msg').remove()
         }
     }
 
@@ -1140,19 +1186,22 @@ let w2utils = (($) => {
             // var where.path    = 'w2popup';
             // var where.title   = '.w2ui-popup-title';
             // var where.body    = '.w2ui-box';
-            $().w2tag() // hide all tags
+            // TODO: hide all tag, do you need it??
+            // w2tooltip.hide() // hide all tags
             if (!options) options = { width: 200, height: 100 }
             if (options.on == null) {
                 // mix in events
                 let opts = options
                 options = new w2event()
-                $.extend(options, opts)
+                extend(options, opts)
             }
             if (options.width == null) options.width = 200
             if (options.height == null) options.height = 100
-            let pWidth      = parseInt($(where.box).width())
-            let pHeight     = parseInt($(where.box).height())
-            let titleHeight = parseInt($(where.box).find(where.title).css('height') || 0)
+            let styles  = query(where.box)[0].computedStyleMap()
+            let pWidth  = styles.get('width').value
+            let pHeight = styles.get('height').value
+            styles  = query(where.box).find(where.title)[0].computedStyleMap()
+            let titleHeight = parseInt(styles.get('display').value != 'none' ? styles.get('height').value : 0)
             if (options.width > pWidth) options.width = pWidth - 10
             if (options.height > pHeight - titleHeight) options.height = pHeight - 10 - titleHeight
             options.originalWidth  = options.width
@@ -1162,7 +1211,7 @@ let w2utils = (($) => {
             if (parseInt(options.height) < 0) options.height = pHeight + options.height - titleHeight
             if (parseInt(options.height) < 10) options.height = 10
             if (options.hideOnClick == null) options.hideOnClick = false
-            let poptions = $(where.box).data('options') || {}
+            let poptions = query(where.box).data('options') || {}
             if (options.width == null || options.width > poptions.width - 10) {
                 options.width = poptions.width - 10
             }
@@ -1172,19 +1221,19 @@ let w2utils = (($) => {
             // negative value means margin
             if (options.originalHeight < 0) options.height = pHeight + options.originalHeight - titleHeight
             if (options.originalWidth < 0) options.width = pWidth + options.originalWidth * 2 // x 2 because there is left and right margin
-            let head = $(where.box).find(where.title)
+            let head = query(where.box).find(where.title)
 
             // if some messages are closing, instantly close them
-            let $tmp = $(where.box).find('.w2ui-message.w2ui-closing')
-            if ($(where.box).find('.w2ui-message.w2ui-closing').length > 0) {
+            let $tmp = query(where.box).find('.w2ui-message.w2ui-closing')
+            if (query(where.box).find('.w2ui-message.w2ui-closing').length > 0) {
                 clearTimeout(closeTimer)
                 closeCB($tmp, $tmp.data('options') || {})
             }
-            let msgCount = $(where.box).find('.w2ui-message').length
+            let msgCount = query(where.box).find('.w2ui-message').length
             // remove message
             if ((options.html || '').trim() === '' && (options.body || '').trim() === '' && (options.buttons || '').trim() === '') {
                 if (msgCount === 0) return // no messages at all
-                let $msg = $(where.box).find('#w2ui-message'+ (msgCount-1))
+                let $msg = query(where.box).find('#w2ui-message'+ (msgCount-1))
                 options  = $msg.data('options') || {}
                 // before event
                 if (options.trigger) {
@@ -1192,16 +1241,17 @@ let w2utils = (($) => {
                     if (edata.isCancelled === true) return
                 }
                 // default behavior
-                $msg.css(w2utils.cssPrefix({
-                    'transition': '0.15s',
-                    'transform': 'translateY(-' + options.height + 'px)'
-                })).addClass('w2ui-closing animating')
+                $msg.css({
+                        'transition': '0.15s',
+                        'transform': 'translateY(-' + options.height + 'px)'
+                    })
+                    .addClass('w2ui-closing animating')
                 if (msgCount === 1) {
                     if (this.unlock) {
                         if (where.param) this.unlock(where.param, 150); else this.unlock(150)
                     }
                 } else {
-                    $(where.box).find('#w2ui-message'+ (msgCount-2)).css('z-index', 1500)
+                    query(where.box).find('#w2ui-message'+ (msgCount-2)).css('z-index', 1500)
                 }
                 closeTimer = setTimeout(() => { closeCB($msg, options) }, 150)
 
@@ -1212,17 +1262,17 @@ let w2utils = (($) => {
                         '<div class="w2ui-message-buttons">'+ (options.buttons || '') +'</div>'
                 }
                 // hide previous messages
-                $(where.box).find('.w2ui-message').css('z-index', 1390)
+                query(where.box).find('.w2ui-message').css('z-index', 1390)
                 head.data('old-z-index', head.css('z-index'))
                 head.css('z-index', 1501)
                 // add message
-                $(where.box).find(where.body)
+                query(where.box).find(where.body)
                     .before('<div id="w2ui-message' + msgCount + '" data-mousedown="stop" '+
                             '   class="w2ui-message" style="display: none; z-index: 1500; ' +
-                                (head.length === 0 ? 'top: 0px;' : 'top: ' + w2utils.getSize(head, 'height') + 'px;') +
+                                'top: ' + titleHeight + 'px;'+
                                 (options.width != null ? 'width: ' + options.width + 'px; left: ' + ((pWidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
                                 (options.height != null ? 'height: ' + options.height + 'px;' : 'bottom: 6px;') +
-                                w2utils.cssPrefix('transition', '.3s', true) + '"' +
+                                'transition: .3s"' +
                                 (options.hideOnClick === true
                                     ? where.param
                                         ? `data-click='["message", "${where.param}"]`
@@ -1230,31 +1280,31 @@ let w2utils = (($) => {
                                     : '') + '>' +
                             '</div>')
                 bindEvents('#w2ui-message' + msgCount, this)
-                $(where.box).find('#w2ui-message'+ msgCount)
+                query(where.box).find('#w2ui-message'+ msgCount)
                     .addClass('animating')
                     .data('options', options)
-                    .data('prev_focus', $(':focus'))
-                let display = $(where.box).find('#w2ui-message'+ msgCount).css('display')
-                $(where.box).find('#w2ui-message'+ msgCount).css(w2utils.cssPrefix({
+                    .data('prev_focus', document.activeElement)
+                let display = query(where.box).find('#w2ui-message'+ msgCount).css('display')
+                query(where.box).find('#w2ui-message'+ msgCount).css({
                     'transform': (display === 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)')
-                }))
+                })
                 if (display === 'none') {
-                    $(where.box).find('#w2ui-message'+ msgCount).show().html(options.html)
-                    options.box = $(where.box).find('#w2ui-message'+ msgCount)
+                    query(where.box).find('#w2ui-message'+ msgCount).show().html(options.html)
+                    options.box = query(where.box).find('#w2ui-message'+ msgCount)
                     // before event
                     if (options.trigger) {
                         edata = options.trigger({ phase: 'before', type: 'open', target: 'self', box: options.box[0] })
                         if (edata.isCancelled === true) {
                             head.css('z-index', head.data('old-z-index'))
-                            $(where.box).find('#w2ui-message'+ msgCount).remove()
+                            query(where.box).find('#w2ui-message'+ msgCount).remove()
                             return
                         }
                     }
                     // timer needs to animation
                     setTimeout(() => {
-                        $(where.box).find('#w2ui-message'+ msgCount).css(w2utils.cssPrefix({
+                        query(where.box).find('#w2ui-message'+ msgCount).css({
                             'transform': (display === 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)')
-                        }))
+                        })
                     }, 1)
                     // timer for lock
                     if (msgCount === 0 && this.lock) {
@@ -1262,15 +1312,15 @@ let w2utils = (($) => {
                     }
                     setTimeout(() => {
                         // has to be on top of lock
-                        $(where.box)
+                        query(where.box)
                             .find('#w2ui-message'+ msgCount)
                             .removeClass('animating')
-                            .css(w2utils.cssPrefix({ 'transition': '0s' }))
+                            .css({ 'transition': '0s' })
                         // event after
                         if (options.trigger) {
-                            options.trigger($.extend(edata, { phase: 'after' }))
+                            options.trigger(extend(edata, { phase: 'after' }))
                             resolve({
-                                box: $(where.box).find('#w2ui-message'+ msgCount)
+                                box: query(where.box).find('#w2ui-message'+ msgCount)[0]
                             })
                         }
                     }, 350)
@@ -1284,29 +1334,29 @@ let w2utils = (($) => {
                         edata = options.trigger({ phase: 'before', type: 'close', target: 'self' })
                         if (edata.isCancelled === true) {
                             head.css('z-index', head.data('old-z-index'))
-                            $(where.box).find('#w2ui-message'+ msgCount).remove()
+                            query(where.box).find('#w2ui-message'+ msgCount).remove()
                             return
                         }
                     }
                 }
-                let $focus = $msg.data('prev_focus')
+                let focus = $msg.data('prev_focus')
                 $msg.remove()
-                if ($focus && $focus.length > 0) {
-                    $focus.focus()
+                if (focus) {
+                    focus.focus()
                 } else {
                     if (obj && typeof obj.focus == 'function') obj.focus()
                 }
                 head.css('z-index', head.data('old-z-index'))
                 // event after
                 if (options.trigger) {
-                    options.trigger($.extend(edata, { phase: 'after' }))
+                    options.trigger(extend(edata, { phase: 'after' }))
                 }
             }
         })
     }
 
     function getSize(el, type) {
-        let $el    = $(el)
+        let $el = $(el)
         let bwidth = {
             left    : parseInt($el.css('border-left-width')) || 0,
             right   : parseInt($el.css('border-right-width')) || 0,
@@ -1325,13 +1375,54 @@ let w2utils = (($) => {
             top     : parseInt($el.css('padding-top')) || 0,
             bottom  : parseInt($el.css('padding-bottom')) || 0
         }
+
         switch (type) {
             case 'top' : return bwidth.top + mwidth.top + pwidth.top
             case 'bottom' : return bwidth.bottom + mwidth.bottom + pwidth.bottom
             case 'left' : return bwidth.left + mwidth.left + pwidth.left
             case 'right' : return bwidth.right + mwidth.right + pwidth.right
-            case 'width' : return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right + parseInt($el.width())
-            case 'height' : return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom + parseInt($el.height())
+            case 'width' : return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right + parseInt($(el).width())
+            case 'height' : return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom + parseInt($(el).height())
+            case '+width' : return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right
+            case '+height' : return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom
+        }
+        return 0
+    }
+
+    function getSize_new(el, type) {
+        // for backward compatibility
+        if (el && !(el instanceof HTMLElement) && el[0] instanceof HTMLElement) {
+            el = el.get()
+        }
+        // styles
+        let styles = el.computedStyleMap ? el.computedStyleMap() : { get() { return { value: 0 } }}
+        let bwidth = {
+            left    : parseInt(styles.get('border-left-width').value) || 0,
+            right   : parseInt(styles.get('border-right-width').value) || 0,
+            top     : parseInt(styles.get('border-top-width').value) || 0,
+            bottom  : parseInt(styles.get('border-bottom-width').value) || 0
+        }
+        let mwidth = {
+            left    : parseInt(styles.get('margin-left').value) || 0,
+            right   : parseInt(styles.get('margin-right').value) || 0,
+            top     : parseInt(styles.get('margin-top').value) || 0,
+            bottom  : parseInt(styles.get('margin-bottom').value) || 0
+        }
+        let pwidth = {
+            left    : parseInt(styles.get('padding-left').value) || 0,
+            right   : parseInt(styles.get('padding-right').value) || 0,
+            top     : parseInt(styles.get('padding-top').value) || 0,
+            bottom  : parseInt(styles.get('padding-bottom').value) || 0
+        }
+        let width = styles.get('width').value
+        let height = styles.get('height').value
+        switch (type) {
+            case 'top' : return bwidth.top + mwidth.top + pwidth.top
+            case 'bottom' : return bwidth.bottom + mwidth.bottom + pwidth.bottom
+            case 'left' : return bwidth.left + mwidth.left + pwidth.left
+            case 'right' : return bwidth.right + mwidth.right + pwidth.right
+            case 'width' : return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right + parseInt(width)
+            case 'height' : return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom + parseInt(height)
             case '+width' : return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right
             case '+height' : return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom
         }
@@ -1382,26 +1473,36 @@ let w2utils = (($) => {
         return execTemplate(translation, params)
     }
 
-    function locale(locale, keepPhrases) {
+    function locale(locale, keepPhrases, noMerge) {
         return new Promise((resolve, reject) => {
             // if locale is an array we call this function recursively and merge the results
             if (Array.isArray(locale)) {
                 w2utils.settings.phrases = {}
                 let proms = []
-                locale.forEach(file => {
-                    proms.push(w2utils.locale(file, true))
+                let files = {}
+                locale.forEach((file, ind) => {
+                    if (file.length === 5) {
+                        file = 'locale/'+ file.toLowerCase() +'.json'
+                        locale[ind] = file
+                    }
+                    proms.push(w2utils.locale(file, true, false))
                 })
                 Promise.allSettled(proms)
                     .then(res => {
-                        resolve(res.map(r => r.value))
+                        // order of files is important to merge
+                        res.forEach(r => { files[r.value.file] = r.value.data })
+                        locale.forEach(file => {
+                            w2utils.settings = extend({}, w2utils.settings, files[file])
+                        })
+                        resolve()
                     })
                 return
             }
             if (!locale) locale = 'en-us'
 
             // if locale is an object, then merge it with w2utils.settings
-            if ($.isPlainObject(locale)) {
-                w2utils.settings = $.extend(true, {}, w2utils.settings, w2locale, locale)
+            if (locale instanceof Object) {
+                w2utils.settings = extend({}, w2utils.settings, w2locale, locale)
                 return
             }
 
@@ -1410,38 +1511,37 @@ let w2utils = (($) => {
             }
 
             // load from the file
-            $.ajax({
-                url: locale,
-                type: 'GET',
-                dataType: 'JSON',
-                success(data, status, xhr) {
-                    if (keepPhrases) {
-                        // keep phrases, useful for recursive calls
-                        w2utils.settings = $.extend(true, {}, w2utils.settings, data)
-                    } else {
-                        // clear phrases from language before merging
-                        w2utils.settings = $.extend(true, {}, w2utils.settings, w2locale, { phrases: {} }, data)
+            fetch(locale, { method: 'GET' })
+                .then(res => res.json())
+                .then(data => {
+                    if (noMerge !== true) {
+                        if (keepPhrases) {
+                            // keep phrases, useful for recursive calls
+                            w2utils.settings = extend({}, w2utils.settings, data)
+                        } else {
+                            // clear phrases from language before merging
+                            w2utils.settings = extend({}, w2utils.settings, w2locale, { phrases: {} }, data)
+                        }
                     }
-                    resolve(data)
-                },
-                error(xhr, status, msg) {
+                    resolve({ file: locale, data })
+                })
+                .catch((err) => {
                     console.log('ERROR: Cannot load locale '+ locale)
-                    reject(msg)
-                }
-            })
+                    reject(err)
+                })
         })
     }
 
     function scrollBarSize() {
         if (tmp.scrollBarSize) return tmp.scrollBarSize
-        let html =
-            '<div id="_scrollbar_width" style="position: absolute; top: -300px; width: 100px; height: 100px; overflow-y: scroll;">'+
-            '    <div style="height: 120px">1</div>'+
-            '</div>'
-        $('body').append(html)
-        tmp.scrollBarSize = 100 - $('#_scrollbar_width > div').width()
-        $('#_scrollbar_width').remove()
-        if (String(navigator.userAgent).indexOf('MSIE') >= 0) tmp.scrollBarSize = tmp.scrollBarSize / 2 // need this for IE9+
+        let html = `
+            <div id="_scrollbar_width" style="position: absolute; top: -300px; width: 100px; height: 100px; overflow-y: scroll;">
+                <div style="height: 120px">1</div>
+            </div>
+        `
+        query('body').append(html)
+        tmp.scrollBarSize = 100 - query('#_scrollbar_width > div')[0].clientWidth
+        query('#_scrollbar_width').remove()
         return tmp.scrollBarSize
     }
 
@@ -1495,7 +1595,7 @@ let w2utils = (($) => {
         let css    = {}
         let newCSS = {}
         let ret    = ''
-        if (!$.isPlainObject(field)) {
+        if (!(field instanceof Object)) {
             css[field] = value
         } else {
             css = field
@@ -1553,9 +1653,9 @@ let w2utils = (($) => {
         let el, sel = window.getSelection()
         if (input == null) return
         for (let i = 0; i < input.childNodes.length; i++) {
-            let tmp = $(input.childNodes[i]).text()
+            let tmp = query(input.childNodes[i]).text()
             if (input.childNodes[i].tagName) {
-                tmp = $(input.childNodes[i]).html()
+                tmp = query(input.childNodes[i]).html()
                 tmp = tmp.replace(/&lt;/g, '<')
                     .replace(/&gt;/g, '>')
                     .replace(/&amp;/g, '&')
@@ -1740,6 +1840,9 @@ let w2utils = (($) => {
             ret.forEach((value, ind) => {
                 ret[ind] = clone(value)
             })
+        } else if (obj instanceof HTMLElement) {
+            // do not clone HTML Elements
+            ret = obj
         } else if (obj != null && typeof obj == 'object') {
             ret = {}
             Object.assign(ret, obj)
@@ -1851,15 +1954,20 @@ let w2utils = (($) => {
         // <div ... data-<event>='["<method>","param1","param2",...]'> -- should be valid JSON (no undefined)
         // <div ... data-<event>="<method>|param1|param2">
         // -- can have "event", "this", "stop", "stopPrevent", "alert" - as predefined objects
-        $(selector).each((ind, el) => {
-            let actions = $(el).data()
+        if (selector.length == 0) return
+        // for backward compatibility
+        if (selector && !(selector instanceof HTMLElement) && selector[0] instanceof HTMLElement) {
+            selector = selector.get()
+        }
+        query(selector).each((el) => {
+            let actions = query(el).data()
             Object.keys(actions).forEach(name => {
                 let events = ['click', 'dblclick', 'mouseenter', 'mouseleave', 'mouseover', 'mouseout', 'mousedown', 'mousemove', 'mouseup',
                     'contextmenu', 'focus', 'blur', 'input', 'change', 'keydown', 'keyup', 'keypress']
                 if (events.indexOf(String(name).toLowerCase()) == -1) {
                     return
                 }
-                let params = $(el).data(name)
+                let params = actions[name]
                 if (typeof params == 'string') {
                     params = params.split('|').map(key => {
                         if (key === 'true') key = true
@@ -1872,7 +1980,7 @@ let w2utils = (($) => {
                 }
                 let method = params[0]
                 params = params.slice(1) // should be new array
-                $(el)
+                query(el)
                     .off(name + '.w2utils-bind')
                     .on(name + '.w2utils-bind', function(event) {
                         switch (method) {

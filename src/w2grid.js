@@ -8661,7 +8661,7 @@ class w2grid extends w2event {
         w2utils.message.call(this, {
                 box   : this.box,
                 path  : 'w2ui.' + this.name,
-                title : '.w2ui-grid-header:visible',
+                title : '.w2ui-grid-header',
                 body  : '.w2ui-grid-box'
             }, options)
         .then((event) => {
@@ -8744,7 +8744,7 @@ class w2grid extends w2event {
         w2utils.message.call(this, {
                 box   : this.box,
                 path  : 'w2ui.' + this.name,
-                title : '.w2ui-grid-header:visible',
+                title : '.w2ui-grid-header',
                 body  : '.w2ui-grid-box'
             }, options)
         .then((event) => {

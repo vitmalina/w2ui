@@ -703,6 +703,7 @@ class w2dialog extends w2event {
     focus() {
         let tmp = null
         let pop = $('#w2ui-popup')
+        // TODO: jquery only :visible
         let sel = 'input:visible, button:visible, select:visible, textarea:visible, [contentEditable], .w2ui-input'
         // clear previous blur
         $(pop).find(sel).off('.keep-focus')

@@ -235,7 +235,7 @@ class w2layout extends w2event {
                 box   : $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type),
                 param : panel,
                 path  : 'w2ui.' + this.name,
-                title : '.w2ui-panel-title:visible',
+                title : '.w2ui-panel-title',
                 body  : '.w2ui-panel-content'
             }, options)
         .then((event) => {
@@ -333,7 +333,7 @@ class w2layout extends w2event {
                 box   : $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type),
                 param : panel,
                 path  : 'w2ui.' + this.name,
-                title : '.w2ui-panel-title:visible',
+                title : '.w2ui-panel-title',
                 body  : '.w2ui-panel-content'
             }, options)
         .then((res) => {
