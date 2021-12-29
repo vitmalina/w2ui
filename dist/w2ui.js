@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (12/27/2021, 2:40:45 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/28/2021, 8:35:25 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -2188,6 +2188,7 @@ w2utils.formatters = {
 *   - promise for request, load, save, etc.
 *   - remote date local sort/search
 *   - colDefaults -> col_template as in tabs, toolbar, etc
+*   - prepareData needs help page
 *
 * == DEMOS To create ==
 *   - batch for disabled buttons
@@ -2949,7 +2950,7 @@ class w2grid extends w2event {
         // process sortData
         for (let i = 0; i < this.sortData.length; i++) {
             let column = this.getColumn(this.sortData[i].field)
-            if (!column) return
+            if (!column) return // TODO: ability to sort columns when they are not part of colums array
             if (typeof column.render == 'string') {
                 if (['date', 'age'].indexOf(column.render.split(':')[0]) != -1) {
                     this.sortData[i].field_ = column.field + '_'
@@ -6825,7 +6826,7 @@ class w2grid extends w2event {
         this.trigger($.extend(edata, { phase: 'after' }))
         return (new Date()).getTime() - time
     }
-    update({ cells, fullCellRefresh, ignoreColumns }) {
+    update({ cells, fullCellRefresh, ignoreColumns } = {}) {
         let time = (new Date()).getTime()
         let self = this
         if (this.box == null) return 0
@@ -6905,9 +6906,6 @@ class w2grid extends w2event {
                     cell.classList.forEach(cl => { if (!ignore.includes(cl)) remove.push(cl)})
                     cell.classList.remove(...remove)
                     cell.classList.add(...add)
-                }
-                if (attrCell != '' || attrData != '') {
-                    console.log('Render function returned attributes that required full cell refresh (grid.update is not enough)')
                 }
             }
             // column styles if any (lower priority)
@@ -14114,7 +14112,7 @@ class w2toolbar extends w2event {
                         }
                         function hideDrop(event) {
                             it.checked = false
-                            $(btn).removeClass('checked')
+                            $(obj.box).find(btn).removeClass('checked')
                         }
                     }, 1)
                 }
@@ -14122,9 +14120,9 @@ class w2toolbar extends w2event {
             if (['check', 'menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
                 it.checked = !it.checked
                 if (it.checked) {
-                    $(btn).addClass('checked')
+                    $(this.box).find(btn).addClass('checked')
                 } else {
-                    $(btn).removeClass('checked')
+                    $(this.box).find(btn).removeClass('checked')
                 }
             }
             // route processing
