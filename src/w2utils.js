@@ -1126,7 +1126,7 @@ let w2utils = (($) => {
         }, options)
         // for backward compatibility
         if (box && !(box instanceof HTMLElement) && box[0] instanceof HTMLElement) {
-            box = box.get()
+            box = Array.isArray(box) ? box : box.get()
         }
         if (!options.msg && options.msg !== 0) options.msg = ''
         w2utils.unlock(box)
@@ -1158,7 +1158,7 @@ let w2utils = (($) => {
     function unlock(box, speed) {
         // for backward compatibility
         if (box && !(box instanceof HTMLElement) && box[0] instanceof HTMLElement) {
-            box = box.get()
+            box = Array.isArray(box) ? box : box.get()
         }
         if (isInt(speed)) {
             query(box).find('.w2ui-lock').css({
@@ -1392,7 +1392,7 @@ let w2utils = (($) => {
     function getSize_new(el, type) {
         // for backward compatibility
         if (el && !(el instanceof HTMLElement) && el[0] instanceof HTMLElement) {
-            el = el.get()
+            el = Array.isArray(el) ? el : el.get()
         }
         // styles
         let styles = el.computedStyleMap ? el.computedStyleMap() : { get() { return { value: 0 } }}
@@ -1957,7 +1957,7 @@ let w2utils = (($) => {
         if (selector.length == 0) return
         // for backward compatibility
         if (selector && !(selector instanceof HTMLElement) && selector[0] instanceof HTMLElement) {
-            selector = selector.get()
+            selector = Array.isArray(selector) ? selector : selector.get()
         }
         query(selector).each((el) => {
             let actions = query(el).data()
