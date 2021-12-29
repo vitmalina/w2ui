@@ -406,7 +406,7 @@ class w2toolbar extends w2event {
                         }
                         function hideDrop(event) {
                             it.checked = false
-                            $(btn).removeClass('checked')
+                            $(obj.box).find(btn).removeClass('checked')
                         }
                     }, 1)
                 }
@@ -415,9 +415,9 @@ class w2toolbar extends w2event {
             if (['check', 'menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
                 it.checked = !it.checked
                 if (it.checked) {
-                    $(btn).addClass('checked')
+                    $(this.box).find(btn).addClass('checked')
                 } else {
-                    $(btn).removeClass('checked')
+                    $(this.box).find(btn).removeClass('checked')
                 }
             }
             // route processing
