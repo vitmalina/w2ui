@@ -1,6 +1,6 @@
 /************************************************************************
 *   Part of w2ui 2.0 library
-*   - Dependencies: w2utils
+*   - Dependencies: w2utils, w2event mQuery
 *
 ************************************************************************/
 
@@ -8,7 +8,7 @@ import { w2event } from './w2event.js'
 import { query } from './query.js'
 import { w2utils } from './w2utils.js'
 
-class w2popper extends w2event {
+class Popper extends w2event {
 
     constructor() {
         // TODO: what events are used for?
@@ -22,7 +22,7 @@ class w2popper extends w2event {
             auto            : null,     // if auto true, then tooltip will show on mouseEnter and hide on mouseLeave
             showOn          : null,     // when options.auto = true, mouse event to show on
             hideOn          : null,     // when options.auto = true, mouse event to hide on
-            // TOODO: not done
+            // TODO: not done
             align           : 'none',   // can be none, left, right, both (only works for position: top | bottom)
             left            : 0,        // delta for left coordinate
             top             : 0,        // delta for top coordinate
@@ -54,6 +54,7 @@ class w2popper extends w2event {
 
     show(anchor, text) {
         let options, tag
+        let self = this
         if (arguments.length == 0) {
             return
         } else if (arguments.length == 1 && anchor.anchor) {
@@ -69,7 +70,6 @@ class w2popper extends w2event {
         delete options.anchor
 
         if (options.auto === true || options.showOn != null || options.hideOn != null) {
-            let self
             query(anchor).each((el, ind) => {
                 let showOn = 'mouseenter', hideOn = 'mouseleave'
                 if (options.showOn) {
@@ -84,11 +84,11 @@ class w2popper extends w2event {
                     .off('.w2tag-auto')
                     .on(showOn + '.w2tag-auto', function (event) {
                         options.auto = false
-                        w2tooltip.show(this, options)
+                        self.show(this, options)
                     })
                     .on(hideOn + '.w2tag-auto', function (event) {
                         let tag = query(this).data('w2tag')
-                        if (tag) w2tooltip.hide(tag.id)
+                        if (tag) self.hide(tag.id)
                     })
             })
         } else {
@@ -112,7 +112,7 @@ class w2popper extends w2event {
             }
             tagStyles += ' max-height: '+ (tag.options.maxHeight ? tag.options.maxHeight : window.innerHeight - 40) + 'px;'
             if (text === '' || text == null) {
-                w2tooltip.hide(tag.id)
+                self.hide(tag.id)
             } else if (tag.box) {
                 query(tag.box)
                     .find('.w2ui-tag-body')
@@ -176,7 +176,7 @@ class w2popper extends w2event {
         let tag
         if (arguments.length == 0) {
             Object.keys(this.active).forEach(id => {
-                w2tooltip.hide(id)
+                this.hide(id)
             })
             return
         } else if (typeof id == 'string') {
@@ -185,9 +185,10 @@ class w2popper extends w2event {
             let q = query(id)
             if (q.length > 0) {
                 tag = q.data('w2tag')
+                id = tag.id
             }
         }
-        if (!tag.box) return
+        if (!tag || !tag.box) return
         if (tag.tmp.timer) clearTimeout(tag.tmp.timer)
         tag.box.remove()
         query(tag.anchor)
@@ -201,17 +202,18 @@ class w2popper extends w2event {
                 .removeClass(tag.options.inputClass)
         }
         query('body').off('.w2tag-' + tag.id)
-        delete this.active[id]
+        delete this.active[tag.id]
         if (typeof tag.options.onHide === 'function') {
             tag.options.onHide(tag)
         }
     }
 
     init(id) {
+        let self = this
         let tag = this.active[id]
         query(tag.box).css('display', 'block')
         if (!tag || !tag.box) return
-        let hide = () => { w2tooltip.hide(tag.id) }
+        let hide = () => { self.hide(tag.id) }
 
         if (tag.anchor.tagName === 'INPUT') {
             let $anchor = query(tag.anchor)
@@ -237,7 +239,7 @@ class w2popper extends w2event {
     isMoved(id) {
         let tag = this.active[id]
         if (tag == null || query(tag.anchor).length === 0 || query(tag.box).find('.w2ui-tag-body').length === 0) {
-            w2tooltip.hide(tag.id)
+            this.hide(tag.id)
             return
         }
         let pos = this.getPosition(tag.id)
@@ -360,6 +362,157 @@ class w2popper extends w2event {
     }
 }
 
-let w2tooltip = new w2popper()
+class ColorPopper extends Popper {
+    constructor() {
+        super()
+        this.palette = [
+            ['000000', '333333', '555555', '777777', '888888', '999999', 'AAAAAA', 'CCCCCC', 'DDDDDD', 'EEEEEE', 'F7F7F7', 'FFFFFF'],
+            ['FF011B', 'FF9838', 'FFC300', 'FFFD59', '86FF14', '14FF7A', '2EFFFC', '2693FF', '006CE7', '9B24F4', 'FF21F5', 'FF0099'],
+            ['FFEAEA', 'FCEFE1', 'FCF4DC', 'FFFECF', 'EBFFD9', 'D9FFE9', 'E0FFFF', 'E8F4FF', 'ECF4FC', 'EAE6F4', 'FFF5FE', 'FCF0F7'],
+            ['F4CCCC', 'FCE5CD', 'FFF1C2', 'FFFDA1', 'D5FCB1', 'B5F7D0', 'BFFFFF', 'D6ECFF', 'CFE2F3', 'D9D1E9', 'FFE3FD', 'FFD9F0'],
+            ['EA9899', 'F9CB9C', 'FFE48C', 'F7F56F', 'B9F77E', '84F0B1', '83F7F7', 'B5DAFF', '9FC5E8', 'B4A7D6', 'FAB9F6', 'FFADDE'],
+            ['E06666', 'F6B26B', 'DEB737', 'E0DE51', '8FDB48', '52D189', '4EDEDB', '76ACE3', '6FA8DC', '8E7CC3', 'E07EDA', 'F26DBD'],
+            ['CC0814', 'E69138', 'AB8816', 'B5B20E', '6BAB30', '27A85F', '1BA8A6', '3C81C7', '3D85C6', '674EA7', 'A14F9D', 'BF4990'],
+            ['99050C', 'B45F17', '80650E', '737103', '395E14', '10783D', '13615E', '094785', '0A5394', '351C75', '780172', '782C5A']
+        ]
+        this.defaults = w2utils.extend({}, this.defaults, {
+            transparent: false,
+            color: '#DDDDDD',
+            fireChange: null,
+            maxWidth: 252,
+            maxHeight: 220,
+            style: 'padding: 0; border: 1px solid silver;'
+        })
+    }
 
-export { w2tooltip }
+    show(anchor, text) {
+        let options
+        if (arguments.length == 1 && anchor.anchor) {
+            options = anchor
+            anchor = options.anchor
+        } else if (arguments.length === 2 && typeof text === 'object') {
+            options = text
+            options.anchor = anchor
+        }
+        options = w2utils.extend({}, this.defaults, options)
+        // add remove transparent color
+        if (options.transparent && this.palette[0][1] == '333333') {
+            this.palette[0].splice(1, 1)
+            this.palette[0].push('')
+        }
+        if (!options.transparent && this.palette[0][1] != '333333') {
+            this.palette[0].splice(1, 0, '333333')
+            this.palette[0].pop()
+        }
+        if (options.color) options.color = String(options.color).toUpperCase()
+        if (typeof options.color === 'string' && options.color.substr(0,1) === '#') options.color = options.color.substr(1)
+        if (options.fireChange == null) options.fireChange = true
+        // color html
+        options.html = this.getColorHTML(options, options.html)
+        let ret = super.show(options)
+        let tag = this.get(ret.id)
+        ret.select = (callback) => {
+            tag.options.onSelect = callback
+            return ret
+        }
+        return ret
+    }
+
+    getColorHTML(options, customHTML) {
+        let bor
+        let html = `
+            <div class="w2ui-colors w2ui-eaction" data-mousedown="keepOpen|this">
+                <div class="w2ui-color-palette">
+            <table cellspacing="0" cellpadding="0">`
+        for (let i = 0; i < this.palette.length; i++) {
+            html += '<tr>'
+            for (let j = 0; j < this.palette[i].length; j++) {
+                if (this.palette[i][j] === 'FFFFFF') bor = '; border: 1px solid #efefef'; else bor = ''
+                html += `
+                    <td>
+                        <div class="w2ui-color ${this.palette[i][j] === '' ? 'w2ui-no-color' : ''}"
+                                style="background-color: #${this.palette[i][j] + bor};"
+                                name="${this.palette[i][j]}" index="${i}:${j}">
+                            ${(options.color == this.palette[i][j]
+                                ? '<span style="position: relative; top: -4px;">&#149;</span>'
+                                : '&#160;')
+                            }
+                        </div>
+                    </td>`
+            }
+            html += '</tr>'
+            if (i < 2) html += '<tr><td colspan="12" style="height: 5px"></td></tr>'
+        }
+        html += '</table>'+
+                '</div>'
+        if (true) {
+            html += `
+                <div class="w2ui-color-advanced" style="display: none">
+                   <div class="color-info">
+                       <div class="color-preview-bg"><div class="color-preview"></div><div class="color-original"></div></div>
+                       <div class="color-part">
+                           <span>H</span> <input name="h" maxlength="3" max="360" tabindex="101">
+                           <span>R</span> <input name="r" maxlength="3" max="255" tabindex="104">
+                       </div>
+                       <div class="color-part">
+                           <span>S</span> <input name="s" maxlength="3" max="100" tabindex="102">
+                           <span>G</span> <input name="g" maxlength="3" max="255" tabindex="105">
+                       </div>
+                       <div class="color-part">
+                           <span>V</span> <input name="v" maxlength="3" max="100" tabindex="103">
+                           <span>B</span> <input name="b" maxlength="3" max="255" tabindex="106">
+                       </div>
+                       <div class="color-part" style="margin: 30px 0px 0px 2px">
+                           <span style="width: 40px">${w2utils.lang('Opacity')}</span>
+                           <input name="a" maxlength="5" max="1" style="width: 32px !important" tabindex="107">
+                       </div>
+                   </div>
+                   <div class="palette" name="palette">
+                       <div class="palette-bg"></div>
+                       <div class="value1 move-x move-y"></div>
+                   </div>
+                   <div class="rainbow" name="rainbow">
+                       <div class="value2 move-x"></div>
+                   </div>
+                   <div class="alpha" name="alpha">
+                       <div class="alpha-bg"></div>
+                       <div class="value2 move-x"></div>
+                   </div>
+                </div>`
+        }
+        html += `
+            <div class="w2ui-color-tabs">
+               <div class="w2ui-color-tab selected w2ui-eaction" data-click="colorClick|this"><span class="w2ui-icon w2ui-icon-colors"></span></div>
+               <div class="w2ui-color-tab w2ui-eaction" data-click="colorClick2|this"><span class="w2ui-icon w2ui-icon-settings"></span></div>
+               <div style="padding: 8px; text-align: right;">${(typeof customHTML == 'string' ? customHTML : '')}</div>
+            </div>
+            <div style="clear: both; height: 0"></div>`
+        return html
+    }
+}
+
+class DatePopper extends Popper {
+    constructor() {
+        super()
+    }
+}
+
+class TimePopper extends Popper {
+    constructor() {
+        super()
+    }
+}
+
+class MenuPopper extends Popper {
+    constructor() {
+        super()
+    }
+}
+
+let w2tooltip = new Popper()
+let w2color   = new ColorPopper()
+let w2date    = new DatePopper()
+let w2time    = new TimePopper()
+let w2menu    = new MenuPopper()
+
+export { w2tooltip, w2color, w2date, w2time, w2menu, Popper, ColorPopper, DatePopper, TimePopper, MenuPopper }

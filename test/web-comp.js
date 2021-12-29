@@ -40,7 +40,7 @@ class WebComp extends HTMLElement {
             // query(this.shadowRoot).find('input').each(el => {
             query('input').each(el => {
                 w2tooltip.show(el, {
-                    auto: true,
+                    // auto: true,
                     html: 'some html',
                     // html: 'some html that is quite long and can be multiline',
                     // position: 'top|bottom|right|left',
