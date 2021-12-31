@@ -12,7 +12,7 @@
 import { w2event } from './w2event.js'
 import { w2ui, w2utils } from './w2utils.js'
 
-class w2dialog extends w2event {
+class Dialog extends w2event {
     constructor(options) {
         super()
         this.defaults   = {
@@ -1358,5 +1358,5 @@ function w2prompt(label, title, callBack) {
     return prom
 }
 
-let w2popup = new w2dialog()
-export { w2dialog, w2popup, w2alert, w2confirm, w2prompt }
+let w2popup = new Dialog()
+export { w2popup, w2alert, w2confirm, w2prompt, Dialog }

@@ -96,6 +96,15 @@ class Popper extends w2event {
             if (!id) {
                 id = 'noid-' +Object.keys(this.active).length
             }
+            if (id == anchor.id && this.active['w2tag-' + id]) {
+                // find unique id if it is table from anchor
+                let find = (id, ind=0) => {
+                    if (ind !== 0) id = id.substr(0, id.length-2)
+                    id += '-' + (ind + 1)
+                    return (this.active['w2tag-' + id] == null ? id : find(id, ind+1))
+                }
+                id = find(id)
+            }
             if (this.active['w2tag-' + id]) {
                 tag = this.active['w2tag-' + id]
                 // keep event handlers from previous options
@@ -237,6 +246,7 @@ class Popper extends w2event {
     }
 
     isMoved(id) {
+        // TODO: called for each tag, might consider one for all tags
         let tag = this.active[id]
         if (tag == null || query(tag.anchor).length === 0 || query(tag.box).find('.w2ui-tag-body').length === 0) {
             this.hide(tag.id)
