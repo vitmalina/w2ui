@@ -3,10 +3,10 @@
  * methods that start with "_" are internal
  */
 
-class Query {
+ class Query {
 
     constructor(selector) {
-        this.version = 0.1
+        this.version = 0.2
         /**
          * No need to implementd (selector, context) as it can be archived by
          * $(context).find(selector)
@@ -14,7 +14,7 @@ class Query {
         let nodes = []
         if (Array.isArray(selector)) {
             nodes  = selector
-        } else if (selector instanceof DocumentFragment || selector instanceof HTMLElement || selector instanceof Text) {
+        } else if (this._isEl(selector)) {
             if (selector.isConnected) {
                 nodes = [selector]
             } else {
@@ -28,6 +28,10 @@ class Query {
             throw new Error('Unknown selector')
         }
         this._refs(nodes)
+    }
+
+    _isEl(node) {
+        return (node instanceof DocumentFragment || node instanceof HTMLElement || node instanceof Text)
     }
 
     _refs(nodes) {
@@ -47,20 +51,33 @@ class Query {
 
     _insert(method, html) {
         let nodes = []
+        let len  = this.length
+        if (len < 1) return
+        let isEl = this._isEl(html)
+        let clone = (html) => {
+            let tmpl = this[0].ownerDocument.createElement('template')
+            tmpl.innerHTML = html
+            return tmpl.content
+        }
         if (typeof html == 'string') {
-            let doc = this[0].ownerDocument
-            let template = doc.createElement('template')
             this.each(node => {
-                template.innerHTML = html
+                let cln = clone(html)
                 if (method == 'replaceWith') {
                     // replace nodes, but keep reference to them
-                    nodes.push(...template.content.childNodes)
+                    nodes.push(...cln.childNodes)
                 }
-                node[method](template.content) // inserts nodes or text
+                node[method](cln) // inserts nodes or text
             })
             if (method == 'replaceWith') {
                 this._refs(nodes)
             }
+        } else if (isEl) {
+            this.each(node => {
+                let cln = clone(html.outerHTML)
+                node[method](len === 1 ? html : cln)
+                if (len > 1 && isEl) nodes.push(...cln.childNodes)
+            })
+            if (len > 1 && isEl) html.remove()
         } else {
             throw new Error(`Incorrect argument for "${method}(html)". It expects one string argument.`)
         }
@@ -316,7 +333,17 @@ class Query {
     }
 
     trigger(name, options) {
-        // TODO: Implement
+        let event,
+            mevent = ['click', 'dblclick', 'mousedown', 'mouseup', 'mousemove'],
+            kevent = ['keydown', 'keyup', 'keypress']
+        if (mevent.includes(name)) {
+            event = new MouseEvent(name, options)
+        } else if (kevent.includes(name)) {
+            event = new KeyboardEvent(name, options)
+        } else {
+            event = new Event(name, options)
+        }
+        this.each(node => { node.dispatchEvent(event) })
         return this
     }
 
@@ -412,7 +439,7 @@ class Query {
     }
 
     show() {
-        return this.css('display', '')
+        return this.css('display', 'inherit')
     }
 
     hide() {
@@ -421,7 +448,15 @@ class Query {
 
     toggle() {
         let dsp = this.css('display')
-        return this.css('display', dsp == 'none' ? '' : 'none')
+        return this.css('display', dsp == 'none' ? 'inherit' : 'none')
+    }
+
+    change() {
+        return this.trigger('change')
+    }
+
+    click() {
+        return this.trigger('click')
     }
 }
 // create a new object each time
