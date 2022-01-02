@@ -7996,7 +7996,7 @@ class w2grid extends w2event {
                     '"/>'
             infoBubble    = ''
         }
-        data = `<div style="${style}" ${getTitle(data)} ${attrData}>${infoBubble} ${String(data)}</div>`
+        data = `<div style="${style}" ${getTitle(data)} ${attrData}>${infoBubble}${String(data)}</div>`
         if (data == null) data = ''
         // --> cell TD
         if (typeof col.render == 'string') {
