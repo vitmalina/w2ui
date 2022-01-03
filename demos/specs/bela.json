@@ -41,7 +41,13 @@
         "specs/grid/9.spec.js",
         "specs/grid/23.spec.js",
         "specs/grid/29.spec.js",
-        "specs/grid/31.spec.js"
+        "specs/grid/31.spec.js",
+        "specs/toolbar/1.spec.js",
+        "specs/toolbar/2.spec.js",
+        "specs/toolbar/3.spec.js",
+        "specs/toolbar/4.spec.js",
+        "specs/toolbar/5.spec.js",
+        "specs/toolbar/7.spec.js"
     ],
     "libs": [
         "specs/w2ui.js",
