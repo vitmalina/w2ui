@@ -5,7 +5,9 @@ The `master` branch has new, in-progress version of w2ui. You might want to cons
 
 ## About W2UI
 
-W2UI is a modern JavaScript UI library for building rich web applications. It aims to let you define your UI in a declarative way via JSON data structures. The library has small footprint and has only one dependency - jQuery. Work underway to make zero-dependencies. W2UI can be used in vanila JS projects, as well as Angrular, React and Vue based projects.
+W2UI is a modern JavaScript UI library for building rich web applications. It aims to let you define your UI in a declarative way via JSON data structures.
+
+The library has small footprint and has only one dependency - jQuery. Not for long, as work is underway to make remove jQuery as a dependency. W2UI can be used in vanila JS projects, ES6 modules, as well as in Angrular, React and Vue based projects.
 
 The library implements following UI controls:
 
