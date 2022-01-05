@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (12/28/2021, 8:35:25 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (1/4/2022, 10:17:27 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -2189,6 +2189,7 @@ w2utils.formatters = {
 *   - remote date local sort/search
 *   - colDefaults -> col_template as in tabs, toolbar, etc
 *   - prepareData needs help page
+*   - onloadmore event (so it will be easy to implement remote data source with local sort)
 *
 * == DEMOS To create ==
 *   - batch for disabled buttons
@@ -5043,13 +5044,11 @@ class w2grid extends w2event {
                 } else {
                     if (data.total != -1 && parseInt(data.total) != parseInt(this.total)) {
                         let grid = this
-                        this.message({
-                            body: `<div class="w2ui-centered">${w2utils.lang(grid.msgNeedReload)}</div>`,
-                            onClose(event) {
+                        this.message(w2utils.lang(this.msgNeedReload))
+                            .ok(() => {
                                 delete grid.last.xhr_offset
                                 grid.reload()
-                            }
-                        })
+                            })
                         return
                     }
                 }
@@ -9863,7 +9862,7 @@ class w2grid extends w2event {
                     '"/>'
             infoBubble    = ''
         }
-        data = `<div style="${style}" ${getTitle(data)} ${attrData}>${infoBubble} ${String(data)}</div>`
+        data = `<div style="${style}" ${getTitle(data)} ${attrData}>${infoBubble}${String(data)}</div>`
         if (data == null) data = ''
         // --> cell TD
         if (typeof col.render == 'string') {
@@ -11827,6 +11826,7 @@ class w2layout extends w2event {
 *
 * TODO:
 * - for poppup.message, w2alert, w2cofirm, w2propt - use w2utils.message
+*
 * == 2.0 changes
 *   - CSP - fixed inline events
 *
@@ -20743,9 +20743,13 @@ class w2form extends w2event {
                     tag = $(this).data('w2tag')
                     $.extend(tag.options, options)
                 } else {
+                    // check if shadow root
+                    let topEl = $(el).parents('*').last()[0];
+                    let isShadow = (topEl && topEl.parentNode instanceof DocumentFragment);
                     tag = {
                         id        : origID,
                         attachedTo: el, // element attached to
+                        context   : (isShadow ? topEl : document), // context where attachedTo lives
                         box       : $('#w2ui-tag-' + tmpID), // tag itself
                         options   : $.extend({}, options),
                         // methods
@@ -20769,30 +20773,28 @@ class w2form extends w2event {
                         .html(tag.options.html)
                 } else {
                     tag.tmp.originalCSS = ''
-                    if ($(tag.attachedTo).length > 0) tag.tmp.originalCSS = $(tag.attachedTo)[0].style.cssText
+                    if ($(tag.attachedTo, tag.context).length > 0) tag.tmp.originalCSS = $(tag.attachedTo, tag.context)[0].style.cssText
                     let tagStyles = 'white-space: nowrap;'
                     if (tag.options.maxWidth && w2utils.getStrWidth(text) > tag.options.maxWidth) {
                         tagStyles = 'width: '+ tag.options.maxWidth + 'px'
                     }
-                    // check if shadow root
-                    let topEl = $(el).parents('*').last()[0];
                     // insert
-                    $(topEl.tagName == 'HTML' ? 'body' : topEl).append(
+                    $('body').append(
                         '<div data-click="stop" style="display: none;" id="w2ui-tag-'+ tag.id +'" '+
-                        '       class="w2ui-tag '+ ($(tag.attachedTo).parents('.w2ui-popup, .w2ui-overlay-popup, .w2ui-message').length > 0 ? 'w2ui-tag-popup' : '') + '">'+
+                        '       class="w2ui-tag '+ ($(tag.attachedTo, tag.context).parents('.w2ui-popup, .w2ui-overlay-popup, .w2ui-message').length > 0 ? 'w2ui-tag-popup' : '') + '">'+
                         '   <div style="margin: -2px 0px 0px -2px; '+ tagStyles +'">'+
                         '      <div class="w2ui-tag-body '+ tag.options.className +'" style="'+ (tag.options.style || '') +'">'+ text +'</div>'+
                         '   </div>' +
                         '</div>')
                     tag.box = $('#w2ui-tag-' + tmpID)
-                    $(tag.attachedTo).data('w2tag', tag) // make available to element tag attached to
+                    $(tag.attachedTo, tag.context).data('w2tag', tag) // make available to element tag attached to
                     w2utils.bindEvents(tag.box, {})
                     setTimeout(init, 1)
                 }
                 return
                 function init() {
                     tag.box.css('display', 'block')
-                    if (!tag || !tag.box || !$(tag.attachedTo).offset()) return
+                    if (!tag || !tag.box || !$(tag.attachedTo, tag.context).offset()) return
                     let pos = tag.getPos()
                     tag.box.css({
                         opacity : '1',
@@ -20802,16 +20804,15 @@ class w2form extends w2event {
                         .data('w2tag', tag)
                         .find('.w2ui-tag-body').addClass(pos.posClass)
                     tag.tmp.pos = pos.left + 'x' + pos.top
-                    $(tag.attachedTo)
+                    $(tag.attachedTo, tag.context)
                         .off('.w2tag')
                         .css(tag.options.css)
                         .addClass(tag.options.inputClass)
-
                     if (tag.options.hideOnKeyPress) {
-                        $(tag.attachedTo).on('keypress.w2tag', tag.hide)
+                        $(tag.attachedTo, tag.context).on('keypress.w2tag', tag.hide)
                     }
                     if (tag.options.hideOnFocus) {
-                        $(tag.attachedTo).on('focus.w2tag', tag.hide)
+                        $(tag.attachedTo, tag.context).on('focus.w2tag', tag.hide)
                     }
                     if (options.hideOnChange) {
                         if (el.nodeName === 'INPUT') {
@@ -20821,7 +20822,7 @@ class w2form extends w2event {
                         }
                     }
                     if (tag.options.hideOnBlur) {
-                        $(tag.attachedTo).on('blur.w2tag', tag.hide)
+                        $(tag.attachedTo, tag.context).on('blur.w2tag', tag.hide)
                     }
                     if (tag.options.hideOnClick) {
                         $('body').on('click.w2tag' + (tag.id || ''), tag.hide)
@@ -20839,12 +20840,12 @@ class w2form extends w2event {
                     if (tag.options.hideOnClick) {
                         $('body').off('.w2tag' + (tag.id || ''))
                     }
-                    $(tag.attachedTo).off('.w2tag')
+                    $(tag.attachedTo, tag.context).off('.w2tag')
                         .removeClass(tag.options.inputClass)
                         .removeData('w2tag')
                     // restore original CSS
-                    if ($(tag.attachedTo).length > 0) {
-                        $(tag.attachedTo)[0].style.cssText = tag.tmp.originalCSS
+                    if ($(tag.attachedTo, tag.context).length > 0) {
+                        $(tag.attachedTo, tag.context)[0].style.cssText = tag.tmp.originalCSS
                     }
                     if (typeof tag.options.onHide === 'function') {
                         tag.options.onHide()
@@ -20852,8 +20853,8 @@ class w2form extends w2event {
                 }
                 function isMoved(instant) {
                     // monitor if destroyed
-                    let offset = $(tag.attachedTo).offset()
-                    if ($(tag.attachedTo).length === 0 || (offset.left === 0 && offset.top === 0) || tag.box.find('.w2ui-tag-body').length === 0) {
+                    let offset = $(tag.attachedTo, tag.context).offset()
+                    if ($(tag.attachedTo, tag.context).length === 0 || (offset.left === 0 && offset.top === 0) || tag.box.find('.w2ui-tag-body').length === 0) {
                         tag.hide()
                         return
                     }
@@ -20871,7 +20872,7 @@ class w2form extends w2event {
                     tag.tmp.timer = setTimeout(isMoved, 100)
                 }
                 function getPos() {
-                    let offset   = $(tag.attachedTo).offset()
+                    let offset   = $(tag.attachedTo, tag.context).offset()
                     let posClass = 'w2ui-tag-right'
                     let posLeft  = parseInt(offset.left + tag.attachedTo.offsetWidth + (tag.options.left ? tag.options.left : 0))
                     let posTop   = parseInt(offset.top + (tag.options.top ? tag.options.top : 0))
