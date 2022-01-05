@@ -34,6 +34,7 @@
 *   - colDefaults -> col_template as in tabs, toolbar, etc
 *   - prepareData needs help page
 *   - separate columnRefresh, recordsRefresh, fullRefresh
+*   - onloadmore event (so it will be easy to implement remote data source with local sort)
 *
 * == DEMOS To create ==
 *   - batch for disabled buttons
@@ -2991,13 +2992,11 @@ class w2grid extends w2event {
                 } else {
                     if (data.total != -1 && parseInt(data.total) != parseInt(this.total)) {
                         let grid = this
-                        this.message({
-                            body: `<div class="w2ui-centered">${w2utils.lang(grid.msgNeedReload)}</div>`,
-                            onClose(event) {
+                        this.message(w2utils.lang(this.msgNeedReload))
+                            .ok(() => {
                                 delete grid.last.xhr_offset
                                 grid.reload()
-                            }
-                        })
+                            })
                         return
                     }
                 }
@@ -7998,7 +7997,7 @@ class w2grid extends w2event {
                     '"/>'
             infoBubble    = ''
         }
-        data = `<div style="${style}" ${getTitle(data)} ${attrData}>${infoBubble} ${String(data)}</div>`
+        data = `<div style="${style}" ${getTitle(data)} ${attrData}>${infoBubble}${String(data)}</div>`
         if (data == null) data = ''
         // --> cell TD
         if (typeof col.render == 'string') {

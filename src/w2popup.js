@@ -4,6 +4,7 @@
 *
 * TODO:
 * - for poppup.message, w2alert, w2cofirm, w2propt - use w2utils.message
+*
 * == 2.0 changes
 *   - CSP - fixed inline events
 *
