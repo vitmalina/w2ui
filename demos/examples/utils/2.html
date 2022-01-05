@@ -21,6 +21,20 @@ This <a href="http://link">is some</a> HTML <b>text</b> to be encoded.
 <span style="color: gray; padding: 10px">|</span>
 <button class="w2ui-btn" onclick="$('#encode').val(w2utils.stripTags($('#encode')[0].value))">Strip HTML Tags</button>
 <span style="color: gray; padding: 10px">|</span>
-<button class="w2ui-btn" onclick="w2alert(w2utils.md5($('#encode')[0].value))">Calculate md5</button>
+<button class="w2ui-btn" onclick="showSha()">Calculate sha256</button>
+
+<script>
+async function showSha() {
+    w2popup.open({
+        height: 200,
+        width: 500,
+        title: 'Sha',
+        body: `<div class="w2ui-centered">${await w2utils.sha256($('#encode')[0].value)}</div>`,
+        actions: {
+            Ok() { w2popup.close() }
+        }
+     })
+}
+</script>
 
 <!--CODE-->
