@@ -1252,7 +1252,7 @@ class w2layout extends w2event {
         }
         let args = Array.from(arguments)
         args[0]  = '#layout_'+ this.name + '_panel_' + panel
-        w2utils.lock.apply(window, args)
+        w2utils.lock(...args)
     }
 
     unlock(panel, speed) {

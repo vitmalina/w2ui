@@ -1080,9 +1080,9 @@ class w2form extends w2event {
     }
 
     lock(msg, showSpinner) {
-        let args = Array.prototype.slice.call(arguments, 0)
+        let args = Array.from(arguments)
         args.unshift(this.box)
-        setTimeout(() => { w2utils.lock.apply(window, args) }, 10)
+        setTimeout(() => { w2utils.lock(...args) }, 10)
     }
 
     unlock(speed) {

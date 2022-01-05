@@ -121,7 +121,7 @@ import { w2toolbar } from './w2toolbar.js'
     }
 
     $.fn.w2marker = function() {
-        let str = Array.prototype.slice.call(arguments, 0)
+        let str = Array.from(arguments)
         if (Array.isArray(str[0])) str = str[0]
         if (str.length === 0 || !str[0]) { // remove marker
             return $(this).each(clearMarkedText)

@@ -19,103 +19,170 @@ import { w2event } from './w2event.js'
 import { w2locale } from './w2locale.js'
 import { query } from './query.js'
 
+// variable that holds all w2ui objects
 let w2ui = {}
-let w2utils = (($) => {
-    let tmp = {} // for some temp variables
-    return {
-        version  : '2.0.x',
-        settings : extend({}, {
+
+class Utils {
+    constructor ($) {
+        this.version = '2.0.x'
+        this.tmp = {}
+        this.settings = this.extend({}, {
             'dataType'       : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
             'dateStartYear'  : 1950,  // start year for date-picker
             'dateEndYear'    : 2030,  // end year for date picker
             'macButtonOrder' : false, // if true, Yes on the right side
             'warnNoPhrase'   : false,  // call console.warn if lang() encounters a missing phrase
         }, w2locale, { phrases: null }), // if there are no phrases, then it is original language
-        isBin,
-        isInt,
-        isFloat,
-        isMoney,
-        isHex,
-        isAlphaNumeric,
-        isEmail,
-        isIpAddress,
-        isDate,
-        isTime,
-        isDateTime,
-        age,
-        interval,
-        date,
-        formatSize,
-        formatNumber,
-        formatDate,
-        formatTime,
-        formatDateTime,
-        stripTags,
-        encodeTags,
-        decodeTags,
-        escapeId,
-        unescapeId,
-        normMenu,
-        bindEvents,
-        base64encode,
-        base64decode,
-        md5,
-        transition,
-        lock,
-        unlock,
-        message,
-        naturalCompare,
-        i18nCompare: Intl.Collator().compare,
-        execTemplate,
-        lang,
-        locale,
-        getSize,
-        getStrWidth,
-        scrollBarSize,
-        checkName,
-        checkUniqueId,
-        parseRoute,
-        cssPrefix,
-        parseColor,
-        hsv2rgb,
-        rgb2hsv,
-        tooltip,
-        clone,
-        extend,
-        getCursorPosition,
-        setCursorPosition,
-        testLocalStorage,
-        hasLocalStorage: testLocalStorage(),
+        this.i18nCompare = Intl.Collator().compare
+        this.hasLocalStorage = testLocalStorage()
+
         // some internal variables
-        isMac: /Mac/i.test(navigator.platform),
-        isMobile: /(iphone|ipod|ipad|mobile|android)/i.test(navigator.userAgent),
-        isIOS: /(iphone|ipod|ipad)/i.test(navigator.platform),
-        isAndroid: /(android)/i.test(navigator.userAgent),
-        isSafari: /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+        this.isMac = /Mac/i.test(navigator.platform)
+        this.isMobile = /(iphone|ipod|ipad|mobile|android)/i.test(navigator.userAgent)
+        this.isIOS = /(iphone|ipod|ipad)/i.test(navigator.platform)
+        this.isAndroid = /(android)/i.test(navigator.userAgent)
+        this.isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+
+        // Formatters: Primarily used in grid
+        this.formatters = {
+            'number'(value, params) {
+                if (parseInt(params) > 20) params = 20
+                if (parseInt(params) < 0) params = 0
+                if (value == null || value === '') return ''
+                return w2utils.formatNumber(parseFloat(value), params, true)
+            },
+
+            'float'(value, params) {
+                return w2utils.formatters.number(value, params)
+            },
+
+            'int'(value, params) {
+                return w2utils.formatters.number(value, 0)
+            },
+
+            'money'(value, params) {
+                if (value == null || value === '') return ''
+                let data = w2utils.formatNumber(Number(value), w2utils.settings.currencyPrecision)
+                return (w2utils.settings.currencyPrefix || '') + data + (w2utils.settings.currencySuffix || '')
+            },
+
+            'currency'(value, params) {
+                return w2utils.formatters.money(value, params)
+            },
+
+            'percent'(value, params) {
+                if (value == null || value === '') return ''
+                return w2utils.formatNumber(value, params || 1) + '%'
+            },
+
+            'size'(value, params) {
+                if (value == null || value === '') return ''
+                return w2utils.formatSize(parseInt(value))
+            },
+
+            'date'(value, params) {
+                if (params === '') params = w2utils.settings.dateFormat
+                if (value == null || value === 0 || value === '') return ''
+                let dt = w2utils.isDateTime(value, params, true)
+                if (dt === false) dt = w2utils.isDate(value, params, true)
+                return '<span title="'+ dt +'">' + w2utils.formatDate(dt, params) + '</span>'
+            },
+
+            'datetime'(value, params) {
+                if (params === '') params = w2utils.settings.datetimeFormat
+                if (value == null || value === 0 || value === '') return ''
+                let dt = w2utils.isDateTime(value, params, true)
+                if (dt === false) dt = w2utils.isDate(value, params, true)
+                return '<span title="'+ dt +'">' + w2utils.formatDateTime(dt, params) + '</span>'
+            },
+
+            'time'(value, params) {
+                if (params === '') params = w2utils.settings.timeFormat
+                if (params === 'h12') params = 'hh:mi pm'
+                if (params === 'h24') params = 'h24:mi'
+                if (value == null || value === 0 || value === '') return ''
+                let dt = w2utils.isDateTime(value, params, true)
+                if (dt === false) dt = w2utils.isDate(value, params, true)
+                return '<span title="'+ dt +'">' + w2utils.formatTime(value, params) + '</span>'
+            },
+
+            'timestamp'(value, params) {
+                if (params === '') params = w2utils.settings.datetimeFormat
+                if (value == null || value === 0 || value === '') return ''
+                let dt = w2utils.isDateTime(value, params, true)
+                if (dt === false) dt = w2utils.isDate(value, params, true)
+                return dt.toString ? dt.toString() : ''
+            },
+
+            'gmt'(value, params) {
+                if (params === '') params = w2utils.settings.datetimeFormat
+                if (value == null || value === 0 || value === '') return ''
+                let dt = w2utils.isDateTime(value, params, true)
+                if (dt === false) dt = w2utils.isDate(value, params, true)
+                return dt.toUTCString ? dt.toUTCString() : ''
+            },
+
+            'age'(value, params) {
+                if (value == null || value === 0 || value === '') return ''
+                let dt = w2utils.isDateTime(value, null, true)
+                if (dt === false) dt = w2utils.isDate(value, null, true)
+                return '<span title="'+ dt +'">' + w2utils.age(value) + (params ? (' ' + params) : '') + '</span>'
+            },
+
+            'interval'(value, params) {
+                if (value == null || value === 0 || value === '') return ''
+                return w2utils.interval(value) + (params ? (' ' + params) : '')
+            },
+
+            'toggle'(value, params) {
+                return (value ? 'Yes' : '')
+            },
+
+            'password'(value, params) {
+                let ret = ''
+                for (let i = 0; i < value.length; i++) {
+                    ret += '*'
+                }
+                return ret
+            }
+        }
+        return
+
+        function testLocalStorage() {
+            // test if localStorage is available, see issue #1282
+            let str = 'w2ui_test'
+            try {
+                localStorage.setItem(str, str)
+                localStorage.removeItem(str)
+                return true
+            } catch (e) {
+                return false
+            }
+        }
     }
 
-    function isBin(val) {
+    isBin(val) {
         let re = /^[0-1]+$/
         return re.test(val)
     }
 
-    function isInt(val) {
+    isInt(val) {
         let re = /^[-+]?[0-9]+$/
         return re.test(val)
     }
 
-    function isFloat(val) {
+    isFloat(val) {
         if (typeof val === 'string') {
-            val = val.replace(w2utils.settings.groupSymbol, '')
-                     .replace(w2utils.settings.decimalSymbol, '.')
+            val = val.replace(this.settings.groupSymbol, '')
+                     .replace(this.settings.decimalSymbol, '.')
         }
         return (typeof val === 'number' || (typeof val === 'string' && val !== '')) && !isNaN(Number(val))
     }
 
-    function isMoney(val) {
+    isMoney(val) {
         if (typeof val === 'object' || val === '') return false
-        if (isFloat(val)) return true
-        let se = w2utils.settings
+        if (this.isFloat(val)) return true
+        let se = this.settings
         let re = new RegExp('^'+ (se.currencyPrefix ? '\\' + se.currencyPrefix + '?' : '') +
                             '[-+]?'+ (se.currencyPrefix ? '\\' + se.currencyPrefix + '?' : '') +
                             '[0-9]*[\\'+ se.decimalSymbol +']?[0-9]+'+ (se.currencySuffix ? '\\' + se.currencySuffix + '?' : '') +'$', 'i')
@@ -125,22 +192,22 @@ let w2utils = (($) => {
         return re.test(val)
     }
 
-    function isHex(val) {
+    isHex(val) {
         let re = /^(0x)?[0-9a-fA-F]+$/
         return re.test(val)
     }
 
-    function isAlphaNumeric(val) {
+    isAlphaNumeric(val) {
         let re = /^[a-zA-Z0-9_-]+$/
         return re.test(val)
     }
 
-    function isEmail(val) {
+    isEmail(val) {
         let email = /^[a-zA-Z0-9._%\-+]+@[а-яА-Яa-zA-Z0-9.-]+\.[а-яА-Яa-zA-Z]+$/
         return email.test(val)
     }
 
-    function isIpAddress(val) {
+    isIpAddress(val) {
         let re = new RegExp('^' +
                             '((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}' +
                             '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' +
@@ -148,13 +215,13 @@ let w2utils = (($) => {
         return re.test(val)
     }
 
-    function isDate(val, format, retDate) {
+    isDate(val, format, retDate) {
         if (!val) return false
 
         let dt = 'Invalid Date'
         let month, day, year
 
-        if (format == null) format = w2utils.settings.dateFormat
+        if (format == null) format = this.settings.dateFormat
 
         if (typeof val.getFullYear === 'function') { // date object
             year  = val.getFullYear()
@@ -171,8 +238,8 @@ let w2utils = (($) => {
             if (new RegExp('mon', 'ig').test(format)) {
                 format = format.replace(/month/ig, 'm').replace(/mon/ig, 'm').replace(/dd/ig, 'd').replace(/[, ]/ig, '/').replace(/\/\//g, '/').toLowerCase()
                 val    = val.replace(/[, ]/ig, '/').replace(/\/\//g, '/').toLowerCase()
-                for (let m = 0, len = w2utils.settings.fullmonths.length; m < len; m++) {
-                    let t = w2utils.settings.fullmonths[m]
+                for (let m = 0, len = this.settings.fullmonths.length; m < len; m++) {
+                    let t = this.settings.fullmonths[m]
                     val   = val.replace(new RegExp(t, 'ig'), (parseInt(m) + 1)).replace(new RegExp(t.substr(0, 3), 'ig'), (parseInt(m) + 1))
                 }
             }
@@ -196,9 +263,9 @@ let w2utils = (($) => {
             if (tmp2 === 'yy/mm/dd') { month = tmp[1]; day = tmp[2]; year = parseInt(tmp[0]) + 1900 }
             if (tmp2 === 'yy/m/d') { month = tmp[1]; day = tmp[2]; year = parseInt(tmp[0]) + 1900 }
         }
-        if (!isInt(year)) return false
-        if (!isInt(month)) return false
-        if (!isInt(day)) return false
+        if (!this.isInt(year)) return false
+        if (!this.isInt(month)) return false
+        if (!this.isInt(day)) return false
         year  = +year
         month = +month
         day   = +day
@@ -211,7 +278,7 @@ let w2utils = (($) => {
         if (retDate === true) return dt; else return true
     }
 
-    function isTime(val, retTime) {
+    isTime(val, retTime) {
         // Both formats 10:20pm and 22:20
         if (val == null) return false
         let max, am, pm
@@ -248,7 +315,7 @@ let w2utils = (($) => {
         return true
     }
 
-    function isDateTime(val, format, retDate) {
+    isDateTime(val, format, retDate) {
         if (typeof val.getFullYear === 'function') { // date object
             if (retDate !== true) return true
             return val
@@ -265,14 +332,14 @@ let w2utils = (($) => {
             else if (retDate !== true) return true
             else return new Date(val)
         } else {
-            if (format == null) format = w2utils.settings.datetimeFormat
+            if (format == null) format = this.settings.datetimeFormat
             let formats = format.split('|')
             let values  = [val.substr(0, tmp), val.substr(tmp).trim()]
             formats[0]  = formats[0].trim()
             if (formats[1]) formats[1] = formats[1].trim()
             // check
-            let tmp1 = w2utils.isDate(values[0], formats[0], true)
-            let tmp2 = w2utils.isTime(values[1], true)
+            let tmp1 = this.isDate(values[0], formats[0], true)
+            let tmp2 = this.isTime(values[1], true)
             if (tmp1 !== false && tmp2 !== false) {
                 if (retDate !== true) return true
                 tmp1.setHours(tmp2.hours)
@@ -285,7 +352,7 @@ let w2utils = (($) => {
         }
     }
 
-    function age(dateStr) {
+    age(dateStr) {
         let d1
         if (dateStr === '' || dateStr == null) return ''
         if (typeof dateStr.getFullYear === 'function') { // date object
@@ -331,7 +398,7 @@ let w2utils = (($) => {
         return amount + ' ' + type + (amount > 1 ? 's' : '')
     }
 
-    function interval(value) {
+    interval(value) {
         let ret = ''
         if (value < 100) {
             ret = '< 0.01 sec'
@@ -355,13 +422,13 @@ let w2utils = (($) => {
         return ret
     }
 
-    function date(dateStr) {
+    date(dateStr) {
         if (dateStr === '' || dateStr == null || (typeof dateStr === 'object' && !dateStr.getMonth)) return ''
         let d1 = new Date(dateStr)
-        if (w2utils.isInt(dateStr)) d1 = new Date(Number(dateStr)) // for unix timestamps
+        if (this.isInt(dateStr)) d1 = new Date(Number(dateStr)) // for unix timestamps
         if (String(d1) === 'Invalid Date') return ''
 
-        let months = w2utils.settings.shortmonths
+        let months = this.settings.shortmonths
         let d2     = new Date() // today
         let d3     = new Date()
         d3.setTime(d3.getTime() - 86400000) // yesterday
@@ -374,13 +441,13 @@ let w2utils = (($) => {
         let time2 = (d1.getHours() - (d1.getHours() > 12 ? 12 :0)) + ':' + (d1.getMinutes() < 10 ? '0' : '') + d1.getMinutes() + ':' + (d1.getSeconds() < 10 ? '0' : '') + d1.getSeconds() + ' ' + (d1.getHours() >= 12 ? 'pm' : 'am')
         let dsp   = dd1
         if (dd1 === dd2) dsp = time
-        if (dd1 === dd3) dsp = w2utils.lang('Yesterday')
+        if (dd1 === dd3) dsp = this.lang('Yesterday')
 
         return '<span title="'+ dd1 +' ' + time2 +'">'+ dsp +'</span>'
     }
 
-    function formatSize(sizeStr) {
-        if (!w2utils.isFloat(sizeStr) || sizeStr === '') return ''
+    formatSize(sizeStr) {
+        if (!this.isFloat(sizeStr) || sizeStr === '') return ''
         sizeStr = parseFloat(sizeStr)
         if (sizeStr === 0) return 0
         let sizes = ['Bt', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB']
@@ -388,7 +455,7 @@ let w2utils = (($) => {
         return (Math.floor(sizeStr / Math.pow(1024, i) * 10) / 10).toFixed(i === 0 ? 0 : 1) + ' ' + (sizes[i] || '??')
     }
 
-    function formatNumber(val, fraction, useGrouping) {
+    formatNumber(val, fraction, useGrouping) {
         if (val == null || val === '' || typeof val === 'object') return ''
         let options = {
             minimumFractionDigits : fraction,
@@ -399,23 +466,23 @@ let w2utils = (($) => {
             options.minimumFractionDigits = 0
             options.maximumFractionDigits = 20
         }
-        return parseFloat(val).toLocaleString(w2utils.settings.locale, options)
+        return parseFloat(val).toLocaleString(this.settings.locale, options)
     }
 
-    function formatDate(dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
+    formatDate(dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
         if (!format) format = this.settings.dateFormat
         if (dateStr === '' || dateStr == null || (typeof dateStr === 'object' && !dateStr.getMonth)) return ''
 
         let dt = new Date(dateStr)
-        if (w2utils.isInt(dateStr)) dt = new Date(Number(dateStr)) // for unix timestamps
+        if (this.isInt(dateStr)) dt = new Date(Number(dateStr)) // for unix timestamps
         if (String(dt) === 'Invalid Date') return ''
 
         let year  = dt.getFullYear()
         let month = dt.getMonth()
         let date  = dt.getDate()
         return format.toLowerCase()
-            .replace('month', w2utils.settings.fullmonths[month])
-            .replace('mon', w2utils.settings.shortmonths[month])
+            .replace('month', this.settings.fullmonths[month])
+            .replace('mon', this.settings.shortmonths[month])
             .replace(/yyyy/g, ('000' + year).slice(-4))
             .replace(/yyy/g, ('000' + year).slice(-4))
             .replace(/yy/g, ('0' + year).slice(-2))
@@ -429,14 +496,14 @@ let w2utils = (($) => {
             .replace(/(^|[^a-z$])d/g, '$1' + date) // only y's that are not preceded by a letter
     }
 
-    function formatTime(dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
+    formatTime(dateStr, format) { // IMPORTANT dateStr HAS TO BE valid JavaScript Date String
         if (!format) format = this.settings.timeFormat
         if (dateStr === '' || dateStr == null || (typeof dateStr === 'object' && !dateStr.getMonth)) return ''
 
         let dt = new Date(dateStr)
-        if (w2utils.isInt(dateStr)) dt = new Date(Number(dateStr)) // for unix timestamps
-        if (w2utils.isTime(dateStr)) {
-            let tmp = w2utils.isTime(dateStr, true)
+        if (this.isInt(dateStr)) dt = new Date(Number(dateStr)) // for unix timestamps
+        if (this.isTime(dateStr)) {
+            let tmp = this.isTime(dateStr, true)
             dt      = new Date()
             dt.setHours(tmp.hours)
             dt.setMinutes(tmp.minutes)
@@ -470,7 +537,7 @@ let w2utils = (($) => {
             .replace(/(^|[^a-z$])s/g, '$1' + sec) // only y's that are not preceded by a letter
     }
 
-    function formatDateTime(dateStr, format) {
+    formatDateTime(dateStr, format) {
         let fmt
         if (dateStr === '' || dateStr == null || (typeof dateStr === 'object' && !dateStr.getMonth)) return ''
         if (typeof format !== 'string') {
@@ -486,7 +553,7 @@ let w2utils = (($) => {
         return this.formatDate(dateStr, fmt[0]) + ' ' + this.formatTime(dateStr, fmt[1])
     }
 
-    function stripTags(html) {
+    stripTags(html) {
         if (html == null) return html
         switch (typeof html) {
             case 'number':
@@ -497,14 +564,14 @@ let w2utils = (($) => {
             case 'object':
                 // does not modify original object, but creates a copy
                 if (Array.isArray(html)) {
-                    html = extend([], html)
+                    html = this.extend([], html)
                     html.forEach((key, ind) => {
-                        html[ind] = stripTags(key)
+                        html[ind] = this.stripTags(key)
                     })
                 } else {
-                    html = extend({}, html)
+                    html = this.extend({}, html)
                     Object.keys(html).forEach(key => {
-                        html[key] = stripTags(html[key])
+                        html[key] = this.stripTags(html[key])
                     })
                 }
                 break
@@ -512,7 +579,7 @@ let w2utils = (($) => {
         return html
     }
 
-    function encodeTags(html) {
+    encodeTags(html) {
         if (html == null) return html
         switch (typeof html) {
             case 'number':
@@ -523,14 +590,14 @@ let w2utils = (($) => {
             case 'object':
                 // does not modify original object, but creates a copy
                 if (Array.isArray(html)) {
-                    html = extend([], html)
+                    html = this.extend([], html)
                     html.forEach((key, ind) => {
-                        html[ind] = encodeTags(key)
+                        html[ind] = this.encodeTags(key)
                     })
                 } else {
-                    html = extend({}, html)
+                    html = this.extend({}, html)
                     Object.keys(html).forEach(key => {
-                        html[key] = encodeTags(html[key])
+                        html[key] = this.encodeTags(html[key])
                     })
                 }
                 break
@@ -538,7 +605,7 @@ let w2utils = (($) => {
         return html
     }
 
-    function decodeTags(html) {
+    decodeTags(html) {
         if (html == null) return html
         switch (typeof html) {
             case 'number':
@@ -549,14 +616,14 @@ let w2utils = (($) => {
             case 'object':
                 // does not modify original object, but creates a copy
                 if (Array.isArray(html)) {
-                    html = extend([], html)
+                    html = this.extend([], html)
                     html.forEach((key, ind) => {
-                        html[ind] = decodeTags(key)
+                        html[ind] = this.decodeTags(key)
                     })
                 } else {
-                    html = extend({}, html)
+                    html = this.extend({}, html)
                     Object.keys(html).forEach(key => {
-                        html[key] = decodeTags(html[key])
+                        html[key] = this.decodeTags(html[key])
                     })
                 }
                 break
@@ -564,7 +631,7 @@ let w2utils = (($) => {
         return html
     }
 
-    function escapeId(id) {
+    escapeId(id) {
         // This logic is borrowed from jQuery
         if (id === '' || id == null) return ''
         let re = /([\0-\x1f\x7f]|^-?\d)|^-$|[^\0-\x1f\x7f-\uFFFF\w-]/g
@@ -577,7 +644,7 @@ let w2utils = (($) => {
         })
     }
 
-    function unescapeId(id) {
+    unescapeId(id) {
         // This logic is borrowed from jQuery
         if (id === '' || id == null) return ''
         let re = /\\[\da-fA-F]{1,6}[\x20\t\r\n\f]?|\\([^\r\n\f])/g
@@ -589,7 +656,7 @@ let w2utils = (($) => {
         })
     }
 
-    function base64encode(input) {
+    base64encode(input) {
         let output = ''
         let chr1, chr2, chr3, enc1, enc2, enc3, enc4
         let i      = 0
@@ -637,7 +704,7 @@ let w2utils = (($) => {
         return output
     }
 
-    function base64decode(input) {
+    base64decode(input) {
         let output = ''
         let chr1, chr2, chr3
         let enc1, enc2, enc3, enc4
@@ -693,256 +760,15 @@ let w2utils = (($) => {
         return output
     }
 
-    function md5(input) {
-        /*
-         * Based on http://pajhome.org.uk/crypt/md5
-         */
-
-        let hexcase = 0
-        function __pj_crypt_hex_md5(s) {
-            return __pj_crypt_rstr2hex(__pj_crypt_rstr_md5(__pj_crypt_str2rstr_utf8(s)))
-        }
-
-        /*
-         * Calculate the MD5 of a raw string
-         */
-        function __pj_crypt_rstr_md5(s)
-        {
-            return __pj_crypt_binl2rstr(__pj_crypt_binl_md5(__pj_crypt_rstr2binl(s), s.length * 8))
-        }
-
-        /*
-         * Convert a raw string to a hex string
-         */
-        function __pj_crypt_rstr2hex(input)
-        {
-            try {
-                hexcase
-            } catch (e) {
-                hexcase = 0
-            }
-            let hex_tab = hexcase ? '0123456789ABCDEF' : '0123456789abcdef'
-            let output  = ''
-            let x
-            for (let i = 0; i < input.length; i++)
-            {
-                x       = input.charCodeAt(i)
-                output += hex_tab.charAt((x >>> 4) & 0x0F)
-                        + hex_tab.charAt(x & 0x0F)
-            }
-            return output
-        }
-
-        /*
-         * Encode a string as utf-8.
-         * For efficiency, this assumes the input is valid utf-16.
-         */
-        function __pj_crypt_str2rstr_utf8(input)
-        {
-            let output = ''
-            let i      = -1
-            let x, y
-
-            while (++i < input.length)
-            {
-                /* Decode utf-16 surrogate pairs */
-                x = input.charCodeAt(i)
-                y = i + 1 < input.length ? input.charCodeAt(i + 1) : 0
-                if (0xD800 <= x && x <= 0xDBFF && 0xDC00 <= y && y <= 0xDFFF)
-                {
-                    x = 0x10000 + ((x & 0x03FF) << 10) + (y & 0x03FF)
-                    i++
-                }
-
-                /* Encode output as utf-8 */
-                if (x <= 0x7F)
-                    output += String.fromCharCode(x)
-                else if (x <= 0x7FF)
-                    output += String.fromCharCode(0xC0 | ((x >>> 6) & 0x1F),
-                        0x80 | (x & 0x3F))
-                else if (x <= 0xFFFF)
-                    output += String.fromCharCode(0xE0 | ((x >>> 12) & 0x0F),
-                        0x80 | ((x >>> 6) & 0x3F),
-                        0x80 | (x & 0x3F))
-                else if (x <= 0x1FFFFF)
-                    output += String.fromCharCode(0xF0 | ((x >>> 18) & 0x07),
-                        0x80 | ((x >>> 12) & 0x3F),
-                        0x80 | ((x >>> 6) & 0x3F),
-                        0x80 | (x & 0x3F))
-            }
-            return output
-        }
-
-        /*
-         * Convert a raw string to an array of little-endian words
-         * Characters >255 have their high-byte silently ignored.
-         */
-        function __pj_crypt_rstr2binl(input)
-        {
-            let output = Array(input.length >> 2)
-            for (let i = 0; i < output.length; i++)
-                output[i] = 0
-            for (let i = 0; i < input.length * 8; i += 8)
-                output[i >> 5] |= (input.charCodeAt(i / 8) & 0xFF) << (i % 32)
-            return output
-        }
-
-        /*
-         * Convert an array of little-endian words to a string
-         */
-        function __pj_crypt_binl2rstr(input)
-        {
-            let output = ''
-            for (let i = 0; i < input.length * 32; i += 8)
-                output += String.fromCharCode((input[i >> 5] >>> (i % 32)) & 0xFF)
-            return output
-        }
-
-        /*
-         * Calculate the MD5 of an array of little-endian words, and a bit length.
-         */
-        function __pj_crypt_binl_md5(x, len)
-        {
-            /* append padding */
-            x[len >> 5]                      |= 0x80 << ((len) % 32)
-            x[(((len + 64) >>> 9) << 4) + 14] = len
-
-            let a = 1732584193
-            let b = -271733879
-            let c = -1732584194
-            let d = 271733878
-
-            for (let i = 0; i < x.length; i += 16)
-            {
-                let olda = a
-                let oldb = b
-                let oldc = c
-                let oldd = d
-
-                a = __pj_crypt_md5_ff(a, b, c, d, x[i + 0], 7, -680876936)
-                d = __pj_crypt_md5_ff(d, a, b, c, x[i + 1], 12, -389564586)
-                c = __pj_crypt_md5_ff(c, d, a, b, x[i + 2], 17, 606105819)
-                b = __pj_crypt_md5_ff(b, c, d, a, x[i + 3], 22, -1044525330)
-                a = __pj_crypt_md5_ff(a, b, c, d, x[i + 4], 7, -176418897)
-                d = __pj_crypt_md5_ff(d, a, b, c, x[i + 5], 12, 1200080426)
-                c = __pj_crypt_md5_ff(c, d, a, b, x[i + 6], 17, -1473231341)
-                b = __pj_crypt_md5_ff(b, c, d, a, x[i + 7], 22, -45705983)
-                a = __pj_crypt_md5_ff(a, b, c, d, x[i + 8], 7, 1770035416)
-                d = __pj_crypt_md5_ff(d, a, b, c, x[i + 9], 12, -1958414417)
-                c = __pj_crypt_md5_ff(c, d, a, b, x[i + 10], 17, -42063)
-                b = __pj_crypt_md5_ff(b, c, d, a, x[i + 11], 22, -1990404162)
-                a = __pj_crypt_md5_ff(a, b, c, d, x[i + 12], 7, 1804603682)
-                d = __pj_crypt_md5_ff(d, a, b, c, x[i + 13], 12, -40341101)
-                c = __pj_crypt_md5_ff(c, d, a, b, x[i + 14], 17, -1502002290)
-                b = __pj_crypt_md5_ff(b, c, d, a, x[i + 15], 22, 1236535329)
-
-                a = __pj_crypt_md5_gg(a, b, c, d, x[i + 1], 5, -165796510)
-                d = __pj_crypt_md5_gg(d, a, b, c, x[i + 6], 9, -1069501632)
-                c = __pj_crypt_md5_gg(c, d, a, b, x[i + 11], 14, 643717713)
-                b = __pj_crypt_md5_gg(b, c, d, a, x[i + 0], 20, -373897302)
-                a = __pj_crypt_md5_gg(a, b, c, d, x[i + 5], 5, -701558691)
-                d = __pj_crypt_md5_gg(d, a, b, c, x[i + 10], 9, 38016083)
-                c = __pj_crypt_md5_gg(c, d, a, b, x[i + 15], 14, -660478335)
-                b = __pj_crypt_md5_gg(b, c, d, a, x[i + 4], 20, -405537848)
-                a = __pj_crypt_md5_gg(a, b, c, d, x[i + 9], 5, 568446438)
-                d = __pj_crypt_md5_gg(d, a, b, c, x[i + 14], 9, -1019803690)
-                c = __pj_crypt_md5_gg(c, d, a, b, x[i + 3], 14, -187363961)
-                b = __pj_crypt_md5_gg(b, c, d, a, x[i + 8], 20, 1163531501)
-                a = __pj_crypt_md5_gg(a, b, c, d, x[i + 13], 5, -1444681467)
-                d = __pj_crypt_md5_gg(d, a, b, c, x[i + 2], 9, -51403784)
-                c = __pj_crypt_md5_gg(c, d, a, b, x[i + 7], 14, 1735328473)
-                b = __pj_crypt_md5_gg(b, c, d, a, x[i + 12], 20, -1926607734)
-
-                a = __pj_crypt_md5_hh(a, b, c, d, x[i + 5], 4, -378558)
-                d = __pj_crypt_md5_hh(d, a, b, c, x[i + 8], 11, -2022574463)
-                c = __pj_crypt_md5_hh(c, d, a, b, x[i + 11], 16, 1839030562)
-                b = __pj_crypt_md5_hh(b, c, d, a, x[i + 14], 23, -35309556)
-                a = __pj_crypt_md5_hh(a, b, c, d, x[i + 1], 4, -1530992060)
-                d = __pj_crypt_md5_hh(d, a, b, c, x[i + 4], 11, 1272893353)
-                c = __pj_crypt_md5_hh(c, d, a, b, x[i + 7], 16, -155497632)
-                b = __pj_crypt_md5_hh(b, c, d, a, x[i + 10], 23, -1094730640)
-                a = __pj_crypt_md5_hh(a, b, c, d, x[i + 13], 4, 681279174)
-                d = __pj_crypt_md5_hh(d, a, b, c, x[i + 0], 11, -358537222)
-                c = __pj_crypt_md5_hh(c, d, a, b, x[i + 3], 16, -722521979)
-                b = __pj_crypt_md5_hh(b, c, d, a, x[i + 6], 23, 76029189)
-                a = __pj_crypt_md5_hh(a, b, c, d, x[i + 9], 4, -640364487)
-                d = __pj_crypt_md5_hh(d, a, b, c, x[i + 12], 11, -421815835)
-                c = __pj_crypt_md5_hh(c, d, a, b, x[i + 15], 16, 530742520)
-                b = __pj_crypt_md5_hh(b, c, d, a, x[i + 2], 23, -995338651)
-
-                a = __pj_crypt_md5_ii(a, b, c, d, x[i + 0], 6, -198630844)
-                d = __pj_crypt_md5_ii(d, a, b, c, x[i + 7], 10, 1126891415)
-                c = __pj_crypt_md5_ii(c, d, a, b, x[i + 14], 15, -1416354905)
-                b = __pj_crypt_md5_ii(b, c, d, a, x[i + 5], 21, -57434055)
-                a = __pj_crypt_md5_ii(a, b, c, d, x[i + 12], 6, 1700485571)
-                d = __pj_crypt_md5_ii(d, a, b, c, x[i + 3], 10, -1894986606)
-                c = __pj_crypt_md5_ii(c, d, a, b, x[i + 10], 15, -1051523)
-                b = __pj_crypt_md5_ii(b, c, d, a, x[i + 1], 21, -2054922799)
-                a = __pj_crypt_md5_ii(a, b, c, d, x[i + 8], 6, 1873313359)
-                d = __pj_crypt_md5_ii(d, a, b, c, x[i + 15], 10, -30611744)
-                c = __pj_crypt_md5_ii(c, d, a, b, x[i + 6], 15, -1560198380)
-                b = __pj_crypt_md5_ii(b, c, d, a, x[i + 13], 21, 1309151649)
-                a = __pj_crypt_md5_ii(a, b, c, d, x[i + 4], 6, -145523070)
-                d = __pj_crypt_md5_ii(d, a, b, c, x[i + 11], 10, -1120210379)
-                c = __pj_crypt_md5_ii(c, d, a, b, x[i + 2], 15, 718787259)
-                b = __pj_crypt_md5_ii(b, c, d, a, x[i + 9], 21, -343485551)
-
-                a = __pj_crypt_safe_add(a, olda)
-                b = __pj_crypt_safe_add(b, oldb)
-                c = __pj_crypt_safe_add(c, oldc)
-                d = __pj_crypt_safe_add(d, oldd)
-            }
-            return Array(a, b, c, d)
-        }
-
-        /*
-         * These functions implement the four basic operations the algorithm uses.
-         */
-        function __pj_crypt_md5_cmn(q, a, b, x, s, t)
-        {
-            return __pj_crypt_safe_add(__pj_crypt_bit_rol(__pj_crypt_safe_add(__pj_crypt_safe_add(a, q), __pj_crypt_safe_add(x, t)), s), b)
-        }
-        function __pj_crypt_md5_ff(a, b, c, d, x, s, t)
-        {
-            return __pj_crypt_md5_cmn((b & c) | ((~b) & d), a, b, x, s, t)
-        }
-        function __pj_crypt_md5_gg(a, b, c, d, x, s, t)
-        {
-            return __pj_crypt_md5_cmn((b & d) | (c & (~d)), a, b, x, s, t)
-        }
-        function __pj_crypt_md5_hh(a, b, c, d, x, s, t)
-        {
-            return __pj_crypt_md5_cmn(b ^ c ^ d, a, b, x, s, t)
-        }
-        function __pj_crypt_md5_ii(a, b, c, d, x, s, t)
-        {
-            return __pj_crypt_md5_cmn(c ^ (b | (~d)), a, b, x, s, t)
-        }
-
-        /*
-         * Add integers, wrapping at 2^32. This uses 16-bit operations internally
-         * to work around bugs in some JS interpreters.
-         */
-        function __pj_crypt_safe_add(x, y)
-        {
-            let lsw = (x & 0xFFFF) + (y & 0xFFFF)
-            let msw = (x >> 16) + (y >> 16) + (lsw >> 16)
-            return (msw << 16) | (lsw & 0xFFFF)
-        }
-
-        /*
-         * Bitwise rotate a 32-bit number to the left.
-         */
-        function __pj_crypt_bit_rol(num, cnt)
-        {
-            return (num << cnt) | (num >>> (32 - cnt))
-        }
-
-        return __pj_crypt_hex_md5(input)
-
+    async sha256(str) {
+        const utf8 = new TextEncoder().encode(str)
+        return crypto.subtle.digest('SHA-256', utf8).then((hashBuffer) => {
+            const hashArray = Array.from(new Uint8Array(hashBuffer))
+            return hashArray.map((bytes) => bytes.toString(16).padStart(2, '0')).join('')
+        })
     }
 
-    function transition(div_old, div_new, type, callBack) {
+    transition(div_old, div_new, type, callBack) {
         return new Promise((resolve, reject) => {
             let styles = div_old.computedStyleMap()
             let width  = styles.get('width').value
@@ -1113,14 +939,14 @@ let w2utils = (($) => {
         })
     }
 
-    function lock(box, options = {}) {
+    lock(box, options = {}) {
         if (typeof options == 'string') {
             options = { msg: options }
         }
         if (arguments[2]) {
             options.spinner = arguments[2]
         }
-        options = extend({
+        options = this.extend({
             // opacity: 0.3, // default comes from css
             spinner: false
         }, options)
@@ -1129,7 +955,7 @@ let w2utils = (($) => {
             box = Array.isArray(box) ? box : box.get()
         }
         if (!options.msg && options.msg !== 0) options.msg = ''
-        w2utils.unlock(box)
+        this.unlock(box)
         query(box).prepend(
             '<div class="w2ui-lock"></div>'+
             '<div class="w2ui-lock-msg"></div>'
@@ -1155,12 +981,12 @@ let w2utils = (($) => {
         $mess.html(options.msg).css('display', 'block')
     }
 
-    function unlock(box, speed) {
+    unlock(box, speed) {
         // for backward compatibility
         if (box && !(box instanceof HTMLElement) && box[0] instanceof HTMLElement) {
             box = Array.isArray(box) ? box : box.get()
         }
-        if (isInt(speed)) {
+        if (this.isInt(speed)) {
             query(box).find('.w2ui-lock').css({
                 transition: (speed/1000) + 's',
                 opacity: 0,
@@ -1180,7 +1006,7 @@ let w2utils = (($) => {
     *  should be called with .call(...) method
     */
 
-    function message(where, options) {
+    message(where, options) {
         return new Promise((resolve, reject) => {
             let obj = this, closeTimer, edata
             // var where.path    = 'w2popup';
@@ -1193,7 +1019,7 @@ let w2utils = (($) => {
                 // mix in events
                 let opts = options
                 options = new w2event()
-                extend(options, opts)
+                this.extend(options, opts)
             }
             if (options.width == null) options.width = 200
             if (options.height == null) options.height = 100
@@ -1318,7 +1144,7 @@ let w2utils = (($) => {
                             .css({ 'transition': '0s' })
                         // event after
                         if (options.trigger) {
-                            options.trigger(extend(edata, { phase: 'after' }))
+                            options.trigger(this.extend(edata, { phase: 'after' }))
                             resolve({
                                 box: query(where.box).find('#w2ui-message'+ msgCount)[0]
                             })
@@ -1349,13 +1175,13 @@ let w2utils = (($) => {
                 head.css('z-index', head.data('old-z-index'))
                 // event after
                 if (options.trigger) {
-                    options.trigger(extend(edata, { phase: 'after' }))
+                    options.trigger(this.extend(edata, { phase: 'after' }))
                 }
             }
         })
     }
 
-    function getSize(el, type) {
+    getSize(el, type) {
         let $el = $(el)
         let bwidth = {
             left    : parseInt($el.css('border-left-width')) || 0,
@@ -1389,7 +1215,7 @@ let w2utils = (($) => {
         return 0
     }
 
-    function getSize_new(el, type) {
+    getSize_new(el, type) {
         // for backward compatibility
         if (el && !(el instanceof HTMLElement) && el[0] instanceof HTMLElement) {
             el = Array.isArray(el) ? el : el.get()
@@ -1429,7 +1255,7 @@ let w2utils = (($) => {
         return 0
     }
 
-    function getStrWidth(str, styles) {
+    getStrWidth(str, styles) {
         query('body').append(`
             <div id="_tmp_width" style="position: absolute; top: -9000px; ${styles || ''}">
                 ${encodeTags(str)}
@@ -1439,17 +1265,17 @@ let w2utils = (($) => {
         return width
     }
 
-    function execTemplate(str, replace_obj) {
+    execTemplate(str, replace_obj) {
         if (typeof str !== 'string' || !replace_obj || typeof replace_obj !== 'object') {
             return str
         }
         return str.replace(/\${([^}]+)?}/g, function($1, $2) { return replace_obj[$2]||$2 })
     }
 
-    function lang(phrase, params) {
+    lang(phrase, params) {
         if (!phrase || this.settings.phrases == null // if no phrases at all
                 || typeof phrase !== 'string' || '<=>='.includes(phrase)) {
-            return execTemplate(phrase, params)
+            return this.execTemplate(phrase, params)
         }
         let translation = this.settings.phrases[phrase]
         if (translation == null) {
@@ -1468,16 +1294,16 @@ let w2utils = (($) => {
             translation = phrase
         }
         if (translation === '---') {
-            translation = `<span ${w2utils.tooltip(phrase)}>---</span>`
+            translation = `<span ${this.tooltip(phrase)}>---</span>`
         }
-        return execTemplate(translation, params)
+        return this.execTemplate(translation, params)
     }
 
-    function locale(locale, keepPhrases, noMerge) {
+    locale(locale, keepPhrases, noMerge) {
         return new Promise((resolve, reject) => {
             // if locale is an array we call this function recursively and merge the results
             if (Array.isArray(locale)) {
-                w2utils.settings.phrases = {}
+                this.settings.phrases = {}
                 let proms = []
                 let files = {}
                 locale.forEach((file, ind) => {
@@ -1485,14 +1311,14 @@ let w2utils = (($) => {
                         file = 'locale/'+ file.toLowerCase() +'.json'
                         locale[ind] = file
                     }
-                    proms.push(w2utils.locale(file, true, false))
+                    proms.push(this.locale(file, true, false))
                 })
                 Promise.allSettled(proms)
                     .then(res => {
                         // order of files is important to merge
                         res.forEach(r => { files[r.value.file] = r.value.data })
                         locale.forEach(file => {
-                            w2utils.settings = extend({}, w2utils.settings, files[file])
+                            this.settings = this.extend({}, this.settings, files[file])
                         })
                         resolve()
                     })
@@ -1502,7 +1328,7 @@ let w2utils = (($) => {
 
             // if locale is an object, then merge it with w2utils.settings
             if (locale instanceof Object) {
-                w2utils.settings = extend({}, w2utils.settings, w2locale, locale)
+                this.settings = this.extend({}, this.settings, w2locale, locale)
                 return
             }
 
@@ -1517,10 +1343,10 @@ let w2utils = (($) => {
                     if (noMerge !== true) {
                         if (keepPhrases) {
                             // keep phrases, useful for recursive calls
-                            w2utils.settings = extend({}, w2utils.settings, data)
+                            this.settings = this.extend({}, this.settings, data)
                         } else {
                             // clear phrases from language before merging
-                            w2utils.settings = extend({}, w2utils.settings, w2locale, { phrases: {} }, data)
+                            this.settings = this.extend({}, this.settings, w2locale, { phrases: {} }, data)
                         }
                     }
                     resolve({ file: locale, data })
@@ -1532,20 +1358,20 @@ let w2utils = (($) => {
         })
     }
 
-    function scrollBarSize() {
-        if (tmp.scrollBarSize) return tmp.scrollBarSize
+    scrollBarSize() {
+        if (this.tmp.scrollBarSize) return this.tmp.scrollBarSize
         let html = `
             <div id="_scrollbar_width" style="position: absolute; top: -300px; width: 100px; height: 100px; overflow-y: scroll;">
                 <div style="height: 120px">1</div>
             </div>
         `
         query('body').append(html)
-        tmp.scrollBarSize = 100 - query('#_scrollbar_width > div')[0].clientWidth
+        this.tmp.scrollBarSize = 100 - query('#_scrollbar_width > div')[0].clientWidth
         query('#_scrollbar_width').remove()
-        return tmp.scrollBarSize
+        return this.tmp.scrollBarSize
     }
 
-    function checkName(name) {
+    checkName(name) {
         if (name == null) {
             console.log('ERROR: Property "name" is required but not supplied.')
             return false
@@ -1554,14 +1380,14 @@ let w2utils = (($) => {
             console.log(`ERROR: Object named "${name}" is already registered as w2ui.${name}.`)
             return false
         }
-        if (!w2utils.isAlphaNumeric(name)) {
+        if (!this.isAlphaNumeric(name)) {
             console.log('ERROR: Property "name" has to be alpha-numeric (a-z, 0-9, dash and underscore).')
             return false
         }
         return true
     }
 
-    function checkUniqueId(id, items, desc, obj) { // was w2checkUniqueId
+    checkUniqueId(id, items, desc, obj) { // was w2checkUniqueId
         if (!Array.isArray(items)) items = [items]
         for (let i = 0; i < items.length; i++) {
             if (items[i].id === id) {
@@ -1572,7 +1398,7 @@ let w2utils = (($) => {
         return true
     }
 
-    function parseRoute(route) {
+    parseRoute(route) {
         let keys = []
         let path = route
             .replace(/\/\(/g, '(?:/')
@@ -1591,7 +1417,7 @@ let w2utils = (($) => {
         }
     }
 
-    function cssPrefix(field, value, returnString) {
+    cssPrefix(field, value, returnString) {
         let css    = {}
         let newCSS = {}
         let ret    = ''
@@ -1618,7 +1444,7 @@ let w2utils = (($) => {
         return ret
     }
 
-    function getCursorPosition(input) {
+    getCursorPosition(input) {
         if (input == null) return null
         let caretOffset = 0
         let doc         = input.ownerDocument || input.document
@@ -1648,7 +1474,7 @@ let w2utils = (($) => {
         return caretOffset
     }
 
-    function setCursorPosition(input, pos, posEnd) {
+    setCursorPosition(input, pos, posEnd) {
         let range   = document.createRange()
         let el, sel = window.getSelection()
         if (input == null) return
@@ -1683,19 +1509,7 @@ let w2utils = (($) => {
         sel.addRange(range)
     }
 
-    function testLocalStorage() {
-        // test if localStorage is available, see issue #1282
-        let str = 'w2ui_test'
-        try {
-            localStorage.setItem(str, str)
-            localStorage.removeItem(str)
-            return true
-        } catch (e) {
-            return false
-        }
-    }
-
-    function parseColor(str) {
+    parseColor(str) {
         if (typeof str !== 'string') return null; else str = str.trim().toUpperCase()
         if (str[0] === '#') str = str.substr(1)
         let color = {}
@@ -1744,7 +1558,7 @@ let w2utils = (($) => {
     }
 
     // h=0..360, s=0..100, v=0..100
-    function hsv2rgb(h, s, v, a) {
+    hsv2rgb(h, s, v, a) {
         let r, g, b, i, f, p, q, t
         if (arguments.length === 1) {
             s = h.s; v = h.v; a = h.a; h = h.h
@@ -1774,7 +1588,7 @@ let w2utils = (($) => {
     }
 
     // r=0..255, g=0..255, b=0..255
-    function rgb2hsv(r, g, b, a) {
+    rgb2hsv(r, g, b, a) {
         if (arguments.length === 1) {
             g = r.g; b = r.b; a = r.a; r = r.r
         }
@@ -1797,7 +1611,7 @@ let w2utils = (($) => {
         }
     }
 
-    function tooltip(html, options) {
+    tooltip(html, options) {
         let actions,
             showOn = 'mouseenter',
             hideOn = 'mouseleave',
@@ -1823,22 +1637,22 @@ let w2utils = (($) => {
         }
         // base64 is needed to avoid '"<> and other special chars conflicts
         actions = ` on${showOn}="jQuery(this).${isOverlay ? 'w2overlay' : 'w2tag'}(`
-                + ` JSON.parse(w2utils.base64decode('${w2utils.base64encode(JSON.stringify(options))}')))"`
+                + ` JSON.parse(w2utils.base64decode('${this.base64encode(JSON.stringify(options))}')))"`
                 + ` on${hideOn}="jQuery(this).${isOverlay ? 'w2overlay' : 'w2tag'}(`
                 + `${isOverlay && options.name != null
-                    ? `JSON.parse(w2utils.base64decode('${w2utils.base64encode(JSON.stringify({ name: options.name }))}'))`
+                    ? `JSON.parse(w2utils.base64decode('${this.base64encode(JSON.stringify({ name: options.name }))}'))`
                     : ''}`
                 + ')"'
         return actions
     }
 
     // deep copy of an object or an array
-    function clone(obj) {
+    clone(obj) {
         let ret
         if (Array.isArray(obj)) {
             ret = Array.from(obj)
             ret.forEach((value, ind) => {
-                ret[ind] = clone(value)
+                ret[ind] = this.clone(value)
             })
         } else if (obj instanceof HTMLElement) {
             // do not clone HTML Elements
@@ -1847,7 +1661,7 @@ let w2utils = (($) => {
             ret = {}
             Object.assign(ret, obj)
             Object.keys(ret).forEach(key => {
-                ret[key] = clone(ret[key])
+                ret[key] = this.clone(ret[key])
             })
         } else {
             // primitive variable or function, both remain the same
@@ -1858,10 +1672,10 @@ let w2utils = (($) => {
 
     // deep extend an object or an array, if an array, it does concat, cloning objects in the process
     // target, source1, source2, ...
-    function extend(target, source) {
+    extend(target, source) {
         if (Array.isArray(target)) {
             if (Array.isArray(source)) {
-                source.forEach(s => { target.push(clone(s)) })
+                source.forEach(s => { target.push(this.clone(s)) })
             } else {
                 throw new Error('Arrays can be extended with arrays only')
             }
@@ -1870,7 +1684,7 @@ let w2utils = (($) => {
                 throw new Error("Object can be extended with other objects only.")
             }
             Object.keys(source).forEach(key => {
-                target[key] = clone(source[key])
+                target[key] = this.clone(source[key])
             })
         } else {
             throw new Error("Object is not extendable, only {} or [] can be extended.")
@@ -1878,7 +1692,7 @@ let w2utils = (($) => {
         // other arguments
         if (arguments.length > 2) {
             for (let i = 2; i < arguments.length; i++) {
-                extend(target, arguments[i])
+                this.extend(target, arguments[i])
             }
         }
         return target
@@ -1888,7 +1702,7 @@ let w2utils = (($) => {
      * @author     Lauri Rooden (https://github.com/litejs/natural-compare-lite)
      * @license    MIT License
      */
-    function naturalCompare(a, b) {
+    naturalCompare(a, b) {
         let i, codeA
             , codeB = 1
             , posA = 0
@@ -1928,7 +1742,7 @@ let w2utils = (($) => {
         return 0
     }
 
-    function normMenu(menu, el) {
+    normMenu(menu, el) {
         if (Array.isArray(menu)) {
             menu.forEach((it, m) => {
                 if (typeof it === 'string' || typeof it === 'number') {
@@ -1943,13 +1757,13 @@ let w2utils = (($) => {
             })
             return menu
         } else if (typeof menu === 'function') {
-            return w2utils.normMenu.call(this, menu.call(this, el))
+            return this.normMenu.call(this, menu.call(this, el))
         } else if (typeof menu === 'object') {
             return Object.keys(menu).map(key => { return { id: key, text: menu[key] } })
         }
     }
 
-    function bindEvents(selector, subject) {
+    bindEvents(selector, subject) {
         // format is
         // <div ... data-<event>='["<method>","param1","param2",...]'> -- should be valid JSON (no undefined)
         // <div ... data-<event>="<method>|param1|param2">
@@ -2014,117 +1828,7 @@ let w2utils = (($) => {
             })
         })
     }
-
-})(jQuery)
-
-/***********************************************************
-*  Formatters object
-*  --- Primarily used in grid
-*
-*********************************************************/
-
-w2utils.formatters = {
-
-    'number'(value, params) {
-        if (parseInt(params) > 20) params = 20
-        if (parseInt(params) < 0) params = 0
-        if (value == null || value === '') return ''
-        return w2utils.formatNumber(parseFloat(value), params, true)
-    },
-
-    'float'(value, params) {
-        return w2utils.formatters.number(value, params)
-    },
-
-    'int'(value, params) {
-        return w2utils.formatters.number(value, 0)
-    },
-
-    'money'(value, params) {
-        if (value == null || value === '') return ''
-        let data = w2utils.formatNumber(Number(value), w2utils.settings.currencyPrecision)
-        return (w2utils.settings.currencyPrefix || '') + data + (w2utils.settings.currencySuffix || '')
-    },
-
-    'currency'(value, params) {
-        return w2utils.formatters.money(value, params)
-    },
-
-    'percent'(value, params) {
-        if (value == null || value === '') return ''
-        return w2utils.formatNumber(value, params || 1) + '%'
-    },
-
-    'size'(value, params) {
-        if (value == null || value === '') return ''
-        return w2utils.formatSize(parseInt(value))
-    },
-
-    'date'(value, params) {
-        if (params === '') params = w2utils.settings.dateFormat
-        if (value == null || value === 0 || value === '') return ''
-        let dt = w2utils.isDateTime(value, params, true)
-        if (dt === false) dt = w2utils.isDate(value, params, true)
-        return '<span title="'+ dt +'">' + w2utils.formatDate(dt, params) + '</span>'
-    },
-
-    'datetime'(value, params) {
-        if (params === '') params = w2utils.settings.datetimeFormat
-        if (value == null || value === 0 || value === '') return ''
-        let dt = w2utils.isDateTime(value, params, true)
-        if (dt === false) dt = w2utils.isDate(value, params, true)
-        return '<span title="'+ dt +'">' + w2utils.formatDateTime(dt, params) + '</span>'
-    },
-
-    'time'(value, params) {
-        if (params === '') params = w2utils.settings.timeFormat
-        if (params === 'h12') params = 'hh:mi pm'
-        if (params === 'h24') params = 'h24:mi'
-        if (value == null || value === 0 || value === '') return ''
-        let dt = w2utils.isDateTime(value, params, true)
-        if (dt === false) dt = w2utils.isDate(value, params, true)
-        return '<span title="'+ dt +'">' + w2utils.formatTime(value, params) + '</span>'
-    },
-
-    'timestamp'(value, params) {
-        if (params === '') params = w2utils.settings.datetimeFormat
-        if (value == null || value === 0 || value === '') return ''
-        let dt = w2utils.isDateTime(value, params, true)
-        if (dt === false) dt = w2utils.isDate(value, params, true)
-        return dt.toString ? dt.toString() : ''
-    },
-
-    'gmt'(value, params) {
-        if (params === '') params = w2utils.settings.datetimeFormat
-        if (value == null || value === 0 || value === '') return ''
-        let dt = w2utils.isDateTime(value, params, true)
-        if (dt === false) dt = w2utils.isDate(value, params, true)
-        return dt.toUTCString ? dt.toUTCString() : ''
-    },
-
-    'age'(value, params) {
-        if (value == null || value === 0 || value === '') return ''
-        let dt = w2utils.isDateTime(value, null, true)
-        if (dt === false) dt = w2utils.isDate(value, null, true)
-        return '<span title="'+ dt +'">' + w2utils.age(value) + (params ? (' ' + params) : '') + '</span>'
-    },
-
-    'interval'(value, params) {
-        if (value == null || value === 0 || value === '') return ''
-        return w2utils.interval(value) + (params ? (' ' + params) : '')
-    },
-
-    'toggle'(value, params) {
-        return (value ? 'Yes' : '')
-    },
-
-    'password'(value, params) {
-        let ret = ''
-        for (let i = 0; i < value.length; i++) {
-            ret += '*'
-        }
-        return ret
-    }
 }
+let w2utils = new Utils(jQuery)
 
 export { w2ui, w2utils }

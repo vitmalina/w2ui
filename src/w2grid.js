@@ -1562,7 +1562,7 @@ class w2grid extends w2event {
         let sel      = this.last.selection
         if (!this.multiSelect) this.selectNone()
         // if too many arguments > 150k, then it errors off
-        let args = Array.prototype.slice.call(arguments)
+        let args = Array.from(arguments)
         if (Array.isArray(args[0])) args = args[0]
         // event before
         let tmp = { phase: 'before', type: 'select', target: this.name }
@@ -1687,7 +1687,7 @@ class w2grid extends w2event {
         let unselected = 0
         let sel        = this.last.selection
         // if too many arguments > 150k, then it errors off
-        let args = Array.prototype.slice.call(arguments)
+        let args = Array.from(arguments)
         if (Array.isArray(args[0])) args = args[0]
         // event before
         let tmp = { phase: 'before', type: 'unselect', target: this.name }
@@ -8284,12 +8284,12 @@ class w2grid extends w2event {
     }
 
     lock(msg, showSpinner) {
-        let args = Array.prototype.slice.call(arguments, 0)
+        let args = Array.from(arguments)
         args.unshift(this.box)
         setTimeout(() => {
             // hide empty msg if any
             $(this.box).find('#grid_'+ this.name +'_empty_msg').remove()
-            w2utils.lock.apply(window, args)
+            w2utils.lock(...args)
         }, 10)
     }
 

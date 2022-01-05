@@ -733,9 +733,9 @@ class Dialog extends w2event {
     }
 
     lock(msg, showSpinner) {
-        let args = Array.prototype.slice.call(arguments, 0)
+        let args = Array.from(arguments)
         args.unshift($('#w2ui-popup'))
-        w2utils.lock.apply(window, args)
+        w2utils.lock(...args)
     }
 
     unlock(speed) {
