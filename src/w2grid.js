@@ -64,6 +64,7 @@
 *   - grid.message returns a promise
 *   - search.type == 'text' can have 'in' and 'not in' operators, then it will switch to enum
 *   - grid.find(..., displayedOnly)
+*   - column.render(..., this) - added
 *
 ************************************************************************/
 
@@ -8178,7 +8179,7 @@ class w2grid extends w2event {
         let addClass = '', addStyle = '', attrCell = '', attrData = ''
         if (col.render != null && ind !== -1) {
             if (typeof col.render == 'function' && record != null) {
-                let html = col.render.call(this, record, ind, col_ind, data)
+                let html = col.render(record, ind, col_ind, data, this) // do not bind, as it might be already bound
                 if (html != null && typeof html == 'object') {
                     if (typeof html.html == 'string') {
                         data = (html.html || '').trim()
