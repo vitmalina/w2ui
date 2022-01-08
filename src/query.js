@@ -5,16 +5,12 @@
 
  class Query {
 
-    constructor(selector) {
-        this.version = 0.2
-        /**
-         * No need to implementd (selector, context) as it can be archived by
-         * $(context).find(selector)
-         */
+    constructor(selector, context) {
+        this.version = 0.3
         let nodes = []
         if (Array.isArray(selector)) {
-            nodes  = selector
-        } else if (this._isEl(selector)) {
+            nodes = selector
+        } else if (Query._isEl(selector)) {
             if (selector.isConnected) {
                 nodes = [selector]
             } else {
@@ -23,15 +19,25 @@
         } else if (selector instanceof Query) {
             nodes = selector.nodes
         } else if (typeof selector == 'string') {
-            nodes = Array.from(document.querySelectorAll(selector))
+            if (context == null) context = document
+            if (typeof context.querySelector != 'function') {
+                throw new Error('Invalid context')
+            }
+            nodes = Array.from(context.querySelectorAll(selector))
         } else {
             throw new Error('Unknown selector')
         }
         this._refs(nodes)
     }
 
-    _isEl(node) {
+    static _isEl(node) {
         return (node instanceof DocumentFragment || node instanceof HTMLElement || node instanceof Text)
+    }
+
+    static _fragment(html) {
+        let tmpl = document.createElement('template')
+        tmpl.innerHTML = html
+        return tmpl.content
     }
 
     _refs(nodes) {
@@ -53,15 +59,10 @@
         let nodes = []
         let len  = this.length
         if (len < 1) return
-        let isEl = this._isEl(html)
-        let clone = (html) => {
-            let tmpl = this[0].ownerDocument.createElement('template')
-            tmpl.innerHTML = html
-            return tmpl.content
-        }
+        let isEl = Query._isEl(html)
         if (typeof html == 'string') {
             this.each(node => {
-                let cln = clone(html)
+                let cln = Query._fragment(html)
                 if (method == 'replaceWith') {
                     // replace nodes, but keep reference to them
                     nodes.push(...cln.childNodes)
@@ -73,7 +74,7 @@
             }
         } else if (isEl) {
             this.each(node => {
-                let cln = clone(html.outerHTML)
+                let cln = Query._fragment(html.outerHTML)
                 node[method](len === 1 ? html : cln)
                 if (len > 1 && isEl) nodes.push(...cln.childNodes)
             })
@@ -336,7 +337,10 @@
         let event,
             mevent = ['click', 'dblclick', 'mousedown', 'mouseup', 'mousemove'],
             kevent = ['keydown', 'keyup', 'keypress']
-        if (mevent.includes(name)) {
+        if (name instanceof Event || name instanceof CustomEvent) {
+            // MouseEvent and KeyboardEvent are instances of Event, no need to explicitly add
+            event = name
+        } else if (mevent.includes(name)) {
             event = new MouseEvent(name, options)
         } else if (kevent.includes(name)) {
             event = new KeyboardEvent(name, options)
@@ -463,6 +467,8 @@
 let query = function (selector, context) {
     return new Query(selector, context)
 }
+// allows to create document fragments
+query.html = (str) => { return Query._fragment(str) }
 let $ = query
 
 export default $
