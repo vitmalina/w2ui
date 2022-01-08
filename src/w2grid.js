@@ -2682,7 +2682,7 @@ class w2grid extends w2event {
         if ($('#w2ui-overlay-'+ overName).length == 1) html = '' // hide if visible
         // need timer otherwise does nto show with list type
         setTimeout(() => {
-            $(el).w2overlay({ html: html, name: overName, left: -10 })
+            $(el).w2overlay({ html: html, name: overName, left: -2, tipLeft: 18 })
         }, 1)
     }
 

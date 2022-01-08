@@ -50,15 +50,14 @@
 }
 
 .w2ui-centered {
-    position: absolute;
-    left: 0px;  // do not use left: 50% as IE has problems
-    right: 0px;
-    top: 50%;
-    .transform(translateY(-50%));
-    max-height: 100%;
-    margin: 0px;
-    padding: 0px 10px;
-    text-align: center;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .w2ui-disabled,
