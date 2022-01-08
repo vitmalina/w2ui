@@ -1258,7 +1258,7 @@ class Utils {
     getStrWidth(str, styles) {
         query('body').append(`
             <div id="_tmp_width" style="position: absolute; top: -9000px; ${styles || ''}">
-                ${encodeTags(str)}
+                ${this.encodeTags(str)}
             </div>`)
         let width = query('#_tmp_width')[0].clientWidth
         query('#_tmp_width').remove()
