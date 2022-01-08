@@ -68,12 +68,12 @@ $(function () {
                     return extra.value || '';
                 }
             },
-            { field: 'combo', text: 'combo', size: '50%', sortable: true, resizable: true,
+            { field: 'combo', text: 'combo', size: '50%', sortable: true, resizable: true, hidden1: true,
                 editable: { type: 'combo', items: people, filter: false }
             },
             { field: 'select', text: 'select', size: '100px', sortable: true, resizable: true,
                 editable: { type: 'select', items: [{ id: '', text: '' }].concat(people) },
-                render: function (record, extra) {
+                render(record, extra) {
                     var html = '';
                     for (var p in people) {
                         if (people[p].id == extra.value) html = people[p].text;

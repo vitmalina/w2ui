@@ -3327,6 +3327,7 @@ class w2grid extends w2event {
                     })
                 }, 10)
                 if (value != null) $(input).val(typeof val != 'object' ? val : '')
+                input.select()
             }
         }
 
@@ -3381,53 +3382,37 @@ class w2grid extends w2event {
                     setTimeout(() => {
                         switch (event.keyCode) {
                             case 9: { // tab
-                                let next_rec = recid
-                                let next_col = event.shiftKey ? obj.prevCell(index, column, true) : obj.nextCell(index, column, true)
-                                // next or prev row
-                                if (next_col == null) {
-                                    let tmp = event.shiftKey ? obj.prevRow(index, column, 1) : obj.nextRow(index, column, 1)
-                                    if (tmp != null && tmp != index) {
-                                        next_rec = obj.records[tmp].recid
-                                        // find first editable row
-                                        for (let c = 0; c < obj.columns.length; c++) {
-                                            let edit = obj.getCellEditable(index, c)
-                                            if (edit != null && ['checkbox', 'check'].indexOf(edit.type) == -1) {
-                                                next_col = parseInt(c)
-                                                if (!event.shiftKey) break
-                                            }
+                                let next = event.shiftKey
+                                    ? obj.prevCell(index, column, true)
+                                    : obj.nextCell(index, column, true)
+                                if (next != null) {
+                                    let recid = obj.records[next.index].recid
+                                    el.blur()
+                                    setTimeout(() => {
+                                        if (obj.selectType != 'row') {
+                                            obj.selectNone()
+                                            obj.select({ recid, column: next.colIndex })
+                                        } else {
+                                            obj.editField(recid, next.colIndex, null, event)
                                         }
-                                    }
-
+                                    }, 1)
+                                    if (event.preventDefault) event.preventDefault()
                                 }
-                                if (next_rec === false) next_rec = recid
-                                if (next_col == null) next_col = column
-                                // init new or same record
-                                el.blur()
-                                setTimeout(() => {
-                                    if (obj.selectType != 'row') {
-                                        obj.selectNone()
-                                        obj.select({ recid: next_rec, column: next_col })
-                                    } else {
-                                        obj.editField(next_rec, next_col, null, event)
-                                    }
-                                }, 1)
-                                if (event.preventDefault) event.preventDefault()
                                 break
                             }
                             case 13: { // enter
                                 el.blur()
                                 if (obj.advanceOnEdit) {
                                     let next = event.shiftKey ? obj.prevRow(index, column, 1) : obj.nextRow(index, column, 1)
-                                    if (next != null && next != index) {
-                                        setTimeout(() => {
-                                            if (obj.selectType != 'row') {
-                                                obj.selectNone()
-                                                obj.select({ recid: obj.records[next].recid, column: column })
-                                            } else {
-                                                obj.editField(obj.records[next].recid, column, null, event)
-                                            }
-                                        }, 1)
-                                    }
+                                    if (next == null) next = index // keep the same
+                                    setTimeout(() => {
+                                        if (obj.selectType != 'row') {
+                                            obj.selectNone()
+                                            obj.select({ recid: obj.records[next].recid, column: column })
+                                        } else {
+                                            obj.editField(obj.records[next].recid, column, null, event)
+                                        }
+                                    }, 1)
                                 }
                                 if (el.tagName.toUpperCase() == 'DIV') {
                                     event.preventDefault()
@@ -4035,6 +4020,11 @@ class w2grid extends w2event {
                 }
             } else {
                 let prev = obj.prevCell(ind, columns[0])
+                if (prev.index != ind) {
+                    prev = null
+                } else {
+                    prev = prev.colIndex
+                }
                 if (!shiftKey && prev == null) {
                     obj.selectNone()
                     prev = 0
@@ -4089,6 +4079,11 @@ class w2grid extends w2event {
                 obj.expand(recid, event)
             } else {
                 let next = obj.nextCell(ind, columns[columns.length-1]) // columns is an array of selected columns
+                if (next.index != ind) {
+                    next = null
+                } else {
+                    next = next.colIndex
+                }
                 if (!shiftKey && next == null) {
                     obj.selectNone()
                     next = obj.columns.length-1
@@ -4137,7 +4132,7 @@ class w2grid extends w2event {
             if (empty) selectTopRecord()
             if (recEL.length <= 0) return
             // move to the previous record
-            let prev = obj.prevRow(ind, 0, numRows)
+            let prev = obj.prevRow(ind, obj.selectType == 'row' ? 0 : sel[0].column, numRows)
             if (!shiftKey && prev == null) {
                 if (obj.searchData.length != 0 && !url) {
                     prev = obj.last.searchIds[0]
@@ -4188,7 +4183,7 @@ class w2grid extends w2event {
             if (empty) selectTopRecord()
             if (recEL.length <= 0) return
             // move to the next record
-            let next = obj.nextRow(ind2, 0, numRows)
+            let next = obj.nextRow(ind2, obj.selectType == 'row' ? 0 : sel[0].column, numRows)
             if (!shiftKey && next == null) {
                 if (obj.searchData.length != 0 && !url) {
                     next = obj.last.searchIds[obj.last.searchIds.length - 1]
@@ -8504,38 +8499,43 @@ class w2grid extends w2event {
 
     nextCell(index, col_ind, editable) {
         let check = col_ind + 1
-        if (check >= this.columns.length) return null
+        if (check >= this.columns.length) {
+            index = this.nextRow(index)
+            return index == null ? index : this.nextCell(index, -1, editable)
+        }
         let tmp = this.records[index].w2ui
-        // let ccol = this.columns[col_ind]
-        // if (tmp && tmp.colspan[ccol.field]) check += parseInt(tmp.colspan[ccol.field]) -1; // colspan of a column
-        let col  = this.columns[check]
+        let col = this.columns[check]
         let span = (tmp && tmp.colspan && !isNaN(tmp.colspan[col.field]) ? parseInt(tmp.colspan[col.field]) : 1)
         if (col == null) return null
         if (col && col.hidden || span === 0) return this.nextCell(index, check, editable)
         if (editable) {
-            let edit = this.getCellEditable(index, col_ind)
+            let edit = this.getCellEditable(index, check)
             if (edit == null || ['checkbox', 'check'].indexOf(edit.type) != -1) {
                 return this.nextCell(index, check, editable)
             }
         }
-        return check
+        return { index, colIndex: check }
     }
 
     prevCell(index, col_ind, editable) {
         let check = col_ind - 1
+        if (check < 0) {
+            index = this.prevRow(index)
+            return index == null ? index : this.prevCell(index, this.columns.length, editable)
+        }
         if (check < 0) return null
-        let tmp  = this.records[index].w2ui
-        let col  = this.columns[check]
+        let tmp = this.records[index].w2ui
+        let col = this.columns[check]
         let span = (tmp && tmp.colspan && !isNaN(tmp.colspan[col.field]) ? parseInt(tmp.colspan[col.field]) : 1)
         if (col == null) return null
         if (col && col.hidden || span === 0) return this.prevCell(index, check, editable)
         if (editable) {
-            let edit = this.getCellEditable(index, col_ind)
+            let edit = this.getCellEditable(index, check)
             if (edit == null || ['checkbox', 'check'].indexOf(edit.type) != -1) {
                 return this.prevCell(index, check, editable)
             }
         }
-        return check
+        return { index, colIndex: check }
     }
 
     nextRow(ind, col_ind, numRows) {
@@ -8572,7 +8572,7 @@ class w2grid extends w2event {
         if (numRows == -1) {
             return 0
         }
-        if ((ind - numRows > 0 && sids.length === 0) // if there are more records
+        if ((ind - numRows >= 0 && sids.length === 0) // if there are more records
                 || (sids.length > 0 && ind > sids[0])) {
             ind -= numRows
             if (sids.length > 0) while (true) {

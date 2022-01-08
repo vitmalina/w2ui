@@ -87,6 +87,8 @@ $(function () {
     $.extend(rec[4], { c: 3, d: 17 });
     $.extend(rec[5], { c: 4, d: 84 });
     $.extend(rec[6], { c: 5, d: 14 });
+    $.extend(rec[2], { i: 'Spans 2 columsn', w2ui: { colspan: { i: 2 }} });
+    $.extend(rec[3], { i: 'Spans 3 columsn', w2ui: { colspan: { i: 3 }} });
     // display grid
     $('#main').w2render('grid');
 });
