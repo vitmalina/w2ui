@@ -13,11 +13,7 @@
 <!--CODE-->
 <script>
 function popup() {
-    w2popup.open({
-        width: 500,
-        height: 250,
-        title: 'Title',
-        body: '<div class="w2ui-centered" style="line-height: 1.8"><div class="text"></div></div>',
+    w2popup.open('Some text', {
         actions: {
             // function name is used for button text
             Ok(event) {
@@ -37,7 +33,7 @@ function popup() {
             }
         },
         onOpen(event) {
-            $('#w2ui-popup .text').html("Popup ready")
+            console.log("Popup ready")
         }
     })
 }

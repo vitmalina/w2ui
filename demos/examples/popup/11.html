@@ -13,16 +13,17 @@
 <!--CODE-->
 <script>
 function popup() {
-    w2popup.open({
-        width: 400,
-        height: 250,
-        title: 'Title',
-        body: '<div class="w2ui-centered" style="line-height: 1.8"><div class="text"></div></div>',
-        buttons: '<button class="w2ui-btn" onclick="w2popup.close()">Ok</button>'+
-          '<button class="w2ui-btn" onclick="w2popup.close()">Cancel</button>'
-    })
-    .then(() => {
-        $('#w2ui-popup .text').html("Popup ready")
-    });
+    w2popup.open('Some text', { actions: ['Ok', 'Cancel'] })
+        .then(() => {
+            console.log('popup is ready')
+        })
+        .ok(() => {
+            console.log('Ok button is clicked')
+            w2popup.close()
+        })
+        .cancel(() => {
+            console.log('Cancel button is clicked')
+            w2popup.close()
+        })
 }
 </script>
