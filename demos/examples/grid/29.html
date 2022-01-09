@@ -87,7 +87,7 @@ function styleToggle(recid) {
 }
 $(function () {
     w2utils.formatters.custom_centered = function(value, params, record) {
-        if(!value) {
+        if (!value) {
             return 'Bad Date!'
         }
         return '<div style="text-align: center">'+ value +'</div>'
@@ -99,12 +99,14 @@ $(function () {
         },
         columns: [
             { field: 'fname', text: 'First Name', size: '150px', info: true },
-            { field: 'lname', text: 'Last Name', size: '150px', render: function(record, index, column_index, value){
-                if (value === 'W2ui') {
-                    return '<a href="http://w2ui.com" target="_blank" title="Click Me!"><u>http://w2ui.com</u></a>'
+            { field: 'lname', text: 'Last Name', size: '150px',
+                render(record, extra) {
+                    if (extra.value === 'W2ui') {
+                        return '<a href="http://w2ui.com" target="_blank" title="Click Me!"><u>http://w2ui.com</u></a>'
+                    }
+                    return extra.value
                 }
-                return value
-            } },
+            },
             { field: 'email', text: 'Email', size: '200px' },
             { field: 'sdate', text: 'Start Date', size: '200px', render: 'custom_centered' },
             { field: 'comment', text: 'Comment', size: '100%' },

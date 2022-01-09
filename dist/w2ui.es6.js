@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (1/4/2022, 10:17:27 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (1/8/2022, 4:08:28 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -2220,6 +2220,7 @@ w2utils.formatters = {
 *   - grid.message returns a promise
 *   - search.type == 'text' can have 'in' and 'not in' operators, then it will switch to enum
 *   - grid.find(..., displayedOnly)
+*   - column.render(..., this) - added
 *
 ************************************************************************/
 
@@ -4745,7 +4746,7 @@ class w2grid extends w2event {
         if ($('#w2ui-overlay-'+ overName).length == 1) html = '' // hide if visible
         // need timer otherwise does nto show with list type
         setTimeout(() => {
-            $(el).w2overlay({ html: html, name: overName, left: -10 })
+            $(el).w2overlay({ html: html, name: overName, left: -2, tipLeft: 18 })
         }, 1)
     }
     searchInitInput(field, value) {
@@ -5173,8 +5174,6 @@ class w2grid extends w2event {
             }
         }
     }
-    // ===================================================
-    // --  Action Handlers
     save(callBack) {
         let changes = this.getChanges()
         let url     = (typeof this.url != 'object' ? this.url : this.url.save)
@@ -5372,6 +5371,7 @@ class w2grid extends w2event {
                     })
                 }, 10)
                 if (value != null) $(input).val(typeof val != 'object' ? val : '')
+                input.select()
             }
         }
         setTimeout(() => {
@@ -5425,52 +5425,37 @@ class w2grid extends w2event {
                     setTimeout(() => {
                         switch (event.keyCode) {
                             case 9: { // tab
-                                let next_rec = recid
-                                let next_col = event.shiftKey ? obj.prevCell(index, column, true) : obj.nextCell(index, column, true)
-                                // next or prev row
-                                if (next_col == null) {
-                                    let tmp = event.shiftKey ? obj.prevRow(index, column, 1) : obj.nextRow(index, column, 1)
-                                    if (tmp != null && tmp != index) {
-                                        next_rec = obj.records[tmp].recid
-                                        // find first editable row
-                                        for (let c = 0; c < obj.columns.length; c++) {
-                                            let edit = obj.getCellEditable(index, c)
-                                            if (edit != null && ['checkbox', 'check'].indexOf(edit.type) == -1) {
-                                                next_col = parseInt(c)
-                                                if (!event.shiftKey) break
-                                            }
+                                let next = event.shiftKey
+                                    ? obj.prevCell(index, column, true)
+                                    : obj.nextCell(index, column, true)
+                                if (next != null) {
+                                    let recid = obj.records[next.index].recid
+                                    el.blur()
+                                    setTimeout(() => {
+                                        if (obj.selectType != 'row') {
+                                            obj.selectNone()
+                                            obj.select({ recid, column: next.colIndex })
+                                        } else {
+                                            obj.editField(recid, next.colIndex, null, event)
                                         }
-                                    }
+                                    }, 1)
+                                    if (event.preventDefault) event.preventDefault()
                                 }
-                                if (next_rec === false) next_rec = recid
-                                if (next_col == null) next_col = column
-                                // init new or same record
-                                el.blur()
-                                setTimeout(() => {
-                                    if (obj.selectType != 'row') {
-                                        obj.selectNone()
-                                        obj.select({ recid: next_rec, column: next_col })
-                                    } else {
-                                        obj.editField(next_rec, next_col, null, event)
-                                    }
-                                }, 1)
-                                if (event.preventDefault) event.preventDefault()
                                 break
                             }
                             case 13: { // enter
                                 el.blur()
                                 if (obj.advanceOnEdit) {
                                     let next = event.shiftKey ? obj.prevRow(index, column, 1) : obj.nextRow(index, column, 1)
-                                    if (next != null && next != index) {
-                                        setTimeout(() => {
-                                            if (obj.selectType != 'row') {
-                                                obj.selectNone()
-                                                obj.select({ recid: obj.records[next].recid, column: column })
-                                            } else {
-                                                obj.editField(obj.records[next].recid, column, null, event)
-                                            }
-                                        }, 1)
-                                    }
+                                    if (next == null) next = index // keep the same
+                                    setTimeout(() => {
+                                        if (obj.selectType != 'row') {
+                                            obj.selectNone()
+                                            obj.select({ recid: obj.records[next].recid, column: column })
+                                        } else {
+                                            obj.editField(obj.records[next].recid, column, null, event)
+                                        }
+                                    }, 1)
                                 }
                                 if (el.tagName.toUpperCase() == 'DIV') {
                                     event.preventDefault()
@@ -6052,6 +6037,11 @@ class w2grid extends w2event {
                 }
             } else {
                 let prev = obj.prevCell(ind, columns[0])
+                if (prev.index != ind) {
+                    prev = null
+                } else {
+                    prev = prev.colIndex
+                }
                 if (!shiftKey && prev == null) {
                     obj.selectNone()
                     prev = 0
@@ -6105,6 +6095,11 @@ class w2grid extends w2event {
                 obj.expand(recid, event)
             } else {
                 let next = obj.nextCell(ind, columns[columns.length-1]) // columns is an array of selected columns
+                if (next.index != ind) {
+                    next = null
+                } else {
+                    next = next.colIndex
+                }
                 if (!shiftKey && next == null) {
                     obj.selectNone()
                     next = obj.columns.length-1
@@ -6152,7 +6147,7 @@ class w2grid extends w2event {
             if (empty) selectTopRecord()
             if (recEL.length <= 0) return
             // move to the previous record
-            let prev = obj.prevRow(ind, 0, numRows)
+            let prev = obj.prevRow(ind, obj.selectType == 'row' ? 0 : sel[0].column, numRows)
             if (!shiftKey && prev == null) {
                 if (obj.searchData.length != 0 && !url) {
                     prev = obj.last.searchIds[0]
@@ -6202,7 +6197,7 @@ class w2grid extends w2event {
             if (empty) selectTopRecord()
             if (recEL.length <= 0) return
             // move to the next record
-            let next = obj.nextRow(ind2, 0, numRows)
+            let next = obj.nextRow(ind2, obj.selectType == 'row' ? 0 : sel[0].column, numRows)
             if (!shiftKey && next == null) {
                 if (obj.searchData.length != 0 && !url) {
                     next = obj.last.searchIds[obj.last.searchIds.length - 1]
@@ -6889,19 +6884,18 @@ class w2grid extends w2event {
                 rec.w2ui._update.cells[column] = cell
             } else {
                 let div = cell.children[0] // there is always a div inside a cell
-                // addStyle, addClass, attrCell - cell level
-                // attrData - div level
-                let { data, addStyle, addClass, attrCell, attrData } = self.getCellValue(index, column, false, true)
-                if (div.innerHTML != data) {
-                    div.innerHTML = data
+                // value, attr, style, className, divAttr -- all on TD level except divAttr
+                let { value, style, className, attr, divAtt } = self.getCellValue(index, column, false, true)
+                if (div.innerHTML != value) {
+                    div.innerHTML = value
                 }
-                if (addStyle != '' && cell.style.cssText != addStyle) {
-                    cell.style.cssText = addStyle
+                if (style != '' && cell.style.cssText != style) {
+                    cell.style.cssText = style
                 }
-                if (addClass != '') {
+                if (className != '') {
                     let ignore = ['w2ui-grid-data']
                     let remove = []
-                    let add = addClass.split(' ').filter(cl => !!cl) // remove empty
+                    let add = className.split(' ').filter(cl => !!cl) // remove empty
                     cell.classList.forEach(cl => { if (!ignore.includes(cl)) remove.push(cl)})
                     cell.classList.remove(...remove)
                     cell.classList.add(...add)
@@ -9782,9 +9776,10 @@ class w2grid extends w2event {
         let col = this.columns[col_ind]
         if (col == null) return ''
         let record  = (summary !== true ? this.records[ind] : this.summary[ind])
-        let { data, addStyle, addClass, attrCell, attrData } = this.getCellValue(ind, col_ind, summary, true)
+        // value, attr, style, className, divAttr
+        let { value, style, className, attr, divAttr } = this.getCellValue(ind, col_ind, summary, true)
         let edit = (ind !== -1 ? this.getCellEditable(ind, col_ind) : '')
-        let style = 'max-height: '+ parseInt(this.recordHeight) +'px;' + (col.clipboardCopy ? 'margin-right: 20px' : '')
+        let divStyle = 'max-height: '+ parseInt(this.recordHeight) +'px;' + (col.clipboardCopy ? 'margin-right: 20px' : '')
         let isChanged = !summary && record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null
         let sel = this.last.selection
         let isRowSelected = false
@@ -9852,33 +9847,34 @@ class w2grid extends w2event {
                 '="let grid = w2ui[\''+ this.name + '\']; if (grid.last.bubbleEl) { $(grid.last.bubbleEl).w2tag() } grid.last.bubbleEl = null;"'+
                 '></span>'
         }
+        let data = value
         // if editable checkbox
         if (edit && ['checkbox', 'check'].indexOf(edit.type) != -1) {
             let changeInd = summary ? -(ind + 1) : ind
-            style        += 'text-align: center;'
-            data          = '<input tabindex="-1" type="checkbox" '+ (data ? 'checked="checked"' : '') +' onclick="' +
+            divStyle += 'text-align: center;'
+            data  = '<input tabindex="-1" type="checkbox" '+ (data ? 'checked="checked"' : '') +' onclick="' +
                     '    let obj = w2ui[\''+ this.name + '\']; '+
                     '    obj.editChange.call(obj, this, '+ changeInd +', '+ col_ind +', event); ' +
                     '"/>'
             infoBubble    = ''
         }
-        data = `<div style="${style}" ${getTitle(data)} ${attrData}>${infoBubble}${String(data)}</div>`
+        data = `<div style="${divStyle}" ${getTitle(data)} ${divAttr}>${infoBubble}${String(data)}</div>`
         if (data == null) data = ''
         // --> cell TD
         if (typeof col.render == 'string') {
             let tmp = col.render.toLowerCase().split(':')
             if (['number', 'int', 'float', 'money', 'currency', 'percent', 'size'].indexOf(tmp[0]) != -1) {
-                addStyle += 'text-align: right;'
+                style += 'text-align: right;'
             }
         }
         if (record && record.w2ui) {
             if (typeof record.w2ui.style == 'object') {
-                if (typeof record.w2ui.style[col_ind] == 'string') addStyle += record.w2ui.style[col_ind] + ';'
-                if (typeof record.w2ui.style[col.field] == 'string') addStyle += record.w2ui.style[col.field] + ';'
+                if (typeof record.w2ui.style[col_ind] == 'string') style += record.w2ui.style[col_ind] + ';'
+                if (typeof record.w2ui.style[col.field] == 'string') style += record.w2ui.style[col.field] + ';'
             }
             if (typeof record.w2ui.class == 'object') {
-                if (typeof record.w2ui.class[col_ind] == 'string') addClass += record.w2ui.class[col_ind] + ' '
-                if (typeof record.w2ui.class[col.field] == 'string') addClass += record.w2ui.class[col.field] + ' '
+                if (typeof record.w2ui.class[col_ind] == 'string') className += record.w2ui.class[col_ind] + ' '
+                if (typeof record.w2ui.class[col.field] == 'string') className += record.w2ui.class[col.field] + ' '
             }
         }
         let isCellSelected = false
@@ -9892,16 +9888,16 @@ class w2grid extends w2event {
                 + 'onmouseLeave="jQuery(this).w2tag()" class="w2ui-clipboard-copy w2ui-icon-paste"></span>'
         }
         // data
-        data = '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') + ' ' + addClass +
+        data = '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') + ' ' + className +
                     (isChanged ? ' w2ui-changed' : '') + '" '+
                 '   id="grid_'+ this.name +'_data_'+ ind +'_'+ col_ind +'" col="'+ col_ind +'" '+
-                '   style="'+ addStyle + (col.style != null ? col.style : '') +'" '+
-                    (col.attr != null ? col.attr : '') + attrCell +
+                '   style="'+ style + (col.style != null ? col.style : '') +'" '+
+                    (col.attr != null ? col.attr : '') + attr +
                     (col_span > 1 ? 'colspan="'+ col_span + '"' : '') +
                 '>' + data + (clipboardIcon && w2utils.stripTags(data) ? clipboardIcon : '') +'</td>'
         // summary top row
         if (ind === -1 && summary === true) {
-            data = '<td class="w2ui-grid-data" col="'+ col_ind +'" style="height: 0px; '+ addStyle + '" '+
+            data = '<td class="w2ui-grid-data" col="'+ col_ind +'" style="height: 0px; '+ style + '" '+
                         (col_span > 1 ? 'colspan="'+ col_span + '"' : '') +
                     '></td>'
         }
@@ -10024,9 +10020,9 @@ class w2grid extends w2event {
         if (edit == null || edit === true) {
             edit = (col && Object.keys(col.editable).length > 0 ? col.editable : null)
             if (typeof(edit) === 'function') {
-                let data = this.getCellValue(ind, col_ind, false)
+                let value = this.getCellValue(ind, col_ind, false)
                 // same arguments as col.render()
-                edit = edit.call(this, rec, ind, col_ind, data)
+                edit = edit.call(this, rec, ind, col_ind, value)
             }
         }
         return edit
@@ -10034,38 +10030,36 @@ class w2grid extends w2event {
     getCellValue(ind, col_ind, summary, extra) {
         let col = this.columns[col_ind]
         let record = (summary !== true ? this.records[ind] : this.summary[ind])
-        let data = this.parseField(record, col.field)
-        let addClass = '', addStyle = '', attrCell = '', attrData = ''
+        let value = this.parseField(record, col.field)
+        let className = '', style = '', attr = '', divAttr = ''
         if (col.render != null && ind !== -1) {
             if (typeof col.render == 'function' && record != null) {
-                let html = col.render.call(this, record, ind, col_ind, data)
-                if (html != null && typeof html == 'object') {
-                    if (typeof html.html == 'string') {
-                        data = (html.html || '').trim()
+                // do not bind col.render, as it might be already bound
+                let html = col.render(record, { self: this, value: value, index: ind, colIndex: col_ind })
+                if (html != null && typeof html == 'object' && typeof html != 'function') {
+                    if (html.id != null && html.text != null) {
+                        // normalized menu kind of return
+                        value = html.text
+                    } else if (typeof html.html == 'string') {
+                        value = (html.html || '').trim()
                     } else {
-                        data = ''
+                        value = ''
                         console.log('ERROR: render function should return a primitive or an object of the following structure.',
-                            { html: '...', class: '...', style: '...', attrCell: '...', attrData: '...' })
+                            { html: '', attr: '', style: '', class: '', divAttr: '' })
                     }
-                    addClass = html.class ?? ''
-                    addStyle = html.style ?? ''
-                    attrCell = html.attrCell ?? ''
-                    attrData = html.attrData ?? ''
+                    attr = html.attr ?? ''
+                    style = html.style ?? ''
+                    className = html.class ?? ''
+                    divAttr = html.divAttr ?? ''
                 } else {
-                    if (typeof html !== 'object' && typeof html !== 'function') {
-                        data = String(html || '').trim()
-                    } else {
-                        data = ''
-                        console.log('ERROR: render function should return a string or an object of the following structure.',
-                            { html: '...', class: '...', style: '...', attrCell: '...', attrData: '...' })
-                    }
+                    value = String(html || '').trim()
                 }
             }
             // if it is an object
             if (typeof col.render == 'object') {
-                let tmp = col.render[data]
+                let tmp = col.render[value]
                 if (tmp != null && tmp !== '') {
-                    data = tmp
+                    value = tmp
                 }
             }
             // formatters
@@ -10076,37 +10070,36 @@ class w2grid extends w2event {
                     tmp[0] = col.render.toLowerCase()
                     tmp[1] = ''
                 } else {
-                    tmp[0] = col.render.toLowerCase().substr(0, t)
-                    tmp[1] = col.render.toLowerCase().substr(t+1)
+                    tmp[0] = col.render.toLowerCase().substr(0, strInd)
+                    tmp[1] = col.render.toLowerCase().substr(strInd + 1)
                 }
                 // formatters
                 let func = w2utils.formatters[tmp[0]]
                 if (col.options && col.options.autoFormat === false) {
                     func = null
                 }
-                data = (typeof func == 'function' ? func(data, tmp[1], record) : '')
+                value = (typeof func == 'function' ? func(value, tmp[1], record) : '')
             }
-        } else {
-            // if edited
-            if (record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null) {
-                data = record.w2ui.changes[col.field]
-            }
-            if ($.isPlainObject(data) && Object.keys(col.editable).length > 0) { // if editable object
+        }
+        // if change by inline editing
+        if (record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null) {
+            value = record.w2ui.changes[col.field]
+            if (value instanceof Object && Object.keys(col.editable).length > 0) { // if editable object
                 if (col.options && col.options.items) {
-                    let val = col.options.items.find((item) => { return item.id == data.id })
+                    let val = col.options.items.find((item) => { return item.id == value.id })
                     if (val) {
-                        data = val.text
+                        value = val.text
                     } else {
-                        data = data.id
+                        value = value.id
                     }
                 } else {
-                    if (data.id != null) data = data.id
-                    if (data.text != null) data = data.text
+                    if (value.id != null && value.text == null) value = value.id
+                    if (value.text != null) value = value.text
                 }
             }
         }
-        if (data == null) data = ''
-        return !extra ? data : { data, attrCell, attrData, addClass, addStyle }
+        if (value == null) value = ''
+        return !extra ? value : { value, attr, style, className, divAttr }
     }
     getFooterHTML() {
         return '<div>'+
@@ -10355,37 +10348,42 @@ class w2grid extends w2event {
     }
     nextCell(index, col_ind, editable) {
         let check = col_ind + 1
-        if (check >= this.columns.length) return null
+        if (check >= this.columns.length) {
+            index = this.nextRow(index)
+            return index == null ? index : this.nextCell(index, -1, editable)
+        }
         let tmp = this.records[index].w2ui
-        // let ccol = this.columns[col_ind]
-        // if (tmp && tmp.colspan[ccol.field]) check += parseInt(tmp.colspan[ccol.field]) -1; // colspan of a column
-        let col  = this.columns[check]
+        let col = this.columns[check]
         let span = (tmp && tmp.colspan && !isNaN(tmp.colspan[col.field]) ? parseInt(tmp.colspan[col.field]) : 1)
         if (col == null) return null
         if (col && col.hidden || span === 0) return this.nextCell(index, check, editable)
         if (editable) {
-            let edit = this.getCellEditable(index, col_ind)
+            let edit = this.getCellEditable(index, check)
             if (edit == null || ['checkbox', 'check'].indexOf(edit.type) != -1) {
                 return this.nextCell(index, check, editable)
             }
         }
-        return check
+        return { index, colIndex: check }
     }
     prevCell(index, col_ind, editable) {
         let check = col_ind - 1
+        if (check < 0) {
+            index = this.prevRow(index)
+            return index == null ? index : this.prevCell(index, this.columns.length, editable)
+        }
         if (check < 0) return null
-        let tmp  = this.records[index].w2ui
-        let col  = this.columns[check]
+        let tmp = this.records[index].w2ui
+        let col = this.columns[check]
         let span = (tmp && tmp.colspan && !isNaN(tmp.colspan[col.field]) ? parseInt(tmp.colspan[col.field]) : 1)
         if (col == null) return null
         if (col && col.hidden || span === 0) return this.prevCell(index, check, editable)
         if (editable) {
-            let edit = this.getCellEditable(index, col_ind)
+            let edit = this.getCellEditable(index, check)
             if (edit == null || ['checkbox', 'check'].indexOf(edit.type) != -1) {
                 return this.prevCell(index, check, editable)
             }
         }
-        return check
+        return { index, colIndex: check }
     }
     nextRow(ind, col_ind, numRows) {
         let sids = this.last.searchIds
@@ -10420,7 +10418,7 @@ class w2grid extends w2event {
         if (numRows == -1) {
             return 0
         }
-        if ((ind - numRows > 0 && sids.length === 0) // if there are more records
+        if ((ind - numRows >= 0 && sids.length === 0) // if there are more records
                 || (sids.length > 0 && ind > sids[0])) {
             ind -= numRows
             if (sids.length > 0) while (true) {
@@ -11828,11 +11826,12 @@ class w2layout extends w2event {
 * - for poppup.message, w2alert, w2cofirm, w2propt - use w2utils.message
 *
 * == 2.0 changes
-*   - CSP - fixed inline events
+*  - CSP - fixed inline events
+*  - popup.open - returns promise like object
 *
 ************************************************************************/
 
-class w2dialog extends w2event {
+class Dialog extends w2event {
     constructor(options) {
         super()
         this.defaults   = {
@@ -11868,305 +11867,350 @@ class w2dialog extends w2event {
         this.onMsgClose = null
     }
     open(options) {
-        return new Promise((resolve, reject) => {
-            let obj          = this
-            let orig_options = $.extend(true, {}, options)
-            if (w2popup.status == 'closing') {
-                setTimeout(() => { obj.open.call(obj, options) }, 100)
-                return
+        /**
+         * Sample calls
+         * - w2popup.open('ddd').ok(() => { w2popup.close() })
+         * - w2popup.open('ddd', { height: 120 }).ok(() => { w2popup.close() })
+         * - w2popup.open({ body: 'text', title: 'caption', actions: ["ok"] }).ok(() => { w2popup.close() })
+         * - w2popup.open({ body: 'text', title: 'caption', actions: { ok() { w2popup.close() }} })
+         */
+        let self = this
+        let orig_options = $.extend(true, {}, options)
+        if (w2popup.status == 'closing') {
+            setTimeout(() => { self.open.call(self, options) }, 100)
+            return
+        }
+        // get old options and merge them
+        let old_options = $('#w2ui-popup').data('options')
+        if (typeof options == 'string') {
+            options = w2utils.extend({
+                title: 'Notification',
+                body: `<div class="w2ui-centered">${options}</div>`,
+                showClose: false,
+                width: 450,
+                height: 220,
+                actions: ["Ok"]
+            }, arguments[1] ?? {})
+        }
+        options = $.extend({}, this.defaults, old_options, { title: '', body : '', buttons: '' }, options, { maximized: false })
+        // if new - reset event handlers
+        if ($('#w2ui-popup').length === 0) {
+            // w2popup.handlers  = []; // if commented, allows to add w2popup.on() for all
+            w2popup.onOpen     = null
+            w2popup.onClose    = null
+            w2popup.onMax      = null
+            w2popup.onMin      = null
+            w2popup.onToggle   = null
+            w2popup.onKeydown  = null
+            w2popup.onAction   = null
+            w2popup.onMove     = null
+            w2popup.onMsgOpen  = null
+            w2popup.onMsgClose = null
+        } else {
+            $('#w2ui-popup').data('options', options)
+        }
+        if (options.onOpen) w2popup.onOpen = options.onOpen
+        if (options.onClose) w2popup.onClose = options.onClose
+        if (options.onMax) w2popup.onMax = options.onMax
+        if (options.onMin) w2popup.onMin = options.onMin
+        if (options.onToggle) w2popup.onToggle = options.onToggle
+        if (options.onKeydown) w2popup.onKeydown = options.onKeydown
+        if (options.onAction) w2popup.onAction = options.onAction
+        if (options.onMove) w2popup.onMove = options.onMove
+        if (options.onMsgOpen) w2popup.onMsgOpen = options.onMsgOpen
+        if (options.onMsgClose) w2popup.onMsgClose = options.onMsgClose
+        options.width  = parseInt(options.width)
+        options.height = parseInt(options.height)
+        let maxW, maxH, edata, msg, tmp
+        if (window.innerHeight == undefined) {
+            maxW = parseInt(document.documentElement.offsetWidth)
+            maxH = parseInt(document.documentElement.offsetHeight)
+            if (w2utils.engine === 'IE7') { maxW += 21; maxH += 4 }
+        } else {
+            maxW = parseInt(window.innerWidth)
+            maxH = parseInt(window.innerHeight)
+        }
+        if (maxW - 10 < options.width) options.width = maxW - 10
+        if (maxH - 10 < options.height) options.height = maxH - 10
+        let top  = (maxH - options.height) / 2 * 0.6
+        let left = (maxW - options.width) / 2
+        let prom = {
+            action(callBack) {
+                self.off('action.prom')
+                    .on('action.prom', callBack)
+                return prom
+            },
+            close(callBack) {
+                self.off('close.prom')
+                    .on('close.prom', callBack)
+                return prom
+            },
+            then(callBack) {
+                self.off('open:after.prom')
+                    .on('open:after.prom', callBack)
+                return prom
             }
-            // get old options and merge them
-            let old_options = $('#w2ui-popup').data('options')
-            options         = $.extend({}, this.defaults, old_options, { title: '', body : '', buttons: '' }, options, { maximized: false })
-            // if new - reset event handlers
-            if ($('#w2ui-popup').length === 0) {
-                // w2popup.handlers  = []; // if commented, allows to add w2popup.on() for all
-                w2popup.onOpen     = null
-                w2popup.onClose    = null
-                w2popup.onMax      = null
-                w2popup.onMin      = null
-                w2popup.onToggle   = null
-                w2popup.onKeydown  = null
-                w2popup.onAction   = null
-                w2popup.onMove     = null
-                w2popup.onMsgOpen  = null
-                w2popup.onMsgClose = null
-            } else {
-                $('#w2ui-popup').data('options', options)
+        }
+        // convert action arrays into buttons
+        if (options.actions != null) {
+            options.buttons = ''
+            Object.keys(options.actions).forEach((action) => {
+                let handler = options.actions[action]
+                let btnAction = action
+                if (typeof handler == 'function') {
+                    options.buttons += `<button class="w2ui-btn w2ui-eaction" data-click='["action","${action}"]'>${action}</button>`
+                }
+                if (typeof handler == 'object') {
+                    options.buttons += `<button class="w2ui-btn w2ui-eaction ${handler.class || ''}" data-click='["action","${action}"]'
+                        style="${handler.style}">${handler.text || action}</button>`
+                    btnAction = handler.text || action
+                }
+                if (typeof handler == 'string') {
+                    options.buttons += `<button class="w2ui-btn w2ui-eaction" data-click='["action","${handler}"]'>${handler}</button>`
+                    btnAction = handler
+                }
+                if (typeof btnAction == 'string') {
+                    btnAction = btnAction[0].toLowerCase() + btnAction.substr(1).replace(/\s+/g, '')
+                }
+                prom[btnAction] = function (callBack) {
+                    self.off('action.' + btnAction)
+                        .on('action.' + btnAction, (event) => {
+                            let target = event.target[0].toLowerCase() + event.target.substr(1).replace(/\s+/g, '')
+                            if (target == btnAction) callBack(event)
+                        })
+                    return prom
+                }
+            })
+        }
+        // check if message is already displayed
+        if ($('#w2ui-popup').length === 0) {
+            // trigger event
+            edata = this.trigger({ phase: 'before', type: 'open', target: 'popup', options: options, present: false })
+            if (edata.isCancelled === true) return
+            w2popup.status = 'opening'
+            // output message
+            w2popup.lockScreen(options)
+            let btn = ''
+            if (options.showClose) {
+                btn += `<div class="w2ui-popup-button w2ui-popup-close">
+                            <span class="w2ui-icon w2ui-icon-cross w2ui-eaction" data-mousedown="stop" data-click="close"></span>
+                        </div>`
             }
-            if (options.onOpen) w2popup.onOpen = options.onOpen
-            if (options.onClose) w2popup.onClose = options.onClose
-            if (options.onMax) w2popup.onMax = options.onMax
-            if (options.onMin) w2popup.onMin = options.onMin
-            if (options.onToggle) w2popup.onToggle = options.onToggle
-            if (options.onKeydown) w2popup.onKeydown = options.onKeydown
-            if (options.onAction) w2popup.onAction = options.onAction
-            if (options.onMove) w2popup.onMove = options.onMove
-            if (options.onMsgOpen) w2popup.onMsgOpen = options.onMsgOpen
-            if (options.onMsgClose) w2popup.onMsgClose = options.onMsgClose
-            options.width  = parseInt(options.width)
-            options.height = parseInt(options.height)
-            let maxW, maxH, edata, msg, tmp
-            if (window.innerHeight == undefined) {
-                maxW = parseInt(document.documentElement.offsetWidth)
-                maxH = parseInt(document.documentElement.offsetHeight)
-                if (w2utils.engine === 'IE7') { maxW += 21; maxH += 4 }
-            } else {
-                maxW = parseInt(window.innerWidth)
-                maxH = parseInt(window.innerHeight)
+            if (options.showMax) {
+                btn += `<div class="w2ui-popup-button w2ui-popup-max">
+                            <span class="w2ui-icon w2ui-icon-box w2ui-eaction" data-mousedown="stop" data-click="toggle"></span>
+                        </div>`
             }
-            if (maxW - 10 < options.width) options.width = maxW - 10
-            if (maxH - 10 < options.height) options.height = maxH - 10
-            let top  = (maxH - options.height) / 2 * 0.6
-            let left = (maxW - options.width) / 2
-            // convert action arrays into buttons
-            if (options.actions != null) {
-                options.buttons = ''
-                Object.keys(options.actions).forEach((action) => {
-                    let handler = options.actions[action]
-                    if (typeof handler == 'function') {
-                        options.buttons += `<button class="w2ui-btn w2ui-eaction" data-click='["action","${action}"]'>${action}</button>`
-                    }
-                    if (typeof handler == 'object') {
-                        options.buttons += `<button class="w2ui-btn w2ui-eaction ${handler.class || ''}" data-click='["action","${action}"]'
-                            style="${handler.style}">${handler.text || action}</button>`
-                    }
-                    if (typeof handler == 'string') {
-                        options.buttons += handler
-                    }
-                })
+            // first insert just body
+            msg = '<div id="w2ui-popup" class="w2ui-popup w2ui-popup-opening" style="left: '+ left +'px; top: '+ top +'px;'+
+                        '     width: ' + parseInt(options.width) + 'px; height: ' + parseInt(options.height) + 'px;"></div>'
+            $('body').append(msg)
+            $('#w2ui-popup').data('options', options)
+            // parse rel=*
+            let parts = $('#w2ui-popup')
+            if (parts.find('div[rel=title], div[rel=body], div[rel=buttons]').length > 0) {
+                // title
+                tmp = parts.find('div[rel=title]')
+                if (tmp.length > 0) { options.title = tmp.html(); tmp.remove() }
+                // buttons
+                tmp = parts.find('div[rel=buttons]')
+                if (tmp.length > 0) { options.buttons = tmp.html(); tmp.remove() }
+                // body
+                tmp = parts.find('div[rel=body]')
+                if (tmp.length > 0) options.body = tmp.html(); else options.body = parts.html()
             }
-            // check if message is already displayed
-            if ($('#w2ui-popup').length === 0) {
-                // trigger event
-                edata = this.trigger({ phase: 'before', type: 'open', target: 'popup', options: options, present: false })
-                if (edata.isCancelled === true) return
-                w2popup.status = 'opening'
-                // output message
-                w2popup.lockScreen(options)
-                let btn = ''
-                if (options.showClose) {
-                    btn += `<div class="w2ui-popup-button w2ui-popup-close">
-                                <span class="w2ui-icon w2ui-icon-cross w2ui-eaction" data-mousedown="stop" data-click="close"></span>
-                            </div>`
-                }
-                if (options.showMax) {
-                    btn += `<div class="w2ui-popup-button w2ui-popup-max">
-                                <span class="w2ui-icon w2ui-icon-box w2ui-eaction" data-mousedown="stop" data-click="toggle"></span>
-                            </div>`
-                }
-                // first insert just body
-                msg = '<div id="w2ui-popup" class="w2ui-popup w2ui-popup-opening" style="left: '+ left +'px; top: '+ top +'px;'+
-                          '     width: ' + parseInt(options.width) + 'px; height: ' + parseInt(options.height) + 'px;"></div>'
-                $('body').append(msg)
-                $('#w2ui-popup').data('options', options)
-                // parse rel=*
-                let parts = $('#w2ui-popup')
-                if (parts.find('div[rel=title], div[rel=body], div[rel=buttons]').length > 0) {
-                    // title
-                    tmp = parts.find('div[rel=title]')
-                    if (tmp.length > 0) { options.title = tmp.html(); tmp.remove() }
-                    // buttons
-                    tmp = parts.find('div[rel=buttons]')
-                    if (tmp.length > 0) { options.buttons = tmp.html(); tmp.remove() }
-                    // body
-                    tmp = parts.find('div[rel=body]')
-                    if (tmp.length > 0) options.body = tmp.html(); else options.body = parts.html()
-                }
-                // then content
-                msg = '<div class="w2ui-popup-title" style="'+ (!options.title ? 'display: none' : '') +'">' + btn + '</div>'+
-                          '<div class="w2ui-box" style="'+ (!options.title ? 'top: 0px !important;' : '') +
-                                    (!options.buttons ? 'bottom: 0px !important;' : '') + '">'+
-                          '    <div class="w2ui-popup-body' + (!options.title ? ' w2ui-popup-no-title' : '') +
-                                    (!options.buttons ? ' w2ui-popup-no-buttons' : '') + '" style="' + options.style + '">' +
-                          '    </div>'+
-                          '</div>'+
-                          '<div class="w2ui-popup-buttons" style="'+ (!options.buttons ? 'display: none' : '') +'"></div>'+
-                          '<input class="w2ui-popup-hidden" style="position: absolute; top: -100px"/>' // this is needed to keep focus in popup
-                $('#w2ui-popup').html(msg)
-                if (options.title) $('#w2ui-popup .w2ui-popup-title').append(w2utils.lang(options.title))
-                if (options.buttons) $('#w2ui-popup .w2ui-popup-buttons').append(options.buttons)
-                if (options.body) $('#w2ui-popup .w2ui-popup-body').append(options.body)
-                // allow element to render
-                setTimeout(() => {
-                    $('#w2ui-popup')
-                        .css(w2utils.cssPrefix({
-                            'transition': options.speed + 's opacity, ' + options.speed + 's -webkit-transform'
-                        }))
-                        .removeClass('w2ui-popup-opening')
-                    obj.focus()
-                }, 1)
-                // clean transform
-                setTimeout(() => {
-                    $('#w2ui-popup').css(w2utils.cssPrefix('transform', ''))
-                    w2popup.status = 'open'
-                }, options.speed * 1000)
-                // onOpen event should trigger while popup still coing
-                setTimeout(() => {
-                    // event after
-                    obj.trigger($.extend(edata, { phase: 'after' }))
-                    w2utils.bindEvents('#w2ui-popup .w2ui-eaction', w2popup)
-                    $('#w2ui-popup').find('.w2ui-popup-body').show()
-                    resolve(edata)
-                }, 50)
-            } else if (options.multiple === true) {
-                // popup is not compatible with w2popup.message
-                w2popup.message(orig_options)
-            } else {
-                // if was from template and now not
-                if (w2popup._prev == null && w2popup._template != null) obj.restoreTemplate()
-                // trigger event
-                edata = this.trigger({ phase: 'before', type: 'open', target: 'popup', options: options, present: true })
-                if (edata.isCancelled === true) return
-                // check if size changed
-                w2popup.status = 'opening'
-                if (old_options != null) {
-                    if (!old_options.maximized && (old_options.width != options.width || old_options.height != options.height)) {
-                        w2popup.resize(options.width, options.height)
-                    }
-                    options.prevSize  = options.width + 'px:' + options.height + 'px'
-                    options.maximized = old_options.maximized
-                }
-                // show new items
-                let cloned = $('#w2ui-popup .w2ui-box').clone()
-                cloned.removeClass('w2ui-box').addClass('w2ui-box-temp').find('.w2ui-popup-body').empty().append(options.body)
-                // parse rel=*
-                if (typeof options.body == 'string' && cloned.find('div[rel=title], div[rel=body], div[rel=buttons]').length > 0) {
-                    // title
-                    tmp = cloned.find('div[rel=title]')
-                    if (tmp.length > 0) { options.title = tmp.html(); tmp.remove() }
-                    // buttons
-                    tmp = cloned.find('div[rel=buttons]')
-                    if (tmp.length > 0) { options.buttons = tmp.html(); tmp.remove() }
-                    // body
-                    tmp = cloned.find('div[rel=body]')
-                    if (tmp.length > 0) options.body = tmp.html(); else options.body = cloned.html()
-                    // set proper body
-                    cloned.html(options.body)
-                }
-                $('#w2ui-popup .w2ui-box').after(cloned)
-                if (options.buttons) {
-                    $('#w2ui-popup .w2ui-popup-buttons').show().html('').append(options.buttons)
-                    $('#w2ui-popup .w2ui-popup-body').removeClass('w2ui-popup-no-buttons')
-                    $('#w2ui-popup .w2ui-box, #w2ui-popup .w2ui-box-temp').css('bottom', '')
-                } else {
-                    $('#w2ui-popup .w2ui-popup-buttons').hide().html('')
-                    $('#w2ui-popup .w2ui-popup-body').addClass('w2ui-popup-no-buttons')
-                    $('#w2ui-popup .w2ui-box, #w2ui-popup .w2ui-box-temp').css('bottom', '0px')
-                }
-                if (options.title) {
-                    $('#w2ui-popup .w2ui-popup-title')
-                        .show()
-                        .html((options.showClose
-                            ? `<div class="w2ui-popup-button w2ui-popup-close">
-                                 <span class="w2ui-icon w2ui-icon-cross w2ui-eaction" data-mousedown="stop" data-click="close"></span>
-                               </div>`
-                            : '') +
-                          (options.showMax
-                            ? `<div class="w2ui-popup-button w2ui-popup-max">
-                                  <span class="w2ui-icon w2ui-icon-box w2ui-eaction" data-mousedown="stop" data-click="toggle"></span>
-                               </div>`
-                            : ''))
-                        .append(options.title)
-                    $('#w2ui-popup .w2ui-popup-body').removeClass('w2ui-popup-no-title')
-                    $('#w2ui-popup .w2ui-box, #w2ui-popup .w2ui-box-temp').css('top', '')
-                } else {
-                    $('#w2ui-popup .w2ui-popup-title').hide().html('')
-                    $('#w2ui-popup .w2ui-popup-body').addClass('w2ui-popup-no-title')
-                    $('#w2ui-popup .w2ui-box, #w2ui-popup .w2ui-box-temp').css('top', '0px')
-                }
-                // transition
-                let div_old = $('#w2ui-popup .w2ui-box')[0]
-                let div_new = $('#w2ui-popup .w2ui-box-temp')[0]
-                w2utils.transition(div_old, div_new, options.transition, () => {
-                    // clean up
-                    obj.restoreTemplate()
-                    $(div_old).remove()
-                    $(div_new).removeClass('w2ui-box-temp').addClass('w2ui-box')
-                    let $body = $(div_new).find('.w2ui-popup-body')
-                    if ($body.length == 1) {
-                        $body[0].style.cssText = options.style
-                        $body.show()
-                    }
-                    // remove max state
-                    $('#w2ui-popup').data('prev-size', null)
-                    // focus on first button
-                    obj.focus()
-                })
-                // call event onOpen
+            // then content
+            msg = '<div class="w2ui-popup-title" style="'+ (!options.title ? 'display: none' : '') +'">' + btn + '</div>'+
+                        '<div class="w2ui-box" style="'+ (!options.title ? 'top: 0px !important;' : '') +
+                                (!options.buttons ? 'bottom: 0px !important;' : '') + '">'+
+                        '    <div class="w2ui-popup-body' + (!options.title ? ' w2ui-popup-no-title' : '') +
+                                (!options.buttons ? ' w2ui-popup-no-buttons' : '') + '" style="' + options.style + '">' +
+                        '    </div>'+
+                        '</div>'+
+                        '<div class="w2ui-popup-buttons" style="'+ (!options.buttons ? 'display: none' : '') +'"></div>'+
+                        '<input class="w2ui-popup-hidden" style="position: absolute; top: -100px"/>' // this is needed to keep focus in popup
+            $('#w2ui-popup').html(msg)
+            if (options.title) $('#w2ui-popup .w2ui-popup-title').append(w2utils.lang(options.title))
+            if (options.buttons) $('#w2ui-popup .w2ui-popup-buttons').append(options.buttons)
+            if (options.body) $('#w2ui-popup .w2ui-popup-body').append(options.body)
+            // allow element to render
+            setTimeout(() => {
+                $('#w2ui-popup')
+                    .css(w2utils.cssPrefix({
+                        'transition': options.speed + 's opacity, ' + options.speed + 's -webkit-transform'
+                    }))
+                    .removeClass('w2ui-popup-opening')
+                self.focus()
+            }, 1)
+            // clean transform
+            setTimeout(() => {
+                $('#w2ui-popup').css(w2utils.cssPrefix('transform', ''))
                 w2popup.status = 'open'
-                obj.trigger($.extend(edata, { phase: 'after' }))
+            }, options.speed * 1000)
+            // onOpen event should trigger while popup still coing
+            setTimeout(() => {
+                // event after
+                self.trigger($.extend(edata, { phase: 'after' }))
                 w2utils.bindEvents('#w2ui-popup .w2ui-eaction', w2popup)
                 $('#w2ui-popup').find('.w2ui-popup-body').show()
-                resolve(edata)
+            }, 50)
+        } else if (options.multiple === true) {
+            // popup is not compatible with w2popup.message
+            w2popup.message(orig_options)
+        } else {
+            // if was from template and now not
+            if (w2popup._prev == null && w2popup._template != null) self.restoreTemplate()
+            // trigger event
+            edata = this.trigger({ phase: 'before', type: 'open', target: 'popup', options: options, present: true })
+            if (edata.isCancelled === true) return
+            // check if size changed
+            w2popup.status = 'opening'
+            if (old_options != null) {
+                if (!old_options.maximized && (old_options.width != options.width || old_options.height != options.height)) {
+                    w2popup.resize(options.width, options.height)
+                }
+                options.prevSize  = options.width + 'px:' + options.height + 'px'
+                options.maximized = old_options.maximized
             }
-            if(options.openMaximized) {
-                this.max()
+            // show new items
+            let cloned = $('#w2ui-popup .w2ui-box').clone()
+            cloned.removeClass('w2ui-box').addClass('w2ui-box-temp').find('.w2ui-popup-body').empty().append(options.body)
+            // parse rel=*
+            if (typeof options.body == 'string' && cloned.find('div[rel=title], div[rel=body], div[rel=buttons]').length > 0) {
+                // title
+                tmp = cloned.find('div[rel=title]')
+                if (tmp.length > 0) { options.title = tmp.html(); tmp.remove() }
+                // buttons
+                tmp = cloned.find('div[rel=buttons]')
+                if (tmp.length > 0) { options.buttons = tmp.html(); tmp.remove() }
+                // body
+                tmp = cloned.find('div[rel=body]')
+                if (tmp.length > 0) options.body = tmp.html(); else options.body = cloned.html()
+                // set proper body
+                cloned.html(options.body)
             }
-            // save new options
-            options._last_focus = $(':focus')
-            // keyboard events
-            if (options.keyboard) $(document).on('keydown', this.keydown)
-            // initialize move
-            tmp = {
-                resizing : false,
-                mvMove   : mvMove,
-                mvStop   : mvStop
+            $('#w2ui-popup .w2ui-box').after(cloned)
+            if (options.buttons) {
+                $('#w2ui-popup .w2ui-popup-buttons').show().html('').append(options.buttons)
+                $('#w2ui-popup .w2ui-popup-body').removeClass('w2ui-popup-no-buttons')
+                $('#w2ui-popup .w2ui-box, #w2ui-popup .w2ui-box-temp').css('bottom', '')
+            } else {
+                $('#w2ui-popup .w2ui-popup-buttons').hide().html('')
+                $('#w2ui-popup .w2ui-popup-body').addClass('w2ui-popup-no-buttons')
+                $('#w2ui-popup .w2ui-box, #w2ui-popup .w2ui-box-temp').css('bottom', '0px')
             }
-            $('#w2ui-popup .w2ui-popup-title').on('mousedown', function(event) {
-                if (!w2popup.get().maximized) mvStart(event)
+            if (options.title) {
+                $('#w2ui-popup .w2ui-popup-title')
+                    .show()
+                    .html((options.showClose
+                        ? `<div class="w2ui-popup-button w2ui-popup-close">
+                                <span class="w2ui-icon w2ui-icon-cross w2ui-eaction" data-mousedown="stop" data-click="close"></span>
+                            </div>`
+                        : '') +
+                        (options.showMax
+                        ? `<div class="w2ui-popup-button w2ui-popup-max">
+                                <span class="w2ui-icon w2ui-icon-box w2ui-eaction" data-mousedown="stop" data-click="toggle"></span>
+                            </div>`
+                        : ''))
+                    .append(options.title)
+                $('#w2ui-popup .w2ui-popup-body').removeClass('w2ui-popup-no-title')
+                $('#w2ui-popup .w2ui-box, #w2ui-popup .w2ui-box-temp').css('top', '')
+            } else {
+                $('#w2ui-popup .w2ui-popup-title').hide().html('')
+                $('#w2ui-popup .w2ui-popup-body').addClass('w2ui-popup-no-title')
+                $('#w2ui-popup .w2ui-box, #w2ui-popup .w2ui-box-temp').css('top', '0px')
+            }
+            // transition
+            let div_old = $('#w2ui-popup .w2ui-box')[0]
+            let div_new = $('#w2ui-popup .w2ui-box-temp')[0]
+            w2utils.transition(div_old, div_new, options.transition, () => {
+                // clean up
+                self.restoreTemplate()
+                $(div_old).remove()
+                $(div_new).removeClass('w2ui-box-temp').addClass('w2ui-box')
+                let $body = $(div_new).find('.w2ui-popup-body')
+                if ($body.length == 1) {
+                    $body[0].style.cssText = options.style
+                    $body.show()
+                }
+                // remove max state
+                $('#w2ui-popup').data('prev-size', null)
+                // focus on first button
+                self.focus()
             })
-            // handlers
-            function mvStart(evnt) {
-                if (!evnt) evnt = window.event
-                w2popup.status = 'moving'
-                tmp.resizing   = true
-                tmp.isLocked   = $('#w2ui-popup > .w2ui-lock').length == 1 ? true : false
-                tmp.x          = evnt.screenX
-                tmp.y          = evnt.screenY
-                tmp.pos_x      = $('#w2ui-popup').position().left
-                tmp.pos_y      = $('#w2ui-popup').position().top
-                if (!tmp.isLocked) w2popup.lock({ opacity: 0 })
-                $(document).on('mousemove', tmp.mvMove)
-                $(document).on('mouseup', tmp.mvStop)
-                if (evnt.stopPropagation) evnt.stopPropagation(); else evnt.cancelBubble = true
-                if (evnt.preventDefault) evnt.preventDefault(); else return false
-            }
-            function mvMove(evnt) {
-                if (tmp.resizing != true) return
-                if (!evnt) evnt = window.event
-                tmp.div_x = evnt.screenX - tmp.x
-                tmp.div_y = evnt.screenY - tmp.y
-                // trigger event
-                let edata = w2popup.trigger({ phase: 'before', type: 'move', target: 'popup', div_x: tmp.div_x, div_y: tmp.div_y })
-                if (edata.isCancelled === true) return
-                // default behavior
-                $('#w2ui-popup').css(w2utils.cssPrefix({
-                    'transition': 'none',
-                    'transform' : 'translate3d('+ tmp.div_x +'px, '+ tmp.div_y +'px, 0px)'
-                }))
-                // event after
-                w2popup.trigger($.extend(edata, { phase: 'after'}))
-            }
-            function mvStop(evnt) {
-                if (tmp.resizing != true) return
-                if (!evnt) evnt = window.event
-                w2popup.status = 'open'
-                tmp.div_x      = (evnt.screenX - tmp.x)
-                tmp.div_y      = (evnt.screenY - tmp.y)
-                $('#w2ui-popup').css({
-                    'left': (tmp.pos_x + tmp.div_x) + 'px',
-                    'top' : (tmp.pos_y + tmp.div_y) + 'px'
-                }).css(w2utils.cssPrefix({
-                    'transition': 'none',
-                    'transform' : 'translate3d(0px, 0px, 0px)'
-                }))
-                tmp.resizing = false
-                $(document).off('mousemove', tmp.mvMove)
-                $(document).off('mouseup', tmp.mvStop)
-                if (!tmp.isLocked) w2popup.unlock()
-            }
+            // call event onOpen
+            w2popup.status = 'open'
+            self.trigger($.extend(edata, { phase: 'after' }))
+            w2utils.bindEvents('#w2ui-popup .w2ui-eaction', w2popup)
+            $('#w2ui-popup').find('.w2ui-popup-body').show()
+        }
+        if(options.openMaximized) {
+            this.max()
+        }
+        // save new options
+        options._last_focus = $(':focus')
+        // keyboard events
+        if (options.keyboard) $(document).on('keydown', this.keydown)
+        // initialize move
+        tmp = {
+            resizing : false,
+            mvMove   : mvMove,
+            mvStop   : mvStop
+        }
+        $('#w2ui-popup .w2ui-popup-title').on('mousedown', function(event) {
+            if (!w2popup.get().maximized) mvStart(event)
         })
+        return prom
+        // handlers
+        function mvStart(evnt) {
+            if (!evnt) evnt = window.event
+            w2popup.status = 'moving'
+            tmp.resizing   = true
+            tmp.isLocked   = $('#w2ui-popup > .w2ui-lock').length == 1 ? true : false
+            tmp.x          = evnt.screenX
+            tmp.y          = evnt.screenY
+            tmp.pos_x      = $('#w2ui-popup').position().left
+            tmp.pos_y      = $('#w2ui-popup').position().top
+            if (!tmp.isLocked) w2popup.lock({ opacity: 0 })
+            $(document).on('mousemove', tmp.mvMove)
+            $(document).on('mouseup', tmp.mvStop)
+            if (evnt.stopPropagation) evnt.stopPropagation(); else evnt.cancelBubble = true
+            if (evnt.preventDefault) evnt.preventDefault(); else return false
+        }
+        function mvMove(evnt) {
+            if (tmp.resizing != true) return
+            if (!evnt) evnt = window.event
+            tmp.div_x = evnt.screenX - tmp.x
+            tmp.div_y = evnt.screenY - tmp.y
+            // trigger event
+            let edata = w2popup.trigger({ phase: 'before', type: 'move', target: 'popup', div_x: tmp.div_x, div_y: tmp.div_y })
+            if (edata.isCancelled === true) return
+            // default behavior
+            $('#w2ui-popup').css(w2utils.cssPrefix({
+                'transition': 'none',
+                'transform' : 'translate3d('+ tmp.div_x +'px, '+ tmp.div_y +'px, 0px)'
+            }))
+            // event after
+            w2popup.trigger($.extend(edata, { phase: 'after'}))
+        }
+        function mvStop(evnt) {
+            if (tmp.resizing != true) return
+            if (!evnt) evnt = window.event
+            w2popup.status = 'open'
+            tmp.div_x      = (evnt.screenX - tmp.x)
+            tmp.div_y      = (evnt.screenY - tmp.y)
+            $('#w2ui-popup').css({
+                'left': (tmp.pos_x + tmp.div_x) + 'px',
+                'top' : (tmp.pos_y + tmp.div_y) + 'px'
+            }).css(w2utils.cssPrefix({
+                'transition': 'none',
+                'transform' : 'translate3d(0px, 0px, 0px)'
+            }))
+            tmp.resizing = false
+            $(document).off('mousemove', tmp.mvMove)
+            $(document).off('mouseup', tmp.mvStop)
+            if (!tmp.isLocked) w2popup.unlock()
+        }
     }
     load(options) {
         return new Promise((resolve, reject) => {
@@ -12187,6 +12231,7 @@ class w2dialog extends w2event {
             let html = $('#w2ui-popup').data(url)
             if (html != null) {
                 this.template(html, selector)
+                resolve()
             } else {
                 $.get(url, (data, status, obj) => { // should always be $.get as it is template
                     this.template(obj.responseText, selector, options).then(() => { resolve() })
@@ -12208,11 +12253,11 @@ class w2dialog extends w2event {
         return w2popup.open(options)
     }
     action(action, msgId) {
-        let obj     = this
+        let obj = this
         let options = $('#w2ui-popup').data('options')
         if (msgId != null) {
             options = $('#w2ui-message' + msgId).data('options')
-            obj     = {
+            obj = {
                 parent: this,
                 options: options,
                 close() {
@@ -12220,11 +12265,11 @@ class w2dialog extends w2event {
                 }
             }
         }
-        let act   = options.actions[action]
+        let act = options.actions[action]
         let click = act
         if ($.isPlainObject(act) && act.onClick) click = act.onClick
         // event before
-        let edata = this.trigger({ phase: 'before', target: action, msgId: msgId, type: 'action', action: act, originalEvent: event })
+        let edata = this.trigger({ phase: 'before', type: 'action', target: action, action: act, msgId: msgId, originalEvent: event })
         if (edata.isCancelled === true) return
         // default actions
         if (typeof click === 'function') click.call(obj, event)
@@ -13125,7 +13170,7 @@ function w2prompt(label, title, callBack) {
     }
     return prom
 }
-let w2popup = new w2dialog()
+let w2popup = new Dialog()
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils

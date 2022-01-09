@@ -1,26 +1,36 @@
-Returns previous cell or null if it is first cell in the row.
+Returns previous cell or null if it is first cell in the grid.
 
 <div class="definition">
-     prevCell(col_ind, editable)
+     prevCell(index, colIndex, editable)
 </div>
 
 <div class="arguments">
     <table>
     <tr>
-        <td>col_ind</td>
+        <td>index</td>
+        <td><b>integer</b>, record index</td>
+    </tr>
+    <tr>
+        <td>colIndex</td>
         <td><b>integer</b>, column index</td>
     </tr>
     <tr>
         <td>editable</td>
-        <td><b>boolean</b>, indicates</td>
+        <td><b>boolean</b>, indicates if to return previous editable cell</td>
     </tr>
     </table>
 </div>
-Returns integer or null.
+Returns { index, colIndex } object or null.
 
 <h4>Description</h4>
 
-The first argument <span class="argument">col_ind</span> is the index in the <a class="method" href="w2grid.columns">.columns</a> array.
+This method returns you previous cell or previous editable cell. It will advance to the previous row if any. If there is no
+previous cell, it will return null. Will skip hidden columns.
+<div style="height: 10px"></div>
+
+The first argument <span class="argument">index</span> is the index in the <a class="method" href="w2grid.records">.records</a>
+array. The second argument <span class="argument">colIndex</span> is the index in
+the <a class="method" href="w2grid.columns">.columns</a> array.
 <div style="height: 10px"></div>
 
 If you have grid defined in the following way:
@@ -48,5 +58,5 @@ let grid = new w2grid({
 
 You can do:
 <textarea class="javascript">
-w2ui['grid2'].prevCell(3, true);
+w2ui['grid2'].prevCell(5, 3, true);
 </textarea>

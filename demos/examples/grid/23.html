@@ -18,7 +18,7 @@ $(function () {
         name: 'grid',
         columns: [
             { field: 'fname', text: 'Full Name', size: '200px',
-                render: function (record, index, column_index) {
+                render: function (record, extra) {
                     var html = '<div>'+ record.fname + ' ' + record.lname + '</div>';
                     return html;
                 }

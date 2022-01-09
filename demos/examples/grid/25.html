@@ -23,7 +23,7 @@ $(function () {
         columns: [
             { field: 'recid', text: 'Rec. Id', size: '100%', resizable: true, hidden: true },
             { field: 'fname', text: 'Full Name', size: '200px', resizable: true,
-                render: function (record, index, column_index) {
+                render: function (record, extra) {
                     var html = '<div>'+ record.fname + ' ' + record.lname + '</div>';
                     return html;
                 }

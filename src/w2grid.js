@@ -65,6 +65,7 @@
 *   - grid.message returns a promise
 *   - search.type == 'text' can have 'in' and 'not in' operators, then it will switch to enum
 *   - grid.find(..., displayedOnly)
+*   - column.render(..., this) - added
 *
 ************************************************************************/
 
@@ -2682,7 +2683,7 @@ class w2grid extends w2event {
         if ($('#w2ui-overlay-'+ overName).length == 1) html = '' // hide if visible
         // need timer otherwise does nto show with list type
         setTimeout(() => {
-            $(el).w2overlay({ html: html, name: overName, left: -10 })
+            $(el).w2overlay({ html: html, name: overName, left: -2, tipLeft: 18 })
         }, 1)
     }
 
@@ -3128,9 +3129,6 @@ class w2grid extends w2event {
         }
     }
 
-    // ===================================================
-    // --  Action Handlers
-
     save(callBack) {
         let changes = this.getChanges()
         let url     = (typeof this.url != 'object' ? this.url : this.url.save)
@@ -3330,6 +3328,7 @@ class w2grid extends w2event {
                     })
                 }, 10)
                 if (value != null) $(input).val(typeof val != 'object' ? val : '')
+                input.select()
             }
         }
 
@@ -3384,53 +3383,37 @@ class w2grid extends w2event {
                     setTimeout(() => {
                         switch (event.keyCode) {
                             case 9: { // tab
-                                let next_rec = recid
-                                let next_col = event.shiftKey ? obj.prevCell(index, column, true) : obj.nextCell(index, column, true)
-                                // next or prev row
-                                if (next_col == null) {
-                                    let tmp = event.shiftKey ? obj.prevRow(index, column, 1) : obj.nextRow(index, column, 1)
-                                    if (tmp != null && tmp != index) {
-                                        next_rec = obj.records[tmp].recid
-                                        // find first editable row
-                                        for (let c = 0; c < obj.columns.length; c++) {
-                                            let edit = obj.getCellEditable(index, c)
-                                            if (edit != null && ['checkbox', 'check'].indexOf(edit.type) == -1) {
-                                                next_col = parseInt(c)
-                                                if (!event.shiftKey) break
-                                            }
+                                let next = event.shiftKey
+                                    ? obj.prevCell(index, column, true)
+                                    : obj.nextCell(index, column, true)
+                                if (next != null) {
+                                    let recid = obj.records[next.index].recid
+                                    el.blur()
+                                    setTimeout(() => {
+                                        if (obj.selectType != 'row') {
+                                            obj.selectNone()
+                                            obj.select({ recid, column: next.colIndex })
+                                        } else {
+                                            obj.editField(recid, next.colIndex, null, event)
                                         }
-                                    }
-
+                                    }, 1)
+                                    if (event.preventDefault) event.preventDefault()
                                 }
-                                if (next_rec === false) next_rec = recid
-                                if (next_col == null) next_col = column
-                                // init new or same record
-                                el.blur()
-                                setTimeout(() => {
-                                    if (obj.selectType != 'row') {
-                                        obj.selectNone()
-                                        obj.select({ recid: next_rec, column: next_col })
-                                    } else {
-                                        obj.editField(next_rec, next_col, null, event)
-                                    }
-                                }, 1)
-                                if (event.preventDefault) event.preventDefault()
                                 break
                             }
                             case 13: { // enter
                                 el.blur()
                                 if (obj.advanceOnEdit) {
                                     let next = event.shiftKey ? obj.prevRow(index, column, 1) : obj.nextRow(index, column, 1)
-                                    if (next != null && next != index) {
-                                        setTimeout(() => {
-                                            if (obj.selectType != 'row') {
-                                                obj.selectNone()
-                                                obj.select({ recid: obj.records[next].recid, column: column })
-                                            } else {
-                                                obj.editField(obj.records[next].recid, column, null, event)
-                                            }
-                                        }, 1)
-                                    }
+                                    if (next == null) next = index // keep the same
+                                    setTimeout(() => {
+                                        if (obj.selectType != 'row') {
+                                            obj.selectNone()
+                                            obj.select({ recid: obj.records[next].recid, column: column })
+                                        } else {
+                                            obj.editField(obj.records[next].recid, column, null, event)
+                                        }
+                                    }, 1)
                                 }
                                 if (el.tagName.toUpperCase() == 'DIV') {
                                     event.preventDefault()
@@ -4038,6 +4021,11 @@ class w2grid extends w2event {
                 }
             } else {
                 let prev = obj.prevCell(ind, columns[0])
+                if (prev.index != ind) {
+                    prev = null
+                } else {
+                    prev = prev.colIndex
+                }
                 if (!shiftKey && prev == null) {
                     obj.selectNone()
                     prev = 0
@@ -4092,6 +4080,11 @@ class w2grid extends w2event {
                 obj.expand(recid, event)
             } else {
                 let next = obj.nextCell(ind, columns[columns.length-1]) // columns is an array of selected columns
+                if (next.index != ind) {
+                    next = null
+                } else {
+                    next = next.colIndex
+                }
                 if (!shiftKey && next == null) {
                     obj.selectNone()
                     next = obj.columns.length-1
@@ -4140,7 +4133,7 @@ class w2grid extends w2event {
             if (empty) selectTopRecord()
             if (recEL.length <= 0) return
             // move to the previous record
-            let prev = obj.prevRow(ind, 0, numRows)
+            let prev = obj.prevRow(ind, obj.selectType == 'row' ? 0 : sel[0].column, numRows)
             if (!shiftKey && prev == null) {
                 if (obj.searchData.length != 0 && !url) {
                     prev = obj.last.searchIds[0]
@@ -4191,7 +4184,7 @@ class w2grid extends w2event {
             if (empty) selectTopRecord()
             if (recEL.length <= 0) return
             // move to the next record
-            let next = obj.nextRow(ind2, 0, numRows)
+            let next = obj.nextRow(ind2, obj.selectType == 'row' ? 0 : sel[0].column, numRows)
             if (!shiftKey && next == null) {
                 if (obj.searchData.length != 0 && !url) {
                     next = obj.last.searchIds[obj.last.searchIds.length - 1]
@@ -4903,19 +4896,18 @@ class w2grid extends w2event {
                 rec.w2ui._update.cells[column] = cell
             } else {
                 let div = cell.children[0] // there is always a div inside a cell
-                // addStyle, addClass, attrCell - cell level
-                // attrData - div level
-                let { data, addStyle, addClass, attrCell, attrData } = self.getCellValue(index, column, false, true)
-                if (div.innerHTML != data) {
-                    div.innerHTML = data
+                // value, attr, style, className, divAttr -- all on TD level except divAttr
+                let { value, style, className, attr, divAtt } = self.getCellValue(index, column, false, true)
+                if (div.innerHTML != value) {
+                    div.innerHTML = value
                 }
-                if (addStyle != '' && cell.style.cssText != addStyle) {
-                    cell.style.cssText = addStyle
+                if (style != '' && cell.style.cssText != style) {
+                    cell.style.cssText = style
                 }
-                if (addClass != '') {
+                if (className != '') {
                     let ignore = ['w2ui-grid-data']
                     let remove = []
-                    let add = addClass.split(' ').filter(cl => !!cl) // remove empty
+                    let add = className.split(' ').filter(cl => !!cl) // remove empty
                     cell.classList.forEach(cl => { if (!ignore.includes(cl)) remove.push(cl)})
                     cell.classList.remove(...remove)
                     cell.classList.add(...add)
@@ -7917,9 +7909,10 @@ class w2grid extends w2event {
         let col = this.columns[col_ind]
         if (col == null) return ''
         let record  = (summary !== true ? this.records[ind] : this.summary[ind])
-        let { data, addStyle, addClass, attrCell, attrData } = this.getCellValue(ind, col_ind, summary, true)
+        // value, attr, style, className, divAttr
+        let { value, style, className, attr, divAttr } = this.getCellValue(ind, col_ind, summary, true)
         let edit = (ind !== -1 ? this.getCellEditable(ind, col_ind) : '')
-        let style = 'max-height: '+ parseInt(this.recordHeight) +'px;' + (col.clipboardCopy ? 'margin-right: 20px' : '')
+        let divStyle = 'max-height: '+ parseInt(this.recordHeight) +'px;' + (col.clipboardCopy ? 'margin-right: 20px' : '')
         let isChanged = !summary && record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null
         let sel = this.last.selection
         let isRowSelected = false
@@ -7987,33 +7980,34 @@ class w2grid extends w2event {
                 '="let grid = w2ui[\''+ this.name + '\']; if (grid.last.bubbleEl) { $(grid.last.bubbleEl).w2tag() } grid.last.bubbleEl = null;"'+
                 '></span>'
         }
+        let data = value
         // if editable checkbox
         if (edit && ['checkbox', 'check'].indexOf(edit.type) != -1) {
             let changeInd = summary ? -(ind + 1) : ind
-            style        += 'text-align: center;'
-            data          = '<input tabindex="-1" type="checkbox" '+ (data ? 'checked="checked"' : '') +' onclick="' +
+            divStyle += 'text-align: center;'
+            data  = '<input tabindex="-1" type="checkbox" '+ (data ? 'checked="checked"' : '') +' onclick="' +
                     '    let obj = w2ui[\''+ this.name + '\']; '+
                     '    obj.editChange.call(obj, this, '+ changeInd +', '+ col_ind +', event); ' +
                     '"/>'
             infoBubble    = ''
         }
-        data = `<div style="${style}" ${getTitle(data)} ${attrData}>${infoBubble}${String(data)}</div>`
+        data = `<div style="${divStyle}" ${getTitle(data)} ${divAttr}>${infoBubble}${String(data)}</div>`
         if (data == null) data = ''
         // --> cell TD
         if (typeof col.render == 'string') {
             let tmp = col.render.toLowerCase().split(':')
             if (['number', 'int', 'float', 'money', 'currency', 'percent', 'size'].indexOf(tmp[0]) != -1) {
-                addStyle += 'text-align: right;'
+                style += 'text-align: right;'
             }
         }
         if (record && record.w2ui) {
             if (typeof record.w2ui.style == 'object') {
-                if (typeof record.w2ui.style[col_ind] == 'string') addStyle += record.w2ui.style[col_ind] + ';'
-                if (typeof record.w2ui.style[col.field] == 'string') addStyle += record.w2ui.style[col.field] + ';'
+                if (typeof record.w2ui.style[col_ind] == 'string') style += record.w2ui.style[col_ind] + ';'
+                if (typeof record.w2ui.style[col.field] == 'string') style += record.w2ui.style[col.field] + ';'
             }
             if (typeof record.w2ui.class == 'object') {
-                if (typeof record.w2ui.class[col_ind] == 'string') addClass += record.w2ui.class[col_ind] + ' '
-                if (typeof record.w2ui.class[col.field] == 'string') addClass += record.w2ui.class[col.field] + ' '
+                if (typeof record.w2ui.class[col_ind] == 'string') className += record.w2ui.class[col_ind] + ' '
+                if (typeof record.w2ui.class[col.field] == 'string') className += record.w2ui.class[col.field] + ' '
             }
         }
         let isCellSelected = false
@@ -8027,16 +8021,16 @@ class w2grid extends w2event {
                 + 'onmouseLeave="jQuery(this).w2tag()" class="w2ui-clipboard-copy w2ui-icon-paste"></span>'
         }
         // data
-        data = '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') + ' ' + addClass +
+        data = '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') + ' ' + className +
                     (isChanged ? ' w2ui-changed' : '') + '" '+
                 '   id="grid_'+ this.name +'_data_'+ ind +'_'+ col_ind +'" col="'+ col_ind +'" '+
-                '   style="'+ addStyle + (col.style != null ? col.style : '') +'" '+
-                    (col.attr != null ? col.attr : '') + attrCell +
+                '   style="'+ style + (col.style != null ? col.style : '') +'" '+
+                    (col.attr != null ? col.attr : '') + attr +
                     (col_span > 1 ? 'colspan="'+ col_span + '"' : '') +
                 '>' + data + (clipboardIcon && w2utils.stripTags(data) ? clipboardIcon : '') +'</td>'
         // summary top row
         if (ind === -1 && summary === true) {
-            data = '<td class="w2ui-grid-data" col="'+ col_ind +'" style="height: 0px; '+ addStyle + '" '+
+            data = '<td class="w2ui-grid-data" col="'+ col_ind +'" style="height: 0px; '+ style + '" '+
                         (col_span > 1 ? 'colspan="'+ col_span + '"' : '') +
                     '></td>'
         }
@@ -8164,9 +8158,9 @@ class w2grid extends w2event {
         if (edit == null || edit === true) {
             edit = (col && Object.keys(col.editable).length > 0 ? col.editable : null)
             if (typeof(edit) === 'function') {
-                let data = this.getCellValue(ind, col_ind, false)
+                let value = this.getCellValue(ind, col_ind, false)
                 // same arguments as col.render()
-                edit = edit.call(this, rec, ind, col_ind, data)
+                edit = edit.call(this, rec, ind, col_ind, value)
             }
         }
         return edit
@@ -8175,38 +8169,36 @@ class w2grid extends w2event {
     getCellValue(ind, col_ind, summary, extra) {
         let col = this.columns[col_ind]
         let record = (summary !== true ? this.records[ind] : this.summary[ind])
-        let data = this.parseField(record, col.field)
-        let addClass = '', addStyle = '', attrCell = '', attrData = ''
+        let value = this.parseField(record, col.field)
+        let className = '', style = '', attr = '', divAttr = ''
         if (col.render != null && ind !== -1) {
             if (typeof col.render == 'function' && record != null) {
-                let html = col.render.call(this, record, ind, col_ind, data)
-                if (html != null && typeof html == 'object') {
-                    if (typeof html.html == 'string') {
-                        data = (html.html || '').trim()
+                // do not bind col.render, as it might be already bound
+                let html = col.render(record, { self: this, value: value, index: ind, colIndex: col_ind })
+                if (html != null && typeof html == 'object' && typeof html != 'function') {
+                    if (html.id != null && html.text != null) {
+                        // normalized menu kind of return
+                        value = html.text
+                    } else if (typeof html.html == 'string') {
+                        value = (html.html || '').trim()
                     } else {
-                        data = ''
+                        value = ''
                         console.log('ERROR: render function should return a primitive or an object of the following structure.',
-                            { html: '...', class: '...', style: '...', attrCell: '...', attrData: '...' })
+                            { html: '', attr: '', style: '', class: '', divAttr: '' })
                     }
-                    addClass = html.class ?? ''
-                    addStyle = html.style ?? ''
-                    attrCell = html.attrCell ?? ''
-                    attrData = html.attrData ?? ''
+                    attr = html.attr ?? ''
+                    style = html.style ?? ''
+                    className = html.class ?? ''
+                    divAttr = html.divAttr ?? ''
                 } else {
-                    if (typeof html !== 'object' && typeof html !== 'function') {
-                        data = String(html || '').trim()
-                    } else {
-                        data = ''
-                        console.log('ERROR: render function should return a string or an object of the following structure.',
-                            { html: '...', class: '...', style: '...', attrCell: '...', attrData: '...' })
-                    }
+                    value = String(html || '').trim()
                 }
             }
             // if it is an object
             if (typeof col.render == 'object') {
-                let tmp = col.render[data]
+                let tmp = col.render[value]
                 if (tmp != null && tmp !== '') {
-                    data = tmp
+                    value = tmp
                 }
             }
             // formatters
@@ -8217,37 +8209,36 @@ class w2grid extends w2event {
                     tmp[0] = col.render.toLowerCase()
                     tmp[1] = ''
                 } else {
-                    tmp[0] = col.render.toLowerCase().substr(0, t)
-                    tmp[1] = col.render.toLowerCase().substr(t+1)
+                    tmp[0] = col.render.toLowerCase().substr(0, strInd)
+                    tmp[1] = col.render.toLowerCase().substr(strInd + 1)
                 }
                 // formatters
                 let func = w2utils.formatters[tmp[0]]
                 if (col.options && col.options.autoFormat === false) {
                     func = null
                 }
-                data = (typeof func == 'function' ? func(data, tmp[1], record) : '')
+                value = (typeof func == 'function' ? func(value, tmp[1], record) : '')
             }
-        } else {
-            // if edited
-            if (record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null) {
-                data = record.w2ui.changes[col.field]
-            }
-            if ($.isPlainObject(data) && Object.keys(col.editable).length > 0) { // if editable object
+        }
+        // if change by inline editing
+        if (record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null) {
+            value = record.w2ui.changes[col.field]
+            if (value instanceof Object && Object.keys(col.editable).length > 0) { // if editable object
                 if (col.options && col.options.items) {
-                    let val = col.options.items.find((item) => { return item.id == data.id })
+                    let val = col.options.items.find((item) => { return item.id == value.id })
                     if (val) {
-                        data = val.text
+                        value = val.text
                     } else {
-                        data = data.id
+                        value = value.id
                     }
                 } else {
-                    if (data.id != null) data = data.id
-                    if (data.text != null) data = data.text
+                    if (value.id != null && value.text == null) value = value.id
+                    if (value.text != null) value = value.text
                 }
             }
         }
-        if (data == null) data = ''
-        return !extra ? data : { data, attrCell, attrData, addClass, addStyle }
+        if (value == null) value = ''
+        return !extra ? value : { value, attr, style, className, divAttr }
     }
 
     getFooterHTML() {
@@ -8509,38 +8500,43 @@ class w2grid extends w2event {
 
     nextCell(index, col_ind, editable) {
         let check = col_ind + 1
-        if (check >= this.columns.length) return null
+        if (check >= this.columns.length) {
+            index = this.nextRow(index)
+            return index == null ? index : this.nextCell(index, -1, editable)
+        }
         let tmp = this.records[index].w2ui
-        // let ccol = this.columns[col_ind]
-        // if (tmp && tmp.colspan[ccol.field]) check += parseInt(tmp.colspan[ccol.field]) -1; // colspan of a column
-        let col  = this.columns[check]
+        let col = this.columns[check]
         let span = (tmp && tmp.colspan && !isNaN(tmp.colspan[col.field]) ? parseInt(tmp.colspan[col.field]) : 1)
         if (col == null) return null
         if (col && col.hidden || span === 0) return this.nextCell(index, check, editable)
         if (editable) {
-            let edit = this.getCellEditable(index, col_ind)
+            let edit = this.getCellEditable(index, check)
             if (edit == null || ['checkbox', 'check'].indexOf(edit.type) != -1) {
                 return this.nextCell(index, check, editable)
             }
         }
-        return check
+        return { index, colIndex: check }
     }
 
     prevCell(index, col_ind, editable) {
         let check = col_ind - 1
+        if (check < 0) {
+            index = this.prevRow(index)
+            return index == null ? index : this.prevCell(index, this.columns.length, editable)
+        }
         if (check < 0) return null
-        let tmp  = this.records[index].w2ui
-        let col  = this.columns[check]
+        let tmp = this.records[index].w2ui
+        let col = this.columns[check]
         let span = (tmp && tmp.colspan && !isNaN(tmp.colspan[col.field]) ? parseInt(tmp.colspan[col.field]) : 1)
         if (col == null) return null
         if (col && col.hidden || span === 0) return this.prevCell(index, check, editable)
         if (editable) {
-            let edit = this.getCellEditable(index, col_ind)
+            let edit = this.getCellEditable(index, check)
             if (edit == null || ['checkbox', 'check'].indexOf(edit.type) != -1) {
                 return this.prevCell(index, check, editable)
             }
         }
-        return check
+        return { index, colIndex: check }
     }
 
     nextRow(ind, col_ind, numRows) {
@@ -8577,7 +8573,7 @@ class w2grid extends w2event {
         if (numRows == -1) {
             return 0
         }
-        if ((ind - numRows > 0 && sids.length === 0) // if there are more records
+        if ((ind - numRows >= 0 && sids.length === 0) // if there are more records
                 || (sids.length > 0 && ind > sids[0])) {
             ind -= numRows
             if (sids.length > 0) while (true) {

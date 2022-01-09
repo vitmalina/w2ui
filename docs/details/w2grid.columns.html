@@ -76,10 +76,35 @@ You can also pass a compare function in the same way you would use it as argumen
 <div style="height: 10px"></div>
 
 <h4>Render</h4>
-The render <span class="property">function(record, [index], [column_index], [data])</span> can be used to format the column data.
+The render <span class="property">function(record, extra)</span> can be used to format the column data.
 If the function is defined then it will be executed for each cell in the column and anything this function returns will be
-used instead of the original column data. The last argument <span class="property">data</span> is processed data that grid
-thinks should be there. It is the result of <span class="property">getCellValue</span> function.
+used instead of the original column data. The render function will receive two arguments, first is the current record add
+the second is extra information, which is following object.
+
+<textarea class="javascript">
+{
+    self,       // reference to the grid
+    value,      // value it thinks should be there (return from grid.getCellValue())
+    index,      // record index in grid.records array
+    colIndex    // column index in grid.columns array
+}
+</textarea>
+
+The render function can be bound to any object, is it not bound to grid by default. This allows to execute it in the
+diferent context, that is often useful. You will still have reference to the grid in extra.grid property.
+<div style="height: 10px"></div>
+
+The render function can return a primitive value or an object. If it is an object, it will be used for different portions
+of the generated markap. This object has following structure
+<textarea class="javascript">
+{
+    html,
+    attr,
+    style,
+    class,
+    divAttr
+})
+</textarea>
 
 <textarea class="javascript">
 let grid = new w2grid({
@@ -87,8 +112,8 @@ let grid = new w2grid({
     columns: [
         { field: 'recid', text: 'ID', size: '50px' },
         { field: 'full-name', text: 'Full Name', size: '60%',
-            render: function (record) {
-                return '<div>' + record.fname + ' ' + record.lname + '</div>';
+            render: function (rec, extra) {
+                return '<div>' + rec.fname + ' ' + rec.lname + '</div>';
             }
         },
         { field: 'email', text: 'Email', size: '40%' },
@@ -101,9 +126,9 @@ let grid = new w2grid({
 If render function returns an object, it can be used to add a class and a style to the cell. For example:
 <textarea class="javascript">
 { field: 'full-name', text: 'Full Name', size: '60%',
-    render: function (record) {
+    render: function (rec, extra) {
         return {
-            html: '<div>' + record.fname + ' ' + record.lname + '</div>';
+            html: '<div>' + rec.fname + ' ' + rec.lname + '</div>';
             style: '1px solid red',
             class: 'custom-class'
         }

@@ -64,20 +64,19 @@ $(function () {
             },
             { field: 'list', text: 'list', size: '50%', sortable: true, resizable: true,
                 editable: { type: 'list', items: people, showAll: true },
-                render: function (record, index, col_index) {
-                    var html = this.getCellValue(index, col_index);
-                    return html || '';
+                render: function (record, extra) {
+                    return extra.value || '';
                 }
             },
-            { field: 'combo', text: 'combo', size: '50%', sortable: true, resizable: true,
+            { field: 'combo', text: 'combo', size: '50%', sortable: true, resizable: true, hidden1: true,
                 editable: { type: 'combo', items: people, filter: false }
             },
             { field: 'select', text: 'select', size: '100px', sortable: true, resizable: true,
                 editable: { type: 'select', items: [{ id: '', text: '' }].concat(people) },
-                render: function (record, index, col_index) {
+                render(record, extra) {
                     var html = '';
                     for (var p in people) {
-                        if (people[p].id == this.getCellValue(index, col_index)) html = people[p].text;
+                        if (people[p].id == extra.value) html = people[p].text;
                     }
                     return html;
                 }
@@ -112,7 +111,11 @@ $(function () {
 });
 
 function showChanged() {
-    console.log(w2ui['grid'].getChanges());
-    w2alert('Changed records are displayed in the console');
-}
+    w2popup.open({
+        title: 'Records Changes',
+        with: 600,
+        height: 550,
+        body: `<pre>${JSON.stringify(w2ui['grid'].getChanges(), null, 4)}</pre>`,
+        buttons: '<button class="w2ui-btn" onclick="w2popup.close()">Ok</button>'
+    })}
 </script>
