@@ -1406,7 +1406,7 @@ class w2form extends w2event {
                     (header.length > 0 ? w2utils.getSize(header, 'height') : 0) +
                     ((typeof this.tabs === 'object' && Array.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) ? w2utils.getSize(tabs, 'height') : 0) +
                     ((typeof this.toolbar === 'object' && Array.isArray(this.toolbar.items) && this.toolbar.items.length > 0) ? w2utils.getSize(toolbar, 'height') : 0) +
-                    (page.length > 0 ? w2utils.getSize(dpage, 'height') + 12 : 0) + // why 12 ???
+                    (page.length > 0 ? w2utils.getSize(dpage, 'height') + 15 : 0) + // why 15 ???
                     (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0)
                 )
                 $(this.box).data('auto-size', true)
