@@ -8172,8 +8172,12 @@ class w2grid extends w2event {
         let className = '', style = '', attr = '', divAttr = ''
         if (col.render != null && ind !== -1) {
             if (typeof col.render == 'function' && record != null) {
-                // do not bind col.render, as it might be already bound
-                let html = col.render(record, { self: this, value: value, index: ind, colIndex: col_ind })
+                let html
+                try {
+                    html = col.render(record, { self: this, value: value, index: ind, colIndex: col_ind })
+                } catch (e) {
+                    throw new Error(`Render function for column "${col.field}" in grid "${this.name}": -- ` + e.message)
+                }
                 if (html != null && typeof html == 'object' && typeof html != 'function') {
                     if (html.id != null && html.text != null) {
                         // normalized menu kind of return

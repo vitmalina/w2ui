@@ -37,24 +37,24 @@ $(() => {
         show: { recordTitles: false },
         columns: [
             { field: 'fname', text: 'First Name', size: '30%',
-                render(rec, ind, col_ind) {
-                    let rec_text = rec[this.columns[col_ind].field]
+                render(rec, extra) {
+                    let rec_text = rec[extra.self.columns[extra.colIndex].field]
                     return `${rec_text}
                         <span style="color: gray" ${
                             w2utils.tooltip(`${rec_text} <div style="height: 5px"></div>${text}`,
-                                { position: 'top|bottom', className: 'w2ui-light', name: `rec-${ind}-${col_ind}` }
+                                { position: 'top|bottom', className: 'w2ui-light', name: `rec-${extra.index}-${extra.colIndex}` }
                             )}>
                             - move over me
                         </span>`
                 }
             },
             { field: 'lname', text: 'Last Name', size: '30%',
-                render(rec, ind, col_ind) {
-                    let rec_text = rec[this.columns[col_ind].field]
+                render(rec, extra) {
+                    let rec_text = rec[extra.self.columns[extra.colIndex].field]
                     return `${rec_text}
                         <span style="color: gray" ${
                             w2utils.tooltip(`${rec_text} <div style="height: 5px"></div>${text}`,
-                                { position: 'top|bottom', name: `rec-${ind}-${col_ind}` }
+                                { position: 'top|bottom', name: `rec-${extra.index}-${extra.colIndex}` }
                             )}>
                             - move over me
                         </span>`
