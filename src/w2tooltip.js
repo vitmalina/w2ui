@@ -9,7 +9,6 @@ import { query } from './query.js'
 import { w2utils } from './w2utils.js'
 
 class Popper extends w2event {
-
     constructor() {
         // TODO: what events are used for?
         super()

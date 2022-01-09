@@ -11,11 +11,7 @@
         if (Array.isArray(selector)) {
             nodes = selector
         } else if (Query._isEl(selector)) {
-            if (selector.isConnected) {
-                nodes = [selector]
-            } else {
-                nodes = []
-            }
+            nodes = [selector]
         } else if (selector instanceof Query) {
             nodes = selector.nodes
         } else if (typeof selector == 'string') {
@@ -25,7 +21,13 @@
             }
             nodes = Array.from(context.querySelectorAll(selector))
         } else {
-            throw new Error('Unknown selector')
+            // if selector is itterable, then try to create nodes from it, also converts jQuery
+            let arr = Array.from(selector)
+            if (typeof selector == 'object' && Array.isArray(arr)) {
+                nodes = arr
+            } else {
+                throw new Error(`Invalid selector "${selector}"`)
+            }
         }
         this._refs(nodes)
     }

@@ -1,6 +1,6 @@
 /************************************************************************
 *   Part of w2ui 2.0 library
-*   - Dependencies: jQuery, w2utils
+*   - Dependencies: w2utils
 *
 * == TODO ==
 *   - overlay should be displayed where more space (on top or on bottom)
@@ -12,7 +12,7 @@
 * == 2.0 changes
 *   - CSP - fixed inline events
 *   - transition returns a promise
-*   - nearly removed jQuery
+*   - nearly removed jQuery (toolip has reference)
 *
 ************************************************/
 import { w2event } from './w2event.js'
@@ -940,6 +940,7 @@ class Utils {
     }
 
     lock(box, options = {}) {
+        if (box == null) return
         if (typeof options == 'string') {
             options = { msg: options }
         }
@@ -982,6 +983,7 @@ class Utils {
     }
 
     unlock(box, speed) {
+        if (box == null) return
         // for backward compatibility
         if (box && !(box instanceof HTMLElement) && box[0] instanceof HTMLElement) {
             box = Array.isArray(box) ? box : box.get()
@@ -995,7 +997,7 @@ class Utils {
             setTimeout(() => {
                 query(box).find('.w2ui-lock').remove()
             }, speed)
-        } else {
+        } else if (typeof box == 'object') {
             query(box).find('.w2ui-lock').remove()
             query(box).find('.w2ui-lock-msg').remove()
         }
@@ -1019,7 +1021,7 @@ class Utils {
                 // mix in events
                 let opts = options
                 options = new w2event()
-                this.extend(options, opts)
+                w2utils.extend(options, opts) // needs to be w2utils
             }
             if (options.width == null) options.width = 200
             if (options.height == null) options.height = 100
@@ -1074,7 +1076,7 @@ class Utils {
                     .addClass('w2ui-closing animating')
                 if (msgCount === 1) {
                     if (this.unlock) {
-                        if (where.param) this.unlock(where.param, 150); else this.unlock(150)
+                        if (where.param) this.unlock(where.param, 150); else this.unlock(150) // should be this
                     }
                 } else {
                     query(where.box).find('#w2ui-message'+ (msgCount-2)).css('z-index', 1500)
@@ -1105,7 +1107,7 @@ class Utils {
                                         : 'data-click="message"'
                                     : '') + '>' +
                             '</div>')
-                bindEvents('#w2ui-message' + msgCount, this)
+                w2utils.bindEvents('#w2ui-message' + msgCount, this)
                 query(where.box).find('#w2ui-message'+ msgCount)
                     .addClass('animating')
                     .data('options', options)
@@ -1133,8 +1135,8 @@ class Utils {
                         })
                     }, 1)
                     // timer for lock
-                    if (msgCount === 0 && this.lock) {
-                        if (where.param) this.lock(where.param); else this.lock()
+                    if (msgCount === 0) {
+                        if (where.param) this.lock(where.param); else this.lock() // should be this
                     }
                     setTimeout(() => {
                         // has to be on top of lock
@@ -1144,7 +1146,7 @@ class Utils {
                             .css({ 'transition': '0s' })
                         // event after
                         if (options.trigger) {
-                            options.trigger(this.extend(edata, { phase: 'after' }))
+                            options.trigger(w2utils.extend(edata, { phase: 'after' }))
                             resolve({
                                 box: query(where.box).find('#w2ui-message'+ msgCount)[0]
                             })
@@ -1175,84 +1177,28 @@ class Utils {
                 head.css('z-index', head.data('old-z-index'))
                 // event after
                 if (options.trigger) {
-                    options.trigger(this.extend(edata, { phase: 'after' }))
+                    options.trigger(w2utils.extend(edata, { phase: 'after' }))
                 }
             }
         })
     }
 
     getSize(el, type) {
-        let $el = $(el)
-        let bwidth = {
-            left    : parseInt($el.css('border-left-width')) || 0,
-            right   : parseInt($el.css('border-right-width')) || 0,
-            top     : parseInt($el.css('border-top-width')) || 0,
-            bottom  : parseInt($el.css('border-bottom-width')) || 0
+        el = query(el) // for backward compatibility
+        let ret = 0
+        if (el.length > 0) {
+            el = el[0]
+            let styles = getComputedStyle(el)
+            switch (type) {
+                case 'width' :
+                    ret = parseFloat(styles.width)
+                    break
+                case 'height' :
+                    ret = parseFloat(styles.height)
+                    break
+            }
         }
-        let mwidth = {
-            left    : parseInt($el.css('margin-left')) || 0,
-            right   : parseInt($el.css('margin-right')) || 0,
-            top     : parseInt($el.css('margin-top')) || 0,
-            bottom  : parseInt($el.css('margin-bottom')) || 0
-        }
-        let pwidth = {
-            left    : parseInt($el.css('padding-left')) || 0,
-            right   : parseInt($el.css('padding-right')) || 0,
-            top     : parseInt($el.css('padding-top')) || 0,
-            bottom  : parseInt($el.css('padding-bottom')) || 0
-        }
-
-        switch (type) {
-            case 'top' : return bwidth.top + mwidth.top + pwidth.top
-            case 'bottom' : return bwidth.bottom + mwidth.bottom + pwidth.bottom
-            case 'left' : return bwidth.left + mwidth.left + pwidth.left
-            case 'right' : return bwidth.right + mwidth.right + pwidth.right
-            case 'width' : return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right + parseInt($(el).width())
-            case 'height' : return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom + parseInt($(el).height())
-            case '+width' : return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right
-            case '+height' : return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom
-        }
-        return 0
-    }
-
-    getSize_new(el, type) {
-        // for backward compatibility
-        if (el && !(el instanceof HTMLElement) && el[0] instanceof HTMLElement) {
-            el = Array.isArray(el) ? el : el.get()
-        }
-        // styles
-        let styles = el.computedStyleMap ? el.computedStyleMap() : { get() { return { value: 0 } }}
-        let bwidth = {
-            left    : parseInt(styles.get('border-left-width').value) || 0,
-            right   : parseInt(styles.get('border-right-width').value) || 0,
-            top     : parseInt(styles.get('border-top-width').value) || 0,
-            bottom  : parseInt(styles.get('border-bottom-width').value) || 0
-        }
-        let mwidth = {
-            left    : parseInt(styles.get('margin-left').value) || 0,
-            right   : parseInt(styles.get('margin-right').value) || 0,
-            top     : parseInt(styles.get('margin-top').value) || 0,
-            bottom  : parseInt(styles.get('margin-bottom').value) || 0
-        }
-        let pwidth = {
-            left    : parseInt(styles.get('padding-left').value) || 0,
-            right   : parseInt(styles.get('padding-right').value) || 0,
-            top     : parseInt(styles.get('padding-top').value) || 0,
-            bottom  : parseInt(styles.get('padding-bottom').value) || 0
-        }
-        let width = styles.get('width').value
-        let height = styles.get('height').value
-        switch (type) {
-            case 'top' : return bwidth.top + mwidth.top + pwidth.top
-            case 'bottom' : return bwidth.bottom + mwidth.bottom + pwidth.bottom
-            case 'left' : return bwidth.left + mwidth.left + pwidth.left
-            case 'right' : return bwidth.right + mwidth.right + pwidth.right
-            case 'width' : return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right + parseInt(width)
-            case 'height' : return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom + parseInt(height)
-            case '+width' : return bwidth.left + bwidth.right + mwidth.left + mwidth.right + pwidth.left + pwidth.right
-            case '+height' : return bwidth.top + bwidth.bottom + mwidth.top + mwidth.bottom + pwidth.top + pwidth.bottom
-        }
-        return 0
+        return ret
     }
 
     getStrWidth(str, styles) {
@@ -1637,8 +1583,8 @@ class Utils {
         }
         // base64 is needed to avoid '"<> and other special chars conflicts
         actions = ` on${showOn}="jQuery(this).${isOverlay ? 'w2overlay' : 'w2tag'}(`
-                + ` JSON.parse(w2utils.base64decode('${this.base64encode(JSON.stringify(options))}')))"`
-                + ` on${hideOn}="jQuery(this).${isOverlay ? 'w2overlay' : 'w2tag'}(`
+                + `JSON.parse(w2utils.base64decode('${this.base64encode(JSON.stringify(options))}')))" `
+                + `on${hideOn}="jQuery(this).${isOverlay ? 'w2overlay' : 'w2tag'}(`
                 + `${isOverlay && options.name != null
                     ? `JSON.parse(w2utils.base64decode('${this.base64encode(JSON.stringify({ name: options.name }))}'))`
                     : ''}`
@@ -1829,6 +1775,7 @@ class Utils {
         })
     }
 }
-let w2utils = new Utils(jQuery)
+// needs to be functional/module scope
+var w2utils = new Utils(jQuery)
 
 export { w2ui, w2utils }

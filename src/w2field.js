@@ -772,7 +772,7 @@ class w2field extends w2event {
                 })
             // adjust height
             $(this.el).height('auto')
-            let cntHeight = $(div).find('> div.w2ui-multi-items').height() + w2utils.getSize(div, '+height') * 2
+            let cntHeight = $(div).find('> div.w2ui-multi-items').height()
             if (cntHeight < 26) cntHeight = 26
             if (cntHeight > options.maxHeight) cntHeight = options.maxHeight
             if (div.length > 0) div[0].scrollTop = 1000

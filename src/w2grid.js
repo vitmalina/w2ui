@@ -6529,15 +6529,14 @@ class w2grid extends w2event {
             let calculatedHeight = w2utils.getSize(columns, 'height')
                 + w2utils.getSize($(this.box).find('#grid_'+ this.name +'_records table'), 'height')
                 + (bodyOverflowX ? w2utils.scrollBarSize() : 0)
-            this.height          = calculatedHeight
-                + w2utils.getSize(grid, '+height')
+            this.height = calculatedHeight
                 + (this.show.header ? w2utils.getSize(header, 'height') : 0)
                 + (this.show.toolbar ? w2utils.getSize(toolbar, 'height') : 0)
                 + (summary.css('display') != 'none' ? w2utils.getSize(summary, 'height') : 0)
                 + (this.show.footer ? w2utils.getSize(footer, 'height') : 0)
             grid.css('height', this.height)
             body.css('height', calculatedHeight)
-            box.css('height', w2utils.getSize(grid, 'height') + w2utils.getSize(box, '+height'))
+            box.css('height', w2utils.getSize(grid, 'height'))
         } else {
             // fixed body height
             let calculatedHeight = grid.height()
@@ -6549,7 +6548,7 @@ class w2grid extends w2event {
         }
 
         let buffered = this.records.length
-        let url      = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = (typeof this.url != 'object' ? this.url : this.url.get)
         if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length
         // apply overflow
         if (!this.fixedBody) { bodyOverflowY = false }
