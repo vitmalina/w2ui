@@ -385,11 +385,10 @@ class ColorPopper extends Popper {
             ['99050C', 'B45F17', '80650E', '737103', '395E14', '10783D', '13615E', '094785', '0A5394', '351C75', '780172', '782C5A']
         ]
         this.defaults = w2utils.extend({}, this.defaults, {
-            transparent: false,
+            transparent: true,
+            position: 'top|bottom',
             color: '#DDDDDD',
-            fireChange: null,
-            maxWidth: 252,
-            maxHeight: 220,
+            fireChange: null, // should be liveUpdate
             style: 'padding: 0; border: 1px solid silver;'
         })
     }
@@ -417,9 +416,11 @@ class ColorPopper extends Popper {
         if (typeof options.color === 'string' && options.color.substr(0,1) === '#') options.color = options.color.substr(1)
         if (options.fireChange == null) options.fireChange = true
         // color html
-        options.html = this.getColorHTML(options, options.html)
+        options.html = this.getColorHTML(options)
         let ret = super.show(options)
         let tag = this.get(ret.id)
+        let actions = $(tag.box).find('.w2ui-eaction')
+        w2utils.bindEvents(actions, this)
         ret.select = (callback) => {
             tag.options.onSelect = callback
             return ret
@@ -427,75 +428,76 @@ class ColorPopper extends Popper {
         return ret
     }
 
-    getColorHTML(options, customHTML) {
-        let bor
+    tab(index, el) {
+        let tag = this.get(tagId)
+        console.log(index, tag)
+    }
+
+    getColorHTML(options) {
+        let border
         let html = `
-            <div class="w2ui-colors w2ui-eaction" data-mousedown="keepOpen|this">
-                <div class="w2ui-color-palette">
-            <table cellspacing="0" cellpadding="0">`
+            <div class="w2ui-colors">
+                <div class="w2ui-color-palette">`
         for (let i = 0; i < this.palette.length; i++) {
-            html += '<tr>'
+            html += '<div class="w2ui-color-row">'
             for (let j = 0; j < this.palette[i].length; j++) {
-                if (this.palette[i][j] === 'FFFFFF') bor = '; border: 1px solid #efefef'; else bor = ''
+                let color = this.palette[i][j]
+                if (color === 'FFFFFF') border = '; border: 1px solid #efefef'; else border = ''
                 html += `
-                    <td>
-                        <div class="w2ui-color ${this.palette[i][j] === '' ? 'w2ui-no-color' : ''}"
-                                style="background-color: #${this.palette[i][j] + bor};"
-                                name="${this.palette[i][j]}" index="${i}:${j}">
-                            ${(options.color == this.palette[i][j]
-                                ? '<span style="position: relative; top: -4px;">&#149;</span>'
-                                : '&#160;')
-                            }
-                        </div>
-                    </td>`
+                    <div class="w2ui-color w2ui-eaction ${color === '' ? 'w2ui-no-color' : ''}"
+                            style="background-color: #${color + border};" data-click="select|${color}|${i}|${j}|this"
+                            name="${color}" index="${i}:${j}">
+                        ${(options.color == color
+                            ? '<span style="position: relative; top: -4px;">&#149;</span>'
+                            : '&#160;')
+                        }
+                    </div>`
             }
-            html += '</tr>'
-            if (i < 2) html += '<tr><td colspan="12" style="height: 5px"></td></tr>'
+            html += '</div>'
+            if (i < 2) html += '<div style="height: 5px"></div>'
         }
-        html += '</table>'+
-                '</div>'
-        if (true) {
-            html += `
-                <div class="w2ui-color-advanced" style="display: none">
-                   <div class="color-info">
-                       <div class="color-preview-bg"><div class="color-preview"></div><div class="color-original"></div></div>
-                       <div class="color-part">
-                           <span>H</span> <input name="h" maxlength="3" max="360" tabindex="101">
-                           <span>R</span> <input name="r" maxlength="3" max="255" tabindex="104">
-                       </div>
-                       <div class="color-part">
-                           <span>S</span> <input name="s" maxlength="3" max="100" tabindex="102">
-                           <span>G</span> <input name="g" maxlength="3" max="255" tabindex="105">
-                       </div>
-                       <div class="color-part">
-                           <span>V</span> <input name="v" maxlength="3" max="100" tabindex="103">
-                           <span>B</span> <input name="b" maxlength="3" max="255" tabindex="106">
-                       </div>
-                       <div class="color-part" style="margin: 30px 0px 0px 2px">
-                           <span style="width: 40px">${w2utils.lang('Opacity')}</span>
-                           <input name="a" maxlength="5" max="1" style="width: 32px !important" tabindex="107">
-                       </div>
-                   </div>
-                   <div class="palette" name="palette">
-                       <div class="palette-bg"></div>
-                       <div class="value1 move-x move-y"></div>
-                   </div>
-                   <div class="rainbow" name="rainbow">
-                       <div class="value2 move-x"></div>
-                   </div>
-                   <div class="alpha" name="alpha">
-                       <div class="alpha-bg"></div>
-                       <div class="value2 move-x"></div>
-                   </div>
-                </div>`
-        }
+        html += '</div>'
+        // advanced tab
+        html += `
+            <div class="w2ui-color-advanced" style="display: none">
+                <div class="color-info">
+                    <div class="color-preview-bg"><div class="color-preview"></div><div class="color-original"></div></div>
+                    <div class="color-part">
+                        <span>H</span> <input name="h" maxlength="3" max="360" tabindex="101">
+                        <span>R</span> <input name="r" maxlength="3" max="255" tabindex="104">
+                    </div>
+                    <div class="color-part">
+                        <span>S</span> <input name="s" maxlength="3" max="100" tabindex="102">
+                        <span>G</span> <input name="g" maxlength="3" max="255" tabindex="105">
+                    </div>
+                    <div class="color-part">
+                        <span>V</span> <input name="v" maxlength="3" max="100" tabindex="103">
+                        <span>B</span> <input name="b" maxlength="3" max="255" tabindex="106">
+                    </div>
+                    <div class="color-part" style="margin: 30px 0px 0px 2px">
+                        <span style="width: 40px">${w2utils.lang('Opacity')}</span>
+                        <input name="a" maxlength="5" max="1" style="width: 32px !important" tabindex="107">
+                    </div>
+                </div>
+                <div class="palette" name="palette">
+                    <div class="palette-bg"></div>
+                    <div class="value1 move-x move-y"></div>
+                </div>
+                <div class="rainbow" name="rainbow">
+                    <div class="value2 move-x"></div>
+                </div>
+                <div class="alpha" name="alpha">
+                    <div class="alpha-bg"></div>
+                    <div class="value2 move-x"></div>
+                </div>
+            </div>`
+        // color tabs on the bottom
         html += `
             <div class="w2ui-color-tabs">
-               <div class="w2ui-color-tab selected w2ui-eaction" data-click="colorClick|this"><span class="w2ui-icon w2ui-icon-colors"></span></div>
-               <div class="w2ui-color-tab w2ui-eaction" data-click="colorClick2|this"><span class="w2ui-icon w2ui-icon-settings"></span></div>
-               <div style="padding: 8px; text-align: right;">${(typeof customHTML == 'string' ? customHTML : '')}</div>
-            </div>
-            <div style="clear: both; height: 0"></div>`
+               <div class="w2ui-color-tab selected w2ui-eaction" data-click="tab|0|this"><span class="w2ui-icon w2ui-icon-colors"></span></div>
+               <div class="w2ui-color-tab w2ui-eaction" data-click="tab|1|this"><span class="w2ui-icon w2ui-icon-settings"></span></div>
+               <div style="padding: 5px; width: 100%; text-align: right;">${(typeof options.html == 'string' ? options.html : '')}</div>
+            </div>`
         return html
     }
 }
@@ -524,4 +526,4 @@ let w2date    = new DatePopper()
 let w2time    = new TimePopper()
 let w2menu    = new MenuPopper()
 
-export { w2tooltip, w2color, w2date, w2time, w2menu, Popper, ColorPopper, DatePopper, TimePopper, MenuPopper }
+export { w2tooltip, w2color, w2date, w2time, w2menu }
