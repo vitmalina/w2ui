@@ -1759,6 +1759,9 @@ class Utils {
                                 return false
                                 break
                             default:
+                                if (subject[method] == null) {
+                                    throw new Error(`Cannot dispatch event as the method "${method}" does not exist.`)
+                                }
                                 subject[method].apply(subject, params.map((key, ind) => {
                                     switch (String(key).toLowerCase()) {
                                         case 'event':

@@ -21,7 +21,7 @@
             }
             nodes = Array.from(context.querySelectorAll(selector))
         } else {
-            // if selector is itterable, then try to create nodes from it, also converts jQuery
+            // if selector is itterable, then try to create nodes from it, also supports jQuery
             let arr = Array.from(selector)
             if (typeof selector == 'object' && Array.isArray(arr)) {
                 nodes = arr
@@ -433,7 +433,7 @@
     removeData(key) {
         this.each(node => {
             node._mQuery = node._mQuery ?? {}
-            if (arguments.lenth == 0) {
+            if (arguments.length == 0) {
                 node._mQuery.data = {}
             } else if (key != null && node._mQuery.data) {
                 delete node._mQuery.data[key]
