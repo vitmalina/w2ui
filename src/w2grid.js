@@ -4937,7 +4937,7 @@ class w2grid extends w2event {
             }
             // record styles if any
             if (rec.w2ui.style != null) {
-                if (typeof rec.w2ui.style == 'string' && row.style.cssText !== rec.w2ui.style) {
+                if (row && typeof rec.w2ui.style == 'string' && row.style.cssText !== rec.w2ui.style) {
                     row.style.cssText = 'height: '+ self.recordHeight + 'px;' + rec.w2ui.style
                 }
                 if ($.isPlainObject(rec.w2ui.style) && typeof rec.w2ui.style[column] == 'string'
