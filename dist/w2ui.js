@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (1/8/2022, 4:08:28 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (1/26/2022, 11:32:08 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /************************************************************************
 *   Part of w2ui 2.0 library
 *   - Dependencies: jQuery, w2utils
@@ -5528,7 +5528,6 @@ class w2grid extends w2event {
         let col     = this.columns[column]
         let tr      = $(this.box).find('#grid_'+ this.name + (col.frozen === true ? '_frec_' : '_rec_') + w2utils.escapeId(rec.recid))
         let new_val = (el.tagName && el.tagName.toUpperCase() == 'DIV' ? $(el).text() : el.value)
-        let old_val = this.parseField(rec, col.field)
         let tmp     = $(el).data('w2field')
         if (tmp) {
             if (tmp.type == 'list') new_val = $(el).data('selected')
@@ -5539,12 +5538,14 @@ class w2grid extends w2event {
             if (rec.w2ui && rec.w2ui.editable === false) el.checked = !el.checked
             new_val = el.checked
         }
+        let old_val = this.parseField(rec, col.field)
+        let prev_val = (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes.hasOwnProperty(col.field) ? rec.w2ui.changes[col.field]: old_val)
         // change/restore event
         let edata = {
             phase: 'before', type: 'change', target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
             originalEvent: (event.originalEvent ? event.originalEvent : event),
             value_new: new_val,
-            value_previous: (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes.hasOwnProperty(col.field) ? rec.w2ui.changes[col.field]: old_val),
+            value_previous: prev_val,
             value_original: old_val
         }
         if ($(event.target).data('old_value') != null) edata.value_previous = $(event.target).data('old_value')
@@ -5561,9 +5562,13 @@ class w2grid extends w2event {
                         continue
                     }
                     // default action
-                    rec.w2ui                    = rec.w2ui || {}
-                    rec.w2ui.changes            = rec.w2ui.changes || {}
-                    rec.w2ui.changes[col.field] = edata.value_new
+                    if ((edata.value_new === '' || edata.value_new == null) && (prev_val === '' || prev_val == null)) {
+                        // value did not change, was empty is empty
+                    } else {
+                        rec.w2ui = rec.w2ui ?? {}
+                        rec.w2ui.changes = rec.w2ui.changes ?? {}
+                        rec.w2ui.changes[col.field] = edata.value_new
+                    }
                     // event after
                     this.trigger($.extend(edata, { phase: 'after' }))
                 }
@@ -6926,7 +6931,7 @@ class w2grid extends w2event {
             }
             // record styles if any
             if (rec.w2ui.style != null) {
-                if (typeof rec.w2ui.style == 'string' && row.style.cssText !== rec.w2ui.style) {
+                if (row && typeof rec.w2ui.style == 'string' && row.style.cssText !== rec.w2ui.style) {
                     row.style.cssText = 'height: '+ self.recordHeight + 'px;' + rec.w2ui.style
                 }
                 if ($.isPlainObject(rec.w2ui.style) && typeof rec.w2ui.style[column] == 'string'
@@ -10034,8 +10039,12 @@ class w2grid extends w2event {
         let className = '', style = '', attr = '', divAttr = ''
         if (col.render != null && ind !== -1) {
             if (typeof col.render == 'function' && record != null) {
-                // do not bind col.render, as it might be already bound
-                let html = col.render(record, { self: this, value: value, index: ind, colIndex: col_ind })
+                let html
+                try {
+                    html = col.render(record, { self: this, value: value, index: ind, colIndex: col_ind })
+                } catch (e) {
+                    throw new Error(`Render function for column "${col.field}" in grid "${this.name}": -- ` + e.message)
+                }
                 if (html != null && typeof html == 'object' && typeof html != 'function') {
                     if (html.id != null && html.text != null) {
                         // normalized menu kind of return
