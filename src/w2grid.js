@@ -3488,7 +3488,6 @@ class w2grid extends w2event {
         let col     = this.columns[column]
         let tr      = $(this.box).find('#grid_'+ this.name + (col.frozen === true ? '_frec_' : '_rec_') + w2utils.escapeId(rec.recid))
         let new_val = (el.tagName && el.tagName.toUpperCase() == 'DIV' ? $(el).text() : el.value)
-        let old_val = this.parseField(rec, col.field)
         let tmp     = $(el).data('w2field')
         if (tmp) {
             if (tmp.type == 'list') new_val = $(el).data('selected')
@@ -3499,12 +3498,14 @@ class w2grid extends w2event {
             if (rec.w2ui && rec.w2ui.editable === false) el.checked = !el.checked
             new_val = el.checked
         }
+        let old_val = this.parseField(rec, col.field)
+        let prev_val = (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes.hasOwnProperty(col.field) ? rec.w2ui.changes[col.field]: old_val)
         // change/restore event
         let edata = {
             phase: 'before', type: 'change', target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
             originalEvent: (event.originalEvent ? event.originalEvent : event),
             value_new: new_val,
-            value_previous: (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes.hasOwnProperty(col.field) ? rec.w2ui.changes[col.field]: old_val),
+            value_previous: prev_val,
             value_original: old_val
         }
         if ($(event.target).data('old_value') != null) edata.value_previous = $(event.target).data('old_value')
@@ -3521,9 +3522,13 @@ class w2grid extends w2event {
                         continue
                     }
                     // default action
-                    rec.w2ui                    = rec.w2ui || {}
-                    rec.w2ui.changes            = rec.w2ui.changes || {}
-                    rec.w2ui.changes[col.field] = edata.value_new
+                    if ((edata.value_new === '' || edata.value_new == null) && (prev_val === '' || prev_val == null)) {
+                        // value did not change, was empty is empty
+                    } else {
+                        rec.w2ui = rec.w2ui ?? {}
+                        rec.w2ui.changes = rec.w2ui.changes ?? {}
+                        rec.w2ui.changes[col.field] = edata.value_new
+                    }
                     // event after
                     this.trigger($.extend(edata, { phase: 'after' }))
                 }
