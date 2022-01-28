@@ -4858,12 +4858,15 @@ class w2grid extends w2event {
                 let rec  = this.records[index] ?? {}
                 rec.w2ui = rec.w2ui ?? {}
                 rec.w2ui._update = rec.w2ui._update ?? { cells: [] }
-                let row = rec.w2ui._update.row
-                if (row == null || !row.isConnected) {
-                    row = this.box.querySelector(`#grid_${this.name}_rec_${w2utils.escapeId(rec.recid)}`)
-                    rec.w2ui._update.row = row
+                let row1 = rec.w2ui._update.row1
+                let row2 = rec.w2ui._update.row2
+                if (row1 == null || !row1.isConnected || row2 == null || !row2.isColSelected) {
+                    row1 = this.box.querySelector(`#grid_${this.name}_rec_${w2utils.escapeId(rec.recid)}`)
+                    row2 = this.box.querySelector(`#grid_${this.name}_frec_${w2utils.escapeId(rec.recid)}`)
+                    rec.w2ui._update.row1 = row1
+                    rec.w2ui._update.row2 = row2
                 }
-                _update(rec, row, index, column)
+                _update(rec, row1, row2, index, column)
             }
         } else {
             for (let i = this.last.range_start-1; i <= this.last.range_end; i++) {
@@ -4877,19 +4880,22 @@ class w2grid extends w2event {
                 if (index < 0 || rec == null) continue
                 rec.w2ui = rec.w2ui ?? {}
                 rec.w2ui._update = rec.w2ui._update ?? { cells: [] }
-                let row = rec.w2ui._update.row
-                if (row == null || !row.isConnected) {
-                    row = this.box.querySelector(`#grid_${this.name}_rec_${w2utils.escapeId(rec.recid)}`)
-                    rec.w2ui._update.row = row
+                let row1 = rec.w2ui._update.row1
+                let row2 = rec.w2ui._update.row2
+                if (row1 == null || !row1.isConnected || row2 == null || !row2.isColSelected) {
+                    row1 = this.box.querySelector(`#grid_${this.name}_rec_${w2utils.escapeId(rec.recid)}`)
+                    row2 = this.box.querySelector(`#grid_${this.name}_frec_${w2utils.escapeId(rec.recid)}`)
+                    rec.w2ui._update.row1 = row1
+                    rec.w2ui._update.row2 = row2
                 }
                 for (let column = 0; column < this.columns.length; column++) {
-                    _update(rec, row, index, column)
+                    _update(rec, row1, row2, index, column)
                 }
             }
         }
         return (new Date()).getTime() - time
 
-        function _update(rec, row, index, column) {
+        function _update(rec, row1, row2, index, column) {
             let pcol = self.columns[column]
             if (Array.isArray(ignoreColumns) && (ignoreColumns.includes(column) || ignoreColumns.includes(pcol.field))) {
                 return
@@ -4934,14 +4940,18 @@ class w2grid extends w2event {
                     let ignore = ['w2ui-odd', 'w2ui-even', 'w2ui-record']
                     let remove = []
                     let add = rec.w2ui.class.split(' ').filter(cl => !!cl) // remove empty
-                    row.classList.forEach(cl => { if (!ignore.includes(cl)) remove.push(cl)})
-                    row.classList.remove(...remove)
-                    row.classList.add(...add)
+                    if (row1 && row2) {
+                        row1.classList.forEach(cl => { if (!ignore.includes(cl)) remove.push(cl)})
+                        row1.classList.remove(...remove)
+                        row1.classList.add(...add)
+                        row2.classList.remove(...remove)
+                        row2.classList.add(...add)
+                    }
                 }
-                if ($.isPlainObject(rec.w2ui.class) && typeof rec.w2ui.class[column] == 'string') {
+                if ($.isPlainObject(rec.w2ui.class) && typeof rec.w2ui.class[pcol.field] == 'string') {
                     let ignore = ['w2ui-grid-data']
                     let remove = []
-                    let add = rec.w2ui.class[column].split(' ').filter(cl => !!cl)
+                    let add = rec.w2ui.class[pcol.field].split(' ').filter(cl => !!cl)
                     cell.classList.forEach(cl => { if (!ignore.includes(cl)) remove.push(cl)})
                     cell.classList.remove(...remove)
                     cell.classList.add(...add)
@@ -4949,12 +4959,15 @@ class w2grid extends w2event {
             }
             // record styles if any
             if (rec.w2ui.style != null) {
-                if (row && typeof rec.w2ui.style == 'string' && row.style.cssText !== rec.w2ui.style) {
-                    row.style.cssText = 'height: '+ self.recordHeight + 'px;' + rec.w2ui.style
+                if (row1 && row2 && typeof rec.w2ui.style == 'string' && row1.style.cssText !== rec.w2ui.style) {
+                    row1.style.cssText = 'height: '+ self.recordHeight + 'px;' + rec.w2ui.style
+                    row1.setAttribute('custom_style', rec.w2ui.style)
+                    row2.style.cssText = 'height: '+ self.recordHeight + 'px;' + rec.w2ui.style
+                    row2.setAttribute('custom_style', rec.w2ui.style)
                 }
-                if ($.isPlainObject(rec.w2ui.style) && typeof rec.w2ui.style[column] == 'string'
-                        && cell.style.cssText !== rec.w2ui.style[column]) {
-                    cell.style.cssText = rec.w2ui.style[column]
+                if ($.isPlainObject(rec.w2ui.style) && typeof rec.w2ui.style[pcol.field] == 'string'
+                        && cell.style.cssText !== rec.w2ui.style[pcol.field]) {
+                    cell.style.cssText = rec.w2ui.style[pcol.field]
                 }
             }
         }

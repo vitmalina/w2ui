@@ -14,6 +14,7 @@
 <button class="w2ui-btn" onclick="live(200)">5 hertz</button>
 <button class="w2ui-btn" onclick="live(100)">10 hertz</button>
 <button class="w2ui-btn" onclick="live(10)">100 hertz</button>
+<button class="w2ui-btn" onclick="live()">Stop</button>
 &nbsp;
 <span id="log"></span>
 
@@ -45,31 +46,33 @@ function live(time) {
     let grid = w2ui.grid
     let stats = []
     clearInterval(timeout)
-    timeout = setInterval(() => {
-        grid.records.forEach(rec => {
-            let rnd = Math.floor(Math.random() * 10000) / 10000
-            if (rec._fname == null) {
-                rec._fname = rec.fname
-                rec._lname = rec.lname
-                rec._sdate = rec.sdate
+    if (time) {
+        timeout = setInterval(() => {
+            grid.records.forEach(rec => {
+                let rnd = Math.floor(Math.random() * 10000) / 10000
+                if (rec._fname == null) {
+                    rec._fname = rec.fname
+                    rec._lname = rec.lname
+                    rec._sdate = rec.sdate
+                }
+                if (rnd > 0.5) {
+                    rec.w2ui = { style: 'color: green' }
+                } else {
+                    rec.w2ui = { style: '' }
+                }
+                rec.fname = rec._fname + ' ' + rnd
+                rec.lname = rec._lname + ' ' + rnd
+                rec.sdate = rec._sdate + ' ' + rnd
+                rec.random = 'Rand: ' + rnd
+            })
+            if (stats.length > (1000 / time)) {
+                // calculate average time
+                let avg = Math.floor(Math.round(stats.reduce((prev, curr) => prev + curr) / stats.length * 10)) / 10
+                $('#log').html('Average update time: ' + avg + ' ms')
+                stats = []
             }
-            if (rnd > 0.5) {
-                rec.w2ui = { style: 'color: green' }
-            } else {
-                rec.w2ui = { style: '' }
-            }
-            rec.fname = rec._fname + ' ' + rnd
-            rec.lname = rec._lname + ' ' + rnd
-            rec.sdate = rec._sdate + ' ' + rnd
-            rec.random = 'Rand: ' + rnd
-        })
-        if (stats.length > (1000 / time)) {
-            // calculate average time
-            let avg = Math.floor(Math.round(stats.reduce((prev, curr) => prev + curr) / stats.length * 10)) / 10
-            $('#log').html('Average update time: ' + avg + ' ms')
-            stats = []
-        }
-        stats.push(grid.update())
-    }, time)
+            stats.push(grid.update())
+        }, time)
+    }
 }
 </script>
