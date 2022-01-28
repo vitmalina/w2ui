@@ -34,6 +34,7 @@
 *   - colDefaults -> col_template as in tabs, toolbar, etc
 *   - prepareData needs help page
 *   - onloadmore event (so it will be easy to implement remote data source with local sort)
+*   - avoid inline events, but allow w2ui-eaction
 *
 * == DEMOS To create ==
 *   - batch for disabled buttons
@@ -4767,12 +4768,13 @@ class w2grid extends w2event {
         return w2utils.stripTags(this.getCellHTML(ind, col_ind))
     }
 
-    paste(text) {
+    paste(text, event) {
         let sel = this.getSelection()
         let ind = this.get(sel[0].recid, true)
         let col = sel[0].column
         // before event
-        let edata = this.trigger({ phase: 'before', type: 'paste', target: this.name, text: text, index: ind, column: col })
+        let edata = this.trigger({ phase: 'before', type: 'paste', target: this.name, text: text,
+            index: ind, column: col, originalEvent: event })
         if (edata.isCancelled === true) return
         text = edata.text
         // default action
@@ -4782,25 +4784,30 @@ class w2grid extends w2event {
             this.trigger($.extend(edata, { phase: 'after' }))
             return
         }
-        let newSel = []
-        text       = text.split('\n')
-        for (let t = 0; t < text.length; t++) {
-            let tmp  = text[t].split('\t')
-            let cnt  = 0
-            let rec  = this.records[ind]
-            let cols = []
-            if (rec == null) continue
-            for (let dt = 0; dt < tmp.length; dt++) {
-                if (!this.columns[col + cnt]) continue
-                setCellPaste(rec, this.columns[col + cnt].field, tmp[dt])
-                cols.push(col + cnt)
-                cnt++
+        if (typeof text !== 'object') {
+            let newSel = []
+            text = text.split('\n')
+            for (let t = 0; t < text.length; t++) {
+                let tmp  = text[t].split('\t')
+                let cnt  = 0
+                let rec  = this.records[ind]
+                let cols = []
+                if (rec == null) continue
+                for (let dt = 0; dt < tmp.length; dt++) {
+                    if (!this.columns[col + cnt]) continue
+                    setCellPaste(rec, this.columns[col + cnt].field, tmp[dt])
+                    cols.push(col + cnt)
+                    cnt++
+                }
+                for (let c = 0; c < cols.length; c++) newSel.push({ recid: rec.recid, column: cols[c] })
+                ind++
             }
-            for (let c = 0; c < cols.length; c++) newSel.push({ recid: rec.recid, column: cols[c] })
-            ind++
+            this.selectNone();
+            this.select(newSel);
+        } else {
+            this.selectNone();
+            this.select([{ recid: this.records[ind], column: col }]);
         }
-        this.selectNone()
-        this.select(newSel)
         this.refresh()
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
@@ -5181,7 +5188,7 @@ class w2grid extends w2event {
                        <button class="w2ui-btn grid-search-btn" data-click="searchSave">${w2utils.lang('Save')}</button>
                       `
                     : ''
-}
+                }
                 <button class="w2ui-btn grid-search-btn btn-remove"
                     data-click="searchReset">X</button>
             `
@@ -5395,17 +5402,37 @@ class w2grid extends w2event {
             })
             .on('paste', function (event) {
                 let cd = (event.originalEvent.clipboardData ? event.originalEvent.clipboardData : null)
-                if (cd && cd.types && cd.types.indexOf('text/plain') != -1) {
-                    event.preventDefault()
-                    let text = cd.getData('text/plain')
-                    if (text.indexOf('\r') != -1 && text.indexOf('\n') == -1) {
-                        text = text.replace(/\r/g, '\n')
+                if (cd) {
+                    let items = cd.items
+                    if (items.length == 2) {
+                        if (items.length == 2 && items[1].kind == 'file') {
+                            items = [items[1]]
+                        }
+                        if (items.length == 2 && items[0].type == 'text/plain' && items[1].type == 'text/html') {
+                            items = [items[1]]
+                        }
                     }
-                    w2ui[obj.name].paste(text)
-                } else {
-                    // for older browsers
-                    let el = this
-                    setTimeout(() => { w2ui[obj.name].paste(el.value); el.value = '' }, 1)
+                    let items2send = []
+                    // might contain data in different formats, but it is a single paste
+                    for (let index in items) {
+                        let item = items[index]
+                        if (item.kind === 'file') {
+                            let file = item.getAsFile()
+                            items2send.push({ kind: 'file', data: file })
+                        } else if (item.kind === 'string' && (item.type === 'text/plain' || item.type === 'text/html')) {
+                            event.preventDefault()
+                            let text = cd.getData('text/plain');
+                            if (text.indexOf('\r') != -1 && text.indexOf('\n') == -1) {
+                                text = text.replace(/\r/g, '\n');
+                            }
+                            items2send.push({ kind: (item.type == 'text/html' ? 'html' : 'text'), data: text })
+                        }
+                    }
+                    if (items2send.length === 1 && items2send[0].kind != 'file') {
+                        items2send = items2send[0].data
+                    }
+                    w2ui[obj.name].paste(items2send, event.originalEvent);
+                    event.preventDefault()
                 }
             })
             .on('keydown', function (event) {
