@@ -1,6 +1,9 @@
 /**
  * Small library to replace basic functionality of jQuery
  * methods that start with "_" are internal
+ *
+ * TODO:
+ *  .data(name, 1) => el.dataset.name
  */
 
  class Query {
@@ -181,7 +184,6 @@
     }
 
     before(html) {
-        // updates this.nodes with replaced items
         return this._insert('before', html)
     }
 

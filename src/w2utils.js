@@ -1625,14 +1625,14 @@ class Utils {
             } else {
                 throw new Error('Arrays can be extended with arrays only')
             }
-        } else if (target && typeof target == 'object') {
-            if (source == null || typeof source != 'object') {
+        } else if (target && typeof target == 'object' && source != null) {
+            if (typeof source != 'object') {
                 throw new Error("Object can be extended with other objects only.")
             }
             Object.keys(source).forEach(key => {
                 target[key] = this.clone(source[key])
             })
-        } else {
+        } else if (source != null) {
             throw new Error("Object is not extendable, only {} or [] can be extended.")
         }
         // other arguments

@@ -1,8 +1,10 @@
-/************************************************************************
-*   Part of w2ui 2.0 library
-*   - Dependencies: w2utils, w2event mQuery
-*
-************************************************************************/
+/**
+ * Part of w2ui 2.0 library
+ * - Dependencies: w2utils, w2event mQuery
+ *
+ * TODO
+ * - multiple tooltips to the same anchor
+ */
 
 import { w2event } from './w2event.js'
 import { query } from './query.js'
@@ -14,7 +16,7 @@ class Popper extends w2event {
         super()
         this.active = {} // all tooltips on screen now
         this.defaults = {
-            name            : null,     // id for the tooltip, otherwise input id is used
+            name            : null,     // name for the overlay, otherwise input id is used
             html            : '',       // text or html
             anchor          : null,     // element it is attached to
             position        : 'auto',   // can be left, right, top, bottom
@@ -27,14 +29,14 @@ class Popper extends w2event {
             top             : 0,        // delta for top coordinate
             maxWidth        : null,     // max width
             maxHeight       : null,     // max height
-            style           : '',       // additional style for the tag
-            class           : '',       // add class for w2ui-tag-body
+            style           : '',       // additional style for the overlay
+            class           : '',       // add class for w2ui-overlay-body
             onShow          : null,     // callBack when shown
             onHide          : null,     // callBack when hidden
-            onChange        : null,     // callback when tooltip gets updated
+            onUpdate        : null,     // callback when tooltip gets updated
             onMoved         : null,     // callback when tooltip is moved
-            inputClass      : '',       // add class for input when tag is shown
-            inputStyle      : '',       // add style for input when tag is shown
+            inputClass      : '',       // add class for input when overlay is shown
+            inputStyle      : '',       // add style for input when overlay is shown
             hideOnClick     : false,    // global hide on document click
             hideOnChange    : true,     // hides when input changes
             hideOnKeyPress  : true,     // hides when input key pressed
@@ -43,22 +45,29 @@ class Popper extends w2event {
         }
     }
 
-    get(id) {
+    get(name) {
         if (arguments.length == 0) {
             return Object.keys(this.active)
         } else {
-            return this.active[id]
+            return this.active[name]
         }
     }
 
-    show(anchor, text) {
-        let options, tag
+    destroy(name) {
+        delete this.active[name]
+    }
+
+    init(anchor, text) {
+        let options, overlay
         let self = this
         if (arguments.length == 0) {
             return
         } else if (arguments.length == 1 && anchor.anchor) {
             options = anchor
             anchor = options.anchor
+        } else if (arguments.length === 2 && typeof text === 'string') {
+            options = { anchor, html: text }
+            text = options.html
         } else if (arguments.length === 2 && typeof text === 'object') {
             options = text
             text = options.html
@@ -68,7 +77,31 @@ class Popper extends w2event {
         // anchor is func var
         delete options.anchor
 
-        if (options.auto === true || options.showOn != null || options.hideOn != null) {
+        // define overlay
+        let name = (options.name ? options.name : anchor.id)
+        if (!name) {
+            name = 'noname-' +Object.keys(this.active).length
+        }
+        if (name == anchor.id && this.active[name]) {
+            // find unique name
+            let find = (name, ind=0) => {
+                if (ind !== 0) name = name.substr(0, name.length-2)
+                name += '-' + (ind + 1)
+                return (this.active['w2overlay-' + name] == null ? name : find(name, ind+1))
+            }
+            name = find(name)
+        }
+        if (this.active[name]) {
+            overlay = this.active[name]
+            overlay.options = w2utils.extend({}, overlay.options, options)
+        } else {
+            overlay = { id: 'w2overlay-' + name, name, options, anchor, tmp: {} }
+            this.active[name] = overlay
+        }
+        // add event for auto show/hide
+        let show = (options.auto === true || options.showOn != null)
+        let hide = (options.auto === true || options.hideOn != null)
+        if (options.auto === true || show || hide) {
             query(anchor).each((el, ind) => {
                 let showOn = 'mouseenter', hideOn = 'mouseleave'
                 if (options.showOn) {
@@ -79,209 +112,235 @@ class Popper extends w2event {
                     hideOn = String(options.hideOn).toLowerCase()
                     delete options.hideOn
                 }
-                query(el)
-                    .off('.w2tag-auto')
-                    .on(showOn + '.w2tag-auto', function (event) {
+                console.log(show, showOn, hide, hideOn)
+                query(el).off('.w2overlay-init')
+                if (show) {
+                    query(el).on(showOn + '.w2overlay-init', function (event) {
                         options.auto = false
-                        self.show(this, options)
+                        self.show(overlay.name, event)
+                        event.stopPropagation()
                     })
-                    .on(hideOn + '.w2tag-auto', function (event) {
-                        let tag = query(this).data('w2tag')
-                        if (tag) self.hide(tag.id)
+                }
+                if (hide) {
+                    query(el).on(hideOn + '.w2overlay-init', function (event) {
+                        let overlay = query(this).data('w2overlay')
+                        if (overlay) self.hide(overlay.name, event)
+                        event.stopPropagation()
                     })
+                }
             })
-        } else {
-            let id = (options.name ? options.name : anchor.id)
-            if (!id) {
-                id = 'noid-' +Object.keys(this.active).length
-            }
-            if (id == anchor.id && this.active['w2tag-' + id]) {
-                // find unique id if it is table from anchor
-                let find = (id, ind=0) => {
-                    if (ind !== 0) id = id.substr(0, id.length-2)
-                    id += '-' + (ind + 1)
-                    return (this.active['w2tag-' + id] == null ? id : find(id, ind+1))
-                }
-                id = find(id)
-            }
-            if (this.active['w2tag-' + id]) {
-                tag = this.active['w2tag-' + id]
-                // keep event handlers from previous options
-                Array('onShow', 'onHide', 'onChange', 'onMoved').forEach(method => { delete options[method] })
-                tag.options = w2utils.extend({}, tag.options, options)
-            } else {
-                tag = { id: 'w2tag-' + id, options, anchor, tmp: {} }
-                this.active[tag.id] = tag
-            }
-            // show or hide tag
-            let tagStyles = 'white-space: nowrap;'
-            if (tag.options.maxWidth && w2utils.getStrWidth(text, tagStyles) > tag.options.maxWidth) {
-                tagStyles = 'width: '+ tag.options.maxWidth + 'px; white-space: inherit; overflow: auto;'
-            }
-            tagStyles += ' max-height: '+ (tag.options.maxHeight ? tag.options.maxHeight : window.innerHeight - 40) + 'px;'
-            if (text === '' || text == null) {
-                self.hide(tag.id)
-            } else if (tag.box) {
-                query(tag.box)
-                    .find('.w2ui-tag-body')
-                    .attr('style', (tag.options.style || '') + '; ' + tagStyles)
-                    .addClass(tag.options.class)
-                    .html(text)
-                if (typeof tag.options.onChange === 'function') {
-                    tag.options.onChange(tag)
-                }
-            } else {
-                tag.tmp.originalCSS = ''
-                if (query(tag.anchor).length > 0) {
-                    tag.tmp.originalCSS = query(tag.anchor)[0].style.cssText
-                }
-                query('body').append(
-                    `<div id="${tag.id}" style="display: none;" class="w2ui-tag" data-click="stop">
-                        <style></style>
-                        <div class="w2ui-tag-body ${tag.options.class}" style="${tag.options.style || ''}; ${tagStyles}">
-                            ${text}
-                        </div>
-                    </div>`)
-                tag.box = query('#'+w2utils.escapeId(tag.id))[0]
-                query(tag.anchor).data('w2tag', tag) // make available to element tag attached to
-                w2utils.bindEvents(tag.box, {})
-                setTimeout(() => { this.init(tag.id) }, 1)
-            }
-            // if it is input, then add style and class
-            if (tag.anchor.tagName == 'INPUT') {
-                if (tag.options.inputStyle) {
-                    tag.anchor.style.cssText += ';' + tag.options.inputStyle
-                }
-                if (tag.options.inputClass) {
-                    query(tag.anchor).addClass(tag.options.inputClass)
-                }
-            }
         }
         let ret = {
-            id: tag ? tag.id : null,
+            overlay,
+            then(callback) {
+                self.on('show:after', (event) => { callback(event) })
+                return ret
+            },
             show(callback) {
-                options.onShow = callback
+                self.on('show', (event) => { callback(event) })
                 return ret
             },
             hide(callback) {
-                options.onHide = callback
+                self.on('hide', (event) => { callback(event) })
                 return ret
             },
             change(callback) {
-                options.onChange = callback
+                self.on('change', (event) => { callback(event) })
                 return ret
             },
             moved(callback) {
-                options.onMoved = callback
+                self.on('move', (event) => { callback(event) })
                 return ret
             }
         }
         return ret
     }
 
-    // bind event to hide it
-    hide(id) {
-        let tag
+    show(name, event) {
+        if (name instanceof HTMLElement || name instanceof Object) {
+            let ret
+            if (event) {
+                ret = this.init(name, event)
+             } else {
+                ret = this.init(name)
+             }
+            this.show(ret.overlay.name, event)
+            return ret
+        }
+        let self = this
+        let overlay = this.active[name]
+        if (!overlay) return
+        // event before
+        let edata = this.trigger({ phase: 'before', type: 'show', target: name, overlay, originalEvent: event })
+        if (edata.isCancelled === true) return
+        // normal processing
+        if (!overlay.box) {
+            // show or hide overlay
+            let overlayStyles = 'white-space: nowrap;'
+            if (overlay.options.maxWidth && w2utils.getStrWidth(overlay.options.html, overlayStyles) > overlay.options.maxWidth) {
+                overlayStyles = 'width: '+ overlay.options.maxWidth + 'px; white-space: inherit; overflow: auto;'
+            }
+            overlayStyles += ' max-height: '+ (overlay.options.maxHeight ? overlay.options.maxHeight : window.innerHeight - 40) + 'px;'
+            if (overlay.options.html === '' || overlay.options.html == null) {
+                self.hide(name)
+            } else if (overlay.box) {
+                query(overlay.box)
+                    .find('.w2ui-overlay-body')
+                    .attr('style', (overlay.options.style || '') + '; ' + overlayStyles)
+                    .addClass(overlay.options.class)
+                    .html(overlay.options.html)
+                if (typeof overlay.options.onChange === 'function') {
+                    overlay.options.onChange(overlay)
+                }
+            } else {
+                overlay.tmp.originalCSS = ''
+                if (query(overlay.anchor).length > 0) {
+                    overlay.tmp.originalCSS = query(overlay.anchor)[0].style.cssText
+                }
+                query('body').append(
+                    `<div id="${overlay.id}" name="${name}" style="display: none;" class="w2ui-overlay" data-click="stop">
+                        <style></style>
+                        <div class="w2ui-overlay-body ${overlay.options.class}" style="${overlay.options.style || ''}; ${overlayStyles}">
+                            ${overlay.options.html}
+                        </div>
+                    </div>`)
+                overlay.box = query('#'+w2utils.escapeId(overlay.id))[0]
+                query(overlay.anchor).data('w2overlay', overlay) // make available to element overlay attached to
+                w2utils.bindEvents(overlay.box, {})
+            }
+            // if it is input, then add style and class
+            if (overlay.anchor.tagName == 'INPUT') {
+                if (overlay.options.inputStyle) {
+                    overlay.anchor.style.cssText += ';' + overlay.options.inputStyle
+                }
+                if (overlay.options.inputClass) {
+                    query(overlay.anchor).addClass(overlay.options.inputClass)
+                }
+            }
+        }
+        // needed timeout so that it will not immediately hide
+        setTimeout(() => {
+            // add on hide events
+            let hide = () => { self.hide(overlay.name) }
+            let $anchor = query(overlay.anchor)
+            if (overlay.anchor.tagName === 'INPUT') {
+                $anchor.off('.w2overlay')
+                if (overlay.options.hideOnFocus)    $anchor.on('focus.w2overlay', { once: true }, hide)
+                if (overlay.options.hideOnBlur)     $anchor.on('blur.w2overlay', { once: true }, hide)
+                if (overlay.options.hideOnChange)   $anchor.on('change.w2overlay', { once: true }, hide)
+                if (overlay.options.hideOnKeyPress) $anchor.on('keypress.w2overlay', { once: true }, hide)
+            }
+            if (overlay.options.hideOnClick) {
+                if (overlay.anchor.tagName === 'INPUT') {
+                    // otherwise hides on click to focus
+                    $anchor.on('click.w2overlay', (event) => { event.stopPropagation() })
+                }
+                query('body')
+                    .off('.w2overlay-' + overlay.name)
+                    .on('click.w2overlay-' + overlay.name, { once: true }, hide)
+            }
+        }, 1)
+        // move if needed
+        overlay.tmp.instant = 3
+        this.isMoved(overlay.name)
+        // show if needed
+        query(overlay.box).css({
+            'display': 'block',
+            'opacity': '1'
+        })
+        // event after
+        this.trigger(w2utils.extend(edata, { phase: 'after' }))
+    }
+
+    hide(name, event) {
+        let overlay
         if (arguments.length == 0) {
-            Object.keys(this.active).forEach(id => {
-                this.hide(id)
+            Object.keys(this.active).forEach(name => {
+                this.hide(name)
             })
             return
-        } else if (typeof id == 'string') {
-            tag = this.active[id]
+        } else if (typeof name == 'string') {
+            overlay = this.active[name]
         } else {
-            let q = query(id)
+            let q = query(name)
             if (q.length > 0) {
-                tag = q.data('w2tag')
-                id = tag.id
+                overlay = q.data('w2overlay')
+                name = overlay.name
             }
         }
-        if (!tag || !tag.box) return
-        if (tag.tmp.timer) clearTimeout(tag.tmp.timer)
-        tag.box.remove()
-        query(tag.anchor)
-            .off('.w2tag')
-            .removeData('w2tag')
+        if (!overlay || !overlay.box) return
+        // event before
+        let edata = this.trigger({ phase: 'before', type: 'hide', target: name, overlay, originalEvent: event })
+        if (edata.isCancelled === true) return
+        // normal processing
+        if (overlay.tmp.timer) clearTimeout(overlay.tmp.timer)
+        overlay.box.remove()
+        overlay.box = null
+        query(overlay.anchor)
+            .off('.w2overlay')
+            .removeData('w2overlay')
         // restore original CSS
-        if (tag.anchor.tagName == 'INPUT') {
-            tag.anchor.style.cssText = tag.tmp.originalCSS
-            query(tag.anchor)
-                .off('.w2tag')
-                .removeClass(tag.options.inputClass)
+        if (overlay.anchor.tagName == 'INPUT') {
+            overlay.anchor.style.cssText = overlay.tmp.originalCSS
+            query(overlay.anchor)
+                .off('.w2overlay')
+                .removeClass(overlay.options.inputClass)
         }
-        query('body').off('.w2tag-' + tag.id)
-        delete this.active[tag.id]
-        if (typeof tag.options.onHide === 'function') {
-            tag.options.onHide(tag)
+        query('body').off('.w2overlay-' + overlay.name)
+        // event after
+        this.trigger(w2utils.extend(edata, { phase: 'after' }))
+    }
+
+    // map events to individual overlays
+    onShow(event) { this._trigger('onShow', event) }
+    onHide(event) { this._trigger('onHide', event) }
+    onUpdate(event) { this._trigger('onUpdate', event) }
+    onMove(event) { this._trigger('onMove', event) }
+    _trigger(name, event) {
+        let overlay = this.active[event.target]
+        if (typeof overlay.options[name] == 'function') {
+            overlay.options[name](event)
         }
     }
 
-    init(id) {
-        let self = this
-        let tag = this.active[id]
-        query(tag.box).css('display', 'block')
-        if (!tag || !tag.box) return
-        let hide = () => { self.hide(tag.id) }
-
-        if (tag.anchor.tagName === 'INPUT') {
-            let $anchor = query(tag.anchor)
-            $anchor.off('.w2tag')
-            if (tag.options.hideOnFocus)    $anchor.on('focus.w2tag', { once: true }, hide)
-            if (tag.options.hideOnBlur)     $anchor.on('blur.w2tag', { once: true }, hide)
-            if (tag.options.hideOnChange)   $anchor.on('change.w2tag', { once: true }, hide)
-            if (tag.options.hideOnKeyPress) $anchor.on('keypress.w2tag', { once: true }, hide)
-        }
-        if (tag.options.hideOnClick) {
-            query('body').on('click.w2tag-'+ tag.id, hide)
-        }
-        if (typeof tag.options.onShow === 'function') {
-            tag.options.onShow(tag)
-        }
-        // move if needed
-        tag.tmp.instant = 3
-        this.isMoved(tag.id)
-        // show if neede
-        query(tag.box).css('opacity', '1')
-    }
-
-    isMoved(id) {
-        // TODO: called for each tag, might consider one for all tags
-        let tag = this.active[id]
-        if (tag == null || query(tag.anchor).length === 0 || query(tag.box).find('.w2ui-tag-body').length === 0) {
-            this.hide(tag.id)
+    isMoved(name) {
+        // TODO: called for each overlay, might consider one for all overlays
+        let overlay = this.active[name]
+        if (overlay == null || query(overlay.anchor).length === 0 || query(overlay.box).find('.w2ui-overlay-body').length === 0) {
+            this.hide(overlay.name)
             return
         }
-        let pos = this.getPosition(tag.id)
-        if (tag.tmp.pos !== pos.left + 'x' + pos.top) {
-            if (tag.tmp.pos && typeof tag.options.onMoved === 'function') {
-                tag.options.onMoved(tag)
+        let pos = this.getPosition(overlay.name)
+        if (overlay.tmp.pos !== pos.left + 'x' + pos.top) {
+            if (overlay.tmp.pos && typeof overlay.options.onMoved === 'function') {
+                overlay.options.onMoved(overlay)
             }
-            query(tag.box)
-                .css({ 'transition': (tag.tmp.instant ? '0s' : '.2s') })
+            query(overlay.box)
+                .css({ 'transition': (overlay.tmp.instant ? '0s' : '.2s') })
                 .css({
                     left: pos.left + 'px',
                     top : pos.top + 'px'
                 })
-            tag.tmp.pos = pos.left + 'x' + pos.top
+            overlay.tmp.pos = pos.left + 'x' + pos.top
         }
-        if (typeof tag.tmp.instant != 'boolean') {
-            tag.tmp.instant--
-            if (tag.tmp.instant === 0) {
-                tag.tmp.instant = false
+        if (typeof overlay.tmp.instant != 'boolean') {
+            overlay.tmp.instant--
+            if (overlay.tmp.instant === 0) {
+                overlay.tmp.instant = false
             }
         }
-        if (tag.tmp.timer) clearTimeout(tag.tmp.timer)
-        tag.tmp.timer = setTimeout(() => { this.isMoved(tag.id) }, tag.tmp.instant ? 0 : 100)
+        if (overlay.tmp.timer) clearTimeout(overlay.tmp.timer)
+        overlay.tmp.timer = setTimeout(() => { this.isMoved(overlay.name) }, overlay.tmp.instant ? 0 : 100)
     }
 
-    getPosition(id) {
-        let tag = this.active[id]
-        let anchor   = tag.anchor.getBoundingClientRect()
-        let tipClass = 'w2ui-tag-right'
+    getPosition(name) {
+        let overlay = this.active[name]
+        let anchor   = overlay.anchor.getBoundingClientRect()
+        let tipClass = 'w2ui-arrow-right'
         let tipStyle = ''
-        let posLeft  = parseInt(anchor.left + anchor.width + (tag.options.left ? tag.options.left : 0))
-        let posTop   = parseInt(anchor.top + (tag.options.top ? tag.options.top : 0))
-        let content  = query(tag.box).find('.w2ui-tag-body')
+        let posLeft  = parseInt(anchor.left + anchor.width + (overlay.options.left ? overlay.options.left : 0))
+        let posTop   = parseInt(anchor.top + (overlay.options.top ? overlay.options.top : 0))
+        let content  = query(overlay.box).find('.w2ui-overlay-body')
         let style    = content[0].computedStyleMap()
         let padding  = {
             top: style.get('padding-top').value,
@@ -290,52 +349,52 @@ class Popper extends w2event {
             right: style.get('padding-right').value
         }
         let { width, height } = content[0].getBoundingClientRect()
-        if (typeof tag.options.position === 'string') {
-            if (tag.options.position == 'auto') {
-                tag.options.position = 'top|bottom|right|left'
+        if (typeof overlay.options.position === 'string') {
+            if (overlay.options.position == 'auto') {
+                overlay.options.position = 'top|bottom|right|left'
             }
-            tag.options.position = tag.options.position.split('|')
+            overlay.options.position = overlay.options.position.split('|')
         }
-        // if (tag.options.maxWidth) {
-        //     width = tag.options.maxWidth - padding.left
+        // if (overlay.options.maxWidth) {
+        //     width = overlay.options.maxWidth - padding.left
         // }
-        // try to fit the tag on screen in the order defined in the array
+        // try to fit the overlay on screen in the order defined in the array
         let maxWidth  = window.innerWidth
         let maxHeight = window.innerHeight
         let posFound  = false
-        for (let i = 0; i < tag.options.position.length; i++) {
-            let pos = tag.options.position[i]
+        for (let i = 0; i < overlay.options.position.length; i++) {
+            let pos = overlay.options.position[i]
             if (pos === 'right') {
-                tipClass = 'w2ui-tag-right'
-                tipStyle = `#${tag.id} .w2ui-tag-body:before { bottom: 50%; transform: rotate(135deg) translateY(-50%); }`
-                posLeft = Math.round(parseInt(anchor.left + anchor.width + (tag.options.left ? tag.options.left : 0)
+                tipClass = 'w2ui-arrow-right'
+                tipStyle = `#${overlay.id} .w2ui-overlay-body:before { bottom: 50%; transform: rotate(135deg) translateY(-50%); }`
+                posLeft = Math.round(parseInt(anchor.left + anchor.width + (overlay.options.left ? overlay.options.left : 0)
                     + (padding.left + padding.right) / 2 - 10) + document.body.scrollLeft)
                 posTop = Math.round(parseInt(anchor.top - height / 2 + anchor.height / 2
-                    + (tag.options.top ? tag.options.top : 0) + padding.top) - 2
+                    + (overlay.options.top ? overlay.options.top : 0) + padding.top) - 2
                     + document.body.scrollTop)
             } else if (pos === 'left') {
-                tipClass = 'w2ui-tag-left'
-                tipStyle = `#${tag.id} .w2ui-tag-body:after { top: 50%; transform: rotate(-45deg) translateY(-50%); }`
-                posLeft = Math.round(parseInt(anchor.left + (tag.options.left ? tag.options.left : 0)) - width - 20
+                tipClass = 'w2ui-arrow-left'
+                tipStyle = `#${overlay.id} .w2ui-overlay-body:after { top: 50%; transform: rotate(-45deg) translateY(-50%); }`
+                posLeft = Math.round(parseInt(anchor.left + (overlay.options.left ? overlay.options.left : 0)) - width - 20
                     + document.body.scrollLeft)
                 posTop = Math.round(parseInt(anchor.top - height / 2 + anchor.height / 2
-                    + (tag.options.top ? tag.options.top : 0) + padding.top) - 10
+                    + (overlay.options.top ? overlay.options.top : 0) + padding.top) - 10
                     + document.body.scrollTop)
             } else if (pos === 'top') {
-                tipClass = 'w2ui-tag-top'
-                tipStyle = `#${tag.id} .w2ui-tag-body:after { left: 50%; transform: rotate(45deg) translateX(-50%); }`
+                tipClass = 'w2ui-arrow-bottom'
+                tipStyle = `#${overlay.id} .w2ui-overlay-body:after { left: 50%; transform: rotate(45deg) translateX(-50%); }`
                 posLeft = Math.round(parseInt(anchor.left - width / 2 + anchor.width / 2
-                    + (tag.options.left ? tag.options.left : 0) - padding.left) + 5
+                    + (overlay.options.left ? overlay.options.left : 0) - padding.left) + 5
                     + document.body.scrollLeft)
-                posTop = Math.round(parseInt(anchor.top + (tag.options.top ? tag.options.top : 0))
+                posTop = Math.round(parseInt(anchor.top + (overlay.options.top ? overlay.options.top : 0))
                     - height - padding.top + document.body.scrollTop - 2)
             } else if (pos === 'bottom') {
-                tipClass = 'w2ui-tag-bottom'
-                tipStyle = `#${tag.id} .w2ui-tag-body:before { right: 50%; transform: rotate(-135deg) translateX(-50%); }`
+                tipClass = 'w2ui-arrow-top'
+                tipStyle = `#${overlay.id} .w2ui-overlay-body:before { right: 50%; transform: rotate(-135deg) translateX(-50%); }`
                 posLeft = Math.round(parseInt(anchor.left - width / 2 + anchor.width / 2
-                    + (tag.options.left ? tag.options.left : 0) - padding.left) + 6
+                    + (overlay.options.left ? overlay.options.left : 0) - padding.left) + 6
                     + document.body.scrollLeft)
-                posTop = Math.round(parseInt(anchor.top + anchor.height + (tag.options.top ? tag.options.top : 0))
+                posTop = Math.round(parseInt(anchor.top + anchor.height + (overlay.options.top ? overlay.options.top : 0))
                     + (padding.top + padding.bottom) / 2 + 2 + document.body.scrollTop)
             }
             let newLeft = posLeft - document.body.scrollLeft
@@ -347,24 +406,24 @@ class Popper extends w2event {
             }
         }
         if (!posFound) {
-            if (tag.tmp.hidden != true) {
-                tag.tmp.hidden = true
-                query(tag.box).hide()
+            if (overlay.tmp.hidden != true) {
+                overlay.tmp.hidden = true
+                query(overlay.box).hide()
             }
         } else {
-            if (tag.tmp.tipClass !== tipClass) {
-                tag.tmp.tipClass = tipClass
+            if (overlay.tmp.tipClass !== tipClass) {
+                overlay.tmp.tipClass = tipClass
                 content
-                    .removeClass('w2ui-tag-right w2ui-tag-left w2ui-tag-top w2ui-tag-bottom')
+                    .removeClass('w2ui-arrow-right w2ui-arrow-left w2ui-arrow-top w2ui-arrow-bottom')
                     .addClass(tipClass)
-                    .closest('.w2ui-tag')
+                    .closest('.w2ui-overlay')
                     .find('style')
                     .text(tipStyle)
             }
-            if (tag.tmp.hidden) {
-                tag.tmp.hidden = false
-                tag.tmp.instant = 3
-                query(tag.box).show()
+            if (overlay.tmp.hidden) {
+                overlay.tmp.hidden = false
+                overlay.tmp.instant = 3
+                query(overlay.box).show()
             }
         }
         return { left: posLeft, top: posTop }
@@ -387,14 +446,15 @@ class ColorPopper extends Popper {
         this.defaults = w2utils.extend({}, this.defaults, {
             transparent: true,
             position: 'top|bottom',
+            class: 'w2ui-light',
             color: '#DDDDDD',
-            fireChange: null, // should be liveUpdate
+            liveUpdate: null, // should be liveUpdate
             style: 'padding: 0; border: 1px solid silver;'
         })
     }
 
-    show(anchor, text) {
-        let options
+    init(anchor, text) {
+        let options, self = this
         if (arguments.length == 1 && anchor.anchor) {
             options = anchor
             anchor = options.anchor
@@ -414,52 +474,84 @@ class ColorPopper extends Popper {
         }
         if (options.color) options.color = String(options.color).toUpperCase()
         if (typeof options.color === 'string' && options.color.substr(0,1) === '#') options.color = options.color.substr(1)
-        if (options.fireChange == null) options.fireChange = true
+        if (options.liveUpdate == null) options.liveUpdate = true
         // color html
         options.html = this.getColorHTML(options)
-        let ret = super.show(options)
-        let tag = this.get(ret.id)
-        let actions = $(tag.box).find('.w2ui-eaction')
-        w2utils.bindEvents(actions, this)
+        let ret = super.init(options)
+        this.on('show:after', (event) => {
+            if (ret.overlay && ret.overlay.box) {
+                let actions = query(ret.overlay.box).find('.w2ui-eaction')
+                w2utils.bindEvents(actions, this)
+            }
+        })
+        // add select method
         ret.select = (callback) => {
-            tag.options.onSelect = callback
+            self.on('select', (event) => { callback(event) })
             return ret
         }
         return ret
     }
 
-    tab(index, el) {
-        let tag = this.get(tagId)
-        console.log(index, tag)
+    select(color, event, el) {
+        let name = query(el).closest('.w2ui-overlay').attr('name')
+        let overlay = this.get(name)
+        // event before
+        let edata = this.trigger({ phase: 'before', type: 'select', color, target: name, overlay, originalEvent: event })
+        if (edata.isCancelled === true) return
+        // if anchor is input - live update
+        if (overlay.anchor.tagName === 'INPUT') {
+            query(overlay.anchor).val(color)
+        }
+        query(el.parentNode.parentNode).find('.w2ui-selected').removeClass('w2ui-selected')
+        query(el).addClass('w2ui-selected')
+        // event after
+        this.trigger(w2utils.extend(edata, { phase: 'after' }))
+    }
+
+    change(color, event, el) {
+        let name = query(el).closest('.w2ui-overlay').attr('name')
+        let overlay = this.get(name)
+        if (overlay.anchor.tagName === 'INPUT') {
+            query(overlay.anchor).change()
+        }
+    }
+
+    tabClick(index, event, el) {
+        let name = query(el).closest('.w2ui-overlay').attr('name')
+        let overlay = this.get(name)
+        query(overlay.box).find('.w2ui-color-tab').removeClass('selected')
+        query(el).addClass('selected')
+        query(overlay.box)
+            .find('.w2ui-tab-content')
+            .hide()
+            .closest('.w2ui-colors')
+            .find('.tab-'+ index)
+            .show()
     }
 
     getColorHTML(options) {
         let border
         let html = `
             <div class="w2ui-colors">
-                <div class="w2ui-color-palette">`
+                <div class="w2ui-tab-content tab-1">`
         for (let i = 0; i < this.palette.length; i++) {
             html += '<div class="w2ui-color-row">'
             for (let j = 0; j < this.palette[i].length; j++) {
                 let color = this.palette[i][j]
                 if (color === 'FFFFFF') border = '; border: 1px solid #efefef'; else border = ''
                 html += `
-                    <div class="w2ui-color w2ui-eaction ${color === '' ? 'w2ui-no-color' : ''}"
-                            style="background-color: #${color + border};" data-click="select|${color}|${i}|${j}|this"
-                            name="${color}" index="${i}:${j}">
-                        ${(options.color == color
-                            ? '<span style="position: relative; top: -4px;">&#149;</span>'
-                            : '&#160;')
-                        }
+                    <div class="w2ui-color w2ui-eaction ${color === '' ? 'w2ui-no-color' : ''} ${options.color == color ? 'w2ui-selected' : ''}"
+                        style="background-color: #${color + border};" name="${color}" index="${i}:${j}"
+                        data-mousedown="select|${color}|event|this" data-mouseup="change|${color}|event|this">&nbsp;
                     </div>`
             }
             html += '</div>'
-            if (i < 2) html += '<div style="height: 5px"></div>'
+            if (i < 2) html += '<div style="height: 8px"></div>'
         }
         html += '</div>'
         // advanced tab
         html += `
-            <div class="w2ui-color-advanced" style="display: none">
+            <div class="w2ui-tab-content tab-2" style="display: none">
                 <div class="color-info">
                     <div class="color-preview-bg"><div class="color-preview"></div><div class="color-original"></div></div>
                     <div class="color-part">
@@ -494,11 +586,15 @@ class ColorPopper extends Popper {
         // color tabs on the bottom
         html += `
             <div class="w2ui-color-tabs">
-               <div class="w2ui-color-tab selected w2ui-eaction" data-click="tab|0|this"><span class="w2ui-icon w2ui-icon-colors"></span></div>
-               <div class="w2ui-color-tab w2ui-eaction" data-click="tab|1|this"><span class="w2ui-icon w2ui-icon-settings"></span></div>
+               <div class="w2ui-color-tab selected w2ui-eaction" data-click="tabClick|1|event|this"><span class="w2ui-icon w2ui-icon-colors"></span></div>
+               <div class="w2ui-color-tab w2ui-eaction" data-click="tabClick|2|event|this"><span class="w2ui-icon w2ui-icon-settings"></span></div>
                <div style="padding: 5px; width: 100%; text-align: right;">${(typeof options.html == 'string' ? options.html : '')}</div>
             </div>`
         return html
+    }
+
+    initColorControls() {
+
     }
 }
 

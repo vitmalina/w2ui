@@ -15,19 +15,34 @@ window.w2utils = w2utils
 // query('.input')
 //     .off('.tooltip')
 //     .on('mouseenter.tooltip', function(event) {
-//         w2tooltip.show(this, 'some input ', event.target.id)
+//         w2tooltip.show(this, 'some input')
 //     })
 //     .on('mouseleave.tooltip', function(event) {
 //         w2tooltip.hide(this)
 //     })
 
-let ret = w2color.show({
+// w2tooltip.show({
+//     anchor: query('#inp1')[0],
+//     html: 'Auto show',
+//     auto: true
+// })
+
+let ret = w2color.init({
     anchor: query('#inp1')[0],
-    class: 'w2ui-light',
-//     // showOn: 'focus',
-//     // hideOn: 'blur',
-//     // auto: true,
-    html: 'some tooltip'
+    showOn: 'focus',
+    hideOn: 'never',
+    // auto: true,
+    html: 'more text',
+    hideOnClick: true,
+    // hideOnChange: true
+})
+.then(event => {
+    console.log('show then', event)
+})
+.show(event => {
+    console.log('show', event)
+})
+.select(event => {
+    console.log('selected', event)
 });
-// console.log(ret)
-// jQuery('#inp1').w2color({ onSelect: ()=>{}})
+console.log(ret)

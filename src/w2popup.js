@@ -4,6 +4,7 @@
 *
 * TODO:
 * - for poppup.message, w2alert, w2cofirm, w2propt - use w2utils.message
+* - there should be no focus by default, and ability to set focus to a button or a control
 *
 * == 2.0 changes
 *  - CSP - fixed inline events
