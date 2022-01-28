@@ -35,6 +35,7 @@
 *   - prepareData needs help page
 *   - separate columnRefresh, recordsRefresh, fullRefresh
 *   - onloadmore event (so it will be easy to implement remote data source with local sort)
+*   - avoid inline events, but allow w2ui-eaction
 *
 * == DEMOS To create ==
 *   - batch for disabled buttons
@@ -3489,7 +3490,6 @@ class w2grid extends w2event {
         let col     = this.columns[column]
         let tr      = $(this.box).find('#grid_'+ this.name + (col.frozen === true ? '_frec_' : '_rec_') + w2utils.escapeId(rec.recid))
         let new_val = (el.tagName && el.tagName.toUpperCase() == 'DIV' ? $(el).text() : el.value)
-        let old_val = this.parseField(rec, col.field)
         let tmp     = $(el).data('w2field')
         if (tmp) {
             if (tmp.type == 'list') new_val = $(el).data('selected')
@@ -3500,12 +3500,14 @@ class w2grid extends w2event {
             if (rec.w2ui && rec.w2ui.editable === false) el.checked = !el.checked
             new_val = el.checked
         }
+        let old_val = this.parseField(rec, col.field)
+        let prev_val = (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes.hasOwnProperty(col.field) ? rec.w2ui.changes[col.field]: old_val)
         // change/restore event
         let edata = {
             phase: 'before', type: 'change', target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
             originalEvent: (event.originalEvent ? event.originalEvent : event),
             value_new: new_val,
-            value_previous: (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes.hasOwnProperty(col.field) ? rec.w2ui.changes[col.field]: old_val),
+            value_previous: prev_val,
             value_original: old_val
         }
         if ($(event.target).data('old_value') != null) edata.value_previous = $(event.target).data('old_value')
@@ -3522,9 +3524,13 @@ class w2grid extends w2event {
                         continue
                     }
                     // default action
-                    rec.w2ui                    = rec.w2ui || {}
-                    rec.w2ui.changes            = rec.w2ui.changes || {}
-                    rec.w2ui.changes[col.field] = edata.value_new
+                    if ((edata.value_new === '' || edata.value_new == null) && (prev_val === '' || prev_val == null)) {
+                        // value did not change, was empty is empty
+                    } else {
+                        rec.w2ui = rec.w2ui ?? {}
+                        rec.w2ui.changes = rec.w2ui.changes ?? {}
+                        rec.w2ui.changes[col.field] = edata.value_new
+                    }
                     // event after
                     this.trigger($.extend(edata, { phase: 'after' }))
                 }
@@ -4763,12 +4769,13 @@ class w2grid extends w2event {
         return w2utils.stripTags(this.getCellHTML(ind, col_ind))
     }
 
-    paste(text) {
+    paste(text, event) {
         let sel = this.getSelection()
         let ind = this.get(sel[0].recid, true)
         let col = sel[0].column
         // before event
-        let edata = this.trigger({ phase: 'before', type: 'paste', target: this.name, text: text, index: ind, column: col })
+        let edata = this.trigger({ phase: 'before', type: 'paste', target: this.name, text: text,
+            index: ind, column: col, originalEvent: event })
         if (edata.isCancelled === true) return
         text = edata.text
         // default action
@@ -4778,25 +4785,30 @@ class w2grid extends w2event {
             this.trigger($.extend(edata, { phase: 'after' }))
             return
         }
-        let newSel = []
-        text       = text.split('\n')
-        for (let t = 0; t < text.length; t++) {
-            let tmp  = text[t].split('\t')
-            let cnt  = 0
-            let rec  = this.records[ind]
-            let cols = []
-            if (rec == null) continue
-            for (let dt = 0; dt < tmp.length; dt++) {
-                if (!this.columns[col + cnt]) continue
-                setCellPaste(rec, this.columns[col + cnt].field, tmp[dt])
-                cols.push(col + cnt)
-                cnt++
+        if (typeof text !== 'object') {
+            let newSel = []
+            text = text.split('\n')
+            for (let t = 0; t < text.length; t++) {
+                let tmp  = text[t].split('\t')
+                let cnt  = 0
+                let rec  = this.records[ind]
+                let cols = []
+                if (rec == null) continue
+                for (let dt = 0; dt < tmp.length; dt++) {
+                    if (!this.columns[col + cnt]) continue
+                    setCellPaste(rec, this.columns[col + cnt].field, tmp[dt])
+                    cols.push(col + cnt)
+                    cnt++
+                }
+                for (let c = 0; c < cols.length; c++) newSel.push({ recid: rec.recid, column: cols[c] })
+                ind++
             }
-            for (let c = 0; c < cols.length; c++) newSel.push({ recid: rec.recid, column: cols[c] })
-            ind++
+            this.selectNone();
+            this.select(newSel);
+        } else {
+            this.selectNone();
+            this.select([{ recid: this.records[ind], column: col }]);
         }
-        this.selectNone()
-        this.select(newSel)
         this.refresh()
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
@@ -4847,12 +4859,15 @@ class w2grid extends w2event {
                 let rec  = this.records[index] ?? {}
                 rec.w2ui = rec.w2ui ?? {}
                 rec.w2ui._update = rec.w2ui._update ?? { cells: [] }
-                let row = rec.w2ui._update.row
-                if (row == null || !row.isConnected) {
-                    row = this.box.querySelector(`#grid_${this.name}_rec_${w2utils.escapeId(rec.recid)}`)
-                    rec.w2ui._update.row = row
+                let row1 = rec.w2ui._update.row1
+                let row2 = rec.w2ui._update.row2
+                if (row1 == null || !row1.isConnected || row2 == null || !row2.isColSelected) {
+                    row1 = this.box.querySelector(`#grid_${this.name}_rec_${w2utils.escapeId(rec.recid)}`)
+                    row2 = this.box.querySelector(`#grid_${this.name}_frec_${w2utils.escapeId(rec.recid)}`)
+                    rec.w2ui._update.row1 = row1
+                    rec.w2ui._update.row2 = row2
                 }
-                _update(rec, row, index, column)
+                _update(rec, row1, row2, index, column)
             }
         } else {
             for (let i = this.last.range_start-1; i <= this.last.range_end; i++) {
@@ -4866,19 +4881,22 @@ class w2grid extends w2event {
                 if (index < 0 || rec == null) continue
                 rec.w2ui = rec.w2ui ?? {}
                 rec.w2ui._update = rec.w2ui._update ?? { cells: [] }
-                let row = rec.w2ui._update.row
-                if (row == null || !row.isConnected) {
-                    row = this.box.querySelector(`#grid_${this.name}_rec_${w2utils.escapeId(rec.recid)}`)
-                    rec.w2ui._update.row = row
+                let row1 = rec.w2ui._update.row1
+                let row2 = rec.w2ui._update.row2
+                if (row1 == null || !row1.isConnected || row2 == null || !row2.isColSelected) {
+                    row1 = this.box.querySelector(`#grid_${this.name}_rec_${w2utils.escapeId(rec.recid)}`)
+                    row2 = this.box.querySelector(`#grid_${this.name}_frec_${w2utils.escapeId(rec.recid)}`)
+                    rec.w2ui._update.row1 = row1
+                    rec.w2ui._update.row2 = row2
                 }
                 for (let column = 0; column < this.columns.length; column++) {
-                    _update(rec, row, index, column)
+                    _update(rec, row1, row2, index, column)
                 }
             }
         }
         return (new Date()).getTime() - time
 
-        function _update(rec, row, index, column) {
+        function _update(rec, row1, row2, index, column) {
             let pcol = self.columns[column]
             if (Array.isArray(ignoreColumns) && (ignoreColumns.includes(column) || ignoreColumns.includes(pcol.field))) {
                 return
@@ -4923,14 +4941,18 @@ class w2grid extends w2event {
                     let ignore = ['w2ui-odd', 'w2ui-even', 'w2ui-record']
                     let remove = []
                     let add = rec.w2ui.class.split(' ').filter(cl => !!cl) // remove empty
-                    row.classList.forEach(cl => { if (!ignore.includes(cl)) remove.push(cl)})
-                    row.classList.remove(...remove)
-                    row.classList.add(...add)
+                    if (row1 && row2) {
+                        row1.classList.forEach(cl => { if (!ignore.includes(cl)) remove.push(cl)})
+                        row1.classList.remove(...remove)
+                        row1.classList.add(...add)
+                        row2.classList.remove(...remove)
+                        row2.classList.add(...add)
+                    }
                 }
-                if ($.isPlainObject(rec.w2ui.class) && typeof rec.w2ui.class[column] == 'string') {
+                if ($.isPlainObject(rec.w2ui.class) && typeof rec.w2ui.class[pcol.field] == 'string') {
                     let ignore = ['w2ui-grid-data']
                     let remove = []
-                    let add = rec.w2ui.class[column].split(' ').filter(cl => !!cl)
+                    let add = rec.w2ui.class[pcol.field].split(' ').filter(cl => !!cl)
                     cell.classList.forEach(cl => { if (!ignore.includes(cl)) remove.push(cl)})
                     cell.classList.remove(...remove)
                     cell.classList.add(...add)
@@ -4938,12 +4960,15 @@ class w2grid extends w2event {
             }
             // record styles if any
             if (rec.w2ui.style != null) {
-                if (typeof rec.w2ui.style == 'string' && row.style.cssText !== rec.w2ui.style) {
-                    row.style.cssText = 'height: '+ self.recordHeight + 'px;' + rec.w2ui.style
+                if (row1 && row2 && typeof rec.w2ui.style == 'string' && row1.style.cssText !== rec.w2ui.style) {
+                    row1.style.cssText = 'height: '+ self.recordHeight + 'px;' + rec.w2ui.style
+                    row1.setAttribute('custom_style', rec.w2ui.style)
+                    row2.style.cssText = 'height: '+ self.recordHeight + 'px;' + rec.w2ui.style
+                    row2.setAttribute('custom_style', rec.w2ui.style)
                 }
-                if ($.isPlainObject(rec.w2ui.style) && typeof rec.w2ui.style[column] == 'string'
-                        && cell.style.cssText !== rec.w2ui.style[column]) {
-                    cell.style.cssText = rec.w2ui.style[column]
+                if ($.isPlainObject(rec.w2ui.style) && typeof rec.w2ui.style[pcol.field] == 'string'
+                        && cell.style.cssText !== rec.w2ui.style[pcol.field]) {
+                    cell.style.cssText = rec.w2ui.style[pcol.field]
                 }
             }
         }
@@ -5177,7 +5202,7 @@ class w2grid extends w2event {
                        <button class="w2ui-btn grid-search-btn" data-click="searchSave">${w2utils.lang('Save')}</button>
                       `
                     : ''
-}
+                }
                 <button class="w2ui-btn grid-search-btn btn-remove"
                     data-click="searchReset">X</button>
             `
@@ -5391,17 +5416,37 @@ class w2grid extends w2event {
             })
             .on('paste', function (event) {
                 let cd = (event.originalEvent.clipboardData ? event.originalEvent.clipboardData : null)
-                if (cd && cd.types && cd.types.indexOf('text/plain') != -1) {
-                    event.preventDefault()
-                    let text = cd.getData('text/plain')
-                    if (text.indexOf('\r') != -1 && text.indexOf('\n') == -1) {
-                        text = text.replace(/\r/g, '\n')
+                if (cd) {
+                    let items = cd.items
+                    if (items.length == 2) {
+                        if (items.length == 2 && items[1].kind == 'file') {
+                            items = [items[1]]
+                        }
+                        if (items.length == 2 && items[0].type == 'text/plain' && items[1].type == 'text/html') {
+                            items = [items[1]]
+                        }
                     }
-                    w2ui[obj.name].paste(text)
-                } else {
-                    // for older browsers
-                    let el = this
-                    setTimeout(() => { w2ui[obj.name].paste(el.value); el.value = '' }, 1)
+                    let items2send = []
+                    // might contain data in different formats, but it is a single paste
+                    for (let index in items) {
+                        let item = items[index]
+                        if (item.kind === 'file') {
+                            let file = item.getAsFile()
+                            items2send.push({ kind: 'file', data: file })
+                        } else if (item.kind === 'string' && (item.type === 'text/plain' || item.type === 'text/html')) {
+                            event.preventDefault()
+                            let text = cd.getData('text/plain');
+                            if (text.indexOf('\r') != -1 && text.indexOf('\n') == -1) {
+                                text = text.replace(/\r/g, '\n');
+                            }
+                            items2send.push({ kind: (item.type == 'text/html' ? 'html' : 'text'), data: text })
+                        }
+                    }
+                    if (items2send.length === 1 && items2send[0].kind != 'file') {
+                        items2send = items2send[0].data
+                    }
+                    w2ui[obj.name].paste(items2send, event.originalEvent);
+                    event.preventDefault()
                 }
             })
             .on('keydown', function (event) {
