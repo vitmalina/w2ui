@@ -54,7 +54,7 @@ class w2toolbar extends w2event {
             onClick: null,
             onRefresh: null
         }
-        this.tmp = {
+        this.last = {
             badge: {}
         }
         // mix in options, w/o items
@@ -193,7 +193,7 @@ class w2toolbar extends w2event {
         $it.removeClass()
             .addClass(className || '')
             .text(count)[0].style.cssText = style || ''
-        this.tmp.badge[id] = {
+        this.last.badge[id] = {
             className: className || '',
             style: style || ''
         }
@@ -518,6 +518,9 @@ class w2toolbar extends w2event {
             $(this.box)[0].style.cssText += this.style
         }
         w2utils.bindEvents($(this.box).find('.w2ui-tb-line .w2ui-eaction'), this)
+        // observe div resize
+        this.last.resizeObserver = new ResizeObserver(() => { this.resize() })
+        this.last.resizeObserver.observe(this.box)
         // refresh all
         this.refresh()
         this.resize()
@@ -575,7 +578,7 @@ class w2toolbar extends w2event {
                         drop[0].hide()
                     } else {
                         if (['menu', 'menu-radio', 'menu-check'].indexOf(it.type) != -1) {
-                            $(this.tmp.overlayEl).w2menu('refresh', { items: it.items })
+                            $(this.last.overlayEl).w2menu('refresh', { items: it.items })
                         }
                     }
                 }
@@ -637,6 +640,7 @@ class w2toolbar extends w2event {
                 .html('')
         }
         $(this.box).html('')
+        this.last.resizeObserver.disconnect()
         delete w2ui[this.name]
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
@@ -717,8 +721,8 @@ class w2toolbar extends w2event {
                                     ${ w2utils.lang(text) }
                                     ${ item.count != null
                                         ? `<span class="w2ui-tb-count">
-                                                <span class="${this.tmp.badge[item.id] ? this.tmp.badge[item.id].className || '' : ''}"
-                                                    style="${this.tmp.badge[item.id] ? this.tmp.badge[item.id].style || '' : ''}">
+                                                <span class="${this.last.badge[item.id] ? this.last.badge[item.id].className || '' : ''}"
+                                                    style="${this.last.badge[item.id] ? this.last.badge[item.id].style || '' : ''}">
                                                         ${item.count}
                                                 </span>
                                            </span>`

@@ -12,6 +12,7 @@
 * == 2.0 changes
 *   - CSP - fixed inline events
 *   - better groups support tabs now
+*   - resizeObserver for the box
 *
 ************************************************************************/
 
@@ -1413,8 +1414,6 @@ class w2form extends w2event {
             }
             resizeElements()
         }
-        if (this.toolbar && this.toolbar.resize) this.toolbar.resize()
-        if (this.tabs && this.tabs.resize) this.tabs.resize()
         // event after
         obj.trigger($.extend(edata, { phase: 'after' }))
 
@@ -2021,18 +2020,9 @@ class w2form extends w2event {
         } else {
             this.refresh()
         }
-        // attach to resize event
-        if ($(this.box).closest('.w2ui-layout').length === 0) { // if there is layout, it will send a resize event
-            this.tmp_resize = function tmp_resize(event) {
-                if (w2ui[obj.name] == null) {
-                    $(window).off('resize.w2uiResize', obj.tmp_resize)
-                } else {
-                    w2ui[obj.name].resize()
-                }
-            }
-            $(window).off('resize.w2uiResize').on('resize.w2uiResize', obj.tmp_resize)
-        }
-
+        // observe div resize
+        this.last.resizeObserver = new ResizeObserver(() => { this.resize() })
+        this.last.resizeObserver.observe(this.box)
         // focus on load
         if (this.focus != -1) {
             setTimeout(() => {
@@ -2090,6 +2080,7 @@ class w2form extends w2event {
                 .removeClass('w2ui-reset w2ui-form')
                 .html('')
         }
+        this.last.resizeObserver.disconnect()
         delete w2ui[this.name]
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))

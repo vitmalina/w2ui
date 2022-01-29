@@ -66,6 +66,7 @@
 *   - search.type == 'text' can have 'in' and 'not in' operators, then it will switch to enum
 *   - grid.find(..., displayedOnly)
 *   - column.render(..., this) - added
+*   - resizeObserver for the box
 *
 ************************************************************************/
 
@@ -4836,7 +4837,6 @@ class w2grid extends w2event {
         // resize
         this.resizeBoxes()
         this.resizeRecords()
-        if (this.toolbar && this.toolbar.resize) this.toolbar.resize()
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
         return (new Date()).getTime() - time
@@ -5457,18 +5457,9 @@ class w2grid extends w2event {
         this.updateToolbar()
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
-        // attach to resize event
-        if ($(this.box).closest('.w2ui-layout').length === 0) { // if there is layout, it will send a resize event
-            $(window)
-                .off('resize.w2ui-'+ obj.name)
-                .on('resize.w2ui-'+ obj.name, function (event) {
-                    if (w2ui[obj.name] == null) {
-                        $(window).off('resize.w2ui-'+ obj.name)
-                    } else {
-                        w2ui[obj.name].resize()
-                    }
-                })
-        }
+        // observe div resize
+        this.last.resizeObserver = new ResizeObserver(() => { this.resize() })
+        this.last.resizeObserver.observe(this.box)
         return (new Date()).getTime() - time
 
         function mouseStart (event) {
@@ -5838,6 +5829,7 @@ class w2grid extends w2event {
                 .removeClass('w2ui-reset w2ui-grid w2ui-inactive')
                 .html('')
         }
+        this.last.resizeObserver.disconnect()
         delete w2ui[this.name]
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
@@ -5925,7 +5917,7 @@ class w2grid extends w2event {
         _dragData.timeout = null
         _dragData.columnHead = null
 
-        //attach original event listener
+        // attach original event listener
         $(obj.box).off('mousedown.colDrag').on('mousedown.colDrag', dragColStart)
         $(obj.box).off('mouseup.colDrag').on('mouseup.colDrag', catchMouseup)
 
