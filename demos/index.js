@@ -449,7 +449,7 @@ $(async function () {
                             '')+
                         '</div>'+
                         '<div style="display: none">'+
-                        '<form id="fiddleForm" target="_blank" action="http://jsfiddle.net/api/post/jquery/3.4/" method="post">'+
+                        '<form id="fiddleForm" target="_blank" action="https://jsfiddle.net/api/post/jquery/3.4/" method="post">'+
                         '    <textarea name="title">W2UI Demo: '+ cmd +'</textarea>'+
                         `    <textarea name="resources">${w2ui_css}${w2ui_js ? ',' + w2ui_js : ''}</textarea>`+
                         '    <textarea name="js">'+ js +'</textarea>'+
