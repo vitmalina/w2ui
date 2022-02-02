@@ -13,6 +13,8 @@
 *   - CSP - fixed inline events
 *   - transition returns a promise
 *   - nearly removed jQuery (toolip has reference)
+*   - refactores w2utils.message()
+*   - added w2utils.confirm()
 *
 ************************************************/
 import { w2event } from './w2event.js'
@@ -1004,183 +1006,343 @@ class Utils {
     }
 
     /**
-    *  Used in w2grid, w2form, w2layout (should be in w2popup too)
-    *  should be called with .call(...) method
-    */
-
+     * Opens a context message, similar in parameters as w2popup.open()
+     *
+     * Sample Calls
+     * w2utils.message({ box: '#div' }, 'message').ok(() => {})
+     * w2utils.message({ box: '#div' }, { text: 'message', width: 300 }).ok(() => {})
+     * w2utils.message({ box: '#div' }, { text: 'message', actions: ['Save'] }).Save(() => {})
+     *
+     * Used in w2grid, w2form, w2layout (should be in w2popup too)
+     * should be called with .call(...) method
+     *
+     * @param where = {
+     *      box,     // where to open
+     *      after,   // title if any, adds title heights
+     *      param    // additional parameters, used in layouts for panel
+     * }
+     * @param options {
+     *      width,      // (int), width in px, if negative, then it is maxWidth - width
+     *      height,     // (int), height in px, if negative, then it is maxHeight - height
+     *      text,       // centered text
+     *      body,       // body of the message
+     *      buttons,    // buttons of the message
+     *      html,       // if body & buttons are not defined, then html is the entire message
+     *      focus,      // int or id with a selector, default is 0
+     *      hideOn,     // ['esc', 'click'], default is ['esc']
+     *      actions,    // array of actions (only if buttons is not defined)
+     *      onOpen,     // event when opened
+     *      onClose,    // event when closed
+     *      onAction,   // event on action
+     * }
+     */
     message(where, options) {
-        return new Promise((resolve, reject) => {
-            let obj = this, closeTimer, edata
-            // var where.path    = 'w2popup';
-            // var where.title   = '.w2ui-popup-title';
-            // var where.body    = '.w2ui-box';
-            // TODO: hide all tag, do you need it??
-            // w2tooltip.hide() // hide all tags
-            if (!options) options = { width: 200, height: 100 }
-            if (options.on == null) {
-                // mix in events
-                let opts = options
-                options = new w2event()
-                w2utils.extend(options, opts) // needs to be w2utils
+        let closeTimer, openTimer, edata
+        if (typeof options == 'string') {
+            options = {
+                width : (options.length < 300 ? 350 : 550),
+                height: (options.length < 300 ? 170: 250),
+                body  : `<div class="w2ui-centered">${options}</div>`,
             }
-            if (options.width == null) options.width = 200
-            if (options.height == null) options.height = 100
-            let styles  = query(where.box)[0].computedStyleMap()
-            let pWidth  = styles.get('width').value
-            let pHeight = styles.get('height').value
-            styles  = query(where.box).find(where.title)[0].computedStyleMap()
-            let titleHeight = parseInt(styles.get('display').value != 'none' ? styles.get('height').value : 0)
-            if (options.width > pWidth) options.width = pWidth - 10
-            if (options.height > pHeight - titleHeight) options.height = pHeight - 10 - titleHeight
-            options.originalWidth  = options.width
-            options.originalHeight = options.height
-            if (parseInt(options.width) < 0) options.width = pWidth + options.width
-            if (parseInt(options.width) < 10) options.width = 10
-            if (parseInt(options.height) < 0) options.height = pHeight + options.height - titleHeight
-            if (parseInt(options.height) < 10) options.height = 10
-            if (options.hideOnClick == null) options.hideOnClick = false
-            let poptions = query(where.box).data('options') || {}
-            if (options.width == null || options.width > poptions.width - 10) {
-                options.width = poptions.width - 10
-            }
-            if (options.height == null || options.height > poptions.height - titleHeight - 5) {
-                options.height = poptions.height - titleHeight - 5 // need margin from bottom only
-            }
-            // negative value means margin
-            if (options.originalHeight < 0) options.height = pHeight + options.originalHeight - titleHeight
-            if (options.originalWidth < 0) options.width = pWidth + options.originalWidth * 2 // x 2 because there is left and right margin
-            let head = query(where.box).find(where.title)
-
-            // if some messages are closing, instantly close them
-            let $tmp = query(where.box).find('.w2ui-message.w2ui-closing')
-            if (query(where.box).find('.w2ui-message.w2ui-closing').length > 0) {
-                clearTimeout(closeTimer)
-                closeCB($tmp, $tmp.data('options') || {})
-            }
-            let msgCount = query(where.box).find('.w2ui-message').length
-            // remove message
-            if ((options.html || '').trim() === '' && (options.body || '').trim() === '' && (options.buttons || '').trim() === '') {
-                if (msgCount === 0) return // no messages at all
-                let $msg = query(where.box).find('#w2ui-message'+ (msgCount-1))
-                options  = $msg.data('options') || {}
-                // before event
-                if (options.trigger) {
-                    edata = options.trigger({ phase: 'before', type: 'close', target: 'self', box: options.box[0] })
-                    if (edata.isCancelled === true) return
-                }
-                // default behavior
-                $msg.css({
-                        'transition': '0.15s',
-                        'transform': 'translateY(-' + options.height + 'px)'
-                    })
-                    .addClass('w2ui-closing animating')
-                if (msgCount === 1) {
-                    if (this.unlock) {
-                        if (where.param) this.unlock(where.param, 150); else this.unlock(150) // should be this
+        }
+        if (typeof options != 'object') {
+            removeLast()
+            return
+        }
+        if (options.text != null) options.body = `<div class="w2ui-centered">${options.text}</div>`
+        if (options.width == null) options.width = 350
+        if (options.height == null) options.height = 170
+        if (options.hideOn == null) options.hideOn = ['esc']
+        if (options.focus == null) options.focus = 0
+        // mix in events
+        if (options.on == null) {
+            let opts = options
+            options = new w2event()
+            w2utils.extend(options, opts) // needs to be w2utils
+        }
+        options.on('open', (event) => {
+            w2utils.bindEvents(query(options.box).find('.w2ui-eaction'), options)
+            query(event.box).find('button, input, textarea')
+                .off('.message')
+                .on('keydown.message', function(evt) {
+                    if (evt.keyCode == 27 && options.hideOn.includes('esc')) {
+                        options.close()
                     }
-                } else {
-                    query(where.box).find('#w2ui-message'+ (msgCount-2)).css('z-index', 1500)
-                }
-                closeTimer = setTimeout(() => { closeCB($msg, options) }, 150)
-
-            } else {
-
-                if ((options.body || '').trim() !== '' || (options.buttons || '').trim() !== '') {
-                    options.html = '<div class="w2ui-message-body">'+ (options.body || '') +'</div>'+
-                        '<div class="w2ui-message-buttons">'+ (options.buttons || '') +'</div>'
-                }
-                // hide previous messages
-                query(where.box).find('.w2ui-message').css('z-index', 1390)
-                head.data('old-z-index', head.css('z-index'))
-                head.css('z-index', 1501)
-                // add message
-                query(where.box).find(where.body)
-                    .before('<div id="w2ui-message' + msgCount + '" data-mousedown="stop" '+
-                            '   class="w2ui-message" style="display: none; z-index: 1500; ' +
-                                'top: ' + titleHeight + 'px;'+
-                                (options.width != null ? 'width: ' + options.width + 'px; left: ' + ((pWidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
-                                (options.height != null ? 'height: ' + options.height + 'px;' : 'bottom: 6px;') +
-                                'transition: .3s"' +
-                                (options.hideOnClick === true
-                                    ? where.param
-                                        ? `data-click='["message", "${where.param}"]`
-                                        : 'data-click="message"'
-                                    : '') + '>' +
-                            '</div>')
-                w2utils.bindEvents('#w2ui-message' + msgCount, this)
-                query(where.box).find('#w2ui-message'+ msgCount)
-                    .addClass('animating')
-                    .data('options', options)
-                    .data('prev_focus', document.activeElement)
-                let display = query(where.box).find('#w2ui-message'+ msgCount).css('display')
-                query(where.box).find('#w2ui-message'+ msgCount).css({
-                    'transform': (display === 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)')
                 })
-                if (display === 'none') {
-                    query(where.box).find('#w2ui-message'+ msgCount).show().html(options.html)
-                    options.box = query(where.box).find('#w2ui-message'+ msgCount)
-                    // before event
-                    if (options.trigger) {
-                        edata = options.trigger({ phase: 'before', type: 'open', target: 'self', box: options.box[0] })
-                        if (edata.isCancelled === true) {
-                            head.css('z-index', head.data('old-z-index'))
-                            query(where.box).find('#w2ui-message'+ msgCount).remove()
-                            return
-                        }
-                    }
-                    // timer needs to animation
-                    setTimeout(() => {
-                        query(where.box).find('#w2ui-message'+ msgCount).css({
-                            'transform': (display === 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)')
-                        })
-                    }, 1)
-                    // timer for lock
-                    if (msgCount === 0) {
-                        if (where.param) this.lock(where.param); else this.lock() // should be this
-                    }
-                    setTimeout(() => {
-                        // has to be on top of lock
-                        query(where.box)
-                            .find('#w2ui-message'+ msgCount)
-                            .removeClass('animating')
-                            .css({ 'transition': '0s' })
-                        // event after
-                        if (options.trigger) {
-                            options.trigger(w2utils.extend(edata, { phase: 'after' }))
-                            resolve({
-                                box: query(where.box).find('#w2ui-message'+ msgCount)[0]
-                            })
-                        }
-                    }, 350)
-                }
-            }
-
-            function closeCB($msg, options) {
-                if (edata == null) {
-                    // before event
-                    if (options.trigger) {
-                        edata = options.trigger({ phase: 'before', type: 'close', target: 'self' })
-                        if (edata.isCancelled === true) {
-                            head.css('z-index', head.data('old-z-index'))
-                            query(where.box).find('#w2ui-message'+ msgCount).remove()
-                            return
-                        }
-                    }
-                }
-                let focus = $msg.data('prev_focus')
-                $msg.remove()
-                if (focus) {
-                    focus.focus()
+            let btn = query(event.box).find('button, input, textarea')
+            if (options.focus != null && btn.length > 0) {
+                if (!isNaN(options.focus)) {
+                    btn = btn.get(options.focus)
+                    if (btn) btn.focus()
                 } else {
-                    if (obj && typeof obj.focus == 'function') obj.focus()
-                }
-                head.css('z-index', head.data('old-z-index'))
-                // event after
-                if (options.trigger) {
-                    options.trigger(w2utils.extend(edata, { phase: 'after' }))
+                    btn = query(event.box).find(options.focus).get(0)
+                    if (btn) btn.focus()
                 }
             }
         })
+        let prom = {
+            self: options,
+            action(callBack) {
+                options
+                    .off('action.prom')
+                    .on('action.prom', callBack)
+                return prom
+            },
+            close(callBack) {
+                options
+                    .off('close.prom')
+                    .on('close.prom', callBack)
+                return prom
+            },
+            then(callBack) {
+                options
+                    .off('open:after.prom')
+                    .on('open:after.prom', callBack)
+                return prom
+            }
+        }
+        if (options.actions == null && options.buttons == null) {
+            options.actions = { Ok(event) { event.self.close() }}
+        }
+        options.off('.buttons')
+        if (options.actions != null) {
+            options.buttons = ''
+            Object.keys(options.actions).forEach((action) => {
+                let handler = options.actions[action]
+                let btnAction = action
+                if (typeof handler == 'function') {
+                    options.buttons += `<button class="w2ui-btn w2ui-eaction" data-click='["action","${action}","event"]'>${action}</button>`
+                }
+                if (typeof handler == 'object') {
+                    options.buttons += `<button class="w2ui-btn w2ui-eaction ${handler.class || ''}" data-click='["action","${action}","event"]'
+                        style="${handler.style}">${handler.text || action}</button>`
+                    btnAction = Array.isArray(options.actions) ? handler.text : action
+                }
+                if (typeof handler == 'string') {
+                    options.buttons += `<button class="w2ui-btn w2ui-eaction" data-click='["action","${handler}","event"]'>${handler}</button>`
+                    btnAction = handler
+                }
+                if (typeof btnAction == 'string') {
+                    btnAction = btnAction[0].toLowerCase() + btnAction.substr(1).replace(/\s+/g, '')
+                }
+                prom[btnAction] = function (callBack) {
+                    options.on('action.buttons', (event) => {
+                        let target = event.action[0].toLowerCase() + event.action.substr(1).replace(/\s+/g, '')
+                        if (target == btnAction) callBack(event)
+                    })
+                    return prom
+                }
+            })
+        }
+        // trim if any
+        Array('html', 'body', 'buttons').forEach(param => {
+             options[param] = String(options[param] ?? '').trim()
+        })
+        if (options.body !== '' || options.buttons !== '') {
+            options.html = `
+                <div class="w2ui-message-body">${options.body || ''}</div>
+                <div class="w2ui-message-buttons">${options.buttons || ''}</div>
+            `;
+        }
+        options.owner = this // since it is called with .call(...)
+        let styles  = query(where.box)[0].computedStyleMap()
+        let pWidth  = styles.get('width').value
+        let pHeight = styles.get('height').value
+        styles  = query(where.box).find(where.after)[0].computedStyleMap()
+        let titleHeight = parseInt(styles.get('display').value != 'none' ? styles.get('height').value : 0)
+        if (options.width > pWidth) options.width = pWidth - 10
+        if (options.height > pHeight - titleHeight) options.height = pHeight - 10 - titleHeight
+        options.originalWidth  = options.width
+        options.originalHeight = options.height
+        if (parseInt(options.width) < 0) options.width = pWidth + options.width
+        if (parseInt(options.width) < 10) options.width = 10
+        if (parseInt(options.height) < 0) options.height = pHeight + options.height - titleHeight
+        if (parseInt(options.height) < 10) options.height = 10
+        // negative value means margin
+        if (options.originalHeight < 0) options.height = pHeight + options.originalHeight - titleHeight
+        if (options.originalWidth < 0) options.width = pWidth + options.originalWidth * 2 // x 2 because there is left and right margin
+        let head = query(where.box).find(where.after) // needed for z-index manipulations
+        head.data('old-z-index', head.css('z-index'))
+        // remove message
+        if (options.html === '' && options.body === '' && options.buttons === '') {
+            removeLast()
+        } else {
+            options.msgIndex = query(where.box).find('.w2ui-message').length
+            if (options.msgIndex === 0 && typeof this.lock == 'function') {
+                if (where.param) this.lock(where.param); else this.lock() // should be this
+            }
+            // send back previous messages
+            query(where.box).find('.w2ui-message').css('z-index', 1390)
+            head.css('z-index', 1501)
+            // add message
+            query(where.box).find(where.after)
+                .after(`
+                    <div id="w2ui-message-${options.owner.name}-${options.msgIndex}" class="w2ui-message" data-mousedown="stop"
+                        style="z-index: 1500; left: ${((pWidth - options.width) / 2)}px; top: ${titleHeight}px;
+                            width: ${options.width}px; height: ${options.height}px; transform: translateY(-${options.height}px)"
+                        ${options.hideOn.includes('click')
+                            ? where.param
+                                ? `data-click='["message", "${where.param}"]`
+                                : 'data-click="message"'
+                            : ''}>
+                        ${options.html}
+                    </div>`)
+            options.box = query(where.box).find(`#w2ui-message-${options.owner.name}-${options.msgIndex}`)[0]
+            w2utils.bindEvents(options.box, this)
+            query(options.box)
+                .addClass('animating')
+                .data('options', options)
+                .data('prev_focus', document.activeElement) // TODO:
+            // timeout is needs so that callBacks are setup
+            setTimeout(() => {
+                // before event
+                edata = options.trigger({ phase: 'before', type: 'open', target: this.name, box: options.box, self: options })
+                if (edata.isCancelled === true) {
+                    head.css('z-index', head.data('old-z-index'))
+                    query(where.box).find(`#w2ui-message-${options.owner.name}-${options.msgIndex}`).remove()
+                    return
+                }
+                // slide down
+                query(options.box).css({
+                    transition: '0.3s',
+                    transform: 'translateY(0px)'
+                })
+            }, 0)
+            // timeout is needed so that animation can finish
+            openTimer = setTimeout(() => {
+                // has to be on top of lock
+                query(where.box)
+                    .find(`#w2ui-message-${options.owner.name}-${options.msgIndex}`)
+                    .removeClass('animating')
+                    .css({ 'transition': '0s' })
+                // event after
+                options.trigger(Object.assign(edata, { phase: 'after' }))
+            }, 300)
+        }
+        // action handler
+        options.action = (action, event) => {
+            let click = options.actions[action]
+            if (click instanceof Object && click.onClick) click = click.onClick
+            // event before
+            let edata = options.trigger({ phase: 'before', type: 'action', target: this.name, action, self: options, originalEvent: event })
+            if (edata.isCancelled === true) return
+            // default actions
+            if (typeof click === 'function') click(edata)
+            // event after
+            options.trigger(Object.assign(edata, { phase: 'after' }))
+        }
+        options.close = () => {
+            edata = options.trigger({ phase: 'before', type: 'close', target: 'self', box: options.box, self: options })
+            if (edata.isCancelled === true) return
+            clearTimeout(openTimer)
+            if (query(options.box).hasClass('animating')) {
+                clearTimeout(closeTimer)
+                closeComplete(options);
+                return
+            }
+            // default behavior
+            query(options.box)
+                .addClass('w2ui-closing animating')
+                .css({
+                    'transition': '0.15s',
+                    'transform': 'translateY(-' + options.height + 'px)'
+                })
+            if (options.msgIndex !== 0) {
+                // previous message
+                query(where.box).find(`#w2ui-message-${options.owner.name}-${options.msgIndex-1}`).css('z-index', 1499)
+            }
+            closeTimer = setTimeout(() => { closeComplete(options) }, 150)
+        }
+        return prom
+
+        function removeLast() {
+            let msgs = query(where.box).find('.w2ui-message')
+            if (msgs.length == 0) return // no messages already
+            options = msgs.eq(0).data('options') || {}
+            if (typeof options?.close == 'function') {
+                options.close()
+            }
+        }
+
+        function closeComplete(options) {
+            let focus = query(options.box).data('prev_focus')
+            if (options.msgIndex === 0) {
+                if (options.owner.unlock) {
+                    if (where.param) {
+                        options.owner.unlock(where.param, 150)
+                     } else {
+                        options.owner.unlock(150) // owner of themessage
+                     }
+                }
+            } else {
+                query(where.box).find(`#w2ui-message-${options.owner.name}-${options.msgIndex-1}`).css('z-index', 1500)
+            }
+            query(options.box).remove()
+            if (focus) {
+                focus.focus()
+            } else {
+                if (options.owner && typeof options.owner.focus == 'function') owner.focus()
+            }
+            head.css('z-index', head.data('old-z-index'))
+            // event after
+            if (options.trigger) {
+                options.trigger(Object.assign(edata, { phase: 'after' }))
+            }
+        }
+    }
+
+    confirm(where, options) {
+        if (typeof options == 'string') {
+            options = { text: options }
+        }
+        w2utils.normButtons(options, { yes: 'Yes', no: 'No' })
+        return w2utils.message.call(this, where, options)
+    }
+
+    /**
+     * Normalizes yes, no buttons for confirmation dialog
+     *
+     * @param {*} options
+     * @returns  options
+     */
+    normButtons(options, btn) {
+        options.actions = options.actions ?? {}
+        let btns = Object.keys(btn)
+        btns.forEach(name => {
+            let action = options['btn_' + name]
+            if (action) {
+                btn[name] = {
+                    text: w2utils.lang(action.text ?? ''),
+                    class: action.class ?? '',
+                    style: action.style ?? ''
+                }
+                delete options['btn_' + name]
+            }
+            Array('text', 'class', 'style').forEach(suffix => {
+                if (options[name + '_' + suffix]) {
+                    if (typeof btn[name] == 'string') {
+                        btn[name] = { text: btn[name] }
+                    }
+                    btn[name][suffix] = options[name + '_' + suffix]
+                    delete options[name + '_' + suffix]
+                }
+            })
+        })
+        if (btns.includes('yes') && btns.includes('no')) {
+            if (w2utils.settings.macButtonOrder) {
+                w2utils.extend(options.actions, { no: btn.no, yes: btn.yes })
+            } else {
+                w2utils.extend(options.actions, { yes: btn.yes, no: btn.no })
+            }
+        }
+        if (btns.includes('ok') && btns.includes('cancel')) {
+            if (w2utils.settings.macButtonOrder) {
+                w2utils.extend(options.actions, { cancel: btn.cancel, ok: btn.ok })
+            } else {
+                w2utils.extend(options.actions, { ok: btn.ok, cancel: btn.cancel })
+            }
+        }
+        return options
     }
 
     getSize(el, type) {

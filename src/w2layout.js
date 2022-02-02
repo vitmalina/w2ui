@@ -4,6 +4,8 @@
 *
 * == 2.0 changes
 *   - CSP - fixed inline events
+*   - layout.confirm - refactored
+*   - layout.message - refactored
 *
 ************************************************************************/
 
@@ -192,174 +194,34 @@ class w2layout extends w2event {
     }
 
     message(panel, options) {
-        let obj = this
-        if (typeof options == 'string') {
-            options = {
-                width   : (options.length < 300 ? 350 : 550),
-                height  : (options.length < 300 ? 170: 250),
-                body    : '<div class="w2ui-centered">' + options + '</div>',
-                buttons : `<button class="w2ui-btn" data-click='["message", "${panel}"]'>Ok</button>`,
-                onOpen(event) {
-                    setTimeout(() => {
-                        w2utils.bindEvents($(obj.box).find('.w2ui-btn'), obj)
-                        $(obj.box).find('.w2ui-btn')
-                            .off('.message')
-                            .on('keydown.message', function(evt) {
-                                if (evt.keyCode == 27) $(evt.target).click() // esc
-                            })
-                            .focus()
-                    }, 25)
-                },
-                onClose(event) {
-                    if (typeof options.callBack == 'function') {
-                        options.callBack(event)
-                    }
-                }
-            }
-        }
         let p = this.get(panel)
-        let $el = $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type)
-        let oldOverflow = $el.css('overflow')
-        let oldOnClose
-        if (options) {
-            if (options.onClose) oldOnClose = options.onClose
-            options.onClose = (event) => {
-                if (typeof oldOnClose == 'function') oldOnClose(event)
-                event.done(() => {
-                    $(obj.box).find('#layout_'+ obj.name + '_panel_'+ p.type).css('overflow', oldOverflow)
-                })
-            }
-        }
-        $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type).css('overflow', 'hidden')
-        w2utils.message.call(this, {
-                box   : $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type),
-                param : panel,
-                path  : 'w2ui.' + this.name,
-                title : '.w2ui-panel-title',
-                body  : '.w2ui-panel-content'
-            }, options)
-        .then((event) => {
-            if (typeof options.then == 'function') {
-                options.then(event)
-            }
+        let box = $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type)
+        let oldOverflow = box.css('overflow')
+        box.css('overflow', 'hidden')
+        let prom = w2utils.message.call(this, {
+            box   : box,
+            after : '.w2ui-panel-title',
+            param : panel
+        }, options)
+        prom.self.on('close:after', () => {
+            box.css('overflow', oldOverflow)
         })
-
-        let prom = {
-            ok(callBack) {
-                options.callBack = callBack
-                return prom
-            },
-            then(callBack) {
-                options.then = callBack
-                return prom
-            }
-        }
         return prom
     }
 
     confirm(panel, options) {
-        let self = this
-        if (typeof options == 'string') {
-            options = {
-                width: (options.length < 300 ? 350 : 550),
-                height: (options.length < 300 ? 170: 250),
-                body: '<div class="w2ui-centered">' + options + '</div>'
-            }
-        }
-        let yes_click = (event) => {
-            if (typeof options.yes_click == 'function') {
-                options.yes_click(event)
-            }
-            if (typeof options.callBack == 'function') {
-                options.callBack(Object.assign(event, { answer: 'yes' }))
-            }
-            self.message(panel)
-        }
-        let no_click = (event) => {
-            if (typeof options.no_click == 'function') {
-                options.no_click(event)
-            }
-            if (typeof options.callBack == 'function') {
-                options.callBack(Object.assign(event, { answer: 'no' }))
-            }
-            self.message(panel)
-        }
-        let btn1 = `<button type="button" class="w2ui-btn btn-yes ${options.yes_class || ''}">${w2utils.lang(options.yes_text || 'Yes')}</button>`
-        let btn2 = `<button type="button" class="w2ui-btn btn-no ${options.no_class || ''}">${w2utils.lang(options.no_text || 'No')}</button>`
-
-        Object.assign(options, {
-            buttons: w2utils.settings.macButtonOrder
-                ? btn2 + btn1
-                : btn1 + btn2,
-            onOpen(event) {
-                setTimeout(() => {
-                    let $btns = $(self.box).find('.w2ui-btn')
-                    $btns.off('.message')
-                        .on('blur.message', function(evt) {
-                            // last input
-                            if ($btns.index(evt.target) + 1 === $btns.length) {
-                                $btns.get(0).focus()
-                                evt.preventDefault()
-                            }
-                        })
-                        .on('keydown.message', function(evt) {
-                            if (evt.keyCode == 27) no_click(event) // esc
-                        })
-                        .focus()
-                    $(self.box).find('.w2ui-btn.btn-yes')
-                        .off('click')
-                        .on('click', () => { yes_click(event) })
-                    $(self.box).find('.w2ui-btn.btn-no')
-                        .off('click')
-                        .on('click', () => { no_click(event) })
-                }, 25)
-            }
-        })
         let p = this.get(panel)
-        let $el = $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type)
-        let oldOverflow = $el.css('overflow')
-        let oldOnClose
-        if (options) {
-            if (options.onClose) oldOnClose = options.onClose
-            options.onClose = (event) => {
-                if (typeof oldOnClose == 'function') oldOnClose(event)
-                event.done(() => {
-                    $(self.box).find('#layout_'+ self.name + '_panel_'+ p.type).css('overflow', oldOverflow)
-                })
-            }
-        }
-        $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type).css('overflow', 'hidden')
-        w2utils.message.call(this, {
-                box   : $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type),
-                param : panel,
-                path  : 'w2ui.' + this.name,
-                title : '.w2ui-panel-title',
-                body  : '.w2ui-panel-content'
-            }, options)
-        .then((res) => {
-            if (typeof options.then == 'function') {
-                options.then(res)
-            }
+        let box = $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type)
+        let oldOverflow = box.css('overflow')
+        box.css('overflow', 'hidden')
+        let prom = w2utils.confirm.call(this, {
+            box   : box,
+            after : '.w2ui-panel-title',
+            param : panel
+        }, options)
+        prom.self.on('close:after', () => {
+            box.css('overflow', oldOverflow)
         })
-
-        let prom = {
-            yes(callBack) {
-                options.yes_click = callBack
-                return prom
-            },
-            no(callBack) {
-                options.no_click = callBack
-                return prom
-            },
-            answer(callBack) {
-                options.callBack = callBack
-                return prom
-            },
-            then(callBack) {
-                options.then = callBack
-                return prom
-            }
-        }
         return prom
     }
 

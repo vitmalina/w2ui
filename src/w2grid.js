@@ -62,8 +62,8 @@
 *   - refreshSearch
 *   - initAllFields -> searchInitInput
 *   - textSearch - deprecated in favor of defaultOperator
-*   - grid.confirm
-*   - grid.message returns a promise
+*   - grid.confirm - refactored
+*   - grid.message - refactored
 *   - search.type == 'text' can have 'in' and 'not in' operators, then it will switch to enum
 *   - grid.find(..., displayedOnly)
 *   - column.render(..., this) - added
@@ -2297,8 +2297,9 @@ class w2grid extends w2event {
                         event.preventDefault()
                         return
                     }
-                    grid.confirm(w2utils.lang('Do you want to delete search item "${item}"?', {item: event.item.text}))
-                        .yes(() => {
+                    grid.confirm(w2utils.lang('Do you want to delete search item "${item}"?', { item: event.item.text }))
+                        .yes(event => {
+                            event.self.close()
                             // remove from local storage
                             if (w2utils.hasLocalStorage && this.useLocalStorage) {
                                 try {
@@ -3583,21 +3584,24 @@ class w2grid extends w2event {
         let recs = this.getSelection()
         if (recs.length === 0) return
         if (this.msgDelete != '' && !force) {
-            let msg = w2utils.lang(this.msgDelete, {
-                count: recs.length,
-                records: w2utils.lang( recs.length == 1 ? 'record' : 'records')
-            })
-            this.confirm({
-                width: 380,
-                height: 170,
-                yes_text: 'Delete',
-                yes_class: 'w2ui-btn-red',
-                no_text: 'Cancel',
-                body: '<div class="w2ui-centered">'+ msg +'</div>',
-            })
-                .yes(() => {
+            console.log(this.confirm({
+                    text: w2utils.lang(this.msgDelete, {
+                        count: recs.length,
+                        records: w2utils.lang( recs.length == 1 ? 'record' : 'records')
+                    }),
+                    width: 380,
+                    height: 170,
+                    yes_text: 'Delete',
+                    yes_class: 'w2ui-btn-red',
+                    no_text: 'Cancel',
+                })
+                .yes(event => {
+                    event.self.close()
                     this.delete(true)
                 })
+                .no(event => {
+                    event.self.close()
+                }))
             return
         }
         // call delete script
@@ -8672,150 +8676,17 @@ class w2grid extends w2event {
     }
 
     message(options) {
-        let obj = this
-        if (typeof options == 'string') {
-            options = {
-                width : (options.length < 300 ? 350 : 550),
-                height: (options.length < 300 ? 170: 250),
-                body  : `<div class="w2ui-centered">${options}</div>`,
-                onOpen(event) {
-                    setTimeout(() => {
-                        w2utils.bindEvents($(obj.box).find('.w2ui-btn'), obj)
-                        $(event.box).find('.w2ui-btn')
-                            .off('.message')
-                            .on('keydown.message', function(evt) {
-                                if (evt.keyCode == 27) $(evt.target).click() // esc
-                            })
-                            .focus()
-
-                    }, 25)
-                },
-                onClose(event) {
-                    if (typeof options.callBack == 'function') {
-                        options.callBack(event)
-                    }
-                }
-            }
-        }
-        if (options && options.buttons == null) {
-            options.buttons = `<button type="button" class="w2ui-btn" data-click="message">
-                ${w2utils.lang('Ok')}
-            </button>`
-        }
-        w2utils.message.call(this, {
-                box   : this.box,
-                path  : 'w2ui.' + this.name,
-                title : '.w2ui-grid-header',
-                body  : '.w2ui-grid-box'
-            }, options)
-        .then((event) => {
-            if (typeof options.then == 'function') {
-                options.then(event)
-            }
-        })
-
-        let prom = {
-            ok(callBack) {
-                options.callBack = callBack
-                return prom
-            },
-            then(callBack) {
-                options.then = callBack
-                return prom
-            }
-        }
-        return prom
+        return w2utils.message.call(this, {
+            box   : this.box,
+            after : '.w2ui-grid-header'
+        }, options)
     }
 
     confirm(options) {
-        let grid = this
-        if (typeof options == 'string') {
-            options = {
-                width: (options.length < 300 ? 350 : 550),
-                height: (options.length < 300 ? 170: 250),
-                body: '<div class="w2ui-centered">' + options + '</div>'
-            }
-        }
-        let yes_click = (event) => {
-            if (typeof options.yes_click == 'function') {
-                options.yes_click(event)
-            }
-            if (typeof options.callBack == 'function') {
-                options.callBack(Object.assign(event, { answer: 'yes' }))
-            }
-            grid.message()
-        }
-        let no_click = (event) => {
-            if (typeof options.no_click == 'function') {
-                options.no_click(event)
-            }
-            if (typeof options.callBack == 'function') {
-                options.callBack(Object.assign(event, { answer: 'no' }))
-            }
-            grid.message()
-        }
-        let btn1 = `<button type="button" class="w2ui-btn btn-yes ${options.yes_class || ''}">${w2utils.lang(options.yes_text || 'Yes')}</button>`
-        let btn2 = `<button type="button" class="w2ui-btn btn-no ${options.no_class || ''}">${w2utils.lang(options.no_text || 'No')}</button>`
-
-        Object.assign(options, {
-            buttons: w2utils.settings.macButtonOrder
-                ? btn2 + btn1
-                : btn1 + btn2,
-            onOpen(event) {
-                setTimeout(() => {
-                    let $btns = $(this.box).find('.w2ui-btn')
-                    $btns.off('.message')
-                        .on('blur.message', function(evt) {
-                            // last input
-                            if ($btns.index(evt.target) + 1 === $btns.length) {
-                                $btns.get(0).focus()
-                                evt.preventDefault()
-                            }
-                        })
-                        .on('keydown.message', function(evt) {
-                            if (evt.keyCode == 27) no_click(event) // esc
-                        })
-                        .focus()
-                    $(this.box).find('.w2ui-btn.btn-yes')
-                        .off('click')
-                        .on('click', () => { yes_click(event) })
-                    $(this.box).find('.w2ui-btn.btn-no')
-                        .off('click')
-                        .on('click', () => { no_click(event) })
-                }, 25)
-            }
-        })
-        w2utils.message.call(this, {
-                box   : this.box,
-                path  : 'w2ui.' + this.name,
-                title : '.w2ui-grid-header',
-                body  : '.w2ui-grid-box'
-            }, options)
-        .then((event) => {
-            if (typeof options.then == 'function') {
-                options.then(event)
-            }
-        })
-
-        let prom = {
-            yes(callBack) {
-                options.yes_click = callBack
-                return prom
-            },
-            no(callBack) {
-                options.no_click = callBack
-                return prom
-            },
-            answer(callBack) {
-                options.callBack = callBack
-                return prom
-            },
-            then(callBack) {
-                options.then = callBack
-                return prom
-            }
-        }
-        return prom
+        return w2utils.confirm.call(this, {
+            box   : this.box,
+            after : '.w2ui-grid-header'
+        }, options)
     }
 }
 

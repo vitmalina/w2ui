@@ -3,17 +3,22 @@
 *   - Dependencies: jQuery, w2utils
 *
 * TODO:
-* - for poppup.message, w2alert, w2cofirm, w2propt - use w2utils.message
 * - there should be no focus by default, and ability to set focus to a button or a control
+* - need to refactor w2pormpt
 *
 * == 2.0 changes
-*  - CSP - fixed inline events
-*  - popup.open - returns promise like object
+*   - CSP - fixed inline events
+*   - popup.open - returns promise like object
+*   - popup.confirm - refactored
+*   - popup.message - refactored
+*   - removed popup.options.mutliple
+*   - refactores w2alert, w2confirm, w2prompt
 *
 ************************************************************************/
 
 import { w2event } from './w2event.js'
 import { w2ui, w2utils } from './w2utils.js'
+import { query } from './query.js'
 
 class Dialog extends w2event {
     constructor(options) {
@@ -30,13 +35,12 @@ class Dialog extends w2event {
             modal: false,
             maximized: false, // this is a flag to show the state - to open the popup maximized use openMaximized instead
             keyboard: true, // will close popup on esc if not modal
-            width: 500,
-            height: 300,
+            width: 450,
+            height: 250,
             showClose: true,
             showMax: false,
             transition: null,
-            multiple: false, // if popup already open, opens as a message
-            openMaximized: false,
+            openMaximized: false
         }
         this.status     = 'closed' // string that describes current status
         this.onOpen     = null
@@ -51,29 +55,27 @@ class Dialog extends w2event {
         this.onMsgClose = null
     }
 
+    /**
+     * Sample calls
+     * - w2popup.open('ddd').ok(() => { w2popup.close() })
+     * - w2popup.open('ddd', { height: 120 }).ok(() => { w2popup.close() })
+     * - w2popup.open({ body: 'text', title: 'caption', actions: ["Close"] }).close(() => { w2popup.close() })
+     * - w2popup.open({ body: 'text', title: 'caption', actions: { Close() { w2popup.close() }} })
+     */
     open(options) {
-        /**
-         * Sample calls
-         * - w2popup.open('ddd').ok(() => { w2popup.close() })
-         * - w2popup.open('ddd', { height: 120 }).ok(() => { w2popup.close() })
-         * - w2popup.open({ body: 'text', title: 'caption', actions: ["ok"] }).ok(() => { w2popup.close() })
-         * - w2popup.open({ body: 'text', title: 'caption', actions: { ok() { w2popup.close() }} })
-         */
         let self = this
         let orig_options = $.extend(true, {}, options)
         if (w2popup.status == 'closing') {
+            // if called when previous is closing
             setTimeout(() => { self.open.call(self, options) }, 100)
             return
         }
         // get old options and merge them
         let old_options = $('#w2ui-popup').data('options')
-        if (typeof options == 'string') {
+        if (['string', 'number'].includes(typeof options)) {
             options = w2utils.extend({
                 title: 'Notification',
                 body: `<div class="w2ui-centered">${options}</div>`,
-                showClose: false,
-                width: 450,
-                height: 220,
                 actions: ["Ok"]
             }, arguments[1] ?? {})
         }
@@ -121,48 +123,50 @@ class Dialog extends w2event {
         let top  = (maxH - options.height) / 2 * 0.6
         let left = (maxW - options.width) / 2
 
+        self.off('.prom')
+            .off('.confirm')
+            .off('.prompt')
+            .off('*')
         let prom = {
+            self: this,
             action(callBack) {
-                self.off('action.prom')
-                    .on('action.prom', callBack)
+                self.on('action.prom', callBack)
                 return prom
             },
             close(callBack) {
-                self.off('close.prom')
-                    .on('close.prom', callBack)
+                self.on('close.prom', callBack)
                 return prom
             },
             then(callBack) {
-                self.off('open:after.prom')
-                    .on('open:after.prom', callBack)
+                self.on('open:after.prom', callBack)
                 return prom
             }
         }
         // convert action arrays into buttons
+        self.off('.buttons')
         if (options.actions != null) {
             options.buttons = ''
             Object.keys(options.actions).forEach((action) => {
                 let handler = options.actions[action]
                 let btnAction = action
                 if (typeof handler == 'function') {
-                    options.buttons += `<button class="w2ui-btn w2ui-eaction" data-click='["action","${action}"]'>${action}</button>`
+                    options.buttons += `<button class="w2ui-btn w2ui-eaction" data-click='["action","${action}","event"]'>${action}</button>`
                 }
                 if (typeof handler == 'object') {
-                    options.buttons += `<button class="w2ui-btn w2ui-eaction ${handler.class || ''}" data-click='["action","${action}"]'
+                    options.buttons += `<button class="w2ui-btn w2ui-eaction ${handler.class || ''}" data-click='["action","${action}","event"]'
                         style="${handler.style}">${handler.text || action}</button>`
-                    btnAction = handler.text || action
+                    btnAction = Array.isArray(options.actions) ? handler.text : action
                 }
                 if (typeof handler == 'string') {
-                    options.buttons += `<button class="w2ui-btn w2ui-eaction" data-click='["action","${handler}"]'>${handler}</button>`
+                    options.buttons += `<button class="w2ui-btn w2ui-eaction" data-click='["action","${handler}","event"]'>${handler}</button>`
                     btnAction = handler
                 }
                 if (typeof btnAction == 'string') {
                     btnAction = btnAction[0].toLowerCase() + btnAction.substr(1).replace(/\s+/g, '')
                 }
                 prom[btnAction] = function (callBack) {
-                    self.off('action.' + btnAction)
-                        .on('action.' + btnAction, (event) => {
-                            let target = event.target[0].toLowerCase() + event.target.substr(1).replace(/\s+/g, '')
+                    self.on('action.buttons', (event) => {
+                            let target = event.action[0].toLowerCase() + event.action.substr(1).replace(/\s+/g, '')
                             if (target == btnAction) callBack(event)
                         })
                     return prom
@@ -244,9 +248,6 @@ class Dialog extends w2event {
                 $('#w2ui-popup').find('.w2ui-popup-body').show()
             }, 50)
 
-        } else if (options.multiple === true) {
-            // popup is not compatible with w2popup.message
-            w2popup.message(orig_options)
         } else {
             // if was from template and now not
             if (w2popup._prev == null && w2popup._template != null) self.restoreTemplate()
@@ -454,27 +455,15 @@ class Dialog extends w2event {
         return w2popup.open(options)
     }
 
-    action(action, msgId) {
-        let obj = this
+    action(action, event) {
         let options = $('#w2ui-popup').data('options')
-        if (msgId != null) {
-            options = $('#w2ui-message' + msgId).data('options')
-            obj = {
-                parent: this,
-                options: options,
-                close() {
-                    w2popup.message({ msgId: msgId })
-                }
-            }
-        }
-        let act = options.actions[action]
-        let click = act
-        if ($.isPlainObject(act) && act.onClick) click = act.onClick
+        let click = options.actions[action]
+        if (click instanceof Object && click.onClick) click = click.onClick
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'action', target: action, action: act, msgId: msgId, originalEvent: event })
+        let edata = this.trigger({ phase: 'before', type: 'action', target: 'popup', action, self: this, originalEvent: event })
         if (edata.isCancelled === true) return
         // default actions
-        if (typeof click === 'function') click.call(obj, event)
+        if (typeof click === 'function') click.call(this, event)
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
     }
@@ -489,7 +478,7 @@ class Dialog extends w2event {
         switch (event.keyCode) {
             case 27:
                 event.preventDefault()
-                if ($('#w2ui-popup .w2ui-message').length > 0) w2popup.message(); else w2popup.close()
+                if ($('#w2ui-popup .w2ui-message').length == 0) w2popup.close()
                 break
         }
         // event after
@@ -609,145 +598,17 @@ class Dialog extends w2event {
     }
 
     message(options) {
-        return new Promise((resolve, reject) => {
-            let obj = this
-            $().w2tag() // hide all tags
-            if (typeof options == 'string') {
-                options = { html: options, width: 200, height: 100 }
-            }
-            if (!options) options = { width: 200, height: 100 }
-            let pWidth             = parseInt($('#w2ui-popup').width())
-            let pHeight            = parseInt($('#w2ui-popup').height())
-            options.originalWidth  = options.width
-            options.originalHeight = options.height
-            if (parseInt(options.width) < 10) options.width = 10
-            if (parseInt(options.height) < 10) options.height = 10
-            if (options.hideOnClick == null) options.hideOnClick = false
-            let poptions    = $('#w2ui-popup').data('options') || {}
-            let titleHeight = parseInt($('#w2ui-popup > .w2ui-popup-title').css('height'))
-            if (options.width == null || options.width > poptions.width - 10) {
-                options.width = poptions.width - 10
-            }
-            if (options.height == null || options.height > poptions.height - titleHeight - 5) {
-                options.height = poptions.height - titleHeight - 5 // need margin from bottom only
-            }
-            // negative value means margin
-            if (options.originalHeight < 0) options.height = pHeight + options.originalHeight - titleHeight
-            if (options.originalWidth < 0) options.width = pWidth + options.originalWidth * 2 // x 2 because there is left and right margin
+        return w2utils.message.call(this, {
+            box   : $('#w2ui-popup'),
+            after : '.w2ui-popup-title'
+        }, options)
+    }
 
-            let head     = $('#w2ui-popup .w2ui-popup-title')
-            let msgCount = $('#w2ui-popup .w2ui-message').length
-
-            // convert action arrays into buttons
-            if (options.actions != null) {
-                if (options.html && !options.body) options.body = options.html
-                options.buttons = ''
-                Object.keys(options.actions).forEach((action) => {
-                    let handler = options.actions[action]
-                    if (typeof handler == 'function') {
-                        options.buttons += `<button class="w2ui-btn w2ui-eaction" data-click='["action","${action}","${msgCount}"]'>${action}</button>`
-                    }
-                    if (typeof handler == 'object') {
-                        options.buttons += `<button class="w2ui-btn w2ui-eaction ${handler.class || ''}" style="${handler.style || ''}"
-                            data-click='["action","${action}","${msgCount}"]'>${handler.text || action}</button>`
-                    }
-                    if (typeof handler == 'string') {
-                        options.buttons += handler
-                    }
-                })
-            }
-
-            // remove message
-            if ((options.html || '').trim() === '' && (options.body || '').trim() === '' && (options.buttons || '').trim() === '') {
-                let $msg = $('#w2ui-popup .w2ui-message').last()
-                if (options.msgId != null) {
-                    $msg = $('#w2ui-message'+ options.msgId)
-                }
-                options = $msg.data('options') || {}
-                // message close event
-                let edata = obj.trigger({ phase: 'before', type: 'msgClose', msgId: $msg.attr('data-msgId'), target: 'popup', options: options })
-                if (edata.isCancelled === true) return
-                // start hide transition
-                $msg.css(w2utils.cssPrefix({
-                    'transition': '0.15s',
-                    'transform': 'translateY(-' + options.height + 'px)'
-                }))
-                let $focus = $('#w2ui-popup .w2ui-message')
-                $focus     = $($focus[$focus.length - 2])
-                    .css('z-index', 1500)
-                    .data('msg-focus')
-                if ($focus && $focus.length > 0) $focus.focus(); else obj.focus()
-                if (msgCount == 1) w2popup.unlock(150)
-                setTimeout(() => {
-                    $msg.remove()
-                    // default action
-                    if (typeof options.onClose == 'function') {
-                        options.onClose(edata)
-                    }
-                    // event after
-                    obj.trigger($.extend(edata, { phase: 'after' }))
-                    resolve(edata)
-                }, 150)
-            } else {
-                if ((options.body || '').trim() !== '' || (options.buttons || '').trim() !== '') {
-                    options.html = '<div class="w2ui-message-body">'+ options.body +'</div>'+
-                        '<div class="w2ui-message-buttons">'+ options.buttons +'</div>'
-                }
-                // hide previous messages
-                $('#w2ui-popup .w2ui-message').css('z-index', 1390).data('msg-focus', $(':focus'))
-                head.css('z-index', 1501)
-                if (options.close == null) {
-                    options.close = () => {
-                        w2popup.message({ msgId: msgCount })
-                    }
-                }
-                // add message
-                $('#w2ui-popup .w2ui-box')
-                    .before('<div id="w2ui-message' + msgCount + '" class="w2ui-message w2ui-eaction" style="display: none; z-index: 1500; ' +
-                                (head.length === 0 ? 'top: 0px;' : 'top: ' + w2utils.getSize(head, 'height') + 'px;') +
-                                (options.width != null ? 'width: ' + options.width + 'px; left: ' + ((pWidth - options.width) / 2) + 'px;' : 'left: 10px; right: 10px;') +
-                                (options.height != null ? 'height: ' + options.height + 'px;' : 'bottom: 6px;') +
-                                w2utils.cssPrefix('transition', '0s', true) + '" data-msgId="' + msgCount +'" ' +
-                                (options.hideOnClick === true ? 'data-click="message"' : '') + '>' +
-                            '</div>')
-                $('#w2ui-popup #w2ui-message'+ msgCount).data('options', options)
-                let display = $('#w2ui-popup #w2ui-message'+ msgCount).css('display')
-                $('#w2ui-popup #w2ui-message'+ msgCount).css(w2utils.cssPrefix({
-                    'transform': (display == 'none' ? 'translateY(-' + options.height + 'px)' : 'translateY(0px)')
-                }))
-                if (display == 'none') {
-                    $('#w2ui-popup #w2ui-message'+ msgCount).show().html(options.html)
-                    // timer needs to animation
-                    setTimeout(() => {
-                        $('#w2ui-popup #w2ui-message'+ msgCount).css(
-                            $.extend(
-                                w2utils.cssPrefix('transition', '.3s', false),
-                                w2utils.cssPrefix({
-                                    'transform': (display == 'none' ? 'translateY(0px)' : 'translateY(-' + options.height + 'px)')
-                                })
-                            )
-                        )
-                    }, 1)
-                    // timer for lock
-                    if (msgCount === 0) w2popup.lock()
-                    // message open event
-                    let edata = obj.trigger({ phase: 'before', type: 'msgOpen', msgId: msgCount, target: 'popup', options: options })
-                    if (edata.isCancelled === true) return
-                    setTimeout(() => {
-                        obj.focus()
-                        // has to be on top of lock
-                        $('#w2ui-popup #w2ui-message'+ msgCount).css(w2utils.cssPrefix({ 'transition': '0s' }))
-                        if (typeof options.onOpen == 'function') {
-                            options.onOpen(edata)
-                        }
-                        // event after
-                        obj.trigger($.extend(edata, { phase: 'after' }))
-                        w2utils.bindEvents(`#w2ui-popup #w2ui-message${msgCount}, #w2ui-popup #w2ui-message${msgCount} .w2ui-eaction`, w2popup)
-                        resolve(edata)
-                    }, 350)
-                }
-            }
-        })
+    confirm(options) {
+        return w2utils.confirm.call(this, {
+            box   : $('#w2ui-popup'),
+            after : '.w2ui-popup-title'
+        }, options)
     }
 
     focus() {
@@ -955,236 +816,56 @@ class Dialog extends w2event {
 }
 
 function w2alert(msg, title, callBack) {
-    let $ = jQuery
-    let thenCallBack
-    if (title == null) title = w2utils.lang('Notification')
-    if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
-        w2popup.message({
-            width: 400,
-            height: 180,
-            body: '<div class="w2ui-centered w2ui-alert-msg" style="font-size: 13px;">' + msg + '</div>',
-            actions: {
-                Ok: {
-                    text: w2utils.lang('Ok'),
-                    onClick() {
-                        w2popup.message()
-                    }
-                }
-            },
-            onOpen(event) {
-                setTimeout(() => {
-                    $('#w2ui-popup .w2ui-message .w2ui-popup-btn').focus()
-                    if (typeof thenCallBack == 'function') thenCallBack(event)
-                }, 1)
-            },
-            onClose(event) {
-                if (typeof callBack == 'function') callBack(event)
-            }
-        })
+    let prom
+    let options = {
+        title: w2utils.lang(title ?? 'Notification'),
+        body: `<div class="w2ui-centered w2ui-alert-msg">${msg}</div>`,
+        showClose: false,
+        actions: ['Ok']
+    }
+    if (query('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
+        prom = w2popup.message(options)
     } else {
-        w2popup.open({
-            width     : 450,
-            height    : 220,
-            showMax   : false,
-            showClose : false,
-            title     : title,
-            body      : '<div class="w2ui-centered w2ui-alert-msg" style="font-size: 13px;">' + msg + '</div>',
-            actions: {
-                Ok: {
-                    text: w2utils.lang('Ok'),
-                    onClick() {
-                        w2popup.close()
-                    }
-                }
-            },
-            onOpen(event) {
-                // do not use onComplete as it is slower
-                setTimeout(() => {
-                    $('#w2ui-popup .w2ui-popup-btn').focus()
-                    if (typeof thenCallBack == 'function') thenCallBack(event)
-                }, 1)
-            },
-            onKeydown(event) {
-                $('#w2ui-popup .w2ui-popup-btn').focus().addClass('clicked')
-            },
-            onClose(event) {
-                if (typeof callBack == 'function') callBack(event)
-            }
-        })
+        prom = w2popup.open(options)
     }
-    let prom = {
-        ok(fun) {
-            callBack = fun
-            return this
-        },
-        then(fun) {
-            thenCallBack = fun
-            return this
+    prom.ok((event) => {
+        if (typeof event.self?.close == 'function') {
+            event.self.close();
         }
-    }
+        if (typeof callBack == 'function') callBack()
+    })
     return prom
 }
 
 function w2confirm(msg, title, callBack) {
-    let $        = jQuery
-    let options  = {}
-    let defaults = {
-        msg: '',
-        title: w2utils.lang('Confirmation'),
-        width: ($('#w2ui-popup').length > 0 ? 400 : 450),
-        height: ($('#w2ui-popup').length > 0 ? 180 : 220),
-        btn_yes: {
-            text: 'Yes',
-            class: '',
-            styel: '',
-            click: null
-        },
-        btn_no     : {
-            text: 'No',
-            class: '',
-            styel: '',
-            click: null
-        },
-        focus_to_no : false,
-        callBack    : null
+    let prom
+    let options = msg
+    if (['string', 'number'].includes(typeof options)) {
+        options = { msg: options }
     }
-    if (arguments.length == 1 && typeof msg == 'object') {
-        $.extend(options, defaults, msg)
+    if (options.msg) {
+        options.body = `<div class="w2ui-centered w2ui-confirm-msg">${options.msg}</div>`,
+        delete options.msg
+    }
+    w2utils.extend(options, {
+        title: w2utils.lang(title ?? 'Confirmation'),
+        showClose: false,
+        modal: true
+    })
+    w2utils.normButtons(options, { yes: 'Yes', no: 'No' })
+    if (query('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
+        prom = w2popup.message(options)
     } else {
-        if (typeof title == 'function') {
-            $.extend(options, defaults, {
-                msg     : msg,
-                callBack: title
-            })
-        } else {
-            $.extend(options, defaults, {
-                msg     : msg,
-                title   : title,
-                callBack: callBack
-            })
-        }
+        prom = w2popup.open(options)
     }
-    // yes btn - backward compatibility
-    if (options.yes_text) options.btn_yes.text = options.yes_text
-    if (options.yes_class) options.btn_yes.class = options.yes_class
-    if (options.yes_style) options.btn_yes.style = options.yes_style
-    if (options.yes_onClick) options.btn_yes.click = options.yes_onClick
-    if (options.yes_callBack) options.btn_yes.click = options.yes_callBack
-    // no btn - backward compatibility
-    if (options.no_text) options.btn_no.text = options.no_text
-    if (options.no_class) options.btn_no.class = options.no_class
-    if (options.no_style) options.btn_no.style = options.no_style
-    if (options.no_onClick) options.btn_no.click = options.no_onClick
-    if (options.no_callBack) options.btn_no.click = options.no_callBack
-
-    if ($('#w2ui-popup').length > 0 && w2popup.status != 'closing' && w2popup.get()) {
-        if (options.width > w2popup.get().width) options.width = w2popup.get().width
-        if (options.height > (w2popup.get().height - 50)) options.height = w2popup.get().height - 50
-        w2popup.message({
-            width: options.width,
-            height: options.height,
-            body: '<div class="w2ui-centered w2ui-confirm-msg" style="font-size: 13px;">' + options.msg + '</div>',
-            buttons: (w2utils.settings.macButtonOrder
-                ? '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.btn_no.class +'" style="'+ options.btn_no.style +'">' + w2utils.lang(options.btn_no.text) + '</button>' +
-                  '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.btn_yes.class +'" style="'+ options.btn_yes.style +'">' + w2utils.lang(options.btn_yes.text) + '</button>'
-                : '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.btn_yes.class +'" style="'+ options.btn_yes.style +'">' + w2utils.lang(options.btn_yes.text) + '</button>' +
-                  '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.btn_no.class +'" style="'+ options.btn_no.style +'">' + w2utils.lang(options.btn_no.text) + '</button>'
-            ),
-            onOpen(event) {
-                $('#w2ui-popup .w2ui-message .w2ui-btn').on('click.w2confirm', function(event) {
-                    w2popup._confirm_btn = event.target.id
-                    w2popup.message()
-                })
-                if (typeof options.onOpen == 'function') options.onOpen(event)
-                if (typeof options.then == 'function') options.then(event)
-            },
-            onClose(event) {
-                // needed this because there might be other messages
-                $('#w2ui-popup .w2ui-message .w2ui-btn').off('click.w2confirm')
-                    // need to wait for message to slide up
-                    setTimeout(() => {
-                    if (typeof options.callBack == 'function') options.callBack(w2popup._confirm_btn)
-                    if (w2popup._confirm_btn == 'Yes' && typeof options.btn_yes.click == 'function') options.btn_yes.click(event)
-                    if (w2popup._confirm_btn == 'No' && typeof options.btn_no.click == 'function') options.btn_no.click(event)
-                }, 300)
-                if (typeof options.onClose == 'function') options.onClose(event)
+    prom.self
+        .off('.confirm')
+        .on('action:after.confirm', (event) => {
+            if (typeof event.self?.close == 'function') {
+                event.self.close();
             }
-            // onKeydown will not work here
+            if (typeof callBack == 'function') callBack(event.action)
         })
-
-    } else {
-
-        if (!w2utils.isInt(options.height)) options.height = options.height + 50
-        w2popup.open({
-            width: options.width,
-            height: options.height,
-            title: options.title,
-            modal: true,
-            showClose: false,
-            body: '<div class="w2ui-centered w2ui-confirm-msg" style="font-size: 13px;">' + options.msg + '</div>',
-            buttons: (w2utils.settings.macButtonOrder
-                    ? '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.btn_no.class +'" style="'+ options.btn_no.style +'">'+ w2utils.lang(options.btn_no.text) +'</button>' +
-                      '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.btn_yes.class +'" style="'+ options.btn_yes.style +'">'+ w2utils.lang(options.btn_yes.text) +'</button>'
-                    : '<button id="Yes" class="w2ui-popup-btn w2ui-btn '+ options.btn_yes.class +'" style="'+ options.btn_yes.style +'">'+ w2utils.lang(options.btn_yes.text) +'</button>' +
-                      '<button id="No" class="w2ui-popup-btn w2ui-btn '+ options.btn_no.class +'" style="'+ options.btn_no.style +'">'+ w2utils.lang(options.btn_no.text) +'</button>'
-            ),
-            onOpen(event) {
-                // do not use onComplete as it is slower
-                setTimeout(() => {
-                    $('#w2ui-popup .w2ui-popup-btn').on('click', function(event) {
-                        w2popup.close()
-                        if (typeof options.callBack == 'function') options.callBack(event.target.id)
-                        if (event.target.id == 'Yes' && typeof options.btn_yes.click == 'function') options.btn_yes.click(event)
-                        if (event.target.id == 'No' && typeof options.btn_no.click == 'function') options.btn_no.click(event)
-                    })
-                    if (options.focus_to_no) {
-                        $('#w2ui-popup .w2ui-popup-btn#No').focus()
-                    } else {
-                        $('#w2ui-popup .w2ui-popup-btn#Yes').focus()
-                    }
-                    if (typeof options.onOpen == 'function') options.onOpen(event)
-                    if (typeof options.then == 'function') options.then(event)
-                }, 1)
-            },
-            onClose(event) {
-                if (typeof options.onClose == 'function') options.onClose(event)
-            },
-            onKeydown(event) {
-                // if there are no messages
-                if ($('#w2ui-popup .w2ui-message').length === 0) {
-                    switch (event.originalEvent.keyCode) {
-                        case 13: // enter
-                            $('#w2ui-popup .w2ui-popup-btn#Yes').focus().addClass('clicked') // no need fo click as enter will do click
-                            w2popup.close()
-                            break
-                        case 27: // esc
-                            $('#w2ui-popup .w2ui-popup-btn#No').focus().click()
-                            w2popup.close()
-                            break
-                    }
-                }
-            }
-        })
-    }
-
-    let prom = {
-        yes(fun) {
-            options.btn_yes.click = fun
-            return prom
-        },
-        no(fun) {
-            options.btn_no.click = fun
-            return prom
-        },
-        answer(fun) {
-            options.callBack = fun
-            return prom
-        },
-        then(fun) {
-            options.then = fun
-            return prom
-        }
-    }
     return prom
 }
 
