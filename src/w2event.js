@@ -1,6 +1,6 @@
 /************************************************************************
 *   Part of w2ui 2.0 library
-*   - Dependencies: jQuery, w2utils
+*   - Dependencies: jQuery w2utils
 *   - there is a doc file ../details/w2event.html
 *   - on/off/trigger methods id not showing in help
 **/
@@ -17,77 +17,69 @@ class w2event {
         }
     }
 
+    /**
+     * Adds event listener, supports event phase and event scoping
+     *
+     * @param {*} edata - an object or string, if string "eventName:phase.scope"
+     * @param {*} handler
+     * @returns itself
+     */
     on(edata, handler) {
-        let scope
-        // allow 'eventName.scope' syntax
-        if (typeof edata === 'string' && edata.indexOf('.') !== -1) {
-            let tmp = edata.split('.')
-            edata   = tmp[0]
-            scope   = tmp[1]
+        let name = typeof edata == 'string' ? edata : (edata.type + ':' + edata.execute + '.' + edata.scope)
+        if (typeof edata == 'string') {
+            let [eventName, scope] = edata.split('.')
+            let [type, execute] = eventName.replace(':complete', ':after').replace(':done', ':after').split(':')
+            edata = { type, execute: execute ?? 'before', scope }
         }
-        // allow 'eventName:after' syntax
-        if (typeof edata === 'string' && edata.indexOf(':') !== -1) {
-            let tmp = edata.split(':')
-            if (['complete', 'done'].indexOf(edata[1]) !== -1) edata[1] = 'after'
-            edata = {
-                type    : tmp[0],
-                execute : tmp[1]
-            }
-            if (scope) edata.scope = scope
-        }
-        if (!$.isPlainObject(edata)) edata = { type: edata, scope: scope }
-        edata = $.extend({ type: null, execute: 'before', target: null, onComplete: null }, edata)
+        edata = w2utils.extend({ type: null, execute: 'before', onComplete: null }, edata)
         // errors
         if (!edata.type) { console.log('ERROR: You must specify event type when calling .on() method of '+ this.name); return }
         if (!handler) { console.log('ERROR: You must specify event handler function when calling .on() method of '+ this.name); return }
         if (!Array.isArray(this.handlers)) this.handlers = []
-        this.handlers.push({ edata: edata, handler: handler })
-        return this // needed for chaining
-    }
-
-    off(edata, handler) {
-        let scope
-        // allow 'eventName.scope' syntax
-        if (typeof edata === 'string' && edata.indexOf('.') !== -1) {
-            let tmp = edata.split('.')
-            edata   = tmp[0]
-            scope   = tmp[1]
-            if (edata === '') edata = '*'
-        }
-        // allow 'eventName:after' syntax
-        if (typeof edata === 'string' && edata.indexOf(':') !== -1) {
-            let tmp = edata.split(':')
-            if (['complete', 'done'].indexOf(edata[1]) !== -1) edata[1] = 'after'
-            edata = {
-                type    : tmp[0],
-                execute : tmp[1]
-            }
-        }
-        if (!$.isPlainObject(edata)) edata = { type: edata }
-        edata = $.extend({}, { type: null, execute: null, target: null, onComplete: null }, edata)
-        // errors
-        if (!edata.type && !scope) { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return }
-        if (!handler) { handler = null }
-        // remove handlers
-        let newHandlers = []
-        for (let h = 0, len = this.handlers.length; h < len; h++) {
-            let t = this.handlers[h]
-            if ((t.edata.type === edata.type || edata.type === '*' || (t.edata.scope != null && edata.type == '')) &&
-                (t.edata.target === edata.target || edata.target == null) &&
-                (t.edata.execute === edata.execute || edata.execute == null) &&
-                ((t.handler === handler && handler != null) || (scope != null && t.edata.scope == scope)))
-            {
-                // match
-            } else {
-                newHandlers.push(t)
-            }
-        }
-        this.handlers = newHandlers
+        this.handlers.push({ name, edata: edata, handler: handler })
         return this
     }
 
+    /**
+     * Removes event listener, supports event phase and event scoping
+     *
+     * @param {*} edata - an object or string, if string "eventName:phase.scope"
+     * @param {*} handler
+     * @returns itself
+     */
+    off(edata, handler) {
+        if (typeof edata == 'string') {
+            let [eventName, scope] = edata.split('.')
+            let [type, execute] = eventName.replace(':complete', ':after').replace(':done', ':after').split(':')
+            edata = { type: type || '*', execute: execute || '', scope: scope || '' }
+        }
+        edata = w2utils.extend({ type: null, execute: null, onComplete: null }, edata)
+        // errors
+        if (!edata.type && !edata.scope) { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return }
+        if (!handler) { handler = null }
+        // remove handlers
+        this.handlers = this.handlers.filter(curr => {
+            if (   (edata.type === '*' ||  edata.type === curr.edata.type)
+                && (edata.execute === '' ||  edata.execute === curr.edata.execute)
+                && (edata.scope === '' ||  edata.scope === curr.edata.scope)
+                && (edata.handler == null ||  edata.handler === curr.edata.handler)
+            ) {
+                return false
+            } else {
+                return true
+            }
+        })
+        return this // needed for chaining
+    }
+
+    /**
+     * Triggers an even handlers from his.handlers
+     *
+     * @param {*} edata
+     * @returns modified edata
+     */
     trigger(edata) {
-        edata = $.extend({ type: null, phase: 'before', target: null, doneHandlers: [] }, edata, {
+        edata = Object.assign({ type: null, phase: 'before', target: null, doneHandlers: [] }, edata, {
             isStopped: false,
             isCancelled: false,
             done(handler) { this.doneHandlers.push(handler) },
@@ -105,10 +97,10 @@ class w2event {
                 (item.edata.target === edata.target || item.edata.target == null) &&
                 (item.edata.execute === edata.phase || item.edata.execute === '*' || item.edata.phase === '*'))
             {
-                edata = $.extend({}, item.edata, edata)
+                edata = Object.assign({}, item.edata, edata)
                 // check handler arguments
                 args = []
-                tmp  = new RegExp(/\((.*?)\)/).exec(item.handler)
+                tmp  = new RegExp(/\((.*?)\)/).exec(String(item.handler).split('=>')[0])
                 if (tmp) args = tmp[1].split(/\s*,\s*/)
                 if (args.length === 2) {
                     item.handler.call(this, edata.target, edata) // old way for back compatibility
@@ -124,7 +116,7 @@ class w2event {
             fun = this[funName]
             // check handler arguments
             args = []
-            tmp  = new RegExp(/\((.*?)\)/).exec(fun)
+            tmp  = new RegExp(/\((.*?)\)/).exec(String(fun).split('=>')[0])
             if (tmp) args = tmp[1].split(/\s*,\s*/)
             if (args.length === 2) {
                 fun.call(this, edata.target, edata) // old way for back compatibility
@@ -138,7 +130,7 @@ class w2event {
             fun = edata.object[funName]
             // check handler arguments
             args = []
-            tmp  = new RegExp(/\((.*?)\)/).exec(fun)
+            tmp  = new RegExp(/\((.*?)\)/).exec(String(fun).split('=>')[0])
             if (tmp) args = tmp[1].split(/\s*,\s*/)
             if (args.length === 2) {
                 fun.call(this, edata.target, edata) // old way for back compatibility
