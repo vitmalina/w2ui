@@ -8217,6 +8217,24 @@ class w2grid extends w2event {
         let record = (summary !== true ? this.records[ind] : this.summary[ind])
         let value = this.parseField(record, col.field)
         let className = '', style = '', attr = '', divAttr = ''
+        // if change by inline editing
+        if (record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null) {
+            value = record.w2ui.changes[col.field]
+            if (value instanceof Object && Object.keys(col.editable).length > 0) { // if editable object
+                if (col.options && col.options.items) {
+                    let val = col.options.items.find((item) => { return item.id == value.id })
+                    if (val) {
+                        value = val.text
+                    } else {
+                        value = value.id
+                    }
+                } else {
+                    if (value.id != null && value.text == null) value = value.id
+                    if (value.text != null) value = value.text
+                }
+            }
+        }
+        // if there is a cell renderer
         if (col.render != null && ind !== -1) {
             if (typeof col.render == 'function' && record != null) {
                 let html
@@ -8268,23 +8286,6 @@ class w2grid extends w2event {
                     func = null
                 }
                 value = (typeof func == 'function' ? func(value, tmp[1], record) : '')
-            }
-        }
-        // if change by inline editing
-        if (record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null) {
-            value = record.w2ui.changes[col.field]
-            if (value instanceof Object && Object.keys(col.editable).length > 0) { // if editable object
-                if (col.options && col.options.items) {
-                    let val = col.options.items.find((item) => { return item.id == value.id })
-                    if (val) {
-                        value = val.text
-                    } else {
-                        value = value.id
-                    }
-                } else {
-                    if (value.id != null && value.text == null) value = value.id
-                    if (value.text != null) value = value.text
-                }
             }
         }
         if (value == null) value = ''
