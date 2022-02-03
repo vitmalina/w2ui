@@ -290,8 +290,8 @@ class w2grid extends w2event {
                       'onclick="let grid = w2ui[jQuery(this).parents(\'div.w2ui-grid\').attr(\'name\')]; grid.searchShowFields()"></div>'
             },
             'add'      : { type: 'button', id: 'w2ui-add', text: 'Add New', tooltip: 'Add new record', icon: 'w2ui-icon-plus' },
-            'edit'     : { type: 'button', id: 'w2ui-edit', text: 'Edit', tooltip: 'Edit selected record', icon: 'w2ui-icon-pencil', disabled: true },
-            'delete'   : { type: 'button', id: 'w2ui-delete', text: 'Delete', tooltip: 'Delete selected records', icon: 'w2ui-icon-cross', disabled: true },
+            'edit'     : { type: 'button', id: 'w2ui-edit', text: 'Edit', tooltip: 'Edit selected record', icon: 'w2ui-icon-pencil', batch: 1, disabled: true },
+            'delete'   : { type: 'button', id: 'w2ui-delete', text: 'Delete', tooltip: 'Delete selected records', icon: 'w2ui-icon-cross', batch: true, disabled: true },
             'save'     : { type: 'button', id: 'w2ui-save', text: 'Save', tooltip: 'Save changed records', icon: 'w2ui-icon-check' }
         }
 
@@ -1829,8 +1829,6 @@ class w2grid extends w2event {
         }
         // enable/disable toolbar buttons
         sel = this.getSelection(true)
-        if (sel.length == 1) this.toolbar.enable('w2ui-edit'); else this.toolbar.disable('w2ui-edit')
-        if (sel.length >= 1) this.toolbar.enable('w2ui-delete'); else this.toolbar.disable('w2ui-delete')
         this.addRange('selection')
         $(this.box).find('#grid_'+ this.name +'_check_all').prop('checked', true)
         this.status()
@@ -1863,7 +1861,6 @@ class w2grid extends w2event {
         }
         sel.indexes = []
         sel.columns = {}
-        this.toolbar.disable('w2ui-edit', 'w2ui-delete')
         this.removeRange('selection')
         $(this.box).find('#grid_'+ this.name +'_check_all').prop('checked', false)
         this.status()
@@ -1884,6 +1881,14 @@ class w2grid extends w2event {
                 })
             }
         })
+        // enable/disable toolbar search button
+        if (this.show.toolbarSave) {
+            if (this.getChanges().length > 0) {
+                this.toolbar.enable('w2ui-save')
+            } else {
+                this.toolbar.disable('w2ui-save')
+            }
+        }
 
         function _checkItem(item, prefix) {
             if (item.batch != null) {
@@ -3313,7 +3318,9 @@ class w2grid extends w2event {
                 if (value == null) el.find('input').val(typeof val != 'object' ? val : '')
                 // init w2field
                 input = el.find('input').get(0)
-                $(input).w2field(edit.type, $.extend(edit, { selected: val }))
+                if ($.fn.w2field) {
+                    $(input).w2field(edit.type, $.extend(edit, { selected: val }))
+                }
                 // add blur listener
                 setTimeout(() => {
                     let tmp = input
@@ -3368,6 +3375,9 @@ class w2grid extends w2event {
                         case 9:
                         case 13:
                             event.preventDefault()
+                            break
+                        case 27: // esc button exits edit mode, but if in a popup, it will also close the popup, hence
+                            event.stopPropagation()
                             break
                         case 37:
                             if (w2utils.getCursorPosition(el) === 0) {
@@ -3565,11 +3575,8 @@ class w2grid extends w2event {
         }
         // remove
         $(this.box).find('div.w2ui-edit-box').remove()
-        // enable/disable toolbar search button
-        if (this.show.toolbarSave) {
-            if (this.getChanges().length > 0) this.toolbar.enable('w2ui-save'); else this.toolbar.disable('w2ui-save')
-        }
         this.last.inEditMode = false
+        this.updateToolbar()
     }
 
     'delete'(force) {
@@ -5034,7 +5041,6 @@ class w2grid extends w2event {
         }
         // -- toolbar
         if (this.show.toolbar) {
-            this.toolbar.disable('w2ui-edit', 'w2ui-delete')
             // if select-column is checked - no toolbar refresh
             if (this.toolbar && this.toolbar.get('w2ui-column-on-off') && this.toolbar.get('w2ui-column-on-off').checked) {
                 // no action
@@ -5065,7 +5071,7 @@ class w2grid extends w2event {
         }
         if (this.last.multi) {
             el.attr('placeholder', '[' + w2utils.lang('Multiple Fields') + ']')
-            el.w2field('clear')
+            if ($.fn.w2field) el.w2field('clear')
         } else {
             el.attr('placeholder', w2utils.lang('Search') + ' ' + w2utils.lang(this.last.label, true))
         }
@@ -5123,10 +5129,7 @@ class w2grid extends w2event {
                 }
             }, 50)
         }
-        // enable/disable toolbar search button
-        if (this.show.toolbarSave) {
-            if (this.getChanges().length > 0) this.toolbar.enable('w2ui-save'); else this.toolbar.disable('w2ui-save')
-        }
+        this.updateToolbar()
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
         this.resize()
@@ -7006,7 +7009,9 @@ class w2grid extends w2event {
         switch (oper) {
             case 'between':
                 $rng.show()
-                $fld2.w2field(search.type, search.options)
+                if ($.fn.w2field) {
+                    $fld2.w2field(search.type, search.options)
+                }
                 break
             case 'null':
             case 'not null':
@@ -7048,8 +7053,10 @@ class w2grid extends w2event {
             case 'date':
             case 'time':
             case 'datetime':
-                $fld1.w2field(search.type, search.options)
-                $fld2.w2field(search.type, search.options)
+                if ($.fn.w2field) {
+                    $fld1.w2field(search.type, search.options)
+                    $fld2.w2field(search.type, search.options)
+                }
                 setTimeout(() => { // convert to date if it is number
                     $fld1.keydown()
                     $fld2.keydown()
@@ -7063,7 +7070,9 @@ class w2grid extends w2event {
                 if (search.type == 'list') options.selected = {}
                 if (search.type == 'enum') options.selected = []
                 if (sdata) options.selected = sdata.value
-                $fld1.w2field(search.type, $.extend({ openOnFocus: true }, options))
+                if ($.fn.w2field) {
+                    $fld1.w2field(search.type, $.extend({ openOnFocus: true }, options))
+                }
                 if (sdata && sdata.text != null) {
                     $fld1.data('selected', {id: sdata.value, text: sdata.text})
                 }
@@ -8308,9 +8317,6 @@ class w2grid extends w2event {
                 }
             }
             $(this.box).find('#grid_'+ this.name +'_footer .w2ui-footer-left').html(msgLeft)
-            // toolbar
-            if (sel.length == 1) this.toolbar.enable('w2ui-edit'); else this.toolbar.disable('w2ui-edit')
-            if (sel.length >= 1) this.toolbar.enable('w2ui-delete'); else this.toolbar.disable('w2ui-delete')
         }
     }
 
