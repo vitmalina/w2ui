@@ -36,6 +36,7 @@
 *   - onloadmore event (so it will be easy to implement remote data source with local sort)
 *   - avoid inline events, but allow w2ui-eaction
 *   - status() - clears on next select, etc. Should not if it is off
+*   - edit demo grid/21 - if you hit add record too fast, it breaks
 *
 * == DEMOS To create ==
 *   - batch for disabled buttons

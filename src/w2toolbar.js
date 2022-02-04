@@ -3,6 +3,7 @@
 *   - Dependencies: jQuery, w2utils
 *
 * == TODO ==
+*   - tab navigation (index state)
 *   - vertical toolbar
 *
 * == 2.0 changes
@@ -585,8 +586,6 @@ class w2toolbar extends w2event {
             }
             // refresh
             el.replaceWith($(html))
-            if (it.hidden) { el.css('display', 'none') } else { el.css('display', '') }
-            if (it.disabled) { el.addClass('disabled') } else { el.removeClass('disabled') }
             w2utils.bindEvents($(this.box).find(`#tb_${this.name}_item_${w2utils.escapeId(it.id)}`), this)
         }
         // event after
@@ -740,19 +739,23 @@ class w2toolbar extends w2event {
             }
 
             case 'break':
-                html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-break">&#160;</div>`
+                html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-break"
+                            style="${(item.hidden ? 'display: none' : '')}; ${(item.style ? item.style : '')}">
+                            &#160;
+                        </div>`
                 break
 
             case 'spacer':
-                html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-spacer"></div>`
+                html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-spacer"
+                            style="${(item.hidden ? 'display: none' : '')}; ${(item.style ? item.style : '')}">
+                        </div>`
                 break
 
             case 'html':
-                html = `
-                    <div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-html ${classes.join(' ')}"
+                html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-html ${classes.join(' ')}"
                             style="${(item.hidden ? 'display: none' : '')}; ${(item.style ? item.style : '')}">
-                        ${(typeof item.html == 'function' ? item.html.call(this, item) : item.html)}
-                </div>`
+                            ${(typeof item.html == 'function' ? item.html.call(this, item) : item.html)}
+                        </div>`
                 break
         }
         return html

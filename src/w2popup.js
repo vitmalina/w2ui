@@ -117,7 +117,7 @@ class Dialog extends w2event {
         }
         if (maxW - 10 < options.width) options.width = maxW - 10
         if (maxH - 10 < options.height) options.height = maxH - 10
-        let top  = (maxH - options.height) / 2 * 0.6
+        let top  = (maxH - options.height) / 2
         let left = (maxW - options.width) / 2
 
         let prom = {
