@@ -3,13 +3,14 @@
  * methods that start with "_" are internal
  *
  * TODO:
- *  .data(name, 1) => el.dataset.name
+ *  - .data(name, 1) => el.dataset.name
  */
 
  class Query {
-
-    constructor(selector, context) {
-        this.version = 0.3
+    constructor(selector, context, previous) {
+        this.version = 0.4
+        this.context = context ?? document
+        this.previous = previous ?? null
         let nodes = []
         if (Array.isArray(selector)) {
             nodes = selector
@@ -18,11 +19,10 @@
         } else if (selector instanceof Query) {
             nodes = selector.nodes
         } else if (typeof selector == 'string') {
-            if (context == null) context = document
-            if (typeof context.querySelector != 'function') {
+            if (typeof this.context.querySelector != 'function') {
                 throw new Error('Invalid context')
             }
-            nodes = Array.from(context.querySelectorAll(selector))
+            nodes = Array.from(this.context.querySelectorAll(selector))
         } else {
             // if selector is itterable, then try to create nodes from it, also supports jQuery
             let arr = Array.from(selector)
@@ -32,7 +32,12 @@
                 throw new Error(`Invalid selector "${selector}"`)
             }
         }
-        this._refs(nodes)
+        this.nodes = nodes
+        this.length = nodes.length
+        // map nodes to object propoerties
+        this.each((node, ind) => {
+            this[ind] = node
+        })
     }
 
     static _isEl(node) {
@@ -45,26 +50,12 @@
         return tmpl.content
     }
 
-    _refs(nodes) {
-        this.nodes = nodes
-        this.length = nodes.length
-        // map nodes to object propoerties
-        this.each((node, ind) => {
-            this[ind] = node
-        })
-        // delete extra ones
-        let ind = this.nodes.length
-        while (this[ind]) {
-            delete this[ind]
-            ind++
-        }
-    }
-
     _insert(method, html) {
         let nodes = []
         let len  = this.length
         if (len < 1) return
         let isEl = Query._isEl(html)
+        let self = this
         if (typeof html == 'string') {
             this.each(node => {
                 let cln = Query._fragment(html)
@@ -75,7 +66,7 @@
                 node[method](cln) // inserts nodes or text
             })
             if (method == 'replaceWith') {
-                this._refs(nodes)
+                self = new Query(nodes, this.context, this) // must return a new collection
             }
         } else if (isEl) {
             this.each(node => {
@@ -87,22 +78,23 @@
         } else {
             throw new Error(`Incorrect argument for "${method}(html)". It expects one string argument.`)
         }
-        return this
-    }
-
-    eq(index) {
-        let nodes = [this[index]]
-        if (nodes[0] == null) nodes = []
-        this._refs(nodes)
-        return this
+        return self
     }
 
     get(index) {
+        if (index < 0) index = this.length + index
         let node = this[index]
         if (node) {
             return node
         }
         return this.nodes
+    }
+
+    eq(index) {
+        if (index < 0) index = this.length + index
+        let nodes = [this[index]]
+        if (nodes[0] == null) nodes = []
+        return new Query(nodes, this.context, this) // must return a new collection
     }
 
     find(selector) {
@@ -113,8 +105,20 @@
                 nodes.push(...nn)
             }
         })
-        this._refs(nodes)
-        return this
+        return new Query(nodes, this.context, this) // must return a new collection
+    }
+
+    filter(selector) {
+        let nodes = []
+        this.each(node => {
+            if (node === selector
+                || (typeof selector == 'string' && node.matches(selector))
+                || (typeof selector == 'function' && selector(node))
+            ) {
+                nodes.push(node)
+            }
+        })
+        return new Query(nodes, this.context, this) // must return a new collection
     }
 
     shadow(selector) {
@@ -123,11 +127,8 @@
             // select shadow root if available
             if (node.shadowRoot) nodes.push(node.shadowRoot)
         })
-        this._refs(nodes)
-        if (selector) {
-            return this.find(selector)
-        }
-        return this
+        let col = new Query(nodes, this.context, this)
+        return selector ? col.find(selector) : col
     }
 
     closest(selector) {
@@ -138,12 +139,9 @@
                 nodes.push(nn)
             }
         })
-        this._refs(nodes)
-        return this
+        return new Query(nodes, this.context, this) // must return a new collection
     }
 
-    // host()
-    // host(all)
     host(all) {
         let nodes = []
         // find shadow root or body
@@ -154,16 +152,15 @@
                 return node
             }
         }
+        let fun = (node) => {
+            let nn = top(node)
+            nodes.push(nn.host ? nn.host : nn)
+            if (nn.host && all) fun(nn.host)
+        }
         this.each(node => {
-            let fun = (node) => {
-                let nn = top(node)
-                nodes.push(nn.host ? nn.host : nn)
-                if (nn.host && all) fun(nn.host)
-            }
             fun(node)
         })
-        this._refs(nodes)
-        return this
+        return new Query(nodes, this.context, this) // must return a new collection
     }
 
     each(func) {
@@ -195,22 +192,6 @@
         // remove from dom, but keep in current query
         this.each(node => { node.remove() })
         return this
-    }
-
-    empty() {
-        return this.html('')
-    }
-
-    html(html) {
-        return this.prop('innerHTML', html)
-    }
-
-    text(text) {
-        return this.prop('textContent', text)
-    }
-
-    val(value) {
-        return this.attr('value', value)
     }
 
     css(key, value) {
@@ -279,16 +260,13 @@
     hasClass(classes) {
         // split by comma or space
         if (typeof classes == 'string') classes = classes.split(/[ ,]+/)
-        let ret = true
         if (classes == null && this.length > 0) {
             return Array.from(this[0].classList)
         }
+        let ret = false
         this.each(node => {
-            let current = Array.from(node.classList)
-            classes.forEach(className => {
-                if (!current.includes(className) && ret === true) {
-                    ret = false
-                }
+            ret = ret || classes.every(className => {
+                return Array.from(node.classList).includes(className)
             })
         })
         return ret
@@ -444,6 +422,22 @@
             }
         })
         return this
+    }
+
+    empty() {
+        return this.html('')
+    }
+
+    html(html) {
+        return this.prop('innerHTML', html)
+    }
+
+    text(text) {
+        return this.prop('textContent', text)
+    }
+
+    val(value) {
+        return this.attr('value', value)
     }
 
     show() {
