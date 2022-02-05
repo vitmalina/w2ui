@@ -3,6 +3,7 @@
 *   - Dependencies: jQuery, w2utils
 *
 * == TODO ==
+*   - tab navigation (index state)
 *   - vertical toolbar
 *
 * == 2.0 changes
@@ -54,7 +55,7 @@ class w2toolbar extends w2event {
             onClick: null,
             onRefresh: null
         }
-        this.tmp = {
+        this.last = {
             badge: {}
         }
         // mix in options, w/o items
@@ -193,7 +194,7 @@ class w2toolbar extends w2event {
         $it.removeClass()
             .addClass(className || '')
             .text(count)[0].style.cssText = style || ''
-        this.tmp.badge[id] = {
+        this.last.badge[id] = {
             className: className || '',
             style: style || ''
         }
@@ -518,6 +519,9 @@ class w2toolbar extends w2event {
             $(this.box)[0].style.cssText += this.style
         }
         w2utils.bindEvents($(this.box).find('.w2ui-tb-line .w2ui-eaction'), this)
+        // observe div resize
+        this.last.resizeObserver = new ResizeObserver(() => { this.resize() })
+        this.last.resizeObserver.observe(this.box)
         // refresh all
         this.refresh()
         this.resize()
@@ -575,15 +579,13 @@ class w2toolbar extends w2event {
                         drop[0].hide()
                     } else {
                         if (['menu', 'menu-radio', 'menu-check'].indexOf(it.type) != -1) {
-                            $(this.tmp.overlayEl).w2menu('refresh', { items: it.items })
+                            $(this.last.overlayEl).w2menu('refresh', { items: it.items })
                         }
                     }
                 }
             }
             // refresh
             el.replaceWith($(html))
-            if (it.hidden) { el.css('display', 'none') } else { el.css('display', '') }
-            if (it.disabled) { el.addClass('disabled') } else { el.removeClass('disabled') }
             w2utils.bindEvents($(this.box).find(`#tb_${this.name}_item_${w2utils.escapeId(it.id)}`), this)
         }
         // event after
@@ -637,6 +639,7 @@ class w2toolbar extends w2event {
                 .html('')
         }
         $(this.box).html('')
+        this.last.resizeObserver.disconnect()
         delete w2ui[this.name]
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
@@ -717,8 +720,8 @@ class w2toolbar extends w2event {
                                     ${ w2utils.lang(text) }
                                     ${ item.count != null
                                         ? `<span class="w2ui-tb-count">
-                                                <span class="${this.tmp.badge[item.id] ? this.tmp.badge[item.id].className || '' : ''}"
-                                                    style="${this.tmp.badge[item.id] ? this.tmp.badge[item.id].style || '' : ''}">
+                                                <span class="${this.last.badge[item.id] ? this.last.badge[item.id].className || '' : ''}"
+                                                    style="${this.last.badge[item.id] ? this.last.badge[item.id].style || '' : ''}">
                                                         ${item.count}
                                                 </span>
                                            </span>`
@@ -736,19 +739,23 @@ class w2toolbar extends w2event {
             }
 
             case 'break':
-                html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-break">&#160;</div>`
+                html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-break"
+                            style="${(item.hidden ? 'display: none' : '')}; ${(item.style ? item.style : '')}">
+                            &#160;
+                        </div>`
                 break
 
             case 'spacer':
-                html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-spacer"></div>`
+                html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-spacer"
+                            style="${(item.hidden ? 'display: none' : '')}; ${(item.style ? item.style : '')}">
+                        </div>`
                 break
 
             case 'html':
-                html = `
-                    <div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-html ${classes.join(' ')}"
+                html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-html ${classes.join(' ')}"
                             style="${(item.hidden ? 'display: none' : '')}; ${(item.style ? item.style : '')}">
-                        ${(typeof item.html == 'function' ? item.html.call(this, item) : item.html)}
-                </div>`
+                            ${(typeof item.html == 'function' ? item.html.call(this, item) : item.html)}
+                        </div>`
                 break
         }
         return html

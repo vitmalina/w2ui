@@ -36,6 +36,8 @@
 *   - separate columnRefresh, recordsRefresh, fullRefresh
 *   - onloadmore event (so it will be easy to implement remote data source with local sort)
 *   - avoid inline events, but allow w2ui-eaction
+*   - status() - clears on next select, etc. Should not if it is off
+*   - edit demo grid/21 - if you hit add record too fast, it breaks
 *
 * == DEMOS To create ==
 *   - batch for disabled buttons
@@ -67,6 +69,7 @@
 *   - search.type == 'text' can have 'in' and 'not in' operators, then it will switch to enum
 *   - grid.find(..., displayedOnly)
 *   - column.render(..., this) - added
+*   - resizeObserver for the box
 *
 ************************************************************************/
 
@@ -289,8 +292,8 @@ class w2grid extends w2event {
                       'onclick="let grid = w2ui[jQuery(this).parents(\'div.w2ui-grid\').attr(\'name\')]; grid.searchShowFields()"></div>'
             },
             'add'      : { type: 'button', id: 'w2ui-add', text: 'Add New', tooltip: 'Add new record', icon: 'w2ui-icon-plus' },
-            'edit'     : { type: 'button', id: 'w2ui-edit', text: 'Edit', tooltip: 'Edit selected record', icon: 'w2ui-icon-pencil', disabled: true },
-            'delete'   : { type: 'button', id: 'w2ui-delete', text: 'Delete', tooltip: 'Delete selected records', icon: 'w2ui-icon-cross', disabled: true },
+            'edit'     : { type: 'button', id: 'w2ui-edit', text: 'Edit', tooltip: 'Edit selected record', icon: 'w2ui-icon-pencil', batch: 1, disabled: true },
+            'delete'   : { type: 'button', id: 'w2ui-delete', text: 'Delete', tooltip: 'Delete selected records', icon: 'w2ui-icon-cross', batch: true, disabled: true },
             'save'     : { type: 'button', id: 'w2ui-save', text: 'Save', tooltip: 'Save changed records', icon: 'w2ui-icon-check' }
         }
 
@@ -1828,8 +1831,6 @@ class w2grid extends w2event {
         }
         // enable/disable toolbar buttons
         sel = this.getSelection(true)
-        if (sel.length == 1) this.toolbar.enable('w2ui-edit'); else this.toolbar.disable('w2ui-edit')
-        if (sel.length >= 1) this.toolbar.enable('w2ui-delete'); else this.toolbar.disable('w2ui-delete')
         this.addRange('selection')
         $(this.box).find('#grid_'+ this.name +'_check_all').prop('checked', true)
         this.status()
@@ -1862,7 +1863,6 @@ class w2grid extends w2event {
         }
         sel.indexes = []
         sel.columns = {}
-        this.toolbar.disable('w2ui-edit', 'w2ui-delete')
         this.removeRange('selection')
         $(this.box).find('#grid_'+ this.name +'_check_all').prop('checked', false)
         this.status()
@@ -1883,6 +1883,14 @@ class w2grid extends w2event {
                 })
             }
         })
+        // enable/disable toolbar search button
+        if (this.show.toolbarSave) {
+            if (this.getChanges().length > 0) {
+                this.toolbar.enable('w2ui-save')
+            } else {
+                this.toolbar.disable('w2ui-save')
+            }
+        }
 
         function _checkItem(item, prefix) {
             if (item.batch != null) {
@@ -3313,7 +3321,9 @@ class w2grid extends w2event {
                 if (value == null) el.find('input').val(typeof val != 'object' ? val : '')
                 // init w2field
                 input = el.find('input').get(0)
-                $(input).w2field(edit.type, $.extend(edit, { selected: val }))
+                if ($.fn.w2field) {
+                    $(input).w2field(edit.type, $.extend(edit, { selected: val }))
+                }
                 // add blur listener
                 setTimeout(() => {
                     let tmp = input
@@ -3368,6 +3378,9 @@ class w2grid extends w2event {
                         case 9:
                         case 13:
                             event.preventDefault()
+                            break
+                        case 27: // esc button exits edit mode, but if in a popup, it will also close the popup, hence
+                            event.stopPropagation()
                             break
                         case 37:
                             if (w2utils.getCursorPosition(el) === 0) {
@@ -3565,11 +3578,8 @@ class w2grid extends w2event {
         }
         // remove
         $(this.box).find('div.w2ui-edit-box').remove()
-        // enable/disable toolbar search button
-        if (this.show.toolbarSave) {
-            if (this.getChanges().length > 0) this.toolbar.enable('w2ui-save'); else this.toolbar.disable('w2ui-save')
-        }
         this.last.inEditMode = false
+        this.updateToolbar()
     }
 
     'delete'(force) {
@@ -4841,7 +4851,6 @@ class w2grid extends w2event {
         // resize
         this.resizeBoxes()
         this.resizeRecords()
-        if (this.toolbar && this.toolbar.resize) this.toolbar.resize()
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
         return (new Date()).getTime() - time
@@ -5038,7 +5047,6 @@ class w2grid extends w2event {
         }
         // -- toolbar
         if (this.show.toolbar) {
-            this.toolbar.disable('w2ui-edit', 'w2ui-delete')
             // if select-column is checked - no toolbar refresh
             if (this.toolbar && this.toolbar.get('w2ui-column-on-off') && this.toolbar.get('w2ui-column-on-off').checked) {
                 // no action
@@ -5069,7 +5077,7 @@ class w2grid extends w2event {
         }
         if (this.last.multi) {
             el.attr('placeholder', '[' + w2utils.lang('Multiple Fields') + ']')
-            el.w2field('clear')
+            if ($.fn.w2field) el.w2field('clear')
         } else {
             el.attr('placeholder', w2utils.lang('Search') + ' ' + w2utils.lang(this.last.label, true))
         }
@@ -5127,10 +5135,7 @@ class w2grid extends w2event {
                 }
             }, 50)
         }
-        // enable/disable toolbar search button
-        if (this.show.toolbarSave) {
-            if (this.getChanges().length > 0) this.toolbar.enable('w2ui-save'); else this.toolbar.disable('w2ui-save')
-        }
+        this.updateToolbar()
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
         this.resize()
@@ -5462,18 +5467,9 @@ class w2grid extends w2event {
         this.updateToolbar()
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
-        // attach to resize event
-        if ($(this.box).closest('.w2ui-layout').length === 0) { // if there is layout, it will send a resize event
-            $(window)
-                .off('resize.w2ui-'+ obj.name)
-                .on('resize.w2ui-'+ obj.name, function (event) {
-                    if (w2ui[obj.name] == null) {
-                        $(window).off('resize.w2ui-'+ obj.name)
-                    } else {
-                        w2ui[obj.name].resize()
-                    }
-                })
-        }
+        // observe div resize
+        this.last.resizeObserver = new ResizeObserver(() => { this.resize() })
+        this.last.resizeObserver.observe(this.box)
         return (new Date()).getTime() - time
 
         function mouseStart (event) {
@@ -5843,6 +5839,7 @@ class w2grid extends w2event {
                 .removeClass('w2ui-reset w2ui-grid w2ui-inactive')
                 .html('')
         }
+        this.last.resizeObserver.disconnect()
         delete w2ui[this.name]
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
@@ -5930,7 +5927,7 @@ class w2grid extends w2event {
         _dragData.timeout = null
         _dragData.columnHead = null
 
-        //attach original event listener
+        // attach original event listener
         $(obj.box).off('mousedown.colDrag').on('mousedown.colDrag', dragColStart)
         $(obj.box).off('mouseup.colDrag').on('mouseup.colDrag', catchMouseup)
 
@@ -7017,7 +7014,9 @@ class w2grid extends w2event {
         switch (oper) {
             case 'between':
                 $rng.show()
-                $fld2.w2field(search.type, search.options)
+                if ($.fn.w2field) {
+                    $fld2.w2field(search.type, search.options)
+                }
                 break
             case 'null':
             case 'not null':
@@ -7059,8 +7058,10 @@ class w2grid extends w2event {
             case 'date':
             case 'time':
             case 'datetime':
-                $fld1.w2field(search.type, search.options)
-                $fld2.w2field(search.type, search.options)
+                if ($.fn.w2field) {
+                    $fld1.w2field(search.type, search.options)
+                    $fld2.w2field(search.type, search.options)
+                }
                 setTimeout(() => { // convert to date if it is number
                     $fld1.keydown()
                     $fld2.keydown()
@@ -7074,7 +7075,9 @@ class w2grid extends w2event {
                 if (search.type == 'list') options.selected = {}
                 if (search.type == 'enum') options.selected = []
                 if (sdata) options.selected = sdata.value
-                $fld1.w2field(search.type, $.extend({ openOnFocus: true }, options))
+                if ($.fn.w2field) {
+                    $fld1.w2field(search.type, $.extend({ openOnFocus: true }, options))
+                }
                 if (sdata && sdata.text != null) {
                     $fld1.data('selected', {id: sdata.value, text: sdata.text})
                 }
@@ -8219,6 +8222,24 @@ class w2grid extends w2event {
         let record = (summary !== true ? this.records[ind] : this.summary[ind])
         let value = this.parseField(record, col.field)
         let className = '', style = '', attr = '', divAttr = ''
+        // if change by inline editing
+        if (record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null) {
+            value = record.w2ui.changes[col.field]
+            if (value instanceof Object && Object.keys(col.editable).length > 0) { // if editable object
+                if (col.options && col.options.items) {
+                    let val = col.options.items.find((item) => { return item.id == value.id })
+                    if (val) {
+                        value = val.text
+                    } else {
+                        value = value.id
+                    }
+                } else {
+                    if (value.id != null && value.text == null) value = value.id
+                    if (value.text != null) value = value.text
+                }
+            }
+        }
+        // if there is a cell renderer
         if (col.render != null && ind !== -1) {
             if (typeof col.render == 'function' && record != null) {
                 let html
@@ -8272,23 +8293,6 @@ class w2grid extends w2event {
                 value = (typeof func == 'function' ? func(value, tmp[1], record) : '')
             }
         }
-        // if change by inline editing
-        if (record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null) {
-            value = record.w2ui.changes[col.field]
-            if (value instanceof Object && Object.keys(col.editable).length > 0) { // if editable object
-                if (col.options && col.options.items) {
-                    let val = col.options.items.find((item) => { return item.id == value.id })
-                    if (val) {
-                        value = val.text
-                    } else {
-                        value = value.id
-                    }
-                } else {
-                    if (value.id != null && value.text == null) value = value.id
-                    if (value.text != null) value = value.text
-                }
-            }
-        }
         if (value == null) value = ''
         return !extra ? value : { value, attr, style, className, divAttr }
     }
@@ -8319,9 +8323,6 @@ class w2grid extends w2event {
                 }
             }
             $(this.box).find('#grid_'+ this.name +'_footer .w2ui-footer-left').html(msgLeft)
-            // toolbar
-            if (sel.length == 1) this.toolbar.enable('w2ui-edit'); else this.toolbar.disable('w2ui-edit')
-            if (sel.length >= 1) this.toolbar.enable('w2ui-delete'); else this.toolbar.disable('w2ui-delete')
         }
     }
 

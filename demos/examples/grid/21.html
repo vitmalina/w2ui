@@ -12,7 +12,6 @@
 <!--CODE-->
 <div id="grid" style="width: 100%; height: 400px;"></div>
 <br>
-<button class="w2ui-btn" onclick="showChanged()">Get Changed</button>
 <label style="margin-left: 20px">
     <input type="checkbox" id="fixedsize" checked="checked" onclick="w2ui.grid.advanceOnEdit = this.checked;">
     Advance On Edit
@@ -87,11 +86,19 @@ $(function () {
         ],
         toolbar: {
             items: [
-                { id: 'add', type: 'button', text: 'Add Record', icon: 'w2ui-icon-plus' }
+                { id: 'add', type: 'button', text: 'Add Record', icon: 'w2ui-icon-plus' },
+                { type: 'break' },
+                { type: 'button', id: 'showChanges', text: 'Show Changes' }
             ],
-            onClick: function (event) {
+            onClick(event) {
                 if (event.target == 'add') {
-                    w2ui.grid.add({ recid: w2ui.grid.records.length + 1 });
+                    let recid = w2ui.grid.records.length + 1
+                    this.owner.add({ recid });
+                    this.owner.scrollIntoView(recid);
+                    this.owner.editField(recid, 1)
+                }
+                if (event.target == 'showChanges') {
+                    showChanged()
                 }
             }
         },
@@ -115,7 +122,7 @@ function showChanged() {
         title: 'Records Changes',
         with: 600,
         height: 550,
-        body: `<pre>${JSON.stringify(w2ui['grid'].getChanges(), null, 4)}</pre>`,
+        body: `<pre>${JSON.stringify(w2ui.grid.getChanges(), null, 4)}</pre>`,
         buttons: '<button class="w2ui-btn" onclick="w2popup.close()">Ok</button>'
     })}
 </script>

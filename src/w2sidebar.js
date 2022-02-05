@@ -10,6 +10,7 @@
 * == 2.0 changes
 *   - deprecarted obj.img, node.img
 *   - CSP - fixed inline events
+*   - resizeObserver for the box
 *
 ************************************************************************/
 
@@ -80,7 +81,7 @@ class w2sidebar extends w2event {
             parent: null, // node object
             sidebar: null
         }
-        this.tmp = {
+        this.last = {
             badge: {}
         }
         let nodes = options.nodes
@@ -256,7 +257,7 @@ class w2sidebar extends w2event {
         $it.removeClass()
             .addClass(`w2ui-node-count ${className || ''}`)
             .text(count)[0].style.cssText = style || ''
-        this.tmp.badge[id] = {
+        this.last.badge[id] = {
             className: className || '',
             style: style || ''
         }
@@ -862,6 +863,9 @@ class w2sidebar extends w2event {
                 }
             }, 1)
         })
+        // observe div resize
+        this.last.resizeObserver = new ResizeObserver(() => { this.resize() })
+        this.last.resizeObserver.observe(this.box)
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
         // ---
@@ -1071,8 +1075,8 @@ class w2sidebar extends w2event {
                 }
                 let expand = ''
                 let counts = (nd.count != null
-                    ? `<div class="w2ui-node-count ${obj.tmp.badge[nd.id] ? obj.tmp.badge[nd.id].className || '' : ''}"
-                            style="${obj.tmp.badge[nd.id] ? obj.tmp.badge[nd.id].style || '' : ''}">
+                    ? `<div class="w2ui-node-count ${obj.last.badge[nd.id] ? obj.last.badge[nd.id].className || '' : ''}"
+                            style="${obj.last.badge[nd.id] ? obj.last.badge[nd.id].style || '' : ''}">
                                 ${nd.count}
                        </div>`
                     : '')
@@ -1164,6 +1168,7 @@ class w2sidebar extends w2event {
                 .removeClass('w2ui-reset w2ui-sidebar')
                 .html('')
         }
+        this.last.resizeObserver.disconnect()
         delete w2ui[this.name]
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))

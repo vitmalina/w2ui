@@ -4,6 +4,7 @@
 *
 * == 2.0 changes
 *   - CSP - fixed inline events
+*   - resizeObserver for the box
 *
 ************************************************************************/
 
@@ -21,7 +22,7 @@ class w2tabs extends w2event {
         this.tooltip      = 'top|left' // can be top, bottom, left, right
         this.tabs         = []
         this.routeData    = {} // data for dynamic routes
-        this.tmp          = {} // placeholder for internal variables
+        this.last         = {} // placeholder for internal variables
         this.right        = ''
         this.style        = ''
         this.onClick      = null
@@ -179,9 +180,9 @@ class w2tabs extends w2event {
     }
 
     dragMove(event) {
-        if (!this.tmp.reordering) return
+        if (!this.last.reordering) return
         let obj  = this
-        let info = this.tmp.moving
+        let info = this.last.moving
         let tab  = this.tabs[info.index]
         let next = _find(info.index, 1)
         let prev = _find(info.index, -1)
@@ -202,7 +203,7 @@ class w2tabs extends w2event {
                 this.tabs.splice(info.index, 0, this.tabs.splice(index, 1)[0]) // reorder in the array
                 info.$tab.before($nextEl)
                 info.$tab.css('opacity', 0)
-                Object.assign(this.tmp.moving, {
+                Object.assign(this.last.moving, {
                     index: index,
                     divX: -width1,
                     x: event.pageX + width1,
@@ -249,7 +250,7 @@ class w2tabs extends w2event {
     tooltipShow(id, event, forceRefresh) {
         let item = this.get(id)
         let $el  = $(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(id))
-        if (this.tooltip == null || item.disabled || this.tmp.reordering) {
+        if (this.tooltip == null || item.disabled || this.last.reordering) {
             return
         }
         let pos = this.tooltip
@@ -271,7 +272,7 @@ class w2tabs extends w2event {
     tooltipHide(id) {
         let item = this.get(id)
         let $el  = $(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(id))
-        if (this.tooltip == null || item.disabled || this.tmp.reordering) {
+        if (this.tooltip == null || item.disabled || this.last.reordering) {
             return
         }
         $el.removeProp('_mouse_over')
@@ -390,6 +391,9 @@ class w2tabs extends w2event {
             $(this.box)[0].style.cssText += this.style
         }
         w2utils.bindEvents($(this.box).find('.w2ui-eaction'), this)
+        // observe div resize
+        this.last.resizeObserver = new ResizeObserver(() => { this.resize() })
+        this.last.resizeObserver.observe(this.box)
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
         this.refresh()
@@ -405,7 +409,7 @@ class w2tabs extends w2event {
         let $ghost   = $tab.clone()
         let edata
         $ghost.attr('id', '#tabs_' + this.name + '_tab_ghost')
-        this.tmp.moving = {
+        this.last.moving = {
             index: tabIndex,
             indexFrom: tabIndex,
             $tab: $tab,
@@ -544,6 +548,7 @@ class w2tabs extends w2event {
                 .removeClass('w2ui-reset w2ui-tabs')
                 .html('')
         }
+        this.last.resizeObserver.disconnect()
         delete w2ui[this.name]
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
@@ -554,7 +559,7 @@ class w2tabs extends w2event {
 
     click(id, event) {
         let tab = this.get(id)
-        if (tab == null || tab.disabled || this.tmp.reordering) return false
+        if (tab == null || tab.disabled || this.last.reordering) return false
         // event before
         let edata = this.trigger({ phase: 'before', type: 'click', target: id, tab: tab, object: tab, originalEvent: event })
         if (edata.isCancelled === true) return

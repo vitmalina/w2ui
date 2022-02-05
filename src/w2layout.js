@@ -22,7 +22,7 @@ class w2layout extends w2event {
         this.box            = null // DOM Element that holds the element
         this.name           = null // unique name for w2ui
         this.panels         = []
-        this.tmp            = {}
+        this.last           = {}
         this.padding        = 1 // panel padding
         this.resizer        = 4 // resizer width or height
         this.style          = ''
@@ -437,41 +437,44 @@ class w2layout extends w2event {
         // if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
         let time = (new Date()).getTime()
         // event before
-        let edata = obj.trigger({ phase: 'before', type: 'render', target: obj.name, box: box })
+        let edata = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box })
         if (edata.isCancelled === true) return
 
         if (box != null) {
-            if ($(obj.box).find('#layout_'+ obj.name +'_panel_main').length > 0) {
-                $(obj.box)
+            if ($(this.box).find('#layout_'+ this.name +'_panel_main').length > 0) {
+                $(this.box)
                     .removeAttr('name')
                     .removeClass('w2ui-layout')
                     .html('')
             }
-            obj.box = box
+            this.box = box
         }
-        if (!obj.box) return false
-        $(obj.box)
-            .attr('name', obj.name)
+        if (!this.box) return false
+        $(this.box)
+            .attr('name', this.name)
             .addClass('w2ui-layout')
             .html('<div></div>')
-        if ($(obj.box).length > 0) $(obj.box)[0].style.cssText += obj.style
+        if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style
         // create all panels
         for (let p1 = 0; p1 < w2panels.length; p1++) {
-            let html = '<div id="layout_'+ obj.name + '_panel_'+ w2panels[p1] +'" class="w2ui-panel">'+
+            let html = '<div id="layout_'+ this.name + '_panel_'+ w2panels[p1] +'" class="w2ui-panel">'+
                         '    <div class="w2ui-panel-title"></div>'+
                         '    <div class="w2ui-panel-tabs"></div>'+
                         '    <div class="w2ui-panel-toolbar"></div>'+
                         '    <div class="w2ui-panel-content"></div>'+
                         '</div>'+
-                        '<div id="layout_'+ obj.name + '_resizer_'+ w2panels[p1] +'" class="w2ui-resizer"></div>'
-            $(obj.box).find(' > div').append(html)
+                        '<div id="layout_'+ this.name + '_resizer_'+ w2panels[p1] +'" class="w2ui-resizer"></div>'
+            $(this.box).find(' > div').append(html)
             // tabs are rendered in refresh()
         }
-        $(obj.box).find(' > div')
-            .append('<div id="layout_'+ obj.name + '_panel_css" style="position: absolute; top: 10000px;"></div>')
-        obj.refresh() // if refresh is not called here, the layout will not be available right after initialization
+        $(this.box).find(' > div')
+            .append('<div id="layout_'+ this.name + '_panel_css" style="position: absolute; top: 10000px;"></div>')
+        this.refresh() // if refresh is not called here, the layout will not be available right after initialization
+        // observe div resize
+        this.last.resizeObserver = new ResizeObserver(() => { this.resize() })
+        this.last.resizeObserver.observe(this.box)
         // process event
-        obj.trigger($.extend(edata, { phase: 'after' }))
+        this.trigger($.extend(edata, { phase: 'after' }))
         // re-init events
         setTimeout(() => { // needed this timeout to allow browser to render first if there are tabs or toolbar
             initEvents()
@@ -480,27 +483,19 @@ class w2layout extends w2event {
         return (new Date()).getTime() - time
 
         function initEvents() {
-            obj.tmp.events = {
-                resize (event) {
-                    if (w2ui[obj.name] == null) {
-                        $(window).off('resize.w2ui-'+ obj.name)
-                    } else {
-                        w2ui[obj.name].resize()
-                    }
-                },
+            obj.last.events = {
                 resizeStart : resizeStart,
                 mouseMove   : resizeMove,
                 mouseUp     : resizeStop
             }
-            $(window).on('resize.w2ui-'+ obj.name, obj.tmp.events.resize)
         }
 
         function resizeStart(type, evnt) {
             if (!obj.box) return
             if (!evnt) evnt = window.event
-            $(document).off('mousemove', obj.tmp.events.mouseMove).on('mousemove', obj.tmp.events.mouseMove)
-            $(document).off('mouseup', obj.tmp.events.mouseUp).on('mouseup', obj.tmp.events.mouseUp)
-            obj.tmp.resize = {
+            $(document).off('mousemove', obj.last.events.mouseMove).on('mousemove', obj.last.events.mouseMove)
+            $(document).off('mouseup', obj.last.events.mouseUp).on('mouseup', obj.last.events.mouseUp)
+            obj.last.resize = {
                 type    : type,
                 x       : evnt.screenX,
                 y       : evnt.screenY,
@@ -518,19 +513,19 @@ class w2layout extends w2event {
                 }
             }
             if (type == 'left' || type == 'right') {
-                obj.tmp.resize.value = parseInt($(obj.box).find('#layout_'+ obj.name +'_resizer_'+ type)[0].style.left)
+                obj.last.resize.value = parseInt($(obj.box).find('#layout_'+ obj.name +'_resizer_'+ type)[0].style.left)
             }
             if (type == 'top' || type == 'preview' || type == 'bottom') {
-                obj.tmp.resize.value = parseInt($(obj.box).find('#layout_'+ obj.name +'_resizer_'+ type)[0].style.top)
+                obj.last.resize.value = parseInt($(obj.box).find('#layout_'+ obj.name +'_resizer_'+ type)[0].style.top)
             }
         }
 
         function resizeStop(evnt) {
             if (!obj.box) return
             if (!evnt) evnt = window.event
-            $(document).off('mousemove', obj.tmp.events.mouseMove)
-            $(document).off('mouseup', obj.tmp.events.mouseUp)
-            if (obj.tmp.resize == null) return
+            $(document).off('mousemove', obj.last.events.mouseMove)
+            $(document).off('mouseup', obj.last.events.mouseUp)
+            if (obj.last.resize == null) return
             // unlock all panels
             for (let p1 = 0; p1 < w2panels.length; p1++) {
                 let $tmp = $(obj.el(w2panels[p1])).parent().find('.w2ui-lock')
@@ -541,34 +536,34 @@ class w2layout extends w2event {
                 }
             }
             // set new size
-            if (obj.tmp.diff_x !== 0 || obj.tmp.resize.diff_y !== 0) { // only recalculate if changed
+            if (obj.last.diff_x !== 0 || obj.last.resize.diff_y !== 0) { // only recalculate if changed
                 let ptop    = obj.get('top')
                 let pbottom = obj.get('bottom')
-                let panel   = obj.get(obj.tmp.resize.type)
+                let panel   = obj.get(obj.last.resize.type)
                 let height  = parseInt($(obj.box).height())
                 let width   = parseInt($(obj.box).width())
                 let str     = String(panel.size)
                 let ns, nd
-                switch (obj.tmp.resize.type) {
+                switch (obj.last.resize.type) {
                     case 'top':
-                        ns = parseInt(panel.sizeCalculated) + obj.tmp.resize.diff_y
+                        ns = parseInt(panel.sizeCalculated) + obj.last.resize.diff_y
                         nd = 0
                         break
                     case 'bottom':
-                        ns = parseInt(panel.sizeCalculated) - obj.tmp.resize.diff_y
+                        ns = parseInt(panel.sizeCalculated) - obj.last.resize.diff_y
                         nd = 0
                         break
                     case 'preview':
-                        ns = parseInt(panel.sizeCalculated) - obj.tmp.resize.diff_y
+                        ns = parseInt(panel.sizeCalculated) - obj.last.resize.diff_y
                         nd = (ptop && !ptop.hidden ? ptop.sizeCalculated : 0) +
                             (pbottom && !pbottom.hidden ? pbottom.sizeCalculated : 0)
                         break
                     case 'left':
-                        ns = parseInt(panel.sizeCalculated) + obj.tmp.resize.diff_x
+                        ns = parseInt(panel.sizeCalculated) + obj.last.resize.diff_x
                         nd = 0
                         break
                     case 'right':
-                        ns = parseInt(panel.sizeCalculated) - obj.tmp.resize.diff_x
+                        ns = parseInt(panel.sizeCalculated) - obj.last.resize.diff_x
                         nd = 0
                         break
                 }
@@ -584,17 +579,17 @@ class w2layout extends w2event {
                 }
                 obj.resize()
             }
-            $(obj.box).find('#layout_'+ obj.name + '_resizer_'+ obj.tmp.resize.type).removeClass('active')
-            delete obj.tmp.resize
+            $(obj.box).find('#layout_'+ obj.name + '_resizer_'+ obj.last.resize.type).removeClass('active')
+            delete obj.last.resize
         }
 
         function resizeMove(evnt) {
             if (!obj.box) return
             if (!evnt) evnt = window.event
-            if (obj.tmp.resize == null) return
-            let panel = obj.get(obj.tmp.resize.type)
+            if (obj.last.resize == null) return
+            let panel = obj.get(obj.last.resize.type)
             // event before
-            let tmp   = obj.tmp.resize
+            let tmp   = obj.last.resize
             let edata = obj.trigger({ phase: 'before', type: 'resizing', target: obj.name, object: panel, originalEvent: evnt,
                 panel: tmp ? tmp.type : 'all', diff_x: tmp ? tmp.diff_x : 0, diff_y: tmp ? tmp.diff_y : 0 })
             if (edata.isCancelled === true) return
@@ -760,7 +755,7 @@ class w2layout extends w2event {
         if (!this.box) return false
         let time = (new Date()).getTime()
         // event before
-        let tmp   = this.tmp.resize
+        let tmp   = this.last.resize
         let edata = this.trigger({ phase: 'before', type: 'resize', target: this.name,
             panel: tmp ? tmp.type : 'all', diff_x: tmp ? tmp.diff_x : 0, diff_y: tmp ? tmp.diff_y : 0 })
         if (edata.isCancelled === true) return
@@ -1061,29 +1056,14 @@ class w2layout extends w2event {
                     tabHeight += w2utils.getSize($(this.box).find(tmp2 + 'title').css({ top: tabHeight + 'px', display: 'block' }), 'height')
                 }
                 if (pan.show.tabs) {
-                    if (pan.tabs != null && w2ui[this.name +'_'+ w2panels[p1] +'_tabs']) w2ui[this.name +'_'+ w2panels[p1] +'_tabs'].resize()
                     tabHeight += w2utils.getSize($(this.box).find(tmp2 + 'tabs').css({ top: tabHeight + 'px', display: 'block' }), 'height')
                 }
                 if (pan.show.toolbar) {
-                    if (pan.toolbar != null && w2ui[this.name +'_'+ w2panels[p1] +'_toolbar']) w2ui[this.name +'_'+ w2panels[p1] +'_toolbar'].resize()
                     tabHeight += w2utils.getSize($(this.box).find(tmp2 + 'toolbar').css({ top: tabHeight + 'px', display: 'block' }), 'height')
                 }
             }
             $(this.box).find(tmp2 + 'content').css({ display: 'block' }).css({ top: tabHeight + 'px' })
         }
-        // send resize to all objects
-        clearTimeout(this._resize_timer)
-        this._resize_timer = setTimeout(() => {
-            for (let e in w2ui) {
-                if (typeof w2ui[e].resize == 'function') {
-                    // sent to all none-layouts
-                    if (w2ui[e].panels == null) w2ui[e].resize()
-                    // only send to nested layouts
-                    let parent = $(w2ui[e].box).parents('.w2ui-layout')
-                    if (parent.length > 0 && parent.attr('name') == obj.name) w2ui[e].resize()
-                }
-            }
-        }, 100)
         this.trigger($.extend(edata, { phase: 'after' }))
         return (new Date()).getTime() - time
     }
@@ -1100,10 +1080,11 @@ class w2layout extends w2event {
                 .removeClass('w2ui-layout')
                 .html('')
         }
+        this.last.resizeObserver.disconnect()
         delete w2ui[this.name]
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
-        if (this.tmp.events && this.tmp.events.resize) $(window).off('resize', this.tmp.events.resize)
+        if (this.last.events && this.last.events.resize) $(window).off('resize', this.last.events.resize)
         return true
     }
 
