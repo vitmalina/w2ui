@@ -18,17 +18,23 @@ function popup() {
         width: 800,
         height: 500,
         text: 'This is text inside the popup',
-        actions: ['Show Message'],
+        actions: ['Show Message', 'Longer Message', 'Close'],
         showMax: true
     })
     .showMessage(() => {
-        showMessage()
+        showMessage('Click on the message to hide it or hit escape')
+    })
+    .longerMessage(() => {
+        showMessage('This is a longer message that can have html and other formatting. This is a longer message that can have html and other formatting. ')
+    })
+    .close(() => {
+        w2popup.close()
     })
 }
 
-function showMessage () {
+function showMessage(text) {
     w2popup.message({
-        text: 'Click on the message to Hide it',
+        text,
         width: 400,
         height: 180,
         hideOn: ['esc', 'click']

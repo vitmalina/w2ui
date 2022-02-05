@@ -70,45 +70,6 @@
     outline: none!important;
 }
 
-.w2ui-message { // slide down message
-    font-size: 12px;
-    position: absolute;
-    z-index: 250;
-    background-color: @message-background-color;
-    border: @message-border;
-    box-shadow: @message-shadow;
-    .box-sizing;
-    border-top: 0px;
-    border-radius: 0px 0px 6px 6px;
-    overflow: auto;
-
-    .w2ui-message-body {
-        position: absolute;
-        top: 0px;
-        bottom: 45px;
-        left: 0px;
-        right: 0px;
-        overflow: auto;
-        line-height: 1.5;
-        font-size: 15px;
-        & .w2ui-centered {
-            line-height: 1.5
-        }
-    }
-
-    .w2ui-message-buttons {
-        position: absolute;
-        height: 45px;
-        bottom: 0px;
-        left: 0px;
-        right: 0px;
-        border-top: 1px solid #efefef;
-        background-color: white;
-        text-align: center;
-        padding: 8px;
-    }
-}
-
 
 /*************************************************
 * ---- Input Controls ----
@@ -120,18 +81,12 @@ input[type=button].w2ui-input {
     &:active { .sys-button-active; }
 }
 
-select {
-    height: 25px;
-    border: 1px solid #afafaf;
-    border-radius: 3px;
-}
-
-select:focus,
+select.w2ui-input:focus,
 div.w2ui-input:focus {
     outline-color: @input-focus-outline-color;
 }
 
-input:not([type=button]):not([type=submit]),
+input:not([type=button]):not([type=submit]).w2ui-input,
 textarea.w2ui-input {
     padding: 6px;
     border: @input-border;
@@ -386,7 +341,7 @@ input[type="checkbox"].w2ui-toggle {
     top: 0;
     width: 18px;
     height: 100%;
-    cursor: default !important;
+    cursor: default;
     z-index: 10;
     display: none;
     position: absolute;

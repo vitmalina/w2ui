@@ -1075,14 +1075,14 @@ class Utils {
             options = {
                 width : (options.length < 300 ? 350 : 550),
                 height: (options.length < 300 ? 170: 250),
-                body  : `<div class="w2ui-centered">${options}</div>`,
+                text  : options,
             }
         }
         if (typeof options != 'object') {
             removeLast()
             return
         }
-        if (options.text != null) options.body = `<div class="w2ui-centered">${options.text}</div>`
+        if (options.text != null) options.body = `<div class="w2ui-centered w2ui-msg-text">${options.text}</div>`
         if (options.width == null) options.width = 350
         if (options.height == null) options.height = 170
         if (options.hideOn == null) options.hideOn = ['esc']

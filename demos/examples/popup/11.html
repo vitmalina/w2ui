@@ -13,7 +13,7 @@
 <!--CODE-->
 <script>
 function popup() {
-    w2popup.open('Some text', { actions: ['Ok', 'Cancel', "Message"] })
+    w2popup.open('Some text', { actions: ['Ok', 'Cancel', "Other Message"] })
         .then(() => {
             console.log('popup is ready')
         })
@@ -25,7 +25,7 @@ function popup() {
             console.log('Cancel button is clicked')
             w2popup.close()
         })
-        .message(() => {
+        .otherMessage(() => {
             w2popup.message('A message')
                 .close(() => {
                     console.log('Message Closed')

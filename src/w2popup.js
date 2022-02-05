@@ -12,6 +12,9 @@
  *  - refactores w2alert, w2confirm, w2prompt
  *  - add w2popup.open().on('')
  *  - removed w2popup.restoreTemplate
+ *  - deprecated onMsgOpen and onMsgClose
+ *  - deprecated options.bgColor
+ *  - rename focus -> setFocus
  */
 
 import { w2event } from './w2event.js'
@@ -31,7 +34,6 @@ class Dialog extends w2event {
             focus: null,        // brings focus to the element, can be a number or selector
             actions: null,      // actions object
             style: '',          // style of the message div
-            bgColor: '#000',
             speed: 0.3,
             modal: false,
             maximized: false,   // this is a flag to show the state - to open the popup maximized use openMaximized instead
@@ -51,8 +53,6 @@ class Dialog extends w2event {
         this.onKeydown  = null
         this.onAction   = null
         this.onMove     = null
-        this.onMsgOpen  = null
-        this.onMsgClose = null
     }
 
     /**
@@ -75,10 +75,11 @@ class Dialog extends w2event {
             options = w2utils.extend({
                 title: 'Notification',
                 body: `<div class="w2ui-centered">${options}</div>`,
-                actions: { Ok() { w2popup.close() }}
+                actions: { Ok() { w2popup.close() }},
+                cancelAction: 'ok'
             }, arguments[1] ?? {})
         }
-        if (options.text != null) options.body = `<div class="w2ui-centered">${options.text}</div>`
+        if (options.text != null) options.body = `<div class="w2ui-centered w2ui-msg-text">${options.text}</div>`
         options = Object.assign({}, this.defaults, old_options, { title: '', body : '' }, options, { maximized: false })
         this.options = options
         // if new - reset event handlers
@@ -110,11 +111,6 @@ class Dialog extends w2event {
         let top  = (maxH - options.height) / 2
         let left = (maxW - options.width) / 2
 
-        // TODO: can be removed
-        self.off('.prom')
-            .off('.confirm')
-            .off('.prompt')
-            .off('*')
         let prom = {
             self: this,
             action(callBack) {
@@ -131,7 +127,6 @@ class Dialog extends w2event {
             }
         }
         // convert action arrays into buttons
-        self.off('.buttons')
         if (options.actions != null && !options.buttons) {
             options.buttons = ''
             Object.keys(options.actions).forEach((action) => {
@@ -170,7 +165,6 @@ class Dialog extends w2event {
             // output message
             w2utils.lock(document.body, {
                 opacity: 0.3,
-                bgColor: options.bgColor,
                 onClick: options.modal ? null : () => { w2popup.close() }
             })
             let btn = ''
@@ -190,17 +184,18 @@ class Dialog extends w2event {
                         transition: ${options.speed}s"></div>`
             query('body').append(msg)
             // then content
-            msg =
-                '<span name="hidden-first" tabindex="0" style="position: absolute; top: -100px"></span>'+ // this is needed to keep focus in popup
-                '<div class="w2ui-popup-title" style="'+ (!options.title ? 'display: none' : '') +'">' + btn + '</div>'+
-                '<div class="w2ui-box" style="'+ (!options.title ? 'top: 0px !important;' : '') +
-                        (!options.buttons ? 'bottom: 0px !important;' : '') + '">'+
-                '    <div class="w2ui-popup-body' + (!options.title ? ' w2ui-popup-no-title' : '') +
-                        (!options.buttons ? ' w2ui-popup-no-buttons' : '') + '" style="' + options.style + '">' +
-                '    </div>'+
-                '</div>'+
-                '<div class="w2ui-popup-buttons" style="'+ (!options.buttons ? 'display: none' : '') +'"></div>'+
-                '<span name="hidden-last" tabindex="0" style="position: absolute; top: -100px"></span>' // this is needed to keep focus in popup
+            msg = `
+                <span name="hidden-first" tabindex="0" style="position: absolute; top: -100px"></span>
+                <div class="w2ui-popup-title" style="${!options.title ? 'display: none' : ''}">${btn}</div>
+                <div class="w2ui-box" style="${!options.title ? 'top: 0px !important;' : ''}
+                        ${!options.buttons ? 'bottom: 0px !important;' : ''}">
+                    <div class="w2ui-popup-body ${!options.title || ' w2ui-popup-no-title'}
+                        ${!options.buttons || ' w2ui-popup-no-buttons'}" style="${options.style}">
+                    </div>
+                </div>
+                <div class="w2ui-popup-buttons" style="${!options.buttons ? 'display: none' : ''}"></div>
+                <span name="hidden-last" tabindex="0" style="position: absolute; top: -100px"></span>
+            `
             query('#w2ui-popup').html(msg)
 
             if (options.title) query('#w2ui-popup .w2ui-popup-title').append(w2utils.lang(options.title))
@@ -297,15 +292,13 @@ class Dialog extends w2event {
             query('#w2ui-popup').find('.w2ui-popup-body').show()
         }
 
-        if(options.openMaximized) {
+        if (options.openMaximized) {
             this.max()
         }
-
         // save new options
         options._last_focus = document.activeElement
         // keyboard events
         if (options.keyboard) query(document.body).on('keydown', this.keydown)
-
         // initialize move
         tmp = {
             resizing : false,
@@ -407,12 +400,12 @@ class Dialog extends w2event {
         }
         if (id) html = html.filter('#' + id)
         Object.assign(options, {
-            style: query(html).get(0).style.cssText,
             width: parseInt(query(html).css('width')),
             height: parseInt(query(html).css('height')),
             title: query(html).find('[rel=title]').html(),
             body: query(html).find('[rel=body]').html(),
             buttons: query(html).find('[rel=buttons]').html(),
+            style: query(html).find('[rel=body]').get(0).style.cssText,
         })
         return w2popup.open(options)
     }
@@ -479,7 +472,9 @@ class Dialog extends w2event {
             self.trigger(Object.assign(edata, { phase: 'after'}))
         }, this.options.speed * 1000)
         // remove keyboard events
-        if (this.options.keyboard) query(document.body).off('keydown', this.keydown)
+        if (this.options.keyboard) {
+            query(document.body).off('keydown', this.keydown)
+        }
     }
 
     toggle() {
@@ -671,7 +666,7 @@ function w2alert(msg, title, callBack) {
     let prom
     let options = {
         title: w2utils.lang(title ?? 'Notification'),
-        body: `<div class="w2ui-centered w2ui-alert-msg">${msg}</div>`,
+        body: `<div class="w2ui-centered w2ui-msg-text">${msg}</div>`,
         showClose: false,
         actions: ['Ok'],
         cancelAction: 'ok'
@@ -697,7 +692,7 @@ function w2confirm(msg, title, callBack) {
         options = { msg: options }
     }
     if (options.msg) {
-        options.body = `<div class="w2ui-centered w2ui-confirm-msg">${options.msg}</div>`,
+        options.body = `<div class="w2ui-centered w2ui-msg-text">${options.msg}</div>`,
         delete options.msg
     }
     w2utils.extend(options, {

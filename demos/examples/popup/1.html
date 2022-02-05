@@ -10,12 +10,12 @@
 </div>
 
 <!--CODE-->
-<button class="w2ui-btn" onclick="popup()">Simple popup</button>
+<button class="w2ui-btn" onclick="popup1()">Simple popup</button>
 <button class="w2ui-btn" onclick="popup2()">Popup with buttons and event listeners</button>
 
 <!--CODE-->
 <script>
-function popup() {
+function popup1() {
     w2popup.open({
         title: 'Popup Title',
         text: 'This is text inside the popup'
@@ -26,23 +26,33 @@ function popup2() {
     w2popup.open({
         title: 'Popup Title',
         text: 'This is text inside the popup',
-        actions: ['Close'],
+        actions: ['Ok', 'Cancel'],
         width: 500,
         height: 300,
-        overflow: 'hidden',
-        bgColor: '#777',
-        speed: '0.3',
         modal: true,
         showClose: true,
         showMax: true,
-        onMax(event) { console.log('max'); },
-        onMin(event) { console.log('min'); },
-        onKeydown(event) { console.log('keydown'); }
+        onMax(evt) {
+            console.log('max', evt)
+        },
+        onMin(evt) {
+            console.log('min', evt)
+        },
+        onKeydown(evt) {
+            console.log('keydown', evt)
+        }
     })
-    .then(() => {
-        console.log('popup opened')
+    .then((evt) => {
+        console.log('popup ready')
     })
-    .close(() => {
+    .close(evt => {
+        console.log('popup clsoed')
+    })
+    .ok((evt) => {
+        console.log('ok', evt)
+    })
+    .cancel((evt) => {
+        console.log('ok', evt)
         w2popup.close()
     })
 }

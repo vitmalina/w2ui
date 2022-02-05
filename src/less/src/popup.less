@@ -103,20 +103,17 @@
     .w2ui-popup-no-title {
         border-top-left-radius: 6px;
         border-top-right-radius: 6px;
-        top: 0px !important;
+        top: 0px;
     }
 
     .w2ui-popup-no-buttons {
         border-bottom-left-radius: 6px;
         border-bottom-right-radius: 6px;
-        bottom: 0px !important;
+        bottom: 0px;
     }
 
-    // w2alert and w2confirm
-
-    .w2ui-alert-msg,
-    .w2ui-confirm-msg {
-        font-size: 12px;
+    .w2ui-msg-text {
+        font-size: 14px;
         line-height: 1.5;
     }
 
@@ -140,5 +137,49 @@
             height: 50px;
             resize: none
         }
+    }
+}
+
+// slide down message - not just popup, but also grid, form, layout
+.w2ui-message {
+    font-size: 12px;
+    position: absolute;
+    z-index: 250;
+
+    background-color: #fcfcfc;
+    border: 1px solid #999;
+    box-shadow: 0px 0px 15px #aaa;
+    box-sizing: border-box;
+    border-top: 0px;
+    border-radius: 0px 0px 6px 6px;
+    overflow: auto;
+
+    .w2ui-msg-text {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .w2ui-message-body {
+        position: absolute;
+        top: 0px;
+        bottom: 45px;
+        left: 0px;
+        right: 0px;
+        overflow: auto;
+        & .w2ui-centered {
+            line-height: 1.5
+        }
+    }
+
+    .w2ui-message-buttons {
+        position: absolute;
+        height: 45px;
+        bottom: 0px;
+        left: 0px;
+        right: 0px;
+        border-top: 1px solid #efefef;
+        background-color: white;
+        text-align: center;
+        padding: 8px;
     }
 }
