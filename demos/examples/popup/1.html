@@ -18,31 +18,32 @@
 function popup() {
     w2popup.open({
         title: 'Popup Title',
-        body: '<div class="w2ui-centered">This is text inside the popup</div>'
+        text: 'This is text inside the popup'
     });
 }
 
 function popup2() {
     w2popup.open({
         title: 'Popup Title',
-        body: '<div class="w2ui-centered">This is text inside the popup</div>',
-        buttons: '<button class="w2ui-btn" onclick="w2popup.close();">Close</button> '+
-            '<button class="w2ui-btn" onclick="w2popup.lock(\'Loading\', true); '+
-            '        setTimeout(function () { w2popup.unlock(); }, 2000);">Lock</button>',
+        text: 'This is text inside the popup',
+        actions: ['Close'],
         width: 500,
         height: 300,
         overflow: 'hidden',
-        color: '#333',
+        bgColor: '#777',
         speed: '0.3',
-        opacity: '0.8',
         modal: true,
         showClose: true,
         showMax: true,
-        onOpen(event) { console.log('open'); },
-        onClose(event) { console.log('close'); },
         onMax(event) { console.log('max'); },
         onMin(event) { console.log('min'); },
         onKeydown(event) { console.log('keydown'); }
-    });
+    })
+    .then(() => {
+        console.log('popup opened')
+    })
+    .close(() => {
+        w2popup.close()
+    })
 }
 </script>

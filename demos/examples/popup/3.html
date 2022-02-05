@@ -13,10 +13,10 @@
 </div>
 
 <!--CODE-->
-<button class="w2ui-btn" onclick="w2popup.open({ title:'Popup', body: 'from JSON structure' })">From JSON</button>
+<button class="w2ui-btn" onclick="w2popup.open({ title:'Popup', text: 'from JSON structure' })">From JSON</button>
 <button class="w2ui-btn" onclick="$('#popup1').w2popup()">From HTML</button>
 <button class="w2ui-btn" onclick="w2popup.load({ url: 'data/popup1.html' })">From File</button>
-<button class="w2ui-btn" onclick="w2popup.load({ url: 'data/popup1.html', showMax: true })">From File with options</button>
+<button class="w2ui-btn" onclick="w2popup.load({ url: 'data/popup1.html', showMax: true, openMaximized: true })">From File with options</button>
 
 <div id="popup1" style="display: none; width: 600px; height: 400px; overflow: hidden">
     <div rel="title">

@@ -1,3 +1,11 @@
+/**
+* TODO:
+*  - remove default styling, only keep w2ui-* styles
+*  - split out font
+*  - split out global css (popup/tooltip) and component css (grid/form, etc)
+*  - there should be no !important
+*  - conservative variables (default font
+*/
 // ******************************************
 // ---- Default Theme ----
 
@@ -214,29 +222,7 @@
 @grid-footer-btn-hover-background-color: #AEC8FF;
 
 @import "src/grid.less";
-
-// ******************************************
-// ---- Popup ----
-
-@popup-border: 1px solid #777;
-@popup-shadow: 0px 0px 25px #555;
-@popup-title-border-bottom: 1px solid #eee;
-@popup-title-color: #555;
-@popup-title-linear-gradient-start: #fff;
-@popup-title-linear-gradient-end: #fff;
-@popup-title-button-border: 1px solid transparent;
-@popup-title-button-color: transparent;
-@popup-title-max-background-color: #ccc;
-@popup-title-max-border: 1px solid #aaa;
-@popup-title-close-background-color: #ccc;
-@popup-title-close-border: 1px solid #aaa;
-@popup-body-color: #000;
-@popup-body-background-color: #fafafa;
-@popup-buttons-border-top: 1px solid #eee;
-@popup-buttons-background-color: #fff;
-
 @import "src/popup.less";
-
 @import "src/sidebar.less";
 
 // ******************************************

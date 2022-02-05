@@ -129,8 +129,8 @@ function popupMessage() {
         },
         actions: {
             Message,
-            Close() {
-                this.close()
+            Close(event) {
+                w2popup.close()
             },
             More: {
                 text: "Some Test",
@@ -169,8 +169,8 @@ function Message() {
             Another() {
                 Message()
             },
-            Close() {
-                this.close()
+            Close(event) {
+                event.self.close()
             }
         }
     })
@@ -212,11 +212,41 @@ function myActions() {
 }
 
 function popup1() {
-    jQuery().w2popup({ url: 'popup-template.html', showMax: true })
+    jQuery().w2popup({ url: 'popup-template.html', showMax: true, focus: 0 })
+    return
+    w2prompt({ label: 'Input 1', value: '1s', attrs: 'style="border: 1px solid red"', textarea: true })
+        .then(evt => {
+                console.log('open')
+            })
+            .ok(evt => {
+                console.log('ok', evt.value)
+            })
+            .cancel(evt => {
+                console.log('cancel', evt.value)
+            })
+            .change(evt => {
+                // console.log('change', evt)
+            })
+    // return
+    setTimeout(() => {
+        w2prompt({ label: 'Input 2', value: '44', attrs: 'style="border: 1px solid red"', textarea: false })
+            .then(evt => {
+                console.log('open')
+            })
+            .ok(evt => {
+                console.log('ok', evt.value)
+            })
+            .cancel(evt => {
+                console.log('cancel', evt.value)
+            })
+            .change(evt => {
+                // console.log('change', evt)
+            })
+    }, 500)
 }
 
 function popup2() {
-    jQuery('#popup1').w2popup({ showMax: true })
+    jQuery('#popup1').w2popup({ showMax: true, focus: '.w2ui-btn' })
 }
 
 function popup3 () {

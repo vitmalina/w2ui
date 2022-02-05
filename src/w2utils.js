@@ -1,6 +1,6 @@
 /**
  * Part of w2ui 2.0 library
- *  - Dependencies: w2utils
+ *  - Dependencies: w2utils, w2event, query
  *
  * == TODO ==
  *  - overlay should be displayed where more space (on top or on bottom)

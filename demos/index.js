@@ -340,7 +340,7 @@ $(async function () {
                     nodes: [
                         { id: 'popup/7', text: 'Common Dialogs', icon: 'fa fa-list-alt' },
                         { id: 'popup/8', text: 'Context Dialogs', icon: 'fa fa-list-alt' },
-                        { id: 'popup/9', text: 'Better Event Flow', icon: 'fa fa-list-alt' },
+                        { id: 'popup/9', text: 'Better Events', icon: 'fa fa-list-alt' },
                     ]
                 },
                 { id: 'popup-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
