@@ -1,22 +1,22 @@
-/************************************************************************
-*   Part of w2ui 2.0 library
-*   - Dependencies: w2utils
-*
-* == TODO ==
-*   - overlay should be displayed where more space (on top or on bottom)
-*   - add maxHeight for the w2menu
-*   - add w2utils.lang wrap for all captions in all buttons.
-*   - message.options - should have actions
-*   - cssPrefix should be deprecated
-*
-* == 2.0 changes
-*   - CSP - fixed inline events
-*   - transition returns a promise
-*   - nearly removed jQuery (toolip has reference)
-*   - refactores w2utils.message()
-*   - added w2utils.confirm()
-*
-************************************************/
+/**
+ * Part of w2ui 2.0 library
+ *  - Dependencies: w2utils
+ *
+ * == TODO ==
+ *  - overlay should be displayed where more space (on top or on bottom)
+ *  - add maxHeight for the w2menu
+ *  - add w2utils.lang wrap for all captions in all buttons.
+ *  - message.options - should have actions
+ *  - cssPrefix should be deprecated
+ *
+ * == 2.0 changes
+ *  - CSP - fixed inline events
+ *  - transition returns a promise
+ *  - nearly removed jQuery (toolip has reference)
+ *  - refactores w2utils.message()
+ *  - added w2utils.confirm()
+ */
+
 import { w2event } from './w2event.js'
 import { w2locale } from './w2locale.js'
 import { query } from './query.js'
@@ -977,11 +977,44 @@ class Utils {
             options.msg = `<div class="w2ui-spinner" ${(!options.msg ? 'style="width: 35px; height: 35px"' : '')}></div>`
                 + options.msg
         }
+        if (options.msg) {
+            $mess.html(options.msg).css('display', 'block')
+        } else {
+            $mess.remove()
+        }
         if (options.opacity != null) {
             $lock.css('opacity', options.opacity)
         }
         $lock.css({ display: 'block' })
-        $mess.html(options.msg).css('display', 'block')
+        if (options.bgColor) {
+            $lock.css({ 'background-color': options.bgColor })
+        }
+        let opacity = $lock.css('opacity') || 0.3
+        $lock
+            .on('mousedown', function() {
+                if (typeof options.onClick == 'function') {
+                    options.onClick()
+                } else {
+                    $lock.css({
+                        'transition': '.2s',
+                        'opacity': opacity * 1.5
+                    })
+                }
+            })
+            .on('mouseup', function() {
+                if (typeof options.onClick !== 'function') {
+                    $lock.css({
+                        'transition': '.2s',
+                        'opacity': opacity
+                    })
+                }
+            })
+            .on('mousewheel', function(event) {
+                if (event) {
+                    event.stopPropagation()
+                    event.preventDefault()
+                }
+            })
     }
 
     unlock(box, speed) {
@@ -1053,7 +1086,6 @@ class Utils {
         if (options.width == null) options.width = 350
         if (options.height == null) options.height = 170
         if (options.hideOn == null) options.hideOn = ['esc']
-        if (options.focus == null) options.focus = 0
         // mix in events
         if (options.on == null) {
             let opts = options
@@ -1066,19 +1098,14 @@ class Utils {
                 .off('.message')
                 .on('keydown.message', function(evt) {
                     if (evt.keyCode == 27 && options.hideOn.includes('esc')) {
-                        options.close()
+                        if (options.cancelAction) {
+                            options.action(options.cancelAction)
+                        } else {
+                            options.close()
+                        }
                     }
                 })
-            let btn = query(event.box).find('button, input, textarea')
-            if (options.focus != null && btn.length > 0) {
-                if (!isNaN(options.focus)) {
-                    btn = btn.get(options.focus)
-                    if (btn) btn.focus()
-                } else {
-                    btn = query(event.box).find(options.focus).get(0)
-                    if (btn) btn.focus()
-                }
-            }
+            options.setFocus(options.focus)
         })
         let prom = {
             self: options,
@@ -1101,7 +1128,7 @@ class Utils {
                 return prom
             }
         }
-        if (options.actions == null && options.buttons == null) {
+        if (options.actions == null && options.buttons == null && options.html == null) {
             options.actions = { Ok(event) { event.self.close() }}
         }
         options.off('.buttons')
@@ -1115,7 +1142,7 @@ class Utils {
                 }
                 if (typeof handler == 'object') {
                     options.buttons += `<button class="w2ui-btn w2ui-eaction ${handler.class || ''}" data-click='["action","${action}","event"]'
-                        style="${handler.style}">${handler.text || action}</button>`
+                        style="${handler.style}" ${handler.attrs}>${handler.text || action}</button>`
                     btnAction = Array.isArray(options.actions) ? handler.text : action
                 }
                 if (typeof handler == 'string') {
@@ -1185,7 +1212,9 @@ class Utils {
                                 ? `data-click='["message", "${where.param}"]`
                                 : 'data-click="message"'
                             : ''}>
+                        <span name="hidden-first" tabindex="0" style="position: absolute; top: -100px"></span>
                         ${options.html}
+                        <span name="hidden-last" tabindex="0" style="position: absolute; top: -100px"></span>
                     </div>`)
             options.box = query(where.box).find(`#w2ui-message-${options.owner.name}-${options.msgIndex}`)[0]
             w2utils.bindEvents(options.box, this)
@@ -1224,7 +1253,8 @@ class Utils {
             let click = options.actions[action]
             if (click instanceof Object && click.onClick) click = click.onClick
             // event before
-            let edata = options.trigger({ phase: 'before', type: 'action', target: this.name, action, self: options, originalEvent: event })
+            let edata = options.trigger({ phase: 'before', type: 'action', target: this.name, action, self: options,
+                originalEvent: event, value: options.input ? options.input.value : null })
             if (edata.isCancelled === true) return
             // default actions
             if (typeof click === 'function') click(edata)
@@ -1253,6 +1283,47 @@ class Utils {
             }
             closeTimer = setTimeout(() => { closeComplete(options) }, 150)
         }
+        options.setFocus = (focus) => {
+            // in message or popup
+            let cnt = query(where.box).find('.w2ui-message').length - 1
+            let box = query(where.box).find(`#w2ui-message-${options.owner.name}-${cnt}`)
+            let sel = 'input, button, select, textarea, [contentEditable], .w2ui-input'
+            if (focus != null) {
+                let el = isNaN(focus)
+                    ? box.find(sel).filter(focus).get(0)
+                    : box.find(sel).get(focus)
+                el?.focus()
+            } else {
+                box.find('[name=hidden-first]').get(0)?.focus()
+            }
+
+            // clear focus if there are other messages
+            query(where.box)
+                .find('.w2ui-message')
+                .find(sel + ',[name=hidden-first],[name=hidden-last]')
+                .off('.keep-focus')
+
+            // keep focus/blur inside popup
+            query(box)
+                .find(sel + ',[name=hidden-first],[name=hidden-last]')
+                .on('blur.keep-focus', function (event) {
+                    setTimeout(() => {
+                        let focus = document.activeElement
+                        let inside = query(box).find(sel).filter(focus).length > 0
+                        let name = query(focus).attr('name')
+                        if (!inside && focus && focus !== document.body) {
+                            query(box).find(sel).get(0)?.focus()
+                        }
+                        if (name == 'hidden-last') {
+                            query(box).find(sel).get(0)?.focus()
+                        }
+                        if (name == 'hidden-first') {
+                            query(box).find(sel).get(-1)?.focus()
+                        }
+                    }, 1)
+                })
+        }
+
         return prom
 
         function removeLast() {
@@ -1266,7 +1337,7 @@ class Utils {
 
         function closeComplete(options) {
             let focus = query(options.box).data('prev_focus')
-            if (options.msgIndex === 0) {
+            if ($(where.box).find('.w2ui-message').length <= 1) {
                 if (options.owner.unlock) {
                     if (where.param) {
                         options.owner.unlock(where.param, 150)
@@ -1279,7 +1350,13 @@ class Utils {
             }
             query(options.box).remove()
             if (focus) {
-                focus.focus()
+                let msg = query(focus).closest('.w2ui-message')
+                if (msg.length > 0) {
+                    let opt = msg.data('options')
+                    opt.setFocus(focus)
+                } else {
+                    focus.focus()
+                }
             } else {
                 if (options.owner && typeof options.owner.focus == 'function') owner.focus()
             }
@@ -1314,11 +1391,12 @@ class Utils {
                 btn[name] = {
                     text: w2utils.lang(action.text ?? ''),
                     class: action.class ?? '',
-                    style: action.style ?? ''
+                    style: action.style ?? '',
+                    attrs: action.attrs ?? ''
                 }
                 delete options['btn_' + name]
             }
-            Array('text', 'class', 'style').forEach(suffix => {
+            Array('text', 'class', 'style', 'attrs').forEach(suffix => {
                 if (options[name + '_' + suffix]) {
                     if (typeof btn[name] == 'string') {
                         btn[name] = { text: btn[name] }
