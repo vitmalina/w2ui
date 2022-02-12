@@ -1,12 +1,5 @@
-/**
- * Small library to replace basic functionality of jQuery
- * methods that start with "_" are internal
- *
- * TODO:
- *  - .data(name, 1) => el.dataset.name
- */
-
- class Query {
+/* mQuery 0.4 (nightly) (2/12/2022, 7:03:02 AM), vitmalina@gmail.com */
+class Query {
     constructor(selector, context, previous) {
         this.version = 0.4
         this.context = context ?? document
@@ -39,17 +32,14 @@
             this[ind] = node
         })
     }
-
     static _isEl(node) {
         return (node instanceof DocumentFragment || node instanceof HTMLElement || node instanceof Text)
     }
-
     static _fragment(html) {
         let tmpl = document.createElement('template')
         tmpl.innerHTML = html
         return tmpl.content
     }
-
     _insert(method, html) {
         let nodes = []
         let len  = this.length
@@ -80,7 +70,17 @@
         }
         return self
     }
-
+    _save(node, name, value) {
+        node._mQuery = node._mQuery ?? {}
+        if (Array.isArray(value)) {
+            node._mQuery[name] = node._mQuery[name] ?? []
+            node._mQuery[name].push(...value)
+        } if (value == null) {
+            delete node._mQuery[name];
+        } else {
+            node._mQuery[name] = value
+        }
+    }
     get(index) {
         if (index < 0) index = this.length + index
         let node = this[index]
@@ -89,14 +89,12 @@
         }
         return this.nodes
     }
-
     eq(index) {
         if (index < 0) index = this.length + index
         let nodes = [this[index]]
         if (nodes[0] == null) nodes = []
         return new Query(nodes, this.context, this) // must return a new collection
     }
-
     find(selector) {
         let nodes = []
         this.each(node => {
@@ -107,7 +105,6 @@
         })
         return new Query(nodes, this.context, this) // must return a new collection
     }
-
     filter(selector) {
         let nodes = []
         this.each(node => {
@@ -120,7 +117,6 @@
         })
         return new Query(nodes, this.context, this) // must return a new collection
     }
-
     shadow(selector) {
         let nodes = []
         this.each(node => {
@@ -130,7 +126,6 @@
         let col = new Query(nodes, this.context, this)
         return selector ? col.find(selector) : col
     }
-
     closest(selector) {
         let nodes = []
         this.each(node => {
@@ -141,7 +136,6 @@
         })
         return new Query(nodes, this.context, this) // must return a new collection
     }
-
     host(all) {
         let nodes = []
         // find shadow root or body
@@ -162,38 +156,30 @@
         })
         return new Query(nodes, this.context, this) // must return a new collection
     }
-
     each(func) {
         this.nodes.forEach((node, ind) => { func(node, ind, this) })
         return this
     }
-
     append(html) {
         return this._insert('append', html)
     }
-
     prepend(html) {
         return this._insert('prepend', html)
     }
-
     after(html) {
         return this._insert('after', html)
     }
-
     before(html) {
         return this._insert('before', html)
     }
-
     replace(html) {
         return this._insert('replaceWith', html)
     }
-
     remove() {
         // remove from dom, but keep in current query
         this.each(node => { node.remove() })
         return this
     }
-
     css(key, value) {
         let css = key
         let len = arguments.length
@@ -228,17 +214,14 @@
             return this
         }
     }
-
     addClass(classes) {
         this.toggleClass(classes, true)
         return this
     }
-
     removeClass(classes) {
         this.toggleClass(classes, false)
         return this
     }
-
     toggleClass(classes, force) {
         // split by comma or space
         if (typeof classes == 'string') classes = classes.split(/[ ,]+/)
@@ -256,7 +239,6 @@
         })
         return this
     }
-
     hasClass(classes) {
         // split by comma or space
         if (typeof classes == 'string') classes = classes.split(/[ ,]+/)
@@ -271,22 +253,28 @@
         })
         return ret
     }
-
     on(eventScope, options, callback) {
         let [ event, scope ] = String(eventScope).toLowerCase().split('.')
         if (typeof options == 'function') {
             callback = options
             options = undefined
         }
+        if (options?.delegate) {
+            let fun = callback
+            let delegate = options.delegate
+            callback = function (event) {
+                if (event.target.matches(delegate)) {
+                    fun(event)
+                }
+            }
+            delete options.delegate
+        }
         this.each(node => {
-            node._mQuery = node._mQuery ?? {}
-            node._mQuery.events = node._mQuery.events ?? []
-            node._mQuery.events.push({ event, scope, callback, options })
+            this._save(node, 'events', [{ event, scope, callback, options }])
             node.addEventListener(event, callback, options)
         })
         return this
     }
-
     off(eventScope, options, callback) {
         let [ event, scope ] = String(eventScope).toLowerCase().split('.')
         if (typeof options == 'function') {
@@ -294,7 +282,7 @@
             options = undefined
         }
         this.each(node => {
-            if (node._mQuery && Array.isArray(node._mQuery.events)) {
+            if (Array.isArray(node._mQuery?.events)) {
                 for (let i = node._mQuery.events.length - 1; i >= 0; i--) {
                     let evt = node._mQuery.events[i]
                     if (scope == null || scope === '') {
@@ -314,7 +302,6 @@
         })
         return this
     }
-
     trigger(name, options) {
         let event,
             mevent = ['click', 'dblclick', 'mousedown', 'mouseup', 'mousemove'],
@@ -332,7 +319,6 @@
         this.each(node => { node.dispatchEvent(event) })
         return this
     }
-
     attr(name, value) {
         if (value === undefined && typeof name == 'string') {
             return this[0] ? this[0].getAttribute(name) : undefined
@@ -345,7 +331,6 @@
             return this
         }
     }
-
     removeAttr() {
         this.each(node => {
             Array.from(arguments).forEach(attr => {
@@ -354,7 +339,6 @@
         })
         return this
     }
-
     prop(name, value) {
         if (value === undefined && typeof name == 'string') {
             return this[0] ? this[0][name] : undefined
@@ -367,29 +351,19 @@
             return this
         }
     }
-
     removeProp() {
         this.each(node => {
             Array.from(arguments).forEach(prop => { delete node[prop] })
         })
         return this
     }
-
     data(key, value) {
         if (arguments.length < 2) {
             if (this[0]) {
-                let data = this[0]._mQuery?.data ?? {}
-                // also pick all atributes that start with data-*
-                Array.from(this[0].attributes).forEach(attr => {
-                    if (attr.name.substr(0, 5) == 'data-') {
-                        let val = attr.value
-                        let nm  = attr.name.substr(5)
-                        // if it is JSON - parse it
-                        if (['[', '{'].includes(String(val).substr(0, 1))) {
-                            try { val = JSON.parse(val) } catch(e) { val = attr.value }
-                        }
-                        // attributes have lower priority than set with data()
-                        if (data[nm] === undefined) data[nm] = val
+                let data = Object.assign({}, this[0].dataset)
+                Object.keys(data).forEach(key => {
+                    if (data[key].startsWith('[') || data[key].startsWith('{')) {
+                        try { data[key] = JSON.parse(data[key]) } catch(e) {}
                     }
                 })
                 return key ? data[key] : data
@@ -398,76 +372,67 @@
             }
         } else {
             this.each(node => {
-                node._mQuery = node._mQuery ?? {}
-                node._mQuery.data = node._mQuery.data ?? {}
                 if (value != null) {
-                    node._mQuery.data[key] = value
+                    node.dataset[key] = value instanceof Object ? JSON.stringify(value) : value
                 } else {
-                    delete node._mQuery.data[key]
+                    delete node.dataset[key]
                 }
             })
             return this
         }
     }
-
     removeData(key) {
         this.each(node => {
-            node._mQuery = node._mQuery ?? {}
-            if (arguments.length == 0) {
-                node._mQuery.data = {}
-            } else if (key != null && node._mQuery.data) {
-                delete node._mQuery.data[key]
-            } else {
-                node._mQuery.data = {}
-            }
+            delete node.dataset[key]
         })
         return this
     }
-
+    show() {
+        return this.toggle(true)
+    }
+    hide() {
+        return this.toggle(false)
+    }
+    toggle(force) {
+        return this.each(node => {
+            let dsp = node.style.display
+            if ((dsp == 'none' && force == null) || force === true) { // show
+                node.style.display = node._mQuery?.prevDisplay ?? ''
+                this._save(node, 'prevDisplay', null)
+            } else { // hide
+                if (dsp != 'none') this._save(node, 'prevDisplay', dsp)
+                node.style.display = 'none'
+            }
+        })
+    }
     empty() {
         return this.html('')
     }
-
     html(html) {
         return this.prop('innerHTML', html)
     }
-
     text(text) {
         return this.prop('textContent', text)
     }
-
     val(value) {
         return this.attr('value', value)
     }
-
-    show() {
-        return this.css('display', 'inherit')
-    }
-
-    hide() {
-        return this.css('display', 'none')
-    }
-
-    toggle() {
-        let dsp = this.css('display')
-        return this.css('display', dsp == 'none' ? 'inherit' : 'none')
-    }
-
     change() {
         return this.trigger('change')
     }
-
     click() {
         return this.trigger('click')
     }
 }
 // create a new object each time
 let query = function (selector, context) {
-    return new Query(selector, context)
+    // if a function, use as onload event
+    if (typeof selector == 'function') {
+        window.addEventListener('load', selector)
+    } else {
+        return new Query(selector, context)
+    }
 }
 // allows to create document fragments
 query.html = (str) => { return Query._fragment(str) }
-let $ = query
-
-export default $
-export { $, query, Query }
+export { query as $, query as default, query, Query }
