@@ -1,6 +1,6 @@
 /**
  * Part of w2ui 2.0 library
- *  - Dependencies: w2utils, w2event, query
+ *  - Dependencies: w2utils, w2base, query
  *
  * == TODO ==
  *  - overlay should be displayed where more space (on top or on bottom)
@@ -17,7 +17,7 @@
  *  - added w2utils.confirm()
  */
 
-import { w2event } from './w2event.js'
+import { w2base } from './w2base.js'
 import { w2locale } from './w2locale.js'
 import { query } from './query.js'
 
@@ -1089,7 +1089,7 @@ class Utils {
         // mix in events
         if (options.on == null) {
             let opts = options
-            options = new w2event()
+            options = new w2base()
             w2utils.extend(options, opts) // needs to be w2utils
         }
         options.on('open', (event) => {

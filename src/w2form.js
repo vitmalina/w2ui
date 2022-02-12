@@ -18,12 +18,12 @@
 *
 ************************************************************************/
 
-import { w2event } from './w2event.js'
+import { w2base } from './w2base.js'
 import { w2ui, w2utils } from './w2utils.js'
 import { w2tabs } from './w2tabs.js'
 import { w2toolbar } from './w2toolbar.js'
 
-class w2form extends w2event {
+class w2form extends w2base {
     constructor(options) {
         super(options.name)
         this.name         = null

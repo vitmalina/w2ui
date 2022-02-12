@@ -89,7 +89,7 @@ $(async function () {
                             sessionStorage.w2ui_demo_locale = w2utils_locale
                             location.reload() // reloading the page makes things so much easier than refreshing all the w2ui objects
                             // Object.values(w2ui).forEach(obj => {
-                            //     if(obj instanceof w2event && !(obj instanceof w2layout)) {
+                            //     if(obj instanceof w2base && !(obj instanceof w2layout)) {
                             //         obj.refresh()
                             //     }
                             // })

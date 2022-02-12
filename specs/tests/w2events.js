@@ -1,35 +1,35 @@
 // **********************************
 // -- Unit Tests: w2utils
 
-import { w2event } from '../../src/w2event.js'
+import { w2base } from '../../src/w2base.js'
 
-QUnit.module('w2events', (mod) => {
-    let event = new w2event()
+QUnit.module('w2bases', (mod) => {
+    let base = new w2base()
 
     mod.beforeEach(() => {
         // Add various evenst
-        event.on('custom', () => { })
-        event.on('custom.scoped', () => { })
-        event.on('custom:after', () => { })
-        event.on('custom:before', () => { })
-        event.on('custom:after.scoped', () => { })
-        event.on('custom:before.scoped', () => { })
-        event.on('*.scoped', () => { })
-        event.on('*:after.scoped', () => { })
-        event.on('*:before.scoped', () => { })
-        event.on('custom.scope1', () => { })
-        event.on('custom.scope2', () => { })
-        event.on('custom:after.scope2', () => { })
-        event.on('custom:before.scope2', () => { })
+        base.on('custom', () => { })
+        base.on('custom.scoped', () => { })
+        base.on('custom:after', () => { })
+        base.on('custom:before', () => { })
+        base.on('custom:after.scoped', () => { })
+        base.on('custom:before.scoped', () => { })
+        base.on('*.scoped', () => { })
+        base.on('*:after.scoped', () => { })
+        base.on('*:before.scoped', () => { })
+        base.on('custom.scope1', () => { })
+        base.on('custom.scope2', () => { })
+        base.on('custom:after.scope2', () => { })
+        base.on('custom:before.scope2', () => { })
     })
 
     mod.afterEach(() => {
-        event.off('*')
+        base.off('*')
     })
 
     QUnit.test("Add events then remove all", (assert) => {
-        assert.equal(event.handlers.length, 13, 'Events added')
-        let cloned = w2utils.clone(event.handlers).map(h => { return { edata: h.edata, name: h.name }})
+        assert.equal(base.handlers.length, 13, 'Events added')
+        let cloned = w2utils.clone(base.handlers).map(h => { return { edata: h.edata, name: h.name }})
         assert.deepEqual(cloned, [
             {
               "edata": {
@@ -149,43 +149,43 @@ QUnit.module('w2events', (mod) => {
               "name": "custom:before.scope2"
             }
         ], 'Events processed properly')
-        event.off('*')
-        assert.equal(event.handlers.length, 0, 'Remove all')
+        w2base.off('*')
+        assert.equal(w2base.handlers.length, 0, 'Remove all')
     });
 
     QUnit.test("Add events then .off('.scoped2')", (assert) => {
-        event.off('.scope2')
-        assert.equal(event.handlers.length, 10, 'Remove some')
+        w2base.off('.scope2')
+        assert.equal(w2base.handlers.length, 10, 'Remove some')
     })
 
     QUnit.test("Add events then .off('custom')", (assert) => {
-        event.off('custom')
-        assert.equal(event.handlers.length, 3, 'Remove some')
+        w2base.off('custom')
+        assert.equal(w2base.handlers.length, 3, 'Remove some')
     })
 
     QUnit.test("Add events then .off('custom:after')", (assert) => {
-        event.off('custom:after')
-        assert.equal(event.handlers.length, 10, 'Remove some')
+        w2base.off('custom:after')
+        assert.equal(w2base.handlers.length, 10, 'Remove some')
     })
 
     QUnit.test("Add events then .off('.scope1')", (assert) => {
-        event.off('.scope1')
-        assert.equal(event.handlers.length, 12, 'Remove some')
+        w2base.off('.scope1')
+        assert.equal(w2base.handlers.length, 12, 'Remove some')
     })
 
     QUnit.test("Add events then .off('*:after.scoped')", (assert) => {
-        event.off('*:after.scoped')
-        assert.equal(event.handlers.length, 11, 'Remove some')
+        w2base.off('*:after.scoped')
+        assert.equal(w2base.handlers.length, 11, 'Remove some')
     })
 
     QUnit.test("Add events then .off('*:before.scoped')", (assert) => {
-        event.off('*:before.scoped')
-        assert.equal(event.handlers.length, 9, 'Remove some')
+        w2base.off('*:before.scoped')
+        assert.equal(w2base.handlers.length, 9, 'Remove some')
     })
 
     QUnit.test("Add events then .off('custom:before')", (assert) => {
-        event.off('custom:before')
-        assert.equal(event.handlers.length, 6, 'Remove some')
+        w2base.off('custom:before')
+        assert.equal(w2base.handlers.length, 6, 'Remove some')
     })
 
 })

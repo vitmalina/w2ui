@@ -7,7 +7,7 @@
 ************************************************************************/
 
 import { w2locale } from './w2locale.js'
-import { w2event } from './w2event.js'
+import { w2base } from './w2base.js'
 import { w2ui, w2utils } from './w2utils.js'
 import { w2popup, w2alert, w2confirm, w2prompt } from './w2popup.js'
 import { w2field, addType, removeType } from './w2field.js'
@@ -29,7 +29,7 @@ import { w2toolbar } from './w2toolbar.js'
             Object.keys(obj).forEach(key => {
                 win[key] = obj[key]
             })
-        })(window, { w2ui, w2locale, w2event, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
+        })(window, { w2ui, w2locale, w2base, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
             w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType })
     }
     // if url has globals at the end, then register globals
@@ -1716,5 +1716,5 @@ import { w2toolbar } from './w2toolbar.js'
 
 })(jQuery)
 
-export { w2ui, w2locale, w2event, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
+export { w2ui, w2locale, w2base, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
     w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType }

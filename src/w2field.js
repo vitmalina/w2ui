@@ -32,7 +32,7 @@
 *
 ************************************************************************/
 
-import { w2event } from './w2event.js'
+import { w2base } from './w2base.js'
 import { w2ui, w2utils } from './w2utils.js'
 
 let custom = {}
@@ -73,7 +73,7 @@ addType('myType', (options) => {
 })
 */
 
-class w2field extends w2event {
+class w2field extends w2base {
     constructor(type, options) {
         super()
         // sanitization

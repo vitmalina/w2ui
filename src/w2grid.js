@@ -73,11 +73,11 @@
 *
 ************************************************************************/
 
-import { w2event } from './w2event.js'
+import { w2base } from './w2base.js'
 import { w2ui, w2utils } from './w2utils.js'
 import { w2toolbar } from './w2toolbar.js'
 
-class w2grid extends w2event {
+class w2grid extends w2base {
     constructor(options) {
         super(options.name)
         this.name         = null

@@ -1,6 +1,6 @@
 /**
  * Part of w2ui 2.0 library
- *  - Dependencies: w2utils, w2event, query
+ *  - Dependencies: w2utils, w2base, query
  *
  * == 2.0 changes
  *  - CSP - fixed inline events
@@ -17,11 +17,11 @@
  *  - rename focus -> setFocus
  */
 
-import { w2event } from './w2event.js'
+import { w2base } from './w2base.js'
 import { w2utils } from './w2utils.js'
 import { query } from './query.js'
 
-class Dialog extends w2event {
+class Dialog extends w2base {
     constructor() {
         super()
         this.defaults   = {

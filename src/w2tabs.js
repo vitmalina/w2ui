@@ -8,10 +8,10 @@
 *
 ************************************************************************/
 
-import { w2event } from './w2event.js'
+import { w2base } from './w2base.js'
 import { w2ui, w2utils } from './w2utils.js'
 
-class w2tabs extends w2event {
+class w2tabs extends w2base {
     constructor(options) {
         super(options.name)
         this.box          = null // DOM Element that holds the element

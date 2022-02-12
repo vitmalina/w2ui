@@ -1,13 +1,19 @@
-/************************************************************************
-*   Part of w2ui 2.0 library
-*   - Dependencies: jQuery w2utils
-*   - there is a doc file ../details/w2event.html
-*   - on/off/trigger methods id not showing in help
-**/
+/**
+ * Part of w2ui 2.0 library
+ *  - Dependencies: w2utils
+ *  - there is a doc file ../details/w2base.html
+ *  - on/off/trigger methods id not showing in help
+ */
 
 import { w2ui, w2utils } from './w2utils.js'
 
-class w2event {
+class w2base {
+    /**
+     * Initializes base object for w2ui, registers it with w2ui object
+     *
+     * @param {string} name  - name of the object
+     * @returns
+     */
     constructor(name) {
         this.handlers = []
         // register globally
@@ -73,9 +79,9 @@ class w2event {
     }
 
     /**
-     * Triggers an even handlers from his.handlers
+     * Triggers even handlers for a specific event, loops through this.handlers
      *
-     * @param {*} edata
+     * @param {Object} edata - Object
      * @returns modified edata
      */
     trigger(edata) {
@@ -151,4 +157,4 @@ class w2event {
         return edata
     }
 }
-export { w2event }
+export { w2base }

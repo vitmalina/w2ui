@@ -1,16 +1,16 @@
 /**
  * Part of w2ui 2.0 library
- * - Dependencies: w2utils, w2event mQuery
+ * - Dependencies: w2utils, w2base mQuery
  *
  * TODO
  * - multiple tooltips to the same anchor
  */
 
-import { w2event } from './w2event.js'
+import { w2base } from './w2base.js'
 import { query } from './query.js'
 import { w2utils } from './w2utils.js'
 
-class Popper extends w2event {
+class Popper extends w2base {
     constructor() {
         // TODO: what events are used for?
         super()

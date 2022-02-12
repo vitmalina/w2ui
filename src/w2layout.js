@@ -9,14 +9,14 @@
 *
 ************************************************************************/
 
-import { w2event } from './w2event.js'
+import { w2base } from './w2base.js'
 import { w2ui, w2utils } from './w2utils.js'
 import { w2tabs } from './w2tabs.js'
 import { w2toolbar } from './w2toolbar.js'
 
 let w2panels = ['top', 'left', 'main', 'preview', 'right', 'bottom']
 
-class w2layout extends w2event {
+class w2layout extends w2base {
     constructor(options) {
         super(options.name)
         this.box            = null // DOM Element that holds the element

@@ -32,11 +32,11 @@ if (global) {
         global[key] = w2ui[key]
     })
 }
-})(self, { w2ui, w2locale, w2event, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
+})(self, { w2ui, w2locale, w2base, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
     w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType })`
 
 const files_js = [
-    'src/w2event.js', // order of files is important
+    'src/w2base.js', // order of files is important
     'src/w2locale.js',
     'src/w2utils.js',
     'src/w2grid.js',
@@ -89,7 +89,7 @@ let tasks = {
             .pipe(replace(/^(import.*'|export.*}|module\.exports.*})$\n/gm, ''))
             .pipe(replace('import.meta.url', 'undefined'))
             .pipe(replace('\n\n', '\n'))
-            .pipe(replace(`export { w2ui, w2locale, w2event, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
+            .pipe(replace(`export { w2ui, w2locale, w2base, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
     w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType }`, legacy_code))
             .pipe(header(comments.w2ui))
             .pipe(gulp.dest('dist/'))
@@ -116,7 +116,7 @@ let tasks = {
             .pipe(replace(/^(import.*'|export.*}|module\.exports.*})$\n/gm, ''))
             .pipe(replace('import.meta.url', 'undefined'))
             .pipe(replace('\n\n', '\n'))
-            .pipe(replace(`export { w2ui, w2locale, w2event, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
+            .pipe(replace(`export { w2ui, w2locale, w2base, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
     w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType }`, legacy_code))
             .pipe(header(comments.w2ui))
             .pipe(gulp.dest('dist/'))
