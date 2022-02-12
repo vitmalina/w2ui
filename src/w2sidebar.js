@@ -1,18 +1,17 @@
-/************************************************************************
-*   Part of w2ui 2.0 library
-*   - Dependencies: jQuery, w2utils
-*
-* == TODO ==
-*   - dbl click should be like it is in grid (with timer not HTML dbl click event)
-*   - node.style is misleading - should be there to apply color for example
-*   - node.plus - is not working
-*
-* == 2.0 changes
-*   - deprecarted obj.img, node.img
-*   - CSP - fixed inline events
-*   - resizeObserver for the box
-*
-************************************************************************/
+/**
+ * Part of w2ui 2.0 library
+ *  - Dependencies: jQuery, w2utils, w2base
+ *
+ * == TODO ==
+ *  - dbl click should be like it is in grid (with timer not HTML dbl click event)
+ *  - node.style is misleading - should be there to apply color for example
+ *  - node.plus - is not working
+ *
+ * == 2.0 changes
+ *  - deprecarted obj.img, node.img
+ *  - CSP - fixed inline events
+ *  - resizeObserver for the box
+ */
 
 import { w2base } from './w2base.js'
 import { w2ui, w2utils } from './w2utils.js'

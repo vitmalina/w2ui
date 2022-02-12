@@ -1,6 +1,6 @@
 /**
  * Part of w2ui 2.0 library
- *  - Dependencies: w2utils, w2base, query
+ *  - Dependencies: mQuery, w2utils, w2base
  *
  * == 2.0 changes
  *  - CSP - fixed inline events

@@ -1,6 +1,6 @@
 /**
  * Part of w2ui 2.0 library
- * - Dependencies: w2utils, w2base mQuery
+ * - Dependencies: mQuery, w2utils, w2base
  *
  * TODO
  * - multiple tooltips to the same anchor

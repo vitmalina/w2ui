@@ -1,16 +1,16 @@
-/************************************************************************
-*   Part of w2ui 2.0 library
-*   - Dependencies: jQuery, w2utils
-*
-* == TODO ==
-*   - tab navigation (index state)
-*   - vertical toolbar
-*
-* == 2.0 changes
-*   - CSP - fixed inline events
-*   - item.icon - can be class or <custom-icon-component> or <svg>
-*
-************************************************************************/
+/**
+ * Part of w2ui 2.0 library
+ *  - Dependencies: jQuery, w2utils, w2base
+ *
+ * == TODO ==
+ *  - tab navigation (index state)
+ *  - vertical toolbar
+ *
+ * == 2.0 changes
+ *  - CSP - fixed inline events
+ *  - item.icon - can be class or <custom-icon-component> or <svg>
+ */
+
 import { w2base } from './w2base.js'
 import { w2ui, w2utils } from './w2utils.js'
 

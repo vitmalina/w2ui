@@ -1,36 +1,35 @@
-/************************************************************************
-*   Part of w2ui 2.0 library
-*   - Dependencies: jQuery, w2utils
-*
-* == TODO ==
-*   - upload (regular files)
-*   - BUG with prefix/postfix and arrows (test in different contexts)
-*   - multiple date selection
-*   - month selection, year selections
-*   - arrows no longer work (for int)
-*   - form to support custom types
-*   - rewrite suffix and prefix positioning with translateY()
-*   - prefix and suffix are slow (100ms or so)
-*   - MultiSelect - Allow Copy/Paste for single and multi values
-*   - add routeData to list/enum
-*   - for type: list -> read value from attr('value')
-*   - ENUM, LIST: should have same as grid (limit, offset, search, sort)
-*   - ENUM, LIST: should support wild chars
-*   - add selection of predefined times (used for appointments)
-*   - options.items - can be an array
-*   - options.msgSearch - message to search for user
-*   - options.msgNoItems - can be a function
-*   - normmenu - remove, it is in w2utils now
-*
-* == 2.0 changes
-*   - enum options.autoAdd
-*   - [numeric, date] - options.autoCorrect to enforce range and validity
-*   - silent only left for files, removed form the rest
-*   - remote source response items => records or just an array
-*   - deprecated "success" field for remote source response
-*   - CSP - fixed inline events
-*
-************************************************************************/
+/**
+ * Part of w2ui 2.0 library
+ *  - Dependencies: jQuery, w2utils, w2base
+ *
+ * == TODO ==
+ *  - upload (regular files)
+ *  - BUG with prefix/postfix and arrows (test in different contexts)
+ *  - multiple date selection
+ *  - month selection, year selections
+ *  - arrows no longer work (for int)
+ *  - form to support custom types
+ *  - rewrite suffix and prefix positioning with translateY()
+ *  - prefix and suffix are slow (100ms or so)
+ *  - MultiSelect - Allow Copy/Paste for single and multi values
+ *  - add routeData to list/enum
+ *  - for type: list -> read value from attr('value')
+ *  - ENUM, LIST: should have same as grid (limit, offset, search, sort)
+ *  - ENUM, LIST: should support wild chars
+ *  - add selection of predefined times (used for appointments)
+ *  - options.items - can be an array
+ *  - options.msgSearch - message to search for user
+ *  - options.msgNoItems - can be a function
+ *  - normmenu - remove, it is in w2utils now
+ *
+ * == 2.0 changes
+ *  - enum options.autoAdd
+ *  - [numeric, date] - options.autoCorrect to enforce range and validity
+ *  - silent only left for files, removed form the rest
+ *  - remote source response items => records or just an array
+ *  - deprecated "success" field for remote source response
+ *  - CSP - fixed inline events
+ */
 
 import { w2base } from './w2base.js'
 import { w2ui, w2utils } from './w2utils.js'

@@ -1,12 +1,11 @@
-/************************************************************************
-*   Part of w2ui 2.0 library
-*   - Dependencies: jQuery, w2utils
-*
-* == 2.0 changes
-*   - CSP - fixed inline events
-*   - resizeObserver for the box
-*
-************************************************************************/
+/**
+ * Part of w2ui 2.0 library
+ *  - Dependencies: jQuery, w2utils, w2base
+ *
+ * == 2.0 changes
+ *  - CSP - fixed inline events
+ *  - resizeObserver for the box
+ */
 
 import { w2base } from './w2base.js'
 import { w2ui, w2utils } from './w2utils.js'

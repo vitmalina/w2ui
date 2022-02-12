@@ -1,22 +1,21 @@
-/************************************************************************
-*   Part of w2ui 2.0 library
-*   - Dependencies: jQuery, w2utils, w2toolbar, w2tabs
-*
-* == TODO ==
-*   - include delta on save
-*   - two way data bindings
-*   - tabs below some fields (could already be implemented)
-*   - form with toolbar & tabs
-*   - promise for load, save, etc.
-*
-* == 2.0 changes
-*   - CSP - fixed inline events
-*   - better groups support tabs now
-*   - form.confirm - refactored
-*   - form.message - refactored
-*   - resizeObserver for the box
-*
-************************************************************************/
+/**
+ * Part of w2ui 2.0 library
+ *  - Dependencies: jQuery, w2utils, w2base, w2tabs, w2toolbar
+ *
+ * == TODO ==
+ *  - include delta on save
+ *  - two way data bindings
+ *  - tabs below some fields (could already be implemented)
+ *  - form with toolbar & tabs
+ *  - promise for load, save, etc.
+ *
+ * == 2.0 changes
+ *  - CSP - fixed inline events
+ *  - better groups support tabs now
+ *  - form.confirm - refactored
+ *  - form.message - refactored
+ *  - resizeObserver for the box
+ */
 
 import { w2base } from './w2base.js'
 import { w2ui, w2utils } from './w2utils.js'

@@ -1,13 +1,13 @@
-/************************************************************************
-*   Part of w2ui 2.0 library
-*   - Dependencies: jQuery, w2utils, w2toolbar, w2tabs
-*
-* == 2.0 changes
-*   - CSP - fixed inline events
-*   - layout.confirm - refactored
-*   - layout.message - refactored
-*
-************************************************************************/
+/**
+ * Part of w2ui 2.0 library
+ *  - Dependencies: jQuery, w2utils, w2base, w2tabs, w2toolbar
+ *
+ * == 2.0 changes
+ *  - CSP - fixed inline events
+ *  - layout.confirm - refactored
+ *  - layout.message - refactored
+ *
+ */
 
 import { w2base } from './w2base.js'
 import { w2ui, w2utils } from './w2utils.js'

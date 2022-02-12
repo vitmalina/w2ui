@@ -1,77 +1,76 @@
-/************************************************************************
-*   Part of w2ui 2.0 library
-*   - Dependencies: jQuery, w2utils, w2toolbar, w2field
-*
-* == TODO ==
-*   - w2ui-overlay to work with web components
-*   - column autosize based on largest content
-*   - problem with .set() and arrays, array get extended too, but should be replaced
-*   - after edit stay on the same record option
-*   - if supplied array of ids, get should return array of records
-*   - allow functions in routeData (also add routeData to list/enum)
-*   - send parsed URL to the event if there is routeData
-*   - if you set searchData or sortData and call refresh() it should work
-*   - add selectType: 'none' so that no selection can be make but with mouse
-*   - focus/blur for selectType = cell not display grayed out selection
-*   - frozen columns
-        - scrolling on frozen columns is not working only on regular columns
-*   - copy or large number of records is slow
-*   - reusable search component (see https://github.com/vitmalina/w2ui/issues/914#issuecomment-107340524)
-*   - allow enum in inline edit (see https://github.com/vitmalina/w2ui/issues/911#issuecomment-107341193)
-*   - if record has no recid, then it should be index in the array (should not be 0)
-*   - remote source, but localSort/localSearch
-*   - right click on columns
-*   - reload a single records (useful when need to update deep in buffered records)
-*   - need to update PHP example
-*   - return structure status -> replace with success
-*   - msg* - should be in prototype
-*   - search fields not finised
-*   - row reorder not finished
-*   - expendable grids are still working
-*   - moved a lot of properties into prototype
-*   - promise for request, load, save, etc.
-*   - remote date local sort/search
-*   - colDefaults -> col_template as in tabs, toolbar, etc
-*   - prepareData needs help page
-*   - separate columnRefresh, recordsRefresh, fullRefresh
-*   - onloadmore event (so it will be easy to implement remote data source with local sort)
-*   - avoid inline events, but allow w2ui-eaction
-*   - status() - clears on next select, etc. Should not if it is off
-*   - edit demo grid/21 - if you hit add record too fast, it breaks
-*
-* == DEMOS To create ==
-*   - batch for disabled buttons
-*   - naturla sort
-*   - resize on max content
-*   - context message
-*   - clipboard copy
-*   - save searches, custom searches
-*
-* == KNOWN ISSUES ==
-*   - reorder records with school - not correct
-*   - reorder columns not working
-*   - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
-*   - Shift-click/Ctrl-click/Ctrl-Shift-Click selection is not as robust as it should be
-*   - refactor reorderRow (not finished)
-*
-* == 2.0 changes
-*   - toolbarInput - deprecated, toolbarSearch stays
-*   - searchSuggest
-*   - searchSave, searchSelected, savedSearches, useLocalStorage, searchFieldDrop
-*   - onSearchSave, onSearchRemove, onSearchSelect
-*   - show.searchLogic
-*   - show.searchSave
-*   - refreshSearch
-*   - initAllFields -> searchInitInput
-*   - textSearch - deprecated in favor of defaultOperator
-*   - grid.confirm - refactored
-*   - grid.message - refactored
-*   - search.type == 'text' can have 'in' and 'not in' operators, then it will switch to enum
-*   - grid.find(..., displayedOnly)
-*   - column.render(..., this) - added
-*   - resizeObserver for the box
-*
-************************************************************************/
+/**
+ * Part of w2ui 2.0 library
+ *  - Dependencies: jQuery, w2utils, w2base, w2toolbar, w2field
+ *
+ * == TODO ==
+ *  - w2ui-overlay to work with web components
+ *  - column autosize based on largest content
+ *  - problem with .set() and arrays, array get extended too, but should be replaced
+ *  - after edit stay on the same record option
+ *  - if supplied array of ids, get should return array of records
+ *  - allow functions in routeData (also add routeData to list/enum)
+ *  - send parsed URL to the event if there is routeData
+ *  - if you set searchData or sortData and call refresh() it should work
+ *  - add selectType: 'none' so that no selection can be make but with mouse
+ *  - focus/blur for selectType = cell not display grayed out selection
+ *  - frozen columns
+ *  - scrolling on frozen columns is not working only on regular columns
+ *  - copy or large number of records is slow
+ *  - reusable search component (see https://github.com/vitmalina/w2ui/issues/914#issuecomment-107340524)
+ *  - allow enum in inline edit (see https://github.com/vitmalina/w2ui/issues/911#issuecomment-107341193)
+ *  - if record has no recid, then it should be index in the array (should not be 0)
+ *  - remote source, but localSort/localSearch
+ *  - right click on columns
+ *  - reload a single records (useful when need to update deep in buffered records)
+ *  - need to update PHP example
+ *  - return structure status -> replace with success
+ *  - msg* - should be in prototype
+ *  - search fields not finised
+ *  - row reorder not finished
+ *  - expendable grids are still working
+ *  - moved a lot of properties into prototype
+ *  - promise for request, load, save, etc.
+ *  - remote date local sort/search
+ *  - colDefaults -> col_template as in tabs, toolbar, etc
+ *  - prepareData needs help page
+ *  - separate columnRefresh, recordsRefresh, fullRefresh
+ *  - onloadmore event (so it will be easy to implement remote data source with local sort)
+ *  - avoid inline events, but allow w2ui-eaction
+ *  - status() - clears on next select, etc. Should not if it is off
+ *  - edit demo grid/21 - if you hit add record too fast, it breaks
+ *
+ * == DEMOS To create ==
+ *  - batch for disabled buttons
+ *  - naturla sort
+ *  - resize on max content
+ *  - context message
+ *  - clipboard copy
+ *  - save searches, custom searches
+ *
+ * == KNOWN ISSUES ==
+ *  - reorder records with school - not correct
+ *  - reorder columns not working
+ *  - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
+ *  - Shift-click/Ctrl-click/Ctrl-Shift-Click selection is not as robust as it should be
+ *  - refactor reorderRow (not finished)
+ *
+ * == 2.0 changes
+ *  - toolbarInput - deprecated, toolbarSearch stays
+ *  - searchSuggest
+ *  - searchSave, searchSelected, savedSearches, useLocalStorage, searchFieldDrop
+ *  - onSearchSave, onSearchRemove, onSearchSelect
+ *  - show.searchLogic
+ *  - show.searchSave
+ *  - refreshSearch
+ *  - initAllFields -> searchInitInput
+ *  - textSearch - deprecated in favor of defaultOperator
+ *  - grid.confirm - refactored
+ *  - grid.message - refactored
+ *  - search.type == 'text' can have 'in' and 'not in' operators, then it will switch to enum
+ *  - grid.find(..., displayedOnly)
+ *  - column.render(..., this) - added
+ *  - resizeObserver for the box
+ */
 
 import { w2base } from './w2base.js'
 import { w2ui, w2utils } from './w2utils.js'

@@ -1,10 +1,15 @@
-/************************************************************************
-*   Part of w2ui 2.0 library
-*
-* == 2.0 changes
-*   - CSP - fixed inline events
-*
-************************************************************************/
+/**
+ * Part of w2ui 2.0 library
+ *  - Dependencies: jQuery, w2ui.*
+ *
+ * This file provided compatibility for projects that conntinue to use jQuery. It extends jQuery with
+ * w2ui support, such as fn.w2grid, fn.w2form, ... fn.w2render, fn.w2destroy, fn.w2tag, etc
+ *
+ * It is not needed for projects that use ES6 module loading.
+ *
+ * == 2.0 changes
+ *   - CSP - fixed inline events
+ */
 
 import { w2locale } from './w2locale.js'
 import { w2base } from './w2base.js'
