@@ -25,7 +25,7 @@ import { query } from './query.js'
 let w2ui = {}
 
 class Utils {
-    constructor ($) {
+    constructor () {
         this.version = '2.0.x'
         this.tmp = {}
         this.settings = this.extend({}, {
@@ -2018,7 +2018,5 @@ class Utils {
         })
     }
 }
-// needs to be functional/module scope
-var w2utils = new Utils(jQuery)
-
+var w2utils = new Utils() // needs to be functional/module scope variable
 export { w2ui, w2utils }
