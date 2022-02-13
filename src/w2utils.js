@@ -1975,6 +1975,9 @@ class Utils {
                         if (key === 'undefined') key = undefined
                         if (key === 'null') key = null
                         if (parseFloat(key) == key) key = parseFloat(key)
+                        if (["'", '"', '`'].includes(key[0]) && ["'", '"', '`'].includes(key[key.length-1])) {
+                            key = key.substring(1, key.length-1);
+                        }
                         return key
                     })
                 }

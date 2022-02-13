@@ -32,17 +32,21 @@ let ret = w2color.init({
     showOn: 'focus',
     hideOn: 'never',
     // auto: true,
-    html: 'more text',
-    hideOnClick: true,
+    // html: 'more text',
+    // hideOnClick: true,
     // hideOnChange: true
 })
 .then(event => {
-    console.log('show then', event)
+    console.log('then', event)
 })
 .show(event => {
+    // debugger
     console.log('show', event)
 })
+.hide(event => {
+    console.log('hide', event)
+})
 .select(event => {
-    console.log('selected', event)
+    // console.log('selected', event)
 });
 console.log(ret)

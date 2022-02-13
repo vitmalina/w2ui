@@ -10,7 +10,7 @@ import { w2base } from './w2base.js'
 import { query } from './query.js'
 import { w2utils } from './w2utils.js'
 
-class Popper extends w2base {
+class Tooltip extends w2base {
     constructor() {
         // TODO: what events are used for?
         super()
@@ -112,7 +112,6 @@ class Popper extends w2base {
                     hideOn = String(options.hideOn).toLowerCase()
                     delete options.hideOn
                 }
-                console.log(show, showOn, hide, hideOn)
                 query(el).off('.w2overlay-init')
                 if (show) {
                     query(el).on(showOn + '.w2overlay-init', function (event) {
@@ -430,7 +429,7 @@ class Popper extends w2base {
     }
 }
 
-class ColorPopper extends Popper {
+class ColorTooltip extends Tooltip {
     constructor() {
         super()
         this.palette = [
@@ -444,12 +443,13 @@ class ColorPopper extends Popper {
             ['99050C', 'B45F17', '80650E', '737103', '395E14', '10783D', '13615E', '094785', '0A5394', '351C75', '780172', '782C5A']
         ]
         this.defaults = w2utils.extend({}, this.defaults, {
+            advanced: false,
             transparent: true,
             position: 'top|bottom',
             class: 'w2ui-light',
-            color: '#DDDDDD',
-            liveUpdate: null, // should be liveUpdate
-            style: 'padding: 0; border: 1px solid silver;'
+            color: '',
+            liveUpdate: true,
+            style: ''
         })
     }
 
@@ -463,6 +463,7 @@ class ColorPopper extends Popper {
             options.anchor = anchor
         }
         options = w2utils.extend({}, this.defaults, options)
+        options.style += '; padding: 0;'
         // add remove transparent color
         if (options.transparent && this.palette[0][1] == '333333') {
             this.palette[0].splice(1, 1)
@@ -474,14 +475,27 @@ class ColorPopper extends Popper {
         }
         if (options.color) options.color = String(options.color).toUpperCase()
         if (typeof options.color === 'string' && options.color.substr(0,1) === '#') options.color = options.color.substr(1)
-        if (options.liveUpdate == null) options.liveUpdate = true
+        // needed for keyboard navigation
+        this.index = [-1, -1]
         // color html
+        if (anchor.tagName === 'INPUT' && !options.color && anchor.value) {
+            options.color = anchor.value
+        }
+        console.log(options.color)
         options.html = this.getColorHTML(options)
         let ret = super.init(options)
-        this.on('show:after', (event) => {
-            if (ret.overlay && ret.overlay.box) {
+        this.on('show:after', event => {
+            if (ret.overlay?.box) {
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
+                this.initColorControls(ret.overlay)
+            }
+        })
+        this.on('hide', event => {
+            let anchor = event.overlay.anchor
+            let color = event.overlay.newColor
+            if (anchor.tagName === 'INPUT' && anchor.value != color) {
+                anchor.value = color
             }
         })
         // add select method
@@ -492,35 +506,67 @@ class ColorPopper extends Popper {
         return ret
     }
 
-    select(color, event, el) {
-        let name = query(el).closest('.w2ui-overlay').attr('name')
+    // regular panel handler, adds selection class
+    select(color, name) {
+        let target
+        this.index = [-1, -1]
+        if (typeof name != 'string') {
+            target = name.target
+            this.index = query(target).attr('index').split(':')
+            name = query(target).closest('.w2ui-overlay').attr('name')
+        }
         let overlay = this.get(name)
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'select', color, target: name, overlay, originalEvent: event })
+        let edata = this.trigger({ phase: 'before', type: 'select', color, target: name, overlay, param: arguments[1] })
         if (edata.isCancelled === true) return
         // if anchor is input - live update
-        if (overlay.anchor.tagName === 'INPUT') {
+        if (overlay.anchor.tagName === 'INPUT' && overlay.options.liveUpdate) {
             query(overlay.anchor).val(color)
         }
-        query(el.parentNode.parentNode).find('.w2ui-selected').removeClass('w2ui-selected')
-        query(el).addClass('w2ui-selected')
+        overlay.newColor = color
+        query(overlay.box).find('.w2ui-selected').removeClass('w2ui-selected')
+        if (target) {
+            query(target).addClass('w2ui-selected')
+        }
         // event after
         this.trigger(w2utils.extend(edata, { phase: 'after' }))
     }
 
-    change(color, event, el) {
-        let name = query(el).closest('.w2ui-overlay').attr('name')
-        let overlay = this.get(name)
-        if (overlay.anchor.tagName === 'INPUT') {
-            query(overlay.anchor).change()
+    // used for keyboard navigation, if anu
+    nextColor(direction) {
+        let pal = this.palette
+        switch (direction) {
+            case 'up':
+                index[0]--
+                break
+            case 'down':
+                index[0]++
+                break
+            case 'right':
+                index[1]++
+                break
+            case 'left':
+                index[1]--
+                break
         }
+        if (index[0] < 0) index[0] = 0
+        if (index[0] > pal.length - 2) index[0] = pal.length - 2
+        if (index[1] < 0) index[1] = 0
+        if (index[1] > pal[0].length - 1) index[1] = pal[0].length - 1
+
+        let color = pal[index[0]][index[1]]
+        $(el).data('_color', color)
+        return color
     }
 
-    tabClick(index, event, el) {
-        let name = query(el).closest('.w2ui-overlay').attr('name')
+    tabClick(index, name) {
+        if (typeof name != 'string') {
+            name = query(name.target).closest('.w2ui-overlay').attr('name')
+        }
         let overlay = this.get(name)
+        let tab = query(overlay.box).find(`.w2ui-color-tab:nth-child(${index})`)
         query(overlay.box).find('.w2ui-color-tab').removeClass('selected')
-        query(el).addClass('selected')
+        query(tab).addClass('selected')
         query(overlay.box)
             .find('.w2ui-tab-content')
             .hide()
@@ -529,8 +575,8 @@ class ColorPopper extends Popper {
             .show()
     }
 
+    // generate HTML with color pallent and controls
     getColorHTML(options) {
-        let border
         let html = `
             <div class="w2ui-colors">
                 <div class="w2ui-tab-content tab-1">`
@@ -538,11 +584,12 @@ class ColorPopper extends Popper {
             html += '<div class="w2ui-color-row">'
             for (let j = 0; j < this.palette[i].length; j++) {
                 let color = this.palette[i][j]
-                if (color === 'FFFFFF') border = '; border: 1px solid #efefef'; else border = ''
+                let border = ''
+                if (color === 'FFFFFF') border = '; border: 1px solid #efefef'
                 html += `
                     <div class="w2ui-color w2ui-eaction ${color === '' ? 'w2ui-no-color' : ''} ${options.color == color ? 'w2ui-selected' : ''}"
                         style="background-color: #${color + border};" name="${color}" index="${i}:${j}"
-                        data-mousedown="select|${color}|event|this" data-mouseup="change|${color}|event|this">&nbsp;
+                        data-mousedown="select|'${color}'|event" data-mouseup="hide">&nbsp;
                     </div>`
             }
             html += '</div>'
@@ -593,33 +640,214 @@ class ColorPopper extends Popper {
         return html
     }
 
-    initColorControls() {
+    // bind advanced tab controls
+    initColorControls(overlay) {
+        let initial // used for mouse events
+        let self = this
+        let options = overlay.options
+        let rgb = w2utils.parseColor(options.color)
+        if (rgb == null) {
+            rgb = { r: 140, g: 150, b: 160, a: 1 }
+        }
+        let hsv = w2utils.rgb2hsv(rgb)
+        if (options.advanced === true) {
+            this.tabClick(2, overlay.name)
+        }
+        setColor(hsv, true, true)
 
+        // even for rgb, hsv inputs
+        query(overlay.box).find('input')
+            .off('.w2color')
+            .on('change.w2color', (event) => {
+                let el = query(event.target)
+                let val = parseFloat(el.val())
+                let max = parseFloat(el.attr('max'))
+                if (isNaN(val)) {
+                    val = 0
+                    el.val(0)
+                }
+                if (max > 1) val = parseInt(val) // trancate fractions
+                if (max > 0 && val > max) {
+                    el.val(max)
+                    val = max
+                }
+                if (val < 0) {
+                    el.val(0)
+                    val = 0
+                }
+                let name  = el.attr('name')
+                let color = {}
+                if (['r', 'g', 'b', 'a'].indexOf(name) !== -1) {
+                    rgb[name] = val
+                    hsv = w2utils.rgb2hsv(rgb)
+                } else if (['h', 's', 'v'].indexOf(name) !== -1) {
+                    color[name] = val
+                }
+                setColor(color, true)
+            })
+
+        // click on original color resets it
+        query(overlay.box).find('.color-original')
+            .off('.w2color')
+            .on('click.w2color', (event) => {
+                let tmp = w2utils.parseColor(query(event.target).css('background-color'))
+                if (tmp != null) {
+                    rgb = tmp
+                    hsv = w2utils.rgb2hsv(rgb)
+                    setColor(hsv, true)
+                }
+            })
+
+        // color sliders events
+        let mDown = `${!w2utils.isIOS ? 'mousedown' : 'touchstart'}.w2color`
+        let mUp   = `${!w2utils.isIOS ? 'mouseup' : 'touchend'}.w2color`
+        let mMove = `${!w2utils.isIOS ? 'mousemove' : 'touchmove'}.w2color`
+        query(overlay.box).find('.palette, .rainbow, .alpha')
+            .off('.w2color')
+            .on(`${mDown}.w2color`, mouseDown)
+        return;
+
+        function setColor(color, fullUpdate, initial) {
+            if (color.h != null) hsv.h = color.h
+            if (color.s != null) hsv.s = color.s
+            if (color.v != null) hsv.v = color.v
+            if (color.a != null) { rgb.a = color.a; hsv.a = color.a }
+            rgb = w2utils.hsv2rgb(hsv)
+            let newColor = 'rgba('+ rgb.r +','+ rgb.g +','+ rgb.b +','+ rgb.a +')'
+            let cl       = [
+                Number(rgb.r).toString(16).toUpperCase(),
+                Number(rgb.g).toString(16).toUpperCase(),
+                Number(rgb.b).toString(16).toUpperCase(),
+                (Math.round(Number(rgb.a)*255)).toString(16).toUpperCase()
+            ]
+            cl.forEach((item, ind) => { if (item.length === 1) cl[ind] = '0' + item })
+            newColor = cl[0] + cl[1] + cl[2] + cl[3]
+            if (rgb.a === 1) {
+                newColor = cl[0] + cl[1] + cl[2]
+            }
+            query(overlay.box).find('.color-preview').css('background-color', '#' + newColor)
+            query(overlay.box).find('input').each(el => {
+                if (el.name) {
+                    if (rgb[el.name] != null) el.value = rgb[el.name]
+                    if (hsv[el.name] != null) el.value = hsv[el.name]
+                    if (el.name === 'a') el.value = rgb.a
+                }
+            })
+            if (initial) {
+                query(overlay.box).find('.color-original').css('background-color', '#'+newColor)
+            } else {
+                self.select(newColor, overlay.name)
+            }
+            if (fullUpdate) {
+                updateSliders()
+                refreshPalette()
+            }
+        }
+
+        function updateSliders() {
+            let el1 = query(overlay.box).find('.palette .value1')
+            let el2 = query(overlay.box).find('.rainbow .value2')
+            let el3 = query(overlay.box).find('.alpha .value2')
+            let offset1 = parseInt(el1[0].clientWidth) / 2
+            let offset2 = parseInt(el2[0].clientWidth) / 2
+            el1.css({
+                'left': hsv.s * 150 / 100 - offset1,
+                'top': (100 - hsv.v) * 125 / 100 - offset1
+            })
+            el2.css('left', hsv.h/(360/150) - offset2)
+            el3.css('left', rgb.a*150 - offset2)
+        }
+
+        function refreshPalette() {
+            let cl  = w2utils.hsv2rgb(hsv.h, 100, 100)
+            let rgb = `${cl.r},${cl.g},${cl.b}`
+            query(overlay.box).find('.palette')
+                .css('background-image', `linear-gradient(90deg, rgba(${rgb},0) 0%, rgba(${rgb},1) 100%)`)
+        }
+
+        function mouseDown(event) {
+            let el = query(this).find('.value1, .value2')
+            let offset = parseInt(el.prop('clientWidth')) / 2
+            if (el.hasClass('move-x')) el.css({ left: (event.offsetX - offset) + 'px' })
+            if (el.hasClass('move-y')) el.css({ top: (event.offsetY - offset) + 'px' })
+            initial = {
+                el    : el,
+                x      : event.pageX,
+                y      : event.pageY,
+                width  : el.prop('parentNode').clientWidth,
+                height : el.prop('parentNode').clientHeight,
+                left   : parseInt(el.css('left')),
+                top    : parseInt(el.css('top'))
+            }
+            mouseMove(event)
+            query('body')
+                .off('.w2color')
+                .on(mMove, mouseMove)
+                .on(mUp, mouseUp)
+        }
+
+        function mouseUp(event) {
+            query('body').off('.w2color')
+        }
+
+        function mouseMove(event) {
+            let el    = initial.el
+            let divX   = event.pageX - initial.x
+            let divY   = event.pageY - initial.y
+            let newX   = initial.left + divX
+            let newY   = initial.top + divY
+            let offset = parseInt(el.prop('clientWidth')) / 2
+            if (newX < -offset) newX = -offset
+            if (newY < -offset) newY = -offset
+            if (newX > initial.width - offset) newX = initial.width - offset
+            if (newY > initial.height - offset) newY = initial.height - offset
+            if (el.hasClass('move-x')) el.css({ left : newX + 'px' })
+            if (el.hasClass('move-y')) el.css({ top : newY + 'px' })
+
+            // move
+            let name = query(el.get(0).parentNode).attr('name')
+            let x    = parseInt(el.css('left')) + offset
+            let y    = parseInt(el.css('top')) + offset
+            if (name === 'palette') {
+                setColor({
+                    s: Math.round(x / initial.width * 100),
+                    v: Math.round(100 - (y / initial.height * 100))
+                })
+            }
+            if (name === 'rainbow') {
+                let h = Math.round(360 / 150 * x)
+                setColor({ h: h })
+                refreshPalette()
+            }
+            if (name === 'alpha') {
+                setColor({ a: parseFloat(Number(x / 150).toFixed(2)) })
+            }
+        }
     }
 }
 
-class DatePopper extends Popper {
+class DateTooltip extends Tooltip {
     constructor() {
         super()
     }
 }
 
-class TimePopper extends Popper {
+class TimeTooltip extends Tooltip {
     constructor() {
         super()
     }
 }
 
-class MenuPopper extends Popper {
+class MenuTooltip extends Tooltip {
     constructor() {
         super()
     }
 }
 
-let w2tooltip = new Popper()
-let w2color   = new ColorPopper()
-let w2date    = new DatePopper()
-let w2time    = new TimePopper()
-let w2menu    = new MenuPopper()
+let w2tooltip = new Tooltip()
+let w2color   = new ColorTooltip()
+let w2date    = new DateTooltip()
+let w2time    = new TimeTooltip()
+let w2menu    = new MenuTooltip()
 
 export { w2tooltip, w2color, w2date, w2time, w2menu }

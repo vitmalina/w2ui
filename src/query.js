@@ -75,10 +75,10 @@ class Query {
         if (Array.isArray(value)) {
             node._mQuery[name] = node._mQuery[name] ?? []
             node._mQuery[name].push(...value)
-        } if (value == null) {
-            delete node._mQuery[name];
-        } else {
+        } else if (value != null) {
             node._mQuery[name] = value
+        } else {
+            delete node._mQuery[name];
         }
     }
     get(index) {
@@ -415,7 +415,7 @@ class Query {
         return this.prop('textContent', text)
     }
     val(value) {
-        return this.attr('value', value)
+        return this.prop('value', value)
     }
     change() {
         return this.trigger('change')
