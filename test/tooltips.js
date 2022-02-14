@@ -21,32 +21,32 @@ window.w2utils = w2utils
 //         w2tooltip.hide(this)
 //     })
 
-// w2tooltip.show({
-//     anchor: query('#inp1')[0],
-//     html: 'Auto show',
-//     auto: true
-// })
-
-let ret = w2color.init({
+w2tooltip.show({
     anchor: query('#inp1')[0],
-    showOn: 'focus',
-    hideOn: 'never',
-    // auto: true,
-    // html: 'more text',
-    // hideOnClick: true,
-    // hideOnChange: true
+    html: 'Auto show',
+    auto: false,
 })
-.then(event => {
-    console.log('then', event)
-})
-.show(event => {
-    // debugger
-    console.log('show', event)
-})
-.hide(event => {
-    console.log('hide', event)
-})
-.select(event => {
-    // console.log('selected', event)
-});
-console.log(ret)
+
+// let ret = w2color.attach({
+//     anchor: query('#inp1')[0],
+//     showOn: 'focus',
+//     hideOn: 'never',
+//     // auto: true,
+//     // html: 'more text',
+//     // hideOnClick: true,
+//     // hideOnChange: true
+// })
+// .then(event => {
+//     console.log('then', event)
+// })
+// .show(event => {
+//     // debugger
+//     console.log('show', event)
+// })
+// .hide(event => {
+//     console.log('hide', event)
+// })
+// .select(event => {
+//     // console.log('selected', event)
+// });
+// console.log(ret)

@@ -4,6 +4,7 @@
  *
  * TODO
  * - multiple tooltips to the same anchor
+ * - cleanup wwcolor less
  */
 
 import { w2base } from './w2base.js'
@@ -20,7 +21,7 @@ class Tooltip extends w2base {
             html            : '',       // text or html
             anchor          : null,     // element it is attached to
             position        : 'auto',   // can be left, right, top, bottom
-            auto            : null,     // if auto true, then tooltip will show on mouseEnter and hide on mouseLeave
+            auto            : false,    // if auto true, then tooltip will show on mouseEnter and hide on mouseLeave
             showOn          : null,     // when options.auto = true, mouse event to show on
             hideOn          : null,     // when options.auto = true, mouse event to hide on
             // TODO: not done
@@ -57,7 +58,7 @@ class Tooltip extends w2base {
         delete this.active[name]
     }
 
-    init(anchor, text) {
+    attach(anchor, text) {
         let options, overlay
         let self = this
         if (arguments.length == 0) {
@@ -115,15 +116,14 @@ class Tooltip extends w2base {
                 query(el).off('.w2overlay-init')
                 if (show) {
                     query(el).on(showOn + '.w2overlay-init', function (event) {
-                        options.auto = false
-                        self.show(overlay.name, event)
+                        options.auto = false // TODO: what is it for?
+                        self.show(overlay.name)
                         event.stopPropagation()
                     })
                 }
                 if (hide) {
                     query(el).on(hideOn + '.w2overlay-init', function (event) {
-                        let overlay = query(this).data('w2overlay')
-                        if (overlay) self.hide(overlay.name, event)
+                        self.hide(overlay.name)
                         event.stopPropagation()
                     })
                 }
@@ -155,22 +155,17 @@ class Tooltip extends w2base {
         return ret
     }
 
-    show(name, event) {
+    show(name) {
         if (name instanceof HTMLElement || name instanceof Object) {
-            let ret
-            if (event) {
-                ret = this.init(name, event)
-             } else {
-                ret = this.init(name)
-             }
-            this.show(ret.overlay.name, event)
+            let ret = this.attach(...arguments)
+            this.show(ret.overlay.name)
             return ret
         }
         let self = this
         let overlay = this.active[name]
         if (!overlay) return
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'show', target: name, overlay, originalEvent: event })
+        let edata = this.trigger({ phase: 'before', type: 'show', target: name, overlay })
         if (edata.isCancelled === true) return
         // normal processing
         if (!overlay.box) {
@@ -204,7 +199,7 @@ class Tooltip extends w2base {
                         </div>
                     </div>`)
                 overlay.box = query('#'+w2utils.escapeId(overlay.id))[0]
-                query(overlay.anchor).data('w2overlay', overlay) // make available to element overlay attached to
+                query(overlay.anchor).data('tooltipName', name) // make available to element overlay attached to
                 w2utils.bindEvents(overlay.box, {})
             }
             // if it is input, then add style and class
@@ -251,25 +246,22 @@ class Tooltip extends w2base {
         this.trigger(w2utils.extend(edata, { phase: 'after' }))
     }
 
-    hide(name, event) {
+    hide(name) {
         let overlay
         if (arguments.length == 0) {
-            Object.keys(this.active).forEach(name => {
-                this.hide(name)
-            })
+            // hide all tooltips
+            Object.keys(this.active).forEach(name => { this.hide(name) })
             return
-        } else if (typeof name == 'string') {
+        }
+        if (name instanceof HTMLElement) {
+            name = query(name).data('tooltipName')
+        }
+        if (typeof name == 'string') {
             overlay = this.active[name]
-        } else {
-            let q = query(name)
-            if (q.length > 0) {
-                overlay = q.data('w2overlay')
-                name = overlay.name
-            }
         }
         if (!overlay || !overlay.box) return
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'hide', target: name, overlay, originalEvent: event })
+        let edata = this.trigger({ phase: 'before', type: 'hide', target: name, overlay })
         if (edata.isCancelled === true) return
         // normal processing
         if (overlay.tmp.timer) clearTimeout(overlay.tmp.timer)
@@ -277,7 +269,7 @@ class Tooltip extends w2base {
         overlay.box = null
         query(overlay.anchor)
             .off('.w2overlay')
-            .removeData('w2overlay')
+            .removeData('tooltipName')
         // restore original CSS
         if (overlay.anchor.tagName == 'INPUT') {
             overlay.anchor.style.cssText = overlay.tmp.originalCSS
@@ -453,7 +445,7 @@ class ColorTooltip extends Tooltip {
         })
     }
 
-    init(anchor, text) {
+    attach(anchor, text) {
         let options, self = this
         if (arguments.length == 1 && anchor.anchor) {
             options = anchor
@@ -483,7 +475,7 @@ class ColorTooltip extends Tooltip {
         }
         console.log(options.color)
         options.html = this.getColorHTML(options)
-        let ret = super.init(options)
+        let ret = super.attach(options)
         this.on('show:after', event => {
             if (ret.overlay?.box) {
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
@@ -532,8 +524,8 @@ class ColorTooltip extends Tooltip {
         this.trigger(w2utils.extend(edata, { phase: 'after' }))
     }
 
-    // used for keyboard navigation, if anu
-    nextColor(direction) {
+    // used for keyboard navigation, if any
+    nextColor(direction) { // TODO: check it
         let pal = this.palette
         switch (direction) {
             case 'up':
@@ -553,10 +545,7 @@ class ColorTooltip extends Tooltip {
         if (index[0] > pal.length - 2) index[0] = pal.length - 2
         if (index[1] < 0) index[1] = 0
         if (index[1] > pal[0].length - 1) index[1] = pal[0].length - 1
-
-        let color = pal[index[0]][index[1]]
-        $(el).data('_color', color)
-        return color
+        return pal[index[0]][index[1]]
     }
 
     tabClick(index, name) {
