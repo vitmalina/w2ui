@@ -23,8 +23,9 @@ window.w2utils = w2utils
 
 w2tooltip.show({
     anchor: query('#inp1')[0],
+    position: 'top',
     html: 'Auto show',
-    auto: false,
+    style: 'background-color: white; border: 1px solid red; color: red; text-shadow: none'
 })
 
 // let ret = w2color.attach({

@@ -1,5 +1,7 @@
 /* General overlay */
 .w2ui-overlay {
+    --tip-size: 8px;
+
     position: absolute;
     z-index: 1300;
     opacity: 0;
@@ -13,86 +15,93 @@
         display: inline-block;
         border-radius: 3px;
         padding: 6px 10px;
-        margin-left: 10px;
-        margin-top: 0px;
-        background-color: rgba(60,60,60,0.9);
-        color: white !important;
+        margin: 0px;
         font-size: 12px;
         font-family: @main-font-family;
+        color: white;
         text-shadow: 0px 0px 3px #000; // for sharper text in a bubble
+        background-color: rgba(60,60,60,0.9);
         line-height: 1.4;
         letter-spacing: 0.1px;
 
         &.w2ui-light {
-            color: #3c3c3c !important;
+            color: #3c3c3c;
+            text-shadow: none;
             background-color: #fffde9;
             border: 1px solid #9c9c9c;
             box-shadow: 0px 0px 4px #bfbfbf;
-            text-shadow: none;
         }
 
         &.w2ui-arrow-right:before {
             content: "";
             position: absolute;
-            left: 3px;
+            left: calc(var(--tip-size, 8px) * -0.5);
+            top: 50%;
+            transform: rotate(-45deg) translateY(-50%);
+            transform-origin: top center;
             margin: 0;
-            border: 1px solid;
+            border: inherit;
             border-color: inherit;
             background-color: inherit;
-            width: 7px;
-            height: 7px;
-            transform: rotate(135deg);
-            border-top-left-radius: 20px;
-            border-top-width: 0;
-            border-left-width: 0;
+            width: var(--tip-size, 8px);
+            height: var(--tip-size, 8px);
+            border-bottom-right-radius: 20px;
+            border-bottom-width: 0;
+            border-right-width: 0;
         }
 
         &.w2ui-arrow-left:after {
             content: "";
             position: absolute;
-            right: -7px;
+            right: calc(var(--tip-size, 8px) * -0.5);
+            top: 50%;
+            transform: rotate(135deg) translateY(-50%);
+            transform-origin: top center;
             margin: 0;
-            border: 1px solid;
+            border: inherit;
             border-color: inherit;
             background-color: inherit;
-            width: 7px;
-            height: 7px;
-            transform: rotate(-45deg);
-            border-top-left-radius: 20px;
-            border-top-width: 0;
-            border-left-width: 0;
+            width: var(--tip-size, 8px);
+            height: var(--tip-size, 8px);
+            border-bottom-right-radius: 20px;
+            border-bottom-width: 0;
+            border-right-width: 0;
         }
 
         &.w2ui-arrow-top:before {
             content: "";
             position: absolute;
-            top: -7px;
+            bottom: calc(var(--tip-size, 8px) * -0.5);
+            left: 50%;
+            transform-origin: center left;
+            transform: rotate(-135deg) translateX(-50%);
             margin: 0;
-            border: 1px solid;
+            border: inherit;
             border-color: inherit;
             background-color: inherit;
-            width: 7px;
-            height: 7px;
-            transform: rotate(-135deg);
-            border-top-left-radius: 20px;
-            border-top-width: 0;
-            border-left-width: 0;
+            width: var(--tip-size, 8px);
+            height: var(--tip-size, 8px);
+            border-bottom-right-radius: 20px;
+            border-bottom-width: 0;
+            border-right-width: 0;
         }
 
         &.w2ui-arrow-bottom:after {
             content: "";
             position: absolute;
-            bottom: -7px;
+            top: calc(var(--tip-size, 8px) * -0.5);
+            left: 50%;
+            transform: rotate(45deg) translateX(-50%);
+            transform-origin: center left;
             margin: 0;
-            border: 1px solid;
+            border: inherit;
             border-color: inherit;
             background-color: inherit;
-            width: 7px;
-            height: 7px;
-            transform: rotate(45deg);
-            border-top-left-radius: 20px;
-            border-top-width: 0;
-            border-left-width: 0;
+            width: var(--tip-size, 8px);
+            height: var(--tip-size, 8px);
+            border-bottom-right-radius: 20px;
+            border-bottom-width: 0;
+            border-right-width: 0;
         }
     }
     /* TODO: is it neded? */

@@ -357,7 +357,7 @@ class Tooltip extends w2base {
             let pos = overlay.options.position[i]
             if (pos === 'right') {
                 tipClass = 'w2ui-arrow-right'
-                tipStyle = `#${overlay.id} .w2ui-overlay-body:before { bottom: 50%; transform: rotate(135deg) translateY(-50%); }`
+                tipStyle = `#${overlay.id} .w2ui-overlay-body:before { }`
                 posLeft = Math.round(parseInt(anchor.left + anchor.width + (overlay.options.left ? overlay.options.left : 0)
                     + (padding.left + padding.right) / 2 - 10) + document.body.scrollLeft)
                 posTop = Math.round(parseInt(anchor.top - height / 2 + anchor.height / 2
@@ -365,23 +365,23 @@ class Tooltip extends w2base {
                     + document.body.scrollTop)
             } else if (pos === 'left') {
                 tipClass = 'w2ui-arrow-left'
-                tipStyle = `#${overlay.id} .w2ui-overlay-body:after { top: 50%; transform: rotate(-45deg) translateY(-50%); }`
+                tipStyle = `#${overlay.id} .w2ui-overlay-body:after { }`
                 posLeft = Math.round(parseInt(anchor.left + (overlay.options.left ? overlay.options.left : 0)) - width - 20
                     + document.body.scrollLeft)
                 posTop = Math.round(parseInt(anchor.top - height / 2 + anchor.height / 2
                     + (overlay.options.top ? overlay.options.top : 0) + padding.top) - 10
                     + document.body.scrollTop)
             } else if (pos === 'top') {
-                tipClass = 'w2ui-arrow-bottom'
-                tipStyle = `#${overlay.id} .w2ui-overlay-body:after { left: 50%; transform: rotate(45deg) translateX(-50%); }`
+                tipClass = 'w2ui-arrow-top'
+                tipStyle = `#${overlay.id} .w2ui-overlay-body:after { }`
                 posLeft = Math.round(parseInt(anchor.left - width / 2 + anchor.width / 2
                     + (overlay.options.left ? overlay.options.left : 0) - padding.left) + 5
                     + document.body.scrollLeft)
                 posTop = Math.round(parseInt(anchor.top + (overlay.options.top ? overlay.options.top : 0))
                     - height - padding.top + document.body.scrollTop - 2)
             } else if (pos === 'bottom') {
-                tipClass = 'w2ui-arrow-top'
-                tipStyle = `#${overlay.id} .w2ui-overlay-body:before { right: 50%; transform: rotate(-135deg) translateX(-50%); }`
+                tipClass = 'w2ui-arrow-bottom'
+                tipStyle = `#${overlay.id} .w2ui-overlay-body:before { }`
                 posLeft = Math.round(parseInt(anchor.left - width / 2 + anchor.width / 2
                     + (overlay.options.left ? overlay.options.left : 0) - padding.left) + 6
                     + document.body.scrollLeft)
