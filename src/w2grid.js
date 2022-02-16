@@ -38,6 +38,7 @@
  *  - avoid inline events, but allow w2ui-eaction
  *  - status() - clears on next select, etc. Should not if it is off
  *  - edit demo grid/21 - if you hit add record too fast, it breaks
+ *  - refactor onSelect/onUselect - should be one event, when selection changes
  *
  * == DEMOS To create ==
  *  - batch for disabled buttons

@@ -33,7 +33,8 @@ class Query {
         })
     }
     static _isEl(node) {
-        return (node instanceof DocumentFragment || node instanceof HTMLElement || node instanceof Text)
+        return (node instanceof Document || node instanceof DocumentFragment
+            || node instanceof HTMLElement || node instanceof Text)
     }
     static _fragment(html) {
         let tmpl = document.createElement('template')

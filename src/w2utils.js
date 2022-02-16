@@ -1840,7 +1840,8 @@ class Utils {
             ret.forEach((value, ind) => {
                 ret[ind] = this.clone(value)
             })
-        } else if (obj instanceof HTMLElement) {
+        } else if (obj instanceof HTMLElement || obj instanceof Text
+                || obj instanceof Document || obj instanceof DocumentFragment) {
             // do not clone HTML Elements
             ret = obj
         } else if (obj != null && typeof obj == 'object') {
