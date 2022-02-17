@@ -183,8 +183,9 @@ class Tooltip extends w2base {
         let overlay = this.active[name]
         let options = overlay.options
         if (!overlay) return
-        // show or hide overlay
-        let overlayStyles = options.align != 'both' ? 'white-space: nowrap;' : ''
+        let isVertical = ['top', 'bottom'].includes(position[0])
+        // enforce nowrap only when align=both and vertical
+        let overlayStyles = (options.align == 'both' && isVertical ? '' : 'white-space: nowrap;')
         if (options.maxWidth && w2utils.getStrWidth(options.html, '') > options.maxWidth) {
             overlayStyles = 'width: '+ options.maxWidth + 'px; white-space: inherit; overflow: auto;'
         }
@@ -374,27 +375,28 @@ class Tooltip extends w2base {
     }
 
     getPosition(name) {
-        let overlay   = this.active[name]
+        let overlay = this.active[name]
         if (!overlay || !overlay.box) {
             return
         }
         let options   = overlay.options
-        if (overlay.tmp.resizedY) {
+        if (overlay.tmp.resizedY || overlay.tmp.resizedX) {
             query(overlay.box).css({ width: '', height: '' })
         }
         let scrollSize = w2utils.scrollBarSize()
-        let max       = { width: window.innerWidth - scrollSize, height: window.innerHeight - scrollSize }
-        let scroll    = { left: overlay.tmp?.scrollLeft || 0, top: overlay.tmp?.scrollTop || 0 }
-        let position  = options.position == 'auto' ? 'top|bottom|right|left'.split('|') : options.position.split('|')
-        let anchor    = overlay.anchor.getBoundingClientRect()
-        let content   = overlay.box.getBoundingClientRect()
-        // if convent overflows, the get max overflow
+        let max        = { width: window.innerWidth - scrollSize, height: window.innerHeight - scrollSize }
+        let scroll     = { left: overlay.tmp?.scrollLeft || 0, top: overlay.tmp?.scrollTop || 0 }
+        let position   = options.position == 'auto' ? 'top|bottom|right|left'.split('|') : options.position.split('|')
+        let isVertical = ['top', 'bottom'].includes(position[0])
+        let anchor     = overlay.anchor.getBoundingClientRect()
+        let content    = overlay.box.getBoundingClientRect()
+                // if convent overflows, the get max overflow
         let body = query(overlay.box).find('.w2ui-overlay-body').get(0)
         // space available
-        let available = {
-            top: anchor.top -10,
+        let available = { // tipsize adjustment should be here, not in max.width/max.height
+            top: anchor.top - options.tipSize,
             bottom: max.height - (anchor.top + anchor.height) - options.tipSize,
-            left: anchor.left,
+            left: anchor.left - options.tipSize,
             right: max.width - (anchor.left + anchor.width) - options.tipSize,
         }
         // size of empty tooltip
@@ -412,73 +414,139 @@ class Tooltip extends w2base {
 
         // find best position
         position.forEach(pos => {
-            if (!found && (content.height + options.tipSize) < available[pos]) {
-                found = pos
+            if (['top', 'bottom'].includes(pos)) {
+                if (!found && (content.height + options.tipSize) < available[pos]) {
+                    found = pos
+                }
+                if (available[pos] > bestFit.y) {
+                    Object.assign(bestFit, { posY: pos, y: available[pos] })
+                }
             }
-            if (['top', 'bottom'].includes(pos) && available[pos] > bestFit.y) {
-                Object.assign(bestFit, { posY: pos, y: available[pos] })
+            if (['left', 'right'].includes(pos)) {
+                if (!found && (content.width + options.tipSize) < available[pos]) {
+                    found = pos
+                }
+                if (available[pos] > bestFit.x) {
+                    Object.assign(bestFit, { posXY: pos, x: available[pos] })
+                }
             }
         })
+        // if not found, use best (greatest available space) position
         if (!found) {
-            if (['top', 'bottom'].includes(position[0])) {
+            if (isVertical) {
                 found = bestFit.posY
             } else {
                 found = bestFit.posX
             }
         }
-        if (content.height > available[found]) {
-            height = available[found]
-            overlay.tmp.resizedY = true
-        } else {
-            overlay.tmp.resizedY = false
+        if (['top', 'bottom'].includes(found)) {
+            if (content.height > available[found]) {
+                height = available[found]
+                overlay.tmp.resizedY = true
+            } else {
+                overlay.tmp.resizedY = false
+            }
+        }
+        if (['left', 'right'].includes(found)) {
+            if (content.width > available[found]) {
+                width = available[found]
+                overlay.tmp.resizedX = true
+            } else {
+                overlay.tmp.resizedX = false
+            }
         }
         usePosition(found)
 
-        // top/bottom alignments
-        if (options.align == 'left') {
-            adjust.left = anchor.left - left
-            left = anchor.left
-        }
-        if (options.align == 'right') {
-            adjust.left = (anchor.left + anchor.width - content.width) - left
-            left = anchor.left + anchor.width - content.width
-        }
-        if (options.align.startsWith('both')) {
-            let minWidth = options.align.split(':')[1] ?? 50
-            if (anchor.width >= minWidth) {
+        // adjust off screen position
+        if (true) {
+            // top/bottom alignments
+            if (options.align == 'left') {
+                adjust.left = anchor.left - left
                 left = anchor.left
-                width = anchor.width
+            }
+            if (options.align == 'right') {
+                adjust.left = (anchor.left + anchor.width - (width ?? content.width)) - left
+                left = anchor.left + anchor.width - (width ?? content.width)
+            }
+            if (['top', 'bottom'].includes(found) && options.align.startsWith('both')) {
+                let minWidth = options.align.split(':')[1] ?? 50
+                if (anchor.width >= minWidth) {
+                    left = anchor.left
+                    width = anchor.width
+                }
+            }
+            // left/right alignments
+            if (options.align == 'top') {
+                adjust.top = anchor.top - top
+                top = anchor.top
+            }
+            if (options.align == 'bottom') {
+                adjust.top = (anchor.top + anchor.height - (height ?? content.height)) - top
+                top = anchor.top + anchor.height - (height ?? content.height)
+            }
+            if (['left', 'right'].includes(found) && options.align.startsWith('both')) {
+                let minHeight = options.align.split(':')[1] ?? 50
+                if (anchor.height >= minHeight) {
+                    top = anchor.top
+                    height = anchor.height
+                }
             }
         }
-        let adjustTip
-        // adjust tip if needed after alignment
-        if (['left', 'right'].includes(options.align) && anchor.width < content.width) {
-            adjustTip = true
-        }
-        // if off screen then adjust
-        if (left < 0) {
-            adjustTip = true
-            adjust.left -= left
-            left = 0
-        }
-        if (left > max.width - content.width) {
-            adjustTip = true
-            adjust.left -= left - (max.width - content.width)
-            left += (max.width - content.width) - left
-        }
-        if (adjustTip && ['top', 'bottom'].includes(position[0])) {
-            tip.offset = -adjust.left
-            let maxOffset = content.width / 2 - options.tipSize
-            if (Math.abs(tip.offset) > maxOffset + 20) {
-                tip.class = '' // no tip
+        // adjust tooltip carret
+        if (true) {
+            let adjustTip
+            // adjust tip if needed after alignment
+            if ((['left', 'right'].includes(options.align) && anchor.width < (width ?? content.width))
+                || (['top', 'bottom'].includes(options.align) && anchor.height < (height ?? content.height))
+            ) {
+                adjustTip = true
             }
-            if (Math.abs(tip.offset) > maxOffset) {
-                tip.offset = tip.offset < 0 ? -maxOffset : maxOffset
+            // if off screen then adjust
+            let minLeft = (found == 'right' ? options.tipSize : 0)
+            let minTop  = (found == 'bottom' ? options.tipSize : 0)
+            let maxLeft = max.width - (width ?? content.width) - (found == 'left' ? options.tipSize : 0)
+            let maxTop  = max.height - (height ?? content.height) - (found == 'top' ? options.tipSize : 0)
+            if (left < minLeft) {
+                adjustTip = true
+                adjust.left -= left
+                left = minLeft
             }
-            tip.style = `#${overlay.id} .w2ui-overlay-body:after,
-                         #${overlay.id} .w2ui-overlay-body:before {
-                              margin-left: ${tip.offset}px
-                         }`
+            if (top < minTop) {
+                adjustTip = true
+                adjust.top -= top
+                top = minTop
+            }
+            if (left > maxLeft) {
+                adjustTip = true
+                adjust.left -= left - maxLeft
+                left += maxLeft - left
+            }
+            if (top > maxTop) {
+                adjustTip = true
+                adjust.top -= top - maxTop
+                top += maxTop - top
+            }
+            if (adjustTip) {
+                let aType = 'top'
+                let sType = 'height'
+                if (isVertical) {
+                    aType = 'left'
+                    sType = 'width'
+                }
+                tip.offset = -adjust[aType]
+                let maxOffset = content[sType] / 2 - options.tipSize
+                if (Math.abs(tip.offset) > maxOffset + options.tipSize) {
+                    tip.class = '' // no tip
+                }
+                if (Math.abs(tip.offset) > maxOffset) {
+                    tip.offset = tip.offset < 0 ? -maxOffset : maxOffset
+                }
+                tip.style = `#${overlay.id} .w2ui-overlay-body:after,
+                            #${overlay.id} .w2ui-overlay-body:before {
+                                --tip-size: ${options.tipSize}px;
+                                margin-${aType}: ${tip.offset}px;
+                            }`
+            }
         }
 
         // adjust for scrollbar
@@ -492,14 +560,26 @@ class Tooltip extends w2base {
             switch (pos) {
                 case 'top': {
                     tip.class = 'w2ui-arrow-top'
-                    left = anchor.left + (anchor.width - content.width) / 2
+                    left = anchor.left + (anchor.width - (width ?? content.width)) / 2
                     top = anchor.top - (height ?? content.height) - options.tipSize
                     break
                 }
                 case 'bottom': {
                     tip.class = 'w2ui-arrow-bottom'
-                    left = anchor.left + (anchor.width - content.width) / 2
+                    left = anchor.left + (anchor.width - (width ?? content.width)) / 2
                     top = anchor.top + anchor.height + options.tipSize
+                    break
+                }
+                case 'left': {
+                    tip.class = 'w2ui-arrow-left'
+                    left = anchor.left - (width ?? content.width) - options.tipSize
+                    top = anchor.top + (anchor.height - (height ?? content.height)) / 2
+                    break
+                }
+                case 'right': {
+                    tip.class = 'w2ui-arrow-right'
+                    left = anchor.left + anchor.width + options.tipSize
+                    top = anchor.top + (anchor.height - (height ?? content.height)) / 2
                     break
                 }
             }
