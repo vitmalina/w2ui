@@ -21,15 +21,17 @@ $('button').on('click', event => {
     let isLong = $(el).attr('long') != null
     let isHide = $(el).attr('hide') != null
     let anchor = $('#inp0')
-    // anchor.css('width', '340px')
+    // anchor.css('width', '70px')
     if (!isHide) {
         w2tooltip.show({
             name: 'tp1',
             anchor: anchor[0],
             // position: $('#position').val(),
-            position: 'top|bottom',
-            align: 'left',
-            // maxWidth: 200,
+            // position: 'top|bottom',
+            // position: 'bottom|top',
+            align: 'both',
+            // maxWidth: 100,
+            // maxHeight: 100,
             // tipSize: 12,
             html: isLong
                 ? `Long text for the tooltip to see how it would wrap if any.<br>
@@ -37,7 +39,7 @@ $('button').on('click', event => {
                    Long text for the tooltip to see how it would wrap if any.<br>
                    Long text for the tooltip to see how it would wrap if any.<br>
                    Long text for the tooltip to see how it would wrap if any.`
-                : 'Small tooltip',
+                : 'Small text tooltip',
             class: 'w2ui-light',
             style: 'background-color: white; border: 1px solid red; color: red; text-shadow: none'
         })

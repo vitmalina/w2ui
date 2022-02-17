@@ -424,6 +424,10 @@ class Query {
     click() {
         return this.trigger('click')
     }
+    then(fun) {
+        let ret = fun(this)
+        return ret != null ? ret : this
+    }
 }
 // create a new object each time
 let query = function (selector, context) {

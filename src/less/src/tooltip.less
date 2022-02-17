@@ -3,10 +3,9 @@
     --tip-size: 8px;
 
     position: absolute;
-    z-index: 1300;
+    z-index: 1700;
     opacity: 0;
-    .transition(opacity, 0.3s);
-
+    transition: opacity 0.3s;
     * {
         box-sizing: border-box;
     }
@@ -23,6 +22,7 @@
         background-color: rgba(60,60,60,0.9);
         line-height: 1.4;
         letter-spacing: 0.1px;
+        overflow: auto;
 
         &.w2ui-light {
             color: #3c3c3c;
@@ -103,10 +103,6 @@
             border-bottom-width: 0;
             border-right-width: 0;
         }
-    }
-    /* TODO: is it neded? */
-    &.w2ui-tip-popup {    // if it is inside popup
-        z-index: 1700;
     }
 }
 

@@ -23,10 +23,11 @@ class Tooltip extends w2base {
             html            : '',       // text or html
             style           : '',       // additional style for the overlay
             class           : '',       // add class for w2ui-overlay-body
+            position        : 'auto',   // can be left, right, top, bottom
+            align           : '',       // can be: both:size=50, left, right, both, top, bottom
             anchor          : null,     // element it is attached to
             anchorClass     : '',       // add class for anchor when overlay is shown
             anchorStyle     : '',       // add style for anchor when overlay is shown
-            position        : 'auto',   // can be left, right, top, bottom
             autoShow        : false,    // if autoShow true, then tooltip will show on mouseEnter and hide on mouseLeave
             showOn          : null,     // when options.auto = true, mouse event to show on
             hideOn          : null,     // when options.auto = true, mouse event to hide on
@@ -35,9 +36,9 @@ class Tooltip extends w2base {
             offsetY         : 0,        // delta for top coordinate
             maxWidth        : null,     // max width
             maxHeight       : null,     // max height
-            watchScroll     : null,     // watch scroll changes // TODO: other divs watch
+            watchScroll     : null,     // attach to onScroll event // TODO:
+            watchResize     : null,     // attach to onResize event // TODO:
             // TODO: not done
-            align           : 'none',   // can be none, left, right, both (only works for position: top | bottom)
             onShow          : null,     // callBack when shown
             onHide          : null,     // callBack when hidden
             onUpdate        : null,     // callback when tooltip gets updated
@@ -80,7 +81,6 @@ class Tooltip extends w2base {
         options = w2utils.extend({}, this.defaults, options ? options : {})
         if (!text && options.text) text = options.text
         if (!text && options.html) text = options.html
-        if (options.watchScroll == null) options.watchScroll = document
         // anchor is func var
         delete options.anchor
 
@@ -105,7 +105,12 @@ class Tooltip extends w2base {
             overlay = {
                 id: 'w2overlay-' + name, name, options, anchor,
                 tmp: {
-                    resizeObserver: new ResizeObserver(() => { this.resize(overlay.name) })
+                    resizeObserver: new ResizeObserver(() => {
+                        // clearTimeout(overlay.tmp.resizeTimer)
+                        // overlay.tmp.resizeTimer = setTimeout(() => {
+                            this.resize(overlay.name)
+                        // }, 1)
+                    })
                 }
             }
             this.active[name] = overlay
@@ -176,15 +181,16 @@ class Tooltip extends w2base {
         let edata
         let self = this
         let overlay = this.active[name]
+        let options = overlay.options
         if (!overlay) return
         // show or hide overlay
-        let overlayStyles = 'white-space: nowrap;'
-        if (overlay.options.maxWidth && w2utils.getStrWidth(overlay.options.html, overlayStyles) > overlay.options.maxWidth) {
-            overlayStyles = 'width: '+ overlay.options.maxWidth + 'px; white-space: inherit; overflow: auto;'
+        let overlayStyles = options.align != 'both' ? 'white-space: nowrap;' : ''
+        if (options.maxWidth && w2utils.getStrWidth(options.html, '') > options.maxWidth) {
+            overlayStyles = 'width: '+ options.maxWidth + 'px; white-space: inherit; overflow: auto;'
         }
-        overlayStyles += ' max-height: '+ (overlay.options.maxHeight ? overlay.options.maxHeight : window.innerHeight - 40) + 'px;'
+        overlayStyles += ' max-height: '+ (options.maxHeight ? options.maxHeight : window.innerHeight - 40) + 'px;'
         // if empty content - then hide it
-        if (overlay.options.html === '' || overlay.options.html == null) {
+        if (options.html === '' || options.html == null) {
             self.hide(name)
         } else if (overlay.box) {
             // if already present, update it
@@ -192,10 +198,10 @@ class Tooltip extends w2base {
             if (edata.isCancelled === true) return
             query(overlay.box)
                 .find('.w2ui-overlay-body')
-                .attr('style', (overlay.options.style || '') + '; ' + overlayStyles)
+                .attr('style', (options.style || '') + '; ' + overlayStyles)
                 .removeClass() // removes all classes
-                .addClass('w2ui-overlay-body ' + overlay.options.class)
-                .html(overlay.options.html)
+                .addClass('w2ui-overlay-body ' + options.class)
+                .html(options.html)
             this.resize(overlay.name)
         } else {
             // event before
@@ -205,8 +211,8 @@ class Tooltip extends w2base {
             query('body').append(
                 `<div id="${overlay.id}" name="${name}" style="display: none;" class="w2ui-overlay" data-click="stop">
                     <style></style>
-                    <div class="w2ui-overlay-body ${overlay.options.class}" style="${overlay.options.style || ''}; ${overlayStyles}">
-                        ${overlay.options.html}
+                    <div class="w2ui-overlay-body ${options.class}" style="${options.style || ''}; ${overlayStyles}">
+                        ${options.html}
                     </div>
                 </div>`)
             overlay.box = query('#'+w2utils.escapeId(overlay.id))[0]
@@ -218,65 +224,63 @@ class Tooltip extends w2base {
                 overlay.tmp.originalCSS = query(overlay.anchor)[0].style.cssText
             }
         }
-        if (overlay.options.anchorStyle) {
-            overlay.anchor.style.cssText += ';' + overlay.options.anchorStyle
+        if (options.anchorStyle) {
+            overlay.anchor.style.cssText += ';' + options.anchorStyle
         }
-        if (overlay.options.anchorClass) {
-            query(overlay.anchor).addClass(overlay.options.anchorClass)
+        if (options.anchorClass) {
+            query(overlay.anchor).addClass(options.anchorClass)
         }
-        // needed timeout so that it will not immediately hide
-        setTimeout(() => {
-            // add on hide events
-            let hide = () => { self.hide(overlay.name) }
-            let $anchor = query(overlay.anchor)
+        // add on hide events
+        let hide = () => { self.hide(overlay.name) }
+        let $anchor = query(overlay.anchor)
+        if (overlay.anchor.tagName === 'INPUT') {
+            $anchor.off('.w2overlay')
+            // TODO: check
+            if (options.hideOnFocus)    $anchor.on('focus.w2overlay', { once: true }, hide)
+            if (options.hideOnBlur)     $anchor.on('blur.w2overlay', { once: true }, hide)
+            if (options.hideOnChange)   $anchor.on('change.w2overlay', { once: true }, hide)
+            if (options.hideOnKeyPress) $anchor.on('keypress.w2overlay', { once: true }, hide)
+        }
+        if (options.hideOnClick) {
             if (overlay.anchor.tagName === 'INPUT') {
-                $anchor.off('.w2overlay')
+                // otherwise hides on click to focus
                 // TODO: check
-                if (overlay.options.hideOnFocus)    $anchor.on('focus.w2overlay', { once: true }, hide)
-                if (overlay.options.hideOnBlur)     $anchor.on('blur.w2overlay', { once: true }, hide)
-                if (overlay.options.hideOnChange)   $anchor.on('change.w2overlay', { once: true }, hide)
-                if (overlay.options.hideOnKeyPress) $anchor.on('keypress.w2overlay', { once: true }, hide)
+                $anchor.on('click.w2overlay', (event) => { event.stopPropagation() })
             }
-            if (overlay.options.hideOnClick) {
-                if (overlay.anchor.tagName === 'INPUT') {
-                    // otherwise hides on click to focus
-                    // TODO: check
-                    $anchor.on('click.w2overlay', (event) => { event.stopPropagation() })
-                }
-                query('body')
-                    .off('.w2overlay-' + overlay.name)
-                    .on('click.w2overlay-' + overlay.name, { once: true }, hide)
-            }
-            if (overlay.options.watchScroll) {
-                query(overlay.options.watchScroll)
-                    .off('.w2scroll-' + overlay.name)
-                    .on('scroll.w2scroll-' + overlay.name, e => {
-                        clearTimeout(overlay.tmp.scrollTimer)
-                        // debounce
-                        overlay.tmp.scrollTimer = setTimeout(() => {
-                            this.resize(overlay.name)
-                        }, 10)
-                    })
-            }
-            // document.addEventListener('scroll', e => {
-            //     console.log(e)
-            // })
-        }, 1)
-        let pos = this.getPosition(overlay.name)
-        query(overlay.box).css({
-            left: pos.left + 'px',
-            top : pos.top + 'px',
-            display: 'block',
-            opacity: 1
+            query('body')
+                .off('.w2overlay-' + overlay.name)
+                .on('click.w2overlay-' + overlay.name, { once: true }, hide)
+        }
+        //
+        Object.assign(overlay.tmp, {
+            scrollLeft: document.body.scrollLeft,
+            scrollTop: document.body.scrollTop
         })
-        // resize observer
+        addEvents(document, document.body)
+        // first show empty tooltip, so it will popup up in the right position
+        query(overlay.box).show()
         overlay.tmp.resizeObserver.observe(overlay.box)
-        // insert html
+        // then insert html and it will adjust
         query(overlay.box)
             .find('.w2ui-overlay-body')
-            .html(overlay.options.html)
+            .html(options.html)
+        // now, make visible, it has css opacity transition
+        setTimeout(() => { query(overlay.box).css('opacity', 1) }, 0)
         // event after
         this.trigger(w2utils.extend(edata, { phase: 'after' }))
+        return
+
+        function addEvents(el, scrollEl) {
+            query(el)
+                .off('.w2scroll-' + overlay.name)
+                .on('scroll.w2scroll-' + overlay.name, e => {
+                    Object.assign(overlay.tmp, {
+                        scrollLeft: document.body.scrollLeft,
+                        scrollTop: document.body.scrollTop
+                    })
+                    self.resize(overlay.name)
+                })
+        }
     }
 
     hide(name) {
@@ -298,8 +302,8 @@ class Tooltip extends w2base {
         if (edata.isCancelled === true) return
         // normal processing
         overlay.tmp.resizeObserver.disconnect()
+        query(document).off('.w2scroll-' + overlay.name)
         if (overlay.options.watchScroll) {
-            clearTimeout(overlay.tmp.scrollTimer)
             query(overlay.options.watchScroll)
                 .off('.w2scroll-' + overlay.name)
         }
@@ -337,19 +341,32 @@ class Tooltip extends w2base {
         let newPos = pos.left + 'x' + pos.top
         let edata
         if (overlay.tmp.lastPos != newPos) {
-            edata = this.trigger({ phase: 'before', type: 'update', target: name, overlay, pos })
+            edata = this.trigger({ phase: 'before', type: 'move', target: name, overlay, pos })
         }
         query(overlay.box)
             .css({
                 left: pos.left + 'px',
                 top : pos.top + 'px'
             })
+            .then(query => {
+                if (pos.width != null) {
+                    query.css('width', pos.width + 'px')
+                         .find('.w2ui-overlay-body')
+                         .css('width', '100%')
+                }
+                if (pos.height != null) {
+                    query.css('height', pos.height + 'px')
+                         .find('.w2ui-overlay-body')
+                         .css('height', '100%')
+                }
+            })
             .find('.w2ui-overlay-body')
             .removeClass('w2ui-arrow-right w2ui-arrow-left w2ui-arrow-top w2ui-arrow-bottom')
-            .addClass(pos.tipClass)
+            .addClass(pos.tip.class)
             .closest('.w2ui-overlay')
             .find('style')
-            .text(pos.tipStyle)
+            .text(pos.tip.style)
+
         if (overlay.tmp.lastPos != newPos) {
             overlay.tmp.lastPos = newPos
             this.trigger(w2utils.extend(edata, { phase: 'after' }))
@@ -362,135 +379,131 @@ class Tooltip extends w2base {
             return
         }
         let options   = overlay.options
-        let scrollEl  = options.watchScroll
-        if (scrollEl.scrollingElement) {
-            scrollEl = scrollEl.scrollingElement
+        if (overlay.tmp.resizedY) {
+            query(overlay.box).css({ width: '', height: '' })
         }
-        let max       = { width: window.innerWidth, height: window.innerHeight }
-        let scroll    = { left: scrollEl?.scrollLeft, top: scrollEl?.scrollTop }
+        let scrollSize = w2utils.scrollBarSize()
+        let max       = { width: window.innerWidth - scrollSize, height: window.innerHeight - scrollSize }
+        let scroll    = { left: overlay.tmp?.scrollLeft || 0, top: overlay.tmp?.scrollTop || 0 }
         let position  = options.position == 'auto' ? 'top|bottom|right|left'.split('|') : options.position.split('|')
         let anchor    = overlay.anchor.getBoundingClientRect()
         let content   = overlay.box.getBoundingClientRect()
+        // if convent overflows, the get max overflow
+        let body = query(overlay.box).find('.w2ui-overlay-body').get(0)
         // space available
         let available = {
-            top: anchor.top,
-            bottom: max.height - (anchor.top + anchor.height) - 16, // scrollbar size
+            top: anchor.top -10,
+            bottom: max.height - (anchor.top + anchor.height) - options.tipSize,
             left: anchor.left,
-            right: max.width - (anchor.left + anchor.width) - 16, // scrollbar size
+            right: max.width - (anchor.left + anchor.width) - options.tipSize,
         }
         // size of empty tooltip
         if (content.width < 22) content.width = 22
         if (content.height < 14) content.height = 14
-        // let posFound  = false
-        let left, top // tooltip position
-        let found
-        let tipClass = ''
-        let tipStyle = `#${overlay.id} { --tip-size: ${options.tipSize}px; }`
-        let bestFit  = { pos: '', available: 0 }
+        let left, top, width, height // tooltip position
+        let found = ''
+        let tip = {
+            offset: 0,
+            class: '',
+            style: `#${overlay.id} { --tip-size: ${options.tipSize}px; }`
+        }
+        let adjust   = { left: 0, top: 0 }
+        let bestFit  = { posX: '', x: 0, posY: '', y: 0 }
 
         // find best position
         position.forEach(pos => {
-            if (pos == 'top' && !found && (content.height + options.tipSize) < available.top) {
-                tipClass = 'w2ui-arrow-top'
-                left = anchor.left + (anchor.width - content.width) / 2
-                top = anchor.top - content.height - options.tipSize
-                found = true
+            if (!found && (content.height + options.tipSize) < available[pos]) {
+                found = pos
             }
-            if (pos == 'bottom' && !found && (content.height + options.tipSize) < available.bottom) {
-                tipClass = 'w2ui-arrow-bottom'
-                left = anchor.left + (anchor.width - content.width) / 2
-                top = anchor.top + anchor.height + options.tipSize
-                found = true
+            if (['top', 'bottom'].includes(pos) && available[pos] > bestFit.y) {
+                Object.assign(bestFit, { posY: pos, y: available[pos] })
             }
         })
+        if (!found) {
+            if (['top', 'bottom'].includes(position[0])) {
+                found = bestFit.posY
+            } else {
+                found = bestFit.posX
+            }
+        }
+        if (content.height > available[found]) {
+            height = available[found]
+            overlay.tmp.resizedY = true
+        } else {
+            overlay.tmp.resizedY = false
+        }
+        usePosition(found)
+
+        // top/bottom alignments
+        if (options.align == 'left') {
+            adjust.left = anchor.left - left
+            left = anchor.left
+        }
+        if (options.align == 'right') {
+            adjust.left = (anchor.left + anchor.width - content.width) - left
+            left = anchor.left + anchor.width - content.width
+        }
+        if (options.align.startsWith('both')) {
+            let minWidth = options.align.split(':')[1] ?? 50
+            if (anchor.width >= minWidth) {
+                left = anchor.left
+                width = anchor.width
+            }
+        }
+        let adjustTip
+        // adjust tip if needed after alignment
+        if (['left', 'right'].includes(options.align) && anchor.width < content.width) {
+            adjustTip = true
+        }
+        // if off screen then adjust
+        if (left < 0) {
+            adjustTip = true
+            adjust.left -= left
+            left = 0
+        }
+        if (left > max.width - content.width) {
+            adjustTip = true
+            adjust.left -= left - (max.width - content.width)
+            left += (max.width - content.width) - left
+        }
+        if (adjustTip && ['top', 'bottom'].includes(position[0])) {
+            tip.offset = -adjust.left
+            let maxOffset = content.width / 2 - options.tipSize
+            if (Math.abs(tip.offset) > maxOffset + 20) {
+                tip.class = '' // no tip
+            }
+            if (Math.abs(tip.offset) > maxOffset) {
+                tip.offset = tip.offset < 0 ? -maxOffset : maxOffset
+            }
+            tip.style = `#${overlay.id} .w2ui-overlay-body:after,
+                         #${overlay.id} .w2ui-overlay-body:before {
+                              margin-left: ${tip.offset}px
+                         }`
+        }
+
         // adjust for scrollbar
         top = top + scroll.top + parseFloat(options.offsetY)
         left = left + scroll.left + parseFloat(options.offsetX)
 
-        return { left, top, tipClass, tipStyle }
+        // console.log(found, scroll, { left, top, width, height, pos: found, tip, adjust, scroll })
+        return { left, top, tip, adjust, width, height, pos: found }
 
-        // let posLeft   = parseInt(anchor.left + anchor.width + (options.left ? options.left : 0))
-        // let posTop    = parseInt(anchor.top + (options.top ? options.top : 0))
-        // min content width/height
-
-        console.log('anchor:', anchor, '\ncontent:', content, '\npositions: ', position, '\n[left, top]', [left, top])
-        debugger
-
-        // let style    = content[0].computedStyleMap()
-        // let padding  = {
-        //     top: style.get('padding-top').value,
-        //     bottom: style.get('padding-bottom').value,
-        //     left: style.get('padding-left').value,
-        //     right: style.get('padding-right').value
-        // }
-        // if (overlay.options.maxWidth) {
-        //     width = overlay.options.maxWidth - padding.left
-        // }
-        // try to fit the overlay on screen in the order defined in the array
-        for (let i = 0; i < position.length; i++) {
-            let pos = position[i]
-            if (pos === 'right') {
-                tipClass = 'w2ui-arrow-right'
-                tipStyle = `#${overlay.id} .w2ui-overlay-body:before { }`
-                posLeft = Math.round(parseInt(anchor.left + anchor.width + (options.left ? options.left : 0)
-                    + (padding.left + padding.right) / 2 - 10) + document.body.scrollLeft)
-                posTop = Math.round(parseInt(anchor.top - height / 2 + anchor.height / 2
-                    + (options.top ? options.top : 0) + padding.top) - 2
-                    + document.body.scrollTop)
-            } else if (pos === 'left') {
-                tipClass = 'w2ui-arrow-left'
-                tipStyle = `#${overlay.id} .w2ui-overlay-body:after { }`
-                posLeft = Math.round(parseInt(anchor.left + (options.left ? options.left : 0)) - width - 20
-                    + document.body.scrollLeft)
-                posTop = Math.round(parseInt(anchor.top - height / 2 + anchor.height / 2
-                    + (options.top ? options.top : 0) + padding.top) - 10
-                    + document.body.scrollTop)
-            } else if (pos === 'top') {
-                tipClass = 'w2ui-arrow-top'
-                tipStyle = `#${overlay.id} .w2ui-overlay-body:after { }`
-                posLeft = Math.round(parseInt(anchor.left - width / 2 + anchor.width / 2
-                    + (options.left ? options.left : 0) - padding.left) + 5
-                    + document.body.scrollLeft)
-                posTop = Math.round(parseInt(anchor.top + (options.top ? options.top : 0))
-                    - height - padding.top + document.body.scrollTop - 2)
-            } else if (pos === 'bottom') {
-                tipClass = 'w2ui-arrow-bottom'
-                tipStyle = `#${overlay.id} .w2ui-overlay-body:before { }`
-                posLeft = Math.round(parseInt(anchor.left - width / 2 + anchor.width / 2
-                    + (options.left ? options.left : 0) - padding.left) + 6
-                    + document.body.scrollLeft)
-                posTop = Math.round(parseInt(anchor.top + anchor.height + (options.top ? options.top : 0))
-                    + (padding.top + padding.bottom) / 2 + 2 + document.body.scrollTop)
-            }
-            let newLeft = posLeft - document.body.scrollLeft
-            let newTop = posTop - document.body.scrollTop
-            if (newLeft + width + 20 <= maxWidth && newLeft >= 0 && newTop + height <= maxHeight && newTop >= 0) {
-                // scroll bar is 20
-                posFound = true
-                break
+        function usePosition(pos) {
+            switch (pos) {
+                case 'top': {
+                    tip.class = 'w2ui-arrow-top'
+                    left = anchor.left + (anchor.width - content.width) / 2
+                    top = anchor.top - (height ?? content.height) - options.tipSize
+                    break
+                }
+                case 'bottom': {
+                    tip.class = 'w2ui-arrow-bottom'
+                    left = anchor.left + (anchor.width - content.width) / 2
+                    top = anchor.top + anchor.height + options.tipSize
+                    break
+                }
             }
         }
-        if (!posFound) {
-            if (overlay.tmp.hidden != true) {
-                overlay.tmp.hidden = true
-                query(overlay.box).hide()
-            }
-        } else {
-            if (overlay.tmp.tipClass !== tipClass) {
-                overlay.tmp.tipClass = tipClass
-                query(overlay.box).find('.w2ui-overlay-body')
-                    .removeClass('w2ui-arrow-right w2ui-arrow-left w2ui-arrow-top w2ui-arrow-bottom')
-                    .addClass(tipClass)
-                    .closest('.w2ui-overlay')
-                    .find('style')
-                    .text(tipStyle)
-            }
-            if (overlay.tmp.hidden) {
-                overlay.tmp.hidden = false
-                query(overlay.box).show()
-            }
-        }
-        return { left: posLeft, top: posTop, tipClass, posFound }
     }
 }
 
