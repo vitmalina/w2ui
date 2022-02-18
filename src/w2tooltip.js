@@ -46,12 +46,7 @@ class Tooltip extends w2base {
             onHide          : null,     // callBack when hidden
             onUpdate        : null,     // callback when tooltip gets updated
             onMove          : null,     // callback when tooltip is moved
-            // TODO:
-            hideOnClick     : false,    // global hide on document click
-            hideOnChange    : true,     // hides when input changes
-            hideOnKeyPress  : true,     // hides when input key pressed
-            hideOnFocus     : false,    // hides when input gets focus
-            hideOnBlur      : false,    // hides when input gets blur
+            hideOn          : null     // events when to hide tooltip, ['click', 'change', 'key', 'focus', 'blur'],
         }
     }
 
@@ -246,32 +241,13 @@ class Tooltip extends w2base {
             query(overlay.anchor).addClass(options.anchorClass)
         }
         // add on hide events
-        let hide = () => { self.hide(overlay.name) }
-        let $anchor = query(overlay.anchor)
-        if (overlay.anchor.tagName === 'INPUT') {
-            $anchor.off('.w2overlay')
-            // TODO: check
-            if (options.hideOnFocus)    $anchor.on('focus.w2overlay', { once: true }, hide)
-            if (options.hideOnBlur)     $anchor.on('blur.w2overlay', { once: true }, hide)
-            if (options.hideOnChange)   $anchor.on('change.w2overlay', { once: true }, hide)
-            if (options.hideOnKeyPress) $anchor.on('keypress.w2overlay', { once: true }, hide)
-        }
-        if (options.hideOnClick) {
-            if (overlay.anchor.tagName === 'INPUT') {
-                // otherwise hides on click to focus
-                // TODO: check
-                $anchor.on('click.w2overlay', (event) => { event.stopPropagation() })
-            }
-            query('body')
-                .off('.w2overlay-' + overlay.name)
-                .on('click.w2overlay-' + overlay.name, { once: true }, hide)
-        }
-        //
+        if (!Array.isArray(options.hideOn)) options.hideOn = []
         Object.assign(overlay.tmp, {
             scrollLeft: document.body.scrollLeft,
             scrollTop: document.body.scrollTop
         })
-        addEvents(document, document.body)
+        addHideEvents() // TODO: not working
+        addWatchEvents(document, document.body)
         // first show empty tooltip, so it will popup up in the right position
         query(overlay.box).show()
         overlay.tmp.resizeObserver.observe(overlay.box)
@@ -285,7 +261,7 @@ class Tooltip extends w2base {
         this.trigger(w2utils.extend(edata, { phase: 'after' }))
         return
 
-        function addEvents(el, scrollEl) {
+        function addWatchEvents(el, scrollEl) {
             query(el)
                 .off('.w2scroll-' + overlay.name)
                 .on('scroll.w2scroll-' + overlay.name, e => {
@@ -295,6 +271,30 @@ class Tooltip extends w2base {
                     })
                     self.resize(overlay.name)
                 })
+        }
+
+        function addHideEvents() {
+            let hide = () => { debugger; self.hide(overlay.name) }
+            let $anchor = query(overlay.anchor)
+            let scope = 'tpHide-' + overlay.name
+            if (overlay.anchor.tagName === 'INPUT') {
+                $anchor.off(`.${scope}`)
+                if (options.hideOn.includes('focus'))  $anchor.on(`focus.${scope}`, { once: true }, hide)
+                if (options.hideOn.includes('blur'))   $anchor.on(`blur.${scope}`, { once: true }, hide)
+                if (options.hideOn.includes('change')) $anchor.on(`change.${scope}`, { once: true }, hide)
+                if (options.hideOn.includes('key'))    $anchor.on(`keydown.${scope}`, hide)
+            }
+            if (options.hideOn.includes('click')) {
+                if (overlay.anchor.tagName === 'INPUT') {
+                    // otherwise hides on click to focus
+                    $anchor
+                        .off(`.${scope}`)
+                        .on(`click.${scope}`, (event) => { event.stopPropagation() })
+                }
+                query('body')
+                    .off(`.${scope}`)
+                    .on(`click.${scope}`)
+            }
         }
     }
 

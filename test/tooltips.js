@@ -50,6 +50,7 @@ $('button').on('click', event => {
             // maxWidth: 100,
             // maxHeight: 100,
             arrowSize: 1,
+            hideOn: ['click', 'key', 'change', 'blur'],
             // offsetY: 5,
             html: isLong
                 ? `Long text for the tooltip to see how it would wrap if any.<br>
