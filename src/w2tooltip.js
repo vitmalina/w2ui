@@ -32,8 +32,9 @@ class Tooltip extends w2base {
             anchorStyle     : '',       // add style for anchor when tooltip is shown
             autoShow        : false,    // if autoShow true, then tooltip will show on mouseEnter and hide on mouseLeave
             autoShowOn      : null,     // when options.auto = true, mouse event to show on
-            autpHideOn      : null,     // when options.auto = true, mouse event to hide on
+            autoHideOn      : null,     // when options.auto = true, mouse event to hide on
             arrowSize       : 8,        // size of the carret
+            margin          : 0,        // extra margin from the anchor
             screenMargin    : 2,        // min margin from screen to tooltip
             autoResize      : true,     // auto resize based on content size and available size
             offsetX         : 0,        // delta for left coordinate
@@ -65,6 +66,8 @@ class Tooltip extends w2base {
     get(name) {
         if (arguments.length == 0) {
             return Object.keys(Tooltip.active)
+        } else if (name === true) {
+            return Tooltip.active
         } else {
             return Tooltip.active[name]
         }
@@ -111,6 +114,7 @@ class Tooltip extends w2base {
             overlay.options = w2utils.extend({}, overlay.options, options)
         } else {
             overlay = {
+                displayed: false,
                 id: 'w2overlay-' + name, name, options, anchor,
                 tmp: {
                     resizeObserver: new ResizeObserver(() => {
@@ -121,35 +125,24 @@ class Tooltip extends w2base {
             Tooltip.active[name] = overlay
         }
         // add event for auto show/hide
-        let show = (options.autoShow === true || options.autoShowOn != null)
-        let hide = (options.autoShow === true || options.autoHideOn != null)
-        if (options.autoShow === true || show || hide) {
+        if (options.autoShow === true) {
+            options.autoShowOn = options.autoShowOn ?? 'mouseenter'
+            options.autoHideOn = options.autoHideOn ?? 'mouseleave'
             options.autoShow = false
-            let showOn = 'mouseenter'
-            let hideOn = 'mouseleave'
-            if (options.autoShowOn) {
-                showOn = String(options.autoShowOn).toLowerCase()
-                delete options.autoShowOn
-            }
-            if (options.autoHideOn) {
-                hideOn = String(options.autoHideOn).toLowerCase()
-                delete options.autoHideOn
-            }
-            query(anchor).each((el, ind) => {
-                query(el).off('.w2overlay-init')
-                if (show) {
-                    query(el).on(showOn + '.w2overlay-init', event => {
-                        self.show(overlay.name)
-                        // event.stopPropagation()
-                    })
-                }
-                if (hide) {
-                    query(el).on(hideOn + '.w2overlay-init', event => {
-                        self.hide(overlay.name)
-                        // event.stopPropagation()
-                    })
-                }
+        }
+        if (options.autoShowOn) {
+            query(anchor).on(options.autoShowOn + '.w2overlay-init', event => {
+                self.show(overlay.name)
+                // event.stopPropagation()
             })
+            delete options.autoShowOn
+        }
+        if (options.autoHideOn) {
+            query(anchor).on(options.autoHideOn + '.w2overlay-init', event => {
+                self.hide(overlay.name)
+                // event.stopPropagation()
+            })
+            delete options.autoHideOn
         }
         self.off('.attach')
         let ret = {
@@ -203,7 +196,14 @@ class Tooltip extends w2base {
         } else if (overlay.box) {
             // if already present, update it
             edata = this.trigger({ phase: 'before', type: 'update', target: name, overlay })
-            if (edata.isCancelled === true) return
+            if (edata.isCancelled === true) {
+                // restore previous options
+                if (overlay.prevOptions) {
+                    overlay.options = overlay.prevOptions
+                    delete overlay.prevOptions
+                }
+                return
+            }
             query(overlay.box)
                 .find('.w2ui-overlay-body')
                 .attr('style', (options.style || '') + '; ' + overlayStyles)
@@ -224,6 +224,7 @@ class Tooltip extends w2base {
                     </div>
                 </div>`)
             overlay.box = query('#'+w2utils.escapeId(overlay.id))[0]
+            overlay.displayed = true
             let names = query(overlay.anchor).data('tooltipName') ?? []
             names.push(name)
             query(overlay.anchor).data('tooltipName', names) // make available to element overlay attached to
@@ -246,8 +247,8 @@ class Tooltip extends w2base {
             scrollLeft: document.body.scrollLeft,
             scrollTop: document.body.scrollTop
         })
-        addHideEvents() // TODO: not working
-        addWatchEvents(document, document.body)
+        addHideEvents()
+        addWatchEvents(document.body)
         // first show empty tooltip, so it will popup up in the right position
         query(overlay.box).show()
         overlay.tmp.resizeObserver.observe(overlay.box)
@@ -261,39 +262,46 @@ class Tooltip extends w2base {
         this.trigger(w2utils.extend(edata, { phase: 'after' }))
         return
 
-        function addWatchEvents(el, scrollEl) {
-            query(el)
-                .off('.w2scroll-' + overlay.name)
-                .on('scroll.w2scroll-' + overlay.name, e => {
+        function addWatchEvents(el) {
+            let scope = 'tooltip-' + overlay.name
+            let queryEl = el
+            if (el.tagName == 'BODY') {
+                queryEl = el.ownerDocument
+            }
+            query(queryEl)
+                .off(`.${scope}`)
+                .on(`scroll.${scope}`, event => {
                     Object.assign(overlay.tmp, {
-                        scrollLeft: document.body.scrollLeft,
-                        scrollTop: document.body.scrollTop
+                        scrollLeft: el.scrollLeft,
+                        scrollTop: el.scrollTop
                     })
                     self.resize(overlay.name)
                 })
         }
 
         function addHideEvents() {
-            let hide = () => { debugger; self.hide(overlay.name) }
+            let hide = (event) => { self.hide(overlay.name) }
             let $anchor = query(overlay.anchor)
-            let scope = 'tpHide-' + overlay.name
-            if (overlay.anchor.tagName === 'INPUT') {
-                $anchor.off(`.${scope}`)
-                if (options.hideOn.includes('focus'))  $anchor.on(`focus.${scope}`, { once: true }, hide)
-                if (options.hideOn.includes('blur'))   $anchor.on(`blur.${scope}`, { once: true }, hide)
-                if (options.hideOn.includes('change')) $anchor.on(`change.${scope}`, { once: true }, hide)
-                if (options.hideOn.includes('key'))    $anchor.on(`keydown.${scope}`, hide)
-            }
-            if (options.hideOn.includes('click')) {
+            let scope = 'tooltip-' + overlay.name
+            // document click
+            if (options.hideOn.includes('doc-click')) {
                 if (overlay.anchor.tagName === 'INPUT') {
                     // otherwise hides on click to focus
                     $anchor
-                        .off(`.${scope}`)
-                        .on(`click.${scope}`, (event) => { event.stopPropagation() })
+                        .off(`.${scope}-doc`)
+                        .on(`click.${scope}-doc`, (event) => { event.stopPropagation() })
                 }
                 query('body')
                     .off(`.${scope}`)
-                    .on(`click.${scope}`)
+                    .on(`click.${scope}`, hide)
+            }
+            if (overlay.anchor.tagName === 'INPUT') {
+                $anchor.off(`.${scope}`)
+                options.hideOn.forEach(event => {
+                    if (!event.startsWith('doc-')) {
+                        $anchor.on(`${event}.${scope}`, { once: true }, hide)
+                    }
+                })
             }
         }
     }
@@ -317,32 +325,33 @@ class Tooltip extends w2base {
         // event before
         let edata = this.trigger({ phase: 'before', type: 'hide', target: name, overlay })
         if (edata.isCancelled === true) return
+        let scope = 'tooltip-' + overlay.name
         // normal processing
         overlay.tmp.resizeObserver.disconnect()
-        query(document).off('.w2scroll-' + overlay.name)
         if (overlay.options.watchScroll) {
             query(overlay.options.watchScroll)
                 .off('.w2scroll-' + overlay.name)
         }
+        query('body').off(`.${scope}`)   // hide to click event here
+        query(document).off(`.${scope}`) // scroll event here
         // remove element
         overlay.box.remove()
         overlay.box = null
+        overlay.displayed = false
         // remove name from anchor properties
         let names = query(overlay.anchor).data('tooltipName') ?? []
         let ind = names.indexOf(overlay.name)
         if (ind != -1) names.splice(names.indexOf(overlay.name), 1)
-        query(overlay.anchor)
-            .off('.w2overlay')
-            .data('tooltipName', names)
         if (names.length == 0) {
             query(overlay.anchor).removeData('tooltipName')
+        } else {
+            query(overlay.anchor).data('tooltipName', names)
         }
         // restore original CSS
         overlay.anchor.style.cssText = overlay.tmp.originalCSS
         query(overlay.anchor)
-            .off('.w2overlay')
+            .off(`.${scope}`)
             .removeClass(overlay.options.anchorClass)
-        query('body').off('.w2overlay-' + overlay.name)
         // event after
         this.trigger(w2utils.extend(edata, { phase: 'after' }))
     }
@@ -472,9 +481,12 @@ class Tooltip extends w2base {
         anchorAlignment()
         screenAdjust()
 
+        let extraTop = (found == 'top' ? -options.margin : (found == 'bottom' ? options.margin : 0))
+        let extraLeft = (found == 'left' ? -options.margin : (found == 'right' ? options.margin : 0))
+
         // adjust for scrollbar
-        top = top + scroll.top + parseFloat(options.offsetY)
-        left = left + scroll.left + parseFloat(options.offsetX)
+        top = top + scroll.top + parseFloat(options.offsetY) + parseInt(extraTop)
+        left = left + scroll.left + parseFloat(options.offsetX) + parseInt(extraLeft)
 
         // console.log(found, scroll, { left, top, width, height, pos: found, arrow, adjust, scroll })
         return { left, top, arrow, adjust, width, height, pos: found }

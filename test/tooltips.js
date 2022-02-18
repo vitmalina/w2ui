@@ -30,27 +30,32 @@ $('button').on('click', event => {
         //     name: 'tpA',
         //     anchor: anchor[0],
         //     html: 'small',
-        //     position: 'left'
+        //     position: 'left',
+        //     hideOn: ['click']
         // })
         // w2tooltip.show({
         //     name: 'tpB',
         //     anchor: anchor[0],
         //     class: 'w2ui-light',
         //     html: 'White small tooltip',
-        //     position: 'bottom'
+        //     position: 'bottom',
+        //     hideOn: ['click']
         // })
-        w2tooltip.show({
+        w2tooltip.attach({
             name: 'tp1',
             anchor: anchor[0],
             // position: $('#position').val(),
-            // position: 'right',
-            // position: 'top|bottom',
+            // position: 'right|left',
+            position: 'top|bottom',
             // position: 'bottom|top',
+            // position: 'top',
             // align: 'both',
             // maxWidth: 100,
             // maxHeight: 100,
-            arrowSize: 1,
-            hideOn: ['click', 'key', 'change', 'blur'],
+            // arrowSize: 0,
+            // margin: 1,
+            autoShowOn: 'focus',
+            hideOn: ['doc-click', 'input', 'change'],
             // offsetY: 5,
             html: isLong
                 ? `Long text for the tooltip to see how it would wrap if any.<br>
