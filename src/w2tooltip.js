@@ -14,24 +14,27 @@ import { w2utils } from './w2utils.js'
 window.$ = query // TODO: remove
 
 class Tooltip extends w2base {
+    // all acitve tooltips, any any its descendants
+    static active = {}
     constructor() {
         // TODO: what events are used for?
         super()
-        this.active = {} // all tooltips on screen now
         this.defaults = {
             name            : null,     // name for the overlay, otherwise input id is used
             html            : '',       // text or html
             style           : '',       // additional style for the overlay
-            class           : '',       // add class for w2ui-overlay-body
+            class           : '',       // add class for w2ui-tooltip-body
             position        : 'auto',   // can be left, right, top, bottom
             align           : '',       // can be: both:size=50, left, right, both, top, bottom
             anchor          : null,     // element it is attached to
-            anchorClass     : '',       // add class for anchor when overlay is shown
-            anchorStyle     : '',       // add style for anchor when overlay is shown
+            anchorClass     : '',       // add class for anchor when tooltip is shown
+            anchorStyle     : '',       // add style for anchor when tooltip is shown
             autoShow        : false,    // if autoShow true, then tooltip will show on mouseEnter and hide on mouseLeave
             showOn          : null,     // when options.auto = true, mouse event to show on
             hideOn          : null,     // when options.auto = true, mouse event to hide on
-            tipSize         : 8,        // size of the carret
+            arrowSize       : 8,        // size of the carret
+            screenMargin    : 2,        // min margin from screen to tooltip
+            autoResize      : true,     // auto resize based on content size and available size
             offsetX         : 0,        // delta for left coordinate
             offsetY         : 0,        // delta for top coordinate
             maxWidth        : null,     // max width
@@ -51,16 +54,25 @@ class Tooltip extends w2base {
         }
     }
 
-    get(name) {
-        if (arguments.length == 0) {
-            return Object.keys(this.active)
-        } else {
-            return this.active[name]
+    // map events to individual tooltips
+    onShow(event) { this._trigger('onShow', event) }
+    onHide(event) { this._trigger('onHide', event) }
+    onUpdate(event) { this._trigger('onUpdate', event) }
+    onMove(event) { this._trigger('onMove', event) }
+    _trigger(name, event) {
+        // TODO: check
+        let overlay = Tooltip.active[event.target]
+        if (typeof overlay.options[name] == 'function') {
+            overlay.options[name](event)
         }
     }
 
-    destroy(name) {
-        delete this.active[name]
+    get(name) {
+        if (arguments.length == 0) {
+            return Object.keys(Tooltip.active)
+        } else {
+            return Tooltip.active[name]
+        }
     }
 
     attach(anchor, text) {
@@ -84,22 +96,22 @@ class Tooltip extends w2base {
         // anchor is func var
         delete options.anchor
 
-        // define overlay
+        // define tooltip
         let name = (options.name ? options.name : anchor.id)
         if (!name) {
-            name = 'noname-' +Object.keys(this.active).length
+            name = 'noname-' +Object.keys(Tooltip.active).length
         }
-        if (name == anchor.id && this.active[name]) {
+        if (name == anchor.id && Tooltip.active[name]) {
             // find unique name
             let find = (name, ind=0) => {
                 if (ind !== 0) name = name.substr(0, name.length-2)
                 name += '-' + (ind + 1)
-                return (this.active['w2overlay-' + name] == null ? name : find(name, ind+1))
+                return (Tooltip.active['w2overlay-' + name] == null ? name : find(name, ind+1))
             }
             name = find(name)
         }
-        if (this.active[name]) {
-            overlay = this.active[name]
+        if (Tooltip.active[name]) {
+            overlay = Tooltip.active[name]
             overlay.options = w2utils.extend({}, overlay.options, options)
         } else {
             overlay = {
@@ -113,7 +125,7 @@ class Tooltip extends w2base {
                     })
                 }
             }
-            this.active[name] = overlay
+            Tooltip.active[name] = overlay
         }
         // add event for auto show/hide
         let show = (options.autoShow === true || options.showOn != null)
@@ -180,7 +192,7 @@ class Tooltip extends w2base {
         }
         let edata
         let self = this
-        let overlay = this.active[name]
+        let overlay = Tooltip.active[name]
         let options = overlay.options
         if (!overlay) return
         let isVertical = ['top', 'bottom'].includes(position[0])
@@ -217,7 +229,9 @@ class Tooltip extends w2base {
                     </div>
                 </div>`)
             overlay.box = query('#'+w2utils.escapeId(overlay.id))[0]
-            query(overlay.anchor).data('tooltipName', name) // make available to element overlay attached to
+            let names = query(overlay.anchor).data('tooltipName') ?? []
+            names.push(name)
+            query(overlay.anchor).data('tooltipName', names) // make available to element overlay attached to
             w2utils.bindEvents(overlay.box, {})
             // remember anchor's original styles
             overlay.tmp.originalCSS = ''
@@ -288,14 +302,16 @@ class Tooltip extends w2base {
         let overlay
         if (arguments.length == 0) {
             // hide all tooltips
-            Object.keys(this.active).forEach(name => { this.hide(name) })
+            Object.keys(Tooltip.active).forEach(name => { this.hide(name) })
             return
         }
         if (name instanceof HTMLElement) {
-            name = query(name).data('tooltipName')
+            let names = query(name).data('tooltipName') ?? []
+            names.forEach(name => { this.hide(name) })
+            return
         }
         if (typeof name == 'string') {
-            overlay = this.active[name]
+            overlay = Tooltip.active[name]
         }
         if (!overlay || !overlay.box) return
         // event before
@@ -311,9 +327,16 @@ class Tooltip extends w2base {
         // remove element
         overlay.box.remove()
         overlay.box = null
+        // remove name from anchor properties
+        let names = query(overlay.anchor).data('tooltipName') ?? []
+        let ind = names.indexOf(overlay.name)
+        if (ind != -1) names.splice(names.indexOf(overlay.name), 1)
         query(overlay.anchor)
             .off('.w2overlay')
-            .removeData('tooltipName')
+            .data('tooltipName', names)
+        if (names.length == 0) {
+            query(overlay.anchor).removeData('tooltipName')
+        }
         // restore original CSS
         overlay.anchor.style.cssText = overlay.tmp.originalCSS
         query(overlay.anchor)
@@ -324,20 +347,8 @@ class Tooltip extends w2base {
         this.trigger(w2utils.extend(edata, { phase: 'after' }))
     }
 
-    // map events to individual overlays
-    onShow(event) { this._trigger('onShow', event) }
-    onHide(event) { this._trigger('onHide', event) }
-    onUpdate(event) { this._trigger('onUpdate', event) }
-    onMove(event) { this._trigger('onMove', event) }
-    _trigger(name, event) {
-        let overlay = this.active[event.target]
-        if (typeof overlay.options[name] == 'function') {
-            overlay.options[name](event)
-        }
-    }
-
     resize(name) {
-        let overlay = this.active[name]
+        let overlay = Tooltip.active[name]
         let pos = this.getPosition(overlay.name)
         let newPos = pos.left + 'x' + pos.top
         let edata
@@ -363,10 +374,10 @@ class Tooltip extends w2base {
             })
             .find('.w2ui-overlay-body')
             .removeClass('w2ui-arrow-right w2ui-arrow-left w2ui-arrow-top w2ui-arrow-bottom')
-            .addClass(pos.tip.class)
+            .addClass(pos.arrow.class)
             .closest('.w2ui-overlay')
             .find('style')
-            .text(pos.tip.style)
+            .text(pos.arrow.style)
 
         if (overlay.tmp.lastPos != newPos) {
             overlay.tmp.lastPos = newPos
@@ -375,7 +386,7 @@ class Tooltip extends w2base {
     }
 
     getPosition(name) {
-        let overlay = this.active[name]
+        let overlay = Tooltip.active[name]
         if (!overlay || !overlay.box) {
             return
         }
@@ -394,20 +405,20 @@ class Tooltip extends w2base {
         let body = query(overlay.box).find('.w2ui-overlay-body').get(0)
         // space available
         let available = { // tipsize adjustment should be here, not in max.width/max.height
-            top: anchor.top - options.tipSize,
-            bottom: max.height - (anchor.top + anchor.height) - options.tipSize,
-            left: anchor.left - options.tipSize,
-            right: max.width - (anchor.left + anchor.width) - options.tipSize,
+            top: anchor.top - options.arrowSize,
+            bottom: max.height - (anchor.top + anchor.height) - options.arrowSize,
+            left: anchor.left - options.arrowSize,
+            right: max.width - (anchor.left + anchor.width) - options.arrowSize,
         }
         // size of empty tooltip
         if (content.width < 22) content.width = 22
         if (content.height < 14) content.height = 14
         let left, top, width, height // tooltip position
         let found = ''
-        let tip = {
+        let arrow = {
             offset: 0,
             class: '',
-            style: `#${overlay.id} { --tip-size: ${options.tipSize}px; }`
+            style: `#${overlay.id} { --tip-size: ${options.arrowSize}px; }`
         }
         let adjust   = { left: 0, top: 0 }
         let bestFit  = { posX: '', x: 0, posY: '', y: 0 }
@@ -415,7 +426,7 @@ class Tooltip extends w2base {
         // find best position
         position.forEach(pos => {
             if (['top', 'bottom'].includes(pos)) {
-                if (!found && (content.height + options.tipSize) < available[pos]) {
+                if (!found && (content.height + options.arrowSize) < available[pos]) {
                     found = pos
                 }
                 if (available[pos] > bestFit.y) {
@@ -423,7 +434,7 @@ class Tooltip extends w2base {
                 }
             }
             if (['left', 'right'].includes(pos)) {
-                if (!found && (content.width + options.tipSize) < available[pos]) {
+                if (!found && (content.width + options.arrowSize) < available[pos]) {
                     found = pos
                 }
                 if (available[pos] > bestFit.x) {
@@ -439,26 +450,62 @@ class Tooltip extends w2base {
                 found = bestFit.posX
             }
         }
-        if (['top', 'bottom'].includes(found)) {
-            if (content.height > available[found]) {
-                height = available[found]
-                overlay.tmp.resizedY = true
-            } else {
-                overlay.tmp.resizedY = false
+        if (options.autoResize) {
+            if (['top', 'bottom'].includes(found)) {
+                if (content.height > available[found]) {
+                    height = available[found]
+                    overlay.tmp.resizedY = true
+                } else {
+                    overlay.tmp.resizedY = false
+                }
             }
-        }
-        if (['left', 'right'].includes(found)) {
-            if (content.width > available[found]) {
-                width = available[found]
-                overlay.tmp.resizedX = true
-            } else {
-                overlay.tmp.resizedX = false
+            if (['left', 'right'].includes(found)) {
+                if (content.width > available[found]) {
+                    width = available[found]
+                    overlay.tmp.resizedX = true
+                } else {
+                    overlay.tmp.resizedX = false
+                }
             }
         }
         usePosition(found)
+        anchorAlignment()
+        screenAdjust()
 
-        // adjust off screen position
-        if (true) {
+        // adjust for scrollbar
+        top = top + scroll.top + parseFloat(options.offsetY)
+        left = left + scroll.left + parseFloat(options.offsetX)
+
+        // console.log(found, scroll, { left, top, width, height, pos: found, arrow, adjust, scroll })
+        return { left, top, arrow, adjust, width, height, pos: found }
+
+        function usePosition(pos) {
+            arrow.class = `w2ui-arrow-${pos}`
+            switch (pos) {
+                case 'top': {
+                    left = anchor.left + (anchor.width - (width ?? content.width)) / 2
+                    top = anchor.top - (height ?? content.height) - options.arrowSize
+                    break
+                }
+                case 'bottom': {
+                    left = anchor.left + (anchor.width - (width ?? content.width)) / 2
+                    top = anchor.top + anchor.height + options.arrowSize
+                    break
+                }
+                case 'left': {
+                    left = anchor.left - (width ?? content.width) - options.arrowSize
+                    top = anchor.top + (anchor.height - (height ?? content.height)) / 2
+                    break
+                }
+                case 'right': {
+                    left = anchor.left + anchor.width + options.arrowSize
+                    top = anchor.top + (anchor.height - (height ?? content.height)) / 2
+                    break
+                }
+            }
+        }
+
+        function anchorAlignment() {
             // top/bottom alignments
             if (options.align == 'left') {
                 adjust.left = anchor.left - left
@@ -492,96 +539,60 @@ class Tooltip extends w2base {
                 }
             }
         }
-        // adjust tooltip carret
-        if (true) {
-            let adjustTip
+
+        function screenAdjust() {
+            let adjustArrow
             // adjust tip if needed after alignment
             if ((['left', 'right'].includes(options.align) && anchor.width < (width ?? content.width))
                 || (['top', 'bottom'].includes(options.align) && anchor.height < (height ?? content.height))
             ) {
-                adjustTip = true
+                adjustArrow = true
             }
             // if off screen then adjust
-            let minLeft = (found == 'right' ? options.tipSize : 0)
-            let minTop  = (found == 'bottom' ? options.tipSize : 0)
-            let maxLeft = max.width - (width ?? content.width) - (found == 'left' ? options.tipSize : 0)
-            let maxTop  = max.height - (height ?? content.height) - (found == 'top' ? options.tipSize : 0)
+            let minLeft = (found == 'right' ? options.arrowSize : options.screenMargin)
+            let minTop  = (found == 'bottom' ? options.arrowSize : options.screenMargin)
+            let maxLeft = max.width - (width ?? content.width) - (found == 'left' ? options.arrowSize : options.screenMargin)
+            let maxTop  = max.height - (height ?? content.height) - (found == 'top' ? options.arrowSize : options.screenMargin)
             if (left < minLeft) {
-                adjustTip = true
+                adjustArrow = true
                 adjust.left -= left
                 left = minLeft
             }
             if (top < minTop) {
-                adjustTip = true
+                adjustArrow = true
                 adjust.top -= top
                 top = minTop
             }
             if (left > maxLeft) {
-                adjustTip = true
+                adjustArrow = true
                 adjust.left -= left - maxLeft
                 left += maxLeft - left
             }
             if (top > maxTop) {
-                adjustTip = true
+                adjustArrow = true
                 adjust.top -= top - maxTop
                 top += maxTop - top
             }
-            if (adjustTip) {
+            if (adjustArrow) {
                 let aType = 'top'
                 let sType = 'height'
                 if (isVertical) {
                     aType = 'left'
                     sType = 'width'
                 }
-                tip.offset = -adjust[aType]
-                let maxOffset = content[sType] / 2 - options.tipSize
-                if (Math.abs(tip.offset) > maxOffset + options.tipSize) {
-                    tip.class = '' // no tip
+                arrow.offset = -adjust[aType]
+                let maxOffset = content[sType] / 2 - options.arrowSize
+                if (Math.abs(arrow.offset) > maxOffset + options.arrowSize) {
+                    arrow.class = '' // no arrow
                 }
-                if (Math.abs(tip.offset) > maxOffset) {
-                    tip.offset = tip.offset < 0 ? -maxOffset : maxOffset
+                if (Math.abs(arrow.offset) > maxOffset) {
+                    arrow.offset = arrow.offset < 0 ? -maxOffset : maxOffset
                 }
-                tip.style = `#${overlay.id} .w2ui-overlay-body:after,
+                arrow.style = `#${overlay.id} .w2ui-overlay-body:after,
                             #${overlay.id} .w2ui-overlay-body:before {
-                                --tip-size: ${options.tipSize}px;
-                                margin-${aType}: ${tip.offset}px;
+                                --tip-size: ${options.arrowSize}px;
+                                margin-${aType}: ${arrow.offset}px;
                             }`
-            }
-        }
-
-        // adjust for scrollbar
-        top = top + scroll.top + parseFloat(options.offsetY)
-        left = left + scroll.left + parseFloat(options.offsetX)
-
-        // console.log(found, scroll, { left, top, width, height, pos: found, tip, adjust, scroll })
-        return { left, top, tip, adjust, width, height, pos: found }
-
-        function usePosition(pos) {
-            switch (pos) {
-                case 'top': {
-                    tip.class = 'w2ui-arrow-top'
-                    left = anchor.left + (anchor.width - (width ?? content.width)) / 2
-                    top = anchor.top - (height ?? content.height) - options.tipSize
-                    break
-                }
-                case 'bottom': {
-                    tip.class = 'w2ui-arrow-bottom'
-                    left = anchor.left + (anchor.width - (width ?? content.width)) / 2
-                    top = anchor.top + anchor.height + options.tipSize
-                    break
-                }
-                case 'left': {
-                    tip.class = 'w2ui-arrow-left'
-                    left = anchor.left - (width ?? content.width) - options.tipSize
-                    top = anchor.top + (anchor.height - (height ?? content.height)) / 2
-                    break
-                }
-                case 'right': {
-                    tip.class = 'w2ui-arrow-right'
-                    left = anchor.left + anchor.width + options.tipSize
-                    top = anchor.top + (anchor.height - (height ?? content.height)) / 2
-                    break
-                }
             }
         }
     }
@@ -607,7 +618,9 @@ class ColorTooltip extends Tooltip {
             class: 'w2ui-light',
             color: '',
             liveUpdate: true,
-            style: ''
+            arrowSize: 12,
+            autoResize: false,
+            style: 'background-color: #f7f7f7;'
         })
     }
 
