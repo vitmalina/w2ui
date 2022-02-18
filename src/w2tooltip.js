@@ -242,7 +242,7 @@ class Tooltip extends w2base {
             query(overlay.anchor).addClass(options.anchorClass)
         }
         // add on hide events
-        if (!Array.isArray(options.hideOn)) options.hideOn = []
+        if (!Array.isArray(options.hideOn)) options.hideOn = [options.hideOn]
         Object.assign(overlay.tmp, {
             scrollLeft: document.body.scrollLeft,
             scrollTop: document.body.scrollTop
@@ -485,8 +485,8 @@ class Tooltip extends w2base {
         let extraLeft = (found == 'left' ? -options.margin : (found == 'right' ? options.margin : 0))
 
         // adjust for scrollbar
-        top = top + scroll.top + parseFloat(options.offsetY) + parseInt(extraTop)
-        left = left + scroll.left + parseFloat(options.offsetX) + parseInt(extraLeft)
+        top = top + parseFloat(options.offsetY) + parseInt(extraTop)
+        left = left + parseFloat(options.offsetX) + parseInt(extraLeft)
 
         // console.log(found, scroll, { left, top, width, height, pos: found, arrow, adjust, scroll })
         return { left, top, arrow, adjust, width, height, pos: found }
@@ -632,6 +632,7 @@ class ColorTooltip extends Tooltip {
             liveUpdate: true,
             arrowSize: 12,
             autoResize: false,
+            hideOn: 'doc-click',
             style: 'background-color: #f7f7f7;'
         })
     }
