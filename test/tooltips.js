@@ -11,8 +11,11 @@ window.w2utils = w2utils
 $('.corners input').each(el => {
     w2tooltip.attach(el, {
         html: 'Corner tooltip',
-        position: 'auto',
-        autoShow: true
+        autoShow: true,
+        // showOn: 'focus',
+        // hideOn: 'blur'
+        // anchorClass: 'my',
+        // anchorStyle: 'border: 1px solid red; border-radius: 2px;'
     })
 })
 
@@ -23,30 +26,31 @@ $('button').on('click', event => {
     let anchor = $('#inp0')
     anchor.css('height', '120px')
     if (!isHide) {
-        w2tooltip.show({
-            name: 'tpA',
-            anchor: anchor[0],
-            html: 'small',
-            position: 'left'
-        })
-        w2tooltip.show({
-            name: 'tpB',
-            anchor: anchor[0],
-            class: 'w2ui-light',
-            html: 'White small tooltip',
-            position: 'bottom'
-        })
+        // w2tooltip.show({
+        //     name: 'tpA',
+        //     anchor: anchor[0],
+        //     html: 'small',
+        //     position: 'left'
+        // })
+        // w2tooltip.show({
+        //     name: 'tpB',
+        //     anchor: anchor[0],
+        //     class: 'w2ui-light',
+        //     html: 'White small tooltip',
+        //     position: 'bottom'
+        // })
         w2tooltip.show({
             name: 'tp1',
             anchor: anchor[0],
             // position: $('#position').val(),
-            position: 'right',
+            // position: 'right',
             // position: 'top|bottom',
             // position: 'bottom|top',
             // align: 'both',
             // maxWidth: 100,
             // maxHeight: 100,
-            arrowSize: 20,
+            arrowSize: 1,
+            // offsetY: 5,
             html: isLong
                 ? `Long text for the tooltip to see how it would wrap if any.<br>
                    Long text for the tooltip to see how it would wrap if any.<br>
@@ -55,8 +59,35 @@ $('button').on('click', event => {
                    Long text for the tooltip to see how it would wrap if any.`
                 : 'Small text tooltip',
             class: 'w2ui-light',
-            style: 'background-color: white; border: 1px solid red; color: red; text-shadow: none'
+            style: 'background-color: white; border: 1px solid red; color: red; text-shadow: none',
+            // onShow(event) {
+            //     console.log('show', event)
+            // },
+            // onHide(event) {
+            //     console.log('hide', event)
+            // },
+            // onUpdate(event) {
+            //     console.log('update', event)
+            // },
+            // onMove(event) {
+            //     console.log('move', event)
+            // }
         })
+        // .then(event => {
+        //     console.log('then 1', event)
+        // })
+        // .show(event => {
+        //     console.log('show 1', event)
+        // })
+        // .hide(event => {
+        //     console.log('hide 1', event)
+        // })
+        // .update(event => {
+        //     console.log('update 1', event)
+        // })
+        // .move(event => {
+        //     console.log('move 1', event)
+        // })
     } else {
         w2tooltip.hide(anchor[0])
     }

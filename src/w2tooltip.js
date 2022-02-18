@@ -2,8 +2,10 @@
  * Part of w2ui 2.0 library
  * - Dependencies: mQuery, w2utils, w2base
  *
- * TODO
+ * 2.0 Changes
  * - multiple tooltips to the same anchor
+ *
+ * TODO
  * - cleanup w2color less
  */
 
@@ -17,7 +19,6 @@ class Tooltip extends w2base {
     // all acitve tooltips, any any its descendants
     static active = {}
     constructor() {
-        // TODO: what events are used for?
         super()
         this.defaults = {
             name            : null,     // name for the overlay, otherwise input id is used
@@ -30,8 +31,8 @@ class Tooltip extends w2base {
             anchorClass     : '',       // add class for anchor when tooltip is shown
             anchorStyle     : '',       // add style for anchor when tooltip is shown
             autoShow        : false,    // if autoShow true, then tooltip will show on mouseEnter and hide on mouseLeave
-            showOn          : null,     // when options.auto = true, mouse event to show on
-            hideOn          : null,     // when options.auto = true, mouse event to hide on
+            autoShowOn      : null,     // when options.auto = true, mouse event to show on
+            autpHideOn      : null,     // when options.auto = true, mouse event to hide on
             arrowSize       : 8,        // size of the carret
             screenMargin    : 2,        // min margin from screen to tooltip
             autoResize      : true,     // auto resize based on content size and available size
@@ -41,11 +42,11 @@ class Tooltip extends w2base {
             maxHeight       : null,     // max height
             watchScroll     : null,     // attach to onScroll event // TODO:
             watchResize     : null,     // attach to onResize event // TODO:
-            // TODO: not done
             onShow          : null,     // callBack when shown
             onHide          : null,     // callBack when hidden
             onUpdate        : null,     // callback when tooltip gets updated
-            onMoved         : null,     // callback when tooltip is moved
+            onMove          : null,     // callback when tooltip is moved
+            // TODO:
             hideOnClick     : false,    // global hide on document click
             hideOnChange    : true,     // hides when input changes
             hideOnKeyPress  : true,     // hides when input key pressed
@@ -59,11 +60,10 @@ class Tooltip extends w2base {
     onHide(event) { this._trigger('onHide', event) }
     onUpdate(event) { this._trigger('onUpdate', event) }
     onMove(event) { this._trigger('onMove', event) }
-    _trigger(name, event) {
-        // TODO: check
+    _trigger(eventName, event) {
         let overlay = Tooltip.active[event.target]
-        if (typeof overlay.options[name] == 'function') {
-            overlay.options[name](event)
+        if (typeof overlay.options[eventName] == 'function') {
+            overlay.options[eventName](event)
         }
     }
 
@@ -112,72 +112,71 @@ class Tooltip extends w2base {
         }
         if (Tooltip.active[name]) {
             overlay = Tooltip.active[name]
+            overlay.prevOptions = overlay.options
             overlay.options = w2utils.extend({}, overlay.options, options)
         } else {
             overlay = {
                 id: 'w2overlay-' + name, name, options, anchor,
                 tmp: {
                     resizeObserver: new ResizeObserver(() => {
-                        // clearTimeout(overlay.tmp.resizeTimer)
-                        // overlay.tmp.resizeTimer = setTimeout(() => {
-                            this.resize(overlay.name)
-                        // }, 1)
+                        this.resize(overlay.name)
                     })
                 }
             }
             Tooltip.active[name] = overlay
         }
         // add event for auto show/hide
-        let show = (options.autoShow === true || options.showOn != null)
-        let hide = (options.autoShow === true || options.hideOn != null)
+        let show = (options.autoShow === true || options.autoShowOn != null)
+        let hide = (options.autoShow === true || options.autoHideOn != null)
         if (options.autoShow === true || show || hide) {
+            options.autoShow = false
+            let showOn = 'mouseenter'
+            let hideOn = 'mouseleave'
+            if (options.autoShowOn) {
+                showOn = String(options.autoShowOn).toLowerCase()
+                delete options.autoShowOn
+            }
+            if (options.autoHideOn) {
+                hideOn = String(options.autoHideOn).toLowerCase()
+                delete options.autoHideOn
+            }
             query(anchor).each((el, ind) => {
-                let showOn = 'mouseenter', hideOn = 'mouseleave'
-                if (options.showOn) {
-                    showOn = String(options.showOn).toLowerCase()
-                    delete options.showOn
-                }
-                if (options.hideOn) {
-                    hideOn = String(options.hideOn).toLowerCase()
-                    delete options.hideOn
-                }
                 query(el).off('.w2overlay-init')
                 if (show) {
-                    query(el).on(showOn + '.w2overlay-init', function (event) {
-                        options.autoShow = false // TODO: what is it for?
+                    query(el).on(showOn + '.w2overlay-init', event => {
                         self.show(overlay.name)
-                        event.stopPropagation()
+                        // event.stopPropagation()
                     })
                 }
                 if (hide) {
-                    query(el).on(hideOn + '.w2overlay-init', function (event) {
+                    query(el).on(hideOn + '.w2overlay-init', event => {
                         self.hide(overlay.name)
-                        event.stopPropagation()
+                        // event.stopPropagation()
                     })
                 }
             })
         }
+        self.off('.attach')
         let ret = {
             overlay,
             then(callback) {
-                self.on('show:after', (event) => { callback(event) })
+                self.on('show:after.attach', event => { callback(event) })
                 return ret
             },
             show(callback) {
-                self.on('show', (event) => { callback(event) })
+                self.on('show.attach', event => { callback(event) })
                 return ret
             },
             hide(callback) {
-                self.on('hide', (event) => { callback(event) })
+                self.on('hide.attach', event => { callback(event) })
                 return ret
             },
             update(callback) {
-                // TODO: check
-                self.on('update', (event) => { callback(event) })
+                self.on('update.attach', event => { callback(event) })
                 return ret
             },
-            moved(callback) {
-                self.on('move', (event) => { callback(event) })
+            move(callback) {
+                self.on('move.attach', event => { callback(event) })
                 return ret
             }
         }
@@ -187,7 +186,8 @@ class Tooltip extends w2base {
     show(name) {
         if (name instanceof HTMLElement || name instanceof Object) {
             let ret = this.attach(...arguments)
-            this.show(ret.overlay.name)
+            // need a timer, so that events would be preperty set
+            setTimeout(() => { this.show(ret.overlay.name) }, 1)
             return ret
         }
         let edata
