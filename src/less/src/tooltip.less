@@ -121,21 +121,26 @@
     .w2ui-color-tabs {
         display: flex;
         background-color: #f7f7f7;
-        height: 33px;
+        height: 34px;
         margin: 14px -8px 0px -8px;
         border-top: 1px solid #d6d6d6;
 
         .w2ui-color-tab {
             display: inline-block;
             width: 65px;
-            height: 35px;
-            border: 2px solid transparent;
+            height: 32px;
+            border: 0;
+            border-top: 2px solid transparent;
             border-radius: 1px;
             margin: -1.5px 4px;
             text-align: center;
             font-size: 15px;
             padding-top: 4px;
             color: #7b7b7b;
+
+            &:hover {
+                background-color: #e1e1e1;
+            }
 
             &.selected {
                 border-top-color: #0175ff;
@@ -255,7 +260,7 @@
 
         .color-info {
             float: right;
-            margin-right: -3px;
+            margin-right: -5px;
 
             .color-preview-bg {
                 box-shadow: 0 0 1px #c3c3c3;
@@ -275,7 +280,7 @@
             }
 
             .color-part {
-                padding-top: 5px;
+                padding-top: 7px;
                 span {
                     display:inline-block;
                     width: 8px;
@@ -292,7 +297,7 @@
                     color: #333;
                 }
                 &.opacity {
-                    margin: 19px 0px 0px 8px;
+                    margin: 11px 0px 0px 8px;
                     span {
                         width: 42px;
                     }
