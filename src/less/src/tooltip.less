@@ -108,65 +108,55 @@
 
 /* Color overlay */
 .w2ui-colors {
-    padding: 5px;
+    padding: 8px;
     padding-bottom: 0px;
     background-color: white;
     border-radius: 3px;
     overflow: hidden;
-    width: 255px;
-    height: 220px;
+    width: 270px;
+    height: 240px;
 
     * { .box-sizing; }
-
-    input:focus {
-        outline: none;
-        border: 1px solid #999;
-    }
 
     .w2ui-color-tabs {
         display: flex;
         background-color: #f7f7f7;
-        height: 30px;
-        margin: 10px -5px 0px -5px;
+        height: 33px;
+        margin: 14px -8px 0px -8px;
         border-top: 1px solid #d6d6d6;
 
         .w2ui-color-tab {
             display: inline-block;
-            width: 40px;
-            height: 25px;
-            border: 1px solid transparent;
+            width: 65px;
+            height: 35px;
+            border: 2px solid transparent;
             border-radius: 1px;
-            margin: -1px 4px;
+            margin: -1.5px 4px;
             text-align: center;
             font-size: 15px;
-            padding-top: 1px;
+            padding-top: 4px;
             color: #7b7b7b;
 
             &.selected {
-                color: #555;
-                background-color: white;
-                border: 1px solid #e0e0e0;
-                border-top: 1px solid transparent;
-                border-bottom-left-radius: 5px;
-                border-bottom-right-radius: 5px;
+                border-top-color: #0175ff;
             }
 
             .w2ui-icon {
+                padding-top: 1px;
                 width: 30px
             }
         }
     }
 
     .w2ui-tab-content.tab-1 {
-        width: 216px;
         .w2ui-color-row {
             display: flex;
             .w2ui-color {
                 cursor: default;
                 text-align: center;
                 display: inline-block;
-                width: 17px;
-                height: 17px;
+                width: 18px;
+                height: 18px;
                 padding: 6px;
                 margin: 1.5px;
                 border: 1px solid transparent;
@@ -193,7 +183,7 @@
     }
 
     .w2ui-tab-content.tab-2 {
-        height: 176px;
+        height: 184px;
         padding: 1px 2px;
 
         .palette {
@@ -221,7 +211,7 @@
             position: relative;
             width: 150px;
             height: 12px;
-            margin: 10px 0px 0px 0px;
+            margin: 20px 0px 0px 0px;
             background-color: #fff;
             background-image: linear-gradient(45deg, #bbb 25%, transparent 25%, transparent 75%, #bbb 75%, #bbb),
                               linear-gradient(45deg, #bbb 25%, transparent 25%, transparent 75%, #bbb 75%, #bbb);
@@ -265,9 +255,7 @@
 
         .color-info {
             float: right;
-            width: 80px;
-            margin-left: 158px;
-            margin-top: 0px;
+            margin-right: -3px;
 
             .color-preview-bg {
                 box-shadow: 0 0 1px #c3c3c3;
@@ -282,25 +270,36 @@
 
             .color-preview, .color-original {
                 height: 40px;
-                width: 40px;
+                width: 50px;
                 float: left;
             }
 
             .color-part {
                 padding-top: 5px;
                 span {
-                    display: inline-block;
-                    width: 7px;
-                    margin-left: 1px;
+                    display:inline-block;
+                    width: 8px;
+                    margin: 2px 1px 2px 5px;
                     color: #666;
                 }
                 input {
-                    font-size: 10px;
+                    font-size: 12px;
                     border-radius: 2px;
                     border: 1px solid #ccc;
-                    width: 26px;
-                    padding: 2px;
+                    width: 30px;
+                    text-align: right;
+                    padding: 4px;
                     color: #333;
+                }
+                &.opacity {
+                    margin: 19px 0px 0px 8px;
+                    span {
+                        width: 42px;
+                    }
+                    input {
+                        width: 38px;
+                        text-align: center;
+                    }
                 }
             }
 

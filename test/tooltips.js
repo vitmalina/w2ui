@@ -1,11 +1,10 @@
 // import { w2overlay } from '../src/w2overlay.js'
 import { w2utils } from '../src/w2utils.js'
-import { w2tooltip, w2color } from '../src/w2tooltip.js'
+import { w2tooltip, w2color, w2menu } from '../src/w2tooltip.js'
 import { $, query } from '../src/query.js'
 
 window.query = query
 window.w2tooltip = w2tooltip
-window.w2color = w2color
 window.w2utils = w2utils
 
 $('.corners input').each(el => {
@@ -120,28 +119,36 @@ $('button').on('click', event => {
 // })
 
 let ret = w2color.attach({
-    name: 'color',
-    anchor: query('#inp0')[0],
-    showOn: 'focus',
-    hideOn: 'never',
+    anchor: query('#inp6')[0],
+    autoShowOn: 'focus',
+    // advanced: true,
     // position: 'right|left',
     // arrowSize: 14,
     // autoShow: true,
     // html: 'more text',
-    // hideOnClick: true,
-    // hideOnChange: true
 })
-.then(event => {
-    console.log('then', event)
-})
-.show(event => {
-    // debugger
-    console.log('show', event)
-})
-.hide(event => {
-    console.log('hide', event)
+.liveUpdate(event => {
+    console.log('update', event.color)
 })
 .select(event => {
-    // console.log('selected', event)
+    console.log('selected', event.color)
 });
+
+// let ret = w2menu.attach({
+//     anchor: query('#inp6')[0],
+//     items: [
+//         { id: 1, text: 'item 1' },
+//         { id: 2, text: 'item 2' },
+//         { id: 3, text: 'item 3' },
+//         { id: 4, text: 'item 4' },
+//         { id: 5, text: 'item 5' },
+//         { id: 6, text: 'item 6' },
+//     ],
+//     html: 'dd'
+//     // advanced: true,
+//     // position: 'right|left',
+//     // arrowSize: 14,
+//     // autoShow: true,
+//     // html: 'more text',
+// })
 console.log(ret)

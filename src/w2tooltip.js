@@ -10,7 +10,7 @@
  */
 
 import { w2base } from './w2base.js'
-import { query } from './query.js'
+import { $, query } from './query.js'
 import { w2utils } from './w2utils.js'
 
 window.$ = query // TODO: remove
@@ -217,7 +217,8 @@ class Tooltip extends w2base {
             if (edata.isCancelled === true) return
             // normal processing
             query('body').append(
-                `<div id="${overlay.id}" name="${name}" style="display: none;" class="w2ui-overlay" data-click="stop">
+                `<div id="${overlay.id}" name="${name}" style="display: none;" class="w2ui-overlay"
+                        data-click="stop" data-focusin="stop">
                     <style></style>
                     <div class="w2ui-overlay-body ${options.class}" style="${options.style || ''}; ${overlayStyles}">
                         ${options.html}
@@ -242,7 +243,9 @@ class Tooltip extends w2base {
             query(overlay.anchor).addClass(options.anchorClass)
         }
         // add on hide events
-        if (!Array.isArray(options.hideOn)) options.hideOn = [options.hideOn]
+        if (typeof options.hideOn == 'string') options.hideOn = [options.hideOn]
+        if (!Array.isArray(options.hideOn)) options.hideOn = []
+        // initial scroll
         Object.assign(overlay.tmp, {
             scrollLeft: document.body.scrollLeft,
             scrollTop: document.body.scrollTop
@@ -284,6 +287,7 @@ class Tooltip extends w2base {
             let $anchor = query(overlay.anchor)
             let scope = 'tooltip-' + overlay.name
             // document click
+            query('body').off(`.${scope}`)
             if (options.hideOn.includes('doc-click')) {
                 if (overlay.anchor.tagName === 'INPUT') {
                     // otherwise hides on click to focus
@@ -291,14 +295,20 @@ class Tooltip extends w2base {
                         .off(`.${scope}-doc`)
                         .on(`click.${scope}-doc`, (event) => { event.stopPropagation() })
                 }
+                query('body').on(`click.${scope}`, hide)
+            }
+            if (options.hideOn.includes('focus-change')) {
                 query('body')
-                    .off(`.${scope}`)
-                    .on(`click.${scope}`, hide)
+                    .on(`focusin.${scope}`, (e) => {
+                        if (document.activeElement != overlay.anchor) {
+                            self.hide(overlay.name)
+                        }
+                    })
             }
             if (overlay.anchor.tagName === 'INPUT') {
                 $anchor.off(`.${scope}`)
                 options.hideOn.forEach(event => {
-                    if (!event.startsWith('doc-')) {
+                    if (['doc-click', 'focus-change'].indexOf(event) == -1) {
                         $anchor.on(`${event}.${scope}`, { once: true }, hide)
                     }
                 })
@@ -357,6 +367,13 @@ class Tooltip extends w2base {
     }
 
     resize(name) {
+        if (arguments.length == 0) {
+            Object.keys(Tooltip.active).forEach(key => {
+                let overlay = Tooltip.active[key]
+                if (overlay.displayed) this.resize(overlay.name)
+            })
+            return
+        }
         let overlay = Tooltip.active[name]
         let pos = this.getPosition(overlay.name)
         let newPos = pos.left + 'x' + pos.top
@@ -632,7 +649,8 @@ class ColorTooltip extends Tooltip {
             liveUpdate: true,
             arrowSize: 12,
             autoResize: false,
-            hideOn: 'doc-click',
+            anchorClass: 'w2ui-focus',
+            hideOn: ['doc-click', 'focus-change'],
             style: 'background-color: #f7f7f7;'
         })
     }
@@ -661,12 +679,15 @@ class ColorTooltip extends Tooltip {
         if (typeof options.color === 'string' && options.color.substr(0,1) === '#') options.color = options.color.substr(1)
         // needed for keyboard navigation
         this.index = [-1, -1]
-        // color html
-        if (anchor.tagName === 'INPUT' && !options.color && anchor.value) {
-            options.color = anchor.value
-        }
         options.html = this.getColorHTML(options)
         let ret = super.attach(options)
+        this.on('show', event => {
+            let anchor  = event.overlay.anchor
+            let options = event.overlay.options
+            if (anchor.tagName === 'INPUT' && !options.color && anchor.value) {
+                event.overlay.tmp.initColor = anchor.value
+            }
+        })
         this.on('show:after', event => {
             if (ret.overlay?.box) {
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
@@ -674,14 +695,29 @@ class ColorTooltip extends Tooltip {
                 this.initColorControls(ret.overlay)
             }
         })
+        this.on('update:after', event => {
+            if (ret.overlay?.box) {
+                let actions = query(ret.overlay.box).find('.w2ui-eaction')
+                w2utils.bindEvents(actions, this)
+                this.initColorControls(ret.overlay)
+            }
+        })
         this.on('hide', event => {
-            let anchor = event.overlay.anchor
-            let color = event.overlay.newColor
+            let overlay = event.overlay
+            let anchor  = overlay.anchor
+            let color   = overlay.newColor ?? ''
             if (anchor.tagName === 'INPUT' && anchor.value != color) {
                 anchor.value = color
             }
+            let edata = this.trigger({ phase: 'before', type: 'select', color, target: overlay.name, overlay })
+            if (edata.isCancelled === true) return
+            // event after
+            this.trigger(w2utils.extend(edata, { phase: 'after' }))
         })
-        // add select method
+        ret.liveUpdate = (callback) => {
+            self.on('liveUpdate', (event) => { callback(event) })
+            return ret
+        }
         ret.select = (callback) => {
             self.on('select', (event) => { callback(event) })
             return ret
@@ -700,7 +736,7 @@ class ColorTooltip extends Tooltip {
         }
         let overlay = this.get(name)
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'select', color, target: name, overlay, param: arguments[1] })
+        let edata = this.trigger({ phase: 'before', type: 'liveUpdate', color, target: name, overlay, param: arguments[1] })
         if (edata.isCancelled === true) return
         // if anchor is input - live update
         if (overlay.anchor.tagName === 'INPUT' && overlay.options.liveUpdate) {
@@ -782,20 +818,20 @@ class ColorTooltip extends Tooltip {
                 <div class="color-info">
                     <div class="color-preview-bg"><div class="color-preview"></div><div class="color-original"></div></div>
                     <div class="color-part">
-                        <span>H</span> <input name="h" maxlength="3" max="360" tabindex="101">
-                        <span>R</span> <input name="r" maxlength="3" max="255" tabindex="104">
+                        <span>H</span> <input class="w2ui-input" name="h" maxlength="3" max="360" tabindex="101">
+                        <span>R</span> <input class="w2ui-input" name="r" maxlength="3" max="255" tabindex="104">
                     </div>
                     <div class="color-part">
-                        <span>S</span> <input name="s" maxlength="3" max="100" tabindex="102">
-                        <span>G</span> <input name="g" maxlength="3" max="255" tabindex="105">
+                        <span>S</span> <input class="w2ui-input" name="s" maxlength="3" max="100" tabindex="102">
+                        <span>G</span> <input class="w2ui-input" name="g" maxlength="3" max="255" tabindex="105">
                     </div>
                     <div class="color-part">
-                        <span>V</span> <input name="v" maxlength="3" max="100" tabindex="103">
-                        <span>B</span> <input name="b" maxlength="3" max="255" tabindex="106">
+                        <span>V</span> <input class="w2ui-input" name="v" maxlength="3" max="100" tabindex="103">
+                        <span>B</span> <input class="w2ui-input" name="b" maxlength="3" max="255" tabindex="106">
                     </div>
-                    <div class="color-part" style="margin: 30px 0px 0px 2px">
-                        <span style="width: 40px">${w2utils.lang('Opacity')}</span>
-                        <input name="a" maxlength="5" max="1" style="width: 32px !important" tabindex="107">
+                    <div class="color-part opacity">
+                        <span>${w2utils.lang('Opacity')}</span>
+                        <input class="w2ui-input" name="a" maxlength="5" max="1" tabindex="107">
                     </div>
                 </div>
                 <div class="palette" name="palette">
@@ -827,7 +863,7 @@ class ColorTooltip extends Tooltip {
         let initial // used for mouse events
         let self = this
         let options = overlay.options
-        let rgb = w2utils.parseColor(options.color)
+        let rgb = w2utils.parseColor(options.color || overlay.tmp.initColor)
         if (rgb == null) {
             rgb = { r: 140, g: 150, b: 160, a: 1 }
         }
@@ -915,8 +951,19 @@ class ColorTooltip extends Tooltip {
                     if (el.name === 'a') el.value = rgb.a
                 }
             })
+            // if it is in pallette
             if (initial) {
-                query(overlay.box).find('.color-original').css('background-color', '#'+newColor)
+                let color = overlay.tmp?.initColor || newColor
+                query(overlay.box).find('.color-original')
+                    .css('background-color', '#'+color)
+                query(overlay.box).find('.w2ui-colors .w2ui-selected')
+                    .removeClass('w2ui-selected')
+                query(overlay.box).find(`.w2ui-colors [name="${color}"]`)
+                    .addClass('w2ui-selected')
+                // if has transparent color, open advanced tab
+                if (newColor.length == 8) {
+                    self.tabClick(2, overlay.name)
+                }
             } else {
                 self.select(newColor, overlay.name)
             }
@@ -1008,6 +1055,19 @@ class ColorTooltip extends Tooltip {
     }
 }
 
+class MenuTooltip extends Tooltip {
+    constructor() {
+        super()
+        this.defaults = w2utils.extend({}, this.defaults, {
+            items: [],
+            position: 'bottom|top',
+            class: 'w2ui-light',
+            autoShowOn: 'focus',
+            hideOn: ['doc-click', 'focus-change']
+        })
+    }
+}
+
 class DateTooltip extends Tooltip {
     constructor() {
         super()
@@ -1020,16 +1080,10 @@ class TimeTooltip extends Tooltip {
     }
 }
 
-class MenuTooltip extends Tooltip {
-    constructor() {
-        super()
-    }
-}
-
 let w2tooltip = new Tooltip()
+let w2menu    = new MenuTooltip()
 let w2color   = new ColorTooltip()
 let w2date    = new DateTooltip()
 let w2time    = new TimeTooltip()
-let w2menu    = new MenuTooltip()
 
 export { w2tooltip, w2color, w2date, w2time, w2menu }
