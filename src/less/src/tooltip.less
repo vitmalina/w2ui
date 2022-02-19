@@ -1,18 +1,17 @@
-/* General overlay */
+/* general overlay */
 .w2ui-overlay {
     --tip-size: 8px;
+    * { box-sizing: border-box; }
 
     position: fixed;
     z-index: 1700;
     opacity: 0;
     transition: opacity 0.1s;
-    * {
-        box-sizing: border-box;
-    }
+    border-radius: 4px;
 
     .w2ui-overlay-body {
         display: inline-block;
-        border-radius: 3px;
+        border-radius: 4px;
         padding: 6px 10px;
         margin: 0px;
         font-size: 12px;
@@ -29,7 +28,15 @@
             text-shadow: none;
             background-color: #fffde9;
             border: 1px solid #9f9f9f;
-            box-shadow: 0px 0px 1px 1px #ffffff;
+            box-shadow: none;
+        }
+
+        &.w2ui-white {
+            color: #3c3c3c;
+            text-shadow: none;
+            background-color: #fff;
+            border: 1px solid #9f9f9f;
+            box-shadow: none;
         }
 
         &.w2ui-arrow-right:before {
@@ -106,7 +113,7 @@
     }
 }
 
-/* Color overlay */
+/* color overlay */
 .w2ui-colors {
     padding: 8px;
     padding-bottom: 0px;
@@ -312,126 +319,82 @@
     }
 }
 
+/* menu overlay */
 .w2ui-menu {
-    position: absolute;
-    top: 0px;
-    bottom: 0px;
+    display: block;
+    color: @drop-menu-color;
+    background-color: @drop-menu-background-color;
+    padding: 5px 0px;
     border-radius: 5px;
     overflow-x: hidden;
+    cursor: default;
 
-    table {
-        font-family: @main-font-family;
-        font-size: 12px;
-        width: 100%;
-        color: @drop-menu-color;
-        background-color: @drop-menu-background-color;
-        padding: 5px 0px;
-        cursor: default;
+    .w2ui-menu-item {
+        display: flex;
+        align-content: stretch;
+        padding: 8px 5px;
 
-        td {
-            white-space: nowrap;
-        }
-
-        &.sub-menu {
-            top: 0;
-            background-color: #fafdff;
-            border-top: 1px dotted #cccccc;
-            border-bottom: 1px dotted #cccccc;
-
-            td:first-child {
-                padding-left: 10px;
-            }
-            td.menu-divider {
-                padding-left: 16px;
-            }
-        }
-
-        & .w2ui-item-even {
+        &.w2ui-even {
             color: @dropdown-item-even-color;
             background-color: @dropdown-item-even-background-color;
-            &.w2ui-disabled,
-            &.w2ui-disabled .w2ui-icon,
-            &.w2ui-no-search-inside {
-                opacity: 1;
-                color: #c5c5c5 !important;
-                background-color: @dropdown-item-even-background-color !important;
-            }
         }
 
-        & .w2ui-item-odd {
+        &.w2ui-odd {
             color: @dropdown-item-odd-color;
             background-color: @dropdown-item-odd-background-color;
-            &.w2ui-disabled,
-            &.w2ui-disabled .w2ui-icon,
-            &.w2ui-no-search-inside {
-                opacity: 1;
-                color: #c5c5c5 !important;
-                background-color: @dropdown-item-odd-background-color !important;
-            }
         }
 
-        & .w2ui-item-group {
-            color: #444;
-            font-weight: bold;
-            background-color: #ECEDF0;
-            border-bottom: 1px solid #D3D2D4;
+        &:hover {
+            color: @drop-menu-row-hover-color;
+            background-color: @drop-menu-row-hover-background-color;
         }
-        // image
-        td.menu-icon {
-            padding: 3px 0px 4px 6px;
-            width: 20px;
-            > span {
-                height: 20px;
+
+        &.w2ui-selected {
+            background-color: @drop-menu-selected-background-color;
+            color: @drop-menu-selected-color;
+        }
+
+        &.w2ui-disabled {
+            opacity: 0.4;
+            background-color: white !important;
+        }
+
+        .menu-icon {
+            flex: none; // do not grow
+            width: 26px;
+            padding: 0;
+            margin-left: 0;
+            margin-top: -4px;
+
+            span {
+                height: 18px;
                 width: 18px;
+                font-size: 14px;
+                color: @drop-menu-image-color;
+                display: inline-block;
+                padding-top: 4px;
             }
         }
-        td.menu-divider {
-            padding: 6px;
-            pointer-events: none;
 
-            div.line {
-                border-top: 1px solid silver;
-                color: transparent;
-                height: 0px;
-                padding: 0px 25px 0 0px;
-            }
-
-            &.divider-text {
-                padding: 12px 6px;
-
-                div.text {
-                    display: block;
-                    position: absolute;
-                    margin-top: -6px;
-                    margin-left: 46%;
-                    background-color: white;
-                    padding: 0px 3px;
-                    color: darkgrey;
-                    transform: translateX(-50%);
-                }
-            }
+        .menu-text {
+            flex-grow: 1;
         }
-        // caption
-        td.menu-text {
-            padding: 8px 30px 8px 5px;
-            width: auto;
-        }
-        td.menu-count {
-            text-align: right;
-            padding-right: 1px;
-            & > span {
+
+        .menu-extra {
+            flex: none; // do not grow
+            span {
                 border: @menu-node-count-border;
                 border-radius: 20px;
                 width: auto;
                 height: 18px;
                 padding: 2px 7px;
-                margin: 3px 5px 0px 5px;
+                margin: 3px 0 0 5px;
                 background-color: @menu-node-count-background-color;
                 color: @menu-node-count-color;
                 box-shadow: @menu-node-count-shadow;
                 text-shadow: @menu-node-count-text-shadow;
             }
-            & > span.hotkey {
+            span.hotkey {
                 border: none;
                 border-radius: 0px;
                 background-color: transparent !important;
@@ -439,82 +402,105 @@
                 box-shadow: none;
                 text-shadow: none;
             }
-            & > span.remove {
-                border-color: transparent;
+            span.remove {
                 background-color: transparent;
+                border-color: transparent;
                 box-shadow: none;
-                padding: 2px 5px;
+                padding: 0 5px;
+                border-radius: 3px;
+                position: relative;
+                margin-top: -3px;
+                display: block;
+                height: 20px;
+                width: 20px;
+                text-align: center;
                 &:hover {
-                    color: #982525;
-                    border-color: #d28d5b;
                     background-color: #f9e7e7;
+                    color: red;
+                }
+                &:active {
+                    background-color: #ffd1d1;
                 }
             }
         }
+    }
 
-        tr.expanded,
-        tr.collapsed {
-            td.menu-count > span {
+    .w2ui-menu-divider {
+        padding: 5px;
+        .line {
+            border-top: 1px dotted silver;
+        }
+
+        &.has-text {
+            height: 26px;
+            background-color: white;
+            border-top: 1px solid #f2f2f2;
+            border-bottom: 1px solid #f2f2f2;
+            text-align: center;
+            .line {
+                position: relative;
+                top: 7px;
+            }
+            .text {
+                display: inline;
+                position: relative;
+                top: -3px;
+                background-color: white;
+                padding: 0px 7px;
+                color: darkgrey;
+            }
+        }
+    }
+
+    .w2ui-no-items {
+        padding: 5px 15px;
+        text-align: center;
+
+        .w2ui-spinner {
+            position: relative;
+            left: -2px;
+            margin-bottom: -5px;
+            width: 18px;
+            height: 18px;
+        }
+    }
+
+    .w2ui-sub-menu-box {
+        background-color: @drop-menu-row-hover-background-color;
+        border-top: 1px solid #b6c4c8;
+        border-bottom: 1px solid #b6c4c8;
+        padding: 0 3px;
+    }
+
+    .expanded,
+    .collapsed {
+        .menu-extra span {
+            position: relative; // needed for :after to be absolute
+            border-color: transparent;
+            background-color: transparent;
+            box-shadow: none;
+            padding: 2px 5px;
+            border-radius: 0px;
+            &:after {
+                content: "";
+                position: absolute;
+                border-left: 5px solid #808080;
+                border-top: 5px solid transparent;
+                border-bottom: 5px solid transparent;
+                transform: rotateZ(-90deg);
+                pointer-events: none;
+                margin-left: -2px;
+                margin-top: 3px;
+            }
+            &:hover {
                 border-color: transparent;
                 background-color: transparent;
-                box-shadow: none;
-                padding: 2px 5px;
-                border-radius: 0px;
-                &:after {
-                    content: "";
-                    position: absolute;
-                    border-left: 5px solid #808080;
-                    border-top: 5px solid transparent;
-                    border-bottom: 5px solid transparent;
-                    transform: rotateZ(-90deg);
-                    pointer-events: none;
-                    margin-left: -2px;
-                }
-                &:hover {
-                    border-color: transparent;
-                    background-color: transparent;
-                }
             }
         }
-        tr.collapsed {
-            td.menu-count span:after {
-                transform: rotateZ(90deg);
-            }
-        }
-
-        tr:hover {
-            color: @drop-menu-row-hover-color;
-            background-color: @drop-menu-row-hover-background-color;
-        }
-
-        tr.w2ui-selected {
-            background-color: @drop-menu-selected-background-color;
-        }
-
-        tr.w2ui-selected td {
-            color: @drop-menu-selected-color;
-        }
-
-        tr.w2ui-disabled {
-            opacity: 0.4;
-            background-color: white !important;
-        }
-
-        .w2ui-icon {
-            font-size: 14px;
-            color: @drop-menu-image-color;
-            display: inline-block;
-            padding-top: 4px;
-        }
-
-        td.w2ui-no-items {
-            padding: 5px 10px 10px 10px;
-            text-align: center;
-            > div.w2ui-no-items-label {
-                display: inline-block;
-                padding-top: 3px;
-                color: #999;
-            }
+    }
+    .collapsed {
+        .menu-extra span:after {
+            transform: rotateZ(90deg);
         }
     }
 }

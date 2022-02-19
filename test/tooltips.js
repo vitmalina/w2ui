@@ -118,37 +118,62 @@ $('button').on('click', event => {
 //     style: 'background-color: white; border: 1px solid red; color: red; text-shadow: none'
 // })
 
-let ret = w2color.attach({
-    anchor: query('#inp6')[0],
-    autoShowOn: 'focus',
-    // advanced: true,
-    // position: 'right|left',
-    // arrowSize: 14,
-    // autoShow: true,
-    // html: 'more text',
-})
-.liveUpdate(event => {
-    console.log('update', event.color)
-})
-.select(event => {
-    console.log('selected', event.color)
-});
-
-// let ret = w2menu.attach({
+// let ret = w2color.attach({
 //     anchor: query('#inp6')[0],
-//     items: [
-//         { id: 1, text: 'item 1' },
-//         { id: 2, text: 'item 2' },
-//         { id: 3, text: 'item 3' },
-//         { id: 4, text: 'item 4' },
-//         { id: 5, text: 'item 5' },
-//         { id: 6, text: 'item 6' },
-//     ],
-//     html: 'dd'
+//     autoShowOn: 'focus',
 //     // advanced: true,
 //     // position: 'right|left',
 //     // arrowSize: 14,
 //     // autoShow: true,
 //     // html: 'more text',
 // })
+// .liveUpdate(event => {
+//     console.log('update', event.color)
+// })
+// .select(event => {
+//     console.log('selected', event.color)
+// });
+
+let ret = w2menu.attach({
+    anchor: query('#inp6')[0],
+    type: 'check',
+    // spinner: true,
+    items: [
+        { id: 1, text: 'item 1', icon1: 'w2ui-icon-plus', count: 'ab', checked: true },
+        { id: 2, text: 'item 2', icon: 'w2ui-icon-pencil', remove: true },
+        { id: 2, text: 'This is some longer item', icon: 'w2ui-icon-colors', remove: true },
+        { id: 3, text: 'item 3', icon: 'w2ui-icon-drop', count: 5 },
+        { text: '--' },
+        { id: 4, text: 'Has sub items', icon: true, hotkey: 'Cmd + A', expanded: true, group: false,
+            items: [
+                { id: 41, text: 'sub item 6', icon: 'w2ui-icon-info' },
+                { id: 42, text: 'sub item long 7', icon: 'w2ui-icon-info' },
+                { id: 43, text: 'sub item long 8', icon: 'w2ui-icon-info' },
+            ]
+        },
+        { id: 5, text: 'item 5', icon: true, tooltip: 'Some tooltip' },
+        { text: '-- group' },
+        { id: 6, text: 'item 6', icon: 'w2ui-icon-info', disabled: true },
+        { id: 7, text: 'item long 7', icon: 'w2ui-icon-info' },
+        { id: 8, text: 'item long 8', icon: 'w2ui-icon-info' },
+        { text: '-- No icon items' },
+        'Some text w/o an icon',
+        'Some text w/o an icon',
+        'Some text w/o an icon',
+        'Some text w/o an icon',
+        'Some text w/o an icon',
+        'Some text w/o an icon',
+        'Some text w/o an icon',
+        'Some text w/o an icon',
+        'Some text w/o an icon',
+        'Some text w/o an icon',
+        'Some text w/o an icon',
+    ],
+    html: 'dd'
+    // advanced: true,
+    // position: 'right|left',
+    // arrowSize: 14,
+    // autoShow: true,
+    // html: 'more text',
+})
 console.log(ret)

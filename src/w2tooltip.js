@@ -644,7 +644,7 @@ class ColorTooltip extends Tooltip {
             advanced: false,
             transparent: true,
             position: 'top|bottom',
-            class: 'w2ui-light',
+            class: 'w2ui-white',
             color: '',
             liveUpdate: true,
             arrowSize: 12,
@@ -1058,13 +1058,198 @@ class ColorTooltip extends Tooltip {
 class MenuTooltip extends Tooltip {
     constructor() {
         super()
+        // ITEM STRUCTURE
+        // item : {
+        //   id       : null,
+        //   text     : '',
+        //   style    : '',
+        //   icon     : '',
+        //   count    : '',
+        //   tooltip  : '',
+        //   hotkey   : '',
+        //   remove   : false,
+        //   items    : []
+        //   indent   : 0,
+        //   type     : null,    // check/radio
+        //   group    : false,   // groupping for checks
+        //   expanded : false,
+        //   hidden   : false,
+        //   checked  : null,
+        //   disabled : false
+        //   ...
+        //     }
         this.defaults = w2utils.extend({}, this.defaults, {
-            items: [],
-            position: 'bottom|top',
-            class: 'w2ui-light',
-            autoShowOn: 'focus',
-            hideOn: ['doc-click', 'focus-change']
+            items       : [],
+            type        : 'normal',    // can be normal, radio, check
+            index       : null,        // current selected
+            render      : null,
+            spinner     : false,
+            msgNoItems  : w2utils.lang('No items found'),
+            onSelect    : null,
+            hideOnSelect: true,
+            hideOnRemove: false,
+            arrowSize   : 10,
+            align       : 'left',
+            position    : 'bottom|top',
+            class       : 'w2ui-white',
+            anchorClass : 'w2ui-focus',
+            autoShowOn  : 'focus',
+            hideOn      : ['doc-click', 'focus-change']
         })
+    }
+
+    attach(anchor, text) {
+        let options, self = this
+        if (arguments.length == 1 && anchor.anchor) {
+            options = anchor
+            anchor = options.anchor
+        } else if (arguments.length === 2 && typeof text === 'object') {
+            options = text
+            options.anchor = anchor
+        }
+        options = w2utils.extend({}, this.defaults, options)
+        options.style += '; padding: 0;'
+        if (!Array.isArray(options.items)) {
+            options.items = []
+        }
+        options.html = this.getMenuHTML(options)
+        let ret = super.attach(options)
+        this.on('show:after', event => {
+            // TODO: check
+            if (ret.overlay?.box) {
+                let actions = query(ret.overlay.box).find('.w2ui-eaction')
+                w2utils.bindEvents(actions, this)
+                // this.initColorControls(ret.overlay)
+            }
+        })
+        this.on('update:after', event => {
+            // TODO: check
+            if (ret.overlay?.box) {
+                let actions = query(ret.overlay.box).find('.w2ui-eaction')
+                w2utils.bindEvents(actions, this)
+                // this.initColorControls(ret.overlay)
+            }
+        })
+        ret.select = (callback) => {
+            self.on('select', (event) => { callback(event) })
+            return ret
+        }
+        return ret
+    }
+
+    getMenuHTML(options, items, subMenu, parentIndex) {
+        if (options.spinner) {
+            return `
+            <div class="w2ui-menu">
+                <div class="w2ui-no-items">
+                    <div class="w2ui-spinner"></div>
+                    ${w2utils.lang('Loading...')}
+                </div>
+            </div>`
+        }
+        if (!parentIndex) parentIndex = []
+        // normalize options.index
+        if (options.index == null || options.index == -1) options.index = []
+        if (!Array.isArray(options.index) && w2utils.isInt(options.index) && parseInt(options.index) >= 0) {
+            options.index = [options.index]
+        }
+        if (items == null) {
+            items = options.items
+        }
+        items = w2utils.normMenu(items)
+        if (!Array.isArray(items)) items = []
+        let count = 0
+        let icon = null
+        let menu_html = `<div class="w2ui-menu ${(subMenu ? 'w2ui-sub-menu' : '')}">`
+        items.forEach((mitem, f) => {
+            icon = mitem.icon
+            if (icon == null) icon = null // icon might be undefined
+            if (['radio', 'check'].indexOf(options.type) != -1 && !Array.isArray(mitem.items) && mitem.group !== false) {
+                if (mitem.checked === true) icon = 'w2ui-icon-check'; else icon = 'w2ui-icon-empty'
+            }
+            if (mitem.hidden !== true) {
+                let txt  = mitem.text
+                let icon_dsp = ''
+                let subMenu_dsp = ''
+                if (typeof options.render === 'function') txt = options.render(mitem, options)
+                if (typeof txt == 'function') txt = txt(mitem, options)
+                if (icon) icon_dsp = '<div class="menu-icon"><span class="w2ui-icon '+ icon +'"></span></div>'
+                // render only if non-empty
+                if (mitem.type !== 'break' && txt != null && txt !== '' && String(txt).substr(0, 2) != '--') {
+                    let classes = ['w2ui-menu-item']
+                    classes.push(count % 2 === 0 ? 'w2ui-even' : 'w2ui-odd')
+                    let colspan = 1
+                    if (icon_dsp === '') colspan++
+                    if (mitem.count == null && mitem.hotkey == null && mitem.remove !== true && mitem.items == null) colspan++
+                    if (mitem.tooltip == null && mitem.hint != null) mitem.tooltip = mitem.hint // for backward compatibility
+                    let count_dsp = ''
+                    if (mitem.remove === true) {
+                        count_dsp = '<span class="remove">x</span>'
+                    } else if (mitem.items != null) {
+                        let _items = []
+                        if (typeof mitem.items == 'function') {
+                            _items = mitem.items(mitem)
+                        } else if (Array.isArray(mitem.items)) {
+                            _items = mitem.items
+                        }
+                        count_dsp   = '<span></span>'
+                        console.log(this.getMenuHTML(options, _items, true, parentIndex.concat(f)))
+                        subMenu_dsp = `
+                            <div class="w2ui-sub-menu-box" style="${mitem.expanded ? '' : 'display: none'}">
+                                ${this.getMenuHTML(options, _items, true, parentIndex.concat(f))}
+                            </div>`
+                    } else {
+                        if (mitem.count != null) count_dsp += '<span>' + mitem.count + '</span>'
+                        if (mitem.hotkey != null) count_dsp += '<span class="hotkey">' + mitem.hotkey + '</span>'
+                    }
+                    if (options.index.join('-') == parentIndex.concat([f]).join('-')) {
+                        classes.push('w2ui-selected')
+                    }
+                    if (mitem.disabled === true) classes.push('w2ui-disabled')
+                    if (mitem._noSearchInside === true) classes.push('w2ui-no-search-inside')
+                    if (subMenu_dsp !== '') {
+                        classes.push('has-sub-menu')
+                        if (mitem.expanded) {
+                            classes.push('expanded')
+                        } else {
+                            classes.push('collapsed')
+                        }
+                    }
+                    // TODO: tooltip
+                    menu_html += `
+                        <div index="${(parentIndex.length > 0 ? parentIndex.join('-') + '-' : '') + f}"
+                            class="${classes.join(' ')}" style="${mitem.style ? mitem.style : ''}"
+                            tooltip="${mitem.tooltip ? w2utils.lang(mitem.tooltip) : ''}"
+                            data-mousedown='["menuDown", "event", ${f}, "${parentIndex.join('-')}"]'
+                            data-click='["menuClick", "event", ${f}, "${parentIndex.join('-')}"]'>
+                                <div style="width: ${(subMenu ? 20 : 0) + parseInt(mitem.indent ?? 0)}px"></div>
+                                ${icon_dsp}
+                                <div class="menu-text" colspan="${colspan}">${w2utils.lang(txt)}</div>
+                                <div class="menu-extra">${count_dsp}</div>
+                        </div>
+                        ${subMenu_dsp}`
+                    count++
+                } else {
+                    // horizontal line
+                    let divText = (txt ?? '').replace(/^-+/g, '')
+                    menu_html  += `
+                        <div class="w2ui-menu-divider ${divText != '' ? 'has-text' : ''}">
+                            <div class="line"></div>
+                            ${divText ? `<div class="text">${divText}</div>` : ''}
+                        </div>`
+                }
+            }
+            items[f] = mitem
+        })
+        if (count === 0 && options.msgNoItems) {
+            menu_html += `
+                <div class="w2ui-no-items">
+                    ${w2utils.lang(options.msgNoItems)}
+                </div>`
+        }
+        menu_html += '</div>'
+        console.log(items)
+        return menu_html
     }
 }
 
