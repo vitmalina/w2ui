@@ -157,10 +157,34 @@ import { w2tooltip, w2color, w2menu } from './w2tooltip.js'
     }
 
     $.fn.w2tag = function(text, options) {
+        return this.each((index, el) => {
+            if (text == null && options == null) {
+                w2tooltip.hide()
+                return
+            }
+            if (typeof text == 'object') {
+                options = text
+            } else {
+                options.html = text
+            }
+            let then
+            if (options.onShow) {
+                then = options.onShow
+                delete options.onShow
+            }
+            let tooltip = w2tooltip.show(el, options)
+            if (then) {
+                tooltip.then(then)
+            }
+        })
     }
 
     $.fn.w2overlay = function(html, options) {
         return this.each((index, el) => {
+            if (text == null && options == null) {
+                w2tooltip.hide()
+                return
+            }
             if (typeof html == 'object') {
                 options = html
             } else {
@@ -184,6 +208,9 @@ import { w2tooltip, w2color, w2menu } from './w2tooltip.js'
 
     $.fn.w2menu = function(menu, options) {
         return this.each((index, el) => {
+            if (typeof menu == 'object') {
+                options = menu
+            }
             if (typeof menu == 'object') {
                 options = menu
             } else {
