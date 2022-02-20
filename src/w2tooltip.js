@@ -7,6 +7,7 @@
  *
  * TODO
  * - cleanup w2color less
+ * - remember state for drop menu
  */
 
 import { w2base } from './w2base.js'
@@ -1092,7 +1093,7 @@ class MenuTooltip extends Tooltip {
             menuStyle   : '',
             filter      : false,
             match       : 'contains',   // is, begins, ends, contains
-            search      : true,         // top search
+            search      : false,         // top search
             altRows     : false,
 
             arrowSize   : 10,
