@@ -1085,13 +1085,14 @@ class MenuTooltip extends Tooltip {
             type        : 'normal',    // can be normal, radio, check
             items       : [],
             index       : null,        // current selected
-            render      : null,        // TODO:
+            render      : null,
             spinner     : false,
             msgNoItems  : w2utils.lang('No items found'),
             topHTML     : '',
             menuStyle   : '',
-            filter      : false,        // TODO
-            search      : false,        // top search
+            filter      : false,
+            match       : 'contains',   // is, begins, ends, contains
+            search      : true,         // top search
             altRows     : false,
 
             arrowSize   : 10,
@@ -1104,9 +1105,9 @@ class MenuTooltip extends Tooltip {
         })
     }
 
-    onSelect(event) { this._trigger('onSelect', event) }
+    onSelect(event)  { this._trigger('onSelect', event) }
     onSubMenu(event) { this._trigger('onSubMenu', event) }
-    onRemove(event) { this._trigger('onRemove', event) }
+    onRemove(event)  { this._trigger('onRemove', event) }
 
     attach(anchor, text) {
         let options, self = this
@@ -1137,6 +1138,7 @@ class MenuTooltip extends Tooltip {
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
                 this.initControls(ret.overlay)
+                this.refreshIndex(ret.overlay)
             }
         })
         ret.select = (callback) => {
@@ -1154,6 +1156,25 @@ class MenuTooltip extends Tooltip {
         return ret
     }
 
+    getCurrent(name, id) {
+        let overlay  = Tooltip.active[name]
+        let options  = overlay.options
+        let selected = (id ? id : overlay.selected ?? '').split('-')
+        let last     = selected.length-1
+        let index    = selected[last]
+        let parents  = selected.slice(0, selected.length-1).join('-')
+        index = w2utils.isInt(index) ? parseInt(index) : 0
+        // items
+        let items = options.items
+        selected.forEach((id, ind) => {
+            // do not go to the last one
+            if (ind < selected.length - 1) {
+                items = items[id].items
+            }
+        })
+        return { last, index, items, item: items[index], parents }
+    }
+
     getMenuHTML(options, items, subMenu, parentIndex) {
         if (options.spinner) {
             return `
@@ -1165,11 +1186,6 @@ class MenuTooltip extends Tooltip {
             </div>`
         }
         if (!parentIndex) parentIndex = []
-        // normalize options.index
-        if (options.index == null || options.index == -1) options.index = []
-        if (!Array.isArray(options.index) && w2utils.isInt(options.index) && parseInt(options.index) >= 0) {
-            options.index = [options.index]
-        }
         if (items == null) {
             items = options.items
         }
@@ -1195,6 +1211,7 @@ class MenuTooltip extends Tooltip {
         `
         items.forEach((mitem, f) => {
             icon = mitem.icon
+            let index = (parentIndex.length > 0 ? parentIndex.join('-') + '-' : '') + f
             if (icon == null) icon = null // icon might be undefined
             if (['radio', 'check'].indexOf(options.type) != -1 && !Array.isArray(mitem.items) && mitem.group !== false) {
                 if (mitem.checked === true) icon = 'w2ui-icon-check'; else icon = 'w2ui-icon-empty'
@@ -1235,9 +1252,6 @@ class MenuTooltip extends Tooltip {
                         if (mitem.count != null) count_dsp += '<span>' + mitem.count + '</span>'
                         if (mitem.hotkey != null) count_dsp += '<span class="hotkey">' + mitem.hotkey + '</span>'
                     }
-                    if (options.index.join('-') == parentIndex.concat([f]).join('-')) {
-                        classes.push('w2ui-selected')
-                    }
                     if (mitem.disabled === true) classes.push('w2ui-disabled')
                     if (mitem._noSearchInside === true) classes.push('w2ui-no-search-inside')
                     if (subMenu_dsp !== '') {
@@ -1248,11 +1262,9 @@ class MenuTooltip extends Tooltip {
                             classes.push('collapsed')
                         }
                     }
-                    // classes.push('w2ui-eaction')
                     // TODO: tooltip
                     menu_html += `
-                        <div index="${(parentIndex.length > 0 ? parentIndex.join('-') + '-' : '') + f}"
-                            class="${classes.join(' ')}" style="${mitem.style ? mitem.style : ''}"
+                        <div index="${index}" class="${classes.join(' ')}" style="${mitem.style ? mitem.style : ''}"
                             tooltip="${mitem.tooltip ? w2utils.lang(mitem.tooltip) : ''}"
                             data-index="${f}" data-parents="${parentIndex.join('-')}">
                                 <div style="width: ${(subMenu ? 20 : 0) + parseInt(mitem.indent ?? 0)}px"></div>
@@ -1266,7 +1278,7 @@ class MenuTooltip extends Tooltip {
                     // horizontal line
                     let divText = (txt ?? '').replace(/^-+/g, '')
                     menu_html  += `
-                        <div class="w2ui-menu-divider ${divText != '' ? 'has-text' : ''}">
+                        <div index="${index}" class="w2ui-menu-divider ${divText != '' ? 'has-text' : ''}">
                             <div class="line"></div>
                             ${divText ? `<div class="text">${divText}</div>` : ''}
                         </div>`
@@ -1284,6 +1296,67 @@ class MenuTooltip extends Tooltip {
         return menu_html
     }
 
+    refreshIndex(name) {
+        let overlay = Tooltip.active[name]
+        if (!overlay) return
+        if (!overlay.displayed) {
+            this.show(overlay.name)
+        }
+        let view = query(overlay.box).find('.w2ui-overlay-body').get(0)
+        let search = query(overlay.box).find('.w2ui-menu-search, .w2ui-menu-top').get(0)
+        query(overlay.box).find('.w2ui-menu-item.w2ui-selected')
+            .removeClass('w2ui-selected')
+        let el = query(overlay.box).find(`.w2ui-menu-item[index="${overlay.selected}"]`)
+            .addClass('w2ui-selected')
+            .get(0)
+        if (el) {
+            if (el.offsetTop + el.clientHeight > view.clientHeight + view.scrollTop) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'start' })
+            }
+            if (el.offsetTop < view.scrollTop + (search ? search.clientHeight : 0)) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'end' })
+            }
+        }
+    }
+
+    refreshSearch(name) {
+        let overlay = Tooltip.active[name]
+        if (!overlay) return
+        if (!overlay.displayed) {
+            this.show(overlay.name)
+        }
+        query(overlay.box).find('.w2ui-no-items').hide()
+        query(overlay.box).find('.w2ui-menu-item, .w2ui-menu-divider').each(el => {
+            let cur = this.getCurrent(name, el.getAttribute('index'))
+            if (cur.item.hidden) {
+                query(el).hide()
+            } else {
+                query(el).show()
+            }
+        })
+        // hide empty menus
+        query(overlay.box).find('.w2ui-sub-menu').each(sub => {
+            let hasItems = query(sub).find('.w2ui-menu-item').get().some(el => {
+                return el.style.display != 'none' ? true : false
+            })
+            if (!hasItems) {
+                query(sub).parent().hide()
+            } else {
+                query(sub).parent().show()
+            }
+        })
+        // show empty message
+        if (overlay.tmp.searchCount == 0) {
+            if (query(overlay.box).find('.w2ui-no-items').length == 0) {
+                query(overlay.box).find('.w2ui-menu:not(.w2ui-sub-menu)').append(`
+                    <div class="w2ui-no-items">
+                        ${w2utils.lang(overlay.options.msgNoItems)}
+                    </div>`)
+            }
+            query(overlay.box).find('.w2ui-no-items').show()
+        }
+    }
+
     initControls(overlay) {
         query(overlay.box).find('.w2ui-menu:not(.w2ui-sub-menu)')
             .off('.w2menu')
@@ -1295,6 +1368,26 @@ class MenuTooltip extends Tooltip {
                 let dt = event.delegate.dataset
                 this.menuClick(overlay, event, dt.index, dt.parents)
             })
+        if (overlay.options.filter && overlay.anchor.tagName == 'INPUT') {
+            query(overlay.anchor)
+                .off('.w2menu')
+                .on('input.w2menu', event => {
+                    // if user types, clear selection
+                    let dt = event.target.dataset
+                    delete dt.selected
+                    delete dt.selectedIndex
+                })
+                .on('keyup.w2menu', event => {
+                    this.keyUp(overlay, event)
+                })
+        }
+        if (overlay.options.search) {
+            query(overlay.box).find('#menu-search')
+                .off('.w2menu')
+                .on('keyup.w2menu', event => {
+                    this.keyUp(overlay, event)
+                })
+        }
     }
 
     menuDown(overlay, event, index, parentIndex) {
@@ -1394,14 +1487,14 @@ class MenuTooltip extends Tooltip {
                 item.expanded = false
                 $item.removeClass('expanded').addClass('collapsed')
                 query($item.get(0).nextElementSibling).hide()
-                this.activeChain = null // reset active chain
-                options.index = $item.attr('index').split('-')
+                overlay.tmp.activeChain = null // reset active chain
+                overlay.selected = $item.attr('index')
             } else {
                 item.expanded = true
                 $item.addClass('expanded').removeClass('collapsed')
                 query($item.get(0).nextElementSibling).show()
-                this.activeChain = null // reset active chain
-                options.index = $item.attr('index').split('-')
+                overlay.tmp.activeChain = null // reset active chain
+                overlay.selected = $item.attr('index')
             }
         } else {
             edata = this.trigger({ phase: 'before', type: 'select', target: overlay.name,
@@ -1409,8 +1502,14 @@ class MenuTooltip extends Tooltip {
             if (edata.isCancelled === true) {
                 return
             }
+            overlay.selected = $item.attr('index')
             if (item.keepOpen != null) {
                 keepOpen = item.keepOpen
+            }
+            if (overlay.anchor.tagName == 'INPUT') {
+                overlay.anchor.value = item.text
+                overlay.anchor.dataset.selected = item.id
+                overlay.anchor.dataset.selectedIndex = overlay.selected
             }
         }
         if (!keepOpen) {
@@ -1421,6 +1520,179 @@ class MenuTooltip extends Tooltip {
         // }
         // event after
         this.trigger(w2utils.extend(edata, { phase: 'after' }))
+    }
+
+    keyUp(overlay, event) {
+        let options = overlay.options
+        let search  = event.target.value
+        let key     = event.keyCode
+        let filter  = true
+        let refreshIndex = false
+        switch (key) {
+            case 13: { // enter
+                if (!overlay.displayed) return
+                let { item, index, parents } = this.getCurrent(overlay.name)
+                event.delegate = query(overlay.box).find('.w2ui-selected').get(0)
+                // reset active chain for folders
+                if (Array.isArray(item.items) && item.items.length > 0) {
+                    overlay.tmp.activeChain = null
+                }
+                this.menuClick(overlay, event, index, parents)
+                filter = false
+                break
+            }
+            case 27: { // escape
+                filter = false
+                if (overlay.displayed) {
+                    this.hide(overlay.name)
+                } else {
+                    // clear selected
+                    let el = overlay.anchor
+                    if (el.tagName == 'INPUT') {
+                        el.value = ''
+                        delete el.dataset.selected
+                        delete el.dataset.selectedIndex
+                    }
+                }
+                break
+            }
+            case 37: { // left
+                if (!overlay.displayed) return
+                let { item, index, parents } = this.getCurrent(overlay.name)
+                // collapse parent if any
+                if (parents) {
+                    item    = options.items[parents]
+                    index   = parseInt(parents)
+                    parents = ''
+                    refreshIndex = true
+                }
+                if (Array.isArray(item.items) && item.items.length > 0 && item.expanded) {
+                    event.delegate = query(overlay.box).find(`.w2ui-menu-item[index="${index}"]`).get(0)
+                    overlay.selected = index
+                    this.menuClick(overlay, event, index, parents)
+                }
+                filter = false
+                break
+            }
+            case 39: { // right
+                if (!overlay.displayed) return
+                let { item, index, parents } = this.getCurrent(overlay.name)
+                if (Array.isArray(item.items) && item.items.length > 0 && !item.expanded) {
+                    event.delegate = query(overlay.box).find('.w2ui-selected').get(0)
+                    this.menuClick(overlay, event, index, parents)
+                }
+                filter = false
+                break
+            }
+            case 38: { // up
+                let chain = getActiveChain(options.items)
+                if (overlay.selected == null || overlay.selected?.length == 0) {
+                    overlay.selected = chain[chain.length-1]
+                } else if (!overlay.displayed) {
+                    // do not advance if it was hidden
+                } else {
+                    let ind = chain.indexOf(overlay.selected)
+                    if (ind > 0) {
+                        overlay.selected = chain[ind - 1]
+                    }
+                }
+                filter = false
+                refreshIndex = true
+                event.preventDefault()
+                break
+            }
+            case 40: { // down
+                let chain = getActiveChain(options.items)
+                if (overlay.selected == null || overlay.selected?.length == 0) {
+                    overlay.selected = chain[0]
+                } else if (!overlay.displayed) {
+                    // do not advance if it was hidden
+                } else {
+                    let ind = chain.indexOf(overlay.selected)
+                    if (ind != -1 && ind < chain.length - 1) {
+                        overlay.selected = chain[ind + 1]
+                    }
+                }
+                filter = false
+                refreshIndex = true
+                event.preventDefault()
+                break
+            }
+        }
+        // filter
+        if ((options.filter || options.search) && filter) {
+            let count = applyFilter(options.items, search)
+            let chain = null
+            if (count > 0) {
+                chain = getActiveChain(options.items)
+                if (!chain.includes(overlay.selected)) {
+                    overlay.selected = null
+                }
+            } else {
+                overlay.selected = null
+            }
+            overlay.tmp.activeChain = null // reset active chain
+            overlay.tmp.searchCount = count
+            overlay.tmp.search = search
+            this.refreshSearch(overlay.name)
+        }
+        if (refreshIndex) {
+            this.refreshIndex(overlay.name)
+        }
+
+        function applyFilter(items, search) {
+            let count = 0
+            for (let i = 0; i < items.length; i++) {
+                let item   = items[i]
+                let prefix = ''
+                let suffix = ''
+                if (['is', 'begins', 'begins with'].indexOf(options.match) !== -1) prefix = '^'
+                if (['is', 'ends', 'ends with'].indexOf(options.match) !== -1) suffix = '$'
+                try {
+                    let re = new RegExp(prefix + search + suffix, 'i')
+                    if (re.test(item.text) || item.text === '...') {
+                        item.hidden = false
+                    } else {
+                        item.hidden = true
+                    }
+                } catch (e) {}
+                // do not show selected items
+                if (Array.isArray(item.items) && item.items.length > 0) {
+                    delete item._noSearchInside
+                    let subCount = applyFilter(item.items, search)
+                    if (subCount > 0) {
+                        count += subCount
+                        if (item.hidden) item._noSearchInside = true
+                        item.expanded = true
+                        item.hidden = false
+                    }
+                }
+                if (item.hidden !== true) count++
+            }
+            return count
+        }
+
+        function getActiveChain(items, parents, res, noSave) {
+            if (overlay.tmp.activeChain != null) {
+                return overlay.tmp.activeChain
+            }
+            if (res == null) res = []
+            if (parents == null) parents = []
+            items.forEach((item, ind) => {
+                if (!item.hidden && !item.disabled && !item.text.startsWith('--')) {
+                    res.push(parents.concat([ind]).join('-'))
+                    if (Array.isArray(item.items) && item.items.length > 0 && item.expanded) {
+                        parents.push(ind)
+                        getActiveChain(item.items, parents, res, true)
+                        parents.pop()
+                    }
+                }
+            })
+            if (noSave == null) {
+                overlay.tmp.activeChain = res
+            }
+            return res
+        }
     }
 }
 

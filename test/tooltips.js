@@ -150,7 +150,7 @@ console.log(ret2)
 let ret = w2menu.attach({
     anchor: query('#inp6')[0],
     type: 'radio',
-    search: true,
+    // search: true,
     // topHTML: '1',
     // menuStyle: 'border: 1px solid red;',
     // spinner: true,
@@ -185,7 +185,6 @@ let ret = w2menu.attach({
         'Some text w/o an icon',
         'Some text w/o an icon',
     ],
-    html: 'dd'
     // advanced: true,
     // position: 'right|left',
     // arrowSize: 14,
@@ -193,20 +192,17 @@ let ret = w2menu.attach({
     // html: 'more text',
 })
 .select(event => {
-    console.log(event)
+    console.log(event.item)
 })
 .remove(event => {
-    console.log(event)
+    // console.log(event)
     // event.preventDefault()
 
 })
 .subMenu(event => {
-    event.done(() => {
-        console.log(event.item.expanded)
-    })
+    // console.log(event.item.expanded)
 })
 .hide(event => {
-    console.log('hide')
-
+    // console.log('hide')
 })
 console.log(ret)
