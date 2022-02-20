@@ -1189,7 +1189,7 @@ class Utils {
         if (options.originalHeight < 0) options.height = pHeight + options.originalHeight - titleHeight
         if (options.originalWidth < 0) options.width = pWidth + options.originalWidth * 2 // x 2 because there is left and right margin
         let head = query(where.box).find(where.after) // needed for z-index manipulations
-        head.data('old-z-index', head.css('z-index'))
+        head.data('old_zIndex', head.css('z-index'))
         // remove message
         if (options.html === '' && options.body === '' && options.buttons === '') {
             removeLast()
@@ -1220,14 +1220,15 @@ class Utils {
             w2utils.bindEvents(options.box, this)
             query(options.box)
                 .addClass('animating')
-                .data('options', options)
-                .data('prev_focus', document.activeElement) // TODO:
+            // remember options and prev focus
+            options.box._msg_options = options
+            options.box._msg_prevFocus = document.activeElement
             // timeout is needs so that callBacks are setup
             setTimeout(() => {
                 // before event
                 edata = options.trigger({ phase: 'before', type: 'open', target: this.name, box: options.box, self: options })
                 if (edata.isCancelled === true) {
-                    head.css('z-index', head.data('old-z-index'))
+                    head.css('z-index', head.data('old_zIndex'))
                     query(where.box).find(`#w2ui-message-${options.owner.name}-${options.msgIndex}`).remove()
                     return
                 }
@@ -1329,15 +1330,15 @@ class Utils {
         function removeLast() {
             let msgs = query(where.box).find('.w2ui-message')
             if (msgs.length == 0) return // no messages already
-            options = msgs.eq(0).data('options') || {}
+            options = msgs.get(0)._msg_options || {}
             if (typeof options?.close == 'function') {
                 options.close()
             }
         }
 
         function closeComplete(options) {
-            let focus = query(options.box).data('prev_focus')
-            if ($(where.box).find('.w2ui-message').length <= 1) {
+            let focus = options.box._msg_prevFocus
+            if (query(where.box).find('.w2ui-message').length <= 1) {
                 if (options.owner.unlock) {
                     if (where.param) {
                         options.owner.unlock(where.param, 150)
@@ -1348,11 +1349,10 @@ class Utils {
             } else {
                 query(where.box).find(`#w2ui-message-${options.owner.name}-${options.msgIndex-1}`).css('z-index', 1500)
             }
-            query(options.box).remove()
             if (focus) {
                 let msg = query(focus).closest('.w2ui-message')
                 if (msg.length > 0) {
-                    let opt = msg.data('options')
+                    let opt = msg.get(0)._msg_options
                     opt.setFocus(focus)
                 } else {
                     focus.focus()
@@ -1360,7 +1360,8 @@ class Utils {
             } else {
                 if (options.owner && typeof options.owner.focus == 'function') owner.focus()
             }
-            head.css('z-index', head.data('old-z-index'))
+            head.css('z-index', head.data('old_zIndex'))
+            query(options.box).remove()
             // event after
             if (options.trigger) {
                 options.trigger(Object.assign(edata, { phase: 'after' }))
