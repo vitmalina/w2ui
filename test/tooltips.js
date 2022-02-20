@@ -124,7 +124,7 @@ let ret2 = w2menu.attach({
     // align: 'both',
     items: [
         { id: 1, text: 'item 1', icon: 'w2ui-icon-plus', count1: 4, remove: true, group: false },
-        { id: 2, text: 'item 2', icon: 'w2ui-icon-pencil' },
+        { id: 2, text: 'item 2', icon: 'w2ui-icon-pencil', hotkey: 'Cmd + A' },
         { id: 3, text: 'item 3', icon: 'w2ui-icon-colors' },
         { id: 4, text: 'item 4', icon: 'w2ui-icon-drop' },
     ]
@@ -159,9 +159,9 @@ let ret = w2menu.attach({
         { id: 1, text: 'item 1', icon1: 'w2ui-icon-plus', count: 'ab', checked: true, disabled: true },
         { id: 2, text: 'item 2', icon: 'w2ui-icon-pencil', remove: true, group: 1, disabled: true },
         { id: 21, text: 'This is some longer item', icon: 'w2ui-icon-colors', remove: true, group: 1 },
-        { id: 3, text: 'item 3', icon: 'w2ui-icon-drop', count: 5, group: 1 },
+        { id: 3, text: 'item 3', icon: 'w2ui-icon-drop',  group: 1,  hotkey: 'Cmd + A' },
         { text: '--' },
-        { id: 4, text: 'Has sub items', icon: true, hotkey: 'Cmd + A', expanded: true, group: false,
+        { id: 4, text: 'Has sub items', icon: true, count: '5A', expanded: true, group: false,
             items: [
                 { id: 41, text: 'sub item 6', icon: 'w2ui-icon-info', group: 1 },
                 { id: 42, text: 'sub item long 7', icon: 'w2ui-icon-info', group: 1 },

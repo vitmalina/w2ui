@@ -1842,10 +1842,11 @@ class Utils {
                 ret[ind] = this.clone(value)
             })
         } else if (obj instanceof HTMLElement || obj instanceof Text
-                || obj instanceof Document || obj instanceof DocumentFragment) {
-            // do not clone HTML Elements
+                || obj instanceof Document || obj instanceof DocumentFragment
+                || obj instanceof Event) {
+            // do not clone HTML Elements or events
             ret = obj
-        } else if (obj != null && typeof obj == 'object') {
+        } else if (obj != null && obj instanceof Object) {
             ret = {}
             Object.assign(ret, obj)
             Object.keys(ret).forEach(key => {

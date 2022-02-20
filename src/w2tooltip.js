@@ -11,10 +11,8 @@
  */
 
 import { w2base } from './w2base.js'
-import { $, query } from './query.js'
+import { query } from './query.js'
 import { w2utils } from './w2utils.js'
-
-window.$ = query // TODO: remove
 
 class Tooltip extends w2base {
     // all acitve tooltips, any any its descendants
@@ -26,9 +24,9 @@ class Tooltip extends w2base {
             html            : '',       // text or html
             style           : '',       // additional style for the overlay
             class           : '',       // add class for w2ui-tooltip-body
-            position        : 'auto',   // can be left, right, top, bottom
+            position        : 'top|bottom',   // can be left, right, top, bottom
             align           : '',       // can be: both:size=50, left, right, both, top, bottom
-            anchor          : null,     // element it is attached to
+            anchor          : null,     // element it is attached to, if anchor is body, then it is context menu
             anchorClass     : '',       // add class for anchor when tooltip is shown
             anchorStyle     : '',       // add style for anchor when tooltip is shown
             autoShow        : false,    // if autoShow true, then tooltip will show on mouseEnter and hide on mouseLeave
@@ -36,7 +34,7 @@ class Tooltip extends w2base {
             autoHideOn      : null,     // when options.auto = true, mouse event to hide on
             arrowSize       : 8,        // size of the carret
             margin          : 0,        // extra margin from the anchor
-            screenMargin    : 2,        // min margin from screen to tooltip
+            screenMargin    : 4,        // min margin from screen to tooltip
             autoResize      : true,     // auto resize based on content size and available size
             offsetX         : 0,        // delta for left coordinate
             offsetY         : 0,        // delta for top coordinate
@@ -45,6 +43,7 @@ class Tooltip extends w2base {
             watchScroll     : null,     // attach to onScroll event // TODO:
             watchResize     : null,     // attach to onResize event // TODO:
             hideOn          : null,     // events when to hide tooltip, ['click', 'change', 'key', 'focus', 'blur'],
+            onThen          : null,     // called when displayed
             onShow          : null,     // callBack when shown
             onHide          : null,     // callBack when hidden
             onUpdate        : null,     // callback when tooltip gets updated
@@ -53,6 +52,7 @@ class Tooltip extends w2base {
     }
 
     // map events to individual tooltips
+    onThen(event) { this._trigger('onThen', event) }
     onShow(event) { this._trigger('onShow', event) }
     onHide(event) { this._trigger('onHide', event) }
     onUpdate(event) { this._trigger('onUpdate', event) }
@@ -109,6 +109,10 @@ class Tooltip extends w2base {
                 return (Tooltip.active['w2overlay-' + name] == null ? name : find(name, ind+1))
             }
             name = find(name)
+        }
+        if (anchor == document || anchor == document.body) {
+            anchor = document.body
+            name = 'context-menu'
         }
         if (Tooltip.active[name]) {
             overlay = Tooltip.active[name]
@@ -185,6 +189,7 @@ class Tooltip extends w2base {
         let overlay = Tooltip.active[name]
         let options = overlay.options
         if (!overlay) return
+        let position = options.position.split('|')
         let isVertical = ['top', 'bottom'].includes(position[0])
         // enforce nowrap only when align=both and vertical
         let overlayStyles = (options.align == 'both' && isVertical ? '' : 'white-space: nowrap;')
@@ -242,7 +247,11 @@ class Tooltip extends w2base {
             overlay.anchor.style.cssText += ';' + options.anchorStyle
         }
         if (options.anchorClass) {
-            query(overlay.anchor).addClass(options.anchorClass)
+            if (options.anchorClass == 'w2ui-focus' && overlay.anchor == document.body) {
+
+            } else {
+                query(overlay.anchor).addClass(options.anchorClass)
+            }
         }
         // add on hide events
         if (typeof options.hideOn == 'string') options.hideOn = [options.hideOn]
@@ -424,13 +433,16 @@ class Tooltip extends w2base {
         }
         let scrollSize = w2utils.scrollBarSize()
         let max        = { width: window.innerWidth - scrollSize, height: window.innerHeight - scrollSize }
-        let scroll     = { left: overlay.tmp?.scrollLeft || 0, top: overlay.tmp?.scrollTop || 0 }
         let position   = options.position == 'auto' ? 'top|bottom|right|left'.split('|') : options.position.split('|')
         let isVertical = ['top', 'bottom'].includes(position[0])
-        let anchor     = overlay.anchor.getBoundingClientRect()
         let content    = overlay.box.getBoundingClientRect()
-                // if convent overflows, the get max overflow
-        let body = query(overlay.box).find('.w2ui-overlay-body').get(0)
+        let anchor     = overlay.anchor.getBoundingClientRect()
+
+        if (overlay.anchor == document.body) {
+            let { x, y, width, height } = options.originalEvent
+            anchor = { left: x , top: y, width, height, arrow: 'none' }
+        }
+
         // space available
         let available = { // tipsize adjustment should be here, not in max.width/max.height
             top: anchor.top - options.arrowSize,
@@ -510,7 +522,7 @@ class Tooltip extends w2base {
         return { left, top, arrow, adjust, width, height, pos: found }
 
         function usePosition(pos) {
-            arrow.class = `w2ui-arrow-${pos}`
+            arrow.class = anchor.arrow ? anchor.arrow : `w2ui-arrow-${pos}`
             switch (pos) {
                 case 'top': {
                     left = anchor.left + (anchor.width - (width ?? content.width)) / 2
@@ -685,28 +697,29 @@ class ColorTooltip extends Tooltip {
         this.index = [-1, -1]
         options.html = this.getColorHTML(options)
         let ret = super.attach(options)
-        this.on('show', event => {
+        self.off('.attach')
+        this.on('show.attach', event => {
             let anchor  = event.overlay.anchor
             let options = event.overlay.options
             if (anchor.tagName === 'INPUT' && !options.color && anchor.value) {
                 event.overlay.tmp.initColor = anchor.value
             }
         })
-        this.on('show:after', event => {
+        this.on('show:after.attach', event => {
             if (ret.overlay?.box) {
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
                 this.initControls(ret.overlay)
             }
         })
-        this.on('update:after', event => {
+        this.on('update:after.attach', event => {
             if (ret.overlay?.box) {
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
                 this.initControls(ret.overlay)
             }
         })
-        this.on('hide', event => {
+        this.on('hide.attach', event => {
             let overlay = event.overlay
             let anchor  = overlay.anchor
             let color   = overlay.newColor ?? ''
@@ -1127,14 +1140,15 @@ class MenuTooltip extends Tooltip {
         options.html = this.getMenuHTML(options)
         let ret = super.attach(options)
         // TODO: are these events removed?
-        this.on('show:after', event => {
+        self.off('.attach')
+        this.on('show:after.attach', event => {
             if (ret.overlay?.box) {
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
                 this.initControls(ret.overlay)
             }
         })
-        this.on('update:after', event => {
+        this.on('update:after.attach', event => {
             if (ret.overlay?.box) {
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
@@ -1718,4 +1732,4 @@ let w2color   = new ColorTooltip()
 let w2date    = new DateTooltip()
 let w2time    = new TimeTooltip()
 
-export { w2tooltip, w2color, w2date, w2time, w2menu }
+export { w2tooltip, w2color, w2menu, w2date, w2time }

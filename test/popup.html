@@ -18,7 +18,7 @@ function showOverlayGrid(el) {
         html: '<div id="grid" style="padding: 8px 0 0 0; border: 0px; width: 420px; height: 400px; border-radius: 8px"></div>',
         name: 'grid-overlay',
         onShow: function (event) {
-            jQuery('#w2ui-overlay-grid-overlay #grid').w2render('grid');
+            jQuery('#w2overlay-grid-overlay #grid').w2render('grid');
         }
     });
 }
@@ -53,6 +53,14 @@ function checkMenu(el) {
             { id: 7, text: '--' },
             { id: 8, text: 'Item 5' },
         ],
+        onSelect: function (event) {
+            console.log(event);
+        }
+    });
+}
+
+function color(el) {
+    jQuery(el).w2color({
         onSelect: function (event) {
             console.log(event);
         }
@@ -385,6 +393,7 @@ jQuery(function () {
         <button class="w2ui-btn" value="Overlay" onclick="showOverlayGrid(this)">Overlay Grid</button>
         <button class="w2ui-btn" value="Menu"    onclick="showMenu(this)">Menu</button>
         <button class="w2ui-btn" value="Menu"    onclick="checkMenu(this)">Check Menu</button>
+        <button class="w2ui-btn" value="Color"   onclick="color(this)">Color Dialog</button>
         <span style="user-select: none; color: silver; padding-left: 30px"
             oncontextmenu="contextMenu2(event)">Click for context menu</span>
     </div>
