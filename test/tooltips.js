@@ -118,15 +118,28 @@ $('button').on('click', event => {
 //     style: 'background-color: white; border: 1px solid red; color: red; text-shadow: none'
 // })
 
-// let ret = w2color.attach({
-//     anchor: query('#inp6')[0],
-//     autoShowOn: 'focus',
-//     // advanced: true,
-//     // position: 'right|left',
-//     // arrowSize: 14,
-//     // autoShow: true,
-//     // html: 'more text',
-// })
+let ret2 = w2menu.attach({
+    type: 'check',
+    anchor: query('#inp0')[0],
+    // align: 'both',
+    items: [
+        { id: 1, text: 'item 1', icon: 'w2ui-icon-plus', count1: 4, remove: true, group: false },
+        { id: 2, text: 'item 2', icon: 'w2ui-icon-pencil' },
+        { id: 3, text: 'item 3', icon: 'w2ui-icon-colors' },
+        { id: 4, text: 'item 4', icon: 'w2ui-icon-drop' },
+    ]
+})
+.select(event => {
+    console.log(event)
+    event.preventDefault()
+})
+.remove(event => {
+
+})
+.subMenu(event => {
+
+})
+console.log(ret2)
 // .liveUpdate(event => {
 //     console.log('update', event.color)
 // })
@@ -136,19 +149,22 @@ $('button').on('click', event => {
 
 let ret = w2menu.attach({
     anchor: query('#inp6')[0],
-    type: 'check',
+    type: 'radio',
+    search: true,
+    // topHTML: '1',
+    // menuStyle: 'border: 1px solid red;',
     // spinner: true,
     items: [
-        { id: 1, text: 'item 1', icon1: 'w2ui-icon-plus', count: 'ab', checked: true },
-        { id: 2, text: 'item 2', icon: 'w2ui-icon-pencil', remove: true },
-        { id: 2, text: 'This is some longer item', icon: 'w2ui-icon-colors', remove: true },
-        { id: 3, text: 'item 3', icon: 'w2ui-icon-drop', count: 5 },
+        { id: 1, text: 'item 1', icon1: 'w2ui-icon-plus', count: 'ab', checked: true, disabled: true },
+        { id: 2, text: 'item 2', icon: 'w2ui-icon-pencil', remove: true, group: 1, disabled: true },
+        { id: 21, text: 'This is some longer item', icon: 'w2ui-icon-colors', remove: true, group: 1 },
+        { id: 3, text: 'item 3', icon: 'w2ui-icon-drop', count: 5, group: 1 },
         { text: '--' },
         { id: 4, text: 'Has sub items', icon: true, hotkey: 'Cmd + A', expanded: true, group: false,
             items: [
-                { id: 41, text: 'sub item 6', icon: 'w2ui-icon-info' },
-                { id: 42, text: 'sub item long 7', icon: 'w2ui-icon-info' },
-                { id: 43, text: 'sub item long 8', icon: 'w2ui-icon-info' },
+                { id: 41, text: 'sub item 6', icon: 'w2ui-icon-info', group: 1 },
+                { id: 42, text: 'sub item long 7', icon: 'w2ui-icon-info', group: 1 },
+                { id: 43, text: 'sub item long 8', icon: 'w2ui-icon-info', group: 1 },
             ]
         },
         { id: 5, text: 'item 5', icon: true, tooltip: 'Some tooltip' },
@@ -175,5 +191,22 @@ let ret = w2menu.attach({
     // arrowSize: 14,
     // autoShow: true,
     // html: 'more text',
+})
+.select(event => {
+    console.log(event)
+})
+.remove(event => {
+    console.log(event)
+    // event.preventDefault()
+
+})
+.subMenu(event => {
+    event.done(() => {
+        console.log(event.item.expanded)
+    })
+})
+.hide(event => {
+    console.log('hide')
+
 })
 console.log(ret)

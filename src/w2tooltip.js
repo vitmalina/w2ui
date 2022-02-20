@@ -43,11 +43,11 @@ class Tooltip extends w2base {
             maxHeight       : null,     // max height
             watchScroll     : null,     // attach to onScroll event // TODO:
             watchResize     : null,     // attach to onResize event // TODO:
+            hideOn          : null,     // events when to hide tooltip, ['click', 'change', 'key', 'focus', 'blur'],
             onShow          : null,     // callBack when shown
             onHide          : null,     // callBack when hidden
             onUpdate        : null,     // callback when tooltip gets updated
-            onMove          : null,     // callback when tooltip is moved
-            hideOn          : null     // events when to hide tooltip, ['click', 'change', 'key', 'focus', 'blur'],
+            onMove          : null      // callback when tooltip is moved
         }
     }
 
@@ -56,6 +56,7 @@ class Tooltip extends w2base {
     onHide(event) { this._trigger('onHide', event) }
     onUpdate(event) { this._trigger('onUpdate', event) }
     onMove(event) { this._trigger('onMove', event) }
+
     _trigger(eventName, event) {
         let overlay = Tooltip.active[event.target]
         if (typeof overlay.options[eventName] == 'function') {
@@ -147,23 +148,23 @@ class Tooltip extends w2base {
         self.off('.attach')
         let ret = {
             overlay,
-            then(callback) {
+            then: (callback) => {
                 self.on('show:after.attach', event => { callback(event) })
                 return ret
             },
-            show(callback) {
+            show: (callback) => {
                 self.on('show.attach', event => { callback(event) })
                 return ret
             },
-            hide(callback) {
+            hide: (callback) => {
                 self.on('hide.attach', event => { callback(event) })
                 return ret
             },
-            update(callback) {
+            update: (callback) => {
                 self.on('update.attach', event => { callback(event) })
                 return ret
             },
-            move(callback) {
+            move: (callback) => {
                 self.on('move.attach', event => { callback(event) })
                 return ret
             }
@@ -505,7 +506,6 @@ class Tooltip extends w2base {
         top = top + parseFloat(options.offsetY) + parseInt(extraTop)
         left = left + parseFloat(options.offsetX) + parseInt(extraLeft)
 
-        // console.log(found, scroll, { left, top, width, height, pos: found, arrow, adjust, scroll })
         return { left, top, arrow, adjust, width, height, pos: found }
 
         function usePosition(pos) {
@@ -650,10 +650,13 @@ class ColorTooltip extends Tooltip {
             arrowSize: 12,
             autoResize: false,
             anchorClass: 'w2ui-focus',
-            hideOn: ['doc-click', 'focus-change'],
-            style: 'background-color: #f7f7f7;'
+            autoShowOn: 'focus',
+            hideOn: ['doc-click', 'focus-change']
         })
     }
+
+    onSelect(event) { this._trigger('onSelect', event) }
+    onLiveUpdate(event) { this._trigger('onLiveUpdate', event) }
 
     attach(anchor, text) {
         let options, self = this
@@ -692,14 +695,14 @@ class ColorTooltip extends Tooltip {
             if (ret.overlay?.box) {
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
-                this.initColorControls(ret.overlay)
+                this.initControls(ret.overlay)
             }
         })
         this.on('update:after', event => {
             if (ret.overlay?.box) {
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
-                this.initColorControls(ret.overlay)
+                this.initControls(ret.overlay)
             }
         })
         this.on('hide', event => {
@@ -715,11 +718,11 @@ class ColorTooltip extends Tooltip {
             this.trigger(w2utils.extend(edata, { phase: 'after' }))
         })
         ret.liveUpdate = (callback) => {
-            self.on('liveUpdate', (event) => { callback(event) })
+            self.on('liveUpdate.attach', (event) => { callback(event) })
             return ret
         }
         ret.select = (callback) => {
-            self.on('select', (event) => { callback(event) })
+            self.on('select.attach', (event) => { callback(event) })
             return ret
         }
         return ret
@@ -859,7 +862,7 @@ class ColorTooltip extends Tooltip {
     }
 
     // bind advanced tab controls
-    initColorControls(overlay) {
+    initControls(overlay) {
         let initial // used for mouse events
         let self = this
         let options = overlay.options
@@ -1065,7 +1068,7 @@ class MenuTooltip extends Tooltip {
         //   style    : '',
         //   icon     : '',
         //   count    : '',
-        //   tooltip  : '',
+        //   tooltip  : '',      // TODO: Not working
         //   hotkey   : '',
         //   remove   : false,
         //   items    : []
@@ -1077,26 +1080,33 @@ class MenuTooltip extends Tooltip {
         //   checked  : null,
         //   disabled : false
         //   ...
-        //     }
+        // }
         this.defaults = w2utils.extend({}, this.defaults, {
-            items       : [],
             type        : 'normal',    // can be normal, radio, check
+            items       : [],
             index       : null,        // current selected
-            render      : null,
+            render      : null,        // TODO:
             spinner     : false,
             msgNoItems  : w2utils.lang('No items found'),
-            onSelect    : null,
-            hideOnSelect: true,
-            hideOnRemove: false,
+            topHTML     : '',
+            menuStyle   : '',
+            filter      : false,        // TODO
+            search      : false,        // top search
+            altRows     : false,
+
             arrowSize   : 10,
             align       : 'left',
             position    : 'bottom|top',
             class       : 'w2ui-white',
             anchorClass : 'w2ui-focus',
             autoShowOn  : 'focus',
-            hideOn      : ['doc-click', 'focus-change']
+            hideOn      : ['doc-click', 'focus-change', 'select'] // also can 'item-remove'
         })
     }
+
+    onSelect(event) { this._trigger('onSelect', event) }
+    onSubMenu(event) { this._trigger('onSubMenu', event) }
+    onRemove(event) { this._trigger('onRemove', event) }
 
     attach(anchor, text) {
         let options, self = this
@@ -1114,24 +1124,31 @@ class MenuTooltip extends Tooltip {
         }
         options.html = this.getMenuHTML(options)
         let ret = super.attach(options)
+        // TODO: are these events removed?
         this.on('show:after', event => {
-            // TODO: check
             if (ret.overlay?.box) {
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
-                // this.initColorControls(ret.overlay)
+                this.initControls(ret.overlay)
             }
         })
         this.on('update:after', event => {
-            // TODO: check
             if (ret.overlay?.box) {
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
-                // this.initColorControls(ret.overlay)
+                this.initControls(ret.overlay)
             }
         })
         ret.select = (callback) => {
-            self.on('select', (event) => { callback(event) })
+            self.on('select.attach', (event) => { callback(event) })
+            return ret
+        }
+        ret.remove = (callback) => {
+            self.on('remove.attach', (event) => { callback(event) })
+            return ret
+        }
+        ret.subMenu = (callback) => {
+            self.on('subMenu.attach', (event) => { callback(event) })
             return ret
         }
         return ret
@@ -1160,7 +1177,22 @@ class MenuTooltip extends Tooltip {
         if (!Array.isArray(items)) items = []
         let count = 0
         let icon = null
-        let menu_html = `<div class="w2ui-menu ${(subMenu ? 'w2ui-sub-menu' : '')}">`
+        let topHTML = ''
+        if (!subMenu && options.search) {
+            topHTML += `
+                <div class="w2ui-menu-search">
+                    <span class="w2ui-icon w2ui-icon-search"></span>
+                    <input id="menu-search" class="w2ui-input" type="text"/>
+                </div>`
+            for (let i = 0; i < options.items.length; i++) options.items[i].hidden = false
+        }
+        if (!subMenu && options.topHTML) {
+            topHTML += `<div class="w2ui-menu-top">${options.topHTML}</div>`
+        }
+        let menu_html = `
+            ${topHTML}
+            <div class="w2ui-menu ${(subMenu ? 'w2ui-sub-menu' : '')}" ${!subMenu ? `style="${options.menuStyle}"` : ''}>
+        `
         items.forEach((mitem, f) => {
             icon = mitem.icon
             if (icon == null) icon = null // icon might be undefined
@@ -1177,7 +1209,9 @@ class MenuTooltip extends Tooltip {
                 // render only if non-empty
                 if (mitem.type !== 'break' && txt != null && txt !== '' && String(txt).substr(0, 2) != '--') {
                     let classes = ['w2ui-menu-item']
-                    classes.push(count % 2 === 0 ? 'w2ui-even' : 'w2ui-odd')
+                    if (options.altRows == true) {
+                        classes.push(count % 2 === 0 ? 'w2ui-even' : 'w2ui-odd')
+                    }
                     let colspan = 1
                     if (icon_dsp === '') colspan++
                     if (mitem.count == null && mitem.hotkey == null && mitem.remove !== true && mitem.items == null) colspan++
@@ -1193,7 +1227,6 @@ class MenuTooltip extends Tooltip {
                             _items = mitem.items
                         }
                         count_dsp   = '<span></span>'
-                        console.log(this.getMenuHTML(options, _items, true, parentIndex.concat(f)))
                         subMenu_dsp = `
                             <div class="w2ui-sub-menu-box" style="${mitem.expanded ? '' : 'display: none'}">
                                 ${this.getMenuHTML(options, _items, true, parentIndex.concat(f))}
@@ -1215,13 +1248,13 @@ class MenuTooltip extends Tooltip {
                             classes.push('collapsed')
                         }
                     }
+                    // classes.push('w2ui-eaction')
                     // TODO: tooltip
                     menu_html += `
                         <div index="${(parentIndex.length > 0 ? parentIndex.join('-') + '-' : '') + f}"
                             class="${classes.join(' ')}" style="${mitem.style ? mitem.style : ''}"
                             tooltip="${mitem.tooltip ? w2utils.lang(mitem.tooltip) : ''}"
-                            data-mousedown='["menuDown", "event", ${f}, "${parentIndex.join('-')}"]'
-                            data-click='["menuClick", "event", ${f}, "${parentIndex.join('-')}"]'>
+                            data-index="${f}" data-parents="${parentIndex.join('-')}">
                                 <div style="width: ${(subMenu ? 20 : 0) + parseInt(mitem.indent ?? 0)}px"></div>
                                 ${icon_dsp}
                                 <div class="menu-text" colspan="${colspan}">${w2utils.lang(txt)}</div>
@@ -1248,8 +1281,146 @@ class MenuTooltip extends Tooltip {
                 </div>`
         }
         menu_html += '</div>'
-        console.log(items)
         return menu_html
+    }
+
+    initControls(overlay) {
+        query(overlay.box).find('.w2ui-menu:not(.w2ui-sub-menu)')
+            .off('.w2menu')
+            .on('mouseDown.w2menu', { delegate: '.w2ui-menu-item' }, event => {
+                let dt = event.delegate.dataset
+                this.menuDown(overlay, event, dt.index, dt.parents)
+            })
+            .on('click.w2menu', { delegate: '.w2ui-menu-item' }, event => {
+                let dt = event.delegate.dataset
+                this.menuClick(overlay, event, dt.index, dt.parents)
+            })
+    }
+
+    menuDown(overlay, event, index, parentIndex) {
+        let options = overlay.options
+        let items   = options.items
+        let icon    = query(event.delegate).find('.w2ui-icon')
+        let menu    = query(event.target).closest('.w2ui-menu:not(.w2ui-sub-menu)')
+        if (typeof parentIndex == 'string' && parentIndex !== '') {
+            let ids = parentIndex.split('-')
+            ids.forEach(id => {
+                items = items[id].items
+            })
+        }
+        let item = items[index]
+        if (item.disabled) {
+            return
+        }
+        let uncheck = (items, parent) => {
+            items.forEach((other, ind) => {
+                if (other.id == item.id) return
+                if (other.group === item.group && other.checked) {
+                    menu
+                        .find(`.w2ui-menu-item[index="${(parent ? parent + '-' : '') + ind}"] .w2ui-icon`)
+                        .removeClass('w2ui-icon-check')
+                        .addClass('w2ui-icon-empty')
+                    items[ind].checked = false
+                }
+                if (Array.isArray(other.items)) {
+                    uncheck(other.items, ind)
+                }
+            })
+        }
+        if ((options.type === 'check' || options.type === 'radio') && item.group !== false
+                    && !query(event.target).hasClass('remove')
+                    && !query(event.target).closest('.w2ui-menu-item').hasClass('has-sub-menu')) {
+            item.checked = options.type == 'radio' ? true : !item.checked
+            if (item.checked) {
+                if (options.type === 'radio') {
+                    query(event.target).closest('.w2ui-menu').find('.w2ui-icon')
+                        .removeClass('w2ui-icon-check')
+                        .addClass('w2ui-icon-empty')
+                }
+                if (options.type === 'check' && item.group != null) {
+                    uncheck(options.items)
+                }
+                icon.removeClass('w2ui-icon-empty').addClass('w2ui-icon-check')
+            } else if (options.type === 'check') {
+                icon.removeClass('w2ui-icon-check').addClass('w2ui-icon-empty')
+            }
+        }
+        // highlight record
+        if (!query(event.target).hasClass('remove')) {
+            menu.find('.w2ui-menu-item').removeClass('w2ui-selected')
+            query(event.delegate).addClass('w2ui-selected')
+        }
+    }
+
+    menuClick(overlay, event, index, parentIndex) {
+        let options  = overlay.options
+        let items    = options.items
+        let $item    = query(event.delegate).closest('.w2ui-menu-item')
+        let keepOpen = options.hideOn.includes('select') ? false : true
+        if (event.shiftKey || event.metaKey || event.ctrlKey) {
+            keepOpen = true
+        }
+        if (typeof parentIndex == 'string' && parentIndex !== '') {
+            let ids = parentIndex.split('-')
+            ids.forEach(id => {
+                items = items[id].items
+            })
+        }
+        if (typeof items == 'function') {
+            items = items({ overlay, index, parentIndex, event })
+        }
+        let item = items[index]
+        if (item.disabled && !query(event.target).hasClass('remove')) {
+            return
+        }
+        let edata
+        if (query(event.target).hasClass('remove')) {
+            edata = this.trigger({ phase: 'before', type: 'remove', target: overlay.name,
+                        overlay, item, index, parentIndex, el: $item[0] })
+            if (edata.isCancelled === true) {
+                return
+            }
+            keepOpen = !options.hideOn.includes('item-remove')
+            $item.remove()
+
+        } else if ($item.hasClass('has-sub-menu')) {
+            edata = this.trigger({ phase: 'before', type: 'subMenu', target: overlay.name,
+                        overlay, item, index, parentIndex, el: $item[0] })
+            if (edata.isCancelled === true) {
+                return
+            }
+            keepOpen = true
+            if ($item.hasClass('expanded')) {
+                item.expanded = false
+                $item.removeClass('expanded').addClass('collapsed')
+                query($item.get(0).nextElementSibling).hide()
+                this.activeChain = null // reset active chain
+                options.index = $item.attr('index').split('-')
+            } else {
+                item.expanded = true
+                $item.addClass('expanded').removeClass('collapsed')
+                query($item.get(0).nextElementSibling).show()
+                this.activeChain = null // reset active chain
+                options.index = $item.attr('index').split('-')
+            }
+        } else {
+            edata = this.trigger({ phase: 'before', type: 'select', target: overlay.name,
+                        overlay, item, index, parentIndex, keepOpen, el: $item[0] })
+            if (edata.isCancelled === true) {
+                return
+            }
+            if (item.keepOpen != null) {
+                keepOpen = item.keepOpen
+            }
+        }
+        if (!keepOpen) {
+            this.hide(overlay.name)
+        }
+        // if (overlay.anchor.tagName == 'INPUT') {
+        //     overlay.anchor.focus()
+        // }
+        // event after
+        this.trigger(w2utils.extend(edata, { phase: 'after' }))
     }
 }
 

@@ -18,7 +18,7 @@ class Query {
             nodes = Array.from(this.context.querySelectorAll(selector))
         } else {
             // if selector is itterable, then try to create nodes from it, also supports jQuery
-            let arr = Array.from(selector)
+            let arr = Array.from(selector ?? [])
             if (typeof selector == 'object' && Array.isArray(arr)) {
                 nodes = arr
             } else {
@@ -110,7 +110,7 @@ class Query {
         let nodes = []
         this.each(node => {
             if (node === selector
-                || (typeof selector == 'string' && node.matches(selector))
+                || (typeof selector == 'string' && node.matches && node.matches(selector))
                 || (typeof selector == 'function' && selector(node))
             ) {
                 nodes.push(node)
@@ -126,6 +126,25 @@ class Query {
         })
         let col = new Query(nodes, this.context, this)
         return selector ? col.find(selector) : col
+    }
+    parent(selector) {
+        return this.parents(selector, true)
+    }
+    parents(selector, firstOnly) {
+        let nodes = []
+        let add = (node) => {
+            if (nodes.indexOf(node) == -1) {
+                nodes.push(node)
+            }
+            if (!firstOnly && node.parentNode) {
+                return add(node.parentNode)
+            }
+        }
+        this.each(node => {
+            if (node.parentNode) add(node.parentNode)
+        })
+        let col = new Query(nodes, this.context, this)
+        return selector ? col.filter(selector) : col
     }
     closest(selector) {
         let nodes = []
@@ -263,8 +282,11 @@ class Query {
         if (options?.delegate) {
             let fun = callback
             let delegate = options.delegate
-            callback = function (event) {
-                if (event.target.matches(delegate)) {
+            callback = (event) => {
+                // event.target or any ancestors match delegate selector
+                let parent = query(event.target).parents(delegate)
+                if (parent.length > 0) { event.delegate = parent[0] } else { event.delegate = event.target }
+                if (event.target.matches(delegate) || parent.length > 0) {
                     fun(event)
                 }
             }
