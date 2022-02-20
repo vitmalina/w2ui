@@ -151,6 +151,7 @@ let ret = w2menu.attach({
     anchor: query('#inp6')[0],
     type: 'radio',
     // search: true,
+    // filter: true,
     // topHTML: '1',
     // menuStyle: 'border: 1px solid red;',
     // spinner: true,

@@ -1369,7 +1369,7 @@ class MenuTooltip extends Tooltip {
                 let dt = event.delegate.dataset
                 this.menuClick(overlay, event, dt.index, dt.parents)
             })
-        if (overlay.options.filter && overlay.anchor.tagName == 'INPUT') {
+        if (overlay.anchor.tagName == 'INPUT') {
             query(overlay.anchor)
                 .off('.w2menu')
                 .on('input.w2menu', event => {
@@ -1379,6 +1379,7 @@ class MenuTooltip extends Tooltip {
                     delete dt.selectedIndex
                 })
                 .on('keyup.w2menu', event => {
+                    event._searchType = 'filter'
                     this.keyUp(overlay, event)
                 })
         }
@@ -1386,6 +1387,7 @@ class MenuTooltip extends Tooltip {
             query(overlay.box).find('#menu-search')
                 .off('.w2menu')
                 .on('keyup.w2menu', event => {
+                    event._searchType = 'search'
                     this.keyUp(overlay, event)
                 })
         }
@@ -1621,7 +1623,8 @@ class MenuTooltip extends Tooltip {
             }
         }
         // filter
-        if ((options.filter || options.search) && filter) {
+        if (filter && ((options.filter && event._searchType == 'filter')
+                    || (options.search && event._searchType == 'search'))) {
             let count = applyFilter(options.items, search)
             let chain = null
             if (count > 0) {
