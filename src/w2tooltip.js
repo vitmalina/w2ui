@@ -51,7 +51,12 @@ class Tooltip {
         }
     }
 
-    trigger(event) {
+    trigger(event, data) {
+        if (arguments.length == 2) {
+            let type = event
+            event = data
+            data.type = type
+        }
         if (event.overlay) {
             return event.overlay.trigger(event)
         } else {
@@ -224,7 +229,7 @@ class Tooltip {
             return
         } else if (overlay.box) {
             // if already present, update it
-            edata = this.trigger({ phase: 'before', type: 'update', target: name, overlay })
+            edata = this.trigger('update', {  target: name, overlay })
             if (edata.isCancelled === true) {
                 // restore previous options
                 if (overlay.prevOptions) {
@@ -242,7 +247,7 @@ class Tooltip {
             this.resize(overlay.name)
         } else {
             // event before
-            edata = this.trigger({ phase: 'before', type: 'show', target: name, overlay })
+            edata = this.trigger('show', { target: name, overlay })
             if (edata.isCancelled === true) return
             // normal processing
             query('body').append(
@@ -296,7 +301,7 @@ class Tooltip {
         setTimeout(() => { query(overlay.box).css('opacity', 1) }, 0)
         delete overlay.needsUpdate
         // event after
-        this.trigger(w2utils.extend(edata, { phase: 'after' }))
+        if (edata) edata.finish()
         return
 
         function addWatchEvents(el) {
@@ -367,7 +372,7 @@ class Tooltip {
         }
         if (!overlay || !overlay.box) return
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'hide', target: name, overlay })
+        let edata = this.trigger('hide', { target: name, overlay })
         if (edata.isCancelled === true) return
         let scope = 'tooltip-' + overlay.name
         // normal processing
@@ -397,7 +402,7 @@ class Tooltip {
             .off(`.${scope}`)
             .removeClass(overlay.options.anchorClass)
         // event after
-        this.trigger(w2utils.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     resize(name) {
@@ -413,7 +418,7 @@ class Tooltip {
         let newPos = pos.left + 'x' + pos.top
         let edata
         if (overlay.tmp.lastPos != newPos) {
-            edata = this.trigger({ phase: 'before', type: 'move', target: name, overlay, pos })
+            edata = this.trigger('move', { target: name, overlay, pos })
         }
         query(overlay.box)
             .css({
@@ -439,9 +444,9 @@ class Tooltip {
             .find('style')
             .text(pos.arrow.style)
 
-        if (overlay.tmp.lastPos != newPos) {
+        if (overlay.tmp.lastPos != newPos && edata) {
             overlay.tmp.lastPos = newPos
-            this.trigger(w2utils.extend(edata, { phase: 'after' }))
+            edata.finish()
         }
     }
 
@@ -749,10 +754,10 @@ class ColorTooltip extends Tooltip {
             if (anchor.tagName === 'INPUT' && anchor.value != color) {
                 anchor.value = color
             }
-            let edata = this.trigger({ phase: 'before', type: 'select', color, target: overlay.name, overlay })
+            let edata = this.trigger('select', { color, target: overlay.name, overlay })
             if (edata.isCancelled === true) return
             // event after
-            this.trigger(w2utils.extend(edata, { phase: 'after' }))
+            edata.finish()
         })
         ret.liveUpdate = (callback) => {
             overlay.on('liveUpdate.attachColor', (event) => { callback(event) })
@@ -776,7 +781,7 @@ class ColorTooltip extends Tooltip {
         }
         let overlay = this.get(name)
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'liveUpdate', color, target: name, overlay, param: arguments[1] })
+        let edata = this.trigger('liveUpdate', { color, target: name, overlay, param: arguments[1] })
         if (edata.isCancelled === true) return
         // if anchor is input - live update
         if (overlay.anchor.tagName === 'INPUT' && overlay.options.liveUpdate) {
@@ -788,7 +793,7 @@ class ColorTooltip extends Tooltip {
             query(target).addClass('w2ui-selected')
         }
         // event after
-        this.trigger(w2utils.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     // used for keyboard navigation, if any
@@ -1506,7 +1511,7 @@ class MenuTooltip extends Tooltip {
         }
         let edata
         if (query(event.target).hasClass('remove')) {
-            edata = this.trigger({ phase: 'before', type: 'remove', target: overlay.name,
+            edata = this.trigger('remove', { target: overlay.name,
                         overlay, item, index, parentIndex, el: $item[0] })
             if (edata.isCancelled === true) {
                 return
@@ -1515,8 +1520,7 @@ class MenuTooltip extends Tooltip {
             $item.remove()
 
         } else if ($item.hasClass('has-sub-menu')) {
-            edata = this.trigger({ phase: 'before', type: 'subMenu', target: overlay.name,
-                        overlay, item, index, parentIndex, el: $item[0] })
+            edata = this.trigger('subMenu', { target: overlay.name, overlay, item, index, parentIndex, el: $item[0] })
             if (edata.isCancelled === true) {
                 return
             }
@@ -1535,8 +1539,7 @@ class MenuTooltip extends Tooltip {
                 overlay.selected = $item.attr('index')
             }
         } else {
-            edata = this.trigger({ phase: 'before', type: 'select', target: overlay.name,
-                        overlay, item, index, parentIndex, keepOpen, el: $item[0] })
+            edata = this.trigger('select', { target: overlay.name, overlay, item, index, parentIndex, keepOpen, el: $item[0] })
             if (edata.isCancelled === true) {
                 return
             }
@@ -1557,7 +1560,7 @@ class MenuTooltip extends Tooltip {
         //     overlay.anchor.focus()
         // }
         // event after
-        this.trigger(w2utils.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     keyUp(overlay, event) {

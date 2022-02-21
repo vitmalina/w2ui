@@ -17,7 +17,8 @@ function showOverlayGrid(el) {
     jQuery(el).w2overlay({
         html: '<div id="grid" style="padding: 8px 0 0 0; border: 0px; width: 420px; height: 400px; border-radius: 8px"></div>',
         name: 'grid-overlay',
-        onShow(event) {
+        async onShow(event) {
+            await event.complete
             jQuery('#w2overlay-grid-overlay #grid').w2render('grid');
         }
     });
@@ -63,7 +64,12 @@ function color(el) {
     console.log('click')
     jQuery(el).w2color({
         onSelect(event) {
-            console.log(event);
+            console.log('Selected: ', event.color)
+        },
+        async onShow(event) {
+            console.log(event.phase)
+            await event.complete
+            console.log(event.phase)
         }
     });
 }

@@ -167,15 +167,7 @@ import { w2tooltip, w2color, w2menu } from './w2tooltip.js'
             } else {
                 options.html = text
             }
-            let then
-            if (options?.onShow) {
-                then = options.onShow
-                delete options.onShow
-            }
             let tooltip = w2tooltip.show(el, options)
-            if (then) {
-                tooltip.then(then)
-            }
         })
     }
 
@@ -194,15 +186,7 @@ import { w2tooltip, w2color, w2menu } from './w2tooltip.js'
                 class: 'w2ui-white',
                 hideOn: ['doc-click']
             })
-            let then
-            if (options?.onShow) {
-                then = options.onShow
-                delete options.onShow
-            }
             let tooltip = w2tooltip.show(el, options)
-            if (then) {
-                tooltip.then(then)
-            }
         })
     }
 
@@ -216,29 +200,13 @@ import { w2tooltip, w2color, w2menu } from './w2tooltip.js'
             } else {
                 options.items = menu
             }
-            let then
-            if (options?.onShow) {
-                then = options.onShow
-                delete options.onShow
-            }
             let tooltip = w2menu.show(el, options)
-            if (then) {
-                tooltip.then(then)
-            }
         })
     }
 
     $.fn.w2color = function(options, callBack) {
         return this.each((index, el) => {
-            let then
-            if (options?.onShow) {
-                then = options.onShow
-                delete options.onShow
-            }
             let tooltip = w2color.show(el, options)
-            if (then) {
-                tooltip.then(then)
-            }
             if (typeof callBack == 'function') {
                 tooltip.then(callBack)
             }
