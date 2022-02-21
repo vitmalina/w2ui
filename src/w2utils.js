@@ -15,6 +15,7 @@
  *  - nearly removed jQuery (toolip has reference)
  *  - refactores w2utils.message()
  *  - added w2utils.confirm()
+ *  - added isPlainObject
  */
 
 import { w2base } from './w2base.js'
@@ -1833,6 +1834,21 @@ class Utils {
         return actions
     }
 
+    // determins if it is plain Object, not DOM element, nor a function, event, etc.
+    isPlainObject(value) {
+        if (value == null) { // null or undefined
+            return false
+        }
+        if (Object.prototype.toString.call(value) !== '[object Object]') {
+            return false
+        }
+        if (value.constructor === undefined) {
+            return true
+        }
+        let proto = Object.getPrototypeOf(value)
+        return proto === null || proto === Object.prototype
+    }
+
     // deep copy of an object or an array
     clone(obj) {
         let ret
@@ -1841,19 +1857,15 @@ class Utils {
             ret.forEach((value, ind) => {
                 ret[ind] = this.clone(value)
             })
-        } else if (obj instanceof HTMLElement || obj instanceof Text
-                || obj instanceof Document || obj instanceof DocumentFragment
-                || obj instanceof Event) {
-            // do not clone HTML Elements or events
-            ret = obj
-        } else if (obj != null && obj instanceof Object) {
+        } else if (this.isPlainObject(obj)) {
             ret = {}
             Object.assign(ret, obj)
             Object.keys(ret).forEach(key => {
                 ret[key] = this.clone(ret[key])
             })
         } else {
-            // primitive variable or function, both remain the same
+            // primitive variable or function, event, dom element, etc,
+            // all these are not cloned
             ret = obj
         }
         return ret

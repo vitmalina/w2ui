@@ -8,17 +8,17 @@
  * TODO
  * - cleanup w2color less
  * - remember state for drop menu
+ * - events firing too many times
  */
 
 import { w2base } from './w2base.js'
 import { query } from './query.js'
 import { w2utils } from './w2utils.js'
 
-class Tooltip extends w2base {
-    // all acitve tooltips, any any its descendants
-    static active = {}
+class Tooltip {
+    // no need to extend w2base, as each individual tooltip extends it
+    static active = {} // all defined tooltips
     constructor() {
-        super()
         this.defaults = {
             name            : null,     // name for the overlay, otherwise input id is used
             html            : '',       // text or html
@@ -51,17 +51,11 @@ class Tooltip extends w2base {
         }
     }
 
-    // map events to individual tooltips
-    onThen(event) { this._trigger('onThen', event) }
-    onShow(event) { this._trigger('onShow', event) }
-    onHide(event) { this._trigger('onHide', event) }
-    onUpdate(event) { this._trigger('onUpdate', event) }
-    onMove(event) { this._trigger('onMove', event) }
-
-    _trigger(eventName, event) {
-        let overlay = Tooltip.active[event.target]
-        if (typeof overlay.options[eventName] == 'function') {
-            overlay.options[eventName](event)
+    trigger(event) {
+        if (event.overlay) {
+            return event.overlay.trigger(event)
+        } else {
+            console.log('ERROR: cannot find overlay where to trigger events')
         }
     }
 
@@ -86,11 +80,11 @@ class Tooltip extends w2base {
         } else if (arguments.length === 2 && typeof text === 'string') {
             options = { anchor, html: text }
             text = options.html
-        } else if (arguments.length === 2 && typeof text === 'object') {
+        } else if (arguments.length === 2 && text != null && typeof text === 'object') {
             options = text
             text = options.html
         }
-        options = w2utils.extend({}, this.defaults, options ? options : {})
+        options = w2utils.extend({}, this.defaults, options || {})
         if (!text && options.text) text = options.text
         if (!text && options.html) text = options.html
         // anchor is func var
@@ -99,17 +93,19 @@ class Tooltip extends w2base {
         // define tooltip
         let name = (options.name ? options.name : anchor.id)
         if (!name) {
-            name = 'noname-' +Object.keys(Tooltip.active).length
+            name = 'noname-' + Object.keys(Tooltip.active).length
+            console.log('NOTICE: name property is not defined for tooltip, could lead to too many instances')
         }
-        if (name == anchor.id && Tooltip.active[name]) {
-            // find unique name
-            let find = (name, ind=0) => {
-                if (ind !== 0) name = name.substr(0, name.length-2)
-                name += '-' + (ind + 1)
-                return (Tooltip.active['w2overlay-' + name] == null ? name : find(name, ind+1))
-            }
-            name = find(name)
-        }
+        // if (name == anchor.id && Tooltip.active[name]) {
+        //     // find unique name
+        //     let find = (name, ind = 0) => {
+        //         if (ind !== 0) name = name.substr(0, name.length - 2)
+        //         name += '-' + (ind + 1)
+        //         return (Tooltip.active['w2overlay-' + name] == null ? name : find(name, ind + 1))
+        //     }
+        //     name = find(name)
+        //     console.log(name)
+        // }
         if (anchor == document || anchor == document.body) {
             anchor = document.body
             name = 'context-menu'
@@ -118,8 +114,13 @@ class Tooltip extends w2base {
             overlay = Tooltip.active[name]
             overlay.prevOptions = overlay.options
             overlay.options = w2utils.extend({}, overlay.options, options)
+            if (overlay.prevOptions.html != overlay.options.html) {
+                overlay.needsUpdate = true
+            }
+            options = overlay.options // it was recreated
         } else {
-            overlay = {
+            overlay = new w2base()
+            Object.assign(overlay, {
                 displayed: false,
                 id: 'w2overlay-' + name, name, options, anchor,
                 tmp: {
@@ -127,9 +128,17 @@ class Tooltip extends w2base {
                         this.resize(overlay.name)
                     })
                 }
-            }
+            })
             Tooltip.active[name] = overlay
         }
+        // move events on to overlay layer
+        Object.keys(overlay.options).forEach(key => {
+            let val = overlay.options[key]
+            if (key.startsWith('on') && typeof val == 'function') {
+                overlay[key] = val
+                delete overlay.options[key]
+            }
+        })
         // add event for auto show/hide
         if (options.autoShow === true) {
             options.autoShowOn = options.autoShowOn ?? 'mouseenter'
@@ -137,40 +146,46 @@ class Tooltip extends w2base {
             options.autoShow = false
         }
         if (options.autoShowOn) {
-            query(anchor).on(options.autoShowOn + '.w2overlay-init', event => {
-                self.show(overlay.name)
-                // event.stopPropagation()
-            })
+            let scope = 'autoShow-' + overlay.name
+            query(anchor)
+                .off(`.${scope}`)
+                .on(`${options.autoShowOn}.${scope}`, event => {
+                    self.show(overlay.name)
+                    event.stopPropagation()
+                })
             delete options.autoShowOn
         }
         if (options.autoHideOn) {
-            query(anchor).on(options.autoHideOn + '.w2overlay-init', event => {
-                self.hide(overlay.name)
-                // event.stopPropagation()
-            })
+            let scope = 'autoHide-' + overlay.name
+            query(anchor)
+                .off(`.${scope}`)
+                .on(`${options.autoHideOn}.${scope}`, event => {
+                    self.hide(overlay.name)
+                    event.stopPropagation()
+                })
             delete options.autoHideOn
         }
-        self.off('.attach')
+        overlay.off('.attach')
         let ret = {
             overlay,
             then: (callback) => {
-                self.on('show:after.attach', event => { callback(event) })
+                overlay.on('show:after.attach', event => { callback(event) })
                 return ret
             },
             show: (callback) => {
-                self.on('show.attach', event => { callback(event) })
+                overlay.on('show.attach', event => { callback(event) })
                 return ret
             },
             hide: (callback) => {
-                self.on('hide.attach', event => { callback(event) })
+                overlay.on('hide.attach', event => { callback(event) })
                 return ret
             },
             update: (callback) => {
-                self.on('update.attach', event => { callback(event) })
+                overlay.on('update.attach', event => { callback(event) })
                 return ret
             },
             move: (callback) => {
-                self.on('move.attach', event => { callback(event) })
+                overlay.on('move.attach', event => { callback(event) })
                 return ret
             }
         }
@@ -179,7 +194,11 @@ class Tooltip extends w2base {
 
     show(name) {
         if (name instanceof HTMLElement || name instanceof Object) {
-            let ret = this.attach(...arguments)
+            let options = arguments[1]
+            let ret = this.attach(name, options)
+            query(ret.overlay.anchor)
+                .off('.autoShow-' + ret.overlay.name)
+                .off('.autoHide-' + ret.overlay.name)
             // need a timer, so that events would be preperty set
             setTimeout(() => { this.show(ret.overlay.name) }, 1)
             return ret
@@ -188,7 +207,9 @@ class Tooltip extends w2base {
         let self = this
         let overlay = Tooltip.active[name]
         let options = overlay.options
-        if (!overlay) return
+        if (!overlay || (overlay.displayed && !overlay.needsUpdate)) {
+            return
+        }
         let position = options.position.split('|')
         let isVertical = ['top', 'bottom'].includes(position[0])
         // enforce nowrap only when align=both and vertical
@@ -200,6 +221,7 @@ class Tooltip extends w2base {
         // if empty content - then hide it
         if (options.html === '' || options.html == null) {
             self.hide(name)
+            return
         } else if (overlay.box) {
             // if already present, update it
             edata = this.trigger({ phase: 'before', type: 'update', target: name, overlay })
@@ -272,6 +294,7 @@ class Tooltip extends w2base {
             .html(options.html)
         // now, make visible, it has css opacity transition
         setTimeout(() => { query(overlay.box).css('opacity', 1) }, 0)
+        delete overlay.needsUpdate
         // event after
         this.trigger(w2utils.extend(edata, { phase: 'after' }))
         return
@@ -654,33 +677,32 @@ class ColorTooltip extends Tooltip {
             ['99050C', 'B45F17', '80650E', '737103', '395E14', '10783D', '13615E', '094785', '0A5394', '351C75', '780172', '782C5A']
         ]
         this.defaults = w2utils.extend({}, this.defaults, {
-            advanced: false,
-            transparent: true,
-            position: 'top|bottom',
-            class: 'w2ui-white',
-            color: '',
-            liveUpdate: true,
-            arrowSize: 12,
-            autoResize: false,
-            anchorClass: 'w2ui-focus',
-            autoShowOn: 'focus',
-            hideOn: ['doc-click', 'focus-change']
+            advanced    : false,
+            transparent : true,
+            position    : 'top|bottom',
+            class       : 'w2ui-white',
+            color       : '',
+            liveUpdate  : true,
+            arrowSize   : 12,
+            autoResize  : false,
+            anchorClass : 'w2ui-focus',
+            autoShowOn  : 'focus',
+            hideOn      : ['doc-click', 'focus-change'],
+            onSelect    : null,
+            onLiveUpdate: null
         })
     }
-
-    onSelect(event) { this._trigger('onSelect', event) }
-    onLiveUpdate(event) { this._trigger('onLiveUpdate', event) }
 
     attach(anchor, text) {
         let options, self = this
         if (arguments.length == 1 && anchor.anchor) {
             options = anchor
             anchor = options.anchor
-        } else if (arguments.length === 2 && typeof text === 'object') {
+        } else if (arguments.length === 2 && text != null && typeof text === 'object') {
             options = text
             options.anchor = anchor
         }
-        options = w2utils.extend({}, this.defaults, options)
+        options = w2utils.extend({}, this.defaults, options || {})
         options.style += '; padding: 0;'
         // add remove transparent color
         if (options.transparent && this.palette[0][1] == '333333') {
@@ -697,29 +719,30 @@ class ColorTooltip extends Tooltip {
         this.index = [-1, -1]
         options.html = this.getColorHTML(options)
         let ret = super.attach(options)
-        self.off('.attach')
-        this.on('show.attach', event => {
+        let overlay = ret.overlay
+        overlay.off('.attachColor', options)
+        overlay.on('show.attachColor', event => {
             let anchor  = event.overlay.anchor
             let options = event.overlay.options
             if (anchor.tagName === 'INPUT' && !options.color && anchor.value) {
                 event.overlay.tmp.initColor = anchor.value
             }
         })
-        this.on('show:after.attach', event => {
+        overlay.on('show:after.attachColor', event => {
             if (ret.overlay?.box) {
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
                 this.initControls(ret.overlay)
             }
         })
-        this.on('update:after.attach', event => {
+        overlay.on('update:after.attachColor', event => {
             if (ret.overlay?.box) {
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
                 this.initControls(ret.overlay)
             }
         })
-        this.on('hide.attach', event => {
+        overlay.on('hide.attachColor', event => {
             let overlay = event.overlay
             let anchor  = overlay.anchor
             let color   = overlay.newColor ?? ''
@@ -732,11 +755,11 @@ class ColorTooltip extends Tooltip {
             this.trigger(w2utils.extend(edata, { phase: 'after' }))
         })
         ret.liveUpdate = (callback) => {
-            self.on('liveUpdate.attach', (event) => { callback(event) })
+            overlay.on('liveUpdate.attachColor', (event) => { callback(event) })
             return ret
         }
         ret.select = (callback) => {
-            self.on('select.attach', (event) => { callback(event) })
+            overlay.on('select.attachColor', (event) => { callback(event) })
             return ret
         }
         return ret
@@ -1108,47 +1131,45 @@ class MenuTooltip extends Tooltip {
             match       : 'contains',   // is, begins, ends, contains
             search      : false,         // top search
             altRows     : false,
-
             arrowSize   : 10,
             align       : 'left',
             position    : 'bottom|top',
             class       : 'w2ui-white',
             anchorClass : 'w2ui-focus',
             autoShowOn  : 'focus',
-            hideOn      : ['doc-click', 'focus-change', 'select'] // also can 'item-remove'
+            hideOn      : ['doc-click', 'focus-change', 'select'], // also can 'item-remove'
+            onSelect    : null,
+            onSubMenu   : null,
+            onRemove    : null
         })
     }
-
-    onSelect(event)  { this._trigger('onSelect', event) }
-    onSubMenu(event) { this._trigger('onSubMenu', event) }
-    onRemove(event)  { this._trigger('onRemove', event) }
 
     attach(anchor, text) {
         let options, self = this
         if (arguments.length == 1 && anchor.anchor) {
             options = anchor
             anchor = options.anchor
-        } else if (arguments.length === 2 && typeof text === 'object') {
+        } else if (arguments.length === 2 && text != null && typeof text === 'object') {
             options = text
             options.anchor = anchor
         }
-        options = w2utils.extend({}, this.defaults, options)
+        options = w2utils.extend({}, this.defaults, options || {})
         options.style += '; padding: 0;'
         if (!Array.isArray(options.items)) {
             options.items = []
         }
         options.html = this.getMenuHTML(options)
         let ret = super.attach(options)
-        // TODO: are these events removed?
-        self.off('.attach')
-        this.on('show:after.attach', event => {
+        let overlay = ret.overlay
+        overlay.off('.attachMenu')
+        overlay.on('show:after.attachMenu', event => {
             if (ret.overlay?.box) {
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
                 this.initControls(ret.overlay)
             }
         })
-        this.on('update:after.attach', event => {
+        overlay.on('update:after.attachMenu', event => {
             if (ret.overlay?.box) {
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
@@ -1157,15 +1178,15 @@ class MenuTooltip extends Tooltip {
             }
         })
         ret.select = (callback) => {
-            self.on('select.attach', (event) => { callback(event) })
+            overlay.on('select.attachMenu', (event) => { callback(event) })
             return ret
         }
         ret.remove = (callback) => {
-            self.on('remove.attach', (event) => { callback(event) })
+            overlay.on('remove.attachMenu', (event) => { callback(event) })
             return ret
         }
         ret.subMenu = (callback) => {
-            self.on('subMenu.attach', (event) => { callback(event) })
+            overlay.on('subMenu.attachMenu', (event) => { callback(event) })
             return ret
         }
         return ret
@@ -1731,5 +1752,7 @@ let w2menu    = new MenuTooltip()
 let w2color   = new ColorTooltip()
 let w2date    = new DateTooltip()
 let w2time    = new TimeTooltip()
+
+Object.assign(window, { w2tooltip, w2menu, w2color }) // TODO: remove
 
 export { w2tooltip, w2color, w2menu, w2date, w2time }

@@ -168,7 +168,7 @@ import { w2tooltip, w2color, w2menu } from './w2tooltip.js'
                 options.html = text
             }
             let then
-            if (options.onShow) {
+            if (options?.onShow) {
                 then = options.onShow
                 delete options.onShow
             }
@@ -181,7 +181,7 @@ import { w2tooltip, w2color, w2menu } from './w2tooltip.js'
 
     $.fn.w2overlay = function(html, options) {
         return this.each((index, el) => {
-            if (text == null && options == null) {
+            if (html == null && options == null) {
                 w2tooltip.hide()
                 return
             }
@@ -195,7 +195,7 @@ import { w2tooltip, w2color, w2menu } from './w2tooltip.js'
                 hideOn: ['doc-click']
             })
             let then
-            if (options.onShow) {
+            if (options?.onShow) {
                 then = options.onShow
                 delete options.onShow
             }
@@ -217,7 +217,7 @@ import { w2tooltip, w2color, w2menu } from './w2tooltip.js'
                 options.items = menu
             }
             let then
-            if (options.onShow) {
+            if (options?.onShow) {
                 then = options.onShow
                 delete options.onShow
             }
@@ -231,7 +231,7 @@ import { w2tooltip, w2color, w2menu } from './w2tooltip.js'
     $.fn.w2color = function(options, callBack) {
         return this.each((index, el) => {
             let then
-            if (options.onShow) {
+            if (options?.onShow) {
                 then = options.onShow
                 delete options.onShow
             }
