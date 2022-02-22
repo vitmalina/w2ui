@@ -141,7 +141,7 @@ class w2base {
             edata = eventName
         } else {
             edata.type = eventName
-            event.target = event.target ?? this
+            edata.target = edata.target ?? this
         }
         if (w2utils.isPlainObject(edata) && edata.phase == 'after') {
             // find event

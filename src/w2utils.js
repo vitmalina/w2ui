@@ -1885,7 +1885,12 @@ class Utils {
                 throw new Error("Object can be extended with other objects only.")
             }
             Object.keys(source).forEach(key => {
-                target[key] = this.clone(source[key])
+                if (target[key] != null && typeof target[key] == 'object'
+                        && source[key] != null && typeof source[key] == 'object') {
+                    this.extend(target[key], this.clone(source[key]))
+                } else {
+                    target[key] = this.clone(source[key])
+                }
             })
         } else if (source != null) {
             throw new Error("Object is not extendable, only {} or [] can be extended.")
@@ -1958,7 +1963,8 @@ class Utils {
             })
             return menu
         } else if (typeof menu === 'function') {
-            return this.normMenu.call(this, menu.call(this, el))
+            let newMenu = menu.call(this, menu, el)
+            return w2utils.normMenu.call(this, newMenu)
         } else if (typeof menu === 'object') {
             return Object.keys(menu).map(key => { return { id: key, text: menu[key] } })
         }

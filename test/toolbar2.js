@@ -2,22 +2,23 @@ jQuery(function () {
     jQuery('#toolbar').w2toolbar({
         name: 'toolbar',
         routeData: { id: 5, vid: '40-43' },
-        tooltip: 'top',
+        tooltip: 'top|bottom',
         items: [
-            { type: 'button', id: 'item1.0', text: 'BTN', img: 'icon-page', tooltip: function () { return (new Date()).getTime(); }},
-            {
-                            type: 'menu-radio', id: 'menu-stato',
-                            text: function (item) {
-                                return 'Status: ' + item.get(item.selected).text;
-                            },
-                            selected: 'ALL',
-                            items: [
-                                { id: 'ALL', text: 'All Statuses' },
-                                { id: 'NEW', text: 'New' },
-                                { id: 'WIP', text: 'Work in progress' },
-                                { id: 'LAV', text: 'Working on it' }
-                            ]
-                        },
+            { type: 'button', id: 'item1.0', text: 'BTN', img: 'icon-page',
+                tooltip: function () { return (new Date()).getTime(); }
+            }, {
+                type: 'menu-radio', id: 'menu-stato',
+                text: function (item) {
+                    return 'Status: ' + item.get(item.selected).text;
+                },
+                selected: 'ALL',
+                items: [
+                    { id: 'ALL', text: 'All Statuses' },
+                    { id: 'NEW', text: 'New' },
+                    { id: 'WIP', text: 'Work in progress' },
+                    { id: 'LAV', text: 'Working on it' }
+                ]
+            },
             { type: 'check', id: 'item1.1', text: 'Check', img: 'icon-page', tooltip: function () { return (new Date()).getTime(); },
                 checked: true, route: '/project' },
             { type: 'drop',  id: 'item12', img: 'icon-page', icon: 'fa fa-star', tooltip: 'Drop button',
@@ -84,9 +85,9 @@ jQuery(function () {
                 ],
                 overlay: {
                     // search: true,
-                    menuStyle: 'top: 30px; bottom: 30px',
-                    topHTML: `<div style="padding: 10px; height: 30px; border-bottom: 1px solid silver;">top html</div>
-                            <div style="position: absolute; bottom: 0px; left: 0px; right: 0px; padding: 10px; height: 30px; border-top: 1px solid silver;">positioned here</div>`,
+                    // menuStyle: 'border: 1px solid red;',
+                    search: true,
+                    // topHTML: '<div style="padding: 5px; height: 30px; background-color: silver; border: 0; border-bottom: 1px solid gray;">top html</div>',
                     onShow(event) {
                         console.log('open popup', event)
                     }
@@ -131,7 +132,7 @@ jQuery(function () {
                     { id: 'item4a', text: 'Item 4', icon: 'fa fa-link', count: 'k', remove: false }
                 ],
                 overlay: {
-                    hideOnRemove: true,
+                    hideOn: ['doc-click'],
                 }
             },
             { type: 'break', id: 'break1' },

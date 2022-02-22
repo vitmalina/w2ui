@@ -12,8 +12,8 @@
  */
 
 import { w2base } from './w2base.js'
-import { query } from './query.js'
 import { w2utils } from './w2utils.js'
+import { query } from './query.js'
 
 class Tooltip {
     // no need to extend w2base, as each individual tooltip extends it
@@ -101,6 +101,8 @@ class Tooltip {
             name = 'noname-' + Object.keys(Tooltip.active).length
             console.log('NOTICE: name property is not defined for tooltip, could lead to too many instances')
         }
+        // clean name as it is used as id and css selector
+        name = name.replace(/[\s\.#]/g, '_')
         // if (name == anchor.id && Tooltip.active[name]) {
         //     // find unique name
         //     let find = (name, ind = 0) => {
@@ -118,7 +120,9 @@ class Tooltip {
         if (Tooltip.active[name]) {
             overlay = Tooltip.active[name]
             overlay.prevOptions = overlay.options
-            overlay.options = w2utils.extend({}, overlay.options, options)
+            overlay.options = options // do not merge or extend, otherwiser menu items get merged too
+            // overlay.options = w2utils.extend({}, overlay.options, options)
+            overlay.anchor  = anchor // as HTML elements are not copied
             if (overlay.prevOptions.html != overlay.options.html) {
                 overlay.needsUpdate = true
             }
@@ -199,8 +203,12 @@ class Tooltip {
 
     show(name) {
         if (name instanceof HTMLElement || name instanceof Object) {
-            let options = arguments[1]
-            let ret = this.attach(name, options)
+            let options = name
+            if (name instanceof HTMLElement) {
+                options = arguments[1]
+                options.anchor = name
+            }
+            let ret = this.attach(options)
             query(ret.overlay.anchor)
                 .off('.autoShow-' + ret.overlay.name)
                 .off('.autoHide-' + ret.overlay.name)
@@ -725,29 +733,28 @@ class ColorTooltip extends Tooltip {
         options.html = this.getColorHTML(options)
         let ret = super.attach(options)
         let overlay = ret.overlay
-        overlay.off('.attachColor', options)
-        overlay.on('show.attachColor', event => {
+        overlay.on('show.attach', event => {
             let anchor  = event.overlay.anchor
             let options = event.overlay.options
             if (anchor.tagName === 'INPUT' && !options.color && anchor.value) {
                 event.overlay.tmp.initColor = anchor.value
             }
         })
-        overlay.on('show:after.attachColor', event => {
+        overlay.on('show:after.attach', event => {
             if (ret.overlay?.box) {
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
                 this.initControls(ret.overlay)
             }
         })
-        overlay.on('update:after.attachColor', event => {
+        overlay.on('update:after.attach', event => {
             if (ret.overlay?.box) {
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
                 this.initControls(ret.overlay)
             }
         })
-        overlay.on('hide.attachColor', event => {
+        overlay.on('hide.attach', event => {
             let overlay = event.overlay
             let anchor  = overlay.anchor
             let color   = overlay.newColor ?? ''
@@ -760,11 +767,11 @@ class ColorTooltip extends Tooltip {
             edata.finish()
         })
         ret.liveUpdate = (callback) => {
-            overlay.on('liveUpdate.attachColor', (event) => { callback(event) })
+            overlay.on('liveUpdate.attach', (event) => { callback(event) })
             return ret
         }
         ret.select = (callback) => {
-            overlay.on('select.attachColor', (event) => { callback(event) })
+            overlay.on('select.attach', (event) => { callback(event) })
             return ret
         }
         return ret
@@ -1160,21 +1167,20 @@ class MenuTooltip extends Tooltip {
         }
         options = w2utils.extend({}, this.defaults, options || {})
         options.style += '; padding: 0;'
-        if (!Array.isArray(options.items)) {
+        if (!Array.isArray(options.items) && typeof options.items != 'function') {
             options.items = []
         }
         options.html = this.getMenuHTML(options)
         let ret = super.attach(options)
         let overlay = ret.overlay
-        overlay.off('.attachMenu')
-        overlay.on('show:after.attachMenu', event => {
+        overlay.on('show:after.attach', event => {
             if (ret.overlay?.box) {
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
                 this.initControls(ret.overlay)
             }
         })
-        overlay.on('update:after.attachMenu', event => {
+        overlay.on('update:after.attach', event => {
             if (ret.overlay?.box) {
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
@@ -1183,15 +1189,15 @@ class MenuTooltip extends Tooltip {
             }
         })
         ret.select = (callback) => {
-            overlay.on('select.attachMenu', (event) => { callback(event) })
+            overlay.on('select.attach', (event) => { callback(event) })
             return ret
         }
         ret.remove = (callback) => {
-            overlay.on('remove.attachMenu', (event) => { callback(event) })
+            overlay.on('remove.attach', (event) => { callback(event) })
             return ret
         }
         ret.subMenu = (callback) => {
-            overlay.on('subMenu.attachMenu', (event) => { callback(event) })
+            overlay.on('subMenu.attach', (event) => { callback(event) })
             return ret
         }
         return ret
@@ -1206,11 +1212,11 @@ class MenuTooltip extends Tooltip {
         let parents  = selected.slice(0, selected.length-1).join('-')
         index = w2utils.isInt(index) ? parseInt(index) : 0
         // items
-        let items = options.items
+        let items = w2utils.normMenu(options.items)
         selected.forEach((id, ind) => {
             // do not go to the last one
             if (ind < selected.length - 1) {
-                items = items[id].items
+                items = w2utils.normMenu(items[id].items)
             }
         })
         return { last, index, items, item: items[index], parents }
@@ -1435,13 +1441,13 @@ class MenuTooltip extends Tooltip {
 
     menuDown(overlay, event, index, parentIndex) {
         let options = overlay.options
-        let items   = options.items
+        let items   = w2utils.normMenu(options.items)
         let icon    = query(event.delegate).find('.w2ui-icon')
         let menu    = query(event.target).closest('.w2ui-menu:not(.w2ui-sub-menu)')
         if (typeof parentIndex == 'string' && parentIndex !== '') {
             let ids = parentIndex.split('-')
             ids.forEach(id => {
-                items = items[id].items
+                items = w2utils.normMenu(items[id].items)
             })
         }
         let item = items[index]
@@ -1490,7 +1496,7 @@ class MenuTooltip extends Tooltip {
 
     menuClick(overlay, event, index, parentIndex) {
         let options  = overlay.options
-        let items    = options.items
+        let items    = w2utils.normMenu(options.items)
         let $item    = query(event.delegate).closest('.w2ui-menu-item')
         let keepOpen = options.hideOn.includes('select') ? false : true
         if (event.shiftKey || event.metaKey || event.ctrlKey) {
@@ -1499,7 +1505,7 @@ class MenuTooltip extends Tooltip {
         if (typeof parentIndex == 'string' && parentIndex !== '') {
             let ids = parentIndex.split('-')
             ids.forEach(id => {
-                items = items[id].items
+                items = w2utils.normMenu(items[id].items)
             })
         }
         if (typeof items == 'function') {
