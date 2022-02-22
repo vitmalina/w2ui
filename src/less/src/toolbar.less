@@ -3,11 +3,12 @@
 */
 
 .w2ui-toolbar {
-    background-color: @toolbar-background-color;
+    background-color: #f5f5f5;
     user-select: none;
+    padding: 2px;
 
     .w2ui-tb-line {
-        overflow: hidden !important;
+        overflow: hidden;
         position: relative;
         min-height: 28px;
         padding: 2px;
@@ -21,12 +22,14 @@
     .w2ui-scroll-left,
     .w2ui-scroll-right {
         z-index: 30;
+        display: flex;
     }
 
     .w2ui-tb-line:nth-child(2),
     .w2ui-tb-line:nth-child(3),
     .w2ui-tb-line:nth-child(4) {
         border-top: 1px solid #e7e7e7;
+        padding-top: 4px;
         margin: 0;
     }
 
@@ -44,9 +47,9 @@
             height: 30px;
             min-width: 30px;
             padding: 2px;
-            border: @toolbar-button-border;
-            border-radius: @toolbar-button-border-radius;
-            background-color: @toolbar-button-background-color;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            background-color: transparent;
             white-space: nowrap;
             margin: 0px 1px;
             cursor: default;
@@ -61,12 +64,12 @@
                 text-align: center;
                 > span {
                     font-size: 15px;
-                    color: @toolbar-button-image-color;
+                    color: #8D99A7;
                 }
             }
             .w2ui-tb-text {
                 margin-left: 20px;
-                color: @toolbar-button-color;
+                color: black;
                 padding: 5px ;
 
                 .w2ui-tb-color-box {
@@ -80,7 +83,7 @@
                 }
 
                 .w2ui-tb-count {
-                    padding: 0px 3px 0px 7px !important;
+                    padding: 0px 3px 0px 7px;
                     > span {
                         border: @menu-node-count-border;
                         border-radius: 11px;
@@ -109,26 +112,26 @@
             }
 
             &.over {
-                border: @toolbar-button-over-border;
-                background-color: @toolbar-button-over-background-color;
+                border: 1px solid transparent;
+                background-color: #eaeaed;
                 & .w2ui-tb-text {
-                    color: @toolbar-button-over-color;
+                    color: black;
                 }
             }
 
             &.checked {
-                border: @toolbar-button-checked-border;
-                background-color: @toolbar-button-checked-background-color;
+                border: 1px solid #d2d2d2;
+                background-color: white;
                 & .w2ui-tb-text {
-                    color: @toolbar-button-checked-color;
+                    color: black;
                 }
             }
 
             &.down {
-                border: @toolbar-button-down-border;
-                background-color: @toolbar-button-down-background-color;
+                border: 1px solid #ccc;
+                background-color: #eaeaed;
                 & .w2ui-tb-text {
-                    color: @toolbar-button-down-color;
+                    color: #666;
                 }
             }
 
@@ -144,8 +147,8 @@
         }
 
         .w2ui-tb-break {
-            .linear-gradient-dark-center(@toolbar-break-color);
-            width: 1px !important;
+            .linear-gradient-dark-center(#999);
+            width: 1px;
             height: 24px;
             padding: 0px;
             margin: 3px 6px;

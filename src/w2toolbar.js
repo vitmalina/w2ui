@@ -1,6 +1,6 @@
 /**
  * Part of w2ui 2.0 library
- *  - Dependencies: jQuery, w2utils, w2base
+ *  - Dependencies: mQuery, w2utils, w2base, w2tooltip, w2color, w2menu
  *
  * == TODO ==
  *  - tab navigation (index state)
@@ -8,6 +8,7 @@
  *
  * == 2.0 changes
  *  - CSP - fixed inline events
+ *  - removed jQuery dependency
  *  - item.icon - can be class or <custom-icon-component> or <svg>
  *  - new w2tooltips and w2menu
  */
@@ -139,7 +140,7 @@ class w2toolbar extends w2base {
             if (!it || String(item).indexOf(':') != -1) return
             effected++
             // remove from screen
-            $(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id)).remove()
+            query(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id)).remove()
             // remove from array
             let ind = this.get(it.id, true)
             if (ind != null) this.items.splice(ind, 1)
@@ -190,16 +191,21 @@ class w2toolbar extends w2base {
     }
 
     setCount(id, count, className, style) {
-        let $it = $(this.box).find(`#tb_${this.name}_item_${id} .w2ui-tb-count > span`)
-        $it.removeClass()
-            .addClass(className || '')
-            .text(count)[0].style.cssText = style || ''
-        this.last.badge[id] = {
-            className: className || '',
-            style: style || ''
+        let btn = query(this.box).find(`#tb_${this.name}_item_${w2utils.escapeId(id)} .w2ui-tb-count > span`)
+        if (btn.length > 0) {
+            btn.removeClass()
+                .addClass(className || '')
+                .text(count)[0].style.cssText = style || ''
+            this.last.badge[id] = {
+                className: className || '',
+                style: style || ''
+            }
+            let item = this.get(id)
+            item.count = count
+        } else {
+            this.set(id, { count: count })
+            this.setCount(...arguments) // to update styles
         }
-        let item = this.get(id)
-        item.count = count
     }
 
     show() {
@@ -304,7 +310,7 @@ class w2toolbar extends w2base {
             items = (it && it.items ? w2utils.normMenu.call(this, it.items, it) : [])
 
             let btn = '#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id)
-            $(this.box).find(btn).removeClass('down') // need to re-query at the moment -- as well as elsewhere in this function
+            query(this.box).find(btn).removeClass('down') // need to re-query at the moment -- as well as elsewhere in this function
 
             if (it.type == 'radio') {
                 for (let i = 0; i < this.items.length; i++) {
@@ -316,7 +322,7 @@ class w2toolbar extends w2base {
                     }
                 }
                 it.checked = true
-                $(this.box).find(btn).addClass('checked')
+                query(this.box).find(btn).addClass('checked')
             }
 
             if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
@@ -339,10 +345,8 @@ class w2toolbar extends w2base {
                             item.checked = false
                             query(obj.box).find(data.btn).removeClass('checked')
                         }
-                        let el = $(obj.box).find('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id))
+                        let el = query(obj.box).find('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id))
                         if (!w2utils.isPlainObject(it.overlay)) it.overlay = {}
-                        let left = (el.width() - 50) / 2
-                        if (left > 19) left = 19
                         if (it.type == 'drop') {
                             w2tooltip.show(w2utils.extend({
                                 html: it.html,
@@ -409,9 +413,9 @@ class w2toolbar extends w2base {
             if (['check', 'menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
                 it.checked = !it.checked
                 if (it.checked) {
-                    $(this.box).find(btn).addClass('checked')
+                    query(this.box).find(btn).addClass('checked')
                 } else {
-                    $(this.box).find(btn).removeClass('checked')
+                    query(this.box).find(btn).removeClass('checked')
                 }
             }
             // route processing
@@ -435,25 +439,24 @@ class w2toolbar extends w2base {
     }
 
     scroll(direction, line) {
-        let scrollBox  = $(this.box).find(`.w2ui-tb-line:nth-child(${line}) .w2ui-scroll-wrapper`)
-        let scrollLeft = scrollBox.scrollLeft()
-        let $right     = $(scrollBox).find('.w2ui-tb-right')
-        let width1     = scrollBox.outerWidth()
-        let width2     = scrollLeft + parseInt($right.offset().left) + parseInt($right.width())
+        let scrollBox  = query(this.box).find(`.w2ui-tb-line:nth-child(${line}) .w2ui-scroll-wrapper`)
+        let scrollLeft = scrollBox.get(0).scrollLeft
+        let right      = scrollBox.find('.w2ui-tb-right').get(0)
+        let width1     = scrollBox.parent().get(0).getBoundingClientRect().width
+        let width2     = scrollLeft + parseInt(right.offsetLeft) + parseInt(right.clientWidth )
         let scroll
 
         switch (direction) {
             case 'left':
                 scroll = scrollLeft - width1 + 50 // 35 is width of both button
                 if (scroll <= 0) scroll = 0
-                scrollBox.animate({ scrollLeft: scroll }, 300)
+                scrollBox.get(0).scrollTo({ top: 0, left: scroll, behavior: 'smooth' })
                 break
 
             case 'right':
                 scroll = scrollLeft + width1 - 50 // 35 is width of both button
                 if (scroll >= width2 - width1) scroll = width2 - width1
-                scrollBox.animate({ scrollLeft: scroll }, 300)
-                break
+                scrollBox.get(0).scrollTo({ top: 0, left: scroll, behavior: 'smooth' })
         }
         setTimeout(() => { this.resize() }, 350)
     }
@@ -465,8 +468,8 @@ class w2toolbar extends w2base {
         if (edata.isCancelled === true) return
 
         if (box != null) {
-            if ($(this.box).find('.w2ui-scroll-wrapper .w2ui-tb-right').length > 0) {
-                $(this.box)
+            if (query(this.box).find('.w2ui-scroll-wrapper .w2ui-tb-right').length > 0) {
+                query(this.box)
                     .removeAttr('name')
                     .removeClass('w2ui-reset w2ui-toolbar')
                     .html('')
@@ -504,14 +507,14 @@ class w2toolbar extends w2base {
             }
             it.line = line
         }
-        $(this.box)
+        query(this.box)
             .attr('name', this.name)
             .addClass('w2ui-reset w2ui-toolbar')
             .html(html)
-        if ($(this.box).length > 0) {
-            $(this.box)[0].style.cssText += this.style
+        if (query(this.box).length > 0) {
+            query(this.box)[0].style.cssText += this.style
         }
-        w2utils.bindEvents($(this.box).find('.w2ui-tb-line .w2ui-eaction'), this)
+        w2utils.bindEvents(query(this.box).find('.w2ui-tb-line .w2ui-eaction'), this)
         // observe div resize
         this.last.resizeObserver = new ResizeObserver(() => { this.resize() })
         this.last.resizeObserver.observe(this.box)
@@ -546,25 +549,25 @@ class w2toolbar extends w2base {
             if (edata2.isCancelled === true) return
         }
         let selector = `#tb_${this.name}_item_${w2utils.escapeId(it.id)}`
-        let btn  = $(this.box).find(selector)
+        let btn  = query(this.box).find(selector)
         let html = this.getItemHTML(it)
         // hide tooltip
         this.tooltipHide(id)
 
         // if there is a spacer, then right HTML is not 100%
         if (it.type == 'spacer') {
-            $(this.box).find(`.w2ui-tb-line:nth-child(${it.line}`).find('.w2ui-tb-right').css('width', 'auto')
+            query(this.box).find(`.w2ui-tb-line:nth-child(${it.line}`).find('.w2ui-tb-right').css('width', 'auto')
         }
 
         if (btn.length === 0) {
             let next = parseInt(this.get(id, true)) + 1
-            let $next = $(this.box).find(`#tb_${this.name}_item_${w2utils.escapeId(this.items[next] ? this.items[next].id : '')}`)
+            let $next = query(this.box).find(`#tb_${this.name}_item_${w2utils.escapeId(this.items[next] ? this.items[next].id : '')}`)
             if ($next.length == 0) {
-                $next = $(this.box).find(`.w2ui-tb-line:nth-child(${it.line}`).find('.w2ui-tb-right').before(html)
+                $next = query(this.box).find(`.w2ui-tb-line:nth-child(${it.line}`).find('.w2ui-tb-right').before(html)
             } else {
                 $next.after(html)
             }
-            w2utils.bindEvents($(this.box).find(selector), this)
+            w2utils.bindEvents(query(this.box).find(selector), this)
         } else {
             // refresh
             query(this.box).find(selector).replace(query.html(html))
@@ -592,22 +595,20 @@ class w2toolbar extends w2base {
         let edata = this.trigger('resize', { target: this.name })
         if (edata.isCancelled === true) return
 
-        $(this.box).find('.w2ui-tb-line').each((ind, el) => {
+        query(this.box).find('.w2ui-tb-line').each(el => {
             // show hide overflow buttons
-            let box = $(el)
+            let box = query(el)
             box.find('.w2ui-scroll-left, .w2ui-scroll-right').hide()
-            let scrollBox  = box.find('.w2ui-scroll-wrapper')
-            let $right     = $(box).find('.w2ui-tb-right')
-            let boxWidth   = scrollBox.outerWidth()
+            let scrollBox  = box.find('.w2ui-scroll-wrapper').get(0)
+            let $right     = box.find('.w2ui-tb-right')
+            let boxWidth   = box.get(0).getBoundingClientRect().width
             let itemsWidth = ($right.length > 0 ? $right[0].offsetLeft + $right[0].clientWidth : 0)
-            let padding    = parseInt(box.css('padding-right'))
-            if (boxWidth < itemsWidth - padding) {
+            if (boxWidth < itemsWidth) {
                 // we have overflown content
-                if (scrollBox.scrollLeft() > 0) {
+                if (scrollBox.scrollLeft > 0) {
                     box.find('.w2ui-scroll-left').show()
                 }
-                let padding2 = parseInt(scrollBox.css('padding-right'))
-                if (boxWidth < itemsWidth - scrollBox.scrollLeft() - padding - padding2) {
+                if (boxWidth < itemsWidth - scrollBox.scrollLeft) {
                     box.find('.w2ui-scroll-right').show()
                 }
             }
@@ -622,13 +623,13 @@ class w2toolbar extends w2base {
         let edata = this.trigger('destroy', { target: this.name })
         if (edata.isCancelled === true) return
         // clean up
-        if ($(this.box).find('.w2ui-scroll-wrapper  .w2ui-tb-right').length > 0) {
-            $(this.box)
+        if (query(this.box).find('.w2ui-scroll-wrapper  .w2ui-tb-right').length > 0) {
+            query(this.box)
                 .removeAttr('name')
                 .removeClass('w2ui-reset w2ui-toolbar')
                 .html('')
         }
-        $(this.box).html('')
+        query(this.box).html('')
         this.last.resizeObserver.disconnect()
         delete w2ui[this.name]
         // event after
@@ -882,20 +883,20 @@ class w2toolbar extends w2base {
         if (btn.disabled || btn.hidden) return
         switch (action) {
             case 'enter':
-                $(target).addClass('over')
+                query(target).addClass('over')
                 this.tooltipShow(id)
                 break
             case 'leave':
-                $(target).removeClass('over').removeClass('down')
+                query(target).removeClass('over').removeClass('down')
                 this.tooltipHide(id)
                 break
             case 'down':
-                $(target).addClass('down')
+                query(target).addClass('down')
                 break
             case 'up':
-                $(target).removeClass('down')
+                query(target).removeClass('down')
                 break
         }
     }
 }
-export { w2toolbar }
+export { w2toolbar as default, w2toolbar }
