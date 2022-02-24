@@ -4,9 +4,9 @@
 
 .w2ui-tabs {
     cursor: default;
-    overflow: hidden !important;
+    overflow: hidden;
     position: relative;
-    background-color: @tabs-background-color;
+    background-color: #fff;
     min-height: 28px;
     padding: 0px;
     margin: 0px;
@@ -25,6 +25,7 @@
     .w2ui-scroll-left,
     .w2ui-scroll-right {
         z-index: 30;
+        display: flex;
     }
 
     .w2ui-scroll-wrapper {
@@ -42,48 +43,56 @@
             z-index: 20;
             padding: 7px 20px 4px 20px;
             text-align: center;
-            color: @tabs-tab-color;
-            background-color: @tabs-tab-background-color;
-            border: @tabs-tab-border;
+            color: black;
+            background-color: transparent;
+            border: 2px solid transparent;
             white-space: nowrap;
             margin: 0px 1px;
-            border-radius: 4px 4px 0 0;
+            border-radius: 0;
             cursor: default;
             user-select: none;
             &.active {
-                color: @tabs-tab-active-color;
-                background-color: @tabs-tab-active-background-color;
-                border: @tabs-tab-active-border;
-                border-bottom: @tabs-tab-border-bottom;
+                color: #0175ff;
+                background-color: transparent;
+                border: 2px solid transparent;
+                border-bottom: 2px solid #0175ff;
                 margin-bottom: 0px;
+            }
+            &:hover {
+                background-color: #dfe1e630;
             }
             &.moving {
                 color: inherit;
                 background-color: #eee;
-                border: @tabs-tab-active-border;
+                border: 2px solid transparent;
                 border-radius: 0px;
                 margin-bottom: 0px;
             }
             &.closable {
-                padding: 6px 28px 6px 20px
+                padding: 6px 28px 6px 20px;
             }
             .w2ui-tab-close {
                 position: absolute;
                 right: 3px;
-                top: 4px;
+                top: 5px;
                 color: #555;
                 float: right;
-                padding: 0px 4px;
-                width: 16px;
-                height: 16px;
+                margin-top: -3px;
+                padding: 2px 4px;
+                width: 20px;
+                height: 20px;
                 opacity: 0.6;
                 border: 0px;
                 border-top: 3px solid transparent;
-                border-radius: 9px;
+                border-radius: 3px;
                 &:hover {
+                    background-color: #f9e7e7;
                     color: red;
                     opacity: 1;
                     font-weight: bold;
+                }
+                &:active {
+                    background-color: #ffd1d1;
                 }
                 &:before {
                     position: relative;
@@ -112,12 +121,12 @@
         }
         .w2ui-scroll-wrapper {
             .w2ui-tab {
-                border: @tabs-tab-border;
-                border-top: @tabs-tab-active-border;
+                border: 2px solid transparent;
+                border-top: 2px solid transparent;
                 border-radius: 0 0 4px 4px;
                 &.active {
-                    border: @tabs-tab-active-border;
-                    border-top: @tabs-tab-border-bottom;
+                    border: 2px solid transparent;
+                    border-top: 2px solid #0175ff;
                     margin-top: 0px;
                 }
             }
