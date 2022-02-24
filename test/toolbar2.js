@@ -1,5 +1,5 @@
 import query from '../src/query.js'
-import w2toolbar from '../src/w2toolbar.js'
+import { w2toolbar } from '../src/w2toolbar.js'
 
 let toolbar = new w2toolbar({
     name: 'toolbar',

@@ -903,4 +903,4 @@ class w2toolbar extends w2base {
         }
     }
 }
-export { w2toolbar as default, w2toolbar }
+export { w2toolbar }
