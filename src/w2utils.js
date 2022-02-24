@@ -1095,7 +1095,7 @@ class Utils {
         }
         options.on('open', (event) => {
             w2utils.bindEvents(query(options.box).find('.w2ui-eaction'), options)
-            query(event.box).find('button, input, textarea')
+            query(event.detail.box).find('button, input, textarea')
                 .off('.message')
                 .on('keydown.message', function(evt) {
                     if (evt.keyCode == 27 && options.hideOn.includes('esc')) {
@@ -1130,7 +1130,7 @@ class Utils {
             }
         }
         if (options.actions == null && options.buttons == null && options.html == null) {
-            options.actions = { Ok(event) { event.self.close() }}
+            options.actions = { Ok(event) { event.detail.self.close() }}
         }
         options.off('.buttons')
         if (options.actions != null) {
@@ -1155,7 +1155,7 @@ class Utils {
                 }
                 prom[btnAction] = function (callBack) {
                     options.on('action.buttons', (event) => {
-                        let target = event.action[0].toLowerCase() + event.action.substr(1).replace(/\s+/g, '')
+                        let target = event.detail.action[0].toLowerCase() + event.detail.action.substr(1).replace(/\s+/g, '')
                         if (target == btnAction) callBack(event)
                     })
                     return prom
@@ -1227,7 +1227,7 @@ class Utils {
             // timeout is needs so that callBacks are setup
             setTimeout(() => {
                 // before event
-                edata = options.trigger({ phase: 'before', type: 'open', target: this.name, box: options.box, self: options })
+                edata = options.trigger('open', { target: this.name, box: options.box, self: options })
                 if (edata.isCancelled === true) {
                     head.css('z-index', head.data('old_zIndex'))
                     query(where.box).find(`#w2ui-message-${options.owner.name}-${options.msgIndex}`).remove()
@@ -1247,7 +1247,7 @@ class Utils {
                     .removeClass('animating')
                     .css({ 'transition': '0s' })
                 // event after
-                options.trigger(Object.assign(edata, { phase: 'after' }))
+                edata.finish()
             }, 300)
         }
         // action handler
@@ -1255,16 +1255,16 @@ class Utils {
             let click = options.actions[action]
             if (click instanceof Object && click.onClick) click = click.onClick
             // event before
-            let edata = options.trigger({ phase: 'before', type: 'action', target: this.name, action, self: options,
+            let edata = options.trigger('action', { target: this.name, action, self: options,
                 originalEvent: event, value: options.input ? options.input.value : null })
             if (edata.isCancelled === true) return
             // default actions
             if (typeof click === 'function') click(edata)
             // event after
-            options.trigger(Object.assign(edata, { phase: 'after' }))
+            edata.finish()
         }
         options.close = () => {
-            edata = options.trigger({ phase: 'before', type: 'close', target: 'self', box: options.box, self: options })
+            edata = options.trigger('close', { target: 'self', box: options.box, self: options })
             if (edata.isCancelled === true) return
             clearTimeout(openTimer)
             if (query(options.box).hasClass('animating')) {
@@ -1365,7 +1365,7 @@ class Utils {
             query(options.box).remove()
             // event after
             if (options.trigger) {
-                options.trigger(Object.assign(edata, { phase: 'after' }))
+                edata.finish()
             }
         }
     }

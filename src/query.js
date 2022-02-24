@@ -49,25 +49,34 @@ class Query {
         let self = this
         if (typeof html == 'string') {
             this.each(node => {
-                let cln = Query._fragment(html)
-                if (method == 'replaceWith') {
-                    // replace nodes, but keep reference to them
-                    nodes.push(...cln.childNodes)
-                }
-                node[method](cln) // inserts nodes or text
+                let clone = Query._fragment(html)
+                nodes.push(...clone.childNodes)
+                node[method](clone)
             })
-            if (method == 'replaceWith') {
-                self = new Query(nodes, this.context, this) // must return a new collection
-            }
+        } else if (html instanceof Query) {
+            let single = (len == 1 && html.length == 1)
+            html.each(el => {
+                this.each(node => {
+                    // if insert before a single node, just move new one, else clone and move it
+                    let clone = (single ? el : el.cloneNode(true))
+                    node[method](clone)
+                    nodes.push(clone)
+                })
+            })
+            if (!single) html.remove()
         } else if (isEl) {
             this.each(node => {
-                let cln = Query._fragment(html.outerHTML)
-                node[method](len === 1 ? html : cln)
-                if (len > 1 && isEl) nodes.push(...cln.childNodes)
+                // if insert before a single node, just move new one, else clone and move it
+                let clone = (len === 1 ? html : Query._fragment(html.outerHTML))
+                nodes.push(...(len === 1 ? [html] : clone.childNodes))
+                node[method](clone)
             })
-            if (len > 1 && isEl) html.remove()
+            if (len > 1) html.remove()
         } else {
             throw new Error(`Incorrect argument for "${method}(html)". It expects one string argument.`)
+        }
+        if (method == 'replaceWith') {
+            self = new Query(nodes, this.context, this) // must return a new collection
         }
         return self
     }
@@ -462,6 +471,6 @@ let query = function (selector, context) {
         return new Query(selector, context)
     }
 }
-// allows to create document fragments
-query.html = (str) => { return Query._fragment(str) }
+// str -> doc-fragment
+query.html = (str) => { let frag = Query._fragment(str); return query(frag.children, frag)  }
 export { query as $, query as default, query, Query }

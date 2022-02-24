@@ -11,6 +11,7 @@
  *  - removed jQuery dependency
  *  - item.icon - can be class or <custom-icon-component> or <svg>
  *  - new w2tooltips and w2menu
+ *  - scroll returns promise
  */
 
 import { w2base } from './w2base.js'
@@ -340,7 +341,7 @@ class w2toolbar extends w2base {
                     // time out is to make sure previous overla hides
                     setTimeout(() => {
                         let hideDrop = (event) => {
-                            let data = event.overlay.options.data
+                            let data = event.detail.overlay.options.data
                             let item = obj.get(data.item.id)
                             item.checked = false
                             query(obj.box).find(data.btn).removeClass('checked')
@@ -383,11 +384,11 @@ class w2toolbar extends w2base {
                                 }))
                                 .hide(hideDrop)
                                 .remove(event => {
-                                    obj.menuClick({ name: obj.name, remove: true, item: it, subItem: event.item,
+                                    obj.menuClick({ name: obj.name, remove: true, item: it, subItem: event.detail.item,
                                         originalEvent: event })
                                 })
                                 .select(event => {
-                                    obj.menuClick({ name: obj.name, item: it, subItem: event.item,
+                                    obj.menuClick({ name: obj.name, item: it, subItem: event.detail.item,
                                         originalEvent: event })
                                 })
                         }
@@ -401,8 +402,8 @@ class w2toolbar extends w2base {
                                 }))
                                 .hide(hideDrop)
                                 .select(event => {
-                                    if (event.color != null) {
-                                        obj.colorClick({ name: obj.name, item: it, color: event.color })
+                                    if (event.detail.color != null) {
+                                        obj.colorClick({ name: obj.name, item: it, color: event.detail.color })
                                     }
                                 })
                         }
@@ -438,27 +439,30 @@ class w2toolbar extends w2base {
         }
     }
 
-    scroll(direction, line) {
-        let scrollBox  = query(this.box).find(`.w2ui-tb-line:nth-child(${line}) .w2ui-scroll-wrapper`)
-        let scrollLeft = scrollBox.get(0).scrollLeft
-        let right      = scrollBox.find('.w2ui-tb-right').get(0)
-        let width1     = scrollBox.parent().get(0).getBoundingClientRect().width
-        let width2     = scrollLeft + parseInt(right.offsetLeft) + parseInt(right.clientWidth )
-        let scroll
+    scroll(direction, line, instant) {
+        return new Promise((resolve, reject) => {
+            let scrollBox  = query(this.box).find(`.w2ui-tb-line:nth-child(${line}) .w2ui-scroll-wrapper`)
+            let scrollLeft = scrollBox.get(0).scrollLeft
+            let right      = scrollBox.find('.w2ui-tb-right').get(0)
+            let width1     = scrollBox.parent().get(0).getBoundingClientRect().width
+            let width2     = scrollLeft + parseInt(right.offsetLeft) + parseInt(right.clientWidth )
 
-        switch (direction) {
-            case 'left':
-                scroll = scrollLeft - width1 + 50 // 35 is width of both button
-                if (scroll <= 0) scroll = 0
-                scrollBox.get(0).scrollTo({ top: 0, left: scroll, behavior: 'smooth' })
-                break
-
-            case 'right':
-                scroll = scrollLeft + width1 - 50 // 35 is width of both button
-                if (scroll >= width2 - width1) scroll = width2 - width1
-                scrollBox.get(0).scrollTo({ top: 0, left: scroll, behavior: 'smooth' })
-        }
-        setTimeout(() => { this.resize() }, 350)
+            switch (direction) {
+                case 'left': {
+                    scroll = scrollLeft - width1 + 50 // 35 is width of both button
+                    if (scroll <= 0) scroll = 0
+                    scrollBox.get(0).scrollTo({ top: 0, left: scroll, behavior: instant ? 'atuo' : 'smooth' })
+                    break
+                }
+                case 'right': {
+                    scroll = scrollLeft + width1 - 50 // 35 is width of both button
+                    if (scroll >= width2 - width1) scroll = width2 - width1
+                    scrollBox.get(0).scrollTo({ top: 0, left: scroll, behavior: instant ? 'atuo' : 'smooth' })
+                    break
+                }
+            }
+            setTimeout(() => { this.resize(); resolve() }, instant ? 0 : 500)
+        })
     }
 
     render(box) {

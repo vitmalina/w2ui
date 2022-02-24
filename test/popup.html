@@ -64,7 +64,7 @@ function color(el) {
     console.log('click')
     jQuery(el).w2color({
         onSelect(event) {
-            console.log('Selected: ', event.color)
+            console.log('Selected: ', event.detail.color)
         },
         async onShow(event) {
             console.log(event.phase)
@@ -185,7 +185,7 @@ function Message() {
                 Message()
             },
             Close(event) {
-                event.self.close()
+                event.detail.self.close()
             }
         }
     })
@@ -277,7 +277,10 @@ function popup3 () {
             };
             function _tmp() {
                 w2confirm('Click "NO" to open an w2alert.')
-                    .no(function () {
+                    .yes(() => {
+                        w2popup.message()
+                    })
+                    .no(() => {
                         w2alert('You clicked "NO" button.');
                     });
             }
@@ -354,7 +357,7 @@ jQuery(function () {
             { recid: 2, fname: 'Jane', lname: 'Doe' }
         ],
         onClick(event) {
-            w2ui.form.record = this.get(event.recid)
+            w2ui.form.record = this.get(event.detail.recid)
             w2ui.form.refresh()
         }
     });

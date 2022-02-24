@@ -12,24 +12,30 @@ import { w2ui, w2utils } from './w2utils.js'
 class w2event {
     constructor(owner, edata) {
         Object.assign(this, {
+            type: edata.type ?? null,
+            detail: edata,
             owner,
-            type: null,
-            phase: 'before',
-            execute: null,
+            target: edata.target ?? null,
+            phase: edata.phase ?? 'before',
             object: null,
-            target: null,
+            execute: null,
             isStopped: false,
             isCancelled: false,
             onComplete: null,
             doneHandlers: []
-        }, edata)
+        })
+        delete edata.type
+        delete edata.target
         this.complete = new Promise((resolve, reject) => {
             this._resolve = resolve
             this._reject = reject
         })
     }
 
-    finish() {
+    finish(detail) {
+        if (detail) {
+            w2utils.extend(this.detail, detail)
+        }
         this.phase = 'after'
         this.owner.trigger.call(this.owner, this)
     }
@@ -56,14 +62,14 @@ class w2base {
      * @returns
      */
     constructor(name) {
-        this.debug    = false // if true, will trigger all events
-        this._active  = [] // events that are currently processing
-        this.handlers = [] // event listeners
+        this.activeEvents = [] // events that are currently processing
+        this.listeners = [] // event listeners
         // register globally
         if (typeof name !== 'undefined') {
             if (!w2utils.checkName(name)) return
             w2ui[name] = this
         }
+        this.debug    = false // if true, will trigger all events
     }
 
     /**
@@ -84,8 +90,8 @@ class w2base {
         // errors
         if (!edata.type) { console.log('ERROR: You must specify event type when calling .on() method of '+ this.name); return }
         if (!handler) { console.log('ERROR: You must specify event handler function when calling .on() method of '+ this.name); return }
-        if (!Array.isArray(this.handlers)) this.handlers = []
-        this.handlers.push({ name, edata, handler })
+        if (!Array.isArray(this.listeners)) this.listeners = []
+        this.listeners.push({ name, edata, handler })
         if (this.debug) {
             console.log('w2base: add event', { name, edata, handler })
         }
@@ -111,14 +117,14 @@ class w2base {
         if (!edata.type && !edata.scope) { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return }
         if (!handler) { handler = null }
         let count = 0
-        // remove handlers
-        this.handlers = this.handlers.filter(curr => {
+        // remove listener
+        this.listeners = this.listeners.filter(curr => {
             if (   (edata.type === '*' ||  edata.type === curr.edata.type)
                 && (edata.execute === '' ||  edata.execute === curr.edata.execute)
                 && (edata.scope === '' ||  edata.scope === curr.edata.scope)
                 && (edata.handler == null ||  edata.handler === curr.edata.handler)
             ) {
-                count++ // how many handlers removed
+                count++ // how many listeners removed
                 return false
             } else {
                 return true
@@ -131,7 +137,7 @@ class w2base {
     }
 
     /**
-     * Triggers even handlers for a specific event, loops through this.handlers
+     * Triggers even listeners for a specific event, loops through this.listeners
      *
      * @param {Object} edata - Object
      * @returns modified edata
@@ -145,7 +151,7 @@ class w2base {
         }
         if (w2utils.isPlainObject(edata) && edata.phase == 'after') {
             // find event
-            edata = this._active.find(event => {
+            edata = this.activeEvents.find(event => {
                 if (event.type == edata.type && event.target == edata.target) {
                     return true
                 }
@@ -158,16 +164,16 @@ class w2base {
             console.log('NOTICE: This syntax "edata.trigger({ phase: \'after\' })" is outdated. Use edata.finish() instead.');
         } else if (!(edata instanceof w2event)) {
             edata = new w2event(this, edata)
-            this._active.push(edata)
+            this.activeEvents.push(edata)
         }
         let args, fun, tmp
-        if (!Array.isArray(this.handlers)) this.handlers = []
+        if (!Array.isArray(this.listeners)) this.listeners = []
         if (this.debug) {
             console.log(`w2base: trigger "${edata.type}:${edata.phase}"`, edata)
         }
         // process events in REVERSE order
-        for (let h = this.handlers.length-1; h >= 0; h--) {
-            let item = this.handlers[h]
+        for (let h = this.listeners.length-1; h >= 0; h--) {
+            let item = this.listeners[h]
             if (item != null && (item.edata.type === edata.type || item.edata.type === '*') &&
                 (item.edata.target === edata.target || item.edata.target == null) &&
                 (item.edata.execute === edata.phase || item.edata.execute === '*' || item.edata.phase === '*'))

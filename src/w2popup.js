@@ -149,7 +149,7 @@ class Dialog extends w2base {
                 }
                 prom[btnAction] = function (callBack) {
                     self.on('action.buttons', (event) => {
-                            let target = event.action[0].toLowerCase() + event.action.substr(1).replace(/\s+/g, '')
+                            let target = event.detail.action[0].toLowerCase() + event.detail.action.substr(1).replace(/\s+/g, '')
                             if (target == btnAction) callBack(event)
                         })
                     return prom
@@ -159,7 +159,7 @@ class Dialog extends w2base {
         // check if message is already displayed
         if (query('#w2ui-popup').length === 0) {
             // trigger event
-            edata = this.trigger({ phase: 'before', type: 'open', target: 'popup', present: false })
+            edata = this.trigger('open', { target: 'popup', present: false })
             if (edata.isCancelled === true) return
             w2popup.status = 'opening'
             // output message
@@ -211,7 +211,7 @@ class Dialog extends w2base {
                 query('#w2ui-popup').find('.w2ui-popup-body').show()
                 self.setFocus(options.focus)
                 // event after
-                self.trigger(Object.assign(edata, { phase: 'after' }))
+                edata.finish()
             }, 1)
             // clean transform
             clearTimeout(this._timer)
@@ -222,7 +222,7 @@ class Dialog extends w2base {
 
         } else {
             // trigger event
-            edata = this.trigger({ phase: 'before', type: 'open', target: 'popup', present: true })
+            edata = this.trigger('open', { target: 'popup', present: true })
             if (edata.isCancelled === true) return
             // check if size changed
             w2popup.status = 'opening'
@@ -287,7 +287,7 @@ class Dialog extends w2base {
             })
             // call event onOpen
             w2popup.status = 'open'
-            self.trigger(Object.assign(edata, { phase: 'after' }))
+            edata.finish()
             w2utils.bindEvents('#w2ui-popup .w2ui-eaction', w2popup)
             query('#w2ui-popup').find('.w2ui-popup-body').show()
         }
@@ -338,7 +338,7 @@ class Dialog extends w2base {
             tmp.div_x = evt.screenX - tmp.x
             tmp.div_y = evt.screenY - tmp.y
             // trigger event
-            let edata = w2popup.trigger({ phase: 'before', type: 'move', target: 'popup', div_x: tmp.div_x, div_y: tmp.div_y, originalEvent: evt })
+            let edata = w2popup.trigger('move', { target: 'popup', div_x: tmp.div_x, div_y: tmp.div_y, originalEvent: evt })
             if (edata.isCancelled === true) return
             // default behavior
             query('#w2ui-popup').css({
@@ -346,7 +346,7 @@ class Dialog extends w2base {
                 'transform' : 'translate3d('+ tmp.div_x +'px, '+ tmp.div_y +'px, 0px)'
             })
             // event after
-            w2popup.trigger(Object.assign(edata, { phase: 'after'}))
+            edata.finish()
         }
 
         function mvStop(evt) {
@@ -395,8 +395,7 @@ class Dialog extends w2base {
         try {
             html = query(data)
         } catch(e) {
-            html = query.html(data).children
-            if (html.length > 0) html = query(html[0])
+            html = query.html(data)
         }
         if (id) html = html.filter('#' + id)
         Object.assign(options, {
@@ -414,19 +413,19 @@ class Dialog extends w2base {
         let click = this.options.actions[action]
         if (click instanceof Object && click.onClick) click = click.onClick
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'action', action, target: 'popup', self: this,
+        let edata = this.trigger('action', { action, target: 'popup', self: this,
             originalEvent: event, value: this.input ? this.input.value : null })
         if (edata.isCancelled === true) return
         // default actions
         if (typeof click === 'function') click.call(this, event)
         // event after
-        this.trigger(Object.assign(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     keydown(event) {
         if (this.options && !this.options.keyboard) return
         // trigger event
-        let edata = w2popup.trigger({ phase: 'before', type: 'keydown', target: 'popup', originalEvent: event })
+        let edata = w2popup.trigger('keydown', { target: 'popup', originalEvent: event })
         if (edata.isCancelled === true) return
         // default behavior
         switch (event.keyCode) {
@@ -442,7 +441,7 @@ class Dialog extends w2base {
                 break
         }
         // event after
-        w2popup.trigger(Object.assign(edata, { phase: 'after'}))
+        edata.finish()
     }
 
     close() {
@@ -453,7 +452,7 @@ class Dialog extends w2base {
             return
         }
         // trigger event
-        let edata = this.trigger({ phase: 'before', type: 'close', target: 'popup' })
+        let edata = this.trigger('close', { target: 'popup' })
         if (edata.isCancelled === true) return
         // default behavior
         w2popup.status = 'closing'
@@ -469,7 +468,7 @@ class Dialog extends w2base {
             w2popup.status = 'closed'
             w2popup.options = {}
             // event after
-            self.trigger(Object.assign(edata, { phase: 'after'}))
+            edata.finish()
         }, this.options.speed * 1000)
         // remove keyboard events
         if (this.options.keyboard) {
@@ -480,13 +479,13 @@ class Dialog extends w2base {
     toggle() {
         let self = this
         // trigger event
-        let edata = this.trigger({ phase: 'before', type: 'toggle', target: 'popup' })
+        let edata = this.trigger('togle', { target: 'popup' })
         if (edata.isCancelled === true) return
         // default action
         if (this.options.maximized === true) w2popup.min(); else w2popup.max()
         // event after
         setTimeout(() => {
-            self.trigger(Object.assign(edata, { phase: 'after'}))
+            edata.finish()
         }, (this.options.speed * 1000) + 50)
     }
 
@@ -494,7 +493,7 @@ class Dialog extends w2base {
         let self = this
         if (this.options.maximized === true) return
         // trigger event
-        let edata = this.trigger({ phase: 'before', type: 'max', target: 'popup' })
+        let edata = this.trigger('max', { target: 'popup' })
         if (edata.isCancelled === true) return
         // default behavior
         w2popup.status = 'resizing'
@@ -504,7 +503,7 @@ class Dialog extends w2base {
         w2popup.resize(10000, 10000, () => {
             w2popup.status    = 'open'
             this.options.maximized = true
-            self.trigger(Object.assign(edata, { phase: 'after'}))
+            edata.finish()
         })
     }
 
@@ -513,7 +512,7 @@ class Dialog extends w2base {
         if (this.options.maximized !== true) return
         let size = this.options.prevSize.split(':')
         // trigger event
-        let edata = this.trigger({ phase: 'before', type: 'min', target: 'popup' })
+        let edata = this.trigger('min', { target: 'popup' })
         if (edata.isCancelled === true) return
         // default behavior
         w2popup.status = 'resizing'
@@ -522,7 +521,7 @@ class Dialog extends w2base {
             w2popup.status    = 'open'
             this.options.maximized = false
             this.options.prevSize  = null
-            self.trigger(Object.assign(edata, { phase: 'after'}))
+            edata.finish()
         })
     }
 
@@ -677,8 +676,8 @@ function w2alert(msg, title, callBack) {
         prom = w2popup.open(options)
     }
     prom.ok((event) => {
-        if (typeof event.self?.close == 'function') {
-            event.self.close();
+        if (typeof event.detail.self?.close == 'function') {
+            event.detail.self.close();
         }
         if (typeof callBack == 'function') callBack()
     })
@@ -710,10 +709,10 @@ function w2confirm(msg, title, callBack) {
     prom.self
         .off('.confirm')
         .on('action:after.confirm', (event) => {
-            if (typeof event.self?.close == 'function') {
-                event.self.close();
+            if (typeof event.detail.self?.close == 'function') {
+                event.detail.self.close();
             }
-            if (typeof callBack == 'function') callBack(event.action)
+            if (typeof callBack == 'function') callBack(event.detail.action)
         })
     return prom
 }
@@ -766,13 +765,13 @@ function w2prompt(label, title, callBack) {
     prom.self
         .off('.prompt')
         .on('open:after.prompt', (event) => {
-            let box = event.box ? event.box : query('#w2ui-popup .w2ui-popup-body').get(0)
+            let box = event.detail.box ? event.detail.box : query('#w2ui-popup .w2ui-popup-body').get(0)
             w2utils.bindEvents(query(box).find('#w2prompt'), {
                 keydown(evt) {
                     if (evt.keyCode == 27) evt.stopPropagation()
                 },
                 change(evt) {
-                    let edata = prom.self.trigger({ phase: 'before', type: 'change', target: 'prompt', originalEvent: evt })
+                    let edata = prom.self.trigger('change', { target: 'prompt', originalEvent: evt })
                     if (edata.isCancelled === true) return
                     if (evt.keyCode == 13 && evt.ctrlKey) {
                         prom.self.action('Ok', evt)
@@ -780,16 +779,16 @@ function w2prompt(label, title, callBack) {
                     if (evt.keyCode == 27) {
                         prom.self.action('Cancel', evt)
                     }
-                    prom.self.trigger(Object.assign(edata, { phase: 'after' }))
+                    edata.finish()
                 }
             })
             query(box).find('.w2ui-eaction').trigger('keyup')
         })
         .on('action:after.prompt', (event) => {
-            if (typeof event.self?.close == 'function') {
-                event.self.close();
+            if (typeof event.detail.self?.close == 'function') {
+                event.detail.self.close();
             }
-            if (typeof callBack == 'function') callBack(event.action)
+            if (typeof callBack == 'function') callBack(event.detail.action)
         })
     return prom
 }

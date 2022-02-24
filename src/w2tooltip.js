@@ -205,7 +205,7 @@ class Tooltip {
         if (name instanceof HTMLElement || name instanceof Object) {
             let options = name
             if (name instanceof HTMLElement) {
-                options = arguments[1]
+                options = arguments[1] || {}
                 options.anchor = name
             }
             let ret = this.attach(options)
@@ -734,10 +734,10 @@ class ColorTooltip extends Tooltip {
         let ret = super.attach(options)
         let overlay = ret.overlay
         overlay.on('show.attach', event => {
-            let anchor  = event.overlay.anchor
-            let options = event.overlay.options
+            let anchor  = event.detail.overlay.anchor
+            let options = event.detail.overlay.options
             if (anchor.tagName === 'INPUT' && !options.color && anchor.value) {
-                event.overlay.tmp.initColor = anchor.value
+                event.detail.overlay.tmp.initColor = anchor.value
             }
         })
         overlay.on('show:after.attach', event => {
@@ -755,7 +755,7 @@ class ColorTooltip extends Tooltip {
             }
         })
         overlay.on('hide.attach', event => {
-            let overlay = event.overlay
+            let overlay = event.detail.overlay
             let anchor  = overlay.anchor
             let color   = overlay.newColor ?? ''
             if (anchor.tagName === 'INPUT' && anchor.value != color) {
