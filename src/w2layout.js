@@ -6,7 +6,6 @@
  *  - CSP - fixed inline events
  *  - layout.confirm - refactored
  *  - layout.message - refactored
- *
  */
 
 import { w2base } from './w2base.js'

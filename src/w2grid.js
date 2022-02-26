@@ -1490,9 +1490,9 @@ class w2grid extends w2base {
         $(this.box).find('.w2ui-selection-resizer')
             .off('mousedown').on('mousedown', mouseStart)
             .off('dblclick').on('dblclick', function(event) {
-                let edata = obj.trigger({ phase: 'before', type: 'resizerDblClick', target: obj.name, originalEvent: event })
+                let edata = obj.trigger('resizerDblClick', { target: obj.name, originalEvent: event })
                 if (edata.isCancelled === true) return
-                obj.trigger($.extend(edata, { phase: 'after' }))
+                edata.finish()
             })
         let edata = { phase: 'before', type: 'selectionExtend', target: obj.name, originalRange: null, newRange: null }
 
@@ -1536,17 +1536,17 @@ class w2grid extends w2base {
             let prevNewRange = $.extend({}, mv.newRange)
             mv.newRange      = [{ recid: mv.recid, column: mv.column }, { recid: recid, column: column }]
             // event before
-            edata = obj.trigger($.extend(edata, { originalRange: mv.originalRange, newRange : mv.newRange }))
+            edata = obj.trigger(w2utils.extend(edata, { originalRange: mv.originalRange, newRange : mv.newRange }))
             if (edata.isCancelled === true) {
                 mv.newRange    = prevNewRange
-                edata.newRange = prevNewRange
+                edata.detail.newRange = prevNewRange
                 return
             } else {
                 // default behavior
                 obj.removeRange('grid-selection-expand')
                 obj.addRange({
                     name  : 'grid-selection-expand',
-                    range : edata.newRange,
+                    range : edata.detail.newRange,
                     style : 'background-color: rgba(100,100,100,0.1); border: 2px dotted rgba(100,100,100,0.5);'
                 })
             }
@@ -1558,7 +1558,7 @@ class w2grid extends w2base {
             delete obj.last.move
             $(document).off('.w2ui-' + obj.name)
             // event after
-            obj.trigger($.extend(edata, { phase: 'after' }))
+            edata.finish()
         }
     }
 
@@ -1571,7 +1571,7 @@ class w2grid extends w2base {
         let args = Array.from(arguments)
         if (Array.isArray(args[0])) args = args[0]
         // event before
-        let tmp = { phase: 'before', type: 'select', target: this.name }
+        let tmp = { target: this.name }
         if (args.length == 1) {
             tmp.multiple = false
             if ($.isPlainObject(args[0])) {
@@ -1584,7 +1584,7 @@ class w2grid extends w2base {
             tmp.multiple = true
             tmp.recids   = args
         }
-        let edata = this.trigger(tmp)
+        let edata = this.trigger('select', tmp)
         if (edata.isCancelled === true) return 0
 
         // default action
@@ -1685,7 +1685,7 @@ class w2grid extends w2base {
         this.addRange('selection')
         this.updateToolbar(sel, areAllSelected)
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         return selected
     }
 
@@ -1696,7 +1696,7 @@ class w2grid extends w2base {
         let args = Array.from(arguments)
         if (Array.isArray(args[0])) args = args[0]
         // event before
-        let tmp = { phase: 'before', type: 'unselect', target: this.name }
+        let tmp = { target: this.name }
         if (args.length == 1) {
             tmp.multiple = false
             if ($.isPlainObject(args[0])) {
@@ -1709,7 +1709,7 @@ class w2grid extends w2base {
             tmp.multiple = true
             tmp.recids   = args
         }
-        let edata = this.trigger(tmp)
+        let edata = this.trigger('unselect', tmp)
         if (edata.isCancelled === true) return 0
 
         for (let a = 0; a < args.length; a++) {
@@ -1781,7 +1781,7 @@ class w2grid extends w2base {
         this.addRange('selection')
         this.updateToolbar(sel, areAllSelected)
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         return unselected
     }
 
@@ -1789,7 +1789,7 @@ class w2grid extends w2base {
         let time = (new Date()).getTime()
         if (this.multiSelect === false) return
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'select', target: this.name, all: true })
+        let edata = this.trigger('select', { target: this.name, all: true })
         if (edata.isCancelled === true) return
         // default action
         let url  = (typeof this.url != 'object' ? this.url : this.url.get)
@@ -1836,14 +1836,14 @@ class w2grid extends w2base {
         this.status()
         this.updateToolbar({ indexes: sel }, true)
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         return (new Date()).getTime() - time
     }
 
     selectNone() {
         let time = (new Date()).getTime()
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'unselect', target: this.name, all: true })
+        let edata = this.trigger('unselect', { target: this.name, all: true })
         if (edata.isCancelled === true) return
         // default action
         let sel = this.last.selection
@@ -1868,7 +1868,7 @@ class w2grid extends w2base {
         this.status()
         this.updateToolbar(sel, false)
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         return (new Date()).getTime() - time
     }
 
@@ -2168,9 +2168,7 @@ class w2grid extends w2base {
             }
         }
         // event before
-        let edata = this.trigger({
-            phase: 'before',
-            type: 'search',
+        let edata = this.trigger('search', {
             target: this.name,
             multi: (arguments.length === 0 ? true : false),
             searchField: (field ? field : 'multi'),
@@ -2180,11 +2178,11 @@ class w2grid extends w2base {
         })
         if (edata.isCancelled === true) return
         // default action
-        this.searchData             = edata.searchData
+        this.searchData             = edata.detail.searchData
         this.last.field             = last_field
         this.last.search            = last_search
         this.last.multi             = last_multi
-        this.last.logic             = edata.searchLogic
+        this.last.logic             = edata.detail.searchLogic
         this.last.scrollTop         = 0
         this.last.scrollLeft        = 0
         this.last.selection.indexes = []
@@ -2201,7 +2199,7 @@ class w2grid extends w2base {
             this.refresh()
         }
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     searchOpen() {
@@ -2209,7 +2207,7 @@ class w2grid extends w2base {
         if (this.searches.length === 0) return
         let self = this
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'searchOpen', target: this.name })
+        let edata = this.trigger('searchOpen', { target: this.name })
         if (edata.isCancelled === true) {
             return
         }
@@ -2230,7 +2228,7 @@ class w2grid extends w2base {
                 let sfields = $(`#w2ui-overlay-${self.name}-searchOverlay *[rel=search]`)
                 if (sfields.length > 0) sfields[0].focus()
                 // event after
-                self.trigger($.extend(edata, { phase: 'after' }))
+                edata.finish()
             },
             onHide() {
                 $btn.removeClass('checked')
@@ -2282,7 +2280,7 @@ class w2grid extends w2base {
                     return ret
                 },
                 onSelect(event) {
-                    let edata = grid.trigger({ phase: 'before', type: 'searchSelect', target: grid.name, index: event.index, item: event.item })
+                    let edata = grid.trigger('searchSelect', { target: grid.name, index: event.index, item: event.item })
                     if (edata.isCancelled === true) {
                         event.preventDefault()
                         return
@@ -2297,17 +2295,17 @@ class w2grid extends w2base {
                         data: $.extend(true, [], event.item.data)
                     }
                     grid.reload()
-                    grid.trigger($.extend(edata, { phase: 'after'}))
+                    edata.finish()
                 },
                 onRemove(event) {
-                    let edata = grid.trigger({ phase: 'before', type: 'searchRemove', target: grid.name, index: event.index, item: event.item })
+                    let edata = grid.trigger('searchRemove', { target: grid.name, index: event.index, item: event.item })
                     if (edata.isCancelled === true) {
                         event.preventDefault()
                         return
                     }
                     grid.confirm(w2utils.lang('Do you want to delete search item "${item}"?', { item: event.item.text }))
                         .yes(event => {
-                            event.self.close()
+                            event.detail.self.close()
                             // remove from local storage
                             if (w2utils.hasLocalStorage && this.useLocalStorage) {
                                 try {
@@ -2332,7 +2330,7 @@ class w2grid extends w2base {
                                 grid.savedSearches.splice(search, 1)
                             }
                             // event after
-                            grid.trigger($.extend(edata, { phase: 'after'}))
+                            edata.finish()
                         })
                 }
             })
@@ -2464,7 +2462,7 @@ class w2grid extends w2base {
         }
         let grid = this
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'searchSave', target: this.name, saveLocalStorage: true })
+        let edata = this.trigger('searchSave', { target: this.name, saveLocalStorage: true })
         if (edata.isCancelled === true) return
 
         this.message({
@@ -2549,7 +2547,7 @@ class w2grid extends w2base {
                             $(grid.box).find(`#grid_${grid.name}_search_all`).val(' ').prop('readOnly', true)
                             $(grid.box).find(`#grid_${grid.name}_search_name`).show().find('.name-text').html(name)
                         }
-                        this.trigger($.extend(edata, { phase: 'after', name }))
+                        edata.finish({ name })
                     })
                     let inputs = $(this.box).find('input, button')
                     inputs.off('.message')
@@ -2596,10 +2594,10 @@ class w2grid extends w2base {
             hasHiddenSearches = true
         }
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'search', reset: true, target: this.name, searchData: searchData })
+        let edata = this.trigger('search', { reset: true, target: this.name, searchData: searchData })
         if (edata.isCancelled === true) return
         // default action
-        this.searchData  = edata.searchData
+        this.searchData  = edata.detail.searchData
         this.searchSelected = null
         this.last.search = ''
         this.last.logic  = (hasHiddenSearches ? 'AND' : 'OR')
@@ -2634,7 +2632,7 @@ class w2grid extends w2base {
         // apply search
         if (!noRefresh) this.reload()
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     searchShowFields(forceHide) {
@@ -2840,7 +2838,7 @@ class w2grid extends w2base {
         }
         // event before
         if (cmd == 'get') {
-            edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params, httpHeaders: this.httpHeaders })
+            edata = this.trigger('request', { target: this.name, url: url, postData: params, httpHeaders: this.httpHeaders })
             if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: w2utils.lang('Request aborted.') }); return }
         } else {
             edata = { url: url, postData: params, httpHeaders: this.httpHeaders }
@@ -2851,9 +2849,9 @@ class w2grid extends w2base {
         }
         if (this.last.xhr) try { this.last.xhr.abort() } catch (e) {}
         // URL
-        url = (typeof edata.url != 'object' ? edata.url : edata.url.get)
-        if (cmd == 'save' && typeof edata.url == 'object') url = edata.url.save
-        if (cmd == 'delete' && typeof edata.url == 'object') url = edata.url.remove
+        url = (typeof edata.detail.url != 'object' ? edata.detail.url : edata.detail.url.get)
+        if (cmd == 'save' && typeof edata.detail.url == 'object') url = edata.detail.url.save
+        if (cmd == 'delete' && typeof edata.detail.url == 'object') url = edata.detail.url.remove
         // process url with routeData
         if (!$.isEmptyObject(this.routeData)) {
             let info = w2utils.parseRoute(url)
@@ -2868,8 +2866,8 @@ class w2grid extends w2base {
         let ajaxOptions = {
             type     : 'GET',
             url      : url,
-            data     : edata.postData,
-            headers  : edata.httpHeaders,
+            data     : edata.detail.postData,
+            headers  : edata.detail.httpHeaders,
             dataType : 'json' // expected data type from server
         }
 
@@ -2912,7 +2910,7 @@ class w2grid extends w2base {
             .fail((xhr, status, error) => {
                 // trigger event
                 let errorObj = { status: status, error: error, rawResponseText: xhr.responseText }
-                let edata2   = this.trigger({ phase: 'before', type: 'error', error: errorObj, xhr: xhr })
+                let edata2   = this.trigger('error', { error: errorObj, xhr: xhr })
                 if (edata2.isCancelled === true) return
                 // default behavior
                 if (status != 'abort') { // it can be aborted by the grid itself
@@ -2925,11 +2923,11 @@ class w2grid extends w2base {
                     this.requestComplete('error', xhr, cmd, callBack)
                 }
                 // event after
-                this.trigger($.extend(edata2, { phase: 'after' }))
+                edata2.finish()
             })
         if (cmd == 'get') {
             // event after
-            this.trigger($.extend(edata, { phase: 'after' }))
+            edata.finish()
         }
     }
 
@@ -2948,7 +2946,7 @@ class w2grid extends w2base {
         let event_name = 'load'
         if (this.last.xhr_cmd == 'save') event_name = 'save'
         if (this.last.xhr_cmd == 'delete') event_name = 'delete'
-        let edata = this.trigger({ phase: 'before', target: this.name, type: event_name, xhr: xhr, status: status })
+        let edata = this.trigger(event_name, { target: this.name, xhr: xhr, status: status })
         if (edata.isCancelled === true) {
             if (typeof callBack == 'function') callBack({ status: 'error', message: w2utils.lang('Request aborted.') })
             return
@@ -3071,19 +3069,19 @@ class w2grid extends w2base {
         // call back
         if (typeof callBack == 'function') callBack(data) // need to be before event:after
         // after event
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         this.last.loaded = true
     }
 
     error(msg) {
         // let the management of the error outside of the grid
-        let edata = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.last.xhr })
+        let edata = this.trigger('error', { target: this.name, message: msg , xhr: this.last.xhr })
         if (edata.isCancelled === true) {
             return
         }
         this.message(msg)
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     getChanges(recordsBase) {
@@ -3143,20 +3141,20 @@ class w2grid extends w2base {
         let changes = this.getChanges()
         let url     = (typeof this.url != 'object' ? this.url : this.url.save)
         // event before
-        let edata = this.trigger({ phase: 'before', target: this.name, type: 'save', changes: changes })
+        let edata = this.trigger('save', { target: this.name, changes: changes })
         if (edata.isCancelled === true) {
             if (url && typeof callBack == 'function') callBack({ status: 'error', message: w2utils.lang('Request aborted.') })
             return
         }
         if (url) {
-            this.request('save', { 'changes' : edata.changes }, null,
+            this.request('save', { 'changes' : edata.detail.changes }, null,
                 (data) => {
                     if (data.status !== 'error') {
                         // only merge changes, if save was successful
                         this.mergeChanges()
                     }
                     // event after
-                    this.trigger($.extend(edata, { phase: 'after' }))
+                    edata.finish()
                     // call back
                     if (typeof callBack == 'function') callBack(data)
                 }
@@ -3164,7 +3162,7 @@ class w2grid extends w2base {
         } else {
             this.mergeChanges()
             // event after
-            this.trigger($.extend(edata, { phase: 'after' }))
+            edata.finish()
         }
     }
 
@@ -3211,10 +3209,10 @@ class w2grid extends w2base {
             return
         }
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'editField', target: this.name, recid: recid, column: column, value: value,
+        let edata = this.trigger('editField', { target: this.name, recid: recid, column: column, value: value,
             index: index, originalEvent: event })
         if (edata.isCancelled === true) return
-        value = edata.value
+        value = edata.detail.value
         // default behaviour
         this.last.inEditMode = true
         this.last._edit      = { value: value, index: index, column: column, recid: recid }
@@ -3246,7 +3244,7 @@ class w2grid extends w2base {
             : w2utils.stripTags(obj.parseField(rec, col.field)))
         if (val == null) val = ''
         let old_value = (typeof val != 'object' ? val : '')
-        if (edata.old_value != null) old_value = edata.old_value
+        if (edata.detail.old_value != null) old_value = edata.detail.old_value
         if (value != null) val = value
         let addStyle = (col.style != null ? col.style + ';' : '')
         if (typeof col.render == 'string' && ['number', 'int', 'float', 'money', 'percent', 'size'].indexOf(col.render.split(':')[0]) != -1) {
@@ -3472,7 +3470,7 @@ class w2grid extends w2base {
                 }
             }, 50)
             // event after
-            this.trigger($.extend(edata, { phase: 'after', input: el.find('input, select, div.w2ui-input') }))
+            edata.finish({ input: el.find('input, select, div.w2ui-input') })
         }, 5) // needs to be 5-10
         return
 
@@ -3518,7 +3516,7 @@ class w2grid extends w2base {
         let prev_val = (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes.hasOwnProperty(col.field) ? rec.w2ui.changes[col.field]: old_val)
         // change/restore event
         let edata = {
-            phase: 'before', type: 'change', target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
+            target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
             originalEvent: (event.originalEvent ? event.originalEvent : event),
             value_new: new_val,
             value_previous: prev_val,
@@ -3531,7 +3529,7 @@ class w2grid extends w2base {
             if ((typeof new_val != 'object' && String(old_val) != String(new_val)) ||
                 (typeof new_val == 'object' && new_val && new_val.id != old_val && (typeof old_val != 'object' || old_val == null || new_val.id != old_val.id))) {
                 // change event
-                edata = this.trigger($.extend(edata, { type: 'change', phase: 'before' }))
+                edata = this.trigger('change', edata)
                 if (edata.isCancelled !== true) {
                     if (new_val !== edata.value_new) {
                         // re-evaluate the type of change to be made
@@ -3546,11 +3544,11 @@ class w2grid extends w2base {
                         rec.w2ui.changes[col.field] = edata.value_new
                     }
                     // event after
-                    this.trigger($.extend(edata, { phase: 'after' }))
+                    edata.finish()
                 }
             } else {
                 // restore event
-                edata = this.trigger($.extend(edata, { type: 'restore', phase: 'before' }))
+                edata = this.trigger('restore', edata)
                 if (edata.isCancelled !== true) {
                     if (new_val !== edata.value_new) {
                         // re-evaluate the type of change to be made
@@ -3560,7 +3558,7 @@ class w2grid extends w2base {
                     if (rec.w2ui && rec.w2ui.changes) delete rec.w2ui.changes[col.field]
                     if (rec.w2ui && $.isEmptyObject(rec.w2ui.changes)) delete rec.w2ui.changes
                     // event after
-                    this.trigger($.extend(edata, { phase: 'after' }))
+                    edata.finish()
                 }
             }
             break
@@ -3584,10 +3582,10 @@ class w2grid extends w2base {
 
     'delete'(force) {
         // event before
-        let edata = this.trigger({ phase: 'before', target: this.name, type: 'delete', force: force })
+        let edata = this.trigger('delete', { target: this.name, force: force })
         if (force) this.message() // close message
         if (edata.isCancelled === true) return
-        force = edata.force
+        force = edata.detail.force
         // hide all tooltips
         setTimeout(() => { $().w2tag() }, 20)
         // default action
@@ -3606,11 +3604,11 @@ class w2grid extends w2base {
                     no_text: 'Cancel',
                 })
                 .yes(event => {
-                    event.self.close()
+                    event.detail.self.close()
                     this.delete(true)
                 })
                 .no(event => {
-                    event.self.close()
+                    event.detail.self.close()
                 }))
             return
         }
@@ -3641,7 +3639,7 @@ class w2grid extends w2base {
             }
         }
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     click(recid, event) {
@@ -3673,7 +3671,7 @@ class w2grid extends w2base {
             if ($(tmp).attr('col') != null) column = parseInt($(tmp).attr('col'))
         }
         // event before
-        let edata = this.trigger({ phase: 'before', target: this.name, type: 'click', recid: recid, column: column, originalEvent: event })
+        let edata = this.trigger('click', { target: this.name, recid: recid, column: column, originalEvent: event })
         if (edata.isCancelled === true) return
         // default action
         let sel = this.getSelection()
@@ -3745,7 +3743,7 @@ class w2grid extends w2base {
         this.status()
         this.initResize()
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     columnClick(field, event) {
@@ -3754,13 +3752,13 @@ class w2grid extends w2base {
             return
         }
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'columnClick', target: this.name, field: field, originalEvent: event })
+        let edata = this.trigger('columnClick', { target: this.name, field: field, originalEvent: event })
         if (edata.isCancelled === true) return
         // default behaviour
         if (this.selectType == 'row') {
             let column = this.getColumn(field)
             if (column && column.sortable) this.sort(field, null, (event && (event.ctrlKey || event.metaKey) ? true : false))
-            if (edata.field == 'line-number') {
+            if (edata.detail.field == 'line-number') {
                 if (this.getSelection().length >= this.records.length) {
                     this.selectNone()
                 } else {
@@ -3773,7 +3771,7 @@ class w2grid extends w2base {
                 if (column && column.sortable) this.sort(field, null, (event && (event.ctrlKey || event.metaKey) ? true : false))
             }
             // select entire column
-            if (edata.field == 'line-number') {
+            if (edata.detail.field == 'line-number') {
                 if (this.getSelection().length >= this.records.length) {
                     this.selectNone()
                 } else {
@@ -3784,7 +3782,7 @@ class w2grid extends w2base {
                     this.selectNone()
                 }
                 let tmp    = this.getSelection()
-                let column = this.getColumn(edata.field, true)
+                let column = this.getColumn(edata.detail.field, true)
                 let sel    = []
                 let cols   = []
                 // check if there was a selection before
@@ -3799,7 +3797,7 @@ class w2grid extends w2base {
                 } else {
                     cols.push(column)
                 }
-                edata = this.trigger({ phase: 'before', type: 'columnSelect', target: this.name, columns: cols })
+                edata = this.trigger('columnSelect', { target: this.name, columns: cols })
                 if (edata.isCancelled !== true) {
                     for (let i = 0; i < this.records.length; i++) {
                         sel.push({ recid: this.records[i].recid, column: cols })
@@ -4759,7 +4757,7 @@ class w2grid extends w2base {
             edata = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text,
                 cut: (oEvent.keyCode == 88 ? true : false), originalEvent: oEvent })
             if (edata.isCancelled === true) return ''
-            text = edata.text
+            text = edata.detail.text
             // event after
             this.trigger($.extend(edata, { phase: 'after' }))
             return text
@@ -4768,7 +4766,7 @@ class w2grid extends w2base {
             edata = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text,
                 cut: (oEvent.keyCode == 88 ? true : false), originalEvent: oEvent })
             if (edata.isCancelled === true) return ''
-            text = edata.text
+            text = edata.detail.text
             return edata
         }
     }
@@ -4791,7 +4789,7 @@ class w2grid extends w2base {
         let edata = this.trigger({ phase: 'before', type: 'paste', target: this.name, text: text,
             index: ind, column: col, originalEvent: event })
         if (edata.isCancelled === true) return
-        text = edata.text
+        text = edata.detail.text
         // default action
         if (this.selectType == 'row' || sel.length === 0) {
             console.log('ERROR: You can paste only if grid.selectType = \'cell\' and when at least one cell selected.')
