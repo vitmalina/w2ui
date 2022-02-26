@@ -196,7 +196,8 @@ class w2toolbar extends w2base {
         if (btn.length > 0) {
             btn.removeClass()
                 .addClass(className || '')
-                .text(count)[0].style.cssText = style || ''
+                .text(count)
+                .get(0).style.cssText = style || ''
             this.last.badge[id] = {
                 className: className || '',
                 style: style || ''

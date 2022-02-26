@@ -475,16 +475,19 @@ class Tooltip {
         let anchor     = overlay.anchor.getBoundingClientRect()
 
         if (overlay.anchor == document.body) {
+            // context menu
             let { x, y, width, height } = options.originalEvent
-            anchor = { left: x , top: y, width, height, arrow: 'none' }
+            anchor = { left: x - 2, top: y - 4, width, height, arrow: 'none' }
         }
+        let arrowSize = options.arrowSize
+        if (anchor.arrow == 'none') arrowSize = 0
 
         // space available
         let available = { // tipsize adjustment should be here, not in max.width/max.height
-            top: anchor.top - options.arrowSize,
-            bottom: max.height - (anchor.top + anchor.height) - options.arrowSize,
-            left: anchor.left - options.arrowSize,
-            right: max.width - (anchor.left + anchor.width) - options.arrowSize,
+            top: anchor.top - arrowSize,
+            bottom: max.height - (anchor.top + anchor.height) - arrowSize,
+            left: anchor.left - arrowSize,
+            right: max.width - (anchor.left + anchor.width) - arrowSize,
         }
         // size of empty tooltip
         if (content.width < 22) content.width = 22
@@ -494,7 +497,7 @@ class Tooltip {
         let arrow = {
             offset: 0,
             class: '',
-            style: `#${overlay.id} { --tip-size: ${options.arrowSize}px; }`
+            style: `#${overlay.id} { --tip-size: ${arrowSize}px; }`
         }
         let adjust   = { left: 0, top: 0 }
         let bestFit  = { posX: '', x: 0, posY: '', y: 0 }
@@ -502,7 +505,7 @@ class Tooltip {
         // find best position
         position.forEach(pos => {
             if (['top', 'bottom'].includes(pos)) {
-                if (!found && (content.height + options.arrowSize) < available[pos]) {
+                if (!found && (content.height + arrowSize) < available[pos]) {
                     found = pos
                 }
                 if (available[pos] > bestFit.y) {
@@ -510,7 +513,7 @@ class Tooltip {
                 }
             }
             if (['left', 'right'].includes(pos)) {
-                if (!found && (content.width + options.arrowSize) < available[pos]) {
+                if (!found && (content.width + arrowSize) < available[pos]) {
                     found = pos
                 }
                 if (available[pos] > bestFit.x) {
@@ -562,21 +565,21 @@ class Tooltip {
             switch (pos) {
                 case 'top': {
                     left = anchor.left + (anchor.width - (width ?? content.width)) / 2
-                    top = anchor.top - (height ?? content.height) - options.arrowSize
+                    top = anchor.top - (height ?? content.height) - arrowSize
                     break
                 }
                 case 'bottom': {
                     left = anchor.left + (anchor.width - (width ?? content.width)) / 2
-                    top = anchor.top + anchor.height + options.arrowSize
+                    top = anchor.top + anchor.height + arrowSize
                     break
                 }
                 case 'left': {
-                    left = anchor.left - (width ?? content.width) - options.arrowSize
+                    left = anchor.left - (width ?? content.width) - arrowSize
                     top = anchor.top + (anchor.height - (height ?? content.height)) / 2
                     break
                 }
                 case 'right': {
-                    left = anchor.left + anchor.width + options.arrowSize
+                    left = anchor.left + anchor.width + arrowSize
                     top = anchor.top + (anchor.height - (height ?? content.height)) / 2
                     break
                 }
@@ -627,10 +630,10 @@ class Tooltip {
                 adjustArrow = true
             }
             // if off screen then adjust
-            let minLeft = (found == 'right' ? options.arrowSize : options.screenMargin)
-            let minTop  = (found == 'bottom' ? options.arrowSize : options.screenMargin)
-            let maxLeft = max.width - (width ?? content.width) - (found == 'left' ? options.arrowSize : options.screenMargin)
-            let maxTop  = max.height - (height ?? content.height) - (found == 'top' ? options.arrowSize : options.screenMargin)
+            let minLeft = (found == 'right' ? arrowSize : options.screenMargin)
+            let minTop  = (found == 'bottom' ? arrowSize : options.screenMargin)
+            let maxLeft = max.width - (width ?? content.width) - (found == 'left' ? arrowSize : options.screenMargin)
+            let maxTop  = max.height - (height ?? content.height) - (found == 'top' ? arrowSize : options.screenMargin)
             if (left < minLeft) {
                 adjustArrow = true
                 adjust.left -= left
@@ -659,8 +662,8 @@ class Tooltip {
                     sType = 'width'
                 }
                 arrow.offset = -adjust[aType]
-                let maxOffset = content[sType] / 2 - options.arrowSize
-                if (Math.abs(arrow.offset) > maxOffset + options.arrowSize) {
+                let maxOffset = content[sType] / 2 - arrowSize
+                if (Math.abs(arrow.offset) > maxOffset + arrowSize) {
                     arrow.class = '' // no arrow
                 }
                 if (Math.abs(arrow.offset) > maxOffset) {
@@ -668,7 +671,7 @@ class Tooltip {
                 }
                 arrow.style = `#${overlay.id} .w2ui-overlay-body:after,
                             #${overlay.id} .w2ui-overlay-body:before {
-                                --tip-size: ${options.arrowSize}px;
+                                --tip-size: ${arrowSize}px;
                                 margin-${aType}: ${arrow.offset}px;
                             }`
             }

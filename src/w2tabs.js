@@ -13,10 +13,10 @@
  *  - add, insert return a promise
  */
 
- import { w2base } from './w2base.js'
- import { w2ui, w2utils } from './w2utils.js'
- import { query } from './query.js'
- import { w2tooltip } from './w2tooltip.js'
+import { w2base } from './w2base.js'
+import { w2ui, w2utils } from './w2utils.js'
+import { query } from './query.js'
+import { w2tooltip } from './w2tooltip.js'
 
 class w2tabs extends w2base {
     constructor(options) {
@@ -493,8 +493,7 @@ class w2tabs extends w2base {
             if (id == null) id = this.active
             let tab = this.get(id)
             if (tab == null) return
-            let box = query(this.box)
-            let tabEl = box.find('#tabs_' + this.name + '_tab_' + w2utils.escapeId(id)).get(0)
+            let tabEl = query(this.box).find('#tabs_' + this.name + '_tab_' + w2utils.escapeId(id)).get(0)
             tabEl.scrollIntoView({ block: "start", inline: "center", behavior: instant ? 'atuo' : 'smooth' })
             setTimeout(() => { this.resize(); resolve() }, instant ? 0 : 500)
         })
