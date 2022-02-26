@@ -65,12 +65,14 @@
 
 .w2ui-disabled,
 .w2ui-readonly {
-    background-color: #f1f1f1 !important;
-    color: #777 !important;
-    outline: none !important;
+    background-color: #f1f1f1;
+    color: #777;
+    outline: none;
 }
 
-.w2ui-focus {
+input.w2ui-focus:not(button),
+textarea.w2ui-focus,
+select.w2ui-focus {
     outline-style: auto;
     outline-color: @input-focus-outline-color;
 }
@@ -106,7 +108,7 @@ textarea.w2ui-input {
     &:disabled, &[readonly] {
         background-color: #f1f1f1;
         color: #777;
-        outline: none !important;
+        outline: none;
     }
 }
 
@@ -280,11 +282,11 @@ input[type="checkbox"].w2ui-toggle {
     display: inline-block;
 
     &.icon-folder {
-        .background-image(@image-folder, no-repeat, center, ~"!important");
+        .background-image(@image-folder, no-repeat, center);
     }
 
     &.icon-page {
-        .background-image(@image-page, no-repeat, center, ~"!important");
+        .background-image(@image-page, no-repeat, center);
     }
 }
 

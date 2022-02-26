@@ -1,6 +1,6 @@
 /**
  * Part of w2ui 2.0 library
- *  - Dependencies: jQuery, w2utils, w2base
+ *  - Dependencies: mQuery, w2utils, w2base, w2tooltip, w2menu
  *
  * == TODO ==
  *  - dbl click should be like it is in grid (with timer not HTML dbl click event)
@@ -8,6 +8,7 @@
  *  - node.plus - is not working
  *
  * == 2.0 changes
+ *  - remove jQuery dependency
  *  - deprecarted obj.img, node.img
  *  - CSP - fixed inline events
  *  - resizeObserver for the box
@@ -15,6 +16,8 @@
 
 import { w2base } from './w2base.js'
 import { w2ui, w2utils } from './w2utils.js'
+import { query } from './query.js'
+import { w2tooltip, w2menu } from './w2tooltip.js'
 
 class w2sidebar extends w2base {
     constructor(options) {
@@ -86,7 +89,7 @@ class w2sidebar extends w2base {
         let nodes = options.nodes
         delete options.nodes
         // mix in options
-        $.extend(true, this, options)
+        w2utils.extend(this, options)
         // add item via method to makes sure item_template is applied
         if (Array.isArray(nodes)) this.add(nodes)
         // need to reassign back to keep it in config
@@ -206,7 +209,7 @@ class w2sidebar extends w2base {
                 if (Object.keys(res).length != 0) {
                     // make sure nodes inserted correctly
                     let nodes = node.nodes
-                    $.extend(parent.nodes[i], node, { nodes: [] })
+                    w2utils.extend(parent.nodes[i], node, { nodes: [] })
                     if (nodes != null) {
                         this.add(parent.nodes[i], nodes)
                     }
@@ -252,16 +255,22 @@ class w2sidebar extends w2base {
     }
 
     setCount(id, count, className, style) {
-        let $it = $(this.box).find(`#node_${id} .w2ui-node-count`)
-        $it.removeClass()
-            .addClass(`w2ui-node-count ${className || ''}`)
-            .text(count)[0].style.cssText = style || ''
-        this.last.badge[id] = {
-            className: className || '',
-            style: style || ''
+        let btn = query(this.box).find(`#node_${w2utils.escapeId(id)} .w2ui-node-count`)
+        if (btn.length > 0) {
+            btn.removeClass()
+                .addClass(`w2ui-node-count ${className || ''}`)
+                .text(count)
+                .get(0).style.cssText = style || ''
+            this.last.badge[id] = {
+                className: className || '',
+                style: style || ''
+            }
+            let item = this.get(id)
+            item.count = count
+        } else {
+            this.set(id, { count: count })
+            this.setCount(...arguments) // to update styles
         }
-        let item = this.get(id)
-        item.count = count
     }
 
     find(parent, params, results) { // can be just called find({ selected: true })
@@ -418,20 +427,19 @@ class w2sidebar extends w2base {
     }
 
     select(id) {
-        // var obj = this;
         let new_node = this.get(id)
         if (!new_node) return false
         if (this.selected == id && new_node.selected) return false
         this.unselect(this.selected)
-        let $el = $(this.box).find('#node_'+ w2utils.escapeId(id))
+        let $el = query(this.box).find('#node_'+ w2utils.escapeId(id))
         $el.addClass('w2ui-selected')
             .find('.w2ui-icon')
             .addClass('w2ui-icon-selected')
         if ($el.length > 0) {
-            this.scrollIntoView(id, true)
+            if (!this.inView(id)) this.scrollIntoView(id)
         }
         new_node.selected = true
-        this.selected     = id
+        this.selected = id
         return true
     }
 
@@ -443,7 +451,7 @@ class w2sidebar extends w2base {
         let current = this.get(id)
         if (!current) return false
         current.selected = false
-        $(this.box).find('#node_'+ w2utils.escapeId(id))
+        query(this.box).find('#node_'+ w2utils.escapeId(id))
             .removeClass('w2ui-selected')
             .find('.w2ui-icon').removeClass('w2ui-icon-selected')
         if (this.selected == id) this.selected = null
@@ -465,21 +473,40 @@ class w2sidebar extends w2base {
     }
 
     collapse(id) {
-        let obj = this
-        let nd  = this.get(id)
+        let self = this
+        let nd = this.get(id)
         if (nd == null) return false
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'collapse', target: id, object: nd })
+        let edata = this.trigger('collapse', { target: id, object: nd })
         if (edata.isCancelled === true) return
         // default action
-        $(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideUp(200)
-        $(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-expanded')
+        query(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').hide()
+        query(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-expanded')
             .removeClass('w2ui-expanded')
             .addClass('w2ui-collapsed')
         nd.expanded = false
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
-        setTimeout(() => { obj.refresh(id) }, 200)
+        edata.finish()
+        setTimeout(() => { self.refresh(id) }, 0)
+        return true
+    }
+
+    expand(id) {
+        let self = this
+        let nd = this.get(id)
+        // event before
+        let edata = this.trigger('expand', { target: id, object: nd })
+        if (edata.isCancelled === true) return
+        // default action
+        query(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub')
+            .show()
+        query(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-collapsed')
+            .removeClass('w2ui-collapsed')
+            .addClass('w2ui-expanded')
+        nd.expanded = true
+        // event after
+        edata.finish()
+        setTimeout(() => { self.refresh(id) }, 0)
         return true
     }
 
@@ -492,24 +519,6 @@ class w2sidebar extends w2base {
             if (parent.nodes[i].nodes && parent.nodes[i].nodes.length > 0) this.collapseAll(parent.nodes[i])
         }
         this.refresh(parent.id)
-        return true
-    }
-
-    expand(id) {
-        let obj = this
-        let nd  = this.get(id)
-        // event before
-        let edata = this.trigger({ phase: 'before', type: 'expand', target: id, object: nd })
-        if (edata.isCancelled === true) return
-        // default action
-        $(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').slideDown(200)
-        $(this.box).find('#node_'+ w2utils.escapeId(id) +' .w2ui-collapsed')
-            .removeClass('w2ui-collapsed')
-            .addClass('w2ui-expanded')
-        nd.expanded = true
-        // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
-        setTimeout(() => { obj.refresh(id) }, 200)
         return true
     }
 
@@ -543,20 +552,20 @@ class w2sidebar extends w2base {
         if (nd == null) return
         if (nd.disabled || nd.group) return // should click event if already selected
         // unselect all previously
-        $(obj.box).find('.w2ui-node.w2ui-selected').each((index, el) => {
-            let oldID   = $(el).attr('id').replace('node_', '')
+        query(obj.box).find('.w2ui-node.w2ui-selected').each(el => {
+            let oldID   = query(el).attr('id').replace('node_', '')
             let oldNode = obj.get(oldID)
             if (oldNode != null) oldNode.selected = false
-            $(el).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected')
+            query(el).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected')
         })
         // select new one
-        let newNode = $(obj.box).find('#node_'+ w2utils.escapeId(id))
-        let oldNode = $(obj.box).find('#node_'+ w2utils.escapeId(obj.selected))
+        let newNode = query(obj.box).find('#node_'+ w2utils.escapeId(id))
+        let oldNode = query(obj.box).find('#node_'+ w2utils.escapeId(obj.selected))
         newNode.addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected')
         // need timeout to allow rendering
         setTimeout(() => {
             // event before
-            let edata = obj.trigger({ phase: 'before', type: 'click', target: id, originalEvent: event, node: nd, object: nd })
+            let edata = obj.trigger('click', { target: id, originalEvent: event, node: nd, object: nd })
             if (edata.isCancelled === true) {
                 // restore selection
                 newNode.removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected')
@@ -566,7 +575,7 @@ class w2sidebar extends w2base {
             // default action
             if (oldNode != null) oldNode.selected = false
             obj.get(id).selected = true
-            obj.selected         = id
+            obj.selected = id
             // route processing
             if (typeof nd.route == 'string') {
                 let route = nd.route !== '' ? String('/'+ nd.route).replace(/\/{2,}/g, '/') : ''
@@ -580,35 +589,35 @@ class w2sidebar extends w2base {
                 setTimeout(() => { window.location.hash = route }, 1)
             }
             // event after
-            obj.trigger($.extend(edata, { phase: 'after' }))
+            edata.finish()
         }, 1)
     }
 
     focus(event) {
-        let obj = this
+        let self = this
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'focus', target: this.name, originalEvent: event })
+        let edata = this.trigger('focus', { target: this.name, originalEvent: event })
         if (edata.isCancelled === true) return false
         // default behaviour
         this.hasFocus = true
-        $(this.box).find('.w2ui-sidebar-body').addClass('w2ui-focus')
+        query(this.box).find('.w2ui-sidebar-body').addClass('w2ui-focus')
         setTimeout(() => {
-            let $input = $(obj.box).find('#sidebar_'+ obj.name + '_focus')
-            if (!$input.is(':focus')) $input.focus()
+            let input = query(self.box).find('#sidebar_'+ self.name + '_focus').get(0)
+            if (document.activeElement != input) input.focus()
         }, 10)
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     blur(event) {
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'blur', target: this.name, originalEvent: event })
+        let edata = this.trigger('blur', { target: this.name, originalEvent: event })
         if (edata.isCancelled === true) return false
         // default behaviour
         this.hasFocus = false
-        $(this.box).find('.w2ui-sidebar-body').removeClass('w2ui-focus')
+        query(this.box).find('.w2ui-sidebar-body').removeClass('w2ui-focus')
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     keydown(event) {
@@ -617,7 +626,7 @@ class w2sidebar extends w2base {
         if (obj.keyboard !== true) return
         if (!nd) nd = obj.nodes[0]
         // trigger event
-        let edata = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event })
+        let edata = obj.trigger('keydown', { target: obj.name, originalEvent: event })
         if (edata.isCancelled === true) return
         // default behaviour
         if (event.keyCode == 13 || event.keyCode == 32) { // enter or space
@@ -649,17 +658,17 @@ class w2sidebar extends w2base {
             }
         }
         // cancel event if needed
-        if ($.inArray(event.keyCode, [13, 32, 37, 38, 39, 40]) != -1) {
+        if ([13, 32, 37, 38, 39, 40].includes(event.keyCode)) {
             if (event.preventDefault) event.preventDefault()
             if (event.stopPropagation) event.stopPropagation()
         }
         // event after
-        obj.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
 
         function selectNode(node, event) {
             if (node != null && !node.hidden && !node.disabled && !node.group) {
                 obj.click(node.id, event)
-                setTimeout(() => { obj.scrollIntoView() }, 50)
+                if (!obj.inView(node.id)) obj.scrollIntoView(node.id)
             }
         }
 
@@ -709,88 +718,96 @@ class w2sidebar extends w2base {
         }
     }
 
-    scrollIntoView(id, instant) {
-        if (id == null) id = this.selected
-        let nd = this.get(id)
-        if (nd == null) return
-        let body   = $(this.box).find('.w2ui-sidebar-body')
-        let item   = $(this.box).find('#node_'+ w2utils.escapeId(id))
-        let offset = item.offset().top - body.offset().top
-        if (offset + item.height() > body.height() || offset <= 0) {
-            body.animate({ 'scrollTop': body.scrollTop() + offset - body.height() / 2 + item.height() }, instant ? 0 : 250, 'linear')
+    inView(id) {
+        let item = query(this.box).find('#node_'+ w2utils.escapeId(id)).get(0)
+        if (!item) {
+            return false
         }
+        let div = query(this.box).find('.w2ui-sidebar-body').get(0)
+        if (item.offsetTop < div.scrollTop || (item.offsetTop + item.clientHeight > div.clientHeight + div.scrollTop)) {
+            return false
+        }
+        return true
+    }
+
+    scrollIntoView(id, instant) {
+        return new Promise((resolve, reject) => {
+            if (id == null) id = this.selected
+            let nd = this.get(id)
+            if (nd == null) return
+            let item = query(this.box).find('#node_'+ w2utils.escapeId(id)).get(0)
+            item.scrollIntoView({ block: "center", inline: "center", behavior: instant ? 'atuo' : 'smooth' })
+            setTimeout(() => { this.resize(); resolve() }, instant ? 0 : 500)
+        })
     }
 
     dblClick(id, event) {
         let nd = this.get(id)
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'dblClick', target: id, originalEvent: event, object: nd })
+        let edata = this.trigger('dblClick', { target: id, originalEvent: event, object: nd })
         if (edata.isCancelled === true) return
         // default action
         this.toggle(id)
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     contextMenu(id, event) {
-        let obj = this
-        let nd  = obj.get(id)
-        if (id != obj.selected) obj.click(id)
+        let nd = this.get(id)
+        if (id != this.selected) this.click(id)
         // event before
-        let edata = obj.trigger({ phase: 'before', type: 'contextMenu', target: id, originalEvent: event, object: nd, allowOnDisabled: false })
+        let edata = this.trigger('contextMenu', { target: id, originalEvent: event, object: nd, allowOnDisabled: false })
         if (edata.isCancelled === true) return
         // default action
         if (nd.disabled && !edata.allowOnDisabled) return
-        if (obj.menu.length > 0) {
-            $(obj.box).find('#node_'+ w2utils.escapeId(id))
-                .w2menu({
-                    items: obj.menu,
-                    contextMenu: true,
-                    originalEvent: event,
-                    onSelect(event) {
-                        obj.menuClick(id, parseInt(event.index), event.originalEvent)
-                    }
-                }
-                )
+        if (this.menu.length > 0) {
+            w2menu.show({
+                name: this.name + '_menu',
+                anchor: document.body,
+                items: this.menu,
+                originalEvent: event
+            })
+            .select(evt => {
+                this.menuClick(id, parseInt(evt.detail.index), event)
+            })
         }
-        // cancel event
+        // prevent default context menu
         if (event.preventDefault) event.preventDefault()
         // event after
-        obj.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     menuClick(itemId, index, event) {
-        let obj = this
         // event before
-        let edata = obj.trigger({ phase: 'before', type: 'menuClick', target: itemId, originalEvent: event, menuIndex: index, menuItem: obj.menu[index] })
+        let edata = this.trigger('menuClick', { target: itemId, originalEvent: event, menuIndex: index, menuItem: this.menu[index] })
         if (edata.isCancelled === true) return
         // default action
         // -- empty
         // event after
-        obj.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     goFlat() {
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'flat', goFlat: !this.flat })
+        let edata = this.trigger('flat', { goFlat: !this.flat })
         if (edata.isCancelled === true) return
         // default action
         this.flat = !this.flat
         this.refresh()
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     render(box) {
         let time = (new Date()).getTime()
         let obj  = this
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box })
+        let edata = this.trigger('render', { target: this.name, box: box })
         if (edata.isCancelled === true) return
         // default action
         if (box != null) {
-            if ($(this.box).find('> div > div.w2ui-sidebar-body').length > 0) {
-                $(this.box)
+            if (query(this.box).find('.w2ui-sidebar-body').length > 0) {
+                query(this.box)
                     .removeAttr('name')
                     .removeClass('w2ui-reset w2ui-sidebar')
                     .html('')
@@ -798,40 +815,26 @@ class w2sidebar extends w2base {
             this.box = box
         }
         if (!this.box) return
-        $(this.box)
+        query(this.box)
             .attr('name', this.name)
             .addClass('w2ui-reset w2ui-sidebar')
-            .html('<div>'+
-                    '<input id="sidebar_'+ this.name +'_focus" '+ (this.tabIndex ? 'tabindex="' + this.tabIndex + '"' : '') +
-                    '   style="position: absolute; top: 0; right: 0; width: 1px; z-index: -1; opacity: 0" '+ (w2utils.isIOS ? 'readonly' : '') +'/>'+
-                    '<div class="w2ui-sidebar-top"></div>' +
-                    '<div class="w2ui-sidebar-body"></div>'+
-                    '<div class="w2ui-sidebar-bottom"></div>'+
-                '</div>'
-            )
-        $(this.box).find('> div').css({
-            width  : $(this.box).width() + 'px',
-            height : $(this.box).height() + 'px'
+            .html(`<div>
+                <div class="w2ui-sidebar-top"></div>
+                <input id="sidebar_${this.name}_focus" ${(this.tabIndex ? 'tabindex="' + this.tabIndex + '"' : '')}
+                    style="position: absolute; top: 0; right: 0; width: 1px; z-index: -1; opacity: 0"
+                    ${(w2utils.isIOS ? 'readonly' : '')}/>
+                <div class="w2ui-sidebar-body"></div>
+                <div class="w2ui-sidebar-bottom"></div>
+            </div>`)
+        let rect = query(this.box).get(0).getBoundingClientRect()
+        query(this.box).find(':scope > div').css({
+            width  : rect.width + 'px',
+            height : rect.height + 'px'
         })
-        if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style
-        // adjust top and bottom
-        let flatHTML = ''
-        if (this.flatButton == true) {
-            flatHTML = '<div class="w2ui-flat-'+ (this.flat ? 'right' : 'left') +'" onclick="w2ui[\''+ this.name +'\'].goFlat()"></div>'
-        }
-        if (this.topHTML !== '' || flatHTML !== '') {
-            $(this.box).find('.w2ui-sidebar-top').html(this.topHTML + flatHTML)
-            $(this.box).find('.w2ui-sidebar-body')
-                .css('top', $(this.box).find('.w2ui-sidebar-top').height() + 'px')
-        }
-        if (this.bottomHTML !== '') {
-            $(this.box).find('.w2ui-sidebar-bottom').html(this.bottomHTML)
-            $(this.box).find('.w2ui-sidebar-body')
-                .css('bottom', $(this.box).find('.w2ui-sidebar-bottom').height() + 'px')
-        }
+        query(this.box).get(0).style.cssText += this.style
         // focus
         let kbd_timer
-        $(this.box).find('#sidebar_'+ this.name + '_focus')
+        query(this.box).find('#sidebar_'+ this.name + '_focus')
             .on('focus', function(event) {
                 clearTimeout(kbd_timer)
                 if (!obj.hasFocus) obj.focus(event)
@@ -846,27 +849,24 @@ class w2sidebar extends w2base {
                     w2ui[obj.name].keydown.call(w2ui[obj.name], event)
                 }
             })
-        $(this.box).off('mousedown').on('mousedown', function(event) {
-            // set focus to grid
-            setTimeout(() => {
-                // if input then do not focus
-                if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName.toUpperCase()) == -1) {
-                    let $input = $(obj.box).find('#sidebar_'+ obj.name + '_focus')
-                    if (!$input.is(':focus')) {
-                        if ($(event.target).hasClass('w2ui-node')) {
-                            let top = $(event.target).position().top + $(obj.box).find('.w2ui-sidebar-top').height() + event.offsetY
-                            $input.css({ top: top + 'px', left: '0px' })
+        query(this.box).off('mousedown')
+            .on('mousedown', function(event) {
+                // set focus to grid
+                setTimeout(() => {
+                    // if input then do not focus
+                    if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName.toUpperCase()) == -1) {
+                        let $input = query(obj.box).find('#sidebar_'+ obj.name + '_focus')
+                        if (document.activeElement != $input.get(0)) {
+                            $input.get(0).focus()
                         }
-                        $input.focus()
                     }
-                }
-            }, 1)
-        })
+                }, 1)
+            })
         // observe div resize
         this.last.resizeObserver = new ResizeObserver(() => { this.resize() })
         this.last.resizeObserver.observe(this.box)
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         // ---
         this.refresh()
         return (new Date()).getTime() - time
@@ -878,24 +878,24 @@ class w2sidebar extends w2base {
         let nd = this.get(id)
         let level
         if (nd) {
-            let $el = $(this.box).find('#node_'+ w2utils.escapeId(nd.id))
+            let $el = query(this.box).find('#node_'+ w2utils.escapeId(nd.id))
             if (nd.group) {
                 if (options.text) {
                     nd.text = options.text
-                    $el.find('.w2ui-group-text').replaceWith(typeof nd.text == 'function'
+                    $el.find('.w2ui-group-text').replace(typeof nd.text == 'function'
                         ? nd.text.call(this, nd)
                         : '<span class="w2ui-group-text">'+ nd.text +'</span>')
                     delete options.text
                 }
                 if (options.class) {
-                    nd.class         = options.class
-                    level            = $el.data('level')
-                    $el[0].className = 'w2ui-node-group w2ui-level-'+ level +(nd.class ? ' ' + nd.class : '')
+                    nd.class = options.class
+                    level = $el.data('level')
+                    $el.get(0).className = 'w2ui-node-group w2ui-level-'+ level +(nd.class ? ' ' + nd.class : '')
                     delete options.class
                 }
                 if (options.style) {
-                    nd.style            = options.style
-                    $el.next()[0].style = nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;')
+                    nd.style = options.style
+                    $el.get(0).nextElementSibling.style = nd.style +';'+ (!nd.hidden && nd.expanded ? '' : 'display: none;')
                     delete options.style
                 }
             } else {
@@ -913,8 +913,8 @@ class w2sidebar extends w2base {
                     if ($el.find('.w2ui-node-count').length > 0) delete options.count
                 }
                 if (options.class && $el.length > 0) {
-                    nd.class         = options.class
-                    level            = $el.data('level')
+                    nd.class = options.class
+                    level = $el.data('level')
                     $el[0].className = 'w2ui-node w2ui-level-'+ level + (nd.selected ? ' w2ui-selected' : '') + (nd.disabled ? ' w2ui-disabled' : '') + (nd.class ? ' ' + nd.class : '')
                     delete options.class
                 }
@@ -924,8 +924,8 @@ class w2sidebar extends w2base {
                     delete options.text
                 }
                 if (options.style && $el.length > 0) {
-                    let $txt      = $el.find('.w2ui-node-text')
-                    nd.style      = options.style
+                    let $txt = $el.find('.w2ui-node-text')
+                    nd.style = options.style
                     $txt[0].style = nd.style
                     delete options.style
                 }
@@ -939,28 +939,31 @@ class w2sidebar extends w2base {
         if (this.box == null) return
         let time = (new Date()).getTime()
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'refresh', target: (id != null ? id : this.name),
+        let edata = this.trigger('refresh', { target: (id != null ? id : this.name),
             fullRefresh: (id != null ? false : true) })
         if (edata.isCancelled === true) return
         // adjust top and bottom
         let flatHTML = ''
         if (this.flatButton == true) {
-            flatHTML = '<div class="w2ui-flat-'+ (this.flat ? 'right' : 'left') +'" onclick="w2ui[\''+ this.name +'\'].goFlat()"></div>'
+            flatHTML = `<div class="w2ui-flat w2ui-flat-${(this.flat ? 'right' : 'left')}"></div>`
         }
-        if (this.topHTML !== '' || flatHTML !== '') {
-            $(this.box).find('.w2ui-sidebar-top').html(this.topHTML + flatHTML)
-            $(this.box).find('.w2ui-sidebar-body')
-                .css('top', $(this.box).find('.w2ui-sidebar-top').height() + 'px')
+        if (id == null && (this.topHTML !== '' || flatHTML !== '')) {
+            query(this.box).find('.w2ui-sidebar-top').html(this.topHTML + flatHTML)
+            query(this.box).find('.w2ui-sidebar-body')
+                .css('top', query(this.box).find('.w2ui-sidebar-top').get(0).clientHeight + 'px')
+            query(this.box).find('.w2ui-flat')
+                .off('clcik')
+                .on('click', event => { this.goFlat() })
         }
-        if (this.bottomHTML !== '') {
-            $(this.box).find('.w2ui-sidebar-bottom').html(this.bottomHTML)
-            $(this.box).find('.w2ui-sidebar-body')
-                .css('bottom', $(this.box).find('.w2ui-sidebar-bottom').height() + 'px')
+        if (id != null && this.bottomHTML !== '') {
+            query(this.box).find('.w2ui-sidebar-bottom').html(this.bottomHTML)
+            query(this.box).find('.w2ui-sidebar-body')
+                .css('bottom', query(this.box).find('.w2ui-sidebar-bottom').get(0).clientHeight + 'px')
         }
         // default action
-        $(this.box).find('> div').removeClass('w2ui-sidebar-flat').addClass(this.flat ? 'w2ui-sidebar-flat' : '').css({
-            width : $(this.box).width() + 'px',
-            height: $(this.box).height() + 'px'
+        query(this.box).find(':scope > div').removeClass('w2ui-sidebar-flat').addClass(this.flat ? 'w2ui-sidebar-flat' : '').css({
+            width : query(this.box).get(0).clientWidth + 'px',
+            height: query(this.box).get(0).clientHeight + 'px'
         })
         // if no parent - reset nodes
         if (this.nodes.length > 0 && this.nodes[0].parent == null) {
@@ -983,42 +986,44 @@ class w2sidebar extends w2base {
         let nodeHTML
         if (node !== this) {
             nodeHTML = getNodeHTML(node)
-            $(this.box).find(nodeId).before('<div id="sidebar_'+ this.name + '_tmp"></div>')
-            $(this.box).find(nodeId).remove()
-            $(this.box).find(nodeSubId).remove()
-            $(this.box).find('#sidebar_'+ this.name + '_tmp').before(nodeHTML)
-            $(this.box).find('#sidebar_'+ this.name + '_tmp').remove()
+            query(this.box).find(nodeId).before('<div id="sidebar_'+ this.name + '_tmp"></div>')
+            query(this.box).find(nodeId).remove()
+            query(this.box).find(nodeSubId).remove()
+            query(this.box).find('#sidebar_'+ this.name + '_tmp').before(nodeHTML)
+            query(this.box).find('#sidebar_'+ this.name + '_tmp').remove()
         }
         // remember scroll position
+        let div = query(this.box).find(':scope > div').get(0)
         let scroll = {
-            top: $(this.box).find(nodeSubId).scrollTop(),
-            left: $(this.box).find(nodeSubId).scrollLeft()
+            top: div.scrollTop,
+            left: div.scrollLeft
         }
         // refresh sub nodes
-        $(this.box).find(nodeSubId).html('')
+        query(this.box).find(nodeSubId).html('')
         for (let i = 0; i < node.nodes.length; i++) {
             let subNode = node.nodes[i]
             nodeHTML = getNodeHTML(subNode)
-            $(this.box).find(nodeSubId).append(nodeHTML)
+            query(this.box).find(nodeSubId).append(nodeHTML)
             if (subNode.nodes.length !== 0) {
                 this.refresh(subNode.id, true)
             } else {
                 // trigger event
-                let edata2 = this.trigger({ phase: 'before', type: 'refresh', target: subNode.id })
+                let edata2 = this.trigger('refresh', {  target: subNode.id })
                 if (edata2.isCancelled === true) return
                 // event after
-                this.trigger($.extend(edata2, { phase: 'after' }))
+                edata2.finish()
             }
         }
         // reset scroll
-        $(this.box).find(nodeSubId).scrollLeft(scroll.left).scrollTop(scroll.top)
+        div.scrollTop = scroll.top
+        div.scrollLeft = scroll.left
         // bind events
         if (!noBinding) {
-            let els = $(this.box).find(`${nodeId}.w2ui-eaction, ${nodeSubId} .w2ui-eaction`)
+            let els = query(this.box).find(`${nodeId}.w2ui-eaction, ${nodeSubId} .w2ui-eaction`)
             w2utils.bindEvents(els, this)
         }
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         return (new Date()).getTime() - time
 
         function getNodeHTML(nd) {
@@ -1126,43 +1131,47 @@ class w2sidebar extends w2base {
     }
 
     tooltip(el, text, id) {
-        let $el = $(el).find('.w2ui-node-data')
+        let $el = query(el).find('.w2ui-node-data')
         if (text !== '') {
-            // show
-            $(el).find('.w2ui-node-data').w2tag(w2utils.base64decode(text), { id, left: -5 })
+            w2tooltip.show({
+                anchor: $el.get(0),
+                name: this.name + '_tooltip',
+                html: w2utils.base64decode(text),
+                position: 'right|left'
+            })
         } else {
-             // hide
-            $el.w2tag()
+            w2tooltip.hide(this.name + '_tooltip')
         }
     }
 
     showPlus(el, color) {
-        $(el).find('span:nth-child(1)').css('color', color)
+        query(el).find('span:nth-child(1)').css('color', color)
     }
 
     resize() {
         let time = (new Date()).getTime()
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'resize', target: this.name })
+        let edata = this.trigger('resize', { target: this.name })
         if (edata.isCancelled === true) return
         // default action
-        $(this.box).css('overflow', 'hidden') // container should have no overflow
-        $(this.box).find('> div').css({
-            width  : $(this.box).width() + 'px',
-            height : $(this.box).height() + 'px'
+        let rect = query(this.box).get(0).getBoundingClientRect()
+        query(this.box).css('overflow', 'hidden') // container should have no overflow
+        query(this.box).find(':scope > div').css({
+            width  : rect.width + 'px',
+            height : rect.height + 'px'
         })
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         return (new Date()).getTime() - time
     }
 
     destroy() {
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'destroy', target: this.name })
+        let edata = this.trigger('destroy', { target: this.name })
         if (edata.isCancelled === true) return
         // clean up
-        if ($(this.box).find('> div > div.w2ui-sidebar-body').length > 0) {
-            $(this.box)
+        if (query(this.box).find('.w2ui-sidebar-body').length > 0) {
+            query(this.box)
                 .removeAttr('name')
                 .removeClass('w2ui-reset w2ui-sidebar')
                 .html('')
@@ -1170,7 +1179,7 @@ class w2sidebar extends w2base {
         this.last.resizeObserver.disconnect()
         delete w2ui[this.name]
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     lock(msg, showSpinner) {
