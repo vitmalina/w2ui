@@ -13,7 +13,7 @@
 //<![CDATA[
 // $.noConflict();
 jQuery(function () {
-    w2utils.locale('../src/locale/ru-ru').then(() => {
+    // w2utils.locale('../src/locale/ru-ru').then(() => {
         jQuery('#grid').w2grid({
             name      : 'grid',
             header    : 'List of Names',
@@ -40,6 +40,7 @@ jQuery(function () {
                 selectColumn: true,
                 expandColumn: false,
                 lineNumbers: true,
+                toolbarColumns: true,
                 toolbarAdd: true,
                 toolbarEdit: false,
                 toolbarDelete: true,
@@ -313,7 +314,7 @@ jQuery(function () {
         // w2ui.grid.total = w2ui.grid.records.length;
         w2ui.grid.refresh();
     })
-});
+// });
 
 function msg() {
     w2ui.grid.message({

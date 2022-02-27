@@ -17,7 +17,7 @@ class w2event {
             owner,
             target: edata.target ?? null,
             phase: edata.phase ?? 'before',
-            object: null,
+            object: edata.object ?? null,
             execute: null,
             isStopped: false,
             isCancelled: false,
@@ -26,6 +26,7 @@ class w2event {
         })
         delete edata.type
         delete edata.target
+        delete edata.object
         this.complete = new Promise((resolve, reject) => {
             this._resolve = resolve
             this._reject = reject

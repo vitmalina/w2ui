@@ -1312,10 +1312,8 @@ class MenuTooltip extends Tooltip {
                             classes.push('collapsed')
                         }
                     }
-                    // TODO: tooltip
                     menu_html += `
                         <div index="${index}" class="${classes.join(' ')}" style="${mitem.style ? mitem.style : ''}"
-                            tooltip="${mitem.tooltip ? w2utils.lang(mitem.tooltip) : ''}"
                             data-index="${f}" data-parents="${parentIndex.join('-')}">
                                 <div style="width: ${(subMenu ? 20 : 0) + parseInt(mitem.indent ?? 0)}px"></div>
                                 ${icon_dsp}
@@ -1414,10 +1412,28 @@ class MenuTooltip extends Tooltip {
                 let dt = event.delegate.dataset
                 this.menuDown(overlay, event, dt.index, dt.parents)
             })
-            .on('click.w2menu', { delegate: '.w2ui-menu-item' }, event => {
+            .on((w2utils.isIOS ? 'touchStart' : 'click') + '.w2menu', { delegate: '.w2ui-menu-item' }, event => {
                 let dt = event.delegate.dataset
                 this.menuClick(overlay, event, dt.index, dt.parents)
             })
+            .find('.w2ui-menu-item')
+            .off('.w2menu')
+            .on('mouseEnter.w2menu', event => {
+                let dt = event.target.dataset
+                let tooltip = overlay.options.items[dt.index]?.tooltip
+                if (tooltip) {
+                    w2tooltip.show({
+                        name: overlay.name + '-tooltip',
+                        anchor: event.target,
+                        html: tooltip,
+                        position: 'right|left'
+                    })
+                }
+            })
+            .on('mouseLeave.w2menu', event => {
+                w2tooltip.hide(overlay.name + '-tooltip')
+            })
+
         if (overlay.anchor.tagName == 'INPUT') {
             query(overlay.anchor)
                 .off('.w2menu')
