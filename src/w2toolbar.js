@@ -5,6 +5,7 @@
  * == TODO ==
  *  - tab navigation (index state)
  *  - vertical toolbar
+ *  - w2menu on second click of tb button should hide
  *
  * == 2.0 changes
  *  - CSP - fixed inline events
@@ -329,7 +330,6 @@ class w2toolbar extends w2base {
 
             if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
                 obj.tooltipHide(id)
-
                 if (it.checked) {
                     // if it was already checked, second click will hide it
                     setTimeout(() => {
@@ -338,6 +338,7 @@ class w2toolbar extends w2base {
                         it.checked = false
                         obj.refresh(it.id)
                     }, 1)
+
                 } else {
                     // time out is to make sure previous overla hides
                     setTimeout(() => {

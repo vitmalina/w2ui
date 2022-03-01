@@ -718,7 +718,11 @@ class ColorTooltip extends Tooltip {
             options = text
             options.anchor = anchor
         }
+        let prevHideOn = options.hideOn
         options = w2utils.extend({}, this.defaults, options || {})
+        if (prevHideOn) {
+            options.hideOn = prevHideOn
+        }
         options.style += '; padding: 0;'
         // add remove transparent color
         if (options.transparent && this.palette[0][1] == '333333') {
@@ -1168,7 +1172,11 @@ class MenuTooltip extends Tooltip {
             options = text
             options.anchor = anchor
         }
+        let prevHideOn = options.hideOn
         options = w2utils.extend({}, this.defaults, options || {})
+        if (prevHideOn) {
+            options.hideOn = prevHideOn
+        }
         options.style += '; padding: 0;'
         if (!Array.isArray(options.items) && typeof options.items != 'function') {
             options.items = []

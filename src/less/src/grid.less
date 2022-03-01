@@ -138,9 +138,12 @@
             flex-direction: row;
             flex-wrap: nowrap;
             border-top: 1px solid #ececec;
+            border-bottom: 1px solid #ececec;
             background-color: #fcfdff;
             margin: 7px -20px 0px -20px;
-            padding: 6px 40px 6px 20px;
+            padding: 6px 50px 6px 20px;
+            height: 36px;
+
             > div {
                 white-space: nowrap;
             }
@@ -150,7 +153,7 @@
                 overflow: hidden;
                 border: 1px solid #88c3f7;
                 border-radius: 15px;
-                padding: 5px 12px;
+                padding: 4px 12px;
                 margin: 0px 4px;
                 color: #4ab0fd;
                 font-size: 12px;
@@ -882,33 +885,6 @@
 // === Global Search slide down
 
 .w2ui-overlay {
-
-    .w2ui-grid-col-onoff {
-        padding: 4px 0px;
-        table {
-            border-spacing: 0px;
-            border-collapse: border-collapse;
-            tr:hover, tr.w2ui-selected {
-                background-color: @grid-row-selected-background-color;
-            }
-            td {
-                input[type=checkbox] {
-                    margin: 3px 2px 2px 2px;
-                }
-                label {
-                    display: block;
-                    padding: 3px 0px;
-                    padding-right: 10px;
-                }
-            }
-            td:first-child {
-                padding: 4px 0px 4px 6px;
-            }
-            td:last-child {
-                padding: 4px 6px 4px 0px;
-            }
-        }
-    }
 
     .w2ui-grid-search-suggest {
         border-top-left-radius: 5px;
