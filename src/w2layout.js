@@ -186,7 +186,6 @@ class w2layout extends w2base {
                     this.refresh(panel)
                 }
             }
-
         }
         // event after
         edata.finish()
@@ -197,7 +196,7 @@ class w2layout extends w2base {
 
     message(panel, options) {
         let p = this.get(panel)
-        let box = $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type)
+        let box = query(this.box).find('#layout_'+ this.name + '_panel_'+ p.type)
         let oldOverflow = box.css('overflow')
         box.css('overflow', 'hidden')
         let prom = w2utils.message.call(this, {
@@ -213,7 +212,7 @@ class w2layout extends w2base {
 
     confirm(panel, options) {
         let p = this.get(panel)
-        let box = $(this.box).find('#layout_'+ this.name + '_panel_'+ p.type)
+        let box = query(this.box).find('#layout_'+ this.name + '_panel_'+ p.type)
         let oldOverflow = box.css('overflow')
         box.css('overflow', 'hidden')
         let prom = w2utils.confirm.call(this, {
@@ -247,91 +246,86 @@ class w2layout extends w2base {
     }
 
     sizeTo(panel, size, instant) {
-        let obj = this
-        let pan = obj.get(panel)
+        let pan = this.get(panel)
         if (pan == null) return false
         // resize
-        $(obj.box).find(' > div > .w2ui-panel')
-            .css(w2utils.cssPrefix('transition', (instant !== true ? '.2s' : '0s')))
-        setTimeout(() => {
-            obj.set(panel, { size: size })
-        }, 1)
+        query(this.box).find(':scope > div > .w2ui-panel')
+            .css('transition', (instant !== true ? '.2s' : '0s'))
+        setTimeout(() => { this.set(panel, { size: size }) }, 1)
         // clean
         setTimeout(() => {
-            $(obj.box).find(' > div > .w2ui-panel').css(w2utils.cssPrefix('transition', '0s'))
-            obj.resize()
-        }, 500)
+            query(this.box).find(':scope > div > .w2ui-panel').css('transition', '0s')
+            this.resize()
+        }, 300)
         return true
     }
 
     show(panel, immediate) {
-        let obj = this
         // event before
-        let edata = this.trigger('show', { target: panel, object: this.get(panel), immediate: immediate })
+        let edata = this.trigger('show', { target: panel, thisect: this.get(panel), immediate: immediate })
         if (edata.isCancelled === true) return
 
-        let p = obj.get(panel)
+        let p = this.get(panel)
         if (p == null) return false
         p.hidden = false
         if (immediate === true) {
-            $(obj.box).find('#layout_'+ obj.name +'_panel_'+panel)
+            query(this.box).find('#layout_'+ this.name +'_panel_'+panel)
                 .css({ 'opacity': '1' })
             edata.finish()
-            obj.resize()
+            this.resize()
         } else {
             // resize
-            $(obj.box).addClass('animating')
-            $(obj.box).find('#layout_'+ obj.name +'_panel_'+panel)
+            query(this.box).addClass('animating')
+            query(this.box).find('#layout_'+ this.name +'_panel_'+panel)
                 .css({ 'opacity': '0' })
-            $(obj.box).find(' > div > .w2ui-panel')
-                .css(w2utils.cssPrefix('transition', '.2s'))
-            setTimeout(() => { obj.resize() }, 1)
+            query(this.box).find(':scope > div > .w2ui-panel')
+                .css('transition', '.2s')
+            setTimeout(() => { this.resize() }, 1)
             // show
             setTimeout(() => {
-                $(obj.box).find('#layout_'+ obj.name +'_panel_'+ panel).css({ 'opacity': '1' })
+                query(this.box).find('#layout_'+ this.name +'_panel_'+ panel).css({ 'opacity': '1' })
             }, 250)
             // clean
             setTimeout(() => {
-                $(obj.box).find(' > div > .w2ui-panel')
-                    .css(w2utils.cssPrefix('transition', '0s'))
-                $(obj.box).removeClass('animating')
+                query(this.box).find(':scope > div > .w2ui-panel')
+                    .css('transition', '0s')
+                query(this.box).removeClass('animating')
                 edata.finish()
-                obj.resize()
-            }, 500)
+                this.resize()
+            }, 300)
         }
         return true
     }
 
     hide(panel, immediate) {
-        let obj = this
         // event before
         let edata = this.trigger('hide', { target: panel, object: this.get(panel), immediate: immediate })
         if (edata.isCancelled === true) return
 
-        let p = obj.get(panel)
+        let p = this.get(panel)
         if (p == null) return false
         p.hidden = true
         if (immediate === true) {
-            $(obj.box).find('#layout_'+ obj.name +'_panel_'+panel)
+            query(this.box).find('#layout_'+ this.name +'_panel_'+panel)
                 .css({ 'opacity': '0' })
             edata.finish()
-            obj.resize()
+            this.resize()
         } else {
             // hide
-            $(obj.box).addClass('animating')
-            $(obj.box).find(' > div > .w2ui-panel')
-                .css(w2utils.cssPrefix('transition', '.2s'))
-            $(obj.box).find('#layout_'+ obj.name +'_panel_'+panel)
+            query(this.box).addClass('animating')
+            query(this.box).find(':scope > div > .w2ui-panel')
+                .css('transition', '.2s')
+            query(this.box).find('#layout_'+ this.name +'_panel_'+panel)
                 .css({ 'opacity': '0' })
-            setTimeout(() => { obj.resize() }, 1)
+            setTimeout(() => { this.resize() }, 1)
             // clean
             setTimeout(() => {
-                $(obj.box).find(' > div > .w2ui-panel')
-                    .css(w2utils.cssPrefix('transition', '0s'))
-                $(obj.box).removeClass('animating')
+                query(this.box).find(':scope > div > .w2ui-panel')
+                    .css('transition', '0s')
+                query(this.box).removeClass('animating')
                 edata.finish()
-                obj.resize()
-            }, 500)
+                this.resize()
+            }, 300)
         }
         return true
     }
@@ -345,7 +339,7 @@ class w2layout extends w2base {
     set(panel, options) {
         let ind = this.get(panel, true)
         if (ind == null) return false
-        $.extend(this.panels[ind], options)
+        w2utils.extend(this.panels[ind], options)
         // refresh only when content changed
         if (options.html != null || options.resizable != null) {
             this.refresh(panel)
@@ -365,7 +359,7 @@ class w2layout extends w2base {
     }
 
     el(panel) {
-        let el = $(this.box).find('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-content')
+        let el = query(this.box).find('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-content')
         if (el.length != 1) return null
         return el[0]
     }
@@ -374,7 +368,7 @@ class w2layout extends w2base {
         let pan = this.get(panel)
         if (!pan) return
         pan.show.toolbar = false
-        $(this.box).find('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-toolbar').hide()
+        query(this.box).find('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-toolbar').hide()
         this.resize()
     }
 
@@ -382,7 +376,7 @@ class w2layout extends w2base {
         let pan = this.get(panel)
         if (!pan) return
         pan.show.toolbar = true
-        $(this.box).find('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-toolbar').show()
+        query(this.box).find('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-toolbar').show()
         this.resize()
     }
 
@@ -394,12 +388,12 @@ class w2layout extends w2base {
 
     assignToolbar(panel, toolbar) {
         if (typeof toolbar == 'string' && w2ui[toolbar] != null) toolbar = w2ui[toolbar]
-        let pan     = this.get(panel)
+        let pan = this.get(panel)
         pan.toolbar = toolbar
-        let tmp     = $(this.box).find(panel +'> .w2ui-panel-toolbar')
+        let tmp = query(this.box).find(panel +'> .w2ui-panel-toolbar')
         if (pan.toolbar != null) {
             if (tmp.find('[name='+ pan.toolbar.name +']').length === 0) {
-                tmp.w2render(pan.toolbar)
+                pan.toolbar.render(tmp.get(0))
             } else if (pan.toolbar != null) {
                 pan.toolbar.refresh()
             }
@@ -416,7 +410,7 @@ class w2layout extends w2base {
         let pan = this.get(panel)
         if (!pan) return
         pan.show.tabs = false
-        $(this.box).find('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-tabs').hide()
+        query(this.box).find('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-tabs').hide()
         this.resize()
     }
 
@@ -424,7 +418,7 @@ class w2layout extends w2base {
         let pan = this.get(panel)
         if (!pan) return
         pan.show.tabs = true
-        $(this.box).find('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-tabs').show()
+        query(this.box).find('#layout_'+ this.name +'_panel_'+ panel +'> .w2ui-panel-tabs').show()
         this.resize()
     }
 
