@@ -12,9 +12,10 @@
  */
 
 import { w2locale } from './w2locale.js'
-import { w2base } from './w2base.js'
+import { w2event, w2base } from './w2base.js'
 import { w2ui, w2utils } from './w2utils.js'
-import { w2popup, w2alert, w2confirm, w2prompt } from './w2popup.js'
+import { query } from './query.js'
+import { w2popup, w2alert, w2confirm, w2prompt, Dialog } from './w2popup.js'
 import { w2field, addType, removeType } from './w2field.js'
 import { w2form } from './w2form.js'
 import { w2grid } from './w2grid.js'
@@ -22,7 +23,7 @@ import { w2layout } from './w2layout.js'
 import { w2sidebar } from './w2sidebar.js'
 import { w2tabs } from './w2tabs.js'
 import { w2toolbar } from './w2toolbar.js'
-import { w2tooltip, w2color, w2menu } from './w2tooltip.js'
+import { w2tooltip, w2color, w2menu, w2date, w2time, Tooltip, ColorTooltip, MenuTooltip, DateTooltip, TimeTooltip } from './w2tooltip.js'
 
 // Register jQuery plugins
 (function($) {
@@ -35,8 +36,11 @@ import { w2tooltip, w2color, w2menu } from './w2tooltip.js'
             Object.keys(obj).forEach(key => {
                 win[key] = obj[key]
             })
-        })(window, { w2ui, w2locale, w2base, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
-            w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType })
+        })(window, {
+            w2ui, w2utils, query, w2locale, w2event, w2base, w2popup, w2alert, w2confirm, w2prompt, Dialog,
+            w2tooltip, w2menu, w2color, w2date, w2time, Tooltip, ColorTooltip, MenuTooltip, DateTooltip, TimeTooltip,
+            w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field, addType, removeType
+        })
     }
     // if url has globals at the end, then register globals
     let param = String(import.meta.url).split('?')[1] || ''
@@ -215,5 +219,8 @@ import { w2tooltip, w2color, w2menu } from './w2tooltip.js'
 
 })(jQuery)
 
-export { w2ui, w2locale, w2base, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
-    w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType }
+export {
+    w2ui, w2utils, query, w2locale, w2event, w2base, w2popup, w2alert, w2confirm, w2prompt, Dialog,
+    w2tooltip, w2menu, w2color, w2date, w2time, Tooltip, ColorTooltip, MenuTooltip, DateTooltip, TimeTooltip,
+    w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field, addType, removeType
+}

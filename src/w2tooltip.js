@@ -1789,6 +1789,4 @@ let w2color   = new ColorTooltip()
 let w2date    = new DateTooltip()
 let w2time    = new TimeTooltip()
 
-Object.assign(window, { w2tooltip, w2menu, w2color }) // TODO: remove
-
-export { w2tooltip, w2color, w2menu, w2date, w2time }
+export { w2tooltip, w2color, w2menu, w2date, w2time, Tooltip, MenuTooltip, ColorTooltip, DateTooltip, TimeTooltip }

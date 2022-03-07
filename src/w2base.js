@@ -249,4 +249,4 @@ class w2base {
         return edata
     }
 }
-export { w2base }
+export { w2event, w2base }

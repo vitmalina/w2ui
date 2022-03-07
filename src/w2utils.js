@@ -2043,4 +2043,4 @@ class Utils {
     }
 }
 var w2utils = new Utils() // needs to be functional/module scope variable
-export { w2ui, w2utils }
+export { w2ui, w2utils, query }
