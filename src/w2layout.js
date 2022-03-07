@@ -10,6 +10,7 @@
 
 import { w2base } from './w2base.js'
 import { w2ui, w2utils } from './w2utils.js'
+import { query } from './query.js'
 import { w2tabs } from './w2tabs.js'
 import { w2toolbar } from './w2toolbar.js'
 
@@ -59,18 +60,18 @@ class w2layout extends w2base {
             onHide: null
         }
         // mix in options
-        $.extend(true, this, options)
+        w2utils.extend(this, options)
         if (!Array.isArray(this.panels)) this.panels = []
         // add defined panels
         this.panels.forEach((panel, ind) => {
-            this.panels[ind] = $.extend(true, {}, this.panel_template, panel)
-            if ($.isPlainObject(panel.tabs) || Array.isArray(panel.tabs)) initTabs(this, panel.type)
-            if ($.isPlainObject(panel.toolbar) || Array.isArray(panel.toolbar)) initToolbar(this, panel.type)
+            this.panels[ind] = w2utils.extend({}, this.panel_template, panel)
+            if (w2utils.isPlainObject(panel.tabs) || Array.isArray(panel.tabs)) initTabs(this, panel.type)
+            if (w2utils.isPlainObject(panel.toolbar) || Array.isArray(panel.toolbar)) initToolbar(this, panel.type)
         })
         // add all other panels
         w2panels.forEach(tab => {
             if (this.get(tab) != null) return
-            this.panels.push($.extend(true, {}, this.panel_template, { type: tab, hidden: (tab !== 'main'), size: 50 }))
+            this.panels.push(w2utils.extend({}, this.panel_template, { type: tab, hidden: (tab !== 'main'), size: 50 }))
         })
 
         function initTabs(object, panel, tabs) {
@@ -79,8 +80,9 @@ class w2layout extends w2base {
             if (pan == null || tabs == null) return false
             // instantiate tabs
             if (Array.isArray(tabs)) tabs = { tabs: tabs }
-            $().w2destroy(object.name + '_' + panel + '_tabs') // destroy if existed
-            pan.tabs      = new w2tabs($.extend({}, tabs, { owner: object, name: object.name + '_' + panel + '_tabs' }))
+            let name = object.name + '_' + panel + '_tabs'
+            if (w2ui[name]) w2ui[name].destroy() // destroy if existed
+            pan.tabs      = new w2tabs(w2utils.extend({}, tabs, { owner: object, name: object.name + '_' + panel + '_tabs' }))
             pan.show.tabs = true
             return true
         }
@@ -91,8 +93,9 @@ class w2layout extends w2base {
             if (pan == null || toolbar == null) return false
             // instantiate toolbar
             if (Array.isArray(toolbar)) toolbar = { items: toolbar }
-            $().w2destroy(object.name + '_' + panel + '_toolbar') // destroy if existed
-            pan.toolbar      = new w2toolbar($.extend({}, toolbar, { owner: object, name: object.name + '_' + panel + '_toolbar' }))
+            let name = object.name + '_' + panel + '_toolbar'
+            if (w2ui[name]) w2ui[name].destroy() // destroy if existed
+            pan.toolbar      = new w2toolbar(w2utils.extend({}, toolbar, { owner: object, name: object.name + '_' + panel + '_toolbar' }))
             pan.show.toolbar = true
             return true
         }
@@ -118,7 +121,7 @@ class w2layout extends w2base {
         }
         // if it is CSS panel
         if (panel == 'css') {
-            $(this.box).find('#layout_'+ obj.name +'_panel_css').html('<style>'+ data +'</style>')
+            query(this.box).find('#layout_'+ obj.name +'_panel_css').html('<style>'+ data +'</style>')
             promise.status = true
             return promise
         }
@@ -131,7 +134,7 @@ class w2layout extends w2base {
             return promise
         }
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'change', target: panel, panel: p, html_new: data, transition: transition })
+        let edata = this.trigger('change', { target: panel, panel: p, html_new: data, transition: transition })
         if (edata.isCancelled === true) {
             promise.cancelled = true
             return promise
@@ -186,7 +189,7 @@ class w2layout extends w2base {
 
         }
         // event after
-        obj.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         // IE Hack
         obj.resize()
         return promise
@@ -264,7 +267,7 @@ class w2layout extends w2base {
     show(panel, immediate) {
         let obj = this
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'show', target: panel, object: this.get(panel), immediate: immediate })
+        let edata = this.trigger('show', { target: panel, object: this.get(panel), immediate: immediate })
         if (edata.isCancelled === true) return
 
         let p = obj.get(panel)
@@ -273,7 +276,7 @@ class w2layout extends w2base {
         if (immediate === true) {
             $(obj.box).find('#layout_'+ obj.name +'_panel_'+panel)
                 .css({ 'opacity': '1' })
-            obj.trigger($.extend(edata, { phase: 'after' }))
+            edata.finish()
             obj.resize()
         } else {
             // resize
@@ -292,7 +295,7 @@ class w2layout extends w2base {
                 $(obj.box).find(' > div > .w2ui-panel')
                     .css(w2utils.cssPrefix('transition', '0s'))
                 $(obj.box).removeClass('animating')
-                obj.trigger($.extend(edata, { phase: 'after' }))
+                edata.finish()
                 obj.resize()
             }, 500)
         }
@@ -302,7 +305,7 @@ class w2layout extends w2base {
     hide(panel, immediate) {
         let obj = this
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'hide', target: panel, object: this.get(panel), immediate: immediate })
+        let edata = this.trigger('hide', { target: panel, object: this.get(panel), immediate: immediate })
         if (edata.isCancelled === true) return
 
         let p = obj.get(panel)
@@ -311,7 +314,7 @@ class w2layout extends w2base {
         if (immediate === true) {
             $(obj.box).find('#layout_'+ obj.name +'_panel_'+panel)
                 .css({ 'opacity': '0' })
-            obj.trigger($.extend(edata, { phase: 'after' }))
+            edata.finish()
             obj.resize()
         } else {
             // hide
@@ -326,7 +329,7 @@ class w2layout extends w2base {
                 $(obj.box).find(' > div > .w2ui-panel')
                     .css(w2utils.cssPrefix('transition', '0s'))
                 $(obj.box).removeClass('animating')
-                obj.trigger($.extend(edata, { phase: 'after' }))
+                edata.finish()
                 obj.resize()
             }, 500)
         }
@@ -436,7 +439,7 @@ class w2layout extends w2base {
         // if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
         let time = (new Date()).getTime()
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box })
+        let edata = this.trigger('render', { target: this.name, box: box })
         if (edata.isCancelled === true) return
 
         if (box != null) {
@@ -473,7 +476,7 @@ class w2layout extends w2base {
         this.last.resizeObserver = new ResizeObserver(() => { this.resize() })
         this.last.resizeObserver.observe(this.box)
         // process event
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         // re-init events
         setTimeout(() => { // needed this timeout to allow browser to render first if there are tabs or toolbar
             initEvents()
@@ -589,7 +592,7 @@ class w2layout extends w2base {
             let panel = obj.get(obj.last.resize.type)
             // event before
             let tmp   = obj.last.resize
-            let edata = obj.trigger({ phase: 'before', type: 'resizing', target: obj.name, object: panel, originalEvent: evnt,
+            let edata = obj.trigger('resizing', { target: obj.name, object: panel, originalEvent: evnt,
                 panel: tmp ? tmp.type : 'all', diff_x: tmp ? tmp.diff_x : 0, diff_y: tmp ? tmp.diff_y : 0 })
             if (edata.isCancelled === true) return
 
@@ -668,7 +671,7 @@ class w2layout extends w2base {
                     break
             }
             // event after
-            obj.trigger($.extend(edata, { phase: 'after' }))
+            edata.finish()
         }
     }
 
@@ -678,7 +681,7 @@ class w2layout extends w2base {
         if (panel == null) panel = null
         let time = (new Date()).getTime()
         // event before
-        let edata = obj.trigger({ phase: 'before', type: 'refresh', target: (panel != null ? panel : obj.name), object: obj.get(panel) })
+        let edata = obj.trigger('refresh', { target: (panel != null ? panel : obj.name), object: obj.get(panel) })
         if (edata.isCancelled === true) return
         // obj.unlock(panel);
         if (typeof panel == 'string') {
@@ -745,7 +748,7 @@ class w2layout extends w2base {
             // refresh all of them
             for (let p1 = 0; p1 < this.panels.length; p1++) { obj.refresh(this.panels[p1].type) }
         }
-        obj.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         return (new Date()).getTime() - time
     }
 
@@ -755,7 +758,7 @@ class w2layout extends w2base {
         let time = (new Date()).getTime()
         // event before
         let tmp   = this.last.resize
-        let edata = this.trigger({ phase: 'before', type: 'resize', target: this.name,
+        let edata = this.trigger('resize', { target: this.name,
             panel: tmp ? tmp.type : 'all', diff_x: tmp ? tmp.diff_x : 0, diff_y: tmp ? tmp.diff_y : 0 })
         if (edata.isCancelled === true) return
         if (this.padding < 0) this.padding = 0
@@ -843,12 +846,12 @@ class w2layout extends w2base {
                     'cursor': 'ns-resize'
                 }).off('mousedown').on('mousedown', function(event) {
                     // event before
-                    let edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'top', originalEvent: event })
+                    let edata = obj.trigger('resizerClick', { target: 'top', originalEvent: event })
                     if (edata.isCancelled === true) return
                     // default action
                     w2ui[obj.name].tmp.events.resizeStart('top', event)
                     // event after
-                    obj.trigger($.extend(edata, { phase: 'after' }))
+                    edata.finish()
                     return false
                 })
             }
@@ -886,12 +889,12 @@ class w2layout extends w2base {
                     'cursor': 'ew-resize'
                 }).off('mousedown').on('mousedown', function(event) {
                     // event before
-                    let edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'left', originalEvent: event })
+                    let edata = obj.trigger('resizerClick', { target: 'left', originalEvent: event })
                     if (edata.isCancelled === true) return
                     // default action
                     w2ui[obj.name].tmp.events.resizeStart('left', event)
                     // event after
-                    obj.trigger($.extend(edata, { phase: 'after' }))
+                    edata.finish()
                     return false
                 })
             }
@@ -928,12 +931,12 @@ class w2layout extends w2base {
                     'cursor': 'ew-resize'
                 }).off('mousedown').on('mousedown', function(event) {
                     // event before
-                    let edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'right', originalEvent: event })
+                    let edata = obj.trigger('resizerClick', { target: 'right', originalEvent: event })
                     if (edata.isCancelled === true) return
                     // default action
                     w2ui[obj.name].tmp.events.resizeStart('right', event)
                     // event after
-                    obj.trigger($.extend(edata, { phase: 'after' }))
+                    edata.finish()
                     return false
                 })
             }
@@ -969,12 +972,12 @@ class w2layout extends w2base {
                     'cursor': 'ns-resize'
                 }).off('mousedown').on('mousedown', function(event) {
                     // event before
-                    let edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'bottom', originalEvent: event })
+                    let edata = obj.trigger('resizerClick', { target: 'bottom', originalEvent: event })
                     if (edata.isCancelled === true) return
                     // default action
                     w2ui[obj.name].tmp.events.resizeStart('bottom', event)
                     // event after
-                    obj.trigger($.extend(edata, { phase: 'after' }))
+                    edata.finish()
                     return false
                 })
             }
@@ -1031,12 +1034,12 @@ class w2layout extends w2base {
                     'cursor': 'ns-resize'
                 }).off('mousedown').on('mousedown', function(event) {
                     // event before
-                    let edata = obj.trigger({ phase: 'before', type: 'resizerClick', target: 'preview', originalEvent: event })
+                    let edata = obj.trigger('resizerClick', { target: 'preview', originalEvent: event })
                     if (edata.isCancelled === true) return
                     // default action
                     w2ui[obj.name].tmp.events.resizeStart('preview', event)
                     // event after
-                    obj.trigger($.extend(edata, { phase: 'after' }))
+                    edata.finish()
                     return false
                 })
             }
@@ -1063,13 +1066,13 @@ class w2layout extends w2base {
             }
             $(this.box).find(tmp2 + 'content').css({ display: 'block' }).css({ top: tabHeight + 'px' })
         }
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         return (new Date()).getTime() - time
     }
 
     destroy() {
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'destroy', target: this.name })
+        let edata = this.trigger('destroy', { target: this.name })
         if (edata.isCancelled === true) return
         if (w2ui[this.name] == null) return false
         // clean up
@@ -1082,7 +1085,7 @@ class w2layout extends w2base {
         this.last.resizeObserver.disconnect()
         delete w2ui[this.name]
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         if (this.last.events && this.last.events.resize) $(window).off('resize', this.last.events.resize)
         return true
     }
