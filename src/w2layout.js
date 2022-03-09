@@ -1,9 +1,10 @@
 /**
  * Part of w2ui 2.0 library
- *  - Dependencies: jQuery, w2utils, w2base, w2tabs, w2toolbar
+ *  - Dependencies: mQuery, w2utils, w2base, w2tabs, w2toolbar
  *
  * == 2.0 changes
  *  - CSP - fixed inline events
+ *  - remove jQuery dependency
  *  - layout.confirm - refactored
  *  - layout.message - refactored
  */
@@ -102,8 +103,7 @@ class w2layout extends w2base {
     }
 
     html(panel, data, transition) {
-        let obj     = this
-        let p       = this.get(panel)
+        let p = this.get(panel)
         let promise = {
             panel: panel,
             html: p.html,
@@ -121,7 +121,7 @@ class w2layout extends w2base {
         }
         // if it is CSS panel
         if (panel == 'css') {
-            query(this.box).find('#layout_'+ obj.name +'_panel_css').html('<style>'+ data +'</style>')
+            query(this.box).find('#layout_'+ this.name +'_panel_css').html('<style>'+ data +'</style>')
             promise.status = true
             return promise
         }
@@ -139,17 +139,12 @@ class w2layout extends w2base {
             promise.cancelled = true
             return promise
         }
-
-        if (data instanceof jQuery) {
-            console.log('ERROR: You can not pass jQuery object to w2layout.html() method')
-            return promise
-        }
-        let pname    = '#layout_'+ this.name + '_panel_'+ p.type
-        let current  = $(this.box).find(pname + '> .w2ui-panel-content')
+        let pname = '#layout_'+ this.name + '_panel_'+ p.type
+        let current = query(this.box).find(pname + '> .w2ui-panel-content')
         let panelTop = 0
         if (current.length > 0) {
-            $(this.box).find(pname).scrollTop(0)
-            panelTop = $(current).position().top
+            query(this.box).find(pname).get(0).scrollTop = 0
+            panelTop = query(current).css('top')
         }
         if (p.html === '') {
             p.html = data
@@ -159,10 +154,10 @@ class w2layout extends w2base {
             if (!p.hidden) {
                 if (transition != null && transition !== '') {
                     // apply transition
-                    $(this.box).addClass('animating')
-                    let div1 = $(this.box).find(pname + '> .w2ui-panel-content')
+                    query(this.box).addClass('animating')
+                    let div1 = query(this.box).find(pname + '> .w2ui-panel-content')
                     div1.after('<div class="w2ui-panel-content new-panel" style="'+ div1[0].style.cssText +'"></div>')
-                    let div2 = $(this.box).find(pname + '> .w2ui-panel-content.new-panel')
+                    let div2 = query(this.box).find(pname + '> .w2ui-panel-content.new-panel')
                     div1.css('top', panelTop)
                     div2.css('top', panelTop)
                     if (typeof data == 'object') {
@@ -176,11 +171,9 @@ class w2layout extends w2base {
                         div2.removeClass('new-panel')
                         div2.css('overflow', p.overflow)
                         // make sure only one content left
-                        $(obj.box).find(pname + '> .w2ui-panel-content').slice(1).remove()
-                        // IE Hack
-                        obj.resize()
-                        $(obj.box).removeClass('animating')
-                        obj.refresh(panel)
+                        query(query(this.box).find(pname + '> .w2ui-panel-content').get(1)).remove()
+                        query(this.box).removeClass('animating')
+                        this.refresh(panel)
                     })
                 } else {
                     this.refresh(panel)
@@ -189,8 +182,6 @@ class w2layout extends w2base {
         }
         // event after
         edata.finish()
-        // IE Hack
-        obj.resize()
         return promise
     }
 
@@ -228,17 +219,13 @@ class w2layout extends w2base {
 
     load(panel, url, transition) {
         return new Promise((resolve, reject) => {
-            let obj = this
-            if (panel == 'css' && url != null) {
-                $.get(url, (data, status, xhr) => { // should always be $.get as it is template
-                    obj.resize()
-                    resolve(obj.html(panel, xhr.responseText, transition))
-                })
-            } else if (this.get(panel) != null && url != null) {
-                $.get(url, (data, status, xhr) => { // should always be $.get as it is template
-                    obj.resize()
-                    resolve(obj.html(panel, xhr.responseText, transition))
-                })
+            if ((panel == 'css' || this.get(panel) != null) && url != null) {
+                fetch(url)
+                    .then(resp => resp.text())
+                    .then(text => {
+                        this.resize()
+                        resolve(this.html(panel, text, transition))
+                    });
             } else {
                 reject()
             }
@@ -429,16 +416,15 @@ class w2layout extends w2base {
     }
 
     render(box) {
-        let obj = this
+        let self = this
         // if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
         let time = (new Date()).getTime()
         // event before
         let edata = this.trigger('render', { target: this.name, box: box })
         if (edata.isCancelled === true) return
-
         if (box != null) {
-            if ($(this.box).find('#layout_'+ this.name +'_panel_main').length > 0) {
-                $(this.box)
+            if (query(this.box).find('#layout_'+ this.name +'_panel_main').length > 0) {
+                query(this.box)
                     .removeAttr('name')
                     .removeClass('w2ui-layout')
                     .html('')
@@ -446,11 +432,13 @@ class w2layout extends w2base {
             this.box = box
         }
         if (!this.box) return false
-        $(this.box)
+        query(this.box)
             .attr('name', this.name)
             .addClass('w2ui-layout')
             .html('<div></div>')
-        if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style
+        if (query(this.box).length > 0) {
+            query(this.box)[0].style.cssText += this.style
+        }
         // create all panels
         for (let p1 = 0; p1 < w2panels.length; p1++) {
             let html = '<div id="layout_'+ this.name + '_panel_'+ w2panels[p1] +'" class="w2ui-panel">'+
@@ -460,10 +448,9 @@ class w2layout extends w2base {
                         '    <div class="w2ui-panel-content"></div>'+
                         '</div>'+
                         '<div id="layout_'+ this.name + '_resizer_'+ w2panels[p1] +'" class="w2ui-resizer"></div>'
-            $(this.box).find(' > div').append(html)
-            // tabs are rendered in refresh()
+            query(this.box).find(':scope > div').append(html)
         }
-        $(this.box).find(' > div')
+        query(this.box).find(':scope > div')
             .append('<div id="layout_'+ this.name + '_panel_css" style="position: absolute; top: 10000px;"></div>')
         this.refresh() // if refresh is not called here, the layout will not be available right after initialization
         // observe div resize
@@ -473,25 +460,21 @@ class w2layout extends w2base {
         edata.finish()
         // re-init events
         setTimeout(() => { // needed this timeout to allow browser to render first if there are tabs or toolbar
-            initEvents()
-            obj.resize()
+            self.last.events = { resizeStart, mouseMove, mouseUp }
+            this.resize()
         }, 0)
         return (new Date()).getTime() - time
 
-        function initEvents() {
-            obj.last.events = {
-                resizeStart : resizeStart,
-                mouseMove   : resizeMove,
-                mouseUp     : resizeStop
-            }
-        }
-
         function resizeStart(type, evnt) {
-            if (!obj.box) return
+            if (!self.box) return
             if (!evnt) evnt = window.event
-            $(document).off('mousemove', obj.last.events.mouseMove).on('mousemove', obj.last.events.mouseMove)
-            $(document).off('mouseup', obj.last.events.mouseUp).on('mouseup', obj.last.events.mouseUp)
-            obj.last.resize = {
+            query(document)
+                .off('mousemove', self.last.events.mouseMove)
+                .on('mousemove', self.last.events.mouseMove)
+            query(document)
+                .off('mouseup', self.last.events.mouseUp)
+                .on('mouseup', self.last.events.mouseUp)
+            self.last.resize = {
                 type    : type,
                 x       : evnt.screenX,
                 y       : evnt.screenY,
@@ -500,66 +483,67 @@ class w2layout extends w2base {
                 value   : 0
             }
             // lock all panels
-            for (let p1 = 0; p1 < w2panels.length; p1++) {
-                let $tmp = $(obj.el(w2panels[p1])).parent().find('.w2ui-lock')
+            w2panels.forEach(panel => {
+                let $tmp = query(self.el(panel)).find('.w2ui-lock')
                 if ($tmp.length > 0) {
-                    $tmp.attr('locked', 'previous')
+                    $tmp.data('locked', 'yes')
                 } else {
-                    obj.lock(w2panels[p1], { opacity: 0 })
+                    self.lock(panel, { opacity: 0 })
                 }
-            }
+            })
+            let el = query(self.box).find('#layout_'+ self.name +'_resizer_'+ type).get(0)
             if (type == 'left' || type == 'right') {
-                obj.last.resize.value = parseInt($(obj.box).find('#layout_'+ obj.name +'_resizer_'+ type)[0].style.left)
+                self.last.resize.value = parseInt(el.style.left)
             }
             if (type == 'top' || type == 'preview' || type == 'bottom') {
-                obj.last.resize.value = parseInt($(obj.box).find('#layout_'+ obj.name +'_resizer_'+ type)[0].style.top)
+                self.last.resize.value = parseInt(el.style.top)
             }
         }
 
-        function resizeStop(evnt) {
-            if (!obj.box) return
+        function mouseUp(evnt) {
+            if (!self.box) return
             if (!evnt) evnt = window.event
-            $(document).off('mousemove', obj.last.events.mouseMove)
-            $(document).off('mouseup', obj.last.events.mouseUp)
-            if (obj.last.resize == null) return
+            query(document).off('mousemove', self.last.events.mouseMove)
+            query(document).off('mouseup', self.last.events.mouseUp)
+            if (self.last.resize == null) return
             // unlock all panels
-            for (let p1 = 0; p1 < w2panels.length; p1++) {
-                let $tmp = $(obj.el(w2panels[p1])).parent().find('.w2ui-lock')
-                if ($tmp.attr('locked') == 'previous') {
-                    $tmp.removeAttr('locked')
+            w2panels.forEach(panel => {
+                let $tmp = query(self.el(panel)).find('.w2ui-lock')
+                if ($tmp.data('locked') == 'yes') {
+                    $tmp.removeData('locked')
                 } else {
-                    obj.unlock(w2panels[p1])
+                    self.unlock(panel)
                 }
-            }
+            })
             // set new size
-            if (obj.last.diff_x !== 0 || obj.last.resize.diff_y !== 0) { // only recalculate if changed
-                let ptop    = obj.get('top')
-                let pbottom = obj.get('bottom')
-                let panel   = obj.get(obj.last.resize.type)
-                let height  = parseInt($(obj.box).height())
-                let width   = parseInt($(obj.box).width())
+            if (self.last.diff_x !== 0 || self.last.resize.diff_y !== 0) { // only recalculate if changed
+                let ptop    = self.get('top')
+                let pbottom = self.get('bottom')
+                let panel   = self.get(self.last.resize.type)
+                let width   = w2utils.getSize(query(self.box), 'width')
+                let height  = w2utils.getSize(query(self.box), 'height')
                 let str     = String(panel.size)
                 let ns, nd
-                switch (obj.last.resize.type) {
+                switch (self.last.resize.type) {
                     case 'top':
-                        ns = parseInt(panel.sizeCalculated) + obj.last.resize.diff_y
+                        ns = parseInt(panel.sizeCalculated) + self.last.resize.diff_y
                         nd = 0
                         break
                     case 'bottom':
-                        ns = parseInt(panel.sizeCalculated) - obj.last.resize.diff_y
+                        ns = parseInt(panel.sizeCalculated) - self.last.resize.diff_y
                         nd = 0
                         break
                     case 'preview':
-                        ns = parseInt(panel.sizeCalculated) - obj.last.resize.diff_y
+                        ns = parseInt(panel.sizeCalculated) - self.last.resize.diff_y
                         nd = (ptop && !ptop.hidden ? ptop.sizeCalculated : 0) +
                             (pbottom && !pbottom.hidden ? pbottom.sizeCalculated : 0)
                         break
                     case 'left':
-                        ns = parseInt(panel.sizeCalculated) + obj.last.resize.diff_x
+                        ns = parseInt(panel.sizeCalculated) + self.last.resize.diff_x
                         nd = 0
                         break
                     case 'right':
-                        ns = parseInt(panel.sizeCalculated) - obj.last.resize.diff_x
+                        ns = parseInt(panel.sizeCalculated) - self.last.resize.diff_x
                         nd = 0
                         break
                 }
@@ -573,27 +557,29 @@ class w2layout extends w2base {
                         panel.size = ns
                     }
                 }
-                obj.resize()
+                self.resize()
             }
-            $(obj.box).find('#layout_'+ obj.name + '_resizer_'+ obj.last.resize.type).removeClass('active')
-            delete obj.last.resize
+            query(self.box)
+                .find('#layout_'+ self.name + '_resizer_'+ self.last.resize.type)
+                .removeClass('active')
+            delete self.last.resize
         }
 
-        function resizeMove(evnt) {
-            if (!obj.box) return
+        function mouseMove(evnt) {
+            if (!self.box) return
             if (!evnt) evnt = window.event
-            if (obj.last.resize == null) return
-            let panel = obj.get(obj.last.resize.type)
+            if (self.last.resize == null) return
+            let panel = self.get(self.last.resize.type)
             // event before
-            let tmp   = obj.last.resize
-            let edata = obj.trigger('resizing', { target: obj.name, object: panel, originalEvent: evnt,
+            let tmp   = self.last.resize
+            let edata = self.trigger('resizing', { target: self.name, object: panel, originalEvent: evnt,
                 panel: tmp ? tmp.type : 'all', diff_x: tmp ? tmp.diff_x : 0, diff_y: tmp ? tmp.diff_y : 0 })
             if (edata.isCancelled === true) return
 
-            let p         = $(obj.box).find('#layout_'+ obj.name + '_resizer_'+ tmp.type)
+            let p         = query(self.box).find('#layout_'+ self.name + '_resizer_'+ tmp.type)
             let resize_x  = (evnt.screenX - tmp.x)
             let resize_y  = (evnt.screenY - tmp.y)
-            let mainPanel = obj.get('main')
+            let mainPanel = self.get('main')
 
             if (!p.hasClass('active')) p.addClass('active')
 
@@ -670,29 +656,33 @@ class w2layout extends w2base {
     }
 
     refresh(panel) {
-        let obj = this
+        let self = this
         // if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
         if (panel == null) panel = null
         let time = (new Date()).getTime()
         // event before
-        let edata = obj.trigger('refresh', { target: (panel != null ? panel : obj.name), object: obj.get(panel) })
+        let edata = self.trigger('refresh', { target: (panel != null ? panel : self.name), object: self.get(panel) })
         if (edata.isCancelled === true) return
-        // obj.unlock(panel);
+        // self.unlock(panel);
         if (typeof panel == 'string') {
-            let p = obj.get(panel)
+            let p = self.get(panel)
             if (p == null) return
-            let pname = '#layout_'+ obj.name + '_panel_'+ p.type
-            let rname = '#layout_'+ obj.name +'_resizer_'+ p.type
+            let pname = '#layout_'+ self.name + '_panel_'+ p.type
+            let rname = '#layout_'+ self.name +'_resizer_'+ p.type
             // apply properties to the panel
-            $(obj.box).find(pname).css({ display: p.hidden ? 'none' : 'block' })
-            if (p.resizable) $(obj.box).find(rname).show(); else $(obj.box).find(rname).hide()
+            query(self.box).find(pname).css({ display: p.hidden ? 'none' : 'block' })
+            if (p.resizable) {
+                query(self.box).find(rname).show()
+            } else {
+                query(self.box).find(rname).hide()
+            }
             // insert content
             if (typeof p.html == 'object' && typeof p.html.render === 'function') {
-                p.html.box = $(obj.box).find(pname +'> .w2ui-panel-content')[0]
+                p.html.box = query(self.box).find(pname +'> .w2ui-panel-content')[0]
                 setTimeout(() => {
                     // need to remove unnecessary classes
-                    if ($(obj.box).find(pname +'> .w2ui-panel-content').length > 0) {
-                        $(obj.box).find(pname +'> .w2ui-panel-content')
+                    if (query(self.box).find(pname +'> .w2ui-panel-content').length > 0) {
+                        query(self.box).find(pname +'> .w2ui-panel-content')
                             .removeClass()
                             .removeAttr('name')
                             .addClass('w2ui-panel-content')
@@ -704,8 +694,8 @@ class w2layout extends w2base {
                 }, 1)
             } else {
                 // need to remove unnecessary classes
-                if ($(obj.box).find(pname +'> .w2ui-panel-content').length > 0) {
-                    $(obj.box).find(pname +'> .w2ui-panel-content')
+                if (query(self.box).find(pname +'> .w2ui-panel-content').length > 0) {
+                    query(self.box).find(pname +'> .w2ui-panel-content')
                         .removeClass()
                         .removeAttr('name')
                         .addClass('w2ui-panel-content')
@@ -714,33 +704,41 @@ class w2layout extends w2base {
                 }
             }
             // if there are tabs and/or toolbar - render it
-            let tmp = $(obj.box).find(pname +'> .w2ui-panel-tabs')
+            let tmp = query(self.box).find(pname +'> .w2ui-panel-tabs')
             if (p.show.tabs) {
-                if (tmp.find('[name='+ p.tabs.name +']').length === 0 && p.tabs != null) tmp.w2render(p.tabs); else p.tabs.refresh()
+                if (tmp.find('[name='+ p.tabs.name +']').length === 0 && p.tabs != null) {
+                    p.tabs.render(tmp.get(0))
+                } else {
+                    p.tabs.refresh()
+                }
             } else {
                 tmp.html('').removeClass('w2ui-tabs').hide()
             }
-            tmp = $(obj.box).find(pname +'> .w2ui-panel-toolbar')
+            tmp = query(self.box).find(pname +'> .w2ui-panel-toolbar')
             if (p.show.toolbar) {
-                if (tmp.find('[name='+ p.toolbar.name +']').length === 0 && p.toolbar != null) tmp.w2render(p.toolbar); else p.toolbar.refresh()
+                if (tmp.find('[name='+ p.toolbar.name +']').length === 0 && p.toolbar != null) {
+                    p.toolbar.render(tmp.get(0))
+                 } else {
+                     p.toolbar.refresh()
+                 }
             } else {
                 tmp.html('').removeClass('w2ui-toolbar').hide()
             }
             // show title
-            tmp = $(obj.box).find(pname +'> .w2ui-panel-title')
+            tmp = query(self.box).find(pname +'> .w2ui-panel-title')
             if (p.title) {
                 tmp.html(p.title).show()
             } else {
                 tmp.html('').hide()
             }
         } else {
-            if ($(obj.box).find('#layout_'+ obj.name +'_panel_main').length === 0) {
-                obj.render()
+            if (query(self.box).find('#layout_'+ self.name +'_panel_main').length === 0) {
+                self.render()
                 return
             }
-            obj.resize()
+            self.resize()
             // refresh all of them
-            for (let p1 = 0; p1 < this.panels.length; p1++) { obj.refresh(this.panels[p1].type) }
+            for (let p1 = 0; p1 < this.panels.length; p1++) { self.refresh(this.panels[p1].type) }
         }
         edata.finish()
         return (new Date()).getTime() - time
@@ -758,13 +756,14 @@ class w2layout extends w2base {
         if (this.padding < 0) this.padding = 0
 
         // layout itself
-        let width  = parseInt($(this.box).width())
-        let height = parseInt($(this.box).height())
-        $(this.box).find(' > div').css({
-            width    : width + 'px',
-            height    : height + 'px'
-        })
-        let obj = this
+        let width  = w2utils.getSize(query(this.box), 'width')
+        let height = w2utils.getSize(query(this.box), 'height')
+        query(this.box).find(':scope > div')
+            .css({
+                width: width + 'px',
+                height: height + 'px'
+            })
+        let self = this
         // panels
         let pmain   = this.get('main')
         let pprev   = this.get('preview')
@@ -777,7 +776,7 @@ class w2layout extends w2base {
         let sright  = (pright != null && pright.hidden !== true ? true : false)
         let stop    = (ptop != null && ptop.hidden !== true ? true : false)
         let sbottom = (pbottom != null && pbottom.hidden !== true ? true : false)
-        let l, t, w, h, e
+        let l, t, w, h
         // calculate %
         for (let p = 0; p < w2panels.length; p++) {
             if (w2panels[p] === 'main') continue
@@ -818,40 +817,44 @@ class w2layout extends w2base {
             t = 0
             w = width
             h = ptop.sizeCalculated
-            $(this.box).find('#layout_'+ this.name +'_panel_top').css({
-                'display': 'block',
-                'left': l + 'px',
-                'top': t + 'px',
-                'width': w + 'px',
-                'height': h + 'px'
-            }).show()
+            query(this.box).find('#layout_'+ this.name +'_panel_top')
+                .css({
+                    'display': 'block',
+                    'left': l + 'px',
+                    'top': t + 'px',
+                    'width': w + 'px',
+                    'height': h + 'px'
+                })
             ptop.width  = w
             ptop.height = h
             // resizer
             if (ptop.resizable) {
                 t = ptop.sizeCalculated - (this.padding === 0 ? this.resizer : 0)
                 h = (this.resizer > this.padding ? this.resizer : this.padding)
-                $(this.box).find('#layout_'+ this.name +'_resizer_top').show().css({
-                    'display': 'block',
-                    'left': l + 'px',
-                    'top': t + 'px',
-                    'width': w + 'px',
-                    'height': h + 'px',
-                    'cursor': 'ns-resize'
-                }).off('mousedown').on('mousedown', function(event) {
-                    // event before
-                    let edata = obj.trigger('resizerClick', { target: 'top', originalEvent: event })
-                    if (edata.isCancelled === true) return
-                    // default action
-                    w2ui[obj.name].tmp.events.resizeStart('top', event)
-                    // event after
-                    edata.finish()
-                    return false
-                })
+                query(this.box).find('#layout_'+ this.name +'_resizer_top')
+                    .css({
+                        'display': 'block',
+                        'left': l + 'px',
+                        'top': t + 'px',
+                        'width': w + 'px',
+                        'height': h + 'px',
+                        'cursor': 'ns-resize'
+                    })
+                    .off('mousedown')
+                    .on('mousedown', function(event) {
+                        // event before
+                        let edata = self.trigger('resizerClick', { target: 'top', originalEvent: event })
+                        if (edata.isCancelled === true) return
+                        // default action
+                        w2ui[self.name].last.events.resizeStart('top', event)
+                        // event after
+                        edata.finish()
+                        return false
+                    })
             }
         } else {
-            $(this.box).find('#layout_'+ this.name +'_panel_top').hide()
-            $(this.box).find('#layout_'+ this.name +'_resizer_top').hide()
+            query(this.box).find('#layout_'+ this.name +'_panel_top').hide()
+            query(this.box).find('#layout_'+ this.name +'_resizer_top').hide()
         }
         // left if any
         if (pleft != null && pleft.hidden !== true) {
@@ -860,41 +863,44 @@ class w2layout extends w2base {
             w = pleft.sizeCalculated
             h = height - (stop ? ptop.sizeCalculated + this.padding : 0) -
                     (sbottom ? pbottom.sizeCalculated + this.padding : 0)
-            e = $(this.box).find('#layout_'+ this.name +'_panel_left')
-            e.css({
-                'display': 'block',
-                'left': l + 'px',
-                'top': t + 'px',
-                'width': w + 'px',
-                'height': h + 'px'
-            }).show()
+            query(this.box).find('#layout_'+ this.name +'_panel_left')
+                .css({
+                    'display': 'block',
+                    'left': l + 'px',
+                    'top': t + 'px',
+                    'width': w + 'px',
+                    'height': h + 'px'
+                })
             pleft.width  = w
             pleft.height = h
             // resizer
             if (pleft.resizable) {
                 l = pleft.sizeCalculated - (this.padding === 0 ? this.resizer : 0)
                 w = (this.resizer > this.padding ? this.resizer : this.padding)
-                $(this.box).find('#layout_'+ this.name +'_resizer_left').show().css({
-                    'display': 'block',
-                    'left': l + 'px',
-                    'top': t + 'px',
-                    'width': w + 'px',
-                    'height': h + 'px',
-                    'cursor': 'ew-resize'
-                }).off('mousedown').on('mousedown', function(event) {
-                    // event before
-                    let edata = obj.trigger('resizerClick', { target: 'left', originalEvent: event })
-                    if (edata.isCancelled === true) return
-                    // default action
-                    w2ui[obj.name].tmp.events.resizeStart('left', event)
-                    // event after
-                    edata.finish()
-                    return false
-                })
+                query(this.box).find('#layout_'+ this.name +'_resizer_left')
+                    .css({
+                        'display': 'block',
+                        'left': l + 'px',
+                        'top': t + 'px',
+                        'width': w + 'px',
+                        'height': h + 'px',
+                        'cursor': 'ew-resize'
+                    })
+                    .off('mousedown')
+                    .on('mousedown', function(event) {
+                        // event before
+                        let edata = self.trigger('resizerClick', { target: 'left', originalEvent: event })
+                        if (edata.isCancelled === true) return
+                        // default action
+                        w2ui[self.name].last.events.resizeStart('left', event)
+                        // event after
+                        edata.finish()
+                        return false
+                    })
             }
         } else {
-            $(this.box).find('#layout_'+ this.name +'_panel_left').hide()
-            $(this.box).find('#layout_'+ this.name +'_resizer_left').hide()
+            query(this.box).find('#layout_'+ this.name +'_panel_left').hide()
+            query(this.box).find('#layout_'+ this.name +'_resizer_left').hide()
         }
         // right if any
         if (pright != null && pright.hidden !== true) {
@@ -903,40 +909,44 @@ class w2layout extends w2base {
             w = pright.sizeCalculated
             h = height - (stop ? ptop.sizeCalculated + this.padding : 0) -
                 (sbottom ? pbottom.sizeCalculated + this.padding : 0)
-            $(this.box).find('#layout_'+ this.name +'_panel_right').css({
-                'display': 'block',
-                'left': l + 'px',
-                'top': t + 'px',
-                'width': w + 'px',
-                'height': h + 'px'
-            }).show()
+            query(this.box).find('#layout_'+ this.name +'_panel_right')
+                .css({
+                    'display': 'block',
+                    'left': l + 'px',
+                    'top': t + 'px',
+                    'width': w + 'px',
+                    'height': h + 'px'
+                })
             pright.width  = w
             pright.height = h
             // resizer
             if (pright.resizable) {
                 l = l - this.padding
                 w = (this.resizer > this.padding ? this.resizer : this.padding)
-                $(this.box).find('#layout_'+ this.name +'_resizer_right').show().css({
-                    'display': 'block',
-                    'left': l + 'px',
-                    'top': t + 'px',
-                    'width': w + 'px',
-                    'height': h + 'px',
-                    'cursor': 'ew-resize'
-                }).off('mousedown').on('mousedown', function(event) {
-                    // event before
-                    let edata = obj.trigger('resizerClick', { target: 'right', originalEvent: event })
-                    if (edata.isCancelled === true) return
-                    // default action
-                    w2ui[obj.name].tmp.events.resizeStart('right', event)
-                    // event after
-                    edata.finish()
-                    return false
-                })
+                query(this.box).find('#layout_'+ this.name +'_resizer_right')
+                    .css({
+                        'display': 'block',
+                        'left': l + 'px',
+                        'top': t + 'px',
+                        'width': w + 'px',
+                        'height': h + 'px',
+                        'cursor': 'ew-resize'
+                    })
+                    .off('mousedown')
+                    .on('mousedown', function(event) {
+                        // event before
+                        let edata = self.trigger('resizerClick', { target: 'right', originalEvent: event })
+                        if (edata.isCancelled === true) return
+                        // default action
+                        w2ui[self.name].last.events.resizeStart('right', event)
+                        // event after
+                        edata.finish()
+                        return false
+                    })
             }
         } else {
-            $(this.box).find('#layout_'+ this.name +'_panel_right').hide()
-            $(this.box).find('#layout_'+ this.name +'_resizer_right').hide()
+            query(this.box).find('#layout_'+ this.name +'_panel_right').hide()
+            query(this.box).find('#layout_'+ this.name +'_resizer_right').hide()
         }
         // bottom if any
         if (pbottom != null && pbottom.hidden !== true) {
@@ -944,40 +954,44 @@ class w2layout extends w2base {
             t = height - pbottom.sizeCalculated
             w = width
             h = pbottom.sizeCalculated
-            $(this.box).find('#layout_'+ this.name +'_panel_bottom').css({
-                'display': 'block',
-                'left': l + 'px',
-                'top': t + 'px',
-                'width': w + 'px',
-                'height': h + 'px'
-            }).show()
+            query(this.box).find('#layout_'+ this.name +'_panel_bottom')
+                .css({
+                    'display': 'block',
+                    'left': l + 'px',
+                    'top': t + 'px',
+                    'width': w + 'px',
+                    'height': h + 'px'
+                })
             pbottom.width  = w
             pbottom.height = h
             // resizer
             if (pbottom.resizable) {
                 t = t - (this.padding === 0 ? 0 : this.padding)
                 h = (this.resizer > this.padding ? this.resizer : this.padding)
-                $(this.box).find('#layout_'+ this.name +'_resizer_bottom').show().css({
-                    'display': 'block',
-                    'left': l + 'px',
-                    'top': t + 'px',
-                    'width': w + 'px',
-                    'height': h + 'px',
-                    'cursor': 'ns-resize'
-                }).off('mousedown').on('mousedown', function(event) {
-                    // event before
-                    let edata = obj.trigger('resizerClick', { target: 'bottom', originalEvent: event })
-                    if (edata.isCancelled === true) return
-                    // default action
-                    w2ui[obj.name].tmp.events.resizeStart('bottom', event)
-                    // event after
-                    edata.finish()
-                    return false
-                })
+                query(this.box).find('#layout_'+ this.name +'_resizer_bottom')
+                    .css({
+                        'display': 'block',
+                        'left': l + 'px',
+                        'top': t + 'px',
+                        'width': w + 'px',
+                        'height': h + 'px',
+                        'cursor': 'ns-resize'
+                    })
+                    .off('mousedown')
+                    .on('mousedown', function(event) {
+                        // event before
+                        let edata = self.trigger('resizerClick', { target: 'bottom', originalEvent: event })
+                        if (edata.isCancelled === true) return
+                        // default action
+                        w2ui[self.name].last.events.resizeStart('bottom', event)
+                        // event after
+                        edata.finish()
+                        return false
+                    })
             }
         } else {
-            $(this.box).find('#layout_'+ this.name +'_panel_bottom').hide()
-            $(this.box).find('#layout_'+ this.name +'_resizer_bottom').hide()
+            query(this.box).find('#layout_'+ this.name +'_panel_bottom').hide()
+            query(this.box).find('#layout_'+ this.name +'_resizer_bottom').hide()
         }
         // main - always there
         l = 0 + (sleft ? pleft.sizeCalculated + this.padding : 0)
@@ -987,14 +1001,15 @@ class w2layout extends w2base {
         h = height - (stop ? ptop.sizeCalculated + this.padding : 0) -
             (sbottom ? pbottom.sizeCalculated + this.padding : 0) -
             (sprev ? pprev.sizeCalculated + this.padding : 0)
-        e = $(this.box).find('#layout_'+ this.name +'_panel_main')
-        e.css({
-            'display': 'block',
-            'left': l + 'px',
-            'top': t + 'px',
-            'width': w + 'px',
-            'height': h + 'px'
-        })
+        query(this.box)
+            .find('#layout_'+ this.name +'_panel_main')
+            .css({
+                'display': 'block',
+                'left': l + 'px',
+                'top': t + 'px',
+                'width': w + 'px',
+                'height': h + 'px'
+            })
         pmain.width  = w
         pmain.height = h
 
@@ -1005,60 +1020,66 @@ class w2layout extends w2base {
             w = width - (sleft ? pleft.sizeCalculated + this.padding : 0) -
                 (sright ? pright.sizeCalculated + this.padding : 0)
             h = pprev.sizeCalculated
-            e = $(this.box).find('#layout_'+ this.name +'_panel_preview')
-            e.css({
-                'display': 'block',
-                'left': l + 'px',
-                'top': t + 'px',
-                'width': w + 'px',
-                'height': h + 'px'
-            }).show()
+            query(this.box).find('#layout_'+ this.name +'_panel_preview')
+                .css({
+                    'display': 'block',
+                    'left': l + 'px',
+                    'top': t + 'px',
+                    'width': w + 'px',
+                    'height': h + 'px'
+                })
             pprev.width  = w
             pprev.height = h
             // resizer
             if (pprev.resizable) {
                 t = t - (this.padding === 0 ? 0 : this.padding)
                 h = (this.resizer > this.padding ? this.resizer : this.padding)
-                $(this.box).find('#layout_'+ this.name +'_resizer_preview').show().css({
-                    'display': 'block',
-                    'left': l + 'px',
-                    'top': t + 'px',
-                    'width': w + 'px',
-                    'height': h + 'px',
-                    'cursor': 'ns-resize'
-                }).off('mousedown').on('mousedown', function(event) {
-                    // event before
-                    let edata = obj.trigger('resizerClick', { target: 'preview', originalEvent: event })
-                    if (edata.isCancelled === true) return
-                    // default action
-                    w2ui[obj.name].tmp.events.resizeStart('preview', event)
-                    // event after
-                    edata.finish()
-                    return false
-                })
+                query(this.box).find('#layout_'+ this.name +'_resizer_preview')
+                    .css({
+                        'display': 'block',
+                        'left': l + 'px',
+                        'top': t + 'px',
+                        'width': w + 'px',
+                        'height': h + 'px',
+                        'cursor': 'ns-resize'
+                    })
+                    .off('mousedown')
+                    .on('mousedown', function(event) {
+                        // event before
+                        let edata = self.trigger('resizerClick', { target: 'preview', originalEvent: event })
+                        if (edata.isCancelled === true) return
+                        // default action
+                        w2ui[self.name].last.events.resizeStart('preview', event)
+                        // event after
+                        edata.finish()
+                        return false
+                    })
             }
         } else {
-            $(this.box).find('#layout_'+ this.name +'_panel_preview').hide()
-            $(this.box).find('#layout_'+ this.name +'_resizer_preview').hide()
+            query(this.box).find('#layout_'+ this.name +'_panel_preview').hide()
+            query(this.box).find('#layout_'+ this.name +'_resizer_preview').hide()
         }
 
         // display tabs and toolbar if needed
         for (let p1 = 0; p1 < w2panels.length; p1++) {
-            let pan       = this.get(w2panels[p1])
-            let tmp2      = '#layout_'+ this.name +'_panel_'+ w2panels[p1] +' > .w2ui-panel-'
+            let pan = this.get(w2panels[p1])
+            let tmp2 = '#layout_'+ this.name +'_panel_'+ w2panels[p1] +' > .w2ui-panel-'
             let tabHeight = 0
             if (pan) {
                 if (pan.title) {
-                    tabHeight += w2utils.getSize($(this.box).find(tmp2 + 'title').css({ top: tabHeight + 'px', display: 'block' }), 'height')
+                    let el = query(this.box).find(tmp2 + 'title').css({ top: tabHeight + 'px', display: 'block' })
+                    tabHeight += w2utils.getSize(el, 'height')
                 }
                 if (pan.show.tabs) {
-                    tabHeight += w2utils.getSize($(this.box).find(tmp2 + 'tabs').css({ top: tabHeight + 'px', display: 'block' }), 'height')
+                    let el = query(this.box).find(tmp2 + 'tabs').css({ top: tabHeight + 'px', display: 'block' })
+                    tabHeight += w2utils.getSize(el, 'height')
                 }
                 if (pan.show.toolbar) {
-                    tabHeight += w2utils.getSize($(this.box).find(tmp2 + 'toolbar').css({ top: tabHeight + 'px', display: 'block' }), 'height')
+                    let el = query(this.box).find(tmp2 + 'toolbar').css({ top: tabHeight + 'px', display: 'block' })
+                    tabHeight += w2utils.getSize(el, 'height')
                 }
             }
-            $(this.box).find(tmp2 + 'content').css({ display: 'block' }).css({ top: tabHeight + 'px' })
+            query(this.box).find(tmp2 + 'content').css({ display: 'block' }).css({ top: tabHeight + 'px' })
         }
         edata.finish()
         return (new Date()).getTime() - time
@@ -1070,8 +1091,8 @@ class w2layout extends w2base {
         if (edata.isCancelled === true) return
         if (w2ui[this.name] == null) return false
         // clean up
-        if ($(this.box).find('#layout_'+ this.name +'_panel_main').length > 0) {
-            $(this.box)
+        if (query(this.box).find('#layout_'+ this.name +'_panel_main').length > 0) {
+            query(this.box)
                 .removeAttr('name')
                 .removeClass('w2ui-layout')
                 .html('')
@@ -1080,7 +1101,9 @@ class w2layout extends w2base {
         delete w2ui[this.name]
         // event after
         edata.finish()
-        if (this.last.events && this.last.events.resize) $(window).off('resize', this.last.events.resize)
+        if (this.last.events && this.last.events.resize) {
+            query(window).off('resize', this.last.events.resize)
+        }
         return true
     }
 

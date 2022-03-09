@@ -8,6 +8,7 @@
  *  - add w2utils.lang wrap for all captions in all buttons.
  *  - message.options - should have actions
  *  - cssPrefix should be deprecated
+ *  - check transition (also with layout)
  *
  * == 2.0 changes
  *  - CSP - fixed inline events
@@ -1033,7 +1034,7 @@ class Utils {
             setTimeout(() => {
                 query(box).find('.w2ui-lock').remove()
             }, speed)
-        } else if (typeof box == 'object') {
+        } else {
             query(box).find('.w2ui-lock').remove()
             query(box).find('.w2ui-lock-msg').remove()
         }

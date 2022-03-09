@@ -1,13 +1,10 @@
 <html>
 <head>
 <link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
-<script type="text/javascript" src="../libs/jquery/jquery-3.5.1.min.js"></script>
-<script type="module" src="../src/w2compat.js?globals"></script>
-<script>
-//<![CDATA[
-// jQuery.noConflict();
-jQuery(function () {
-    jQuery('#layout').w2layout({
+<script type="module">
+    import { w2ui, w2layout, query } from '../dist/w2ui.es6.js'
+    window.w2ui = w2ui
+    let layout = new w2layout({
         name: 'layout',
         panels: [
             { type: 'top', size: '100px', resizable: true,
@@ -17,7 +14,7 @@ jQuery(function () {
                     <button class="w2ui-btn" onclick="w2ui.layout.show('left')">Show Left</button>
                 `,
                 html1: '<iframe style="width: 100%; height: 100%; border: 1px solid red;" src="http://refdesk.com"></iframe>',
-             },
+                },
             { type: 'left', size: '200', resizable: true, title: 'Some Title', html: 'left panel' },
             { type: 'main',
                 style: 'border: 1px solid green',
@@ -65,17 +62,7 @@ jQuery(function () {
             { type: 'bottom', size: 50, resizable: true }
         ]
     });
-
-    w2ui['layout'].on('resize', function(event) {
-        return;
-        event.onComplete = function () {
-            var width  = w2ui['layout'].get('main').width;
-            var height = w2ui['layout'].get('main').height;
-            console.log('main panel size:', width + 'x' + height, event);
-        };
-    });
-});
-//]]>
+    layout.render(query('#layout').get(0))
 </script>
 </head>
 <body>

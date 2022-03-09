@@ -1,4 +1,3 @@
-/* mQuery 0.4 (nightly) (2/12/2022, 7:03:02 AM), vitmalina@gmail.com */
 class Query {
     constructor(selector, context, previous) {
         this.version = 0.4
@@ -32,21 +31,25 @@ class Query {
             this[ind] = node
         })
     }
+
     static _isEl(node) {
         return (node instanceof Document || node instanceof DocumentFragment
             || node instanceof HTMLElement || node instanceof Text)
     }
+
     static _fragment(html) {
         let tmpl = document.createElement('template')
         tmpl.innerHTML = html
         return tmpl.content
     }
+
     _insert(method, html) {
         let nodes = []
         let len  = this.length
         if (len < 1) return
         let isEl = Query._isEl(html)
         let self = this
+        // TODO: need good unit test coverage for this function
         if (typeof html == 'string') {
             this.each(node => {
                 let clone = Query._fragment(html)
@@ -80,6 +83,7 @@ class Query {
         }
         return self
     }
+
     _save(node, name, value) {
         node._mQuery = node._mQuery ?? {}
         if (Array.isArray(value)) {
@@ -91,22 +95,31 @@ class Query {
             delete node._mQuery[name];
         }
     }
+
     get(index) {
         if (index < 0) index = this.length + index
         let node = this[index]
         if (node) {
             return node
-        } if (index != null) {
+        }
+        if (index != null) {
             return null
         }
         return this.nodes
     }
+
     eq(index) {
         if (index < 0) index = this.length + index
         let nodes = [this[index]]
         if (nodes[0] == null) nodes = []
         return new Query(nodes, this.context, this) // must return a new collection
     }
+
+    then(fun) {
+        let ret = fun(this)
+        return ret != null ? ret : this
+    }
+
     find(selector) {
         let nodes = []
         this.each(node => {
@@ -117,6 +130,7 @@ class Query {
         })
         return new Query(nodes, this.context, this) // must return a new collection
     }
+
     filter(selector) {
         let nodes = []
         this.each(node => {
@@ -129,6 +143,7 @@ class Query {
         })
         return new Query(nodes, this.context, this) // must return a new collection
     }
+
     shadow(selector) {
         let nodes = []
         this.each(node => {
@@ -138,25 +153,7 @@ class Query {
         let col = new Query(nodes, this.context, this)
         return selector ? col.find(selector) : col
     }
-    parent(selector) {
-        return this.parents(selector, true)
-    }
-    parents(selector, firstOnly) {
-        let nodes = []
-        let add = (node) => {
-            if (nodes.indexOf(node) == -1) {
-                nodes.push(node)
-            }
-            if (!firstOnly && node.parentNode) {
-                return add(node.parentNode)
-            }
-        }
-        this.each(node => {
-            if (node.parentNode) add(node.parentNode)
-        })
-        let col = new Query(nodes, this.context, this)
-        return selector ? col.filter(selector) : col
-    }
+
     closest(selector) {
         let nodes = []
         this.each(node => {
@@ -167,6 +164,7 @@ class Query {
         })
         return new Query(nodes, this.context, this) // must return a new collection
     }
+
     host(all) {
         let nodes = []
         // find shadow root or body
@@ -187,30 +185,59 @@ class Query {
         })
         return new Query(nodes, this.context, this) // must return a new collection
     }
+
+    parent(selector) {
+        return this.parents(selector, true)
+    }
+
+    parents(selector, firstOnly) {
+        let nodes = []
+        let add = (node) => {
+            if (nodes.indexOf(node) == -1) {
+                nodes.push(node)
+            }
+            if (!firstOnly && node.parentNode) {
+                return add(node.parentNode)
+            }
+        }
+        this.each(node => {
+            if (node.parentNode) add(node.parentNode)
+        })
+        let col = new Query(nodes, this.context, this)
+        return selector ? col.filter(selector) : col
+    }
+
     each(func) {
         this.nodes.forEach((node, ind) => { func(node, ind, this) })
         return this
     }
+
     append(html) {
         return this._insert('append', html)
     }
+
     prepend(html) {
         return this._insert('prepend', html)
     }
+
     after(html) {
         return this._insert('after', html)
     }
+
     before(html) {
         return this._insert('before', html)
     }
+
     replace(html) {
         return this._insert('replaceWith', html)
     }
+
     remove() {
         // remove from dom, but keep in current query
         this.each(node => { node.remove() })
         return this
     }
+
     css(key, value) {
         let css = key
         let len = arguments.length
@@ -245,14 +272,17 @@ class Query {
             return this
         }
     }
+
     addClass(classes) {
         this.toggleClass(classes, true)
         return this
     }
+
     removeClass(classes) {
         this.toggleClass(classes, false)
         return this
     }
+
     toggleClass(classes, force) {
         // split by comma or space
         if (typeof classes == 'string') classes = classes.split(/[ ,]+/)
@@ -270,6 +300,7 @@ class Query {
         })
         return this
     }
+
     hasClass(classes) {
         // split by comma or space
         if (typeof classes == 'string') classes = classes.split(/[ ,]+/)
@@ -284,6 +315,7 @@ class Query {
         })
         return ret
     }
+
     on(eventScope, options, callback) {
         let [ event, scope ] = String(eventScope).toLowerCase().split('.')
         if (typeof options == 'function') {
@@ -309,6 +341,7 @@ class Query {
         })
         return this
     }
+
     off(eventScope, options, callback) {
         let [ event, scope ] = String(eventScope).toLowerCase().split('.')
         if (typeof options == 'function') {
@@ -321,8 +354,8 @@ class Query {
                     let evt = node._mQuery.events[i]
                     if (scope == null || scope === '') {
                         // if no scope, has to be exact match
-                        if (evt.event == event && evt.scope == scope && evt.callback == callback) {
-                            node.removeEventListener(event, callback, options)
+                        if (evt.event == event && evt.scope == scope && (evt.callback == callback || callback == null)) {
+                            node.removeEventListener(event, evt.callback, evt.options)
                             node._mQuery.events.splice(i, 1)
                         }
                     } else {
@@ -336,6 +369,7 @@ class Query {
         })
         return this
     }
+
     trigger(name, options) {
         let event,
             mevent = ['click', 'dblclick', 'mousedown', 'mouseup', 'mousemove'],
@@ -353,6 +387,7 @@ class Query {
         this.each(node => { node.dispatchEvent(event) })
         return this
     }
+
     attr(name, value) {
         if (value === undefined && typeof name == 'string') {
             return this[0] ? this[0].getAttribute(name) : undefined
@@ -365,6 +400,7 @@ class Query {
             return this
         }
     }
+
     removeAttr() {
         this.each(node => {
             Array.from(arguments).forEach(attr => {
@@ -373,6 +409,7 @@ class Query {
         })
         return this
     }
+
     prop(name, value) {
         if (value === undefined && typeof name == 'string') {
             return this[0] ? this[0][name] : undefined
@@ -385,12 +422,14 @@ class Query {
             return this
         }
     }
+
     removeProp() {
         this.each(node => {
             Array.from(arguments).forEach(prop => { delete node[prop] })
         })
         return this
     }
+
     data(key, value) {
         if (arguments.length < 2) {
             if (this[0]) {
@@ -415,23 +454,27 @@ class Query {
             return this
         }
     }
+
     removeData(key) {
         this.each(node => {
             delete node.dataset[key]
         })
         return this
     }
+
     show() {
         return this.toggle(true)
     }
+
     hide() {
         return this.toggle(false)
     }
+
     toggle(force) {
         return this.each(node => {
             let dsp = node.style.display
             if ((dsp == 'none' && force == null) || force === true) { // show
-                node.style.display = node._mQuery?.prevDisplay ?? ''
+                node.style.display = node._mQuery?.prevDisplay ?? 'block'
                 this._save(node, 'prevDisplay', null)
             } else { // hide
                 if (dsp != 'none') this._save(node, 'prevDisplay', dsp)
@@ -439,27 +482,29 @@ class Query {
             }
         })
     }
+
     empty() {
         return this.html('')
     }
+
     html(html) {
         return this.prop('innerHTML', html)
     }
+
     text(text) {
         return this.prop('textContent', text)
     }
+
     val(value) {
-        return this.prop('value', value)
+        return this.prop('value', value) // must be prop
     }
+
     change() {
         return this.trigger('change')
     }
+
     click() {
         return this.trigger('click')
-    }
-    then(fun) {
-        let ret = fun(this)
-        return ret != null ? ret : this
     }
 }
 // create a new object each time
@@ -473,4 +518,5 @@ let query = function (selector, context) {
 }
 // str -> doc-fragment
 query.html = (str) => { let frag = Query._fragment(str); return query(frag.children, frag)  }
+
 export { query as $, query as default, query, Query }
