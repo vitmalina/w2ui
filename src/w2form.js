@@ -370,16 +370,16 @@ class w2form extends w2base {
 
     updateEmptyGroups() {
         // hide empty groups
-        $(this.box).find('.w2ui-group').each((ind, group) =>{
-            if (isHidden($(group).find('.w2ui-field'))) {
-                $(group).hide()
+        query(this.box).find('.w2ui-group').each((group) =>{
+            if (isHidden(query(group).find('.w2ui-field'))) {
+                query(group).hide()
             } else {
-                $(group).show()
+                query(group).show()
             }
         })
         function isHidden($els) {
             let flag = true
-            $els.each((ind, el) => {
+            $els.each((el) => {
                 if (el.style.display != 'none') flag = false
             })
             return flag
@@ -424,14 +424,14 @@ class w2form extends w2base {
     error(msg) {
         let obj = this
         // let the management of the error outside of the form
-        let edata = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.last.xhr })
+        let edata = this.trigger('error', { target: this.name, message: msg , xhr: this.last.xhr })
         if (edata.isCancelled === true) {
             return
         }
         // need a time out because message might be already up)
         setTimeout(() => { obj.message(msg) }, 1)
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     message(options) {
@@ -530,13 +530,13 @@ class w2form extends w2base {
             }
         }
         // event before
-        let edata = this.trigger({ phase: 'before', target: this.name, type: 'validate', errors: errors })
+        let edata = this.trigger('validate', { target: this.name, errors: errors })
         if (edata.isCancelled === true) return
         // show error
         this.last.errors = errors
         if (showErrors) this.showErrors()
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         return errors
     }
 
@@ -553,7 +553,8 @@ class w2form extends w2base {
         // show only for visible controls
         errors.forEach(error => {
             let opt = w2utils.extend({
-                class: 'w2ui-error',
+                anchorClass: 'w2ui-error',
+                class: 'w2ui-light',
                 position: 'right|left',
                 hideOn: ['input']
             }, error.options)
@@ -562,6 +563,7 @@ class w2form extends w2base {
             if (error.field.type === 'radio') { // for radio and checkboxes
                 anchor = query(error.field.el).closest('div').get(0)
             } else if (['enum', 'file'].includes(error.field.type)) {
+                // TODO: check
                 // anchor = (error.field.el).data('w2field').helpers.multi
                 // $(fld).addClass('w2ui-error')
             }
@@ -658,7 +660,7 @@ class w2form extends w2base {
         $.extend(params, this.postData)
         $.extend(params, postData)
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: this.url, postData: params, httpHeaders: this.httpHeaders })
+        let edata = this.trigger('request', { target: this.name, url: this.url, postData: params, httpHeaders: this.httpHeaders })
         if (edata.isCancelled === true) { if (typeof callBack === 'function') callBack({ status: 'error', message: w2utils.lang('Request aborted.') }); return }
         // default action
         this.record   = {}
@@ -724,7 +726,7 @@ class w2form extends w2base {
                     }
                 }
                 // event before
-                let edata = obj.trigger({ phase: 'before', target: obj.name, type: 'load', data: data, xhr: xhr })
+                let edata = obj.trigger('load', { target: obj.name, data: data, xhr: xhr })
                 if (edata.isCancelled === true) {
                     if (typeof callBack === 'function') callBack({ status: 'error', message: w2utils.lang('Request aborted.') })
                     return
@@ -736,7 +738,7 @@ class w2form extends w2base {
                     obj.record = $.extend({}, edata.data.record)
                 }
                 // event after
-                obj.trigger($.extend(edata, { phase: 'after' }))
+                edata.finish()
                 obj.refresh()
                 obj.applyFocus()
                 // call back
@@ -745,7 +747,7 @@ class w2form extends w2base {
             .fail((xhr, status, error) => {
                 // trigger event
                 let errorObj = { status: status, error: error, rawResponseText: xhr.responseText }
-                let edata2   = obj.trigger({ phase: 'before', type: 'error', error: errorObj, xhr: xhr })
+                let edata2   = obj.trigger('error', { error: errorObj, xhr: xhr })
                 if (edata2.isCancelled === true) return
                 // default behavior
                 if (status !== 'abort') {
@@ -758,10 +760,10 @@ class w2form extends w2base {
                     obj.unlock()
                 }
                 // event after
-                obj.trigger($.extend(edata2, { phase: 'after' }))
+                edata2.finish()
             })
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     submit(postData, callBack) {
@@ -769,58 +771,60 @@ class w2form extends w2base {
     }
 
     save(postData, callBack) {
-        let obj = this
-        $(this.box).find(':focus').change() // trigger onchange
+        let self = this
+        if (document.activeElement) {
+            query(document.activeElement).trigger('change')
+        }
         // check for multiple params
         if (typeof postData === 'function') {
             callBack = postData
             postData = null
         }
         // validation
-        let errors = obj.validate(true)
+        let errors = self.validate(true)
         if (errors.length !== 0) return
         // submit save
         if (postData == null) postData = {}
-        if (!obj.url || (typeof obj.url === 'object' && !obj.url.save)) {
+        if (!self.url || (typeof self.url === 'object' && !self.url.save)) {
             console.log('ERROR: Form cannot be saved because no url is defined.')
             return
         }
-        obj.lock(w2utils.lang(obj.msgSaving) + ' <span id="'+ obj.name +'_progress"></span>')
+        self.lock(w2utils.lang(self.msgSaving) + ' <span id="'+ self.name +'_progress"></span>')
         // need timer to allow to lock
         setTimeout(() => {
             // build parameters list
             let params = {}
             // add list params
             params.cmd   = 'save'
-            params.recid = obj.recid
-            params.name  = obj.name
+            params.recid = self.recid
+            params.name  = self.name
             // append other params
-            $.extend(params, obj.postData)
+            $.extend(params, self.postData)
             $.extend(params, postData)
             // clear up files
-            if (!obj.multipart)
-                obj.fields.forEach((item) => {
-                    if (item.type === 'file' && Array.isArray(obj.getValue(item.field))) {
-                        obj.getValue(item.field).forEach((fitem) => {
+            if (!self.multipart)
+                self.fields.forEach((item) => {
+                    if (item.type === 'file' && Array.isArray(self.getValue(item.field))) {
+                        self.getValue(item.field).forEach((fitem) => {
                             delete fitem.file
                         })
                     }
                 })
-            params.record = $.extend(true, {}, obj.record)
+            params.record = $.extend(true, {}, self.record)
             // event before
-            let edata = obj.trigger({ phase: 'before', type: 'submit', target: obj.name, url: obj.url, postData: params, httpHeaders: obj.httpHeaders })
+            let edata = self.trigger('submit', { target: self.name, url: self.url, postData: params, httpHeaders: self.httpHeaders })
             if (edata.isCancelled === true) return
             // default action
             let url = edata.url
             if (typeof edata.url === 'object' && edata.url.save) url = edata.url.save
-            if (obj.last.xhr) try { obj.last.xhr.abort() } catch (e) {}
+            if (self.last.xhr) try { self.last.xhr.abort() } catch (e) {}
             // process url with routeData
-            if (!$.isEmptyObject(obj.routeData)) {
+            if (!$.isEmptyObject(self.routeData)) {
                 let info = w2utils.parseRoute(url)
                 if (info.keys.length > 0) {
                     for (let k = 0; k < info.keys.length; k++) {
-                        if (obj.routeData[info.keys[k].name] == null) continue
-                        url = url.replace((new RegExp(':'+ info.keys[k].name, 'g')), obj.routeData[info.keys[k].name])
+                        if (self.routeData[info.keys[k].name] == null) continue
+                        url = url.replace((new RegExp(':'+ info.keys[k].name, 'g')), self.routeData[info.keys[k].name])
                     }
                 }
             }
@@ -835,21 +839,21 @@ class w2form extends w2base {
                     // upload
                     xhr.upload.addEventListener('progress', function progress(evt) {
                         if (evt.lengthComputable) {
-                            let edata3 = obj.trigger({ phase: 'before', type: 'progress', total: evt.total, loaded: evt.loaded, originalEvent: evt })
+                            let edata3 = self.trigger('progress', { total: evt.total, loaded: evt.loaded, originalEvent: evt })
                             if (edata3.isCancelled === true) return
                             // only show % if it takes time
                             let percent = Math.round(evt.loaded / evt.total * 100)
-                            if ((percent && percent != 100) || $(obj.box).find('#'+ obj.name + '_progress').text() != '') {
-                                $(obj.box).find('#'+ obj.name + '_progress').text(''+ percent + '%')
+                            if ((percent && percent != 100) || $(self.box).find('#'+ self.name + '_progress').text() != '') {
+                                $(self.box).find('#'+ self.name + '_progress').text(''+ percent + '%')
                             }
                             // event after
-                            obj.trigger($.extend(edata3, { phase: 'after' }))
+                            edata3.finish()
                         }
                     }, false)
                     return xhr
                 }
             }
-            let dataType = obj.dataType || w2utils.settings.dataType
+            let dataType = self.dataType || w2utils.settings.dataType
             if (edata.dataType) dataType = edata.dataType
             switch (dataType) {
                 case 'HTTP':
@@ -859,18 +863,18 @@ class w2form extends w2base {
                     ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) }
                     break
                 case 'RESTFULL':
-                    if (obj.recid !== 0 && obj.recid != null) ajaxOptions.type = 'PUT'
+                    if (self.recid !== 0 && self.recid != null) ajaxOptions.type = 'PUT'
                     ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']')
                     break
                 case 'RESTFULLJSON':
-                    if (obj.recid !== 0 && obj.recid != null) ajaxOptions.type = 'PUT'
+                    if (self.recid !== 0 && self.recid != null) ajaxOptions.type = 'PUT'
                     ajaxOptions.data        = JSON.stringify(ajaxOptions.data)
                     ajaxOptions.contentType = 'application/json'
                     break
                 case 'JSON':
                     ajaxOptions.type        = 'POST'
                     ajaxOptions.contentType = 'application/json'
-                    if (!obj.multipart) {
+                    if (!self.multipart) {
                         ajaxOptions.data = JSON.stringify(ajaxOptions.data)
                     } else {
                         function append(fd, dob, fob, p){
@@ -905,11 +909,11 @@ class w2form extends w2base {
             }
             if (this.method) ajaxOptions.type = this.method
             if (edata.method) ajaxOptions.type = edata.method
-            obj.last.xhr = $.ajax(ajaxOptions)
+            self.last.xhr = $.ajax(ajaxOptions)
                 .done((data, status, xhr) => {
-                    obj.unlock()
+                    self.unlock()
                     // event before
-                    let edata = obj.trigger({ phase: 'before', target: obj.name, type: 'save', xhr: xhr, status: status, data: data })
+                    let edata = self.trigger('save', { target: self.name, xhr: xhr, status: status, data: data })
                     if (edata.isCancelled === true) return
                     // parse server response
                     data = xhr.responseJSON
@@ -917,36 +921,36 @@ class w2form extends w2base {
                     if (data == null) {
                         data = {
                             status       : 'error',
-                            message      : w2utils.lang(obj.msgNotJSON),
+                            message      : w2utils.lang(self.msgNotJSON),
                             responseText : xhr.responseText
                         }
                     }
                     if (data.status === 'error') {
-                        obj.error(w2utils.lang(data.message))
+                        self.error(w2utils.lang(data.message))
                     } else {
-                        obj.original = null
+                        self.original = null
                     }
                     // event after
-                    obj.trigger($.extend(edata, { phase: 'after' }))
-                    obj.refresh()
+                    edata.finish()
+                    self.refresh()
                     // call back
                     if (typeof callBack === 'function') callBack(data, xhr)
                 })
                 .fail((xhr, status, error) => {
                     // trigger event
                     let errorObj = { status: status, error: error, rawResponseText: xhr.responseText }
-                    let edata2   = obj.trigger({ phase: 'before', type: 'error', error: errorObj, xhr: xhr })
+                    let edata2   = self.trigger('error', { error: errorObj, xhr: xhr })
                     if (edata2.isCancelled === true) return
                     // default behavior
                     console.log('ERROR: server communication failed. The server should return',
                         { status: 'success' }, 'OR', { status: 'error', message: 'error message' },
                         ', instead the AJAX request produced this: ', errorObj)
-                    obj.unlock()
+                    self.unlock()
                     // event after
-                    obj.trigger($.extend(edata2, { phase: 'after' }))
+                    edata2.finish()
                 })
             // event after
-            obj.trigger($.extend(edata, { phase: 'after' }))
+            edata.finish()
         }, 50)
     }
 
@@ -1247,18 +1251,18 @@ class w2form extends w2base {
         let click = act
         if ($.isPlainObject(act) && act.onClick) click = act.onClick
         // event before
-        let edata = this.trigger({ phase: 'before', target: action, type: 'action', action: act, originalEvent: event })
+        let edata = this.trigger('action', { target: action, action: act, originalEvent: event })
         if (edata.isCancelled === true) return
         // default actions
         if (typeof click === 'function') click.call(this, event)
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     resize() {
         let obj = this
         // event before
-        let edata = this.trigger({ phase: 'before', target: this.name, type: 'resize' })
+        let edata = this.trigger('resize', { target: this.name })
         if (edata.isCancelled === true) return
         // default behaviour
         let main    = $(this.box).find('> div.w2ui-form-box')
@@ -1285,7 +1289,7 @@ class w2form extends w2base {
             resizeElements()
         }
         // event after
-        obj.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
 
         function resizeElements() {
             // resize elements
@@ -1306,7 +1310,7 @@ class w2form extends w2base {
         if (!this.box) return
         if (!this.isGenerated || $(this.box).html() == null) return
         // event before
-        let edata = this.trigger({ phase: 'before', target: this.name, type: 'refresh', page: this.page, field: arguments[0], fields: arguments })
+        let edata = this.trigger('refresh', { target: this.name, page: this.page, field: arguments[0], fields: arguments })
         if (edata.isCancelled === true) return
         let fields = Array.from(this.fields.keys())
         if (arguments.length > 0) {
@@ -1415,7 +1419,7 @@ class w2form extends w2base {
                     }
                     if (value_new === value_previous) return
                     // event before
-                    let edata2 = obj.trigger({ phase: 'before', target: this.name, type: 'change', value_new: value_new, value_previous: value_previous, originalEvent: event })
+                    let edata2 = obj.trigger('change', { target: this.name, value_new: value_new, value_previous: value_previous, originalEvent: event })
                     if (edata2.isCancelled === true) {
                         edata2.value_new = obj.getValue(this.name)
                         if ($(this).val() !== edata2.value_new) {
@@ -1439,7 +1443,7 @@ class w2form extends w2base {
                     }
                     obj.setValue(this.name, val)
                     // event after
-                    obj.trigger($.extend(edata2, { phase: 'after' }))
+                    edata2.finish()
                 })
                 .on('input.w2form', function(event) {
                     let val = this.value
@@ -1455,11 +1459,11 @@ class w2form extends w2base {
                         }
                     }
                     // event before
-                    let edata2 = obj.trigger({ phase: 'before', target: this.name, type: 'input', value_new: val, originalEvent: event })
+                    let edata2 = obj.trigger('input', { target: this.name, value_new: val, originalEvent: event })
                     if (edata2.isCancelled === true) return
 
                     // event after
-                    obj.trigger($.extend(edata2, { phase: 'after' }))
+                    edata2.finish()
                 })
             // required
             if (field.required) {
@@ -1757,7 +1761,7 @@ class w2form extends w2base {
                                     if (old != null && field.type == 'array') {
                                         value_previous[old] = aMap.value
                                     }
-                                    let edata = obj.trigger({ phase: 'before', target: field.field, type: 'change', originalEvent: event, value_new: value_new, value_previous: value_previous })
+                                    let edata = obj.trigger('change', { target: field.field, originalEvent: event, value_new: value_new, value_previous: value_previous })
                                     if (edata.isCancelled === true) {
                                         return
                                     }
@@ -1797,7 +1801,7 @@ class w2form extends w2base {
                                     obj.setValue(field.field, map)
                                     field.el.mapRefresh(map, div)
                                     // event after
-                                    obj.trigger($.extend(edata, { phase: 'after' }))
+                                    edata.finish()
                                 })
                         }
                         field.el.mapRefresh(value, $(field.el).parent().find('.w2ui-map-container'))
@@ -1822,7 +1826,7 @@ class w2form extends w2base {
             if ($(tmp[i]).find('> *').length > 1) $(tmp[i]).wrapInner('<div></div>')
         }
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         this.resize()
         return (new Date()).getTime() - time
     }
@@ -1842,7 +1846,7 @@ class w2form extends w2base {
         if (!this.isGenerated) return
         if (!this.box) return
         // event before
-        let edata = this.trigger({ phase: 'before', target: this.name, type: 'render', box: (box != null ? box : this.box) })
+        let edata = this.trigger('render', {  target: this.name, box: (box != null ? box : this.box) })
         if (edata.isCancelled === true) return
         let html = '<div class="w2ui-form-box">' +
                     (this.header !== '' ? '<div class="w2ui-form-header">' + w2utils.lang(this.header) + '</div>' : '') +
@@ -1860,10 +1864,10 @@ class w2form extends w2base {
         if (typeof this.toolbar.render !== 'function') {
             this.toolbar = new w2toolbar($.extend({}, this.toolbar, { name: this.name +'_toolbar', owner: this }))
             this.toolbar.on('click', function(event) {
-                let edata = obj.trigger({ phase: 'before', type: 'toolbar', target: event.target, originalEvent: event })
+                let edata = obj.trigger('toolbar', { target: event.target, originalEvent: event })
                 if (edata.isCancelled === true) return
                 // no default action
-                obj.trigger($.extend(edata, { phase: 'after' }))
+                edata.finish()
             })
         }
         if (typeof this.toolbar === 'object' && typeof this.toolbar.render === 'function') {
@@ -1881,7 +1885,7 @@ class w2form extends w2base {
             if(this.tabs.active) this.tabs.click(this.tabs.active)
         }
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         // after render actions
         this.resize()
         let url = (typeof this.url !== 'object' ? this.url : this.url.get)
@@ -1939,7 +1943,7 @@ class w2form extends w2base {
 
     destroy() {
         // event before
-        let edata = this.trigger({ phase: 'before', target: this.name, type: 'destroy' })
+        let edata = this.trigger('destroy', { target: this.name })
         if (edata.isCancelled === true) return
         // clean up
         if (typeof this.toolbar === 'object' && this.toolbar.destroy) this.toolbar.destroy()
@@ -1953,8 +1957,7 @@ class w2form extends w2base {
         this.last.resizeObserver.disconnect()
         delete w2ui[this.name]
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
-        $(window).off('resize', 'body')
+        edata.finish()
     }
 }
 export { w2form }

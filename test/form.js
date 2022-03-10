@@ -2,7 +2,7 @@ jQuery(() => {
     jQuery('#form').w2form({
         name      : 'form',
         // routeData : { id: 4 },
-        url       : { get1: 'http://w2ui.com', save: 'http://w2ui.com' },
+        url: { get1: 'http://w2ui.com', save: 'http://w2ui.com' },
         // page      : 2,
         // url       : 'form.php',
         // formURL   : 'form-template.html',
