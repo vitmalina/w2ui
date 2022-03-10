@@ -336,7 +336,7 @@ class Tooltip {
             // document click
             query('body').off(`.${scope}`)
             if (options.hideOn.includes('doc-click')) {
-                if (overlay.anchor.tagName === 'INPUT') {
+                if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
                     // otherwise hides on click to focus
                     $anchor
                         .off(`.${scope}-doc`)
@@ -352,7 +352,7 @@ class Tooltip {
                         }
                     })
             }
-            if (overlay.anchor.tagName === 'INPUT') {
+            if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
                 $anchor.off(`.${scope}`)
                 options.hideOn.forEach(event => {
                     if (['doc-click', 'focus-change'].indexOf(event) == -1) {
@@ -376,6 +376,7 @@ class Tooltip {
             return
         }
         if (typeof name == 'string') {
+            name = name.replace(/[\s\.#]/g, '_')
             overlay = Tooltip.active[name]
         }
         if (!overlay || !overlay.box) return
@@ -743,7 +744,7 @@ class ColorTooltip extends Tooltip {
         overlay.on('show.attach', event => {
             let anchor  = event.detail.overlay.anchor
             let options = event.detail.overlay.options
-            if (anchor.tagName === 'INPUT' && !options.color && anchor.value) {
+            if (['INPUT', 'TEXTAREA'].includes(anchor.tagName) && !options.color && anchor.value) {
                 event.detail.overlay.tmp.initColor = anchor.value
             }
         })
@@ -765,7 +766,7 @@ class ColorTooltip extends Tooltip {
             let overlay = event.detail.overlay
             let anchor  = overlay.anchor
             let color   = overlay.newColor ?? ''
-            if (anchor.tagName === 'INPUT' && anchor.value != color) {
+            if (['INPUT', 'TEXTAREA'].includes(anchor.tagName) && anchor.value != color) {
                 anchor.value = color
             }
             let edata = this.trigger('select', { color, target: overlay.name, overlay })
@@ -798,7 +799,7 @@ class ColorTooltip extends Tooltip {
         let edata = this.trigger('liveUpdate', { color, target: name, overlay, param: arguments[1] })
         if (edata.isCancelled === true) return
         // if anchor is input - live update
-        if (overlay.anchor.tagName === 'INPUT' && overlay.options.liveUpdate) {
+        if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName) && overlay.options.liveUpdate) {
             query(overlay.anchor).val(color)
         }
         overlay.newColor = color
@@ -1442,7 +1443,7 @@ class MenuTooltip extends Tooltip {
                 w2tooltip.hide(overlay.name + '-tooltip')
             })
 
-        if (overlay.anchor.tagName == 'INPUT') {
+        if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
             query(overlay.anchor)
                 .off('.w2menu')
                 .on('input.w2menu', event => {
@@ -1580,7 +1581,7 @@ class MenuTooltip extends Tooltip {
             if (item.keepOpen != null) {
                 keepOpen = item.keepOpen
             }
-            if (overlay.anchor.tagName == 'INPUT') {
+            if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
                 overlay.anchor.value = item.text
                 overlay.anchor.dataset.selected = item.id
                 overlay.anchor.dataset.selectedIndex = overlay.selected
@@ -1589,7 +1590,7 @@ class MenuTooltip extends Tooltip {
         if (!keepOpen) {
             this.hide(overlay.name)
         }
-        // if (overlay.anchor.tagName == 'INPUT') {
+        // if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
         //     overlay.anchor.focus()
         // }
         // event after
@@ -1622,7 +1623,7 @@ class MenuTooltip extends Tooltip {
                 } else {
                     // clear selected
                     let el = overlay.anchor
-                    if (el.tagName == 'INPUT') {
+                    if (['INPUT', 'TEXTAREA'].includes(el.tagName)) {
                         el.value = ''
                         delete el.dataset.selected
                         delete el.dataset.selectedIndex

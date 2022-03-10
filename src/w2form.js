@@ -19,8 +19,10 @@
 
 import { w2base } from './w2base.js'
 import { w2ui, w2utils } from './w2utils.js'
+import { query } from './query.js'
 import { w2tabs } from './w2tabs.js'
 import { w2toolbar } from './w2toolbar.js'
+import { w2tooltip } from './w2tooltip.js'
 
 class w2form extends w2base {
     constructor(options) {
@@ -75,7 +77,7 @@ class w2form extends w2base {
         this.msgRefresh   = 'Loading...'
         this.msgSaving    = 'Saving...'
         // mix in options
-        $.extend(true, this, options)
+        w2utils.extend(this, options)
 
         // When w2utils.settings.dataType is JSON, then we can convert the save request to multipart/form-data. So we can upload large files with the form
         // The original body is JSON.stringified to __body
@@ -87,7 +89,7 @@ class w2form extends w2base {
         let toolbar  = options.toolbar
         let tabs     = options.tabs
         // extend items
-        $.extend(this, { record: {}, original: null, fields: [], tabs: {}, toolbar: {}, handlers: [] })
+        w2utils.extend(this, { record: {}, original: null, fields: [], tabs: {}, toolbar: {}, handlers: [] })
         // preprocess fields
         if (fields) {
             let sub =_processFields(fields)
@@ -417,7 +419,6 @@ class w2form extends w2base {
             this.original = null
             this.refresh()
         }
-        $().w2tag()
     }
 
     error(msg) {
@@ -449,7 +450,6 @@ class w2form extends w2base {
 
     validate(showErrors) {
         if (showErrors == null) showErrors = true
-        $().w2tag() // hide all tags before validating
         // validate before saving
         let errors = []
         for (let f = 0; f < this.fields.length; f++) {
@@ -541,43 +541,44 @@ class w2form extends w2base {
     }
 
     showErrors() {
+        // TODO: check edge cases
+        // -- scroll
+        // -- invisible pages
         let errors = this.last.errors
-        if (errors.length > 0) {
-            let err = errors[0]
-            // scroll into view
-            this.goto(errors[0].field.page)
-            $(err.field.$el).parents('.w2ui-field')[0].scrollIntoView(true)
-            // show errors
-            for (let i = 0; i < errors.length; i++) {
-                err     = errors[i]
-                let opt = $.extend({ 'class': 'w2ui-error', hideOnFocus: true }, err.options)
-                if (err.field == null) continue
-                if (err.field.type === 'radio') { // for radio and checkboxes
-                    $($(err.field.el).closest('div')[0]).w2tag(err.error, opt)
-                } else if (['enum', 'file'].indexOf(err.field.type) !== -1) {
-                    (function closure(err) {
-                        setTimeout(() => {
-                            let fld = $(err.field.el).data('w2field').helpers.multi
-                            $(err.field.el).w2tag(err.error, err.options)
-                            $(fld).addClass('w2ui-error')
-                        }, 1)
-                    })(err)
-                } else {
-                    $(err.field.el).w2tag(err.error, opt)
-                }
+        if (errors.length <= 0) return
+        // show errors
+        this.goto(errors[0].field.page)
+        query(errors[0].field.$el).parents('.w2ui-field')[0].scrollIntoView(true)
+        // show errors
+        // show only for visible controls
+        errors.forEach(error => {
+            let opt = w2utils.extend({
+                class: 'w2ui-error',
+                position: 'right|left',
+                hideOn: ['input']
+            }, error.options)
+            if (error.field == null) return
+            let anchor = error.field.el
+            if (error.field.type === 'radio') { // for radio and checkboxes
+                anchor = query(error.field.el).closest('div').get(0)
+            } else if (['enum', 'file'].includes(error.field.type)) {
+                // anchor = (error.field.el).data('w2field').helpers.multi
+                // $(fld).addClass('w2ui-error')
             }
-            // hide errors on scroll
-            setTimeout(() => {
-                let err = errors[0]
-                $(err.field.$el).parents('.w2ui-page').off('.hideErrors').on('scroll.hideErrors', function(event) {
-                    for (let i = 0; i < errors.length; i++) {
-                        err = errors[i]
-                        $(err.field.el).w2tag()
-                    }
-                    $(err.field.$el).parents('.w2ui-page').off('.hideErrors')
+            w2tooltip.show(w2utils.extend({
+                anchor,
+                name: `${this.name}-${error.field.field}-error`,
+                html: error.error
+            }, opt))
+        })
+        // hide errors on scroll
+        query(errors[0].field.$el).parents('.w2ui-page')
+            .off('.hideErrors')
+            .on('scroll.hideErrors', (evt) => {
+                errors.forEach(error => {
+                    w2tooltip.hide(`${this.name}-${error.field.field}-error`)
                 })
-            }, 300)
-        }
+            })
     }
 
     getChanges() {
@@ -1427,7 +1428,7 @@ class w2form extends w2base {
                     // default action
                     let val = edata2.value_new
                     if (['enum', 'file'].indexOf(field.type) !== -1) {
-                        if (val.length > 0) {
+                        if (val?.length > 0) {
                             let fld = $(field.el).data('w2field').helpers.multi
                             $(fld).removeClass('w2ui-error')
                         }
