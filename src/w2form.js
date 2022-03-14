@@ -15,6 +15,8 @@
  *  - form.confirm - refactored
  *  - form.message - refactored
  *  - resizeObserver for the box
+ *  - removed msgNotJSON, msgAJAXerror
+ *  - applyFocus -> setFocus
  */
 
 import { w2base } from './w2base.js'
@@ -41,9 +43,10 @@ class w2form extends w2base {
         this.actions      = {}
         this.record       = {}
         this.original     = null
+        this.method       = null // only used when not null, otherwise set based on w2utils.settings.dataType
+        this.dataType     = null // only used when not null, otherwise from w2utils.settings.dataType
         this.postData     = {}
         this.httpHeaders  = {}
-        this.method       = null // only used when not null, otherwise set based on w2utils.settings.dataType
         this.toolbar      = {} // if not empty, then it is toolbar
         this.tabs         = {} // if not empty, then it is tabs object
         this.style        = ''
@@ -72,8 +75,6 @@ class w2form extends w2base {
         this.onAction     = null
         this.onToolbar    = null
         this.onError      = null
-        this.msgNotJSON   = 'Returned data is not in valid JSON format.'
-        this.msgAJAXerror = 'AJAX error. See console for more details.'
         this.msgRefresh   = 'Loading...'
         this.msgSaving    = 'Saving...'
         // mix in options
@@ -89,7 +90,7 @@ class w2form extends w2base {
         let toolbar  = options.toolbar
         let tabs     = options.tabs
         // extend items
-        w2utils.extend(this, { record: {}, original: null, fields: [], tabs: {}, toolbar: {}, handlers: [] })
+        Object.assign(this, { record: {}, original: null, fields: [], tabs: {}, toolbar: {}, handlers: [] })
         // preprocess fields
         if (fields) {
             let sub =_processFields(fields)
@@ -100,7 +101,7 @@ class w2form extends w2base {
         }
         // prepare tabs
         if (Array.isArray(tabs)) {
-            $.extend(true, this.tabs, { tabs: [] })
+            w2utils.extend(this.tabs, { tabs: [] })
             for (let t = 0; t < tabs.length; t++) {
                 let tmp = tabs[t]
                 if (typeof tmp === 'object') {
@@ -113,29 +114,31 @@ class w2form extends w2base {
                 }
             }
         } else {
-            $.extend(true, this.tabs, tabs)
+            w2utils.extend(this.tabs, tabs)
         }
-        $.extend(true, this.toolbar, toolbar)
+        w2utils.extend(this.toolbar, toolbar)
         for (let p in record) { // it is an object
-            if ($.isPlainObject(record[p])) {
-                this.record[p] = $.extend(true, {}, record[p])
+            if (w2utils.isPlainObject(record[p])) {
+                this.record[p] = w2utils.clone(record[p])
             } else {
                 this.record[p] = record[p]
             }
         }
         for (let p in original) { // it is an object
-            if ($.isPlainObject(original[p])) {
-                this.original[p] = $.extend(true, {}, original[p])
+            if (w2utils.isPlainObject(original[p])) {
+                this.original[p] = w2utils.clone(original[p])
             } else {
                 this.original[p] = original[p]
             }
         }
         // generate html if necessary
         if (this.formURL !== '') {
-            $.get(this.formURL, (data) => { // should always be $.get as it is template
-                this.formHTML    = data
-                this.isGenerated = true
-            })
+            fetch(this.formURL)
+                .then(resp => resp.text())
+                .then(text => {
+                    this.formHTML = text
+                    this.isGenerated = true
+                })
         } else if (!this.formURL && !this.formHTML) {
             this.formHTML    = this.generateHTML()
             this.isGenerated = true
@@ -145,14 +148,14 @@ class w2form extends w2base {
             let newFields = []
             let tabs = []
             // if it is an object
-            if ($.isPlainObject(fields)) {
+            if (w2utils.isPlainObject(fields)) {
                 let tmp = fields
                 fields = []
                 Object.keys(tmp).forEach((key) => {
                     let fld = tmp[key]
                     if (fld.type == 'group') {
                         fld.text = key
-                        if ($.isPlainObject(fld.fields)) {
+                        if (w2utils.isPlainObject(fld.fields)) {
                             let tmp2 = fld.fields
                             fld.fields = []
                             Object.keys(tmp2).forEach((key2) => {
@@ -223,9 +226,9 @@ class w2form extends w2base {
                     // loop through fields
                     if (Array.isArray(field.fields)) {
                         field.fields.forEach(gfield => {
-                            let fld = $.extend(true, {}, gfield)
+                            let fld = w2utils.clone(gfield)
                             if (fld.html == null) fld.html = {}
-                            $.extend(fld.html, group)
+                            w2utils.extend(fld.html, group)
                             Array('span', 'column', 'attr', 'label', 'page').forEach(key => {
                                 if (fld.html[key] == null && field[key] != null) {
                                     fld.html[key] = field[key]
@@ -239,7 +242,7 @@ class w2form extends w2base {
                         })
                     }
                 } else {
-                    let fld = $.extend(true, {}, field)
+                    let fld = w2utils.clone(field)
                     if (fld.field == null && fld.name != null) {
                         console.log('NOTICE: form field.name property is deprecated, please use field.field. Field ->', field)
                         fld.field = fld.name
@@ -271,7 +274,7 @@ class w2form extends w2base {
     set(field, obj) {
         for (let f = 0; f < this.fields.length; f++) {
             if (this.fields[f].field == field) {
-                $.extend(this.fields[f] , obj)
+                w2utils.extend(this.fields[f] , obj)
                 this.refresh(field)
                 return true
             }
@@ -519,8 +522,9 @@ class w2form extends w2base {
             }
             // === check required - if field is '0' it should be considered not empty
             let val = this.getValue(field.field)
-            if (field.required && field.hidden !== true && ['div', 'custom', 'html', 'empty'].indexOf(field.type) == -1
-                    && (val === '' || (Array.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val)))) {
+            if (field.required && field.hidden !== true && !['div', 'custom', 'html', 'empty'].includes(field.type)
+                    && (val === '' || (Array.isArray(val) && val.length === 0)
+                        || (w2utils.isPlainObject(val) && Object.keys(val).length == 0))) {
                 errors.push({ field: field, error: w2utils.lang('Required field') })
             }
             if (field.options && field.hidden !== true && field.options.minLength > 0
@@ -585,7 +589,7 @@ class w2form extends w2base {
 
     getChanges() {
         let diff = {}
-        if (this.original != null && typeof this.original == 'object' && !$.isEmptyObject(this.record)) {
+        if (this.original != null && typeof this.original == 'object' && Object.kesy(this.record).length == 0) {
             diff = doDiff(this.record, this.original, {})
         }
         return diff
@@ -599,27 +603,27 @@ class w2form extends w2base {
             for (let i in record) {
                 if (record[i] != null && typeof record[i] === 'object') {
                     result[i] = doDiff(record[i], original[i] || {}, {})
-                    if (!result[i] || ($.isEmptyObject(result[i]) && $.isEmptyObject(original[i]))) delete result[i]
+                    if (!result[i] || (Object.keys(result[i]).length == 0 && Object.keys(original[i].length == 0))) delete result[i]
                 } else if (record[i] != original[i] || (record[i] == null && original[i] != null)) { // also catch field clear
                     result[i] = record[i]
                 }
             }
-            return !$.isEmptyObject(result) ? result : null
+            return Object.keys(result).length != 0 ? result : null
         }
     }
 
     getCleanRecord(strict) {
-        let data = $.extend(true, {}, this.record)
+        let data = w2utils.clone(this.record)
         this.fields.forEach((fld) => {
             if (['list', 'combo', 'enum'].indexOf(fld.type) != -1) {
                 let tmp = { nestedFields: true, record: data }
                 let val = this.getValue.call(tmp, fld.field)
-                if ($.isPlainObject(val) && val.id != null) { // should be true if val.id === ''
+                if (w2utils.isPlainObject(val) && val.id != null) { // should be true if val.id === ''
                     this.setValue.call(tmp, fld.field, val.id)
                 }
                 if (Array.isArray(val)) {
                     val.forEach((item, ind) => {
-                        if ($.isPlainObject(item) && item.id) {
+                        if (w2utils.isPlainObject(item) && item.id) {
                             val[ind] = item.id
                         }
                     })
@@ -641,7 +645,7 @@ class w2form extends w2base {
     }
 
     request(postData, callBack) { // if (1) param then it is call back if (2) then postData and callBack
-        let obj = this
+        let self = this
         // check for multiple params
         if (typeof postData === 'function') {
             callBack = postData
@@ -657,113 +661,124 @@ class w2form extends w2base {
         params.recid = this.recid
         params.name  = this.name
         // append other params
-        $.extend(params, this.postData)
-        $.extend(params, postData)
+        w2utils.extend(params, this.postData)
+        w2utils.extend(params, postData)
         // event before
-        let edata = this.trigger('request', { target: this.name, url: this.url, postData: params, httpHeaders: this.httpHeaders })
-        if (edata.isCancelled === true) { if (typeof callBack === 'function') callBack({ status: 'error', message: w2utils.lang('Request aborted.') }); return }
+        let edata = this.trigger('request', { target: this.name, url: this.url, method: this.method,
+            postData: params, httpHeaders: this.httpHeaders })
+        if (edata.isCancelled === true) {
+            if (typeof callBack === 'function') {
+                callBack({ error: true, message: w2utils.lang('Request aborted.') })
+            }
+            return
+        }
         // default action
-        this.record   = {}
+        this.record = {}
         this.original = null
         // call server to get data
         this.lock(w2utils.lang(this.msgRefresh))
-        let url = edata.url
-        if (typeof edata.url === 'object' && edata.url.get) url = edata.url.get
+        let url = edata.detail.url
+        if (typeof url === 'object' && url.get) url = url.get
+        // TODO: cancel previous fetch
         if (this.last.xhr) try { this.last.xhr.abort() } catch (e) {}
         // process url with routeData
-        if (!$.isEmptyObject(obj.routeData)) {
+        if (Object.keys(this.routeData).length != 0) {
             let info = w2utils.parseRoute(url)
             if (info.keys.length > 0) {
                 for (let k = 0; k < info.keys.length; k++) {
-                    if (obj.routeData[info.keys[k].name] == null) continue
-                    url = url.replace((new RegExp(':'+ info.keys[k].name, 'g')), obj.routeData[info.keys[k].name])
+                    if (this.routeData[info.keys[k].name] == null) continue
+                    url = url.replace((new RegExp(':'+ info.keys[k].name, 'g')), this.routeData[info.keys[k].name])
                 }
             }
         }
-        let ajaxOptions = {
-            type     : 'POST',
-            url      : url,
-            data     : edata.postData,
-            headers  : edata.httpHeaders,
-            dataType : 'json' // expected from server
+        let fetchOptions = {
+            method: 'POST',
+            headers: edata.detail.httpHeaders,
+            body: edata.detail.postData
         }
-        let dataType    = obj.dataType || w2utils.settings.dataType
-        if (edata.dataType) dataType = edata.dataType
+        let dataType = edata.detail.dataType ?? this.dataType ?? w2utils.settings.dataType
         switch (dataType) {
             case 'HTTP':
-                ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']')
+                fetchOptions.body = w2utils.encodeParams(fetchOptions.body)
                 break
             case 'HTTPJSON':
-                ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) }
+                fetchOptions.body = JSON.stringify({ request: fetchOptions.body })
                 break
             case 'RESTFULL':
-                ajaxOptions.type = 'GET'
-                ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']')
+                fetchOptions.type = 'GET'
+                fetchOptions.body = w2utils.encodeParams(fetchOptions.body)
                 break
             case 'RESTFULLJSON':
-                ajaxOptions.type        = 'GET'
-                ajaxOptions.data        = JSON.stringify(ajaxOptions.data)
-                ajaxOptions.contentType = 'application/json'
+                fetchOptions.type = 'GET'
+                fetchOptions.body = JSON.stringify(fetchOptions.body)
+                fetchOptions.headers.contentType = 'application/json'
                 break
             case 'JSON':
-                ajaxOptions.type        = 'POST'
-                ajaxOptions.data        = JSON.stringify(ajaxOptions.data)
-                ajaxOptions.contentType = 'application/json'
+                fetchOptions.method = 'POST'
+                fetchOptions.body = JSON.stringify(fetchOptions.body)
+                fetchOptions.headers.contentType = 'application/json'
                 break
         }
-        if (this.method) ajaxOptions.type = this.method
-        if (edata.method) ajaxOptions.type = edata.method
-        this.last.xhr = $.ajax(ajaxOptions)
-            .done((data, status, xhr) => {
-                obj.unlock()
-                // prepare record
-                data = xhr.responseJSON
-                if (data == null) {
-                    data = {
-                        status       : 'error',
-                        message      : w2utils.lang(obj.msgNotJSON),
-                        responseText : xhr.responseText
-                    }
-                }
-                // event before
-                let edata = obj.trigger('load', { target: obj.name, data: data, xhr: xhr })
-                if (edata.isCancelled === true) {
-                    if (typeof callBack === 'function') callBack({ status: 'error', message: w2utils.lang('Request aborted.') })
+        if (this.method) fetchOptions.method = this.method
+        if (edata.detail.method) fetchOptions.method = edata.detail.method
+        this.last.xhr = fetch(url, fetchOptions)
+            .catch(processError)
+            .then((resp) => {
+                self.unlock()
+                if (resp.status != 200) {
+                    processError(resp)
                     return
                 }
-                // parse server response
-                if (edata.data.status === 'error') {
-                    obj.error(w2utils.lang(edata.data.message))
-                } else {
-                    obj.record = $.extend({}, edata.data.record)
+                // event before
+                let edata = self.trigger('load', { target: self.name, xhr: this.last.xhr, data: resp })
+                if (edata.isCancelled === true) {
+                    if (typeof callBack === 'function') callBack({ error: true, message: w2utils.lang('Request aborted.') })
+                    return
                 }
-                // event after
-                edata.finish()
-                obj.refresh()
-                obj.applyFocus()
-                // call back
-                if (typeof callBack === 'function') callBack(edata.data)
-            })
-            .fail((xhr, status, error) => {
-                // trigger event
-                let errorObj = { status: status, error: error, rawResponseText: xhr.responseText }
-                let edata2   = obj.trigger('error', { error: errorObj, xhr: xhr })
-                if (edata2.isCancelled === true) return
-                // default behavior
-                if (status !== 'abort') {
-                    let data
-                    try { data = typeof xhr.responseJSON === 'object' ? xhr.responseJSON : JSON.parse(xhr.responseText) } catch (e) {}
-                    console.log('ERROR: Server communication failed.',
-                        '\n   EXPECTED:', { status: 'success', items: [{ id: 1, text: 'item' }] },
-                        '\n         OR:', { status: 'error', message: 'error message' },
-                        '\n   RECEIVED:', typeof data === 'object' ? data : xhr.responseText)
-                    obj.unlock()
-                }
-                // event after
-                edata2.finish()
+                resp.json()
+                    .catch(processError)
+                    .then(data => {
+                        if (!data.record) {
+                            data = {
+                                error: false,
+                                record: data
+                            }
+                        }
+                        // server response error, not due to network issues
+                        if (data.error === true) {
+                            self.error(w2utils.lang(data.message))
+                        } else {
+                            self.record = w2utils.clone(data.record)
+                        }
+                        // event after
+                        edata.finish()
+                        self.refresh()
+                        self.setFocus()
+                        // call back
+                        if (typeof callBack === 'function') callBack(data)
+                    })
             })
         // event after
         edata.finish()
+        return
+
+        function processError(response) {
+            self.unlock()
+            // trigger event
+            let edata2 = self.trigger('error', { response, xhr: self.last.xhr })
+            if (edata2.isCancelled === true) return
+            // default behavior
+            if (response.status && response.status != 200) {
+                self.error(response.status + ': ' + response.statusText)
+            } else {
+                console.log('ERROR: Server request failed.', response, '. ',
+                    'Expected Response:', { error: false, record: { field1: 1, field2: 'item' }},
+                    'OR:', { error: true, message: 'Error description' })
+                self.error(String(response))
+            }
+            // event after
+            edata2.finish()
+        }
     }
 
     submit(postData, callBack) {
@@ -790,183 +805,188 @@ class w2form extends w2base {
             return
         }
         self.lock(w2utils.lang(self.msgSaving) + ' <span id="'+ self.name +'_progress"></span>')
-        // need timer to allow to lock
-        setTimeout(() => {
-            // build parameters list
-            let params = {}
-            // add list params
-            params.cmd   = 'save'
-            params.recid = self.recid
-            params.name  = self.name
-            // append other params
-            $.extend(params, self.postData)
-            $.extend(params, postData)
-            // clear up files
-            if (!self.multipart)
-                self.fields.forEach((item) => {
-                    if (item.type === 'file' && Array.isArray(self.getValue(item.field))) {
-                        self.getValue(item.field).forEach((fitem) => {
-                            delete fitem.file
-                        })
-                    }
-                })
-            params.record = $.extend(true, {}, self.record)
-            // event before
-            let edata = self.trigger('submit', { target: self.name, url: self.url, postData: params, httpHeaders: self.httpHeaders })
-            if (edata.isCancelled === true) return
-            // default action
-            let url = edata.url
-            if (typeof edata.url === 'object' && edata.url.save) url = edata.url.save
-            if (self.last.xhr) try { self.last.xhr.abort() } catch (e) {}
-            // process url with routeData
-            if (!$.isEmptyObject(self.routeData)) {
-                let info = w2utils.parseRoute(url)
-                if (info.keys.length > 0) {
-                    for (let k = 0; k < info.keys.length; k++) {
-                        if (self.routeData[info.keys[k].name] == null) continue
-                        url = url.replace((new RegExp(':'+ info.keys[k].name, 'g')), self.routeData[info.keys[k].name])
-                    }
+        // build parameters list
+        let params = {}
+        // add list params
+        params.cmd   = 'save'
+        params.recid = self.recid
+        params.name  = self.name
+        // append other params
+        w2utils.extend(params, self.postData)
+        w2utils.extend(params, postData)
+        // clear up files
+        if (!self.multipart)
+            self.fields.forEach((item) => {
+                if (item.type === 'file' && Array.isArray(self.getValue(item.field))) {
+                    self.getValue(item.field).forEach((fitem) => {
+                        delete fitem.file
+                    })
+                }
+            })
+        params.record = w2utils.clone(self.record)
+        // event before
+        let edata = self.trigger('submit', { target: self.name, url: self.url, method: self.method,
+            postData: params, httpHeaders: self.httpHeaders })
+        if (edata.isCancelled === true) return
+        // default action
+        let url = edata.detail.url
+        if (typeof url === 'object' && url.save) url = url.save
+        // TODO: abort if called twice
+        // if (self.last.xhr) try { self.last.xhr.abort() } catch (e) {}
+        // process url with routeData
+        if (Object.keys(self.routeData).length > 0) {
+            let info = w2utils.parseRoute(url)
+            if (info.keys.length > 0) {
+                for (let k = 0; k < info.keys.length; k++) {
+                    if (self.routeData[info.keys[k].name] == null) continue
+                    url = url.replace((new RegExp(':'+ info.keys[k].name, 'g')), self.routeData[info.keys[k].name])
                 }
             }
-            let ajaxOptions = {
-                type     : 'POST',
-                url      : url,
-                data     : edata.postData,
-                headers  : edata.httpHeaders,
-                dataType : 'json', // expected from server
-                xhr () {
-                    let xhr = new window.XMLHttpRequest()
-                    // upload
-                    xhr.upload.addEventListener('progress', function progress(evt) {
-                        if (evt.lengthComputable) {
-                            let edata3 = self.trigger('progress', { total: evt.total, loaded: evt.loaded, originalEvent: evt })
-                            if (edata3.isCancelled === true) return
-                            // only show % if it takes time
-                            let percent = Math.round(evt.loaded / evt.total * 100)
-                            if ((percent && percent != 100) || $(self.box).find('#'+ self.name + '_progress').text() != '') {
-                                $(self.box).find('#'+ self.name + '_progress').text(''+ percent + '%')
-                            }
-                            // event after
-                            edata3.finish()
-                        }
-                    }, false)
-                    return xhr
-                }
-            }
-            let dataType = self.dataType || w2utils.settings.dataType
-            if (edata.dataType) dataType = edata.dataType
-            switch (dataType) {
-                case 'HTTP':
-                    ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']')
-                    break
-                case 'HTTPJSON':
-                    ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) }
-                    break
-                case 'RESTFULL':
-                    if (self.recid !== 0 && self.recid != null) ajaxOptions.type = 'PUT'
-                    ajaxOptions.data = String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']')
-                    break
-                case 'RESTFULLJSON':
-                    if (self.recid !== 0 && self.recid != null) ajaxOptions.type = 'PUT'
-                    ajaxOptions.data        = JSON.stringify(ajaxOptions.data)
-                    ajaxOptions.contentType = 'application/json'
-                    break
-                case 'JSON':
-                    ajaxOptions.type        = 'POST'
-                    ajaxOptions.contentType = 'application/json'
-                    if (!self.multipart) {
-                        ajaxOptions.data = JSON.stringify(ajaxOptions.data)
-                    } else {
-                        function append(fd, dob, fob, p){
-                            if (p == null) p = ''
-                            function isObj(dob, fob, p){
-                                if (typeof dob === 'object' && dob instanceof File) fd.append(p, dob)
-                                if (typeof dob === 'object'){
-                                    if (!!dob && dob.constructor === Array) {
-                                        for (let i = 0; i < dob.length; i++) {
-                                            let aux_fob = !!fob ? fob[i] : fob
-                                            isObj(dob[i], aux_fob, p+'['+i+']')
-                                        }
-                                    } else {
-                                        append(fd, dob, fob, p)
+        }
+        let fetchOptions = {
+            method: 'POST',
+            headers: edata.detail.httpHeaders,
+            body: edata.detail.postData
+            // TODO: check multiplart save
+            // xhr() {
+            //     let xhr = new window.XMLHttpRequest()
+            //     // upload
+            //     xhr.upload.addEventListener('progress', function progress(evt) {
+            //         if (evt.lengthComputable) {
+            //             let edata3 = self.trigger('progress', { total: evt.total, loaded: evt.loaded, originalEvent: evt })
+            //             if (edata3.isCancelled === true) return
+            //             // only show % if it takes time
+            //             let percent = Math.round(evt.loaded / evt.total * 100)
+            //             if ((percent && percent != 100) || $(self.box).find('#'+ self.name + '_progress').text() != '') {
+            //                 $(self.box).find('#'+ self.name + '_progress').text(''+ percent + '%')
+            //             }
+            //             // event after
+            //             edata3.finish()
+            //         }
+            //     }, false)
+            //     return xhr
+            // }
+        }
+        let dataType = edata.detail.dataType ?? this.dataType ?? w2utils.settings.dataType
+        switch (dataType) {
+            case 'HTTP':
+                fetchOptions.body = w2utils.encodeParams(fetchOptions.body)
+                break
+            case 'HTTPJSON':
+                fetchOptions.body = JSON.stringify({ request: fetchOptions.body })
+                break
+            case 'RESTFULL':
+                fetchOptions.type = 'GET'
+                fetchOptions.body = w2utils.encodeParams(fetchOptions.body)
+                break
+            case 'RESTFULLJSON':
+                fetchOptions.type = 'GET'
+                fetchOptions.body = JSON.stringify(fetchOptions.body)
+                fetchOptions.headers.contentType = 'application/json'
+                break
+            case 'JSON':
+                fetchOptions.method = 'POST'
+                fetchOptions.headers.contentType = 'application/json'
+                if (!self.multipart) {
+                    fetchOptions.body = JSON.stringify(fetchOptions.body)
+                } else {
+                    // TODO: check file upload processing
+                    function append(fd, dob, fob, p){
+                        if (p == null) p = ''
+                        function isObj(dob, fob, p){
+                            if (typeof dob === 'object' && dob instanceof File) fd.append(p, dob)
+                            if (typeof dob === 'object'){
+                                if (!!dob && dob.constructor === Array) {
+                                    for (let i = 0; i < dob.length; i++) {
+                                        let aux_fob = !!fob ? fob[i] : fob
+                                        isObj(dob[i], aux_fob, p+'['+i+']')
                                     }
+                                } else {
+                                    append(fd, dob, fob, p)
                                 }
                             }
-                            for(let prop in dob){
-                                let aux_p   = p == '' ? prop : '${p}[${prop}]'
-                                let aux_fob = !!fob ? fob[prop] : fob
-                                isObj(dob[prop], aux_fob, aux_p)
-                            }
                         }
-                        let fdata = new FormData()
-                        fdata.append('__body', JSON.stringify(ajaxOptions.data))
-                        append(fdata, ajaxOptions.data)
-                        ajaxOptions.data        = fdata
-                        ajaxOptions.contentType = false
-                        ajaxOptions.processData = false
+                        for(let prop in dob){
+                            let aux_p   = p == '' ? prop : '${p}[${prop}]'
+                            let aux_fob = !!fob ? fob[prop] : fob
+                            isObj(dob[prop], aux_fob, aux_p)
+                        }
                     }
-                    break
+                    let fdata = new FormData()
+                    fdata.append('__body', JSON.stringify(fetchOptions.body))
+                    append(fdata, fetchOptions.body)
+                    fetchOptions.body = fdata
+                    // fetchOptions.contentType = false
+                    // fetchOptions.processData = false
+                }
+                break
+        }
+        if (this.method) fetchOptions.method = this.method
+        if (edata.detail.method) fetchOptions.method = edata.detail.method
+        this.last.xhr = fetch(url, fetchOptions)
+            .catch(processError)
+            .then(resp => {
+                self.unlock()
+                if (resp.status != 200) {
+                    processError(resp)
+                    return
+                }
+                // event before
+                let edata = self.trigger('save', { target: self.name, xhr: this.last.xhr, data: resp })
+                if (edata.isCancelled === true) return
+                // parse server response
+                resp.json()
+                    .catch(processError)
+                    .then(data => {
+                        // server error, not due to network issues
+                        if (data.error === true) {
+                            self.error(w2utils.lang(data.message))
+                        } else {
+                            self.original = null
+                        }
+                        // event after
+                        edata.finish()
+                        self.refresh()
+                        // call back
+                        if (typeof callBack === 'function') callBack(data, this.last.xhr)
+                    })
+            })
+        // event after
+        edata.finish()
+        return
+
+        function processError(response) {
+            self.unlock()
+            // trigger event
+            let edata2 = self.trigger('error', { response, xhr: self.last.xhr })
+            if (edata2.isCancelled === true) return
+            // default behavior
+            if (response.status && response.status != 200) {
+                self.error(response.status + ': ' + response.statusText)
+            } else {
+                console.log('ERROR: Server request failed.', response, '. ',
+                    'Expected Response:', { error: false, record: { field1: 1, field2: 'item' }},
+                    'OR:', { error: true, message: 'Error description' })
+                self.error(String(response))
             }
-            if (this.method) ajaxOptions.type = this.method
-            if (edata.method) ajaxOptions.type = edata.method
-            self.last.xhr = $.ajax(ajaxOptions)
-                .done((data, status, xhr) => {
-                    self.unlock()
-                    // event before
-                    let edata = self.trigger('save', { target: self.name, xhr: xhr, status: status, data: data })
-                    if (edata.isCancelled === true) return
-                    // parse server response
-                    data = xhr.responseJSON
-                    // default action
-                    if (data == null) {
-                        data = {
-                            status       : 'error',
-                            message      : w2utils.lang(self.msgNotJSON),
-                            responseText : xhr.responseText
-                        }
-                    }
-                    if (data.status === 'error') {
-                        self.error(w2utils.lang(data.message))
-                    } else {
-                        self.original = null
-                    }
-                    // event after
-                    edata.finish()
-                    self.refresh()
-                    // call back
-                    if (typeof callBack === 'function') callBack(data, xhr)
-                })
-                .fail((xhr, status, error) => {
-                    // trigger event
-                    let errorObj = { status: status, error: error, rawResponseText: xhr.responseText }
-                    let edata2   = self.trigger('error', { error: errorObj, xhr: xhr })
-                    if (edata2.isCancelled === true) return
-                    // default behavior
-                    console.log('ERROR: server communication failed. The server should return',
-                        { status: 'success' }, 'OR', { status: 'error', message: 'error message' },
-                        ', instead the AJAX request produced this: ', errorObj)
-                    self.unlock()
-                    // event after
-                    edata2.finish()
-                })
             // event after
-            edata.finish()
-        }, 50)
+            edata2.finish()
+        }
     }
 
     lock(msg, showSpinner) {
         let args = Array.from(arguments)
         args.unshift(this.box)
-        setTimeout(() => { w2utils.lock(...args) }, 10)
+        w2utils.lock(...args)
     }
 
     unlock(speed) {
         let box = this.box
-        setTimeout(() => { w2utils.unlock(box, speed) }, 25) // needed timer so if server fast, it will not flash
+        w2utils.unlock(box, speed)
     }
 
     lockPage(page, msg, spinner) {
-        let $page = $(this.box).find('.page-' + page)
+        let $page = query(this.box).find('.page-' + page)
         if($page.length){
             // page found
             w2utils.lock($page, msg, spinner)
@@ -977,7 +997,7 @@ class w2form extends w2base {
     }
 
     unlockPage(page, speed) {
-        let $page = $(this.box).find('.page-' + page)
+        let $page = query(this.box).find('.page-' + page)
         if ($page.length) {
             // page found
             w2utils.unlock($page, speed)
@@ -991,9 +1011,11 @@ class w2form extends w2base {
         if (this.page === page) return // already on this page
         if (page != null) this.page = page
         // apply element in focus
-        $(this.box).find(':focus').change() // trigger onchange
+        query(document.activeElement).trigger('change') // trigger onchange
         // if it was auto size, resize it
-        if ($(this.box).data('auto-size') === true) $(this.box).height(0)
+        if (query(this.box).data('autoSize') === true) {
+            query(this.box).get(0).clientHeight = 0
+        }
         this.refresh()
     }
 
@@ -1017,7 +1039,7 @@ class w2form extends w2base {
                 field.html.label = field.html.caption
             }
             if (field.html.label == null) field.html.label = field.field
-            field.html = $.extend(true, { label: '', span: 6, attr: '', text: '', style: '', page: 0, column: 0 }, field.html)
+            field.html = w2utils.extend({ label: '', span: 6, attr: '', text: '', style: '', page: 0, column: 0 }, field.html)
             if (page == null) page = field.html.page
             if (column == null) column = field.html.column
             // input control
@@ -1166,14 +1188,14 @@ class w2form extends w2base {
         }
         // buttons if any
         let buttons = ''
-        if (!$.isEmptyObject(this.actions)) {
+        if (Object.keys(this.actions).length > 0) {
             buttons += '\n<div class="w2ui-buttons">'
             tabindex = this.tabindexBase + this.fields.length + 1
 
             for (let a in this.actions) { // it is an object
                 let act  = this.actions[a]
                 let info = { text: '', style: '', 'class': '' }
-                if ($.isPlainObject(act)) {
+                if (w2utils.isPlainObject(act)) {
                     if (act.text == null && act.caption != null) {
                         console.log('NOTICE: form action.caption property is deprecated, please use action.text. Action ->', act)
                         act.text = act.caption
@@ -1224,24 +1246,17 @@ class w2form extends w2base {
     }
 
     toggleGroup(groupName, show) {
-        let el = $(this.box).find('.w2ui-group-title[data-group="' + w2utils.base64encode(groupName) + '"]')
-        if(!el || !el.length) return
-        let el_next = el.next()
+        let el = query(this.box).find('.w2ui-group-title[data-group="' + w2utils.base64encode(groupName) + '"]')
+        if(el.length === 0) return
+        let el_next = query(el.prop('nextElementSibling'))
         if (typeof show === 'undefined') {
-            show = ( el_next.css('display') == 'none' )
+            show = (el_next.css('display') == 'none')
         }
         if (show) {
-            el_next.slideDown(300)
-            el_next.next().remove()
+            el_next.show()
             el.find('span').addClass('w2ui-icon-collapse').removeClass('w2ui-icon-expand')
         } else {
-            el_next.slideUp(300)
-            let css = 'width: ' + el_next.css('width') + ';'
-               + 'padding-left: ' + el_next.css('padding-left') + ';'
-               + 'padding-right: ' + el_next.css('padding-right') + ';'
-               + 'margin-left: ' + el_next.css('margin-left') + ';'
-               + 'margin-right: ' + el_next.css('margin-right') + ';'
-            setTimeout(() => { el_next.after('<div style="height: 5px;'+ css +'"></div>') }, 100)
+            el_next.hide()
             el.find('span').addClass('w2ui-icon-expand').removeClass('w2ui-icon-collapse')
         }
     }
@@ -1249,7 +1264,7 @@ class w2form extends w2base {
     action(action, event) {
         let act   = this.actions[action]
         let click = act
-        if ($.isPlainObject(act) && act.onClick) click = act.onClick
+        if (w2utils.isPlainObject(act) && act.onClick) click = act.onClick
         // event before
         let edata = this.trigger('action', { target: action, action: act, originalEvent: event })
         if (edata.isCancelled === true) return
@@ -1265,26 +1280,24 @@ class w2form extends w2base {
         let edata = this.trigger('resize', { target: this.name })
         if (edata.isCancelled === true) return
         // default behaviour
-        let main    = $(this.box).find('> div.w2ui-form-box')
-        let header  = $(this.box).find('> div .w2ui-form-header')
-        let toolbar = $(this.box).find('> div .w2ui-form-toolbar')
-        let tabs    = $(this.box).find('> div .w2ui-form-tabs')
-        let page    = $(this.box).find('> div .w2ui-page')
-        let cpage   = $(this.box).find('> div .w2ui-page.page-'+ this.page)
-        let dpage   = $(this.box).find('> div .w2ui-page.page-'+ this.page + ' > div')
-        let buttons = $(this.box).find('> div .w2ui-buttons')
+        let main    = query(this.box).find(':scope > div.w2ui-form-box')
+        let header  = query(this.box).find(':scope > div .w2ui-form-header')
+        let toolbar = query(this.box).find(':scope > div .w2ui-form-toolbar')
+        let tabs    = query(this.box).find(':scope > div .w2ui-form-tabs')
+        let page    = query(this.box).find(':scope > div .w2ui-page')
+        let dpage   = query(this.box).find(':scope > div .w2ui-page.page-'+ this.page + ' > div')
+        let buttons = query(this.box).find(':scope > div .w2ui-buttons')
         // if no height, calculate it
-        resizeElements()
-        if (this.autosize) { //we don't need auto-size every time
-            if (parseInt($(this.box).height()) === 0 || $(this.box).data('auto-size') === true) {
-                $(this.box).height(
-                    (header.length > 0 ? w2utils.getSize(header, 'height') : 0) +
-                    ((typeof this.tabs === 'object' && Array.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) ? w2utils.getSize(tabs, 'height') : 0) +
-                    ((typeof this.toolbar === 'object' && Array.isArray(this.toolbar.items) && this.toolbar.items.length > 0) ? w2utils.getSize(toolbar, 'height') : 0) +
-                    (page.length > 0 ? w2utils.getSize(dpage, 'height') + 15 : 0) + // why 15 ???
-                    (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0)
-                )
-                $(this.box).data('auto-size', true)
+        let { headerHeight, tbHeight, tabsHeight } = resizeElements()
+        if (this.autosize) { // we don't need autosize every time
+            let cHeight = query(this.box).get(0).clientHeight
+            if (cHeight === 0 || query(this.box).data('autosize') == "yes") {
+                query(this.box).css({
+                    height: headerHeight + tbHeight + tabsHeight + 15 // 15 is extra height
+                        + (page.length > 0 ? w2utils.getSize(dpage, 'height') : 0)
+                        + (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0)
+                })
+                query(this.box).data('autosize', 'yes')
             }
             resizeElements()
         }
@@ -1292,15 +1305,22 @@ class w2form extends w2base {
         edata.finish()
 
         function resizeElements() {
+            let rect = obj.box.getBoundingClientRect()
+            let headerHeight = (obj.header !== '' ? w2utils.getSize(header, 'height') : 0)
+            let tbHeight = (Array.isArray(obj.toolbar?.items) && obj.toolbar?.items?.length > 0)
+                ? w2utils.getSize(toolbar, 'height')
+                : 0
+            let tabsHeight = (Array.isArray(obj.tabs?.tabs) && obj.tabs?.tabs?.length > 0)
+                ? w2utils.getSize(tabs, 'height')
+                : 0
             // resize elements
-            main.width($(obj.box).width()).height($(obj.box).height())
-            toolbar.css('top', (obj.header !== '' ? w2utils.getSize(header, 'height') : 0))
-            tabs.css('top', (obj.header !== '' ? w2utils.getSize(header, 'height') : 0)
-                          + ((typeof obj.toolbar === 'object' && Array.isArray(obj.toolbar.items) && obj.toolbar.items.length > 0) ? w2utils.getSize(toolbar, 'height') : 0))
-            page.css('top', (obj.header !== '' ? w2utils.getSize(header, 'height') : 0)
-                          + ((typeof obj.toolbar === 'object' && Array.isArray(obj.toolbar.items) && obj.toolbar.items.length > 0) ? w2utils.getSize(toolbar, 'height') + 5 : 0)
-                          + ((typeof obj.tabs === 'object' && Array.isArray(obj.tabs.tabs) && obj.tabs.tabs.length > 0) ? w2utils.getSize(tabs, 'height') + 5 : 0))
-            page.css('bottom', (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0))
+            main.css({ width: rect.width, height: rect.height })
+            toolbar.css({ top: headerHeight })
+            tabs.css({ top: headerHeight + tbHeight })
+            page.css({ top: headerHeight + tbHeight + tabsHeight })
+            page.css({ bottom: (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0) })
+            // return some params
+            return { width: rect.width, height: rect.height, headerHeight, tbHeight, tabsHeight }
         }
     }
 
@@ -1387,17 +1407,17 @@ class w2form extends w2base {
                         let cv = obj.getValue(this.name)
                         if (Array.isArray(nv)) {
                             value_new = []
-                            for (let i = 0; i < nv.length; i++) value_new[i] = $.extend(true, {}, nv[i]) // clone array
+                            for (let i = 0; i < nv.length; i++) value_new[i] = w2utils.clone(nv[i]) // clone array
                         }
-                        if ($.isPlainObject(nv)) {
-                            value_new = $.extend(true, {}, nv) // clone object
+                        if (w2utils.isPlainObject(nv)) {
+                            value_new = w2utils.clone(nv) // clone object
                         }
                         if (Array.isArray(cv)) {
                             value_previous = []
-                            for (let i = 0; i < cv.length; i++) value_previous[i] = $.extend(true, {}, cv[i]) // clone array
+                            for (let i = 0; i < cv.length; i++) value_previous[i] = w2utils.clone(cv[i]) // clone array
                         }
-                        if ($.isPlainObject(cv)) {
-                            value_previous = $.extend(true, {}, cv) // clone object
+                        if (w2utils.isPlainObject(cv)) {
+                            value_previous = w2utils.clone(cv) // clone object
                         }
                     }
                     if (['toggle', 'checkbox'].indexOf(field.type) !== -1) {
@@ -1438,7 +1458,7 @@ class w2form extends w2base {
                         }
                     }
                     if (val === '' || val == null
-                            || (Array.isArray(val) && val.length === 0) || ($.isPlainObject(val) && $.isEmptyObject(val))) {
+                            || (Array.isArray(val) && val.length === 0) || (w2utils.isPlainObject(val) && Object.keys(val).length == 0)) {
                         val = null
                     }
                     obj.setValue(this.name, val)
@@ -1452,8 +1472,8 @@ class w2form extends w2base {
                     }
                     // remember original
                     if (obj.original == null) {
-                        if (!$.isEmptyObject(obj.record)) {
-                            obj.original = $.extend(true, {}, obj.record)
+                        if (Object.keys(obj.record).length > 0) {
+                            obj.original = w2utils.clone(obj.record)
                         } else {
                             obj.original = {}
                         }
@@ -1532,7 +1552,7 @@ class w2form extends w2base {
                 case 'percent':
                     // issue #761
                     field.el.value = value
-                    $(field.el).w2field($.extend({}, field.options, { type: field.type }))
+                    $(field.el).w2field(w2utils.extend({}, field.options, { type: field.type }))
                     break
                 case 'hex':
                 case 'alphanumeric':
@@ -1541,7 +1561,7 @@ class w2form extends w2base {
                 case 'time':
                 case 'datetime':
                     field.el.value = value
-                    $(field.el).w2field($.extend({}, field.options, { type: field.type }))
+                    $(field.el).w2field(w2utils.extend({}, field.options, { type: field.type }))
                     break
                 case 'toggle':
                     if (w2utils.isFloat(value)) value = parseFloat(value)
@@ -1576,7 +1596,7 @@ class w2form extends w2base {
                 case 'list':
                 case 'combo':
                     if (field.type === 'list') {
-                        let tmp_value = ($.isPlainObject(value) ? value.id : ($.isPlainObject(field.options.selected) ? field.options.selected.id : value))
+                        let tmp_value = (w2utils.isPlainObject(value) ? value.id : (w2utils.isPlainObject(field.options.selected) ? field.options.selected.id : value))
                         // normalized options
                         if (!field.options.items) field.options.items = []
                         let items = field.options.items
@@ -1587,7 +1607,7 @@ class w2form extends w2base {
                             for (let i = 0; i < items.length; i++) {
                                 let item = items[i]
                                 if (item.id == tmp_value) {
-                                    value = $.extend(true, {}, item)
+                                    value = w2utils.clone(item)
                                     obj.setValue(field.name, value)
                                     isFound = true
                                     break
@@ -1597,15 +1617,15 @@ class w2form extends w2base {
                         if (!isFound && value != null && value !== '') {
                             field.$el.data('find_selected', value)
                         }
-                    } else if (field.type === 'combo' && !$.isPlainObject(value)) {
+                    } else if (field.type === 'combo' && !w2utils.isPlainObject(value)) {
                         field.el.value = value
-                    } else if ($.isPlainObject(value) && value.text != null) {
+                    } else if (w2utils.isPlainObject(value) && value.text != null) {
                         field.el.value = value.text
                     } else {
                         field.el.value = ''
                     }
-                    if (!$.isPlainObject(value)) value = {}
-                    $(field.el).w2field($.extend({}, field.options, { type: field.type, selected: value }))
+                    if (!w2utils.isPlainObject(value)) value = {}
+                    $(field.el).w2field(w2utils.extend({}, field.options, { type: field.type, selected: value }))
                     break
                 case 'enum':
                 case 'file':
@@ -1619,8 +1639,8 @@ class w2form extends w2base {
                         // find value from items
                         value.forEach((val) => {
                             field.options.items.forEach((it) => {
-                                if (it && (it.id == val || ($.isPlainObject(val) && it.id == val.id))) {
-                                    sel.push($.isPlainObject(it) ? $.extend(true, {}, it) : it)
+                                if (it && (it.id == val || (w2utils.isPlainObject(val) && it.id == val.id))) {
+                                    sel.push(w2utils.isPlainObject(it) ? w2utils.clone(it) : it)
                                     isFound = true
                                 }
                             })
@@ -1630,7 +1650,7 @@ class w2form extends w2base {
                         field.$el.data('find_selected', value)
                         sel = value
                     }
-                    let opt = $.extend({}, field.options, { type: field.type, selected: sel })
+                    let opt = w2utils.extend({}, field.options, { type: field.type, selected: sel })
                     Object.keys(field.options).forEach((key) => {
                         if (typeof field.options[key] == 'function') {
                             opt[key] = field.options[key]
@@ -1656,7 +1676,7 @@ class w2form extends w2base {
                 case 'map':
                 case 'array':
                     // init map
-                    if (field.type == 'map' && (value == null || !$.isPlainObject(value))) {
+                    if (field.type == 'map' && (value == null || !w2utils.isPlainObject(value))) {
                         this.setValue(field.field, {})
                         value = this.getValue(field.field)
                     }
@@ -1681,7 +1701,7 @@ class w2form extends w2base {
                             let cnt = 1
                             let names
                             if (field.type == 'map') {
-                                if (!$.isPlainObject(map)) map = {}
+                                if (!w2utils.isPlainObject(map)) map = {}
                                 if (map._order == null) map._order = Object.keys(map)
                                 names = map._order
                             }
@@ -1816,7 +1836,7 @@ class w2form extends w2base {
                     break
                 default:
                     $(field.el).val(value)
-                    $(field.el).w2field($.extend({}, field.options, { type: field.type }))
+                    $(field.el).w2field(w2utils.extend({}, field.options, { type: field.type }))
                     break
             }
         }
@@ -1836,8 +1856,8 @@ class w2form extends w2base {
         let obj  = this
         if (typeof box === 'object') {
             // remove from previous box
-            if ($(this.box).find('#form_'+ this.name +'_tabs').length > 0) {
-                $(this.box).removeAttr('name')
+            if (query(this.box).find('#form_'+ this.name +'_tabs').length > 0) {
+                query(this.box).removeAttr('name')
                     .removeClass('w2ui-reset w2ui-form')
                     .html('')
             }
@@ -1854,15 +1874,15 @@ class w2form extends w2base {
                     '    <div id="form_'+ this.name +'_tabs" class="w2ui-form-tabs" style="display: none"></div>' +
                         this.formHTML +
                     '</div>'
-        $(this.box).attr('name', this.name)
+        query(this.box).attr('name', this.name)
             .addClass('w2ui-reset w2ui-form')
             .html(html)
-        if ($(this.box).length > 0) $(this.box)[0].style.cssText += this.style
-        w2utils.bindEvents($(this.box).find('.w2ui-eaction'), this)
+        if (query(this.box).length > 0) query(this.box)[0].style.cssText += this.style
+        w2utils.bindEvents(query(this.box).find('.w2ui-eaction'), this)
 
         // init toolbar regardless it is defined or not
         if (typeof this.toolbar.render !== 'function') {
-            this.toolbar = new w2toolbar($.extend({}, this.toolbar, { name: this.name +'_toolbar', owner: this }))
+            this.toolbar = new w2toolbar(w2utils.extend({}, this.toolbar, { name: this.name +'_toolbar', owner: this }))
             this.toolbar.on('click', function(event) {
                 let edata = obj.trigger('toolbar', { target: event.target, originalEvent: event })
                 if (edata.isCancelled === true) return
@@ -1871,17 +1891,17 @@ class w2form extends w2base {
             })
         }
         if (typeof this.toolbar === 'object' && typeof this.toolbar.render === 'function') {
-            this.toolbar.render($(this.box).find('#form_'+ this.name +'_toolbar')[0])
+            this.toolbar.render(query(this.box).find('#form_'+ this.name +'_toolbar')[0])
         }
         // init tabs regardless it is defined or not
         if (typeof this.tabs.render !== 'function') {
-            this.tabs = new w2tabs($.extend({}, this.tabs, { name: this.name +'_tabs', owner: this, active: this.tabs.active }))
+            this.tabs = new w2tabs(w2utils.extend({}, this.tabs, { name: this.name +'_tabs', owner: this, active: this.tabs.active }))
             this.tabs.on('click', function(event) {
                 obj.goto(this.get(event.target, true))
             })
         }
         if (typeof this.tabs === 'object' && typeof this.tabs.render === 'function') {
-            this.tabs.render($(this.box).find('#form_'+ this.name +'_tabs')[0])
+            this.tabs.render(query(this.box).find('#form_'+ this.name +'_tabs')[0])
             if(this.tabs.active) this.tabs.click(this.tabs.active)
         }
         // event after
@@ -1899,19 +1919,21 @@ class w2form extends w2base {
         this.last.resizeObserver.observe(this.box)
         // focus on load
         if (this.focus != -1) {
-            setTimeout(() => {
-                // if not rendered in 50ms, then wait another 500ms
-                if ($(obj.box).find('input, select, textarea').length === 0) {
-                    setTimeout(obj.applyFocus, 500) // need timeout to allow form to render
+            let setCount = 0
+            let setFocus = () => {
+                if (query(obj.box).find('input, select, textarea').length > 0) {
+                    obj.setFocus()
                 } else {
-                    obj.applyFocus()
+                    setCount++
+                    if (setCount < 20) setTimeout(setFocus, 50) // 1 sec max
                 }
-            }, 50)
+            }
+            setFocus()
         }
         return (new Date()).getTime() - time
     }
 
-    applyFocus(focus) {
+    setFocus(focus) {
         if(typeof focus === 'undefined'){
             // no argument - use form's focus property
             focus = this.focus
@@ -1922,21 +1944,23 @@ class w2form extends w2base {
             if(focus < 0) {
                 return
             }
-            let inputs = $(this.box).find('div:not(.w2ui-field-helper) > input, select, textarea, div > label:nth-child(1) > :radio').not('.file-input')
-            // find visible
-            while ($(inputs[focus]).is(':hidden') && inputs.length >= focus) {
+            let inputs = query(this.box).find(
+                    'div:not(.w2ui-field-helper) > input, select, textarea, ' +
+                    'div > label:nth-child(1) > [type=radio]')
+                .filter(':not(.file-input)')
+            // find visible (offsetParent == null for any element is not visible)
+            while (inputs[focus].offsetParent == null && inputs.length >= focus) {
                 focus++
             }
             if (inputs[focus]) {
-                $input = $(inputs[focus])
+                $input = query(inputs[focus])
             }
-        }
-        // focus field by name
-        else if (typeof focus === 'string') {
-            $input = $(this.box).find('[name=\''+focus+'\']').first()
+        } else if (typeof focus === 'string') {
+            // focus field by name
+            $input = query(this.box).find(`[name='${focus}']`)
         }
         if ($input){
-            $input.trigger('focus')
+            $input.get(0).focus()
         }
         return $input
     }
@@ -1948,8 +1972,8 @@ class w2form extends w2base {
         // clean up
         if (typeof this.toolbar === 'object' && this.toolbar.destroy) this.toolbar.destroy()
         if (typeof this.tabs === 'object' && this.tabs.destroy) this.tabs.destroy()
-        if ($(this.box).find('#form_'+ this.name +'_tabs').length > 0) {
-            $(this.box)
+        if (query(this.box).find('#form_'+ this.name +'_tabs').length > 0) {
+            query(this.box)
                 .removeAttr('name')
                 .removeClass('w2ui-reset w2ui-form')
                 .html('')

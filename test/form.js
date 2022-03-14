@@ -1,8 +1,11 @@
 jQuery(() => {
     jQuery('#form').w2form({
         name      : 'form',
-        // routeData : { id: 4 },
-        url: { get1: 'http://w2ui.com', save: 'http://w2ui.com' },
+        routeData : { id: 4 },
+        postData: { some: "data" },
+        url: { get: 'form.json?id=:id', save: 'form.json?id=:id' },
+        httpHeaders: { header1: "header-data" },
+        // url: { get: 'http://w2ui.com', save: 'http://w2ui.com' },
         // page      : 2,
         // url       : 'form.php',
         // formURL   : 'form-template.html',
@@ -29,33 +32,7 @@ jQuery(() => {
                 { type: 'button', id: 'save', text: 'Save', img: 'icon-folder' }
             ]
         },
-        record: {
-            field: {
-                "toggle"  : '0',
-                "text"    : 'some text',
-                "textarea": 'more text',
-                "date"    : '1/15/2014',
-                "time"    : '10:11 am',
-                "color"   : '999999',
-                "list"    : 5,
-                "combo"   : { id: 1, text: 'Item 1' },
-                "enum"    : [{ id: '1', text: 'item 1'}, { id: 2, text: 'item 2'}],
-                "file"    : [{ name: 'file.txt', size: 3033, type: 'text', modified: '1/1/2014' }],
-                "email"   : 'see@mail.com',
-                "password": 'pass',
-                // "int"     : '10',
-                "float"   : '20',
-                "money"   : '30',
-                "currency": '40',
-                "percent" : '50',
-                "alpha"   : '60',
-                "select"  : 'second',
-                "check"   : 33,
-                "check3"  : [-1,0,2],
-                "radio"   : '1'
-            }
-        },
-        focus: -1,
+        focus: 'field.text',
         fields: [
             // first page
             { field: 'field.html', type: 'html', required: true,

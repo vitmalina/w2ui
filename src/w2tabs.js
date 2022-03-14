@@ -54,7 +54,7 @@ class w2tabs extends w2base {
         let tabs = options.tabs
         delete options.tabs
         // mix in options
-        w2utils.extend(this, options)
+        Object.assign(this, options)
         // add item via method to makes sure item_template is applied
         if (Array.isArray(tabs)) this.add(tabs)
         // need to reassign back to keep it in config

@@ -431,6 +431,9 @@ class Query {
     }
 
     data(key, value) {
+        if (key && key.indexOf('-') != -1) {
+            console.error(`Key "${key}" contains "-" (dash). Dashes are not allowed in property names. Use camelCase instead.`)
+        }
         if (arguments.length < 2) {
             if (this[0]) {
                 let data = Object.assign({}, this[0].dataset)

@@ -61,7 +61,7 @@ class w2layout extends w2base {
             onHide: null
         }
         // mix in options
-        w2utils.extend(this, options)
+        Object.assign(this, options)
         if (!Array.isArray(this.panels)) this.panels = []
         // add defined panels
         this.panels.forEach((panel, ind) => {
@@ -225,7 +225,7 @@ class w2layout extends w2base {
                     .then(text => {
                         this.resize()
                         resolve(this.html(panel, text, transition))
-                    });
+                    })
             } else {
                 reject()
             }

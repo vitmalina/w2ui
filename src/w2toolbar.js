@@ -64,7 +64,7 @@ class w2toolbar extends w2base {
         // mix in options, w/o items
         let items = options.items
         delete options.items
-        w2utils.extend(this, options)
+        Object.assign(this, options)
         // add item via method to makes sure item_template is applied
         if (Array.isArray(items)) this.add(items)
         // need to reassign back to keep it in config

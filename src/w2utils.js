@@ -31,7 +31,7 @@ class Utils {
         this.version = '2.0.x'
         this.tmp = {}
         this.settings = this.extend({}, {
-            'dataType'       : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
+            'dataType'       : 'JSON', // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
             'dateStartYear'  : 1950,  // start year for date-picker
             'dateEndYear'    : 2030,  // end year for date picker
             'macButtonOrder' : false, // if true, Yes on the right side
@@ -1435,9 +1435,11 @@ class Utils {
             switch (type) {
                 case 'width' :
                     ret = parseFloat(styles.width)
+                    if (styles.width === 'auto') ret = 0;
                     break
                 case 'height' :
                     ret = parseFloat(styles.height)
+                    if (styles.height === 'auto') ret = 0;
                     break
             }
         }
@@ -1576,15 +1578,35 @@ class Utils {
         return true
     }
 
-    checkUniqueId(id, items, desc, obj) { // was w2checkUniqueId
+    checkUniqueId(id, items, desc, obj) {
         if (!Array.isArray(items)) items = [items]
-        for (let i = 0; i < items.length; i++) {
-            if (items[i].id === id) {
-                console.log(`ERROR: The item "id=${id}" is not unique within the ${desc} "${obj}".`, items)
-                return false
+        let isUnique = true
+        items.forEach(item => {
+            if (item.id === id) {
+                console.log(`ERROR: The item id="${id}" is not unique within the ${desc} "${obj}".`, items)
+                isUnique = false
             }
-        }
-        return true
+        })
+        return isUnique
+    }
+
+    /**
+     * Takes an object and encodes it into params string to be passed as a url
+     * { a: 1, b: 'str'}                => "a=1&b=str"
+     * { a: 1, b: { c: 2 }}             => "a=1&b[c]=2"
+     * { a: 1, b: {c: { k: 'dfdf' } } } => "a=1&b[c][k]=dfdf"
+     */
+    encodeParams(obj, prefix = '') {
+        let str = ''
+        Object.keys(obj).forEach(key => {
+            if (str != '') str += '&'
+            if (typeof obj[key] == 'object') {
+                str += this.encodeParams(obj[key], prefix + key + (prefix ? ']' : '') + '[')
+            } else {
+                str += `${prefix}${key}${prefix ? ']' : ''}=${obj[key]}`
+            }
+        })
+        return str
     }
 
     parseRoute(route) {

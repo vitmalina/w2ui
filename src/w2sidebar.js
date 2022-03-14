@@ -89,7 +89,7 @@ class w2sidebar extends w2base {
         let nodes = options.nodes
         delete options.nodes
         // mix in options
-        w2utils.extend(this, options)
+        Object.assign(this, options)
         // add item via method to makes sure item_template is applied
         if (Array.isArray(nodes)) this.add(nodes)
         // need to reassign back to keep it in config

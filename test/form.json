@@ -1,0 +1,30 @@
+{
+    "error": "1",
+    "message": "some erorr",
+    "record": {
+        "field": {
+            "toggle"  : "0",
+            "text"    : "some text",
+            "textarea": "more text",
+            "date"    : "1/15/2014",
+            "time"    : "10:11 am",
+            "color"   : "999999",
+            "list"    : 5,
+            "combo"   : { "id": 1, "text": "Item 1" },
+            "enum"    : [{ "id": "1", "text": "item 1"}, { "id": 2, "text": "item 2"}],
+            "file"    : [{ "name": "file.txt", "size": 3033, "type": "text", "modified": "1/1/2014" }],
+            "email"   : "see@mail.com",
+            "password": "pass",
+            "int"     : "10",
+            "float"   : "20",
+            "money"   : "30",
+            "currency": "40",
+            "percent" : "50",
+            "alpha"   : "60",
+            "select"  : "second",
+            "check"   : 33,
+            "check3"  : [-1,0,2],
+            "radio"   : "1"
+        }
+    }
+}

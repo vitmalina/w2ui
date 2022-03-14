@@ -398,8 +398,8 @@ class w2grid extends w2base {
         this.onColumnDragEnd    = null
         this.onResizerDblClick  = null
 
-        // need deep merge
-        $.extend(true, this, options)
+        // need deep merge, should be extend, not objectAssign
+        w2utils.extend(this, options)
 
         // check if there are records without recid
         if (Array.isArray(this.records)) {
