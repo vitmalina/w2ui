@@ -18,7 +18,7 @@ const comments = {
 const legacy_replace = `export {
     w2ui, w2utils, query, w2locale, w2event, w2base, w2popup, w2alert, w2confirm, w2prompt, Dialog,
     w2tooltip, w2menu, w2color, w2date, w2time, Tooltip, ColorTooltip, MenuTooltip, DateTooltip, TimeTooltip,
-    w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field, addType, removeType
+    w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field
 }`
 const legacy_code = `
 // Compatibility with CommonJS and AMD modules
@@ -40,13 +40,13 @@ if (global) {
 })(self, {
     w2ui, w2utils, query, w2locale, w2event, w2base, w2popup, w2alert, w2confirm, w2prompt, Dialog,
     w2tooltip, w2menu, w2color, w2date, w2time, Tooltip, ColorTooltip, MenuTooltip, DateTooltip, TimeTooltip,
-    w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field, addType, removeType
+    w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field
 })`
 
 const exports_es6 = `export {
     w2ui, w2utils, query, w2locale, w2event, w2base, w2popup, w2alert, w2confirm, w2prompt, Dialog,
     w2tooltip, w2menu, w2color, w2date, w2time, Tooltip, ColorTooltip, MenuTooltip, DateTooltip, TimeTooltip,
-    w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field, addType, removeType
+    w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field
 }`
 
 const files_es6 = [
@@ -115,7 +115,7 @@ let tasks = {
             .pipe(concat('w2ui.es6.js'))
             .pipe(replace(/^(import.*'|export.*}|module\.exports.*})$\n/gm, ''))
             .pipe(replace('\n\n', '\n'))
-            .pipe(replace('export { w2field, addType, removeType }', exports_es6))
+            .pipe(replace('export { w2field }', exports_es6))
             .pipe(header(comments.w2ui))
             .pipe(gulp.dest('dist/'))
             .on('end', () => { check() })
@@ -155,7 +155,7 @@ let tasks = {
             .pipe(concat('w2ui.es6.js'))
             .pipe(replace(/^(import.*'|export.*}|module\.exports.*})$\n/gm, ''))
             .pipe(replace('\n\n', '\n'))
-            .pipe(replace('export { w2field, addType, removeType }', exports_es6))
+            .pipe(replace('export { w2field }', exports_es6))
             .pipe(header(comments.w2ui))
             .pipe(gulp.dest('dist/'))
             // min file

@@ -1,22 +1,25 @@
 /**
  * Part of w2ui 2.0 library
- *  - Dependencies: jQuery, w2utils, w2base, w2tabs, w2toolbar
+ *  - Dependencies: mQuery, w2utils, w2base, w2tabs, w2toolbar, w2tooltip, w2field
  *
  * == TODO ==
  *  - include delta on save
- *  - two way data bindings
  *  - tabs below some fields (could already be implemented)
  *  - form with toolbar & tabs
  *  - promise for load, save, etc.
  *
  * == 2.0 changes
  *  - CSP - fixed inline events
+ *  - removed jQuery dependency
  *  - better groups support tabs now
  *  - form.confirm - refactored
  *  - form.message - refactored
  *  - resizeObserver for the box
  *  - removed msgNotJSON, msgAJAXerror
  *  - applyFocus -> setFocus
+ *  - getFieldValue(fieldName) = returns { curent, previous, original }
+ *  - setFieldVallue(fieldName, value)
+ *  - getValue(..., original) -- return original if any
  */
 
 import { w2base } from './w2base.js'
@@ -25,6 +28,7 @@ import { query } from './query.js'
 import { w2tabs } from './w2tabs.js'
 import { w2toolbar } from './w2toolbar.js'
 import { w2tooltip } from './w2tooltip.js'
+import { w2field } from './w2field.js'
 
 class w2form extends w2base {
     constructor(options) {
@@ -77,6 +81,13 @@ class w2form extends w2base {
         this.onError      = null
         this.msgRefresh   = 'Loading...'
         this.msgSaving    = 'Saving...'
+        this.ALL_TYPES    = [ 'text', 'textarea', 'email', 'pass', 'password', 'int', 'float', 'money', 'currency',
+            'percent', 'hex', 'alphanumeric', 'color', 'date', 'time', 'datetime', 'toggle', 'checkbox', 'radio',
+            'check', 'checks', 'list', 'combo', 'enum', 'file', 'select', 'map', 'array', 'div', 'custom', 'html',
+            'empty']
+        this.LIST_TYPES = ['select', 'radio', 'check', 'checks', 'list', 'combo', 'enum']
+        this.W2FIELD_TYPES = ['int', 'float', 'money', 'currency', 'percent', 'hex', 'alphanumeric', 'color',
+            'date', 'time', 'datetime', 'list', 'combo', 'enum', 'file']
         // mix in options
         w2utils.extend(this, options)
 
@@ -282,12 +293,12 @@ class w2form extends w2base {
         return false
     }
 
-    getValue(field) {
+    getValue(field, original) {
         if (this.nestedFields) {
             let val = undefined
             try { // need this to make sure no error in fields
-                let rec = this.record
-                val     = String(field).split('.').reduce((rec, i) => { return rec[i] }, rec)
+                let rec = original === true ? this.original : this.record
+                val = String(field).split('.').reduce((rec, i) => { return rec[i] }, rec)
             } catch (event) {
             }
             return val
@@ -296,7 +307,13 @@ class w2form extends w2base {
         }
     }
 
-    setValue(field, value) { // will not refresh the form!
+    setValue(field, value) {
+        // will not refresh the form!
+        if (value === '' || value == null
+                || (Array.isArray(value) && value.length === 0)
+                || (w2utils.isPlainObject(value) && Object.keys(value).length == 0)) {
+            value = null
+        }
         if (this.nestedFields) {
             try { // need this to make sure no error in fields
                 let rec = this.record
@@ -314,6 +331,195 @@ class w2form extends w2base {
         } else {
             this.record[field] = value
             return true
+        }
+    }
+
+    getFieldValue(name) {
+        let field = this.get(name)
+        if (field == null) return
+        let el = field.el
+        let previous = this.getValue(name)
+        let original = this.getValue(name, true)
+        // orginary input control
+        let current = el.value
+        // should not be set to '', incosistent logic
+        // if (previous == null) previous = ''
+
+        // clean extra chars
+        if (['int', 'float', 'percent', 'money', 'currency'].includes(field.type)) {
+            current = field.w2field.clean(current)
+        }
+        // radio list
+        if (['radio'].includes(field.type)) {
+            let selected = query(el).closest('div').find('input:checked').get(0)
+            if (selected) {
+                let item = field.options.items[query(selected).data('index')]
+                current = item.id
+            } else {
+                current = null
+            }
+        }
+        // single checkbox
+        if (['toggle', 'checkbox'].includes(field.type)) {
+            current = el.checked
+        }
+        // check list
+        if (['check', 'checks'].indexOf(field.type) !== -1) {
+            current = []
+            let selected = query(el).closest('div').find('input:checked')
+            if (selected.length > 0) {
+                selected.each(el => {
+                    let item = field.options.items[query(el).data('index')]
+                    current.push(item.id)
+                })
+            }
+            if (!Array.isArray(previous)) previous = []
+        }
+        // lists
+        let selected = el._w2ui?.selected // drop downs and other w2field objects
+        if (['list', 'enum', 'file'].includes(field.type) && selected) {
+            // TODO: check when w2field is refactored
+            let nv = selected
+            let cv = previous
+            if (Array.isArray(nv)) {
+                current = []
+                for (let i = 0; i < nv.length; i++) current[i] = w2utils.clone(nv[i]) // clone array
+            }
+            if (Array.isArray(cv)) {
+                previous = []
+                for (let i = 0; i < cv.length; i++) previous[i] = w2utils.clone(cv[i]) // clone array
+            }
+            if (w2utils.isPlainObject(nv)) {
+                current = w2utils.clone(nv) // clone object
+            }
+            if (w2utils.isPlainObject(cv)) {
+                previous = w2utils.clone(cv) // clone object
+            }
+        }
+        // map, array
+        if (['map', 'array'].includes(field.type)) {
+            current = (field.type == 'map' ? {} : [])
+            field.$el.parent().find('.w2ui-map-field').each(div => {
+                let key = query(div).find('.w2ui-map.key').val()
+                let value = query(div).find('.w2ui-map.value').val()
+                if (field.type == 'map') {
+                    current[key] = value
+                } else {
+                    current.push(value)
+                }
+            })
+        }
+        return { current, previous, original } // current - in input, previous - in form.record, original - before form change
+    }
+
+    setFieldValue(name, value) {
+        let field = this.get(name)
+        if (field == null) return
+        let el = field.el
+        switch(field.type) {
+            case 'toggle':
+            case 'checkbox':
+                el.checked = value ? true : false
+                break
+            case 'radio': {
+                value = value?.id ?? value
+                let inputs = query(el).closest('div').find('input')
+                let items  = field.options.items
+                items.forEach((it, ind) => {
+                    if (it.id === value) { // need exact match so to match empty string and 0
+                        inputs.filter(`[data-index="${ind}"]`).prop('checked', true)
+                    }
+                })
+                break
+            }
+            case 'check':
+            case 'checks': {
+                if (!Array.isArray(value)) value = [value]
+                value = value.map(val => val?.id ?? val) // convert if array of objects
+                let inputs = query(el).closest('div').find('input')
+                let items  = field.options.items
+                items.forEach((it, ind) => {
+                    inputs.filter(`[data-index="${ind}"]`).prop('checked', value.includes(it.id) ? true : false)
+                })
+                break
+            }
+            case 'list':
+            case 'combo':
+                // TODO: finish when w2field is refactored
+                let item = value
+                // find item in options.items, if any
+                if (item?.id == null) {
+                    field.options.items.forEach(it => {
+                        if (it.id === value) item = it
+                    })
+                }
+                if (item != value) {
+                    this.setValue(field.name, item)
+                }
+                field.el._w2ui = field.el._w2ui ?? {}
+                field.el._w2ui.selected = item
+                if (field.type == 'list') {
+                    field.w2field.refresh()
+                } else {
+                    field.el.value = item?.text ?? value
+                }
+                break
+            case 'enum':
+            case 'file': {
+                // TODO: finish when w2field is refactored
+                let items = value
+                if (!Array.isArray(items)) items = [items]
+                if (!Array.isArray(value)) value = [value]
+                // find item in options.items, if any
+                let updated = false
+                items.forEach((item, ind) => {
+                    if (item?.id == null && Array.isArray(field.options.items)) {
+                        field.options.items.forEach(it => {
+                            if (it.id == item) {
+                                items[ind] = it
+                                updated = true
+                            }
+                        })
+                    }
+                })
+                if (updated) {
+                    this.setValue(field.name, items)
+                }
+                // TODO: check
+                // if (!isFound && value != null && value.length !== 0) {
+                //     field.$el.data('find_selected', value) // HERE
+                //     sel = value
+                // }
+                field.el._w2ui = field.el._w2ui ?? {}
+                field.el._w2ui.selected = items
+                field.w2field.refresh()
+                break
+            }
+            case 'map':
+            case 'array': {
+                // init map
+                if (field.type == 'map' && (value == null || !w2utils.isPlainObject(value))) {
+                    this.setValue(field.field, {})
+                    value = this.getValue(field.field)
+                }
+                if (field.type == 'array' && (value == null || !Array.isArray(value))) {
+                    this.setValue(field.field, [])
+                    value = this.getValue(field.field)
+                }
+                let container = query(field.el).parent().find('.w2ui-map-container')
+                field.el.mapRefresh(value, container)
+                break
+            }
+            case 'div':
+            case 'custom':
+                query(el).html(value)
+                break
+            case 'html':
+            case 'empty':
+                break
+            default:
+                el.value = value
+                break
         }
     }
 
@@ -425,14 +631,13 @@ class w2form extends w2base {
     }
 
     error(msg) {
-        let obj = this
         // let the management of the error outside of the form
         let edata = this.trigger('error', { target: this.name, message: msg , xhr: this.last.xhr })
         if (edata.isCancelled === true) {
             return
         }
         // need a time out because message might be already up)
-        setTimeout(() => { obj.message(msg) }, 1)
+        setTimeout(() => { this.message(msg) }, 1)
         // event after
         edata.finish()
     }
@@ -505,7 +710,11 @@ class w2form extends w2base {
                     break
                 case 'checkbox':
                     // convert true/false
-                    if (this.getValue(field.field) == true) this.setValue(field.field, 1); else this.setValue(field.field, 0)
+                    if (this.getValue(field.field) == true) {
+                        this.setValue(field.field, true)
+                    } else {
+                        this.setValue(field.field, false)
+                    }
                     break
                 case 'date':
                     // format date before submit
@@ -588,8 +797,9 @@ class w2form extends w2base {
     }
 
     getChanges() {
+        // TODO: not working on nested structures
         let diff = {}
-        if (this.original != null && typeof this.original == 'object' && Object.kesy(this.record).length == 0) {
+        if (this.original != null && typeof this.original == 'object' && Object.keys(this.record).length == 0) {
             diff = doDiff(this.record, this.original, {})
         }
         return diff
@@ -787,9 +997,6 @@ class w2form extends w2base {
 
     save(postData, callBack) {
         let self = this
-        if (document.activeElement) {
-            query(document.activeElement).trigger('change')
-        }
         // check for multiple params
         if (typeof postData === 'function') {
             callBack = postData
@@ -1010,8 +1217,6 @@ class w2form extends w2base {
     goto(page) {
         if (this.page === page) return // already on this page
         if (page != null) this.page = page
-        // apply element in focus
-        query(document.activeElement).trigger('change') // trigger onchange
         // if it was auto size, resize it
         if (query(this.box).data('autoSize') === true) {
             query(this.box).get(0).clientHeight = 0
@@ -1043,17 +1248,25 @@ class w2form extends w2base {
             if (page == null) page = field.html.page
             if (column == null) column = field.html.column
             // input control
-            let input = '<input id="'+ field.field +'" name="'+ field.field +'" class="w2ui-input" type="text" '+ field.html.attr + tabindex_str + '>'
+            let input = `<input id="${field.field}" name="${field.field}" class="w2ui-input" type="text" ${field.html.attr + tabindex_str}>`
             switch (field.type) {
                 case 'pass':
                 case 'password':
-                    input = '<input id="' + field.field + '" name="' + field.field + '" class="w2ui-input" type = "password" ' + field.html.attr + tabindex_str + '>'
+                    input = input.replace('type="text"', 'type="password"')
                     break
+                case 'checkbox': {
+                    input = `
+                        <label class="w2ui-box-label">
+                            <input id="${field.field}" name="${field.field}" class="w2ui-input" type="checkbox" ${field.html.attr + tabindex_str}>
+                            <span>${field.html.label}</span>
+                        </label>`
+                    break
+                }
                 case 'check':
                 case 'checks': {
                     if (field.options.items == null && field.html.items != null) field.options.items = field.html.items
                     let items = field.options.items
-                    input     = ''
+                    input = ''
                     // normalized options
                     if (!Array.isArray(items)) items = []
                     if (items.length > 0) {
@@ -1061,21 +1274,16 @@ class w2form extends w2base {
                     }
                     // generate
                     for (let i = 0; i < items.length; i++) {
-                        input += '<label class="w2ui-box-label">'+
-                                 '  <input id="' + field.field + i +'" name="' + field.field + '" class="w2ui-input" type="checkbox" ' +
-                                            field.html.attr + tabindex_str + ' data-value="'+ items[i].id +'" data-index="'+ i +'">' +
-                                    '<span>&#160;' + items[i].text + '</span>' +
-                                 '</label><br>'
+                        input += `
+                            <label class="w2ui-box-label">
+                                <input id="${field.field + i}" name="${field.field}" class="w2ui-input" type="checkbox"
+                                    ${field.html.attr + tabindex_str} data-value="${items[i].id}" data-index="${i}">
+                                <span>&#160;${items[i].text}</span>
+                            </label>
+                            <br>`
                     }
                     break
                 }
-
-                case 'checkbox':
-                    input = '<label class="w2ui-box-label">'+
-                            '   <input id="'+ field.field +'" name="'+ field.field +'" class="w2ui-input" type="checkbox" '+ field.html.attr + tabindex_str + '>'+
-                            '   <span>'+ field.html.label +'</span>'+
-                            '</label>'
-                    break
                 case 'radio': {
                     input = ''
                     // normalized options
@@ -1087,16 +1295,19 @@ class w2form extends w2base {
                     }
                     // generate
                     for (let i = 0; i < items.length; i++) {
-                        input += '<label class="w2ui-box-label">'+
-                                 '  <input id="' + field.field + i + '" name="' + field.field + '" class="w2ui-input" type = "radio" ' +
-                                        field.html.attr + (i === 0 ? tabindex_str : '') + ' value="'+ items[i].id + '">' +
-                                    '<span>&#160;' + items[i].text + '</span>' +
-                                 '</label><br>'
+                        input += `
+                            <label class="w2ui-box-label">
+                                <input id="${field.field + i}" name="${field.field}" class="w2ui-input" type="radio"
+                                    ${field.html.attr + (i === 0 ? tabindex_str : '')}
+                                    data-value="${items[i].id}" data-index="${i}">
+                                <span>&#160;${items[i].text}</span>
+                            </label>
+                            <br>`
                     }
                     break
                 }
                 case 'select': {
-                    input = '<select id="' + field.field + '" name="' + field.field + '" class="w2ui-input" ' + field.html.attr + tabindex_str + '>'
+                    input = `<select id="${field.field}" name="${field.field}" class="w2ui-input" ${field.html.attr + tabindex_str}>`
                     // normalized options
                     if (field.options.items == null && field.html.items != null) field.options.items = field.html.items
                     let items = field.options.items
@@ -1106,23 +1317,24 @@ class w2form extends w2base {
                     }
                     // generate
                     for (let i = 0; i < items.length; i++) {
-                        input += '<option value="'+ items[i].id + '">' + items[i].text + '</option>'
+                        input += `<option value="${items[i].id}">${items[i].text}</option>`
                     }
                     input += '</select>'
                     break
                 }
                 case 'textarea':
-                    input = '<textarea id="'+ field.field +'" name="'+ field.field +'" class="w2ui-input" '+ field.html.attr + tabindex_str + '></textarea>'
+                    input = `<textarea id="${field.field}" name="${field.field}" class="w2ui-input" ${field.html.attr + tabindex_str}></textarea>`
                     break
                 case 'toggle':
-                    input = '<input id="'+ field.field +'" name="'+ field.field +'" type="checkbox" '+ field.html.attr + tabindex_str + ' class="w2ui-input w2ui-toggle"><div><div></div></div>'
+                    input = `<input id="${field.field}" name="${field.field}" class="w2ui-input w2ui-toggle" type="checkbox" ${field.html.attr + tabindex_str}>
+                            <div><div></div></div>`
                     break
                 case 'map':
                 case 'array':
-                    field.html.key          = field.html.key || {}
-                    field.html.value        = field.html.value || {}
+                    field.html.key = field.html.key || {}
+                    field.html.value = field.html.value || {}
                     field.html.tabindex_str = tabindex_str
-                    input                   = '<span style="float: right">' + (field.html.text || '') + '</span>' +
+                    input = '<span style="float: right">' + (field.html.text || '') + '</span>' +
                             '<input id="'+ field.field +'" name="'+ field.field +'" type="hidden" '+ field.html.attr + tabindex_str + '>'+
                             '<div class="w2ui-map-container"></div>'
                     break
@@ -1275,7 +1487,7 @@ class w2form extends w2base {
     }
 
     resize() {
-        let obj = this
+        let self = this
         // event before
         let edata = this.trigger('resize', { target: this.name })
         if (edata.isCancelled === true) return
@@ -1305,12 +1517,12 @@ class w2form extends w2base {
         edata.finish()
 
         function resizeElements() {
-            let rect = obj.box.getBoundingClientRect()
-            let headerHeight = (obj.header !== '' ? w2utils.getSize(header, 'height') : 0)
-            let tbHeight = (Array.isArray(obj.toolbar?.items) && obj.toolbar?.items?.length > 0)
+            let rect = self.box.getBoundingClientRect()
+            let headerHeight = (self.header !== '' ? w2utils.getSize(header, 'height') : 0)
+            let tbHeight = (Array.isArray(self.toolbar?.items) && self.toolbar?.items?.length > 0)
                 ? w2utils.getSize(toolbar, 'height')
                 : 0
-            let tabsHeight = (Array.isArray(obj.tabs?.tabs) && obj.tabs?.tabs?.length > 0)
+            let tabsHeight = (Array.isArray(self.tabs?.tabs) && self.tabs?.tabs?.length > 0)
                 ? w2utils.getSize(tabs, 'height')
                 : 0
             // resize elements
@@ -1326,9 +1538,9 @@ class w2form extends w2base {
 
     refresh() {
         let time = (new Date()).getTime()
-        let obj  = this
+        let self = this
         if (!this.box) return
-        if (!this.isGenerated || $(this.box).html() == null) return
+        if (!this.isGenerated || !query(this.box).html()) return
         // event before
         let edata = this.trigger('refresh', { target: this.name, page: this.page, field: arguments[0], fields: arguments })
         if (edata.isCancelled === true) return
@@ -1343,13 +1555,13 @@ class w2form extends w2base {
                     if (fld != null) return true; else return false
                 })
         } else {
-            // update what page field belongs
-            $(this.box).find('input, textarea, select').each((index, el) => {
-                let name  = ($(el).attr('name') != null ? $(el).attr('name') : $(el).attr('id'))
-                let field = obj.get(name)
+            // update field.page with page it belongs too
+            query(this.box).find('input, textarea, select').each(el => {
+                let name = (query(el).attr('name') != null ? query(el).attr('name') : query(el).attr('id'))
+                let field = this.get(name)
                 if (field) {
                     // find page
-                    let div = $(el).closest('.w2ui-page')
+                    let div = query(el).closest('.w2ui-page')
                     if (div.length > 0) {
                         for (let i = 0; i < 100; i++) {
                             if (div.hasClass('page-'+i)) { field.page = i; break }
@@ -1358,23 +1570,23 @@ class w2form extends w2base {
                 }
             })
             // default action
-            $(this.box).find('.w2ui-page').hide()
-            $(this.box).find('.w2ui-page.page-' + this.page).show()
-            $(this.box).find('.w2ui-form-header').html(w2utils.lang(this.header))
+            query(this.box).find('.w2ui-page').hide()
+            query(this.box).find('.w2ui-page.page-' + this.page).show()
+            query(this.box).find('.w2ui-form-header').html(w2utils.lang(this.header))
             // refresh tabs if needed
             if (typeof this.tabs === 'object' && Array.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) {
-                $(this.box).find('#form_'+ this.name +'_tabs').show()
+                query(this.box).find('#form_'+ this.name +'_tabs').show()
                 this.tabs.active = this.tabs.tabs[this.page].id
                 this.tabs.refresh()
             } else {
-                $(this.box).find('#form_'+ this.name +'_tabs').hide()
+                query(this.box).find('#form_'+ this.name +'_tabs').hide()
             }
             // refresh tabs if needed
             if (typeof this.toolbar === 'object' && Array.isArray(this.toolbar.items) && this.toolbar.items.length > 0) {
-                $(this.box).find('#form_'+ this.name +'_toolbar').show()
+                query(this.box).find('#form_'+ this.name +'_toolbar').show()
                 this.toolbar.refresh()
             } else {
-                $(this.box).find('#form_'+ this.name +'_toolbar').hide()
+                query(this.box).find('#form_'+ this.name +'_toolbar').hide()
             }
         }
         // refresh values of fields
@@ -1382,468 +1594,293 @@ class w2form extends w2base {
             let field = this.fields[fields[f]]
             if (field.name == null && field.field != null) field.name = field.field
             if (field.field == null && field.name != null) field.field = field.name
-            field.$el = $(this.box).find('[name="'+ String(field.name).replace(/\\/g, '\\\\') +'"]')
-            field.el  = field.$el[0]
+            field.$el = query(this.box).find(`[name='${String(field.name).replace(/\\/g, '\\\\')}']`)
+            field.el  = field.$el.get(0)
             if (field.el) field.el.id = field.name
-            let tmp = $(field).data('w2field')
-            if (tmp) tmp.clear()
-            $(field.$el)
+            // TODO: check
+            if (field.w2field) {
+                field.w2field.reset()
+            }
+            field.$el
                 .off('.w2form')
                 .on('change.w2form', function(event) {
-                    let that  = this
-                    let field = obj.get(this.name)
-                    if (field == null) return
-                    if ($(this).data('skip_change') == true) {
-                        $(this).data('skip_change', false)
-                        return
+                    let value = self.getFieldValue(field.field)
+                    // clear error class
+                    if (['enum', 'file'].includes(field.type)) {
+                        let helper = field.el?._w2ui?.w2field?.helpers?.multi
+                        query(helper).removeClass('w2ui-error')
                     }
-
-                    let value_new      = this.value
-                    let value_previous = obj.getValue(this.name)
-                    if (value_previous == null) value_previous = ''
-
-                    if (['list', 'enum', 'file'].indexOf(field.type) !== -1 && $(this).data('selected')) {
-                        let nv = $(this).data('selected')
-                        let cv = obj.getValue(this.name)
-                        if (Array.isArray(nv)) {
-                            value_new = []
-                            for (let i = 0; i < nv.length; i++) value_new[i] = w2utils.clone(nv[i]) // clone array
-                        }
-                        if (w2utils.isPlainObject(nv)) {
-                            value_new = w2utils.clone(nv) // clone object
-                        }
-                        if (Array.isArray(cv)) {
-                            value_previous = []
-                            for (let i = 0; i < cv.length; i++) value_previous[i] = w2utils.clone(cv[i]) // clone array
-                        }
-                        if (w2utils.isPlainObject(cv)) {
-                            value_previous = w2utils.clone(cv) // clone object
-                        }
+                    if (this?._w2ui?.previous != null) {
+                        value.previous = this._w2ui.previous
+                        delete this._w2ui.previous
                     }
-                    if (['toggle', 'checkbox'].indexOf(field.type) !== -1) {
-                        value_new = ($(this).prop('checked') ? ($(this).prop('value') === 'on' ? true : $(this).prop('value')) : false)
-                    }
-                    if (['check', 'checks'].indexOf(field.type) !== -1) {
-                        if (!Array.isArray(value_previous)) value_previous = []
-                        value_new = value_previous.slice()
-                        let tmp   = field.options.items[$(this).attr('data-index')]
-                        if ($(this).prop('checked')) {
-                            value_new.push(tmp.id)
-                        } else {
-                            value_new.splice(value_new.indexOf(tmp.id), 1)
-                        }
-                    }
-                    // clean extra chars
-                    if (['int', 'float', 'percent', 'money', 'currency'].indexOf(field.type) !== -1) {
-                        value_new = $(this).data('w2field').clean(value_new)
-                    }
-                    if (value_new === value_previous) return
                     // event before
-                    let edata2 = obj.trigger('change', { target: this.name, value_new: value_new, value_previous: value_previous, originalEvent: event })
-                    if (edata2.isCancelled === true) {
-                        edata2.value_new = obj.getValue(this.name)
-                        if ($(this).val() !== edata2.value_new) {
-                            $(this).data('skip_change', true)
-                            // if not immediate, then ignore it
-                            setTimeout(() => { $(that).data('skip_change', false) }, 10)
-                        }
-                        $(this).val(edata2.value_new) // return previous value
-                    }
-                    // default action
-                    let val = edata2.value_new
-                    if (['enum', 'file'].indexOf(field.type) !== -1) {
-                        if (val?.length > 0) {
-                            let fld = $(field.el).data('w2field').helpers.multi
-                            $(fld).removeClass('w2ui-error')
-                        }
-                    }
-                    if (val === '' || val == null
-                            || (Array.isArray(val) && val.length === 0) || (w2utils.isPlainObject(val) && Object.keys(val).length == 0)) {
-                        val = null
-                    }
-                    obj.setValue(this.name, val)
+                    let edata2 = self.trigger('change', { target: this.name, value, originalEvent: event })
+                    if (edata2.isCancelled === true) return
+                    // default behavior
+                    self.setValue(this.name, value.current)
                     // event after
                     edata2.finish()
                 })
                 .on('input.w2form', function(event) {
-                    let val = this.value
-                    if (event.target.type == 'checkbox') {
-                        val = event.target.checked
-                    }
                     // remember original
-                    if (obj.original == null) {
-                        if (Object.keys(obj.record).length > 0) {
-                            obj.original = w2utils.clone(obj.record)
+                    if (self.original == null) {
+                        if (Object.keys(self.record).length > 0) {
+                            self.original = w2utils.clone(self.record)
                         } else {
-                            obj.original = {}
+                            self.original = {}
                         }
                     }
+                    let value = self.getFieldValue(field.field)
+                    // save previous for change event
+                    this._w2ui = this._w2ui ?? {}
+                    if (this._w2ui.previous == null) {
+                        this._w2ui.previous = value.previous
+                    }
                     // event before
-                    let edata2 = obj.trigger('input', { target: this.name, value_new: val, originalEvent: event })
+                    let edata2 = self.trigger('input', { target: self.name, value, originalEvent: event })
                     if (edata2.isCancelled === true) return
-
+                    // default action
+                    self.setValue(this.name, value.current)
                     // event after
                     edata2.finish()
                 })
             // required
             if (field.required) {
-                $(field.el).parent().parent().addClass('w2ui-required')
+                field.$el.closest('.w2ui-field').addClass('w2ui-required')
             } else {
-                $(field.el).parent().parent().removeClass('w2ui-required')
+                field.$el.closest('.w2ui-field').removeClass('w2ui-required')
             }
             // disabled
             if (field.disabled != null) {
-                let $fld = $(field.el)
                 if (field.disabled) {
-                    if ($fld.data('w2ui-tabIndex') == null) {
-                        $fld.data('w2ui-tabIndex', $fld.prop('tabIndex'))
+                    if (field.$el.data('tabIndex') == null) {
+                        field.$el.data('tabIndex', field.$el.prop('tabIndex'))
                     }
-                    $(field.el)
+                    field.$el
                         .prop('readonly', true)
                         .prop('tabindex', -1)
                         .closest('.w2ui-field')
                         .addClass('w2ui-disabled')
                 } else {
-                    $(field.el)
+                    field.$el
                         .prop('readonly', false)
-                        .prop('tabIndex', $fld.data('w2ui-tabIndex'))
+                        .prop('tabIndex', field.$el.data('tabIndex'))
                         .closest('.w2ui-field')
                         .removeClass('w2ui-disabled')
                 }
             }
             // hidden
-            tmp = field.el
-            if (!tmp) tmp = $(this.box).find('#' + field.field)
+            let tmp = field.el
+            if (!tmp) tmp = query(this.box).find('#' + field.field)
             if (field.hidden) {
-                $(tmp).closest('.w2ui-field').hide()
+                query(tmp).closest('.w2ui-field').hide()
             } else {
-                $(tmp).closest('.w2ui-field').show()
+                query(tmp).closest('.w2ui-field').show()
             }
         }
         // attach actions on buttons
-        $(this.box).find('button, input[type=button]').each((index, el) => {
-            $(el).off('click').on('click', function(event) {
+        query(this.box).find('button, input[type=button]').each(el => {
+            query(el).off('click').on('click', function(event) {
                 let action = this.value
                 if (this.id) action = this.id
                 if (this.name) action = this.name
-                obj.action(action, event)
+                self.action(action, event)
             })
         })
         // init controls with record
         for (let f = 0; f < fields.length; f++) {
             let field = this.fields[fields[f]]
-            let value = (this.getValue(field.name) != null ? this.getValue(field.name) : '')
+            let value = this.getValue(field.name) ?? ''
             if (!field.el) continue
-            if (!$(field.el).hasClass('w2ui-input')) $(field.el).addClass('w2ui-input')
+            if (!field.$el.hasClass('w2ui-input')) field.$el.addClass('w2ui-input')
             field.type = String(field.type).toLowerCase()
             if (!field.options) field.options = {}
-            switch (field.type) {
-                case 'text':
-                case 'textarea':
-                case 'email':
-                case 'pass':
-                case 'password':
-                    field.el.value = value
-                    break
-                case 'int':
-                case 'float':
-                case 'money':
-                case 'currency':
-                case 'percent':
-                    // issue #761
-                    field.el.value = value
-                    $(field.el).w2field(w2utils.extend({}, field.options, { type: field.type }))
-                    break
-                case 'hex':
-                case 'alphanumeric':
-                case 'color':
-                case 'date':
-                case 'time':
-                case 'datetime':
-                    field.el.value = value
-                    $(field.el).w2field(w2utils.extend({}, field.options, { type: field.type }))
-                    break
-                case 'toggle':
-                    if (w2utils.isFloat(value)) value = parseFloat(value)
-                    $(field.el).prop('checked', (value ? true : false))
-                    this.setValue(field.name, (value ? value : false))
-                    break
-                case 'radio':
-                    $(field.$el).prop('checked', false).each((index, el) => {
-                        if ($(el).val() == value) $(el).prop('checked', true)
-                    })
-                    break
-                case 'checkbox':
-                    $(field.el).prop('checked', value ? true : false)
-                    if (field.disabled === true || field.disabled === false) {
-                        $(field.el).prop('disabled', field.disabled ? true : false)
-                    }
-                    break
-                case 'check':
-                case 'checks':
-                    if (Array.isArray(value)) {
-                        value.forEach((val) => {
-                            $(field.el).closest('div').find('[data-value="' + val + '"]').prop('checked', true)
-                        })
-                    }
-                    if (field.disabled) {
-                        $(field.el).closest('div').find('input[type=checkbox]').prop('disabled', true)
-                    } else {
-                        $(field.el).closest('div').find('input[type=checkbox]').removeProp('disabled')
-                    }
-                    break
-                // enums
-                case 'list':
-                case 'combo':
-                    if (field.type === 'list') {
-                        let tmp_value = (w2utils.isPlainObject(value) ? value.id : (w2utils.isPlainObject(field.options.selected) ? field.options.selected.id : value))
-                        // normalized options
-                        if (!field.options.items) field.options.items = []
-                        let items = field.options.items
-                        if (typeof items == 'function') items = items()
-                        // find value from items
-                        let isFound = false
-                        if (Array.isArray(items)) {
-                            for (let i = 0; i < items.length; i++) {
-                                let item = items[i]
-                                if (item.id == tmp_value) {
-                                    value = w2utils.clone(item)
-                                    obj.setValue(field.name, value)
-                                    isFound = true
-                                    break
-                                }
-                            }
-                        }
-                        if (!isFound && value != null && value !== '') {
-                            field.$el.data('find_selected', value)
-                        }
-                    } else if (field.type === 'combo' && !w2utils.isPlainObject(value)) {
-                        field.el.value = value
-                    } else if (w2utils.isPlainObject(value) && value.text != null) {
-                        field.el.value = value.text
-                    } else {
-                        field.el.value = ''
-                    }
-                    if (!w2utils.isPlainObject(value)) value = {}
-                    $(field.el).w2field(w2utils.extend({}, field.options, { type: field.type, selected: value }))
-                    break
-                case 'enum':
-                case 'file':
-                    let sel     = []
-                    let isFound = false
-                    if (!Array.isArray(value)) value = []
-                    if (typeof field.options.items != 'function') {
-                        if (!Array.isArray(field.options.items)) {
-                            field.options.items = []
-                        }
-                        // find value from items
-                        value.forEach((val) => {
-                            field.options.items.forEach((it) => {
-                                if (it && (it.id == val || (w2utils.isPlainObject(val) && it.id == val.id))) {
-                                    sel.push(w2utils.isPlainObject(it) ? w2utils.clone(it) : it)
-                                    isFound = true
-                                }
-                            })
-                        })
-                    }
-                    if (!isFound && value != null && value.length !== 0) {
-                        field.$el.data('find_selected', value)
-                        sel = value
-                    }
-                    let opt = w2utils.extend({}, field.options, { type: field.type, selected: sel })
-                    Object.keys(field.options).forEach((key) => {
-                        if (typeof field.options[key] == 'function') {
-                            opt[key] = field.options[key]
-                        }
-                    })
-                    $(field.el).w2field(opt)
-                    break
-
-                // standard HTML
-                case 'select': {
-                    // generate options
-                    let items = field.options.items
-                    if (items != null && items.length > 0) {
-                        items = w2utils.normMenu.call(this, items, field)
-                        $(field.el).html('')
-                        for (let it = 0; it < items.length; it++) {
-                            $(field.el).append('<option value="'+ items[it].id +'">' + items[it].text + '</option')
-                        }
-                    }
-                    $(field.el).val(value)
-                    break
-                }
-                case 'map':
-                case 'array':
-                    // init map
-                    if (field.type == 'map' && (value == null || !w2utils.isPlainObject(value))) {
-                        this.setValue(field.field, {})
-                        value = this.getValue(field.field)
-                    }
-                    if (field.type == 'array' && (value == null || !Array.isArray(value))) {
-                        this.setValue(field.field, [])
-                        value = this.getValue(field.field)
-                    }
-                    // need closure
-                    (function closure(obj, field) {
-                        field.el.mapAdd = function(field, div, cnt) {
-                            let attr = (field.disabled ? ' readOnly ' : '') + (field.html.tabindex_str || '')
-                            let html = '<div class="w2ui-map-field" style="margin-bottom: 5px">'+
-                                '<input id="'+ field.field +'_key_'+ cnt +'" data-cnt="'+ cnt +'" type="text" '+ field.html.key.attr + attr +' class="w2ui-input w2ui-map key">'+
-                                    (field.html.key.text || '') +
-                                '<input id="'+ field.field +'_value_'+ cnt +'" data-cnt="'+ cnt +'" type="text" '+ field.html.value.attr + attr +' class="w2ui-input w2ui-map value">'+
-                                    (field.html.value.text || '') +
-                                '</div>'
-                            div.append(html)
-                        }
-                        field.el.mapRefresh = function(map, div) {
-                            // generate options
-                            let cnt = 1
-                            let names
-                            if (field.type == 'map') {
-                                if (!w2utils.isPlainObject(map)) map = {}
-                                if (map._order == null) map._order = Object.keys(map)
-                                names = map._order
-                            }
-                            if (field.type == 'array') {
-                                if (!Array.isArray(map)) map = []
-                                names = map.map((item) => { return item.key })
-                            }
-                            let $k, $v
-                            names.forEach((item) => {
-                                $k = div.find('#' + w2utils.escapeId(field.name) + '_key_' + cnt)
-                                $v = div.find('#' + w2utils.escapeId(field.name) + '_value_' + cnt)
-                                if ($k.length == 0 || $v.length == 0) {
-                                    field.el.mapAdd(field, div, cnt)
-                                    $k = div.find('#' + w2utils.escapeId(field.name) + '_key_' + cnt)
-                                    $v = div.find('#' + w2utils.escapeId(field.name) + '_value_' + cnt)
-                                }
-                                let val = map[item]
-                                if (field.type == 'array') {
-                                    let tmp = map.filter((it) => { return it.key == item ? true : false})
-                                    if (tmp.length > 0) val = tmp[0].value
-                                }
-                                $k.val(item)
-                                $v.val(val)
-                                if (field.disabled === true || field.disabled === false) {
-                                    $k.prop('readOnly', field.disabled ? true : false)
-                                    $v.prop('readOnly', field.disabled ? true : false)
-                                }
-                                $k.parents('.w2ui-map-field').attr('data-key', item)
-                                cnt++
-                            })
-                            let curr = div.find('#' + w2utils.escapeId(field.name) + '_key_' + cnt).parent()
-                            let next = div.find('#' + w2utils.escapeId(field.name) + '_key_' + (cnt + 1)).parent()
-                            // if not disabled - show next
-                            if (curr.length === 0 && !($k && ($k.prop('readOnly') === true || $k.prop('disabled') === true))) {
-                                field.el.mapAdd(field, div, cnt)
-                            }
-                            if (curr.length == 1 && next.length == 1) {
-                                curr.removeAttr('data-key')
-                                curr.find('.key').val(next.find('.key').val())
-                                curr.find('.value').val(next.find('.value').val())
-                                next.remove()
-                            }
-                            if (field.disabled === true || field.disabled === false) {
-                                curr.find('.key').prop('readOnly', field.disabled ? true : false)
-                                curr.find('.value').prop('readOnly', field.disabled ? true : false)
-                            }
-                            // attach events
-                            $(field.el).next().find('input.w2ui-map')
-                                .off('.mapChange')
-                                .on('keyup.mapChange', function(event) {
-                                    let $div = $(event.target).parents('.w2ui-map-field')
-                                    if (event.keyCode == 13) {
-                                        $div.next().find('input.key').focus()
-                                    }
-
-                                })
-                                .on('change.mapChange', function() {
-                                    let $div  = $(event.target).parents('.w2ui-map-field')
-                                    let old   = $div.attr('data-key')
-                                    let key   = $div.find('.key').val()
-                                    let value = $div.find('.value').val()
-                                    // event before
-                                    let value_new      = {}
-                                    let value_previous = {}
-                                    let aMap           = null
-                                    let aIndex         = null
-                                    value_new[key]     = value
-                                    if (field.type == 'array') {
-                                        map.forEach((it, ind) => {
-                                            if (it.key == old) aIndex = ind
-                                        })
-                                        aMap = map[aIndex]
-                                    }
-                                    if (old != null && field.type == 'map') {
-                                        value_previous[old] = map[old]
-                                    }
-                                    if (old != null && field.type == 'array') {
-                                        value_previous[old] = aMap.value
-                                    }
-                                    let edata = obj.trigger('change', { target: field.field, originalEvent: event, value_new: value_new, value_previous: value_previous })
-                                    if (edata.isCancelled === true) {
-                                        return
-                                    }
-                                    if (field.type == 'map') {
-                                        delete map[old]
-                                        let ind = map._order.indexOf(old)
-                                        if (key != '') {
-                                            if (map[key] != null) {
-                                                let newKey, more = 0
-                                                do { more++; newKey = key + more } while (map[newKey] != null)
-                                                key = newKey
-                                                $div.find('.key').val(newKey)
-                                            }
-                                            map[key] = value
-                                            $div.attr('data-key', key)
-                                            if (ind != -1) {
-                                                map._order[ind] = key
-                                            } else {
-                                                map._order.push(key)
-                                            }
-                                        } else {
-                                            map._order.splice(ind, 1)
-                                            $div.find('.value').val('')
-                                        }
-                                    } else if (field.type == 'array') {
-                                        if (key != '') {
-                                            if (aMap == null) {
-                                                map.push({ key: key, value: value })
-                                            } else {
-                                                aMap.key   = key
-                                                aMap.value = value
-                                            }
-                                        } else {
-                                            map.splice(aIndex, 1)
-                                        }
-                                    }
-                                    obj.setValue(field.field, map)
-                                    field.el.mapRefresh(map, div)
-                                    // event after
-                                    edata.finish()
-                                })
-                        }
-                        field.el.mapRefresh(value, $(field.el).parent().find('.w2ui-map-container'))
-                    })(this, field)
-                    break
-                case 'div':
-                case 'custom':
-                    $(field.el).html(value)
-                    break
-                case 'html':
-                case 'empty':
-                    break
-                default:
-                    $(field.el).val(value)
-                    $(field.el).w2field(w2utils.extend({}, field.options, { type: field.type }))
-                    break
+            // list type
+            if (this.LIST_TYPES.includes(field.type)) {
+                let items = field.options.items
+                if (items == null) field.options.items = []
+                field.options.items = w2utils.normMenu.call(this, items, field)
             }
-        }
-        // wrap pages in div
-        let tmp = $(this.box).find('.w2ui-page')
-        for (let i = 0; i < tmp.length; i++) {
-            if ($(tmp[i]).find('> *').length > 1) $(tmp[i]).wrapInner('<div></div>')
+            // HTML select
+            if (field.type == 'select') {
+                // generate options
+                let items = field.options.items
+                let options = ''
+                items.forEach(item => {
+                    options += `<option value="${item.id}">${item.text}</option>`
+                })
+                field.$el.html(options)
+            }
+            // w2fields
+            if (this.W2FIELD_TYPES.includes(field.type)) {
+                field.w2field = field.w2field
+                    ?? new w2field(w2utils.extend({}, field.options, { type: field.type }))
+                field.w2field.render(field.el)
+            }
+            // map and arrays
+            if (['map', 'array'].includes(field.type)) {
+                // need closure
+                (function (obj, field) {
+                    let keepFocus
+                    field.el.mapAdd = function(field, div, cnt) {
+                        let attr = (field.disabled ? ' readOnly ' : '') + (field.html.tabindex_str || '')
+                        let html = `
+                            <div class="w2ui-map-field" style="margin-bottom: 5px" data-index="${cnt}">
+                            ${field.type == 'map'
+                                ? `<input type="text" ${field.html.key.attr + attr} class="w2ui-input w2ui-map key">
+                                    ${field.html.key.text || ''}
+                                `
+                                : ''
+                            }
+                            <input type="text" ${field.html.value.attr + attr} class="w2ui-input w2ui-map value">
+                                ${field.html.value.text || ''}
+                            </div>`
+                        div.append(html)
+                    }
+                    field.el.mapRefresh = function(map, div) {
+                        // generate options
+                        let keys, $k, $v
+                        if (field.type == 'map') {
+                            if (!w2utils.isPlainObject(map)) map = {}
+                            if (map._order == null) map._order = Object.keys(map)
+                            keys = map._order
+                        }
+                        if (field.type == 'array') {
+                            if (!Array.isArray(map)) map = []
+                            keys = map.map((item, ind) => { return ind })
+                        }
+                        // delete extra fields (including empty one)
+                        let all = div.find('.w2ui-map-field')
+                        for (let i = all.length-1; i >= keys.length; i--) {
+                            div.find(`div[data-index='${i}']`).remove()
+                        }
+                        for (let ind = 0; ind < keys.length; ind++) {
+                            let key = keys[ind]
+                            let fld = div.find(`div[data-index='${ind}']`)
+                            // add if does not exists
+                            if (fld.length == 0) {
+                                field.el.mapAdd(field, div, ind)
+                                fld = div.find(`div[data-index='${ind}']`)
+                            }
+                            fld.attr('data-key', key)
+                            $k = fld.find('.w2ui-map.key')
+                            $v = fld.find('.w2ui-map.value')
+                            let val = map[key]
+                            if (field.type == 'array') {
+                                let tmp = map.filter((it) => { return it.key == key ? true : false})
+                                if (tmp.length > 0) val = tmp[0].value
+                            }
+                            $k.val(key)
+                            $v.val(val)
+                            if (field.disabled === true || field.disabled === false) {
+                                $k.prop('readOnly', field.disabled ? true : false)
+                                $v.prop('readOnly', field.disabled ? true : false)
+                            }
+                        }
+                        let cnt = keys.length
+                        let curr = div.find(`div[data-index='${cnt}']`)
+                        // if not disabled - add next if needed
+                        if (curr.length === 0 && ($k.val() != '' || $v.val() != '')
+                            && !($k && ($k.prop('readOnly') === true || $k.prop('disabled') === true))
+                        ) {
+                            field.el.mapAdd(field, div, cnt)
+                        }
+                        if (field.disabled === true || field.disabled === false) {
+                            curr.find('.key').prop('readOnly', field.disabled ? true : false)
+                            curr.find('.value').prop('readOnly', field.disabled ? true : false)
+                        }
+                        // attach events
+                        let container = query(field.el).get(0)?.nextSibling // should be div
+                        query(container).find('input.w2ui-map')
+                            .off('.mapChange')
+                            .on('keyup.mapChange', function(event) {
+                                let $div = query(event.target).closest('.w2ui-map-field')
+                                let next = $div.get(0).nextElementSibling
+                                let prev = $div.get(0).previousElementSibling
+                                if (event.keyCode == 13) {
+                                    let el = keepFocus ?? next
+                                    if (el instanceof HTMLElement) {
+                                        let inp = query(el).find('input')
+                                        if (inp.length > 0) {
+                                            inp.get(0).focus()
+                                        }
+                                    }
+                                    keepFocus = undefined
+                                }
+                                let className = query(event.target).hasClass('key') ? 'key' : 'value'
+                                if (event.keyCode == 38 && prev) { // up key
+                                    query(prev).find(`input.${className}`).get(0).select()
+                                    event.preventDefault()
+                                }
+                                if (event.keyCode == 40 && next) { // down key
+                                    query(next).find(`input.${className}`).get(0).select()
+                                    event.preventDefault()
+                                }
+                            })
+                            .on('keydown.mapChange', function(event) {
+                                if (event.keyCode == 38 || event.keyCode == 40) {
+                                    event.preventDefault()
+                                }
+                            })
+                            .on('input.mapChange', function(event) {
+                                let fld = query(event.target).closest('div')
+                                let cnt = fld.data('index')
+                                let next = fld.get(0).nextElementSibling
+                                // if last one, add new empty
+                                if (fld.find('input').val() != '' && !next) {
+                                    field.el.mapAdd(field, div, parseInt(cnt) + 1)
+                                } else if (fld.find('input').val() == '' && next) {
+                                    let isEmpty = true
+                                    query(next).find('input').each(el => {
+                                        if (el.value != '') isEmpty = false
+                                    })
+                                    if (isEmpty) {
+                                        query(next).remove()
+                                    }
+                                }
+                            })
+                            .on('change.mapChange', function(event) {
+                                // remember original
+                                if (self.original == null) {
+                                    if (Object.keys(self.record).length > 0) {
+                                        self.original = w2utils.clone(self.record)
+                                    } else {
+                                        self.original = {}
+                                    }
+                                }
+                                // event before
+                                let { current, previous, original } = self.getFieldValue(field.field)
+                                let $cnt = query(event.target).closest('.w2ui-map-container')
+                                if (field.type == 'map') current._order = []
+                                $cnt.find('.w2ui-map.key').each(el => { current._order.push(el.value) })
+                                let edata = self.trigger('change', { target: field.field, originalEvent: event,
+                                    value: { current, previous, original }
+                                })
+                                if (edata.isCancelled === true) {
+                                    return
+                                }
+                                // delete empty
+                                if (field.type == 'map') {
+                                    current._order = current._order.filter(k => k !== '')
+                                    delete current['']
+                                }
+                                if (field.type == 'array') {
+                                    current = current.filter(k => k !== '')
+                                }
+                                if (query(event.target).parent().find('input').val() == '') {
+                                    keepFocus = event.target
+                                }
+                                self.setValue(field.field, current)
+                                field.el.mapRefresh(current, div)
+                                // event after
+                                edata.finish()
+                            })
+                    }
+                })(this, field)
+            }
+            // set value to all
+            this.setFieldValue(field.field, value)
         }
         // event after
         edata.finish()
@@ -1853,7 +1890,7 @@ class w2form extends w2base {
 
     render(box) {
         let time = (new Date()).getTime()
-        let obj  = this
+        let self = this
         if (typeof box === 'object') {
             // remove from previous box
             if (query(this.box).find('#form_'+ this.name +'_tabs').length > 0) {
@@ -1884,7 +1921,7 @@ class w2form extends w2base {
         if (typeof this.toolbar.render !== 'function') {
             this.toolbar = new w2toolbar(w2utils.extend({}, this.toolbar, { name: this.name +'_toolbar', owner: this }))
             this.toolbar.on('click', function(event) {
-                let edata = obj.trigger('toolbar', { target: event.target, originalEvent: event })
+                let edata = self.trigger('toolbar', { target: event.target, originalEvent: event })
                 if (edata.isCancelled === true) return
                 // no default action
                 edata.finish()
@@ -1897,7 +1934,7 @@ class w2form extends w2base {
         if (typeof this.tabs.render !== 'function') {
             this.tabs = new w2tabs(w2utils.extend({}, this.tabs, { name: this.name +'_tabs', owner: this, active: this.tabs.active }))
             this.tabs.on('click', function(event) {
-                obj.goto(this.get(event.target, true))
+                self.goto(this.get(event.target, true))
             })
         }
         if (typeof this.tabs === 'object' && typeof this.tabs.render === 'function') {
@@ -1921,8 +1958,8 @@ class w2form extends w2base {
         if (this.focus != -1) {
             let setCount = 0
             let setFocus = () => {
-                if (query(obj.box).find('input, select, textarea').length > 0) {
-                    obj.setFocus()
+                if (query(self.box).find('input, select, textarea').length > 0) {
+                    self.setFocus()
                 } else {
                     setCount++
                     if (setCount < 20) setTimeout(setFocus, 50) // 1 sec max

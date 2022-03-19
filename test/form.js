@@ -40,13 +40,16 @@ jQuery(() => {
                     html: 'dfdf',
                     attr: 'style="padding: 5px"',
                     group: 'General',
-                    groupCollapsible: true
+                    groupCollapsible: true,
+                    groupExpanded: false
                 }
             },
             { field: 'field.text', type: 'text', required: true, html: { attr: 'style="width: 300px"' }, hidden1: true },
-            { field: 'field.textarea', type: 'textarea', required: true, html: { attr: 'style="width: 300px"' },
+            { field: 'field.textarea', type: 'textarea', required: true,
+                html: { attr: 'style="width: 300px"' },
                 html: {
-                    group: 'Other'
+                    group: 'Other',
+                    groupCollapsible: true
                 }
             },
             { field: 'field.date', type: 'date', required: false, html: { attr: 'style="width: 90px"' } },
@@ -55,16 +58,17 @@ jQuery(() => {
             { field: 'field.list', type: 'list', required: true, html: { group: 'Dropdowns', groupCollapsable: true },
                 options: {
                     match: 'contains',
-                    compare: function (item) {
+                    // url : 'listdat.json'
+                    compare(item) {
                         if (item.id < 4) return false;
                     },
-                    items: function(el) {
+                    items1(el) {
                         return [
                             { id: 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
                             { id: 'item2', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) }
                         ]
                     },
-                    items1: [
+                    items: [
                         { id: 0, text: 'Pickle, Susan' },
                         { id: 1, text: 'Adams, John' },
                         { id: 2, text: 'Openhimer, Peter' },
@@ -81,13 +85,25 @@ jQuery(() => {
             { field: 'field.combo', type: 'combo', required: false,
                 options: {
                     applyFilter: false,
-                    items: function(el) {
+                    // url : 'listdat.json'
+                    items1(el) {
                         return [
                             { id: 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
                             { id: 'item2', icon: 'fa fa-star', text: 'item ' + Math.round(Math.random()*100) }
                         ]
                     },
-                    // url : 'listdat.json'
+                    items: [
+                        { id: 0, text: 'Pickle, Susan' },
+                        { id: 1, text: 'Adams, John' },
+                        { id: 2, text: 'Openhimer, Peter' },
+                        { id: 3, text: 'Woznyak, Steve' },
+                        { id: 4, text: 'Rusevelt, Franklin' },
+                        { id: 5, text: 'Stalone, Silvester' },
+                        { id: 6, text: 'Mann, Fred' },
+                        { id: 6, text: 'Ford, Mary' },
+                        { id: 8, text: 'Purky, Mon' },
+                        { id: 9, text: 'Min, Hla' }
+                    ]
                 }
             },
             { field: 'field.enum', type: 'enum', required: false,
@@ -113,10 +129,14 @@ jQuery(() => {
             { field: 'field.percent', type: 'percent', required: false, html: { page: 1 } },
             { field: 'field.alpha', type: 'alphanumeric', required: false, html: { page: 1 } },
             // third page
-            { field: 'field.select', type: 'select', required: false, options: { items: ['fist', 'second'] }, html: { page: 2 } },
+            { field: 'field.select', type: 'select', required: false, options: {
+                items: ['fist', 'second', 'third', 'another'] }, html: { page: 2 }
+            },
             { field: 'field.toggle', type: 'toggle', required: false, html: { page: 2 } },
             { field: 'field.check', type: 'checkbox', required: false, html: { page: 2, text: 'Options' } },
-            { field: 'field.check2', type: 'checkbox', required: false, html: { page: 2, label: 'Some long text for checkbox' } },
+            { field: 'field.check2', type: 'checkbox', required: false,
+                html: { page: 2, text: 'field.check2', label: 'Some long text for checkbox' }
+            },
             { field: 'field.check3', type: 'checks', required: false,
                 html: {
                     page: 2,
@@ -137,24 +157,25 @@ jQuery(() => {
                     items: [
                         { id: 0, text: 'Pickle, Susan' },
                         { id: 1, text: 'Adams, John' },
-                        { id: 2, text: 'Openhimer, Peter' },
+                        { id: "2a", text: 'Openhimer, Peter' },
                         { id: 3, text: 'Woznyak, Steve' },
                         { id: 4, text: 'Rusevelt, Franklin' },
                         { id: 5, text: 'Stalone, Silvester' },
                         { id: 6, text: 'Mann, Fred' },
                         { id: 6, text: 'Ford, Mary' },
                         { id: 8, text: 'Purky, Mon' },
-                        { id: 9, text: 'Min, Hla' }
+                        { id: '', text: 'Min, Hla' }
                     ]
                 }
             }
         ],
-        onChange: function (event) {
+        onChange(event) {
             // event.preventDefault()
+            // console.log(event.type, event.detail.value);
         },
-        // onInput: function (event) {
-        //     console.log('input', event);
-        // },
+        onInput(event) {
+            // console.log(event.type, event.detail.value);
+        },
         postData1: {
             a1: 1,
             a2: 2

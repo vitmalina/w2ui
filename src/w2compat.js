@@ -16,7 +16,7 @@ import { w2event, w2base } from './w2base.js'
 import { w2ui, w2utils } from './w2utils.js'
 import { query } from './query.js'
 import { w2popup, w2alert, w2confirm, w2prompt, Dialog } from './w2popup.js'
-import { w2field, addType, removeType } from './w2field.js'
+import { w2field } from './w2field.js'
 import { w2form } from './w2form.js'
 import { w2grid } from './w2grid.js'
 import { w2layout } from './w2layout.js'
@@ -39,7 +39,7 @@ import { w2tooltip, w2color, w2menu, w2date, w2time, Tooltip, ColorTooltip, Menu
         })(window, {
             w2ui, w2utils, query, w2locale, w2event, w2base, w2popup, w2alert, w2confirm, w2prompt, Dialog,
             w2tooltip, w2menu, w2color, w2date, w2time, Tooltip, ColorTooltip, MenuTooltip, DateTooltip, TimeTooltip,
-            w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field, addType, removeType
+            w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field
         })
     }
     // if url has globals at the end, then register globals
@@ -75,8 +75,6 @@ import { w2tooltip, w2color, w2menu, w2date, w2time, Tooltip, ColorTooltip, Menu
                 obj.render(el)
                 return obj
             } else { // fully re-init
-                obj.clear()
-                if (type === 'clear') return
                 obj = new w2field(type, options)
                 obj.render(el)
                 return obj
@@ -169,6 +167,7 @@ import { w2tooltip, w2color, w2menu, w2date, w2time, Tooltip, ColorTooltip, Menu
             if (typeof text == 'object') {
                 options = text
             } else {
+                options = options ?? {}
                 options.html = text
             }
             let tooltip = w2tooltip.show(el, options)
@@ -222,5 +221,5 @@ import { w2tooltip, w2color, w2menu, w2date, w2time, Tooltip, ColorTooltip, Menu
 export {
     w2ui, w2utils, query, w2locale, w2event, w2base, w2popup, w2alert, w2confirm, w2prompt, Dialog,
     w2tooltip, w2menu, w2color, w2date, w2time, Tooltip, ColorTooltip, MenuTooltip, DateTooltip, TimeTooltip,
-    w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field, addType, removeType
+    w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field
 }

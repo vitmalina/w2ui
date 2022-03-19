@@ -8,7 +8,6 @@
  *  - multiple date selection
  *  - month selection, year selections
  *  - arrows no longer work (for int)
- *  - form to support custom types
  *  - rewrite suffix and prefix positioning with translateY()
  *  - prefix and suffix are slow (100ms or so)
  *  - MultiSelect - Allow Copy/Paste for single and multi values
@@ -29,48 +28,11 @@
  *  - remote source response items => records or just an array
  *  - deprecated "success" field for remote source response
  *  - CSP - fixed inline events
+ *  - remove clear, use reset instead
  */
 
 import { w2base } from './w2base.js'
-import { w2ui, w2utils } from './w2utils.js'
-
-let custom = {}
-
-function addType(type, handler) {
-    type         = String(type).toLowerCase()
-    custom[type] = handler
-    return true
-}
-
-function removeType(type) {
-    type = String(type).toLowerCase()
-    if (!custom[type]) return false
-    delete custom[type]
-    return true
-}
-
-/* To Define CUSTOM field types
-
-import { addType, removeType } from '.w2field.js'
-
-addType('myType', (options) => {
-    $(this.el).on('keypress', function(event) {
-        if (event.metaKey || event.ctrlKey || event.altKey
-            || (event.charCode != event.keyCode && event.keyCode > 0)) return;
-        let ch = String.fromCharCode(event.charCode);
-        if (ch != 'a' && ch != 'b' && ch != 'c') {
-            if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;
-            return false;
-        }
-    });
-    $(this.el).on('blur', function(event)  { // keyCode & charCode differ in FireFox
-        let ch = this.value;
-        if (ch != 'a' && ch != 'b' && ch != 'c') {
-            $(this).w2tag(w2utils.lang("Not a single character from the set of 'abc'"));
-        }
-    });
-})
-*/
+import { w2utils } from './w2utils.js'
 
 class w2field extends w2base {
     constructor(type, options) {
@@ -80,7 +42,7 @@ class w2field extends w2base {
             options = { type: type }
         }
         if (typeof type == 'object' && options == null) {
-            options = $.extend(true, {}, type)
+            options = w2utils.clone(type)
         }
         if (typeof type == 'string' && typeof options == 'object') {
             options.type = type
@@ -91,7 +53,7 @@ class w2field extends w2base {
         this.el          = null
         this.helpers     = {} // object or helper elements
         this.type        = options.type || 'text'
-        this.options     = $.extend(true, {}, options)
+        this.options     = w2utils.clone(options)
         this.onSearch    = options.onSearch || null
         this.onRequest   = options.onRequest || null
         this.onLoad      = options.onLoad || null
@@ -119,26 +81,27 @@ class w2field extends w2base {
     }
 
     render(el) {
-        if ($(el).length == 0) {
-            console.log('ERROR: Cannot init w2field on empty set')
+        if (!(el instanceof HTMLElement)) {
+            console.log('ERROR: Cannot init w2field on empty subject')
             return
         }
-        this.el = $(el)[0]
+        if (el._w2ui?.w2field) {
+            el._w2ui.w2field.reset()
+        } else {
+            el._w2ui = el._w2ui ?? {}
+            el._w2ui.w2field = this
+        }
+        this.el = el
         this.init()
     }
 
     init() {
-        let obj     = this
+        let obj = this
         let options = this.options
         let defaults
 
-        // Custom Types
-        if (typeof custom[this.type] === 'function') {
-            custom[this.type].call(this, options)
-            return
-        }
         // only for INPUT or TEXTAREA
-        if (['INPUT', 'TEXTAREA'].indexOf(this.el.tagName.toUpperCase()) == -1) {
+        if (!['INPUT', 'TEXTAREA'].includes(this.el.tagName.toUpperCase())) {
             console.log('ERROR: w2field could only be applied to INPUT or TEXTAREA.', this.el)
             return
         }
@@ -153,30 +116,30 @@ class w2field extends w2base {
             case 'alphanumeric':
             case 'bin':
             case 'hex':
-                defaults          = {
-                    min                : null,
-                    max                : null,
-                    step               : 1,
-                    autoFormat         : true,
-                    autoCorrect        : true,
-                    currencyPrefix     : w2utils.settings.currencyPrefix,
-                    currencySuffix     : w2utils.settings.currencySuffix,
-                    currencyPrecision  : w2utils.settings.currencyPrecision,
-                    decimalSymbol      : w2utils.settings.decimalSymbol,
-                    groupSymbol        : w2utils.settings.groupSymbol,
-                    arrows             : false,
-                    keyboard           : true,
-                    precision          : null,
-                    prefix             : '',
-                    suffix             : ''
+                defaults = {
+                    min: null,
+                    max: null,
+                    step: 1,
+                    autoFormat: true,
+                    autoCorrect: true,
+                    currencyPrefix: w2utils.settings.currencyPrefix,
+                    currencySuffix: w2utils.settings.currencySuffix,
+                    currencyPrecision: w2utils.settings.currencyPrecision,
+                    decimalSymbol: w2utils.settings.decimalSymbol,
+                    groupSymbol: w2utils.settings.groupSymbol,
+                    arrows: false,
+                    keyboard: true,
+                    precision: null,
+                    prefix: '',
+                    suffix: ''
                 }
-                this.options      = $.extend(true, {}, defaults, options)
-                options           = this.options // since object is re-created, need to re-assign
+                this.options = w2utils.extend({}, defaults, options)
+                options = this.options // since object is re-created, need to re-assign
                 options.numberRE  = new RegExp('['+ options.groupSymbol + ']', 'g')
                 options.moneyRE   = new RegExp('['+ options.currencyPrefix + options.currencySuffix + options.groupSymbol +']', 'g')
                 options.percentRE = new RegExp('['+ options.groupSymbol + '%]', 'g')
                 // no keyboard support needed
-                if (['text', 'alphanumeric', 'hex', 'bin'].indexOf(this.type) !== -1) {
+                if (['text', 'alphanumeric', 'hex', 'bin'].includes(this.type)) {
                     options.arrows   = false
                     options.keyboard = false
                 }
@@ -497,42 +460,6 @@ class w2field extends w2base {
         return false
     }
 
-    clear() {
-        let options = this.options
-        // if money then clear value
-        if (['money', 'currency'].indexOf(this.type) !== -1) {
-            $(this.el).val($(this.el).val().replace(options.moneyRE, ''))
-        }
-        if (this.type === 'percent') {
-            $(this.el).val($(this.el).val().replace(/%/g, ''))
-        }
-        if (this.type === 'list') {
-            $(this.el).removeClass('w2ui-select')
-        }
-        this.type = 'clear'
-        let tmp   = $(this.el).data('tmp')
-        if (!this.tmp) return
-        // restore paddings
-        if (tmp != null) {
-            $(this.el).height('auto')
-            if (tmp && tmp['old-padding-left']) $(this.el).css('padding-left', tmp['old-padding-left'])
-            if (tmp && tmp['old-padding-right']) $(this.el).css('padding-right', tmp['old-padding-right'])
-            if (tmp && tmp['old-background-color']) $(this.el).css('background-color', tmp['old-background-color'])
-            if (tmp && tmp['old-border-color']) $(this.el).css('border-color', tmp['old-border-color'])
-            // remove resize watcher
-            clearInterval(tmp.sizeTimer)
-        }
-        // remove events and (data)
-        $(this.el)
-            .val(this.clean($(this.el).val()))
-            .removeClass('w2field')
-            .removeData() // removes all attached data
-            .off('.w2field') // remove only events added by w2field
-        // remove helpers
-        for (let h in this.helpers) $(this.helpers[h]).remove()
-        this.helpers = {}
-    }
-
     refresh() {
         let obj      = this
         let options  = this.options
@@ -796,13 +723,6 @@ class w2field extends w2base {
         return (new Date()).getTime() - time
     }
 
-    reset() {
-        let type = this.type
-        this.clear()
-        this.type = type
-        this.init()
-    }
-
     // resizing width of list, enum, file controls
     resize() {
         let obj        = this
@@ -836,13 +756,38 @@ class w2field extends w2base {
         obj.tmp.current_width = new_width
     }
 
+    reset() {
+        let tmp = this.el._w2ui?.tmp
+        // restore paddings
+        if (tmp != null) {
+            query(this.el).css('height', 'auto')
+            if (tmp && tmp['old-padding-left']) query(this.el).css('padding-left', tmp['old-padding-left'])
+            if (tmp && tmp['old-padding-right']) query(this.el).css('padding-right', tmp['old-padding-right'])
+            if (tmp && tmp['old-background-color']) query(this.el).css('background-color', tmp['old-background-color'])
+            if (tmp && tmp['old-border-color']) query(this.el).css('border-color', tmp['old-border-color'])
+            // remove resize watcher
+            clearInterval(tmp.sizeTimer)
+        }
+        // remove events and (data)
+        query(this.el)
+            .val(this.clean(query(this.el).val()))
+            .removeClass('w2field')
+            .removeData() // removes all attached data
+            .off('.w2field') // remove only events added by w2field
+        // remove helpers
+        Object.keys(this.helpers).forEach(key => {
+            query(this.helpers[key]).remove()
+        })
+        this.helpers = {}
+    }
+
     clean(val) {
-        //issue #499
+        // issue #499
         if(typeof val === 'number'){
             return val
         }
         let options = this.options
-        val         = String(val).trim()
+        val = String(val).trim()
         // clean
         if (['int', 'float', 'money', 'currency', 'percent'].indexOf(this.type) !== -1) {
             if (typeof val === 'string') {
@@ -2850,4 +2795,4 @@ class w2field extends w2base {
     }
 }
 
-export { w2field, addType, removeType }
+export { w2field }

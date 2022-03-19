@@ -26,17 +26,21 @@
                         key4: '4',
                         key5: '5'
                     },
-                    array: [
-                        { key: 'key1', value: '1' },
-                        { key: 'key2', value: '2' },
-                        { key: 'key3', value: '3' },
-                        { key: 'key4', value: '4' },
-                        { key: 'key5', value: '5' }
-                    ]
+                    array: ['val1', 'val2', 'val3', { key: 'key1', value: '1' }]
                 }
             },
             tabs: ['General', 'Aditional'],
             fields: [
+                // { field: 'field_text', type: 'text', html: { page : 0 } },
+                // { field: 'field_int', type: 'int', html: { page : 0 }, options: { prefix: '$', arrows: true } },
+                // { field: 'field_float', type: 'float', html: { page : 0 } },
+                // { field: 'field_alphanumeric', type: 'alphanumeric', html: { page : 0 } },
+                // { field: 'field_money', type: 'money', html: { page : 0 } },
+                // { field: 'field_currency', type: 'currency', html: { page : 0 } },
+                // { field: 'field_percent', type: 'percent', html: { page : 0 } },
+                // { field: 'field_bin', type: 'bin', html: { page : 0 } },
+                // { field: 'field_hex', type: 'hex', html: { page : 0 } },
+
                 { field: 'field_text', type: 'text', required: true,
                     html: { label: 'Text', page: 0 }
                 },
@@ -54,36 +58,36 @@
                         value: { attr: 'placeholder="value"', text: ''}
                     },
                 },
-                { field: 'field_alpha', type: 'alphanumeric', required: true,
-                    html: { label: 'Alpha Numeric', page: 0 }
-                },
-                { field: 'field_int', type: 'int', required: true,
-                    html: { label: 'Integer', page: 0 }
-                },
-                { field: 'field_float', type: 'float', required: true,
-                    html: { label: 'Float', page: 0 }
-                },
-                { field: 'field_date', type: 'date',
-                    options: { format: 'mm/dd/yyyy', blocked: ['3/12/2013', '3/13/2013'] },
-                    html: { label: 'Date', page: 0 }
-                },
-                { field: 'field_list', type: 'list', required: true,
-                    options: { items: [{ id: 0, txt: 'Adams, John' }, { id: 1, text: 'Adams2, John' }], showNone: false },
-                    html: { label: 'List', page: 0 }
-                },
-                { field: 'field_enum', type: 'enum', required: true,
-                    options: { items: [{id: 1, text: 'Adams, John'}, 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] },
-                    html: { label: 'Enum (multi select)', attr: 'style="width: 100%"', page: 0 }
-                },
-                { field: 'field_textarea', type: 'textarea', required: true,
-                    html: { label: 'Text Area', attr: 'style="width: 100%; height: 90px; resize: none"', page: 0 }
-                },
-                { field: 'field_textarea', type: 'textarea', html: { page : 1 } },
-                { field: 'field_text2',  type: 'text', html: { page : 1 } },
-                { field: 'field_text3',  type: 'text', html: { page : 1 } },
-                { field: 'field_text4',  type: 'text', html: { page : 1 } },
-                { field: 'field_text5',  type: 'text', html: { page : 1 } },
-                { field: 'field_upload', type: 'text', html: { page : 1 } }
+                // { field: 'field_alpha', type: 'alphanumeric', required: true,
+                //     html: { label: 'Alpha Numeric', page: 0 }
+                // },
+                // { field: 'field_int', type: 'int', required: true,
+                //     html: { label: 'Integer', page: 0 }
+                // },
+                // { field: 'field_float', type: 'float', required: true,
+                //     html: { label: 'Float', page: 0 }
+                // },
+                // { field: 'field_date', type: 'date',
+                //     options: { format: 'mm/dd/yyyy', blocked: ['3/12/2013', '3/13/2013'] },
+                //     html: { label: 'Date', page: 0 }
+                // },
+                // { field: 'field_list', type: 'list', required: true,
+                //     options: { items: [{ id: 0, txt: 'Adams, John' }, { id: 1, text: 'Adams2, John' }], showNone: false },
+                //     html: { label: 'List', page: 0 }
+                // },
+                // { field: 'field_enum', type: 'enum', required: true,
+                //     options: { items: [{id: 1, text: 'Adams, John'}, 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick'] },
+                //     html: { label: 'Enum (multi select)', attr: 'style="width: 100%"', page: 0 }
+                // },
+                // { field: 'field_textarea', type: 'textarea', required: true,
+                //     html: { label: 'Text Area', attr: 'style="width: 100%; height: 90px; resize: none"', page: 0 }
+                // },
+                // { field: 'field_textarea', type: 'textarea', html: { page : 1 } },
+                // { field: 'field_text2',  type: 'text', html: { page : 1 } },
+                // { field: 'field_text3',  type: 'text', html: { page : 1 } },
+                // { field: 'field_text4',  type: 'text', html: { page : 1 } },
+                // { field: 'field_text5',  type: 'text', html: { page : 1 } },
+                // { field: 'field_upload', type: 'text', html: { page : 1 } }
             ],
             actions: {
                 Reset: function () {
@@ -102,13 +106,13 @@
                 }
             },
             onChange: function (event) {
-                console.log('change', event)
+                // console.log('change', event)
             }
         });
 });
 //]]>
 </script>
 <body style="margin: 30px;">
-    <div id="form" style="width: 700px; height: 900px;"></div>
+    <div id="form" style="width: 700px; height1: 900px;"></div>
 </body>
 </html>
