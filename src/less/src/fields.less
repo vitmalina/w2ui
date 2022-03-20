@@ -12,19 +12,23 @@
     position: absolute;
     display: inline-block;
     line-height: 100%;
-    /* pointer-events: none; - do not use as IE does not support it */
+    pointer-events: none;
     .user-select(none);
 
     .w2ui-field-up {
         position: absolute;
         top: 0px;
         padding: 2px 3px;
+        cursor: pointer;
+        pointer-events: all;
     }
 
     .w2ui-field-down {
         position: absolute;
         bottom: 0px;
         padding: 2px 3px;
+        cursor: pointer;
+        pointer-events: all;
     }
 
     .arrow-up:hover {

@@ -376,7 +376,7 @@ class w2form extends w2base {
             if (!Array.isArray(previous)) previous = []
         }
         // lists
-        let selected = el._w2ui?.selected // drop downs and other w2field objects
+        let selected = el._w2field?.selected // drop downs and other w2field objects
         if (['list', 'enum', 'file'].includes(field.type) && selected) {
             // TODO: check when w2field is refactored
             let nv = selected
@@ -456,9 +456,8 @@ class w2form extends w2base {
                 if (item != value) {
                     this.setValue(field.name, item)
                 }
-                field.el._w2ui = field.el._w2ui ?? {}
-                field.el._w2ui.selected = item
                 if (field.type == 'list') {
+                    field.w2field.selected = item
                     field.w2field.refresh()
                 } else {
                     field.el.value = item?.text ?? value
@@ -490,8 +489,7 @@ class w2form extends w2base {
                 //     field.$el.data('find_selected', value) // HERE
                 //     sel = value
                 // }
-                field.el._w2ui = field.el._w2ui ?? {}
-                field.el._w2ui.selected = items
+                field.w2field.selected = items
                 field.w2field.refresh()
                 break
             }
@@ -1609,12 +1607,12 @@ class w2form extends w2base {
                     let value = self.getFieldValue(field.field)
                     // clear error class
                     if (['enum', 'file'].includes(field.type)) {
-                        let helper = field.el?._w2ui?.w2field?.helpers?.multi
+                        let helper = field.el._w2field?.helpers?.multi
                         query(helper).removeClass('w2ui-error')
                     }
-                    if (this?._w2ui?.previous != null) {
-                        value.previous = this._w2ui.previous
-                        delete this._w2ui.previous
+                    if (this._previous != null) {
+                        value.previous = this._previous
+                        delete this._previous
                     }
                     // event before
                     let edata2 = self.trigger('change', { target: this.name, value, originalEvent: event })
@@ -1635,9 +1633,8 @@ class w2form extends w2base {
                     }
                     let value = self.getFieldValue(field.field)
                     // save previous for change event
-                    this._w2ui = this._w2ui ?? {}
-                    if (this._w2ui.previous == null) {
-                        this._w2ui.previous = value.previous
+                    if (this._previous == null) {
+                        this._previous = value.previous
                     }
                     // event before
                     let edata2 = self.trigger('input', { target: self.name, value, originalEvent: event })
@@ -1883,6 +1880,7 @@ class w2form extends w2base {
             }
             // set value to all
             this.setFieldValue(field.field, value)
+            field.$el.trigger('change')
         }
         // event after
         edata.finish()

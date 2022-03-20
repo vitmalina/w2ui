@@ -46,15 +46,18 @@ jQuery(() => {
             },
             { field: 'field.text', type: 'text', required: true, html: { attr: 'style="width: 300px"' }, hidden1: true },
             { field: 'field.textarea', type: 'textarea', required: true,
-                html: { attr: 'style="width: 300px"' },
                 html: {
+                    attr: 'style="width: 100%"',
                     group: 'Other',
                     groupCollapsible: true
                 }
             },
-            { field: 'field.date', type: 'date', required: false, html: { attr: 'style="width: 90px"' } },
-            { field: 'field.time', type: 'time', required: false, html: { attr: 'style="width: 90px"' } },
-            { field: 'field.color', type: 'color', required: true, html: { attr: 'style="width: 90px"' } },
+            { field: 'field.date', type: 'date', required: false, html: { attr: 'style="width: 100px"' } },
+            { field: 'field.time', type: 'time', required: false, html: { attr: 'style="width: 100px"' } },
+            { field: 'field.color', type: 'color', required: true,
+                html: { attr: 'style="width: 100px"' },
+                options: { advanced1: true, transparent: false }
+            },
             { field: 'field.list', type: 'list', required: true, html: { group: 'Dropdowns', groupCollapsable: true },
                 options: {
                     match: 'contains',
@@ -122,7 +125,11 @@ jQuery(() => {
             // second page
             { field: 'field.email', type: 'email', required: true, html: { page: 1 } },
             { field: 'field.password', type: 'pass', required: false, html: { page: 1 } },
-            { field: 'field.int', type: 'int', options: { arrows: true, max: 100, autoCorrect: true }, required: false, html: { page: 1 } },
+            { field: 'field.int', type: 'int',
+                options: { arrows: true, max: 100, autoCorrect: true, prefix: '$', suffix: '%' },
+                required: false,
+                html: { page: 1, attr: 'style="width: 140px"'}
+            },
             { field: 'field.float', type: 'float', required: false, html: { page: 1 } },
             { field: 'field.money', type: 'money', required: false, html: { page: 1 } },
             { field: 'field.currency', type: 'currency', required: false, html: { page: 1 } },

@@ -8,3 +8,5 @@
 # selectors are not fully compatible
 
 $('div').find('> div') => query('div').find(':scope > div')
+next() - nextElemenetSibling
+prev() - previousElemenetSibling
