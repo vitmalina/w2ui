@@ -901,33 +901,32 @@ class w2form extends w2base {
                 }
             }
         }
+        url = new URL(url, location)
         let fetchOptions = {
-            method: 'POST',
-            headers: edata.detail.httpHeaders,
-            body: edata.detail.postData
+            method: 'GET',
+            headers: edata.detail.httpHeaders
         }
+        let postParams = edata.detail.postData
         let dataType = edata.detail.dataType ?? this.dataType ?? w2utils.settings.dataType
+        dataType = 'HTTP'
         switch (dataType) {
             case 'HTTP':
-                fetchOptions.body = w2utils.encodeParams(fetchOptions.body)
+            case 'RESTULL': {
+                Object.keys(postParams).forEach(key => url.searchParams.append(key, postParams[key]))
                 break
+            }
             case 'HTTPJSON':
-                fetchOptions.body = JSON.stringify({ request: fetchOptions.body })
+            case 'RESTFULLJSON': {
+                postParams = { request: JSON.stringify(postParams) }
+                Object.keys(postParams).forEach(key => url.searchParams.append(key, postParams[key]))
                 break
-            case 'RESTFULL':
-                fetchOptions.type = 'GET'
-                fetchOptions.body = w2utils.encodeParams(fetchOptions.body)
-                break
-            case 'RESTFULLJSON':
-                fetchOptions.type = 'GET'
-                fetchOptions.body = JSON.stringify(fetchOptions.body)
-                fetchOptions.headers.contentType = 'application/json'
-                break
-            case 'JSON':
+            }
+            case 'JSON': {
                 fetchOptions.method = 'POST'
-                fetchOptions.body = JSON.stringify(fetchOptions.body)
+                fetchOptions.body = JSON.stringify(postParams)
                 fetchOptions.headers.contentType = 'application/json'
                 break
+            }
         }
         if (this.method) fetchOptions.method = this.method
         if (edata.detail.method) fetchOptions.method = edata.detail.method
@@ -1050,6 +1049,7 @@ class w2form extends w2base {
                 }
             }
         }
+        url = new URL(url, location)
         let fetchOptions = {
             method: 'POST',
             headers: edata.detail.httpHeaders,
@@ -1075,24 +1075,26 @@ class w2form extends w2base {
             // }
         }
         let dataType = edata.detail.dataType ?? this.dataType ?? w2utils.settings.dataType
+        let postParams = edata.detail.postData
         switch (dataType) {
             case 'HTTP':
-                fetchOptions.body = w2utils.encodeParams(fetchOptions.body)
+                fetchOptions.type = 'GET'
+                Object.keys(postParams).forEach(key => url.searchParams.append(key, postParams[key]))
+                delete fetchOptions.body
                 break
             case 'HTTPJSON':
-                fetchOptions.body = JSON.stringify({ request: fetchOptions.body })
+                fetchOptions.type = 'GET'
+                postParams = JSON.stringify({ request: postParams })
+                Object.keys(postParams).forEach(key => url.searchParams.append(key, postParams[key]))
+                delete fetchOptions.body
                 break
             case 'RESTFULL':
-                fetchOptions.type = 'GET'
-                fetchOptions.body = w2utils.encodeParams(fetchOptions.body)
                 break
             case 'RESTFULLJSON':
-                fetchOptions.type = 'GET'
                 fetchOptions.body = JSON.stringify(fetchOptions.body)
                 fetchOptions.headers.contentType = 'application/json'
                 break
             case 'JSON':
-                fetchOptions.method = 'POST'
                 fetchOptions.headers.contentType = 'application/json'
                 if (!self.multipart) {
                     fetchOptions.body = JSON.stringify(fetchOptions.body)
