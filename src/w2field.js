@@ -367,14 +367,14 @@ class w2field extends w2base {
                 break
         }
         // attach events
-        this.tmp = {
+        w2utils.extend(this.tmp, {
             onChange    (event) { obj.change.call(obj, event) },
             onClick     (event) { obj.click.call(obj, event) },
             onFocus     (event) { obj.focus.call(obj, event) },
             onBlur      (event) { obj.blur.call(obj, event) },
             onKeydown   (event) { obj.keyDown.call(obj, event) },
             onKeypress  (event) { obj.keyPress.call(obj, event) }
-        }
+        })
         query(this.el)
             .addClass('w2field w2ui-input')
             .off('.w2field')
@@ -746,10 +746,12 @@ class w2field extends w2base {
         // restore paddings
         if (this.tmp != null) {
             query(this.el).css('height', 'auto')
-            if (this.tmp && this.tmp['old-padding-left']) query(this.el).css('padding-left', this.tmp['old-padding-left'])
-            if (this.tmp && this.tmp['old-padding-right']) query(this.el).css('padding-right', this.tmp['old-padding-right'])
-            if (this.tmp && this.tmp['old-background-color']) query(this.el).css('background-color', this.tmp['old-background-color'])
-            if (this.tmp && this.tmp['old-border-color']) query(this.el).css('border-color', this.tmp['old-border-color'])
+            Array('padding-left', 'padding-right', 'background-color', 'border-color').forEach(prop => {
+                if (this.tmp && this.tmp['old-'+ prop] != null) {
+                    query(this.el).css(prop, this.tmp['old-' + prop])
+                    delete this.tmp['old-' + prop]
+                }
+            })
             // remove resize watcher
             clearInterval(this.tmp.sizeTimer)
         }
@@ -904,30 +906,15 @@ class w2field extends w2base {
     }
 
     blur(event) {
-        let obj      = this
-        let options  = obj.options
-        let val      = $(obj.el).val().trim()
-        let $overlay = $('#w2ui-overlay')
-        $(obj.el).removeClass('has-focus')
+        let options = this.options
+        let val = query(this.el).val().trim()
+        query(this.el).removeClass('has-focus')
 
-        // hide overlay
-        if (['color', 'date', 'time', 'list', 'combo', 'enum', 'datetime'].indexOf(obj.type) !== -1) {
-            let closeTimeout = setTimeout(() => {
-                if ($overlay.data('keepOpen') !== true) $overlay.hide()
-            }, 0)
-
-            $('.menu', $overlay).one('focus', function() {
-                clearTimeout(closeTimeout)
-                $(this).one('focusout', function(event) {
-                    $overlay.hide()
-                })
-            })
-        }
-        if (['int', 'float', 'money', 'currency', 'percent'].indexOf(obj.type) !== -1) {
+        if (['int', 'float', 'money', 'currency', 'percent'].indexOf(this.type) !== -1) {
             if (val !== '') {
                 let newVal = val
                 let error = ''
-                if (!obj.checkType(val)) {
+                if (!this.checkType(val)) {
                     newVal = ''
                 } else {
                     let rVal = this.clean(val)
@@ -941,45 +928,50 @@ class w2field extends w2base {
                     }
                 }
                 if (options.autoCorrect) {
-                    $(obj.el).val(newVal).trigger('input').trigger('change')
+                    query(this.el).val(newVal).trigger('input').trigger('change')
                     if (error) {
-                        $(obj.el).w2tag(error)
-                        setTimeout(() => { $(obj.el).w2tag('') }, 3000)
+                        w2tooltip.show({
+                            name: this.el.id + '_error',
+                            anchor: this.el,
+                            html: error
+                        })
+                        setTimeout(() => { w2tooltip.hide(this.el.id + '_error') }, 3000)
                     }
                 }
             }
         }
         // date or time
-        if (['date', 'time', 'datetime'].indexOf(obj.type) !== -1) {
+        if (['date', 'time', 'datetime'].indexOf(this.type) !== -1) {
             // check if in range
-            if (val !== '' && !obj.inRange(obj.el.value)) {
+            if (val !== '' && !this.inRange(this.el.value)) {
                 if (options.autoCorrect) {
-                    $(obj.el).val('').removeData('selected').trigger('input').trigger('change')
+                    $(this.el).val('').removeData('selected').trigger('input').trigger('change')
                 }
             } else {
-                if (obj.type === 'date' && val !== '' && !w2utils.isDate(obj.el.value, options.format)) {
+                if (this.type === 'date' && val !== '' && !w2utils.isDate(this.el.value, options.format)) {
                     if (options.autoCorrect) {
-                        $(obj.el).val('').removeData('selected').trigger('input').trigger('change')
+                        $(this.el).val('').removeData('selected').trigger('input').trigger('change')
                     }
                 }
-                else if (obj.type === 'time' && val !== '' && !w2utils.isTime(obj.el.value)) {
+                else if (this.type === 'time' && val !== '' && !w2utils.isTime(this.el.value)) {
                     if (options.autoCorrect) {
-                        $(obj.el).val('').removeData('selected').trigger('input').trigger('change')
+                        $(this.el).val('').removeData('selected').trigger('input').trigger('change')
                     }
                 }
-                else if (obj.type === 'datetime' && val !== '' && !w2utils.isDateTime(obj.el.value, options.format)) {
+                else if (this.type === 'datetime' && val !== '' && !w2utils.isDateTime(this.el.value, options.format)) {
                     if (options.autoCorrect) {
-                        $(obj.el).val('').removeData('selected').trigger('input').trigger('change')
+                        $(this.el).val('').removeData('selected').trigger('input').trigger('change')
                     }
                 }
             }
         }
         // clear search input
-        if (obj.type === 'enum') {
-            $(obj.helpers.multi).find('input').val('').width(20)
+        if (this.type === 'enum') {
+            query(this.helpers.multi).find('input').val('').width(20)
         }
         if (this.type == 'file') {
-            $(this.el).prev().removeClass('has-focus')
+            let prev = query(this.el).get(0).previousElementSibling
+            query(prev).removeClass('has-focus')
         }
     }
 
@@ -1716,14 +1708,12 @@ class w2field extends w2base {
     addPrefix() {
         let helper
         let styles = getComputedStyle(this.el)
-        if (this.tmp['old-padding-left']) {
-            query(this.el).css('padding-left', this.tmp['old-padding-left'])
+        if (this.tmp['old-padding-left'] == null) {
+            this.tmp['old-padding-left'] = styles['padding-left']
         }
-        this.tmp['old-padding-left'] = styles['padding-left']
         // remove if already displayed
         if (this.helpers.prefix) query(this.helpers.prefix).remove()
         if (this.options.prefix !== '') {
-            // add fresh
             query(this.el).before(`<div class="w2ui-field-helper">${this.options.prefix}</div>`)
             helper = query(this.el).get(0).previousElementSibling
             query(helper)
@@ -1733,13 +1723,14 @@ class w2field extends w2base {
                     'font-size'      : styles['font-size'],
                     'padding-top'    : styles['padding-top'],
                     'padding-bottom' : styles['padding-bottom'],
-                    'padding-left'   : styles['padding-left'],
+                    'padding-left'   : this.tmp['old-padding-left'],
                     'padding-right'  : 0,
                     'margin-top'     : (parseInt(styles['margin-top'], 10) + 2) + 'px',
                     'margin-bottom'  : (parseInt(styles['margin-bottom'], 10) + 1) + 'px',
                     'margin-left'    : styles['margin-left'],
                     'margin-right'   : 0
                 })
+            // only if visible
             query(this.el).css('padding-left', helper.clientWidth + 'px')
             // remember helper
             this.helpers.prefix = helper
@@ -1750,10 +1741,9 @@ class w2field extends w2base {
         let helper
         let self = this
         let styles = getComputedStyle(this.el)
-        if (this.tmp['old-padding-right']) {
-            query(this.el).css('padding-right', this.tmp['old-padding-right'])
+        if (this.tmp['old-padding-right'] == null) {
+            this.tmp['old-padding-right'] = styles['padding-right']
         }
-        this.tmp['old-padding-right'] = styles['padding-right']
         let pr = parseInt(styles['padding-right'] || 0)
         if (this.options.arrows) {
             // remove if already displayed
@@ -1835,11 +1825,11 @@ class w2field extends w2base {
             searchId = 'id="' + query(this.el).attr('id') + '_search"'
         }
         // build helper
-        let html =
-            '<div class="w2ui-field-helper">'+
-            '    <span class="w2ui-icon w2ui-icon-search"></span>'+
-            '    <input '+ searchId +' type="text" tabIndex="'+ tabIndex +'" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"/>'+
-            '</div>'
+        let html = `
+            <div class="w2ui-field-helper">
+                <span class="w2ui-icon w2ui-icon-search"></span>
+                <input ${searchId} type="text" tabIndex="${tabIndex}" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"/>
+            </div>`
         query(this.el).attr('tabindex', -1).before(html)
         let helper = query(this.el).get(0).previousElementSibling
         this.helpers.focus = helper
