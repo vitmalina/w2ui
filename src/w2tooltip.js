@@ -742,11 +742,13 @@ class ColorTooltip extends Tooltip {
         let ret = super.attach(options)
         let overlay = ret.overlay
         overlay.on('show.attach', event => {
-            let anchor  = event.detail.overlay.anchor
-            let options = event.detail.overlay.options
+            let overlay = event.detail.overlay
+            let anchor  = overlay.anchor
+            let options = overlay.options
             if (['INPUT', 'TEXTAREA'].includes(anchor.tagName) && !options.color && anchor.value) {
-                event.detail.overlay.tmp.initColor = anchor.value
+                overlay.tmp.initColor = anchor.value
             }
+            delete overlay.newColor
         })
         overlay.on('show:after.attach', event => {
             if (ret.overlay?.box) {
