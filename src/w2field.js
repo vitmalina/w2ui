@@ -455,59 +455,61 @@ class w2field extends w2base {
         let selected = this.selected
         let time     = (new Date()).getTime()
         // enum
-        if (['list'].indexOf(this.type) !== -1) {
-            $(obj.el).parent().css('white-space', 'nowrap') // needs this for arrow always to appear on the right side
+        if (this.type == 'list') {
+            query(this.el).parent().css('white-space', 'nowrap') // needs this for arrow always to appear on the right side
             // hide focus and show text
-            if (obj.helpers.prefix) obj.helpers.prefix.hide()
-            setTimeout(() => {
-                if (!obj.helpers.focus) return
-                // if empty show no icon
-                if (!$.isEmptyObject(selected) && options.icon) {
-                    options.prefix = '<span class="w2ui-icon '+ options.icon +'"style="cursor: pointer; font-size: 14px;' +
-                                     ' display: inline-block; margin-top: -1px; color: #7F98AD;'+ options.iconStyle +'">'+
-                        '</span>'
-                    obj.addPrefix()
-                } else {
-                    options.prefix = ''
-                    obj.addPrefix()
-                }
-                // focus helper
-                let focus = query(obj.helpers.focus).find('input')
-                if ($(focus).val() === '') {
-                    $(focus).css({'text-indent': '-9999em', outline: 'none' })
-                        .prev().css('opacity', 0)
-                    $(obj.el).val(selected && selected.text != null ? w2utils.lang(selected.text) : '')
-                } else {
-                    $(focus).css('text-indent', 0).prev().css('opacity', 1)
-                    $(obj.el).val('')
-                    setTimeout(() => {
-                        if (obj.helpers.prefix) obj.helpers.prefix.hide()
-                        if (options.icon) {
-                            $(focus).css('margin-left', '17px')
-                            $(obj.helpers.focus).find('.w2ui-icon-search')
-                                .addClass('show-search')
-                        } else {
-                            $(focus).css('margin-left', '0px')
-                            $(obj.helpers.focus).find('.w2ui-icon-search')
-                                .removeClass('show-search')
-                        }
-                    }, 1)
-                }
-                // if readonly or disabled
-                if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) {
-                    setTimeout(() => {
-                        $(obj.helpers.prefix).css('opacity', '0.6')
-                        $(obj.helpers.suffix).css('opacity', '0.6')
-                    }, 1)
-                } else {
-                    setTimeout(() => {
-                        $(obj.helpers.prefix).css('opacity', '1')
-                        $(obj.helpers.suffix).css('opacity', '1')
-                    }, 1)
-                }
-            }, 1)
+            if (this.helpers.prefix) this.helpers.prefix.hide()
+            if (!this.helpers.focus) return
+            // if empty show no icon
+            if (this.selected == null && options.icon) {
+                options.prefix = `
+                    <span class="w2ui-icon ${options.icon} "style="cursor: pointer; font-size: 14px;
+                        display: inline-block; margin-top: -1px; color: #7F98AD; ${options.iconStyle}">
+                    </span>`
+                this.addPrefix()
+            } else {
+                options.prefix = ''
+                this.addPrefix()
+            }
+            // focus helper
+            let focus = query(this.helpers.focus).find('input')
+            let icon = query(focus.get(0).previousElementSibling)
+            focus.css({ outline: 'none' })
+            if (focus.val() === '') {
+                focus.css('opacity', 0)
+                icon.css('opacity', 0)
+                query(this.el).val(selected && selected.text != null ? w2utils.lang(selected.text) : '')
+            } else {
+                focus.css('opacity', 1)
+                icon.css('opacity', 1)
+                query(this.el).val('')
+                setTimeout(() => {
+                    if (this.helpers.prefix) this.helpers.prefix.hide()
+                    if (options.icon) {
+                        focus.css('margin-left', '17px')
+                        query(this.helpers.focus).find('.w2ui-icon-search')
+                            .addClass('show-search')
+                    } else {
+                        focus.css('margin-left', '0px')
+                        query(this.helpers.focus).find('.w2ui-icon-search')
+                            .removeClass('show-search')
+                    }
+                }, 1)
+            }
+            // if readonly or disabled
+            if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) {
+                setTimeout(() => {
+                    if (this.helpers.prefix) query(this.helpers.prefix).css('opacity', '0.6')
+                    if (this.helpers.suffix) query(this.helpers.suffix).css('opacity', '0.6')
+                }, 1)
+            } else {
+                setTimeout(() => {
+                    if (this.helpers.prefix) query(this.helpers.prefix).css('opacity', '1')
+                    if (this.helpers.suffix) query(this.helpers.suffix).css('opacity', '1')
+                }, 1)
+            }
         }
-        if (['enum', 'file'].indexOf(this.type) !== -1) {
+        if (['enum', 'file'].includes(this.type)) {
             let html = ''
             if (selected) {
                 for (let s = 0; s < selected.length; s++) {
@@ -896,6 +898,11 @@ class w2field extends w2base {
             if (typeof this.options._items_fun == 'function') {
                 this.options.items = w2utils.normMenu.call(this, this.options._items_fun)
             }
+            if (this.helpers.focus) {
+                let input = query(this.helpers.focus).find('input').get(0)
+                input.value = ''
+                input.select()
+            }
             this.resize()
             this.updateOverlay()
         }
@@ -1026,6 +1033,19 @@ class w2field extends w2base {
                     // set cursor to the end
                     obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length)
                 }, 0)
+            }
+        }
+        if (this.type == 'list') {
+            switch(key) {
+                case 8: // delete
+                    this.selected = null
+                    w2menu.hide(this.el.id + '_menu')
+                    this.refresh()
+                    break
+                case 27: // escape
+                    w2menu.hide(this.el.id + '_menu')
+                    this.refresh()
+                    break
             }
         }
         // date
@@ -1182,8 +1202,7 @@ class w2field extends w2base {
             let input = this.el
             if (this.type === 'enum') {
                 el = this.helpers.multi
-                // TODO: check
-                input = query(el).find('input')
+                input = query(el).find('input').get(0)
             }
             if (this.type === 'list') {
                 let sel = this.selected
@@ -1209,19 +1228,12 @@ class w2field extends w2base {
                         return ids
                     }
                 }
-                input = query(this.helpers.focus).find('input')
+                input = query(this.helpers.focus).find('input').get(0)
             }
             if (query(this.el).hasClass('has-focus')) {
-                if (options.openOnFocus === false && query(input).val() === '' && this.tmp.force_open !== true) {
-                    w2menu.hide(el.id + '_menu')
+                if ((options.openOnFocus === false && query(input).val() === '') || w2tooltip.get(el.id + '_menu')) {
                     return
                 }
-                if (this.tmp.force_hide) {
-                    w2menu.hide(el.id + '_menu')
-                    delete this.tmp.force_hide
-                    return
-                }
-                if (query(input).val() !== '') delete this.tmp.force_open
                 let msgNoItems = w2utils.lang('No matches')
                 if (options.url != null && String(query(input).val()).length < options.minLength && this.tmp.emptySet !== true) {
                     msgNoItems = w2utils.lang('${count} letters or more...', { count: options.minLength })
@@ -1229,45 +1241,46 @@ class w2field extends w2base {
                 if (options.url != null && query(input).val() === '' && this.tmp.emptySet !== true) {
                     msgNoItems = w2utils.lang(options.msgSearch || 'Type to search...')
                 }
-                if (options.url == null && options.items.length === 0) msgNoItems = w2utils.lang('Empty list')
-                if (options.msgNoItems != null) {
-                    let eventData = {
-                        search: query(input).val(),
-                        options: $.extend(true, {}, options)
-                    }
-                    if (options.url) {
-                        eventData.remote = {
-                            url: options.url,
-                            empty: this.tmp.emptySet ? true : false,
-                            error: this.tmp.lastError,
-                            minLength: options.minLength
-                        }
-                    }
-                    msgNoItems = (typeof options.msgNoItems === 'function'
-                        ? options.msgNoItems(eventData)
-                        : options.msgNoItems)
-                }
-                if (this.tmp.lastError) {
-                    msgNoItems = this.tmp.lastError
-                }
-                if (msgNoItems) {
-                    msgNoItems = '<div class="no-matches" style="white-space: normal; line-height: 1.3">' + msgNoItems + '</div>'
-                }
+                // TODO: remote url
+                // if (options.url == null && options.items.length === 0) msgNoItems = w2utils.lang('Empty list')
+                // if (options.msgNoItems != null) {
+                //     let eventData = {
+                //         search: query(input).val(),
+                //         options: $.extend(true, {}, options)
+                //     }
+                //     if (options.url) {
+                //         eventData.remote = {
+                //             url: options.url,
+                //             empty: this.tmp.emptySet ? true : false,
+                //             error: this.tmp.lastError,
+                //             minLength: options.minLength
+                //         }
+                //     }
+                //     msgNoItems = (typeof options.msgNoItems === 'function'
+                //         ? options.msgNoItems(eventData)
+                //         : options.msgNoItems)
+                // }
+                // if (this.tmp.lastError) {
+                //     msgNoItems = this.tmp.lastError
+                // }
+                // if (msgNoItems) {
+                //     msgNoItems = '<div class="no-matches" style="white-space: normal; line-height: 1.3">' + msgNoItems + '</div>'
+                // }
 
                 params = w2utils.extend({}, options, {
                     name: el.id + '_menu',
-                    anchor: el,
-                    search     : false,
-                    render     : options.renderDrop,
-                    maxHeight  : options.maxDropHeight, // TODO: check
-                    maxWidth   : options.maxDropWidth,  // TODO: check
-                    minWidth   : options.minDropWidth,  // TODO: check
-                    msgNoItems : msgNoItems,
+                    anchor: input,
+                    search: false,
+                    render: options.renderDrop,
+                    maxHeight: options.maxDropHeight, // TODO: check
+                    maxWidth: options.maxDropWidth,  // TODO: check
+                    minWidth: options.minDropWidth,  // TODO: check
+                    msgNoItems: msgNoItems,
                 })
                 w2menu.show(params).select(event => {
                     if (this.type != 'enum') {
                         this.selected = event.detail.item
-                        if (this.helpers.focus) query(this.helpers.focus).find('input').val('')
+                        query(input).val('')
                         query(this.el).val(this.selected.text).trigger('input').trigger('change')
                     } else {
                         let selected = $(obj.el).data('selected')
@@ -1837,7 +1850,7 @@ class w2field extends w2base {
         query(helper).css({
                 width           : this.el.clientWidth,
                 'margin-top'    : styles['margin-top'],
-                'margin-left'   : (parseInt(styles['margin-left']) + parseInt(styles['padding-left'])) + 'px',
+                'margin-left'   : styles['margin-left'],
                 'margin-bottom' : styles['margin-bottom'],
                 'margin-right'  : styles['margin-right']
             })
@@ -1846,36 +1859,49 @@ class w2field extends w2base {
                 cursor   : 'default',
                 width    : '100%',
                 opacity  : 1,
-                margin   : 0,
+                padding  : styles.padding,
+                margin   : styles.margin,
                 border   : '1px solid transparent',
-                padding  : styles['padding-top'],
-                'padding-left'     : 0,
-                'margin-left'      : (width > 0 ? width + 6 : 0),
                 'background-color' : 'transparent'
             })
         // INPUT events
         query(helper).find('input')
-            .on('focus', event => {
-                pholder = query(this.el).attr('placeholder')
+            .off('.helper')
+            .on('focus.helper', event => {
+                pholder = query(this.el).attr('placeholder') ?? ''
                 query(event.target).val('')
                 query(this.el).trigger('focus')
-                event.stopPropagation()
-            })
-            .on('blur', event => {
-                $(event.target).val('')
                 this.refresh()
-                query(this.el).trigger('blur')
                 event.stopPropagation()
-                if (pholder != null) query(this.el).attr('placeholder', pholder)
             })
-            .on('keydown', event => {
-                let el = event.target
+            .on('blur.helper', event => {
+                $(event.target).val('')
+                query(this.el).trigger('blur')
+                if (pholder != null) query(this.el).attr('placeholder', pholder)
+                w2menu.hide(this.el.id + '_menu')
+                event.stopPropagation()
+            })
+            .on('keydown.helper', event => {
+                query(event.target).css('opacity', 1)
+                this.el.value = ''
                 this.keyDown(event)
-                if (el.value === '') {
+            })
+            .on('keyup.helper', event => {
+                if (event.target.value === '') {
                     query(this.el).attr('placeholder', pholder)
-                 } else {
-                     query(this.el).attr('placeholder', '')
-                 }
+                } else {
+                    query(this.el).attr('placeholder', '')
+                }
+                console.log(event.keyCode)
+                if (event.keyCode == 13) {
+                    setTimeout(() => {
+                        event.target.value = ''
+                        w2menu.hide(this.el.id + '_menu')
+                        this.refresh()
+                    }, 1)
+                } else {
+                    // this.updateOverlay()
+                }
             })
             .on('keypress', event => {
                 this.keyPress(event)

@@ -59,8 +59,10 @@ jQuery(() => {
                 options: { advanced1: true, transparent: false }
             },
             { field: 'field.list', type: 'list', required: true, html: { group: 'Dropdowns', groupCollapsable: true },
+                html: { attr: 'style="border: 1px solid red" placeholder="placeholder"' },
                 options: {
                     match: 'contains',
+                    // openOnFocus: false,
                     // url : 'listdat.json'
                     compare(item) {
                         if (item.id < 4) return false;
@@ -86,8 +88,10 @@ jQuery(() => {
                 }
             },
             { field: 'field.combo', type: 'combo', required: false,
+                html: { attr: 'style="border: 1px solid red" placeholder="some"' },
                 options: {
                     applyFilter: false,
+                    // openOnFocus: false,
                     // url : 'listdat.json'
                     items1(el) {
                         return [
@@ -126,7 +130,7 @@ jQuery(() => {
             { field: 'field.email', type: 'email', required: true, html: { page: 1 } },
             { field: 'field.password', type: 'pass', required: false, html: { page: 1 } },
             { field: 'field.int', type: 'int',
-                options: { arrows: true, max: 100, autoCorrect: true, prefix: '$', suffix: '%' },
+                options: { arrows: true, max: 100, min: 5, autoCorrect: true, prefix: '$', suffix: '%' },
                 required: false,
                 html: { page: 1, attr: 'style="width: 140px"'}
             },
