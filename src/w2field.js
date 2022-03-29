@@ -1060,6 +1060,7 @@ class w2field extends w2base {
                 case 38: // up
                     if (event.shiftKey) break // no action if shift key is pressed
                     newDT = w2utils.formatDate(dt.getTime() + daymil, options.format)
+                    // TODO: remove getMonth
                     if (inc == 10) newDT = w2utils.formatDate(new Date(dt.getFullYear(), dt.getMonth()+1, dt.getDate()), options.format)
                     $(obj.el).val(newDT).trigger('input').trigger('change')
                     cancel = true
@@ -1067,6 +1068,7 @@ class w2field extends w2base {
                 case 40: // down
                     if (event.shiftKey) break // no action if shift key is pressed
                     newDT = w2utils.formatDate(dt.getTime() - daymil, options.format)
+                    // TODO: remove getMonth
                     if (inc == 10) newDT = w2utils.formatDate(new Date(dt.getFullYear(), dt.getMonth()-1, dt.getDate()), options.format)
                     $(obj.el).val(newDT).trigger('input').trigger('change')
                     cancel = true
@@ -1119,6 +1121,7 @@ class w2field extends w2base {
             if (!dt) { dt = new Date(); daymil = 0 }
             switch (key) {
                 case 38: // up
+                    // TODO: remove getMonth
                     if (event.shiftKey) break // no action if shift key is pressed
                     newDT = w2utils.formatDateTime(dt.getTime() + daymil, options.format)
                     if (inc == 10) newDT = w2utils.formatDateTime(new Date(dt.getFullYear(), dt.getMonth()+1, dt.getDate()), options.format)
@@ -1126,6 +1129,7 @@ class w2field extends w2base {
                     cancel = true
                     break
                 case 40: // down
+                    // TODO: remove getMonth
                     if (event.shiftKey) break // no action if shift key is pressed
                     newDT = w2utils.formatDateTime(dt.getTime() - daymil, options.format)
                     if (inc == 10) newDT = w2utils.formatDateTime(new Date(dt.getFullYear(), dt.getMonth()-1, dt.getDate()), options.format)
@@ -1313,11 +1317,15 @@ class w2field extends w2base {
         }
         // date
         if (this.type === 'date') {
-            if (query(obj.el).prop('readonly') || query(obj.el).prop('disabled')) return
-            w2tooltip.show({
+            if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+            w2date.show({
+                name: this.el.id + '_date',
                 anchor: this.el,
-                html: 'In progress...',
-                hideOn: ['blur', 'doc-click']
+                date: this.el.value
+            })
+            .select(event => {
+                let date = event.detail.date
+                query(this.el).val(date).trigger('input').trigger('change')
             })
             return
             if ($('#w2ui-overlay').length === 0) {
@@ -1582,111 +1590,6 @@ class w2field extends w2base {
                     })
             })(month, year)
         }
-    }
-
-    inRange(str, onlyDate) {
-        let inRange = false
-        if (this.type === 'date') {
-            let dt = w2utils.isDate(str, this.options.format, true)
-            if (dt) {
-                // enable range
-                if (this.options.start || this.options.end) {
-                    let st      = (typeof this.options.start === 'string' ? this.options.start : $(this.options.start).val())
-                    let en      = (typeof this.options.end === 'string' ? this.options.end : $(this.options.end).val())
-                    let start   = w2utils.isDate(st, this.options.format, true)
-                    let end     = w2utils.isDate(en, this.options.format, true)
-                    let current = new Date(dt)
-                    if (!start) start = current
-                    if (!end) end = current
-                    if (current >= start && current <= end) inRange = true
-                } else {
-                    inRange = true
-                }
-                // block predefined dates
-                if (this.options.blocked && $.inArray(str, this.options.blocked) !== -1) inRange = false
-
-                /*
-                clockWeekDay - type: array or integers. every element - number of week day.
-                number of weekday (1 - monday, 2 - tuesday, 3 - wednesday, 4 - thursday, 5 - friday, 6 - saturday, 0 - sunday)
-                for block in calendar (for example, block all sundays so user can't choose sunday in calendar)
-                */
-                if (this.options.blockWeekDays !== null && this.options.blockWeekDays !== undefined
-                    && this.options.blockWeekDays.length != undefined){
-                    let l = this.options.blockWeekDays.length
-                    for (let i = 0; i<l; i++){
-                        if (dt.getDay() == this.options.blockWeekDays[i]){
-                            inRange = false
-                        }
-                    }
-                }
-            }
-        } else if (this.type === 'time') {
-            if (this.options.start || this.options.end) {
-                let tm  = this.toMin(str)
-                let tm1 = this.toMin(this.options.start)
-                let tm2 = this.toMin(this.options.end)
-                if (!tm1) tm1 = tm
-                if (!tm2) tm2 = tm
-                if (tm >= tm1 && tm <= tm2) inRange = true
-            } else {
-                inRange = true
-            }
-        } else if (this.type === 'datetime') {
-            let dt = w2utils.isDateTime(str, this.options.format, true)
-            if (dt) {
-                // enable range
-                if (this.options.start || this.options.end) {
-                    let start, end
-                    if (typeof this.options.start === 'object' && this.options.start instanceof Date) {
-                        start = this.options.start
-                    } else {
-                        let st = (typeof this.options.start === 'string' ? this.options.start : $(this.options.start).val())
-                        if (st.trim() !== '') {
-                            start = w2utils.isDateTime(st, this.options.format, true)
-                        } else {
-                            start = ''
-                        }
-                    }
-                    if (typeof this.options.end === 'object' && this.options.end instanceof Date) {
-                        end = this.options.end
-                    } else {
-                        let en = (typeof this.options.end === 'string' ? this.options.end : $(this.options.end).val())
-                        if (en.trim() !== '') {
-                            end = w2utils.isDateTime(en, this.options.format, true)
-                        } else {
-                            end = ''
-                        }
-                    }
-                    let current = dt // new Date(dt);
-                    if (!start) start = current
-                    if (!end) end = current
-                    if (onlyDate && start instanceof Date) {
-                        start.setHours(0)
-                        start.setMinutes(0)
-                        start.setSeconds(0)
-                    }
-                    if (current >= start && current <= end) inRange = true
-                } else {
-                    inRange = true
-                }
-                // block predefined dates
-                if (inRange && this.options.blocked) {
-                    for (let i = 0; i<this.options.blocked.length; i++) {
-                        let blocked = this.options.blocked[i]
-                        if(typeof blocked === 'string') {
-                            // convert string to Date object
-                            blocked = w2utils.isDateTime(blocked, this.options.format, true)
-                        }
-                        // check for Date object with the same day
-                        if(typeof blocked === 'object' && blocked instanceof Date && (blocked.getFullYear() == dt.getFullYear() && blocked.getMonth() == dt.getMonth() && blocked.getDate() == dt.getDate())) {
-                            inRange = false
-                            break
-                        }
-                    }
-                }
-            }
-        }
-        return inRange
     }
 
     /*
@@ -2123,112 +2026,6 @@ class w2field extends w2base {
             $(obj.el).trigger('input').trigger('change')
             obj.trigger($.extend(edata, { phase: 'after' }))
         }
-    }
-
-    getMonthHTML(month, year, selected) {
-        let td        = new Date()
-        let months    = w2utils.settings.fullmonths
-        let daysCount = ['31', '28', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31']
-        let today     = td.getFullYear() + '/' + (Number(td.getMonth()) + 1) + '/' + td.getDate()
-        let days      = w2utils.settings.fulldays.slice() // creates copy of the array
-        let sdays     = w2utils.settings.shortdays.slice() // creates copy of the array
-        if (w2utils.settings.weekStarts !== 'M') {
-            days.unshift(days.pop())
-            sdays.unshift(sdays.pop())
-        }
-        let options = this.options
-        if (options == null) options = {}
-        // normalize date
-        year  = w2utils.isInt(year) ? parseInt(year) : td.getFullYear()
-        month = w2utils.isInt(month) ? parseInt(month) : td.getMonth() + 1
-        if (month > 12) { month -= 12; year++ }
-        if (month < 1 || month === 0) { month += 12; year-- }
-        if (year/4 == Math.floor(year/4)) { daysCount[1] = '29' } else { daysCount[1] = '28' }
-        options.current = month + '/' + year
-
-        // start with the required date
-        td           = new Date(year, month-1, 1)
-        let weekDay  = td.getDay()
-        let dayTitle = ''
-        for (let i = 0; i < sdays.length; i++) dayTitle += '<td title="'+ days[i] +'">' + sdays[i] + '</td>'
-
-        let html =
-            '<div class="w2ui-calendar-title title">'+
-            '    <div class="w2ui-calendar-previous previous"> <div></div> </div>'+
-            '    <div class="w2ui-calendar-next next"> <div></div> </div> '+
-                    months[month-1] +', '+ year +
-            '       <span class="arrow-down" style="position: relative; top: -1px; left: 5px; opacity: 0.6;"></span>'+
-            '</div>'+
-            '<table class="w2ui-calendar-days" cellspacing="0"><tbody>'+
-            '    <tr class="w2ui-day-title">' + dayTitle + '</tr>'+
-            '    <tr>'
-
-        let day = 1
-        if (w2utils.settings.weekStarts !== 'M') weekDay++
-        if(this.type === 'datetime') {
-            let dt_sel = w2utils.isDateTime(selected, options.format, true)
-            selected   = w2utils.formatDate(dt_sel, w2utils.settings.dateFormat)
-        }
-        for (let ci = 1; ci < 43; ci++) {
-            if (weekDay === 0 && ci == 1) {
-                for (let ti = 0; ti < 6; ti++) html += '<td class="w2ui-day-empty">&#160;</td>'
-                ci += 6
-            } else {
-                if (ci < weekDay || day > daysCount[month-1]) {
-                    html += '<td class="w2ui-day-empty">&#160;</td>'
-                    if ((ci) % 7 === 0) html += '</tr><tr>'
-                    continue
-                }
-            }
-            let dt        = year + '/' + month + '/' + day
-            let DT        = new Date(dt)
-            let className = ''
-            if (DT.getDay() === 6) className = ' w2ui-saturday'
-            if (DT.getDay() === 0) className = ' w2ui-sunday'
-            if (dt == today) className += ' w2ui-today'
-
-            let dspDay = day
-            let col    = ''
-            let bgcol  = ''
-            let tmp_dt, tmp_dt_fmt
-            if(this.type === 'datetime') {
-                // var fm = options.format.split('|')[0].trim();
-                // tmp_dt      = w2utils.formatDate(dt, fm);
-                tmp_dt     = w2utils.formatDateTime(dt, options.format)
-                tmp_dt_fmt = w2utils.formatDate(dt, w2utils.settings.dateFormat)
-            } else {
-                tmp_dt     = w2utils.formatDate(dt, options.format)
-                tmp_dt_fmt = tmp_dt
-            }
-            if (options.colored && options.colored[tmp_dt_fmt] !== undefined) { // if there is predefined colors for dates
-                let tmp = options.colored[tmp_dt_fmt].split(':')
-                bgcol   = 'background-color: ' + tmp[0] + ';'
-                col     = 'color: ' + tmp[1] + ';'
-            }
-            html += '<td class="'+ (this.inRange(tmp_dt, true) ? 'w2ui-date ' + (tmp_dt_fmt == selected ? 'w2ui-date-selected' : '') : 'w2ui-blocked') + className + '" '+
-                    '   style="'+ col + bgcol + '" date="'+ tmp_dt +'" data-date="'+ DT +'">'+
-                        dspDay +
-                    '</td>'
-            if (ci % 7 === 0 || (weekDay === 0 && ci == 1)) html += '</tr><tr>'
-            day++
-        }
-        html += '</tr></tbody></table>'
-        return html
-    }
-
-    getYearHTML() {
-        let months     = w2utils.settings.shortmonths
-        let start_year = w2utils.settings.dateStartYear
-        let end_year   = w2utils.settings.dateEndYear
-        let mhtml      = ''
-        let yhtml      = ''
-        for (let m = 0; m < months.length; m++) {
-            mhtml += '<div class="w2ui-jump-month" name="'+ m +'">'+ months[m] + '</div>'
-        }
-        for (let y = start_year; y <= end_year; y++) {
-            yhtml += '<div class="w2ui-jump-year" name="'+ y +'">'+ y + '</div>'
-        }
-        return '<div id="w2ui-jump-month">'+ mhtml +'</div><div id="w2ui-jump-year">'+ yhtml +'</div>'
     }
 
     getHourHTML() {

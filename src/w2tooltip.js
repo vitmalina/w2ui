@@ -711,7 +711,7 @@ class ColorTooltip extends Tooltip {
     }
 
     attach(anchor, text) {
-        let options, self = this
+        let options
         if (arguments.length == 1 && anchor.anchor) {
             options = anchor
             anchor = options.anchor
@@ -1167,7 +1167,7 @@ class MenuTooltip extends Tooltip {
     }
 
     attach(anchor, text) {
-        let options, self = this
+        let options
         if (arguments.length == 1 && anchor.anchor) {
             options = anchor
             anchor = options.anchor
@@ -1777,9 +1777,332 @@ class MenuTooltip extends Tooltip {
 class DateTooltip extends Tooltip {
     constructor() {
         super()
+        let td = new Date()
+        this.months = w2utils.settings.fullmonths
+        this.daysCount = ['31', '28', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31']
+        this.today = td.getFullYear() + '/' + (Number(td.getMonth()) + 1) + '/' + td.getDate()
+        this.days = w2utils.settings.fulldays.slice() // creates copy of the array
+        this.sdays = w2utils.settings.shortdays.slice() // creates copy of the array
+        if (w2utils.settings.weekStarts !== 'M') {
+            this.days.unshift(this.days.pop())
+            this.sdays.unshift(this.sdays.pop())
+        }
+        this.defaults = w2utils.extend({}, this.defaults, {
+            position      : 'top|bottom',
+            class         : 'w2ui-white w2ui-calendar',
+            type          : 'date', // can be date, time, datetime
+            format        : '',
+            date          : '', // initial date (in w2utils.settings format)
+            start         : null,
+            end           : null,
+            blockDates    : [], // array of blocked dates
+            blockWeekdays : [], // blocked weekdays 0 - sunday, 1 - monday, etc
+            arrowSize     : 12,
+            autoResize    : false,
+            anchorClass   : 'w2ui-focus',
+            autoShowOn    : 'focus',
+            hideOn        : ['doc-click', 'focus-change'],
+            onSelect      : null
+        })
+    }
+
+    attach(anchor, text) {
+        let options
+        if (arguments.length == 1 && anchor.anchor) {
+            options = anchor
+            anchor = options.anchor
+        } else if (arguments.length === 2 && text != null && typeof text === 'object') {
+            options = text
+            options.anchor = anchor
+        }
+        let prevHideOn = options.hideOn
+        options = w2utils.extend({}, this.defaults, options || {})
+        if (prevHideOn) {
+            options.hideOn = prevHideOn
+        }
+        if (!options.format) {
+            let df = w2utils.settings.dateFormat
+            let tf = w2utils.settings.timrFormat
+            if (options.type == 'date') {
+                options.format = df
+            } else if (options.type == 'time') {
+                options.format = tf
+            } else {
+                options.format = df + ' ' + tf
+            }
+        }
+        options.style += '; padding: 0;'
+        options.html = this.getMonthHTML(3, 2022, '3/15/2022', options)
+        let ret = super.attach(options)
+        let overlay = ret.overlay
+        overlay.on('show.attach', event => {
+            let overlay = event.detail.overlay
+            let anchor  = overlay.anchor
+            let options = overlay.options
+            if (['INPUT', 'TEXTAREA'].includes(anchor.tagName) && !options.date && anchor.value) {
+                overlay.tmp.initDate = anchor.value
+            }
+            delete overlay.newDate
+        })
+        overlay.on('show:after.attach', event => {
+            if (ret.overlay?.box) {
+                let actions = query(ret.overlay.box).find('.w2ui-eaction')
+                w2utils.bindEvents(actions, this)
+                this.initControls(ret.overlay)
+            }
+        })
+        overlay.on('update:after.attach', event => {
+            if (ret.overlay?.box) {
+                let actions = query(ret.overlay.box).find('.w2ui-eaction')
+                w2utils.bindEvents(actions, this)
+                this.initControls(ret.overlay)
+            }
+        })
+        overlay.on('hide.attach', event => {
+            let overlay = event.detail.overlay
+            let anchor  = overlay.anchor
+            let date   = overlay.newDate ?? overlay.options.date ?? ''
+            if (['INPUT', 'TEXTAREA'].includes(anchor.tagName) && anchor.value != date) {
+                anchor.value = date
+            }
+            let edata = this.trigger('select', { date, target: overlay.name, overlay })
+            if (edata.isCancelled === true) return
+            // event after
+            edata.finish()
+        })
+        ret.select = (callback) => {
+            overlay.on('select.attach', (event) => { callback(event) })
+            return ret
+        }
+        return ret
+    }
+
+    initControls() {
+        // TODO:
+    }
+
+    getMonthHTML(month, year, selected, options) {
+        let td = new Date()
+        // normalize date
+        year  = w2utils.isInt(year) ? parseInt(year) : td.getFullYear()
+        month = w2utils.isInt(month) ? parseInt(month) : td.getMonth() + 1
+        if (month > 12) { month -= 12; year++ }
+        if (month < 1 || month === 0) { month += 12; year-- }
+        if (year/4 == Math.floor(year/4)) { this.daysCount[1] = '29' } else { this.daysCount[1] = '28' }
+        options.current = month + '/' + year
+        // start with the required date
+        td = new Date(year, month-1, 1)
+        let weekDay = td.getDay()
+        let weekDays = ''
+        let st = w2utils.settings.weekStarts
+        for (let i = 0; i < this.sdays.length; i++) {
+            let isSat = (st == 'M' && i == 5) || (st != 'M' && i == 6) ? true : false
+            let isSun = (st == 'M' && i == 6) || (st != 'M' && i == 0) ? true : false
+            weekDays += `<div class="w2ui-day weekday ${isSat ? 'sunday' : ''} ${isSun ? 'saturday' : ''}">${this.sdays[i]}</div>`
+        }
+        let html = `
+            <div class="w2ui-cal-title">
+                <div class="w2ui-cal-previous">
+                    <div></div>
+                </div>
+                <div class="w2ui-cal-next">
+                    <div></div>
+                </div>
+                ${this.months[month-1]}, ${year}
+                <span class="arrow-down"></span>
+            </div>
+            <div class="w2ui-cal-days">
+                ${weekDays}
+        `
+        let day = 1
+        if (w2utils.settings.weekStarts !== 'M') weekDay++
+        // TODO: check
+        if(options.type === 'datetime') {
+            let sel = w2utils.isDateTime(selected, options.format, true)
+            selected = w2utils.formatDate(sel, w2utils.settings.dateFormat)
+        }
+        for (let ci = 1; ci < 43; ci++) {
+            if (weekDay === 0 && ci == 1) {
+                for (let ti = 0; ti < 6; ti++) html += '<div class="w2ui-day empty">&#160;</div>'
+                ci += 6
+            } else {
+                if (ci < weekDay || day > this.daysCount[month-1]) {
+                    html += '<div class="w2ui-day empty">&#160;</div>'
+                    continue
+                }
+            }
+            let dt = year + '/' + month + '/' + day
+            let DT = new Date(dt)
+            let className = ''
+            if (DT.getDay() === 6) className = 'saturday'
+            if (DT.getDay() === 0) className = 'sunday'
+            if (dt == this.today) className += 'today'
+
+            let dspDay = day
+            let col    = ''
+            let bgcol  = ''
+            let tmp_dt, tmp_dt_fmt
+            if(options.type === 'datetime') {
+                // var fm = options.format.split('|')[0].trim();
+                // tmp_dt      = w2utils.formatDate(dt, fm);
+                tmp_dt     = w2utils.formatDateTime(dt, options.format)
+                tmp_dt_fmt = w2utils.formatDate(dt, w2utils.settings.dateFormat)
+            } else {
+                tmp_dt     = w2utils.formatDate(dt, options.format)
+                tmp_dt_fmt = tmp_dt
+            }
+            if (options.colored && options.colored[tmp_dt_fmt] !== undefined) { // if there is predefined colors for dates
+                let tmp = options.colored[tmp_dt_fmt].split(':')
+                bgcol   = 'background-color: ' + tmp[0] + ';'
+                col     = 'color: ' + tmp[1] + ';'
+            }
+            html += `<div class="w2ui-day ${this.inRange(tmp_dt, options, true)
+                            ? 'date ' + (tmp_dt_fmt == selected ? 'selected' : '')
+                            : 'blocked'
+                        } ${className}"
+                       style="${col + bgcol}" date="${tmp_dt}" data-date="${DT.getTime()}">
+                            ${dspDay}
+                    </div>`
+            day++
+        }
+        html += '</div>'
+        return html
+    }
+
+    getYearHTML() {
+        let mhtml = ''
+        let yhtml = ''
+        for (let m = 0; m < this.months.length; m++) {
+            mhtml += '<div class="w2ui-jump-month" name="'+ m +'">'+ this.months[m] + '</div>'
+        }
+        for (let y = w2utils.settings.dateStartYear; y <= w2utils.settings.dateEndYear; y++) {
+            yhtml += '<div class="w2ui-jump-year" name="'+ y +'">'+ y + '</div>'
+        }
+        return '<div id="w2ui-jump-month">'+ mhtml +'</div><div id="w2ui-jump-year">'+ yhtml +'</div>'
+    }
+
+    inRange(str, options, onlyDate) {
+        let inRange = false
+        if (options.type === 'date') {
+            let dt = w2utils.isDate(str, options.format, true)
+            if (dt) {
+                // enable range
+                if (options.start || options.end) {
+                    let st      = (typeof options.start === 'string' ? options.start : query(options.start).val())
+                    let en      = (typeof options.end === 'string' ? options.end : query(options.end).val())
+                    let start   = w2utils.isDate(st, options.format, true)
+                    let end     = w2utils.isDate(en, options.format, true)
+                    let current = new Date(dt)
+                    if (!start) start = current
+                    if (!end) end = current
+                    if (current >= start && current <= end) inRange = true
+                } else {
+                    inRange = true
+                }
+                // block predefined dates
+                if (Array.isArray(options.blockDates) && options.blockDates.includes(str)) inRange = false
+                // block weekdays
+                if (Array.isArray(options.blockWeekdays) && options.blockWeekdays.includes(dt.getDay())) inRange = false
+            }
+        } else if (options.type === 'time') {
+            if (options.start || options.end) {
+                let tm  = this.toMin(str)
+                let tm1 = this.toMin(options.start)
+                let tm2 = this.toMin(options.end)
+                if (!tm1) tm1 = tm
+                if (!tm2) tm2 = tm
+                if (tm >= tm1 && tm <= tm2) inRange = true
+            } else {
+                inRange = true
+            }
+        } else if (options.type === 'datetime') {
+            let dt = w2utils.isDateTime(str, options.format, true)
+            if (dt) {
+                // enable range
+                if (options.start || options.end) {
+                    let start, end
+                    if (typeof options.start === 'object' && options.start instanceof Date) {
+                        start = options.start
+                    } else {
+                        let st = (typeof options.start === 'string' ? options.start : query(options.start).val())
+                        if (st.trim() !== '') {
+                            start = w2utils.isDateTime(st, options.format, true)
+                        } else {
+                            start = ''
+                        }
+                    }
+                    if (typeof options.end === 'object' && options.end instanceof Date) {
+                        end = options.end
+                    } else {
+                        let en = (typeof options.end === 'string' ? options.end : query(options.end).val())
+                        if (en.trim() !== '') {
+                            end = w2utils.isDateTime(en, options.format, true)
+                        } else {
+                            end = ''
+                        }
+                    }
+                    let current = dt // new Date(dt);
+                    if (!start) start = current
+                    if (!end) end = current
+                    if (onlyDate && start instanceof Date) {
+                        start.setHours(0)
+                        start.setMinutes(0)
+                        start.setSeconds(0)
+                    }
+                    if (current >= start && current <= end) inRange = true
+                } else {
+                    inRange = true
+                }
+                // block predefined dates
+                if (inRange && Array.isArray(options.blockDates)) {
+                    for (let i = 0; i<options.blockDates.length; i++) {
+                        let blocked = options.blockDates[i]
+                        if(typeof blocked === 'string') {
+                            // convert string to Date object
+                            blocked = w2utils.isDateTime(blocked, options.format, true)
+                        }
+                        // check for Date object with the same day
+                        if(typeof blocked === 'object' && blocked instanceof Date
+                                && (blocked.getFullYear() == dt.getFullYear() && blocked.getMonth() == dt.getMonth() && blocked.getDate() == dt.getDate())) {
+                            inRange = false
+                            break
+                        }
+                    }
+                }
+            }
+        }
+        return inRange
+    }
+
+    toMin(str) {
+        if (typeof str !== 'string') return null
+        let tmp = str.split(':')
+        if (tmp.length === 2) {
+            tmp[0] = parseInt(tmp[0])
+            tmp[1] = parseInt(tmp[1])
+            if (str.indexOf('pm') !== -1 && tmp[0] !== 12) tmp[0] += 12
+        } else {
+            return null
+        }
+        return tmp[0] * 60 + tmp[1]
+    }
+
+    fromMin(time) {
+        let ret = ''
+        if (time >= 24 * 60) time = time % (24 * 60)
+        if (time < 0) time = 24 * 60 + time
+        let hour = Math.floor(time/60)
+        let min = ((time % 60) < 10 ? '0' : '') + (time % 60)
+        let options = this.options
+        if (options == null) options = { format: w2utils.settings.timeFormat }
+        if (options.format.indexOf('h24') !== -1) {
+            ret = hour + ':' + min
+        } else {
+            ret = (hour <= 12 ? hour : hour - 12) + ':' + min + ' ' + (hour >= 12 ? 'pm' : 'am')
+        }
+        return ret
     }
 }
-
 class TimeTooltip extends Tooltip {
     constructor() {
         super()

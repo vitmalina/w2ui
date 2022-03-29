@@ -52,7 +52,10 @@ jQuery(() => {
                     groupCollapsible: true
                 }
             },
-            { field: 'field.date', type: 'date', required: false, html: { attr: 'style="width: 100px"' } },
+            { field: 'field.date', type: 'date', required: false,
+                html: { attr: 'style="width: 100px"' },
+                options: { blockDates: ['3/13/2022']}
+            },
             { field: 'field.time', type: 'time', required: false, html: { attr: 'style="width: 100px"' } },
             { field: 'field.color', type: 'color', required: true,
                 html: { attr: 'style="width: 100px"' },
@@ -62,7 +65,7 @@ jQuery(() => {
                 html: { attr: 'style="border: 1px solid red" placeholder="placeholder"' },
                 options: {
                     match: 'contains',
-                    // openOnFocus: false,
+                    openOnFocus: false,
                     // url : 'listdat.json'
                     compare(item) {
                         if (item.id < 4) return false;
