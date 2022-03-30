@@ -599,39 +599,29 @@
     }
 
     .w2ui-cal-jump {
-        position: absolute;
-        top: 27px;
-        left: 0px;
-        right: 0px;
-        bottom: 0px;
         background-color: #FaFaFa;
-        >:first-child {
-            position: absolute;
-            top: 0px;
-            left: 0px;
-            bottom: 0px;
-            width: 110px;
+        display: flex;
+        #w2ui-jump-month {
+            width: 120px;
+            height: 180px;
             overflow: hidden;
             padding-top: 5px;
             border-right: 1px solid silver
         }
-        >:last-child {
-            position: absolute;
-            top: 0px;
-            right: 0px;
-            bottom: 0px;
-            width: 88px;
+        #w2ui-jump-year {
+            width: 70px;
+            height: 180px;
             overflow-x: hidden;
             overflow-y: auto;
             padding-top: 5px;
             text-align: center;
         }
-        .w2ui-jump-month, .w2ui-jump-year {
-            display: inline-block;
-            padding: 5px 0px;
+        .w2ui-jump-month,
+        .w2ui-jump-year {
+            padding: 4px 0px;
             text-align: center;
             float: left;
-            margin: 2px;
+            margin: 0 2px;
             width: 50px;
             cursor: default;
             border: 1px solid transparent;
@@ -664,6 +654,8 @@
     }
 
     .w2ui-cal-days {
+        width: 190px;
+        height: 180px;
         padding: 2px;
         display: grid;
         grid-template-columns: repeat(7, 1fr);

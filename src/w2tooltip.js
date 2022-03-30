@@ -13,7 +13,7 @@
 
 import { w2base } from './w2base.js'
 import { w2utils } from './w2utils.js'
-import { query } from './query.js'
+import { $, query } from './query.js'
 
 class Tooltip {
     // no need to extend w2base, as each individual tooltip extends it
@@ -1779,6 +1779,7 @@ class DateTooltip extends Tooltip {
         super()
         let td = new Date()
         this.months = w2utils.settings.fullmonths
+        this.smonths = w2utils.settings.shortmonths
         this.daysCount = ['31', '28', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31']
         this.today = td.getFullYear() + '/' + (Number(td.getMonth()) + 1) + '/' + td.getDate()
         this.days = w2utils.settings.fulldays.slice() // creates copy of the array
@@ -1795,8 +1796,9 @@ class DateTooltip extends Tooltip {
             date          : '', // initial date (in w2utils.settings format)
             start         : null,
             end           : null,
-            blockDates    : [], // array of blocked dates
-            blockWeekdays : [], // blocked weekdays 0 - sunday, 1 - monday, etc
+            blockDates    : ['3/14/2022'], // array of blocked dates
+            blockWeekdays : [5], // blocked weekdays 0 - sunday, 1 - monday, etc
+            colored       : {}, // ex: { '3/13/2022': 'bg-color|text-color' }
             arrowSize     : 12,
             autoResize    : false,
             anchorClass   : 'w2ui-focus',
@@ -1828,13 +1830,15 @@ class DateTooltip extends Tooltip {
             } else if (options.type == 'time') {
                 options.format = tf
             } else {
-                options.format = df + ' ' + tf
+                options.format = df + '|' + tf
             }
         }
+        let cal = this.getMonthHTML(options)
         options.style += '; padding: 0;'
-        options.html = this.getMonthHTML(3, 2022, '3/15/2022', options)
+        options.html = cal.html
         let ret = super.attach(options)
         let overlay = ret.overlay
+        Object.assign(overlay.tmp, cal)
         overlay.on('show.attach', event => {
             let overlay = event.detail.overlay
             let anchor  = overlay.anchor
@@ -1846,15 +1850,11 @@ class DateTooltip extends Tooltip {
         })
         overlay.on('show:after.attach', event => {
             if (ret.overlay?.box) {
-                let actions = query(ret.overlay.box).find('.w2ui-eaction')
-                w2utils.bindEvents(actions, this)
                 this.initControls(ret.overlay)
             }
         })
         overlay.on('update:after.attach', event => {
             if (ret.overlay?.box) {
-                let actions = query(ret.overlay.box).find('.w2ui-eaction')
-                w2utils.bindEvents(actions, this)
                 this.initControls(ret.overlay)
             }
         })
@@ -1877,15 +1877,100 @@ class DateTooltip extends Tooltip {
         return ret
     }
 
-    initControls() {
-        // TODO:
+    initControls(overlay) {
+        let moveMonth = (inc) => {
+            let { month, year } = overlay.tmp
+            month += inc
+            if (month > 12) {
+                month = 1
+                year++
+            }
+            if (month < 1 ) {
+                month = 12
+                year--
+            }
+            let cal = this.getMonthHTML(overlay.options, month, year)
+            Object.assign(overlay.tmp, cal)
+            query(overlay.box).find('.w2ui-overlay-body').html(cal.html)
+            this.initControls(overlay)
+        }
+
+        // events for next/prev buttons and title
+        query(overlay.box).find('.w2ui-cal-title')
+            .off('.calendar')
+            .on('click.calendar', event => {
+                Object.assign(overlay.tmp, { jumpYear: null, jumpMonth: null })
+                if (overlay.tmp.jump) {
+                    let { month, year } = overlay.tmp
+                    let cal = this.getMonthHTML(overlay.options, month, year)
+                    query(overlay.box).find('.w2ui-overlay-body').html(cal.html)
+                    overlay.tmp.jump = false
+                } else {
+                    query(overlay.box).find('.w2ui-overlay-body .w2ui-cal-days')
+                        .replace(this.getYearHTML())
+                    let el = query(overlay.box).find(`[name="${overlay.tmp.year}"]`).get(0)
+                    el.scrollIntoView(true)
+                    overlay.tmp.jump = true
+                }
+                this.initControls(overlay)
+                event.stopPropagation()
+            })
+            .find('.w2ui-cal-previous')
+            .off('.calendar')
+            .on('click.calendar', event => {
+                moveMonth(-1)
+                event.stopPropagation()
+            })
+            .parent()
+            .find('.w2ui-cal-next')
+            .off('.calendar')
+            .on('click.calendar', event => {
+                moveMonth(1)
+                event.stopPropagation()
+            })
+
+        let checkJump = (event) => {
+            query(event.target).parent().find('.w2ui-jump-month, .w2ui-jump-year')
+                .removeClass('selected')
+            query(event.target).addClass('selected')
+            let { jumpMonth, jumpYear } = overlay.tmp
+            if (jumpMonth && jumpYear) {
+                let cal = this.getMonthHTML(overlay.options, jumpMonth, jumpYear)
+                Object.assign(overlay.tmp, cal)
+                query(overlay.box).find('.w2ui-overlay-body').html(cal.html)
+                overlay.tmp.jump = false
+                this.initControls(overlay)
+            }
+        }
+
+        // events for dates
+        query(overlay.box)
+            .off('.calendar')
+            .on('click.calendar', { delegate: '.w2ui-day.date' }, event => {
+                overlay.newDate = query(event.target).attr('date')
+                this.hide(overlay.name)
+            })
+            .on('click.calendar', { delegate: '.w2ui-jump-month' }, event => {
+                overlay.tmp.jumpMonth = parseInt(query(event.target).attr('name'))
+                checkJump(event)
+            })
+            .on('click.calendar', { delegate: '.w2ui-jump-year' }, event => {
+                overlay.tmp.jumpYear = parseInt(query(event.target).attr('name'))
+                checkJump(event)
+            })
     }
 
-    getMonthHTML(month, year, selected, options) {
+    getMonthHTML(options, month, year) {
         let td = new Date()
+        let selected = options.type === 'datetime'
+            ? w2utils.isDateTime(options.date, options.format, true)
+            : w2utils.isDate(options.date, options.format, true)
+        let selected_dsp = w2utils.formatDate(selected)
         // normalize date
-        year  = w2utils.isInt(year) ? parseInt(year) : td.getFullYear()
-        month = w2utils.isInt(month) ? parseInt(month) : td.getMonth() + 1
+        if (month == null || year == null) {
+            year  = selected ? selected.getFullYear() : td.getFullYear()
+            month = selected ? selected.getMonth() + 1 : td.getMonth() + 1
+        }
         if (month > 12) { month -= 12; year++ }
         if (month < 1 || month === 0) { month += 12; year-- }
         if (year/4 == Math.floor(year/4)) { this.daysCount[1] = '29' } else { this.daysCount[1] = '28' }
@@ -1916,11 +2001,6 @@ class DateTooltip extends Tooltip {
         `
         let day = 1
         if (w2utils.settings.weekStarts !== 'M') weekDay++
-        // TODO: check
-        if(options.type === 'datetime') {
-            let sel = w2utils.isDateTime(selected, options.format, true)
-            selected = w2utils.formatDate(sel, w2utils.settings.dateFormat)
-        }
         for (let ci = 1; ci < 43; ci++) {
             if (weekDay === 0 && ci == 1) {
                 for (let ti = 0; ti < 6; ti++) html += '<div class="w2ui-day empty">&#160;</div>'
@@ -1942,9 +2022,7 @@ class DateTooltip extends Tooltip {
             let col    = ''
             let bgcol  = ''
             let tmp_dt, tmp_dt_fmt
-            if(options.type === 'datetime') {
-                // var fm = options.format.split('|')[0].trim();
-                // tmp_dt      = w2utils.formatDate(dt, fm);
+            if (options.type === 'datetime') {
                 tmp_dt     = w2utils.formatDateTime(dt, options.format)
                 tmp_dt_fmt = w2utils.formatDate(dt, w2utils.settings.dateFormat)
             } else {
@@ -1952,12 +2030,12 @@ class DateTooltip extends Tooltip {
                 tmp_dt_fmt = tmp_dt
             }
             if (options.colored && options.colored[tmp_dt_fmt] !== undefined) { // if there is predefined colors for dates
-                let tmp = options.colored[tmp_dt_fmt].split(':')
+                let tmp = options.colored[tmp_dt_fmt].split('|')
                 bgcol   = 'background-color: ' + tmp[0] + ';'
                 col     = 'color: ' + tmp[1] + ';'
             }
             html += `<div class="w2ui-day ${this.inRange(tmp_dt, options, true)
-                            ? 'date ' + (tmp_dt_fmt == selected ? 'selected' : '')
+                            ? 'date ' + (tmp_dt_fmt == selected_dsp ? 'selected' : '')
                             : 'blocked'
                         } ${className}"
                        style="${col + bgcol}" date="${tmp_dt}" data-date="${DT.getTime()}">
@@ -1966,19 +2044,22 @@ class DateTooltip extends Tooltip {
             day++
         }
         html += '</div>'
-        return html
+        return { html, month, year }
     }
 
     getYearHTML() {
         let mhtml = ''
         let yhtml = ''
         for (let m = 0; m < this.months.length; m++) {
-            mhtml += '<div class="w2ui-jump-month" name="'+ m +'">'+ this.months[m] + '</div>'
+            mhtml += `<div class="w2ui-jump-month" name="${m+1}">${this.smonths[m]}</div>`
         }
         for (let y = w2utils.settings.dateStartYear; y <= w2utils.settings.dateEndYear; y++) {
-            yhtml += '<div class="w2ui-jump-year" name="'+ y +'">'+ y + '</div>'
+            yhtml += `<div class="w2ui-jump-year" name="${y}">${y}</div>`
         }
-        return '<div id="w2ui-jump-month">'+ mhtml +'</div><div id="w2ui-jump-year">'+ yhtml +'</div>'
+        return `<div class="w2ui-cal-jump">
+            <div id="w2ui-jump-month">${mhtml}</div>
+            <div id="w2ui-jump-year">${yhtml}</div>
+        </div>`
     }
 
     inRange(str, options, onlyDate) {
@@ -2103,19 +2184,13 @@ class DateTooltip extends Tooltip {
         return ret
     }
 }
-class TimeTooltip extends Tooltip {
-    constructor() {
-        super()
-    }
-}
 
 let w2tooltip = new Tooltip()
 let w2menu    = new MenuTooltip()
 let w2color   = new ColorTooltip()
 let w2date    = new DateTooltip()
-let w2time    = new TimeTooltip()
 
-export { w2tooltip, w2color, w2menu, w2date, w2time, Tooltip, MenuTooltip, ColorTooltip, DateTooltip, TimeTooltip }
+export { w2tooltip, w2color, w2menu, w2date, Tooltip }
 
 /*
 // pull records from remote source for w2menu

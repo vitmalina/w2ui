@@ -16,8 +16,9 @@ const comments = {
 }
 
 const legacy_replace = `export {
-    w2ui, w2utils, query, w2locale, w2event, w2base, w2popup, w2alert, w2confirm, w2prompt, Dialog,
-    w2tooltip, w2menu, w2color, w2date, w2time, Tooltip, ColorTooltip, MenuTooltip, DateTooltip, TimeTooltip,
+    w2ui, w2utils, query, w2locale, w2event, w2base,
+    w2popup, w2alert, w2confirm, w2prompt, Dialog,
+    w2tooltip, w2menu, w2color, w2date, Tooltip,
     w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field
 }`
 const legacy_code = `
@@ -38,14 +39,16 @@ if (global) {
     })
 }
 })(self, {
-    w2ui, w2utils, query, w2locale, w2event, w2base, w2popup, w2alert, w2confirm, w2prompt, Dialog,
-    w2tooltip, w2menu, w2color, w2date, w2time, Tooltip, ColorTooltip, MenuTooltip, DateTooltip, TimeTooltip,
+    w2ui, w2utils, query, w2locale, w2event, w2base,
+    w2popup, w2alert, w2confirm, w2prompt, Dialog,
+    w2tooltip, w2menu, w2color, w2date, Tooltip,
     w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field
 })`
 
 const exports_es6 = `export {
-    w2ui, w2utils, query, w2locale, w2event, w2base, w2popup, w2alert, w2confirm, w2prompt, Dialog,
-    w2tooltip, w2menu, w2color, w2date, w2time, Tooltip, ColorTooltip, MenuTooltip, DateTooltip, TimeTooltip,
+    w2ui, w2utils, query, w2locale, w2event, w2base,
+    w2popup, w2alert, w2confirm, w2prompt, Dialog,
+    w2tooltip, w2menu, w2color, w2date, Tooltip,
     w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field
 }`
 

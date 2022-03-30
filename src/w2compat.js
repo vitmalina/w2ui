@@ -23,7 +23,7 @@ import { w2layout } from './w2layout.js'
 import { w2sidebar } from './w2sidebar.js'
 import { w2tabs } from './w2tabs.js'
 import { w2toolbar } from './w2toolbar.js'
-import { w2tooltip, w2color, w2menu, w2date, w2time, Tooltip, ColorTooltip, MenuTooltip, DateTooltip, TimeTooltip } from './w2tooltip.js'
+import { w2tooltip, w2color, w2menu, w2date, Tooltip } from './w2tooltip.js'
 
 // Register jQuery plugins
 (function($) {
@@ -37,8 +37,9 @@ import { w2tooltip, w2color, w2menu, w2date, w2time, Tooltip, ColorTooltip, Menu
                 win[key] = obj[key]
             })
         })(window, {
-            w2ui, w2utils, query, w2locale, w2event, w2base, w2popup, w2alert, w2confirm, w2prompt, Dialog,
-            w2tooltip, w2menu, w2color, w2date, w2time, Tooltip, ColorTooltip, MenuTooltip, DateTooltip, TimeTooltip,
+            w2ui, w2utils, query, w2locale, w2event, w2base,
+            w2popup, w2alert, w2confirm, w2prompt, Dialog,
+            w2tooltip, w2menu, w2color, w2date, Tooltip,
             w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field
         })
     }
@@ -219,7 +220,8 @@ import { w2tooltip, w2color, w2menu, w2date, w2time, Tooltip, ColorTooltip, Menu
 })(jQuery)
 
 export {
-    w2ui, w2utils, query, w2locale, w2event, w2base, w2popup, w2alert, w2confirm, w2prompt, Dialog,
-    w2tooltip, w2menu, w2color, w2date, w2time, Tooltip, ColorTooltip, MenuTooltip, DateTooltip, TimeTooltip,
+    w2ui, w2utils, query, w2locale, w2event, w2base,
+    w2popup, w2alert, w2confirm, w2prompt, Dialog,
+    w2tooltip, w2menu, w2color, w2date, Tooltip,
     w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field
 }
