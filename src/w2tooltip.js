@@ -1796,8 +1796,8 @@ class DateTooltip extends Tooltip {
             date          : '', // initial date (in w2utils.settings format)
             start         : null,
             end           : null,
-            blockDates    : ['3/14/2022'], // array of blocked dates
-            blockWeekdays : [5], // blocked weekdays 0 - sunday, 1 - monday, etc
+            blockDates    : [], // array of blocked dates
+            blockWeekdays : [], // blocked weekdays 0 - sunday, 1 - monday, etc
             colored       : {}, // ex: { '3/13/2022': 'bg-color|text-color' }
             arrowSize     : 12,
             autoResize    : false,
@@ -1861,14 +1861,15 @@ class DateTooltip extends Tooltip {
         overlay.on('hide.attach', event => {
             let overlay = event.detail.overlay
             let anchor  = overlay.anchor
-            let date   = overlay.newDate ?? overlay.options.date ?? ''
-            if (['INPUT', 'TEXTAREA'].includes(anchor.tagName) && anchor.value != date) {
-                anchor.value = date
+            if (overlay.newDate != null) {
+                if (['INPUT', 'TEXTAREA'].includes(anchor.tagName) && anchor.value != overlay.newDate) {
+                    anchor.value = overlay.newDate
+                }
+                let edata = this.trigger('select', { date: overlay.newDate, target: overlay.name, overlay })
+                if (edata.isCancelled === true) return
+                // event after
+                edata.finish()
             }
-            let edata = this.trigger('select', { date, target: overlay.name, overlay })
-            if (edata.isCancelled === true) return
-            // event after
-            edata.finish()
         })
         ret.select = (callback) => {
             overlay.on('select.attach', (event) => { callback(event) })
@@ -1961,6 +1962,21 @@ class DateTooltip extends Tooltip {
     }
 
     getMonthHTML(options, month, year) {
+        // TODO:
+        // + (options.btn_now ? '<div class="w2ui-calendar-now now">'+ w2utils.lang('Current Date & Time') + '</div>' : '')
+        // $('#w2ui-overlay .now')
+        // .on('mousedown', function() {
+        //     // this currently ignores blocked days or start / end dates!
+        //     let tmp = w2utils.formatDateTime(new Date(), obj.options.format)
+        //     $(obj.el).val(tmp).trigger('input').trigger('change')
+        //     return false
+        // })
+        // .on('mouseup', function() {
+        //     setTimeout(() => {
+        //         if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide()
+        //     }, 10)
+        // })
+
         let td = new Date()
         let selected = options.type === 'datetime'
             ? w2utils.isDateTime(options.date, options.format, true)

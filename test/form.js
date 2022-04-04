@@ -57,6 +57,7 @@ jQuery(() => {
                 options: { blockDates: ['3/13/2022']}
             },
             { field: 'field.time', type: 'time', required: false, html: { attr: 'style="width: 100px"' } },
+            { field: 'field.datetime', type: 'datetime', required: false, html: { attr: 'style="width: 160px"' } },
             { field: 'field.color', type: 'color', required: true,
                 html: { attr: 'style="width: 100px"' },
                 options: { advanced1: true, transparent: false }

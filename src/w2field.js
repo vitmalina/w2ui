@@ -157,24 +157,24 @@ class w2field extends w2base {
                     transparent : true
                 }
                 this.options = w2utils.extend({}, defaults, options)
-                options      = this.options // since object is re-created, need to re-assign
+                options = this.options // since object is re-created, need to re-assign
                 this.addPrefix() // only will add if needed
                 this.addSuffix() // only will add if needed
                 break
 
             case 'date':
-                defaults     = {
-                    format       : w2utils.settings.dateFormat, // date format
-                    keyboard     : true,
-                    autoCorrect  : true,
-                    start        : '', // string or jquery object
-                    end          : '', // string or jquery object
-                    blocked      : {}, // { '4/11/2011': 'yes' }
-                    colored      : {}, // { '4/11/2011': 'red:white' }
-                    blockWeekDays : null // array of numbers of weekday to block
+                defaults = {
+                    format        : w2utils.settings.dateFormat, // date format
+                    keyboard      : true,
+                    autoCorrect   : true,
+                    start         : null,
+                    end           : null,
+                    blockDates    : [], // array of blocked dates
+                    blockWeekdays : [], // blocked weekdays 0 - sunday, 1 - monday, etc
+                    colored       : {}, // ex: { '3/13/2022': 'bg-color|text-color' }
                 }
-                this.options = $.extend(true, {}, defaults, options)
-                options      = this.options // since object is re-created, need to re-assign
+                this.options = w2utils.extend({ type: 'date' }, defaults, options)
+                options = this.options // since object is re-created, need to re-assign
                 if (query(this.el).attr('placeholder') == null) query(this.el).attr('placeholder', options.format)
                 break
 
@@ -183,30 +183,30 @@ class w2field extends w2base {
                     format      : w2utils.settings.timeFormat,
                     keyboard    : true,
                     autoCorrect : true,
-                    start       : '',
-                    end         : '',
+                    start       : null,
+                    end         : null,
                     noMinutes   : false
                 }
-                this.options = $.extend(true, {}, defaults, options)
-                options      = this.options // since object is re-created, need to re-assign
+                this.options = w2utils.extend({ type: 'time' }, defaults, options)
+                options = this.options // since object is re-created, need to re-assign
                 if (query(this.el).attr('placeholder') == null) query(this.el).attr('placeholder', options.format)
                 break
 
             case 'datetime':
                 defaults     = {
-                    format      : w2utils.settings.dateFormat + ' | ' + w2utils.settings.timeFormat,
-                    keyboard    : true,
-                    autoCorrect : true,
-                    start       : '', // string or jquery object or Date object
-                    end         : '', // string or jquery object or Date object
-                    blocked     : [], // [ '4/11/2011', '4/12/2011' ] or [ new Date(2011, 4, 11), new Date(2011, 4, 12) ]
-                    colored     : {}, // { '12/17/2014': 'blue:green', '12/18/2014': 'gray:white'  }; // key has to be formatted with w2utils.settings.dateFormat
-                    placeholder : null, // optional. will fall back to this.format if not specified. Only used if this.el has no placeholder attribute.
-                    btn_now     : true, // show/hide the use-current-date-and-time button
-                    noMinutes   : false
+                    format        : w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat,
+                    keyboard      : true,
+                    autoCorrect   : true,
+                    start         : null,
+                    end           : null,
+                    blockDates    : [], // array of blocked dates
+                    blockWeekdays : [], // blocked weekdays 0 - sunday, 1 - monday, etc
+                    colored       : {}, // ex: { '3/13/2022': 'bg-color|text-color' }
+                    btn_now       : true, // show/hide the use-current-date-and-time button
+                    noMinutes     : false
                 }
-                this.options = $.extend(true, {}, defaults, options)
-                options      = this.options // since object is re-created, need to re-assign
+                this.options = w2utils.extend({ type: 'datetime' }, defaults, options)
+                options = this.options // since object is re-created, need to re-assign
                 if (query(this.el).attr('placeholder') == null) query(this.el).attr('placeholder', options.placeholder || options.format)
                 break
 
@@ -913,7 +913,6 @@ class w2field extends w2base {
     }
 
     blur(event) {
-        let options = this.options
         let val = query(this.el).val().trim()
         query(this.el).removeClass('has-focus')
 
@@ -925,16 +924,16 @@ class w2field extends w2base {
                     newVal = ''
                 } else {
                     let rVal = this.clean(val)
-                    if (options.min != null && rVal < options.min) {
-                        newVal = options.min
-                        error = `Should be >= ${options.min}`
+                    if (this.options.min != null && rVal < this.options.min) {
+                        newVal = this.options.min
+                        error = `Should be >= ${this.options.min}`
                     }
-                    if (options.max != null && rVal > options.max) {
-                        newVal = options.max
-                        error = `Should be <= ${options.max}`
+                    if (this.options.max != null && rVal > this.options.max) {
+                        newVal = this.options.max
+                        error = `Should be <= ${this.options.max}`
                     }
                 }
-                if (options.autoCorrect) {
+                if (this.options.autoCorrect) {
                     query(this.el).val(newVal).trigger('input').trigger('change')
                     if (error) {
                         w2tooltip.show({
@@ -948,27 +947,14 @@ class w2field extends w2base {
             }
         }
         // date or time
-        if (['date', 'time', 'datetime'].indexOf(this.type) !== -1) {
-            // check if in range
-            if (val !== '' && !this.inRange(this.el.value)) {
-                if (options.autoCorrect) {
-                    $(this.el).val('').removeData('selected').trigger('input').trigger('change')
-                }
-            } else {
-                if (this.type === 'date' && val !== '' && !w2utils.isDate(this.el.value, options.format)) {
-                    if (options.autoCorrect) {
-                        $(this.el).val('').removeData('selected').trigger('input').trigger('change')
-                    }
-                }
-                else if (this.type === 'time' && val !== '' && !w2utils.isTime(this.el.value)) {
-                    if (options.autoCorrect) {
-                        $(this.el).val('').removeData('selected').trigger('input').trigger('change')
-                    }
-                }
-                else if (this.type === 'datetime' && val !== '' && !w2utils.isDateTime(this.el.value, options.format)) {
-                    if (options.autoCorrect) {
-                        $(this.el).val('').removeData('selected').trigger('input').trigger('change')
-                    }
+        if (['date', 'time', 'datetime'].includes(this.type) && this.options.autoCorrect) {
+            if (val !== '') {
+                let check = this.type == 'date' ? w2utils.isDate :
+                    (this.type == 'time' ? w2utils.isTime : w2utils.isDateTimee)
+                if (!w2date.inRange(this.el.value, this.options, this.type == 'date')
+                        || !check.bind(w2utils)(this.el.value, this.options.format)) {
+                    // if not in range or wrong value - clear it
+                    query(this.el).val('').trigger('input').trigger('change')
                 }
             }
         }
@@ -1325,92 +1311,10 @@ class w2field extends w2base {
             })
             .select(event => {
                 let date = event.detail.date
-                query(this.el).val(date).trigger('input').trigger('change')
-            })
-            return
-            if ($('#w2ui-overlay').length === 0) {
-                $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar"></div>', {
-                    css: { 'background-color': '#f5f5f5' }
-                })
-            }
-            dt = w2utils.isDate($(obj.el).val(), obj.options.format, true)
-            if (dt) { month = dt.getMonth() + 1; year = dt.getFullYear() }
-            (function refreshCalendar(month, year) {
-                if (!month && !year) {
-                    let dt = new Date()
-                    month  = dt.getMonth()
-                    year   = dt.getFullYear()
+                if (date != null) {
+                    query(this.el).val(date).trigger('input').trigger('change')
                 }
-                $('#w2ui-overlay > div > div').html(obj.getMonthHTML(month, year, $(obj.el).val()))
-                $('#w2ui-overlay .w2ui-calendar-title')
-                    .on('mousedown', function() {
-                        if ($(this).next().hasClass('w2ui-calendar-jump')) {
-                            $(this).next().remove()
-                        } else {
-                            let selYear, selMonth
-                            $(this).after('<div class="w2ui-calendar-jump" style=""></div>')
-                            $(this).next().hide().html(obj.getYearHTML()).fadeIn(200)
-                            setTimeout(() => {
-                                $('#w2ui-overlay .w2ui-calendar-jump')
-                                    .find('.w2ui-jump-month, .w2ui-jump-year')
-                                    .on('dblclick', function() {
-                                        if ($(this).hasClass('w2ui-jump-month')) {
-                                            $(this).parent().find('.w2ui-jump-month').removeClass('selected')
-                                            $(this).addClass('selected')
-                                            selMonth = $(this).attr('name')
-                                        }
-                                        if ($(this).hasClass('w2ui-jump-year')) {
-                                            $(this).parent().find('.w2ui-jump-year').removeClass('selected')
-                                            $(this).addClass('selected')
-                                            selYear = $(this).attr('name')
-                                        }
-                                        if (selMonth == null) selMonth = month
-                                        if (selYear == null) selYear = year
-                                        $('#w2ui-overlay .w2ui-calendar-jump').fadeOut(100)
-                                        setTimeout(() => { refreshCalendar(parseInt(selMonth)+1, selYear) }, 100)
-                                    })
-                                    .on('click', function() {
-                                        if ($(this).hasClass('w2ui-jump-month')) {
-                                            $(this).parent().find('.w2ui-jump-month').removeClass('selected')
-                                            $(this).addClass('selected')
-                                            selMonth = $(this).attr('name')
-                                        }
-                                        if ($(this).hasClass('w2ui-jump-year')) {
-                                            $(this).parent().find('.w2ui-jump-year').removeClass('selected')
-                                            $(this).addClass('selected')
-                                            selYear = $(this).attr('name')
-                                        }
-                                        if (selYear != null && selMonth != null) {
-                                            $('#w2ui-overlay .w2ui-calendar-jump').fadeOut(100)
-                                            setTimeout(() => { refreshCalendar(parseInt(selMonth)+1, selYear) }, 100)
-                                        }
-                                    })
-                                $('#w2ui-overlay .w2ui-calendar-jump >:last-child').prop('scrollTop', 2000)
-                            }, 1)
-                        }
-                    })
-                $('#w2ui-overlay .w2ui-date')
-                    .on('mousedown', function() {
-                        let day = $(this).attr('date')
-                        $(obj.el).val(day).trigger('input').trigger('change')
-                        $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' })
-                    })
-                    .on('mouseup', function() {
-                        setTimeout(() => {
-                            if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide()
-                        }, 10)
-                    })
-                $('#w2ui-overlay .previous').on('mousedown', function() {
-                    let tmp = obj.options.current.split('/')
-                    tmp[0]  = parseInt(tmp[0]) - 1
-                    refreshCalendar(tmp[0], tmp[1])
-                })
-                $('#w2ui-overlay .next').on('mousedown', function() {
-                    let tmp = obj.options.current.split('/')
-                    tmp[0]  = parseInt(tmp[0]) + 1
-                    refreshCalendar(tmp[0], tmp[1])
-                })
-            })(month, year)
+            })
         }
         // time
         if (this.type === 'time') {
@@ -1467,128 +1371,6 @@ class w2field extends w2base {
                 html: 'In progress...',
                 hideOn: ['blur', 'doc-click']
             })
-            return;
-
-            // hide overlay if we are in the time selection
-            if ($('#w2ui-overlay .w2ui-time').length > 0) $('#w2ui-overlay')[0].hide()
-            if ($('#w2ui-overlay').length === 0) {
-                $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar"></div>', {
-                    css: { 'background-color': '#f5f5f5' }
-                })
-            }
-            dt = w2utils.isDateTime($(obj.el).val(), obj.options.format, true)
-            if (dt) { month = dt.getMonth() + 1; year = dt.getFullYear() }
-            let selDate = null;
-            (function refreshCalendar(month, year) {
-                $('#w2ui-overlay > div > div').html(
-                    obj.getMonthHTML(month, year, $(obj.el).val())
-                    + (options.btn_now ? '<div class="w2ui-calendar-now now">'+ w2utils.lang('Current Date & Time') + '</div>' : '')
-                )
-                $('#w2ui-overlay .w2ui-calendar-title')
-                    .on('mousedown', function() {
-                        if ($(this).next().hasClass('w2ui-calendar-jump')) {
-                            $(this).next().remove()
-                        } else {
-                            let selYear, selMonth
-                            $(this).after('<div class="w2ui-calendar-jump" style=""></div>')
-                            $(this).next().hide().html(obj.getYearHTML()).fadeIn(200)
-                            setTimeout(() => {
-                                $('#w2ui-overlay .w2ui-calendar-jump')
-                                    .find('.w2ui-jump-month, .w2ui-jump-year')
-                                    .on('click', function() {
-                                        if ($(this).hasClass('w2ui-jump-month')) {
-                                            $(this).parent().find('.w2ui-jump-month').removeClass('selected')
-                                            $(this).addClass('selected')
-                                            selMonth = $(this).attr('name')
-                                        }
-                                        if ($(this).hasClass('w2ui-jump-year')) {
-                                            $(this).parent().find('.w2ui-jump-year').removeClass('selected')
-                                            $(this).addClass('selected')
-                                            selYear = $(this).attr('name')
-                                        }
-                                        if (selYear != null && selMonth != null) {
-                                            $('#w2ui-overlay .w2ui-calendar-jump').fadeOut(100)
-                                            setTimeout(() => { refreshCalendar(parseInt(selMonth)+1, selYear) }, 100)
-                                        }
-                                    })
-                                $('#w2ui-overlay .w2ui-calendar-jump >:last-child').prop('scrollTop', 2000)
-                            }, 1)
-                        }
-                    })
-                $('#w2ui-overlay .w2ui-date')
-                    .on('mousedown', function() {
-                        let day = $(this).attr('date')
-                        $(obj.el).val(day).trigger('input').trigger('change')
-                        $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' })
-                        selDate = new Date($(this).attr('data-date'))
-                    })
-                    .on('mouseup', function() {
-                        // continue with time picker
-                        let selHour, selMin
-                        if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay')[0].hide()
-                        $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time"></div>', { css: { 'background-color': '#fff' } })
-                        // let h24 = (obj.options.format === 'h24')
-                        $('#w2ui-overlay > div').html(obj.getHourHTML())
-                        $('#w2ui-overlay .w2ui-time')
-                            .on('mousedown', function(event) {
-                                $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' })
-                                selHour = $(this).attr('hour')
-                                selDate.setHours(selHour)
-                                let txt = w2utils.formatDateTime(selDate, obj.options.format)
-                                $(obj.el).val(txt).trigger('input').trigger('change')
-                                //$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).trigger('input').trigger('change');
-                            })
-                        if (obj.options.noMinutes == null || obj.options.noMinutes === false) {
-                            $('#w2ui-overlay .w2ui-time')
-                                .on('mouseup', function() {
-                                    let hour = $(this).attr('hour')
-                                    if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay')[0].hide()
-                                    $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time"></div>', { css: { 'background-color': '#fff' } })
-                                    $('#w2ui-overlay > div').html(obj.getMinHTML(hour))
-                                    $('#w2ui-overlay .w2ui-time')
-                                        .on('mousedown', function() {
-                                            $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' })
-                                            selMin = $(this).attr('min')
-                                            selDate.setHours(selHour, selMin)
-                                            let txt = w2utils.formatDateTime(selDate, obj.options.format)
-                                            $(obj.el).val(txt).trigger('input').trigger('change')
-                                            //$(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).trigger('input').trigger('change');
-                                        })
-                                        .on('mouseup', function() {
-                                            setTimeout(() => { if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide() }, 10)
-                                        })
-                                })
-                        } else {
-                            $('#w2ui-overlay .w2ui-time')
-                                .on('mouseup', function() {
-                                    setTimeout(() => { if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide() }, 10)
-                                })
-                        }
-                    })
-                $('#w2ui-overlay .previous').on('mousedown', function() {
-                    let tmp = obj.options.current.split('/')
-                    tmp[0]  = parseInt(tmp[0]) - 1
-                    refreshCalendar(tmp[0], tmp[1])
-                })
-                $('#w2ui-overlay .next').on('mousedown', function() {
-                    let tmp = obj.options.current.split('/')
-                    tmp[0]  = parseInt(tmp[0]) + 1
-                    refreshCalendar(tmp[0], tmp[1])
-                })
-                // "now" button
-                $('#w2ui-overlay .now')
-                    .on('mousedown', function() {
-                        // this currently ignores blocked days or start / end dates!
-                        let tmp = w2utils.formatDateTime(new Date(), obj.options.format)
-                        $(obj.el).val(tmp).trigger('input').trigger('change')
-                        return false
-                    })
-                    .on('mouseup', function() {
-                        setTimeout(() => {
-                            if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide()
-                        }, 10)
-                    })
-            })(month, year)
         }
     }
 
