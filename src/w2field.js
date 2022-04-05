@@ -152,7 +152,6 @@ class w2field extends w2base {
                     prefix      : '#',
                     suffix      : `<div style="width: ${(parseInt(getComputedStyle(this.el)['font-size'])) || 12}px">&#160;</div>`,
                     arrows      : false,
-                    keyboard    : false,
                     advanced    : null, // open advanced by default
                     transparent : true
                 }
@@ -169,9 +168,10 @@ class w2field extends w2base {
                     autoCorrect   : true,
                     start         : null,
                     end           : null,
-                    blockDates    : [], // array of blocked dates
+                    blockDates    : [], // array of blocked dates // TODO: check
                     blockWeekdays : [], // blocked weekdays 0 - sunday, 1 - monday, etc
                     colored       : {}, // ex: { '3/13/2022': 'bg-color|text-color' }
+                    btnNow        : true
                 }
                 this.options = w2utils.extend({ type: 'date' }, defaults, options)
                 options = this.options // since object is re-created, need to re-assign
@@ -185,6 +185,7 @@ class w2field extends w2base {
                     autoCorrect : true,
                     start       : null,
                     end         : null,
+                    btnNow      : true,
                     noMinutes   : false
                 }
                 this.options = w2utils.extend({ type: 'time' }, defaults, options)
@@ -199,11 +200,13 @@ class w2field extends w2base {
                     autoCorrect   : true,
                     start         : null,
                     end           : null,
+                    startTime     : null,
+                    endTime       : null,
                     blockDates    : [], // array of blocked dates
                     blockWeekdays : [], // blocked weekdays 0 - sunday, 1 - monday, etc
                     colored       : {}, // ex: { '3/13/2022': 'bg-color|text-color' }
-                    btn_now       : true, // show/hide the use-current-date-and-time button
-                    noMinutes     : false
+                    btnNow        : true,
+                    noMinutes     : false // TODO: check
                 }
                 this.options = w2utils.extend({ type: 'datetime' }, defaults, options)
                 options = this.options // since object is re-created, need to re-assign
@@ -950,8 +953,8 @@ class w2field extends w2base {
         if (['date', 'time', 'datetime'].includes(this.type) && this.options.autoCorrect) {
             if (val !== '') {
                 let check = this.type == 'date' ? w2utils.isDate :
-                    (this.type == 'time' ? w2utils.isTime : w2utils.isDateTimee)
-                if (!w2date.inRange(this.el.value, this.options, this.type == 'date')
+                    (this.type == 'time' ? w2utils.isTime : w2utils.isDateTime)
+                if (!w2date.inRange(this.el.value, this.options)
                         || !check.bind(w2utils)(this.el.value, this.options.format)) {
                     // if not in range or wrong value - clear it
                     query(this.el).val('').trigger('input').trigger('change')
@@ -981,10 +984,6 @@ class w2field extends w2base {
                 return false
             }
         }
-        // update date popup
-        if (['date', 'time', 'datetime'].indexOf(obj.type) !== -1) {
-            if (event.keyCode !== 9) setTimeout(() => { obj.updateOverlay() }, 1)
-        }
     }
 
     keyDown(event, extra) {
@@ -995,30 +994,27 @@ class w2field extends w2base {
         let val, inc, daymil, dt, newValue, newDT
         // numeric
         if (['int', 'float', 'money', 'currency', 'percent'].indexOf(obj.type) !== -1) {
-            if (!options.keyboard || $(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return
-            val = parseFloat($(obj.el).val().replace(options.moneyRE, '')) || 0
+            if (!options.keyboard || query(obj.el).prop('readonly') || query(obj.el).prop('disabled')) return
+            val = parseFloat(query(obj.el).val().replace(options.moneyRE, '')) || 0
             inc = options.step
-            if (event.ctrlKey || event.metaKey) inc = 10
+            if (event.ctrlKey || event.metaKey) inc = options.step * 10
             switch (key) {
                 case 38: // up
                     if (event.shiftKey) break // no action if shift key is pressed
                     newValue = (val + inc <= options.max || options.max == null ? Number((val + inc).toFixed(12)) : options.max)
-                    $(obj.el).val(newValue).trigger('input').trigger('change')
+                    query(obj.el).val(newValue).trigger('input').trigger('change')
                     cancel = true
                     break
                 case 40: // down
                     if (event.shiftKey) break // no action if shift key is pressed
                     newValue = (val - inc >= options.min || options.min == null ? Number((val - inc).toFixed(12)) : options.min)
-                    $(obj.el).val(newValue).trigger('input').trigger('change')
+                    query(obj.el).val(newValue).trigger('input').trigger('change')
                     cancel = true
                     break
             }
             if (cancel) {
                 event.preventDefault()
-                setTimeout(() => {
-                    // set cursor to the end
-                    obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length)
-                }, 0)
+                this.moveCaret2end()
             }
         }
         if (this.type == 'list') {
@@ -1034,47 +1030,53 @@ class w2field extends w2base {
                     break
             }
         }
-        // date
-        if (obj.type === 'date') {
-            if (!options.keyboard || $(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return
+        // date/datetime
+        if (['date', 'datetime'].includes(obj.type)) {
+            if (!options.keyboard || query(obj.el).prop('readonly') || query(obj.el).prop('disabled')) return
+            let is = (obj.type == 'date' ? w2utils.isDate : w2utils.isDateTime).bind(w2utils)
+            let format = (obj.type == 'date' ? w2utils.formatDate : w2utils.formatDateTime).bind(w2utils)
+
             daymil = 24*60*60*1000
-            inc    = 1
-            if (event.ctrlKey || event.metaKey) inc = 10
-            dt = w2utils.isDate($(obj.el).val(), options.format, true)
+            inc = 1
+            if (event.ctrlKey || event.metaKey) inc = 10 // by month
+            dt = is(query(obj.el).val(), options.format, true)
             if (!dt) { dt = new Date(); daymil = 0 }
             switch (key) {
                 case 38: // up
                     if (event.shiftKey) break // no action if shift key is pressed
-                    newDT = w2utils.formatDate(dt.getTime() + daymil, options.format)
-                    // TODO: remove getMonth
-                    if (inc == 10) newDT = w2utils.formatDate(new Date(dt.getFullYear(), dt.getMonth()+1, dt.getDate()), options.format)
-                    $(obj.el).val(newDT).trigger('input').trigger('change')
+                    if (inc == 10) {
+                        dt.setMonth(dt.getMonth() + 1)
+                    } else {
+                        dt.setTime(dt.getTime() + daymil)
+                    }
+                    newDT = format(dt.getTime(), options.format)
+                    query(obj.el).val(newDT).trigger('input').trigger('change')
                     cancel = true
                     break
                 case 40: // down
                     if (event.shiftKey) break // no action if shift key is pressed
-                    newDT = w2utils.formatDate(dt.getTime() - daymil, options.format)
-                    // TODO: remove getMonth
-                    if (inc == 10) newDT = w2utils.formatDate(new Date(dt.getFullYear(), dt.getMonth()-1, dt.getDate()), options.format)
-                    $(obj.el).val(newDT).trigger('input').trigger('change')
+                    if (inc == 10) {
+                        dt.setMonth(dt.getMonth() - 1)
+                    } else {
+                        dt.setTime(dt.getTime() - daymil)
+                    }
+                    newDT = format(dt.getTime(), options.format)
+                    query(obj.el).val(newDT).trigger('input').trigger('change')
                     cancel = true
                     break
             }
             if (cancel) {
                 event.preventDefault()
-                setTimeout(() => {
-                    // set cursor to the end
-                    obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length)
-                    obj.updateOverlay()
-                }, 0)
+                this.moveCaret2end()
+                this.updateOverlay()
             }
         }
         // time
         if (obj.type === 'time') {
-            if (!options.keyboard || $(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return
-            inc      = (event.ctrlKey || event.metaKey ? 60 : 1)
-            val      = $(obj.el).val()
-            let time = obj.toMin(val) || obj.toMin((new Date()).getHours() + ':' + ((new Date()).getMinutes() - 1))
+            if (!options.keyboard || query(obj.el).prop('readonly') || query(obj.el).prop('disabled')) return
+            inc = (event.ctrlKey || event.metaKey ? 60 : 1)
+            val = query(obj.el).val()
+            let time = w2date.str2min(val) || w2date.str2min((new Date()).getHours() + ':' + ((new Date()).getMinutes() - 1))
             switch (key) {
                 case 38: // up
                     if (event.shiftKey) break // no action if shift key is pressed
@@ -1088,76 +1090,9 @@ class w2field extends w2base {
                     break
             }
             if (cancel) {
-                $(obj.el).val(obj.fromMin(time)).trigger('input').trigger('change')
                 event.preventDefault()
-                setTimeout(() => {
-                    // set cursor to the end
-                    obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length)
-                }, 0)
-            }
-        }
-        // datetime
-        if (obj.type === 'datetime') {
-            if (!options.keyboard || $(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return
-            daymil = 24*60*60*1000
-            inc    = 1
-            if (event.ctrlKey || event.metaKey) inc = 10
-            let str = $(obj.el).val()
-            dt      = w2utils.isDateTime(str, this.options.format, true)
-            if (!dt) { dt = new Date(); daymil = 0 }
-            switch (key) {
-                case 38: // up
-                    // TODO: remove getMonth
-                    if (event.shiftKey) break // no action if shift key is pressed
-                    newDT = w2utils.formatDateTime(dt.getTime() + daymil, options.format)
-                    if (inc == 10) newDT = w2utils.formatDateTime(new Date(dt.getFullYear(), dt.getMonth()+1, dt.getDate()), options.format)
-                    $(obj.el).val(newDT).trigger('input').trigger('change')
-                    cancel = true
-                    break
-                case 40: // down
-                    // TODO: remove getMonth
-                    if (event.shiftKey) break // no action if shift key is pressed
-                    newDT = w2utils.formatDateTime(dt.getTime() - daymil, options.format)
-                    if (inc == 10) newDT = w2utils.formatDateTime(new Date(dt.getFullYear(), dt.getMonth()-1, dt.getDate()), options.format)
-                    $(obj.el).val(newDT).trigger('input').trigger('change')
-                    cancel = true
-                    break
-            }
-            if (cancel) {
-                event.preventDefault()
-                setTimeout(() => {
-                    // set cursor to the end
-                    obj.el.setSelectionRange(obj.el.value.length, obj.el.value.length)
-                    obj.updateOverlay()
-                }, 0)
-            }
-        }
-        // color
-        if (obj.type === 'color') {
-            if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return
-            // paste
-            if ((event.ctrlKey || event.metaKey) && !event.shiftKey) {
-                let dir      = null
-                let newColor = null
-                switch (key) {
-                    case 38: // up
-                        dir = 'up'
-                        break
-                    case 40: // down
-                        dir = 'down'
-                        break
-                    case 39: // right
-                        dir = 'right'
-                        break
-                    case 37: // left
-                        dir = 'left'
-                        break
-                }
-                if (obj.el.nav && dir != null) {
-                    newColor = obj.el.nav(dir)
-                    $(obj.el).val(newColor).trigger('input').trigger('change')
-                    event.preventDefault()
-                }
+                query(obj.el).val(w2date.min2str(time)).trigger('input').trigger('change')
+                this.moveCaret2end()
             }
         }
     }
@@ -1302,74 +1237,18 @@ class w2field extends w2base {
             }
         }
         // date
-        if (this.type === 'date') {
+        if (['date', 'time', 'datetime'].includes(this.type)) {
             if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
-            w2date.show({
+            w2date.show(w2utils.extend({
                 name: this.el.id + '_date',
                 anchor: this.el,
-                date: this.el.value
-            })
+                value: this.el.value,
+            }, this.options))
             .select(event => {
                 let date = event.detail.date
                 if (date != null) {
                     query(this.el).val(date).trigger('input').trigger('change')
                 }
-            })
-        }
-        // time
-        if (this.type === 'time') {
-            if (query(obj.el).prop('readonly') || query(obj.el).prop('disabled')) return
-            w2tooltip.show({
-                anchor: this.el,
-                html: 'In progress...',
-                hideOn: ['blur', 'doc-click']
-            })
-            return;
-
-            if ($('#w2ui-overlay').length === 0) {
-                $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time"></div>', {
-                    css: { 'background-color': '#fff' }
-                })
-            }
-            let h24 = (this.options.format === 'h24')
-            $('#w2ui-overlay > div').html(obj.getHourHTML())
-            $('#w2ui-overlay .w2ui-time')
-                .on('mousedown', function(event) {
-                    $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' })
-                    let hour = $(this).attr('hour')
-                    $(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':00' + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).trigger('input').trigger('change')
-                })
-            if (this.options.noMinutes == null || this.options.noMinutes === false) {
-                $('#w2ui-overlay .w2ui-time')
-                    .on('mouseup', function() {
-                        let hour = $(this).attr('hour')
-                        if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay')[0].hide()
-                        $(obj.el).w2overlay('<div class="w2ui-reset w2ui-calendar-time"></div>', { css: { 'background-color': '#fff' } })
-                        $('#w2ui-overlay > div').html(obj.getMinHTML(hour))
-                        $('#w2ui-overlay .w2ui-time')
-                            .on('mousedown', function() {
-                                $(this).css({ 'background-color': '#B6D5FB', 'border-color': '#aaa' })
-                                let min = $(this).attr('min')
-                                $(obj.el).val((hour > 12 && !h24 ? hour - 12 : hour) + ':' + (min < 10 ? 0 : '') + min + (!h24 ? (hour < 12 ? ' am' : ' pm') : '')).trigger('input').trigger('change')
-                            })
-                            .on('mouseup', function() {
-                                setTimeout(() => { if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide() }, 10)
-                            })
-                    })
-            } else {
-                $('#w2ui-overlay .w2ui-time')
-                    .on('mouseup', function() {
-                        setTimeout(() => { if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide() }, 10)
-                    })
-            }
-        }
-        // datetime
-        if (this.type === 'datetime') {
-            if (query(obj.el).prop('readonly') || query(obj.el).prop('disabled')) return
-            w2tooltip.show({
-                anchor: this.el,
-                html: 'In progress...',
-                hideOn: ['blur', 'doc-click']
             })
         }
     }
@@ -1810,94 +1689,11 @@ class w2field extends w2base {
         }
     }
 
-    getHourHTML() {
-        let tmp     = []
-        let options = this.options
-        if (options == null) options = { format: w2utils.settings.timeFormat }
-        let h24 = (options.format.indexOf('h24') > -1)
-        for (let a = 0; a < 24; a++) {
-            let time = (a >= 12 && !h24 ? a - 12 : a) + ':00' + (!h24 ? (a < 12 ? ' am' : ' pm') : '')
-            if (a == 12 && !h24) time = '12:00 pm'
-            if (!tmp[Math.floor(a/8)]) tmp[Math.floor(a/8)] = ''
-            let tm1 = this.fromMin(this.toMin(time))
-            let tm2 = this.fromMin(this.toMin(time) + 59)
-            if (this.type === 'datetime') {
-                let dt = w2utils.isDateTime(this.el.value, options.format, true)
-                let fm = options.format.split('|')[0].trim()
-                tm1    = w2utils.formatDate(dt, fm) + ' ' + tm1
-                tm2    = w2utils.formatDate(dt, fm) + ' ' + tm2
-            }
-            tmp[Math.floor(a/8)] += '<div class="'+ (this.inRange(tm1) || this.inRange(tm2) ? 'w2ui-time ' : 'w2ui-blocked') + '" hour="'+ a +'">'+ time +'</div>'
-        }
-        let html =
-            '<div class="w2ui-calendar">'+
-            '   <div class="w2ui-calendar-title">'+ w2utils.lang('Select Hour') +'</div>'+
-            '   <div class="w2ui-calendar-time"><table><tbody><tr>'+
-            '       <td>'+ tmp[0] +'</td>' +
-            '       <td>'+ tmp[1] +'</td>' +
-            '       <td>'+ tmp[2] +'</td>' +
-            '   </tr></tbody></table></div>'+
-            '</div>'
-        return html
-    }
-
-    getMinHTML(hour) {
-        if (hour == null) hour = 0
-        let options = this.options
-        if (options == null) options = { format: w2utils.settings.timeFormat }
-        let h24 = (options.format.indexOf('h24') > -1)
-        let tmp = []
-        for (let a = 0; a < 60; a += 5) {
-            let time = (hour > 12 && !h24 ? hour - 12 : hour) + ':' + (a < 10 ? 0 : '') + a + ' ' + (!h24 ? (hour < 12 ? 'am' : 'pm') : '')
-            let tm   = time
-            let ind  = a < 20 ? 0 : (a < 40 ? 1 : 2)
-            if (!tmp[ind]) tmp[ind] = ''
-            if (this.type === 'datetime') {
-                let dt = w2utils.isDateTime(this.el.value, options.format, true)
-                let fm = options.format.split('|')[0].trim()
-                tm     = w2utils.formatDate(dt, fm) + ' ' + tm
-            }
-            tmp[ind] += '<div class="'+ (this.inRange(tm) ? 'w2ui-time ' : 'w2ui-blocked') + '" min="'+ a +'">'+ time +'</div>'
-        }
-        let html =
-            '<div class="w2ui-calendar">'+
-            '   <div class="w2ui-calendar-title">'+ w2utils.lang('Select Minute') +'</div>'+
-            '   <div class="w2ui-calendar-time"><table><tbody><tr>'+
-            '       <td>'+ tmp[0] +'</td>' +
-            '       <td>'+ tmp[1] +'</td>' +
-            '       <td>'+ tmp[2] +'</td>' +
-            '   </tr></tbody></table></div>'+
-            '</div>'
-        return html
-    }
-
-    toMin(str) {
-        if (typeof str !== 'string') return null
-        let tmp = str.split(':')
-        if (tmp.length === 2) {
-            tmp[0] = parseInt(tmp[0])
-            tmp[1] = parseInt(tmp[1])
-            if (str.indexOf('pm') !== -1 && tmp[0] !== 12) tmp[0] += 12
-        } else {
-            return null
-        }
-        return tmp[0] * 60 + tmp[1]
-    }
-
-    fromMin(time) {
-        let ret = ''
-        if (time >= 24 * 60) time = time % (24 * 60)
-        if (time < 0) time = 24 * 60 + time
-        let hour    = Math.floor(time/60)
-        let min     = ((time % 60) < 10 ? '0' : '') + (time % 60)
-        let options = this.options
-        if (options == null) options = { format: w2utils.settings.timeFormat }
-        if (options.format.indexOf('h24') !== -1) {
-            ret = hour + ':' + min
-        } else {
-            ret = (hour <= 12 ? hour : hour - 12) + ':' + min + ' ' + (hour >= 12 ? 'pm' : 'am')
-        }
-        return ret
+    // move cursror to end
+    moveCaret2end() {
+        setTimeout(() => {
+            this.el.setSelectionRange(this.el.value.length, this.el.value.length)
+        }, 0)
     }
 }
 

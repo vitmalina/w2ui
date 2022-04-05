@@ -7,6 +7,7 @@
             "textarea": "more text",
             "date"    : "3/15/2022",
             "time"    : "10:11 am",
+            "datetime": "3/15/2022 10:11 am",
             "color"   : "999999",
             "list"    : 5,
             "combo"   : { "id": 1, "text": "Item 1" },

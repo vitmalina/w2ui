@@ -537,10 +537,10 @@
     padding: 1px;
     line-height: 1.1;
 
-    .w2ui-cal-title {
+    .w2ui-cal-title, .w2ui-time-title {
         margin: 0px;
         padding: 7px 2px;
-        .linear-gradient-vertical(@calendar-title-gradient-start, @calendar-title-gradient-end);
+        background-color: @calendar-title-gradient-start;
         border-bottom: @calendar-title-border-bottom;
         color: @calendar-title-color;
         text-align: center;
@@ -644,12 +644,16 @@
     }
 
     .w2ui-cal-now {
-        cursor: pointer;
-        margin-bottom: 10px;
+        cursor: default;
+        padding: 3px;
         text-align: center;
-
+        background-color: #f4f4f4;
+        margin: 5px;
+        border: 1px solid #e5e5e5;
+        border-radius: 4px;
         &:hover {
-            color: #0A96DE;
+            color: #28759e;
+            border: 1px solid #c3d6df;
         }
     }
 
@@ -715,30 +719,37 @@
 }
 
 /* time overlay */
-.w2ui-calendar-time {
+.w2ui-cal-time {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     padding: 5px;
     cursor: default;
-    td div {
-        padding: 7px 10px;
+
+    .w2ui-cal-column {
+        width: 70px;
+        &:nth-child(even) {
+            background-color: #f3f3f3;
+        }
+    }
+
+    span {
+        width: 70px;
+        padding: 5px;
         text-align: center;
         border: 1px solid transparent;
+        border-radius: 2px;
         white-space: nowrap;
-    }
-
-    td:nth-child(even) {
-        background-color: @calendar-title-gradient-start;
-    }
-
-    td div:hover {
-        border: @calendar-day-hover-border;
-        color: @calendar-day-hover-color;
-        background-color: @calendar-day-hover-background-color;
-    }
-
-    td div.w2ui-blocked {
-        text-decoration: line-through;
-        border: 1px solid @calendar-background-color;
-        color: @calendar-day-blocked-color;
-        background-color: @calendar-background-color;
+        float: left;
+        &:hover {
+            border: @calendar-day-hover-border;
+            color: @calendar-day-hover-color;
+            background-color: @calendar-day-hover-background-color;
+        }
+        &.w2ui-blocked {
+            text-decoration: line-through;
+            border: 1px solid @calendar-background-color;
+            color: @calendar-day-blocked-color;
+            background-color: @calendar-background-color;
+        }
     }
 }

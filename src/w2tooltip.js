@@ -1780,7 +1780,7 @@ class DateTooltip extends Tooltip {
         let td = new Date()
         this.months = w2utils.settings.fullmonths
         this.smonths = w2utils.settings.shortmonths
-        this.daysCount = ['31', '28', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31']
+        this.daysCount = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
         this.today = td.getFullYear() + '/' + (Number(td.getMonth()) + 1) + '/' + td.getDate()
         this.days = w2utils.settings.fulldays.slice() // creates copy of the array
         this.sdays = w2utils.settings.shortdays.slice() // creates copy of the array
@@ -1791,9 +1791,9 @@ class DateTooltip extends Tooltip {
         this.defaults = w2utils.extend({}, this.defaults, {
             position      : 'top|bottom',
             class         : 'w2ui-white w2ui-calendar',
-            type          : 'date', // can be date, time, datetime
+            type          : 'date', // can be date/time/datetime
             format        : '',
-            date          : '', // initial date (in w2utils.settings format)
+            value         : '', // initial date (in w2utils.settings format)
             start         : null,
             end           : null,
             blockDates    : [], // array of blocked dates
@@ -1833,7 +1833,7 @@ class DateTooltip extends Tooltip {
                 options.format = df + '|' + tf
             }
         }
-        let cal = this.getMonthHTML(options)
+        let cal = options.type == 'time' ? this.getHourHTML(options) : this.getMonthHTML(options)
         options.style += '; padding: 0;'
         options.html = cal.html
         let ret = super.attach(options)
@@ -1843,9 +1843,10 @@ class DateTooltip extends Tooltip {
             let overlay = event.detail.overlay
             let anchor  = overlay.anchor
             let options = overlay.options
-            if (['INPUT', 'TEXTAREA'].includes(anchor.tagName) && !options.date && anchor.value) {
-                overlay.tmp.initDate = anchor.value
+            if (['INPUT', 'TEXTAREA'].includes(anchor.tagName) && !options.value && anchor.value) {
+                overlay.tmp.initValue = anchor.value
             }
+            delete overlay.newValue
             delete overlay.newDate
         })
         overlay.on('show:after.attach', event => {
@@ -1861,11 +1862,14 @@ class DateTooltip extends Tooltip {
         overlay.on('hide.attach', event => {
             let overlay = event.detail.overlay
             let anchor  = overlay.anchor
-            if (overlay.newDate != null) {
-                if (['INPUT', 'TEXTAREA'].includes(anchor.tagName) && anchor.value != overlay.newDate) {
-                    anchor.value = overlay.newDate
+            if (overlay.newValue != null) {
+                if (overlay.newDate) {
+                    overlay.newValue = overlay.newDate + ' ' + overlay.newValue
                 }
-                let edata = this.trigger('select', { date: overlay.newDate, target: overlay.name, overlay })
+                if (['INPUT', 'TEXTAREA'].includes(anchor.tagName) && anchor.value != overlay.newValue) {
+                    anchor.value = overlay.newValue
+                }
+                let edata = this.trigger('select', { date: overlay.newValue, target: overlay.name, overlay })
                 if (edata.isCancelled === true) return
                 // event after
                 edata.finish()
@@ -1879,6 +1883,7 @@ class DateTooltip extends Tooltip {
     }
 
     initControls(overlay) {
+        let options = overlay.options
         let moveMonth = (inc) => {
             let { month, year } = overlay.tmp
             month += inc
@@ -1890,10 +1895,23 @@ class DateTooltip extends Tooltip {
                 month = 12
                 year--
             }
-            let cal = this.getMonthHTML(overlay.options, month, year)
+            let cal = this.getMonthHTML(options, month, year)
             Object.assign(overlay.tmp, cal)
             query(overlay.box).find('.w2ui-overlay-body').html(cal.html)
             this.initControls(overlay)
+        }
+        let checkJump = (event) => {
+            query(event.target).parent().find('.w2ui-jump-month, .w2ui-jump-year')
+                .removeClass('selected')
+            query(event.target).addClass('selected')
+            let { jumpMonth, jumpYear } = overlay.tmp
+            if (jumpMonth && jumpYear) {
+                let cal = this.getMonthHTML(options, jumpMonth, jumpYear)
+                Object.assign(overlay.tmp, cal)
+                query(overlay.box).find('.w2ui-overlay-body').html(cal.html)
+                overlay.tmp.jump = false
+                this.initControls(overlay)
+            }
         }
 
         // events for next/prev buttons and title
@@ -1903,14 +1921,14 @@ class DateTooltip extends Tooltip {
                 Object.assign(overlay.tmp, { jumpYear: null, jumpMonth: null })
                 if (overlay.tmp.jump) {
                     let { month, year } = overlay.tmp
-                    let cal = this.getMonthHTML(overlay.options, month, year)
+                    let cal = this.getMonthHTML(options, month, year)
                     query(overlay.box).find('.w2ui-overlay-body').html(cal.html)
                     overlay.tmp.jump = false
                 } else {
                     query(overlay.box).find('.w2ui-overlay-body .w2ui-cal-days')
                         .replace(this.getYearHTML())
                     let el = query(overlay.box).find(`[name="${overlay.tmp.year}"]`).get(0)
-                    el.scrollIntoView(true)
+                    if (el) el.scrollIntoView(true)
                     overlay.tmp.jump = true
                 }
                 this.initControls(overlay)
@@ -1929,27 +1947,35 @@ class DateTooltip extends Tooltip {
                 moveMonth(1)
                 event.stopPropagation()
             })
-
-        let checkJump = (event) => {
-            query(event.target).parent().find('.w2ui-jump-month, .w2ui-jump-year')
-                .removeClass('selected')
-            query(event.target).addClass('selected')
-            let { jumpMonth, jumpYear } = overlay.tmp
-            if (jumpMonth && jumpYear) {
-                let cal = this.getMonthHTML(overlay.options, jumpMonth, jumpYear)
-                Object.assign(overlay.tmp, cal)
-                query(overlay.box).find('.w2ui-overlay-body').html(cal.html)
-                overlay.tmp.jump = false
-                this.initControls(overlay)
+        // now button
+        query(overlay.box).find('.w2ui-cal-now')
+        .off('.calendar')
+        .on('click.calendar', event => {
+            if (options.type == 'datetime') {
+                if (overlay.newDate) {
+                    overlay.newValue = w2utils.formatTime(new Date(), options.format.split('|')[1])
+                } else {
+                    overlay.newValue = w2utils.formatDateTime(new Date(), options.format)
+                }
+            } else if (options.type == 'date') {
+                overlay.newValue = w2utils.formatDate(new Date(), options.format)
+            } else if (options.type == 'time') {
+                overlay.newValue = w2utils.formatTime(new Date(), options.format)
             }
-        }
-
+            this.hide(overlay.name)
+        })
         // events for dates
         query(overlay.box)
             .off('.calendar')
             .on('click.calendar', { delegate: '.w2ui-day.date' }, event => {
-                overlay.newDate = query(event.target).attr('date')
-                this.hide(overlay.name)
+                if (options.type == 'datetime') {
+                    overlay.newDate = query(event.target).attr('date')
+                    query(overlay.box).find('.w2ui-overlay-body').html(this.getHourHTML(overlay.options).html)
+                    this.initControls(overlay)
+                } else {
+                    overlay.newValue = query(event.target).attr('date')
+                    this.hide(overlay.name)
+                }
             })
             .on('click.calendar', { delegate: '.w2ui-jump-month' }, event => {
                 overlay.tmp.jumpMonth = parseInt(query(event.target).attr('name'))
@@ -1959,28 +1985,36 @@ class DateTooltip extends Tooltip {
                 overlay.tmp.jumpYear = parseInt(query(event.target).attr('name'))
                 checkJump(event)
             })
+            // events for time
+            .on('click.calendar', { delegate: '.w2ui-time.hour' }, event => {
+                let hour = query(event.target).attr('hour');
+                let min  = this.str2min(options.value) % 60
+                if (overlay.tmp.initValue && !options.value) {
+                    min = this.str2min(overlay.tmp.initValue) % 60
+                }
+                if (options.noMinutes) {
+                    overlay.newValue = this.min2str(hour * 60, options.format);
+                    this.hide(overlay.name)
+                } else {
+                    overlay.newValue = hour + ':' + min
+                    let html = this.getMinHTML(hour, options).html
+                    query(overlay.box).find('.w2ui-overlay-body').html(html)
+                    this.initControls(overlay)
+                }
+            })
+            .on('click.calendar', { delegate: '.w2ui-time.min' }, event => {
+                let hour = Math.floor(this.str2min(overlay.newValue) / 60)
+                let time = (hour * 60) + parseInt(query(event.target).attr('min'));
+                overlay.newValue = this.min2str(time, options.format);
+                this.hide(overlay.name)
+            })
     }
 
     getMonthHTML(options, month, year) {
-        // TODO:
-        // + (options.btn_now ? '<div class="w2ui-calendar-now now">'+ w2utils.lang('Current Date & Time') + '</div>' : '')
-        // $('#w2ui-overlay .now')
-        // .on('mousedown', function() {
-        //     // this currently ignores blocked days or start / end dates!
-        //     let tmp = w2utils.formatDateTime(new Date(), obj.options.format)
-        //     $(obj.el).val(tmp).trigger('input').trigger('change')
-        //     return false
-        // })
-        // .on('mouseup', function() {
-        //     setTimeout(() => {
-        //         if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay').removeData('keepOpen')[0].hide()
-        //     }, 10)
-        // })
-
         let td = new Date()
         let selected = options.type === 'datetime'
-            ? w2utils.isDateTime(options.date, options.format, true)
-            : w2utils.isDate(options.date, options.format, true)
+            ? w2utils.isDateTime(options.value, options.format, true)
+            : w2utils.isDate(options.value, options.format, true)
         let selected_dsp = w2utils.formatDate(selected)
         // normalize date
         if (month == null || year == null) {
@@ -1989,7 +2023,7 @@ class DateTooltip extends Tooltip {
         }
         if (month > 12) { month -= 12; year++ }
         if (month < 1 || month === 0) { month += 12; year-- }
-        if (year/4 == Math.floor(year/4)) { this.daysCount[1] = '29' } else { this.daysCount[1] = '28' }
+        if (year/4 == Math.floor(year/4)) { this.daysCount[1] = 29 } else { this.daysCount[1] = 28 }
         options.current = month + '/' + year
         // start with the required date
         td = new Date(year, month-1, 1)
@@ -2054,12 +2088,16 @@ class DateTooltip extends Tooltip {
                             ? 'date ' + (tmp_dt_fmt == selected_dsp ? 'selected' : '')
                             : 'blocked'
                         } ${className}"
-                       style="${col + bgcol}" date="${tmp_dt}" data-date="${DT.getTime()}">
+                       style="${col + bgcol}" date="${tmp_dt_fmt}" data-date="${DT.getTime()}">
                             ${dspDay}
                     </div>`
             day++
         }
         html += '</div>'
+        if (options.btnNow) {
+            let label = w2utils.lang('Today' + (options.type == 'datetime' ? ' & Now' : ''))
+            html += `<div class="w2ui-cal-now">${label}</div>`
+        }
         return { html, month, year }
     }
 
@@ -2078,7 +2116,75 @@ class DateTooltip extends Tooltip {
         </div>`
     }
 
-    inRange(str, options, onlyDate) {
+    getHourHTML(options) {
+        options = options ?? {}
+        if (!options.format) options.format = w2utils.settings.timeFormat
+        let h24 = (options.format.indexOf('h24') > -1)
+        let value = options.value ? options.value : (options.anchor ? options.anchor.value : '')
+
+        let tmp = []
+        for (let a = 0; a < 24; a++) {
+            let time = (a >= 12 && !h24 ? a - 12 : a) + ':00' + (!h24 ? (a < 12 ? ' am' : ' pm') : '')
+            if (a == 12 && !h24) time = '12:00 pm'
+            if (!tmp[Math.floor(a/8)]) tmp[Math.floor(a/8)] = ''
+            let tm1 = this.min2str(this.str2min(time))
+            let tm2 = this.min2str(this.str2min(time) + 59)
+            if (options.type === 'datetime') {
+                let dt = w2utils.isDateTime(value, options.format, true)
+                let fm = options.format.split('|')[0].trim()
+                tm1    = w2utils.formatDate(dt, fm) + ' ' + tm1
+                tm2    = w2utils.formatDate(dt, fm) + ' ' + tm2
+            }
+            let valid = this.inRange(tm1, options) || this.inRange(tm2, options)
+            tmp[Math.floor(a/8)] += `<span hour="${a}"
+                class="hour ${valid ? 'w2ui-time ' : 'w2ui-blocked'}">${time}</span>`
+        }
+        let html = `<div class="w2ui-calendar">
+            <div class="w2ui-time-title">${w2utils.lang('Select Hour')}</div>
+            <div class="w2ui-cal-time">
+                <div class="w2ui-cal-column">${tmp[0]}</div>
+                <div class="w2ui-cal-column">${tmp[1]}</div>
+                <div class="w2ui-cal-column">${tmp[2]}</div>
+            </div>
+            ${options.btnNow ? `<div class="w2ui-cal-now">${w2utils.lang('Now')}</div>` : '' }
+        </div>`
+        return { html }
+    }
+
+    getMinHTML(hour, options) {
+        if (hour == null) hour = 0
+        options = options ?? {}
+        if (!options.format) options.format = w2utils.settings.timeFormat
+        let h24 = (options.format.indexOf('h24') > -1)
+        let value = options.value ? options.value : (options.anchor ? options.anchor.value : '')
+
+        let tmp = []
+        for (let a = 0; a < 60; a += 5) {
+            let time = (hour > 12 && !h24 ? hour - 12 : hour) + ':' + (a < 10 ? 0 : '') + a + ' ' + (!h24 ? (hour < 12 ? 'am' : 'pm') : '')
+            let tm   = time
+            let ind  = a < 20 ? 0 : (a < 40 ? 1 : 2)
+            if (!tmp[ind]) tmp[ind] = ''
+            if (options.type === 'datetime') {
+                let dt = w2utils.isDateTime(value, options.format, true)
+                let fm = options.format.split('|')[0].trim()
+                tm = w2utils.formatDate(dt, fm) + ' ' + tm
+            }
+            tmp[ind] += `<span min="${a}" class="min ${(this.inRange(tm, options) ? 'w2ui-time ' : 'w2ui-blocked')}">${time}</span>`
+        }
+        let html = `<div class="w2ui-calendar">
+            <div class="w2ui-time-title">${w2utils.lang('Select Minute')}</div>
+            <div class="w2ui-cal-time">
+                <div class="w2ui-cal-column">${tmp[0]}</div>
+                <div class="w2ui-cal-column">${tmp[1]}</div>
+                <div class="w2ui-cal-column">${tmp[2]}</div>
+            </div>
+            ${options.btnNow ? `<div class="w2ui-cal-now">${w2utils.lang('Now')}</div>` : '' }
+        </div>`
+        return { html }
+    }
+
+    // checks if date is in range (loost at start, end, blockDates, blockWeekdays)
+    inRange(str, options, dateOnly) {
         let inRange = false
         if (options.type === 'date') {
             let dt = w2utils.isDate(str, options.format, true)
@@ -2103,9 +2209,9 @@ class DateTooltip extends Tooltip {
             }
         } else if (options.type === 'time') {
             if (options.start || options.end) {
-                let tm  = this.toMin(str)
-                let tm1 = this.toMin(options.start)
-                let tm2 = this.toMin(options.end)
+                let tm  = this.str2min(str)
+                let tm1 = this.str2min(options.start)
+                let tm2 = this.str2min(options.end)
                 if (!tm1) tm1 = tm
                 if (!tm2) tm2 = tm
                 if (tm >= tm1 && tm <= tm2) inRange = true
@@ -2115,84 +2221,45 @@ class DateTooltip extends Tooltip {
         } else if (options.type === 'datetime') {
             let dt = w2utils.isDateTime(str, options.format, true)
             if (dt) {
-                // enable range
-                if (options.start || options.end) {
-                    let start, end
-                    if (typeof options.start === 'object' && options.start instanceof Date) {
-                        start = options.start
-                    } else {
-                        let st = (typeof options.start === 'string' ? options.start : query(options.start).val())
-                        if (st.trim() !== '') {
-                            start = w2utils.isDateTime(st, options.format, true)
-                        } else {
-                            start = ''
-                        }
-                    }
-                    if (typeof options.end === 'object' && options.end instanceof Date) {
-                        end = options.end
-                    } else {
-                        let en = (typeof options.end === 'string' ? options.end : query(options.end).val())
-                        if (en.trim() !== '') {
-                            end = w2utils.isDateTime(en, options.format, true)
-                        } else {
-                            end = ''
-                        }
-                    }
-                    let current = dt // new Date(dt);
-                    if (!start) start = current
-                    if (!end) end = current
-                    if (onlyDate && start instanceof Date) {
-                        start.setHours(0)
-                        start.setMinutes(0)
-                        start.setSeconds(0)
-                    }
-                    if (current >= start && current <= end) inRange = true
+                let format = options.format.split('|').map(format => format.trim())
+                if (dateOnly) {
+                    let date = w2utils.formatDate(str, format[0])
+                    let opts = w2utils.extend({}, options, { type: 'date', format: format[0] })
+                    if (this.inRange(date, opts)) inRange = true
                 } else {
-                    inRange = true
-                }
-                // block predefined dates
-                if (inRange && Array.isArray(options.blockDates)) {
-                    for (let i = 0; i<options.blockDates.length; i++) {
-                        let blocked = options.blockDates[i]
-                        if(typeof blocked === 'string') {
-                            // convert string to Date object
-                            blocked = w2utils.isDateTime(blocked, options.format, true)
-                        }
-                        // check for Date object with the same day
-                        if(typeof blocked === 'object' && blocked instanceof Date
-                                && (blocked.getFullYear() == dt.getFullYear() && blocked.getMonth() == dt.getMonth() && blocked.getDate() == dt.getDate())) {
-                            inRange = false
-                            break
-                        }
-                    }
+                    let time = w2utils.formatTime(str, format[1])
+                    let opts =  { type: 'time', format: format[1], start: options.startTime, end: options.endTime }
+                    if (this.inRange(time, opts)) inRange = true
                 }
             }
         }
         return inRange
     }
 
-    toMin(str) {
+    // converts time into number of minutes since midnight -- '11:50am' => 710
+    str2min(str) {
         if (typeof str !== 'string') return null
         let tmp = str.split(':')
         if (tmp.length === 2) {
             tmp[0] = parseInt(tmp[0])
             tmp[1] = parseInt(tmp[1])
             if (str.indexOf('pm') !== -1 && tmp[0] !== 12) tmp[0] += 12
+            if (str.includes('am') && tmp[0] == 12) tmp[0] = 0 // 12:00am - is midnight
         } else {
             return null
         }
         return tmp[0] * 60 + tmp[1]
     }
 
-    fromMin(time) {
+    // converts minutes since midnight into time str -- 710 => '11:50am'
+    min2str(time, format) {
         let ret = ''
         if (time >= 24 * 60) time = time % (24 * 60)
         if (time < 0) time = 24 * 60 + time
         let hour = Math.floor(time/60)
         let min = ((time % 60) < 10 ? '0' : '') + (time % 60)
-        let options = this.options
-        if (options == null) options = { format: w2utils.settings.timeFormat }
-        if (options.format.indexOf('h24') !== -1) {
+        if (!format) { format = w2utils.settings.timeFormat}
+        if (format.indexOf('h24') !== -1) {
             ret = hour + ':' + min
         } else {
             ret = (hour <= 12 ? hour : hour - 12) + ':' + min + ' ' + (hour >= 12 ? 'pm' : 'am')

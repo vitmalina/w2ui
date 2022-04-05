@@ -54,10 +54,17 @@ jQuery(() => {
             },
             { field: 'field.date', type: 'date', required: false,
                 html: { attr: 'style="width: 100px"' },
-                options: { blockDates: ['3/13/2022']}
+                // options: { start: '3/10/2022', end: '3/25/2022', blockDates: ['3/13/2022'] }
             },
-            { field: 'field.time', type: 'time', required: false, html: { attr: 'style="width: 100px"' } },
-            { field: 'field.datetime', type: 'datetime', required: false, html: { attr: 'style="width: 160px"' } },
+            { field: 'field.time', type: 'time', required: false,
+                html: { attr: 'style="width: 100px"' },
+                // options: { start: '8:00am', end: '4:30pm' }
+            },
+            { field: 'field.datetime', type: 'datetime', required: false,
+                // options: { start: '3/10/2022', end: '3/25/2022',
+                    // startTime: '8:00am', endTime: '4:30pm', blockDates: ['3/13/2022'] },
+                html: { attr: 'style="width: 160px"' }
+            },
             { field: 'field.color', type: 'color', required: true,
                 html: { attr: 'style="width: 100px"' },
                 options: { advanced1: true, transparent: false }
