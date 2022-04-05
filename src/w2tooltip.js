@@ -2044,6 +2044,7 @@ class DateTooltip extends Tooltip {
 
     getMonthHTML(options, month, year) {
         let td = new Date()
+        let dayLengthMil = 1000 * 60 * 60 * 24
         let selected = options.type === 'datetime'
             ? w2utils.isDateTime(options.value, options.format, true)
             : w2utils.isDate(options.value, options.format, true)
@@ -2081,26 +2082,21 @@ class DateTooltip extends Tooltip {
             <div class="w2ui-cal-days">
                 ${weekDays}
         `
-        let day = 1
-        if (w2utils.settings.weekStarts !== 'M') weekDay++
-        for (let ci = 1; ci < 43; ci++) {
-            if (weekDay === 0 && ci == 1) {
-                for (let ti = 0; ti < 6; ti++) html += '<div class="w2ui-day empty">&#160;</div>'
-                ci += 6
-            } else {
-                if (ci < weekDay || day > this.daysCount[month-1]) {
-                    html += '<div class="w2ui-day empty">&#160;</div>'
-                    continue
-                }
-            }
-            let dt = year + '/' + month + '/' + day
-            let DT = new Date(dt)
-            let className = ''
-            if (DT.getDay() === 6) className = 'saturday'
-            if (DT.getDay() === 0) className = 'sunday'
-            if (dt == this.today) className += 'today'
+        let DT = new Date(`${year}/${month}/1`) // first of month
+        let weekday = DT.getDay()
+        if (w2utils.settings.weekStarts == 'M') weekDay--
+        if (weekday > 0) {
+            DT = new Date(DT.getTime() - (weekDay * dayLengthMil))
+        }
+        for (let ci = 0; ci < 42; ci++) {
+            let className = []
+            let dt = `${DT.getFullYear()}/${DT.getMonth()+1}/${DT.getDate()}`
+            if (DT.getDay() === 6) className.push('saturday')
+            if (DT.getDay() === 0) className.push('sunday')
+            if (DT.getMonth() + 1 !== month) className.push('outside')
+            if (dt == this.today) className.push('today')
 
-            let dspDay = day
+            let dspDay = DT.getDate()
             let col    = ''
             let bgcol  = ''
             let tmp_dt, tmp_dt_fmt
@@ -2119,11 +2115,11 @@ class DateTooltip extends Tooltip {
             html += `<div class="w2ui-day ${this.inRange(tmp_dt, options, true)
                             ? 'date ' + (tmp_dt_fmt == selected_dsp ? 'selected' : '')
                             : 'blocked'
-                        } ${className}"
+                        } ${className.join(' ')}"
                        style="${col + bgcol}" date="${tmp_dt_fmt}" data-date="${DT.getTime()}">
                             ${dspDay}
                     </div>`
-            day++
+            DT = new Date(DT.getTime() + dayLengthMil)
         }
         html += '</div>'
         if (options.btnNow) {

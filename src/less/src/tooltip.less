@@ -668,7 +668,7 @@
         .w2ui-day {
             border: 1px solid @calendar-background-color;
             color: @calendar-day-color;
-            background-color: @calendar-day-background-color;
+            background-color: #f7f7f7;
             padding: 3px 5px;
             cursor: default;
             text-align: center;
@@ -676,7 +676,7 @@
             &.sunday {
                 border: 1px solid @calendar-background-color;
                 color: @calendar-day-weekend-color;
-                background-color: @calendar-day-background-color;
+                background-color: #f7f7f7;
                 &:hover {
                     border: @calendar-day-hover-border;
                     background-color: @calendar-day-hover-background-color;
@@ -703,18 +703,19 @@
                 color: @calendar-day-blocked-color;
                 background-color: @calendar-background-color;
             }
-            &.empty {
-                border: 1px solid @calendar-background-color;
-                background-color: @calendar-empty-background-color;
-            }
             &.weekday {
                 text-align: center;
+                background-color: #f7f7f7;
+                color: #b4b3b3;
                 &:hover {
-                    border: 1px solid @calendar-background-color;
-                    background-color: @calendar-day-background-color;
+                    border: 1px solid #fff;
+                    background-color: #f7f7f7;
                 }
             }
-
+            &.outside {
+                color: #b5b5b5;
+                background-color: #fff;
+            }
         }
     }
 }

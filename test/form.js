@@ -54,7 +54,7 @@ jQuery(() => {
             },
             { field: 'field.date', type: 'date', required: false,
                 html: { attr: 'style="width: 100px"' },
-                // options: { start: '3/10/2022', end: '3/25/2022', blockDates: ['3/13/2022'] }
+                options: { start1: '3/10/2022', end1: '3/25/2022', blockDates: ['3/28/2022'] }
             },
             { field: 'field.time', type: 'time', required: false,
                 html: { attr: 'style="width: 100px"' },
