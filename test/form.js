@@ -32,7 +32,7 @@ jQuery(() => {
                 { type: 'button', id: 'save', text: 'Save', img: 'icon-folder' }
             ]
         },
-        focus: 'field.text',
+        focus: 'field.textarea',
         fields: [
             // first page
             { field: 'field.html', type: 'html', required: true,

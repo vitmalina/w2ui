@@ -34,7 +34,7 @@ class Tooltip {
             autoHideOn      : null,     // when options.auto = true, mouse event to hide on
             arrowSize       : 8,        // size of the carret
             margin          : 0,        // extra margin from the anchor
-            screenMargin    : 4,        // min margin from screen to tooltip
+            screenMargin    : 2,        // min margin from screen to tooltip
             autoResize      : true,     // auto resize based on content size and available size
             offsetX         : 0,        // delta for left coordinate
             offsetY         : 0,        // delta for top coordinate
@@ -464,12 +464,17 @@ class Tooltip {
         if (!overlay || !overlay.box) {
             return
         }
-        let options   = overlay.options
+        let options = overlay.options
         if (overlay.tmp.resizedY || overlay.tmp.resizedX) {
             query(overlay.box).css({ width: '', height: '' })
         }
         let scrollSize = w2utils.scrollBarSize()
-        let max        = { width: window.innerWidth - scrollSize, height: window.innerHeight - scrollSize }
+        let hasScrollBarX = !(document.body.scrollWidth == document.body.clientWidth)
+        let hasScrollBarY = !(document.body.scrollHeight == document.body.clientHeight)
+        let max = {
+            width: window.innerWidth - (hasScrollBarY ? scrollSize : 0),
+            height: window.innerHeight - (hasScrollBarX ? scrollSize : 0)
+        }
         let position   = options.position == 'auto' ? 'top|bottom|right|left'.split('|') : options.position.split('|')
         let isVertical = ['top', 'bottom'].includes(position[0])
         let content    = overlay.box.getBoundingClientRect()
@@ -518,7 +523,7 @@ class Tooltip {
                     found = pos
                 }
                 if (available[pos] > bestFit.x) {
-                    Object.assign(bestFit, { posXY: pos, x: available[pos] })
+                    Object.assign(bestFit, { posX: pos, x: available[pos] })
                 }
             }
         })
@@ -635,25 +640,31 @@ class Tooltip {
             let minTop  = (found == 'bottom' ? arrowSize : options.screenMargin)
             let maxLeft = max.width - (width ?? content.width) - (found == 'left' ? arrowSize : options.screenMargin)
             let maxTop  = max.height - (height ?? content.height) - (found == 'top' ? arrowSize : options.screenMargin)
-            if (left < minLeft) {
-                adjustArrow = true
-                adjust.left -= left
-                left = minLeft
+            // adjust X
+            if (['top', 'bottom'].includes(found) || options.autoResize) {
+                if (left < minLeft) {
+                    adjustArrow = true
+                    adjust.left -= left
+                    left = minLeft
+                }
+                if (left > maxLeft) {
+                    adjustArrow = true
+                    adjust.left -= left - maxLeft
+                    left += maxLeft - left
+                }
             }
-            if (top < minTop) {
-                adjustArrow = true
-                adjust.top -= top
-                top = minTop
-            }
-            if (left > maxLeft) {
-                adjustArrow = true
-                adjust.left -= left - maxLeft
-                left += maxLeft - left
-            }
-            if (top > maxTop) {
-                adjustArrow = true
-                adjust.top -= top - maxTop
-                top += maxTop - top
+            // adjust Y
+            if (['left', 'right'].includes(found) || options.autoResize) {
+                if (top < minTop) {
+                    adjustArrow = true
+                    adjust.top -= top
+                    top = minTop
+                }
+                if (top > maxTop) {
+                    adjustArrow = true
+                    adjust.top -= top - maxTop
+                    top += maxTop - top
+                }
             }
             if (adjustArrow) {
                 let aType = 'top'
@@ -1900,11 +1911,16 @@ class DateTooltip extends Tooltip {
             query(overlay.box).find('.w2ui-overlay-body').html(cal.html)
             this.initControls(overlay)
         }
-        let checkJump = (event) => {
+        let checkJump = (event, dblclick) => {
             query(event.target).parent().find('.w2ui-jump-month, .w2ui-jump-year')
                 .removeClass('selected')
             query(event.target).addClass('selected')
+            let dt = new Date()
             let { jumpMonth, jumpYear } = overlay.tmp
+            if (dblclick) {
+                if (jumpYear == null) jumpYear = dt.getFullYear()
+                if (jumpMonth == null) jumpMonth = dt.getMonth() + 1
+            }
             if (jumpMonth && jumpYear) {
                 let cal = this.getMonthHTML(options, jumpMonth, jumpYear)
                 Object.assign(overlay.tmp, cal)
@@ -1917,6 +1933,7 @@ class DateTooltip extends Tooltip {
         // events for next/prev buttons and title
         query(overlay.box).find('.w2ui-cal-title')
             .off('.calendar')
+            // click on title
             .on('click.calendar', event => {
                 Object.assign(overlay.tmp, { jumpYear: null, jumpMonth: null })
                 if (overlay.tmp.jump) {
@@ -1934,6 +1951,7 @@ class DateTooltip extends Tooltip {
                 this.initControls(overlay)
                 event.stopPropagation()
             })
+            // prev button
             .find('.w2ui-cal-previous')
             .off('.calendar')
             .on('click.calendar', event => {
@@ -1941,6 +1959,7 @@ class DateTooltip extends Tooltip {
                 event.stopPropagation()
             })
             .parent()
+            // next button
             .find('.w2ui-cal-next')
             .off('.calendar')
             .on('click.calendar', event => {
@@ -1949,21 +1968,21 @@ class DateTooltip extends Tooltip {
             })
         // now button
         query(overlay.box).find('.w2ui-cal-now')
-        .off('.calendar')
-        .on('click.calendar', event => {
-            if (options.type == 'datetime') {
-                if (overlay.newDate) {
-                    overlay.newValue = w2utils.formatTime(new Date(), options.format.split('|')[1])
-                } else {
-                    overlay.newValue = w2utils.formatDateTime(new Date(), options.format)
+            .off('.calendar')
+            .on('click.calendar', event => {
+                if (options.type == 'datetime') {
+                    if (overlay.newDate) {
+                        overlay.newValue = w2utils.formatTime(new Date(), options.format.split('|')[1])
+                    } else {
+                        overlay.newValue = w2utils.formatDateTime(new Date(), options.format)
+                    }
+                } else if (options.type == 'date') {
+                    overlay.newValue = w2utils.formatDate(new Date(), options.format)
+                } else if (options.type == 'time') {
+                    overlay.newValue = w2utils.formatTime(new Date(), options.format)
                 }
-            } else if (options.type == 'date') {
-                overlay.newValue = w2utils.formatDate(new Date(), options.format)
-            } else if (options.type == 'time') {
-                overlay.newValue = w2utils.formatTime(new Date(), options.format)
-            }
-            this.hide(overlay.name)
-        })
+                this.hide(overlay.name)
+            })
         // events for dates
         query(overlay.box)
             .off('.calendar')
@@ -1977,15 +1996,27 @@ class DateTooltip extends Tooltip {
                     this.hide(overlay.name)
                 }
             })
+            // click on month
             .on('click.calendar', { delegate: '.w2ui-jump-month' }, event => {
                 overlay.tmp.jumpMonth = parseInt(query(event.target).attr('name'))
                 checkJump(event)
             })
+            // double click on month
+            .on('dblclick.calendar', { delegate: '.w2ui-jump-month' }, event => {
+                overlay.tmp.jumpMonth = parseInt(query(event.target).attr('name'))
+                checkJump(event, true)
+            })
+            // click on year
             .on('click.calendar', { delegate: '.w2ui-jump-year' }, event => {
                 overlay.tmp.jumpYear = parseInt(query(event.target).attr('name'))
                 checkJump(event)
             })
-            // events for time
+            // dbl click on year
+            .on('dblclick.calendar', { delegate: '.w2ui-jump-year' }, event => {
+                overlay.tmp.jumpYear = parseInt(query(event.target).attr('name'))
+                checkJump(event, true)
+            })
+            // click on hour
             .on('click.calendar', { delegate: '.w2ui-time.hour' }, event => {
                 let hour = query(event.target).attr('hour');
                 let min  = this.str2min(options.value) % 60
@@ -2002,6 +2033,7 @@ class DateTooltip extends Tooltip {
                     this.initControls(overlay)
                 }
             })
+            // click on minute
             .on('click.calendar', { delegate: '.w2ui-time.min' }, event => {
                 let hour = Math.floor(this.str2min(overlay.newValue) / 60)
                 let time = (hour * 60) + parseInt(query(event.target).attr('min'));
