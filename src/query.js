@@ -15,6 +15,8 @@ class Query {
                 throw new Error('Invalid context')
             }
             nodes = Array.from(this.context.querySelectorAll(selector))
+        } else if (selector == null) {
+            nodes = []
         } else {
             // if selector is itterable, then try to create nodes from it, also supports jQuery
             let arr = Array.from(selector ?? [])

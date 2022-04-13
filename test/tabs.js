@@ -1,5 +1,5 @@
 import query from '../src/query.js'
-import { w2tabs } from '../src/w2tabs'
+import { w2tabs } from '../src/w2tabs.js'
 
 let tabs = new w2tabs({
     name     : 'tabs',

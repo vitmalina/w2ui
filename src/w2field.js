@@ -6,20 +6,15 @@
  *  - upload (regular files)
  *  - BUG with prefix/postfix and arrows (test in different contexts)
  *  - multiple date selection
- *  - month selection, year selections`
- *  - arrows no longer work (for int)
- *  - rewrite suffix and prefix positioning with translateY()
- *  - prefix and suffix are slow (100ms or so)
+ *  - month selection, year selections
  *  - MultiSelect - Allow Copy/Paste for single and multi values
  *  - add routeData to list/enum
- *  - for type: list -> read value from attr('value')
  *  - ENUM, LIST: should have same as grid (limit, offset, search, sort)
  *  - ENUM, LIST: should support wild chars
  *  - add selection of predefined times (used for appointments)
  *  - options.items - can be an array
  *  - options.msgSearch - message to search for user
  *  - options.msgNoItems - can be a function
- *  - normmenu - remove, it is in w2utils now
  *
  * == 2.0 changes
  *  - enum options.autoAdd
@@ -50,24 +45,22 @@ class w2field extends w2base {
             options.type = type
         }
         options.type = String(options.type).toLowerCase()
-
-        this.options     = options
         this.el          = null
         this.selected    = null
         this.helpers     = {} // object or helper elements
-        this.type        = options.type || 'text'
+        this.type        = options.type ?? 'text'
         this.options     = w2utils.clone(options)
-        this.onSearch    = options.onSearch || null
-        this.onRequest   = options.onRequest || null
-        this.onLoad      = options.onLoad || null
-        this.onError     = options.onError || null
-        this.onClick     = options.onClick || null
-        this.onAdd       = options.onAdd || null
-        this.onNew       = options.onNew || null
-        this.onRemove    = options.onRemove || null
-        this.onMouseOver = options.onMouseOver || null
-        this.onMouseOut  = options.onMouseOut || null
-        this.onScroll    = options.onScroll || null
+        this.onSearch    = options.onSearch ?? null
+        this.onRequest   = options.onRequest ?? null
+        this.onLoad      = options.onLoad ?? null
+        this.onError     = options.onError ?? null
+        this.onClick     = options.onClick ?? null
+        this.onAdd       = options.onAdd ?? null
+        this.onNew       = options.onNew ?? null
+        this.onRemove    = options.onRemove ?? null
+        this.onMouseEnter= options.onMouseEnter ?? null
+        this.onMouseLeave= options.onMouseLeave ?? null
+        this.onScroll    = options.onScroll ?? null
         this.tmp         = {} // temp object
         // clean up some options
         delete this.options.type
@@ -76,9 +69,9 @@ class w2field extends w2base {
         delete this.options.onLoad
         delete this.options.onError
         delete this.options.onClick
-        delete this.options.onMouseOver
-        delete this.options.onMouseOut
-        delete this.options.onScroll
+        delete this.options.onMouseEnter
+        delete this.options.onMouseLeave
+       delete this.options.onScroll
     }
 
     render(el) {
@@ -96,7 +89,6 @@ class w2field extends w2base {
     }
 
     init() {
-        let obj = this
         let options = this.options
         let defaults
 
@@ -175,7 +167,9 @@ class w2field extends w2base {
                 }
                 this.options = w2utils.extend({ type: 'date' }, defaults, options)
                 options = this.options // since object is re-created, need to re-assign
-                if (query(this.el).attr('placeholder') == null) query(this.el).attr('placeholder', options.format)
+                if (query(this.el).attr('placeholder') == null) {
+                    query(this.el).attr('placeholder', options.format)
+                }
                 break
 
             case 'time':
@@ -190,7 +184,9 @@ class w2field extends w2base {
                 }
                 this.options = w2utils.extend({ type: 'time' }, defaults, options)
                 options = this.options // since object is re-created, need to re-assign
-                if (query(this.el).attr('placeholder') == null) query(this.el).attr('placeholder', options.format)
+                if (query(this.el).attr('placeholder') == null) {
+                    query(this.el).attr('placeholder', options.format)
+                }
                 break
 
             case 'datetime':
@@ -210,7 +206,9 @@ class w2field extends w2base {
                 }
                 this.options = w2utils.extend({ type: 'datetime' }, defaults, options)
                 options = this.options // since object is re-created, need to re-assign
-                if (query(this.el).attr('placeholder') == null) query(this.el).attr('placeholder', options.placeholder || options.format)
+                if (query(this.el).attr('placeholder') == null) {
+                    query(this.el).attr('placeholder', options.placeholder || options.format)
+                }
                 break
 
             case 'list':
@@ -263,7 +261,7 @@ class w2field extends w2base {
                             }
                         })
                     }
-                    this.watchSize()
+                    this.resize()
                 }
                 options = w2utils.extend({}, defaults, options)
                 this.options = options
@@ -318,8 +316,8 @@ class w2field extends w2base {
                     onAdd           : null, // when an item is added
                     onNew           : null, // when new item should be added
                     onRemove        : null, // when an item is removed
-                    onMouseOver     : null, // when an item is mouse over
-                    onMouseOut      : null, // when an item is mouse out
+                    onMouseEnter    : null, // when an item is mouse over
+                    onMouseLeave    : null, // when an item is mouse out
                     onScroll        : null // when div with selected items is scrolled
                 }
                 options  = w2utils.extend({}, defaults, options, { suffix: '' })
@@ -333,7 +331,7 @@ class w2field extends w2base {
                 this.selected = options.selected
                 this.addSuffix()
                 this.addMulti()
-                this.watchSize()
+                this.resize()
                 break
 
             case 'file':
@@ -355,8 +353,8 @@ class w2field extends w2base {
                     onClick       : null, // when an item is clicked
                     onAdd         : null, // when an item is added
                     onRemove      : null, // when an item is removed
-                    onMouseOver   : null, // when an item is mouse over
-                    onMouseOut    : null // when an item is mouse out
+                    onMouseEnter  : null, // when an item is mouse over
+                    onMouseLeave  : null // when an item is mouse out
                 }
                 options = w2utils.extend({}, defaults, options)
                 this.options = options
@@ -366,43 +364,22 @@ class w2field extends w2base {
                     query(this.el).attr('placeholder', w2utils.lang('Attach files by dragging and dropping or Click to Select'))
                 }
                 this.addMulti()
-                this.watchSize()
+                this.resize()
                 break
         }
         // attach events
-        w2utils.extend(this.tmp, {
-            onChange    (event) { obj.change.call(obj, event) },
-            onClick     (event) { obj.click.call(obj, event) },
-            onFocus     (event) { obj.focus.call(obj, event) },
-            onBlur      (event) { obj.blur.call(obj, event) },
-            onKeydown   (event) { obj.keyDown.call(obj, event) },
-            onKeypress  (event) { obj.keyPress.call(obj, event) }
-        })
         query(this.el)
+            .css('box-sizing', 'border-box')
             .addClass('w2field w2ui-input')
             .off('.w2field')
-            .on('change.w2field', this.tmp.onChange)
-            .on('click.w2field', this.tmp.onClick) // ignore click because it messes overlays
-            .on('focus.w2field', this.tmp.onFocus)
-            .on('blur.w2field', this.tmp.onBlur)
-            .on('keydown.w2field', this.tmp.onKeydown)
-            .on('keypress.w2field', this.tmp.onKeypress)
-            .css('box-sizing', 'border-box')
+            .on('change.w2field',  (event) => { this.change(event) })
+            .on('click.w2field',   (event) => { this.click(event) })
+            .on('focus.w2field',   (event) => { this.focus(event) })
+            .on('blur.w2field',    (event) => { this.blur(event) })
+            .on('keydown.w2field', (event) => { this.keyDown(event) })
+            .on('keypress.w2field',(event) => { this.keyPress(event) })
         // format initial value
         this.change(new Event('change'))
-    }
-
-    watchSize() {
-        let obj = this
-        let tmp = $(obj.el).data('tmp') || {}
-        tmp.sizeTimer = setInterval(() => {
-            if ($(obj.el).parents('body').length > 0) {
-                obj.resize()
-            } else {
-                clearInterval(tmp.sizeTimer)
-            }
-        }, 200)
-        $(obj.el).data('tmp', tmp)
     }
 
     get() {
@@ -453,10 +430,10 @@ class w2field extends w2base {
     }
 
     refresh() {
-        let obj      = this
         let options  = this.options
         let selected = this.selected
         let time     = (new Date()).getTime()
+        let styles   = getComputedStyle(this.el)
         // enum
         if (this.type == 'list') {
             query(this.el).parent().css('white-space', 'nowrap') // needs this for arrow always to appear on the right side
@@ -514,204 +491,192 @@ class w2field extends w2base {
         }
         if (['enum', 'file'].includes(this.type)) {
             let html = ''
-            if (selected) {
-                for (let s = 0; s < selected.length; s++) {
-                    let it  = selected[s]
-                    let ren = ''
-                    if (typeof options.renderItem === 'function') {
-                        ren = options.renderItem(it, s, '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&#160;&#160;</div>')
-                    } else {
-                        ren = '<div class="w2ui-list-remove" title="'+ w2utils.lang('Remove') +'" index="'+ s +'">&#160;&#160;</div>'+
-                             (obj.type === 'enum' ? it.text : it.name + '<span class="file-size"> - '+ w2utils.formatSize(it.size) +'</span>')
-                    }
-                    html += '<li index="'+ s +'" style="max-width: '+ parseInt(options.maxWidth) + 'px; '+ (it.style ? it.style : '') +'">'+
-                           ren +'</li>'
-                }
+            if (Array.isArray(selected)) {
+                selected.forEach((it, ind) => {
+                    html += `
+                        <div class="li-item" index="${ind}" style="max-width: ${parseInt(options.maxWidth)}px; ${it.style ? it.style : ''}">
+                        ${
+                            typeof options.renderItem === 'function'
+                            ? options.renderItem(it, ind, `<div class="w2ui-list-remove" index="${ind}">&#160;&#160;</div>`)
+                            : `<div class="w2ui-list-remove" index="${ind}">&#160;&#160;</div>
+                                    ${this.type === 'enum' ? it.text : it.name}
+                                <span class="file-size"> - ${w2utils.formatSize(it.size)}</span>`
+                        }
+                        </div>`
+                })
             }
-            let div = obj.helpers.multi
-            let ul  = div.find('ul')
-            div.attr('style', div.attr('style') + ';' + options.style)
-            $(obj.el).css('z-index', '-1')
-            if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) {
+            let div = this.helpers.multi
+            let ul  = div.find('.w2ui-multi-items')
+            if (options.style) {
+                div.attr('style', div.attr('style') + ';' + options.style)
+            }
+            query(this.el).css('z-index', '-1')
+            if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) {
                 setTimeout(() => {
                     div[0].scrollTop = 0 // scroll to the top
                     div.addClass('w2ui-readonly')
-                        .find('li').css('opacity', '0.9')
-                        .parent().find('li.nomouse').hide()
+                        .find('.li-item').css('opacity', '0.9')
+                        .parent().find('.li-search').hide()
                         .find('input').prop('readonly', true)
-                        .parents('ul')
+                        .closest('.w2ui-multi-items')
                         .find('.w2ui-list-remove').hide()
                 }, 1)
             } else {
                 setTimeout(() => {
                     div.removeClass('w2ui-readonly')
-                        .find('li').css('opacity', '1')
-                        .parent().find('li.nomouse').show()
+                        .find('.li-item').css('opacity', '1')
+                        .parent().find('.li-search').show()
                         .find('input').prop('readonly', false)
-                        .parents('ul')
+                        .closest('.w2ui-multi-items')
                         .find('.w2ui-list-remove').show()
                 }, 1)
             }
 
             // clean
+            if (selected?.length > 0) {
+                query(this.el).attr('placeholder', '')
+            }
             div.find('.w2ui-enum-placeholder').remove()
-            ul.find('li').not('li.nomouse').remove()
+            ul.find('.li-item').remove()
+
             // add new list
             if (html !== '') {
                 ul.prepend(html)
-            } else if ($(obj.el).attr('placeholder') != null && div.find('input').val() === '') {
-                let style =
-                    'padding-top: ' + $(this.el).css('padding-top') + ';'+
-                    'padding-left: ' + $(this.el).css('padding-left') + '; ' +
-                    'box-sizing: ' + $(this.el).css('box-sizing') + '; ' +
-                    'line-height: ' + $(this.el).css('line-height') + '; ' +
-                    'font-size: ' + $(this.el).css('font-size') + '; ' +
-                    'font-family: ' + $(this.el).css('font-family') + '; '
-                div.prepend('<div class="w2ui-enum-placeholder" style="'+ style +'">'+ $(obj.el).attr('placeholder') +'</div>')
+            } else if (query(this.el).attr('placeholder') != null && div.find('input').val() === '') {
+                let style = w2utils.stripSpaces(`
+                    padding-top: ${styles['padding-top']};
+                    padding-left: ${styles['padding-left']};
+                    box-sizing: ${styles['box-sizing']};
+                    line-height: ${styles['line-height']};
+                    font-size: ${styles['font-size']};
+                    font-family: ${styles['font-family']};
+                `)
+                div.prepend(`<div class="w2ui-enum-placeholder" style="${style}">${query(this.el).attr('placeholder')}</div>`)
             }
             // ITEMS events
-            div.off('scroll.w2field').on('scroll.w2field', function(event) {
-                let edata = obj.trigger({ phase: 'before', type: 'scroll', target: obj.el, originalEvent: event })
-                if (edata.isCancelled === true) return
-                // event after
-                obj.trigger($.extend(edata, { phase: 'after' }))
-            })
-                .find('li')
-                .data('mouse', 'out')
-                .on('click', function(event) {
-                    let target = (event.target.tagName.toUpperCase() === 'LI' ? event.target : $(event.target).parents('LI'))
-                    let item   = selected[$(target).attr('index')]
-                    if ($(target).hasClass('nomouse')) return
+            div.off('.w2item')
+                .on('scroll.w2item', (event) => {
+                    let edata = this.trigger('scroll', { target: this.el, originalEvent: event })
+                    if (edata.isCancelled === true) return
+                    // hide tooltip if any
+                    w2tooltip.hide(this.el.id + '-item-preview')
+                    // event after
+                    edata.finish()
+                })
+                .find('.li-item')
+                .on('click.w2item', (event) => {
+                    let target = query(event.target).closest('.li-item')
+                    let index  = target.attr('index')
+                    let item   = selected[index]
+                    if (query(target).hasClass('li-search')) return
                     event.stopPropagation()
                     let edata
                     // default behavior
-                    if ($(event.target).hasClass('w2ui-list-remove')) {
-                        if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return
+                    if (query(event.target).hasClass('w2ui-list-remove')) {
+                        if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
                         // trigger event
-                        edata = obj.trigger({ phase: 'before', type: 'remove', target: obj.el, originalEvent: event.originalEvent, item: item })
+                        edata = this.trigger('remove', { target: this.el, originalEvent: event, item: item })
                         if (edata.isCancelled === true) return
                         // default behavior
-                        $().w2overlay()
-                        selected.splice($(event.target).attr('index'), 1)
-                        $(obj.el).trigger('input').trigger('change')
-                        $(event.target).parent().fadeOut('fast')
-                        setTimeout(() => {
-                            obj.refresh()
-                            // event after
-                            obj.trigger($.extend(edata, { phase: 'after' }))
-                        }, 300)
+                        selected.splice(index, 1)
+                        query(this.el).trigger('input').trigger('change')
+                        query(event.target).remove()
                     } else {
                         // trigger event
-                        edata = obj.trigger({ phase: 'before', type: 'click', target: obj.el, originalEvent: event.originalEvent, item: item })
+                        edata = this.trigger('click', { target: this.el, originalEvent: event.originalEvent, item: item })
                         if (edata.isCancelled === true) return
                         // if file - show image preview
-                        if (obj.type === 'file') {
+                        if (this.type === 'file') {
                             let preview = ''
                             if ((/image/i).test(item.type)) { // image
                                 preview = `
-                                    <div style="padding: 3px">
-                                        <img data-src="${(item.content ? 'data:'+ item.type +';base64,'+ item.content : '')}"
+                                    <div class="w2ui-file-preview">
+                                        <img src="${(item.content ? 'data:'+ item.type +';base64,'+ item.content : '')}"
                                             style="max-width: 300px">
                                     </div>`
                             }
-                            let td1  = 'style="padding: 3px; text-align: right; color: #777"'
-                            let td2  = 'style="padding: 3px"'
                             preview += `
-                                <div style="padding: 8px;">
-                                    <table cellpadding="2">
-                                    <tr>
-                                        <td ${td1}>${w2utils.lang('Name')}</td>
-                                        <td ${td2}>${item.name}</td>
-                                    </tr>
-                                    <tr>
-                                        <td ${td1}>${w2utils.lang('Size')}</td>
-                                        <td ${td2}>${w2utils.formatSize(item.size)}</td>
-                                    </tr>
-                                    <tr>
-                                        <td ${td1}>${w2utils.lang('Type')}</td>
-                                        <td ${td2}>
-                                            <span style="width: 200px; display: block-inline; overflow: hidden;
-                                                text-overflow: ellipsis; white-space: nowrap="nowrap";">${item.type}</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td ${td1}>${w2utils.lang('Modified')}</td>
-                                        <td ${td2}>${w2utils.date(item.modified)}</td>
-                                    </tr>
-                                    </table>
+                                <div class="w2ui-file-info">
+                                    <div class="file-caption">${w2utils.lang('Name')}:</div>
+                                    <div class="file-value">${item.name}</div>
+                                    <div class="file-caption">${w2utils.lang('Size')}:</div>
+                                    <div class="file-value">${w2utils.formatSize(item.size)}</div>
+                                    <div class="file-caption">${w2utils.lang('Type')}:</div>
+                                    <div class="file-value file-type">${item.type}</div>
+                                    <div class="file-caption">${w2utils.lang('Modified')}:</div>
+                                    <div class="file-value">${w2utils.date(item.modified)}</div>
                                 </div>`
-                            $('#w2ui-overlay').remove()
-                            $(target).w2overlay(preview, {
-                                onShow(event) {
-                                    let $img = $('#w2ui-overlay img')
-                                    $img.on('load', function (event) {
-                                        let w = $(this).width()
-                                        let h = $(this).height()
-                                        if (w < 300 & h < 300) return
-                                        if (w >= h && w > 300) $(this).width(300)
-                                        if (w < h && h > 300) $(this).height(300)
-                                    })
-                                    .on('error', function (event) {
-                                        this.style.display = 'none'
-                                    })
-                                    .attr('src', $img.data('src'))
-                                }
+                            let name = this.el.id + '-item-preview'
+                            w2tooltip.show({
+                                name,
+                                anchor: target.get(0),
+                                html: preview,
+                                hideOn: ['doc-click'],
+                                class: ''
                             })
-                        } // event after
-                        obj.trigger($.extend(edata, { phase: 'after' }))
-                    }
-                })
-                .on('mouseover', function(event) {
-                    let target = (event.target.tagName.toUpperCase() === 'LI' ? event.target : $(event.target).parents('LI'))
-                    if ($(target).hasClass('nomouse')) return
-                    if ($(target).data('mouse') === 'out') {
-                        let item = selected[$(event.target).attr('index')]
-                        // trigger event
-                        let edata = obj.trigger({ phase: 'before', type: 'mouseOver', target: obj.el, originalEvent: event.originalEvent, item: item })
-                        if (edata.isCancelled === true) return
-                        // event after
-                        obj.trigger($.extend(edata, { phase: 'after' }))
-                    }
-                    $(target).data('mouse', 'over')
-                })
-                .on('mouseout', function(event) {
-                    let target = (event.target.tagName.toUpperCase() === 'LI' ? event.target : $(event.target).parents('LI'))
-                    if ($(target).hasClass('nomouse')) return
-                    $(target).data('mouse', 'leaving')
-                    setTimeout(() => {
-                        if ($(target).data('mouse') === 'leaving') {
-                            $(target).data('mouse', 'out')
-                            let item = selected[$(event.target).attr('index')]
-                            // trigger event
-                            let edata = obj.trigger({ phase: 'before', type: 'mouseOut', target: obj.el, originalEvent: event.originalEvent, item: item })
-                            if (edata.isCancelled === true) return
-                            // event after
-                            obj.trigger($.extend(edata, { phase: 'after' }))
+                            .show((event) => {
+                                let $img = query(`#w2overlay-${name} img`)
+                                $img.on('load', function (event) {
+                                    let w = this.clientWidth
+                                    let h = this.clientHeight
+                                    if (w < 300 & h < 300) return
+                                    if (w >= h && w > 300) query(this).css('width', '300px')
+                                    if (w < h && h > 300) query(this).css('height', '300px')
+                                })
+                                .on('error', function (event) {
+                                    this.style.display = 'none'
+                                })
+
+                            })
                         }
-                    }, 0)
+                        edata.finish()
+                    }
                 })
+                .on('mouseenter.w2item', (event) => {
+                    let target = query(event.target).closest('.li-item')
+                    if (query(target).hasClass('li-search')) return
+                    let item = selected[query(event.target).attr('index')]
+                    // trigger event
+                    let edata = this.trigger('mouseEnter', { target: this.el, originalEvent: event, item })
+                    if (edata.isCancelled === true) return
+                    // event after
+                    edata.finish()
+                })
+                .on('mouseleave.w2item', (event) => {
+                    let target = query(event.target).closest('.li-item')
+                    if (query(target).hasClass('li-search')) return
+                    let item = selected[query(event.target).attr('index')]
+                    // trigger event
+                    let edata = this.trigger('mouseLeave', { target: this.el, originalEvent: event, item })
+                    if (edata.isCancelled === true) return
+                    // event after
+                    edata.finish()
+                })
+
             // adjust height
-            $(this.el).height('auto')
-            let cntHeight = $(div).find('> div.w2ui-multi-items').height()
-            if (cntHeight < 26) cntHeight = 26
+            query(this.el).css('height', 'auto')
+            let cntHeight = query(div).find(':scope div.w2ui-multi-items').get(0).clientHeight + 5
+            if (cntHeight < 27) cntHeight = 27
             if (cntHeight > options.maxHeight) cntHeight = options.maxHeight
-            if (div.length > 0) div[0].scrollTop = 1000
-            let inpHeight = w2utils.getSize($(this.el), 'height') - 2
+            let inpHeight = w2utils.getSize(this.el, 'height') - 2
             if (inpHeight > cntHeight) cntHeight = inpHeight
-            $(div).css({ 'height': cntHeight + 'px', overflow: (cntHeight == options.maxHeight ? 'auto' : 'hidden') })
-            if (cntHeight < options.maxHeight) $(div).prop('scrollTop', 0)
+            query(div).css({
+                'height': cntHeight + 'px',
+                overflow: (cntHeight == options.maxHeight ? 'auto' : 'hidden')
+            })
+            if (cntHeight < options.maxHeight) query(div).prop('scrollTop', 0)
             // min height
-            let minHeight = parseInt($(this.el).css('min-height'))
+            let minHeight = parseInt(styles['min-height'])
             if (minHeight > cntHeight) {
                 cntHeight = minHeight
-                $(obj.helpers.multi).css('height', cntHeight + 'px')
+                query(this.helpers.multi).css('height', cntHeight + 'px')
             }
-            $(this.el).css({ 'height': cntHeight + 'px' })
+            query(this.el).css({ 'height': cntHeight + 'px' })
 
             // update size
-            if (obj.type === 'enum') {
-                let tmp = obj.helpers.multi.find('input')
-                tmp.width(((tmp.val().length + 2) * 8) + 'px')
+            if (this.type === 'enum') {
+                let search = this.helpers.multi.find('input')
+                search.css({ width: ((search.val().length + 2) * 8) + 'px' })
             }
         }
         return (new Date()).getTime() - time
@@ -881,7 +846,6 @@ class w2field extends w2base {
         if (['date', 'time', 'datetime', 'color'].includes(this.type)) {
             this.updateOverlay()
         }
-        event.stopPropagation()
     }
 
     focus(event) {
@@ -963,10 +927,10 @@ class w2field extends w2base {
         }
         // clear search input
         if (this.type === 'enum') {
-            query(this.helpers.multi).find('input').val('').width(20)
+            query(this.helpers.multi).find('input').val('').css('width', '20px')
         }
         if (this.type == 'file') {
-            let prev = query(this.el).get(0).previousElementSibling
+            let prev = this.el.previousElementSibling
             query(prev).removeClass('has-focus')
         }
     }
@@ -1385,6 +1349,7 @@ class w2field extends w2base {
         }
     }
 
+    // Only used for list
     addFocus() {
         let width = 0 // 11 - show search icon, 0 do not show
         let pholder
@@ -1392,10 +1357,9 @@ class w2field extends w2base {
         if (this.helpers.focus) query(this.helpers.focus).remove()
         // remember original tabindex
         let tabIndex = parseInt(query(this.el).attr('tabIndex'))
-        if (!isNaN(tabIndex) && tabIndex !== -1) this.el._tabIndex = tabIndex
-        if (this.el._tabIndex) tabIndex = this.el._tabIndex
-        if (tabIndex == null) tabIndex = -1
-        if (isNaN(tabIndex)) tabIndex = 0
+        if (!isNaN(tabIndex) && tabIndex !== -1) this.tmp['old-tabIndex'] = tabIndex
+        if (this.tmp['old-tabIndex']) tabIndex = this.tmp['old-tabIndex']
+        if (tabIndex == null || isNaN(tabIndex)) tabIndex = 0
         // if there is id, add to search with "_search"
         let searchId = ''
         if (query(this.el).attr('id') != null) {
@@ -1477,150 +1441,131 @@ class w2field extends w2base {
         this.refresh()
     }
 
+    // Used in enum/file
     addMulti() {
         let obj = this
         // clean up & init
-        $(obj.helpers.multi).remove()
+        query(this.helpers.multi).remove()
         // build helper
         let html   = ''
-        let margin =
-            'margin-top     : 0px; ' +
-            'margin-bottom  : 0px; ' +
-            'margin-left    : ' + $(obj.el).css('margin-left') + '; ' +
-            'margin-right   : ' + $(obj.el).css('margin-right') + '; '+
-            'width          : ' + (w2utils.getSize(obj.el, 'width')
-                                - parseInt($(obj.el).css('margin-left'), 10)
-                                - parseInt($(obj.el).css('margin-right'), 10))
-                                + 'px;'
+        let styles = getComputedStyle(this.el)
+        let margin = w2utils.stripSpaces(`
+            margin-top: 0px;
+            margin-bottom: 0px;
+            margin-left: ${styles['margin-left']};
+            margin-right: ${styles['margin-right']};
+            width: ${(w2utils.getSize(this.el, 'width') - parseInt(styles['margin-left'], 10)
+                                - parseInt(styles['margin-right'], 10))}px;
+        `)
         // if there is id, add to search with "_search"
         let searchId = ''
-        if ($(obj.el).attr('id') != null) {
-            searchId = 'id="' + $(obj.el).attr('id') + '_search" '
+        if (query(this.el).attr('id') != null) {
+            searchId = `id="${query(this.el).attr('id')}_search"`
         }
-        if (obj.type === 'enum') {
-            // remember original tabindex
-            let tabIndex = parseInt($(obj.el).attr('tabIndex'))
-            if (!isNaN(tabIndex) && tabIndex !== -1) obj.el._tabIndex = tabIndex
-            if (obj.el._tabIndex) tabIndex = obj.el._tabIndex
-            if (tabIndex == null) tabIndex = 0
-            if (isNaN(tabIndex)) tabIndex = 0
+        // remember original tabindex
+        let tabIndex = parseInt(query(this.el).attr('tabIndex'))
+        if (!isNaN(tabIndex) && tabIndex !== -1) this.tmp['old-tabIndex'] = tabIndex
+        if (this.tmp['old-tabIndex']) tabIndex = this.tmp['old-tabIndex']
+        if (tabIndex == null || isNaN(tabIndex)) tabIndex = 0
 
+        if (this.type === 'enum') {
             html = `
-            <div class="w2ui-field-helper w2ui-list" style="${margin}; box-sizing: border-box">
-                <div style="padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">
-                <ul>
-                    <li style="padding-left: 0px; padding-right: 0px" class="nomouse">
+            <div class="w2ui-field-helper w2ui-list" style="${margin}">
+                <div class="w2ui-multi-items">
+                    <div class="li-search">
                         <input ${searchId} type="text" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"
                             style="width: 20px; margin: -3px 0 0; padding: 2px 0; border-color: transparent" tabindex="${tabIndex}"
-                            ${ $(obj.el).prop('readonly') ? ' readonly="readonly"': '' }
-                            ${ $(obj.el).prop('disabled') ? ' disabled="disabled"': '' }/>
-                    </li>
-                </ul>
+                            ${query(this.el).prop('readonly') ? 'readonly': '' }
+                            ${query(this.el).prop('disabled') ? 'disabled': '' }>
+                    </div>
                 </div>
             </div>`
         }
-        if (obj.type === 'file') {
+        if (this.type === 'file') {
             html = `
-            <div class="w2ui-field-helper w2ui-list" style="${margin}; box-sizing: border-box">
-                <div style="position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px;">
+            <div class="w2ui-field-helper w2ui-list" style="${margin}">
+                <div class="w2ui-multi-file">
                     <input ${searchId} name="attachment" class="file-input" type="file" tabindex="-1"'
-                        style="width: 100%; height: 100%; opacity: 0"
-                        ${ obj.options.max !== 1 ? ' multiple="multiple"' : '' }
-                        ${ $(obj.el).prop('readonly') ? ' readonly="readonly"': '' }
-                        ${ $(obj.el).prop('disabled') ? ' disabled="disabled"': '' }
-                        ${ $(obj.el).attr('accept') ? ' accept="'+ $(obj.el).attr('accept') +'"': '' }/>
+                        style="width: 100%; height: 100%; opacity: 0" title=""
+                        ${this.options.max !== 1 ? 'multiple' : ''}
+                        ${query(this.el).prop('readonly') ? 'readonly': ''}
+                        ${query(this.el).prop('disabled') ? 'disabled': ''}
+                        ${query(this.el).attr('accept') ? ' accept="'+ query(this.el).attr('accept') +'"': ''}>
                 </div>
-                <div style="position: absolute; padding: 0px; margin: 0px; display: inline-block" class="w2ui-multi-items">
-                    <ul>
-                        <li style="padding-left: 0px; padding-right: 0px" class="nomouse"></li>
-                    </ul>
+                <div class="w2ui-multi-items">
+                    <div class="li-search" tabindex="${tabIndex}">
+                    </div>
                 </div>
             </div>`
         }
         // old bg and border
-        let tmp                     = $(obj.el).data('tmp') || {}
-        tmp['old-background-color'] = $(obj.el).css('background-color')
-        tmp['old-border-color']     = $(obj.el).css('border-color')
-        $(obj.el).data('tmp', tmp)
+        this.tmp['old-background-color'] = styles['background-color']
+        this.tmp['old-border-color']     = styles['border-color']
 
-        $(obj.el)
+        query(this.el)
             .before(html)
             .css({
-                'background-color' : 'transparent',
-                'border-color'     : 'transparent'
+                'border-color': 'transparent',
+                'background-color': 'transparent'
             })
 
-        let div           = $(obj.el).prev()
-        obj.helpers.multi = div
-        if (obj.type === 'enum') {
-            $(obj.el).attr('tabindex', -1)
+        let div = query(this.el.previousElementSibling)
+        this.helpers.multi = div
+        if (this.type === 'enum') {
+            query(this.el).attr('tabindex', -1)
             // INPUT events
             div.find('input')
-                .on('click', function(event) {
-                    if ($('#w2ui-overlay').length === 0) obj.focus(event)
-                    $(obj.el).triggerHandler('click')
-                })
-                .on('focus', function(event) {
-                    $(obj.el).triggerHandler('focus')
-                    if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true
-                })
-                .on('blur', function(event) {
-                    $(obj.el).triggerHandler('blur')
-                    if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true
-                })
-                .on('keydown', function(event) { obj.keyDown(event) })
-                .on('keypress', function(event) { obj.keyPress(event) })
-            // MAIN div
-            div.on('click', function(event) { $(this).find('input').focus() })
+                .on('click', (event) => { this.click(event) })
+                .on('focus', (event) => { this.focus(event) })
+                .on('blur', (event) => { this.blur(event) })
+                .on('keydown', (event) => { this.keyDown(event) })
+                .on('keypress', (event) => { this.keyPress(event) })
         }
-        if (obj.type === 'file') {
+        if (this.type === 'file') {
             div.find('input')
                 .off('.drag')
-                .on('click.drag', function(event) {
+                .on('click.drag', (event) => {
                     event.stopPropagation()
-                    if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return
-                    $(obj.el).focus()
+                    if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+                    this.focus(event)
                 })
-                .on('dragenter.drag', function(event) {
-                    if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return
-                    $(div).addClass('w2ui-file-dragover')
+                .on('dragenter.drag', (event) => {
+                    if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+                    div.addClass('w2ui-file-dragover')
                 })
-                .on('dragleave.drag', function(event) {
-                    if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return
-                    $(div).removeClass('w2ui-file-dragover')
+                .on('dragleave.drag', (event) => {
+                    if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+                    div.removeClass('w2ui-file-dragover')
                 })
-                .on('drop.drag', function(event) {
-                    if ($(obj.el).prop('readonly') || $(obj.el).prop('disabled')) return
-                    $(div).removeClass('w2ui-file-dragover')
-                    let files = event.originalEvent.dataTransfer.files
-                    for (let i = 0, l = files.length; i < l; i++) obj.addFile.call(obj, files[i])
-                    $(obj.el).focus()
+                .on('drop.drag', (event) => {
+                    if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+                    div.removeClass('w2ui-file-dragover')
+                    let files = Array.from(event.dataTransfer.files)
+                    files.forEach(file => { this.addFile(file) })
+                    this.focus(event)
                     // cancel to stop browser behaviour
                     event.preventDefault()
                     event.stopPropagation()
                 })
-                .on('dragover.drag', function(event) {
+                .on('dragover.drag', (event) => {
                     // cancel to stop browser behaviour
                     event.preventDefault()
                     event.stopPropagation()
                 })
-                .on('change.drag', function() {
-                    $(obj.el).focus()
-                    if (typeof this.files !== 'undefined') {
-                        for (let i = 0, l = this.files.length; i < l; i++) {
-                            obj.addFile.call(obj, this.files[i])
-                        }
+                .on('change.drag', (event) => {
+                    if (typeof event.target.files !== 'undefined') {
+                        Array.from(event.target.files).forEach(file => { this.addFile(file) })
                     }
+                    this.focus(event)
                 })
         }
-        obj.refresh()
+        this.refresh()
     }
 
     addFile(file) {
-        let obj      = this
-        let options  = this.options
-        let selected = $(obj.el).data('selected')
-        let newItem  = {
+        let options = this.options
+        let selected = this.selected
+        let newItem = {
             name     : file.name,
             type     : file.type,
             modified : file.lastModifiedDate,
@@ -1628,64 +1573,61 @@ class w2field extends w2base {
             content  : null,
             file     : file
         }
-        let size     = 0
-        let cnt      = 0
-        let err
-        if (selected) {
-            for (let s = 0; s < selected.length; s++) {
-                // check for dupes
-                if (selected[s].name == file.name && selected[s].size == file.size) return
-                size += selected[s].size
+        let size = 0
+        let cnt = 0
+        let errors = []
+        if (Array.isArray(selected)) {
+            selected.forEach(item => {
+                if (item.name == file.name && item.size == file.size) {
+                    errors.push(w2utils.lang('The file "${name}" (${size}) is already added.', {
+                        name: file.name, size: w2utils.formatSize(file.size) }))
+                }
+                size += item.size
                 cnt++
-            }
+            })
         }
-        // trigger event
-        let edata = obj.trigger({ phase: 'before', type: 'add', target: obj.el, file: newItem, total: cnt, totalSize: size })
-        if (edata.isCancelled === true) return
-        // check params
         if (options.maxFileSize !== 0 && newItem.size > options.maxFileSize) {
-            err = 'Maximum file size is '+ w2utils.formatSize(options.maxFileSize)
-            if (options.silent === false) $(obj.el).w2tag(err)
-            console.log('ERROR: '+ err)
-            return
+            errors.push(w2utils.lang('Maximum file size is ${size}', { size: w2utils.formatSize(options.maxFileSize) }))
         }
         if (options.maxSize !== 0 && size + newItem.size > options.maxSize) {
-            err = w2utils.lang('Maximum total size is ${count}', { count: w2utils.formatSize(options.maxSize) })
-            if (options.silent === false) {
-                $(obj.el).w2tag(err)
-            }
-            console.log('ERROR: '+ err)
-            return
+            errors.push(w2utils.lang('Maximum total size is ${size}', { size: w2utils.formatSize(options.maxSize) }))
         }
         if (options.max !== 0 && cnt >= options.max) {
-            err = w2utils.lang('Maximum number of files is ${count}', { count: options.max })
-            if (options.silent === false) {
-                $(obj.el).w2tag(err)
-            }
-            console.log('ERROR: '+ err)
+            errors.push(w2utils.lang('Maximum number of files is ${count}', { count: options.max }))
+        }
+
+        // trigger event
+        let edata = this.trigger('add', { target: this.el, file: newItem, total: cnt, totalSize: size, errors })
+        if (edata.isCancelled === true) return
+        // if errors and not silent
+        if (options.silent !== true && errors.length > 0) {
+            w2tooltip.show(this.el, 'Errors: ' + errors.join('<br>'))
+            console.log('ERRORS (while adding files): ', errors)
             return
         }
+        // check params
         selected.push(newItem)
         // read file as base64
         if (typeof FileReader !== 'undefined' && options.readContent === true) {
             let reader = new FileReader()
+            let self = this
             // need a closure
             reader.onload = (function onload() {
                 return function closure(event) {
-                    let fl          = event.target.result
-                    let ind         = fl.indexOf(',')
-                    newItem.content = fl.substr(ind+1)
-                    obj.refresh()
-                    $(obj.el).trigger('input').trigger('change')
+                    let fl = event.target.result
+                    let ind = fl.indexOf(',')
+                    newItem.content = fl.substr(ind + 1)
+                    self.refresh()
+                    query(self.el).trigger('input').trigger('change')
                     // event after
-                    obj.trigger($.extend(edata, { phase: 'after' }))
+                    edata.finish()
                 }
             })()
             reader.readAsDataURL(file)
         } else {
-            obj.refresh()
-            $(obj.el).trigger('input').trigger('change')
-            obj.trigger($.extend(edata, { phase: 'after' }))
+            this.refresh()
+            query(this.el).trigger('input').trigger('change')
+            edata.finish()
         }
     }
 

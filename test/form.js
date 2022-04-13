@@ -72,12 +72,12 @@ jQuery(() => {
             { field: 'field.list', type: 'list', required: true, html: { group: 'Dropdowns', groupCollapsable: true },
                 html: { attr: 'style="border: 1px solid red" placeholder="placeholder"' },
                 options: {
-                    match: 'contains',
-                    openOnFocus: false,
+                    // match: 'contains',
+                    // openOnFocus: false,
                     // url : 'listdat.json'
-                    compare(item) {
-                        if (item.id < 4) return false;
-                    },
+                    // compare(item) {
+                    //     if (item.id < 4) return false;
+                    // },
                     items1(el) {
                         return [
                             { id: 'item1', icon: 'fa fa-link', text: 'item ' + Math.round(Math.random()*100) },
@@ -125,7 +125,7 @@ jQuery(() => {
                 }
             },
             { field: 'field.enum', type: 'enum', required: false,
-                html: { attr: 'style="width: 400px"' },
+                html: { attr: 'style="width: 400px" placeholder="Enum filed"' },
                 options: {
                     items: function (el) {
                         return [

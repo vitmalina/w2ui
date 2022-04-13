@@ -17,6 +17,7 @@
  *  - refactores w2utils.message()
  *  - added w2utils.confirm()
  *  - added isPlainObject
+ *  - added stripSpaces
  */
 
 import { w2base } from './w2base.js'
@@ -555,6 +556,32 @@ class Utils {
         if (fmt[1] === 'h12') fmt[1] = 'h:m pm'
         if (fmt[1] === 'h24') fmt[1] = 'h24:m'
         return this.formatDate(dateStr, fmt[0]) + ' ' + this.formatTime(dateStr, fmt[1])
+    }
+
+    stripSpaces(html) {
+        if (html == null) return html
+        switch (typeof html) {
+            case 'number':
+                break
+            case 'string':
+                html = String(html).replace(/(?:\r\n|\r|\n)/g, '').replace(/\s\s+/g, ' ').trim()
+                break
+            case 'object':
+                // does not modify original object, but creates a copy
+                if (Array.isArray(html)) {
+                    html = this.extend([], html)
+                    html.forEach((key, ind) => {
+                        html[ind] = this.stripSpaces(key)
+                    })
+                } else {
+                    html = this.extend({}, html)
+                    Object.keys(html).forEach(key => {
+                        html[key] = this.stripSpaces(html[key])
+                    })
+                }
+                break
+        }
+        return html
     }
 
     stripTags(html) {
