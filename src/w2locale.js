@@ -1,11 +1,13 @@
-/************************************************************************
-*   Part of w2ui 2.0 library
-*   These are the master locale settings that will be used by w2utils
-*
-*   "locale" should be the IETF language tag in the form xx-YY,
-*   where xx is the ISO 639-1 language code ( see https://en.wikipedia.org/wiki/ISO_639-1 ) and
-*   YY is the ISO 3166-1 alpha-2 country code ( see https://en.wikipedia.org/wiki/ISO_3166-2 )
-**/
+/**
+ * Part of w2ui 2.0 library
+ *  - Dependencies: none
+ *
+ * These are the master locale settings that will be used by w2utils
+ *
+ * "locale" should be the IETF language tag in the form xx-YY,
+ * where xx is the ISO 639-1 language code ( see https://en.wikipedia.org/wiki/ISO_639-1 ) and
+ * YY is the ISO 3166-1 alpha-2 country code ( see https://en.wikipedia.org/wiki/ISO_3166-2 )
+ */
 
 const w2locale = {
     'locale'            : 'en-US',
@@ -21,7 +23,7 @@ const w2locale = {
     'fullmonths'        : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
     'shortdays'         : ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
     'fulldays'          : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-    'weekStarts'        : 'M', // can be "M" for Monday or "S" for Sunday
+    'weekStarts'        : 'S', // can be "M" for Monday or "S" for Sunday
     // phrases used in w2ui, should be empty for original language
     // keep these up-to-date and in sorted order
     // value = "---" to easier see what to translate

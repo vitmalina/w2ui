@@ -5,8 +5,8 @@
 .w2ui-sidebar {
     position: relative;
     cursor: default;
-    overflow: hidden !important;
-    background-color: #fbfbfb !important;
+    overflow: hidden;
+    background-color: #fbfbfb;
     .box-sizing(border-box);
 
     * {
@@ -105,7 +105,20 @@
                 text-align: center;
                 pointer-events: none;
                 > span {
-                    color: #888 !important;
+                    color: #888;
+                }
+            }
+
+            &.w2ui-disabled,
+            &.w2ui-disabled:hover {
+                background: transparent;
+
+                .w2ui-node-text,
+                .w2ui-node-image,
+                .w2ui-node-image > span {
+                    .opacity(0.4);
+                    color: black;
+                    text-shadow: 0px 0px 0px #fff;
                 }
             }
 
@@ -124,8 +137,8 @@
             .w2ui-node-text,
             .w2ui-node-image,
             .w2ui-node-image > span {
-                color: inherit !important;
-                text-shadow: 0px 0px 0px #fff !important;
+                color: inherit;
+                text-shadow: 0px 0px 0px #fff;
             }
         }
 
@@ -139,23 +152,6 @@
             left: -1px;
             right: -1px;
             pointer-events: none;
-        }
-
-        &.w2ui-focus .w2ui-selected:before {
-            border: 1px solid #a7afd6;
-        }
-
-        .w2ui-disabled,
-        .w2ui-disabled:hover {
-            background: transparent !important;
-
-            .w2ui-node-text,
-            .w2ui-node-image,
-            .w2ui-node-image > span {
-                .opacity(0.4);
-                color: black !important;
-                text-shadow: 0px 0px 0px #fff !important;
-            }
         }
 
         .w2ui-node-text {

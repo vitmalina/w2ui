@@ -17,14 +17,20 @@ function popup() {
         width: 500,
         height: 300,
         title: 'Popup Title',
-        body: '<div class="w2ui-centered">Click on the "Lock" button or "Lock With a Message" to lock the message for 2 seconds. After 2 seconds it will be automatically unlocked.</div>',
-        buttons: '<button class="w2ui-btn" onclick="lock(\'\')">Lock</button>'+
-                 '<button class="w2ui-btn" onclick="lock(\'Loading...\')">Lock With a Message</button>',
-        showMax: true
+        text: 'Click on the "Lock" button or "Lock With a Message" to lock the message for 2 seconds. After 2 seconds it will be automatically unlocked.',
+        showMax: true,
+        actions: {
+            Lock() {
+                lock('')
+            },
+            "Lock With a Message"() {
+                lock('Loading...')
+            }
+        }
     });
 }
 function lock (msg) {
     w2popup.lock(msg, true);
-    setTimeout(function () { w2popup.unlock(); }, 2000);
+    setTimeout(function () { w2popup.unlock(); }, 1000);
 }
 </script>

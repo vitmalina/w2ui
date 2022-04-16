@@ -8,9 +8,9 @@ button.w2ui-btn {
     display: inline-block;
     border-radius: 14px;
     margin: 0px 3px;
-    padding: 6px 12px; // do not use !important
+    padding: 6px 12px;
     color: #666;
-    font-size: 12px; // do not use !important
+    font-size: 12px;
     border: 1px solid transparent;
     .linear-gradient-vertical4(#E8E8EE, 0%, #E8E8EE, 100%);
     outline: none;
@@ -34,13 +34,6 @@ button.w2ui-btn {
         text-shadow: 1px 1px 1px #eee;
     }
 
-    &:disabled {
-        border: 1px solid #bbb !important;
-        background: rgb(247, 247, 247) !important;
-        color: rgb(189, 188, 188) !important;
-        text-shadow: none !important;
-    }
-
     &:focus:before {
         content: "";
         border: 1px dashed #aaa;
@@ -51,10 +44,6 @@ button.w2ui-btn {
         left: 2px;
         right: 2px;
         pointer-events: none; // needed for safari
-    }
-
-    &::-moz-focus-inner {
-        border: 0; // issue #810
     }
 }
 
@@ -103,7 +92,7 @@ button.w2ui-btn-green {
     &:active, &.clicked {
         color: white;
         .linear-gradient-vertical4(#377D36, 0%, #377D36, 100%);
-        border: 1px solid #555 !important;
+        border: 1px solid #555;
         text-shadow: @w2ui-btn-text-shadow;
     }
 
@@ -169,7 +158,7 @@ button.w2ui-btn-red {
 // Small button
 input[type=button].w2ui-btn-small,
 button.w2ui-btn-small {
-    padding: 5px !important;
+    padding: 5px;
     border-radius: 4px;
     margin: 0px;
     min-width: 0px;
@@ -180,5 +169,16 @@ button.w2ui-btn-small {
         bottom: 2px;
         left: 2px;
         right: 2px;
+    }
+}
+
+// need to be last, so it is applied last
+input[type=button].w2ui-btn,
+button.w2ui-btn {
+    &:disabled {
+        border: 1px solid #e6e6e6;
+        background: rgb(247, 247, 247);
+        color: rgb(189, 188, 188);
+        text-shadow: none;
     }
 }

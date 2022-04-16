@@ -27,14 +27,15 @@ function popup() {
             custom: {
                 text: "Other Button",
                 class: "w2ui-btn-blue",
+                style: 'color: yellow',
                 onClick(event) {
-                    console.log('button clickced')
+                    console.log('button clicked')
                 }
             }
-        },
-        onOpen(event) {
-            console.log("Popup ready")
         }
+    })
+    .then(() => {
+        console.log("Popup ready")
     })
 }
 </script>

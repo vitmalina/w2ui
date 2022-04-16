@@ -1,0 +1,32 @@
+{
+    "error": "1",
+    "message": "some erorr",
+    "record": {
+        "field": {
+            "text"    : "some text",
+            "textarea": "more text",
+            "date"    : "3/15/2022",
+            "time"    : "10:11 am",
+            "datetime": "3/15/2022 10:11 am",
+            "color"   : "999999",
+            "list"    : 5,
+            "combo"   : { "id": 1, "text": "Item 1" },
+            "enum"    : ["item1", "item2"],
+            "file"    : [{ "name": "file.txt", "size": 3033, "type": "text", "modified": "1/1/2014" }],
+            "email"   : "see@mail.com",
+            "password": "pass",
+            "int"     : 43410,
+            "float"   : 2440.2,
+            "money"   : 3340,
+            "currency": 44440,
+            "percent" : 540.55,
+            "alpha"   : "abc60",
+            "select"  : "second",
+            "toggle"  : "1",
+            "check"   : 0,
+            "check2"  : "a",
+            "check3"  : [-1,0,2],
+            "radio"   : 1
+        }
+    }
+}

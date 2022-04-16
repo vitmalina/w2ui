@@ -18,7 +18,7 @@ function popup() {
         width: 580,
         height: 350,
         title: 'Title',
-        body: '<div class="w2ui-centered">This is text inside the popup</div>',
+        text: 'This is text inside the popup',
         actions: {
             Alert() {
                 w2alert('Some message')
@@ -48,9 +48,15 @@ function show() {
     w2popup.message({
         width: 350,
         height: 170,
-        body: '<div class="w2ui-centered">Are you sure (click No). ' + (counter || '') + '</div>',
-        buttons: '<button class="w2ui-btn" onclick="w2popup.message()">Ok</button>'+
-          '<button class="w2ui-btn" onclick="show()">More</button>'
+        text: 'Are you sure (click No). ' + (counter || ''),
+        actions: {
+            Ok() {
+                w2popup.message()
+            },
+            More() {
+                show()
+            }
+        }
     });
     counter++;
 }

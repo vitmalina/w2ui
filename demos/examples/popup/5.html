@@ -14,21 +14,30 @@
 <script>
 function popup() {
     w2popup.open({
+        title: 'Popup Title',
         width: 800,
         height: 500,
-        title: 'Popup Title',
-        body: '<div class="w2ui-centered">This is text inside the popup</div>',
-        buttons: '<button class="w2ui-btn" onclick="showMessage()">Show Message</button> ',
+        text: 'This is text inside the popup',
+        actions: ['Show Message', 'Longer Message', 'Close'],
         showMax: true
-    });
+    })
+    .showMessage(() => {
+        showMessage('Click on the message to hide it or hit escape')
+    })
+    .longerMessage(() => {
+        showMessage('This is a longer message that can have html and other formatting. This is a longer message that can have html and other formatting. ')
+    })
+    .close(() => {
+        w2popup.close()
+    })
 }
 
-function showMessage () {
+function showMessage(text) {
     w2popup.message({
+        text,
         width: 400,
         height: 180,
-        html: '<div style="padding: 60px; text-align: center">Click on the message to Hide it</div>'+
-              '<div style="text-align: center"><button class="w2ui-btn" onclick="w2popup.message()">Close</button>'
+        hideOn: ['esc', 'click']
     });
 }
 </script>

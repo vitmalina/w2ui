@@ -1,82 +1,84 @@
-/************************************************************************
-*   Part of w2ui 2.0 library
-*   - Dependencies: jQuery, w2utils, w2toolbar, w2field
-*
-* == TODO ==
-*   - w2ui-overlay to work with web components
-*   - column autosize based on largest content
-*   - problem with .set() and arrays, array get extended too, but should be replaced
-*   - after edit stay on the same record option
-*   - if supplied array of ids, get should return array of records
-*   - allow functions in routeData (also add routeData to list/enum)
-*   - send parsed URL to the event if there is routeData
-*   - if you set searchData or sortData and call refresh() it should work
-*   - add selectType: 'none' so that no selection can be make but with mouse
-*   - focus/blur for selectType = cell not display grayed out selection
-*   - frozen columns
-        - scrolling on frozen columns is not working only on regular columns
-*   - copy or large number of records is slow
-*   - reusable search component (see https://github.com/vitmalina/w2ui/issues/914#issuecomment-107340524)
-*   - allow enum in inline edit (see https://github.com/vitmalina/w2ui/issues/911#issuecomment-107341193)
-*   - if record has no recid, then it should be index in the array (should not be 0)
-*   - remote source, but localSort/localSearch
-*   - right click on columns
-*   - reload a single records (useful when need to update deep in buffered records)
-*   - need to update PHP example
-*   - return structure status -> replace with success
-*   - msg* - should be in prototype
-*   - search fields not finised
-*   - row reorder not finished
-*   - expendable grids are still working
-*   - moved a lot of properties into prototype
-*   - promise for request, load, save, etc.
-*   - remote date local sort/search
-*   - colDefaults -> col_template as in tabs, toolbar, etc
-*   - prepareData needs help page
-*   - onloadmore event (so it will be easy to implement remote data source with local sort)
-*   - avoid inline events, but allow w2ui-eaction
-*   - status() - clears on next select, etc. Should not if it is off
-*   - edit demo grid/21 - if you hit add record too fast, it breaks
-*
-* == DEMOS To create ==
-*   - batch for disabled buttons
-*   - naturla sort
-*   - resize on max content
-*   - context message
-*   - clipboard copy
-*   - save searches, custom searches
-*
-* == KNOWN ISSUES ==
-*   - reorder records with school - not correct
-*   - reorder columns not working
-*   - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
-*   - Shift-click/Ctrl-click/Ctrl-Shift-Click selection is not as robust as it should be
-*   - refactor reorderRow (not finished)
-*
-* == 2.0 changes
-*   - toolbarInput - deprecated, toolbarSearch stays
-*   - searchSuggest
-*   - searchSave, searchSelected, savedSearches, useLocalStorage, searchFieldDrop
-*   - onSearchSave, onSearchRemove, onSearchSelect
-*   - show.searchLogic
-*   - show.searchSave
-*   - refreshSearch
-*   - initAllFields -> searchInitInput
-*   - textSearch - deprecated in favor of defaultOperator
-*   - grid.confirm
-*   - grid.message returns a promise
-*   - search.type == 'text' can have 'in' and 'not in' operators, then it will switch to enum
-*   - grid.find(..., displayedOnly)
-*   - column.render(..., this) - added
-*   - resizeObserver for the box
-*
-************************************************************************/
+/**
+ * Part of w2ui 2.0 library
+ *  - Dependencies: jQuery, w2utils, w2base, w2toolbar, w2field
+ *
+ * == TODO ==
+ *  - problem with .set() and arrays, array get extended too, but should be replaced
+ *  - after edit stay on the same record option
+ *  - if supplied array of ids, get should return array of records
+ *  - allow functions in routeData (also add routeData to list/enum)
+ *  - send parsed URL to the event if there is routeData
+ *  - if you set searchData or sortData and call refresh() it should work
+ *  - add selectType: 'none' so that no selection can be make but with mouse
+ *  - focus/blur for selectType = cell not display grayed out selection
+ *  - frozen columns
+ *  - scrolling on frozen columns is not working only on regular columns
+ *  - copy or large number of records is slow
+ *  - reusable search component (see https://github.com/vitmalina/w2ui/issues/914#issuecomment-107340524)
+ *  - allow enum in inline edit (see https://github.com/vitmalina/w2ui/issues/911#issuecomment-107341193)
+ *  - if record has no recid, then it should be index in the array (should not be 0)
+ *  - remote source, but localSort/localSearch
+ *  - right click on columns
+ *  - reload a single records (useful when need to update deep in buffered records)
+ *  - need to update PHP example
+ *  - return structure status -> replace with success
+ *  - msg* - should be in prototype
+ *  - search fields not finised
+ *  - row reorder not finished
+ *  - expendable grids are still working
+ *  - moved a lot of properties into prototype
+ *  - promise for request, load, save, etc.
+ *  - remote date local sort/search
+ *  - colDefaults -> col_template as in tabs, toolbar, etc
+ *  - prepareData needs help page
+ *  - separate columnRefresh, recordsRefresh, fullRefresh
+ *  - onloadmore event (so it will be easy to implement remote data source with local sort)
+ *  - avoid inline events, but allow w2ui-eaction
+ *  - status() - clears on next select, etc. Should not if it is off
+ *  - edit demo grid/21 - if you hit add record too fast, it breaks
+ *  - refactor onSelect/onUselect - should be one event, when selection changes
+ *  - saveSearches - save not working right
+ *
+ * == DEMOS To create ==
+ *  - batch for disabled buttons
+ *  - naturla sort
+ *  - resize on max content
+ *  - context message
+ *  - clipboard copy
+ *  - save searches, custom searches
+ *
+ * == KNOWN ISSUES ==
+ *  - reorder records with school - not correct
+ *  - reorder columns not working
+ *  - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
+ *  - Shift-click/Ctrl-click/Ctrl-Shift-Click selection is not as robust as it should be
+ *  - refactor reorderRow (not finished)
+ *
+ * == 2.0 changes
+ *  - toolbarInput - deprecated, toolbarSearch stays
+ *  - searchSuggest
+ *  - searchSave, searchSelected, savedSearches, useLocalStorage, searchFieldDrop
+ *  - onSearchSave, onSearchRemove, onSearchSelect
+ *  - show.searchLogic
+ *  - show.searchSave
+ *  - refreshSearch
+ *  - initAllFields -> searchInitInput
+ *  - textSearch - deprecated in favor of defaultOperator
+ *  - grid.confirm - refactored
+ *  - grid.message - refactored
+ *  - search.type == 'text' can have 'in' and 'not in' operators, then it will switch to enum
+ *  - grid.find(..., displayedOnly)
+ *  - column.render(..., this) - added
+ *  - resizeObserver for the box
+ */
 
-import { w2event } from './w2event.js'
+import { w2base } from './w2base.js'
 import { w2ui, w2utils } from './w2utils.js'
+import { query } from './query.js'
 import { w2toolbar } from './w2toolbar.js'
+import { w2menu, w2tooltip } from './w2tooltip.js'
 
-class w2grid extends w2event {
+class w2grid extends w2base {
     constructor(options) {
         super(options.name)
         this.name         = null
@@ -203,7 +205,7 @@ class w2grid extends w2event {
         this.reorderRows       = false
         this.showExtraOnSearch = 0 // show extra records before and after on search
         this.markSearch        = true
-        this.columnTooltip     = 'top|bottom' // can be normal, top, bottom, left, right
+        this.columnTooltip     = 'top|bottom' // can be top, bottom, left, right
         this.disableCVS        = false // disable Column Virtual Scroll
         this.nestedFields      = true // use field name containing dots as separator to look into object
         this.vs_start          = 150
@@ -285,7 +287,9 @@ class w2grid extends w2event {
 
         this.buttons = {
             'reload'   : { type: 'button', id: 'w2ui-reload', icon: 'w2ui-icon-reload', tooltip: 'Reload data in the list' },
-            'columns'  : { type: 'drop', id: 'w2ui-column-on-off', icon: 'w2ui-icon-columns', tooltip: 'Show/hide columns', arrow: false, html: '' },
+            'columns'  : { type: 'menu-check', id: 'w2ui-column-on-off', icon: 'w2ui-icon-columns', tooltip: 'Show/hide columns',
+                overlay: { align: 'none' }
+            },
             'search'   : { type: 'html', id: 'w2ui-search',
                 html: '<div class="w2ui-icon w2ui-icon-search w2ui-search-down" '+
                       'onclick="let grid = w2ui[jQuery(this).parents(\'div.w2ui-grid\').attr(\'name\')]; grid.searchShowFields()"></div>'
@@ -394,8 +398,8 @@ class w2grid extends w2event {
         this.onColumnDragEnd    = null
         this.onResizerDblClick  = null
 
-        // need deep merge
-        $.extend(true, this, options)
+        // need deep merge, should be extend, not objectAssign
+        w2utils.extend(this, options)
 
         // check if there are records without recid
         if (Array.isArray(this.records)) {
@@ -1489,9 +1493,9 @@ class w2grid extends w2event {
         $(this.box).find('.w2ui-selection-resizer')
             .off('mousedown').on('mousedown', mouseStart)
             .off('dblclick').on('dblclick', function(event) {
-                let edata = obj.trigger({ phase: 'before', type: 'resizerDblClick', target: obj.name, originalEvent: event })
+                let edata = obj.trigger('resizerDblClick', { target: obj.name, originalEvent: event })
                 if (edata.isCancelled === true) return
-                obj.trigger($.extend(edata, { phase: 'after' }))
+                edata.finish()
             })
         let edata = { phase: 'before', type: 'selectionExtend', target: obj.name, originalRange: null, newRange: null }
 
@@ -1535,17 +1539,17 @@ class w2grid extends w2event {
             let prevNewRange = $.extend({}, mv.newRange)
             mv.newRange      = [{ recid: mv.recid, column: mv.column }, { recid: recid, column: column }]
             // event before
-            edata = obj.trigger($.extend(edata, { originalRange: mv.originalRange, newRange : mv.newRange }))
+            edata = obj.trigger(w2utils.extend(edata, { originalRange: mv.originalRange, newRange : mv.newRange }))
             if (edata.isCancelled === true) {
                 mv.newRange    = prevNewRange
-                edata.newRange = prevNewRange
+                edata.detail.newRange = prevNewRange
                 return
             } else {
                 // default behavior
                 obj.removeRange('grid-selection-expand')
                 obj.addRange({
                     name  : 'grid-selection-expand',
-                    range : edata.newRange,
+                    range : edata.detail.newRange,
                     style : 'background-color: rgba(100,100,100,0.1); border: 2px dotted rgba(100,100,100,0.5);'
                 })
             }
@@ -1557,7 +1561,7 @@ class w2grid extends w2event {
             delete obj.last.move
             $(document).off('.w2ui-' + obj.name)
             // event after
-            obj.trigger($.extend(edata, { phase: 'after' }))
+            edata.finish()
         }
     }
 
@@ -1567,10 +1571,10 @@ class w2grid extends w2event {
         let sel      = this.last.selection
         if (!this.multiSelect) this.selectNone()
         // if too many arguments > 150k, then it errors off
-        let args = Array.prototype.slice.call(arguments)
+        let args = Array.from(arguments)
         if (Array.isArray(args[0])) args = args[0]
         // event before
-        let tmp = { phase: 'before', type: 'select', target: this.name }
+        let tmp = { target: this.name }
         if (args.length == 1) {
             tmp.multiple = false
             if ($.isPlainObject(args[0])) {
@@ -1583,7 +1587,7 @@ class w2grid extends w2event {
             tmp.multiple = true
             tmp.recids   = args
         }
-        let edata = this.trigger(tmp)
+        let edata = this.trigger('select', tmp)
         if (edata.isCancelled === true) return 0
 
         // default action
@@ -1684,7 +1688,7 @@ class w2grid extends w2event {
         this.addRange('selection')
         this.updateToolbar(sel, areAllSelected)
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         return selected
     }
 
@@ -1692,10 +1696,10 @@ class w2grid extends w2event {
         let unselected = 0
         let sel        = this.last.selection
         // if too many arguments > 150k, then it errors off
-        let args = Array.prototype.slice.call(arguments)
+        let args = Array.from(arguments)
         if (Array.isArray(args[0])) args = args[0]
         // event before
-        let tmp = { phase: 'before', type: 'unselect', target: this.name }
+        let tmp = { target: this.name }
         if (args.length == 1) {
             tmp.multiple = false
             if ($.isPlainObject(args[0])) {
@@ -1708,7 +1712,7 @@ class w2grid extends w2event {
             tmp.multiple = true
             tmp.recids   = args
         }
-        let edata = this.trigger(tmp)
+        let edata = this.trigger('unselect', tmp)
         if (edata.isCancelled === true) return 0
 
         for (let a = 0; a < args.length; a++) {
@@ -1780,7 +1784,7 @@ class w2grid extends w2event {
         this.addRange('selection')
         this.updateToolbar(sel, areAllSelected)
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         return unselected
     }
 
@@ -1788,7 +1792,7 @@ class w2grid extends w2event {
         let time = (new Date()).getTime()
         if (this.multiSelect === false) return
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'select', target: this.name, all: true })
+        let edata = this.trigger('select', { target: this.name, all: true })
         if (edata.isCancelled === true) return
         // default action
         let url  = (typeof this.url != 'object' ? this.url : this.url.get)
@@ -1835,14 +1839,14 @@ class w2grid extends w2event {
         this.status()
         this.updateToolbar({ indexes: sel }, true)
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         return (new Date()).getTime() - time
     }
 
     selectNone() {
         let time = (new Date()).getTime()
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'unselect', target: this.name, all: true })
+        let edata = this.trigger('unselect', { target: this.name, all: true })
         if (edata.isCancelled === true) return
         // default action
         let sel = this.last.selection
@@ -1867,7 +1871,7 @@ class w2grid extends w2event {
         this.status()
         this.updateToolbar(sel, false)
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         return (new Date()).getTime() - time
     }
 
@@ -2167,9 +2171,7 @@ class w2grid extends w2event {
             }
         }
         // event before
-        let edata = this.trigger({
-            phase: 'before',
-            type: 'search',
+        let edata = this.trigger('search', {
             target: this.name,
             multi: (arguments.length === 0 ? true : false),
             searchField: (field ? field : 'multi'),
@@ -2179,11 +2181,11 @@ class w2grid extends w2event {
         })
         if (edata.isCancelled === true) return
         // default action
-        this.searchData             = edata.searchData
+        this.searchData             = edata.detail.searchData
         this.last.field             = last_field
         this.last.search            = last_search
         this.last.multi             = last_multi
-        this.last.logic             = edata.searchLogic
+        this.last.logic             = edata.detail.searchLogic
         this.last.scrollTop         = 0
         this.last.scrollLeft        = 0
         this.last.selection.indexes = []
@@ -2200,63 +2202,61 @@ class w2grid extends w2event {
             this.refresh()
         }
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     searchOpen() {
         if (!this.box) return
         if (this.searches.length === 0) return
-        let self = this
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'searchOpen', target: this.name })
+        let edata = this.trigger('searchOpen', { target: this.name })
         if (edata.isCancelled === true) {
             return
         }
-        let $btn = $(self.box).find('.w2ui-grid-search-input .w2ui-search-drop')
+        let $btn = query(this.toolbar.box).find('.w2ui-grid-search-input .w2ui-search-drop')
         $btn.addClass('checked')
         // show search
-        $(self.box).find('#grid_'+ self.name +'_search_all').w2overlay({
+        w2tooltip.show({
+            name  : this.name + '-search-overlay',
+            anchor: query(this.box).find('#grid_'+ this.name +'_search_all').get(0),
             html  : this.getSearchesHTML(),
-            name  : this.name + '-searchOverlay',
             align : 'left',
+            arrowSize: 12,
             class : 'w2ui-grid-search-advanced',
-            onShow() {
-                self.initSearches()
-                self.last.search_opened = true
-                $(`#w2ui-overlay-${self.name}-searchOverlay .w2ui-grid-search-advanced`).data('grid-name', self.name)
-                w2utils.bindEvents($(`#w2ui-overlay-${self.name}-searchOverlay`).find('select, input, button'), self)
-                // init first field
-                let sfields = $(`#w2ui-overlay-${self.name}-searchOverlay *[rel=search]`)
-                if (sfields.length > 0) sfields[0].focus()
-                // event after
-                self.trigger($.extend(edata, { phase: 'after' }))
-            },
-            onHide() {
-                $btn.removeClass('checked')
-                self.last.search_opened = false
-            }
+            hideOn: ['doc-click']
+        })
+        .then(event => {
+            this.initSearches()
+            this.last.search_opened = true
+            query(`#w2overlay-${this.name}-search-overlay .w2ui-grid-search-advanced`)
+                .data('gridName', this.name)
+            w2utils.bindEvents(query(`#w2overlay-${this.name}-search-overlay`).find('select, input, button'), this)
+            // init first field
+            let sfields = query(`#w2overlay-${this.name}-search-overlay *[rel=search]`)
+            if (sfields.length > 0) sfields[0].focus()
+            // event after
+            edata.finish()
+        })
+        .hide(event => {
+            $btn.removeClass('checked')
+            this.last.search_opened = false
         })
     }
 
     searchClose() {
-        if (!this.box) return
-        if (this.searches.length === 0) return
-        if (this.toolbar) this.toolbar.uncheck('w2ui-search-advanced', 'w2ui-column-on-off')
-        // hide search
-        $().w2overlay({ name: this.name + '-searchOverlay' })
+        w2tooltip.hide(this.name + '-search-overlay')
     }
 
     searchSuggest(imediate, forceHide, input) {
-        let grid = this
         clearTimeout(this.last.kbd_timer)
         clearTimeout(this.last.overlay_timer)
         this.searchShowFields(true)
         this.searchClose()
         if (forceHide === true) {
-            $(input).w2overlay({ name: this.name + '-suggestOverlay' })
+            w2tooltip.hide(this.name + '-search-suggest')
             return
         }
-        if ($(`#w2ui-overlay-${this.name}-suggestOverlay`).length > 0) {
+        if ($(`#w2overlay-${this.name}-search-suggest`).length > 0) {
             // already shown
             return
         }
@@ -2265,74 +2265,81 @@ class w2grid extends w2event {
             return
         }
 
-        let el = $(this.box).find(`#grid_${this.name}_search_all`)[0]
+        let el = query(this.box).find(`#grid_${this.name}_search_all`).get(0)
         if (Array.isArray(this.savedSearches) && this.savedSearches.length > 0) {
-            $(el).w2menu({
+            w2menu.show({
+                name: this.name + '-search-suggest',
+                anchor: el,
                 align: 'both',
-                name: this.name + '-suggestOverlay',
                 items: this.savedSearches,
-                menuStyle: 'top: 34px',
                 topHTML: `<div class="w2ui-grid-search-suggest">${w2utils.lang('Saved Searches')}</div>`,
+                hideOn: ['doc-click', 'sleect', 'remove'],
                 render(item) {
                     let ret = item.text
-                    if (item.isDefault) {
-                        ret = `<b>${ret}</b>`
-                    }
+                    if (item.isDefault) ret = `<b>${ret}</b>`
                     return ret
-                },
-                onSelect(event) {
-                    let edata = grid.trigger({ phase: 'before', type: 'searchSelect', target: grid.name, index: event.index, item: event.item })
-                    if (edata.isCancelled === true) {
-                        event.preventDefault()
-                        return
-                    }
-                    grid.last.logic  = event.item.logic || 'AND'
-                    grid.last.search = ''
-                    grid.last.label  = '[Multiple Fields]'
-                    grid.searchData  = $.extend(true, [], event.item.data)
-                    grid.searchSelected = {
-                        name: event.item.id,
-                        logic: event.item.logic,
-                        data: $.extend(true, [], event.item.data)
-                    }
-                    grid.reload()
-                    grid.trigger($.extend(edata, { phase: 'after'}))
-                },
-                onRemove(event) {
-                    let edata = grid.trigger({ phase: 'before', type: 'searchRemove', target: grid.name, index: event.index, item: event.item })
-                    if (edata.isCancelled === true) {
-                        event.preventDefault()
-                        return
-                    }
-                    grid.confirm(w2utils.lang('Do you want to delete search item "${item}"?', {item: event.item.text}))
-                        .yes(() => {
-                            // remove from local storage
-                            if (w2utils.hasLocalStorage && this.useLocalStorage) {
-                                try {
-                                    let tmp = JSON.parse(localStorage.w2ui || '{}')
-                                    if (tmp && tmp.searches) {
-                                        let searches = tmp.searches[(grid.stateId || grid.name)]
-                                        if (Array.isArray(searches)) {
-                                            let search = searches.findIndex((s, ind) => s.name == event.item.id ? true : false)
-                                            if (search !== null) {
-                                                searches.splice(search, 1)
-                                            }
-                                            localStorage.w2ui = JSON.stringify(tmp)
-                                        }
-                                    }
-                                } catch (e) {
-
-                                }
-                            }
-                            // remove from searches
-                            let search = grid.savedSearches.findIndex((s, ind) => s.name == event.item.id ? true : false)
-                            if (search !== null) {
-                                grid.savedSearches.splice(search, 1)
-                            }
-                            // event after
-                            grid.trigger($.extend(edata, { phase: 'after'}))
-                        })
                 }
+            })
+            .select(event => {
+                let edata = this.trigger('searchSelect', {
+                    target: this.name,
+                    index: event.detail.index,
+                    item: event.detail.item
+                })
+                if (edata.isCancelled === true) {
+                    event.preventDefault()
+                    return
+                }
+                this.last.logic  = event.detail.item.logic || 'AND'
+                this.last.search = ''
+                this.last.label  = '[Multiple Fields]'
+                this.searchData  = w2utils.extend([], event.detail.item.data)
+                this.searchSelected = {
+                    name: event.detail.item.id,
+                    logic: event.detail.item.logic,
+                    data: this.searchData
+                }
+                this.reload()
+                edata.finish()
+            })
+            .remove(event => {
+                let item = event.detail.item
+                let edata = this.trigger('searchRemove', { target: this.name, index: event.detail.index, item })
+                if (edata.isCancelled === true) {
+                    event.preventDefault()
+                    return
+                }
+                this.confirm(w2utils.lang('Do you want to delete search item "${item}"?', { item: item.text }))
+                    .yes(evt => {
+                        if (w2utils.hasLocalStorage && this.useLocalStorage) {
+                            try {
+                                let tmp = JSON.parse(localStorage.w2ui || '{}')
+                                if (tmp && tmp.searches) {
+                                    let searches = tmp.searches[(this.stateId || this.name)]
+                                    if (Array.isArray(searches)) {
+                                        let search = searches.findIndex((s, ind) => s.name == item.id ? true : false)
+                                        if (search !== null) {
+                                            searches.splice(search, 1)
+                                        }
+                                        localStorage.w2ui = JSON.stringify(tmp)
+                                    }
+                                }
+                            } catch (e) {
+
+                            }
+                        }
+                        // remove from searches
+                        let search = this.savedSearches.findIndex((s, ind) => s.name == item.id ? true : false)
+                        if (search !== null) {
+                            this.savedSearches.splice(search, 1)
+                        }
+                        evt.detail.self.close()
+                        // evt after
+                        edata.finish()
+                    })
+                    .no(evt => {
+                        evt.detail.self.close()
+                    })
             })
         }
     }
@@ -2385,8 +2392,9 @@ class w2grid extends w2event {
         let oper = sd.operator
         if (oper == 'more' && sd.type == 'date') oper = 'since'
         if (oper == 'less' && sd.type == 'date') oper = 'before'
+        let options = ''
+        let val = sd.value
         if (Array.isArray(sd.value)) { // && Array.isArray(sf.options.items)) {
-            let options = ''
             sd.value.forEach(opt => {
                 options += `<li>${opt.text || opt}</li>`
             })
@@ -2400,30 +2408,7 @@ class w2grid extends w2event {
             //     let isSelected = (sd.svalue.indexOf(txt.toLowerCase()) != -1 ? true : false)
             //     options += `<li><label><input type="checkbox" ${isSelected ? 'checked' : ''}>${txt}</label></li>`
             // })
-            $(el).w2overlay({
-                name: this.name + '-fieldOverlay',
-                html: `
-                    <div class="w2ui-grid-search-single">
-                        <span class="operator">${oper}</span>
-                        <div class="options">
-                            <ul>${options}</ul>
-                        </div>
-                        <div class="buttons">
-                            <button id="remove" class="w2ui-btn">${w2utils.lang('Remove This Field')}</button>
-                        </div>
-                    </div>`,
-                onShow(event) {
-                    $('#w2ui-overlay').find('#remove').on('click', () => {
-                        grid.searchData.splice(`${sd_ind}`, 1)
-                        grid.reload()
-                        grid.localSearch()
-                        $(el).w2overlay({ name: grid.name + '-fieldOverlay' })
-                    })
-                }
-            })
-
         } else {
-            let val = sd.value
             if (sd.type == 'date') {
                 val = w2utils.formatDateTime(val)
                 // if (oper.substr(0, 5) == 'more:') {
@@ -2432,27 +2417,32 @@ class w2grid extends w2event {
                 //     oper = 'since'
                 // }
             }
-            $(el).w2overlay({
-                html: `
-                    <div class="w2ui-grid-search-single">
-                        <div class="options">
-                            <span class="operator">${w2utils.lang(oper)}</span>
-                            "<span>${val}</span>"
-                        </div>
-                        <div class="buttons">
-                            <button id="remove" class="w2ui-btn">${w2utils.lang('Remove This Field')}</button>
-                        </div>
-                    </div>`,
-                onShow(event) {
-                    $('#w2ui-overlay').find('#remove').on('click', () => {
-                        grid.searchData.splice(`${sd_ind}`, 1)
-                        grid.reload()
-                        grid.localSearch()
-                        $(el).w2overlay({ name: grid.name + '-fieldOverlay' })
-                    })
-                }
-            })
+
         }
+        w2tooltip.show({
+            name: this.name + '-search-props',
+            anchor: el,
+            class: 'w2ui-white',
+            hideOn: 'doc-click',
+            html: `
+                <div class="w2ui-grid-search-single">
+                    <span class="operator">${w2utils.lang(oper)}</span>
+                    ${Array.isArray(sd.value)
+                        ? `<div class="options"> <ul>${options}</ul> </div>`
+                        : `<span>${val}</span>`
+                    }
+                    <div class="buttons">
+                        <button id="remove" class="w2ui-btn">${w2utils.lang('Remove This Field')}</button>
+                    </div>
+                </div>`
+        }).then(event => {
+            query(event.detail.overlay.box).find('#remove').on('click', () => {
+                grid.searchData.splice(`${sd_ind}`, 1)
+                grid.reload()
+                grid.localSearch()
+                w2tooltip.hide(this.name + '-search-props')
+            })
+        })
     }
 
     searchSave() {
@@ -2462,7 +2452,7 @@ class w2grid extends w2event {
         }
         let grid = this
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'searchSave', target: this.name, saveLocalStorage: true })
+        let edata = this.trigger('searchSave', { target: this.name, saveLocalStorage: true })
         if (edata.isCancelled === true) return
 
         this.message({
@@ -2470,7 +2460,7 @@ class w2grid extends w2event {
             height: 150,
             body: `<div style="padding-top: 29px; text-align: center;">
                 <span style="width: 280px; display: inline-block; text-align: left; padding-bottom: 4px;">${w2utils.lang('Save Search')}</span>
-                <input class="search-name" placeholder="${w2utils.lang('Search name')}" style="width: 280px">
+                <input class="search-name w2ui-input" placeholder="${w2utils.lang('Search name')}" style="width: 280px">
             </div>`,
             buttons: `
                 <button id="grid-search-cancel" class="w2ui-btn">${w2utils.lang('Cancel')}</button>
@@ -2547,7 +2537,7 @@ class w2grid extends w2event {
                             $(grid.box).find(`#grid_${grid.name}_search_all`).val(' ').prop('readOnly', true)
                             $(grid.box).find(`#grid_${grid.name}_search_name`).show().find('.name-text').html(name)
                         }
-                        this.trigger($.extend(edata, { phase: 'after', name }))
+                        edata.finish({ name })
                     })
                     let inputs = $(this.box).find('input, button')
                     inputs.off('.message')
@@ -2594,10 +2584,10 @@ class w2grid extends w2event {
             hasHiddenSearches = true
         }
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'search', reset: true, target: this.name, searchData: searchData })
+        let edata = this.trigger('search', { reset: true, target: this.name, searchData: searchData })
         if (edata.isCancelled === true) return
         // default action
-        this.searchData  = edata.searchData
+        this.searchData  = edata.detail.searchData
         this.searchSelected = null
         this.last.search = ''
         this.last.logic  = (hasHiddenSearches ? 'AND' : 'OR')
@@ -2632,87 +2622,71 @@ class w2grid extends w2event {
         // apply search
         if (!noRefresh) this.reload()
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     searchShowFields(forceHide) {
-        let el = $(this.box).find('#grid_'+ this.name +'_search_all')
         if (forceHide === true) {
-            $(el).w2overlay({ name: this.name + '-searchFields' })
+            w2tooltip.hide(this.name + '-search-fields')
             return
         }
-        let html = '<div class="w2ui-grid-search-fields"><table><tbody>'
+        let items = []
         for (let s = -1; s < this.searches.length; s++) {
-            let search  = this.searches[s]
-            let sField  = (search ? search.field : null)
-            let column  = this.getColumn(sField)
-            let disable = false
-            let msg     = w2utils.lang('This column is hidden')
-            if (this.show.searchHiddenMsg == true && s != -1 && (column == null || (column.hidden === true && column.hideable !== false))) {
-                disable = true
-                if (column == null) {
-                    msg = w2utils.lang('This column does not exist')
-                }
+            let search   = this.searches[s]
+            let sField   = (search ? search.field : null)
+            let column   = this.getColumn(sField)
+            let disabled = false
+            let tooltip  = null
+            if (this.show.searchHiddenMsg == true && s != -1
+                    && (column == null || (column.hidden === true && column.hideable !== false))) {
+                disabled = true
+                tooltip = w2utils.lang(`This column ${column == null ? 'does not exist' : 'is hidden'}`)
             }
             if (s == -1) { // -1 is All Fields search
                 if (!this.multiSearch || !this.show.searchAll) continue
                 search = { field: 'all', label: 'All Fields' }
             } else {
                 if (column != null && column.hideable === false) continue
-                // don't show hidden searches
-                if (this.searches[s].hidden === true || this.searches[s].simple === false) continue
+                if (search.hidden === true) {
+                    tooltip = w2utils.lang('This column is hidden')
+                    // don't show hidden (not simple) searches
+                    if (search.simple === false) continue
+                }
             }
             if (search.label == null && search.caption != null) {
                 console.log('NOTICE: grid search.caption property is deprecated, please use search.label. Search ->', search)
                 search.label = search.caption
             }
-
-            html += '<tr style="'+ (disable ? 'color: silver' : '') +'" '
-                    + (disable
-                        ? 'onmouseenter="jQuery(this).w2tag({ top: 4, html: \''+ msg +'\' })" onmouseleave="jQuery(this).w2tag()"'
-                        : ''
-                    ) +
-                    (w2utils.isIOS ? 'onTouchStart' : 'onClick') +'="event.stopPropagation(); '+
-                    '           w2ui[\''+ this.name +'\'].searchInitInput(\''+ search.field +'\');'+
-                    '           jQuery(\'#grid_'+ this.name +'_search_all\').w2overlay({ name: \''+ this.name +'-searchFields\' });"'+
-                    '           jQuery(this).addClass(\'w2ui-selected\');'+
-                    '      onmousedown="jQuery(this).parent().find(\'tr\').removeClass(\'w2ui-selected\'); jQuery(this).addClass(\'w2ui-selected\')" ' +
-                    '      onmouseup="jQuery(this).removeClass(\'w2ui-selected\')" ' +
-                    '   >'+
-                    '   <td>'+
-                    '       <span class="w2ui-column-check w2ui-icon-'+ (search.field == this.last.field ? 'check' : 'empty') +'"></span>'+
-                    '   </td>'+
-                    '   <td>'+ w2utils.lang(search.label) +'</td>'+
-                    '</tr>'
+            items.push({
+                id: search.field,
+                text: w2utils.lang(search.label),
+                search,
+                tooltip,
+                disabled,
+                checked: (search.field == this.last.field)
+            })
         }
-        html += '</tbody></table></div>'
-
-        let overName = this.name + '-searchFields'
-        if ($('#w2ui-overlay-'+ overName).length == 1) html = '' // hide if visible
-        // need timer otherwise does nto show with list type
-        setTimeout(() => {
-            $(el).w2overlay({ html: html, name: overName, left: -2, tipLeft: 18 })
-        }, 1)
+        w2menu.show({
+            type: 'radio',
+            name: this.name + '-search-fields',
+            anchor: query(this.box).find('#grid_'+ this.name +'_search_name').parent().find('.w2ui-search-down').get(0),
+            items,
+            align: 'none',
+            hideOn: ['doc-click']
+        })
+        .select(event => {
+            this.searchInitInput(event.detail.item.search.field)
+        })
     }
 
     searchInitInput(field, value) {
         let search
-        let el = $(this.box).find('#grid_'+ this.name +'_search_all')
+        let el = query(this.box).find('#grid_'+ this.name +'_search_all')
         if (field == 'all') {
             search = { field: 'all', label: w2utils.lang('All Fields') }
-            // el.w2field('clear')
-            // el.trigger('change') // triggering change will cause grid calling remote url twice
         } else {
             search = this.getSearch(field)
             if (search == null) return
-            // let st = search.type
-            // if (['enum', 'select'].indexOf(st) != -1) st = 'list'
-            // el.w2field(st, $.extend({}, search.options, { suffix: '', autoFormat: false, selected: value }))
-            // if (['list', 'enum', 'date', 'time', 'datetime'].indexOf(search.type) != -1) {
-            //     this.last.search = ''
-            //     this.last.item   = ''
-            //     el.val('')
-            // }
         }
         // update field
         if (this.last.search != '') {
@@ -2723,7 +2697,6 @@ class w2grid extends w2event {
             this.last.label = search.label
         }
         el.attr('placeholder', w2utils.lang('Search') + ' ' + w2utils.lang(search.label || search.caption || search.field, true))
-        $().w2overlay({ name: this.name + '-searchFields' })
     }
 
     // clears records and related params
@@ -2838,7 +2811,7 @@ class w2grid extends w2event {
         }
         // event before
         if (cmd == 'get') {
-            edata = this.trigger({ phase: 'before', type: 'request', target: this.name, url: url, postData: params, httpHeaders: this.httpHeaders })
+            edata = this.trigger('request', { target: this.name, url: url, postData: params, httpHeaders: this.httpHeaders })
             if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: w2utils.lang('Request aborted.') }); return }
         } else {
             edata = { url: url, postData: params, httpHeaders: this.httpHeaders }
@@ -2849,9 +2822,9 @@ class w2grid extends w2event {
         }
         if (this.last.xhr) try { this.last.xhr.abort() } catch (e) {}
         // URL
-        url = (typeof edata.url != 'object' ? edata.url : edata.url.get)
-        if (cmd == 'save' && typeof edata.url == 'object') url = edata.url.save
-        if (cmd == 'delete' && typeof edata.url == 'object') url = edata.url.remove
+        url = (typeof edata.detail.url != 'object' ? edata.detail.url : edata.detail.url.get)
+        if (cmd == 'save' && typeof edata.detail.url == 'object') url = edata.detail.url.save
+        if (cmd == 'delete' && typeof edata.detail.url == 'object') url = edata.detail.url.remove
         // process url with routeData
         if (!$.isEmptyObject(this.routeData)) {
             let info = w2utils.parseRoute(url)
@@ -2866,8 +2839,8 @@ class w2grid extends w2event {
         let ajaxOptions = {
             type     : 'GET',
             url      : url,
-            data     : edata.postData,
-            headers  : edata.httpHeaders,
+            data     : edata.detail.postData,
+            headers  : edata.detail.httpHeaders,
             dataType : 'json' // expected data type from server
         }
 
@@ -2910,7 +2883,7 @@ class w2grid extends w2event {
             .fail((xhr, status, error) => {
                 // trigger event
                 let errorObj = { status: status, error: error, rawResponseText: xhr.responseText }
-                let edata2   = this.trigger({ phase: 'before', type: 'error', error: errorObj, xhr: xhr })
+                let edata2   = this.trigger('error', { error: errorObj, xhr: xhr })
                 if (edata2.isCancelled === true) return
                 // default behavior
                 if (status != 'abort') { // it can be aborted by the grid itself
@@ -2923,11 +2896,11 @@ class w2grid extends w2event {
                     this.requestComplete('error', xhr, cmd, callBack)
                 }
                 // event after
-                this.trigger($.extend(edata2, { phase: 'after' }))
+                edata2.finish()
             })
         if (cmd == 'get') {
             // event after
-            this.trigger($.extend(edata, { phase: 'after' }))
+            edata.finish()
         }
     }
 
@@ -2946,7 +2919,7 @@ class w2grid extends w2event {
         let event_name = 'load'
         if (this.last.xhr_cmd == 'save') event_name = 'save'
         if (this.last.xhr_cmd == 'delete') event_name = 'delete'
-        let edata = this.trigger({ phase: 'before', target: this.name, type: event_name, xhr: xhr, status: status })
+        let edata = this.trigger(event_name, { target: this.name, xhr: xhr, status: status })
         if (edata.isCancelled === true) {
             if (typeof callBack == 'function') callBack({ status: 'error', message: w2utils.lang('Request aborted.') })
             return
@@ -3069,19 +3042,19 @@ class w2grid extends w2event {
         // call back
         if (typeof callBack == 'function') callBack(data) // need to be before event:after
         // after event
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         this.last.loaded = true
     }
 
     error(msg) {
         // let the management of the error outside of the grid
-        let edata = this.trigger({ target: this.name, type: 'error', message: msg , xhr: this.last.xhr })
+        let edata = this.trigger('error', { target: this.name, message: msg , xhr: this.last.xhr })
         if (edata.isCancelled === true) {
             return
         }
         this.message(msg)
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     getChanges(recordsBase) {
@@ -3141,20 +3114,20 @@ class w2grid extends w2event {
         let changes = this.getChanges()
         let url     = (typeof this.url != 'object' ? this.url : this.url.save)
         // event before
-        let edata = this.trigger({ phase: 'before', target: this.name, type: 'save', changes: changes })
+        let edata = this.trigger('save', { target: this.name, changes: changes })
         if (edata.isCancelled === true) {
             if (url && typeof callBack == 'function') callBack({ status: 'error', message: w2utils.lang('Request aborted.') })
             return
         }
         if (url) {
-            this.request('save', { 'changes' : edata.changes }, null,
+            this.request('save', { 'changes' : edata.detail.changes }, null,
                 (data) => {
                     if (data.status !== 'error') {
                         // only merge changes, if save was successful
                         this.mergeChanges()
                     }
                     // event after
-                    this.trigger($.extend(edata, { phase: 'after' }))
+                    edata.finish()
                     // call back
                     if (typeof callBack == 'function') callBack(data)
                 }
@@ -3162,7 +3135,7 @@ class w2grid extends w2event {
         } else {
             this.mergeChanges()
             // event after
-            this.trigger($.extend(edata, { phase: 'after' }))
+            edata.finish()
         }
     }
 
@@ -3209,10 +3182,10 @@ class w2grid extends w2event {
             return
         }
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'editField', target: this.name, recid: recid, column: column, value: value,
+        let edata = this.trigger('editField', { target: this.name, recid: recid, column: column, value: value,
             index: index, originalEvent: event })
         if (edata.isCancelled === true) return
-        value = edata.value
+        value = edata.detail.value
         // default behaviour
         this.last.inEditMode = true
         this.last._edit      = { value: value, index: index, column: column, recid: recid }
@@ -3244,7 +3217,7 @@ class w2grid extends w2event {
             : w2utils.stripTags(obj.parseField(rec, col.field)))
         if (val == null) val = ''
         let old_value = (typeof val != 'object' ? val : '')
-        if (edata.old_value != null) old_value = edata.old_value
+        if (edata.detail.old_value != null) old_value = edata.detail.old_value
         if (value != null) val = value
         let addStyle = (col.style != null ? col.style + ';' : '')
         if (typeof col.render == 'string' && ['number', 'int', 'float', 'money', 'percent', 'size'].indexOf(col.render.split(':')[0]) != -1) {
@@ -3470,7 +3443,7 @@ class w2grid extends w2event {
                 }
             }, 50)
             // event after
-            this.trigger($.extend(edata, { phase: 'after', input: el.find('input, select, div.w2ui-input') }))
+            edata.finish({ input: el.find('input, select, div.w2ui-input') })
         }, 5) // needs to be 5-10
         return
 
@@ -3516,7 +3489,7 @@ class w2grid extends w2event {
         let prev_val = (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes.hasOwnProperty(col.field) ? rec.w2ui.changes[col.field]: old_val)
         // change/restore event
         let edata = {
-            phase: 'before', type: 'change', target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
+            target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
             originalEvent: (event.originalEvent ? event.originalEvent : event),
             value_new: new_val,
             value_previous: prev_val,
@@ -3529,7 +3502,7 @@ class w2grid extends w2event {
             if ((typeof new_val != 'object' && String(old_val) != String(new_val)) ||
                 (typeof new_val == 'object' && new_val && new_val.id != old_val && (typeof old_val != 'object' || old_val == null || new_val.id != old_val.id))) {
                 // change event
-                edata = this.trigger($.extend(edata, { type: 'change', phase: 'before' }))
+                edata = this.trigger('change', edata)
                 if (edata.isCancelled !== true) {
                     if (new_val !== edata.value_new) {
                         // re-evaluate the type of change to be made
@@ -3544,11 +3517,11 @@ class w2grid extends w2event {
                         rec.w2ui.changes[col.field] = edata.value_new
                     }
                     // event after
-                    this.trigger($.extend(edata, { phase: 'after' }))
+                    edata.finish()
                 }
             } else {
                 // restore event
-                edata = this.trigger($.extend(edata, { type: 'restore', phase: 'before' }))
+                edata = this.trigger('restore', edata)
                 if (edata.isCancelled !== true) {
                     if (new_val !== edata.value_new) {
                         // re-evaluate the type of change to be made
@@ -3558,7 +3531,7 @@ class w2grid extends w2event {
                     if (rec.w2ui && rec.w2ui.changes) delete rec.w2ui.changes[col.field]
                     if (rec.w2ui && $.isEmptyObject(rec.w2ui.changes)) delete rec.w2ui.changes
                     // event after
-                    this.trigger($.extend(edata, { phase: 'after' }))
+                    edata.finish()
                 }
             }
             break
@@ -3582,31 +3555,32 @@ class w2grid extends w2event {
 
     'delete'(force) {
         // event before
-        let edata = this.trigger({ phase: 'before', target: this.name, type: 'delete', force: force })
+        let edata = this.trigger('delete', { target: this.name, force: force })
         if (force) this.message() // close message
         if (edata.isCancelled === true) return
-        force = edata.force
-        // hide all tooltips
-        setTimeout(() => { $().w2tag() }, 20)
+        force = edata.detail.force
         // default action
         let recs = this.getSelection()
         if (recs.length === 0) return
         if (this.msgDelete != '' && !force) {
-            let msg = w2utils.lang(this.msgDelete, {
-                count: recs.length,
-                records: w2utils.lang( recs.length == 1 ? 'record' : 'records')
-            })
             this.confirm({
+                text: w2utils.lang(this.msgDelete, {
+                    count: recs.length,
+                    records: w2utils.lang( recs.length == 1 ? 'record' : 'records')
+                }),
                 width: 380,
                 height: 170,
                 yes_text: 'Delete',
                 yes_class: 'w2ui-btn-red',
                 no_text: 'Cancel',
-                body: '<div class="w2ui-centered">'+ msg +'</div>',
             })
-                .yes(() => {
-                    this.delete(true)
-                })
+            .yes(event => {
+                event.detail.self.close()
+                this.delete(true)
+            })
+            .no(event => {
+                event.detail.self.close()
+            })
             return
         }
         // call delete script
@@ -3636,7 +3610,7 @@ class w2grid extends w2event {
             }
         }
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     click(recid, event) {
@@ -3655,7 +3629,6 @@ class w2grid extends w2event {
         }
         // hide bubble
         if (this.last.bubbleEl) {
-            $(this.last.bubbleEl).w2tag()
             this.last.bubbleEl = null
         }
         this.last.click_time  = time
@@ -3668,7 +3641,7 @@ class w2grid extends w2event {
             if ($(tmp).attr('col') != null) column = parseInt($(tmp).attr('col'))
         }
         // event before
-        let edata = this.trigger({ phase: 'before', target: this.name, type: 'click', recid: recid, column: column, originalEvent: event })
+        let edata = this.trigger('click', { target: this.name, recid: recid, column: column, originalEvent: event })
         if (edata.isCancelled === true) return
         // default action
         let sel = this.getSelection()
@@ -3740,7 +3713,7 @@ class w2grid extends w2event {
         this.status()
         this.initResize()
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     columnClick(field, event) {
@@ -3749,13 +3722,13 @@ class w2grid extends w2event {
             return
         }
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'columnClick', target: this.name, field: field, originalEvent: event })
+        let edata = this.trigger('columnClick', { target: this.name, field: field, originalEvent: event })
         if (edata.isCancelled === true) return
         // default behaviour
         if (this.selectType == 'row') {
             let column = this.getColumn(field)
             if (column && column.sortable) this.sort(field, null, (event && (event.ctrlKey || event.metaKey) ? true : false))
-            if (edata.field == 'line-number') {
+            if (edata.detail.field == 'line-number') {
                 if (this.getSelection().length >= this.records.length) {
                     this.selectNone()
                 } else {
@@ -3768,7 +3741,7 @@ class w2grid extends w2event {
                 if (column && column.sortable) this.sort(field, null, (event && (event.ctrlKey || event.metaKey) ? true : false))
             }
             // select entire column
-            if (edata.field == 'line-number') {
+            if (edata.detail.field == 'line-number') {
                 if (this.getSelection().length >= this.records.length) {
                     this.selectNone()
                 } else {
@@ -3779,7 +3752,7 @@ class w2grid extends w2event {
                     this.selectNone()
                 }
                 let tmp    = this.getSelection()
-                let column = this.getColumn(edata.field, true)
+                let column = this.getColumn(edata.detail.field, true)
                 let sel    = []
                 let cols   = []
                 // check if there was a selection before
@@ -3794,7 +3767,7 @@ class w2grid extends w2event {
                 } else {
                     cols.push(column)
                 }
-                edata = this.trigger({ phase: 'before', type: 'columnSelect', target: this.name, columns: cols })
+                edata = this.trigger('columnSelect', { target: this.name, columns: cols })
                 if (edata.isCancelled !== true) {
                     for (let i = 0; i < this.records.length; i++) {
                         sel.push({ recid: this.records[i].recid, column: cols })
@@ -4422,9 +4395,10 @@ class w2grid extends w2event {
     }
 
     contextMenu(recid, column, event) {
-        const obj = this
         if (this.last.userSelect == 'text') return
-        if (event == null) event = { offsetX: 0, offsetY: 0, target: $(this.box).find('#grid_'+ this.name +'_rec_'+ recid)[0] }
+        if (event == null) {
+            event = { offsetX: 0, offsetY: 0, target: query(this.box).find(`#grid_${this.name}_rec_${recid}`)[0] }
+        }
         if (event.offsetX == null) {
             event.offsetX = event.layerX - event.target.offsetLeft
             event.offsetY = event.layerY - event.target.offsetTop
@@ -4434,10 +4408,10 @@ class w2grid extends w2event {
         if (this.selectType == 'row') {
             if (sel.indexOf(recid) == -1) this.click(recid)
         } else {
-            let $tmp = $(event.target)
-            if ($tmp[0].tagName.toUpperCase() != 'TD') $tmp = $(event.target).parents('td')
+            let $tmp = query(event.target)
+            if ($tmp[0].tagName.toUpperCase() != 'TD') $tmp = query(event.target).closest('td')
             let selected = false
-            column       = $tmp.attr('col')
+            column = $tmp.attr('col')
             // check if any selected sel in the right row/column
             for (let i = 0; i<sel.length; i++) {
                 if (sel[i].recid == recid || sel[i].column == column) selected = true
@@ -4446,31 +4420,30 @@ class w2grid extends w2event {
             if (!selected && column != null) this.columnClick(this.columns[column].field, event)
         }
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'contextMenu', target: this.name, originalEvent: event, recid: recid, column: column })
+        let edata = this.trigger('contextMenu', { target: this.name, originalEvent: event, recid, column })
         if (edata.isCancelled === true) return
         // default action
-        if (obj.menu.length > 0) {
-            $(obj.box).find(event.target)
-                .w2menu(obj.menu, {
-                    originalEvent: event,
-                    contextMenu: true,
-                    onSelect(event) {
-                        obj.menuClick(recid, event)
-                    }
-                })
+        if (this.menu.length > 0) {
+            w2menu.show({
+                name: this.name + '-context-menu',
+                anchor: document.body,
+                originalEvent: event.originalEvent,
+                items: this.menu
+            })
+            .select((event) => {
+                this.menuClick(recid, event)
+            })
         }
         // cancel event
         if (event.preventDefault) event.preventDefault()
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     menuClick(recid, event) {
         // event before
-        let edata = this.trigger({
-            phase: 'before', type: 'menuClick', target: this.name,
-            originalEvent: event.originalEvent, menuEvent: event,
-            recid: recid, menuIndex: event.index, menuItem: event.item
+        let edata = this.trigger('menuClick', { target: this.name, recid, originalEvent: event.detail.originalEvent,
+            menuEvent: event, menuIndex: event.detail.index, menuItem: event.detail.item
         })
         if (edata.isCancelled === true) return
         // default action
@@ -4754,7 +4727,7 @@ class w2grid extends w2event {
             edata = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text,
                 cut: (oEvent.keyCode == 88 ? true : false), originalEvent: oEvent })
             if (edata.isCancelled === true) return ''
-            text = edata.text
+            text = edata.detail.text
             // event after
             this.trigger($.extend(edata, { phase: 'after' }))
             return text
@@ -4763,7 +4736,7 @@ class w2grid extends w2event {
             edata = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text,
                 cut: (oEvent.keyCode == 88 ? true : false), originalEvent: oEvent })
             if (edata.isCancelled === true) return ''
-            text = edata.text
+            text = edata.detail.text
             return edata
         }
     }
@@ -4786,7 +4759,7 @@ class w2grid extends w2event {
         let edata = this.trigger({ phase: 'before', type: 'paste', target: this.name, text: text,
             index: ind, column: col, originalEvent: event })
         if (edata.isCancelled === true) return
-        text = edata.text
+        text = edata.detail.text
         // default action
         if (this.selectType == 'row' || sel.length === 0) {
             console.log('ERROR: You can paste only if grid.selectType = \'cell\' and when at least one cell selected.')
@@ -5042,20 +5015,7 @@ class w2grid extends w2event {
         }
         // -- toolbar
         if (this.show.toolbar) {
-            // if select-column is checked - no toolbar refresh
-            if (this.toolbar && this.toolbar.get('w2ui-column-on-off') && this.toolbar.get('w2ui-column-on-off').checked) {
-                // no action
-            } else {
-                $(this.box).find('#grid_'+ this.name +'_toolbar').show()
-                // refresh toolbar all but search field
-                if (typeof this.toolbar == 'object') {
-                    let tmp = this.toolbar.items
-                    for (let t = 0; t < tmp.length; t++) {
-                        if (tmp[t].id == 'w2ui-search' || tmp[t].type == 'break') continue
-                        this.toolbar.refresh(tmp[t].id)
-                    }
-                }
-            }
+            $(this.box).find('#grid_'+ this.name +'_toolbar').show()
         } else {
             $(this.box).find('#grid_'+ this.name +'_toolbar').hide()
         }
@@ -5845,65 +5805,49 @@ class w2grid extends w2event {
 
     initColumnOnOff() {
         if (!this.show.toolbarColumns) return
-        // line number
-        let col_html = '<div class="w2ui-grid-col-onoff">'+
-            '<table><tbody>'+
-            '<tr id="grid_'+ this.name +'_column_ln_check" onclick="w2ui[\''+ this.name +'\'].columnOnOff(event, \'line-numbers\'); event.stopPropagation();">'+
-            '   <td style="width: 30px; text-align: center; padding-right: 3px; color: #888;">'+
-            '      <span class="w2ui-column-check w2ui-icon-'+ (!this.show.lineNumbers ? 'empty' : 'check') +'"></span>'+
-            '   </td>'+
-            '   <td>'+
-            '      <label>'+ w2utils.lang('Line #') +'</label>'+
-            '   </td>'+
-            '</tr>'
+        let items = [
+            { id: 'line-numbers', text: 'Line #', checked: this.show.lineNumbers }
+        ]
         // columns
         for (let c = 0; c < this.columns.length; c++) {
             let col = this.columns[c]
-            let tmp = this.columns[c].text
+            let text = this.columns[c].text
             if (col.hideable === false) continue
-            if (!tmp && this.columns[c].tooltip) tmp = this.columns[c].tooltip
-            if (!tmp) tmp = '- column '+ (parseInt(c) + 1) +' -'
-            col_html +=
-                '<tr id="grid_'+ this.name +'_column_'+ c +'_check" '+
-                '       onclick="w2ui[\''+ this.name +'\'].columnOnOff(event, \''+ col.field +'\'); event.stopPropagation();">'+
-                '   <td style="width: 30px; text-align: center; padding-right: 3px; color: #888;">'+
-                '      <span class="w2ui-column-check w2ui-icon-'+ (col.hidden ? 'empty' : 'check') +'"></span>'+
-                '   </td>'+
-                '   <td>'+
-                '       <label>'+ w2utils.stripTags(tmp) +'</label>'+
-                '   </td>'+
-                '</tr>'
+            if (!text && this.columns[c].tooltip) text = this.columns[c].tooltip
+            if (!text) text = '- column '+ (parseInt(c) + 1) +' -'
+            items.push({ id: col.field, text: w2utils.stripTags(text), checked: !col.hidden })
         }
         let url = (typeof this.url != 'object' ? this.url : this.url.get)
-        // divider
         if ((url && this.show.skipRecords) || this.show.saveRestoreState) {
-            col_html += '<tr style="pointer-events: none"><td colspan="2"><div style="border-top: 1px solid #ddd;"></div></td></tr>'
+            items.push({ text: '--' })
         }
         // skip records
         if (url && this.show.skipRecords) {
-            col_html +=
-                    '<tr><td colspan="2" style="padding: 0px">'+
-                    '    <div style="cursor: pointer; padding: 2px 8px; cursor: default">'+ w2utils.lang('Skip') +
-                    '        <input type="text" style="width: 60px" value="'+ this.offset +'" '+
-                    '            onkeydown="if ([48,49,50,51,52,53,54,55,56,57,58,13,8,46,37,39].indexOf(event.keyCode) == -1) { event.preventDefault() }"'+
-                    '            onkeypress="if (event.keyCode == 13) { '+
-                    '               w2ui[\''+ this.name +'\'].skip(this.value); '+
-                    '               jQuery(\'.w2ui-overlay\')[0].hide(); '+
-                    '            }"/> '+ w2utils.lang('records')+
-                    '    </div>'+
-                    '</td></tr>'
+            let skip =  `
+                ${w2utils.lang('Skip')}
+                <input id="${this.name}_skip" type="text" style="width: 60px" value="${his.offset}"
+                    onkeydown="if ([48,49,50,51,52,53,54,55,56,57,58,13,8,46,37,39].indexOf(event.keyCode) == -1) { event.preventDefault() }"
+                    onkeypress="if (event.keyCode == 13) {
+                        w2ui['${this.name}'].skip(this.value);
+                    }">
+                ${w2utils.lang('records')}
+            `
+            items.push({ id: '', test: skip, group: false, icon: 'w2ui-icon-empty' })
         }
         // save/restore state
         if (this.show.saveRestoreState) {
-            col_html += '<tr><td colspan="2" onclick="let grid = w2ui[\''+ this.name +'\']; grid.toolbar.uncheck(\'w2ui-column-on-off\'); grid.stateSave();">'+
-                        '    <div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Save Grid State') + '</div>'+
-                        '</td></tr>'+
-                        '<tr><td colspan="2" onclick="let grid = w2ui[\''+ this.name +'\']; grid.toolbar.uncheck(\'w2ui-column-on-off\'); grid.stateReset();">'+
-                        '    <div style="cursor: pointer; padding: 4px 8px; cursor: default">'+ w2utils.lang('Restore Default State') + '</div>'+
-                        '</td></tr>'
+            items.push(
+                { id: 'stateSave', text: w2utils.lang('Save Grid State'), icon: 'w2ui-icon-empty', group: false },
+                { id: 'stateReset', text: w2utils.lang('Restore Default State'), icon: 'w2ui-icon-empty', group: false }
+            )
         }
-        col_html                                   += '</tbody></table></div>'
-        this.toolbar.get('w2ui-column-on-off').html = col_html
+        let selected = []
+        items.forEach(item => {
+            item.text = w2utils.lang(item.text) // translate
+            if (item.checked) selected.push(item.id)
+        })
+        this.toolbar.set('w2ui-column-on-off', { selected, items })
+        return items
     }
 
     /**
@@ -6164,15 +6108,11 @@ class w2grid extends w2event {
     }
 
     columnOnOff(event, field) {
-        let $el = $(event.target).parents('tr').find('.w2ui-column-check')
         // event before
-        let edata = this.trigger({ phase: 'before', target: this.name, type: 'columnOnOff', field: field, originalEvent: event })
+        let edata = this.trigger('columnOnOff', { target: this.name, field: field, originalEvent: event })
         if (edata.isCancelled === true) return
-        // regular processing
-        let obj  = this
-        let hide = (!event.shiftKey && !event.metaKey && !event.ctrlKey && !$(event.target).hasClass('w2ui-column-check'))
         // collapse expanded rows
-        let rows = obj.find({ 'w2ui.expanded': true }, true)
+        let rows = this.find({ 'w2ui.expanded': true }, true)
         for (let r = 0; r < rows.length; r++) {
             let tmp = this.records[r].w2ui
             if (tmp && !Array.isArray(tmp.children)) {
@@ -6182,193 +6122,166 @@ class w2grid extends w2event {
         // show/hide
         if (field == 'line-numbers') {
             this.show.lineNumbers = !this.show.lineNumbers
-            if (this.show.lineNumbers) {
-                $el.addClass('w2ui-icon-check').removeClass('w2ui-icon-empty')
-            } else {
-                $el.addClass('w2ui-icon-empty').removeClass('w2ui-icon-check')
-            }
-            this.refreshBody()
-            this.resizeRecords()
+            this.refresh()
         } else {
             let col = this.getColumn(field)
             if (col.hidden) {
-                $el.addClass('w2ui-icon-check').removeClass('w2ui-icon-empty')
-                setTimeout(() => {
-                    obj.showColumn(col.field)
-                }, hide ? 0 : 50)
+                this.showColumn(col.field)
             } else {
-                $el.addClass('w2ui-icon-empty').removeClass('w2ui-icon-check')
-                setTimeout(() => {
-                    obj.hideColumn(col.field)
-                }, hide ? 0 : 50)
+                this.hideColumn(col.field)
             }
         }
-        if (hide) {
-            setTimeout(() => {
-                $().w2overlay({ name: obj.name + '_toolbar' })
-            }, 40)
-        }
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     initToolbar() {
-        let grid = this
-        // -- if toolbar is true
-        if (this.toolbar.render == null) {
-            let tmp_items      = this.toolbar.items || []
-            this.toolbar.items = []
-            this.toolbar       = new w2toolbar($.extend(true, {}, this.toolbar, { name: this.name +'_toolbar', owner: this }))
-
-            // =============================================
-            // ------ Toolbar Generic buttons
-
-            if (this.show.toolbarReload) {
-                this.toolbar.items.push($.extend(true, {}, this.buttons.reload))
-            }
-            if (this.show.toolbarColumns) {
-                this.toolbar.items.push($.extend(true, {}, this.buttons.columns))
-            }
-            if (this.show.toolbarSearch) {
-                let html =`
-                    <div class="w2ui-grid-search-input">
-                        ${this.buttons.search.html}
-                        <div id="grid_${this.name}_search_name" class="w2ui-grid-search-name">
-                            <span class="name-icon w2ui-icon-search"></span>
-                            <span class="name-text"></span>
-                            <span class="name-cross w2ui-action" data-click="searchReset">x</span>
-                        </div>
-                        <input type="text" id="grid_${this.name}_search_all" class="w2ui-search-all" tabindex="-1"
-                            autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"
-                            placeholder="${w2utils.lang(this.last.label, true)}" value="${this.last.search}"
-                            data-focus="searchSuggest" data-blur="searchSuggest|true|true|this" data-click="stop"
-                        >
-                        <div class="w2ui-search-drop w2ui-action" data-click="searchOpen"
-                                style="${this.multiSearch ? '' : 'display: none'}">
-                            <span class="w2ui-icon-drop"></span>
-                        </div>
-                    </div>`
-                this.toolbar.items.push({
-                    id: 'w2ui-search',
-                    type: 'html',
-                    html,
-                    onRefresh(event) {
-                        event.done(() => {
-                            let input = $(this.box).find(`#grid_${grid.name}_search_all`)
-                            w2utils.bindEvents($(this.box).find(`#grid_${grid.name}_search_all, .w2ui-action`), grid)
-                            input.on('change', function (event) {
-                                let val = this.value
-                                let sel = jQuery(this).data('selected')
-                                let fld = jQuery(this).data('w2field')
-                                if (fld) val = fld.clean(val)
-                                if (fld && fld.type == 'list' && sel && typeof sel.id == 'undefined') {
-                                    grid.searchReset()
-                                } else {
-                                    grid.search(grid.last.field, val)
-                                }
-                                grid.searchSuggest(true, true, this)
-                            })
-                                .on('keydown', function(event) {
-                                    if (event.keyCode == 40) {
-                                        grid.searchSuggest(true)
-                                    }
-                                })
+        let self = this
+        // if it is already initiazlied
+        if (this.toolbar.render != null) {
+            return
+        }
+        let tb_items = this.toolbar.items || []
+        this.toolbar.items = []
+        this.toolbar = new w2toolbar(w2utils.extend({}, this.toolbar, { name: this.name +'_toolbar', owner: this }))
+        if (this.show.toolbarReload) {
+            this.toolbar.items.push(w2utils.extend({}, this.buttons.reload))
+        }
+        if (this.show.toolbarColumns) {
+            this.toolbar.items.push(w2utils.extend({}, this.buttons.columns))
+        }
+        if (this.show.toolbarSearch) {
+            let html =`
+                <div class="w2ui-grid-search-input">
+                    ${this.buttons.search.html}
+                    <div id="grid_${this.name}_search_name" class="w2ui-grid-search-name">
+                        <span class="name-icon w2ui-icon-search"></span>
+                        <span class="name-text"></span>
+                        <span class="name-cross w2ui-action" data-click="searchReset">x</span>
+                    </div>
+                    <input type="text" id="grid_${this.name}_search_all" class="w2ui-search-all" tabindex="-1"
+                        autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"
+                        placeholder="${w2utils.lang(this.last.label, true)}" value="${this.last.search}"
+                        data-focus="searchSuggest" data-click="stop"
+                    >
+                    <div class="w2ui-search-drop w2ui-action" data-click="searchOpen"
+                            style="${this.multiSearch ? '' : 'display: none'}">
+                        <span class="w2ui-icon-drop"></span>
+                    </div>
+                </div>`
+            this.toolbar.items.push({
+                id: 'w2ui-search',
+                type: 'html',
+                html,
+                onRefresh(event) {
+                    event.done(() => {
+                        let input = query(this.box).find(`#grid_${self.name}_search_all`)
+                        w2utils.bindEvents(query(this.box).find(`#grid_${self.name}_search_all, .w2ui-action`), self)
+                        input.on('change', function (event) {
+                            let val = this.value
+                            let sel = jQuery(this).data('selected')
+                            let fld = jQuery(this).data('w2field')
+                            if (fld) val = fld.clean(val)
+                            if (fld && fld.type == 'list' && sel && typeof sel.id == 'undefined') {
+                                self.searchReset()
+                            } else {
+                                self.search(self.last.field, val)
+                            }
+                            self.searchSuggest(true, true, this)
                         })
-                    }
-                })
-            }
-            if (this.show.toolbarAdd && Array.isArray(tmp_items)
-                    && tmp_items.map((item) => { return item.id }).indexOf(this.buttons.add.id) == -1) {
-                this.toolbar.items.push($.extend(true, {}, this.buttons.add))
-            }
-            if (this.show.toolbarEdit && Array.isArray(tmp_items)
-                    && tmp_items.map((item) => { return item.id }).indexOf(this.buttons.edit.id) == -1) {
-                this.toolbar.items.push($.extend(true, {}, this.buttons.edit))
-            }
-            if (this.show.toolbarDelete && Array.isArray(tmp_items)
-                    && tmp_items.map((item) => { return item.id }).indexOf(this.buttons.delete.id) == -1) {
-                this.toolbar.items.push($.extend(true, {}, this.buttons.delete))
-            }
-            if (this.show.toolbarSave && Array.isArray(tmp_items)
-                    && tmp_items.map((item) => { return item.id }).indexOf(this.buttons.save.id) == -1) {
-                if (this.show.toolbarAdd || this.show.toolbarDelete || this.show.toolbarEdit) {
-                    this.toolbar.items.push({ type: 'break', id: 'w2ui-break2' })
-                }
-                this.toolbar.items.push($.extend(true, {}, this.buttons.save))
-            }
-            // add original buttons
-            if (tmp_items) for (let i = 0; i < tmp_items.length; i++) this.toolbar.items.push(tmp_items[i])
-
-            // =============================================
-            // ------ Toolbar onClick processing
-
-            this.toolbar.on('click', (event) => {
-                let edata = this.trigger({ phase: 'before', type: 'toolbar', target: event.target, originalEvent: event })
-                if (edata.isCancelled === true) return
-                let id = event.target
-                let edata2
-                switch (id) {
-                    case 'w2ui-reload':
-                        edata2 = this.trigger({ phase: 'before', type: 'reload', target: this.name })
-                        if (edata2.isCancelled === true) return false
-                        this.reload()
-                        this.trigger($.extend(edata2, { phase: 'after' }))
-                        break
-                    case 'w2ui-column-on-off':
-                        this.initColumnOnOff()
-                        this.initResize()
-                        this.resize()
-                        break
-                    case 'w2ui-search-advanced':
-                        let it = this.toolbar.get(id)
-                        if (it.checked) {
-                            this.searchClose()
-                        } else {
-                            this.searchOpen()
-                        }
-                        // need to cancel event in order to user custom searchOpen/close functions
-                        this.toolbar.tooltipHide('w2ui-search-advanced')
-                        event.preventDefault()
-                        break
-                    case 'w2ui-add':
-                        // events
-                        edata2 = this.trigger({ phase: 'before', target: this.name, type: 'add', recid: null })
-                        if (edata2.isCancelled === true) return false
-                        this.trigger($.extend(edata2, { phase: 'after' }))
-                        // hide all tooltips
-                        setTimeout(() => { $().w2tag() }, 20)
-                        break
-                    case 'w2ui-edit': {
-                        let sel   = this.getSelection()
-                        let recid = null
-                        if (sel.length == 1) recid = sel[0]
-                        // events
-                        edata2 = this.trigger({ phase: 'before', target: this.name, type: 'edit', recid: recid })
-                        if (edata2.isCancelled === true) return false
-                        this.trigger($.extend(edata2, { phase: 'after' }))
-                        // hide all tooltips
-                        setTimeout(() => { $().w2tag() }, 20)
-                        break
-                    }
-                    case 'w2ui-delete':
-                        this.delete()
-                        break
-                    case 'w2ui-save':
-                        this.save()
-                        break
-                }
-                // no default action
-                this.trigger($.extend(edata, { phase: 'after' }))
-            })
-            this.toolbar.on('refresh', (event) => {
-                if (event.target == 'w2ui-search') {
-                    let sd = this.searchData
-                    setTimeout(() => {
-                        this.searchInitInput(this.last.field, (sd.length == 1 ? sd[0].value : null))
-                    }, 1)
+                            .on('keydown', function(event) {
+                                if (event.keyCode == 40) {
+                                    self.searchSuggest(true)
+                                }
+                            })
+                    })
                 }
             })
         }
+        if (Array.isArray(tb_items)) {
+            let ids = tb_items.map(item => item.id)
+            if (this.show.toolbarAdd && !ids.includes(this.buttons.add.id)) {
+                this.toolbar.items.push(w2utils.extend({}, this.buttons.add))
+            }
+            if (this.show.toolbarEdit && !ids.includes(this.buttons.edit.id)) {
+                this.toolbar.items.push(w2utils.extend({}, this.buttons.edit))
+            }
+            if (this.show.toolbarDelete && !ids.includes(this.buttons.delete.id)) {
+                this.toolbar.items.push(w2utils.extend({}, this.buttons.delete))
+            }
+            if (this.show.toolbarSave && !ids.includes(this.buttons.save.id)) {
+                if (this.show.toolbarAdd || this.show.toolbarDelete || this.show.toolbarEdit) {
+                    this.toolbar.items.push({ type: 'break', id: 'w2ui-break2' })
+                }
+                this.toolbar.items.push(w2utils.extend({}, this.buttons.save))
+            }
+        }
+        // add original buttons
+        this.toolbar.items.push(...tb_items)
+
+        // =============================================
+        // ------ Toolbar onClick processing
+
+        this.toolbar.on('click', (event) => {
+            let edata = this.trigger('toolbar', { target: event.target, originalEvent: event })
+            if (edata.isCancelled === true) return
+            let edata2
+            switch (event.detail.item.id) {
+                case 'w2ui-reload':
+                    edata2 = this.trigger('reload', { target: this.name })
+                    if (edata2.isCancelled === true) return false
+                    this.reload()
+                    edata2.finish()
+                    break
+                case 'w2ui-column-on-off':
+                    if (event.detail.subItem) {
+                        let id = event.detail.subItem.id
+                        if (['stateSave', 'stateReset'].includes(id)) {
+                            debugger
+                            this[id]()
+                        } else {
+                            this.columnOnOff(event, event.detail.subItem.id)
+                        }
+                    } else {
+                        console.log(this.initColumnOnOff())
+                        this.initResize() // TODO: is it needed?
+                        this.resize()
+                    }
+                    break
+                case 'w2ui-add':
+                    // events
+                    edata2 = this.trigger('add', { target: this.name, recid: null })
+                    if (edata2.isCancelled === true) return false
+                    edata2.finish()
+                    break
+                case 'w2ui-edit': {
+                    let sel   = this.getSelection()
+                    let recid = null
+                    if (sel.length == 1) recid = sel[0]
+                    // events
+                    edata2 = this.trigger('edit', { target: this.name, recid: recid })
+                    if (edata2.isCancelled === true) return false
+                    edata2.finish()
+                    break
+                }
+                case 'w2ui-delete':
+                    this.delete()
+                    break
+                case 'w2ui-save':
+                    this.save()
+                    break
+            }
+            // no default action
+            edata.finish()
+        })
+        this.toolbar.on('refresh', (event) => {
+            if (event.target == 'w2ui-search') {
+                let sd = this.searchData
+                setTimeout(() => {
+                    this.searchInitInput(this.last.field, (sd.length == 1 ? sd[0].value : null))
+                }, 1)
+            }
+        })
     }
 
     initResize() {
@@ -6570,15 +6483,14 @@ class w2grid extends w2event {
             let calculatedHeight = w2utils.getSize(columns, 'height')
                 + w2utils.getSize($(this.box).find('#grid_'+ this.name +'_records table'), 'height')
                 + (bodyOverflowX ? w2utils.scrollBarSize() : 0)
-            this.height          = calculatedHeight
-                + w2utils.getSize(grid, '+height')
+            this.height = calculatedHeight
                 + (this.show.header ? w2utils.getSize(header, 'height') : 0)
                 + (this.show.toolbar ? w2utils.getSize(toolbar, 'height') : 0)
                 + (summary.css('display') != 'none' ? w2utils.getSize(summary, 'height') : 0)
                 + (this.show.footer ? w2utils.getSize(footer, 'height') : 0)
             grid.css('height', this.height)
             body.css('height', calculatedHeight)
-            box.css('height', w2utils.getSize(grid, 'height') + w2utils.getSize(box, '+height'))
+            box.css('height', w2utils.getSize(grid, 'height'))
         } else {
             // fixed body height
             let calculatedHeight = grid.height()
@@ -6590,7 +6502,7 @@ class w2grid extends w2event {
         }
 
         let buffered = this.records.length
-        let url      = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = (typeof this.url != 'object' ? this.url : this.url.get)
         if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length
         // apply overflow
         if (!this.fixedBody) { bodyOverflowY = false }
@@ -6891,7 +6803,7 @@ class w2grid extends w2event {
             <div class="search-title">
                 ${w2utils.lang('Advanced Search')}
                 <span class="search-logic" style="${this.show.searchLogic ? '' : 'display: none'}">
-                    <select id="grid_${this.name}_logic">
+                    <select id="grid_${this.name}_logic" class="w2ui-input">
                         <option value="AND" ${this.last.logic == 'AND' ? 'selected' : ''}>${w2utils.lang('All')}</option>
                         <option value="OR" ${this.last.logic == 'OR' ? 'selected' : ''}>${w2utils.lang('Any')}</option>
                     </select>
@@ -7147,11 +7059,11 @@ class w2grid extends w2event {
             }
         }
         // add on change event
-        $(this.box).find(`#w2ui-overlay-${this.name}-searchOverlay .w2ui-grid-search-advanced *[rel=search]`)
+        $(this.box).find(`#w2overlay-${this.name}-search-overlay .w2ui-grid-search-advanced *[rel=search]`)
             .on('keypress', function(evnt) {
                 if (evnt.keyCode == 13) {
                     obj.search()
-                    $().w2overlay({ name: obj.name + '-searchOverlay' })
+                    w2tooltip.hide(obj.name + '-search-overlay')
                 }
             })
     }
@@ -7362,7 +7274,6 @@ class w2grid extends w2event {
         let text = w2utils.lang(typeof col.text == 'function' ? col.text(col) : col.text)
         let tooltip = w2utils.lang(typeof col.tooltip == 'function' ? col.tooltip(col) : col.tooltip)
         let html = '<td id="grid_'+ this.name + '_column_' + i +'" col="'+ i +'" class="w2ui-head '+ sortStyle + reorderCols + '" ' +
-                         (this.columnTooltip == 'normal' && tooltip ? 'title="'+ tooltip +'" ' : '') +
                     '    onmouseEnter = "w2ui[\''+ this.name +'\'].columnTooltipShow(\''+ i +'\', event);"'+
                     '    onmouseLeave  = "w2ui[\''+ this.name +'\'].columnTooltipHide(\''+ i +'\', event);"'+
                     '    oncontextmenu = "w2ui[\''+ this.name +'\'].contextMenu(null, '+ i +', event);"'+
@@ -7379,31 +7290,19 @@ class w2grid extends w2event {
     }
 
     columnTooltipShow(ind, event) {
-        if (this.columnTooltip == 'normal') return
-        let $el  = $(this.box).find('#grid_'+ this.name + '_column_'+ ind)
+        let $el  = query(this.box).find('#grid_'+ this.name + '_column_'+ ind)
         let item = this.columns[ind]
         let pos  = this.columnTooltip
-        $el.prop('_mouse_over', true)
-        setTimeout(() => {
-            if ($el.prop('_mouse_over') === true && $el.prop('_mouse_tooltip') !== true) {
-                $el.prop('_mouse_tooltip', true)
-                // show tooltip
-                $el.w2tag(item.tooltip, { position: pos, top: 5 })
-            }
-        }, 1)
+        w2tooltip.show({
+            name: this.name + '-column-tooltip',
+            anchor: $el.get(0),
+            html: item.tooltip,
+            position: pos,
+        })
     }
 
     columnTooltipHide(ind, event) {
-        if (this.columnTooltip == 'normal') return
-        let $el = $(this.box).find('#grid_'+ this.name + '_column_'+ ind)
-        $el.removeProp('_mouse_over')
-        setTimeout(() => {
-            if ($el.prop('_mouse_over') !== true && $el.prop('_mouse_tooltip') === true) {
-                $el.removeProp('_mouse_tooltip')
-                // hide tooltip
-                $el.w2tag()
-            }
-        }, 1)
+        w2tooltip.hide(this.name + '-column-tooltip')
     }
 
     getRecordsHTML() {
@@ -7483,7 +7382,7 @@ class w2grid extends w2event {
         }
         // hide bubble
         if (this.last.bubbleEl) {
-            $(this.last.bubbleEl).w2tag()
+            w2tooltip.hide(this.name + '-bubble')
             this.last.bubbleEl = null
         }
         // column virtual scroll
@@ -8023,8 +7922,6 @@ class w2grid extends w2event {
             infoBubble += '<span class="w2ui-info '+ infoIcon +'" style="'+ infoStyle + '" '+
                 (col.info.showOn != null ? 'on' + col.info.showOn : 'onclick') +
                 '="event.stopPropagation(); w2ui[\''+ this.name + '\'].showBubble('+ ind +', '+ col_ind +')"'+
-                (col.info.hideOn != null ? 'on' + col.info.hideOn : '') +
-                '="let grid = w2ui[\''+ this.name + '\']; if (grid.last.bubbleEl) { $(grid.last.bubbleEl).w2tag() } grid.last.bubbleEl = null;"'+
                 '></span>'
         }
         let data = value
@@ -8063,9 +7960,9 @@ class w2grid extends w2event {
         let clipboardTxt, clipboardIcon
         if (col.clipboardCopy){
             clipboardTxt  = (typeof col.clipboardCopy == 'string' ? col.clipboardCopy : w2utils.lang('Copy to clipboard'))
-            clipboardIcon = '<span onmouseEnter="jQuery(this).w2tag(\'' + clipboardTxt +'\', { position: \'top|bottom\' })"'
-                + 'onclick="w2ui[\''+ this.name + '\'].clipboardCopy('+ ind +', '+ col_ind +'); jQuery(this).w2tag(w2utils.lang(\'Copied\'), { position: \'top|bottom\' }); event.stopPropagation();" '
-                + 'onmouseLeave="jQuery(this).w2tag()" class="w2ui-clipboard-copy w2ui-icon-paste"></span>'
+            clipboardIcon = `<span onmouseEnter="jQuery(this).w2tag('${clipboardTxt}', { name: '${this.name}-bubble', position: 'top|bottom' })"
+                onclick="w2ui['${this.name}'].clipboardCopy(${ind}, ${col_ind}); jQuery(this).w2tag(w2utils.lang('Copied'), { name: '${this.name}-bubble', position: 'top|bottom' }); event.stopPropagation();"
+                onmouseLeave="jQuery(this).w2tag({ name: '${this.name}-bubble' })" class="w2ui-clipboard-copy w2ui-icon-paste"></span>`
         }
         // data
         data = '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') + ' ' + className +
@@ -8113,8 +8010,10 @@ class w2grid extends w2event {
         if (!info) return
         let html = ''
         let rec  = this.records[ind]
-        let el   = $(this.box).find('#grid_'+ this.name +'_data_'+ ind +'_'+ col_ind + ' .w2ui-info')
-        if (this.last.bubbleEl) $(this.last.bubbleEl).w2tag()
+        let el   = query(this.box).find('#grid_'+ this.name +'_data_'+ ind +'_'+ col_ind + ' .w2ui-info')
+        if (this.last.bubbleEl) {
+            w2tooltip.hide(this.name + '-bubble')
+        }
         this.last.bubbleEl = el
         // if no fields defined - show all
         if (info.fields == null) {
@@ -8185,14 +8084,18 @@ class w2grid extends w2event {
             }
             html += '</table>'
         }
-        $(el).w2tag($.extend({
-            html        : html,
-            left        : -4,
-            position    : 'bottom|top',
-            className   : 'w2ui-info-bubble',
-            style       : '',
-            hideOnClick : true
-        }, info.options || {}))
+        w2tooltip.show(w2utils.extend({
+                name: this.name + '-bubble',
+                html,
+                anchor: el.get(0),
+                position: 'top|bottom',
+                class: 'w2ui-info-bubble',
+                style: '',
+                hideOn: ['doc-click']
+            }, info.options ?? {}))
+        .hide(() => [
+            this.last.bubbleEl = null
+        ])
     }
 
     // return null or the editable object if the given cell is editable
@@ -8323,12 +8226,12 @@ class w2grid extends w2event {
     }
 
     lock(msg, showSpinner) {
-        let args = Array.prototype.slice.call(arguments, 0)
+        let args = Array.from(arguments)
         args.unshift(this.box)
         setTimeout(() => {
             // hide empty msg if any
             $(this.box).find('#grid_'+ this.name +'_empty_msg').remove()
-            w2utils.lock.apply(window, args)
+            w2utils.lock(...args)
         }, 10)
     }
 
@@ -8673,150 +8576,17 @@ class w2grid extends w2event {
     }
 
     message(options) {
-        let obj = this
-        if (typeof options == 'string') {
-            options = {
-                width : (options.length < 300 ? 350 : 550),
-                height: (options.length < 300 ? 170: 250),
-                body  : `<div class="w2ui-centered">${options}</div>`,
-                onOpen(event) {
-                    setTimeout(() => {
-                        w2utils.bindEvents($(obj.box).find('.w2ui-btn'), obj)
-                        $(event.box).find('.w2ui-btn')
-                            .off('.message')
-                            .on('keydown.message', function(evt) {
-                                if (evt.keyCode == 27) $(evt.target).click() // esc
-                            })
-                            .focus()
-
-                    }, 25)
-                },
-                onClose(event) {
-                    if (typeof options.callBack == 'function') {
-                        options.callBack(event)
-                    }
-                }
-            }
-        }
-        if (options && options.buttons == null) {
-            options.buttons = `<button type="button" class="w2ui-btn" data-click="message">
-                ${w2utils.lang('Ok')}
-            </button>`
-        }
-        w2utils.message.call(this, {
-                box   : this.box,
-                path  : 'w2ui.' + this.name,
-                title : '.w2ui-grid-header:visible',
-                body  : '.w2ui-grid-box'
-            }, options)
-        .then((event) => {
-            if (typeof options.then == 'function') {
-                options.then(event)
-            }
-        })
-
-        let prom = {
-            ok(callBack) {
-                options.callBack = callBack
-                return prom
-            },
-            then(callBack) {
-                options.then = callBack
-                return prom
-            }
-        }
-        return prom
+        return w2utils.message.call(this, {
+            box   : this.box,
+            after : '.w2ui-grid-header'
+        }, options)
     }
 
     confirm(options) {
-        let grid = this
-        if (typeof options == 'string') {
-            options = {
-                width: (options.length < 300 ? 350 : 550),
-                height: (options.length < 300 ? 170: 250),
-                body: '<div class="w2ui-centered">' + options + '</div>'
-            }
-        }
-        let yes_click = (event) => {
-            if (typeof options.yes_click == 'function') {
-                options.yes_click(event)
-            }
-            if (typeof options.callBack == 'function') {
-                options.callBack(Object.assign(event, { answer: 'yes' }))
-            }
-            grid.message()
-        }
-        let no_click = (event) => {
-            if (typeof options.no_click == 'function') {
-                options.no_click(event)
-            }
-            if (typeof options.callBack == 'function') {
-                options.callBack(Object.assign(event, { answer: 'no' }))
-            }
-            grid.message()
-        }
-        let btn1 = `<button type="button" class="w2ui-btn btn-yes ${options.yes_class || ''}">${w2utils.lang(options.yes_text || 'Yes')}</button>`
-        let btn2 = `<button type="button" class="w2ui-btn btn-no ${options.no_class || ''}">${w2utils.lang(options.no_text || 'No')}</button>`
-
-        Object.assign(options, {
-            buttons: w2utils.settings.macButtonOrder
-                ? btn2 + btn1
-                : btn1 + btn2,
-            onOpen(event) {
-                setTimeout(() => {
-                    let $btns = $(this.box).find('.w2ui-btn')
-                    $btns.off('.message')
-                        .on('blur.message', function(evt) {
-                            // last input
-                            if ($btns.index(evt.target) + 1 === $btns.length) {
-                                $btns.get(0).focus()
-                                evt.preventDefault()
-                            }
-                        })
-                        .on('keydown.message', function(evt) {
-                            if (evt.keyCode == 27) no_click(event) // esc
-                        })
-                        .focus()
-                    $(this.box).find('.w2ui-btn.btn-yes')
-                        .off('click')
-                        .on('click', () => { yes_click(event) })
-                    $(this.box).find('.w2ui-btn.btn-no')
-                        .off('click')
-                        .on('click', () => { no_click(event) })
-                }, 25)
-            }
-        })
-        w2utils.message.call(this, {
-                box   : this.box,
-                path  : 'w2ui.' + this.name,
-                title : '.w2ui-grid-header:visible',
-                body  : '.w2ui-grid-box'
-            }, options)
-        .then((event) => {
-            if (typeof options.then == 'function') {
-                options.then(event)
-            }
-        })
-
-        let prom = {
-            yes(callBack) {
-                options.yes_click = callBack
-                return prom
-            },
-            no(callBack) {
-                options.no_click = callBack
-                return prom
-            },
-            answer(callBack) {
-                options.callBack = callBack
-                return prom
-            },
-            then(callBack) {
-                options.then = callBack
-                return prom
-            }
-        }
-        return prom
+        return w2utils.confirm.call(this, {
+            box   : this.box,
+            after : '.w2ui-grid-header'
+        }, options)
     }
 }
 

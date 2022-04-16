@@ -1,0 +1,38 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data:; style-src 'self' 'unsafe-inline';">
+    <script type="text/javascript" src="../libs/jquery/jquery-3.5.1.js"></script>
+    <script type="module" src="../src/w2compat.js?globals"></script>
+    <script type="module" src="web-comp.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body style="line-height: 1.5; padding: 50px">
+    <span>test</span>
+    <div id="div" style="border: 1px solid red; width: 400px; height: 200px; padding: 5px; margin-bottom: 15px; overflow: auto">
+        This is some text with some html controls in them. This is some text with some html controls in them.
+        This is some text with some html controls in them. This is some text with some html controls in them.
+        <div>
+            <input class="input" id="inp1" style="width: 40px">
+        </div>
+        This is some text with some html controls in them. This is some text with some html controls in them.
+        This is some text with some html controls in them. This is some text with some html controls in them.
+        <br>
+        <input class="input" id="inp2">
+        <br>And other <span id="span1">text</span> inside elements.
+        <br>
+        <br>
+        <button id="button" class="w2ui-btn" aria-describedby="tooltip">My button</button>
+    </div>
+    <web-comp name="some_name" style="float: left; margin-right: 10px; width: 400px; height: 200px; padding: 5px; border: 1px solid blue; display: block">
+    </web-comp>
+    <web-comp name="some_name" style="float: left; margin-right: 10px; width: 400px; height: 200px; padding: 5px; border: 1px solid blue; display: block">
+    </web-comp>
+    <web-comp name="some_name" style="float: left; margin-right: 10px; width: 400px; height: 200px; padding: 5px; border: 1px solid blue; display: block">
+    </web-comp>
+</body>
+</html>

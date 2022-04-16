@@ -1,17 +1,24 @@
-/************************************************************************
-*   Part of w2ui 2.0 library
-*   - Dependencies: jQuery, w2utils
-*
-* == 2.0 changes
-*   - CSP - fixed inline events
-*   - resizeObserver for the box
-*
-************************************************************************/
+/**
+ * Part of w2ui 2.0 library
+ *  - Dependencies: mQuery, w2utils, w2base, w2tooltip
+ *
+ * == 2.0 changes
+ *  - CSP - fixed inline events
+ *  - removed jQuery dependency
+ *  - resizeObserver for the box
+ *  - refactored w2events
+ *  - scrollIntoView - removed callback
+ *  - scroll, scrollIntoView return promise
+ *  - animateInsert, animateClose - returns a promise
+ *  - add, insert return a promise
+ */
 
-import { w2event } from './w2event.js'
+import { w2base } from './w2base.js'
 import { w2ui, w2utils } from './w2utils.js'
+import { query } from './query.js'
+import { w2tooltip } from './w2tooltip.js'
 
-class w2tabs extends w2event {
+class w2tabs extends w2base {
     constructor(options) {
         super(options.name)
         this.box          = null // DOM Element that holds the element
@@ -47,7 +54,7 @@ class w2tabs extends w2event {
         let tabs = options.tabs
         delete options.tabs
         // mix in options
-        $.extend(true, this, options)
+        Object.assign(this, options)
         // add item via method to makes sure item_template is applied
         if (Array.isArray(tabs)) this.add(tabs)
         // need to reassign back to keep it in config
@@ -61,6 +68,7 @@ class w2tabs extends w2event {
     insert(id, tabs) {
         if (!Array.isArray(tabs)) tabs = [tabs]
         // assume it is array
+        let proms = []
         tabs.forEach(tab => {
             // checks
             if (tab.id == null) {
@@ -72,14 +80,15 @@ class w2tabs extends w2event {
             let it = Object.assign({}, this.tab_template, tab)
             if (id == null) {
                 this.tabs.push(it)
-                this.animateInsert(null, it)
+                proms.push(this.animateInsert(null, it))
             } else {
                 let middle = this.get(id, true)
                 let before = this.tabs[middle].id
                 this.tabs.splice(middle, 0, it)
-                this.animateInsert(before, it)
+                proms.push(this.animateInsert(before, it))
             }
         })
+        return Promise.all(proms)
     }
 
     remove() {
@@ -91,7 +100,7 @@ class w2tabs extends w2event {
             // remove from array
             this.tabs.splice(this.get(tab.id, true), 1)
             // remove from screen
-            $(this.box).find(`#tabs_${this.name}_tab_${w2utils.escapeId(tab.id)}`).remove()
+            query(this.box).find(`#tabs_${this.name}_tab_${w2utils.escapeId(tab.id)}`).remove()
         })
         this.resize()
         return effected
@@ -107,7 +116,7 @@ class w2tabs extends w2event {
     set(id, tab) {
         let index = this.get(id, true)
         if (index == null) return false
-        $.extend(this.tabs[index], tab)
+        w2utils.extend(this.tabs[index], tab)
         this.refresh(id)
         return true
     }
@@ -181,16 +190,16 @@ class w2tabs extends w2event {
 
     dragMove(event) {
         if (!this.last.reordering) return
-        let obj  = this
+        let self = this
         let info = this.last.moving
         let tab  = this.tabs[info.index]
         let next = _find(info.index, 1)
         let prev = _find(info.index, -1)
-        let $el  = $(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(tab.id))
+        let $el  = query(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(tab.id))
         if (info.divX > 0 && next) {
-            let $nextEl = $(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(next.id))
-            let width1  = parseInt($el.css('width'))
-            let width2  = parseInt($nextEl.css('width'))
+            let $nextEl = query(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(next.id))
+            let width1  = parseInt($el.get(0).clientWidth)
+            let width2  = parseInt($nextEl.get(0).clientWidth)
             if (width1 < width2) {
                 width1 = Math.floor(width1 / 3)
                 width2 = width2 - width1
@@ -201,7 +210,7 @@ class w2tabs extends w2event {
             if (info.divX > width2) {
                 let index = this.tabs.indexOf(next)
                 this.tabs.splice(info.index, 0, this.tabs.splice(index, 1)[0]) // reorder in the array
-                info.$tab.before($nextEl)
+                info.$tab.before($nextEl.get(0))
                 info.$tab.css('opacity', 0)
                 Object.assign(this.last.moving, {
                     index: index,
@@ -213,9 +222,9 @@ class w2tabs extends w2event {
             }
         }
         if (info.divX < 0 && prev) {
-            let $prevEl = $(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(prev.id))
-            let width1  = parseInt($el.css('width'))
-            let width2  = parseInt($prevEl.css('width'))
+            let $prevEl = query(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(prev.id))
+            let width1  = parseInt($el.get(0).clientWidth)
+            let width2  = parseInt($prevEl.get(0).clientWidth)
             if (width1 < width2) {
                 width1 = Math.floor(width1 / 3)
                 width2 = width2 - width1
@@ -239,7 +248,7 @@ class w2tabs extends w2event {
         }
         function _find(ind, inc) {
             ind    += inc
-            let tab = obj.tabs[ind]
+            let tab = self.tabs[ind]
             if (tab && tab.hidden) {
                 tab = _find(ind, inc)
             }
@@ -247,41 +256,26 @@ class w2tabs extends w2event {
         }
     }
 
-    tooltipShow(id, event, forceRefresh) {
+    tooltipShow(id) {
         let item = this.get(id)
-        let $el  = $(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(id))
+        let el = query(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(id)).get(0)
         if (this.tooltip == null || item.disabled || this.last.reordering) {
             return
         }
         let pos = this.tooltip
         let txt = item.tooltip
         if (typeof txt == 'function') txt = txt.call(this, item)
-        $el.prop('_mouse_over', true)
-        setTimeout(() => {
-            if ($el.prop('_mouse_over') === true && $el.prop('_mouse_tooltip') !== true) {
-                $el.prop('_mouse_tooltip', true)
-                // show tooltip
-                $el.w2tag(w2utils.lang(txt), { position: pos })
-            }
-            if (forceRefresh == true) {
-                $el.w2tag(w2utils.lang(txt), { position: pos })
-            }
-        }, 1)
+        w2tooltip.show({
+            anchor: el,
+            name: this.name + '_tooltip',
+            html: txt,
+            position: pos
+        })
     }
 
     tooltipHide(id) {
-        let item = this.get(id)
-        let $el  = $(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(id))
-        if (this.tooltip == null || item.disabled || this.last.reordering) {
-            return
-        }
-        $el.removeProp('_mouse_over')
-        setTimeout(() => {
-            if ($el.prop('_mouse_over') !== true && $el.prop('_mouse_tooltip') === true) {
-                $el.removeProp('_mouse_tooltip')
-                $el.w2tag() // hide tooltip
-            }
-        }, 1)
+        if (this.tooltip == null) return
+        w2tooltip.hide(this.name + '_tooltip')
     }
 
     getTabHTML(id) {
@@ -307,8 +301,8 @@ class w2tabs extends w2event {
         if (tab.disabled) { addStyle += 'opacity: 0.2;' }
         if (tab.closable && !tab.disabled) {
             closable = `<div class="w2ui-tab-close w2ui-eaction ${this.active === tab.id ? 'active' : ''}"
-                data-mouseenter='["tooltipShow", "${tab.id}", "event"]'
-                data-mouseleave='["tooltipHide", "${tab.id}", "event"]'
+                data-mouseenter='["tooltipShow", "${tab.id}"]'
+                data-mouseleave='["tooltipHide", "${tab.id}"]'
                 data-mousedown="stop"
                 data-mouseup='["clickClose", "${tab.id}", "event"]'>
             </div>`
@@ -316,8 +310,8 @@ class w2tabs extends w2event {
         return `
             <div id="tabs_${this.name}_tab_${tab.id}" style="${addStyle} ${tab.style}"
                class="w2ui-tab w2ui-eaction ${this.active === tab.id ? 'active' : ''} ${tab.closable ? 'closable' : ''} ${tab.class ? tab.class : ''}"
-               data-mouseenter ='["tooltipShow", "${tab.id}", "event"]'
-               data-mouseleave ='["tooltipHide", "${tab.id}", "event"]'
+               data-mouseenter ='["tooltipShow", "${tab.id}"]'
+               data-mouseleave ='["tooltipHide", "${tab.id}"]'
                data-mousedown  ='["initReorder", "${tab.id}", "event"]'
                data-click      ='["click", "${tab.id}", "event"]'
                >
@@ -327,9 +321,13 @@ class w2tabs extends w2event {
 
     refresh(id) {
         let time = (new Date()).getTime()
-        if (this.flow == 'up') $(this.box).addClass('w2ui-tabs-up'); else $(this.box).removeClass('w2ui-tabs-up')
+        if (this.flow == 'up') {
+            query(this.box).addClass('w2ui-tabs-up')
+         } else {
+            query(this.box).removeClass('w2ui-tabs-up')
+         }
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'refresh', target: (id != null ? id : this.name), object: this.get(id) })
+        let edata = this.trigger('refresh', { target: (id != null ? id : this.name), object: this.get(id) })
         if (edata.isCancelled === true) return
         if (id == null) {
             // refresh all
@@ -339,21 +337,21 @@ class w2tabs extends w2event {
         } else {
             // create or refresh only one item
             let selector = '#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(id)
-            let $tab = $(this.box).find(selector)
+            let $tab = query(this.box).find(selector)
             let tabHTML = this.getTabHTML(id)
             if ($tab.length === 0) {
-                $(this.box).find('#tabs_'+ this.name +'_right').before(tabHTML)
+                query(this.box).find('#tabs_'+ this.name +'_right').before(tabHTML)
             } else {
-                if ($(this.box).find('.tab-animate-insert').length == 0) {
-                    $tab.replaceWith(tabHTML)
+                if (query(this.box).find('.tab-animate-insert').length == 0) {
+                    $tab.replace(tabHTML)
                 }
             }
-            w2utils.bindEvents($(this.box).find(`${selector}, ${selector} .w2ui-eaction`), this)
+            w2utils.bindEvents(query(this.box).find(`${selector}, ${selector} .w2ui-eaction`), this)
         }
         // right html
-        $(this.box).find('#tabs_'+ this.name +'_right').html(this.right)
+        query(this.box).find('#tabs_'+ this.name +'_right').html(this.right)
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         // this.resize();
         return (new Date()).getTime() - time
     }
@@ -361,13 +359,13 @@ class w2tabs extends w2event {
     render(box) {
         let time = (new Date()).getTime()
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box })
+        let edata = this.trigger('render', { target: this.name, box: box })
         if (edata.isCancelled === true) return
         // default action
         // if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
         if (box != null) {
-            if ($(this.box).find('#tabs_'+ this.name + '_right').length > 0) {
-                $(this.box)
+            if (query(this.box).find('#tabs_'+ this.name + '_right').length > 0) {
+                query(this.box)
                     .removeAttr('name')
                     .removeClass('w2ui-reset w2ui-tabs')
                     .html('')
@@ -383,19 +381,19 @@ class w2tabs extends w2event {
             </div>
             <div class="w2ui-scroll-left w2ui-eaction" data-click='["scroll","left"]'></div>
             <div class="w2ui-scroll-right w2ui-eaction" data-click='["scroll","right"]'></div>`
-        $(this.box)
+        query(this.box)
             .attr('name', this.name)
             .addClass('w2ui-reset w2ui-tabs')
             .html(html)
-        if ($(this.box).length > 0) {
-            $(this.box)[0].style.cssText += this.style
+        if (query(this.box).length > 0) {
+            query(this.box)[0].style.cssText += this.style
         }
-        w2utils.bindEvents($(this.box).find('.w2ui-eaction'), this)
+        w2utils.bindEvents(query(this.box).find('.w2ui-eaction'), this)
         // observe div resize
         this.last.resizeObserver = new ResizeObserver(() => { this.resize() })
         this.last.resizeObserver.observe(this.box)
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         this.refresh()
         this.resize()
         return (new Date()).getTime() - time
@@ -403,10 +401,10 @@ class w2tabs extends w2event {
 
     initReorder(id, event) {
         if (!this.reorder) return
-        let obj      = this
-        let $tab     = $(this.box).find('#tabs_' + this.name + '_tab_' + w2utils.escapeId(id))
+        let self     = this
+        let $tab     = query(this.box).find('#tabs_' + this.name + '_tab_' + w2utils.escapeId(id))
         let tabIndex = this.get(id, true)
-        let $ghost   = $tab.clone()
+        let $ghost   = query($tab.get(0).cloneNode(true))
         let edata
         $ghost.attr('id', '#tabs_' + this.name + '_tab_ghost')
         this.last.moving = {
@@ -415,135 +413,127 @@ class w2tabs extends w2event {
             $tab: $tab,
             $ghost: $ghost,
             divX: 0,
-            left: $tab.offset().left,
-            parentX: $(this.box).offset().left,
+            left: $tab.get(0).getBoundingClientRect().left,
+            parentX: query(this.box).get(0).getBoundingClientRect().left,
             x: event.pageX,
             opacity: $tab.css('opacity')
         }
 
-        $(document)
+        query(document)
             .off('.w2uiTabReorder')
-            .on('mousemove.w2uiTabReorder', function(event) {
-                if (!obj.tmp.reordering) {
+            .on('mousemove.w2uiTabReorder', function (event) {
+                if (!self.last.reordering) {
                     // event before
-                    edata = obj.trigger({ phase: 'before', type: 'reorder', target: obj.tabs[tabIndex].id, indexFrom: tabIndex, tab: obj.tabs[tabIndex] })
+                    edata = self.trigger('reorder', { target: self.tabs[tabIndex].id, indexFrom: tabIndex, tab: self.tabs[tabIndex] })
                     if (edata.isCancelled === true) return
 
-                    $().w2tag()
-                    obj.tmp.reordering = true
+                    w2tooltip.hide(this.name + '_tooltip')
+                    self.last.reordering = true
                     $ghost.addClass('moving')
                     $ghost.css({
                         'pointer-events': 'none',
                         'position': 'absolute',
-                        'left': $tab.offset().left
+                        'left': $tab.get(0).getBoundingClientRect().left
                     })
                     $tab.css('opacity', 0)
-                    $(obj.box).find('.w2ui-scroll-wrapper').append($ghost)
-                    $(obj.box).find('.w2ui-tab-close').hide()
+                    query(self.box).find('.w2ui-scroll-wrapper').append($ghost.get(0))
+                    query(self.box).find('.w2ui-tab-close').hide()
                 }
-                obj.tmp.moving.divX = event.pageX - obj.tmp.moving.x
-                $ghost.css('left', (obj.tmp.moving.left - obj.tmp.moving.parentX + obj.tmp.moving.divX) + 'px')
-                obj.dragMove(event)
+                self.last.moving.divX = event.pageX - self.last.moving.x
+                $ghost.css('left', (self.last.moving.left - self.last.moving.parentX + self.last.moving.divX) + 'px')
+                self.dragMove(event)
             })
-            .on('mouseup.w2uiTabReorder', function() {
-                $(document).off('.w2uiTabReorder')
+            .on('mouseup.w2uiTabReorder', function () {
+                query(document).off('.w2uiTabReorder')
                 $ghost.css({
                     'transition': '0.1s',
-                    'left': obj.tmp.moving.$tab.offset().left - obj.tmp.moving.parentX
+                    'left': self.last.moving.$tab.get(0).getBoundingClientRect().left - self.last.moving.parentX
                 })
-                $(obj.box).find('.w2ui-tab-close').show()
+                query(self.box).find('.w2ui-tab-close').show()
                 setTimeout(() => {
                     $ghost.remove()
-                    $tab.css({ opacity: obj.tmp.moving.opacity })
-                    // obj.render()
-                    if (obj.tmp.reordering) {
-                        obj.trigger($.extend(edata, { phase: 'after', indexTo: obj.tmp.moving.index }))
+                    $tab.css({ opacity: self.last.moving.opacity })
+                    // self.render()
+                    if (self.last.reordering) {
+                        edata.finish({ indexTo: self.last.moving.index })
                     }
-                    obj.tmp.reordering = false
+                    self.last.reordering = false
                 }, 100)
             })
     }
 
     scroll(direction, instant) {
-        let box        = $(this.box)
-        let obj        = this
-        let scrollBox  = box.find('.w2ui-scroll-wrapper')
-        let scrollLeft = scrollBox.scrollLeft()
-        let $right     = box.find('.w2ui-tabs-right')
-        let width1     = scrollBox.outerWidth()
-        let width2     = scrollLeft + parseInt($right.offset().left) + parseInt($right.width())
-        let scroll     = false
+        return new Promise((resolve, reject) => {
+            let scrollBox  = query(this.box).find(`.w2ui-scroll-wrapper`)
+            let scrollLeft = scrollBox.get(0).scrollLeft
+            let right      = scrollBox.find('.w2ui-tabs-right').get(0)
+            let width1     = scrollBox.parent().get(0).getBoundingClientRect().width
+            let width2     = scrollLeft + parseInt(right.offsetLeft) + parseInt(right.clientWidth )
 
-        switch (direction) {
-            case 'left':
-                scroll = scrollLeft - width1 + 50 // 35 is width of both button
-                if (scroll <= 0) scroll = 0
-                break
-
-            case 'right':
-                scroll = scrollLeft + width1 - 50 // 35 is width of both button
-                if (scroll >= width2 - width1) scroll = width2 - width1
-                break
-        }
-
-        if (scroll !== false){
-            scrollBox.animate({ scrollLeft: scroll }, instant ? 0 : 300, function(){ obj.resize() })
-        }
+            switch (direction) {
+                case 'left': {
+                    let scroll = scrollLeft - width1 + 50 // 35 is width of both button
+                    if (scroll <= 0) scroll = 0
+                    scrollBox.get(0).scrollTo({ top: 0, left: scroll, behavior: instant ? 'atuo' : 'smooth' })
+                    break
+                }
+                case 'right': {
+                    let scroll = scrollLeft + width1 - 50 // 35 is width of both button
+                    if (scroll >= width2 - width1) scroll = width2 - width1
+                    scrollBox.get(0).scrollTo({ top: 0, left: scroll, behavior: instant ? 'atuo' : 'smooth' })
+                    break
+                }
+            }
+            setTimeout(() => { this.resize(); resolve() }, instant ? 0 : 350)
+        })
     }
 
-    scrollIntoView(id, instant, callBack) {
-        let obj = this
-        if (id == null) id = obj.active
-        let tab = obj.get(id)
-        if (tab == null) return
-
-        let box         = $(obj.box)
-        let $scrollBox  = box.find('.w2ui-scroll-wrapper')
-        let $tab        = box.find('#tabs_' + obj.name + '_tab_' + w2utils.escapeId(id))
-        let offset      = $tab.offset().left - $scrollBox.offset().left
-
-        $scrollBox.animate({ 'scrollLeft': $scrollBox.scrollLeft() + offset - $scrollBox.width() / 2 + $tab.width() }, instant ? 0 : 350, 'linear', function(){
-            obj.resize()
-            if (typeof callBack === 'function') callBack(id, tab)
+    scrollIntoView(id, instant) {
+        return new Promise((resolve, reject) => {
+            if (id == null) id = this.active
+            let tab = this.get(id)
+            if (tab == null) return
+            let tabEl = query(this.box).find('#tabs_' + this.name + '_tab_' + w2utils.escapeId(id)).get(0)
+            tabEl.scrollIntoView({ block: "start", inline: "center", behavior: instant ? 'atuo' : 'smooth' })
+            setTimeout(() => { this.resize(); resolve() }, instant ? 0 : 500)
         })
     }
 
     resize() {
         let time = (new Date()).getTime()
+        if (this.box == null) return
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'resize', target: this.name })
+        let edata = this.trigger('resize', { target: this.name })
         if (edata.isCancelled === true) return
 
         // show hide overflow buttons
-        let box = $(this.box)
+        let box = query(this.box)
         box.find('.w2ui-scroll-left, .w2ui-scroll-right').hide()
-        let scrollBox  = box.find('.w2ui-scroll-wrapper')
-        let $right     = $(box).find('.w2ui-tabs-right')
-        let boxWidth   = scrollBox.outerWidth()
+        let scrollBox  = box.find('.w2ui-scroll-wrapper').get(0)
+        let $right     = box.find('.w2ui-tabs-right')
+        let boxWidth   = box.get(0).getBoundingClientRect().width
         let itemsWidth = ($right.length > 0 ? $right[0].offsetLeft + $right[0].clientWidth : 0)
-        let padding    = parseInt(box.css('padding-right'))
-        if (boxWidth < itemsWidth - padding) {
+        if (boxWidth < itemsWidth) {
             // we have overflown content
-            if (scrollBox.scrollLeft() > 0) {
+            if (scrollBox.scrollLeft > 0) {
                 box.find('.w2ui-scroll-left').show()
             }
-            let padding2 = parseInt(scrollBox.css('padding-right'))
-            if (boxWidth < itemsWidth - scrollBox.scrollLeft() - padding - padding2) {
+            if (boxWidth < itemsWidth - scrollBox.scrollLeft) {
                 box.find('.w2ui-scroll-right').show()
             }
         }
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         return (new Date()).getTime() - time
     }
 
     destroy() {
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'destroy', target: this.name })
+        let edata = this.trigger('destroy', { target: this.name })
         if (edata.isCancelled === true) return
         // clean up
-        if ($(this.box).find('#tabs_'+ this.name + '_right').length > 0) {
-            $(this.box)
+        if (query(this.box).find('#tabs_'+ this.name + '_right').length > 0) {
+            query(this.box)
                 .removeAttr('name')
                 .removeClass('w2ui-reset w2ui-tabs')
                 .html('')
@@ -551,7 +541,7 @@ class w2tabs extends w2event {
         this.last.resizeObserver.disconnect()
         delete w2ui[this.name]
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     // ===================================================
@@ -561,11 +551,11 @@ class w2tabs extends w2event {
         let tab = this.get(id)
         if (tab == null || tab.disabled || this.last.reordering) return false
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'click', target: id, tab: tab, object: tab, originalEvent: event })
+        let edata = this.trigger('click', { target: id, tab: tab, object: tab, originalEvent: event })
         if (edata.isCancelled === true) return
         // default action
-        $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active)).removeClass('active')
-        $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active)).removeClass('active')
+        query(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active)).removeClass('active')
+        query(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active)).removeClass('active')
         this.active = tab.id
         // route processing
         if (typeof tab.route == 'string') {
@@ -580,7 +570,7 @@ class w2tabs extends w2event {
             setTimeout(() => { window.location.hash = route }, 1)
         }
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         this.refresh(id)
     }
 
@@ -588,11 +578,11 @@ class w2tabs extends w2event {
         let tab = this.get(id)
         if (tab == null || tab.disabled) return false
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'close', target: id, object: this.get(id), originalEvent: event })
+        let edata = this.trigger('close', { target: id, object: this.get(id), originalEvent: event })
         if (edata.isCancelled === true) return
         this.animateClose(id).then(() => {
             this.remove(id)
-            this.trigger($.extend(edata, { phase: 'after' }))
+            edata.finish()
             this.refresh()
         })
         if (event) event.stopPropagation()
@@ -600,37 +590,41 @@ class w2tabs extends w2event {
 
     animateClose(id) {
         return new Promise((resolve, reject) => {
-            let $tab  = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(id))
-            let width = parseInt($tab.css('width') || 0)
-            let $anim = $(`<div class="tab-animate-close" style="display: inline-block; flex-shrink: 0; width: ${width}px; transition: width 0.25s"></div>`)
-            $tab.replaceWith($anim)
+            let $tab  = query(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(id))
+            let width = parseInt($tab.get(0).clientWidth || 0)
+            let anim = `<div class="tab-animate-close" style="display: inline-block; flex-shrink: 0; width: ${width}px; transition: width 0.25s"></div>`
+            let $anim = $tab.replace(anim)
             setTimeout(() => { $anim.css({ width: '0px' }) }, 1)
             setTimeout(() => {
                 $anim.remove()
                 this.resize()
+
                 resolve()
-            }, 300)
+            }, 500)
         })
     }
 
     animateInsert(id, tab) {
         return new Promise((resolve, reject) => {
-            let $before = $(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(id))
-            let $tab    = $(this.getTabHTML(tab.id))
+            let $before = query(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(id))
+            let $tab    = query.html(this.getTabHTML(tab.id))
             if ($before.length == 0) {
-                $before = $(this.box).find('#tabs_tabs_right')
+                $before = query(this.box).find('#tabs_tabs_right')
                 $before.before($tab)
                 this.resize()
             } else {
-                // insert at the end and find width
                 $tab.css({ opacity: 0 })
-                $(this.box).find('#tabs_tabs_right').before($tab)
-                let $tmp  = $(this.box).find('#'+$tab.attr('id'))
-                let width = parseInt($tmp.css('width') || 0)
-                let $anim = $('<div class="tab-animate-insert" style="display: inline-block; flex-shrink: 0; width: 0px; transition: width 0.25s"></div>')
+
+                // first insert tab on the right to get its proper dimentions
+                query(this.box).find('#tabs_tabs_right').before($tab.get(0))
+                let $tmp  = query(this.box).find('#' + $tab.attr('id'))
+                let width = $tmp.get(0).clientWidth ?? 0
+                // insert animation div
+                let $anim = query.html('<div class="tab-animate-insert" style="flex-shrink: 0; width: 0; transition: width 0.25s"></div>')
                 $before.before($anim)
+                // hide tab and move it in the right position
                 $tab.hide()
-                $tab.insertBefore($anim)
+                $anim.before($tab[0])
                 setTimeout(() => { $anim.css({ width: width + 'px' }) }, 1)
                 setTimeout(() => {
                     $anim.remove()
@@ -638,7 +632,7 @@ class w2tabs extends w2event {
                     this.refresh(tab.id)
                     this.resize()
                     resolve()
-                }, 300)
+                }, 500)
             }
         })
     }

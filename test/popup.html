@@ -17,8 +17,9 @@ function showOverlayGrid(el) {
     jQuery(el).w2overlay({
         html: '<div id="grid" style="padding: 8px 0 0 0; border: 0px; width: 420px; height: 400px; border-radius: 8px"></div>',
         name: 'grid-overlay',
-        onShow: function (event) {
-            jQuery('#w2ui-overlay-grid-overlay #grid').w2render('grid');
+        async onShow(event) {
+            await event.complete
+            jQuery('#w2overlay-grid-overlay #grid').w2render('grid');
         }
     });
 }
@@ -34,7 +35,7 @@ function showMenu(el) {
             { id: 6, text: '--'},
             { id: 7, text: 'Delete Item', img: 'icon-page' },
         ],
-        onSelect: function (event) {
+        onSelect(event) {
             console.log(event);
         }
     });
@@ -53,8 +54,22 @@ function checkMenu(el) {
             { id: 7, text: '--' },
             { id: 8, text: 'Item 5' },
         ],
-        onSelect: function (event) {
+        onSelect(event) {
             console.log(event);
+        }
+    });
+}
+
+function color(el) {
+    console.log('click')
+    jQuery(el).w2color({
+        onSelect(event) {
+            console.log('Selected: ', event.detail.color)
+        },
+        async onShow(event) {
+            console.log(event.phase)
+            await event.complete
+            console.log(event.phase)
         }
     });
 }
@@ -67,13 +82,13 @@ function myConfirm () {
         // height: 250,
         yes_text: 'Yes',
         no_text: 'No',
-        callBack: function (btn) {
+        callBack(btn) {
             console.log('Common call back '+ btn);
         },
-        onOpen: function (event) {
+        onOpen(event) {
             console.log('confirm open', event)
         },
-        onClose: function (event) {
+        onClose(event) {
             console.log('confirm close', event)
         }
     })
@@ -95,13 +110,13 @@ function myPrompt(textarea) {
         label: 'Field Label',
         yes_text: 'Yes',
         no_text: 'No',
-        callBack: function (btn) {
+        callBack(btn) {
             console.log('Common call back '+ btn);
         },
-        onOpen: function () {
+        onOpen() {
             console.log('prompt open', event)
         },
-        onClose: function () {
+        onClose() {
             console.log('prompt close', event)
         }
     })
@@ -129,8 +144,8 @@ function popupMessage() {
         },
         actions: {
             Message,
-            Close() {
-                this.close()
+            Close(event) {
+                w2popup.close()
             },
             More: {
                 text: "Some Test",
@@ -169,8 +184,8 @@ function Message() {
             Another() {
                 Message()
             },
-            Close() {
-                this.close()
+            Close(event) {
+                event.detail.self.close()
             }
         }
     })
@@ -205,18 +220,48 @@ function myActions() {
             },
             help: ' Some help string'
         },
-        onAction: function (action) {
+        onAction(action) {
             console.log(action)
         }
     })
 }
 
 function popup1() {
-    jQuery().w2popup({ url: 'popup-template.html', showMax: true })
+    jQuery().w2popup({ url: 'popup-template.html', showMax: true, focus: 0 })
+    return
+    w2prompt({ label: 'Input 1', value: '1s', attrs: 'style="border: 1px solid red"', textarea: true })
+        .then(evt => {
+                console.log('open')
+            })
+            .ok(evt => {
+                console.log('ok', evt.value)
+            })
+            .cancel(evt => {
+                console.log('cancel', evt.value)
+            })
+            .change(evt => {
+                // console.log('change', evt)
+            })
+    // return
+    setTimeout(() => {
+        w2prompt({ label: 'Input 2', value: '44', attrs: 'style="border: 1px solid red"', textarea: false })
+            .then(evt => {
+                console.log('open')
+            })
+            .ok(evt => {
+                console.log('ok', evt.value)
+            })
+            .cancel(evt => {
+                console.log('cancel', evt.value)
+            })
+            .change(evt => {
+                // console.log('change', evt)
+            })
+    }, 500)
 }
 
 function popup2() {
-    jQuery('#popup1').w2popup({ showMax: true })
+    jQuery('#popup1').w2popup({ showMax: true, focus: '.w2ui-btn' })
 }
 
 function popup3 () {
@@ -225,14 +270,17 @@ function popup3 () {
         buttons : '<button id="btnConfirm" class="w2ui-btn">Open Confirm</button>',
         width   : 600,
         height  : 400,
-        onOpen  : function (event) {
+        onOpen  (event) {
             event.onComplete = function () {
                 _tmp();
                 jQuery('#w2ui-popup #btnConfirm').on('click', _tmp);
             };
             function _tmp() {
                 w2confirm('Click "NO" to open an w2alert.')
-                    .no(function () {
+                    .yes(() => {
+                        w2popup.message()
+                    })
+                    .no(() => {
                         w2alert('You clicked "NO" button.');
                     });
             }
@@ -248,7 +296,7 @@ function popupGrid() {
         showMax : true,
         body    : '<div id="grid" style="position: absolute; left: 0px; right: 0px; top: 0px; height: 50%;"></div>'+
                   '<div id="form" style="position: absolute; left: 0px; right: 0px; bottom: 0px; height: 50%;"></div>',
-        onOpen  : function (event) {
+        onOpen  (event) {
             event.onComplete = function () {
                 jQuery('#w2ui-popup #grid').w2render('grid');
                 jQuery('#w2ui-popup #form').w2render('form');
@@ -271,7 +319,7 @@ function popupLayout() {
         showMax : true,
         body    : '<div id="layout" style="position: absolute; left: 0px; right: 0px; top: 0px; bottom: 0px"></div>',
         buttons : '<button class="w2ui-btn" onclick="w2alert(22)">Message</button>',
-        onOpen  : function (event) {
+        onOpen  (event) {
             event.onComplete = function () {
                 jQuery('#w2ui-popup #layout').w2render('layout');
             }
@@ -288,7 +336,7 @@ function contextMenu2(event) {
             { id: 1, text: 'First item', icon: 'icon-empty' },
             { id: 2, text: 'Second item', icon: 'w2ui-icon-cross' },
         ],
-        onSelect: function (event) {
+        onSelect(event) {
             console.log('select', event);
         },
         originalEvent: event
@@ -309,7 +357,7 @@ jQuery(function () {
             { recid: 2, fname: 'Jane', lname: 'Doe' }
         ],
         onClick(event) {
-            w2ui.form.record = this.get(event.recid)
+            w2ui.form.record = this.get(event.detail.recid)
             w2ui.form.refresh()
         }
     });
@@ -336,25 +384,26 @@ jQuery(function () {
 </head>
 <body>
     <div style="padding: 10px">
-        <button class="w2ui-btn" value="Alert"   onclick="w2alert('message');">Alert</button>
-        <button class="w2ui-btn" value="Confirm" onclick="myConfirm()">Confirm</button>
-        <button class="w2ui-btn" value="Confirm" onclick="myPrompt()">Prompt</button>
-        <button class="w2ui-btn" value="Confirm" onclick="myPrompt(true)">Prompt 2</button>
-        <button class="w2ui-btn" value="Actions" onclick="myActions()">Actions</button>
+        <button class="w2ui-btn" id="Alert"   onclick="w2alert('message');">Alert</button>
+        <button class="w2ui-btn" id="Confirm" onclick="myConfirm()">Confirm</button>
+        <button class="w2ui-btn" id="Confirm" onclick="myPrompt()">Prompt</button>
+        <button class="w2ui-btn" id="Confirm" onclick="myPrompt(true)">Prompt 2</button>
+        <button class="w2ui-btn" id="Actions" onclick="myActions()">Actions</button>
     </div>
     <div style="padding: 10px">
-        <button class="w2ui-btn" value="Popup"   onclick="popup1()">Popup from File</button>
-        <button class="w2ui-btn" value="Popup2"  onclick="popup2()">Popup from HTML</button>
-        <button class="w2ui-btn" value="Popup5"  onclick="popup3()">Popup &amp; Confirm</button>
-        <button class="w2ui-btn" value="Popup3"  onclick="popupGrid()">Popup Grid</button>
-        <button class="w2ui-btn" value="Popup4"  onclick="popupLayout()">Popup Layout</button>
-        <button class="w2ui-btn" value="Popup4"  onclick="popupMessage()">Message</button>
+        <button class="w2ui-btn" id="Popup"   onclick="popup1()">Popup from File</button>
+        <button class="w2ui-btn" id="Popup2"  onclick="popup2()">Popup from HTML</button>
+        <button class="w2ui-btn" id="Popup5"  onclick="popup3()">Popup &amp; Confirm</button>
+        <button class="w2ui-btn" id="Popup3"  onclick="popupGrid()">Popup Grid</button>
+        <button class="w2ui-btn" id="Popup4"  onclick="popupLayout()">Popup Layout</button>
+        <button class="w2ui-btn" id="Popup4"  onclick="popupMessage()">Message</button>
     </div>
     <div style="padding: 10px">
-        <button class="w2ui-btn" value="Overlay" onclick="showOverlay(this)">Overlay</button>
-        <button class="w2ui-btn" value="Overlay" onclick="showOverlayGrid(this)">Overlay Grid</button>
-        <button class="w2ui-btn" value="Menu"    onclick="showMenu(this)">Menu</button>
-        <button class="w2ui-btn" value="Menu"    onclick="checkMenu(this)">Check Menu</button>
+        <button class="w2ui-btn" id="Overlay1" onclick="showOverlay(this)">Overlay</button>
+        <button class="w2ui-btn" id="Overlay2" onclick="showOverlayGrid(this)">Overlay Grid</button>
+        <button class="w2ui-btn" id="Menu1"    onclick="showMenu(this)">Menu</button>
+        <button class="w2ui-btn" id="Menu2"    onclick="checkMenu(this)">Check Menu</button>
+        <button class="w2ui-btn" id="Color"    onclick="color(this)">Color Dialog</button>
         <span style="user-select: none; color: silver; padding-left: 30px"
             oncontextmenu="contextMenu2(event)">Click for context menu</span>
     </div>

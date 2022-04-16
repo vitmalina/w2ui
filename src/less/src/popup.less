@@ -1,7 +1,3 @@
-/*************************************************
-* ---- Popup ----
-*/
-
 .w2ui-popup {
     position: fixed;
     z-index: 1600;
@@ -10,29 +6,29 @@
     border-radius: 6px;
     padding: 0px;
     margin: 0px;
-    border: @popup-border;
-    background-color: @popup-body-background-color;
-    box-shadow: @popup-shadow;
+    border: 1px solid #777;
+    background-color: #fafafa;
+    box-shadow: 0px 0px 25px #555;
 
     &, & * {
-        .box-sizing;
+        box-sizing: border-box;
     }
 
-    &.w2ui-popup-opening {
+    &.w2ui-anim-open {
         opacity: 0;
-        .transform(scale(0.8));
+        transform: scale(0.8);
     }
 
-    &.w2ui-popup-closing {
+    &.w2ui-anim-close {
         opacity: 0;
-        .transform(scale(0.9));
+        transform: scale(0.9);
     }
 
     .w2ui-popup-title {
         padding: 10px;
         border-radius: 6px 6px 0px 0px;
-        .linear-gradient-vertical(@popup-title-linear-gradient-start, @popup-title-linear-gradient-end);
-        border-bottom: @popup-title-border-bottom;
+        .linear-gradient-vertical(#fff, #fff);
+        border-bottom: 1px solid #eee;
         position: absolute;
         overflow: hidden;
         height: 42px;
@@ -44,7 +40,7 @@
         .user-select;
         cursor: move;
         font-size: 17px;
-        color: @popup-title-color;
+        color: #555;
         z-index: 300;
     }
 
@@ -80,8 +76,8 @@
         font-size: 12px;
         line-height: 130%;
         padding: 0px 7px 7px 7px;
-        color: @popup-body-color;
-        background-color: @popup-body-background-color;
+        color: #000;
+        background-color: #fafafa;
         position: absolute;
         overflow: auto;
         width: 100%;
@@ -92,8 +88,8 @@
         font-size: 11px;
         padding: 14px;
         border-radius: 0px 0px 6px 6px;
-        border-top: @popup-buttons-border-top;
-        background-color: @popup-buttons-background-color;
+        border-top: 1px solid #eee;
+        background-color: #fff;
         text-align: center;
         position: absolute;
         overflow: hidden;
@@ -107,26 +103,26 @@
     .w2ui-popup-no-title {
         border-top-left-radius: 6px;
         border-top-right-radius: 6px;
-        top: 0px !important;
+        top: 0px;
     }
 
     .w2ui-popup-no-buttons {
         border-bottom-left-radius: 6px;
         border-bottom-right-radius: 6px;
-        bottom: 0px !important;
+        bottom: 0px;
     }
 
-    // w2alert and w2confirm
-
-    .w2ui-alert-msg,
-    .w2ui-confirm-msg {
-        font-size: 12px;
+    .w2ui-msg-text {
+        font-size: 14px;
         line-height: 1.5;
     }
 
     .w2ui-prompt {
         font-size: 12px;
-        padding: 15px 10px 0 10px;
+        padding: 0 10px;
+        &.textarea {
+            margin-top: 20px;
+        }
         > div {
             margin-bottom: 5px
         }
@@ -141,5 +137,49 @@
             height: 50px;
             resize: none
         }
+    }
+}
+
+// slide down message - not just popup, but also grid, form, layout
+.w2ui-message {
+    font-size: 12px;
+    position: absolute;
+    z-index: 250;
+
+    background-color: #fcfcfc;
+    border: 1px solid #999;
+    box-shadow: 0px 0px 15px #aaa;
+    box-sizing: border-box;
+    border-top: 0px;
+    border-radius: 0px 0px 6px 6px;
+    overflow: auto;
+
+    .w2ui-msg-text {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .w2ui-message-body {
+        position: absolute;
+        top: 0px;
+        bottom: 45px;
+        left: 0px;
+        right: 0px;
+        overflow: auto;
+        & .w2ui-centered {
+            line-height: 1.5
+        }
+    }
+
+    .w2ui-message-buttons {
+        position: absolute;
+        height: 45px;
+        bottom: 0px;
+        left: 0px;
+        right: 0px;
+        border-top: 1px solid #efefef;
+        background-color: white;
+        text-align: center;
+        padding: 8px;
     }
 }

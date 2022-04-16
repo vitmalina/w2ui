@@ -13,7 +13,7 @@
 //<![CDATA[
 // $.noConflict();
 jQuery(function () {
-    w2utils.locale('../src/locale/ru-ru').then(() => {
+    // w2utils.locale('../src/locale/ru-ru').then(() => {
         jQuery('#grid').w2grid({
             name      : 'grid',
             header    : 'List of Names',
@@ -40,6 +40,7 @@ jQuery(function () {
                 selectColumn: true,
                 expandColumn: false,
                 lineNumbers: true,
+                toolbarColumns: true,
                 toolbarAdd: true,
                 toolbarEdit: false,
                 toolbarDelete: true,
@@ -313,12 +314,66 @@ jQuery(function () {
         // w2ui.grid.total = w2ui.grid.records.length;
         w2ui.grid.refresh();
     })
-});
+// });
+
+function msg() {
+    w2ui.grid.message({
+        text: '<input>',
+        width: 400,
+        actions: ['Save', 'Cancel'],
+        focus: 0,
+        // hideOn: ['click'],
+        // hideOnEsc: true,
+        onOpen(evt) {
+            console.log('111',evt)
+            evt.done(() => {
+                console.log('222',evt)
+            })
+        }
+        // focus: 'button:nth-child(2)'
+    })
+    .close(event => {
+        // event.preventDefault()
+    //     console.log('close', event)
+    //     event.done(() => {
+    //         console.log('close-done', event)
+    //     })
+    })
+    .action(event => {
+        console.log('action', event)
+    })
+    .then(event => {
+        console.log('then', event)
+    })
+    .save(event => {
+        console.log('save', event.self.text, event);
+        event.self.close()
+    })
+    .cancel(event => {
+        event.self.close()
+    })
+    setTimeout(() => {
+        // w2ui.grid.message()
+        // w2ui.grid.message()
+        w2ui.grid.message({
+            text: 'another',
+            width: 200,
+            height: 120,
+            actions: ['final']
+        })
+        .final((event) => {
+            // console.log('ok', event.self.text, event);
+            event.self.close()
+        })
+    }, 500)
+}
+
 //]]>
 </script>
 </head>
 <body>
     <input placeholder="before grid" class="w2ui-input" style="margin: 10px 0px;"/>
+    <button class="w2ui-btn" onclick="msg()">message</button>
     <div id="grid" style="width: 1024px; height: 568px;"></div>
     <input placeholder="after grid" class="w2ui-input" style="margin: 10px 0px;"/>
     <br/>

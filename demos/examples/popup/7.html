@@ -16,35 +16,66 @@
 <script>
 function showAlert() {
     w2alert('message')
-        .ok(() => { console.log('ok'); });
+        .ok(() => { console.log('ok'); })
 }
 
 function showConfirm() {
     w2confirm('message')
-        .yes(() => { console.log('YES'); })
-        .no(() => { console.log('NO'); });
+        .yes(() => { console.log('yes'); })
+        .no(() => { console.log('no'); })
 }
 
 function showPrompt() {
     w2prompt({
-        label: 'Enter',
-        value: '2',
-        attrs: 'style="width: 200px"',
         title: w2utils.lang('Notification'),
-        ok_text: w2utils.lang('Ok'),
-        ok_class: 'ok-class',
-        cancel_text: w2utils.lang('Cancel'),
-        cancel_class: 'cancel-class',
         width: 400,
-        height: 200
+        height: 200,
+        label: 'Enter',
+        value: 'a',
+        attrs: 'style="width: 200px" placeholder="Type here..."',
+        btn_ok: {
+            text: 'Ok',
+            class: 'ok-class',
+            style: 'color: green'
+        },
+        btn_cancel: {
+            text: 'Cancel',
+            class: 'ok-class'
+        },
     })
     .change((event) => {
-        console.log('change', event)
+        console.log('change', event.originalEvent.target.value)
     })
-    .ok((value) => {
-        console.log('ok, value=', value)
+    .ok((event) => {
+        console.log('ok, value=', event.value)
     })
-    .cancel(() => {
+    .cancel((event) => {
+        console.log('cancel')
+    });
+    w2prompt({
+        title: w2utils.lang('Notification'),
+        width: 400,
+        height: 200,
+        label: 'Enter',
+        value: 'a',
+        attrs: 'style="width: 200px" placeholder="Type here..."',
+        btn_ok: {
+            text: 'Ok',
+            class: 'ok-class',
+            style: 'color: green'
+        },
+        btn_cancel: {
+            text: 'Cancel',
+            class: 'ok-class'
+        },
+    })
+    .change((event) => {
+        console.log('change', event.originalEvent.target.value)
+    })
+    .ok((event) => {
+        console.log('ok, value=', event.value)
+    })
+    .cancel((event) => {
         console.log('cancel')
     });
 }

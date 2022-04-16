@@ -1,3 +1,11 @@
+/**
+* TODO:
+*  - remove default styling, only keep w2ui-* styles
+*  - split out font
+*  - split out global css (popup/tooltip) and component css (grid/form, etc)
+*  - there should be no !important
+*  - conservative variables (default font
+*/
 // ******************************************
 // ---- Default Theme ----
 
@@ -49,9 +57,6 @@
 @overlay-color: inherit;
 @overlay-background-color: #fafafa;
 @overlay-shadow: 0px 1px 8px 1px #00000013;
-@bubble-tag-background-color: rgba(60,60,60,0.9);
-@bubble-tag-color: white;
-@bubble-tag-shadow: 1px 1px 3px #000;
 @menu-node-count-border: 1px solid #F6FCF4;
 @menu-node-count-color: #666;
 @menu-node-count-background-color: #F2F8F0;
@@ -62,12 +67,9 @@
 @overflow-hover-background-color: #ddd;
 @overflow-text-color: #8D99A7;
 
-@message-background-color: #fcfcfc;
-@message-border: 1px solid #999;
-@message-shadow: 0px 0px 15px #aaa;
-
 @import "src/common.less";
 @import "src/buttons.less";
+@import "src/tooltip.less";
 
 // ******************************************
 // ---- Form ----
@@ -216,85 +218,7 @@
 @grid-footer-btn-hover-background-color: #AEC8FF;
 
 @import "src/grid.less";
-
-// ******************************************
-// ---- Popup ----
-
-@popup-border: 1px solid #777;
-@popup-shadow: 0px 0px 25px #555;
-@popup-title-border-bottom: 1px solid #eee;
-@popup-title-color: #555;
-@popup-title-linear-gradient-start: #fff;
-@popup-title-linear-gradient-end: #fff;
-@popup-title-button-border: 1px solid transparent;
-@popup-title-button-color: transparent;
-@popup-title-max-background-color: #ccc;
-@popup-title-max-border: 1px solid #aaa;
-@popup-title-close-background-color: #ccc;
-@popup-title-close-border: 1px solid #aaa;
-@popup-body-color: #000;
-@popup-body-background-color: #fafafa;
-@popup-buttons-border-top: 1px solid #eee;
-@popup-buttons-background-color: #fff;
-
 @import "src/popup.less";
-
 @import "src/sidebar.less";
-
-// ******************************************
-// ---- Tabs ----
-
-@tabs-background-color: #fff;
-@tabs-tab-color: black;
-@tabs-tab-background-color: transparent;
-@tabs-tab-border: 2px solid transparent;
-@tabs-tab-border-bottom: 2px solid #0175ff;
-@tabs-tab-active-border: 2px solid transparent;
-@tabs-tab-active-color: #0175ff;
-@tabs-tab-active-background-color: transparent;
-
 @import "src/tabs.less";
-
-// ******************************************
-// ---- Toolbar ----
-
-
-@toolbar-background-color: #fafafa;
-@toolbar-button-border-radius: 4px;
-@toolbar-button-border: 1px solid transparent;
-@toolbar-button-color: black;
-@toolbar-button-image-color: #8D99A7;
-@toolbar-button-background-color: transparent;
-@toolbar-button-over-border: 1px solid transparent;
-@toolbar-button-over-color: black;
-@toolbar-button-over-background-color: #eee;
-@toolbar-button-down-border: 1px solid #ccc;
-@toolbar-button-down-color: #666;
-@toolbar-button-down-background-color: #efefef;
-@toolbar-button-checked-border: 1px solid #d2d2d2;
-@toolbar-button-checked-color: black;
-@toolbar-button-checked-background-color: white;
-@toolbar-break-color: #999;
-
 @import "src/toolbar.less";
-
-
-// ******************************************
-// ---- Listview ----
-
-@debug-border: false;
-
-@listview-background-color: white;
-@listview-item-color: black;
-@listview-item-selected-color: inherit;
-@listview-item-second-color: #777777;
-@listview-item-selected-second-color: #DDDDDD;
-@listview-item-border-selection-color: #2661A6; // same as @sidebar-node-selected-border-bottom;
-
-@listview-item-selected-linear-gradient-start: #E9E9E9;
-@listview-item-selected-linear-gradient-end: #E9E9E9;
-
-@listview-item-hover-background-color-start: transparent;
-@listview-item-hover-background-color-end: transparent;
-
-@import "src/listview.less";

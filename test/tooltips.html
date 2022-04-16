@@ -1,0 +1,111 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data:; style-src 'self' 'unsafe-inline';">
+    <!-- <script type="text/javascript" src="../libs/jquery/jquery-3.5.1.js"></script> -->
+    <!-- <script type="module" src="../src/w2compat.js?globals"></script> -->
+    <script type="module" src="tooltips.js"></script>
+    <style>
+    .floating {
+        position: absolute;
+        top: 200px;
+        left: 200px;
+        border: 1px solid red;
+        width: 400px;
+        height: 200px;
+        padding: 5px;
+        overflow: auto
+    }
+    .div {
+        padding: 10px;
+    }
+    .corners input {
+        width: 40px;
+    }
+    .top-left {
+        display: inline-block;
+        position: fixed;
+        left: 0px;
+        top: 0px;
+    }
+    .top-right {
+        display: inline-block;
+        position: fixed;
+        right: 0px;
+        top: 0px;
+    }
+    .bottom-left {
+        display: inline-block;
+        position: fixed;
+        left: 0px;
+        bottom: 0px;
+    }
+    .bottom-right {
+        display: inline-block;
+        position: fixed;
+        right: 0px;
+        bottom: 0px;
+    }
+    </style>
+</head>
+<body style="line-height: 1.5">
+    <div style="position: absolute; height: 3000px;width: 3500px">&nbsp;</div>
+    <div style="padding-top: 40px; line-height: 1.5; position: fixed">
+        position:
+        <select id="position">
+            <option value="auto">auto</option>
+            <option value="top">top</option>
+            <option value="bottom">bottom</option>
+            <option value="left">left</option>
+            <option value="right">right</option>
+        </select>
+        align:
+        <select id="align">
+            <option value="none">none</option>
+            <option value="left">left</option>
+            <option value="right">right</option>
+            <option value="both">both</option>
+        </select>
+        <div style="height: 10px"></div>
+        <button id="btn1">Show</button>
+        <button id="btn2" long>Show Long</button>
+        <button id="btn3" hide>Hide</button>
+        <div style="height: 10px"></div>
+        <input id="inp6">
+    </div>
+    <div class="div corners top-left">
+        <input id="inp1">
+        id="inp1"
+    </div>
+    <div class="div corners top-right">
+        id="inp2"
+        <input id="inp2">
+    </div>
+    <div class="div corners bottom-left">
+        <input id="inp3">
+        id="inp3"
+    </div>
+    <div class="div corners bottom-right">
+        id="inp4"
+        <input id="inp4">
+    </div>
+    <div class="floating">
+        This is scollable eelment with some text with some html controls in them. This is some text with some html controls in them.
+        This is some text with some html controls in them. This is some text with some html controls in them.
+        <div style="padding: 10px;">
+            <input class="input" id="inp5" style="width: 220px"> id="inp5"
+        </div>
+        This is some text with some html controls in them. This is some text with some html controls in them.
+        This is some text with some html controls in them. This is some text with some html controls in them.
+        <br>
+        <input class="input" id="inp2"  style="width: 220px">
+        <br>And other <span id="span1">text</span> inside elements.
+        <br>
+        <br>
+        <button id="button" class="w2ui-btn" aria-describedby="tooltip">My button</button>
+    </div>
+    <div class="floating" style="left: 1600px; top: 1600px; border: 0">
+        <input id="inp0"> id="inp0"
+    </div>
+    </body>
+</html>

@@ -12,7 +12,7 @@
     border: @form-border;
     border-radius: @form-border-radius;
     padding: 0px;
-    overflow: hidden !important;
+    overflow: hidden;
 
     > div {
         position: absolute;
@@ -32,34 +32,31 @@
         .linear-gradient-vertical(@form-header-linear-gradient-start, @form-header-linear-gradient-end);
         border-top-left-radius: 2px;
         border-top-right-radius: 2px;
-        border-bottom: @form-header-border-bottom !important;
+        border-bottom: @form-header-border-bottom;
     }
 
     .w2ui-form-toolbar {
         position: absolute;
-        left: 0px;
-        right: 0px;
-        margin: 0px;
-        padding: 7px 5px;
-        // background-color: @form-buttons-background-color;
+        left: 0;
+        right: 0;
+        margin: 0;
+        padding: 2px;
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
         border-bottom: @form-buttons-border-top;
     }
 
     .w2ui-form-tabs {
-        margin: 0px;
-        padding: 0px;
-    }
-
-    .w2ui-tabs {
         position: absolute;
         left: 0;
         right: 0;
-        height: 33px;
+        margin: 0;
+        padding: 0;
+        height: 32px;
         border-top-left-radius: 3px;
         border-top-right-radius: 3px;
-        padding-top: 5px !important;
+        padding-top: 4px;
         background-color: @form-tabs-background-color;
-
         .w2ui-tab.active {
             background-color: @form-background-color;
         }
@@ -110,7 +107,7 @@
         border-top: @form-buttons-border-top;
         border-bottom: @form-buttons-border-bottom;
         background-color: @form-buttons-background-color;
-        padding: 15px 0px !important;
+        padding: 15px 0px;
         border-bottom-left-radius: 3px;
         border-bottom-right-radius: 3px;
 
@@ -270,7 +267,8 @@
     }
 }
 
-.w2ui-error {
-    border: @form-error-border !important;
-    background-color: @form-error-background-color !important;
+input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]).w2ui-error,
+textarea.w2ui-error {
+    border: @form-error-border;
+    background-color: @form-error-background-color;
 }

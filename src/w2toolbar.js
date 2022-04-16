@@ -1,20 +1,27 @@
-/************************************************************************
-*   Part of w2ui 2.0 library
-*   - Dependencies: jQuery, w2utils
-*
-* == TODO ==
-*   - tab navigation (index state)
-*   - vertical toolbar
-*
-* == 2.0 changes
-*   - CSP - fixed inline events
-*   - item.icon - can be class or <custom-icon-component> or <svg>
-*
-************************************************************************/
-import { w2event } from './w2event.js'
-import { w2ui, w2utils } from './w2utils.js'
+/**
+ * Part of w2ui 2.0 library
+ *  - Dependencies: mQuery, w2utils, w2base, w2tooltip, w2color, w2menu
+ *
+ * == TODO ==
+ *  - tab navigation (index state)
+ *  - vertical toolbar
+ *  - w2menu on second click of tb button should hide
+ *  - button display groups for each show/hide, possibly add state: { single: t/f, multiple: t/f, type: 'font' }
+ *
+ * == 2.0 changes
+ *  - CSP - fixed inline events
+ *  - removed jQuery dependency
+ *  - item.icon - can be class or <custom-icon-component> or <svg>
+ *  - new w2tooltips and w2menu
+ *  - scroll returns promise
+ */
 
-class w2toolbar extends w2event {
+import { w2base } from './w2base.js'
+import { w2ui, w2utils } from './w2utils.js'
+import { query } from './query.js'
+import { w2tooltip, w2color, w2menu } from './w2tooltip.js'
+
+class w2toolbar extends w2base {
     constructor(options) {
         super(options.name)
         this.box           = null // DOM Element that holds the element
@@ -33,24 +40,21 @@ class w2toolbar extends w2event {
             type: 'button', // button, check, radio, drop, menu, menu-radio, menu-check, break, html, spacer
             text: null,
             html: '',
-            tooltip: null, // w2toolbar.tooltip should be
+            tooltip: null,  // w2toolbar.tooltip should be
             count: null,
             hidden: false,
             disabled: false,
             checked: false, // used for radio buttons
             icon: null,
-            route: null, // if not null, it is route to go
-            arrow: null, // arrow down for drop/menu types
-            style: null, // extra css style for caption
-            group: null, // used for radio buttons
-            items: null, // for type menu* it is an array of items in the menu
+            route: null,    // if not null, it is route to go
+            arrow: null,    // arrow down for drop/menu types
+            style: null,    // extra css style for caption
+            group: null,    // used for radio buttons
+            items: null,    // for type menu* it is an array of items in the menu
             selected: null, // used for menu-check, menu-radio
-            overlay: {},
-            color: null, // color value - used in color pickers
-            options: {
-                advanced: false, // advanced picker t/f - user in color picker
-                transparent: true, // transparent t/f - used in color picker
-                html: '' // additional buttons for color picker
+            color: null,    // color value - used in color pickers
+            overlay: {      // additional options for overlay
+                anchorClass: ''
             },
             onClick: null,
             onRefresh: null
@@ -61,7 +65,7 @@ class w2toolbar extends w2event {
         // mix in options, w/o items
         let items = options.items
         delete options.items
-        $.extend(true, this, options)
+        Object.assign(this, options)
         // add item via method to makes sure item_template is applied
         if (Array.isArray(items)) this.add(items)
         // need to reassign back to keep it in config
@@ -81,11 +85,11 @@ class w2toolbar extends w2event {
             // checks
             let valid = ['button', 'check', 'radio', 'drop', 'menu', 'menu-radio', 'menu-check', 'color', 'text-color', 'html',
                 'break', 'spacer', 'new-line']
-            if (valid.indexOf(String(item.type)) == -1) {
+            if (!valid.includes(String(item.type))) {
                 console.log('ERROR: The parameter "type" should be one of the following:', valid, `, but ${item.type} is supplied.`, item)
                 return
             }
-            if (item.id == null && ['break', 'spacer', 'new-line'].indexOf(item.type) == -1) {
+            if (item.id == null && !['break', 'spacer', 'new-line'].includes(item.type)) {
                 console.log('ERROR: The parameter "id" is required but not supplied.', item)
                 return
             }
@@ -95,7 +99,7 @@ class w2toolbar extends w2event {
             }
             if (!w2utils.checkUniqueId(item.id, this.items, 'toolbar', this.name)) return
             // add item
-            let newItem = Object.assign({}, this.item_template, item)
+            let newItem = w2utils.extend({}, this.item_template, item)
             if (newItem.type == 'menu-check') {
                 if (!Array.isArray(newItem.selected)) newItem.selected = []
                 if (Array.isArray(newItem.items)) {
@@ -103,8 +107,8 @@ class w2toolbar extends w2event {
                         if(typeof it === 'string') {
                             it = arr[idx] = { id: it, text: it }
                         }
-                        if (it.checked && newItem.selected.indexOf(it.id) == -1) newItem.selected.push(it.id)
-                        if (!it.checked && newItem.selected.indexOf(it.id) != -1) it.checked = true
+                        if (it.checked && !newItem.selected.includes(it.id)) newItem.selected.push(it.id)
+                        if (!it.checked && newItem.selected.includes(it.id)) it.checked = true
                         if (it.checked == null) it.checked = false
                     })
                 }
@@ -139,7 +143,7 @@ class w2toolbar extends w2event {
             if (!it || String(item).indexOf(':') != -1) return
             effected++
             // remove from screen
-            $(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id)).remove()
+            query(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id)).remove()
             // remove from array
             let ind = this.get(it.id, true)
             if (ind != null) this.items.splice(ind, 1)
@@ -166,7 +170,7 @@ class w2toolbar extends w2event {
         for (let i2 = 0; i2 < this.items.length; i2++) {
             let it = this.items[i2]
             // find a menu item
-            if (['menu', 'menu-radio', 'menu-check'].indexOf(it.type) != -1 && tmp.length == 2 && it.id == tmp[0]) {
+            if (['menu', 'menu-radio', 'menu-check'].includes(it.type) && tmp.length == 2 && it.id == tmp[0]) {
                 let subItems = it.items
                 if (typeof subItems == 'function') subItems = subItems(this)
                 for (let i = 0; i < subItems.length; i++) {
@@ -190,16 +194,22 @@ class w2toolbar extends w2event {
     }
 
     setCount(id, count, className, style) {
-        let $it = $(this.box).find(`#tb_${this.name}_item_${id} .w2ui-tb-count > span`)
-        $it.removeClass()
-            .addClass(className || '')
-            .text(count)[0].style.cssText = style || ''
-        this.last.badge[id] = {
-            className: className || '',
-            style: style || ''
+        let btn = query(this.box).find(`#tb_${this.name}_item_${w2utils.escapeId(id)} .w2ui-tb-count > span`)
+        if (btn.length > 0) {
+            btn.removeClass()
+                .addClass(className || '')
+                .text(count)
+                .get(0).style.cssText = style || ''
+            this.last.badge[id] = {
+                className: className || '',
+                style: style || ''
+            }
+            let item = this.get(id)
+            item.count = count
+        } else {
+            this.set(id, { count: count })
+            this.setCount(...arguments) // to update styles
         }
-        let item = this.get(id)
-        item.count = count
     }
 
     show() {
@@ -263,18 +273,13 @@ class w2toolbar extends w2event {
     }
 
     uncheck() {
-        let obj      = this
         let effected = []
         Array.from(arguments).forEach(item => {
             let it = this.get(item)
             if (!it || String(item).indexOf(':') != -1) return
             // remove overlay
-            if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1 && it.checked) {
-                // hide overlay
-                setTimeout(() => {
-                    let el = $(obj.box).find('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id))
-                    el.w2overlay({ name: obj.name, data: { 'tb-item': it.id }})
-                }, 1)
+            if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].includes(it.type) && it.checked) {
+                w2tooltip.hide(this.name + '-drop')
             }
             it.checked = false
             effected.push(String(item).split(':')[0])
@@ -299,14 +304,16 @@ class w2toolbar extends w2event {
         }
         if (it && !it.disabled) {
             // event before
-            let edata = this.trigger({ phase: 'before', type: 'click', target: (id != null ? id : this.name),
-                item: it, object: it, originalEvent: event })
+            let edata = this.trigger('click', {
+                target: (id != null ? id : this.name),
+                item: it, object: it, originalEvent: event
+            })
             if (edata.isCancelled === true) return
             // read items again, they might have been changed in the click event handler
             items = (it && it.items ? w2utils.normMenu.call(this, it.items, it) : [])
 
             let btn = '#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id)
-            $(this.box).find(btn).removeClass('down') // need to re-query at the moment -- as well as elsewhere in this function
+            query(this.box).find(btn).removeClass('down') // need to re-query at the moment -- as well as elsewhere in this function
 
             if (it.type == 'radio') {
                 for (let i = 0; i < this.items.length; i++) {
@@ -318,39 +325,41 @@ class w2toolbar extends w2event {
                     }
                 }
                 it.checked = true
-                $(this.box).find(btn).addClass('checked')
+                query(this.box).find(btn).addClass('checked')
             }
 
-            if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
+            if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].includes(it.type)) {
                 obj.tooltipHide(id)
-
                 if (it.checked) {
-                    // if it was already checked, second click will hide it
-                    setTimeout(() => {
-                        // hide overlay
-                        let el = $(obj.box).find('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id))
-                        el.w2overlay({ name: obj.name, data: { 'tb-item': it.id }})
-                        // uncheck
-                        it.checked = false
-                        obj.refresh(it.id)
-                    }, 1)
-
+                    w2tooltip.hide(this.name + '-drop')
+                    // uncheck
+                    it.checked = false
+                    obj.refresh(it.id)
                 } else {
-
-                    // show overlay
+                    // timeout is needed to make sure previous overlay hides
                     setTimeout(() => {
-                        let el = $(obj.box).find('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id))
-                        if (!$.isPlainObject(it.overlay)) it.overlay = {}
-                        let left = (el.width() - 50) / 2
-                        if (left > 19) left = 19
-                        if (it.type == 'drop') {
-                            el.w2overlay(it.html, $.extend({ name: obj.name, left: left, top: 3, data: { 'tb-item': it.id } }, it.overlay, {
-                                onHide(event) {
-                                    hideDrop()
-                                }
-                            }))
+                        let hideDrop = (id, btn) => {
+                            return function () {
+                                let item = obj.get(id)
+                                item.checked = false
+                                query(obj.box).find(btn).removeClass('checked')
+                            }
                         }
-                        if (['menu', 'menu-radio', 'menu-check'].indexOf(it.type) != -1) {
+                        let el = query(obj.box).find('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id))
+                        if (!w2utils.isPlainObject(it.overlay)) it.overlay = {}
+                        if (it.type == 'drop') {
+                            w2tooltip.show(w2utils.extend({
+                                html: it.html,
+                                class: 'w2ui-white',
+                                hideOn: ['doc-click']
+                            }, it.overlay, {
+                                anchor: el[0],
+                                name: this.name + '-drop',
+                                data: { item: it, btn }
+                            }))
+                            .hide(hideDrop(it.id, btn))
+                        }
+                        if (['menu', 'menu-radio', 'menu-check'].includes(it.type)) {
                             let menuType = 'normal'
                             if (it.type == 'menu-radio') {
                                 menuType = 'radio'
@@ -361,64 +370,52 @@ class w2toolbar extends w2event {
                             if (it.type == 'menu-check') {
                                 menuType = 'check'
                                 items.forEach((item) => {
-                                    if (Array.isArray(it.selected) && it.selected.indexOf(item.id) != -1) item.checked = true; else item.checked = false
+                                    if (Array.isArray(it.selected) && it.selected.includes(item.id)) item.checked = true; else item.checked = false
                                 })
                             }
-                            obj.tmp.overlayEl = el
-                            el.w2menu($.extend({
-                                name: obj.name,
-                                items: items,
-                                left: left,
-                                top: 3,
-                                data: { 'tb-item': it.id }
-                            }, it.overlay, {
-                                type: menuType,
-                                remove(event) {
-                                    obj.menuClick({ name: obj.name, remove: true, item: it,
-                                        subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
-                                },
-                                select(event) {
-                                    obj.menuClick({ name: obj.name, item: it,
-                                        subItem: event.item, originalEvent: event.originalEvent, keepOpen: event.keepOpen })
-                                },
-                                onHide(event) {
-                                    hideDrop()
-                                }
-                            }
-                            ))
+                            w2menu.show(w2utils.extend({
+                                    items,
+                                }, it.overlay, {
+                                    type: menuType,
+                                    name : this.name + '-drop',
+                                    anchor: el[0],
+                                    data: { item: it, btn }
+                                }))
+                                .hide(hideDrop(it.id, btn))
+                                .remove(event => {
+                                    obj.menuClick({ name: obj.name, remove: true, item: it, subItem: event.detail.item,
+                                        originalEvent: event })
+                                })
+                                .select(event => {
+                                    obj.menuClick({ name: obj.name, item: it, subItem: event.detail.item,
+                                        originalEvent: event })
+                                })
                         }
-                        if (['color', 'text-color'].indexOf(it.type) != -1) {
-                            $(el).w2color($.extend({
-                                color: it.color,
-                                onHide(event) {
-                                    hideDrop()
-                                    if (obj._tmpColor) {
-                                        obj.colorClick({ name: obj.name, item: it, color: obj._tmpColor, final: true })
+                        if (['color', 'text-color'].includes(it.type)) {
+                            w2color.show(w2utils.extend({
+                                    color: it.color
+                                }, it.overlay, {
+                                    anchor: el[0],
+                                    name: this.name + '-drop',
+                                    data: { item: it, btn }
+                                }))
+                                .hide(hideDrop(it.id, btn))
+                                .select(event => {
+                                    if (event.detail.color != null) {
+                                        obj.colorClick({ name: obj.name, item: it, color: event.detail.color })
                                     }
-                                    delete obj._tmpColor
-                                },
-                                onSelect(color) {
-                                    if (color != null) {
-                                        obj.colorClick({ name: obj.name, item: it, color: color })
-                                        obj._tmpColor = color
-                                    }
-                                }
-                            }, it.options))
+                                })
                         }
-                        function hideDrop(event) {
-                            it.checked = false
-                            $(obj.box).find(btn).removeClass('checked')
-                        }
-                    }, 1)
+                    }, 0)
                 }
             }
 
-            if (['check', 'menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
+            if (['check', 'menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].includes(it.type)) {
                 it.checked = !it.checked
                 if (it.checked) {
-                    $(this.box).find(btn).addClass('checked')
+                    query(this.box).find(btn).addClass('checked')
                 } else {
-                    $(this.box).find(btn).removeClass('checked')
+                    query(this.box).find(btn).removeClass('checked')
                 }
             }
             // route processing
@@ -432,48 +429,50 @@ class w2toolbar extends w2event {
                 }
                 setTimeout(() => { window.location.hash = route }, 1)
             }
-            if (event && ['button', 'check', 'radio'].indexOf(it.type) != -1) {
+            if (['button', 'check', 'radio'].includes(it.type)) {
                 // need to refresh toolbar as it might be dynamic
-                this.tooltipShow(id, event, true)
+                this.tooltipShow(id)
             }
             // event after
-            this.trigger($.extend(edata, { phase: 'after' }))
+            edata.finish()
         }
     }
 
-    scroll(direction, line) {
-        let scrollBox  = $(this.box).find(`.w2ui-tb-line:nth-child(${line}) .w2ui-scroll-wrapper`)
-        let scrollLeft = scrollBox.scrollLeft()
-        let $right     = $(scrollBox).find('.w2ui-tb-right')
-        let width1     = scrollBox.outerWidth()
-        let width2     = scrollLeft + parseInt($right.offset().left) + parseInt($right.width())
-        let scroll
+    scroll(direction, line, instant) {
+        return new Promise((resolve, reject) => {
+            let scrollBox  = query(this.box).find(`.w2ui-tb-line:nth-child(${line}) .w2ui-scroll-wrapper`)
+            let scrollLeft = scrollBox.get(0).scrollLeft
+            let right      = scrollBox.find('.w2ui-tb-right').get(0)
+            let width1     = scrollBox.parent().get(0).getBoundingClientRect().width
+            let width2     = scrollLeft + parseInt(right.offsetLeft) + parseInt(right.clientWidth )
 
-        switch (direction) {
-            case 'left':
-                scroll = scrollLeft - width1 + 50 // 35 is width of both button
-                if (scroll <= 0) scroll = 0
-                scrollBox.animate({ scrollLeft: scroll }, 300)
-                break
-
-            case 'right':
-                scroll = scrollLeft + width1 - 50 // 35 is width of both button
-                if (scroll >= width2 - width1) scroll = width2 - width1
-                scrollBox.animate({ scrollLeft: scroll }, 300)
-                break
-        }
-        setTimeout(() => { this.resize() }, 350)
+            switch (direction) {
+                case 'left': {
+                    scroll = scrollLeft - width1 + 50 // 35 is width of both button
+                    if (scroll <= 0) scroll = 0
+                    scrollBox.get(0).scrollTo({ top: 0, left: scroll, behavior: instant ? 'atuo' : 'smooth' })
+                    break
+                }
+                case 'right': {
+                    scroll = scrollLeft + width1 - 50 // 35 is width of both button
+                    if (scroll >= width2 - width1) scroll = width2 - width1
+                    scrollBox.get(0).scrollTo({ top: 0, left: scroll, behavior: instant ? 'atuo' : 'smooth' })
+                    break
+                }
+            }
+            setTimeout(() => { this.resize(); resolve() }, instant ? 0 : 500)
+        })
     }
 
     render(box) {
         let time = (new Date()).getTime()
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'render', target: this.name, box: box })
+        let edata = this.trigger('render', { target: this.name, box: box })
         if (edata.isCancelled === true) return
 
         if (box != null) {
-            if ($(this.box).find('.w2ui-scroll-wrapper .w2ui-tb-right').length > 0) {
-                $(this.box)
+            if (query(this.box).find('.w2ui-scroll-wrapper .w2ui-tb-right').length > 0) {
+                query(this.box)
                     .removeAttr('name')
                     .removeClass('w2ui-reset w2ui-toolbar')
                     .html('')
@@ -511,14 +510,14 @@ class w2toolbar extends w2event {
             }
             it.line = line
         }
-        $(this.box)
+        query(this.box)
             .attr('name', this.name)
             .addClass('w2ui-reset w2ui-toolbar')
             .html(html)
-        if ($(this.box).length > 0) {
-            $(this.box)[0].style.cssText += this.style
+        if (query(this.box).length > 0) {
+            query(this.box)[0].style.cssText += this.style
         }
-        w2utils.bindEvents($(this.box).find('.w2ui-tb-line .w2ui-eaction'), this)
+        w2utils.bindEvents(query(this.box).find('.w2ui-tb-line .w2ui-eaction'), this)
         // observe div resize
         this.last.resizeObserver = new ResizeObserver(() => { this.resize() })
         this.last.resizeObserver.observe(this.box)
@@ -526,14 +525,14 @@ class w2toolbar extends w2event {
         this.refresh()
         this.resize()
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         return (new Date()).getTime() - time
     }
 
     refresh(id) {
         let time = (new Date()).getTime()
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'refresh', target: (id != null ? id : this.name), item: this.get(id) })
+        let edata = this.trigger('refresh', { target: (id != null ? id : this.name), item: this.get(id) })
         if (edata.isCancelled === true) return
         let edata2
         // refresh all
@@ -549,100 +548,95 @@ class w2toolbar extends w2event {
         let it = this.get(id)
         if (it == null) return false
         if (typeof it.onRefresh == 'function') {
-            edata2 = this.trigger({ phase: 'before', type: 'refresh', target: id, item: it, object: it })
+            edata2 = this.trigger('refresh', { target: id, item: it, object: it })
             if (edata2.isCancelled === true) return
         }
-        let el   = $(this.box).find(`#tb_${this.name}_item_${w2utils.escapeId(it.id)}`)
+        let selector = `#tb_${this.name}_item_${w2utils.escapeId(it.id)}`
+        let btn  = query(this.box).find(selector)
         let html = this.getItemHTML(it)
         // hide tooltip
-        this.tooltipHide(id, {})
+        this.tooltipHide(id)
 
         // if there is a spacer, then right HTML is not 100%
         if (it.type == 'spacer') {
-            $(this.box).find(`.w2ui-tb-line:nth-child(${it.line}`).find('.w2ui-tb-right').css('width', 'auto')
+            query(this.box).find(`.w2ui-tb-line:nth-child(${it.line}`).find('.w2ui-tb-right').css('width', 'auto')
         }
 
-        if (el.length === 0) {
+        if (btn.length === 0) {
             let next = parseInt(this.get(id, true)) + 1
-            let $next = $(this.box).find(`#tb_${this.name}_item_${w2utils.escapeId(this.items[next] ? this.items[next].id : '')}`)
+            let $next = query(this.box).find(`#tb_${this.name}_item_${w2utils.escapeId(this.items[next] ? this.items[next].id : '')}`)
             if ($next.length == 0) {
-                $next = $(this.box).find(`.w2ui-tb-line:nth-child(${it.line}`).find('.w2ui-tb-right').before(html)
+                $next = query(this.box).find(`.w2ui-tb-line:nth-child(${it.line}`).find('.w2ui-tb-right').before(html)
             } else {
                 $next.after(html)
             }
-            w2utils.bindEvents($(this.box).find(`#tb_${this.name}_item_${w2utils.escapeId(it.id)}`), this)
+            w2utils.bindEvents(query(this.box).find(selector), this)
         } else {
-            if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(it.type) != -1) {
-                let drop = $(this.box).find('#w2ui-overlay-'+ this.name)
-                if (drop.length > 0) {
-                    if (it.checked == false) {
-                        drop[0].hide()
-                    } else {
-                        if (['menu', 'menu-radio', 'menu-check'].indexOf(it.type) != -1) {
-                            $(this.last.overlayEl).w2menu('refresh', { items: it.items })
-                        }
-                    }
-                }
-            }
             // refresh
-            el.replaceWith($(html))
-            w2utils.bindEvents($(this.box).find(`#tb_${this.name}_item_${w2utils.escapeId(it.id)}`), this)
+            query(this.box).find(selector).replace(query.html(html))
+            let newBtn = query(this.box).find(selector).get(0)
+            w2utils.bindEvents(newBtn, this)
+            // update overlay's anchor if changed
+            let overlays = w2tooltip.get(true)
+            Object.keys(overlays).forEach(key => {
+                if (overlays[key].anchor == btn.get(0)) {
+                    overlays[key].anchor = newBtn
+                }
+            })
         }
         // event after
         if (typeof it.onRefresh == 'function') {
-            this.trigger($.extend(edata2, { phase: 'after' }))
+            edata2.finish()
         }
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         return (new Date()).getTime() - time
     }
 
     resize() {
         let time = (new Date()).getTime()
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'resize', target: this.name })
+        let edata = this.trigger('resize', { target: this.name })
         if (edata.isCancelled === true) return
 
-        $(this.box).find('.w2ui-tb-line').each((ind, el) => {
+        query(this.box).find('.w2ui-tb-line').each(el => {
             // show hide overflow buttons
-            let box = $(el)
+            let box = query(el)
             box.find('.w2ui-scroll-left, .w2ui-scroll-right').hide()
-            let scrollBox  = box.find('.w2ui-scroll-wrapper')
-            let $right     = $(box).find('.w2ui-tb-right')
-            let boxWidth   = scrollBox.outerWidth()
+            let scrollBox  = box.find('.w2ui-scroll-wrapper').get(0)
+            let $right     = box.find('.w2ui-tb-right')
+            let boxWidth   = box.get(0).getBoundingClientRect().width
             let itemsWidth = ($right.length > 0 ? $right[0].offsetLeft + $right[0].clientWidth : 0)
-            let padding    = parseInt(box.css('padding-right'))
-            if (boxWidth < itemsWidth - padding) {
+            if (boxWidth < itemsWidth) {
                 // we have overflown content
-                if (scrollBox.scrollLeft() > 0) {
+                if (scrollBox.scrollLeft > 0) {
                     box.find('.w2ui-scroll-left').show()
                 }
-                let padding2 = parseInt(scrollBox.css('padding-right'))
-                if (boxWidth < itemsWidth - scrollBox.scrollLeft() - padding - padding2) {
+                if (boxWidth < itemsWidth - scrollBox.scrollLeft) {
                     box.find('.w2ui-scroll-right').show()
                 }
             }
         })
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
         return (new Date()).getTime() - time
     }
 
     destroy() {
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'destroy', target: this.name })
+        let edata = this.trigger('destroy', { target: this.name })
         if (edata.isCancelled === true) return
         // clean up
-        if ($(this.box).find('.w2ui-scroll-wrapper  .w2ui-tb-right').length > 0) {
-            $(this.box)
+        if (query(this.box).find('.w2ui-scroll-wrapper  .w2ui-tb-right').length > 0) {
+            query(this.box)
                 .removeAttr('name')
                 .removeClass('w2ui-reset w2ui-toolbar')
                 .html('')
         }
-        $(this.box).html('')
+        query(this.box).html('')
         this.last.resizeObserver.disconnect()
         delete w2ui[this.name]
         // event after
-        this.trigger($.extend(edata, { phase: 'after' }))
+        edata.finish()
     }
 
     // ========================================
@@ -684,7 +678,7 @@ class w2toolbar extends w2event {
             case 'text-color':
                 if (typeof item.color == 'string') {
                     if (item.color.substr(0,1) == '#') item.color = item.color.substr(1)
-                    if (item.color.length == 3 || item.color.length == 6) item.color = '#' + item.color
+                    if ([3, 6, 8].includes(item.color.length)) item.color = '#' + item.color
                 }
                 if (item.type == 'color') {
                     text = `<span class="w2ui-tb-color-box" style="background-color: ${(item.color != null ? item.color : '#fff')}"></span>
@@ -702,7 +696,8 @@ class w2toolbar extends w2event {
             case 'check':
             case 'radio':
             case 'drop': {
-                let arrow = item.arrow === true || (item.arrow !== false && ['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(item.type) != -1)
+                let arrow = (item.arrow === true
+                    || (item.arrow !== false && ['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].includes(item.type)))
                 html = `
                     <div id="tb_${this.name}_item_${item.id}" style="${(item.hidden ? 'display: none' : '')}"
                         class="${classes.join(' ')} ${(item.class ? item.class : '')}"
@@ -761,47 +756,40 @@ class w2toolbar extends w2event {
         return html
     }
 
-    tooltipShow(id, event, forceRefresh) {
+    tooltipShow(id) {
         if (this.tooltip == null) return
-        let $el  = $(this.box).find('#tb_'+ this.name + '_item_'+ w2utils.escapeId(id))
+        let el   = query(this.box).find('#tb_'+ this.name + '_item_'+ w2utils.escapeId(id)).get(0)
         let item = this.get(id)
         let pos  = this.tooltip
         let txt  = item.tooltip
         if (typeof txt == 'function') txt = txt.call(this, item)
-        clearTimeout(this._tooltipTimer)
-        this._tooltipTimer = setTimeout(() => {
-            if ($el.prop('_mouse_tooltip') !== true) {
-                $el.prop('_mouse_tooltip', true)
-                // show tooltip
-                if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].indexOf(item.type) != -1 && item.checked == true) return // not for opened drop downs
-                $el.w2tag(w2utils.lang(txt), { position: pos })
-            }
-        }, 0)
-        // refresh only
-        if ($el.prop('_mouse_tooltip') && forceRefresh == true) {
-            $el.w2tag(w2utils.lang(txt), { position: pos })
+        // not for opened drop downs
+        if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].includes(item.type)
+            && item.checked == true) {
+                return
         }
+        w2tooltip.show({
+            anchor: el,
+            name: this.name + '-tooltip',
+            html: txt,
+            position: pos
+        })
+        return
     }
 
-    tooltipHide(id, event) {
+    tooltipHide(id) {
         if (this.tooltip == null) return
-        let $el = $(this.box).find('#tb_'+ this.name + '_item_'+ w2utils.escapeId(id))
-        clearTimeout(this._tooltipTimer)
-        setTimeout(() => {
-            if ($el.prop('_mouse_tooltip') === true) {
-                $el.removeProp('_mouse_tooltip')
-                // hide tooltip
-                $el.w2tag()
-            }
-        }, 1)
+        w2tooltip.hide(this.name + '-tooltip')
     }
 
     menuClick(event) {
         let obj = this
         if (event.item && !event.item.disabled) {
             // event before
-            let edata = this.trigger({ phase: 'before', type: (event.remove !== true ? 'click' : 'remove'), target: event.item.id + ':' + event.subItem.id, item: event.item,
-                subItem: event.subItem, originalEvent: event.originalEvent })
+            let edata = this.trigger((event.remove !== true ? 'click' : 'remove'), {
+                target: event.item.id + ':' + event.subItem.id, item: event.item,
+                subItem: event.subItem, originalEvent: event.originalEvent
+            })
             if (edata.isCancelled === true) return
 
             // route processing
@@ -871,7 +859,7 @@ class w2toolbar extends w2event {
             }
             this.refresh(event.item.id)
             // event after
-            this.trigger($.extend(edata, { phase: 'after' }))
+            edata.finish()
         }
     }
 
@@ -879,8 +867,10 @@ class w2toolbar extends w2event {
         let obj = this
         if (event.item && !event.item.disabled) {
             // event before
-            let edata = this.trigger({ phase: 'before', type: 'click', target: event.item.id, item: event.item,
-                color: event.color, final: event.final, originalEvent: event.originalEvent })
+            let edata = this.trigger('click', {
+                target: event.item.id, item: event.item,
+                color: event.color, final: event.final, originalEvent: event.originalEvent
+            })
             if (edata.isCancelled === true) return
 
             // default behavior
@@ -888,7 +878,7 @@ class w2toolbar extends w2event {
             obj.refresh(event.item.id)
 
             // event after
-            this.trigger($.extend(edata, { phase: 'after' }))
+            edata.finish()
         }
     }
 
@@ -897,18 +887,18 @@ class w2toolbar extends w2event {
         if (btn.disabled || btn.hidden) return
         switch (action) {
             case 'enter':
-                $(target).addClass('over')
-                this.tooltipShow(id, event)
+                query(target).addClass('over')
+                this.tooltipShow(id)
                 break
             case 'leave':
-                $(target).removeClass('over').removeClass('down')
-                this.tooltipHide(id, event)
+                query(target).removeClass('over down')
+                this.tooltipHide(id)
                 break
             case 'down':
-                $(target).addClass('down')
+                query(target).addClass('down')
                 break
             case 'up':
-                $(target).removeClass('down')
+                query(target).removeClass('down')
                 break
         }
     }

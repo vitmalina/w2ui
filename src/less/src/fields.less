@@ -1,7 +1,3 @@
-// *************************************************
-// ---- Fields: Calendar, Enum ----
-//
-
 .w2field {
     padding: 3px;
     border-radius: 3px;
@@ -12,19 +8,23 @@
     position: absolute;
     display: inline-block;
     line-height: 100%;
-    /* pointer-events: none; - do not use as IE does not support it */
+    pointer-events: none;
     .user-select(none);
 
     .w2ui-field-up {
         position: absolute;
         top: 0px;
         padding: 2px 3px;
+        cursor: pointer;
+        pointer-events: all;
     }
 
     .w2ui-field-down {
         position: absolute;
         bottom: 0px;
         padding: 2px 3px;
+        cursor: pointer;
+        pointer-events: all;
     }
 
     .arrow-up:hover {
@@ -47,11 +47,194 @@
             display: block;
         }
     }
+
+    // enum list
+    &.w2ui-list {
+        color: @list-color;
+        position: absolute;
+        padding: 0px;
+        margin: 0px;
+        min-height: 28px;
+        overflow: auto;
+        border: @list-border;
+        border-radius: 3px;
+        font-size: 6px;    // need to be small for list
+        line-height: 100%;
+        box-sizing: border-box;
+        pointer-events: all;
+        background-color: #f7fafa;
+
+        &.has-focus,
+        &:focus-within {
+            outline: auto @input-focus-outline-color;
+            background-color: white;
+        }
+
+        input[type=text] {
+            .box-shadow;
+        }
+
+        .w2ui-multi-items {
+            position: absolute;
+            display: inline-block;
+            margin: 0px;
+            padding: 0px;
+            pointer-events: none;
+
+            .li-item {
+                pointer-events: all;
+                float: left;
+                margin: 3px 0px 0px 5px;
+                border-radius: 15px;
+                width: auto;
+                padding: 3px 24px 1px 12px;
+                border: @list-item-border;
+                background-color: @list-item-background-color;
+                white-space: nowrap;
+                cursor: default;
+                font-family: @list-item-font;
+                font-size: @list-item-font-size;
+                line-height: 100%;
+                height: 20px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                box-sizing: border-box;
+
+                &:hover {
+                    background-color: darken(@list-item-background-color, 10%);
+                }
+
+                &:last-child {
+                    border-radius: 0px;
+                    border: 1px solid transparent;
+                    background-color: transparent;
+                    input {
+                        padding: 1px;
+                        padding-top: 0px;
+                        margin: 0px;
+                        border: 0px;
+                        outline: none;
+                        height: auto;
+                        line-height: 100%;
+                        font-size: inherit;
+                        font-family: inherit;
+                        background-color: transparent;
+                    }
+                }
+
+                .w2ui-icon {
+                    float: left;
+                    color: #659ab8;
+                    margin: 0 2px 0 -6px;
+                }
+
+                .w2ui-list-remove {
+                    float: right;
+                    width: 16px;
+                    height: 16px;
+                    margin: -2px -20px 0px 0px;
+                    border-radius: 2px;
+                    font-size: 12px;
+                    border: 1px solid transparent;
+                    &:hover {
+                        background-color: #f6e5e5;
+                        border: 1px solid #fac2c2;
+                        color: red;
+                        opacity: 1;
+                    }
+                    &:before {
+                        position: relative;
+                        display: inline-block;
+                        left: 4px;
+                        opacity: 0.7;
+                        content: 'x';
+                        line-height: 1;
+                    }
+                }
+
+                > span.file-size {
+                    pointer-events: none;
+                    color: #777;
+                }
+            }
+            .li-search {
+                float: left;
+                margin: 0;
+                padding: 0;
+                input[type=text] {
+                    pointer-events: all;
+                    width: 0;
+                    padding: 3px 0 0 0;
+                    border: 0;
+                    margin: 3px 0 0 5px;
+                    &:focus {
+                        outline: none;
+                        border: 0;
+                    }
+                }
+            }
+        }
+
+        .w2ui-multi-file {
+            position: absolute;
+            left: 0px;
+            right: 0px;
+            top: 0px;
+            bottom: 0px;
+        }
+
+        &.w2ui-readonly .w2ui-multi-items > .li-item:hover {
+            background-color: @list-item-background-color;
+        }
+
+        &.w2ui-file-dragover {
+            background-color: #E4FFDA;
+            border: 1px solid #93E07D;
+        }
+
+        // This a DROP ZONE, will be remove when first file dropped
+        .w2ui-enum-placeholder {
+            display: inline;
+            position: absolute;
+            pointer-events: none;
+            color: #999;
+            box-sizing: border-box;
+        }
+    }
 }
 
-/*
-*    ARROWS
-*/
+// tooltip for file items
+.w2ui-overlay {
+    .w2ui-file-preview {
+        padding: 1px;
+        background-color: white;
+    }
+
+    .w2ui-file-info {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        color: white;
+        padding: 6px 0;
+
+        .file-caption {
+            text-align: right;
+            color: silver;
+            padding-right: 10px;
+        }
+
+        .file-value {
+            color: white;
+        }
+
+        .file-type {
+            max-width: 200px;
+            display: block-inline;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+}
 
 .arrow-up {
     background: none;
@@ -97,429 +280,6 @@
     line-height: 0;
 }
 
-/*
-*    COLOR overlay
-*/
-
-.w2ui-colors {
-    padding: 8px 5px 0px 5px;
-    background-color: white;
-    border-radius: 3px;
-
-    input:focus {
-        outline: none;
-        border: 1px solid #999 !important;
-    }
-
-    .w2ui-color-palette {
-        width: 242px;
-
-        table {
-            table-layout: fixed;
-            width: 160px;
-
-            td {
-                width: 20px;
-                height: 20px;
-                text-align: center;
-
-                div {
-                    cursor: pointer;
-                    display: inline-block;
-                    width: 16px;
-                    height: 17px;
-                    padding: 1px 4px;
-                    border: 1px solid transparent;
-                    color: white;
-                    text-shadow: 0px 0px 2px #000;
-                    &:hover {
-                        outline: 1px solid #666;
-                        border: 1px solid #fff;
-                    }
-                    &.w2ui-no-color {
-                        border: 1px solid #efefef;
-                    }
-                }
-            }
-        }
-    }
-
-    .w2ui-color-advanced {
-        height: 176px;
-        padding: 1px 2px;
-
-        .palette {
-            position: relative;
-            width: 150px;
-            height: 125px;
-            outline: 1px solid #d2d2d2;
-            box-sizing: content-box;
-
-            .palette-bg {
-                height: 100%;
-                background-image: linear-gradient(0deg, #000000, rgba(204, 154, 129, 0));
-                pointer-events: none;
-            }
-        }
-
-        .rainbow {
-            position: relative;
-            width: 150px;
-            height: 12px;
-            margin: 10px 0px 0px 0px;
-            background: linear-gradient(90deg, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);
-        }
-
-        .alpha {
-            position: relative;
-            width: 150px;
-            height: 12px;
-            margin: 10px 0px 0px 0px;
-            background-color: #fff;
-            background-image: linear-gradient(45deg, #bbb 25%, transparent 25%, transparent 75%, #bbb 75%, #bbb),
-                              linear-gradient(45deg, #bbb 25%, transparent 25%, transparent 75%, #bbb 75%, #bbb);
-            background-size: 12px 12px;
-            background-position:0 0, 6px 6px;
-
-            .alpha-bg {
-                height: 100%;
-                background-image: linear-gradient(90deg, rgba(80, 80, 80, 0) 0%, rgba(80, 80, 80, 1) 100%);
-                pointer-events: none;
-            }
-        }
-
-        .value1 {
-            pointer-events: none;
-            position: absolute;
-            top: 0px;
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 10px;
-            border: 1px solid #999;
-            background-color: transparent;
-            box-shadow: 0px 0px 1px white;
-            transform: translateX(-1px) translateY(-1px);
-        }
-
-        .value2 {
-            pointer-events: none;
-            position: absolute;
-            top: -2px;
-            display: inline-block;
-            width: 8px;
-            height: 16px;
-            border-radius: 2px;
-            border: 1px solid rgb(105, 105, 105);
-            background-color: rgb(255, 255, 255);
-            box-shadow: 0px 0px 1px white;
-            transform: translateX(-1px);
-        }
-
-        .color-info {
-            float: right;
-            width: 80px;
-            margin-left: 158px;
-            margin-top: 0px;
-
-            .color-preview-bg {
-                box-shadow: 0 0 1px #c3c3c3;
-                height: 40px;
-                background-color: #fff;
-                background-image: linear-gradient(45deg, #bbb 25%, transparent 25%, transparent 75%, #bbb 75%, #bbb),
-                                  linear-gradient(45deg, #bbb 25%, transparent 25%, transparent 75%, #bbb 75%, #bbb);
-                background-size: 16px 16px;
-                background-position:0 0, 8px 8px;
-                margin-bottom: 10px;
-            }
-
-            .color-preview, .color-original {
-                height: 40px;
-                width: 40px;
-                float: left;
-            }
-
-            .color-part {
-                padding-top: 5px;
-                span {
-                    display: inline-block;
-                    width: 7px;
-                    margin-left: 1px;
-                    color: #666;
-                }
-                input {
-                    font-size: 10px!important;
-                    border-radius: 2px;
-                    border: 1px solid #ccc;
-                    width: 26px !important;
-                    padding: 2px !important;
-                    color: #333;
-                }
-            }
-
-        }
-    }
-
-    .w2ui-color-tabs {
-        background-color: #f7f7f7;
-        height: 30px;
-        margin: 10px -5px 0px -5px;
-        border-top: 1px solid #d6d6d6;
-
-        .w2ui-color-tab {
-            float: left;
-            display: inline-block;
-            width: 34px;
-            height: 25px;
-            border: 1px solid transparent;
-            border-radius: 1px;
-            margin: -1px -3px 0px 8px;
-            text-align: center;
-            font-size: 15px;
-            padding-top: 1px;
-            color: #7b7b7b;
-
-            &.selected {
-                color: #555;
-                background-color: white;
-                border: 1px solid #e0e0e0;
-                border-top: 1px solid transparent;
-                border-bottom-left-radius: 5px;
-                border-bottom-right-radius: 5px;
-            }
-        }
-    }
-}
-
-/*
-*    DATE overlay
-*/
-
-.w2ui-calendar {
-    margin: 0px;
-    padding: 1px;
-    line-height: 108%;
-
-    .w2ui-calendar-title {
-        margin: 0px -1px;
-        padding: 7px 2px;
-        .linear-gradient-vertical(@calendar-title-gradient-start, @calendar-title-gradient-end);
-        border-bottom: @calendar-title-border-bottom;
-        color: @calendar-title-color;
-        text-align: center;
-        text-shadow: @calendar-title-text-shadow;
-        cursor: pointer;
-    }
-
-    .w2ui-calendar-jump {
-        position: absolute;
-        top: 27px;
-        left: 0px;
-        right: 0px;
-        bottom: 0px;
-        background-color: #FaFaFa;
-        >:first-child {
-            position: absolute;
-            top: 0px;
-            left: 0px;
-            bottom: 0px;
-            width: 110px;
-            overflow: hidden;
-            padding-top: 5px;
-            border-right: 1px solid silver
-        }
-        >:last-child {
-            position: absolute;
-            top: 0px;
-            right: 0px;
-            bottom: 0px;
-            width: 88px;
-            overflow-x: hidden;
-            overflow-y: auto;
-            padding-top: 5px;
-            text-align: center;
-        }
-        .w2ui-jump-month, .w2ui-jump-year {
-            display: inline-block;
-            padding: 5px 0px;
-            text-align: center;
-            float: left;
-            margin: 2px;
-            width: 50px;
-            cursor: default;
-            border: 1px solid transparent;
-            border-radius: 2px;
-        }
-        .w2ui-jump-year {
-            float: none;
-            width: 95%;
-        }
-        .w2ui-jump-month:hover, .w2ui-jump-year:hover {
-            border: @calendar-day-hover-border;
-            color: @calendar-day-hover-color;
-            background-color: #efefef;
-        }
-        .w2ui-jump-month.selected, .w2ui-jump-year.selected {
-            border: @calendar-day-hover-border;
-            color: @calendar-day-hover-color;
-            background-color: #dadada;
-        }
-    }
-
-    .w2ui-calendar-previous, .w2ui-calendar-next {
-        width: 24px;
-        height: 20px;
-        color: @calendar-button-color;
-        border: @calendar-button-border;
-        border-radius: 3px;
-        padding: 2px 3px 1px 2px;
-        margin: -4px 0px 0px 0px;
-        cursor: default;
-        &:hover {
-            border: @calendar-button-hover-border;
-            background-color: @calendar-button-hover-background-color;
-        }
-        & > div {
-            position: absolute;
-            border-left: 4px solid #888;
-            border-top: 4px solid #888;
-            border-right: 4px solid transparent;
-            border-bottom: 4px solid transparent;
-            width: 0px;
-            height: 0px;
-            padding: 0px;
-            margin: 3px 0px 0px 0px;
-        }
-    }
-
-    .w2ui-calendar-previous {
-        float: left;
-        & > div {
-            .transform-rotate(-45deg);
-            margin-left: 6px;
-        }
-    }
-
-    .w2ui-calendar-next {
-        float: right;
-        & > div {
-            .transform-rotate(135deg);
-            margin-left: 2px;
-            margin-right: 2px;
-        }
-    }
-
-    .w2ui-calendar-now {
-        cursor: pointer;
-        margin-bottom: 10px;
-        text-align: center;
-
-        &:hover {
-            color: #0A96DE;
-        }
-    }
-
-    table {
-        &.w2ui-calendar-days {
-            padding: 0px;
-            td {
-                border: 1px solid @calendar-background-color;
-                color: @calendar-day-color;
-                background-color: @calendar-day-background-color;
-                padding: 6px;
-                cursor: default;
-                text-align: right;
-                &.w2ui-saturday,
-                &.w2ui-sunday {
-                    border: 1px solid @calendar-background-color;
-                    color: @calendar-day-weekend-color;
-                    background-color: @calendar-day-background-color;
-                    &:hover {
-                        border: @calendar-day-hover-border;
-                        color: @calendar-day-hover-color;
-                        background-color: @calendar-day-hover-background-color;
-                    }
-                    &.w2ui-blocked {
-                        text-decoration: line-through;
-                        border: 1px solid @calendar-background-color;
-                        color: @calendar-day-blocked-color;
-                        background-color: @calendar-background-color;
-                    }
-                }
-                &.w2ui-today {
-                    color: @calendar-day-today-color;
-                    background-color: @calendar-day-today-background-color;
-                }
-                &:hover {
-                    border: @calendar-day-hover-border;
-                    color: @calendar-day-hover-color;
-                    background-color: @calendar-day-hover-background-color;
-                }
-                &.w2ui-date-selected {
-                    border: @calendar-day-today-border;
-                }
-                &.w2ui-blocked {
-                    text-decoration: line-through;
-                    border: 1px solid @calendar-background-color;
-                    color: @calendar-day-blocked-color;
-                    background-color: @calendar-background-color;
-                }
-                &.w2ui-day-empty {
-                    border: 1px solid @calendar-background-color;
-                    background-color: @calendar-empty-background-color;
-                }
-            }
-            tr.w2ui-day-title td {
-                border: 1px solid @calendar-background-color;
-                color: @calendar-week-title-color;
-                background-color: @calendar-background-color;
-                text-align: center;
-                padding: 6px;
-            }
-
-        }
-    }
-}
-/*
-*    Time
-*/
-
-.w2ui-calendar-time {
-    padding: 5px;
-    cursor: default;
-    td div {
-        padding: 7px 10px;
-        text-align: center;
-        border: 1px solid transparent;
-        white-space: nowrap;
-    }
-
-    td:nth-child(even) {
-        background-color: @calendar-title-gradient-start;
-    }
-
-    td div:hover {
-        border: @calendar-day-hover-border;
-        color: @calendar-day-hover-color;
-        background-color: @calendar-day-hover-background-color;
-    }
-
-    td div.w2ui-blocked {
-        text-decoration: line-through;
-        border: 1px solid @calendar-background-color;
-        color: @calendar-day-blocked-color;
-        background-color: @calendar-background-color;
-    }
-}
-
-.w2ui-select-background (@a, @b, @c, @d, @e, @f, @g, @h, @i) {
-    background-image: @a, -webkit-linear-gradient(top, @b @c,@d @e,@f @g,@h @i);
-    background-image: @a, -moz-linear-gradient(top, @b @c,@d @e,@f @g,@h @i);
-    background-image: @a, -ms-linear-gradient(top, @b @c,@d @e,@f @g,@h @i);
-    background-image: @a, -o-linear-gradient(top, @b @c,@d @e,@f @g,@h @i);
-    background-image: @a, linear-gradient(to bottom, @b @c,@d @e,@f @g,@h @i);
-}
-
 .w2ui-select {
     cursor: default;
     color: black !important;
@@ -537,133 +297,5 @@
         background-color: #f1f1f1 !important;
         color: #777 !important;
         outline: none!important;
-    }
-}
-
-
-/*
-*    ENUM items
-*/
-
-.w2ui-list {
-    color: @list-color;
-    position: absolute;
-    padding: 0px;
-    margin: 0px;
-    min-height: 25px;
-    overflow: auto;
-    border: @list-border;
-    border-radius: 3px;
-    font-size: 6px;    // need to be small for list
-    line-height: 100%;
-    .box-sizing;
-    background-color: @list-background-color; // Needed for IE9+
-    &.has-focus,
-    &:focus-within {
-        outline: auto @input-focus-outline-color;
-        background-color: white;
-    }
-
-    input[type=text] {
-        .box-shadow;
-    }
-
-    ul {
-        list-style-type: none;
-        background-color: black;
-        margin: 0px;
-        padding: 0px;
-
-        li {
-            float: left;
-            margin: 2px 0px 0px 5px;
-            border-radius: 15px;
-            width: auto;
-            padding: 3px 24px 1px 12px;
-            border: @list-item-border;
-            background-color: @list-item-background-color;
-            white-space: nowrap;
-            cursor: default;
-            font-family: @list-item-font;
-            font-size: @list-item-font-size;
-            line-height: 100%;
-            height: 20px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            .box-sizing;
-
-            &:hover {
-                background-color: darken(@list-item-background-color, 10%);
-            }
-
-            &:last-child {
-                border-radius: 0px;
-                border: 1px solid transparent;
-                background-color: transparent;
-                input {
-                    padding: 1px;
-                    padding-top: 0px;
-                    margin: 0px;
-                    border: 0px;
-                    outline: none;
-                    height: auto;
-                    line-height: 100%;
-                    font-size: inherit;
-                    font-family: inherit;
-                    background-color: transparent;
-                }
-            }
-
-            .w2ui-list-remove {
-                float: right;
-                width: 16px;
-                height: 14px;
-                margin: -1px -22px 0px 3px;
-                border-radius: 15px;
-                font-size: 13px;
-                &:hover {
-                    background-color: #D77F7F;
-                    color: white;
-                    opacity: 1;
-                }
-                &:before {
-                    position: relative;
-                    top: 0px;
-                    padding: 0px;
-                    margin: 0px;
-                    left: 5px;
-                    color: inherit;
-                    opacity: 0.7;
-                    text-shadow: inherit;
-                    font-size: inherit;
-                    font-variant: small-caps;
-                    content: 'x';
-                    line-height: 100%;
-                }
-            }
-            > span.file-size {
-                pointer-events: none;
-                color: #777;
-            }
-        }
-    }
-
-    &.w2ui-readonly ul > li:hover {
-        background-color: @list-item-background-color;
-    }
-
-    // file
-
-    .w2ui-enum-placeholder { // this a DROP ZONE message, will be remove when first file dropped
-        display: inline;
-        position: absolute;
-        pointer-events: none;
-        color: #999;
-        .box-sizing;
-    }
-
-    &.w2ui-file-dragover {
-        background-color: #E4FFDA;
-        border: 1px solid #93E07D;
     }
 }

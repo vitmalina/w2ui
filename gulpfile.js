@@ -15,6 +15,12 @@ const comments = {
     w2ui : '/* w2ui 2.0.x (nightly) ('+ (new Date()).toLocaleString('en-us') +') (c) http://w2ui.com, vitmalina@gmail.com */\n'
 }
 
+const legacy_replace = `export {
+    w2ui, w2utils, query, w2locale, w2event, w2base,
+    w2popup, w2alert, w2confirm, w2prompt, Dialog,
+    w2tooltip, w2menu, w2color, w2date, Tooltip,
+    w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field
+}`
 const legacy_code = `
 // Compatibility with CommonJS and AMD modules
 !(function(global, w2ui) {
@@ -32,23 +38,37 @@ if (global) {
         global[key] = w2ui[key]
     })
 }
-})(self, { w2ui, w2locale, w2event, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
-    w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType })`
+})(self, {
+    w2ui, w2utils, query, w2locale, w2event, w2base,
+    w2popup, w2alert, w2confirm, w2prompt, Dialog,
+    w2tooltip, w2menu, w2color, w2date, Tooltip,
+    w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field
+})`
 
-const files_js = [
-    'src/w2event.js', // order of files is important
+const exports_es6 = `export {
+    w2ui, w2utils, query, w2locale, w2event, w2base,
+    w2popup, w2alert, w2confirm, w2prompt, Dialog,
+    w2tooltip, w2menu, w2color, w2date, Tooltip,
+    w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field
+}`
+
+const files_es6 = [
+    'src/w2base.js', // order of files is important
     'src/w2locale.js',
+    'src/query.js',
     'src/w2utils.js',
-    'src/w2grid.js',
-    'src/w2layout.js',
     'src/w2popup.js',
-    'src/w2tabs.js',
+    'src/w2tooltip.js',
     'src/w2toolbar.js',
     'src/w2sidebar.js',
-    'src/w2field.js',
+    'src/w2tabs.js',
+    'src/w2layout.js',
+    'src/w2grid.js',
     'src/w2form.js',
-    'src/w2compat.js' // must be last
+    'src/w2field.js'
 ]
+const files_legacy = Array.from(files_es6)
+files_legacy.push('src/w2compat.js')
 
 let tasks = {
 
@@ -84,21 +104,21 @@ let tasks = {
         let count = 0
         console.log('  - update dist/w2ui.js')
         console.log('  - update dist/w2ui_es6.js')
-        gulp.src(files_js)
+        gulp.src(files_legacy)
             .pipe(concat('w2ui.js'))
             .pipe(replace(/^(import.*'|export.*}|module\.exports.*})$\n/gm, ''))
             .pipe(replace('import.meta.url', 'undefined'))
             .pipe(replace('\n\n', '\n'))
-            .pipe(replace(`export { w2ui, w2locale, w2event, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
-    w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType }`, legacy_code))
+            .pipe(replace(legacy_replace, legacy_code))
             .pipe(header(comments.w2ui))
             .pipe(gulp.dest('dist/'))
             .on('end', () => { check() })
 
-        gulp.src(files_js)
+        gulp.src(files_es6)
             .pipe(concat('w2ui.es6.js'))
             .pipe(replace(/^(import.*'|export.*}|module\.exports.*})$\n/gm, ''))
             .pipe(replace('\n\n', '\n'))
+            .pipe(replace('export { w2field }', exports_es6))
             .pipe(header(comments.w2ui))
             .pipe(gulp.dest('dist/'))
             .on('end', () => { check() })
@@ -111,13 +131,12 @@ let tasks = {
 
     build(cb) {
         return gulp
-            .src(files_js)
+            .src(files_legacy)
             .pipe(concat('w2ui.js'))
             .pipe(replace(/^(import.*'|export.*}|module\.exports.*})$\n/gm, ''))
             .pipe(replace('import.meta.url', 'undefined'))
             .pipe(replace('\n\n', '\n'))
-            .pipe(replace(`export { w2ui, w2locale, w2event, w2utils, w2popup, w2alert, w2confirm, w2prompt, w2field, w2form, w2grid,
-    w2layout, w2sidebar, w2tabs, w2toolbar, addType, removeType }`, legacy_code))
+            .pipe(replace(legacy_replace, legacy_code))
             .pipe(header(comments.w2ui))
             .pipe(gulp.dest('dist/'))
             // min file
@@ -135,10 +154,11 @@ let tasks = {
 
     build_es6(cb) {
         return gulp
-            .src(files_js)
+            .src(files_es6)
             .pipe(concat('w2ui.es6.js'))
             .pipe(replace(/^(import.*'|export.*}|module\.exports.*})$\n/gm, ''))
             .pipe(replace('\n\n', '\n'))
+            .pipe(replace('export { w2field }', exports_es6))
             .pipe(header(comments.w2ui))
             .pipe(gulp.dest('dist/'))
             // min file

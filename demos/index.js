@@ -89,7 +89,7 @@ $(async function () {
                             sessionStorage.w2ui_demo_locale = w2utils_locale
                             location.reload() // reloading the page makes things so much easier than refreshing all the w2ui objects
                             // Object.values(w2ui).forEach(obj => {
-                            //     if(obj instanceof w2event && !(obj instanceof w2layout)) {
+                            //     if(obj instanceof w2base && !(obj instanceof w2layout)) {
                             //         obj.refresh()
                             //     }
                             // })
@@ -340,7 +340,7 @@ $(async function () {
                     nodes: [
                         { id: 'popup/7', text: 'Common Dialogs', icon: 'fa fa-list-alt' },
                         { id: 'popup/8', text: 'Context Dialogs', icon: 'fa fa-list-alt' },
-                        { id: 'popup/9', text: 'Better Event Flow', icon: 'fa fa-list-alt' },
+                        { id: 'popup/9', text: 'Better Events', icon: 'fa fa-list-alt' },
                     ]
                 },
                 { id: 'popup-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
