@@ -6,6 +6,7 @@
  *  - tab navigation (index state)
  *  - vertical toolbar
  *  - w2menu on second click of tb button should hide
+ *  - button display groups for each show/hide, possibly add state: { single: t/f, multiple: t/f, type: 'font' }
  *
  * == 2.0 changes
  *  - CSP - fixed inline events

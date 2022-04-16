@@ -217,7 +217,7 @@ import { w2tooltip, w2color, w2menu, w2date, Tooltip } from './w2tooltip.js'
         })
     }
 
-})(jQuery)
+})(window.jQuery)
 
 export {
     w2ui, w2utils, query, w2locale, w2event, w2base,

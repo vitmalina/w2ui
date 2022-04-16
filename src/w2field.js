@@ -1,6 +1,6 @@
 /**
  * Part of w2ui 2.0 library
- *  - Dependencies: jQuery, w2utils, w2base
+ *  - Dependencies: mQuery, w2utils, w2base, w2tooltip, w2color, w2menu, w2date
  *
  * == TODO ==
  *  - upload (regular files)
@@ -17,6 +17,7 @@
  *  - options.msgNoItems - can be a function
  *
  * == 2.0 changes
+ *  - removed jQuery dependency
  *  - enum options.autoAdd
  *  - [numeric, date] - options.autoCorrect to enforce range and validity
  *  - silent only left for files, removed form the rest
@@ -29,7 +30,7 @@
 import query from './query.js'
 import { w2base } from './w2base.js'
 import { w2utils } from './w2utils.js'
-import { w2tooltip, w2color, w2menu } from './w2tooltip.js'
+import { w2tooltip, w2color, w2menu, w2date } from './w2tooltip.js'
 
 class w2field extends w2base {
     constructor(type, options) {
@@ -71,7 +72,7 @@ class w2field extends w2base {
         delete this.options.onClick
         delete this.options.onMouseEnter
         delete this.options.onMouseLeave
-       delete this.options.onScroll
+        delete this.options.onScroll
     }
 
     render(el) {
@@ -267,7 +268,7 @@ class w2field extends w2base {
                 this.options = options
                 if (!w2utils.isPlainObject(options.selected)) options.selected = {}
                 this.selected = options.selected
-                if (this.type === 'list') this.addFocus()
+                if (this.type === 'list') this.addSearch()
                 this.addPrefix()
                 this.addSuffix()
                 this.refresh()
@@ -283,7 +284,7 @@ class w2field extends w2base {
 
             case 'enum':
                 defaults = {
-                    items           : [],
+                    items           : [], // id, text, tooltip, icon
                     selected        : [],
                     max             : 0, // max number of selected items, 0 - unlimited
                     url             : null, // not implemented
@@ -330,7 +331,7 @@ class w2field extends w2base {
                 if (!Array.isArray(options.selected)) options.selected = []
                 this.selected = options.selected
                 this.addSuffix()
-                this.addMulti()
+                this.addMultiSearch()
                 this.resize()
                 break
 
@@ -363,7 +364,7 @@ class w2field extends w2base {
                 if (query(this.el).attr('placeholder') == null) {
                     query(this.el).attr('placeholder', w2utils.lang('Attach files by dragging and dropping or Click to Select'))
                 }
-                this.addMulti()
+                this.addMultiSearch()
                 this.resize()
                 break
         }
@@ -377,7 +378,7 @@ class w2field extends w2base {
             .on('focus.w2field',   (event) => { this.focus(event) })
             .on('blur.w2field',    (event) => { this.blur(event) })
             .on('keydown.w2field', (event) => { this.keyDown(event) })
-            .on('keypress.w2field',(event) => { this.keyPress(event) })
+            .on('keyup.w2field',   (event) => { this.keyUp(event) })
         // format initial value
         this.change(new Event('change'))
     }
@@ -397,6 +398,9 @@ class w2field extends w2base {
             if (this.type !== 'list' && append) {
                 if (!Array.isArray(this.selected)) this.selected = []
                 this.selected.push(val)
+                // update selected array in overlay
+                let overlay = w2menu.get(this.el.id + '_menu')
+                if (overlay) overlay.options.selected = this.selected
                 query(this.el).trigger('input').trigger('change')
             } else {
                 let it = (this.type === 'enum' ? [val] : val)
@@ -416,10 +420,16 @@ class w2field extends w2base {
                 if (this.type !== 'list' && append) {
                     if (Array.isArray(this.selected)) this.selected = []
                     this.selected.push(items[ind])
+                    // update selected array in overlay
+                    let overlay = w2menu.get(this.el.id + '_menu')
+                    if (overlay) overlay.options.selected = this.selected
                     query(this.el).trigger('input').trigger('change')
                 } else {
                     let it = (this.type === 'enum' ? [items[ind]] : items[ind])
                     this.selected.push(it)
+                    // update selected array in overlay
+                    let overlay = w2menu.get(this.el.id + '_menu')
+                    if (overlay) overlay.options.selected = this.selected
                     query(this.el).trigger('input').trigger('change')
                 }
                 this.refresh()
@@ -498,9 +508,12 @@ class w2field extends w2base {
                         ${
                             typeof options.renderItem === 'function'
                             ? options.renderItem(it, ind, `<div class="w2ui-list-remove" index="${ind}">&#160;&#160;</div>`)
-                            : `<div class="w2ui-list-remove" index="${ind}">&#160;&#160;</div>
-                                    ${this.type === 'enum' ? it.text : it.name}
-                                <span class="file-size"> - ${w2utils.formatSize(it.size)}</span>`
+                            : `
+                               ${it.icon ? `<span class="w2ui-icon ${it.icon}"></span>` : ''}
+                               ${(this.type === 'enum' ? it.text : it.name) ?? it.id ?? it }
+                               ${it.size ? `<span class="file-size"> - ${w2utils.formatSize(it.size)}</span>` : ''}
+                               <div class="w2ui-list-remove" index="${ind}">&#160;&#160;</div>
+                            `
                         }
                         </div>`
                 })
@@ -559,7 +572,7 @@ class w2field extends w2base {
                     let edata = this.trigger('scroll', { target: this.el, originalEvent: event })
                     if (edata.isCancelled === true) return
                     // hide tooltip if any
-                    w2tooltip.hide(this.el.id + '-item-preview')
+                    w2tooltip.hide(this.el.id + '_preview')
                     // event after
                     edata.finish()
                 })
@@ -575,7 +588,7 @@ class w2field extends w2base {
                     if (query(event.target).hasClass('w2ui-list-remove')) {
                         if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
                         // trigger event
-                        edata = this.trigger('remove', { target: this.el, originalEvent: event, item: item })
+                        edata = this.trigger('remove', { target: this.el, originalEvent: event, item })
                         if (edata.isCancelled === true) return
                         // default behavior
                         selected.splice(index, 1)
@@ -583,11 +596,11 @@ class w2field extends w2base {
                         query(event.target).remove()
                     } else {
                         // trigger event
-                        edata = this.trigger('click', { target: this.el, originalEvent: event.originalEvent, item: item })
+                        edata = this.trigger('click', { target: this.el, originalEvent: event.originalEvent, item })
                         if (edata.isCancelled === true) return
                         // if file - show image preview
+                        let preview = item.tooltip
                         if (this.type === 'file') {
-                            let preview = ''
                             if ((/image/i).test(item.type)) { // image
                                 preview = `
                                     <div class="w2ui-file-preview">
@@ -606,7 +619,9 @@ class w2field extends w2base {
                                     <div class="file-caption">${w2utils.lang('Modified')}:</div>
                                     <div class="file-value">${w2utils.date(item.modified)}</div>
                                 </div>`
-                            let name = this.el.id + '-item-preview'
+                        }
+                        if (preview) {
+                            let name = this.el.id + '_preview'
                             w2tooltip.show({
                                 name,
                                 anchor: target.get(0),
@@ -653,31 +668,14 @@ class w2field extends w2base {
                     edata.finish()
                 })
 
-            // adjust height
-            query(this.el).css('height', 'auto')
-            let cntHeight = query(div).find(':scope div.w2ui-multi-items').get(0).clientHeight + 5
-            if (cntHeight < 27) cntHeight = 27
-            if (cntHeight > options.maxHeight) cntHeight = options.maxHeight
-            let inpHeight = w2utils.getSize(this.el, 'height') - 2
-            if (inpHeight > cntHeight) cntHeight = inpHeight
-            query(div).css({
-                'height': cntHeight + 'px',
-                overflow: (cntHeight == options.maxHeight ? 'auto' : 'hidden')
-            })
-            if (cntHeight < options.maxHeight) query(div).prop('scrollTop', 0)
-            // min height
-            let minHeight = parseInt(styles['min-height'])
-            if (minHeight > cntHeight) {
-                cntHeight = minHeight
-                query(this.helpers.multi).css('height', cntHeight + 'px')
-            }
-            query(this.el).css({ 'height': cntHeight + 'px' })
-
-            // update size
+            // update size for enum, hide for file
             if (this.type === 'enum') {
                 let search = this.helpers.multi.find('input')
-                search.css({ width: ((search.val().length + 2) * 8) + 'px' })
+                search.css({ width: '15px' })
+            } else {
+                this.helpers.multi.find('.li-search').hide()
             }
+            this.resize()
         }
         return (new Date()).getTime() - time
     }
@@ -686,7 +684,7 @@ class w2field extends w2base {
     resize() {
         let width = this.el.clientWidth
         let height = this.el.clientHeight
-        if (this.tmp.current_width == width && height > 0) return
+        // if (this.tmp.current_width == width && height > 0) return
         let styles = getComputedStyle(this.el)
 
         let focus  = this.helpers.focus
@@ -707,6 +705,29 @@ class w2field extends w2base {
         }
         if (prefix) {
             this.addPrefix()
+        }
+        // enum or file
+        if (['enum', 'file'].includes(this.type)) {
+            let div = this.helpers.multi
+            // adjust height
+            query(this.el).css('height', 'auto')
+            let cntHeight = query(div).find(':scope div.w2ui-multi-items').get(0).clientHeight + 5
+            if (cntHeight < 20) cntHeight = 20
+            if (cntHeight > this.options.maxHeight) cntHeight = this.options.maxHeight
+            let inpHeight = w2utils.getSize(this.el, 'height') - 2
+            if (inpHeight > cntHeight) cntHeight = inpHeight
+            query(div).css({
+                'height': cntHeight + 'px',
+                overflow: (cntHeight == this.options.maxHeight ? 'auto' : 'hidden')
+            })
+            if (cntHeight < this.options.maxHeight) query(div).prop('scrollTop', 0)
+            // min height
+            let minHeight = parseInt(styles['min-height'])
+            if (minHeight > cntHeight) {
+                cntHeight = minHeight
+                query(div).css('height', cntHeight + 'px')
+            }
+            query(this.el).css({ 'height': cntHeight + 'px' })
         }
         // remember width
         this.tmp.current_width = width
@@ -849,10 +870,6 @@ class w2field extends w2base {
     }
 
     focus(event) {
-        if (query(this.el).hasClass('has-focus')) {
-            return
-        }
-        query(this.el).addClass('has-focus')
         // color, date, time
         if (['color', 'date', 'time', 'datetime'].indexOf(this.type) !== -1) {
             if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
@@ -870,13 +887,24 @@ class w2field extends w2base {
                 input.value = ''
                 input.select()
             }
+            if (this.type == 'enum') {
+                // file control in particular need to receive focus after file select
+                let search = query(this.el.previousElementSibling).find('.li-search input').get(0)
+                if (document.activeElement !== search) {
+                    search.focus()
+                }
+            }
             this.resize()
-            this.updateOverlay()
+            // update overlay if needed
+            if (this.options.openOnFocus !== false || query(this.el).hasClass('has-focus')) {
+                this.updateOverlay()
+            }
         }
         if (this.type == 'file') {
             let prev = query(this.el).get(0).previousElementSibling
             query(prev).addClass('has-focus')
         }
+        query(this.el).addClass('has-focus')
     }
 
     blur(event) {
@@ -887,7 +915,7 @@ class w2field extends w2base {
             if (val !== '') {
                 let newVal = val
                 let error = ''
-                if (!this.checkType(val)) {
+                if (!this.isStrValid(val)) {
                     newVal = ''
                 } else {
                     let rVal = this.clean(val)
@@ -927,7 +955,7 @@ class w2field extends w2base {
         }
         // clear search input
         if (this.type === 'enum') {
-            query(this.helpers.multi).find('input').val('').css('width', '20px')
+            query(this.helpers.multi).find('input').val('').css('width', '15px')
         }
         if (this.type == 'file') {
             let prev = this.el.previousElementSibling
@@ -935,44 +963,40 @@ class w2field extends w2base {
         }
     }
 
-    keyPress(event) {
-        let obj = this
-        // ignore wrong pressed key
-        if (['int', 'float', 'money', 'currency', 'percent', 'hex', 'bin', 'color', 'alphanumeric'].indexOf(obj.type) !== -1) {
-            // keyCode & charCode differ in FireFox
-            if (event.metaKey || event.ctrlKey || event.altKey || (event.charCode != event.keyCode && event.keyCode > 0)) return
-            let ch = String.fromCharCode(event.charCode)
-            if (!obj.checkType(ch, true) && event.keyCode != 13) {
-                event.preventDefault()
-                if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true
-                return false
-            }
-        }
-    }
-
     keyDown(event, extra) {
-        let obj     = this
-        let options = obj.options
+        let options = this.options
         let key     = event.keyCode || (extra && extra.keyCode)
         let cancel  = false
         let val, inc, daymil, dt, newValue, newDT
+        // ignore wrong pressed key
+        if (['int', 'float', 'money', 'currency', 'percent', 'hex', 'bin', 'color', 'alphanumeric'].includes(this.type)) {
+            if (!event.metaKey && !event.ctrlKey && !event.altKey) {
+                let ch = String.fromCharCode(event.keyCode)
+                if (!this.isStrValid(ch, true) && // valid & is not arrows, dot, comma, etc kesy
+                        ![9, 8, 13, 27, 37, 38, 39, 40, 46, 188, 190].includes(event.keyCode)) {
+                    event.preventDefault()
+                    if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true
+                    return false
+                }
+            }
+        }
         // numeric
-        if (['int', 'float', 'money', 'currency', 'percent'].indexOf(obj.type) !== -1) {
-            if (!options.keyboard || query(obj.el).prop('readonly') || query(obj.el).prop('disabled')) return
-            val = parseFloat(query(obj.el).val().replace(options.moneyRE, '')) || 0
+        if (['int', 'float', 'money', 'currency', 'percent'].includes(this.type)) {
+            if (!options.keyboard || query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+            val = parseFloat(query(this.el).val().replace(options.moneyRE, '')) || 0
             inc = options.step
             if (event.ctrlKey || event.metaKey) inc = options.step * 10
             switch (key) {
                 case 38: // up
                     if (event.shiftKey) break // no action if shift key is pressed
                     newValue = (val + inc <= options.max || options.max == null ? Number((val + inc).toFixed(12)) : options.max)
-                    query(obj.el).val(newValue).trigger('input').trigger('change')
+                    query(this.el).val(newValue).trigger('input').trigger('change')
                     cancel = true
                     break
                 case 40: // down
                     if (event.shiftKey) break // no action if shift key is pressed
                     newValue = (val - inc >= options.min || options.min == null ? Number((val - inc).toFixed(12)) : options.min)
-                    query(obj.el).val(newValue).trigger('input').trigger('change')
+                    query(this.el).val(newValue).trigger('input').trigger('change')
                     cancel = true
                     break
             }
@@ -981,29 +1005,16 @@ class w2field extends w2base {
                 this.moveCaret2end()
             }
         }
-        if (this.type == 'list') {
-            switch(key) {
-                case 8: // delete
-                    this.selected = null
-                    w2menu.hide(this.el.id + '_menu')
-                    this.refresh()
-                    break
-                case 27: // escape
-                    w2menu.hide(this.el.id + '_menu')
-                    this.refresh()
-                    break
-            }
-        }
         // date/datetime
-        if (['date', 'datetime'].includes(obj.type)) {
-            if (!options.keyboard || query(obj.el).prop('readonly') || query(obj.el).prop('disabled')) return
-            let is = (obj.type == 'date' ? w2utils.isDate : w2utils.isDateTime).bind(w2utils)
-            let format = (obj.type == 'date' ? w2utils.formatDate : w2utils.formatDateTime).bind(w2utils)
+        if (['date', 'datetime'].includes(this.type)) {
+            if (!options.keyboard || query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+            let is = (this.type == 'date' ? w2utils.isDate : w2utils.isDateTime).bind(w2utils)
+            let format = (this.type == 'date' ? w2utils.formatDate : w2utils.formatDateTime).bind(w2utils)
 
             daymil = 24*60*60*1000
             inc = 1
             if (event.ctrlKey || event.metaKey) inc = 10 // by month
-            dt = is(query(obj.el).val(), options.format, true)
+            dt = is(query(this.el).val(), options.format, true)
             if (!dt) { dt = new Date(); daymil = 0 }
             switch (key) {
                 case 38: // up
@@ -1014,7 +1025,7 @@ class w2field extends w2base {
                         dt.setTime(dt.getTime() + daymil)
                     }
                     newDT = format(dt.getTime(), options.format)
-                    query(obj.el).val(newDT).trigger('input').trigger('change')
+                    query(this.el).val(newDT).trigger('input').trigger('change')
                     cancel = true
                     break
                 case 40: // down
@@ -1025,7 +1036,7 @@ class w2field extends w2base {
                         dt.setTime(dt.getTime() - daymil)
                     }
                     newDT = format(dt.getTime(), options.format)
-                    query(obj.el).val(newDT).trigger('input').trigger('change')
+                    query(this.el).val(newDT).trigger('input').trigger('change')
                     cancel = true
                     break
             }
@@ -1036,10 +1047,10 @@ class w2field extends w2base {
             }
         }
         // time
-        if (obj.type === 'time') {
-            if (!options.keyboard || query(obj.el).prop('readonly') || query(obj.el).prop('disabled')) return
+        if (this.type === 'time') {
+            if (!options.keyboard || query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
             inc = (event.ctrlKey || event.metaKey ? 60 : 1)
-            val = query(obj.el).val()
+            val = query(this.el).val()
             let time = w2date.str2min(val) || w2date.str2min((new Date()).getHours() + ':' + ((new Date()).getMinutes() - 1))
             switch (key) {
                 case 38: // up
@@ -1055,16 +1066,83 @@ class w2field extends w2base {
             }
             if (cancel) {
                 event.preventDefault()
-                query(obj.el).val(w2date.min2str(time)).trigger('input').trigger('change')
+                query(this.el).val(w2date.min2str(time)).trigger('input').trigger('change')
                 this.moveCaret2end()
+            }
+        }
+        // list
+        if (this.type == 'list') {
+            switch(key) {
+                case 8: // delete
+                    this.selected = null
+                    w2menu.hide(this.el.id + '_menu')
+                    this.refresh()
+                    break
+                case 27: // escape
+                    w2menu.hide(this.el.id + '_menu')
+                    this.refresh()
+                    break
+            }
+            this.updateOverlay()
+        }
+        // enum
+        if (this.type == 'enum') {
+            switch(key) {
+                case 8: // delete
+                    let search = this.helpers.multi.find('input')
+                    if (search.val() == '') {
+                        w2menu.hide(this.el.id + '_menu')
+                        this.selected.pop()
+                        // update selected array in overlay
+                        let overlay = w2menu.get(this.el.id + '_menu')
+                        if (overlay) overlay.options.selected = this.selected
+                        this.refresh()
+                    }
+                    break
+                case 27: // escape
+                    w2menu.hide(this.el.id + '_menu')
+                    this.refresh()
+                    break
+                default: {
+                    let overlay = w2menu.get(this.el.id + '_menu')
+                    if (!overlay && !overlay?.displayed) {
+                        this.updateOverlay()
+                    }
+                }
             }
         }
     }
 
+    keyUp(event) {
+        if (this.type == 'list') {
+            if (event.target.value === '') {
+                query(this.el).attr('placeholder', this.tmp.pholder)
+            } else {
+                query(this.el).attr('placeholder', '')
+            }
+            if (event.keyCode == 13) {
+                setTimeout(() => {
+                    event.target.value = ''
+                    w2menu.hide(this.el.id + '_menu')
+                    this.refresh()
+                }, 1)
+            } else {
+                this.updateOverlay()
+            }
+        }
+        if (this.type == 'enum') {
+            let search = this.helpers.multi.find('input')
+            let styles = getComputedStyle(search.get(0))
+            let width = w2utils.getStrWidth(search.val(),
+                `font-family: ${styles['font-family']}; font-size: ${styles['font-size']};`)
+            search.css({ width: (width + 15) + 'px' })
+            this.resize()
+        }
+    }
+
     updateOverlay(indexOnly) {
-        let obj = this
         let options = this.options
-        let month, year, dt, params
+        let params
         // color
         if (this.type === 'color') {
             if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
@@ -1090,7 +1168,7 @@ class w2field extends w2base {
             let el = this.el
             let input = this.el
             if (this.type === 'enum') {
-                el = this.helpers.multi
+                el = this.helpers.multi.get(0)
                 input = query(el).find('input').get(0)
             }
             if (this.type === 'list') {
@@ -1120,9 +1198,6 @@ class w2field extends w2base {
                 input = query(this.helpers.focus).find('input').get(0)
             }
             if (query(this.el).hasClass('has-focus')) {
-                if ((options.openOnFocus === false && query(input).val() === '') || w2tooltip.get(el.id + '_menu')) {
-                    return
-                }
                 let msgNoItems = w2utils.lang('No matches')
                 if (options.url != null && String(query(input).val()).length < options.minLength && this.tmp.emptySet !== true) {
                     msgNoItems = w2utils.lang('${count} letters or more...', { count: options.minLength })
@@ -1135,7 +1210,7 @@ class w2field extends w2base {
                 // if (options.msgNoItems != null) {
                 //     let eventData = {
                 //         search: query(input).val(),
-                //         options: $.extend(true, {}, options)
+                //         options: w2utils.clone(options)
                 //     }
                 //     if (options.url) {
                 //         eventData.remote = {
@@ -1157,47 +1232,44 @@ class w2field extends w2base {
                 // }
 
                 params = w2utils.extend({}, options, {
-                    name: el.id + '_menu',
+                    name: this.el.id + '_menu',
                     anchor: input,
+                    selected: this.selected,
                     search: false,
                     render: options.renderDrop,
+                    anchorClass: '',
                     maxHeight: options.maxDropHeight, // TODO: check
                     maxWidth: options.maxDropWidth,  // TODO: check
                     minWidth: options.minDropWidth,  // TODO: check
                     msgNoItems: msgNoItems,
                 })
-                w2menu.show(params).select(event => {
-                    if (this.type != 'enum') {
-                        this.selected = event.detail.item
-                        query(input).val('')
-                        query(this.el).val(this.selected.text).trigger('input').trigger('change')
-                    } else {
-                        let selected = $(obj.el).data('selected')
-                        if (event.item) {
-                            // trigger event
-                            let edata = obj.trigger({ phase: 'before', type: 'add', target: obj.el, originalEvent: event.originalEvent, item: event.item })
-                            if (edata.isCancelled === true) return
-                            // default behavior
-                            if (selected.length >= options.max && options.max > 0) selected.pop()
-                            delete event.item.hidden
-                            selected.push(event.item)
-                            $(obj.el).data('selected', selected).trigger('input').trigger('change')
-                            $(obj.helpers.multi).find('input').val('').width(20)
-                            obj.refresh()
-                            if (event.keepOpen !== true) {
-                                if ($('#w2ui-overlay').length > 0) $('#w2ui-overlay')[0].hide()
-                            } else {
-                                let ind
-                                params.items.forEach((item, i) => { if (item.id == event.item.id) ind = i })
-                                if (ind != null) params.items.splice(ind, 1)
-                                params.selected = selected
-                                $(el).w2menu('refresh', params)
+                w2menu.show(params)
+                    .select(event => {
+                        if (this.type != 'enum') {
+                            this.selected = event.detail.item
+                            query(input).val('')
+                            query(this.el).val(this.selected.text).trigger('input').trigger('change')
+                        } else {
+                            let selected = this.selected
+                            let newItem = event.detail?.item
+                            if (newItem) {
+                                // trigger event
+                                let edata = this.trigger('add', { target: this.el, item: newItem, originalEvent: event })
+                                if (edata.isCancelled === true) return
+                                // default behavior
+                                if (selected.length >= options.max && options.max > 0) selected.pop()
+                                delete newItem.hidden
+                                selected.push(newItem)
+                                query(this.el).trigger('input').trigger('change')
+                                query(this.helpers.multi).find('input').val('')
+                                // updaet selected array in overlays
+                                let overlay = w2menu.get(this.el.id + '_menu')
+                                if (overlay) overlay.options.selected = this.selected
+                                // event after
+                                edata.finish()
                             }
-                            // event after
-                            obj.trigger($.extend(edata, { phase: 'after' }))
                         }
-                    }
-                })
+                    })
             }
         }
         // date
@@ -1221,21 +1293,20 @@ class w2field extends w2base {
     *  INTERNAL FUNCTIONS
     */
 
-    checkType(ch, loose) {
-        let obj = this
-        switch (obj.type) {
+    isStrValid(ch, loose) {
+        switch (this.type) {
             case 'int':
-                if (loose && ['-', obj.options.groupSymbol].indexOf(ch) !== -1) return true
-                return w2utils.isInt(ch.replace(obj.options.numberRE, ''))
+                if (loose && ['-', this.options.groupSymbol].indexOf(ch) !== -1) return true
+                return w2utils.isInt(ch.replace(this.options.numberRE, ''))
             case 'percent':
                 ch = ch.replace(/%/g, '')
             case 'float':
-                if (loose && ['-', w2utils.settings.decimalSymbol, obj.options.groupSymbol].indexOf(ch) !== -1) return true
-                return w2utils.isFloat(ch.replace(obj.options.numberRE, ''))
+                if (loose && ['-', w2utils.settings.decimalSymbol, this.options.groupSymbol].indexOf(ch) !== -1) return true
+                return w2utils.isFloat(ch.replace(this.options.numberRE, ''))
             case 'money':
             case 'currency':
-                if (loose && ['-', obj.options.decimalSymbol, obj.options.groupSymbol, obj.options.currencyPrefix, obj.options.currencySuffix].indexOf(ch) !== -1) return true
-                return w2utils.isFloat(ch.replace(obj.options.moneyRE, ''))
+                if (loose && ['-', this.options.decimalSymbol, this.options.groupSymbol, this.options.currencyPrefix, this.options.currencySuffix].indexOf(ch) !== -1) return true
+                return w2utils.isFloat(ch.replace(this.options.moneyRE, ''))
             case 'bin':
                 return w2utils.isBin(ch)
             case 'hex':
@@ -1350,7 +1421,7 @@ class w2field extends w2base {
     }
 
     // Only used for list
-    addFocus() {
+    addSearch() {
         let width = 0 // 11 - show search icon, 0 do not show
         let pholder
         // clean up & init
@@ -1396,16 +1467,16 @@ class w2field extends w2base {
         query(helper).find('input')
             .off('.helper')
             .on('focus.helper', event => {
-                pholder = query(this.el).attr('placeholder') ?? ''
+                this.tmp.pholder = query(this.el).attr('placeholder') ?? ''
                 query(event.target).val('')
                 query(this.el).trigger('focus')
                 this.refresh()
                 event.stopPropagation()
             })
             .on('blur.helper', event => {
-                $(event.target).val('')
+                query(event.target).val('')
                 query(this.el).trigger('blur')
-                if (pholder != null) query(this.el).attr('placeholder', pholder)
+                if (this.tmp.pholder != null) query(this.el).attr('placeholder', this.tmp.pholder)
                 w2menu.hide(this.el.id + '_menu')
                 event.stopPropagation()
             })
@@ -1415,24 +1486,7 @@ class w2field extends w2base {
                 this.keyDown(event)
             })
             .on('keyup.helper', event => {
-                if (event.target.value === '') {
-                    query(this.el).attr('placeholder', pholder)
-                } else {
-                    query(this.el).attr('placeholder', '')
-                }
-                console.log(event.keyCode)
-                if (event.keyCode == 13) {
-                    setTimeout(() => {
-                        event.target.value = ''
-                        w2menu.hide(this.el.id + '_menu')
-                        this.refresh()
-                    }, 1)
-                } else {
-                    // this.updateOverlay()
-                }
-            })
-            .on('keypress', event => {
-                this.keyPress(event)
+                this.keyUp(event)
             })
         // MAIN div
         query(helper).on('click', event => {
@@ -1442,8 +1496,7 @@ class w2field extends w2base {
     }
 
     // Used in enum/file
-    addMulti() {
-        let obj = this
+    addMultiSearch() {
         // clean up & init
         query(this.helpers.multi).remove()
         // build helper
@@ -1474,7 +1527,7 @@ class w2field extends w2base {
                 <div class="w2ui-multi-items">
                     <div class="li-search">
                         <input ${searchId} type="text" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"
-                            style="width: 20px; margin: -3px 0 0; padding: 2px 0; border-color: transparent" tabindex="${tabIndex}"
+                            tabindex="${tabIndex}"
                             ${query(this.el).prop('readonly') ? 'readonly': '' }
                             ${query(this.el).prop('disabled') ? 'disabled': '' }>
                     </div>
@@ -1485,7 +1538,7 @@ class w2field extends w2base {
             html = `
             <div class="w2ui-field-helper w2ui-list" style="${margin}">
                 <div class="w2ui-multi-file">
-                    <input ${searchId} name="attachment" class="file-input" type="file" tabindex="-1"'
+                    <input name="attachment" class="file-input" type="file" tabindex="-1"'
                         style="width: 100%; height: 100%; opacity: 0" title=""
                         ${this.options.max !== 1 ? 'multiple' : ''}
                         ${query(this.el).prop('readonly') ? 'readonly': ''}
@@ -1493,7 +1546,11 @@ class w2field extends w2base {
                         ${query(this.el).attr('accept') ? ' accept="'+ query(this.el).attr('accept') +'"': ''}>
                 </div>
                 <div class="w2ui-multi-items">
-                    <div class="li-search" tabindex="${tabIndex}">
+                    <div class="li-search" style="display: none">
+                        <input ${searchId} type="text" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"
+                            tabindex="${tabIndex}"
+                            ${query(this.el).prop('readonly') ? 'readonly': '' }
+                            ${query(this.el).prop('disabled') ? 'disabled': '' }>
                     </div>
                 </div>
             </div>`
@@ -1511,18 +1568,20 @@ class w2field extends w2base {
 
         let div = query(this.el.previousElementSibling)
         this.helpers.multi = div
-        if (this.type === 'enum') {
-            query(this.el).attr('tabindex', -1)
-            // INPUT events
-            div.find('input')
-                .on('click', (event) => { this.click(event) })
-                .on('focus', (event) => { this.focus(event) })
-                .on('blur', (event) => { this.blur(event) })
-                .on('keydown', (event) => { this.keyDown(event) })
-                .on('keypress', (event) => { this.keyPress(event) })
-        }
+        query(this.el).attr('tabindex', -1)
+        // click anywhere on the field
+        div.on('click', event => { this.focus(event) })
+        // search field
+        div.find('input:not(.file-input)')
+            .on('click', event => { this.click(event) })
+            .on('focus', event => { this.focus(event) })
+            .on('blur', event => { this.blur(event) })
+            .on('keydown', event => { this.keyDown(event) })
+            .on('keyup', event => { this.keyUp(event) })
+
+        // file input
         if (this.type === 'file') {
-            div.find('input')
+            div.find('input.file-input')
                 .off('.drag')
                 .on('click.drag', (event) => {
                     event.stopPropagation()

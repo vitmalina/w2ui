@@ -47,11 +47,194 @@
             display: block;
         }
     }
+
+    // enum list
+    &.w2ui-list {
+        color: @list-color;
+        position: absolute;
+        padding: 0px;
+        margin: 0px;
+        min-height: 28px;
+        overflow: auto;
+        border: @list-border;
+        border-radius: 3px;
+        font-size: 6px;    // need to be small for list
+        line-height: 100%;
+        box-sizing: border-box;
+        pointer-events: all;
+        background-color: #f7fafa;
+
+        &.has-focus,
+        &:focus-within {
+            outline: auto @input-focus-outline-color;
+            background-color: white;
+        }
+
+        input[type=text] {
+            .box-shadow;
+        }
+
+        .w2ui-multi-items {
+            position: absolute;
+            display: inline-block;
+            margin: 0px;
+            padding: 0px;
+            pointer-events: none;
+
+            .li-item {
+                pointer-events: all;
+                float: left;
+                margin: 3px 0px 0px 5px;
+                border-radius: 15px;
+                width: auto;
+                padding: 3px 24px 1px 12px;
+                border: @list-item-border;
+                background-color: @list-item-background-color;
+                white-space: nowrap;
+                cursor: default;
+                font-family: @list-item-font;
+                font-size: @list-item-font-size;
+                line-height: 100%;
+                height: 20px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                box-sizing: border-box;
+
+                &:hover {
+                    background-color: darken(@list-item-background-color, 10%);
+                }
+
+                &:last-child {
+                    border-radius: 0px;
+                    border: 1px solid transparent;
+                    background-color: transparent;
+                    input {
+                        padding: 1px;
+                        padding-top: 0px;
+                        margin: 0px;
+                        border: 0px;
+                        outline: none;
+                        height: auto;
+                        line-height: 100%;
+                        font-size: inherit;
+                        font-family: inherit;
+                        background-color: transparent;
+                    }
+                }
+
+                .w2ui-icon {
+                    float: left;
+                    color: #659ab8;
+                    margin: 0 2px 0 -6px;
+                }
+
+                .w2ui-list-remove {
+                    float: right;
+                    width: 16px;
+                    height: 16px;
+                    margin: -2px -20px 0px 0px;
+                    border-radius: 2px;
+                    font-size: 12px;
+                    border: 1px solid transparent;
+                    &:hover {
+                        background-color: #f6e5e5;
+                        border: 1px solid #fac2c2;
+                        color: red;
+                        opacity: 1;
+                    }
+                    &:before {
+                        position: relative;
+                        display: inline-block;
+                        left: 4px;
+                        opacity: 0.7;
+                        content: 'x';
+                        line-height: 1;
+                    }
+                }
+
+                > span.file-size {
+                    pointer-events: none;
+                    color: #777;
+                }
+            }
+            .li-search {
+                float: left;
+                margin: 0;
+                padding: 0;
+                input[type=text] {
+                    pointer-events: all;
+                    width: 0;
+                    padding: 3px 0 0 0;
+                    border: 0;
+                    margin: 3px 0 0 5px;
+                    &:focus {
+                        outline: none;
+                        border: 0;
+                    }
+                }
+            }
+        }
+
+        .w2ui-multi-file {
+            position: absolute;
+            left: 0px;
+            right: 0px;
+            top: 0px;
+            bottom: 0px;
+        }
+
+        &.w2ui-readonly .w2ui-multi-items > .li-item:hover {
+            background-color: @list-item-background-color;
+        }
+
+        &.w2ui-file-dragover {
+            background-color: #E4FFDA;
+            border: 1px solid #93E07D;
+        }
+
+        // This a DROP ZONE, will be remove when first file dropped
+        .w2ui-enum-placeholder {
+            display: inline;
+            position: absolute;
+            pointer-events: none;
+            color: #999;
+            box-sizing: border-box;
+        }
+    }
 }
 
-/*
-*    ARROWS
-*/
+// tooltip for file items
+.w2ui-overlay {
+    .w2ui-file-preview {
+        padding: 1px;
+        background-color: white;
+    }
+
+    .w2ui-file-info {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        color: white;
+        padding: 6px 0;
+
+        .file-caption {
+            text-align: right;
+            color: silver;
+            padding-right: 10px;
+        }
+
+        .file-value {
+            color: white;
+        }
+
+        .file-type {
+            max-width: 200px;
+            display: block-inline;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+}
 
 .arrow-up {
     background: none;
@@ -114,129 +297,5 @@
         background-color: #f1f1f1 !important;
         color: #777 !important;
         outline: none!important;
-    }
-}
-
-// enum list
-.w2ui-list {
-    color: @list-color;
-    position: absolute;
-    padding: 0px;
-    margin: 0px;
-    min-height: 25px;
-    overflow: auto;
-    border: @list-border;
-    border-radius: 3px;
-    font-size: 6px;    // need to be small for list
-    line-height: 100%;
-    .box-sizing;
-    background-color: @list-background-color; // Needed for IE9+
-    &.has-focus,
-    &:focus-within {
-        outline: auto @input-focus-outline-color;
-        background-color: white;
-    }
-
-    input[type=text] {
-        .box-shadow;
-    }
-
-    ul {
-        list-style-type: none;
-        background-color: black;
-        margin: 0px;
-        padding: 0px;
-
-        li {
-            float: left;
-            margin: 2px 0px 0px 5px;
-            border-radius: 15px;
-            width: auto;
-            padding: 3px 24px 1px 12px;
-            border: @list-item-border;
-            background-color: @list-item-background-color;
-            white-space: nowrap;
-            cursor: default;
-            font-family: @list-item-font;
-            font-size: @list-item-font-size;
-            line-height: 100%;
-            height: 20px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            .box-sizing;
-
-            &:hover {
-                background-color: darken(@list-item-background-color, 10%);
-            }
-
-            &:last-child {
-                border-radius: 0px;
-                border: 1px solid transparent;
-                background-color: transparent;
-                input {
-                    padding: 1px;
-                    padding-top: 0px;
-                    margin: 0px;
-                    border: 0px;
-                    outline: none;
-                    height: auto;
-                    line-height: 100%;
-                    font-size: inherit;
-                    font-family: inherit;
-                    background-color: transparent;
-                }
-            }
-
-            .w2ui-list-remove {
-                float: right;
-                width: 16px;
-                height: 14px;
-                margin: -1px -22px 0px 3px;
-                border-radius: 15px;
-                font-size: 13px;
-                &:hover {
-                    background-color: #D77F7F;
-                    color: white;
-                    opacity: 1;
-                }
-                &:before {
-                    position: relative;
-                    top: 0px;
-                    padding: 0px;
-                    margin: 0px;
-                    left: 5px;
-                    color: inherit;
-                    opacity: 0.7;
-                    text-shadow: inherit;
-                    font-size: inherit;
-                    font-variant: small-caps;
-                    content: 'x';
-                    line-height: 100%;
-                }
-            }
-            > span.file-size {
-                pointer-events: none;
-                color: #777;
-            }
-        }
-    }
-
-    &.w2ui-readonly ul > li:hover {
-        background-color: @list-item-background-color;
-    }
-
-    // file
-
-    .w2ui-enum-placeholder { // this a DROP ZONE message, will be remove when first file dropped
-        display: inline;
-        position: absolute;
-        pointer-events: none;
-        color: #999;
-        .box-sizing;
-    }
-
-    &.w2ui-file-dragover {
-        background-color: #E4FFDA;
-        border: 1px solid #93E07D;
     }
 }

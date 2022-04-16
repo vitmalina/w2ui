@@ -70,7 +70,7 @@ class Tooltip {
         } else if (name === true) {
             return Tooltip.active
         } else {
-            return Tooltip.active[name]
+            return Tooltip.active[name.replace(/[\s\.#]/g, '_')]
         }
     }
 
@@ -218,7 +218,7 @@ class Tooltip {
         }
         let edata
         let self = this
-        let overlay = Tooltip.active[name]
+        let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
         let options = overlay.options
         if (!overlay || (overlay.displayed && !overlay.needsUpdate)) {
             return
@@ -282,9 +282,8 @@ class Tooltip {
             overlay.anchor.style.cssText += ';' + options.anchorStyle
         }
         if (options.anchorClass) {
-            if (options.anchorClass == 'w2ui-focus' && overlay.anchor == document.body) {
-
-            } else {
+            // do not add w2ui-focus to body
+            if (!(options.anchorClass == 'w2ui-focus' && overlay.anchor == document.body)) {
                 query(overlay.anchor).addClass(options.anchorClass)
             }
         }
@@ -377,7 +376,7 @@ class Tooltip {
         }
         if (typeof name == 'string') {
             name = name.replace(/[\s\.#]/g, '_')
-            overlay = Tooltip.active[name]
+            overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
         }
         if (!overlay || !overlay.box) return
         // event before
@@ -422,7 +421,7 @@ class Tooltip {
             })
             return
         }
-        let overlay = Tooltip.active[name]
+        let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
         let pos = this.getPosition(overlay.name)
         let newPos = pos.left + 'x' + pos.top
         let edata
@@ -460,7 +459,7 @@ class Tooltip {
     }
 
     getPosition(name) {
-        let overlay = Tooltip.active[name]
+        let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
         if (!overlay || !overlay.box) {
             return
         }
@@ -1138,7 +1137,7 @@ class MenuTooltip extends Tooltip {
         //   style    : '',
         //   icon     : '',
         //   count    : '',
-        //   tooltip  : '',      // TODO: Not working
+        //   tooltip  : '',
         //   hotkey   : '',
         //   remove   : false,
         //   items    : []
@@ -1202,6 +1201,8 @@ class MenuTooltip extends Tooltip {
             if (ret.overlay?.box) {
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
+                this.applyFilter(overlay.name)
+                this.refreshSearch(overlay.name)
                 this.initControls(ret.overlay)
             }
         })
@@ -1209,9 +1210,12 @@ class MenuTooltip extends Tooltip {
             if (ret.overlay?.box) {
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
-                this.initControls(ret.overlay)
                 this.refreshIndex(ret.overlay)
+                this.initControls(ret.overlay)
             }
+        })
+        overlay.on('hide:after.attach', event => {
+            w2tooltip.hide(overlay.name + '-tooltip')
         })
         ret.select = (callback) => {
             overlay.on('select.attach', (event) => { callback(event) })
@@ -1228,8 +1232,62 @@ class MenuTooltip extends Tooltip {
         return ret
     }
 
+    initControls(overlay) {
+        query(overlay.box).find('.w2ui-menu:not(.w2ui-sub-menu)')
+            .off('.w2menu')
+            .on('mouseDown.w2menu', { delegate: '.w2ui-menu-item' }, event => {
+                let dt = event.delegate.dataset
+                this.menuDown(overlay, event, dt.index, dt.parents)
+            })
+            .on((w2utils.isIOS ? 'touchStart' : 'click') + '.w2menu', { delegate: '.w2ui-menu-item' }, event => {
+                let dt = event.delegate.dataset
+                this.menuClick(overlay, event, dt.index, dt.parents)
+            })
+            .find('.w2ui-menu-item')
+            .off('.w2menu')
+            .on('mouseEnter.w2menu', event => {
+                let dt = event.target.dataset
+                let tooltip = overlay.options.items[dt.index]?.tooltip
+                if (tooltip) {
+                    w2tooltip.show({
+                        name: overlay.name + '-tooltip',
+                        anchor: event.target,
+                        html: tooltip,
+                        position: 'right|left',
+                        hideOn: ['doc-click']
+                    })
+                }
+            })
+            .on('mouseLeave.w2menu', event => {
+                w2tooltip.hide(overlay.name + '-tooltip')
+            })
+
+        if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
+            query(overlay.anchor)
+                .off('.w2menu')
+                .on('input.w2menu', event => {
+                    // if user types, clear selection
+                    let dt = event.target.dataset
+                    delete dt.selected
+                    delete dt.selectedIndex
+                })
+                .on('keyup.w2menu', event => {
+                    event._searchType = 'filter'
+                    this.keyUp(overlay, event)
+                })
+        }
+        if (overlay.options.search) {
+            query(overlay.box).find('#menu-search')
+                .off('.w2menu')
+                .on('keyup.w2menu', event => {
+                    event._searchType = 'search'
+                    this.keyUp(overlay, event)
+                })
+        }
+    }
+
     getCurrent(name, id) {
-        let overlay  = Tooltip.active[name]
+        let overlay  = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
         let options  = overlay.options
         let selected = (id ? id : overlay.selected ?? '').split('-')
         let last     = selected.length-1
@@ -1272,7 +1330,7 @@ class MenuTooltip extends Tooltip {
                     <span class="w2ui-icon w2ui-icon-search"></span>
                     <input id="menu-search" class="w2ui-input" type="text"/>
                 </div>`
-            for (let i = 0; i < options.items.length; i++) options.items[i].hidden = false
+            items.forEach(item => item.hidden = false)
         }
         if (!subMenu && options.topHTML) {
             topHTML += `<div class="w2ui-menu-top">${options.topHTML}</div>`
@@ -1366,8 +1424,9 @@ class MenuTooltip extends Tooltip {
         return menu_html
     }
 
+    // Refreshed only selected item highligh, used in keyboard navigation
     refreshIndex(name) {
-        let overlay = Tooltip.active[name]
+        let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
         if (!overlay) return
         if (!overlay.displayed) {
             this.show(overlay.name)
@@ -1389,8 +1448,9 @@ class MenuTooltip extends Tooltip {
         }
     }
 
+    // show/hide searched items
     refreshSearch(name) {
-        let overlay = Tooltip.active[name]
+        let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
         if (!overlay) return
         if (!overlay.displayed) {
             this.show(overlay.name)
@@ -1427,57 +1487,76 @@ class MenuTooltip extends Tooltip {
         }
     }
 
-    initControls(overlay) {
-        query(overlay.box).find('.w2ui-menu:not(.w2ui-sub-menu)')
-            .off('.w2menu')
-            .on('mouseDown.w2menu', { delegate: '.w2ui-menu-item' }, event => {
-                let dt = event.delegate.dataset
-                this.menuDown(overlay, event, dt.index, dt.parents)
-            })
-            .on((w2utils.isIOS ? 'touchStart' : 'click') + '.w2menu', { delegate: '.w2ui-menu-item' }, event => {
-                let dt = event.delegate.dataset
-                this.menuClick(overlay, event, dt.index, dt.parents)
-            })
-            .find('.w2ui-menu-item')
-            .off('.w2menu')
-            .on('mouseEnter.w2menu', event => {
-                let dt = event.target.dataset
-                let tooltip = overlay.options.items[dt.index]?.tooltip
-                if (tooltip) {
-                    w2tooltip.show({
-                        name: overlay.name + '-tooltip',
-                        anchor: event.target,
-                        html: tooltip,
-                        position: 'right|left'
-                    })
+    /**
+     * Loops through the items and markes item.hidden for those that need to be hidden.
+     * Return the number of visible items.
+     */
+    applyFilter(name, items, search) {
+        let count = 0
+        let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
+        let options = overlay.options
+        if (items == null) items = options.items
+        if (search == null) search = ''
+        let selectedIds = options.selected.map(item => {
+            return item?.id ?? item
+        })
+        items.forEach(item => {
+            let prefix = ''
+            let suffix = ''
+            if (['is', 'begins', 'begins with'].indexOf(options.match) !== -1) prefix = '^'
+            if (['is', 'ends', 'ends with'].indexOf(options.match) !== -1) suffix = '$'
+            try {
+                let re = new RegExp(prefix + search + suffix, 'i')
+                if (re.test(item.text) || item.text === '...') {
+                    item.hidden = false
+                } else {
+                    item.hidden = true
                 }
-            })
-            .on('mouseLeave.w2menu', event => {
-                w2tooltip.hide(overlay.name + '-tooltip')
-            })
+            } catch (e) {}
+            // do not show selected items
+            if (selectedIds.includes(item.id)) {
+                item.hidden = true
+            }
+            // search nested items
+            if (Array.isArray(item.items) && item.items.length > 0) {
+                delete item._noSearchInside
+                let subCount = this.applyFilter(name, item.items, search)
+                if (subCount > 0) {
+                    count += subCount
+                    if (item.hidden) item._noSearchInside = true
+                    item.expanded = true
+                    item.hidden = false
+                }
+            }
+            if (item.hidden !== true) count++
+        })
+        return count
+    }
 
-        if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
-            query(overlay.anchor)
-                .off('.w2menu')
-                .on('input.w2menu', event => {
-                    // if user types, clear selection
-                    let dt = event.target.dataset
-                    delete dt.selected
-                    delete dt.selectedIndex
-                })
-                .on('keyup.w2menu', event => {
-                    event._searchType = 'filter'
-                    this.keyUp(overlay, event)
-                })
+    /**
+     * Builds an array of item ids that sequencial in navigation with up/down keys.
+     * Skips hidden and disabled items and goes into nested structures.
+     */
+    getActiveChain(name, items, parents = [], res = [], noSave) {
+        let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
+        if (overlay.tmp.activeChain != null) {
+            return overlay.tmp.activeChain
         }
-        if (overlay.options.search) {
-            query(overlay.box).find('#menu-search')
-                .off('.w2menu')
-                .on('keyup.w2menu', event => {
-                    event._searchType = 'search'
-                    this.keyUp(overlay, event)
-                })
+        if (items == null) items = overlay.options.items
+        items.forEach((item, ind) => {
+            if (!item.hidden && !item.disabled && !item?.text.startsWith('--')) {
+                res.push(parents.concat([ind]).join('-'))
+                if (Array.isArray(item.items) && item.items.length > 0 && item.expanded) {
+                    parents.push(ind)
+                    this.getActiveChain(name, item.items, parents, res, true)
+                    parents.pop()
+                }
+            }
+        })
+        if (noSave == null) {
+            overlay.tmp.activeChain = res
         }
+        return res
     }
 
     menuDown(overlay, event, index, parentIndex) {
@@ -1595,7 +1674,6 @@ class MenuTooltip extends Tooltip {
                 keepOpen = item.keepOpen
             }
             if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
-                overlay.anchor.value = item.text
                 overlay.anchor.dataset.selected = item.id
                 overlay.anchor.dataset.selectedIndex = overlay.selected
             }
@@ -1617,6 +1695,11 @@ class MenuTooltip extends Tooltip {
         let filter  = true
         let refreshIndex = false
         switch (key) {
+            case 8: { // delete
+                // if search empty and delete is clicked, do not filter nor show overlay
+                if (search === '' && !overlay.displayed) filter = false
+                break;
+            }
             case 13: { // enter
                 if (!overlay.displayed) return
                 let { item, index, parents } = this.getCurrent(overlay.name)
@@ -1673,7 +1756,8 @@ class MenuTooltip extends Tooltip {
                 break
             }
             case 38: { // up
-                let chain = getActiveChain(options.items)
+                this.applyFilter(overlay.name)
+                let chain = this.getActiveChain(overlay.name)
                 if (overlay.selected == null || overlay.selected?.length == 0) {
                     overlay.selected = chain[chain.length-1]
                 } else if (!overlay.displayed) {
@@ -1690,7 +1774,8 @@ class MenuTooltip extends Tooltip {
                 break
             }
             case 40: { // down
-                let chain = getActiveChain(options.items)
+                this.applyFilter(overlay.name)
+                let chain = this.getActiveChain(overlay.name)
                 if (overlay.selected == null || overlay.selected?.length == 0) {
                     overlay.selected = chain[0]
                 } else if (!overlay.displayed) {
@@ -1710,10 +1795,10 @@ class MenuTooltip extends Tooltip {
         // filter
         if (filter && ((options.filter && event._searchType == 'filter')
                     || (options.search && event._searchType == 'search'))) {
-            let count = applyFilter(options.items, search)
+            let count = this.applyFilter(overlay.name, options.items, search)
             let chain = null
             if (count > 0) {
-                chain = getActiveChain(options.items)
+                chain = this.getActiveChain(overlay.name)
                 if (!chain.includes(overlay.selected)) {
                     overlay.selected = null
                 }
@@ -1727,60 +1812,6 @@ class MenuTooltip extends Tooltip {
         }
         if (refreshIndex) {
             this.refreshIndex(overlay.name)
-        }
-
-        function applyFilter(items, search) {
-            let count = 0
-            for (let i = 0; i < items.length; i++) {
-                let item   = items[i]
-                let prefix = ''
-                let suffix = ''
-                if (['is', 'begins', 'begins with'].indexOf(options.match) !== -1) prefix = '^'
-                if (['is', 'ends', 'ends with'].indexOf(options.match) !== -1) suffix = '$'
-                try {
-                    let re = new RegExp(prefix + search + suffix, 'i')
-                    if (re.test(item.text) || item.text === '...') {
-                        item.hidden = false
-                    } else {
-                        item.hidden = true
-                    }
-                } catch (e) {}
-                // do not show selected items
-                if (Array.isArray(item.items) && item.items.length > 0) {
-                    delete item._noSearchInside
-                    let subCount = applyFilter(item.items, search)
-                    if (subCount > 0) {
-                        count += subCount
-                        if (item.hidden) item._noSearchInside = true
-                        item.expanded = true
-                        item.hidden = false
-                    }
-                }
-                if (item.hidden !== true) count++
-            }
-            return count
-        }
-
-        function getActiveChain(items, parents, res, noSave) {
-            if (overlay.tmp.activeChain != null) {
-                return overlay.tmp.activeChain
-            }
-            if (res == null) res = []
-            if (parents == null) parents = []
-            items.forEach((item, ind) => {
-                if (!item.hidden && !item.disabled && !item.text.startsWith('--')) {
-                    res.push(parents.concat([ind]).join('-'))
-                    if (Array.isArray(item.items) && item.items.length > 0 && item.expanded) {
-                        parents.push(ind)
-                        getActiveChain(item.items, parents, res, true)
-                        parents.pop()
-                    }
-                }
-            })
-            if (noSave == null) {
-                overlay.tmp.activeChain = res
-            }
-            return res
         }
     }
 }

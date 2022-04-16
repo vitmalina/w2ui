@@ -479,7 +479,7 @@ class Query {
         return this.each(node => {
             let dsp = node.style.display
             if ((dsp == 'none' && force == null) || force === true) { // show
-                node.style.display = node._mQuery?.prevDisplay ?? 'block'
+                node.style.display = node._mQuery?.prevDisplay ?? ''
                 this._save(node, 'prevDisplay', null)
             } else { // hide
                 if (dsp != 'none') this._save(node, 'prevDisplay', dsp)
