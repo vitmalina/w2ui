@@ -5,6 +5,9 @@
  *  - on/off/trigger methods id not showing in help
  *  - refactored with event object
  *  - added "awai event.complete" syntax
+ *
+ * 2.0 Updates
+ *  - on(), off() - can have events separated by comma or space
  */
 
 import { w2ui, w2utils } from './w2utils.js'
@@ -80,22 +83,29 @@ class w2base {
      * @param {*} handler
      * @returns itself
      */
-    on(edata, handler) {
-        let name = typeof edata == 'string' ? edata : (edata.type + ':' + edata.execute + '.' + edata.scope)
-        if (typeof edata == 'string') {
-            let [eventName, scope] = edata.split('.')
-            let [type, execute] = eventName.replace(':complete', ':after').replace(':done', ':after').split(':')
-            edata = { type, execute: execute ?? 'before', scope }
+    on(events, handler) {
+        if (typeof events == 'string') {
+            events = events.split(/[,\s]+/) // separate by comma or space
+        } else {
+            events = [events]
         }
-        edata = w2utils.extend({ type: null, execute: 'before', onComplete: null }, edata)
-        // errors
-        if (!edata.type) { console.log('ERROR: You must specify event type when calling .on() method of '+ this.name); return }
-        if (!handler) { console.log('ERROR: You must specify event handler function when calling .on() method of '+ this.name); return }
-        if (!Array.isArray(this.listeners)) this.listeners = []
-        this.listeners.push({ name, edata, handler })
-        if (this.debug) {
-            console.log('w2base: add event', { name, edata, handler })
-        }
+        events.forEach(edata => {
+            let name = typeof edata == 'string' ? edata : (edata.type + ':' + edata.execute + '.' + edata.scope)
+            if (typeof edata == 'string') {
+                let [eventName, scope] = edata.split('.')
+                let [type, execute] = eventName.replace(':complete', ':after').replace(':done', ':after').split(':')
+                edata = { type, execute: execute ?? 'before', scope }
+            }
+            edata = w2utils.extend({ type: null, execute: 'before', onComplete: null }, edata)
+            // errors
+            if (!edata.type) { console.log('ERROR: You must specify event type when calling .on() method of '+ this.name); return }
+            if (!handler) { console.log('ERROR: You must specify event handler function when calling .on() method of '+ this.name); return }
+            if (!Array.isArray(this.listeners)) this.listeners = []
+            this.listeners.push({ name, edata, handler })
+            if (this.debug) {
+                console.log('w2base: add event', { name, edata, handler })
+            }
+        })
         return this
     }
 
@@ -106,34 +116,41 @@ class w2base {
      * @param {*} handler
      * @returns itself
      */
-    off(edata, handler) {
-        let name = typeof edata == 'string' ? edata : (edata.type + ':' + edata.execute + '.' + edata.scope)
-        if (typeof edata == 'string') {
-            let [eventName, scope] = edata.split('.')
-            let [type, execute] = eventName.replace(':complete', ':after').replace(':done', ':after').split(':')
-            edata = { type: type || '*', execute: execute || '', scope: scope || '' }
+    off(events, handler) {
+        if (typeof events == 'string') {
+            events = events.split(/[,\s]+/) // separate by comma or space
+        } else {
+            events = [events]
         }
-        edata = w2utils.extend({ type: null, execute: null, onComplete: null }, edata)
-        // errors
-        if (!edata.type && !edata.scope) { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return }
-        if (!handler) { handler = null }
-        let count = 0
-        // remove listener
-        this.listeners = this.listeners.filter(curr => {
-            if (   (edata.type === '*' ||  edata.type === curr.edata.type)
-                && (edata.execute === '' ||  edata.execute === curr.edata.execute)
-                && (edata.scope === '' ||  edata.scope === curr.edata.scope)
-                && (edata.handler == null ||  edata.handler === curr.edata.handler)
-            ) {
-                count++ // how many listeners removed
-                return false
-            } else {
-                return true
+        events.forEach(edata => {
+            let name = typeof edata == 'string' ? edata : (edata.type + ':' + edata.execute + '.' + edata.scope)
+            if (typeof edata == 'string') {
+                let [eventName, scope] = edata.split('.')
+                let [type, execute] = eventName.replace(':complete', ':after').replace(':done', ':after').split(':')
+                edata = { type: type || '*', execute: execute || '', scope: scope || '' }
+            }
+            edata = w2utils.extend({ type: null, execute: null, onComplete: null }, edata)
+            // errors
+            if (!edata.type && !edata.scope) { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return }
+            if (!handler) { handler = null }
+            let count = 0
+            // remove listener
+            this.listeners = this.listeners.filter(curr => {
+                if (   (edata.type === '*' ||  edata.type === curr.edata.type)
+                    && (edata.execute === '' ||  edata.execute === curr.edata.execute)
+                    && (edata.scope === '' ||  edata.scope === curr.edata.scope)
+                    && (edata.handler == null ||  edata.handler === curr.edata.handler)
+                ) {
+                    count++ // how many listeners removed
+                    return false
+                } else {
+                    return true
+                }
+            })
+            if (this.debug) {
+                console.log(`w2base: remove event (${count})`, { name, edata, handler })
             }
         })
-        if (this.debug) {
-            console.log(`w2base: remove event (${count})`, { name, edata, handler })
-        }
         return this // needed for chaining
     }
 

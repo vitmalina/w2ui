@@ -287,7 +287,7 @@ class Query {
 
     toggleClass(classes, force) {
         // split by comma or space
-        if (typeof classes == 'string') classes = classes.split(/[ ,]+/)
+        if (typeof classes == 'string') classes = classes.split(/[,\s]+/)
         this.each(node => {
             let classes2 = classes
             // if not defined, remove all classes
@@ -305,7 +305,7 @@ class Query {
 
     hasClass(classes) {
         // split by comma or space
-        if (typeof classes == 'string') classes = classes.split(/[ ,]+/)
+        if (typeof classes == 'string') classes = classes.split(/[,\s]+/)
         if (classes == null && this.length > 0) {
             return Array.from(this[0].classList)
         }
@@ -318,56 +318,65 @@ class Query {
         return ret
     }
 
-    on(eventScope, options, callback) {
-        let [ event, scope ] = String(eventScope).toLowerCase().split('.')
+    on(events, options, callback) {
         if (typeof options == 'function') {
             callback = options
             options = undefined
         }
+        let delegate
         if (options?.delegate) {
-            let fun = callback
-            let delegate = options.delegate
-            callback = (event) => {
-                // event.target or any ancestors match delegate selector
-                let parent = query(event.target).parents(delegate)
-                if (parent.length > 0) { event.delegate = parent[0] } else { event.delegate = event.target }
-                if (event.target.matches(delegate) || parent.length > 0) {
-                    fun(event)
+            delegate = options.delegate
+            delete options.delegate // not to pass to addEventListener
+        }
+        events = events.split(/[,\s]+/) // separate by comma or space
+        events.forEach(eventName => {
+            let [ event, scope ] = String(eventName).toLowerCase().split('.')
+            if (delegate) {
+                let fun = callback
+                callback = (event) => {
+                    // event.target or any ancestors match delegate selector
+                    let parent = query(event.target).parents(delegate)
+                    if (parent.length > 0) { event.delegate = parent[0] } else { event.delegate = event.target }
+                    if (event.target.matches(delegate) || parent.length > 0) {
+                        fun(event)
+                    }
                 }
             }
-            delete options.delegate
-        }
-        this.each(node => {
-            this._save(node, 'events', [{ event, scope, callback, options }])
-            node.addEventListener(event, callback, options)
+            this.each(node => {
+                this._save(node, 'events', [{ event, scope, callback, options }])
+                node.addEventListener(event, callback, options)
+            })
         })
         return this
     }
 
-    off(eventScope, options, callback) {
-        let [ event, scope ] = String(eventScope).toLowerCase().split('.')
+    off(events, options, callback) {
         if (typeof options == 'function') {
             callback = options
             options = undefined
         }
-        this.each(node => {
-            if (Array.isArray(node._mQuery?.events)) {
-                for (let i = node._mQuery.events.length - 1; i >= 0; i--) {
-                    let evt = node._mQuery.events[i]
-                    if (scope == null || scope === '') {
-                        // if no scope, has to be exact match
-                        if (evt.event == event && evt.scope == scope && (evt.callback == callback || callback == null)) {
-                            node.removeEventListener(event, evt.callback, evt.options)
-                            node._mQuery.events.splice(i, 1)
-                        }
-                    } else {
-                        if ((evt.event == event || event === '') && (evt.scope == scope || scope === '*')) {
-                            node.removeEventListener(evt.event, evt.callback, evt.options)
-                            node._mQuery.events.splice(i, 1)
+        events = events.split(/[,\s]+/) // separate by comma or space
+        events.forEach(eventName => {
+            let [ event, scope ] = String(eventName).toLowerCase().split('.')
+            this.each(node => {
+                if (Array.isArray(node._mQuery?.events)) {
+                    for (let i = node._mQuery.events.length - 1; i >= 0; i--) {
+                        let evt = node._mQuery.events[i]
+                        if (scope == null || scope === '') {
+                            // if no scope, has to be exact match
+                            if (evt.event == event && evt.scope == scope && (evt.callback == callback || callback == null)) {
+                                node.removeEventListener(event, evt.callback, evt.options)
+                                node._mQuery.events.splice(i, 1)
+                            }
+                        } else {
+                            if ((evt.event == event || event === '') && (evt.scope == scope || scope === '*')) {
+                                node.removeEventListener(evt.event, evt.callback, evt.options)
+                                node._mQuery.events.splice(i, 1)
+                            }
                         }
                     }
                 }
-            }
+            })
         })
         return this
     }
