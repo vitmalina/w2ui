@@ -1,4 +1,8 @@
 import { w2form } from '../src/w2form.js'
+import { w2menu } from '../src/w2tooltip.js'
+
+// TOOD: remove
+window.w2menu = w2menu
 
 let form = new w2form({
     name      : 'form',

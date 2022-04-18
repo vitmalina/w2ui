@@ -213,7 +213,7 @@ class Tooltip {
                 .off('.autoShow-' + ret.overlay.name)
                 .off('.autoHide-' + ret.overlay.name)
             // need a timer, so that events would be preperty set
-            setTimeout(() => { this.show(ret.overlay.name) }, 1)
+            setTimeout(() => { this.show(ret.overlay.name) }, 0)
             return ret
         }
         let edata
@@ -1197,21 +1197,19 @@ class MenuTooltip extends Tooltip {
         options.html = this.getMenuHTML(options)
         let ret = super.attach(options)
         let overlay = ret.overlay
-        overlay.on('show:after.attach', event => {
+        overlay.on('show:after.attach, update:after.attach', event => {
             if (ret.overlay?.box) {
+                let search = ''
+                if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
+                    search = overlay.anchor.value
+                }
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
                 this.applyFilter(overlay.name)
                 this.refreshSearch(overlay.name)
                 this.initControls(ret.overlay)
-            }
-        })
-        overlay.on('update:after.attach', event => {
-            if (ret.overlay?.box) {
-                let actions = query(ret.overlay.box).find('.w2ui-eaction')
-                w2utils.bindEvents(actions, this)
-                this.refreshIndex(ret.overlay)
-                this.initControls(ret.overlay)
+                // reset selected and active chain
+                overlay.selected = null
             }
         })
         overlay.on('hide:after.attach', event => {
@@ -1496,7 +1494,13 @@ class MenuTooltip extends Tooltip {
         let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
         let options = overlay.options
         if (items == null) items = options.items
-        if (search == null) search = ''
+        if (search == null) {
+            if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
+                search = overlay.anchor.value
+            } else {
+                search = ''
+            }
+        }
         let selectedIds = options.selected.map(item => {
             return item?.id ?? item
         })
@@ -1530,6 +1534,7 @@ class MenuTooltip extends Tooltip {
             }
             if (item.hidden !== true) count++
         })
+        overlay.tmp.activeChain = null
         return count
     }
 
@@ -1655,13 +1660,11 @@ class MenuTooltip extends Tooltip {
                 item.expanded = false
                 $item.removeClass('expanded').addClass('collapsed')
                 query($item.get(0).nextElementSibling).hide()
-                overlay.tmp.activeChain = null // reset active chain
                 overlay.selected = $item.attr('index')
             } else {
                 item.expanded = true
                 $item.addClass('expanded').removeClass('collapsed')
                 query($item.get(0).nextElementSibling).show()
-                overlay.tmp.activeChain = null // reset active chain
                 overlay.selected = $item.attr('index')
             }
         } else {
@@ -1701,13 +1704,10 @@ class MenuTooltip extends Tooltip {
                 break;
             }
             case 13: { // enter
-                if (!overlay.displayed) return
+                if (!overlay.displayed || !overlay.selected) return
                 let { item, index, parents } = this.getCurrent(overlay.name)
                 event.delegate = query(overlay.box).find('.w2ui-selected').get(0)
                 // reset active chain for folders
-                if (Array.isArray(item.items) && item.items.length > 0) {
-                    overlay.tmp.activeChain = null
-                }
                 this.menuClick(overlay, event, index, parents)
                 filter = false
                 break
@@ -1756,14 +1756,19 @@ class MenuTooltip extends Tooltip {
                 break
             }
             case 38: { // up
-                this.applyFilter(overlay.name)
+                if (!overlay.displayed) {
+                    break
+                }
                 let chain = this.getActiveChain(overlay.name)
                 if (overlay.selected == null || overlay.selected?.length == 0) {
                     overlay.selected = chain[chain.length-1]
-                } else if (!overlay.displayed) {
-                    // do not advance if it was hidden
                 } else {
                     let ind = chain.indexOf(overlay.selected)
+                    // selected not in chain of items
+                    if (ind == -1) {
+                        overlay.selected = chain[chain.length-1]
+                    }
+                    // not first item
                     if (ind > 0) {
                         overlay.selected = chain[ind - 1]
                     }
@@ -1774,15 +1779,20 @@ class MenuTooltip extends Tooltip {
                 break
             }
             case 40: { // down
-                this.applyFilter(overlay.name)
+                if (!overlay.displayed) {
+                    break
+                }
                 let chain = this.getActiveChain(overlay.name)
                 if (overlay.selected == null || overlay.selected?.length == 0) {
                     overlay.selected = chain[0]
-                } else if (!overlay.displayed) {
-                    // do not advance if it was hidden
                 } else {
                     let ind = chain.indexOf(overlay.selected)
-                    if (ind != -1 && ind < chain.length - 1) {
+                    // selected not in chain of items
+                    if (ind == -1) {
+                        overlay.selected = chain[0]
+                    }
+                    // not the last item
+                    if (ind < chain.length - 1) {
                         overlay.selected = chain[ind + 1]
                     }
                 }
@@ -1796,18 +1806,12 @@ class MenuTooltip extends Tooltip {
         if (filter && ((options.filter && event._searchType == 'filter')
                     || (options.search && event._searchType == 'search'))) {
             let count = this.applyFilter(overlay.name, options.items, search)
-            let chain = null
-            if (count > 0) {
-                chain = this.getActiveChain(overlay.name)
-                if (!chain.includes(overlay.selected)) {
-                    overlay.selected = null
-                }
-            } else {
-                overlay.selected = null
-            }
-            overlay.tmp.activeChain = null // reset active chain
             overlay.tmp.searchCount = count
             overlay.tmp.search = search
+            // if selected is not in searched items
+            if (count === 0 || !this.getActiveChain(overlay.name).includes(overlay.selected)) {
+                overlay.selected = null
+            }
             this.refreshSearch(overlay.name)
         }
         if (refreshIndex) {
