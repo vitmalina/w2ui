@@ -213,7 +213,7 @@ class Tooltip {
                 .off('.autoShow-' + ret.overlay.name)
                 .off('.autoHide-' + ret.overlay.name)
             // need a timer, so that events would be preperty set
-            setTimeout(() => { this.show(ret.overlay.name) }, 0)
+            setTimeout(() => { this.show(ret.overlay.name) }, 1)
             return ret
         }
         let edata
