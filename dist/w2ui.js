@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/18/2022, 4:29:50 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/18/2022, 4:46:51 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -6,6 +6,9 @@
  *  - on/off/trigger methods id not showing in help
  *  - refactored with event object
  *  - added "awai event.complete" syntax
+ *
+ * 2.0 Updates
+ *  - on(), off() - can have events separated by comma or space
  */
 
 class w2event {
@@ -73,22 +76,29 @@ class w2base {
      * @param {*} handler
      * @returns itself
      */
-    on(edata, handler) {
-        let name = typeof edata == 'string' ? edata : (edata.type + ':' + edata.execute + '.' + edata.scope)
-        if (typeof edata == 'string') {
-            let [eventName, scope] = edata.split('.')
-            let [type, execute] = eventName.replace(':complete', ':after').replace(':done', ':after').split(':')
-            edata = { type, execute: execute ?? 'before', scope }
+    on(events, handler) {
+        if (typeof events == 'string') {
+            events = events.split(/[,\s]+/) // separate by comma or space
+        } else {
+            events = [events]
         }
-        edata = w2utils.extend({ type: null, execute: 'before', onComplete: null }, edata)
-        // errors
-        if (!edata.type) { console.log('ERROR: You must specify event type when calling .on() method of '+ this.name); return }
-        if (!handler) { console.log('ERROR: You must specify event handler function when calling .on() method of '+ this.name); return }
-        if (!Array.isArray(this.listeners)) this.listeners = []
-        this.listeners.push({ name, edata, handler })
-        if (this.debug) {
-            console.log('w2base: add event', { name, edata, handler })
-        }
+        events.forEach(edata => {
+            let name = typeof edata == 'string' ? edata : (edata.type + ':' + edata.execute + '.' + edata.scope)
+            if (typeof edata == 'string') {
+                let [eventName, scope] = edata.split('.')
+                let [type, execute] = eventName.replace(':complete', ':after').replace(':done', ':after').split(':')
+                edata = { type, execute: execute ?? 'before', scope }
+            }
+            edata = w2utils.extend({ type: null, execute: 'before', onComplete: null }, edata)
+            // errors
+            if (!edata.type) { console.log('ERROR: You must specify event type when calling .on() method of '+ this.name); return }
+            if (!handler) { console.log('ERROR: You must specify event handler function when calling .on() method of '+ this.name); return }
+            if (!Array.isArray(this.listeners)) this.listeners = []
+            this.listeners.push({ name, edata, handler })
+            if (this.debug) {
+                console.log('w2base: add event', { name, edata, handler })
+            }
+        })
         return this
     }
     /**
@@ -98,34 +108,41 @@ class w2base {
      * @param {*} handler
      * @returns itself
      */
-    off(edata, handler) {
-        let name = typeof edata == 'string' ? edata : (edata.type + ':' + edata.execute + '.' + edata.scope)
-        if (typeof edata == 'string') {
-            let [eventName, scope] = edata.split('.')
-            let [type, execute] = eventName.replace(':complete', ':after').replace(':done', ':after').split(':')
-            edata = { type: type || '*', execute: execute || '', scope: scope || '' }
+    off(events, handler) {
+        if (typeof events == 'string') {
+            events = events.split(/[,\s]+/) // separate by comma or space
+        } else {
+            events = [events]
         }
-        edata = w2utils.extend({ type: null, execute: null, onComplete: null }, edata)
-        // errors
-        if (!edata.type && !edata.scope) { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return }
-        if (!handler) { handler = null }
-        let count = 0
-        // remove listener
-        this.listeners = this.listeners.filter(curr => {
-            if (   (edata.type === '*' ||  edata.type === curr.edata.type)
-                && (edata.execute === '' ||  edata.execute === curr.edata.execute)
-                && (edata.scope === '' ||  edata.scope === curr.edata.scope)
-                && (edata.handler == null ||  edata.handler === curr.edata.handler)
-            ) {
-                count++ // how many listeners removed
-                return false
-            } else {
-                return true
+        events.forEach(edata => {
+            let name = typeof edata == 'string' ? edata : (edata.type + ':' + edata.execute + '.' + edata.scope)
+            if (typeof edata == 'string') {
+                let [eventName, scope] = edata.split('.')
+                let [type, execute] = eventName.replace(':complete', ':after').replace(':done', ':after').split(':')
+                edata = { type: type || '*', execute: execute || '', scope: scope || '' }
+            }
+            edata = w2utils.extend({ type: null, execute: null, onComplete: null }, edata)
+            // errors
+            if (!edata.type && !edata.scope) { console.log('ERROR: You must specify event type when calling .off() method of '+ this.name); return }
+            if (!handler) { handler = null }
+            let count = 0
+            // remove listener
+            this.listeners = this.listeners.filter(curr => {
+                if (   (edata.type === '*' ||  edata.type === curr.edata.type)
+                    && (edata.execute === '' ||  edata.execute === curr.edata.execute)
+                    && (edata.scope === '' ||  edata.scope === curr.edata.scope)
+                    && (edata.handler == null ||  edata.handler === curr.edata.handler)
+                ) {
+                    count++ // how many listeners removed
+                    return false
+                } else {
+                    return true
+                }
+            })
+            if (this.debug) {
+                console.log(`w2base: remove event (${count})`, { name, edata, handler })
             }
         })
-        if (this.debug) {
-            console.log(`w2base: remove event (${count})`, { name, edata, handler })
-        }
         return this // needed for chaining
     }
     /**
@@ -630,7 +647,7 @@ class Query {
     }
     toggleClass(classes, force) {
         // split by comma or space
-        if (typeof classes == 'string') classes = classes.split(/[ ,]+/)
+        if (typeof classes == 'string') classes = classes.split(/[,\s]+/)
         this.each(node => {
             let classes2 = classes
             // if not defined, remove all classes
@@ -647,7 +664,7 @@ class Query {
     }
     hasClass(classes) {
         // split by comma or space
-        if (typeof classes == 'string') classes = classes.split(/[ ,]+/)
+        if (typeof classes == 'string') classes = classes.split(/[,\s]+/)
         if (classes == null && this.length > 0) {
             return Array.from(this[0].classList)
         }
@@ -659,55 +676,64 @@ class Query {
         })
         return ret
     }
-    on(eventScope, options, callback) {
-        let [ event, scope ] = String(eventScope).toLowerCase().split('.')
+    on(events, options, callback) {
         if (typeof options == 'function') {
             callback = options
             options = undefined
         }
+        let delegate
         if (options?.delegate) {
-            let fun = callback
-            let delegate = options.delegate
-            callback = (event) => {
-                // event.target or any ancestors match delegate selector
-                let parent = query(event.target).parents(delegate)
-                if (parent.length > 0) { event.delegate = parent[0] } else { event.delegate = event.target }
-                if (event.target.matches(delegate) || parent.length > 0) {
-                    fun(event)
-                }
-            }
-            delete options.delegate
+            delegate = options.delegate
+            delete options.delegate // not to pass to addEventListener
         }
-        this.each(node => {
-            this._save(node, 'events', [{ event, scope, callback, options }])
-            node.addEventListener(event, callback, options)
-        })
-        return this
-    }
-    off(eventScope, options, callback) {
-        let [ event, scope ] = String(eventScope).toLowerCase().split('.')
-        if (typeof options == 'function') {
-            callback = options
-            options = undefined
-        }
-        this.each(node => {
-            if (Array.isArray(node._mQuery?.events)) {
-                for (let i = node._mQuery.events.length - 1; i >= 0; i--) {
-                    let evt = node._mQuery.events[i]
-                    if (scope == null || scope === '') {
-                        // if no scope, has to be exact match
-                        if (evt.event == event && evt.scope == scope && (evt.callback == callback || callback == null)) {
-                            node.removeEventListener(event, evt.callback, evt.options)
-                            node._mQuery.events.splice(i, 1)
-                        }
-                    } else {
-                        if ((evt.event == event || event === '') && (evt.scope == scope || scope === '*')) {
-                            node.removeEventListener(evt.event, evt.callback, evt.options)
-                            node._mQuery.events.splice(i, 1)
-                        }
+        events = events.split(/[,\s]+/) // separate by comma or space
+        events.forEach(eventName => {
+            let [ event, scope ] = String(eventName).toLowerCase().split('.')
+            if (delegate) {
+                let fun = callback
+                callback = (event) => {
+                    // event.target or any ancestors match delegate selector
+                    let parent = query(event.target).parents(delegate)
+                    if (parent.length > 0) { event.delegate = parent[0] } else { event.delegate = event.target }
+                    if (event.target.matches(delegate) || parent.length > 0) {
+                        fun(event)
                     }
                 }
             }
+            this.each(node => {
+                this._save(node, 'events', [{ event, scope, callback, options }])
+                node.addEventListener(event, callback, options)
+            })
+        })
+        return this
+    }
+    off(events, options, callback) {
+        if (typeof options == 'function') {
+            callback = options
+            options = undefined
+        }
+        events = events.split(/[,\s]+/) // separate by comma or space
+        events.forEach(eventName => {
+            let [ event, scope ] = String(eventName).toLowerCase().split('.')
+            this.each(node => {
+                if (Array.isArray(node._mQuery?.events)) {
+                    for (let i = node._mQuery.events.length - 1; i >= 0; i--) {
+                        let evt = node._mQuery.events[i]
+                        if (scope == null || scope === '') {
+                            // if no scope, has to be exact match
+                            if (evt.event == event && evt.scope == scope && (evt.callback == callback || callback == null)) {
+                                node.removeEventListener(event, evt.callback, evt.options)
+                                node._mQuery.events.splice(i, 1)
+                            }
+                        } else {
+                            if ((evt.event == event || event === '') && (evt.scope == scope || scope === '*')) {
+                                node.removeEventListener(evt.event, evt.callback, evt.options)
+                                node._mQuery.events.splice(i, 1)
+                            }
+                        }
+                    }
+                }
+            })
         })
         return this
     }
@@ -4729,21 +4755,19 @@ class MenuTooltip extends Tooltip {
         options.html = this.getMenuHTML(options)
         let ret = super.attach(options)
         let overlay = ret.overlay
-        overlay.on('show:after.attach', event => {
+        overlay.on('show:after.attach, update:after.attach', event => {
             if (ret.overlay?.box) {
+                let search = ''
+                if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
+                    search = overlay.anchor.value
+                }
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
                 this.applyFilter(overlay.name)
                 this.refreshSearch(overlay.name)
                 this.initControls(ret.overlay)
-            }
-        })
-        overlay.on('update:after.attach', event => {
-            if (ret.overlay?.box) {
-                let actions = query(ret.overlay.box).find('.w2ui-eaction')
-                w2utils.bindEvents(actions, this)
-                this.refreshIndex(ret.overlay)
-                this.initControls(ret.overlay)
+                // reset selected and active chain
+                overlay.selected = null
             }
         })
         overlay.on('hide:after.attach', event => {
@@ -5021,7 +5045,13 @@ class MenuTooltip extends Tooltip {
         let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
         let options = overlay.options
         if (items == null) items = options.items
-        if (search == null) search = ''
+        if (search == null) {
+            if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
+                search = overlay.anchor.value
+            } else {
+                search = ''
+            }
+        }
         let selectedIds = options.selected.map(item => {
             return item?.id ?? item
         })
@@ -5055,6 +5085,7 @@ class MenuTooltip extends Tooltip {
             }
             if (item.hidden !== true) count++
         })
+        overlay.tmp.activeChain = null
         return count
     }
     /**
@@ -5176,13 +5207,11 @@ class MenuTooltip extends Tooltip {
                 item.expanded = false
                 $item.removeClass('expanded').addClass('collapsed')
                 query($item.get(0).nextElementSibling).hide()
-                overlay.tmp.activeChain = null // reset active chain
                 overlay.selected = $item.attr('index')
             } else {
                 item.expanded = true
                 $item.addClass('expanded').removeClass('collapsed')
                 query($item.get(0).nextElementSibling).show()
-                overlay.tmp.activeChain = null // reset active chain
                 overlay.selected = $item.attr('index')
             }
         } else {
@@ -5221,13 +5250,10 @@ class MenuTooltip extends Tooltip {
                 break;
             }
             case 13: { // enter
-                if (!overlay.displayed) return
+                if (!overlay.displayed || !overlay.selected) return
                 let { item, index, parents } = this.getCurrent(overlay.name)
                 event.delegate = query(overlay.box).find('.w2ui-selected').get(0)
                 // reset active chain for folders
-                if (Array.isArray(item.items) && item.items.length > 0) {
-                    overlay.tmp.activeChain = null
-                }
                 this.menuClick(overlay, event, index, parents)
                 filter = false
                 break
@@ -5276,14 +5302,19 @@ class MenuTooltip extends Tooltip {
                 break
             }
             case 38: { // up
-                this.applyFilter(overlay.name)
+                if (!overlay.displayed) {
+                    break
+                }
                 let chain = this.getActiveChain(overlay.name)
                 if (overlay.selected == null || overlay.selected?.length == 0) {
                     overlay.selected = chain[chain.length-1]
-                } else if (!overlay.displayed) {
-                    // do not advance if it was hidden
                 } else {
                     let ind = chain.indexOf(overlay.selected)
+                    // selected not in chain of items
+                    if (ind == -1) {
+                        overlay.selected = chain[chain.length-1]
+                    }
+                    // not first item
                     if (ind > 0) {
                         overlay.selected = chain[ind - 1]
                     }
@@ -5294,15 +5325,20 @@ class MenuTooltip extends Tooltip {
                 break
             }
             case 40: { // down
-                this.applyFilter(overlay.name)
+                if (!overlay.displayed) {
+                    break
+                }
                 let chain = this.getActiveChain(overlay.name)
                 if (overlay.selected == null || overlay.selected?.length == 0) {
                     overlay.selected = chain[0]
-                } else if (!overlay.displayed) {
-                    // do not advance if it was hidden
                 } else {
                     let ind = chain.indexOf(overlay.selected)
-                    if (ind != -1 && ind < chain.length - 1) {
+                    // selected not in chain of items
+                    if (ind == -1) {
+                        overlay.selected = chain[0]
+                    }
+                    // not the last item
+                    if (ind < chain.length - 1) {
                         overlay.selected = chain[ind + 1]
                     }
                 }
@@ -5316,18 +5352,12 @@ class MenuTooltip extends Tooltip {
         if (filter && ((options.filter && event._searchType == 'filter')
                     || (options.search && event._searchType == 'search'))) {
             let count = this.applyFilter(overlay.name, options.items, search)
-            let chain = null
-            if (count > 0) {
-                chain = this.getActiveChain(overlay.name)
-                if (!chain.includes(overlay.selected)) {
-                    overlay.selected = null
-                }
-            } else {
-                overlay.selected = null
-            }
-            overlay.tmp.activeChain = null // reset active chain
             overlay.tmp.searchCount = count
             overlay.tmp.search = search
+            // if selected is not in searched items
+            if (count === 0 || !this.getActiveChain(overlay.name).includes(overlay.selected)) {
+                overlay.selected = null
+            }
             this.refreshSearch(overlay.name)
         }
         if (refreshIndex) {
