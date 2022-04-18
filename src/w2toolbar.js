@@ -633,7 +633,7 @@ class w2toolbar extends w2base {
                 .html('')
         }
         query(this.box).html('')
-        this.last.resizeObserver.disconnect()
+        this.last.resizeObserver?.disconnect()
         delete w2ui[this.name]
         // event after
         edata.finish()

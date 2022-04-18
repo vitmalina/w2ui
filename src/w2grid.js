@@ -5794,7 +5794,7 @@ class w2grid extends w2base {
                 .removeClass('w2ui-reset w2ui-grid w2ui-inactive')
                 .html('')
         }
-        this.last.resizeObserver.disconnect()
+        this.last.resizeObserver?.disconnect()
         delete w2ui[this.name]
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))

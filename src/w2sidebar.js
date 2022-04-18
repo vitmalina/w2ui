@@ -1176,7 +1176,7 @@ class w2sidebar extends w2base {
                 .removeClass('w2ui-reset w2ui-sidebar')
                 .html('')
         }
-        this.last.resizeObserver.disconnect()
+        this.last.resizeObserver?.disconnect()
         delete w2ui[this.name]
         // event after
         edata.finish()

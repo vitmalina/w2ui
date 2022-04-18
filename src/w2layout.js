@@ -1097,7 +1097,7 @@ class w2layout extends w2base {
                 .removeClass('w2ui-layout')
                 .html('')
         }
-        this.last.resizeObserver.disconnect()
+        this.last.resizeObserver?.disconnect()
         delete w2ui[this.name]
         // event after
         edata.finish()

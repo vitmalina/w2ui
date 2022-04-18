@@ -384,7 +384,7 @@ class Tooltip {
         if (edata.isCancelled === true) return
         let scope = 'tooltip-' + overlay.name
         // normal processing
-        overlay.tmp.resizeObserver.disconnect()
+        overlay.tmp.resizeObserver?.disconnect()
         if (overlay.options.watchScroll) {
             query(overlay.options.watchScroll)
                 .off('.w2scroll-' + overlay.name)

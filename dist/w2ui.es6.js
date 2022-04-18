@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/18/2022, 4:46:51 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/18/2022, 4:57:38 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -3973,7 +3973,7 @@ class Tooltip {
         if (edata.isCancelled === true) return
         let scope = 'tooltip-' + overlay.name
         // normal processing
-        overlay.tmp.resizeObserver.disconnect()
+        overlay.tmp.resizeObserver?.disconnect()
         if (overlay.options.watchScroll) {
             query(overlay.options.watchScroll)
                 .off('.w2scroll-' + overlay.name)
@@ -6714,7 +6714,7 @@ class w2toolbar extends w2base {
                 .html('')
         }
         query(this.box).html('')
-        this.last.resizeObserver.disconnect()
+        this.last.resizeObserver?.disconnect()
         delete w2ui[this.name]
         // event after
         edata.finish()
@@ -8095,7 +8095,7 @@ class w2sidebar extends w2base {
                 .removeClass('w2ui-reset w2ui-sidebar')
                 .html('')
         }
-        this.last.resizeObserver.disconnect()
+        this.last.resizeObserver?.disconnect()
         delete w2ui[this.name]
         // event after
         edata.finish()
@@ -8617,7 +8617,7 @@ class w2tabs extends w2base {
                 .removeClass('w2ui-reset w2ui-tabs')
                 .html('')
         }
-        this.last.resizeObserver.disconnect()
+        this.last.resizeObserver?.disconnect()
         delete w2ui[this.name]
         // event after
         edata.finish()
@@ -9761,7 +9761,7 @@ class w2layout extends w2base {
                 .removeClass('w2ui-layout')
                 .html('')
         }
-        this.last.resizeObserver.disconnect()
+        this.last.resizeObserver?.disconnect()
         delete w2ui[this.name]
         // event after
         edata.finish()
@@ -15391,7 +15391,7 @@ class w2grid extends w2base {
                 .removeClass('w2ui-reset w2ui-grid w2ui-inactive')
                 .html('')
         }
-        this.last.resizeObserver.disconnect()
+        this.last.resizeObserver?.disconnect()
         delete w2ui[this.name]
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
@@ -20025,7 +20025,7 @@ class w2form extends w2base {
                 .removeClass('w2ui-reset w2ui-form')
                 .html('')
         }
-        this.last.resizeObserver.disconnect()
+        this.last.resizeObserver?.disconnect()
         delete w2ui[this.name]
         // event after
         edata.finish()
