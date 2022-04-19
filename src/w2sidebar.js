@@ -506,7 +506,7 @@ class w2sidebar extends w2base {
         nd.expanded = true
         // event after
         edata.finish()
-        setTimeout(() => { self.refresh(id) }, 0)
+        self.refresh(id)
         return true
     }
 

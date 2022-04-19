@@ -1501,9 +1501,16 @@ class MenuTooltip extends Tooltip {
                 search = ''
             }
         }
-        let selectedIds = options.selected.map(item => {
-            return item?.id ?? item
-        })
+        let selectedIds = []
+        if (options.selected) {
+            if (Array.isArray(options.selected)) {
+                selectedIds = options.selected.map(item => {
+                    return item?.id ?? item
+                })
+            } else if (options.selected?.id) {
+                selectedIds = [options.selected.id]
+            }
+        }
         items.forEach(item => {
             let prefix = ''
             let suffix = ''

@@ -38,7 +38,7 @@ function contextMenu(event, type) {
     ]
     if (type == 2) {
         items = [
-           { id: 'icon-folder', text: 'icon-folder', icon: 'icon-folder' },
+            { id: 'icon-folder', text: 'icon-folder', icon: 'icon-folder' },
             { id: 'icon-page', text: 'icon-page', icon: 'icon-page' },
             { text: '--' },
             { id: 'w2ui-icon-box', text: 'w2ui-icon-box', icon: 'w2ui-icon-box' },
@@ -60,7 +60,7 @@ function contextMenu(event, type) {
     $('body').w2menu({
         items,
         onSelect(event) {
-            $('#msg-log').html(event.item.text)
+            $('#msg-log').html(event.detail.item.text)
             console.log('select', event);
         },
         originalEvent: event
