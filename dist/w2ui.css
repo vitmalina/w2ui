@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/18/2022, 4:57:38 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/19/2022, 9:02:07 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -16,7 +16,7 @@
 [class^="w2ui-icon-"]:before,
 [class*=" w2ui-icon-"]:before {
   font-family: "w2ui-font";
-  display: inline-block;
+  display: block;
   vertical-align: middle;
   line-height: 1;
   font-weight: normal;
@@ -1749,6 +1749,7 @@ textarea.w2ui-error {
   padding: 3px 0 0 0;
   border: 0;
   margin: 3px 0 0 5px;
+  background-color: transparent;
 }
 .w2ui-field-helper.w2ui-list .w2ui-multi-items .li-search input[type=text]:focus {
   outline: none;
@@ -2074,7 +2075,7 @@ textarea.w2ui-error {
 }
 .w2ui-grid .w2ui-grid-toolbar .w2ui-grid-search-input .w2ui-search-drop span.w2ui-icon-drop {
   position: relative;
-  top: -2px;
+  top: -4px;
 }
 .w2ui-grid .w2ui-grid-toolbar .w2ui-grid-search-input .w2ui-search-drop:hover,
 .w2ui-grid .w2ui-grid-toolbar .w2ui-grid-search-input .w2ui-search-drop.checked {

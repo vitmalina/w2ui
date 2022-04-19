@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/18/2022, 4:57:38 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/19/2022, 9:02:07 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -5052,9 +5052,16 @@ class MenuTooltip extends Tooltip {
                 search = ''
             }
         }
-        let selectedIds = options.selected.map(item => {
-            return item?.id ?? item
-        })
+        let selectedIds = []
+        if (options.selected) {
+            if (Array.isArray(options.selected)) {
+                selectedIds = options.selected.map(item => {
+                    return item?.id ?? item
+                })
+            } else if (options.selected?.id) {
+                selectedIds = [options.selected.id]
+            }
+        }
         items.forEach(item => {
             let prefix = ''
             let suffix = ''
@@ -7452,7 +7459,7 @@ class w2sidebar extends w2base {
         nd.expanded = true
         // event after
         edata.finish()
-        setTimeout(() => { self.refresh(id) }, 0)
+        self.refresh(id)
         return true
     }
     collapseAll(parent) {
