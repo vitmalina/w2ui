@@ -15,7 +15,7 @@
 </div>
 
 <!--CODE-->
-<div id="toolbar" style="padding: 2px"></div>
+<div id="toolbar"></div>
 
 <!--CODE-->
 <script>
@@ -25,18 +25,18 @@ $(function () {
         items: [
             { type: 'button', id: 'item1', icon: 'fa fa-star', text: 'Click Me',
                 counter: 0,
-                tooltip: function (item) {
+                tooltip(item) {
                     return 'Number of clicks: ' + item.counter;
                 },
-                onClick: function (event) {
-                    event.item.counter++;
+                onClick(event) {
+                    event.detail.item.counter++;
                 }
             },
             { type: 'break' },
             { type: 'menu-radio', id: 'item2', icon: 'fa fa-star',
-                text: function (item) {
-                    var text = item.selected;
-                    var el   = this.get('item2:' + item.selected);
+                text(item) {
+                    let text = item.selected;
+                    let el   = this.get('item2:' + item.selected);
                     return 'Radio: ' + el.text;
                 },
                 selected: 'id1',
@@ -48,12 +48,12 @@ $(function () {
             },
             { type: 'break' },
             { type: 'html',  id: 'item5',
-                html: function (item) {
-                    var html =
-                      '<div style="padding: 3px 10px;">'+
+                html(item) {
+                    let html =
+                      '<div style="padding: 0px 10px; margin-top: -2px;">'+
                       ' Field:'+
                       '    <input size="20" placeholder="Change me" onchange="var el = w2ui.toolbar.set(\'item5\', { value: this.value });" '+
-                      '         style="padding: 3px; border-radius: 2px; border: 1px solid silver" value="'+ (item.value || '') +'"/>'+
+                      '         style="padding: 6px; border-radius: 2px; border: 1px solid silver" value="'+ (item.value || '') +'"/>'+
                       '</div>';
                     return html;
                 }
@@ -61,7 +61,7 @@ $(function () {
             { type: 'break' },
             { type: 'button', id: 'item6', icon: 'fa fa-star-o', text: 'Refresh',
                 tooltip: 'Click to refresh entire toolbar.<br>Note, input value is preserved.',
-                onClick: function (event) { this.refresh(); }
+                onClick(event) { this.refresh(); }
             }
         ]
     });

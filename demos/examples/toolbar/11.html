@@ -8,7 +8,7 @@
 </div>
 
 <!--CODE-->
-<div id="toolbar" style="padding: 3px; width: 575px"></div>
+<div id="toolbar" style="width: 575px"></div>
 
 <!--CODE-->
 <script>
@@ -68,8 +68,8 @@ $(function () {
         ]
     });
 
-    w2ui.toolbar.on('*', function (event) {
-        console.log('EVENT: '+ event.type + ' TARGET: '+ event.target, event);
+    w2ui.toolbar.on('click', (event) => {
+        console.log('Click', event);
     });
 });
 </script>

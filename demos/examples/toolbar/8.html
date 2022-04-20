@@ -8,7 +8,7 @@
 </div>
 
 <!--CODE-->
-<div id="toolbar" style="padding: 2px"></div>
+<div id="toolbar"></div>
 
 <div style="height: 40px"></div>
 Tooltip position:<br>
@@ -28,7 +28,7 @@ $(function () {
         items: [
             { type: 'check',  id: 'item1', text: 'Check', icon: 'fa fa-check-square-o', checked: true, tooltip: 'Tooltip text' },
             { type: 'break',  id: 'break0' },
-            { type: 'menu',   id: 'item2', text: 'Menu', icon: 'fa fa-table', count: 17, tooltip: 'Tooltip text can be very very long',
+            { type: 'menu-radio',   id: 'item2', text: 'Menu', icon: 'fa fa-table', count: 17, tooltip: 'Tooltip text can be very very long',
                 items: [
                     { text: 'Item 1', icon: 'fa fa-camera', count: 5 },
                     { text: 'Item 2', icon: 'fa fa-picture-o', disabled: true },
@@ -38,13 +38,21 @@ $(function () {
             { type: 'break', id: 'break1' },
             { type: 'radio',  id: 'item3',  group: '1', text: 'Radio 1', icon: 'fa fa-star', checked: true, tooltip: 'Tooltip text can also be<br>in multiple lines' },
             { type: 'radio',  id: 'item4',  group: '1', text: 'Radio 2', icon: 'fa fa-heart',
-                tooltip: function (item) {
+                tooltip(item) {
                     return 'Can also be result of a function: ' + item.text;
                 }
             },
         ],
-        onClick: function (event) {
-            console.log('Selected:', event.item.selected);
+        onClick(event) {
+            event.done(() => {
+                let item = event.detail.item
+                let subItem = event.detail.subItem
+                if (subItem) {
+                    console.log('Selected:', event.detail.item.selected);
+                } else {
+                    console.log('Clicked:', event.detail.item.id);
+                }
+            })
         }
     });
 });

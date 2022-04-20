@@ -17,7 +17,7 @@
 </div>
 
 <!--CODE-->
-<div id="toolbar" style="padding: 2px"></div>
+<div id="toolbar"></div>
 
 <!--CODE-->
 <script>
@@ -25,17 +25,15 @@ $(function () {
     $('#toolbar').w2toolbar({
         name: 'toolbar',
         items: [
-            { type: 'menu', id: 'item1', text: 'Menu', icon: 'fa fa-table', count: 17, items: [
+            { type: 'menu', id: 'item1', text: 'Menu', icon: 'fa fa-camera', count: 17, items: [
                 { text: 'Item 1', icon: 'fa fa-camera', count: 5 },
                 { text: 'Item 2', icon: 'fa fa-picture-o', disabled: true },
                 { text: 'Item 3', icon: 'fa fa-glass', count: 12 }
             ]},
             { type: 'break' },
-            { type: 'menu-radio', id: 'item2', icon: 'fa fa-star',
-                text: function (item) {
-                    var text = item.selected;
-                    var el   = this.get('item2:' + item.selected);
-                    return 'Radio: ' + el.text;
+            { type: 'button', id: 'item2', icon: 'w2ui-icon-info',
+                text(item) {
+                    return 'Radio: ' + item.get(item.selected)?.text;
                 },
                 selected: 'id3',
                 items: [
@@ -45,10 +43,11 @@ $(function () {
                 ]
             },
             { type: 'break' },
-            { type: 'menu-check', id: 'item3', text: 'Check', icon: 'fa fa-heart',
+            { type: 'menu-check', id: 'item3', text: 'Check', icon: 'w2ui-icon-settings',
                 selected: ['id3', 'id4'],
-                onRefresh: function (event) {
-                    event.item.count = event.item.selected.length;
+                onRefresh(event) {
+                    let item = event.detail.item;
+                    item.count = item.selected.length;
                 },
                 items: [
                     { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
@@ -59,13 +58,13 @@ $(function () {
                 ]
             },
             { type: 'break' },
-            { type: 'drop',  id: 'item4', text: 'Dropdown', icon: 'fa fa-plus',
+            { type: 'drop',  id: 'item4', text: 'Dropdown', icon: 'w2ui-icon-drop',
                 html: '<div style="padding: 10px; line-height: 1.5">You can put any HTML in the drop down.<br>Include tables, images, etc.</div>'
             },
             { type: 'break', id: 'break3' },
             { type: 'html',  id: 'item5',
-                html: function (item) {
-                    var html =
+                html(item) {
+                    let html =
                       '<div style="padding: 3px 10px;">'+
                       ' CUSTOM:'+
                       '    <input size="10" onchange="var el = w2ui.toolbar.set(\'item5\', { value: this.value });" '+
@@ -75,11 +74,11 @@ $(function () {
                 }
             },
             { type: 'spacer' },
-            { type: 'button',  id: 'item6',  text: 'Item 6', icon: 'fa fa-flag' }
+            { type: 'button',  id: 'item6',  text: 'Item 6', icon: 'w2ui-icon-info' }
         ]
     });
 
-    w2ui.toolbar.on('*', function (event) {
+    w2ui.toolbar.on('*', (event) => {
         console.log('EVENT: '+ event.type + ' TARGET: '+ event.target, event);
     });
 });

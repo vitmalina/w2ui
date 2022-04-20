@@ -8,7 +8,7 @@
 </div>
 
 <!--CODE-->
-<div id="toolbar" style="padding: 2px"></div>
+<div id="toolbar"></div>
 
 <!--CODE-->
 <script>
@@ -17,8 +17,8 @@ $(function () {
     $('#toolbar').w2toolbar({
         name: 'toolbar',
         items: [
-            { type: 'button', id: 'append', text: 'Append', icon: 'w2ui-icon-plus' },
             { type: 'button', id: 'insert', text: 'Insert', icon: 'w2ui-icon-plus' },
+            { type: 'button', id: 'append', text: 'Append', icon: 'w2ui-icon-check' },
             { type: 'button', id: 'delete', text: 'Delete', icon: 'w2ui-icon-cross' },
             { type: 'break',  id: 'break0' },
             { type: 'break',  id: 'break1' }
@@ -26,11 +26,11 @@ $(function () {
         onClick: function (event) {
             switch (event.target) {
                 case 'append':
-                    this.add({ type: 'button', id: 'button' + btnCount, text: 'button '+ btnCount, img: 'icon-page' });
+                    this.add({ type: 'button', id: 'button' + btnCount, text: 'button '+ btnCount, icon: 'w2ui-icon-info' });
                     btnCount++;
                     break;
                 case 'insert':
-                    this.insert('break0', { type: 'button', id: 'button' + btnCount, text: 'button '+ btnCount, img: 'icon-page' });
+                    this.insert('break0', { type: 'button', id: 'button' + btnCount, text: 'button '+ btnCount, icon: 'w2ui-icon-info' });
                     btnCount++;
                     break;
                 case 'delete':

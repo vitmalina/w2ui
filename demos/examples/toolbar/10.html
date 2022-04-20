@@ -9,7 +9,7 @@
 </div>
 
 <!--CODE-->
-<div id="toolbar" style="padding: 3px; width: 575px"></div>
+<div id="toolbar" style="width: 575px"></div>
 
 <!--CODE-->
 <script>
@@ -46,12 +46,12 @@ $(function () {
             },
             { type: 'break' },
             { type: 'html',  id: 'item5',
-                html: function (item) {
-                    var html =
-                      '<div style="padding: 3px 10px;">'+
-                      ' CUSTOM 1:'+
-                      '    <input size="10" onchange="var el = w2ui.toolbar.set(\'item5\', { value: this.value });" '+
-                      '         style="padding: 3px; border-radius: 2px; border: 1px solid silver" value="'+ (item.value || '') + '"/>'+
+                html(item) {
+                    let html =
+                      '<div style="padding: 0px 10px; margin-top: -2px;">'+
+                      ' Field:'+
+                      '    <input size="20" placeholder="Change me" onchange="var el = w2ui.toolbar.set(\'item5\', { value: this.value });" '+
+                      '         style="padding: 6px; border-radius: 2px; border: 1px solid silver" value="'+ (item.value || '') +'"/>'+
                       '</div>';
                     return html;
                 }
@@ -85,12 +85,12 @@ $(function () {
             },
             { type: 'break' },
             { type: 'html',  id: 'item10',
-                html: function (item) {
-                    var html =
-                      '<div style="padding: 3px 10px;">'+
-                      ' CUSTOM 2:'+
-                      '    <input size="10" onchange="var el = w2ui.toolbar.set(\'item5\', { value: this.value });" '+
-                      '         style="padding: 3px; border-radius: 2px; border: 1px solid silver" value="'+ (item.value || '') + '"/>'+
+                html(item) {
+                    let html =
+                      '<div style="padding: 0px 10px; margin-top: -2px;">'+
+                      ' Field:'+
+                      '    <input size="20" placeholder="Change me" onchange="var el = w2ui.toolbar.set(\'item10\', { value: this.value });" '+
+                      '         style="padding: 6px; border-radius: 2px; border: 1px solid silver" value="'+ (item.value || '') +'"/>'+
                       '</div>';
                     return html;
                 }
@@ -124,12 +124,12 @@ $(function () {
             },
             { type: 'break' },
             { type: 'html',  id: 'item15',
-                html: function (item) {
-                    var html =
-                      '<div style="padding: 3px 10px;">'+
-                      ' CUSTOM 3:'+
-                      '    <input size="10" onchange="var el = w2ui.toolbar.set(\'item5\', { value: this.value });" '+
-                      '         style="padding: 3px; border-radius: 2px; border: 1px solid silver" value="'+ (item.value || '') + '"/>'+
+                html(item) {
+                    let html =
+                      '<div style="padding: 0px 10px; margin-top: -2px;">'+
+                      ' Field:'+
+                      '    <input size="20" placeholder="Change me" onchange="var el = w2ui.toolbar.set(\'item15\', { value: this.value });" '+
+                      '         style="padding: 6px; border-radius: 2px; border: 1px solid silver" value="'+ (item.value || '') +'"/>'+
                       '</div>';
                     return html;
                 }
@@ -137,7 +137,7 @@ $(function () {
         ]
     });
 
-    w2ui.toolbar.on('*', function (event) {
+    w2ui.toolbar.on('*', (event) => {
         console.log('EVENT: '+ event.type + ' TARGET: '+ event.target, event);
     });
 });

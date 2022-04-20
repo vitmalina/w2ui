@@ -8,7 +8,7 @@
 </div>
 
 <!--CODE-->
-<div id="toolbar" style="padding: 2px"></div>
+<div id="toolbar"></div>
 
 <!--CODE-->
 <script>
@@ -19,10 +19,11 @@ $(function () {
             { id: 'item1', type: 'color' },
             { id: 'item3', type: 'text-color', transparent: false }
         ],
-        onClick: function (event) {
-            if (event.color == null) return;
-            event.done(function () {
-                console.log(event.item.type, ':', event.item.color);
+        onClick (event) {
+            event.done(() => {
+                if (event.detail.color) {
+                    console.log(event.detail.item.type, ':', event.detail.item.color);
+                }
             });
         }
     });

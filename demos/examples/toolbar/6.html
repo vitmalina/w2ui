@@ -8,7 +8,7 @@
 </div>
 
 <!--CODE-->
-<div id="toolbar" style="padding: 2px"></div>
+<div id="toolbar"></div>
 <div style="height: 20px"></div>
 Hold cmd (or shift) button to keep the menu open.
 
@@ -20,10 +20,10 @@ $(function () {
         items: [
             { type: 'menu-radio', id: 'item1', icon: 'fa fa-star',
                 text(item) {
-                    let text = item.selected;
-                    let el = this.get('item1:' + item.selected);
+                    let el = item.get(item.selected);
                     return 'Radio: ' + el.text;
                 },
+                overlay: { position: 'top' },
                 selected: 'id3',
                 items: [
                     { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
@@ -33,9 +33,10 @@ $(function () {
             },
             { type: 'break' },
             { type: 'menu-check', id: 'item2', text: 'Check', icon: 'fa fa-heart',
+                overlay: { position: 'top' },
                 selected: ['id3', 'id4'],
                 onRefresh(event) {
-                    event.item.count = event.item.selected.length;
+                    event.detail.item.count = event.detail.item.selected.length;
                 },
                 items: [
                     { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
@@ -47,16 +48,18 @@ $(function () {
             },
             { type: 'break' },
             { type: 'menu-check', id: 'item3', text: 'Groups of Checks', icon: 'fa fa-heart',
+                overlay: { position: 'top' },
                 items: [
+                    { text: '-- Group 1' },
                     { id: 'id1', text: 'Item 1', icon: 'fa fa-camera', group: 1 },
                     { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o', group: 1 },
                     { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', group: 1 },
+                    { text: '-- Group 2' },
+                    { id: 'id4', text: 'Item 4', icon: 'fa fa-camera', group: 2 },
+                    { id: 'id5', text: 'Item 5', icon: 'fa fa-picture-o', group: 2 },
+                    { id: 'id6', text: 'Item 6', icon: 'fa fa-glass', group: 2 },
                     { text: '--' },
-                    { id: 'id11', text: 'Item 4', icon: 'fa fa-camera', group: 2 },
-                    { id: 'id21', text: 'Item 5', icon: 'fa fa-picture-o', group: 2 },
-                    { id: 'id31', text: 'Item 6', icon: 'fa fa-glass', group: 2 },
-                    { text: '--' },
-                    { id: 'id11', text: 'Keep Open', icon: 'fa fa-camera', group: 3, keepOpen: true },
+                    { id: 'id-open', text: 'Keep Open', icon: 'fa fa-camera', group: 3, keepOpen: true },
                 ]
             },
             { type: 'break' },
@@ -88,9 +91,12 @@ $(function () {
             },
         ],
         onClick(event) {
-            if (event.subItem == null) return;
-            event.done(function () {
-                console.log('Selected:', event.item.selected);
+            event.done(() => {
+                if (event.detail.subItem) {
+                    console.log('Subitmes selected:', event.detail.item.selected);
+                } else {
+                    console.log('Click:', event.detail.item.id)
+                }
             });
         }
     });
