@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/19/2022, 9:02:07 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/20/2022, 6:43:04 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -973,7 +973,7 @@ button.w2ui-btn:disabled {
   width: auto;
   height: 18px;
   padding: 2px 7px;
-  margin: 3px 0 0 5px;
+  margin: 0 0 0 10px;
   background-color: #F2F8F0;
   color: #666;
   box-shadow: 0px 0px 2px #474545;
@@ -1027,7 +1027,8 @@ button.w2ui-btn:disabled {
 }
 .w2ui-menu .w2ui-menu-divider.has-text .text {
   display: inline-block;
-  margin-top: -10px;
+  position: relative;
+  top: -10px;
   background-color: #fafafa;
   padding: 0px 7px;
   color: darkgrey;
@@ -1056,8 +1057,9 @@ button.w2ui-btn:disabled {
   border-color: transparent;
   background-color: transparent;
   box-shadow: none;
-  padding: 2px 5px;
+  padding: 0px 6px;
   border-radius: 0px;
+  margin-left: 5px;
 }
 .w2ui-menu .expanded .menu-extra span:after,
 .w2ui-menu .collapsed .menu-extra span:after {
@@ -2075,7 +2077,7 @@ textarea.w2ui-error {
 }
 .w2ui-grid .w2ui-grid-toolbar .w2ui-grid-search-input .w2ui-search-drop span.w2ui-icon-drop {
   position: relative;
-  top: -4px;
+  top: -2px;
 }
 .w2ui-grid .w2ui-grid-toolbar .w2ui-grid-search-input .w2ui-search-drop:hover,
 .w2ui-grid .w2ui-grid-toolbar .w2ui-grid-search-input .w2ui-search-drop.checked {
@@ -3438,7 +3440,7 @@ textarea.w2ui-error {
   position: relative;
   min-height: 28px;
   padding: 2px;
-  margin: 0px;
+  margin: 0;
 }
 .w2ui-toolbar .disabled {
   opacity: 0.3;
@@ -3474,7 +3476,7 @@ textarea.w2ui-error {
   border-radius: 4px;
   background-color: transparent;
   white-space: nowrap;
-  margin: 0px 1px;
+  margin: 0 1px;
   cursor: default;
   user-select: none;
   flex-shrink: 0;
@@ -3482,7 +3484,7 @@ textarea.w2ui-error {
 .w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-button .w2ui-tb-icon {
   float: left;
   width: 22px;
-  margin: 5px 0px 0px 1px;
+  margin: 4px 0 0 1px;
   text-align: center;
 }
 .w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-button .w2ui-tb-icon > span {
@@ -3498,20 +3500,20 @@ textarea.w2ui-error {
   display: inline-block;
   height: 13px;
   width: 13px;
-  margin: 0px -1px -2px 0px;
+  margin: 0 -1px -2px 0;
   border-radius: 1px;
   border: 1px solid #fff;
-  box-shadow: 0px 0px 1px #fff;
+  box-shadow: 0 0 1px #555;
 }
 .w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-button .w2ui-tb-text .w2ui-tb-count {
-  padding: 0px 3px 0px 7px;
+  padding: 0 0 0 4px;
 }
 .w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-button .w2ui-tb-text .w2ui-tb-count > span {
   border: 1px solid #F6FCF4;
   border-radius: 11px;
   width: auto;
   height: 18px;
-  padding: 0px 6px 1px 6px;
+  padding: 0 6px 1px 6px;
   background-color: #F2F8F0;
   color: #666;
   box-shadow: 0px 0px 2px #474545;
@@ -3520,12 +3522,12 @@ textarea.w2ui-error {
 .w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-button .w2ui-tb-text .w2ui-tb-down {
   display: inline-block;
   width: 10px;
-  overflow-y: hidden;
 }
 .w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-button .w2ui-tb-text .w2ui-tb-down > span {
+  display: inline-block;
   position: relative;
-  top: 14px;
-  left: 2px;
+  top: 3px;
+  left: 3px;
   border: 4px solid transparent;
   border-top: 5px solid #8D99A7;
 }
@@ -3551,7 +3553,7 @@ textarea.w2ui-error {
   color: #666;
 }
 .w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-button.no-icon .w2ui-tb-text {
-  margin-left: 0px;
+  margin-left: 0;
 }
 .w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-right {
   width: 100%;
@@ -3562,7 +3564,7 @@ textarea.w2ui-error {
   background-image: linear-gradient(to bottom, rgba(153, 153, 153, 0.1) 0%, #999 40%, #999 60%, rgba(153, 153, 153, 0.1) 100%);
   width: 1px;
   height: 24px;
-  padding: 0px;
+  padding: 0;
   margin: 3px 6px;
 }
 .w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-html {

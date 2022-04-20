@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/19/2022, 9:02:07 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/20/2022, 6:43:04 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -4051,7 +4051,7 @@ class Tooltip {
         }
         let options = overlay.options
         if (overlay.tmp.resizedY || overlay.tmp.resizedX) {
-            query(overlay.box).css({ width: '', height: '' })
+            query(overlay.box).css({ width: '', height: '', scroll: 'auto' })
         }
         let scrollSize = w2utils.scrollBarSize()
         let hasScrollBarX = !(document.body.scrollWidth == document.body.clientWidth)
@@ -4242,13 +4242,10 @@ class Tooltip {
                     top += maxTop - top
                 }
             }
+            // moves carret to adjust it with element width
             if (adjustArrow) {
-                let aType = 'top'
-                let sType = 'height'
-                if (isVertical) {
-                    aType = 'left'
-                    sType = 'width'
-                }
+                let aType = isVertical ? 'left' : 'top'
+                let sType = isVertical ? 'width' : 'height'
                 arrow.offset = -adjust[aType]
                 let maxOffset = content[sType] / 2 - arrowSize
                 if (Math.abs(arrow.offset) > maxOffset + arrowSize) {
@@ -4257,11 +4254,11 @@ class Tooltip {
                 if (Math.abs(arrow.offset) > maxOffset) {
                     arrow.offset = arrow.offset < 0 ? -maxOffset : maxOffset
                 }
-                arrow.style = `#${overlay.id} .w2ui-overlay-body:after,
+                arrow.style = w2utils.stripSpaces(`#${overlay.id} .w2ui-overlay-body:after,
                             #${overlay.id} .w2ui-overlay-body:before {
                                 --tip-size: ${arrowSize}px;
                                 margin-${aType}: ${arrow.offset}px;
-                            }`
+                            }`)
             }
         }
     }
@@ -4889,7 +4886,8 @@ class MenuTooltip extends Tooltip {
         }
         let menu_html = `
             ${topHTML}
-            <div class="w2ui-menu ${(subMenu ? 'w2ui-sub-menu' : '')}" ${!subMenu ? `style="${options.menuStyle}"` : ''}>
+            <div class="w2ui-menu ${(subMenu ? 'w2ui-sub-menu' : '')}" ${!subMenu ? `style="${options.menuStyle}"` : ''}
+                data-parent="${parentIndex}">
         `
         items.forEach((mitem, f) => {
             icon = mitem.icon
@@ -5019,10 +5017,14 @@ class MenuTooltip extends Tooltip {
             let hasItems = query(sub).find('.w2ui-menu-item').get().some(el => {
                 return el.style.display != 'none' ? true : false
             })
-            if (!hasItems) {
-                query(sub).parent().hide()
-            } else {
-                query(sub).parent().show()
+            let parent = this.getCurrent(name, sub.dataset.parent)
+            // only if parent is expaneded
+            if (parent.item.expanded) {
+                if (!hasItems) {
+                    query(sub).parent().hide()
+                } else {
+                    query(sub).parent().show()
+                }
             }
         })
         // show empty message
@@ -5086,7 +5088,8 @@ class MenuTooltip extends Tooltip {
                 if (subCount > 0) {
                     count += subCount
                     if (item.hidden) item._noSearchInside = true
-                    item.expanded = true
+                    // only expand items if search is not empty
+                    if (search) item.expanded = true
                     item.hidden = false
                 }
             }
@@ -6128,6 +6131,7 @@ search() {
  *  - vertical toolbar
  *  - w2menu on second click of tb button should hide
  *  - button display groups for each show/hide, possibly add state: { single: t/f, multiple: t/f, type: 'font' }
+ *  - item.count - should just support html, so a custom block can be created, such as a colored line
  *
  * == 2.0 changes
  *  - CSP - fixed inline events
@@ -6392,7 +6396,6 @@ class w2toolbar extends w2base {
         return effected
     }
     click(id, event) {
-        let obj = this
         // click on menu items
         let tmp   = String(id).split(':')
         let it    = this.get(tmp[0])
@@ -6400,7 +6403,7 @@ class w2toolbar extends w2base {
         if (tmp.length > 1) {
             let subItem = this.get(id)
             if (subItem && !subItem.disabled) {
-                obj.menuClick({ name: obj.name, item: it, subItem: subItem, originalEvent: event })
+                this.menuClick({ name: this.name, item: it, subItem: subItem, originalEvent: event })
             }
             return
         }
@@ -6428,23 +6431,21 @@ class w2toolbar extends w2base {
                 query(this.box).find(btn).addClass('checked')
             }
             if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].includes(it.type)) {
-                obj.tooltipHide(id)
+                this.tooltipHide(id)
                 if (it.checked) {
                     w2tooltip.hide(this.name + '-drop')
-                    // uncheck
-                    it.checked = false
-                    obj.refresh(it.id)
+                    return
                 } else {
                     // timeout is needed to make sure previous overlay hides
                     setTimeout(() => {
                         let hideDrop = (id, btn) => {
+                            // need a closure to capture id variable
+                            let self = this
                             return function () {
-                                let item = obj.get(id)
-                                item.checked = false
-                                query(obj.box).find(btn).removeClass('checked')
+                                self.set(id, { checked: false })
                             }
                         }
-                        let el = query(obj.box).find('#tb_'+ obj.name +'_item_'+ w2utils.escapeId(it.id))
+                        let el = query(this.box).find('#tb_'+ this.name +'_item_'+ w2utils.escapeId(it.id))
                         if (!w2utils.isPlainObject(it.overlay)) it.overlay = {}
                         if (it.type == 'drop') {
                             w2tooltip.show(w2utils.extend({
@@ -6482,11 +6483,11 @@ class w2toolbar extends w2base {
                                 }))
                                 .hide(hideDrop(it.id, btn))
                                 .remove(event => {
-                                    obj.menuClick({ name: obj.name, remove: true, item: it, subItem: event.detail.item,
+                                    this.menuClick({ name: this.name, remove: true, item: it, subItem: event.detail.item,
                                         originalEvent: event })
                                 })
                                 .select(event => {
-                                    obj.menuClick({ name: obj.name, item: it, subItem: event.detail.item,
+                                    this.menuClick({ name: this.name, item: it, subItem: event.detail.item,
                                         originalEvent: event })
                                 })
                         }
@@ -6501,7 +6502,7 @@ class w2toolbar extends w2base {
                                 .hide(hideDrop(it.id, btn))
                                 .select(event => {
                                     if (event.detail.color != null) {
-                                        obj.colorClick({ name: obj.name, item: it, color: event.detail.color })
+                                        this.colorClick({ name: this.name, item: it, color: event.detail.color })
                                     }
                                 })
                         }
@@ -6527,10 +6528,8 @@ class w2toolbar extends w2base {
                 }
                 setTimeout(() => { window.location.hash = route }, 1)
             }
-            if (['button', 'check', 'radio'].includes(it.type)) {
-                // need to refresh toolbar as it might be dynamic
-                this.tooltipShow(id)
-            }
+            // need to refresh toolbar as it might be dynamic
+            this.tooltipShow(id)
             // event after
             edata.finish()
         }
@@ -6748,7 +6747,7 @@ class w2toolbar extends w2base {
             if (typeof item.icon == 'function') {
                 icon = item.icon.call(this, item)
             }
-            if (String(icon).substr(0, 1) !== '<') {
+            if (String(icon).slice(0, 1) !== '<') {
                 icon = `<span class="${icon}"></span>`
             }
             icon = `<div class="w2ui-tb-icon">${icon}</div>`
@@ -6762,7 +6761,7 @@ class w2toolbar extends w2base {
             case 'color':
             case 'text-color':
                 if (typeof item.color == 'string') {
-                    if (item.color.substr(0,1) == '#') item.color = item.color.substr(1)
+                    if (item.color.slice(0, 1) == '#') item.color = item.color.slice(1)
                     if ([3, 6, 8].includes(item.color.length)) item.color = '#' + item.color
                 }
                 if (item.type == 'color') {
@@ -6799,12 +6798,11 @@ class w2toolbar extends w2base {
                             ? `<div class="w2ui-tb-text" style="${(item.style ? item.style : '')}">
                                     ${ w2utils.lang(text) }
                                     ${ item.count != null
-                                        ? `<span class="w2ui-tb-count">
+                                        ? w2utils.stripSpaces(`<span class="w2ui-tb-count">
                                                 <span class="${this.last.badge[item.id] ? this.last.badge[item.id].className || '' : ''}"
-                                                    style="${this.last.badge[item.id] ? this.last.badge[item.id].style || '' : ''}">
-                                                        ${item.count}
-                                                </span>
-                                           </span>`
+                                                    style="${this.last.badge[item.id] ? this.last.badge[item.id].style || '' : ''}"
+                                                >${item.count}</span>
+                                           </span>`)
                                         : ''
                                     }
                                     ${ arrow
@@ -6875,6 +6873,9 @@ class w2toolbar extends w2base {
             let item  = this.get(event.item.id)
             let items = item.items
             if (typeof items == 'function') items = item.items()
+            if (item.type == 'menu') {
+                item.selected = it.id
+            }
             if (item.type == 'menu-radio') {
                 item.selected = it.id
                 if (Array.isArray(items)) {
