@@ -12,7 +12,7 @@
         position: relative;
         min-height: 28px;
         padding: 2px;
-        margin: 0px;
+        margin: 0;
     }
 
     .disabled {
@@ -51,7 +51,7 @@
             border-radius: 4px;
             background-color: transparent;
             white-space: nowrap;
-            margin: 0px 1px;
+            margin: 0 1px;
             cursor: default;
             user-select: none;
             flex-shrink: 0;
@@ -60,7 +60,7 @@
             .w2ui-tb-icon {
                 float: left;
                 width: 22px;
-                margin: 4px 0px 0px 1px;
+                margin: 4px 0 0 1px;
                 text-align: center;
                 > span {
                     font-size: 15px;
@@ -76,20 +76,20 @@
                     display: inline-block;
                     height: 13px;
                     width: 13px;
-                    margin: 0px -1px -2px 0px;
+                    margin: 0 -1px -2px 0;
                     border-radius: 1px;
                     border: 1px solid #fff;
-                    box-shadow: 0px 0px 1px #fff;
+                    box-shadow: 0 0 1px #555;
                 }
 
                 .w2ui-tb-count {
-                    padding: 0px 3px 0px 7px;
+                    padding: 0 0 0 4px;
                     > span {
                         border: @menu-node-count-border;
                         border-radius: 11px;
                         width: auto;
                         height: 18px;
-                        padding: 0px 6px 1px 6px;
+                        padding: 0 6px 1px 6px;
                         background-color: @menu-node-count-background-color;
                         color: @menu-node-count-color;
                         box-shadow: @menu-node-count-shadow;
@@ -100,11 +100,11 @@
                 .w2ui-tb-down {
                     display: inline-block;
                     width: 10px;
-                    overflow-y: hidden;
                     > span {
+                        display: inline-block;
                         position: relative;
-                        top: 14px;
-                        left: 2px;
+                        top: 3px;
+                        left: 3px;
                         border: 4px solid transparent;
                         border-top: 5px solid #8D99A7;
                     }
@@ -136,7 +136,7 @@
             }
 
             &.no-icon .w2ui-tb-text {
-                margin-left: 0px;
+                margin-left: 0;
             }
         }
 
@@ -150,7 +150,7 @@
             .linear-gradient-dark-center(#999);
             width: 1px;
             height: 24px;
-            padding: 0px;
+            padding: 0;
             margin: 3px 6px;
        }
 

@@ -465,7 +465,7 @@ class Tooltip {
         }
         let options = overlay.options
         if (overlay.tmp.resizedY || overlay.tmp.resizedX) {
-            query(overlay.box).css({ width: '', height: '' })
+            query(overlay.box).css({ width: '', height: '', scroll: 'auto' })
         }
         let scrollSize = w2utils.scrollBarSize()
         let hasScrollBarX = !(document.body.scrollWidth == document.body.clientWidth)
@@ -665,13 +665,10 @@ class Tooltip {
                     top += maxTop - top
                 }
             }
+            // moves carret to adjust it with element width
             if (adjustArrow) {
-                let aType = 'top'
-                let sType = 'height'
-                if (isVertical) {
-                    aType = 'left'
-                    sType = 'width'
-                }
+                let aType = isVertical ? 'left' : 'top'
+                let sType = isVertical ? 'width' : 'height'
                 arrow.offset = -adjust[aType]
                 let maxOffset = content[sType] / 2 - arrowSize
                 if (Math.abs(arrow.offset) > maxOffset + arrowSize) {
@@ -680,11 +677,11 @@ class Tooltip {
                 if (Math.abs(arrow.offset) > maxOffset) {
                     arrow.offset = arrow.offset < 0 ? -maxOffset : maxOffset
                 }
-                arrow.style = `#${overlay.id} .w2ui-overlay-body:after,
+                arrow.style = w2utils.stripSpaces(`#${overlay.id} .w2ui-overlay-body:after,
                             #${overlay.id} .w2ui-overlay-body:before {
                                 --tip-size: ${arrowSize}px;
                                 margin-${aType}: ${arrow.offset}px;
-                            }`
+                            }`)
             }
         }
     }
@@ -1335,7 +1332,8 @@ class MenuTooltip extends Tooltip {
         }
         let menu_html = `
             ${topHTML}
-            <div class="w2ui-menu ${(subMenu ? 'w2ui-sub-menu' : '')}" ${!subMenu ? `style="${options.menuStyle}"` : ''}>
+            <div class="w2ui-menu ${(subMenu ? 'w2ui-sub-menu' : '')}" ${!subMenu ? `style="${options.menuStyle}"` : ''}
+                data-parent="${parentIndex}">
         `
         items.forEach((mitem, f) => {
             icon = mitem.icon
@@ -1467,10 +1465,14 @@ class MenuTooltip extends Tooltip {
             let hasItems = query(sub).find('.w2ui-menu-item').get().some(el => {
                 return el.style.display != 'none' ? true : false
             })
-            if (!hasItems) {
-                query(sub).parent().hide()
-            } else {
-                query(sub).parent().show()
+            let parent = this.getCurrent(name, sub.dataset.parent)
+            // only if parent is expaneded
+            if (parent.item.expanded) {
+                if (!hasItems) {
+                    query(sub).parent().hide()
+                } else {
+                    query(sub).parent().show()
+                }
             }
         })
         // show empty message
@@ -1535,7 +1537,8 @@ class MenuTooltip extends Tooltip {
                 if (subCount > 0) {
                     count += subCount
                     if (item.hidden) item._noSearchInside = true
-                    item.expanded = true
+                    // only expand items if search is not empty
+                    if (search) item.expanded = true
                     item.hidden = false
                 }
             }

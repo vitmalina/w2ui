@@ -414,7 +414,7 @@
                 width: auto;
                 height: 18px;
                 padding: 2px 7px;
-                margin: 3px 0 0 5px;
+                margin: 0 0 0 10px;
                 background-color: @menu-node-count-background-color;
                 color: @menu-node-count-color;
                 box-shadow: @menu-node-count-shadow;
@@ -470,7 +470,8 @@
             }
             .text {
                 display: inline-block;
-                margin-top: -10px;
+                position: relative;
+                top: -10px;
                 background-color: #fafafa;
                 padding: 0px 7px;
                 color: darkgrey;
@@ -506,8 +507,9 @@
             border-color: transparent;
             background-color: transparent;
             box-shadow: none;
-            padding: 2px 5px;
+            padding: 0px 6px;
             border-radius: 0px;
+            margin-left: 5px;
             &:after {
                 content: "";
                 position: absolute;
