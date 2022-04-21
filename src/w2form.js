@@ -1900,7 +1900,7 @@ class w2form extends w2base {
             }
             this.box = box
         }
-        if (!this.isGenerated) return
+        if (!this.isGenerated && !this.formHTML) return
         if (!this.box) return
         // event before
         let edata = this.trigger('render', {  target: this.name, box: (box != null ? box : this.box) })
