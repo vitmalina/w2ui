@@ -1508,6 +1508,7 @@ class w2form extends w2base {
                     height: headerHeight + tbHeight + tabsHeight + 15 // 15 is extra height
                         + (page.length > 0 ? w2utils.getSize(dpage, 'height') : 0)
                         + (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0)
+                        + 'px'
                 })
                 query(this.box).data('autosize', 'yes')
             }
@@ -1526,11 +1527,11 @@ class w2form extends w2base {
                 ? w2utils.getSize(tabs, 'height')
                 : 0
             // resize elements
-            main.css({ width: rect.width, height: rect.height })
-            toolbar.css({ top: headerHeight })
-            tabs.css({ top: headerHeight + tbHeight })
-            page.css({ top: headerHeight + tbHeight + tabsHeight })
-            page.css({ bottom: (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0) })
+            main.css({ width: rect.width + 'px', height: rect.height + 'px' })
+            toolbar.css({ top: headerHeight + 'px' })
+            tabs.css({ top: headerHeight + tbHeight + 'px' })
+            page.css({ top: headerHeight + tbHeight + tabsHeight + 'px'})
+            page.css({ bottom: (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0) + 'px'})
             // return some params
             return { width: rect.width, height: rect.height, headerHeight, tbHeight, tabsHeight }
         }

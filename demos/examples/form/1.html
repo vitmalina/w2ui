@@ -8,22 +8,22 @@
 </div>
 
 <!--CODE-->
-<div id="form" style="width: 750px;">
+<div id="form" style="width: 750px">
     <div class="w2ui-page page-0">
         <div class="w2ui-column col-0">
-            <div class="w2ui-field w2ui-span6" style="">
+            <div class="w2ui-field w2ui-span6">
                 <label>First Name</label>
                 <div>
                     <input class="w2ui-input" id="first_name" name="first_name" style="width: 300px" tabindex="1" type="text"/>
                 </div>
             </div>
-            <div class="w2ui-field w2ui-span6" style="">
+            <div class="w2ui-field w2ui-span6">
                 <label>Last Name</label>
                 <div>
                     <input class="w2ui-input" id="last_name" name="last_name" style="width: 300px" tabindex="2" type="text"/>
                 </div>
             </div>
-            <div class="w2ui-field w2ui-span6" style="">
+            <div class="w2ui-field w2ui-span6">
                 <label>Comments</label>
                 <div>
                     <textarea class="w2ui-input" id="comments" name="comments" style="width: 300px; height: 60px" tabindex="3"></textarea>
@@ -53,10 +53,10 @@ $(function () {
             { field: 'comments',   type: 'text'}
         ],
         actions: {
-            reset: function () {
+            reset() {
                 this.clear();
             },
-            save: function () {
+            save() {
                 this.save();
             }
         }
