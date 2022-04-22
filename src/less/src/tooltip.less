@@ -544,15 +544,16 @@
     .w2ui-cal-title, .w2ui-time-title {
         margin: 0px;
         padding: 7px 2px;
-        background-color: @calendar-title-gradient-start;
+        background-color: white;
         border-bottom: @calendar-title-border-bottom;
         color: @calendar-title-color;
         text-align: center;
         text-shadow: @calendar-title-text-shadow;
+        font-size: 16px;
         cursor: pointer;
         .arrow-down {
             position: relative;
-            top: -1px;
+            top: -3px;
             left: 5px;
             opacity: 0.6;
         }
@@ -560,13 +561,13 @@
 
     .w2ui-cal-previous,
     .w2ui-cal-next {
-        width: 26px;
-        height: 26px;
+        width: 30px;
+        height: 30px;
         color: #666;
         border: 1px solid transparent;
         border-radius: 3px;
-        padding: 5px 3px;
-        margin: -4px 0px 0px 0px;
+        padding: 7px 5px;
+        margin: -4px 1px 0px 1px;
         cursor: default;
         &:hover {
             border: @calendar-button-hover-border;
@@ -606,19 +607,21 @@
         background-color: #FaFaFa;
         display: flex;
         #w2ui-jump-month {
-            width: 120px;
-            height: 180px;
+            width: 190px;
+            height: 240px;
             overflow: hidden;
-            padding-top: 5px;
-            border-right: 1px solid silver
+            padding-top: 12px;
+            border-right: 1px solid silver;
+            font-size: 14px;
         }
         #w2ui-jump-year {
-            width: 70px;
-            height: 180px;
+            width: 90px;
+            height: 240px;
             overflow-x: hidden;
             overflow-y: auto;
             padding-top: 5px;
             text-align: center;
+            font-size: 14px;
         }
         .w2ui-jump-month,
         .w2ui-jump-year {
@@ -626,10 +629,13 @@
             text-align: center;
             float: left;
             margin: 0 2px;
-            width: 50px;
+            width: 58px;
             cursor: default;
             border: 1px solid transparent;
             border-radius: 2px;
+        }
+        .w2ui-jump-month {
+            padding: 16px;
         }
         .w2ui-jump-year {
             float: none;
@@ -662,8 +668,8 @@
     }
 
     .w2ui-cal-days {
-        width: 190px;
-        height: 180px;
+        width: 280px;
+        height: 240px;
         padding: 2px;
         display: grid;
         grid-template-columns: repeat(7, 1fr);
@@ -672,7 +678,7 @@
             border: 1px solid @calendar-background-color;
             color: @calendar-day-color;
             background-color: #f7f7f7;
-            padding: 3px 5px;
+            padding: 5px 7px;
             cursor: default;
             text-align: center;
             &.saturday,
@@ -739,7 +745,7 @@
 
     span {
         width: 70px;
-        padding: 5px;
+        padding: 8px;
         text-align: center;
         border: 1px solid transparent;
         border-radius: 2px;
