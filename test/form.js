@@ -63,7 +63,7 @@ let form = new w2form({
         },
         { field: 'field.time', type: 'time', required: false,
             html: { attr: 'style="width: 100px"' },
-            // options: { start: '8:00am', end: '4:30pm' }
+            options: { start: '8:00am', end: '4:30pm' }
         },
         { field: 'field.datetime', type: 'datetime', required: false,
             // options: { start: '3/10/2022', end: '3/25/2022',
@@ -140,6 +140,8 @@ let form = new w2form({
                     }
                     return items;
                 },
+                maxHeight: 60,
+                maxWidth: 80,
                 items1: [{id: 1, text: 'Adams, John'}, 'Johnson, Peter', 'Lewis, Frank', 'Cruz, Steve', 'Donnun, Nick']
             }
         },

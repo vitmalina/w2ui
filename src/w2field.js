@@ -161,7 +161,7 @@ class w2field extends w2base {
                     autoCorrect   : true,
                     start         : null,
                     end           : null,
-                    blockDates    : [], // array of blocked dates // TODO: check
+                    blockDates    : [], // array of blocked dates
                     blockWeekdays : [], // blocked weekdays 0 - sunday, 1 - monday, etc
                     colored       : {}, // ex: { '3/13/2022': 'bg-color|text-color' }
                     btnNow        : true
@@ -203,7 +203,7 @@ class w2field extends w2base {
                     blockWeekdays : [], // blocked weekdays 0 - sunday, 1 - monday, etc
                     colored       : {}, // ex: { '3/13/2022': 'bg-color|text-color' }
                     btnNow        : true,
-                    noMinutes     : false // TODO: check
+                    noMinutes     : false
                 }
                 this.options = w2utils.extend({ type: 'datetime' }, defaults, options)
                 options = this.options // since object is re-created, need to re-assign
@@ -295,8 +295,8 @@ class w2field extends w2base {
                     postData        : {},
                     minLength       : 1, // min number of chars when trigger search
                     cacheMax        : 250,
-                    maxWidth        : 250, // max width for a single item
                     maxHeight       : 350, // max height for input control to grow
+                    maxItemWidth    : 250, // max width for a single item
                     maxDropHeight   : 350, // max height for drop down menu
                     maxDropWidth    : null, // if null then auto set
                     match           : 'contains', // ['contains', 'is', 'begins', 'ends']
@@ -341,8 +341,8 @@ class w2field extends w2base {
                     max           : 0,
                     maxSize       : 0, // max size of all files, 0 - unlimited
                     maxFileSize   : 0, // max size of a single file, 0 -unlimited
-                    maxWidth      : 250, // max width for a single item
                     maxHeight     : 350, // max height for input control to grow
+                    maxItemWidth  : 250, // max width for a single item
                     maxDropHeight : 350, // max height for drop down menu
                     maxDropWidth  : null, // if null then auto set
                     readContent   : true, // if true, it will readAsDataURL content of the file
@@ -504,15 +504,15 @@ class w2field extends w2base {
             if (Array.isArray(selected)) {
                 selected.forEach((it, ind) => {
                     html += `
-                        <div class="li-item" index="${ind}" style="max-width: ${parseInt(options.maxWidth)}px; ${it.style ? it.style : ''}">
+                        <div class="li-item" index="${ind}" style="max-width: ${parseInt(options.maxItemWidth)}px; ${it.style ? it.style : ''}">
                         ${
                             typeof options.renderItem === 'function'
                             ? options.renderItem(it, ind, `<div class="w2ui-list-remove" index="${ind}">&#160;&#160;</div>`)
                             : `
                                ${it.icon ? `<span class="w2ui-icon ${it.icon}"></span>` : ''}
+                               <div class="w2ui-list-remove" index="${ind}">&#160;&#160;</div>
                                ${(this.type === 'enum' ? it.text : it.name) ?? it.id ?? it }
                                ${it.size ? `<span class="file-size"> - ${w2utils.formatSize(it.size)}</span>` : ''}
-                               <div class="w2ui-list-remove" index="${ind}">&#160;&#160;</div>
                             `
                         }
                         </div>`

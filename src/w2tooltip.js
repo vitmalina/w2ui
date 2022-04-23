@@ -1846,7 +1846,7 @@ class DateTooltip extends Tooltip {
         }
         this.defaults = w2utils.extend({}, this.defaults, {
             position      : 'top|bottom',
-            class         : 'w2ui-white w2ui-calendar',
+            class         : 'w2ui-calendar',
             type          : 'date', // can be date/time/datetime
             format        : '',
             value         : '', // initial date (in w2utils.settings format)

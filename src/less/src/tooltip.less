@@ -537,19 +537,28 @@
 /* date overlay */
 .w2ui-calendar {
     margin: 0px;
-    padding: 1px;
     line-height: 1.1;
     user-select: none;
+
+    &.w2ui-overlay-body {
+        border: 1px solid #cccace;
+        color: #3c3c3c;
+        text-shadow: none;
+        background-color: #fff;
+        box-shadow: 0px 1px 6px 1px #ebeaec;
+    }
 
     .w2ui-cal-title, .w2ui-time-title {
         margin: 0px;
         padding: 7px 2px;
         background-color: white;
-        border-bottom: @calendar-title-border-bottom;
-        color: @calendar-title-color;
+        border-top: 1px solid #fefefe;
+        border-bottom:  1px solid #ddd;
+        color: #555;
         text-align: center;
-        text-shadow: @calendar-title-text-shadow;
+        text-shadow: 1px 1px 1px #eee;
         font-size: 16px;
+
         cursor: pointer;
         .arrow-down {
             position: relative;
@@ -570,8 +579,14 @@
         margin: -4px 1px 0px 1px;
         cursor: default;
         &:hover {
-            border: @calendar-button-hover-border;
-            background-color: @calendar-button-hover-background-color;
+            color: black;
+            border: 1px solid #f5f5f5;
+            background-color: #f9f7f7;
+        }
+        &:active {
+            color: black;
+            background-color: #f2f1f4;
+            border: 1px solid #e6dbfb;
         }
         & > div {
             position: absolute;
@@ -604,52 +619,52 @@
     }
 
     .w2ui-cal-jump {
-        background-color: #FaFaFa;
         display: flex;
-        #w2ui-jump-month {
-            width: 190px;
-            height: 240px;
-            overflow: hidden;
-            padding-top: 12px;
-            border-right: 1px solid silver;
+        background-color: #fdfdfd;
+        .w2ui-jump-month,
+        .w2ui-jump-year {
+            cursor: default;
+            text-align: center;
+            border: 1px solid transparent;
+            border-radius: 3px;
             font-size: 14px;
+        }
+        #w2ui-jump-month {
+            width: 186px;
+            padding: 10px 5px 4px 3px;
+            border-right: 1px solid #efefef;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(4, 52px);
+            grid-gap: 4px;
+            .w2ui-jump-month {
+                padding: 15px 0 0 0;
+            }
         }
         #w2ui-jump-year {
             width: 90px;
             height: 240px;
             overflow-x: hidden;
             overflow-y: auto;
-            padding-top: 5px;
-            text-align: center;
-            font-size: 14px;
-        }
-        .w2ui-jump-month,
-        .w2ui-jump-year {
-            padding: 4px 0px;
-            text-align: center;
-            float: left;
             margin: 0 2px;
-            width: 58px;
-            cursor: default;
-            border: 1px solid transparent;
-            border-radius: 2px;
-        }
-        .w2ui-jump-month {
-            padding: 16px;
-        }
-        .w2ui-jump-year {
-            float: none;
-            width: 95%;
+            display: flex;
+            flex-wrap: wrap;
+            .w2ui-jump-year {
+                width: 95%;
+                height: 30px;
+                padding: 5px 0;
+                margin: 1px 0;
+            }
         }
         .w2ui-jump-month:hover, .w2ui-jump-year:hover {
-            border: @calendar-day-hover-border;
-            color: @calendar-day-hover-color;
-            background-color: #efefef;
+            color: black;
+            border: 1px solid #f5f5f5;
+            background-color: #f9f7f7;
         }
         .w2ui-jump-month.selected, .w2ui-jump-year.selected {
-            border: @calendar-day-hover-border;
-            color: @calendar-day-hover-color;
-            background-color: #dadada;
+            color: black;
+            background-color: #f2f1f4;
+            border: 1px solid #e6dbfb;
         }
     }
 
@@ -674,43 +689,41 @@
         display: grid;
         grid-template-columns: repeat(7, 1fr);
 
+
+
         .w2ui-day {
-            border: 1px solid @calendar-background-color;
-            color: @calendar-day-color;
+            border: 1px solid #fff;
+            border-radius: 3px;
+            color: black;
             background-color: #f7f7f7;
-            padding: 5px 7px;
+            padding: 8px 0 0 0;
             cursor: default;
             text-align: center;
             &.saturday,
             &.sunday {
-                border: 1px solid @calendar-background-color;
-                color: @calendar-day-weekend-color;
+                border: 1px solid #fff;
+                color: #c8493b;
                 background-color: #f7f7f7;
-                &:hover {
-                    border: @calendar-day-hover-border;
-                    background-color: @calendar-day-hover-background-color;
-                }
-                &.blocked {
-                    text-decoration: line-through;
-                    border: 1px solid @calendar-background-color;
-                    background-color: @calendar-background-color;
-                }
             }
             &.today {
-                background-color: @calendar-day-today-background-color;
+                background-color: #e2f7cd;
             }
             &:hover {
-                border: @calendar-day-hover-border;
-                background-color: @calendar-day-hover-background-color;
+                background-color: #f2f1f4;
+                border: 1px solid #e6dbfb;
+            }
+            &:active {
+                background-color: #eeebf3;
+                border: 1px solid #cec2e5;
             }
             &.selected {
-                border: @calendar-day-today-border;
+                border: 1px solid #8cb067;
             }
             &.blocked {
                 text-decoration: line-through;
-                border: 1px solid @calendar-background-color;
-                color: @calendar-day-blocked-color;
-                background-color: @calendar-background-color;
+                border: 1px solid #fff;
+                color: #ccc;
+                background-color: #fff;
             }
             &.weekday {
                 text-align: center;
@@ -733,34 +746,35 @@
 .w2ui-cal-time {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    padding: 5px;
+    background-color: white;;
     cursor: default;
 
     .w2ui-cal-column {
-        width: 70px;
-        &:nth-child(even) {
-            background-color: #f3f3f3;
-        }
-    }
+        width: 90px;
+        display: flex;
+        flex-wrap: wrap;
+        padding: 4px;
 
-    span {
-        width: 70px;
-        padding: 8px;
-        text-align: center;
-        border: 1px solid transparent;
-        border-radius: 2px;
-        white-space: nowrap;
-        float: left;
-        &:hover {
-            border: @calendar-day-hover-border;
-            color: @calendar-day-hover-color;
-            background-color: @calendar-day-hover-background-color;
+        &:nth-child(even) {
+            background-color: #fafafa;
         }
-        &.w2ui-blocked {
-            text-decoration: line-through;
-            border: 1px solid @calendar-background-color;
-            color: @calendar-day-blocked-color;
-            background-color: @calendar-background-color;
+
+        span {
+            width: 100%;
+            padding: 8px;
+            margin: 1px;
+            text-align: center;
+            border: 1px solid transparent;
+            border-radius: 2px;
+            white-space: nowrap;
+            &:hover {
+                background-color: #f2f1f4;
+                border: 1px solid #e6dbfb;
+            }
+            &:active {
+                background-color: #eeebf3;
+                border: 1px solid #cec2e5;
+            }
         }
     }
 }
