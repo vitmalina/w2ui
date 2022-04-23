@@ -1157,8 +1157,9 @@ class MenuTooltip extends Tooltip {
             topHTML     : '',
             menuStyle   : '',
             filter      : false,
+            markSearch  : false,
             match       : 'contains',   // is, begins, ends, contains
-            search      : false,         // top search
+            search      : false,        // top search TODO: Check
             altRows     : false,
             arrowSize   : 10,
             align       : 'left',
@@ -1202,7 +1203,7 @@ class MenuTooltip extends Tooltip {
                 }
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
-                this.applyFilter(overlay.name)
+                this.applyFilter(overlay.name, null, '') // show unfiltered items
                 this.refreshSearch(overlay.name)
                 this.initControls(ret.overlay)
                 // reset selected and active chain
@@ -1457,6 +1458,10 @@ class MenuTooltip extends Tooltip {
             if (cur.item.hidden) {
                 query(el).hide()
             } else {
+                let search = overlay.tmp?.search
+                if (search && overlay.options.markSearch) {
+                    w2utils.marker(el, search, { onlyFirst: overlay.options.match == 'begins' })
+                }
                 query(el).show()
             }
         })
@@ -1495,6 +1500,9 @@ class MenuTooltip extends Tooltip {
         let count = 0
         let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
         let options = overlay.options
+        if (options.filter === false) {
+            return
+        }
         if (items == null) items = options.items
         if (search == null) {
             if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {

@@ -18,6 +18,7 @@
  *  - added w2utils.confirm()
  *  - added isPlainObject
  *  - added stripSpaces
+ *  - implemented marker
  */
 
 import { w2base } from './w2base.js'
@@ -1488,6 +1489,32 @@ class Utils {
             return str
         }
         return str.replace(/\${([^}]+)?}/g, function($1, $2) { return replace_obj[$2]||$2 })
+    }
+
+    marker(el, items, options = { onlyFirst: false }) {
+        if (!Array.isArray(items)) {
+            items = [items]
+        }
+        query(el).each(el => {
+            clearMerkers(el)
+            items.forEach(str => {
+                if (typeof str !== 'string') str = String(str)
+                let replaceValue = (matched) => { // mark new
+                    return '<span class="w2ui-marker">' + matched + '</span>'
+                }
+                // escape regex special chars
+                str = str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&').replace(/&/g, '&amp;')
+                         .replace(/</g, '&gt;').replace(/>/g, '&lt;')
+                let regex  = new RegExp(str + '(?!([^<]+)?>)', 'i' + (!options.onlyFirst ? 'g' : '')) // only outside tags
+                el.innerHTML = el.innerHTML.replace(regex, replaceValue)
+            })
+        })
+        function clearMerkers(el) {
+            let markerRE = /\<span class=\"w2ui\-marker\"\>((.|\n|\r)*)\<\/span\>/ig
+            while (el.innerHTML.indexOf('<span class="w2ui-marker"') !== -1) {
+                el.innerHTML = el.innerHTML.replace(markerRE, '$1') // unmark
+            }
+        }
     }
 
     lang(phrase, params) {

@@ -258,14 +258,12 @@ class w2field extends w2base {
                             }
                         })
                     }
-                    this.resize()
                 }
                 options = w2utils.extend({}, defaults, options)
                 this.options = options
                 if (!w2utils.isPlainObject(options.selected)) options.selected = {}
                 this.selected = options.selected
                 if (this.type === 'list') this.addSearch()
-                this.refresh()
                 query(this.el)
                     .attr('autocapitalize', 'off')
                     .attr('autocomplete', 'off')
@@ -297,7 +295,7 @@ class w2field extends w2base {
                     align           : 'both', // same width as control
                     altRows         : true, // alternate row color
                     openOnFocus     : false, // if to show overlay onclick or when typing
-                    markSearch      : true,
+                    markSearch      : false,
                     renderDrop      : null, // render function for drop down item
                     renderItem      : null, // render selected item
                     compare         : null, // compare function for filtering
@@ -324,7 +322,6 @@ class w2field extends w2base {
                 this.options     = options
                 if (!Array.isArray(options.selected)) options.selected = []
                 this.selected = options.selected
-                this.resize()
                 break
 
             case 'file':
@@ -356,8 +353,6 @@ class w2field extends w2base {
                 if (query(this.el).attr('placeholder') == null) {
                     query(this.el).attr('placeholder', w2utils.lang('Attach files by dragging and dropping or Click to Select'))
                 }
-                this.addMultiSearch()
-                this.resize()
                 break
         }
         // attach events
@@ -374,6 +369,7 @@ class w2field extends w2base {
         // suffix and prefix need to be after styles
         this.addPrefix() // only will add if needed
         this.addSuffix() // only will add if needed
+        this.addMultiSearch()
         this.refresh()
         // format initial value
         this.change(new Event('change'))
@@ -495,7 +491,8 @@ class w2field extends w2base {
                 }, 1)
             }
         }
-        if (['enum', 'file'].includes(this.type)) {
+        let div = this.helpers.multi
+        if (['enum', 'file'].includes(this.type) && div) {
             let html = ''
             if (Array.isArray(selected)) {
                 selected.forEach((it, ind) => {
@@ -514,7 +511,6 @@ class w2field extends w2base {
                         </div>`
                 })
             }
-            let div = this.helpers.multi
             let ul  = div.find('.w2ui-multi-items')
             if (options.style) {
                 div.attr('style', div.attr('style') + ';' + options.style)
@@ -703,8 +699,8 @@ class w2field extends w2base {
             this.addPrefix()
         }
         // enum or file
-        if (['enum', 'file'].includes(this.type)) {
-            let div = this.helpers.multi
+        let div = this.helpers.multi
+        if (['enum', 'file'].includes(this.type) && div) {
             // adjust height
             query(this.el).css('height', 'auto')
             let cntHeight = query(div).find(':scope div.w2ui-multi-items').get(0).clientHeight + 5
@@ -719,6 +715,9 @@ class w2field extends w2base {
             if (cntHeight < this.options.maxHeight) query(div).prop('scrollTop', 0)
             // min height
             let minHeight = parseInt(styles['min-height'])
+            if (minHeight < this.tmp['initial-height']) {
+                minHeight = this.tmp['initial-height']
+            }
             if (minHeight > cntHeight) {
                 cntHeight = minHeight
                 query(div).css('height', cntHeight + 'px')
@@ -1530,6 +1529,9 @@ class w2field extends w2base {
 
     // Used in enum/file
     addMultiSearch() {
+        if (!['enum', 'file'].includes(this.type)) {
+            return
+        }
         // clean up & init
         query(this.helpers.multi).remove()
         // build helper
@@ -1543,6 +1545,10 @@ class w2field extends w2base {
             width: ${(w2utils.getSize(this.el, 'width') - parseInt(styles['margin-left'], 10)
                                 - parseInt(styles['margin-right'], 10))}px;
         `)
+        if (this.tmp['initial-height'] == null) {
+            this.tmp['initial-height'] = parseInt(styles['height'])
+        }
+
         // if there is id, add to search with "_search"
         let searchId = ''
         if (query(this.el).attr('id') != null) {

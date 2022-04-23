@@ -130,33 +130,11 @@ import { w2tooltip, w2color, w2menu, w2date, Tooltip } from './w2tooltip.js'
     }
 
     $.fn.w2marker = function() {
-        // TODO: refactor
         let str = Array.from(arguments)
         if (Array.isArray(str[0])) str = str[0]
-        if (str.length === 0 || !str[0]) { // remove marker
-            return $(this).each(clearMarkedText)
-        } else { // add marker
-            return $(this).each((index, el) => {
-                clearMarkedText(index, el)
-                for (let s = 0; s < str.length; s++) {
-                    let tmp = str[s]
-                    if (typeof tmp !== 'string') tmp = String(tmp)
-                    // escape regex special chars
-                    tmp          = tmp.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&').replace(/&/g, '&amp;').replace(/</g, '&gt;').replace(/>/g, '&lt;')
-                    let regex    = new RegExp(tmp + '(?!([^<]+)?>)', 'gi') // only outside tags
-                    el.innerHTML = el.innerHTML.replace(regex, replaceValue)
-                }
-                function replaceValue(matched) { // mark new
-                    return '<span class="w2ui-marker">' + matched + '</span>'
-                }
-            })
-        }
-
-        function clearMarkedText(index, el) {
-            while (el.innerHTML.indexOf('<span class="w2ui-marker">') !== -1) {
-                el.innerHTML = el.innerHTML.replace(/\<span class=\"w2ui\-marker\"\>((.|\n|\r)*)\<\/span\>/ig, '$1') // unmark
-            }
-        }
+        return $(this).each((index, el) => {
+            w2utils.marker(el, str)
+        })
     }
 
     $.fn.w2tag = function(text, options) {

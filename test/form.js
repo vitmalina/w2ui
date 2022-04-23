@@ -104,7 +104,7 @@ let form = new w2form({
             }
         },
         { field: 'field.combo', type: 'combo', required: false,
-            html: { attr: 'style="border: 1px solid red" placeholder="some"' },
+            html: { attr: 'placeholder="combot text"' },
             options: {
                 applyFilter: false,
                 // openOnFocus: false,
