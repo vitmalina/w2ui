@@ -2210,7 +2210,7 @@ class DateTooltip extends Tooltip {
             }
             let valid = this.inRange(tm1, options) || this.inRange(tm2, options)
             tmp[Math.floor(a/8)] += `<span hour="${a}"
-                class="hour ${valid ? 'w2ui-time ' : 'w2ui-blocked'}">${time}</span>`
+                class="hour ${valid ? 'w2ui-time ' : 'blocked'}">${time}</span>`
         }
         let html = `<div class="w2ui-calendar">
             <div class="w2ui-time-title">${w2utils.lang('Select Hour')}</div>
@@ -2242,7 +2242,7 @@ class DateTooltip extends Tooltip {
                 let fm = options.format.split('|')[0].trim()
                 tm = w2utils.formatDate(dt, fm) + ' ' + tm
             }
-            tmp[ind] += `<span min="${a}" class="min ${(this.inRange(tm, options) ? 'w2ui-time ' : 'w2ui-blocked')}">${time}</span>`
+            tmp[ind] += `<span min="${a}" class="min ${(this.inRange(tm, options) ? 'w2ui-time ' : 'blocked')}">${time}</span>`
         }
         let html = `<div class="w2ui-calendar">
             <div class="w2ui-time-title">${w2utils.lang('Select Minute')}</div>

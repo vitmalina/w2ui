@@ -1347,6 +1347,9 @@ class w2field extends w2base {
     }
 
     addPrefix() {
+        if (!this.options.prefix) {
+            return
+        }
         let helper
         let styles = getComputedStyle(this.el)
         if (this.tmp['old-padding-left'] == null) {
@@ -1354,31 +1357,32 @@ class w2field extends w2base {
         }
         // remove if already displayed
         if (this.helpers.prefix) query(this.helpers.prefix).remove()
-        if (this.options.prefix !== '') {
-            query(this.el).before(`<div class="w2ui-field-helper">${this.options.prefix}</div>`)
-            helper = query(this.el).get(0).previousElementSibling
-            query(helper)
-                .css({
-                    'color'          : styles['color'],
-                    'font-family'    : styles['font-family'],
-                    'font-size'      : styles['font-size'],
-                    'padding-top'    : styles['padding-top'],
-                    'padding-bottom' : styles['padding-bottom'],
-                    'padding-left'   : this.tmp['old-padding-left'],
-                    'padding-right'  : 0,
-                    'margin-top'     : (parseInt(styles['margin-top'], 10) + 2) + 'px',
-                    'margin-bottom'  : (parseInt(styles['margin-bottom'], 10) + 1) + 'px',
-                    'margin-left'    : styles['margin-left'],
-                    'margin-right'   : 0
-                })
-            // only if visible
-            query(this.el).css('padding-left', helper.clientWidth + 'px')
-            // remember helper
-            this.helpers.prefix = helper
-        }
+        query(this.el).before(`<div class="w2ui-field-helper">${this.options.prefix}</div>`)
+        helper = query(this.el).get(0).previousElementSibling
+        query(helper)
+            .css({
+                'color'          : styles['color'],
+                'font-family'    : styles['font-family'],
+                'font-size'      : styles['font-size'],
+                'padding-top'    : styles['padding-top'],
+                'padding-bottom' : styles['padding-bottom'],
+                'padding-left'   : this.tmp['old-padding-left'],
+                'padding-right'  : 0,
+                'margin-top'     : (parseInt(styles['margin-top'], 10) + 2) + 'px',
+                'margin-bottom'  : (parseInt(styles['margin-bottom'], 10) + 1) + 'px',
+                'margin-left'    : styles['margin-left'],
+                'margin-right'   : 0
+            })
+        // only if visible
+        query(this.el).css('padding-left', helper.clientWidth + 'px')
+        // remember helper
+        this.helpers.prefix = helper
     }
 
     addSuffix() {
+        if (!this.options.prefix && !this.options.arrows) {
+            return
+        }
         let helper
         let self = this
         let styles = getComputedStyle(this.el)

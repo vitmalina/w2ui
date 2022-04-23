@@ -719,12 +719,6 @@
             &.selected {
                 border: 1px solid #8cb067;
             }
-            &.blocked {
-                text-decoration: line-through;
-                border: 1px solid #fff;
-                color: #ccc;
-                background-color: #fff;
-            }
             &.weekday {
                 text-align: center;
                 background-color: #f1f1f1;
@@ -737,6 +731,23 @@
             &.outside {
                 color: #b5b5b5;
                 background-color: #fff;
+            }
+            &.blocked {
+                color: #555;
+                background-color: #fff;
+                border: 1px solid #fff;
+                &:after {
+                    content: " ";
+                        position: absolute;
+                        color: #b3b3b378;
+                        font-size: 27px;
+                        padding: 0px;
+                        font-family: verdana;
+                        transform: translate(-15px, 15px) rotate(-36deg);
+                        border-top: 1px solid #c9c2c2;
+                        width: 24px;
+                        transform-origin: top left;
+                }
             }
         }
     }
@@ -774,6 +785,11 @@
             &:active {
                 background-color: #eeebf3;
                 border: 1px solid #cec2e5;
+            }
+            &.blocked {
+                pointer-events: none;
+                text-decoration: line-through;
+                color: silver;
             }
         }
     }
