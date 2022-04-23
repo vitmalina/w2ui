@@ -136,8 +136,6 @@ class w2field extends w2base {
                     options.arrows   = false
                     options.keyboard = false
                 }
-                this.addPrefix() // only will add if needed
-                this.addSuffix()
                 break
 
             case 'color':
@@ -150,8 +148,6 @@ class w2field extends w2base {
                 }
                 this.options = w2utils.extend({}, defaults, options)
                 options = this.options // since object is re-created, need to re-assign
-                this.addPrefix() // only will add if needed
-                this.addSuffix() // only will add if needed
                 break
 
             case 'date':
@@ -269,8 +265,6 @@ class w2field extends w2base {
                 if (!w2utils.isPlainObject(options.selected)) options.selected = {}
                 this.selected = options.selected
                 if (this.type === 'list') this.addSearch()
-                this.addPrefix()
-                this.addSuffix()
                 this.refresh()
                 query(this.el)
                     .attr('autocapitalize', 'off')
@@ -330,8 +324,6 @@ class w2field extends w2base {
                 this.options     = options
                 if (!Array.isArray(options.selected)) options.selected = []
                 this.selected = options.selected
-                this.addSuffix()
-                this.addMultiSearch()
                 this.resize()
                 break
 
@@ -379,6 +371,10 @@ class w2field extends w2base {
             .on('blur.w2field',    (event) => { this.blur(event) })
             .on('keydown.w2field', (event) => { this.keyDown(event) })
             .on('keyup.w2field',   (event) => { this.keyUp(event) })
+        // suffix and prefix need to be after styles
+        this.addPrefix() // only will add if needed
+        this.addSuffix() // only will add if needed
+        this.refresh()
         // format initial value
         this.change(new Event('change'))
     }
@@ -767,12 +763,22 @@ class w2field extends w2base {
         let options = this.options
         val = String(val).trim()
         // clean
-        if (['int', 'float', 'money', 'currency', 'percent'].indexOf(this.type) !== -1) {
+        if (['int', 'float', 'money', 'currency', 'percent'].includes(this.type)) {
             if (typeof val === 'string') {
-                if (options.autoFormat && ['money', 'currency'].indexOf(this.type) !== -1) val = String(val).replace(options.moneyRE, '')
-                if (options.autoFormat && this.type === 'percent') val = String(val).replace(options.percentRE, '')
-                if (options.autoFormat && ['int', 'float'].indexOf(this.type) !== -1) val = String(val).replace(options.numberRE, '')
-                val = val.replace(/\s+/g, '').replace(w2utils.settings.groupSymbol, '').replace(w2utils.settings.decimalSymbol, '.')
+                if (options.autoFormat) {
+                    if (['money', 'currency'].includes(this.type)) {
+                        val = String(val).replace(options.moneyRE, '')
+                    }
+                    if (this.type === 'percent') {
+                        val = String(val).replace(options.percentRE, '')
+                    }
+                    if (['int', 'float'].includes(this.type)) {
+                        val = String(val).replace(options.numberRE, '')
+                    }
+                }
+                val = val.replace(/\s+/g, '')
+                         .replace(new RegExp(options.groupSymbol, 'g'), '')
+                         .replace(options.decimalSymbol, '.')
             }
             if (val !== '' && w2utils.isFloat(val)) val = Number(val); else val = ''
         }
@@ -786,19 +792,24 @@ class w2field extends w2base {
             switch (this.type) {
                 case 'money':
                 case 'currency':
-                    val = w2utils.formatNumber(val, options.currencyPrecision, options.groupSymbol)
+                    val = w2utils.formatNumber(val, options.currencyPrecision, true)
                     if (val !== '') val = options.currencyPrefix + val + options.currencySuffix
                     break
                 case 'percent':
-                    val = w2utils.formatNumber(val, options.precision, options.groupSymbol)
+                    val = w2utils.formatNumber(val, options.precision, true)
                     if (val !== '') val += '%'
                     break
                 case 'float':
-                    val = w2utils.formatNumber(val, options.precision, options.groupSymbol)
+                    val = w2utils.formatNumber(val, options.precision, true)
                     break
                 case 'int':
-                    val = w2utils.formatNumber(val, 0, options.groupSymbol)
+                    val = w2utils.formatNumber(val, 0, true)
                     break
+            }
+            // if default group symbol does not match - replase it
+            let group = parseInt(1000).toLocaleString(w2utils.settings.locale, { useGrouping: true }).slice(1, 2)
+            if (group !== this.options.groupSymbol) {
+                val = val.replace(new RegExp(group, 'g'), this.options.groupSymbol)
             }
         }
         return val
@@ -911,11 +922,11 @@ class w2field extends w2base {
         let val = query(this.el).val().trim()
         query(this.el).removeClass('has-focus')
 
-        if (['int', 'float', 'money', 'currency', 'percent'].indexOf(this.type) !== -1) {
+        if (['int', 'float', 'money', 'currency', 'percent'].includes(this.type)) {
             if (val !== '') {
                 let newVal = val
                 let error = ''
-                if (!this.isStrValid(val)) {
+                if (!this.isStrValid(val)) { // validity is also checked in blur
                     newVal = ''
                 } else {
                     let rVal = this.clean(val)
@@ -971,9 +982,8 @@ class w2field extends w2base {
         // ignore wrong pressed key
         if (['int', 'float', 'money', 'currency', 'percent', 'hex', 'bin', 'color', 'alphanumeric'].includes(this.type)) {
             if (!event.metaKey && !event.ctrlKey && !event.altKey) {
-                let ch = String.fromCharCode(event.keyCode)
-                if (!this.isStrValid(ch, true) && // valid & is not arrows, dot, comma, etc kesy
-                        ![9, 8, 13, 27, 37, 38, 39, 40, 46, 188, 190].includes(event.keyCode)) {
+                if (!this.isStrValid(event.key, true) && // valid & is not arrows, dot, comma, etc keys
+                        ![9, 8, 13, 27, 37, 38, 39, 40, 46].includes(event.keyCode)) {
                     event.preventDefault()
                     if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true
                     return false
@@ -1294,27 +1304,46 @@ class w2field extends w2base {
     */
 
     isStrValid(ch, loose) {
+        let isValid = true
         switch (this.type) {
             case 'int':
-                if (loose && ['-', this.options.groupSymbol].indexOf(ch) !== -1) return true
-                return w2utils.isInt(ch.replace(this.options.numberRE, ''))
+                if (loose && ['-', this.options.groupSymbol].includes(ch)) {
+                    isValid = true
+                } else {
+                    isValid = w2utils.isInt(ch.replace(this.options.numberRE, ''))
+                }
+                break
             case 'percent':
                 ch = ch.replace(/%/g, '')
+                break
             case 'float':
-                if (loose && ['-', w2utils.settings.decimalSymbol, this.options.groupSymbol].indexOf(ch) !== -1) return true
-                return w2utils.isFloat(ch.replace(this.options.numberRE, ''))
+                if (loose && ['-', this.options.decimalSymbol, this.options.groupSymbol].includes(ch)) {
+                    isValid = true
+                } else {
+                    isValid = w2utils.isFloat(ch.replace(this.options.numberRE, ''))
+                }
+                break
             case 'money':
             case 'currency':
-                if (loose && ['-', this.options.decimalSymbol, this.options.groupSymbol, this.options.currencyPrefix, this.options.currencySuffix].indexOf(ch) !== -1) return true
-                return w2utils.isFloat(ch.replace(this.options.moneyRE, ''))
+                if (loose && ['-', this.options.decimalSymbol, this.options.groupSymbol, this.options.currencyPrefix,
+                              this.options.currencySuffix].includes(ch)) {
+                    isValid = true
+                } else {
+                    isValid = w2utils.isFloat(ch.replace(this.options.moneyRE, ''))
+                }
+                break
             case 'bin':
-                return w2utils.isBin(ch)
+                isValid = w2utils.isBin(ch)
+                break
+            case 'color':
             case 'hex':
-                return w2utils.isHex(ch)
+                isValid = w2utils.isHex(ch)
+                break
             case 'alphanumeric':
-                return w2utils.isAlphaNumeric(ch)
+                isValid = w2utils.isAlphaNumeric(ch)
+                break
         }
-        return true
+        return isValid
     }
 
     addPrefix() {

@@ -6,7 +6,7 @@
  * - multiple tooltips to the same anchor
  *
  * TODO
- * - cleanup w2color less
+ * - cleanup w2color less file
  * - remember state for drop menu
  * - events firing too many times
  */
