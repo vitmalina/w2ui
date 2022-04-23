@@ -287,7 +287,6 @@ class w2field extends w2base {
                     postData        : {},
                     minLength       : 1, // min number of chars when trigger search
                     cacheMax        : 250,
-                    maxHeight       : 350, // max height for input control to grow
                     maxItemWidth    : 250, // max width for a single item
                     maxDropHeight   : 350, // max height for drop down menu
                     maxDropWidth    : null, // if null then auto set
@@ -330,7 +329,6 @@ class w2field extends w2base {
                     max           : 0,
                     maxSize       : 0, // max size of all files, 0 - unlimited
                     maxFileSize   : 0, // max size of a single file, 0 -unlimited
-                    maxHeight     : 350, // max height for input control to grow
                     maxItemWidth  : 250, // max width for a single item
                     maxDropHeight : 350, // max height for drop down menu
                     maxDropWidth  : null, // if null then auto set
@@ -705,23 +703,21 @@ class w2field extends w2base {
             query(this.el).css('height', 'auto')
             let cntHeight = query(div).find(':scope div.w2ui-multi-items').get(0).clientHeight + 5
             if (cntHeight < 20) cntHeight = 20
-            if (cntHeight > this.options.maxHeight) cntHeight = this.options.maxHeight
+            // max height
+            if (cntHeight > this.tmp['max-height']) {
+                cntHeight = this.tmp['max-height']
+            }
+            // min height
+            if (cntHeight < this.tmp['min-height']) {
+                cntHeight = this.tmp['min-height']
+            }
             let inpHeight = w2utils.getSize(this.el, 'height') - 2
             if (inpHeight > cntHeight) cntHeight = inpHeight
             query(div).css({
                 'height': cntHeight + 'px',
-                overflow: (cntHeight == this.options.maxHeight ? 'auto' : 'hidden')
+                overflow: (cntHeight == this.tmp['max-height'] ? 'auto' : 'hidden')
             })
-            if (cntHeight < this.options.maxHeight) query(div).prop('scrollTop', 0)
-            // min height
-            let minHeight = parseInt(styles['min-height'])
-            if (minHeight < this.tmp['initial-height']) {
-                minHeight = this.tmp['initial-height']
-            }
-            if (minHeight > cntHeight) {
-                cntHeight = minHeight
-                query(div).css('height', cntHeight + 'px')
-            }
+            query(div).css('height', cntHeight + 'px')
             query(this.el).css({ 'height': cntHeight + 'px' })
         }
         // remember width
@@ -1545,8 +1541,13 @@ class w2field extends w2base {
             width: ${(w2utils.getSize(this.el, 'width') - parseInt(styles['margin-left'], 10)
                                 - parseInt(styles['margin-right'], 10))}px;
         `)
-        if (this.tmp['initial-height'] == null) {
-            this.tmp['initial-height'] = parseInt(styles['height'])
+        if (this.tmp['min-height'] == null) {
+            let min = this.tmp['min-height'] = parseInt((styles['min-height'] != 'none' ? styles['min-height'] : 0) || 0)
+            let current = parseInt(styles['height'])
+            this.tmp['min-height'] = Math.max(min, current)
+        }
+        if (this.tmp['max-height'] == null && styles['max-height'] != 'none') {
+            this.tmp['max-height'] = parseInt(styles['max-height'])
         }
 
         // if there is id, add to search with "_search"
