@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/22/2022, 10:09:36 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/24/2022, 10:24:59 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -315,8 +315,7 @@ input[type="checkbox"].w2ui-toggle.green:checked + div > div {
 * ---- Common Classes ----
 */
 .w2ui-marker {
-  color: #444;
-  background-color: rgba(252, 244, 161, 0.48);
+  background-color: rgba(214, 161, 252, 0.5);
 }
 .w2ui-spinner {
   display: inline-block;
@@ -606,14 +605,15 @@ button.w2ui-btn:disabled {
 }
 .w2ui-overlay .w2ui-overlay-body {
   display: inline-block;
+  border: 1px solid #474747;
   border-radius: 4px;
-  padding: 6px 10px;
+  padding: 4px 8px;
   margin: 0px;
   font-size: 12px;
   font-family: OpenSans;
   color: white;
-  text-shadow: 0px 0px 3px #000;
-  background-color: rgba(60, 60, 60, 0.9);
+  text-shadow: 0px 1px 1px #4a4a4a;
+  background-color: rgb(134 134 134);
   line-height: 1.4;
   letter-spacing: 0.1px;
   overflow: auto;
@@ -622,8 +622,8 @@ button.w2ui-btn:disabled {
   color: #3c3c3c;
   text-shadow: none;
   background-color: #fffde9;
-  border: 1px solid #dcdcdc;
-  box-shadow: none;
+  border: 1px solid #d2d2d2;
+  box-shadow: 0px 1px 1px 1px #ffffff;
 }
 .w2ui-overlay .w2ui-overlay-body.w2ui-white {
   color: #3c3c3c;
@@ -636,7 +636,7 @@ button.w2ui-btn:disabled {
   content: "";
   position: absolute;
   left: calc(var(--tip-size, 8px) * -0.5);
-  top: 50%;
+  top: calc(50% - 3px);
   transform: rotate(-45deg) translateY(-50%);
   transform-origin: top center;
   margin: 0;
@@ -653,7 +653,7 @@ button.w2ui-btn:disabled {
   content: "";
   position: absolute;
   right: calc(var(--tip-size, 8px) * -0.5);
-  top: 50%;
+  top: calc(50% - 3px);
   transform: rotate(135deg) translateY(-50%);
   transform-origin: top center;
   margin: 0;
@@ -932,12 +932,10 @@ button.w2ui-btn:disabled {
   background-color: #fbfbfb;
 }
 .w2ui-menu .w2ui-menu-item:hover {
-  color: inherit;
-  background-color: #E6F0FF;
+  background-color: #f0f3ff;
 }
 .w2ui-menu .w2ui-menu-item.w2ui-selected {
-  background-color: #B6D5FB;
-  color: inherit;
+  background-color: #e1e7ff;
 }
 .w2ui-menu .w2ui-menu-item.w2ui-disabled {
   opacity: 0.4;
@@ -947,17 +945,16 @@ button.w2ui-btn:disabled {
 .w2ui-menu .w2ui-menu-item .menu-icon {
   flex: none;
   width: 26px;
+  height: 16px;
   padding: 0;
-  margin-left: 0;
-  margin-top: -4px;
+  margin: 0;
 }
 .w2ui-menu .w2ui-menu-item .menu-icon span {
-  height: 18px;
   width: 18px;
   font-size: 14px;
   color: #8D99A7;
   display: inline-block;
-  padding-top: 4px;
+  padding-top: 1px;
 }
 .w2ui-menu .w2ui-menu-item .menu-text {
   flex-grow: 1;
@@ -1084,15 +1081,22 @@ button.w2ui-btn:disabled {
 /* date overlay */
 .w2ui-calendar {
   margin: 0px;
-  padding: 1px;
   line-height: 1.1;
   user-select: none;
+}
+.w2ui-calendar.w2ui-overlay-body {
+  border: 1px solid #cccace;
+  color: #3c3c3c;
+  text-shadow: none;
+  background-color: #fff;
+  box-shadow: 0px 1px 6px 1px #ebeaec;
 }
 .w2ui-calendar .w2ui-cal-title,
 .w2ui-calendar .w2ui-time-title {
   margin: 0px;
   padding: 7px 2px;
   background-color: white;
+  border-top: 1px solid #fefefe;
   border-bottom: 1px solid #ddd;
   color: #555;
   text-align: center;
@@ -1120,8 +1124,15 @@ button.w2ui-btn:disabled {
 }
 .w2ui-calendar .w2ui-cal-previous:hover,
 .w2ui-calendar .w2ui-cal-next:hover {
-  border: 1px solid silver;
-  background-color: #efefef;
+  color: black;
+  border: 1px solid #f5f5f5;
+  background-color: #f9f7f7;
+}
+.w2ui-calendar .w2ui-cal-previous:active,
+.w2ui-calendar .w2ui-cal-next:active {
+  color: black;
+  background-color: #f2f1f4;
+  border: 1px solid #e6dbfb;
 }
 .w2ui-calendar .w2ui-cal-previous > div,
 .w2ui-calendar .w2ui-cal-next > div {
@@ -1159,55 +1170,55 @@ button.w2ui-btn:disabled {
   margin-right: 2px;
 }
 .w2ui-calendar .w2ui-cal-jump {
-  background-color: #FaFaFa;
   display: flex;
+  background-color: #fdfdfd;
+}
+.w2ui-calendar .w2ui-cal-jump .w2ui-jump-month,
+.w2ui-calendar .w2ui-cal-jump .w2ui-jump-year {
+  cursor: default;
+  text-align: center;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  font-size: 14px;
 }
 .w2ui-calendar .w2ui-cal-jump #w2ui-jump-month {
-  width: 190px;
-  height: 240px;
-  overflow: hidden;
-  padding-top: 12px;
-  border-right: 1px solid silver;
-  font-size: 14px;
+  width: 186px;
+  padding: 10px 5px 4px 3px;
+  border-right: 1px solid #efefef;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(4, 52px);
+  grid-gap: 4px;
+}
+.w2ui-calendar .w2ui-cal-jump #w2ui-jump-month .w2ui-jump-month {
+  padding: 15px 0 0 0;
 }
 .w2ui-calendar .w2ui-cal-jump #w2ui-jump-year {
   width: 90px;
   height: 240px;
   overflow-x: hidden;
   overflow-y: auto;
-  padding-top: 5px;
-  text-align: center;
-  font-size: 14px;
-}
-.w2ui-calendar .w2ui-cal-jump .w2ui-jump-month,
-.w2ui-calendar .w2ui-cal-jump .w2ui-jump-year {
-  padding: 4px 0px;
-  text-align: center;
-  float: left;
   margin: 0 2px;
-  width: 58px;
-  cursor: default;
-  border: 1px solid transparent;
-  border-radius: 2px;
+  display: flex;
+  flex-wrap: wrap;
 }
-.w2ui-calendar .w2ui-cal-jump .w2ui-jump-month {
-  padding: 16px;
-}
-.w2ui-calendar .w2ui-cal-jump .w2ui-jump-year {
-  float: none;
+.w2ui-calendar .w2ui-cal-jump #w2ui-jump-year .w2ui-jump-year {
   width: 95%;
+  height: 30px;
+  padding: 5px 0;
+  margin: 1px 0;
 }
 .w2ui-calendar .w2ui-cal-jump .w2ui-jump-month:hover,
 .w2ui-calendar .w2ui-cal-jump .w2ui-jump-year:hover {
-  border: 1px solid #ccc;
   color: black;
-  background-color: #efefef;
+  border: 1px solid #f5f5f5;
+  background-color: #f9f7f7;
 }
 .w2ui-calendar .w2ui-cal-jump .w2ui-jump-month.selected,
 .w2ui-calendar .w2ui-cal-jump .w2ui-jump-year.selected {
-  border: 1px solid #ccc;
   color: black;
-  background-color: #dadada;
+  background-color: #f2f1f4;
+  border: 1px solid #e6dbfb;
 }
 .w2ui-calendar .w2ui-cal-now {
   cursor: default;
@@ -1231,9 +1242,10 @@ button.w2ui-btn:disabled {
 }
 .w2ui-calendar .w2ui-cal-days .w2ui-day {
   border: 1px solid #fff;
+  border-radius: 3px;
   color: black;
   background-color: #f7f7f7;
-  padding: 5px 7px;
+  padding: 8px 0 0 0;
   cursor: default;
   text-align: center;
 }
@@ -1243,32 +1255,19 @@ button.w2ui-btn:disabled {
   color: #c8493b;
   background-color: #f7f7f7;
 }
-.w2ui-calendar .w2ui-cal-days .w2ui-day.saturday:hover,
-.w2ui-calendar .w2ui-cal-days .w2ui-day.sunday:hover {
-  border: 1px solid #ccc;
-  background-color: #e9e9e9;
-}
-.w2ui-calendar .w2ui-cal-days .w2ui-day.saturday.blocked,
-.w2ui-calendar .w2ui-cal-days .w2ui-day.sunday.blocked {
-  text-decoration: line-through;
-  border: 1px solid #fff;
-  background-color: #fff;
-}
 .w2ui-calendar .w2ui-cal-days .w2ui-day.today {
   background-color: #e2f7cd;
 }
 .w2ui-calendar .w2ui-cal-days .w2ui-day:hover {
-  border: 1px solid #ccc;
-  background-color: #e9e9e9;
+  background-color: #f2f1f4;
+  border: 1px solid #e6dbfb;
+}
+.w2ui-calendar .w2ui-cal-days .w2ui-day:active {
+  background-color: #eeebf3;
+  border: 1px solid #cec2e5;
 }
 .w2ui-calendar .w2ui-cal-days .w2ui-day.selected {
   border: 1px solid #8cb067;
-}
-.w2ui-calendar .w2ui-cal-days .w2ui-day.blocked {
-  text-decoration: line-through;
-  border: 1px solid #fff;
-  color: #ccc;
-  background-color: #fff;
 }
 .w2ui-calendar .w2ui-cal-days .w2ui-day.weekday {
   text-align: center;
@@ -1283,38 +1282,60 @@ button.w2ui-btn:disabled {
   color: #b5b5b5;
   background-color: #fff;
 }
+.w2ui-calendar .w2ui-cal-days .w2ui-day.blocked {
+  color: #555;
+  background-color: #fff;
+  border: 1px solid #fff;
+}
+.w2ui-calendar .w2ui-cal-days .w2ui-day.blocked:after {
+  content: " ";
+  position: absolute;
+  color: #b3b3b378;
+  font-size: 27px;
+  padding: 0px;
+  font-family: verdana;
+  transform: translate(-15px, 15px) rotate(-36deg);
+  border-top: 1px solid #c9c2c2;
+  width: 24px;
+  transform-origin: top left;
+}
 /* time overlay */
 .w2ui-cal-time {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  padding: 5px;
+  background-color: white;
   cursor: default;
 }
 .w2ui-cal-time .w2ui-cal-column {
-  width: 70px;
+  width: 90px;
+  display: flex;
+  flex-wrap: wrap;
+  padding: 4px;
 }
 .w2ui-cal-time .w2ui-cal-column:nth-child(even) {
-  background-color: #f3f3f3;
+  background-color: #fafafa;
 }
-.w2ui-cal-time span {
-  width: 70px;
+.w2ui-cal-time .w2ui-cal-column span {
+  width: 100%;
   padding: 8px;
+  margin: 1px;
   text-align: center;
   border: 1px solid transparent;
   border-radius: 2px;
   white-space: nowrap;
-  float: left;
 }
-.w2ui-cal-time span:hover {
-  border: 1px solid #ccc;
-  color: black;
-  background-color: #e9e9e9;
+.w2ui-cal-time .w2ui-cal-column span:hover {
+  background-color: #f2f1f4;
+  border: 1px solid #e6dbfb;
 }
-.w2ui-cal-time span.w2ui-blocked {
+.w2ui-cal-time .w2ui-cal-column span:active {
+  background-color: #eeebf3;
+  border: 1px solid #cec2e5;
+}
+.w2ui-cal-time .w2ui-cal-column span.blocked {
+  pointer-events: none;
   text-decoration: line-through;
-  border: 1px solid #fff;
-  color: #ccc;
-  background-color: #fff;
+  color: silver;
 }
 /*************************************************
 * ---- Forms ----
@@ -1716,8 +1737,8 @@ textarea.w2ui-error {
 }
 .w2ui-field-helper.w2ui-list .w2ui-multi-items .li-item .w2ui-icon {
   float: left;
-  color: #659ab8;
-  margin: 0 2px 0 -6px;
+  color: #828aa7;
+  margin: 1px 2px 0 -6px;
 }
 .w2ui-field-helper.w2ui-list .w2ui-multi-items .li-item .w2ui-list-remove {
   float: right;
