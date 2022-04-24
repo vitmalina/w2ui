@@ -52,8 +52,8 @@ $(function () {
         if (edata.error) edata.error = {'...':'...'}
         if (edata.errors) edata.errors = {'...':'...'}
         if (edata.xhr) edata.xhr = {'...':'...'}
-        $('#preview').html(`Event: ${event.type}<pre style="font-size: 12px; line-height: 1.4">${JSON.stringify(edata, null, 2)}</pre>`);
-        console.log('Event: '+ event.type, 'Target: '+ event.target, event);
+        // $('#preview').html(`Event: ${event.type}<pre style="font-size: 12px; line-height: 1.4">${JSON.stringify(edata, null, 2)}</pre>`);
+        // console.log('Event: '+ event.type, 'Target: '+ event.target, event);
     });
 });
 </script>

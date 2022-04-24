@@ -515,8 +515,8 @@ class w2toolbar extends w2base {
         }
         w2utils.bindEvents(query(this.box).find('.w2ui-tb-line .w2ui-eaction'), this)
         // observe div resize
-        this.last.resizeObserver = new ResizeObserver(() => { this.resize() })
-        this.last.resizeObserver.observe(this.box)
+        this.last.observeResize = new ResizeObserver(() => { this.resize() })
+        this.last.observeResize.observe(this.box)
         // refresh all
         this.refresh()
         this.resize()
@@ -629,7 +629,7 @@ class w2toolbar extends w2base {
                 .html('')
         }
         query(this.box).html('')
-        this.last.resizeObserver?.disconnect()
+        this.last.observeResize?.disconnect()
         delete w2ui[this.name]
         // event after
         edata.finish()

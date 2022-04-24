@@ -11,7 +11,7 @@
  *  - remove jQuery dependency
  *  - deprecarted obj.img, node.img
  *  - CSP - fixed inline events
- *  - resizeObserver for the box
+ *  - observeResize for the box
  */
 
 import { w2base } from './w2base.js'
@@ -863,8 +863,8 @@ class w2sidebar extends w2base {
                 }, 1)
             })
         // observe div resize
-        this.last.resizeObserver = new ResizeObserver(() => { this.resize() })
-        this.last.resizeObserver.observe(this.box)
+        this.last.observeResize = new ResizeObserver(() => { this.resize() })
+        this.last.observeResize.observe(this.box)
         // event after
         edata.finish()
         // ---
@@ -1176,7 +1176,7 @@ class w2sidebar extends w2base {
                 .removeClass('w2ui-reset w2ui-sidebar')
                 .html('')
         }
-        this.last.resizeObserver?.disconnect()
+        this.last.observeResize?.disconnect()
         delete w2ui[this.name]
         // event after
         edata.finish()

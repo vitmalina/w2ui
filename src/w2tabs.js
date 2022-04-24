@@ -5,7 +5,7 @@
  * == 2.0 changes
  *  - CSP - fixed inline events
  *  - removed jQuery dependency
- *  - resizeObserver for the box
+ *  - observeResize for the box
  *  - refactored w2events
  *  - scrollIntoView - removed callback
  *  - scroll, scrollIntoView return promise
@@ -390,8 +390,8 @@ class w2tabs extends w2base {
         }
         w2utils.bindEvents(query(this.box).find('.w2ui-eaction'), this)
         // observe div resize
-        this.last.resizeObserver = new ResizeObserver(() => { this.resize() })
-        this.last.resizeObserver.observe(this.box)
+        this.last.observeResize = new ResizeObserver(() => { this.resize() })
+        this.last.observeResize.observe(this.box)
         // event after
         edata.finish()
         this.refresh()
@@ -538,7 +538,7 @@ class w2tabs extends w2base {
                 .removeClass('w2ui-reset w2ui-tabs')
                 .html('')
         }
-        this.last.resizeObserver?.disconnect()
+        this.last.observeResize?.disconnect()
         delete w2ui[this.name]
         // event after
         edata.finish()

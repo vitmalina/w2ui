@@ -454,8 +454,8 @@ class w2layout extends w2base {
             .append('<div id="layout_'+ this.name + '_panel_css" style="position: absolute; top: 10000px;"></div>')
         this.refresh() // if refresh is not called here, the layout will not be available right after initialization
         // observe div resize
-        this.last.resizeObserver = new ResizeObserver(() => { this.resize() })
-        this.last.resizeObserver.observe(this.box)
+        this.last.observeResize = new ResizeObserver(() => { this.resize() })
+        this.last.observeResize.observe(this.box)
         // process event
         edata.finish()
         // re-init events
@@ -1097,7 +1097,7 @@ class w2layout extends w2base {
                 .removeClass('w2ui-layout')
                 .html('')
         }
-        this.last.resizeObserver?.disconnect()
+        this.last.observeResize?.disconnect()
         delete w2ui[this.name]
         // event after
         edata.finish()

@@ -51,6 +51,24 @@ class Tooltip {
         }
     }
 
+    static observeRemove = new MutationObserver((mutations) => {
+        let cnt = 0
+        Object.keys(Tooltip.active).forEach(name => {
+            let overlay = Tooltip.active[name]
+            if (overlay.displayed) {
+                if (!overlay.anchor || !overlay.anchor.isConnected) {
+                    overlay.hide()
+                } else {
+                    cnt++
+                }
+            }
+        })
+        // remove observer, as there is no active tooltips
+        if (cnt === 0) {
+            Tooltip.observeRemove.disconnect()
+        }
+    })
+
     trigger(event, data) {
         if (arguments.length == 2) {
             let type = event
@@ -130,12 +148,15 @@ class Tooltip {
         } else {
             overlay = new w2base()
             Object.assign(overlay, {
-                displayed: false,
                 id: 'w2overlay-' + name, name, options, anchor,
+                displayed: false,
                 tmp: {
-                    resizeObserver: new ResizeObserver(() => {
+                    observeResize: new ResizeObserver(() => {
                         this.resize(overlay.name)
                     })
+                },
+                hide() {
+                    self.hide(name)
                 }
             })
             Tooltip.active[name] = overlay
@@ -299,7 +320,9 @@ class Tooltip {
         addWatchEvents(document.body)
         // first show empty tooltip, so it will popup up in the right position
         query(overlay.box).show()
-        overlay.tmp.resizeObserver.observe(overlay.box)
+        overlay.tmp.observeResize.observe(overlay.box)
+        // remove observer
+        Tooltip.observeRemove.observe(document.body, { subtree: true, childList: true })
         // then insert html and it will adjust
         query(overlay.box)
             .find('.w2ui-overlay-body')
@@ -384,10 +407,21 @@ class Tooltip {
         if (edata.isCancelled === true) return
         let scope = 'tooltip-' + overlay.name
         // normal processing
-        overlay.tmp.resizeObserver?.disconnect()
+        overlay.tmp.observeResize?.disconnect()
         if (overlay.options.watchScroll) {
             query(overlay.options.watchScroll)
                 .off('.w2scroll-' + overlay.name)
+        }
+        // if no active tooltip then disable observeRemove
+        let cnt = 0
+        Object.keys(Tooltip.active).forEach(key => {
+            let overlay = Tooltip.active[key]
+            if (overlay.displayed) {
+                cnt++
+            }
+        })
+        if (cnt == 0) {
+            Tooltip.observeRemove.disconnect()
         }
         query('body').off(`.${scope}`)   // hide to click event here
         query(document).off(`.${scope}`) // scroll event here

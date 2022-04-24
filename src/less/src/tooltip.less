@@ -11,14 +11,15 @@
 
     .w2ui-overlay-body {
         display: inline-block;
+        border: 1px solid #474747;
         border-radius: 4px;
-        padding: 6px 10px;
+        padding: 4px 8px;
         margin: 0px;
         font-size: 12px;
-        font-family: @main-font-family;
+        font-family: OpenSans;
         color: white;
-        text-shadow: 0px 0px 3px #000; // for sharper text in a bubble
-        background-color: rgba(60,60,60,0.9);
+        text-shadow: 0px 1px 1px #4a4a4a;
+        background-color: rgb(134 134 134);
         line-height: 1.4;
         letter-spacing: 0.1px;
         overflow: auto;
@@ -27,8 +28,8 @@
             color: #3c3c3c;
             text-shadow: none;
             background-color: #fffde9;
-            border: 1px solid #dcdcdc;
-            box-shadow: none;
+            border: 1px solid #d2d2d2;
+            box-shadow: 0px 1px 1px 1px #ffffff;
         }
 
         &.w2ui-white {
@@ -43,7 +44,7 @@
             content: "";
             position: absolute;
             left: calc(var(--tip-size, 8px) * -0.5);
-            top: 50%;
+            top: calc(50% - 3px); // for one line tooltips, small adjjustment
             transform: rotate(-45deg) translateY(-50%);
             transform-origin: top center;
             margin: 0;
@@ -61,7 +62,7 @@
             content: "";
             position: absolute;
             right: calc(var(--tip-size, 8px) * -0.5);
-            top: 50%;
+            top: calc(50% - 3px); // for one line tooltips, small adjjustment
             transform: rotate(135deg) translateY(-50%);
             transform-origin: top center;
             margin: 0;

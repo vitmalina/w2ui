@@ -14,12 +14,13 @@
  *  - better groups support tabs now
  *  - form.confirm - refactored
  *  - form.message - refactored
- *  - resizeObserver for the box
+ *  - observeResize for the box
  *  - removed msgNotJSON, msgAJAXerror
  *  - applyFocus -> setFocus
  *  - getFieldValue(fieldName) = returns { curent, previous, original }
  *  - setFieldVallue(fieldName, value)
  *  - getValue(..., original) -- return original if any
+ *  - added .hideErrors()
  */
 
 import { w2base } from './w2base.js'
@@ -730,7 +731,7 @@ class w2form extends w2base {
             // === check required - if field is '0' it should be considered not empty
             let val = this.getValue(field.field)
             if (field.required && field.hidden !== true && !['div', 'custom', 'html', 'empty'].includes(field.type)
-                    && (val === '' || (Array.isArray(val) && val.length === 0)
+                    && (val == null || val === '' || (Array.isArray(val) && val.length === 0)
                         || (w2utils.isPlainObject(val) && Object.keys(val).length == 0))) {
                 errors.push({ field: field, error: w2utils.lang('Required field') })
             }
@@ -755,6 +756,7 @@ class w2form extends w2base {
         // TODO: check edge cases
         // -- scroll
         // -- invisible pages
+        // -- form refresh
         let errors = this.last.errors
         if (errors.length <= 0) return
         // show errors
@@ -787,11 +789,13 @@ class w2form extends w2base {
         // hide errors on scroll
         query(errors[0].field.$el).parents('.w2ui-page')
             .off('.hideErrors')
-            .on('scroll.hideErrors', (evt) => {
-                errors.forEach(error => {
-                    w2tooltip.hide(`${this.name}-${error.field.field}-error`)
-                })
-            })
+            .on('scroll.hideErrors', (evt) => { this.hideErrors() })
+    }
+
+    hideErrors() {
+        this.fields.forEach(field => {
+            w2tooltip.hide(`${this.name}-${field.field}-error`)
+        })
     }
 
     getChanges() {
@@ -1781,7 +1785,7 @@ class w2form extends w2base {
                         let cnt = keys.length
                         let curr = div.find(`div[data-index='${cnt}']`)
                         // if not disabled - add next if needed
-                        if (curr.length === 0 && ($k.val() != '' || $v.val() != '')
+                        if (curr.length === 0 && (!$k || $k.val() != '' || $v.val() != '')
                             && !($k && ($k.prop('readOnly') === true || $k.prop('disabled') === true))
                         ) {
                             field.el.mapAdd(field, div, cnt)
@@ -1953,8 +1957,8 @@ class w2form extends w2base {
             this.refresh()
         }
         // observe div resize
-        this.last.resizeObserver = new ResizeObserver(() => { this.resize() })
-        this.last.resizeObserver.observe(this.box)
+        this.last.observeResize = new ResizeObserver(() => { this.resize() })
+        this.last.observeResize.observe(this.box)
         // focus on load
         if (this.focus != -1) {
             let setCount = 0
@@ -1997,7 +2001,7 @@ class w2form extends w2base {
             // focus field by name
             $input = query(this.box).find(`[name='${focus}']`)
         }
-        if ($input){
+        if ($input.length > 0){
             $input.get(0).focus()
         }
         return $input
@@ -2016,7 +2020,7 @@ class w2form extends w2base {
                 .removeClass('w2ui-reset w2ui-form')
                 .html('')
         }
-        this.last.resizeObserver?.disconnect()
+        this.last.observeResize?.disconnect()
         delete w2ui[this.name]
         // event after
         edata.finish()

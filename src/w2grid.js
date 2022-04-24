@@ -69,7 +69,7 @@
  *  - search.type == 'text' can have 'in' and 'not in' operators, then it will switch to enum
  *  - grid.find(..., displayedOnly)
  *  - column.render(..., this) - added
- *  - resizeObserver for the box
+ *  - observeResize for the box
  */
 
 import { w2base } from './w2base.js'
@@ -5423,8 +5423,8 @@ class w2grid extends w2base {
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))
         // observe div resize
-        this.last.resizeObserver = new ResizeObserver(() => { this.resize() })
-        this.last.resizeObserver.observe(this.box)
+        this.last.observeResize = new ResizeObserver(() => { this.resize() })
+        this.last.observeResize.observe(this.box)
         return (new Date()).getTime() - time
 
         function mouseStart (event) {
@@ -5794,7 +5794,7 @@ class w2grid extends w2base {
                 .removeClass('w2ui-reset w2ui-grid w2ui-inactive')
                 .html('')
         }
-        this.last.resizeObserver?.disconnect()
+        this.last.observeResize?.disconnect()
         delete w2ui[this.name]
         // event after
         this.trigger($.extend(edata, { phase: 'after' }))

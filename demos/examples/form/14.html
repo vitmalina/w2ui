@@ -24,8 +24,8 @@ $(function () {
                 key2: 'value 2'
             },
             array: [
-                { key: 'key', value: 'value 1' },
-                { key: 'key', value: 'value 2' }
+                'value1',
+                'value2'
             ]
         },
         fields : [
@@ -49,38 +49,23 @@ $(function () {
                     group: 'Array - can have duplicate keys',
                     label: 'Array',
                     span: 4,
-                    key: {
-                        attr: 'placeholder="key" style="width: 80px"',
-                        text: ' = '
-                    },
                     value: {
-                        attr: 'placeholder="value" style="width: 100px"',
+                        attr: 'placeholder="Type to add..." style="width: 200px"',
                         text: ' - ok'
-                    }
-                }
-            },
-            { field: 'array-single', type: 'array',
-                html: {
-                    group: 'Array - just keys',
-                    label: 'Array',
-                    span: 4,
-                    key: {
-                        attr: 'placeholder="Type text..." style="width: 200px"'
-                    },
-                    value: {
-                        attr: 'style="display: none"'
                     }
                 }
             }
         ],
+        onChange(evt) {
+            console.log(evt)
+        },
         actions: {
-            Reset: function () {
+            Reset() {
                 this.clear();
             },
-            Save: function () {
+            Save() {
                 if (w2ui.form.validate().length == 0) {
                     let rec = this.getCleanRecord()
-                    rec['array-single'] = rec['array-single'].map(item => item.key)
                     w2popup.open({
                         title: 'Form Data',
                         with: 600,

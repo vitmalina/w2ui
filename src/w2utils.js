@@ -1964,7 +1964,12 @@ class Utils {
             Object.keys(source).forEach(key => {
                 if (target[key] != null && typeof target[key] == 'object'
                         && source[key] != null && typeof source[key] == 'object') {
-                    this.extend(target[key], this.clone(source[key]))
+                    let src = this.clone(source[key])
+                    // if an array needs to be extended with an objec, then convert it to empty object
+                    if (Array.isArray(target[key]) && this.isPlainObject(src)) {
+                        target[key] = {}
+                    }
+                    this.extend(target[key], src)
                 } else {
                     target[key] = this.clone(source[key])
                 }

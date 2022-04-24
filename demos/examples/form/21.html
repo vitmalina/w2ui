@@ -43,7 +43,7 @@ $(function () {
         onValidate(event) {
             if (String(this.record.state).length != 2) {
                 // add custom error
-                event.errors.push({
+                event.detail.errors.push({
                     error: 'Must be 2 characters long',
                     field: this.get('state')
                 })
