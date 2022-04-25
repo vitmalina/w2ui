@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/24/2022, 10:24:59 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/25/2022, 8:55:39 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -884,6 +884,7 @@ query.html = (str) => { let frag = Query._fragment(str); return query(frag.child
  *  - message.options - should have actions
  *  - cssPrefix should be deprecated
  *  - check transition (also with layout)
+ *  - remove cssPrefix
  *
  * == 2.0 changes
  *  - CSP - fixed inline events
@@ -1059,9 +1060,9 @@ class Utils {
     }
     isIpAddress(val) {
         let re = new RegExp('^' +
-                            '((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}' +
-                            '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' +
-                            '$')
+            '((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}' +
+            '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' +
+            '$')
         return re.test(val)
     }
     isDate(val, format, retDate) {
@@ -1384,7 +1385,7 @@ class Utils {
             case 'number':
                 break
             case 'string':
-                html = String(html).replace(/(?:\r\n|\r|\n)/g, '').replace(/\s\s+/g, ' ').trim()
+                html = String(html).replace(/(?:\r\n|\r|\n)/g, ' ').replace(/\s\s+/g, ' ').trim()
                 break
             case 'object':
                 // does not modify original object, but creates a copy
@@ -1989,7 +1990,9 @@ class Utils {
         let styles  = query(where.box)[0].computedStyleMap()
         let pWidth  = styles.get('width').value
         let pHeight = styles.get('height').value
-        styles  = query(where.box).find(where.after)[0].computedStyleMap()
+        if (where.after) {
+            styles  = query(where.box).find(where.after)[0].computedStyleMap()
+        }
         let titleHeight = parseInt(styles.get('display').value != 'none' ? styles.get('height').value : 0)
         if (options.width > pWidth) options.width = pWidth - 10
         if (options.height > pHeight - titleHeight) options.height = pHeight - 10 - titleHeight
@@ -2016,20 +2019,24 @@ class Utils {
             query(where.box).find('.w2ui-message').css('z-index', 1390)
             head.css('z-index', 1501)
             // add message
-            query(where.box).find(where.after)
-                .after(`
-                    <div id="w2ui-message-${options.owner.name}-${options.msgIndex}" class="w2ui-message" data-mousedown="stop"
-                        style="z-index: 1500; left: ${((pWidth - options.width) / 2)}px; top: ${titleHeight}px;
-                            width: ${options.width}px; height: ${options.height}px; transform: translateY(-${options.height}px)"
-                        ${options.hideOn.includes('click')
-                            ? where.param
-                                ? `data-click='["message", "${where.param}"]`
-                                : 'data-click="message"'
-                            : ''}>
-                        <span name="hidden-first" tabindex="0" style="position: absolute; top: -100px"></span>
-                        ${options.html}
-                        <span name="hidden-last" tabindex="0" style="position: absolute; top: -100px"></span>
-                    </div>`)
+            let content = `
+                <div id="w2ui-message-${options.owner.name}-${options.msgIndex}" class="w2ui-message" data-mousedown="stop"
+                    style="z-index: 1500; left: ${((pWidth - options.width) / 2)}px; top: ${titleHeight}px;
+                        width: ${options.width}px; height: ${options.height}px; transform: translateY(-${options.height}px)"
+                    ${options.hideOn.includes('click')
+                        ? where.param
+                            ? `data-click='["message", "${where.param}"]`
+                            : 'data-click="message"'
+                        : ''}>
+                    <span name="hidden-first" tabindex="0" style="position: absolute; top: -100px"></span>
+                    ${options.html}
+                    <span name="hidden-last" tabindex="0" style="position: absolute; top: -100px"></span>
+                </div>`
+            if (where.after) {
+                query(where.box).find(where.after).after(content)
+            } else {
+                query(where.box).prepend(content)
+            }
             options.box = query(where.box).find(`#w2ui-message-${options.owner.name}-${options.msgIndex}`)[0]
             w2utils.bindEvents(options.box, this)
             query(options.box)
@@ -2264,10 +2271,15 @@ class Utils {
         }
         return str.replace(/\${([^}]+)?}/g, function($1, $2) { return replace_obj[$2]||$2 })
     }
-    marker(el, items, options = { onlyFirst: false }) {
+    marker(el, items, options = { onlyFirst: false, wholeWord: false }) {
         if (!Array.isArray(items)) {
-            items = [items]
+            if (items != null && items !== '') {
+                items = [items]
+            } else {
+                items = []
+            }
         }
+        let ww = options.wholeWord
         query(el).each(el => {
             clearMerkers(el)
             items.forEach(str => {
@@ -2278,7 +2290,8 @@ class Utils {
                 // escape regex special chars
                 str = str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&').replace(/&/g, '&amp;')
                          .replace(/</g, '&gt;').replace(/>/g, '&lt;')
-                let regex  = new RegExp(str + '(?!([^<]+)?>)', 'i' + (!options.onlyFirst ? 'g' : '')) // only outside tags
+                let regex  = new RegExp((ww ? '\\b' : '') + str + (ww ? '\\b' : '')+ '(?!([^<]+)?>)',
+                                        'i' + (!options.onlyFirst ? 'g' : '')) // only outside tags
                 el.innerHTML = el.innerHTML.replace(regex, replaceValue)
             })
         })
@@ -3764,7 +3777,7 @@ class Tooltip {
             overlay.options = options // do not merge or extend, otherwiser menu items get merged too
             // overlay.options = w2utils.extend({}, overlay.options, options)
             overlay.anchor  = anchor // as HTML elements are not copied
-            if (overlay.prevOptions.html != overlay.options.html) {
+            if (overlay.prevOptions.html != overlay.options.html || overlay.prevOptions.class != overlay.options.class) {
                 overlay.needsUpdate = true
             }
             options = overlay.options // it was recreated
@@ -3864,6 +3877,7 @@ class Tooltip {
         let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
         let options = overlay.options
         if (!overlay || (overlay.displayed && !overlay.needsUpdate)) {
+            this.resize(overlay.name)
             return
         }
         let position = options.position.split('|')
@@ -3943,7 +3957,7 @@ class Tooltip {
         // first show empty tooltip, so it will popup up in the right position
         query(overlay.box).show()
         overlay.tmp.observeResize.observe(overlay.box)
-        // remove observer
+        // observer element removal from DOM
         Tooltip.observeRemove.observe(document.body, { subtree: true, childList: true })
         // then insert html and it will adjust
         query(overlay.box)
@@ -3952,6 +3966,8 @@ class Tooltip {
         // now, make visible, it has css opacity transition
         setTimeout(() => { query(overlay.box).css('opacity', 1) }, 0)
         delete overlay.needsUpdate
+        // expose overlay to DOM element
+        overlay.box.overlay = overlay
         // event after
         if (edata) edata.finish()
         return
@@ -4200,7 +4216,7 @@ class Tooltip {
             }
         }
         usePosition(found)
-        anchorAlignment()
+        if (isVertical) anchorAlignment()
         screenAdjust()
         let extraTop = (found == 'top' ? -options.margin : (found == 'bottom' ? options.margin : 0))
         let extraLeft = (found == 'left' ? -options.margin : (found == 'right' ? options.margin : 0))
@@ -4678,11 +4694,11 @@ class ColorTooltip extends Tooltip {
             let offset1 = parseInt(el1[0].clientWidth) / 2
             let offset2 = parseInt(el2[0].clientWidth) / 2
             el1.css({
-                'left': hsv.s * 150 / 100 - offset1,
-                'top': (100 - hsv.v) * 125 / 100 - offset1
+                'left': (hsv.s * 150 / 100 - offset1) + 'px',
+                'top': ((100 - hsv.v) * 125 / 100 - offset1) + 'px'
             })
-            el2.css('left', hsv.h/(360/150) - offset2)
-            el3.css('left', rgb.a*150 - offset2)
+            el2.css('left', (hsv.h/(360/150) - offset2) + 'px')
+            el3.css('left', (rgb.a*150 - offset2) + 'px')
         }
         function refreshPalette() {
             let cl  = w2utils.hsv2rgb(hsv.h, 100, 100)
@@ -4858,7 +4874,7 @@ class MenuTooltip extends Tooltip {
             })
             .on((w2utils.isIOS ? 'touchStart' : 'click') + '.w2menu', { delegate: '.w2ui-menu-item' }, event => {
                 let dt = event.delegate.dataset
-                this.menuClick(overlay, event, dt.index, dt.parents)
+                this.menuClick(overlay, event, parseInt(dt.index), dt.parents)
             })
             .find('.w2ui-menu-item')
             .off('.w2menu')
@@ -5262,6 +5278,8 @@ class MenuTooltip extends Tooltip {
             ids.forEach(id => {
                 items = w2utils.normMenu(items[id].items)
             })
+        } else {
+            parentIndex = null
         }
         if (typeof items == 'function') {
             items = items({ overlay, index, parentIndex, event })
@@ -5289,19 +5307,21 @@ class MenuTooltip extends Tooltip {
                 item.expanded = false
                 $item.removeClass('expanded').addClass('collapsed')
                 query($item.get(0).nextElementSibling).hide()
-                overlay.selected = $item.attr('index')
+                overlay.selected = parseInt($item.attr('index'))
             } else {
                 item.expanded = true
                 $item.addClass('expanded').removeClass('collapsed')
                 query($item.get(0).nextElementSibling).show()
-                overlay.selected = $item.attr('index')
+                overlay.selected = parseInt($item.attr('index'))
             }
         } else {
-            edata = this.trigger('select', { target: overlay.name, overlay, item, index, parentIndex, keepOpen, el: $item[0] })
+            // find items that are selected
+            let selected = this.findChecked(options.items)
+            edata = this.trigger('select', { target: overlay.name, overlay, item, index, parentIndex, selected, keepOpen, el: $item[0] })
             if (edata.isCancelled === true) {
                 return
             }
-            overlay.selected = $item.attr('index')
+            overlay.selected = parseInt($item.attr('index'))
             if (item.keepOpen != null) {
                 keepOpen = item.keepOpen
             }
@@ -5318,6 +5338,16 @@ class MenuTooltip extends Tooltip {
         // }
         // event after
         edata.finish()
+    }
+    findChecked(items) {
+        let found = []
+        items.forEach(item => {
+            if (item.checked) found.push(item)
+            if (Array.isArray(item.items)) {
+                found = found.concat(this.findSelected(item.items))
+            }
+        })
+        return found
     }
     keyUp(overlay, event) {
         let options = overlay.options
@@ -5336,7 +5366,7 @@ class MenuTooltip extends Tooltip {
                 let { item, index, parents } = this.getCurrent(overlay.name)
                 event.delegate = query(overlay.box).find('.w2ui-selected').get(0)
                 // reset active chain for folders
-                this.menuClick(overlay, event, index, parents)
+                this.menuClick(overlay, event, parseInt(index), parents)
                 filter = false
                 break
             }
@@ -5368,7 +5398,7 @@ class MenuTooltip extends Tooltip {
                 if (Array.isArray(item.items) && item.items.length > 0 && item.expanded) {
                     event.delegate = query(overlay.box).find(`.w2ui-menu-item[index="${index}"]`).get(0)
                     overlay.selected = index
-                    this.menuClick(overlay, event, index, parents)
+                    this.menuClick(overlay, event, parseInt(index), parents)
                 }
                 filter = false
                 break
@@ -5378,7 +5408,7 @@ class MenuTooltip extends Tooltip {
                 let { item, index, parents } = this.getCurrent(overlay.name)
                 if (Array.isArray(item.items) && item.items.length > 0 && !item.expanded) {
                     event.delegate = query(overlay.box).find('.w2ui-selected').get(0)
-                    this.menuClick(overlay, event, index, parents)
+                    this.menuClick(overlay, event, parseInt(index), parents)
                 }
                 filter = false
                 break
@@ -5496,7 +5526,7 @@ class DateTooltip extends Tooltip {
         }
         if (!options.format) {
             let df = w2utils.settings.dateFormat
-            let tf = w2utils.settings.timrFormat
+            let tf = w2utils.settings.timeFormat
             if (options.type == 'date') {
                 options.format = df
             } else if (options.type == 'time') {
@@ -20228,7 +20258,7 @@ class w2field extends w2base {
                     currencyPrecision: w2utils.settings.currencyPrecision,
                     decimalSymbol: w2utils.settings.decimalSymbol,
                     groupSymbol: w2utils.settings.groupSymbol,
-                    arrows: false,
+                    arrow: false,
                     keyboard: true,
                     precision: null,
                     prefix: '',
@@ -20241,7 +20271,7 @@ class w2field extends w2base {
                 options.percentRE = new RegExp('['+ options.groupSymbol + '%]', 'g')
                 // no keyboard support needed
                 if (['text', 'alphanumeric', 'hex', 'bin'].includes(this.type)) {
-                    options.arrows   = false
+                    options.arrow   = false
                     options.keyboard = false
                 }
                 break
@@ -20249,7 +20279,7 @@ class w2field extends w2base {
                 defaults     = {
                     prefix      : '#',
                     suffix      : `<div style="width: ${(parseInt(getComputedStyle(this.el)['font-size'])) || 12}px">&#160;</div>`,
-                    arrows      : false,
+                    arrow       : false,
                     advanced    : null, // open advanced by default
                     transparent : true
                 }
@@ -20780,7 +20810,6 @@ class w2field extends w2base {
             query(multi).css('width', width - parseInt(styles['margin-left'], 10) - parseInt(styles['margin-right'], 10))
         }
         if (suffix) {
-            this.options.suffix = `<div class="arrow-down" style="margin-top: ${((parseInt(styles['height']) - 6) / 2)}px;"></div>`
             this.addSuffix()
         }
         if (prefix) {
@@ -21433,6 +21462,7 @@ class w2field extends w2base {
                 'color'          : styles['color'],
                 'font-family'    : styles['font-family'],
                 'font-size'      : styles['font-size'],
+                'height'         : this.el.clientHeight + 'px',
                 'padding-top'    : styles['padding-top'],
                 'padding-bottom' : styles['padding-bottom'],
                 'padding-left'   : this.tmp['old-padding-left'],
@@ -21448,7 +21478,7 @@ class w2field extends w2base {
         this.helpers.prefix = helper
     }
     addSuffix() {
-        if (!this.options.prefix && !this.options.arrows) {
+        if (!this.options.prefix && !this.options.arrow) {
             return
         }
         let helper
@@ -21458,9 +21488,9 @@ class w2field extends w2base {
             this.tmp['old-padding-right'] = styles['padding-right']
         }
         let pr = parseInt(styles['padding-right'] || 0)
-        if (this.options.arrows) {
+        if (this.options.arrow) {
             // remove if already displayed
-            if (this.helpers.arrows) query(this.helpers.arrows).remove()
+            if (this.helpers.arrow) query(this.helpers.arrow).remove()
             // add fresh
             query(this.el).after(
                 '<div class="w2ui-field-helper" style="border: 1px solid transparent">&#160;'+
@@ -21494,7 +21524,7 @@ class w2field extends w2base {
                 })
             pr += helper.clientWidth // width of the control
             query(this.el).css('padding-right', pr + 'px')
-            this.helpers.arrows = helper
+            this.helpers.arrow = helper
         }
         if (this.options.suffix !== '') {
             // remove if already displayed
@@ -21507,6 +21537,7 @@ class w2field extends w2base {
                     'color'          : styles['color'],
                     'font-family'    : styles['font-family'],
                     'font-size'      : styles['font-size'],
+                    'height'        : this.el.clientHeight + 'px',
                     'padding-top'    : styles['padding-top'],
                     'padding-bottom' : styles['padding-bottom'],
                     'padding-left'   : 0,
