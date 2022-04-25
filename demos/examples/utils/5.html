@@ -1,8 +1,7 @@
 <div class="content">
     <div id="example_title">
         <h1>Overlays</h1>
-        If you need to attach a short one-line message for an element or an input control - user $().w2tag(), if you need to attach
-        a larger multi-line message - use $().w2overlay(). The example below demonstrates how to use these functions.
+        The same w2tooltip() object can be used for large maessage and it can have many customizations.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -11,41 +10,69 @@
 <!--CODE-->
 <input type="text" id="some-input" size="20" style="padding: 4px; border: 1px solid silver; height: 30px; width: 200px;">
 <div style="height: 20px"></div>
-    Alignment:<br>
-<div style="padding: 10px; margin-bottom: 20px; line-height: 2; float: left; width: 200px">
-    <label><input name="postion" type="radio" onclick="window.align='none'" checked> &nbsp;none</label><br>
-    <label><input name="postion" type="radio" onclick="window.align='left'"> &nbsp;left</label><br>
-    <label><input name="postion" type="radio" onclick="window.align='right'"> &nbsp;right</label><br>
-    <label><input name="postion" type="radio" onclick="window.align='both'"> &nbsp;both</label><br>
+<div style="width: 200px; float: left">
+    Position:
+    <div style="padding: 10px; margin-bottom: 20px; line-height: 2">
+        <label><input name="postion" type="radio" onclick="setPosition('left')"> &nbsp;left</label><br>
+        <label><input name="postion" type="radio" onclick="setPosition('right')"> &nbsp;right</label><br>
+        <label><input name="postion" type="radio" onclick="setPosition('top')"> &nbsp;top</label><br>
+        <label><input name="postion" type="radio" onclick="setPosition('bottom')" checked> &nbsp;bottom</label><br>
+    </div>
 </div>
-<div style="margin-left: 200px; padding-top: 15px; ">
-    <label>
-        <input type="checkbox" onclick="window.above = this.checked" style="position: relative; top: 2px;"> &nbsp;Open Above
-    </label>
+<div style="width: 300px; float: left">
+    Anchor Alignment (only for TOP/BOTTOM):<br>
+    <div style="padding: 10px; margin-bottom: 20px; line-height: 2; float: left; width: 200px">
+        <label><input name="align" type="radio" onclick="setAlign('none')" checked> &nbsp;none</label><br>
+        <label><input name="align" type="radio" onclick="setAlign('left')"> &nbsp;left</label><br>
+        <label><input name="align" type="radio" onclick="setAlign('right')"> &nbsp;right</label><br>
+        <label><input name="align" type="radio" onclick="setAlign('both')"> &nbsp;both</label><br>
+    </div>
 </div>
-<div style="clear: both"></div>
+<div style="clear: both; height: 100px;"></div>
 
 <button class="w2ui-btn" onclick="showOverlay()">Show Overlay</button>
-<button class="w2ui-btn" onclick="showColor()">Color</button>
+<button class="w2ui-btn" onclick="showColor()">Color (2.0+)</button>
+<button class="w2ui-btn" onclick="showDate('date')">Date (2.0+)</button>
+<button class="w2ui-btn" onclick="showDate('time')">Time (2.0+)</button>
+<button class="w2ui-btn" onclick="showDate('datetime')">Date & Time (2.0+)</button>
 
 <!--CODE-->
 <script>
-window.align = 'none';
-window.above = false;
+var align = 'none';
+var position = 'bottom';
+
+function setAlign(value) { align = value }
+function setPosition(value) { position = value }
 
 function showOverlay() {
-    $('#some-input').w2overlay({
-        openAbove: window.above,
-        align: window.align,
+    w2tooltip.show({
+        align,
+        position,
+        name: 'tooltip-name',
+        anchor: document.querySelector('#some-input'),
         html: '<div style="padding: 10px; line-height: 150%">'+
-            '    Multi line HTML message<br>Multi line HTML message<br>Multi line HTML message<br>'+
+            '    Multi line HTML msg<br>Multi line HTML msg<br>Multi line HTML msg<br>'+
             '</div>'
     });
 }
 
 function showColor() {
-    $('#some-input').w2color({ color: 'EA9899', transparent: true }, function (color) {
-        $('#some-input').val(color);
-    });
+    w2color.show({
+        align,
+        position,
+        name: 'tooltip-name',
+        anchor: document.querySelector('#some-input')
+    })
+}
+
+function showDate(type) {
+    w2date.show({
+        type,
+        align,
+        position,
+        name: 'tooltip-name',
+        anchor: document.querySelector('#some-input'),
+        blocked: []
+    })
 }
 </script>

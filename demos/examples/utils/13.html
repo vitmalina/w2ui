@@ -1,0 +1,43 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Content Messages</h1>
+        Content messages only lock the content (div) you specify
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="custom" style="position: relative; width: 800px; height: 400px; font-size: 20px; color: #777; padding: 50px;
+                        line-height: 1.5; background-color: #f5f5f5;">
+    Belarus,[a] officially the Republic of Belarus,[b] is a landlocked country in Eastern Europe. It is bordered by Russia to the
+    east and northeast, Ukraine to the south, Poland to the west, and Lithuania and Latvia to the northwest. Covering an area of
+    207,600 square kilometres (80,200 sq mi) and with a <i>population of 9.4 million</i>, Belarus is the thirteenth-largest and the
+    twentieth-most populous country in Europe. The country is administratively divided into seven regions. Minsk is the capital
+    and largest city.
+    <br>
+    <button class="w2ui-btn">Action</button>
+</div>
+
+
+<div style="height: 10px;"></div>
+<button class="w2ui-btn" onclick="alert()">Alert</button>
+<button class="w2ui-btn" onclick="confirm()">Confirm</button>
+<button class="w2ui-btn" onclick="prompot()">Prompt</button>
+
+<!--CODE-->
+<script>
+function alert() {
+    w2utils.message({
+        box: document.querySelector('#custom'),
+        after: null,
+        param: 'custom'
+    }, 'Some message')
+    .ok((event) => {
+        console.log('Ok clicked',event)
+    })
+}
+function unlock() {
+    w2utils.unlock(document.querySelector('#custom'))
+}
+</script>

@@ -1,8 +1,8 @@
 <div class="content">
     <div id="example_title">
         <h1>Tooltips</h1>
-        If you need to attach a short one-line message for an element or an input control - user $().w2tag(), if you need to attach
-        a larger multi-line message - use $().w2overlay(). The example below demonstrates how to use these functions.
+        If you need to attach any overlay to an element or an input control - use w2tooltip. It can be a short or large message and
+        contain any HTML.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -11,20 +11,46 @@
 <!--CODE-->
 <input type="text" id="some-input" size="20" style="padding: 4px; border: 1px solid silver; height: 30px; width: 200px;">
 <div style="height: 20px"></div>
-Position:
-<div style="padding: 10px; margin-bottom: 20px; line-height: 2">
-    <label><input name="postion" type="radio" onclick="position='left'; $().w2tag()"> &nbsp;left</label><br>
-    <label><input name="postion" type="radio" onclick="position='right'; $().w2tag()"> &nbsp;right</label><br>
-    <label><input name="postion" type="radio" onclick="position='top'; $().w2tag()" checked> &nbsp;top</label><br>
-    <label><input name="postion" type="radio" onclick="position='bottom'; $().w2tag()"> &nbsp;bottom</label><br>
+<div style="width: 200px; float: left">
+    Position:
+    <div style="padding: 10px; margin-bottom: 20px; line-height: 2">
+        <label><input name="postion" type="radio" onclick="setPosition('left')"> &nbsp;left</label><br>
+        <label><input name="postion" type="radio" onclick="setPosition('right')"> &nbsp;right</label><br>
+        <label><input name="postion" type="radio" onclick="setPosition('top')" checked> &nbsp;top</label><br>
+        <label><input name="postion" type="radio" onclick="setPosition('bottom')"> &nbsp;bottom</label><br>
+    </div>
 </div>
+<div style="width: 300px; float: left">
+    Anchor Alignment (only for TOP/BOTTOM):<br>
+    <div style="padding: 10px; margin-bottom: 20px; line-height: 2; float: left; width: 200px">
+        <label><input name="align" type="radio" onclick="setAlign('none')" checked> &nbsp;none</label><br>
+        <label><input name="align" type="radio" onclick="setAlign('left')"> &nbsp;left</label><br>
+        <label><input name="align" type="radio" onclick="setAlign('right')"> &nbsp;right</label><br>
+        <label><input name="align" type="radio" onclick="setAlign('both')"> &nbsp;both</label><br>
+    </div>
+</div>
+<div style="clear: both; height: 100px;"></div>
 
-<button class="w2ui-btn" onclick="$('#some-input').w2tag(); $('#some-input').w2tag(message, { position })">Dark Tooltip</button>
-<button class="w2ui-btn" onclick="$('#some-input').w2tag(); $('#some-input').w2tag(message, { position, className: 'w2ui-light' })">Light Tooltip</button>
-<button class="w2ui-btn" onclick="$('#some-input').w2tag()">Hide Tooltip</button>
+<button class="w2ui-btn" onclick="showTooltip({})">Dark Tooltip</button>
+<button class="w2ui-btn" onclick="showTooltip({class: 'w2ui-light' })">Light Tooltip</button>
+<button class="w2ui-btn" onclick="w2tooltip.hide('tooltip-name')">Hide Tooltip</button>
 
 <!--CODE-->
 <script>
-window.position = 'top';
-window.message = 'The message for the tag can be quite big<br> and contain any html.'
+var align = 'none';
+var position = 'top';
+var message = 'The message for the <br> tooltip can be<br> quite big and <br>contain any HTML.'
+
+function setAlign(value) { align = value }
+function setPosition(value) { position = value }
+
+function showTooltip(options) {
+    w2tooltip.show(w2utils.extend(options, {
+        align,
+        position,
+        name: 'tooltip-name',
+        anchor: document.querySelector('#some-input'),
+        html: message
+    }))
+}
 </script>

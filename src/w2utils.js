@@ -9,6 +9,7 @@
  *  - message.options - should have actions
  *  - cssPrefix should be deprecated
  *  - check transition (also with layout)
+ *  - remove cssPrefix
  *
  * == 2.0 changes
  *  - CSP - fixed inline events
@@ -215,9 +216,9 @@ class Utils {
 
     isIpAddress(val) {
         let re = new RegExp('^' +
-                            '((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}' +
-                            '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' +
-                            '$')
+            '((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}' +
+            '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)' +
+            '$')
         return re.test(val)
     }
 
@@ -565,7 +566,7 @@ class Utils {
             case 'number':
                 break
             case 'string':
-                html = String(html).replace(/(?:\r\n|\r|\n)/g, '').replace(/\s\s+/g, ' ').trim()
+                html = String(html).replace(/(?:\r\n|\r|\n)/g, ' ').replace(/\s\s+/g, ' ').trim()
                 break
             case 'object':
                 // does not modify original object, but creates a copy
@@ -1205,7 +1206,9 @@ class Utils {
         let styles  = query(where.box)[0].computedStyleMap()
         let pWidth  = styles.get('width').value
         let pHeight = styles.get('height').value
-        styles  = query(where.box).find(where.after)[0].computedStyleMap()
+        if (where.after) {
+            styles  = query(where.box).find(where.after)[0].computedStyleMap()
+        }
         let titleHeight = parseInt(styles.get('display').value != 'none' ? styles.get('height').value : 0)
         if (options.width > pWidth) options.width = pWidth - 10
         if (options.height > pHeight - titleHeight) options.height = pHeight - 10 - titleHeight
@@ -1232,20 +1235,24 @@ class Utils {
             query(where.box).find('.w2ui-message').css('z-index', 1390)
             head.css('z-index', 1501)
             // add message
-            query(where.box).find(where.after)
-                .after(`
-                    <div id="w2ui-message-${options.owner.name}-${options.msgIndex}" class="w2ui-message" data-mousedown="stop"
-                        style="z-index: 1500; left: ${((pWidth - options.width) / 2)}px; top: ${titleHeight}px;
-                            width: ${options.width}px; height: ${options.height}px; transform: translateY(-${options.height}px)"
-                        ${options.hideOn.includes('click')
-                            ? where.param
-                                ? `data-click='["message", "${where.param}"]`
-                                : 'data-click="message"'
-                            : ''}>
-                        <span name="hidden-first" tabindex="0" style="position: absolute; top: -100px"></span>
-                        ${options.html}
-                        <span name="hidden-last" tabindex="0" style="position: absolute; top: -100px"></span>
-                    </div>`)
+            let content = `
+                <div id="w2ui-message-${options.owner.name}-${options.msgIndex}" class="w2ui-message" data-mousedown="stop"
+                    style="z-index: 1500; left: ${((pWidth - options.width) / 2)}px; top: ${titleHeight}px;
+                        width: ${options.width}px; height: ${options.height}px; transform: translateY(-${options.height}px)"
+                    ${options.hideOn.includes('click')
+                        ? where.param
+                            ? `data-click='["message", "${where.param}"]`
+                            : 'data-click="message"'
+                        : ''}>
+                    <span name="hidden-first" tabindex="0" style="position: absolute; top: -100px"></span>
+                    ${options.html}
+                    <span name="hidden-last" tabindex="0" style="position: absolute; top: -100px"></span>
+                </div>`
+            if (where.after) {
+                query(where.box).find(where.after).after(content)
+            } else {
+                query(where.box).prepend(content)
+            }
             options.box = query(where.box).find(`#w2ui-message-${options.owner.name}-${options.msgIndex}`)[0]
             w2utils.bindEvents(options.box, this)
             query(options.box)
@@ -1491,10 +1498,15 @@ class Utils {
         return str.replace(/\${([^}]+)?}/g, function($1, $2) { return replace_obj[$2]||$2 })
     }
 
-    marker(el, items, options = { onlyFirst: false }) {
+    marker(el, items, options = { onlyFirst: false, wholeWord: false }) {
         if (!Array.isArray(items)) {
-            items = [items]
+            if (items != null && items !== '') {
+                items = [items]
+            } else {
+                items = []
+            }
         }
+        let ww = options.wholeWord
         query(el).each(el => {
             clearMerkers(el)
             items.forEach(str => {
@@ -1505,7 +1517,8 @@ class Utils {
                 // escape regex special chars
                 str = str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&').replace(/&/g, '&amp;')
                          .replace(/</g, '&gt;').replace(/>/g, '&lt;')
-                let regex  = new RegExp(str + '(?!([^<]+)?>)', 'i' + (!options.onlyFirst ? 'g' : '')) // only outside tags
+                let regex  = new RegExp((ww ? '\\b' : '') + str + (ww ? '\\b' : '')+ '(?!([^<]+)?>)',
+                                        'i' + (!options.onlyFirst ? 'g' : '')) // only outside tags
                 el.innerHTML = el.innerHTML.replace(regex, replaceValue)
             })
         })

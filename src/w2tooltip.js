@@ -13,7 +13,7 @@
 
 import { w2base } from './w2base.js'
 import { w2utils } from './w2utils.js'
-import { $, query } from './query.js'
+import { query } from './query.js'
 
 class Tooltip {
     // no need to extend w2base, as each individual tooltip extends it
@@ -141,7 +141,7 @@ class Tooltip {
             overlay.options = options // do not merge or extend, otherwiser menu items get merged too
             // overlay.options = w2utils.extend({}, overlay.options, options)
             overlay.anchor  = anchor // as HTML elements are not copied
-            if (overlay.prevOptions.html != overlay.options.html) {
+            if (overlay.prevOptions.html != overlay.options.html || overlay.prevOptions.class != overlay.options.class) {
                 overlay.needsUpdate = true
             }
             options = overlay.options // it was recreated
@@ -242,6 +242,7 @@ class Tooltip {
         let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
         let options = overlay.options
         if (!overlay || (overlay.displayed && !overlay.needsUpdate)) {
+            this.resize(overlay.name)
             return
         }
         let position = options.position.split('|')
@@ -321,7 +322,7 @@ class Tooltip {
         // first show empty tooltip, so it will popup up in the right position
         query(overlay.box).show()
         overlay.tmp.observeResize.observe(overlay.box)
-        // remove observer
+        // observer element removal from DOM
         Tooltip.observeRemove.observe(document.body, { subtree: true, childList: true })
         // then insert html and it will adjust
         query(overlay.box)
@@ -330,6 +331,8 @@ class Tooltip {
         // now, make visible, it has css opacity transition
         setTimeout(() => { query(overlay.box).css('opacity', 1) }, 0)
         delete overlay.needsUpdate
+        // expose overlay to DOM element
+        overlay.box.overlay = overlay
         // event after
         if (edata) edata.finish()
         return
@@ -587,7 +590,7 @@ class Tooltip {
             }
         }
         usePosition(found)
-        anchorAlignment()
+        if (isVertical) anchorAlignment()
         screenAdjust()
 
         let extraTop = (found == 'top' ? -options.margin : (found == 'bottom' ? options.margin : 0))
@@ -1083,11 +1086,11 @@ class ColorTooltip extends Tooltip {
             let offset1 = parseInt(el1[0].clientWidth) / 2
             let offset2 = parseInt(el2[0].clientWidth) / 2
             el1.css({
-                'left': hsv.s * 150 / 100 - offset1,
-                'top': (100 - hsv.v) * 125 / 100 - offset1
+                'left': (hsv.s * 150 / 100 - offset1) + 'px',
+                'top': ((100 - hsv.v) * 125 / 100 - offset1) + 'px'
             })
-            el2.css('left', hsv.h/(360/150) - offset2)
-            el3.css('left', rgb.a*150 - offset2)
+            el2.css('left', (hsv.h/(360/150) - offset2) + 'px')
+            el3.css('left', (rgb.a*150 - offset2) + 'px')
         }
 
         function refreshPalette() {
@@ -1271,7 +1274,7 @@ class MenuTooltip extends Tooltip {
             })
             .on((w2utils.isIOS ? 'touchStart' : 'click') + '.w2menu', { delegate: '.w2ui-menu-item' }, event => {
                 let dt = event.delegate.dataset
-                this.menuClick(overlay, event, dt.index, dt.parents)
+                this.menuClick(overlay, event, parseInt(dt.index), dt.parents)
             })
             .find('.w2ui-menu-item')
             .off('.w2menu')
@@ -1684,6 +1687,8 @@ class MenuTooltip extends Tooltip {
             ids.forEach(id => {
                 items = w2utils.normMenu(items[id].items)
             })
+        } else {
+            parentIndex = null
         }
         if (typeof items == 'function') {
             items = items({ overlay, index, parentIndex, event })
@@ -1712,19 +1717,21 @@ class MenuTooltip extends Tooltip {
                 item.expanded = false
                 $item.removeClass('expanded').addClass('collapsed')
                 query($item.get(0).nextElementSibling).hide()
-                overlay.selected = $item.attr('index')
+                overlay.selected = parseInt($item.attr('index'))
             } else {
                 item.expanded = true
                 $item.addClass('expanded').removeClass('collapsed')
                 query($item.get(0).nextElementSibling).show()
-                overlay.selected = $item.attr('index')
+                overlay.selected = parseInt($item.attr('index'))
             }
         } else {
-            edata = this.trigger('select', { target: overlay.name, overlay, item, index, parentIndex, keepOpen, el: $item[0] })
+            // find items that are selected
+            let selected = this.findChecked(options.items)
+            edata = this.trigger('select', { target: overlay.name, overlay, item, index, parentIndex, selected, keepOpen, el: $item[0] })
             if (edata.isCancelled === true) {
                 return
             }
-            overlay.selected = $item.attr('index')
+            overlay.selected = parseInt($item.attr('index'))
             if (item.keepOpen != null) {
                 keepOpen = item.keepOpen
             }
@@ -1741,6 +1748,17 @@ class MenuTooltip extends Tooltip {
         // }
         // event after
         edata.finish()
+    }
+
+    findChecked(items) {
+        let found = []
+        items.forEach(item => {
+            if (item.checked) found.push(item)
+            if (Array.isArray(item.items)) {
+                found = found.concat(this.findSelected(item.items))
+            }
+        })
+        return found
     }
 
     keyUp(overlay, event) {
@@ -1760,7 +1778,7 @@ class MenuTooltip extends Tooltip {
                 let { item, index, parents } = this.getCurrent(overlay.name)
                 event.delegate = query(overlay.box).find('.w2ui-selected').get(0)
                 // reset active chain for folders
-                this.menuClick(overlay, event, index, parents)
+                this.menuClick(overlay, event, parseInt(index), parents)
                 filter = false
                 break
             }
@@ -1792,7 +1810,7 @@ class MenuTooltip extends Tooltip {
                 if (Array.isArray(item.items) && item.items.length > 0 && item.expanded) {
                     event.delegate = query(overlay.box).find(`.w2ui-menu-item[index="${index}"]`).get(0)
                     overlay.selected = index
-                    this.menuClick(overlay, event, index, parents)
+                    this.menuClick(overlay, event, parseInt(index), parents)
                 }
                 filter = false
                 break
@@ -1802,7 +1820,7 @@ class MenuTooltip extends Tooltip {
                 let { item, index, parents } = this.getCurrent(overlay.name)
                 if (Array.isArray(item.items) && item.items.length > 0 && !item.expanded) {
                     event.delegate = query(overlay.box).find('.w2ui-selected').get(0)
-                    this.menuClick(overlay, event, index, parents)
+                    this.menuClick(overlay, event, parseInt(index), parents)
                 }
                 filter = false
                 break
@@ -1922,7 +1940,7 @@ class DateTooltip extends Tooltip {
         }
         if (!options.format) {
             let df = w2utils.settings.dateFormat
-            let tf = w2utils.settings.timrFormat
+            let tf = w2utils.settings.timeFormat
             if (options.type == 'date') {
                 options.format = df
             } else if (options.type == 'time') {

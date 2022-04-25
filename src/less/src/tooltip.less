@@ -19,7 +19,7 @@
         font-family: OpenSans;
         color: white;
         text-shadow: 0px 1px 1px #4a4a4a;
-        background-color: rgb(134 134 134);
+        background-color: #777777;
         line-height: 1.4;
         letter-spacing: 0.1px;
         overflow: auto;
@@ -44,7 +44,7 @@
             content: "";
             position: absolute;
             left: calc(var(--tip-size, 8px) * -0.5);
-            top: calc(50% - 3px); // for one line tooltips, small adjjustment
+            top: calc(50% - 1px); // for one line tooltips, small adjjustment
             transform: rotate(-45deg) translateY(-50%);
             transform-origin: top center;
             margin: 0;
@@ -62,7 +62,7 @@
             content: "";
             position: absolute;
             right: calc(var(--tip-size, 8px) * -0.5);
-            top: calc(50% - 3px); // for one line tooltips, small adjjustment
+            top: calc(50% - 1px); // for one line tooltips, small adjjustment
             transform: rotate(135deg) translateY(-50%);
             transform-origin: top center;
             margin: 0;
@@ -247,9 +247,10 @@
             height: 8px;
             border-radius: 10px;
             border: 1px solid #999;
+            outline: 1px solid #bbb;
             background-color: transparent;
             box-shadow: 0px 0px 1px white;
-            transform: translateX(-1px) translateY(-1px);
+            transform: translateX(-3px) translateY(-3px);
         }
 
         .value2 {

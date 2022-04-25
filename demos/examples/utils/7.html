@@ -8,7 +8,7 @@
 </div>
 
 <!--CODE-->
-<input id="str" type="text" size="20" onchange="update()" style="border: 1px solid silver; padding: 3px; height: 30px; width: 120px;">
+<input id="str" type="text" size="20" onchange="update()" style="border: 1px solid silver; padding: 6px; width: 120px;">
 <br><br>
 <div style="float: left; width: 130px;">Parse Color</div><div id="color1" style="margin-left: 130px;">...</div>
 <div style="float: left; width: 130px;">RGB -> HSV</div> <div id="color2" style="margin-left: 130px;">...</div>
@@ -17,7 +17,10 @@
 
 <!--CODE-->
 <script>
-$('#str').w2field({ type: 'color', autoFormat: false });
+var field = new w2field('color')
+field.render(document.querySelector('#str'))
+
+// $('#str').w2field({ type: 'color', autoFormat: false });
 function update() {
     let val = $('#str').val()
     let parsed = w2utils.parseColor(val)

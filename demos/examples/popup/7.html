@@ -44,7 +44,7 @@ function showPrompt() {
         },
     })
     .change((event) => {
-        console.log('change', event.originalEvent.target.value)
+        console.log('change', event.detail.originalEvent.target.value)
     })
     .ok((event) => {
         console.log('ok, value=', event.value)
@@ -70,7 +70,7 @@ function showPrompt() {
         },
     })
     .change((event) => {
-        console.log('change', event.originalEvent.target.value)
+        console.log('change', event.detail.originalEvent.target.value)
     })
     .ok((event) => {
         console.log('ok, value=', event.value)

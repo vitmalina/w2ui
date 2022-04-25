@@ -120,7 +120,7 @@ class w2field extends w2base {
                     currencyPrecision: w2utils.settings.currencyPrecision,
                     decimalSymbol: w2utils.settings.decimalSymbol,
                     groupSymbol: w2utils.settings.groupSymbol,
-                    arrows: false,
+                    arrow: false,
                     keyboard: true,
                     precision: null,
                     prefix: '',
@@ -133,7 +133,7 @@ class w2field extends w2base {
                 options.percentRE = new RegExp('['+ options.groupSymbol + '%]', 'g')
                 // no keyboard support needed
                 if (['text', 'alphanumeric', 'hex', 'bin'].includes(this.type)) {
-                    options.arrows   = false
+                    options.arrow   = false
                     options.keyboard = false
                 }
                 break
@@ -142,7 +142,7 @@ class w2field extends w2base {
                 defaults     = {
                     prefix      : '#',
                     suffix      : `<div style="width: ${(parseInt(getComputedStyle(this.el)['font-size'])) || 12}px">&#160;</div>`,
-                    arrows      : false,
+                    arrow       : false,
                     advanced    : null, // open advanced by default
                     transparent : true
                 }
@@ -690,7 +690,6 @@ class w2field extends w2base {
             query(multi).css('width', width - parseInt(styles['margin-left'], 10) - parseInt(styles['margin-right'], 10))
         }
         if (suffix) {
-            this.options.suffix = `<div class="arrow-down" style="margin-top: ${((parseInt(styles['height']) - 6) / 2)}px;"></div>`
             this.addSuffix()
         }
         if (prefix) {
@@ -1359,6 +1358,7 @@ class w2field extends w2base {
                 'color'          : styles['color'],
                 'font-family'    : styles['font-family'],
                 'font-size'      : styles['font-size'],
+                'height'         : this.el.clientHeight + 'px',
                 'padding-top'    : styles['padding-top'],
                 'padding-bottom' : styles['padding-bottom'],
                 'padding-left'   : this.tmp['old-padding-left'],
@@ -1375,7 +1375,7 @@ class w2field extends w2base {
     }
 
     addSuffix() {
-        if (!this.options.prefix && !this.options.arrows) {
+        if (!this.options.prefix && !this.options.arrow) {
             return
         }
         let helper
@@ -1385,9 +1385,9 @@ class w2field extends w2base {
             this.tmp['old-padding-right'] = styles['padding-right']
         }
         let pr = parseInt(styles['padding-right'] || 0)
-        if (this.options.arrows) {
+        if (this.options.arrow) {
             // remove if already displayed
-            if (this.helpers.arrows) query(this.helpers.arrows).remove()
+            if (this.helpers.arrow) query(this.helpers.arrow).remove()
             // add fresh
             query(this.el).after(
                 '<div class="w2ui-field-helper" style="border: 1px solid transparent">&#160;'+
@@ -1421,7 +1421,7 @@ class w2field extends w2base {
                 })
             pr += helper.clientWidth // width of the control
             query(this.el).css('padding-right', pr + 'px')
-            this.helpers.arrows = helper
+            this.helpers.arrow = helper
         }
         if (this.options.suffix !== '') {
             // remove if already displayed
@@ -1434,6 +1434,7 @@ class w2field extends w2base {
                     'color'          : styles['color'],
                     'font-family'    : styles['font-family'],
                     'font-size'      : styles['font-size'],
+                    'height'        : this.el.clientHeight + 'px',
                     'padding-top'    : styles['padding-top'],
                     'padding-bottom' : styles['padding-bottom'],
                     'padding-left'   : 0,

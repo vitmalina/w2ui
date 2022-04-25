@@ -190,7 +190,7 @@ import { w2tooltip, w2color, w2menu, w2date, Tooltip } from './w2tooltip.js'
         return this.each((index, el) => {
             let tooltip = w2color.show(el, options)
             if (typeof callBack == 'function') {
-                tooltip.then(callBack)
+                tooltip.select(callBack)
             }
         })
     }
