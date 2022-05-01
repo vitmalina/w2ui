@@ -976,7 +976,7 @@ class w2field extends w2base {
         // ignore wrong pressed key
         if (['int', 'float', 'money', 'currency', 'percent', 'hex', 'bin', 'color', 'alphanumeric'].includes(this.type)) {
             if (!event.metaKey && !event.ctrlKey && !event.altKey) {
-                if (!this.isStrValid(event.key, true) && // valid & is not arrows, dot, comma, etc keys
+                if (!this.isStrValid(event.key ?? '1', true) && // valid & is not arrows, dot, comma, etc keys
                         ![9, 8, 13, 27, 37, 38, 39, 40, 46].includes(event.keyCode)) {
                     event.preventDefault()
                     if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true

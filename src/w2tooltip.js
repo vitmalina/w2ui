@@ -141,7 +141,8 @@ class Tooltip {
             overlay.options = options // do not merge or extend, otherwiser menu items get merged too
             // overlay.options = w2utils.extend({}, overlay.options, options)
             overlay.anchor  = anchor // as HTML elements are not copied
-            if (overlay.prevOptions.html != overlay.options.html || overlay.prevOptions.class != overlay.options.class) {
+            if (overlay.prevOptions.html != overlay.options.html || overlay.prevOptions.class != overlay.options.class
+                || overlay.prevOptions.style != overlay.options.style) {
                 overlay.needsUpdate = true
             }
             options = overlay.options // it was recreated

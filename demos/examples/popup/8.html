@@ -22,20 +22,23 @@ function popup() {
         actions: {
             Alert() {
                 w2alert('Some message')
+                    .ok(event => { console.log('Closed') })
             },
             Confirm() {
                 w2confirm('Some question')
+                    .yes(event => { console.log('Yes') })
+                    .no(event => { console.log('No') })
             },
             Prompt() {
                 w2prompt('Some question')
-                    .ok(value => {
-                        console.log('value=', value)
+                    .ok(event => {
+                        console.log('value=', event.detail.value)
                     })
                     .cancel(() => {
-                        console.log('cancelled')
+                        console.log('Canceled')
                     })
             },
-            Message() {
+            More() {
                 counter = 0
                 show()
             }

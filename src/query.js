@@ -525,7 +525,11 @@ class Query {
 let query = function (selector, context) {
     // if a function, use as onload event
     if (typeof selector == 'function') {
-        window.addEventListener('load', selector)
+        if (document.readyState == 'complete') {
+            selector()
+        } else {
+            window.addEventListener('load', selector)
+        }
     } else {
         return new Query(selector, context)
     }

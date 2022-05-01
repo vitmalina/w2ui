@@ -642,16 +642,18 @@ class w2form extends w2base {
     }
 
     message(options) {
-        return w2utils.message.call(this, {
-            box   : this.box,
-            after : '.w2ui-form-header'
+        return w2utils.message({
+            owner: this,
+            box  : this.box,
+            after: '.w2ui-form-header'
         }, options)
     }
 
     confirm(options) {
-        return w2utils.confirm.call(this, {
-            box   : this.box,
-            after : '.w2ui-form-header'
+        return w2utils.confirm({
+            owner: this,
+            box  : this.box,
+            after: '.w2ui-form-header'
         }, options)
     }
 
@@ -1620,7 +1622,7 @@ class w2form extends w2base {
                         delete this._previous
                     }
                     // event before
-                    let edata2 = self.trigger('change', { target: this.name, value, originalEvent: event })
+                    let edata2 = self.trigger('change', { target: this.name, field: this.name, value, originalEvent: event })
                     if (edata2.isCancelled === true) return
                     // default behavior
                     self.setValue(this.name, value.current)
@@ -1858,7 +1860,7 @@ class w2form extends w2base {
                                 let $cnt = query(event.target).closest('.w2ui-map-container')
                                 if (field.type == 'map') current._order = []
                                 $cnt.find('.w2ui-map.key').each(el => { current._order.push(el.value) })
-                                let edata = self.trigger('change', { target: field.field, originalEvent: event,
+                                let edata = self.trigger('change', { target: field.field, field: field.field, originalEvent: event,
                                     value: { current, previous, original }
                                 })
                                 if (edata.isCancelled === true) {

@@ -536,16 +536,18 @@ class Dialog extends w2base {
     }
 
     message(options) {
-        return w2utils.message.call(this, {
-            box   : query('#w2ui-popup'),
-            after : '.w2ui-popup-title'
+        return w2utils.message({
+            owner: this,
+            box  : query('#w2ui-popup').get(0),
+            after: '.w2ui-popup-title'
         }, options)
     }
 
     confirm(options) {
-        return w2utils.confirm.call(this, {
-            box   : query('#w2ui-popup'),
-            after : '.w2ui-popup-title'
+        return w2utils.confirm({
+            owner: this,
+            box  : query('#w2ui-popup'),
+            after: '.w2ui-popup-title'
         }, options)
     }
 

@@ -8576,16 +8576,18 @@ class w2grid extends w2base {
     }
 
     message(options) {
-        return w2utils.message.call(this, {
-            box   : this.box,
-            after : '.w2ui-grid-header'
+        return w2utils.message({
+            owner: this,
+            box  : this.box,
+            after: '.w2ui-grid-header'
         }, options)
     }
 
     confirm(options) {
-        return w2utils.confirm.call(this, {
-            box   : this.box,
-            after : '.w2ui-grid-header'
+        return w2utils.confirm({
+            owner: this,
+            box  : this.box,
+            after: '.w2ui-grid-header'
         }, options)
     }
 }

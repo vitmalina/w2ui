@@ -190,14 +190,17 @@ class w2layout extends w2base {
         let box = query(this.box).find('#layout_'+ this.name + '_panel_'+ p.type)
         let oldOverflow = box.css('overflow')
         box.css('overflow', 'hidden')
-        let prom = w2utils.message.call(this, {
-            box   : box,
-            after : '.w2ui-panel-title',
-            param : panel
+        let prom = w2utils.message({
+            owner: this,
+            box  : box.get(0),
+            after: '.w2ui-panel-title',
+            param: panel
         }, options)
-        prom.self.on('close:after', () => {
-            box.css('overflow', oldOverflow)
-        })
+        if (prom) {
+            prom.self.on('close:after', () => {
+                box.css('overflow', oldOverflow)
+            })
+        }
         return prom
     }
 
@@ -206,14 +209,17 @@ class w2layout extends w2base {
         let box = query(this.box).find('#layout_'+ this.name + '_panel_'+ p.type)
         let oldOverflow = box.css('overflow')
         box.css('overflow', 'hidden')
-        let prom = w2utils.confirm.call(this, {
-            box   : box,
+        let prom = w2utils.confirm({
+            owner : this,
+            box   : box.get(0),
             after : '.w2ui-panel-title',
             param : panel
         }, options)
-        prom.self.on('close:after', () => {
-            box.css('overflow', oldOverflow)
-        })
+        if (prom) {
+            prom.self.on('close:after', () => {
+                box.css('overflow', oldOverflow)
+            })
+        }
         return prom
     }
 
