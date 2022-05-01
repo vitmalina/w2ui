@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/25/2022, 8:55:39 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/30/2022, 10:46:17 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -645,7 +645,7 @@ button.w2ui-btn:disabled {
   background-color: inherit;
   width: var(--tip-size, 8px);
   height: var(--tip-size, 8px);
-  border-bottom-right-radius: 20px;
+  border-bottom-right-radius: 200px;
   border-bottom-width: 0;
   border-right-width: 0;
 }
@@ -662,7 +662,7 @@ button.w2ui-btn:disabled {
   background-color: inherit;
   width: var(--tip-size, 8px);
   height: var(--tip-size, 8px);
-  border-bottom-right-radius: 20px;
+  border-bottom-right-radius: 200px;
   border-bottom-width: 0;
   border-right-width: 0;
 }
@@ -679,7 +679,7 @@ button.w2ui-btn:disabled {
   background-color: inherit;
   width: var(--tip-size, 8px);
   height: var(--tip-size, 8px);
-  border-bottom-right-radius: 20px;
+  border-bottom-right-radius: 200px;
   border-bottom-width: 0;
   border-right-width: 0;
 }
@@ -696,7 +696,7 @@ button.w2ui-btn:disabled {
   background-color: inherit;
   width: var(--tip-size, 8px);
   height: var(--tip-size, 8px);
-  border-bottom-right-radius: 20px;
+  border-bottom-right-radius: 200px;
   border-bottom-width: 0;
   border-right-width: 0;
 }
