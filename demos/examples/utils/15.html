@@ -24,7 +24,7 @@
     border: 1px solid #dedede;
     border-radius: 4px;
     padding: 20px;
-    background-color: #efefef;
+    background-color: #f6f5ff;
     color: #777;
     cursor: move;
     white-space: nowrap;
@@ -38,7 +38,7 @@
 
 <!--CODE-->
 <script>
-let form
+var form
 query(() => {
     form = new w2form({
         name: 'tooltip-form',
@@ -101,7 +101,7 @@ query(() => {
                         type: 'list',
                         label: 'Position',
                         attr: 'style="width: 120px"',
-                        options: { items: ['bottom|top', 'left|right', 'left', 'right', 'top', 'bottom'] }
+                        options: { items: ['bottom|top', 'top|bottom', 'left|right', 'right|left', 'left', 'right', 'top', 'bottom'] }
                     },
                     alignment: {
                         type: 'list',
@@ -117,8 +117,10 @@ query(() => {
                   'Can also be multiline',
             arrowSize: 12,
             padding: 10,
-            // position: 'left|right',
-            position: 'bottom|top',
+            // position: 'top|bottom',
+            // position: 'bottom|top',
+            position: 'left|right',
+            // position: 'right|left',
             alignment: 'none',
             "border-size": 1,
             "border-style": 'solid',

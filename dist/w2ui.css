@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/30/2022, 10:46:17 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/1/2022, 10:07:57 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -635,7 +635,7 @@ button.w2ui-btn:disabled {
 .w2ui-overlay .w2ui-overlay-body.w2ui-arrow-right:before {
   content: "";
   position: absolute;
-  left: calc(var(--tip-size, 8px) * -0.5);
+  left: calc(var(--tip-size, 8px) * -0.5 - 1px);
   top: calc(50% - 1px);
   transform: rotate(-45deg) translateY(-50%);
   transform-origin: top center;
@@ -652,7 +652,7 @@ button.w2ui-btn:disabled {
 .w2ui-overlay .w2ui-overlay-body.w2ui-arrow-left:after {
   content: "";
   position: absolute;
-  right: calc(var(--tip-size, 8px) * -0.5);
+  right: calc(var(--tip-size, 8px) * -0.5 - 1px);
   top: calc(50% - 1px);
   transform: rotate(135deg) translateY(-50%);
   transform-origin: top center;
@@ -669,7 +669,7 @@ button.w2ui-btn:disabled {
 .w2ui-overlay .w2ui-overlay-body.w2ui-arrow-top:before {
   content: "";
   position: absolute;
-  bottom: calc(var(--tip-size, 8px) * -0.5);
+  bottom: calc(var(--tip-size, 8px) * -0.5 + 3px);
   left: 50%;
   transform-origin: center left;
   transform: rotate(-135deg) translateX(-50%);
@@ -686,7 +686,7 @@ button.w2ui-btn:disabled {
 .w2ui-overlay .w2ui-overlay-body.w2ui-arrow-bottom:after {
   content: "";
   position: absolute;
-  top: calc(var(--tip-size, 8px) * -0.5);
+  top: calc(var(--tip-size, 8px) * -0.5 - 1px);
   left: 50%;
   transform: rotate(45deg) translateX(-50%);
   transform-origin: center left;

@@ -494,6 +494,7 @@ $(async function () {
 
     // check hash
     function hashChanged() {
+        query('#drag-me').remove()
         // show toolbar
         let hash = String(document.location.hash).substr(2)
         if (hash == '') hash = 'combo/1'
