@@ -527,10 +527,10 @@ class Tooltip {
 
         // space available
         let available = { // tipsize adjustment should be here, not in max.width/max.height
-            top: anchor.top - arrowSize,
-            bottom: max.height - (anchor.top + anchor.height) - arrowSize,
-            left: anchor.left - arrowSize,
-            right: max.width - (anchor.left + anchor.width) - arrowSize,
+            top: anchor.top,
+            bottom: max.height - (anchor.top + anchor.height) - + (hasScrollBarX ? scrollSize : 0),
+            left: anchor.left,
+            right: max.width - (anchor.left + anchor.width) + (hasScrollBarY ? scrollSize : 0),
         }
         // size of empty tooltip
         if (content.width < 22) content.width = 22
@@ -548,7 +548,7 @@ class Tooltip {
         // find best position
         position.forEach(pos => {
             if (['top', 'bottom'].includes(pos)) {
-                if (!found && (content.height + arrowSize) < available[pos]) {
+                if (!found && (content.height + arrowSize/1.893) < available[pos]) { // 1.893 = 1 + sin(90)
                     found = pos
                 }
                 if (available[pos] > bestFit.y) {
@@ -556,7 +556,7 @@ class Tooltip {
                 }
             }
             if (['left', 'right'].includes(pos)) {
-                if (!found && (content.width + arrowSize) < available[pos]) {
+                if (!found && (content.width + arrowSize/1.893) < available[pos]) { // 1.893 = 1 + sin(90)
                     found = pos
                 }
                 if (available[pos] > bestFit.x) {
@@ -608,21 +608,21 @@ class Tooltip {
             switch (pos) {
                 case 'top': {
                     left = anchor.left + (anchor.width - (width ?? content.width)) / 2
-                    top = anchor.top - (height ?? content.height) - arrowSize
+                    top = anchor.top - (height ?? content.height) - arrowSize / 1.5 + 1
                     break
                 }
                 case 'bottom': {
                     left = anchor.left + (anchor.width - (width ?? content.width)) / 2
-                    top = anchor.top + anchor.height + arrowSize
+                    top = anchor.top + anchor.height + arrowSize / 1.25 + 1
                     break
                 }
                 case 'left': {
-                    left = anchor.left - (width ?? content.width) - arrowSize
+                    left = anchor.left - (width ?? content.width) - arrowSize / 1.2 - 1
                     top = anchor.top + (anchor.height - (height ?? content.height)) / 2
                     break
                 }
                 case 'right': {
-                    left = anchor.left + anchor.width + arrowSize
+                    left = anchor.left + anchor.width + arrowSize / 1.2 + 1
                     top = anchor.top + (anchor.height - (height ?? content.height)) / 2
                     break
                 }
@@ -676,7 +676,7 @@ class Tooltip {
             let minLeft = (found == 'right' ? arrowSize : options.screenMargin)
             let minTop  = (found == 'bottom' ? arrowSize : options.screenMargin)
             let maxLeft = max.width - (width ?? content.width) - (found == 'left' ? arrowSize : options.screenMargin)
-            let maxTop  = max.height - (height ?? content.height) - (found == 'top' ? arrowSize : options.screenMargin)
+            let maxTop  = max.height - (height ?? content.height) - (found == 'top' ? arrowSize : options.screenMargin) + 3
             // adjust X
             if (['top', 'bottom'].includes(found) || options.autoResize) {
                 if (left < minLeft) {
