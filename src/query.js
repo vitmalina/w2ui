@@ -442,6 +442,10 @@ class Query {
     }
 
     data(key, value) {
+        if (key instanceof Object) {
+            Object.entries(key).forEach(item => { this.data(item[0], item[1]) })
+            return
+        }
         if (key && key.indexOf('-') != -1) {
             console.error(`Key "${key}" contains "-" (dash). Dashes are not allowed in property names. Use camelCase instead.`)
         }

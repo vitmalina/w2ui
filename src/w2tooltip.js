@@ -1236,16 +1236,18 @@ class MenuTooltip extends Tooltip {
         overlay.on('show:after.attach, update:after.attach', event => {
             if (ret.overlay?.box) {
                 let search = ''
+                // reset selected and active chain
+                overlay.selected = null
                 if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
                     search = overlay.anchor.value
+                    overlay.selected = overlay.anchor.dataset.selectedIndex
                 }
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
                 this.applyFilter(overlay.name, null, '') // show unfiltered items
                 this.refreshSearch(overlay.name)
                 this.initControls(ret.overlay)
-                // reset selected and active chain
-                overlay.selected = null
+                this.refreshIndex(overlay.name)
             }
         })
         overlay.on('hide:after.attach', event => {
@@ -1301,9 +1303,9 @@ class MenuTooltip extends Tooltip {
                 .off('.w2menu')
                 .on('input.w2menu', event => {
                     // if user types, clear selection
-                    let dt = event.target.dataset
-                    delete dt.selected
-                    delete dt.selectedIndex
+                    // let dt = event.target.dataset
+                    // delete dt.selected
+                    // delete dt.selectedIndex
                 })
                 .on('keyup.w2menu', event => {
                     event._searchType = 'filter'
@@ -1573,7 +1575,7 @@ class MenuTooltip extends Tooltip {
                 }
             } catch (e) {}
             // do not show selected items
-            if (selectedIds.includes(item.id)) {
+            if (options.hideSelected && selectedIds.includes(item.id)) {
                 item.hidden = true
             }
             // search nested items

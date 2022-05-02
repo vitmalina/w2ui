@@ -58,7 +58,7 @@ query(() => {
                     padding: {
                         type: 'int',
                         label: 'Padding',
-                        options: { min: 0, max: 100, arrow: true },
+                        options: { min: 0, max: 100, arrow: false },
                         attr: 'style="width: 60px"',
                     },
                     color: {
@@ -74,7 +74,7 @@ query(() => {
                     "border-size": {
                         type: 'int',
                         label: 'Border',
-                        options: { min: 0, max: 20, arrow: true },
+                        options: { min: 0, max: 20, arrow: false },
                         attr: 'style="width: 60px"',
                         text: '%border-style% %border-color%'
                     },
@@ -94,20 +94,22 @@ query(() => {
                     arrowSize: {
                         type: 'int',
                         label: 'Arrow Size',
-                        options: { min: 0, max: 40, arrow: true },
+                        options: { min: 0, max: 40, arrow: false },
                         attr: 'style="width: 60px"',
                     },
                     position: {
                         type: 'list',
                         label: 'Position',
                         attr: 'style="width: 120px"',
-                        options: { items: ['bottom|top', 'top|bottom', 'left|right', 'right|left', 'left', 'right', 'top', 'bottom'] }
+                        options: {
+                            items: ['bottom|top', 'top|bottom', 'left|right', 'right|left', 'left', 'right', 'top', 'bottom']
+                        }
                     },
                     alignment: {
                         type: 'list',
                         label: 'Alignment',
                         attr: 'style="width: 120px"',
-                        options: { items: ['none', 'left', 'right', 'top', 'bottom'] }
+                        options: { items: ['none', 'left', 'right', 'both'] }
                     },
                 }
             }

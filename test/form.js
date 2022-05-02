@@ -1,7 +1,9 @@
 import { w2form } from '../src/w2form.js'
 import { w2menu } from '../src/w2tooltip.js'
+import { w2ui } from '../src/w2utils.js'
 
 // TOOD: remove
+window.w2ui = w2ui
 window.w2menu = w2menu
 
 let form = new w2form({
@@ -74,6 +76,7 @@ let form = new w2form({
             html: { attr: 'style="width: 100px"' },
             options: { advanced1: true, transparent: false }
         },
+        { field: 'field.sample', type: 'text' },
         { field: 'field.list', type: 'list', required: true, html: { group: 'Dropdowns', groupCollapsable: true },
             html: { attr: 'style="border: 1px solid red" placeholder="placeholder"' },
             options: {
@@ -103,10 +106,11 @@ let form = new w2form({
                 ]
             }
         },
+        { field: 'field.sample2', type: 'text' },
         { field: 'field.combo', type: 'combo', required: false,
             html: { attr: 'placeholder="combot text"' },
             options: {
-                applyFilter: false,
+                // applyFilter: false,
                 // openOnFocus: false,
                 // url : 'listdat.json'
                 items1(el) {
@@ -129,7 +133,7 @@ let form = new w2form({
                 ]
             }
         },
-        { field: 'field.sample', type: 'text' },
+        { field: 'field.sample2', type: 'text' },
         { field: 'field.enum', type: 'enum', required: false,
             html: { attr: 'style="width: 400px" placeholder="Enum filed"' },
             options: {
