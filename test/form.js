@@ -81,7 +81,7 @@ let form = new w2form({
             html: { attr: 'style="border: 1px solid red" placeholder="placeholder"' },
             options: {
                 // match: 'contains',
-                // openOnFocus: false,
+                openOnFocus: true,
                 // url : 'listdat.json'
                 // compare(item) {
                 //     if (item.id < 4) return false;
@@ -133,7 +133,7 @@ let form = new w2form({
                 ]
             }
         },
-        { field: 'field.sample2', type: 'text' },
+        { field: 'field.sample3', type: 'text' },
         { field: 'field.enum', type: 'enum', required: false,
             html: { attr: 'style="width: 400px" placeholder="Enum filed"' },
             options: {

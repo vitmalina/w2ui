@@ -241,6 +241,7 @@ class Tooltip {
         let edata
         let self = this
         let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
+        if (!overlay) return
         let options = overlay.options
         if (!overlay || (overlay.displayed && !overlay.needsUpdate)) {
             this.resize(overlay.name)
@@ -403,9 +404,10 @@ class Tooltip {
         }
         if (typeof name == 'string') {
             name = name.replace(/[\s\.#]/g, '_')
-            overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
+            overlay = Tooltip.active[name]
         }
         if (!overlay || !overlay.box) return
+        delete Tooltip.active[name]
         // event before
         let edata = this.trigger('hide', { target: name, overlay })
         if (edata.isCancelled === true) return
@@ -1244,7 +1246,10 @@ class MenuTooltip extends Tooltip {
                 }
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
-                this.applyFilter(overlay.name, null, '') // show unfiltered items
+                let count = this.applyFilter(overlay.name, null, search)
+                overlay.tmp.searchCount = count
+                overlay.tmp.search = search
+
                 this.refreshSearch(overlay.name)
                 this.initControls(ret.overlay)
                 this.refreshIndex(overlay.name)
@@ -1876,7 +1881,7 @@ class MenuTooltip extends Tooltip {
             }
         }
         // filter
-        if (filter && ((options.filter && event._searchType == 'filter')
+        if (filter && overlay.displayed && ((options.filter && event._searchType == 'filter')
                     || (options.search && event._searchType == 'search'))) {
             let count = this.applyFilter(overlay.name, options.items, search)
             overlay.tmp.searchCount = count
