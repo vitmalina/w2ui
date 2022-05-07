@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/3/2022, 10:13:05 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/7/2022, 10:53:11 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -2512,8 +2512,7 @@ class Utils {
         let doc = input.ownerDocument || input.document
         let win = doc.defaultView || doc.parentWindow
         let sel
-        if (input.tagName && input.tagName.toUpperCase() === 'INPUT' && input.selectionStart) {
-            // standards browser
+        if (['INPUT', 'TEXTAREA'].includes(input.tagName)) {
             caretOffset = input.selectionStart
         } else {
             if (win.getSelection) {
@@ -2536,38 +2535,42 @@ class Utils {
         return caretOffset
     }
     setCursorPosition(input, pos, posEnd) {
+        if (input == null) return
         let range   = document.createRange()
         let el, sel = window.getSelection()
-        if (input == null) return
-        for (let i = 0; i < input.childNodes.length; i++) {
-            let tmp = query(input.childNodes[i]).text()
-            if (input.childNodes[i].tagName) {
-                tmp = query(input.childNodes[i]).html()
-                tmp = tmp.replace(/&lt;/g, '<')
-                    .replace(/&gt;/g, '>')
-                    .replace(/&amp;/g, '&')
-                    .replace(/&quot;/g, '"')
-                    .replace(/&nbsp;/g, ' ')
-            }
-            if (pos <= tmp.length) {
-                el = input.childNodes[i]
-                if (el.childNodes && el.childNodes.length > 0) el = el.childNodes[0]
-                if (el.childNodes && el.childNodes.length > 0) el = el.childNodes[0]
-                break
-            } else {
-                pos -= tmp.length
-            }
-        }
-        if (el == null) return
-        if (pos > el.length) pos = el.length
-        range.setStart(el, pos)
-        if (posEnd) {
-            range.setEnd(el, posEnd)
+        if (['INPUT', 'TEXTAREA'].includes(input.tagName)) {
+            input.setSelectionRange(pos, posEnd ?? pos)
         } else {
-            range.collapse(true)
+            for (let i = 0; i < input.childNodes.length; i++) {
+                let tmp = query(input.childNodes[i]).text()
+                if (input.childNodes[i].tagName) {
+                    tmp = query(input.childNodes[i]).html()
+                    tmp = tmp.replace(/&lt;/g, '<')
+                        .replace(/&gt;/g, '>')
+                        .replace(/&amp;/g, '&')
+                        .replace(/&quot;/g, '"')
+                        .replace(/&nbsp;/g, ' ')
+                }
+                if (pos <= tmp.length) {
+                    el = input.childNodes[i]
+                    if (el.childNodes && el.childNodes.length > 0) el = el.childNodes[0]
+                    if (el.childNodes && el.childNodes.length > 0) el = el.childNodes[0]
+                    break
+                } else {
+                    pos -= tmp.length
+                }
+            }
+            if (el == null) return
+            if (pos > el.length) pos = el.length
+            range.setStart(el, pos)
+            if (posEnd) {
+                range.setEnd(el, posEnd)
+            } else {
+                range.collapse(true)
+            }
+            sel.removeAllRanges()
+            sel.addRange(range)
         }
-        sel.removeAllRanges()
-        sel.addRange(range)
     }
     parseColor(str) {
         if (typeof str !== 'string') return null; else str = str.trim().toUpperCase()
@@ -3782,16 +3785,6 @@ class Tooltip {
         }
         // clean name as it is used as id and css selector
         name = name.replace(/[\s\.#]/g, '_')
-        // if (name == anchor.id && Tooltip.active[name]) {
-        //     // find unique name
-        //     let find = (name, ind = 0) => {
-        //         if (ind !== 0) name = name.substr(0, name.length - 2)
-        //         name += '-' + (ind + 1)
-        //         return (Tooltip.active['w2overlay-' + name] == null ? name : find(name, ind + 1))
-        //     }
-        //     name = find(name)
-        //     console.log(name)
-        // }
         if (anchor == document || anchor == document.body) {
             anchor = document.body
             name = 'context-menu'
@@ -3803,7 +3796,7 @@ class Tooltip {
             // overlay.options = w2utils.extend({}, overlay.options, options)
             overlay.anchor  = anchor // as HTML elements are not copied
             if (overlay.prevOptions.html != overlay.options.html || overlay.prevOptions.class != overlay.options.class
-                || overlay.prevOptions.style != overlay.options.style) {
+                    || overlay.prevOptions.style != overlay.options.style) {
                 overlay.needsUpdate = true
             }
             options = overlay.options // it was recreated
@@ -3904,7 +3897,7 @@ class Tooltip {
         if (!overlay) return
         let options = overlay.options
         if (!overlay || (overlay.displayed && !overlay.needsUpdate)) {
-            this.resize(overlay.name)
+            this.resize(overlay?.name)
             return
         }
         let position = options.position.split('|')
@@ -4428,9 +4421,9 @@ class ColorTooltip extends Tooltip {
         if (typeof options.color === 'string' && options.color.substr(0,1) === '#') options.color = options.color.substr(1)
         // needed for keyboard navigation
         this.index = [-1, -1]
-        options.html = this.getColorHTML(options)
         let ret = super.attach(options)
         let overlay = ret.overlay
+        overlay.options.html = this.getColorHTML(overlay.name, options)
         overlay.on('show.attach', event => {
             let overlay = event.detail.overlay
             let anchor  = overlay.anchor
@@ -4540,7 +4533,7 @@ class ColorTooltip extends Tooltip {
             .show()
     }
     // generate HTML with color pallent and controls
-    getColorHTML(options) {
+    getColorHTML(name, options) {
         let html = `
             <div class="w2ui-colors">
                 <div class="w2ui-tab-content tab-1">`
@@ -4553,7 +4546,7 @@ class ColorTooltip extends Tooltip {
                 html += `
                     <div class="w2ui-color w2ui-eaction ${color === '' ? 'w2ui-no-color' : ''} ${options.color == color ? 'w2ui-selected' : ''}"
                         style="background-color: #${color + border};" name="${color}" index="${i}:${j}"
-                        data-mousedown="select|'${color}'|event" data-mouseup="hide">&nbsp;
+                        data-mousedown="select|'${color}'|event" data-mouseup="hide|${name}">&nbsp;
                     </div>`
             }
             html += '</div>'
