@@ -1,0 +1,51 @@
+<div class="content">
+    <div id="example_title">
+        <h1>String Utils</h1>
+        There are several useful utilities for working with string functions and inputs.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div style="width: 410px; float: left">
+    <span style="display: inline-block; padding: 10px 0;">Input or contextEditable</span>
+    <div id="str" onkeyup="update()" onclick="update()" class="w2ui-input"
+        style="border: 1px solid #e0e0e0; border-radius: 3px; background-color: #f8fafa;
+            padding: 4px; width: 400px; font-size: 13px; display: inline-block"
+        placeholder="Type some text here..." contenteditable>This is content editable div, but it works on an input too</div>
+</div>
+<div style="margin-left: 410px">
+    <span style="display: inline-block; padding: 10px 0;">Styles</span><br>
+    <input id="styles" onkeyup="update()" class="w2ui-input" style="width: 200px; font-size: 13px"
+        placeholder="and styles, if any...">
+</div>
+<br><br>
+<button class="w2ui-btn" onclick="setPos(5); update()">Set cursor at pos 5</button>
+<button class="w2ui-btn" onclick="setPos(25); update()">Set cursor at pos 25</button>
+<button class="w2ui-btn" onclick="setPos(8, 15); update()">Set cursor 8-15</button>
+<br><br>
+<div style="padding: 5px;">
+    <div style="float: left; width: 130px;">Text Width</div>    <div id="swidth" style="margin-left: 130px;">...</div>
+    <div style="float: left; width: 130px;">Cursor Position</div> <div id="curpos" style="margin-left: 130px;">...</div>
+</div>
+
+<script>
+update()
+
+function update() {
+    let input = query('#str').get(0)
+    let styles = query('#styles').get(0)
+
+    query('#swidth').html(w2utils.getStrWidth(input.innerHTML, styles.value) + 'px')
+    query('#curpos').html(w2utils.getCursorPosition(input))
+}
+
+function setPos(start, end) {
+    let input = query('#str').get(0)
+    input.focus()
+    w2utils.setCursorPosition(input, start, end)
+}
+</script>
+
+<!--CODE-->

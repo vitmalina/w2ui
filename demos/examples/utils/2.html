@@ -18,11 +18,10 @@ Also counld     have     spaces    that    can be removed.
 <button class="w2ui-btn" onclick="$('#encode').val(w2utils.base64decode($('#encode')[0].value))">Decode base64</button>
 <span style="color: gray; padding: 10px">|</span>
 <button class="w2ui-btn" onclick="$('#encode').val(w2utils.encodeTags($('#encode')[0].value))">Encode HTML Tags</button>
-<button class="w2ui-btn" onclick="$('#encode').val(w2utils.decodeTags($('#encode')[0].value))">Encode HTML Tags</button>
+<button class="w2ui-btn" onclick="$('#encode').val(w2utils.decodeTags($('#encode')[0].value))">Decode HTML Tags</button>
 <div style="height: 20px"></div>
 <button class="w2ui-btn" onclick="$('#encode').val(w2utils.stripTags($('#encode')[0].value))">Strip HTML Tags</button>
 <button class="w2ui-btn" onclick="$('#encode').val(w2utils.stripSpaces($('#encode')[0].value))">Strip Extra Spaces (2.0+)</button>
-<span style="color: gray; padding: 10px">|</span>
 <button class="w2ui-btn" onclick="showSha()">Calculate sha256  (2.0+)</button>
 
 <script>

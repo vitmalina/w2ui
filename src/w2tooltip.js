@@ -121,16 +121,6 @@ class Tooltip {
         }
         // clean name as it is used as id and css selector
         name = name.replace(/[\s\.#]/g, '_')
-        // if (name == anchor.id && Tooltip.active[name]) {
-        //     // find unique name
-        //     let find = (name, ind = 0) => {
-        //         if (ind !== 0) name = name.substr(0, name.length - 2)
-        //         name += '-' + (ind + 1)
-        //         return (Tooltip.active['w2overlay-' + name] == null ? name : find(name, ind + 1))
-        //     }
-        //     name = find(name)
-        //     console.log(name)
-        // }
         if (anchor == document || anchor == document.body) {
             anchor = document.body
             name = 'context-menu'
@@ -142,7 +132,7 @@ class Tooltip {
             // overlay.options = w2utils.extend({}, overlay.options, options)
             overlay.anchor  = anchor // as HTML elements are not copied
             if (overlay.prevOptions.html != overlay.options.html || overlay.prevOptions.class != overlay.options.class
-                || overlay.prevOptions.style != overlay.options.style) {
+                    || overlay.prevOptions.style != overlay.options.style) {
                 overlay.needsUpdate = true
             }
             options = overlay.options // it was recreated
@@ -244,7 +234,7 @@ class Tooltip {
         if (!overlay) return
         let options = overlay.options
         if (!overlay || (overlay.displayed && !overlay.needsUpdate)) {
-            this.resize(overlay.name)
+            this.resize(overlay?.name)
             return
         }
         let position = options.position.split('|')
@@ -407,6 +397,7 @@ class Tooltip {
             overlay = Tooltip.active[name]
         }
         if (!overlay || !overlay.box) return
+
         delete Tooltip.active[name]
         // event before
         let edata = this.trigger('hide', { target: name, overlay })
@@ -785,9 +776,9 @@ class ColorTooltip extends Tooltip {
         if (typeof options.color === 'string' && options.color.substr(0,1) === '#') options.color = options.color.substr(1)
         // needed for keyboard navigation
         this.index = [-1, -1]
-        options.html = this.getColorHTML(options)
         let ret = super.attach(options)
         let overlay = ret.overlay
+        overlay.options.html = this.getColorHTML(overlay.name, options)
         overlay.on('show.attach', event => {
             let overlay = event.detail.overlay
             let anchor  = overlay.anchor
@@ -901,7 +892,7 @@ class ColorTooltip extends Tooltip {
     }
 
     // generate HTML with color pallent and controls
-    getColorHTML(options) {
+    getColorHTML(name, options) {
         let html = `
             <div class="w2ui-colors">
                 <div class="w2ui-tab-content tab-1">`
@@ -914,7 +905,7 @@ class ColorTooltip extends Tooltip {
                 html += `
                     <div class="w2ui-color w2ui-eaction ${color === '' ? 'w2ui-no-color' : ''} ${options.color == color ? 'w2ui-selected' : ''}"
                         style="background-color: #${color + border};" name="${color}" index="${i}:${j}"
-                        data-mousedown="select|'${color}'|event" data-mouseup="hide">&nbsp;
+                        data-mousedown="select|'${color}'|event" data-mouseup="hide|${name}">&nbsp;
                     </div>`
             }
             html += '</div>'

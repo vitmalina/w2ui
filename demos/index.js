@@ -126,7 +126,8 @@ $(async function () {
                 },
                 { id: 'combo-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
-                        { id: 'combo/14', text: 'ES6 Modules', icon: 'fa fa-star-o' }
+                        { id: 'combo/14', text: 'Base UI Class', icon: 'fa fa-star-o' },
+                        { id: 'combo/15', text: 'ES6 Modules', icon: 'fa fa-star-o' },
                     ]
                 },
                 { id: 'layout', text: 'Layout Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
@@ -374,13 +375,11 @@ $(async function () {
                         { id: 'utils/12', text: 'Lock/Unlock Content', icon: 'fa fa-star-o' },
                         { id: 'utils/13', text: 'Context Messages', icon: 'fa fa-star-o' },
                         { id: 'utils/14', text: 'mQuery', icon: 'fa fa-star-o' },
-                        { id: 'utils/16', text: 'Clone & Extend', icon: 'fa fa-star-o' },
-                        { id: 'utils/17', text: 'Escape/Unescape ID', icon: 'fa fa-star-o' },
-                        { id: 'utils/18', text: 'String Tempaltes', icon: 'fa fa-star-o' },
-                        { id: 'utils/19', text: 'Localization', icon: 'fa fa-star-o' },
+                        { id: 'utils/16', text: 'String Utils', icon: 'fa fa-star-o' },
+                        { id: 'utils/17', text: 'Localization', icon: 'fa fa-star-o' },
+                        { id: 'utils/18', text: 'Escape/Unescape ID', icon: 'fa fa-star-o' },
+                        { id: 'utils/19', text: 'Clone & Extend', icon: 'fa fa-star-o' },
                         { id: 'utils/20', text: 'Event Binding', icon: 'fa fa-star-o' },
-                        { id: 'utils/21', text: 'Cursor Position', icon: 'fa fa-star-o' },
-                        { id: 'utils/22', text: 'String Width', icon: 'fa fa-star-o' },
                     ]
                 },
             ],

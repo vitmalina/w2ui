@@ -1,37 +1,42 @@
 <div class="content">
     <div id="example_title">
-        <h1>ES6 Modules</h1>
-        Staring with w2ui 2.0, you can use ES6 modules import syntax. Below is the example how to do it.
+        <h1>Base UI Class</h1>
+        All classes in w2ui are extended from w2base class that provides basic event functionality. It has such methods as
+        <ul style="font-family: monoko, monospace">
+            <li><b>on</b>(event, func)</li>
+            <li><b>off</b>(event)</li>
+            <li><b>trigger</b>(event, details)</li>
+        </ul>
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
 </div>
 
 <!--CODE-->
-<div id="main" style="width: 100%; height: 400px;"></div>
+<div id="main" style="width: 100%; height: 100px;"></div>
 
 <!--CODE-->
 <script type="module">
-import { w2ui, w2layout, w2sidebar, w2grid } from 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.es6.js'
-import conf from 'https://rawgit.com/vitmalina/w2ui/master/demos/data/es6-conf.js'
+import { w2ui, w2base, query } from 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.es6.js'
 
-// register app globally
-window.app = { w2ui }
+class Control extends w2base {
+    constructor(conf) {
+        // custom code
+        super(conf)
+    }
 
-if (w2ui.layout) {
-    w2ui.layout.destroy()
-    w2ui.sidebar.destroy()
-    w2ui.grid1.destroy()
-    w2ui.grid2.destroy()
+    render(box) {
+        let edata = this.trigger('render', { box })
+        if (edata.cancelled) {
+            return
+        }
+        this.box = box
+        query(box).html('my component')
+        // event's on complete loop
+        edata.finish()
+    }
 }
-
-let layout = new w2layout(conf.layout)
-let sidebar = new w2sidebar(conf.sidebar)
-let grid1 = new w2grid(conf.grid1)
-let grid2 = new w2grid(conf.grid2)
-
-
-layout.render($('#main'))
-layout.html('left', sidebar)
-layout.html('main', grid1)
+let myControl = new Control({ name: 'some' })
+myControl.render(query('#main'))
+console.log(w2ui)
 </script>

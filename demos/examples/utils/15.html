@@ -1,8 +1,8 @@
 <div class="content">
     <div id="example_title">
         <h1>Better Tooltips</h1>
-        In 2.0 tooltip were completely re-written and much improved. Now they use DOM observers instead of timer to keep track
-        waht is changed on the page.
+        In 2.0 tooltip were completely re-written and much improved. Now they use DOM observers instead of timers to keep track
+        waht is changed on the page. It is also easier to extend them as Tooltip is now a class.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -12,12 +12,12 @@
 <style>
 #custom {
     padding: 10px;
-    height: 120px;
+    height: 200px;
 }
 
 #drag-me {
     position: absolute;
-    top: 210px;
+    top: 280px;
     left: 260px;
     z-index: 1000;
     display: inline-block;
@@ -39,6 +39,24 @@
 <!--CODE-->
 <script>
 var form
+
+function updateTooltip() {
+    let rec = form.record
+    let style = `padding: ${rec.padding}px; color: #${rec['color']??''}; background-color: #${rec['bg-color']??''};
+        border: ${rec['border-size']}px ${rec['border-style'].id} #${rec['border-color']}`
+    // show tooltip
+    w2tooltip.show({
+        anchor: query('#drag-me')[0],
+        html: rec.html,
+        class: 'w2ui-light',
+        arrowSize: parseInt(rec.arrowSize),
+        style,
+        position: rec.position.id,
+        align: rec.alignment.id
+    })
+}
+
+// execute on document.ready
 query(() => {
     form = new w2form({
         name: 'tooltip-form',
@@ -54,6 +72,12 @@ query(() => {
                         type: 'textarea',
                         label: 'HTML',
                         attr: 'style="width: 100%; height: 80px; resize: none"',
+                    },
+                    arrowSize: {
+                        type: 'int',
+                        label: 'Arrow Size',
+                        options: { min: 0, max: 40, arrow: false },
+                        attr: 'style="width: 60px"',
                     },
                     padding: {
                         type: 'int',
@@ -91,18 +115,12 @@ query(() => {
                         attr: 'style="width: 90px"',
                         anchor: '%border-color%'
                     },
-                    arrowSize: {
-                        type: 'int',
-                        label: 'Arrow Size',
-                        options: { min: 0, max: 40, arrow: false },
-                        attr: 'style="width: 60px"',
-                    },
                     position: {
                         type: 'list',
                         label: 'Position',
                         attr: 'style="width: 120px"',
                         options: {
-                            items: ['bottom|top', 'top|bottom', 'left|right', 'right|left', 'left', 'right', 'top', 'bottom']
+                            items: ['top|bottom', 'bottom|top', 'left|right', 'right|left', 'left', 'right', 'top', 'bottom']
                         }
                     },
                     alignment: {
@@ -119,10 +137,8 @@ query(() => {
                   'Can also be multiline',
             arrowSize: 12,
             padding: 10,
-            // position: 'top|bottom',
-            // position: 'bottom|top',
-            position: 'left|right',
             // position: 'right|left',
+            position: 'bottom|top',
             alignment: 'none',
             "border-size": 1,
             "border-style": 'solid',
@@ -143,22 +159,7 @@ query(() => {
     dragElement(document.querySelector('#drag-me'))
 })
 
-function updateTooltip() {
-    let rec = form.record
-    let style = `padding: ${rec.padding}px; color: #${rec['color']??''}; background-color: #${rec['bg-color']??''};
-        border: ${rec['border-size']}px ${rec['border-style'].id} #${rec['border-color']}`
-    // show tooltip
-    w2tooltip.show({
-        anchor: query('#drag-me')[0],
-        html: rec.html,
-        class: 'w2ui-light',
-        arrowSize: parseInt(rec.arrowSize),
-        style,
-        position: rec.position.id,
-        align: rec.alignment.id
-    })
-}
-
+// make a div draggable
 function dragElement(elmnt) {
   var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
   if (document.getElementById(elmnt.id)) {

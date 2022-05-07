@@ -8,19 +8,32 @@
 </div>
 
 <!--CODE-->
-<div id="custom" style="position: relative; width: 800px; height: 400px; font-size: 20px; color: #777; padding: 50px;
-                        line-height: 1.5; background-color: #f5f5f5;">
+<style>
+    #custom {
+        position: relative;
+        width: 800px;
+        height: 350px;
+        font-size: 18px;
+        color: #777;
+        padding: 50px;
+        line-height: 1.5;
+        background-color: #f5f5f5;
+    }
+    #custom button {
+        margin-left: 0;
+    }
+</style>
+<div id="custom">
     Belarus,[a] officially the Republic of Belarus,[b] is a landlocked country in Eastern Europe. It is bordered by Russia to the
     east and northeast, Ukraine to the south, Poland to the west, and Lithuania and Latvia to the northwest. Covering an area of
     207,600 square kilometres (80,200 sq mi) and with a <i>population of 9.4 million</i>, Belarus is the thirteenth-largest and the
     twentieth-most populous country in Europe. The country is administratively divided into seven regions. Minsk is the capital
     and largest city.
-    <br>
+    <div style="height: 20px"></div>
     <button class="w2ui-btn">Action</button>
 </div>
+<div style="height: 20px;"></div>
 
-
-<div style="height: 10px;"></div>
 <button class="w2ui-btn" onclick="lock()">Lock</button>
 <button class="w2ui-btn" onclick="lock({ spinner: true })">Lock with Spinner</button>
 <button class="w2ui-btn" onclick="lock({ spinner: true, msg: 'Loading...' })">Lock with message</button>

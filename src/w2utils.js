@@ -1743,8 +1743,7 @@ class Utils {
         let doc = input.ownerDocument || input.document
         let win = doc.defaultView || doc.parentWindow
         let sel
-        if (input.tagName && input.tagName.toUpperCase() === 'INPUT' && input.selectionStart) {
-            // standards browser
+        if (['INPUT', 'TEXTAREA'].includes(input.tagName)) {
             caretOffset = input.selectionStart
         } else {
             if (win.getSelection) {
@@ -1768,38 +1767,42 @@ class Utils {
     }
 
     setCursorPosition(input, pos, posEnd) {
+        if (input == null) return
         let range   = document.createRange()
         let el, sel = window.getSelection()
-        if (input == null) return
-        for (let i = 0; i < input.childNodes.length; i++) {
-            let tmp = query(input.childNodes[i]).text()
-            if (input.childNodes[i].tagName) {
-                tmp = query(input.childNodes[i]).html()
-                tmp = tmp.replace(/&lt;/g, '<')
-                    .replace(/&gt;/g, '>')
-                    .replace(/&amp;/g, '&')
-                    .replace(/&quot;/g, '"')
-                    .replace(/&nbsp;/g, ' ')
-            }
-            if (pos <= tmp.length) {
-                el = input.childNodes[i]
-                if (el.childNodes && el.childNodes.length > 0) el = el.childNodes[0]
-                if (el.childNodes && el.childNodes.length > 0) el = el.childNodes[0]
-                break
-            } else {
-                pos -= tmp.length
-            }
-        }
-        if (el == null) return
-        if (pos > el.length) pos = el.length
-        range.setStart(el, pos)
-        if (posEnd) {
-            range.setEnd(el, posEnd)
+        if (['INPUT', 'TEXTAREA'].includes(input.tagName)) {
+            input.setSelectionRange(pos, posEnd ?? pos)
         } else {
-            range.collapse(true)
+            for (let i = 0; i < input.childNodes.length; i++) {
+                let tmp = query(input.childNodes[i]).text()
+                if (input.childNodes[i].tagName) {
+                    tmp = query(input.childNodes[i]).html()
+                    tmp = tmp.replace(/&lt;/g, '<')
+                        .replace(/&gt;/g, '>')
+                        .replace(/&amp;/g, '&')
+                        .replace(/&quot;/g, '"')
+                        .replace(/&nbsp;/g, ' ')
+                }
+                if (pos <= tmp.length) {
+                    el = input.childNodes[i]
+                    if (el.childNodes && el.childNodes.length > 0) el = el.childNodes[0]
+                    if (el.childNodes && el.childNodes.length > 0) el = el.childNodes[0]
+                    break
+                } else {
+                    pos -= tmp.length
+                }
+            }
+            if (el == null) return
+            if (pos > el.length) pos = el.length
+            range.setStart(el, pos)
+            if (posEnd) {
+                range.setEnd(el, posEnd)
+            } else {
+                range.collapse(true)
+            }
+            sel.removeAllRanges()
+            sel.addRange(range)
         }
-        sel.removeAllRanges()
-        sel.addRange(range)
     }
 
     parseColor(str) {
