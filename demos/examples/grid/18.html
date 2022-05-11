@@ -38,7 +38,7 @@ $(function () {
         ],
         onClick: function (event) {
             w2ui['grid2'].clear();
-            var record = this.get(event.recid);
+            var record = this.get(event.detail.recid);
             w2ui['grid2'].add([
                 { recid: 0, name: 'ID:', value: record.recid },
                 { recid: 1, name: 'First Name:', value: record.fname },
