@@ -1,0 +1,36 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Helpful Utils</h1>
+        Some values are formatted, but you need to save it unformatted. The demo below demonstrates how to set formatted numbers
+        and get clean numbers when you need it.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+
+<div style="padding-top: 15px; margin-left: -5px;">
+    <span style="width: 60px; display: inline-block;">Money:</span>
+    <input id="inp" style="width: 120px" value="12025">
+    <button class="w2ui-btn" onclick="el.set(el.format(45015.56))">Set Formatted Value</button>
+    <button class="w2ui-btn" onclick="w2alert(el.get())">Get As-is Value</button>
+    <button class="w2ui-btn" onclick="w2alert(el.clean(el.get()))">Get Clean Value</button>
+</div>
+
+<div style="padding-top: 15px; margin-left: -5px;">
+    <span style="width: 60px; display: inline-block;">Percent:</span>
+    <input id="inp2" style="width: 120px" value="45.15">
+    <button class="w2ui-btn" onclick="el2.set(el2.format(74.56))">Set Formatted Value</button>
+    <button class="w2ui-btn" onclick="w2alert(el2.get())">Get As-is Value</button>
+    <button class="w2ui-btn" onclick="w2alert(el2.clean(el2.get()))">Get Clean Value</button>
+</div>
+
+<!--CODE-->
+<script>
+var el = new w2field('money')
+el.render(query('#inp')[0])
+
+var el2 = new w2field('percent')
+el2.render(query('#inp2')[0])
+</script>

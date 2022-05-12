@@ -327,6 +327,12 @@ $(async function () {
                         { id: 'fields/8', text: 'Color Picker', icon: 'fa fa-pencil-square-o' }
                     ]
                 },
+                { id: 'fields-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
+                    nodes: [
+                        { id: 'fields/9', text: 'ES6 Classes', icon: 'fa fa-pencil-square-o' },
+                        { id: 'fields/10', text: 'Helptul Utils', icon: 'fa fa-pencil-square-o' }
+                    ]
+                },
                 { id: 'popup', text: 'Popup Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'popup/1', text: 'Simple Popup', icon: 'fa fa-list-alt' },

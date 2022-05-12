@@ -1,7 +1,8 @@
 <div class="content">
     <div id="example_title">
         <h1>Multi-Select Drop Down Lists</h1>
-        Another control I am proud of is multi-select. I cannot image how I used to live without it. It simplified all my UI designs where I need to select multiple items and now I do not have to use two bulky lists of Available and Selected items.
+        Multi select drop downs extend HTML's input conrol with a drop down menu where you can select multiple items one item
+        at a time. Full keyboard support is implemented.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -45,15 +46,17 @@ var people = ['George Washington', 'John Adams', 'Thomas Jefferson', 'James Buch
     'Franklin Roosevelt', 'George Bush', 'Harry Truman', 'William Clinton', 'Dwight Eisenhower', 'George W. Bush',
     'Barack Obama', 'Donald Trump', 'Joe Biden'];
 
-$('#enum').w2field('enum', {
+query('#enum').each(el => new w2field('enum', {
+    el,
     items: people,
     selected: ['James Buchanan', 'James Madison',]
-});
+}))
 
-$('#enum-max').w2field('enum', {
+query('#enum-max').each(el => new w2field('enum', {
+    el,
     items: people,
     max: 2
-});
+}))
 
 // add some random icons
 people = w2utils.normMenu(people)
@@ -61,7 +64,8 @@ people.forEach(p => p.icon = 'w2ui-empty')
 people[0].icon = 'w2ui-icon-info'
 people[1].icon = 'w2ui-icon-search'
 people[2].icon = 'w2ui-icon-paste'
-$('#enum-custom').w2field('enum', {
+query('#enum-custom').each(el => new w2field('enum', {
+    el,
     items: people,
     onAdd(event) {
         if (Math.random() > 0.5) {
@@ -76,7 +80,7 @@ $('#enum-custom').w2field('enum', {
         let ind = options.items.findIndex(i => i.id == item.id)
         return `${ind+1}. ${item.text}`;
     }
-});
+}))
 // if you need to get to the selected items, use:
 // $('#id').data('selected');
 </script>

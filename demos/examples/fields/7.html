@@ -1,7 +1,7 @@
 <div class="content">
     <div id="example_title">
         <h1>Get/Set Values with JavaScript</h1>
-        This example demonstrates how to get/set selected value using JavaScript.
+        This example demonstrates how to get/set selected value of list and enum using JavaScript.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -14,10 +14,10 @@
     <div>
         <input id="list" style="width: 300px;">
         <div style="padding-top: 15px; margin-left: -5px;">
-            <button class="w2ui-btn" onclick="w2alert(JSON.stringify($('#list').w2field().get()))">Get Selected</button>
-            <button class="w2ui-btn" onclick="$('#list').w2field().set({ id: 'George Washington', text: 'George Washington' })">Select Washington</button>
-            <button class="w2ui-btn" onclick="$('#list').w2field().setIndex(5)">Select 5th</button>
-            <button class="w2ui-btn" onclick="$('#list').w2field().setIndex(Math.floor(Math.random() * 41))">Select Random</button>
+            <button class="w2ui-btn" onclick="list1.set({ id: 'George Washington', text: 'George Washington' })">Select Washington</button>
+            <button class="w2ui-btn" onclick="list1.setIndex(5)">Select 5th</button>
+            <button class="w2ui-btn" onclick="list1.setIndex(Math.floor(Math.random() * 41))">Select Random</button>
+            <button class="w2ui-btn" onclick="w2alert(JSON.stringify(list1.get()))">Get Selected</button>
         </div>
     </div>
 </div>
@@ -27,11 +27,11 @@
     <div>
         <input id="enum" style="width: 300px;">
         <div style="padding-top: 15px; margin-left: -5px;">
-            <button class="w2ui-btn" onclick="w2alert(JSON.stringify($('#enum').w2field().get()))">Get Selected</button>
-            <button class="w2ui-btn" onclick="$('#enum').w2field().set({ id: 'George Washington', text: 'George Washington' })">Select Washington</button>
-            <button class="w2ui-btn" onclick="$('#enum').w2field().set({ id: 'Thomas Jefferson', text: 'Thomas Jefferson' }, true)">Add Jeffereson</button>
-            <button class="w2ui-btn" onclick="$('#enum').w2field().setIndex(5)">Select 5th</button>
-            <button class="w2ui-btn" onclick="$('#enum').w2field().setIndex(Math.floor(Math.random() * 41), true)">Add Random</button>
+            <button class="w2ui-btn" onclick="list2.set({ id: 'George Washington', text: 'George Washington' })">Select Washington</button>
+            <button class="w2ui-btn" onclick="list2.set({ id: 'Thomas Jefferson', text: 'Thomas Jefferson' }, true)">Add Jeffereson</button>
+            <button class="w2ui-btn" onclick="list2.setIndex(5)">Select 5th</button>
+            <button class="w2ui-btn" onclick="list2.setIndex(Math.floor(Math.random() * 41), true)">Add Random</button>
+            <button class="w2ui-btn" onclick="w2alert(JSON.stringify(list2.get()))">Get Selected</button>
         </div>
     </div>
 </div>
@@ -49,13 +49,10 @@
 <!--CODE-->
 <script>
 var people = ['George Washington', 'John Adams', 'Thomas Jefferson', 'James Buchanan', 'James Madison', 'Abraham Lincoln', 'James Monroe', 'Andrew Johnson', 'John Adams', 'Ulysses Grant', 'Andrew Jackson', 'Rutherford Hayes', 'Martin Van Buren', 'James Garfield', 'William Harrison', 'Chester Arthur', 'John Tyler', 'Grover Cleveland', 'James Polk', 'Benjamin Harrison', 'Zachary Taylor', 'Grover Cleveland', 'Millard Fillmore', 'William McKinley', 'Franklin Pierce', 'Theodore Roosevelt', 'John Kennedy', 'William Howard', 'Lyndon Johnson', 'Woodrow Wilson', 'Richard Nixon', 'Warren Harding', 'Gerald Ford', 'Calvin Coolidge', 'James Carter', 'Herbert Hoover', 'Ronald Reagan', 'Franklin Roosevelt', 'George Bush', 'Harry Truman', 'William Clinton', 'Dwight Eisenhower', 'George W. Bush', 'Barack Obama'];
-people.sort();
+people.sort()
+var list1 = new w2field('list', { items: people })
+var list2 = new w2field('enum', { items: people })
+list1.render(query('#list')[0])
+list2.render(query('#enum')[0])
 
-$('#list').w2field('list', {
-    items: people
-});
-
-$('#enum').w2field('enum', {
-    items: people
-});
 </script>

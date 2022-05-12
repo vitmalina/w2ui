@@ -31,7 +31,8 @@
 
 <!--CODE-->
 <script>
-$('#list').w2field('list', {
+query('#list').each(el => new w2field('list', {
+    el,
     url: 'data/enum.json',
     onRequest(event) {
         console.log(`Request: ${event.url} Search: ${event.search}`)
@@ -39,9 +40,10 @@ $('#list').w2field('list', {
     onLoad(event) {
         console.log('Response:', event.data)
     }
-});
+}))
 
-$('#enum').w2field('enum', {
+query('#enum').each(el => new w2field('enum', {
+    el,
     url: 'data/enum.json',
     onRequest(event) {
         console.log(`Request: ${event.url} Search: ${event.search}`)
@@ -49,5 +51,5 @@ $('#enum').w2field('enum', {
     onLoad(event) {
         console.log('Response:', event.data)
     }
-});
+}))
 </script>

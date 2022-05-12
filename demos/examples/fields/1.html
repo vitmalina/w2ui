@@ -1,7 +1,9 @@
 <div class="content">
     <div id="example_title">
         <h1>Numeric Fields</h1>
-        Numeric inputs will only allow you to type numbers. They will completely ignore all other characters. Full keyboard support is implemented. Try using up/down arrow keys, ctr + up/down (command + up/down on mac) to increase numbers. When the number is changed it will be validated and formatted (if needed).
+        Numeric inputs will only allow you to type numbers, ignoring other characters. Full keyboard support is implemented.
+        Try using up/down arrow keys, ctr + up/down (command + up/down on mac) to increase numbers.
+        When the number is changed it will be validated and formatted (if needed).
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -75,8 +77,8 @@
 
 <style>
 .block {
-    padding-top: 20px; 
-    padding-bottom: 10px; 
+    padding-top: 20px;
+    padding-bottom: 10px;
     color: #999;
 }
 .w2ui-field input {
@@ -91,21 +93,21 @@
 <!--CODE-->
 <script>
 // General
-$('#w2int').w2field('int', { autoFormat: false });
-$('#w2float').w2field('float', { autoFormat: false });
-$('#w2hex').w2field('hex');
-$('#w2bin').w2field('bin');
-$('#w2color').w2field('color');
+query('#w2int').each(el => new w2field({ el, type: 'int', autoFormat: false }))
+query('#w2float').each(el => new w2field({ el, type: 'float', autoFormat: false }));
+query('#w2hex').each(el => new w2field({ el, type: 'hex' }));
+query('#w2bin').each(el => new w2field({ el, type: 'bin' }));
+query('#w2color').each(el => new w2field({ el, type: 'color' }));
 
 // US Format
-$('#us-int').w2field('int');
-$('#us-float').w2field('float', { precision: 3 });
-$('#us-money').w2field('money');
-$('#us-percent').w2field('percent', { precision: 1, min: 0, max: 100 });
+query('#us-int').each(el => new w2field('int', { el }));
+query('#us-float').each(el => new w2field('float', { el, precision: 3 }));
+query('#us-money').each(el => new w2field('money', { el }));
+query('#us-percent').each(el => new w2field('percent', { el, precision: 1, min: 0, max: 100 }));
 
 // EU Common Format
-$('#eu-int').w2field('int', { autoFormat: true, groupSymbol: ' ' });
-$('#eu-float').w2field('float', { groupSymbol: ' ', precision: 3 });
-$('#eu-money').w2field('money', { groupSymbol: ' ', currencyPrefix: '', currencySuffix: '€' });
-$('#eu-percent').w2field('percent', { precision: 1, min: 0, max: 100 });
+query('#eu-int').each(el => new w2field('int', { el, autoFormat: true, groupSymbol: ' ' }));
+query('#eu-float').each(el => new w2field('float', { el, groupSymbol: ' ', precision: 3 }));
+query('#eu-money').each(el => new w2field('money', { el, groupSymbol: ' ', currencyPrefix: '', currencySuffix: '€' }));
+query('#eu-percent').each(el => new w2field('percent', { el, precision: 1, min: 0, max: 100 }));
 </script>

@@ -1,0 +1,36 @@
+<div class="content">
+    <div id="example_title">
+        <h1>ES6 Classes</h1>
+        W2fields were completely refactored and now it is a ES6 class that can be instanciated to implement new functionality. Below
+        is a demo that shows how to create custom field types.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+
+<div style="padding-top: 15px; margin-left: -5px;">
+    <span style="width: 60px; display: inline-block;">Custom:</span>
+    <input id="inp" style="width: 200px" value="12025">
+</div>
+
+
+<style>
+</style>
+
+<!--CODE-->
+<script type="module">
+class MyField extends w2field {
+    constructor (type, options) {
+        super(type, options)
+        if (this.type == 'custom') {
+            this.options.prefix = '<span style="color: gray;">@</span>'
+            this.options.suffix = '<button style="position: relative; top: -3px; padding: 0 5px;">GO</button>'
+        }
+    }
+}
+
+var el = new MyField('custom')
+el.render(query('#inp')[0])
+</script>

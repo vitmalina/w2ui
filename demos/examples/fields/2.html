@@ -1,7 +1,9 @@
 <div class="content">
     <div id="example_title">
         <h1>Date, Time & Datetime</h1>
-        For DATE, TIME and DATETIME controls you can use keyboard to increment by a day (or a minute) if you click up/down arrow keys. You can also use ctr + up/down (command + up/down on mac) to increment by a month (or an hour).
+        For DATE, TIME and DATETIME controls you can use keyboard to increment by a day (or a minute) if you
+        click up/down arrow keys. You can also use ctr + up/down (command + up/down on mac) to
+        increment by a month (or an hour).
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -96,22 +98,22 @@ var month = (new Date()).getMonth() + 1;
 var year  = (new Date()).getFullYear();
 
 // US Format
-$('input[type=us-date]').w2field('date');
-$('input[type=us-dateA]').w2field('date', { format: 'm/d/yyyy', start:  month + '/5/' + year, end: month + '/25/' + year });
-$('input[type=us-dateB]').w2field('date', { format: 'm/d/yyyy', blockDates: [ month+'/12/' + year,month+'/13/' + year,month+'/14/' + year]});
-$('input[type=us-date1]').w2field('date', { format: 'm/d/yyyy', end: $('input[type=us-date2]')[0] });
-$('input[type=us-date2]').w2field('date', { format: 'm/d/yyyy', start: $('input[type=us-date1]')[0] });
-$('input[type=us-time]').w2field('time',  { format: 'h12' });
-$('input[type=us-timeA]').w2field('time', { format: 'h12', start: '8:00 am', end: '4:30 pm' });
-$('input[type=us-datetime]').w2field('datetime');
+query('input[type=us-date]').each(el => new w2field('date', { el }));
+query('input[type=us-dateA]').each(el => new w2field('date', { el, format: 'm/d/yyyy', start:  month + '/5/' + year, end: month + '/25/' + year }));
+query('input[type=us-dateB]').each(el => new w2field('date', { el, format: 'm/d/yyyy', blockDates: [ month+'/12/' + year,month+'/13/' + year,month+'/14/' + year]}));
+query('input[type=us-date1]').each(el => new w2field('date', { el, format: 'm/d/yyyy', end: query('input[type=us-date2]')[0] }));
+query('input[type=us-date2]').each(el => new w2field('date', { el, format: 'm/d/yyyy', start: query('input[type=us-date1]')[0] }));
+query('input[type=us-time]').each(el => new w2field('time',  { el, format: 'h12' }));
+query('input[type=us-timeA]').each(el => new w2field('time', { el, format: 'h12', start: '8:00 am', end: '4:30 pm' }));
+query('input[type=us-datetime]').each(el => new w2field('datetime', { el }));
 
-// EU Common Format
-$('input[type=eu-date]').w2field('date',  { format: 'd.m.yyyy' });
-$('input[type=eu-dateA]').w2field('date', { format: 'd.m.yyyy', start:  '5.' + month + '.' + year, end: '25.' + month + '.' + year });
-$('input[type=eu-dateB]').w2field('date', { format: 'd.m.yyyy', blockDates: ['12.' + month + '.' + year, '13.' + month + '.' + year, '14.' + month + '.' + year]});
-$('input[type=eu-date1]').w2field('date', { format: 'd.m.yyyy', end: $('input[type=eu-date2]')[0] });
-$('input[type=eu-date2]').w2field('date', { format: 'd.m.yyyy', start: $('input[type=eu-date1]')[0] });
-$('input[type=eu-time]').w2field('time',  { format: 'h24' });
-$('input[type=eu-timeA]').w2field('time', { format: 'h24', start: '8:00 am', end: '4:30 pm' });
-$('input[type=eu-datetime]').w2field('datetime', { format: 'dd.mm.yyyy|h24:mm' });
+// EU Common el, Format
+query('input[type=eu-date]').each(el => new w2field('date',  { el, format: 'd.m.yyyy' }));
+query('input[type=eu-dateA]').each(el => new w2field('date', { el, format: 'd.m.yyyy', start:  '5.' + month + '.' + year, end: '25.' + month + '.' + year }));
+query('input[type=eu-dateB]').each(el => new w2field('date', { el, format: 'd.m.yyyy', blockDates: ['12.' + month + '.' + year, '13.' + month + '.' + year, '14.' + month + '.' + year]}));
+query('input[type=eu-date1]').each(el => new w2field('date', { el, format: 'd.m.yyyy', end: query('input[type=eu-date2]')[0] }));
+query('input[type=eu-date2]').each(el => new w2field('date', { el, format: 'd.m.yyyy', start: query('input[type=eu-date1]')[0] }));
+query('input[type=eu-time]').each(el => new w2field('time',  { el, format: 'h24' }));
+query('input[type=eu-timeA]').each(el => new w2field('time', { el, format: 'h24', start: '8:00 am', end: '4:30 pm' }));
+query('input[type=eu-datetime]').each(el => new w2field('datetime', { el, format: 'dd.mm.yyyy|h24:mm' }));
 </script>
