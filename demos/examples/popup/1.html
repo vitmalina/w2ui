@@ -50,9 +50,10 @@ function popup2() {
     })
     .ok((evt) => {
         console.log('ok', evt)
+        w2popup.close()
     })
     .cancel((evt) => {
-        console.log('ok', evt)
+        console.log('cancel', evt)
         w2popup.close()
     })
 }

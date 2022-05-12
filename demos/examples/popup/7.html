@@ -47,33 +47,7 @@ function showPrompt() {
         console.log('change', event.detail.originalEvent.target.value)
     })
     .ok((event) => {
-        console.log('ok, value=', event.value)
-    })
-    .cancel((event) => {
-        console.log('cancel')
-    });
-    w2prompt({
-        title: w2utils.lang('Notification'),
-        width: 400,
-        height: 200,
-        label: 'Enter',
-        value: 'a',
-        attrs: 'style="width: 200px" placeholder="Type here..."',
-        btn_ok: {
-            text: 'Ok',
-            class: 'ok-class',
-            style: 'color: green'
-        },
-        btn_cancel: {
-            text: 'Cancel',
-            class: 'ok-class'
-        },
-    })
-    .change((event) => {
-        console.log('change', event.detail.originalEvent.target.value)
-    })
-    .ok((event) => {
-        console.log('ok, value=', event.value)
+        console.log('ok, value=', event.detail.value)
     })
     .cancel((event) => {
         console.log('cancel')

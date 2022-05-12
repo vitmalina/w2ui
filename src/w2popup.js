@@ -280,8 +280,6 @@ class Dialog extends w2base {
                     $body[0].style.cssText = options.style
                     $body.show()
                 }
-                // remove max state
-                query('#w2ui-popup').data('prev-size', null)
                 // focus on first button
                 self.setFocus(options.focus)
             })
