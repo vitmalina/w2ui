@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/7/2022, 10:53:11 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/12/2022, 10:04:46 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -1776,9 +1776,10 @@ textarea.w2ui-error {
 .w2ui-field-helper.w2ui-list .w2ui-multi-items .li-search input[type=text] {
   pointer-events: all;
   width: 0;
-  padding: 3px 0 0 0;
-  border: 0;
+  height: 20px;
+  padding: 3px 0 3px 0;
   margin: 3px 0 0 5px;
+  border: 0;
   background-color: transparent;
 }
 .w2ui-field-helper.w2ui-list .w2ui-multi-items .li-search input[type=text]:focus {
@@ -2935,7 +2936,7 @@ textarea.w2ui-error {
   height: 23px;
   cursor: pointer;
   color: #888;
-  margin: -4px 0 0 5px;
+  margin: 0 0 0 5px;
 }
 .w2ui-popup .w2ui-popup-button span.w2ui-icon {
   width: 24px;

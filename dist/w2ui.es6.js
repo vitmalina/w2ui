@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/7/2022, 10:53:11 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/12/2022, 10:04:46 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -3181,8 +3181,6 @@ class Dialog extends w2base {
                     $body[0].style.cssText = options.style
                     $body.show()
                 }
-                // remove max state
-                query('#w2ui-popup').data('prev-size', null)
                 // focus on first button
                 self.setFocus(options.focus)
             })
@@ -20223,7 +20221,7 @@ class w2field extends w2base {
             options.type = type
         }
         options.type = String(options.type).toLowerCase()
-        this.el          = null
+        this.el          = options.el ?? null
         this.selected    = null
         this.helpers     = {} // object or helper elements
         this.type        = options.type ?? 'text'
@@ -20250,6 +20248,9 @@ class w2field extends w2base {
         delete this.options.onMouseEnter
         delete this.options.onMouseLeave
         delete this.options.onScroll
+        if (this.el) {
+            this.render(this.el)
+        }
     }
     render(el) {
         if (!(el instanceof HTMLElement)) {
@@ -20431,7 +20432,6 @@ class w2field extends w2base {
                 this.options = options
                 if (!w2utils.isPlainObject(options.selected)) options.selected = {}
                 this.selected = options.selected
-                if (this.type === 'list') this.addSearch()
                 query(this.el)
                     .attr('autocapitalize', 'off')
                     .attr('autocomplete', 'off')
@@ -20534,6 +20534,7 @@ class w2field extends w2base {
         // suffix and prefix need to be after styles
         this.addPrefix() // only will add if needed
         this.addSuffix() // only will add if needed
+        this.addSearch()
         this.addMultiSearch()
         this.refresh()
         // format initial value
@@ -20567,26 +20568,20 @@ class w2field extends w2base {
             query(this.el).val(val)
         }
     }
-    // TODO: check
     setIndex(ind, append) {
         if (['list', 'enum'].indexOf(this.type) !== -1) {
             let items = this.options.items
             if (items && items[ind]) {
-                if (this.type !== 'list' && append) {
-                    if (Array.isArray(this.selected)) this.selected = []
-                    this.selected.push(items[ind])
-                    // update selected array in overlay
-                    let overlay = w2menu.get(this.el.id + '_menu')
-                    if (overlay) overlay.options.selected = this.selected
-                    query(this.el).trigger('input').trigger('change')
-                } else {
-                    let it = (this.type === 'enum' ? [items[ind]] : items[ind])
-                    this.selected.push(it)
-                    // update selected array in overlay
-                    let overlay = w2menu.get(this.el.id + '_menu')
-                    if (overlay) overlay.options.selected = this.selected
-                    query(this.el).trigger('input').trigger('change')
+                if (this.type == 'list') {
+                    this.selected = items[ind]
                 }
+                if (this.type == 'enum') {
+                    if (!append) this.selected = []
+                    this.selected.push(items[ind])
+                }
+                let overlay = w2menu.get(this.el.id + '_menu')
+                if (overlay) overlay.options.selected = this.selected
+                query(this.el).trigger('input').trigger('change')
                 this.refresh()
                 return true
             }
@@ -21003,9 +20998,6 @@ class w2field extends w2base {
         // list, enum
         if (['list', 'enum', 'file'].indexOf(this.type) !== -1) {
             this.refresh()
-            // need time out to show icon indent properly
-            // TODO: check
-            // setTimeout(() => { self.refresh() }, 5)
         }
         // date, time
         if (['date', 'time', 'datetime'].indexOf(this.type) !== -1) {
@@ -21418,6 +21410,7 @@ class w2field extends w2base {
                     search: false,
                     render: options.renderDrop,
                     anchorClass: '',
+                    offsetY: 5,
                     maxHeight: options.maxDropHeight, // TODO: check
                     maxWidth: options.maxDropWidth,  // TODO: check
                     minWidth: options.minDropWidth,  // TODO: check
@@ -21621,8 +21614,7 @@ class w2field extends w2base {
     }
     // Only used for list
     addSearch() {
-        let width = 0 // 11 - show search icon, 0 do not show
-        let pholder
+        if (this.type !== 'list') return
         // clean up & init
         if (this.helpers.search) query(this.helpers.search).remove()
         // remember original tabindex
