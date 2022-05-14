@@ -183,6 +183,13 @@ class Dialog extends w2base {
                         width: ${parseInt(options.width)}px; height: ${parseInt(options.height)}px;
                         transition: ${options.speed}s"></div>`
             query('body').append(msg)
+            query('#w2ui-popup')[0]._w2popup = {
+                self: this,
+                created: new Promise((resolve) => { this._promCreated = resolve }),
+                opened: new Promise((resolve) => { this._promOpened = resolve }),
+                closing: new Promise((resolve) => { this._promClosing = resolve }),
+                closed: new Promise((resolve) => { this._promClosed = resolve }),
+            }
             // then content
             msg = `
                 <span name="hidden-first" tabindex="0" style="position: absolute; top: -100px"></span>
@@ -209,15 +216,17 @@ class Dialog extends w2base {
                     .removeClass('w2ui-anim-open')
                 w2utils.bindEvents('#w2ui-popup .w2ui-eaction', w2popup)
                 query('#w2ui-popup').find('.w2ui-popup-body').show()
-                self.setFocus(options.focus)
-                // event after
-                edata.finish()
+                this._promCreated()
             }, 1)
             // clean transform
             clearTimeout(this._timer)
             this._timer = setTimeout(() => {
-                query('#w2ui-popup').removeClass('animating')
                 w2popup.status = 'open'
+                self.setFocus(options.focus)
+                // event after
+                edata.finish()
+                this._promOpened()
+                query('#w2ui-popup').removeClass('animating')
             }, options.speed * 1000)
 
         } else {
@@ -458,6 +467,8 @@ class Dialog extends w2base {
             .css('transition', this.options.speed + 's')
             .addClass('w2ui-anim-close animating')
         w2utils.unlock(document.body, 300)
+        this._promClosing()
+
         setTimeout(() => {
             // return template
             query('#w2ui-popup').remove()
@@ -467,6 +478,7 @@ class Dialog extends w2base {
             w2popup.options = {}
             // event after
             edata.finish()
+            this._promClosed()
         }, this.options.speed * 1000)
         // remove keyboard events
         if (this.options.keyboard) {
@@ -475,9 +487,7 @@ class Dialog extends w2base {
     }
 
     toggle() {
-        let self = this
-        // trigger event
-        let edata = this.trigger('togle', { target: 'popup' })
+        let edata = this.trigger('toggle', { target: 'popup' })
         if (edata.isCancelled === true) return
         // default action
         if (this.options.maximized === true) w2popup.min(); else w2popup.max()
