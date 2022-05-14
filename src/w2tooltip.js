@@ -1754,7 +1754,7 @@ class MenuTooltip extends Tooltip {
         items.forEach(item => {
             if (item.checked) found.push(item)
             if (Array.isArray(item.items)) {
-                found = found.concat(this.findSelected(item.items))
+                found = found.concat(this.findChecked(item.items))
             }
         })
         return found

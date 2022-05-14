@@ -21,8 +21,9 @@ Tooltip position:<br>
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#toolbar').w2toolbar({
+query(() => {
+    new w2toolbar({
+        box: query('#toolbar')[0],
         name: 'toolbar',
         tooltip: 'top',
         items: [

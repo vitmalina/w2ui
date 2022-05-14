@@ -19,8 +19,9 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#toolbar').w2toolbar({
+query(() => {
+    new w2toolbar({
+        box: query('#toolbar')[0],
         name: 'toolbar',
         items: [
             { type: 'button', id: 'item1', icon: 'fa fa-star', text: 'Click Me',
@@ -53,7 +54,7 @@ $(function () {
                       '<div style="padding: 0px 10px; margin-top: -2px;">'+
                       ' Field:'+
                       '    <input size="20" placeholder="Change me" onchange="var el = w2ui.toolbar.set(\'item5\', { value: this.value });" '+
-                      '         style="padding: 6px; border-radius: 2px; border: 1px solid silver" value="'+ (item.value || '') +'"/>'+
+                      '         class="w2ui-input" value="'+ (item.value || '') +'"/>'+
                       '</div>';
                     return html;
                 }

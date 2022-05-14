@@ -14,8 +14,9 @@ Hold cmd (or shift) button to keep the menu open.
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#toolbar').w2toolbar({
+query(() => {
+    new w2toolbar({
+        box: query('#toolbar')[0],
         name: 'toolbar',
         items: [
             { type: 'menu-radio', id: 'item1', icon: 'fa fa-star',
@@ -23,7 +24,7 @@ $(function () {
                     let el = item.get(item.selected);
                     return 'Radio: ' + el.text;
                 },
-                overlay: { position: 'top' },
+                overlay: { position: 'bottom|top' },
                 selected: 'id3',
                 items: [
                     { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
@@ -33,7 +34,7 @@ $(function () {
             },
             { type: 'break' },
             { type: 'menu-check', id: 'item2', text: 'Check', icon: 'fa fa-heart',
-                overlay: { position: 'top' },
+                overlay: { position: 'bottom|top' },
                 selected: ['id3', 'id4'],
                 onRefresh(event) {
                     event.detail.item.count = event.detail.item.selected.length;
@@ -48,7 +49,7 @@ $(function () {
             },
             { type: 'break' },
             { type: 'menu-check', id: 'item3', text: 'Groups of Checks', icon: 'fa fa-heart',
-                overlay: { position: 'top' },
+                overlay: { position: 'bottom|top' },
                 items: [
                     { text: '-- Group 1' },
                     { id: 'id1', text: 'Item 1', icon: 'fa fa-camera', group: 1 },

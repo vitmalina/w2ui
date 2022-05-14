@@ -12,9 +12,10 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    var btnCount = 0;
-    $('#toolbar').w2toolbar({
+query(() => {
+    let btnCount = 0
+    new w2toolbar({
+        box: query('#toolbar')[0],
         name: 'toolbar',
         items: [
             { type: 'button', id: 'insert', text: 'Insert', icon: 'w2ui-icon-plus' },
