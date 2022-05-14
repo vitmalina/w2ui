@@ -17,21 +17,19 @@
 
 <!--CODE-->
 <script>
-var field = new w2field('color')
-field.render(document.querySelector('#str'))
+new w2field('color', { el: query('#str')[0] })
 
-// $('#str').w2field({ type: 'color', autoFormat: false });
 function update() {
-    let val = $('#str').val()
+    let val = query('#str').val()
     let parsed = w2utils.parseColor(val)
     if (parsed) {
-        $('#color1').html(JSON.stringify(parsed))
-        $('#color2').html(JSON.stringify(w2utils.rgb2hsv(parsed)))
-        $('#color3').html(JSON.stringify(w2utils.hsv2rgb(w2utils.rgb2hsv(parsed))))
+        query('#color1').html(JSON.stringify(parsed))
+        query('#color2').html(JSON.stringify(w2utils.rgb2hsv(parsed)))
+        query('#color3').html(JSON.stringify(w2utils.hsv2rgb(w2utils.rgb2hsv(parsed))))
     } else {
-        $('#color1').html('...')
-        $('#color2').html('...')
-        $('#color3').html('...')
+        query('#color1').html('...')
+        query('#color2').html('...')
+        query('#color3').html('...')
     }
 }
 </script>

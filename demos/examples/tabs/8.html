@@ -21,8 +21,9 @@ Tooltip position:<br>
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#tabs').w2tabs({
+query(() => {
+    new w2tabs({
+        box: query('#tabs')[0],
         name: 'tabs',
         active: 'tab1',
         tabs: [
@@ -40,7 +41,7 @@ $(function () {
             }
         ],
         onClick: function (event) {
-            $('#selected-tab').html(event.target);
+            query('#selected-tab').html(event.target);
             if (event.target == 'tab2') {
                 event.tab.count++;
                 this.refresh(event.target);

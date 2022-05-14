@@ -26,8 +26,9 @@ You can sort any array in the following way:
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#grid1').w2grid({
+query(() => {
+    new w2grid({
+        box: query('#grid1')[0],
         name: 'grid1',
         columns: [
             { field: 'fname', caption: 'First Name', size: '30%', sortable: true, sortMode: 'natural' },
@@ -45,7 +46,8 @@ $(function () {
         ],
         sortData: [{ field: 'fname', direction: 'asc' }]
     })
-    $('#grid2').w2grid({
+    new w2grid({
+        box: query('#grid2')[0],
         name: 'grid2',
         columns: [
             { field: 'fname', caption: 'First Name', size: '30%', sortable: true },

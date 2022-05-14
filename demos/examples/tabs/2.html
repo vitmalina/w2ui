@@ -16,8 +16,9 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#tabs').w2tabs({
+query(() => {
+    new w2tabs({
+        box: query('#tabs')[0],
         name: 'tabs',
         active: 'tab2',
         tabs: [

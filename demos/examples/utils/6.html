@@ -26,39 +26,39 @@
 
 <!--CODE-->
 <script>
-$('#str').w2field({ type: 'float', autoFormat: false });
+new w2field({ el: query('#str')[0], type: 'float', autoFormat: false });
 function update() {
-    var val = $('#str').val();
+    var val = query('#str').val();
     if (w2utils.isFloat(val)) {
-        $('#fNumber').html(w2utils.formatters['number'](val));
-        $('#fNumber2').html(w2utils.formatters['number'](val, 3));
-        $('#fMoney').html(w2utils.formatters['money'](val));
-        $('#fPercent').html(w2utils.formatters['percent'](val));
-        $('#fSize').html(w2utils.formatters['size'](val));
+        query('#fNumber').html(w2utils.formatters['number'](val));
+        query('#fNumber2').html(w2utils.formatters['number'](val, 3));
+        query('#fMoney').html(w2utils.formatters['money'](val));
+        query('#fPercent').html(w2utils.formatters['percent'](val));
+        query('#fSize').html(w2utils.formatters['size'](val));
     } else {
-        $('#fNumber').html('--');
-        $('#fNumber2').html('--');
-        $('#fMoney').html('--');
-        $('#fPercent').html('--');
-        $('#fSize').html('--');
+        query('#fNumber').html('--');
+        query('#fNumber2').html('--');
+        query('#fMoney').html('--');
+        query('#fPercent').html('--');
+        query('#fSize').html('--');
     }
     var dt = w2utils.isDate(val, null, true);
     if (dt !== false) {
-        $('#fDate').html(w2utils.formatters['date'](val));
-        $('#fDateTime').html(w2utils.formatters['datetime'](val));
-        $('#fTime').html(w2utils.formatters['time'](val));
-        $('#fGMT').html(w2utils.formatters['gmt'](val));
-        $('#fTimeStamp').html(w2utils.formatters['timestamp'](val));
-        $('#fAge').html(w2utils.formatters['age'](val));
-        $('#fInterval').html(w2utils.formatters['interval'](val));
+        query('#fDate').html(w2utils.formatters['date'](val));
+        query('#fDateTime').html(w2utils.formatters['datetime'](val));
+        query('#fTime').html(w2utils.formatters['time'](val));
+        query('#fGMT').html(w2utils.formatters['gmt'](val));
+        query('#fTimeStamp').html(w2utils.formatters['timestamp'](val));
+        query('#fAge').html(w2utils.formatters['age'](val));
+        query('#fInterval').html(w2utils.formatters['interval'](val));
     } else {
-        $('#fDate').html('--');
-        $('#fDateTime').html('--');
-        $('#fTime').html('--');
-        $('#fGMT').html('--');
-        $('#fTimeStamp').html('--');
-        $('#fAge').html('--');
-        $('#fInterval').html('--');
+        query('#fDate').html('--');
+        query('#fDateTime').html('--');
+        query('#fTime').html('--');
+        query('#fGMT').html('--');
+        query('#fTimeStamp').html('--');
+        query('#fAge').html('--');
+        query('#fInterval').html('--');
     }
 }
 </script>

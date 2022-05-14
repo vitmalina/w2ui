@@ -26,7 +26,7 @@ You can sort any array in the following way:
 
 <!--CODE-->
 <script>
-$(function () {
+query(() => {
     let records = [
         'a', 'á', 'ä',
         'e', 'è', 'ę́',
@@ -37,7 +37,8 @@ $(function () {
         'z'
     ].map((char, recid) => { return { recid, char }});
 
-    $('#grid1').w2grid({
+    new w2grid({
+        box: query('#grid1')[0],
         name: 'grid1',
         columns: [
             { field: 'char', caption: 'Character', size: '30%', sortable: true, sortMode: 'i18n' },
@@ -45,7 +46,8 @@ $(function () {
         records: records,
         sortData: [{ field: 'char', direction: 'asc' }]
     })
-    $('#grid2').w2grid({
+    new w2grid({
+        box: query('#grid2')[0],
         name: 'grid2',
         columns: [
             { field: 'char', caption: 'Character', size: '30%', sortable: true },

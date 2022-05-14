@@ -45,7 +45,7 @@
     </div>
 </div>
 <br><br>
-<select id="trans" style="height: 28px;">
+<select id="trans" style="height: 28px;" class="w2ui-input">
     <option value="flip-left">flip-left</option>
     <option value="flip-right">flip-right</option>
     <option value="flip-up">flip-up</option>
@@ -63,7 +63,7 @@
 <script>
 var current = 'box1';
 function go() {
-    if (current == 'box1') { current = 'box2'; w2utils.transition($('#box1')[0], $('#box2')[0], $('#trans').val()); return; }
-    if (current == 'box2') { current = 'box1'; w2utils.transition($('#box2')[0], $('#box1')[0], $('#trans').val()); return; }
+    if (current == 'box1') { current = 'box2'; w2utils.transition(query('#box1')[0], query('#box2')[0], query('#trans').val()); return; }
+    if (current == 'box2') { current = 'box1'; w2utils.transition(query('#box2')[0], query('#box1')[0], query('#trans').val()); return; }
 }
 </script>

@@ -13,8 +13,9 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#tabs').w2tabs({
+query(() => {
+    new w2tabs({
+        box: query('#tabs')[0],
         name: 'tabs',
         active: 'tab1',
         tabs: [
@@ -24,7 +25,7 @@ $(function () {
             { id: 'tab4', text: 'Tab 4' }
         ],
         onClick: function (event) {
-            $('#selected-tab').html(event.target);
+            query('#selected-tab').html(event.target);
         }
     });
 });

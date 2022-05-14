@@ -30,29 +30,29 @@
 <!--CODE-->
 <script>
 function update() {
-	$('#isBin').html(w2utils.isBin($('#str')[0].value) ? 'Yes' : '-');
-    $('#isInt').html(w2utils.isInt($('#str')[0].value) ? 'Yes' : '-');
-    $('#isFloat').html(w2utils.isFloat($('#str')[0].value) ? 'Yes' : '-');
-    $('#isHex').html(w2utils.isHex($('#str')[0].value) ? 'Yes' : '-');
-    $('#isMoney').html(w2utils.isMoney($('#str')[0].value) ? 'Yes' : '-');
-    $('#isAlphaNumeric').html(w2utils.isAlphaNumeric($('#str')[0].value) ? 'Yes' : '-');
-    $('#isEmail').html(w2utils.isEmail($('#str')[0].value) ? 'Yes' : '-');
-    $('#isDate').html(w2utils.isDate($('#str')[0].value) ? 'Yes' : '-');
-    $('#isTime').html(w2utils.isTime($('#str')[0].value) ? 'Yes' : '-');
-    $('#isDateTime').html(w2utils.isDateTime($('#str')[0].value) ? 'Yes' : '-');
-    $('#isIpAddress').html(w2utils.isIpAddress($('#str')[0].value) ? 'Yes' : '-');
+	query('#isBin').html(w2utils.isBin(query('#str')[0].value) ? 'Yes' : '-');
+    query('#isInt').html(w2utils.isInt(query('#str')[0].value) ? 'Yes' : '-');
+    query('#isFloat').html(w2utils.isFloat(query('#str')[0].value) ? 'Yes' : '-');
+    query('#isHex').html(w2utils.isHex(query('#str')[0].value) ? 'Yes' : '-');
+    query('#isMoney').html(w2utils.isMoney(query('#str')[0].value) ? 'Yes' : '-');
+    query('#isAlphaNumeric').html(w2utils.isAlphaNumeric(query('#str')[0].value) ? 'Yes' : '-');
+    query('#isEmail').html(w2utils.isEmail(query('#str')[0].value) ? 'Yes' : '-');
+    query('#isDate').html(w2utils.isDate(query('#str')[0].value) ? 'Yes' : '-');
+    query('#isTime').html(w2utils.isTime(query('#str')[0].value) ? 'Yes' : '-');
+    query('#isDateTime').html(w2utils.isDateTime(query('#str')[0].value) ? 'Yes' : '-');
+    query('#isIpAddress').html(w2utils.isIpAddress(query('#str')[0].value) ? 'Yes' : '-');
 
-    if (w2utils.isInt($('#str').val())) {
-        $('#goInterval').html(w2utils.interval($('#str')[0].value));
+    if (w2utils.isInt(query('#str').val())) {
+        query('#goInterval').html(w2utils.interval(query('#str')[0].value));
     } else {
-        $('#goInterval').html('-');
+        query('#goInterval').html('-');
     }
-    if (w2utils.isDate($('#str')[0].value)) {
-        $('#goAge').html(w2utils.age($('#str')[0].value));
-        $('#goDate').html(w2utils.date($('#str')[0].value));
+    if (w2utils.isDate(query('#str')[0].value)) {
+        query('#goAge').html(w2utils.age(query('#str')[0].value));
+        query('#goDate').html(w2utils.date(query('#str')[0].value));
     } else {
-        $('#goAge').html('-');
-        $('#goDate').html('-');
+        query('#goAge').html('-');
+        query('#goDate').html('-');
     }
 }
 </script>

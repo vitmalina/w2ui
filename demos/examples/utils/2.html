@@ -14,14 +14,14 @@ This <a href="http://link">is some</a> HTML <b>text</b> to be encoded.
 Also counld     have     spaces    that    can be removed.
 </textarea>
 <br><br>
-<button class="w2ui-btn" onclick="$('#encode').val(w2utils.base64encode($('#encode')[0].value))">Encode base64</button>
-<button class="w2ui-btn" onclick="$('#encode').val(w2utils.base64decode($('#encode')[0].value))">Decode base64</button>
+<button class="w2ui-btn" onclick="query('#encode').val(w2utils.base64encode(query('#encode')[0].value))">Encode base64</button>
+<button class="w2ui-btn" onclick="query('#encode').val(w2utils.base64decode(query('#encode')[0].value))">Decode base64</button>
 <span style="color: gray; padding: 10px">|</span>
-<button class="w2ui-btn" onclick="$('#encode').val(w2utils.encodeTags($('#encode')[0].value))">Encode HTML Tags</button>
-<button class="w2ui-btn" onclick="$('#encode').val(w2utils.decodeTags($('#encode')[0].value))">Decode HTML Tags</button>
+<button class="w2ui-btn" onclick="query('#encode').val(w2utils.encodeTags(query('#encode')[0].value))">Encode HTML Tags</button>
+<button class="w2ui-btn" onclick="query('#encode').val(w2utils.decodeTags(query('#encode')[0].value))">Decode HTML Tags</button>
 <div style="height: 20px"></div>
-<button class="w2ui-btn" onclick="$('#encode').val(w2utils.stripTags($('#encode')[0].value))">Strip HTML Tags</button>
-<button class="w2ui-btn" onclick="$('#encode').val(w2utils.stripSpaces($('#encode')[0].value))">Strip Extra Spaces (2.0+)</button>
+<button class="w2ui-btn" onclick="query('#encode').val(w2utils.stripTags(query('#encode')[0].value))">Strip HTML Tags</button>
+<button class="w2ui-btn" onclick="query('#encode').val(w2utils.stripSpaces(query('#encode')[0].value))">Strip Extra Spaces (2.0+)</button>
 <button class="w2ui-btn" onclick="showSha()">Calculate sha256  (2.0+)</button>
 
 <script>
@@ -30,7 +30,7 @@ async function showSha() {
         height: 200,
         width: 500,
         title: 'Sha',
-        body: `<div class="w2ui-centered">${await w2utils.sha256($('#encode')[0].value)}</div>`,
+        body: `<div class="w2ui-centered">${await w2utils.sha256(query('#encode')[0].value)}</div>`,
         actions: {
             Ok() { w2popup.close() }
         }
