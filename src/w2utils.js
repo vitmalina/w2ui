@@ -1958,7 +1958,7 @@ class Utils {
     }
 
     // deep copy of an object or an array
-    clone(obj) {
+    clone(obj, options = { functions: true, elements: true }) {
         let ret
         if (Array.isArray(obj)) {
             ret = Array.from(obj)
@@ -1972,9 +1972,15 @@ class Utils {
                 ret[key] = this.clone(ret[key])
             })
         } else {
-            // primitive variable or function, event, dom element, etc,
-            // all these are not cloned
-            ret = obj
+            if (typeof obj == 'function' && !options.functions) {
+                debugger
+                // do not include functions in the clone
+            } else if (obj instanceof HTMLElement && !options.elements) {
+                // do not include HTMLelements
+            } else {
+                // primitive variable or function, event, dom element, etc, -  all these are not cloned
+                ret = obj
+            }
         }
         return ret
     }

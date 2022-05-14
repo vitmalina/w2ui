@@ -464,6 +464,8 @@ class w2grid extends w2base {
 
             }
         }
+        // render if box specified
+        if (this.box) this.render(this.box)
     }
 
     add(record, first) {

@@ -12,11 +12,12 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#form').w2form({
-        name     : 'form',
-        url      : 'server/post',
-        header   : 'Field Types',
+query(() => {
+    let form = new w2form({
+        box: query('#form')[0],
+        name: 'form',
+        url: 'server/post',
+        header: 'Field Types',
         record: {
             simple: {
                 text: 'default text value',

@@ -71,6 +71,9 @@ class w2toolbar extends w2base {
         if (Array.isArray(items)) this.add(items)
         // need to reassign back to keep it in config
         options.items = items
+
+        // render if box specified
+        if (this.box) this.render(this.box)
     }
 
     add(items) {

@@ -17,11 +17,12 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#form').w2form({
-        name   : 'form',
-        header : 'Multi Page Form',
-        url    : 'server/post',
+query(() => {
+    let form = new w2form({
+        box: query('#form')[0],
+        name: 'form',
+        header: 'Multi Page Form',
+        url: 'server/post',
         fields: [
             { field: 'name.first', type: 'text', required: true,
                 html: {

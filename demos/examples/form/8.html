@@ -16,7 +16,7 @@
 <script>
 function openPopup () {
     if (!w2ui.foo) {
-        $().w2form({
+        new w2form({
             name: 'foo',
             style: 'border: 0px; background-color: transparent;',
             fields: [
@@ -42,17 +42,13 @@ function openPopup () {
         width   : 500,
         height  : 280,
         showMax : true,
-        onToggle(event) {
-            event.done(() => {
-                w2ui.foo.resize();
-            })
+        async onToggle(event) {
+            await event.complete
+            w2ui.foo.resize();
         }
     })
-    .then(() => {
-        // timeout is needed because popup appears with animation
-        setTimeout(() => {
-            $('#w2ui-popup #form').w2render('foo');
-        }, 300)
+    .then((event) => {
+        w2ui.foo.render(query('#form')[0])
     });
 }
 </script>

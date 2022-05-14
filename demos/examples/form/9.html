@@ -15,12 +15,13 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#form').w2form({
-        name   : 'form',
-        header : 'Form Events',
-        url    : 'server/post',
-        fields : [
+query(() => {
+    let form = new w2form({
+        box: query('#form')[0],
+        name: 'form',
+        header: 'Form Events',
+        url: 'server/post',
+        fields: [
             { field: 'first_name', type: 'text', required: true, html: { label: 'First Name' } },
             { field: 'last_name',  type: 'text', required: true, html: { label: 'Last Name' } },
             { field: 'dob',  type: 'date', html: { label: 'DOB', attr: 'style="width: 90px"' } },
@@ -47,13 +48,14 @@ $(function () {
     });
     // attach event listener for all events
     w2ui.form.on('*', function (event) {
-        let edata = $.extend({}, event)
+        let edata = w2utils.clone(Object.assign({}, event), { functions: false, elements: false })
         if (edata.originalEvent) edata.originalEvent = {'...':'...'}
         if (edata.error) edata.error = {'...':'...'}
         if (edata.errors) edata.errors = {'...':'...'}
         if (edata.xhr) edata.xhr = {'...':'...'}
-        // $('#preview').html(`Event: ${event.type}<pre style="font-size: 12px; line-height: 1.4">${JSON.stringify(edata, null, 2)}</pre>`);
-        // console.log('Event: '+ event.type, 'Target: '+ event.target, event);
+        if (edata.owner) edata.owner = {'...':'...'}
+        console.log('Event: '+ event.type, 'Target: '+ event.target, event);
+        query('#preview').html(`Event: ${event.type}<pre style="font-size: 12px; line-height: 1.4">${JSON.stringify(edata, null, 2)}</pre>`);
     });
 });
 </script>

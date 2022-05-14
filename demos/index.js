@@ -329,7 +329,7 @@ $(async function () {
                 },
                 { id: 'fields-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
-                        { id: 'fields/9', text: 'ES6 Classes', icon: 'fa fa-pencil-square-o' },
+                        { id: 'fields/9', text: 'Custom Fields', icon: 'fa fa-pencil-square-o' },
                         { id: 'fields/10', text: 'Helptul Utils', icon: 'fa fa-pencil-square-o' }
                     ]
                 },
@@ -352,7 +352,7 @@ $(async function () {
                 },
                 { id: 'popup-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
-                        { id: 'popup/10', text: 'Actions', icon: 'fa fa-list-alt' },
+                        { id: 'popup/10', text: 'Custom Actions', icon: 'fa fa-list-alt' },
                         { id: 'popup/11', text: 'Promises', icon: 'fa fa-list-alt' }
                     ]
                 },

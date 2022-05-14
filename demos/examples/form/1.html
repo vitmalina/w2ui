@@ -39,14 +39,16 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#form').w2form({
+query(() => {
+    let form = new w2form({
+        box: query('#form')[0],
         name: 'form',
         url: 'server/post',
         record: {
             first_name: 'John',
             last_name: 'Doe'
         },
+        formHTML: query('#form').html(),
         fields: [
             { field: 'first_name', type: 'text', required: true },
             { field: 'last_name',  type: 'text', required: true },

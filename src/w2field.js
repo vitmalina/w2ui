@@ -15,6 +15,7 @@
  *  - options.items - can be an array
  *  - options.msgSearch - message to search for user
  *  - options.msgNoItems - can be a function
+ *  - REMOTE fields
  *
  * == 2.0 changes
  *  - removed jQuery dependency

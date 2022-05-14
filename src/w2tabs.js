@@ -59,6 +59,9 @@ class w2tabs extends w2base {
         if (Array.isArray(tabs)) this.add(tabs)
         // need to reassign back to keep it in config
         options.tabs = tabs
+
+        // render if box specified
+        if (this.box) this.render(this.box)
     }
 
     add(tab) {

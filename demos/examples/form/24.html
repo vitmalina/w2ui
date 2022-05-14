@@ -17,13 +17,14 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#form').w2form({
-        name   : 'form',
-        header : 'Auto-Generated Form',
-        url    : 'server/post',
-        focus  : 'last_name',
-        fields : [
+query(() => {
+    let form = new w2form({
+        box: query('#form')[0],
+        name: 'form',
+        header: 'Auto-Generated Form',
+        url: 'server/post',
+        focus: 'last_name',
+        fields: [
             { field: 'first_name', type: 'text', required: true,
                 html: { label: 'First Name', attr: 'style="width: 200px"' }
             },

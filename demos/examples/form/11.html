@@ -14,11 +14,12 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#form').w2form({
-        name   : 'form',
-        url    : 'server/post',
-        fields : [
+query(() => {
+    let form = new w2form({
+        box: query('#form')[0],
+        name: 'form',
+        url: 'server/post',
+        fields: [
             { field: 'field1', type: 'text',
                 html: {
                     group: 'Top Group',

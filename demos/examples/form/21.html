@@ -13,11 +13,12 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#form').w2form({
-        name   : 'form',
-        url    : 'server/post',
-        fields : [
+query(() => {
+    let form = new w2form({
+        box: query('#form')[0],
+        name: 'form',
+        url: 'server/post',
+        fields: [
             { field: 'first_name', type: 'text', required: true,
                 html: { label: 'First Name', attr: 'style="width: 200px"' }
             },

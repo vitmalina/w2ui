@@ -94,6 +94,9 @@ class w2sidebar extends w2base {
         if (Array.isArray(nodes)) this.add(nodes)
         // need to reassign back to keep it in config
         options.nodes = nodes
+
+        // render if box specified
+        if (this.box) this.render(this.box)
     }
 
     add(parent, nodes) {

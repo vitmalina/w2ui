@@ -75,6 +75,9 @@ class w2layout extends w2base {
             this.panels.push(w2utils.extend({}, this.panel_template, { type: tab, hidden: (tab !== 'main'), size: 50 }))
         })
 
+        // render if box specified
+        if (this.box) this.render(this.box)
+
         function initTabs(object, panel, tabs) {
             let pan = object.get(panel)
             if (pan != null && tabs == null) tabs = pan.tabs

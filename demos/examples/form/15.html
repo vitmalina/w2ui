@@ -14,8 +14,9 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#form').w2form({
+query(() => {
+    let form = new w2form({
+        box: query('#form')[0],
         name: 'form',
         url: 'server/post',
         focus: 0,
@@ -71,7 +72,7 @@ $(function () {
             Save: function () {
                 if (w2ui.form.validate().length == 0) {
                     let rec = this.getCleanRecord()
-                    rec.div = $('#div').html()
+                    rec.div = query('#div').html()
                     w2popup.open({
                         title: 'Form Data',
                         with: 600,

@@ -156,6 +156,9 @@ class w2form extends w2base {
             this.isGenerated = true
         }
 
+        // render if box specified
+        if (this.box) this.render(this.box)
+
         function _processFields(fields) {
             let newFields = []
             let tabs = []
