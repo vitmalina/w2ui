@@ -15,15 +15,16 @@
 
 <div style="height: 20px;"></div>
 
-<button class="w2ui-btn" onclick="$('#layout').width('700px'); w2ui.layout.resize()">width=700px</button>
-<button class="w2ui-btn" onclick="$('#layout').width('100%'); w2ui.layout.resize()">width=100%</button>
+<button class="w2ui-btn" onclick="query('#layout').css('width', '700px'); w2ui.layout.resize()">width=700px</button>
+<button class="w2ui-btn" onclick="query('#layout').css('width', '100%'); w2ui.layout.resize()">width=100%</button>
 
 <!--CODE-->
 <script>
-$(function () {
+query(() => {
     let pstyle = 'border: 1px solid #efefef; padding: 5px;';
     let pstyle2 = 'background-color: #efefbbad; border: 1px solid #efefef; padding: 5px;'
-    $('#layout').w2layout({
+    new w2layout({
+        box: query('#layout')[0],
         name: 'layout',
         padding: 5,
         panels: [

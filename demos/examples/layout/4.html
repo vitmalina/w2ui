@@ -28,9 +28,10 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    var pstyle = 'border: 1px solid #efefef; padding: 5px;';
-    $('#layout').w2layout({
+query(() => {
+    let pstyle = 'border: 1px solid #efefef; padding: 5px;';
+    new w2layout({
+        box: query('#layout')[0],
         name: 'layout',
         panels: [
             { type: 'top', size: 50, style: pstyle, html: 'top', resizable: true },

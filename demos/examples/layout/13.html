@@ -22,15 +22,16 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    var pstyle = 'border: 1px solid #efefef; padding: 5px;';
-    $('#layout').w2layout({
+query(() => {
+    let pstyle = 'border: 1px solid #efefef; padding: 5px;';
+    new w2layout({
+        box: query('#layout')[0],
         name: 'layout',
         panels: [
             { type: 'left', size: 200, resizable: true, style: pstyle, html: 'left' },
             { type: 'main', style: pstyle, html: 'main',
                 callBack(event) {
-                    $('#log').html('Original content is removed')
+                    query('#log').html('Original content is removed')
                 }
             }
         ],
@@ -53,7 +54,7 @@ function content2() {
 }
 
 function removed(event) {
-    $('#log').html(`Panel: ${event.panel}, content "<span style="color: gray">${event.html}</span>" is replaced
+    query('#log').html(`Panel: ${event.panel}, content "<span style="color: gray">${event.html}</span>" is replaced
         with "<span style="color: gray">${event.html_new}</span>"`)
 }
 </script>

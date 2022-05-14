@@ -20,9 +20,10 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    var pstyle = 'border: 1px solid #efefef; padding: 5px;';
-    $('#layout').w2layout({
+query(() => {
+    let pstyle = 'border: 1px solid #efefef; padding: 5px;';
+    new w2layout({
+        box: query('#layout')[0],
         name: 'layout',
         panels: [
             { type: 'left', size: 200, resizable: true, style: pstyle, html: 'left' },

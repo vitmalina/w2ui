@@ -6,7 +6,7 @@
         is no need to define a name of the toolbar, because it will be overwritten with layout.name + '_toolbar'. It will also add toolbar.owner
         attribute that is a reference to the layout.
         </p>
-        
+
         <p>
         You can dynamically load content into the main panel; this is done so you can observe the overflow behavior of the panel (scrollbars).
         </p>
@@ -20,9 +20,10 @@
 
 <!--CODE-->
 <script>
-$(function () {    
-    var pstyle = 'border: 1px solid #efefef; padding: 5px;';
-    $('#layout').w2layout({
+query(() => {
+    let pstyle = 'border: 1px solid #efefef; padding: 5px;';
+    new w2layout({
+        box: query('#layout')[0],
         name: 'layout',
         panels: [
             { type: 'top', size: 50, resizable: true, style: pstyle, html: 'top' },

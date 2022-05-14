@@ -22,9 +22,10 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    var pstyle = 'border: 1px solid #efefef; padding: 5px;';
-    $('#layout').w2layout({
+query(() => {
+    let pstyle = 'border: 1px solid #efefef; padding: 5px;';
+    new w2layout({
+        box: query('#layout')[0],
         name: 'layout',
         panels: [
             { type: 'left', size: 200, resizable: true, style: pstyle, html: 'left' },
@@ -35,16 +36,16 @@ $(function () {
 
 
 function loadContent(panel, ind) {
-    $('#msg-log').html('')
+    query('#msg-log').html('')
     w2ui.layout
         .load(panel, `data/content${ind}.html`)
         .then(event => {
-            $('#msg-log').html(`content ${ind} is loaded`)
+            query('#msg-log').html(`content ${ind} is loaded`)
         })
 }
 
 function showMessage(panel) {
-    $('#msg-log').html('')
+    query('#msg-log').html('')
     w2ui.layout
         .message('main', {
             width: 300,
@@ -53,7 +54,7 @@ function showMessage(panel) {
             buttons: '<button class="w2ui-btn" onclick="w2ui.layout.message(\'main\')">Ok</button>'
         })
         .then(event => {
-            $('#msg-log').html('message is ready')
+            query('#msg-log').html('message is ready')
         })
 }
 </script>

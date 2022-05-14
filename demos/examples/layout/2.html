@@ -14,9 +14,10 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    var pstyle = 'border: 1px solid #efefef; padding: 5px;';
-    $('#layout').w2layout({
+query(() => {
+    let pstyle = 'border: 1px solid #efefef; padding: 5px;';
+    new w2layout({
+        box: query('#layout')[0],
         name: 'layout',
         padding: 4,
         panels: [
