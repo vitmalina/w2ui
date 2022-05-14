@@ -12,12 +12,13 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#sidebar').w2sidebar({
-        name       : 'sidebar',
-        topHTML    : '<div style="background-color: #eee; padding: 10px 5px; border-bottom: 1px solid silver">Some HTML</div>',
-        bottomHTML : '<div style="background-color: #eee; padding: 10px 5px; border-top: 1px solid silver">Some HTML</div>',
-        nodes : [
+query(() => {
+    new w2sidebar({
+        box: query('#sidebar')[0],
+        name: 'sidebar',
+        topHTML: '<div style="background-color: #eee; padding: 10px 5px; border-bottom: 1px solid silver">Some HTML</div>',
+        bottomHTML: '<div style="background-color: #eee; padding: 10px 5px; border-top: 1px solid silver">Some HTML</div>',
+        nodes: [
             { id: 'level-1', text: 'Level 1', img: 'icon-folder', expanded: true, group: true,
               nodes: [ { id: 'level-1-1', text: 'Level 1.1', icon: 'fa fa-home' },
                        { id: 'level-1-2', text: 'Level 1.2', icon: 'fa fa-coffee' },

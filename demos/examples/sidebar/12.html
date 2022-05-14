@@ -19,8 +19,9 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#sidebar').w2sidebar({
+query(() => {
+    new w2sidebar({
+        box: query('#sidebar')[0],
         name: 'sidebar',
         levelPadding: 20,
         nodes: [
@@ -64,11 +65,11 @@ $(function () {
         ],
         onFocus: function (event) {
           console.log('focus', event);
-          $('#hasFocus').html('<span style="background-color: #eee; padding: 5px; border-radius: 3px;">HAS FOCUS</span>');
+          query('#hasFocus').html('<span style="background-color: #eee; padding: 5px; border-radius: 3px;">HAS FOCUS</span>');
         },
         onBlur: function (event) {
           console.log('blur', event);
-          $('#hasFocus').html('');
+          query('#hasFocus').html('');
         }
     });
 })

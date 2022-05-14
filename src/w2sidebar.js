@@ -953,7 +953,7 @@ class w2sidebar extends w2base {
         if (id == null && (this.topHTML !== '' || flatHTML !== '')) {
             query(this.box).find('.w2ui-sidebar-top').html(this.topHTML + flatHTML)
             query(this.box).find('.w2ui-sidebar-body')
-                .css('top', query(this.box).find('.w2ui-sidebar-top').get(0).clientHeight + 'px')
+                .css('top', query(this.box).find('.w2ui-sidebar-top').get(0)?.clientHeight + 'px')
             query(this.box).find('.w2ui-flat')
                 .off('clcik')
                 .on('click', event => { this.goFlat() })
@@ -961,12 +961,12 @@ class w2sidebar extends w2base {
         if (id != null && this.bottomHTML !== '') {
             query(this.box).find('.w2ui-sidebar-bottom').html(this.bottomHTML)
             query(this.box).find('.w2ui-sidebar-body')
-                .css('bottom', query(this.box).find('.w2ui-sidebar-bottom').get(0).clientHeight + 'px')
+                .css('bottom', query(this.box).find('.w2ui-sidebar-bottom').get(0)?.clientHeight + 'px')
         }
         // default action
         query(this.box).find(':scope > div').removeClass('w2ui-sidebar-flat').addClass(this.flat ? 'w2ui-sidebar-flat' : '').css({
-            width : query(this.box).get(0).clientWidth + 'px',
-            height: query(this.box).get(0).clientHeight + 'px'
+            width : query(this.box).get(0)?.clientWidth + 'px',
+            height: query(this.box).get(0)?.clientHeight + 'px'
         })
         // if no parent - reset nodes
         if (this.nodes.length > 0 && this.nodes[0].parent == null) {
@@ -998,8 +998,8 @@ class w2sidebar extends w2base {
         // remember scroll position
         let div = query(this.box).find(':scope > div').get(0)
         let scroll = {
-            top: div.scrollTop,
-            left: div.scrollLeft
+            top: div?.scrollTop,
+            left: div?.scrollLeft
         }
         // refresh sub nodes
         query(this.box).find(nodeSubId).html('')
@@ -1018,8 +1018,10 @@ class w2sidebar extends w2base {
             }
         }
         // reset scroll
-        div.scrollTop = scroll.top
-        div.scrollLeft = scroll.left
+        if (div) {
+            div.scrollTop = scroll.top
+            div.scrollLeft = scroll.left
+        }
         // bind events
         if (!noBinding) {
             let els = query(this.box).find(`${nodeId}.w2ui-eaction, ${nodeSubId} .w2ui-eaction`)

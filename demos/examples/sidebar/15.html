@@ -17,14 +17,15 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#sidebar').w2sidebar({
+query(() => {
+    new w2sidebar({
+        box: query('#sidebar')[0],
         name: 'sidebar',
         levelPadding: 22,
         nodes: [],
         topHTML: `
             <div style="height: 36px; padding: 3px 2px; border-bottom: 1px solid silver">
-                <input id="search" style="width: 100%; border: 1px solid silver; border-radius: 2px; padding: 6px;" placeholder="Search nodes..."
+                <input id="search" style="width: 100%" class="w2ui-input" placeholder="Search nodes..."
                     onchange="search(this.value)">
             </div>
         `,
@@ -46,9 +47,9 @@ function search(value) {
     sb.last_search = value
     let count = sb.search(value)
     sb.expandAll()
-    $(sb.box).find('#empty-search').remove()
+    query(sb.box).find('#empty-search').remove()
     if (count == 0) {
-        $(sb.box)
+        query(sb.box)
             .append('<div id="empty-search" style="font-size: 13px; color: #666; z-index: 1400; top: 45%; left: 50%; transform: translateX(-50%); width: 100%!important; text-align: center">No nodes found</div>')
     }
 }
@@ -57,7 +58,7 @@ function generate(nodes, id, options, count, subCount) {
     let icons = ['fa fa-home', 'fa fa-coffee', 'fa fa-comment-o', 'fa fa-star', 'fa fa-bug']
     let texts = ['Test', 'Label', 'Item', 'Simple', 'Formula', 'Single']
     for (let i=0; i<count; i++) {
-        let node = $.extend({
+        let node = w2utils.extend({
             id: id + '-' + i,
             expanded: false,
             text: texts[Math.floor(Math.random() * texts.length)],

@@ -22,8 +22,9 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#sidebar').w2sidebar({
+query(() => {
+    new w2sidebar({
+        box: query('#sidebar')[0],
         name: 'sidebar',
         levelPadding: 22,
         nodes: [],
@@ -38,9 +39,9 @@ $(function () {
 function sort() {
     let sb = w2ui.sidebar
     let options = {
-        foldersFirst: $('#foldersFirst').is(':checked'),
-        caseSensitive: $('#caseSensitive').is(':checked'),
-        reverse: $('#reverse').is(':checked'),
+        foldersFirst: query('#foldersFirst')[0].checked,
+        caseSensitive: query('#caseSensitive')[0].checked,
+        reverse: query('#reverse')[0].checked,
     }
     console.log(options)
     sb.sort(options)

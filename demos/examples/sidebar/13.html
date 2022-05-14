@@ -35,8 +35,9 @@
 <!--CODE-->
 <script>
 var bp = []
-$(function () {
-    $().w2sidebar({
+query(() => {
+    new w2sidebar({
+        box: query('#sidebar')[0],
         name: 'sidebar',
         levelPadding: 20,
         line: 0,
@@ -70,20 +71,20 @@ $(function () {
             }
         ],
         setBreakPoint(el) {
-            let stepId = $(el).closest('.w2ui-node').attr('id').substr(5)
+            let stepId = query(el).closest('.w2ui-node').attr('id').substr(5)
             if (bp.indexOf(stepId) != -1) {
                 bp.splice(bp.indexOf(stepId), 1)
-                $(el).removeClass('break-point')
+                query(el).removeClass('break-point')
             } else {
                 bp.push(stepId)
-                $(el).addClass('break-point')
+                query(el).addClass('break-point')
             }
             event.preventDefault()
             event.stopPropagation()
         },
         onRefresh(event) {
             event.done(() => {
-                let node = $('#node_' + event.target + ' .w2ui-node-handle > div')
+                let node = query('#node_' + event.target + ' .w2ui-node-handle > div')
                 if (bp.indexOf(event.target) == -1) {
                     node.removeClass('break-point')
                 } else {
@@ -94,9 +95,9 @@ $(function () {
     })
     // to avoid 1.5.3 (and prior) bug with handle object
     let nh = w2ui.sidebar.handle
-    w2ui.sidebar.handle = $.extend({}, nh)
-    $.extend(nh, { size: 0 })
+    w2ui.sidebar.handle = w2utils.extend({}, nh)
+    w2utils.extend(nh, { size: 0 })
     // ----
-    $('#sidebar').w2render('sidebar')
+    w2ui.sidebar.render(query('#sidebar')[0])
 })
 </script>

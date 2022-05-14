@@ -21,8 +21,9 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#sidebar').w2sidebar({
+query(() => {
+    new w2sidebar({
+        box: query('#sidebar')[0],
         name: 'sidebar',
         levelPadding: 20,
         nodes: [
