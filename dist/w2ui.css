@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/12/2022, 10:04:46 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/13/2022, 6:32:27 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -2580,13 +2580,13 @@ textarea.w2ui-error {
 .w2ui-grid .w2ui-edit-box {
   position: absolute;
   z-index: 1001;
-  border: 2px solid #6299DA;
+  border: 1.5px solid #6299DA;
   pointer-events: auto;
 }
 .w2ui-grid .w2ui-editable {
   overflow: hidden;
   height: 100% !important;
-  margin: 1px 0px !important;
+  margin: 0 !important;
   padding: 2px !important;
 }
 .w2ui-grid .w2ui-editable input {
@@ -2599,6 +2599,7 @@ textarea.w2ui-error {
   width: 100% !important;
   height: 100% !important;
   pointer-events: auto !important;
+  outline: none !important;
 }
 .w2ui-grid .w2ui-editable input.w2ui-select {
   outline: none !important;
@@ -2740,7 +2741,7 @@ textarea.w2ui-error {
 .w2ui-ss .w2ui-grid-body .w2ui-selection {
   position: absolute;
   z-index: 1000;
-  border: 2px solid #6299DA;
+  border: 1.5px solid #6299DA;
   /* #457FC2; */
   pointer-events: none;
 }
@@ -2759,7 +2760,7 @@ textarea.w2ui-error {
   pointer-events: auto;
 }
 .w2ui-ss .w2ui-grid-body .w2ui-selection.w2ui-inactive {
-  border: 2px solid #C0C2C5;
+  border: 1.5px solid #C0C2C5;
 }
 .w2ui-ss .w2ui-grid-body .w2ui-selection.w2ui-inactive .w2ui-selection-resizer {
   background-color: #B0B0B0;
@@ -3144,17 +3145,16 @@ textarea.w2ui-error {
   padding: 1px 0px;
   border: 1px solid transparent;
 }
-.w2ui-sidebar .w2ui-sidebar-body .w2ui-node .w2ui-node-text,
-.w2ui-sidebar .w2ui-sidebar-body .w2ui-node .w2ui-node-image,
-.w2ui-sidebar .w2ui-sidebar-body .w2ui-node .w2ui-node-image > span {
+.w2ui-sidebar .w2ui-sidebar-body .w2ui-node .w2ui-node-text {
   color: black;
   text-shadow: 0px 0px 0px #fff;
   pointer-events: none;
 }
-.w2ui-sidebar .w2ui-sidebar-body .w2ui-node .w2ui-node-text:hover,
-.w2ui-sidebar .w2ui-sidebar-body .w2ui-node .w2ui-node-image:hover,
-.w2ui-sidebar .w2ui-sidebar-body .w2ui-node .w2ui-node-image > span:hover {
+.w2ui-sidebar .w2ui-sidebar-body .w2ui-node .w2ui-node-text:hover {
   color: inherit;
+}
+.w2ui-sidebar .w2ui-sidebar-body .w2ui-node .w2ui-node-image > span {
+  color: #737485;
 }
 .w2ui-sidebar .w2ui-sidebar-body .w2ui-node .w2ui-node-handle {
   display: inline-block;
@@ -3259,7 +3259,7 @@ textarea.w2ui-error {
 }
 .w2ui-sidebar .w2ui-sidebar-body .w2ui-node-data .w2ui-node-image > span {
   font-size: 16px;
-  color: black;
+  color: #737485;
   text-shadow: 0px 0px 0px #fff;
 }
 .w2ui-sidebar .w2ui-sidebar-body .w2ui-node-data .w2ui-node-image.w2ui-icon {
@@ -3328,7 +3328,7 @@ textarea.w2ui-error {
 }
 .w2ui-sidebar .w2ui-sidebar-body .w2ui-node-flat .w2ui-node-image > span {
   font-size: 16px;
-  color: black;
+  color: #737485;
   text-shadow: 0px 0px 0px #fff;
 }
 .w2ui-sidebar .w2ui-sidebar-body .w2ui-node-flat .w2ui-node-image.w2ui-icon {

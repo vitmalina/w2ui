@@ -34,35 +34,37 @@ var config = {
             footer: true,
             lineNumbers: true
         },
-        onColumnClick: function (event) {
+        onColumnClick(event) {
             this.selectNone();
-            var column = this.getColumn(event.field, true);
-            var sel    = [];
-            for (var i = 0; i < this.total; i++) {
+            let sel = [];
+            let column = this.getColumn(event.detail.field, true);
+            for (let i = 0; i < this.total; i++) {
                 sel.push({ recid: this.records[i].recid, column: column });
             }
-            this.select.apply(this, sel);
+            this.select(sel);
             event.preventDefault();
         },
-        onSelectionExtend: function (event) {
-            event.onComplete = function () {
-                console.log('Original:', event.originalRange[0], '-', event.originalRange[1]);
-                console.log('New:', event.newRange[0], '-', event.newRange[1]);
+        onSelectionExtend(event) {
+            console.log(event)
+            // do not use on done() as it would add many done handlers
+            event.onComplete = () => {
+                console.log('Original:', event.detail.originalRange[0], '-', event.detail.originalRange[1]);
+                console.log('New:', event.detail.newRange[0], '-', event.detail.newRange[1]);
                 w2alert('Selection expanded (see more details in the console).');
             }
         },
-        onDelete: function (event) {
-            event.force = true;
+        onDelete(event) {
+            event.detail.force = true;
         }
     }
 };
 
-$(function () {
+query(() => {
     // initialization
-    $().w2grid(config.grid);
+    new w2grid(config.grid)
     // create columns
-    var tmp     = 'abcdefghijklmnoprst';
-    var values     = {};
+    var tmp = 'abcdefghijklmnoprst'
+    var values = {}
     for (var i = 0; i < tmp.length; i++) {
         w2ui.grid.columns.push({
             field: tmp[i],
@@ -72,26 +74,26 @@ $(function () {
             sortable: true,
             editable: { type: 'text', inTag: 'placeholder="Type..."' }
         });
-        values[tmp[i]] = '';
+        values[tmp[i]] = ''
     }
     // insert  records
     for (var i = 0; i < 100; i++) {
-        w2ui.grid.records.push($.extend({ recid: i+1 }, values));
+        w2ui.grid.records.push(w2utils.extend({ recid: i+1 }, values))
     }
-    w2ui.grid.total = w2ui.grid.records.length;
-    w2ui.grid.buffered = w2ui.grid.total;
+    w2ui.grid.total = w2ui.grid.records.length
+    w2ui.grid.buffered = w2ui.grid.total
     // init some values
-    var rec = w2ui.grid.records;
-    $.extend(rec[2], { c: 1, d: 67, f: 'some', g: 'text' });
-    $.extend(rec[3], { c: 2, d: 35, f: 'more', g: 'text' });
-    $.extend(rec[4], { c: 3, d: 17 });
-    $.extend(rec[5], { c: 4, d: 84 });
-    $.extend(rec[6], { c: 5, d: 14 });
-    $.extend(rec[2], { i: 'Spans 2 columsn', w2ui: { colspan: { i: 2 }} });
-    $.extend(rec[3], { i: 'Spans 3 columsn', w2ui: { colspan: { i: 3 }} });
+    var rec = w2ui.grid.records
+    w2utils.extend(rec[2], { c: 1, d: 67, f: 'some', g: 'text' })
+    w2utils.extend(rec[3], { c: 2, d: 35, f: 'more', g: 'text' })
+    w2utils.extend(rec[4], { c: 3, d: 17 })
+    w2utils.extend(rec[5], { c: 4, d: 84 })
+    w2utils.extend(rec[6], { c: 5, d: 14 })
+    w2utils.extend(rec[2], { i: 'Spans 2 columsn', w2ui: { colspan: { i: 2 }} })
+    w2utils.extend(rec[3], { i: 'Spans 3 columsn', w2ui: { colspan: { i: 3 }} })
     // display grid
-    $('#main').w2render('grid');
-});
+    w2ui.grid.render(query('#main')[0])
+})
 
 function mark() {
     w2ui.grid.addRange({

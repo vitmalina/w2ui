@@ -631,14 +631,14 @@
     .w2ui-edit-box {
         position: absolute;
         z-index: 1001;
-        border: 2px solid #6299DA;
+        border: 1.5px solid #6299DA;
         pointer-events: auto;
     }
 
     .w2ui-editable {
         overflow: hidden;
         height: 100% !important;
-        margin: 1px 0px !important;
+        margin: 0 !important;
         padding: 2px !important;
 
         input {
@@ -651,6 +651,7 @@
             width: 100% !important;
             height: 100% !important;
             pointer-events: auto !important;
+            outline: none !important;
         }
         input.w2ui-select {
             outline: none !important;
@@ -819,7 +820,7 @@
     .w2ui-selection {
         position: absolute;
         z-index: 1000;
-        border: 2px solid #6299DA; /* #457FC2; */
+        border: 1.5px solid #6299DA; /* #457FC2; */
         pointer-events: none;
 
         .w2ui-selection-resizer {
@@ -838,7 +839,7 @@
         }
 
         &.w2ui-inactive {
-            border: 2px solid #C0C2C5;
+            border: 1.5px solid #C0C2C5;
             .w2ui-selection-resizer {
                  background-color: #B0B0B0;
             }

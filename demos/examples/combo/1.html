@@ -31,7 +31,7 @@ var config = {
                 { id: 'html', text: 'Some HTML', icon: 'fa fa-list-alt' }
             ]}
         ],
-        onClick: function (event) {
+        onClick(event) {
             switch (event.target) {
                 case 'grid1':
                     w2ui.layout.html('main', w2ui.grid1);
@@ -41,7 +41,7 @@ var config = {
                     break;
                 case 'html':
                     w2ui.layout.html('main', '<div style="padding: 10px">Some HTML</div>');
-                    $(w2ui.layout.el('main'))
+                    query(w2ui.layout.el('main'))
                         .removeClass('w2ui-grid')
                         .css({
                             'border-left': '1px solid #efefef'
@@ -85,12 +85,15 @@ var config = {
     }
 };
 
-$(function () {
+
+query(() => {
+    let layout = new w2layout(config.layout)
+    let sidebar = new w2sidebar(config.sidebar)
+    let grid1 = new w2grid(config.grid1)
+    let grid2 = new w2grid(config.grid2)
     // initialization
-    $('#main').w2layout(config.layout);
-    w2ui.layout.html('left', $().w2sidebar(config.sidebar));
-    w2ui.layout.html('main', $().w2grid(config.grid1));
-    // in memory initialization
-    $().w2grid(config.grid2);
+    layout.render(query('#main')[0]);
+    w2ui.layout.html('left', sidebar);
+    w2ui.layout.html('main', grid1);
 });
 </script>

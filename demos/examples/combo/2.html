@@ -19,14 +19,14 @@ var config = {
         padding: 4,
         panels: [
             { type: 'left', size: '50%', resizable: true, minSize: 300 },
-            { type: 'main', minSize: 300 }
+            { type: 'main', minSize: 300, style: 'overflow: hidden' }
         ]
     },
     grid: {
         name: 'grid',
         show: {
-            toolbar            : true,
-            toolbarDelete    : true
+            toolbar: true,
+            toolbarDelete: true
         },
         columns: [
             { field: 'fname', text: 'First Name', size: '33%', sortable: true, searchable: true },
@@ -45,21 +45,19 @@ var config = {
             { recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
             { recid: 9, fname: 'Sergei', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
         ],
-        onClick: function(event) {
-            var grid = this;
-            var form = w2ui.form;
-            console.log(event);
-            event.onComplete = function () {
-                var sel = grid.getSelection();
-                console.log(sel);
+        onClick(event) {
+            let form = w2ui.form
+            console.log(event)
+            event.done(() => {
+                var sel = this.getSelection()
                 if (sel.length == 1) {
-                    form.recid  = sel[0];
-                    form.record = $.extend(true, {}, grid.get(sel[0]));
-                    form.refresh();
+                    form.recid = sel[0]
+                    form.record = w2utils.extend({}, this.get(sel[0]))
+                    form.refresh()
                 } else {
-                    form.clear();
+                    form.clear()
                 }
-            }
+            })
         }
     },
     form: {
@@ -73,30 +71,33 @@ var config = {
             { field: 'sdate', type: 'date', html: { label: 'Date', attr: 'size="10"' } }
         ],
         actions: {
-            Reset: function () {
-                this.clear();
+            Reset() {
+                this.clear()
             },
-            Save: function () {
-                var errors = this.validate();
-                if (errors.length > 0) return;
+            Save() {
+                let errors = this.validate()
+                if (errors.length > 0) return
                 if (this.recid == 0) {
-                    w2ui.grid.add($.extend(true,  this.record,{ recid: w2ui.grid.records.length + 2 }));
-                    w2ui.grid.selectNone();
-                    this.clear();
+                    w2ui.grid.add($.extend(true,  this.record,{ recid: w2ui.grid.records.length + 2 }))
+                    w2ui.grid.selectNone()
+                    this.clear()
                 } else {
-                    w2ui.grid.set(this.recid, this.record);
-                    w2ui.grid.selectNone();
-                    this.clear();
+                    w2ui.grid.set(this.recid, this.record)
+                    w2ui.grid.selectNone()
+                    this.clear()
                 }
             }
         }
     }
-};
+}
 
-$(function () {
+query(() => {
+    let layout = new w2layout(config.layout)
+    let grid = new w2grid(config.grid)
+    let form = new w2form(config.form)
     // initialization
-    $('#main').w2layout(config.layout);
-    w2ui.layout.html('left', $().w2grid(config.grid));
-    w2ui.layout.html('main', $().w2form(config.form));
-});
+    layout.render(query('#main')[0])
+    w2ui.layout.html('left', grid)
+    w2ui.layout.html('main', form)
+})
 </script>
