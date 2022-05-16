@@ -146,6 +146,24 @@ class Query {
         return new Query(nodes, this.context, this) // must return a new collection
     }
 
+    next() {
+        let nodes = []
+        this.each(node => {
+            let nn = node.nextElementSibling
+            if (nn) { nodes.push(nn) }
+        })
+        return new Query(nodes, this.context, this) // must return a new collection
+    }
+
+    prev() {
+        let nodes = []
+        this.each(node => {
+            let nn = node.previousElementSibling
+            if (nn) { nodes.push(nn)}
+        })
+        return new Query(nodes, this.context, this) // must return a new collection
+    }
+
     shadow(selector) {
         let nodes = []
         this.each(node => {

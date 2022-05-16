@@ -25,7 +25,7 @@ class w2event {
             isStopped: false,
             isCancelled: false,
             onComplete: null,
-            doneHandlers: []
+            listeners: []
         })
         delete edata.type
         delete edata.target
@@ -44,8 +44,8 @@ class w2event {
         this.owner.trigger.call(this.owner, this)
     }
 
-    done(handler) {
-        this.doneHandlers.push(handler)
+    done(func) {
+        this.listeners.push(func)
     }
 
     preventDefault() {
@@ -252,9 +252,9 @@ class w2base {
         // execute onComplete
         if (edata.phase === 'after') {
             if (typeof edata.onComplete === 'function') edata.onComplete.call(this, edata)
-            for (let i = 0; i < edata.doneHandlers.length; i++) {
-                if (typeof edata.doneHandlers[i] === 'function') {
-                    edata.doneHandlers[i].call(this, edata)
+            for (let i = 0; i < edata.listeners.length; i++) {
+                if (typeof edata.listeners[i] === 'function') {
+                    edata.listeners[i].call(this, edata)
                     if (this.debug) console.log(` - call: done`, fun)
                 }
             }
