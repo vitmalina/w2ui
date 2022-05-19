@@ -32,7 +32,7 @@ query(() => {
                 { text: 'Item 3', icon: 'fa fa-glass', count: 12 }
             ]},
             { type: 'break' },
-            { type: 'button', id: 'item2', icon: 'w2ui-icon-info',
+            { type: 'menu-radio', id: 'item2', icon: 'w2ui-icon-info',
                 text(item) {
                     return 'Radio: ' + item.get(item.selected)?.text;
                 },
