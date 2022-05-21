@@ -1197,14 +1197,14 @@ class w2field extends w2base {
         // color
         if (this.type === 'color') {
             if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
-            w2color.show({
+            w2color.show(w2utils.extend({
                 name: this.el.id + '_color',
                 anchor: this.el,
                 transparent: options.transparent,
                 advanced: options.advanced,
                 color: this.el.value,
                 liveUpdate: true
-            })
+            }, this.options))
             .select(event => {
                 let color = event.detail.color
                 query(this.el).val(color).trigger('input').trigger('change')
@@ -1401,7 +1401,7 @@ class w2field extends w2base {
                 'margin-right'   : 0
             })
         // only if visible
-        query(this.el).css('padding-left', helper.clientWidth + 'px')
+        query(this.el).css('padding-left', helper.clientWidth + 'px !important')
         // remember helper
         this.helpers.prefix = helper
     }
@@ -1452,7 +1452,7 @@ class w2field extends w2base {
                     }
                 })
             pr += helper.clientWidth // width of the control
-            query(this.el).css('padding-right', pr + 'px')
+            query(this.el).css('padding-right', pr + 'px !important')
             this.helpers.arrow = helper
         }
         if (this.options.suffix !== '') {
@@ -1476,7 +1476,7 @@ class w2field extends w2base {
                     'transform'      : 'translateX(-100%)'
                 })
 
-            query(this.el).css('padding-right', helper.clientWidth + 'px')
+            query(this.el).css('padding-right', helper.clientWidth + 'px !important')
             this.helpers.suffix = helper
         }
     }

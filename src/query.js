@@ -261,11 +261,13 @@ class Query {
     css(key, value) {
         let css = key
         let len = arguments.length
-        if (len === 0 || (len ===1 && typeof key == 'string')) {
+        if (len === 0 || (len === 1 && typeof key == 'string')) {
             if (this[0]) {
+                let st = this[0].style
                 // do not do computedStyleMap as it is not what on immediate element
                 if (typeof key == 'string') {
-                    return this[0].style[key]
+                    let pri = st.getPropertyPriority(key)
+                    return st.getPropertyValue(key) + (pri ? '!' + pri : '')
                 } else {
                     return Object.fromEntries(
                         this[0].style.cssText
@@ -286,7 +288,8 @@ class Query {
             }
             this.each((el, ind) => {
                 Object.keys(css).forEach(key => {
-                    el.style[key] = css[key]
+                    let imp = String(css[key]).toLowerCase().includes('!important') ? 'important' : ''
+                    el.style.setProperty(key, String(css[key]).replace(/\!important/i, ''), imp)
                 })
             })
             return this

@@ -3215,6 +3215,7 @@ class w2grid extends w2base {
             edit.items = w2utils.normMenu(edit.items)
         }
         let input
+        let dropTypes = ['date', 'time', 'datetime', 'color', 'list', 'combo']
         switch (edit.type) {
             case 'div': {
                 debugger
@@ -3256,40 +3257,57 @@ class w2grid extends w2base {
                 input.value = (typeof val != 'object' ? val : '')
 
                 // init w2field, attached to input._w2field
-                // TODO: not always initizliaed in time
-                console.log('init w2field', input)
-                new w2field(w2utils.extend(edit, { el: input, selected: val }))
+                let doHide = (event) => {
+                    // trigger change on new value if selected from overlay
+                    if (this.last.inEditMode && dropTypes.includes(edit.type) // drop down types
+                            && event.detail.overlay.anchor?.id == this.last._edit.input?.id) {
+                        this.editChange()
+                        this.editDone()
+                    }
+                }
+                new w2field(w2utils.extend({}, edit, {
+                    el: input,
+                    selected: val,
+                    onSelect: doHide,
+                    onHide: doHide
+                }))
 
-                input.value = (typeof val != 'object' ? val : '')
                 if (value == null) {
                     // if no new value, then select content
                     input.select()
                 }
             }
         }
+        Object.assign(this.last._edit, { input, edit })
         query(input)
-            .on('blur', (event) => {
+            .off('.w2ui-editable')
+            .on('blur.w2ui-editable', (event) => {
                 if (this.last.inEditMode) {
+                    let type = this.last._edit.edit.type
+                    if (dropTypes.includes(type)) {
+                        // drop downs finish edit when popover is closed
+                        return
+                    }
                     this.editChange(input, index, column, event)
                     this.editDone()
                 }
             })
-            .on('mousedown', (event) => {
+            .on('mousedown.w2ui-editable', (event) => {
                 event.stopPropagation()
             })
-            .on('click', (event) => {
+            .on('click.w2ui-editable', (event) => {
                 expand.call(input, event)
             })
-            .on('paste', (event) => {
+            .on('paste.w2ui-editable', (event) => {
                 // clean paste to be plain text
                 event.preventDefault()
                 let text = event.clipboardData.getData('text/plain')
                 document.execCommand('insertHTML', false, text)
             })
-            .on('keyup', (event) => {
+            .on('keyup.w2ui-editable', (event) => {
                 expand.call(input, event)
             })
-            .on('keydown', (event) => {
+            .on('keydown.w2ui-editable', (event) => {
                 switch (event.keyCode) {
                     case 8: // backspace;
                         if (edit.type == 'list' && !input._w2field) { // cancel backspace when deleting element
@@ -3384,6 +3402,11 @@ class w2grid extends w2base {
     }
 
     editChange(input, index, column, event) {
+        // if params are not specified
+        input = input ?? this.last._edit.input
+        index = index ?? this.last._edit.index
+        column = column ?? this.last._edit.column
+        event = event ?? {}
         // all other fields
         let summary = index < 0
         index       = index < 0 ? -index - 1 : index
@@ -3395,7 +3418,6 @@ class w2grid extends w2base {
         if (fld) {
             // TODO: check
             if (fld.type == 'list') {
-                debugger
                 new_val = fld.selected
             }
             if (Object.keys(new_val).length === 0 || new_val == null) new_val = ''
@@ -3410,7 +3432,7 @@ class w2grid extends w2base {
         // change/restore event
         let edata = {
             target: this.name, input,
-            recid: rec.recid, index: index, column: column,
+            recid: rec.recid, index, column,
             originalEvent: event,
             value: {
                 new: new_val,
@@ -3418,7 +3440,8 @@ class w2grid extends w2base {
                 original: old_val,
             }
         }
-        if (event.target._prevValue != null) edata.value.previous = event.target._prevValue
+        console.log('change', edata.value)
+        if (event.target?._prevValue != null) edata.value.previous = event.target._prevValue
         let count = 0 // just in case to avoid infinite loop
         while (count < 20) {
             count++
@@ -3464,6 +3487,7 @@ class w2grid extends w2base {
     }
 
     editDone(index, column, event) {
+        // if params are not specified
         index = index ?? this.last._edit.index
         column = column ?? this.last._edit.column
         event = event ?? {}
@@ -5458,10 +5482,12 @@ class w2grid extends w2base {
                 }
                 // if toolbar input is clicked
                 setTimeout(() => {
-                    if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(target.tagName.toUpperCase()) != -1) {
-                        $(target).focus()
-                    } else {
-                        if (!$input.is(':focus')) $input.focus()
+                    if (!obj.last.inEditMode) {
+                        if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(target.tagName.toUpperCase()) != -1) {
+                            $(target).focus()
+                        } else {
+                            if (!$input.is(':focus')) $input.focus()
+                        }
                     }
                 }, 50)
                 // disable click select for this condition
