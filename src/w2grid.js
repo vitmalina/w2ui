@@ -3226,7 +3226,12 @@ class w2grid extends w2base {
                         '    field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" '+ edit.inTag +
                         '></div>' + edit.outTag)
                 input = div.find('div.w2ui-input').get(0)
-                if (value == null) input.innerText = (typeof val != 'object' ? val : '')
+                input.innerText = (typeof val != 'object' ? val : '')
+                if (value != null) {
+                    w2utils.setCursorPosition(input, input.innerText.length)
+                } else {
+                    w2utils.setCursorPosition(input, 0, input.innerText.length)
+                }
                 break
             }
             default: {
@@ -3464,8 +3469,12 @@ class w2grid extends w2base {
                         continue
                     }
                     // default action
-                    if (rec.w2ui && rec.w2ui.changes) delete rec.w2ui.changes[col.field]
-                    if (rec.w2ui && Object.keys(rec.w2ui.changes).length === 0) delete rec.w2ui.changes
+                    if (rec.w2ui?.changes) {
+                        delete rec.w2ui.changes[col.field]
+                        if (Object.keys(rec.w2ui.changes).length === 0) {
+                            delete rec.w2ui.changes
+                        }
+                    }
                     // event after
                     edata.finish()
                 }

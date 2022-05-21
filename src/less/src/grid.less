@@ -230,21 +230,6 @@
             .user-select(text);
         }
 
-        div.w2ui-input {
-            border: 1px solid transparent;
-            border-radius: 0 !important;
-            margin: 0px !important;
-            padding: 5px 4px 6px 4px !important;
-            display: inline-block;
-            width: 100% !important;
-            height: 100% !important;
-            pointer-events: auto !important;
-            background-color: white;
-            white-space: pre;
-            overflow: hidden;
-            .user-select(text);
-        }
-
         .w2ui-grid-columns, .w2ui-grid-fcolumns {
             overflow: hidden;
             position: absolute;
@@ -482,7 +467,7 @@
                     }
 
                     & > div {
-                        padding: 3px 5px;
+                        padding: 5px;
                         overflow: hidden;
                         white-space: nowrap;
                         text-overflow: ellipsis;
@@ -629,30 +614,57 @@
         .background-image(@image-changed, no-repeat, top, right);
     }
 
+    // only in spreadsheet mode
     .w2ui-edit-box {
         position: absolute;
         z-index: 1001;
         border: 1.5px solid #6299DA;
         pointer-events: auto;
+        padding: 2px !important;
+        margin: 0px !important;
+        background-color: white;
+        .w2ui-editable div.w2ui-input {
+            outline: none;
+            padding: 0.5px 1.5px !important;
+        }
     }
 
     .w2ui-editable {
         overflow: hidden;
         height: 100% !important;
         margin: 0 !important;
-        padding: 2px !important;
+        padding: 3.5px 2px 2px 2px !important;
 
         input {
+            position: relative;
+            top: -1px;
             border: 0 !important;
-            border-color: transparent !important;
             border-radius: 0 !important;
-            margin: 0px !important;
-            padding: 3px 3px 4px 3px !important;
+            border-color: transparent !important;
+            padding: 3px !important;
             display: inline-block;
             width: 100% !important;
             height: 100% !important;
             pointer-events: auto !important;
         }
+
+        div.w2ui-input {
+            position: relative;
+            top: -0.5px;
+            border: 0 transparent;
+            border-radius: 0 !important;
+            margin: 0px !important;
+            padding: 5px 3px !important;
+            display: inline-block;
+            width: 100% !important;
+            height: 100% !important;
+            pointer-events: auto !important;
+            background-color: white;
+            white-space: pre;
+            overflow: hidden;
+            .user-select(text);
+        }
+
         input.w2ui-select {
             outline: none !important;
             background: #fff;

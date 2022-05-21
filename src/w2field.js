@@ -1341,9 +1341,8 @@ class w2field extends w2base {
                 break
             case 'percent':
                 ch = ch.replace(/%/g, '')
-                break
             case 'float':
-                if (loose && ['-', this.options.decimalSymbol, this.options.groupSymbol].includes(ch)) {
+                if (loose && ['-', '', this.options.decimalSymbol, this.options.groupSymbol].includes(ch)) {
                     isValid = true
                 } else {
                     isValid = w2utils.isFloat(ch.replace(this.options.numberRE, ''))
@@ -1398,7 +1397,8 @@ class w2field extends w2base {
                 'margin-top'     : (parseInt(styles['margin-top'], 10) + 2) + 'px',
                 'margin-bottom'  : (parseInt(styles['margin-bottom'], 10) + 1) + 'px',
                 'margin-left'    : styles['margin-left'],
-                'margin-right'   : 0
+                'margin-right'   : 0,
+                'z-index'        : 1,
             })
         // only if visible
         query(this.el).css('padding-left', helper.clientWidth + 'px !important')

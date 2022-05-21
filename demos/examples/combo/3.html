@@ -72,7 +72,7 @@ query(() => {
             size: '15%',
             resizable: true,
             sortable: true,
-            editable: { type: 'text', inTag: 'placeholder="Type..."' }
+            editable: { type: 'div', inTag: 'placeholder="Type..."' }
         });
         values[tmp[i]] = ''
     }
@@ -93,6 +93,7 @@ query(() => {
     w2utils.extend(rec[3], { i: 'Spans 3 columsn', w2ui: { colspan: { i: 3 }} })
     // display grid
     w2ui.grid.render(query('#main')[0])
+    w2ui.grid.focus()
 })
 
 function mark() {
