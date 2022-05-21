@@ -154,7 +154,7 @@ query(() => {
     })
     form.render(query('#form').get(0))
     // insert draggable element
-    query(document.body).prepend('<span id="drag-me">Drag me Anywhere</span>')
+    query(document.body).prepend('<span id="drag-me">Drag me to the corners</span>')
     updateTooltip()
     dragElement(document.querySelector('#drag-me'))
 })

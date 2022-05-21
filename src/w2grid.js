@@ -3216,34 +3216,23 @@ class w2grid extends w2base {
         }
         let input
         let dropTypes = ['date', 'time', 'datetime', 'color', 'list', 'combo']
+        let styles = getComputedStyle(tr.find('[col="'+ column +'"] > div').get(0))
+        let font = `font-family: ${styles['font-family']}; font-size: ${styles['font-size']};`
         switch (edit.type) {
             case 'div': {
-                debugger
-                // TODO: check
-                let styles = getComputedStyle(tr.find('[col="'+ column +'"] > div').get(0))
-                let font = `font-family: ${styles['font-family']}'; font-size: ${styles['font-size']}`
                 div.addClass('w2ui-editable')
-                    .html('<div id="grid_'+ this.name +'_edit_'+ recid +'_'+ column +'" class="w2ui-input"'+
+                    .html('<div id="grid_'+ this.name +'_edit_'+ recid +'_'+ column +'" class="w2ui-input w2ui-focus"'+
                         '    contenteditable style="'+ font + addStyle + edit.style +'" autocorrect="off" autocomplete="off" spellcheck="false" '+
                         '    field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" '+ edit.inTag +
                         '></div>' + edit.outTag)
                 input = div.find('div.w2ui-input').get(0)
                 if (value == null) input.innerText = (typeof val != 'object' ? val : '')
-                // add blur listener
-                setTimeout(() => {
-                    let tmp = input
-                    query(tmp).on('blur', (event) => {
-                        self.editChange.call(obj, input, index, column, event)
-                    })
-                }, 0)
                 break
             }
             default: {
-                let styles = getComputedStyle(tr.find('[col="'+ column +'"] > div').get(0))
-                let font = `font-family: ${styles['font-family']}; font-size: ${styles['font-size']}`
                 div.addClass('w2ui-editable')
                     .html('<input id="grid_'+ this.name +'_edit_'+ recid +'_'+ column +'" autocorrect="off" autocomplete="off" spellcheck="false" type="text" '+
-                        '    style="'+ font +'; '+ addStyle + edit.style +'" '+
+                        '    style="'+ font + addStyle + edit.style +'" '+
                         '    field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" class="w2ui-input"'+ edit.inTag +
                         '/>' + edit.outTag)
                 input = div.find('input').get(0)
@@ -3440,7 +3429,6 @@ class w2grid extends w2base {
                 original: old_val,
             }
         }
-        console.log('change', edata.value)
         if (event.target?._prevValue != null) edata.value.previous = event.target._prevValue
         let count = 0 // just in case to avoid infinite loop
         while (count < 20) {
