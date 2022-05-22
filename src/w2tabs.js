@@ -581,7 +581,7 @@ class w2tabs extends w2base {
         let tab = this.get(id)
         if (tab == null || tab.disabled) return false
         // event before
-        let edata = this.trigger('close', { target: id, object: this.get(id), originalEvent: event })
+        let edata = this.trigger('close', { target: id, object: tab, tab, originalEvent: event })
         if (edata.isCancelled === true) return
         this.animateClose(id).then(() => {
             this.remove(id)

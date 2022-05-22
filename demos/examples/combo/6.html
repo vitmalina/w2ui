@@ -45,15 +45,16 @@ var config = {
             { id: 'tab2', text: 'Tab 2' },
             { id: 'tab3', text: 'Tab 3' },
         ],
-        onClick: function (event) {
-            $('#tab-example .tab').hide();
-            $('#tab-example #' + event.target).show();
+        onClick(event) {
+            query('#tab-example .tab').hide()
+            query('#tab-example #' + event.target).show()
         }
     }
 }
 
-$(function () {
-    $('#tabs').w2tabs(config.tabs);
-    $('#tab1').show();
-});
+query(() => {
+    let tabs = new w2tabs(config.tabs)
+    tabs.render(query('#tabs')[0])
+    query('#tab1').show()
+})
 </script>

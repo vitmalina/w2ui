@@ -511,13 +511,16 @@ class Query {
 
     toggle(force) {
         return this.each(node => {
-            let dsp = node.style.display
-            if ((dsp == 'none' && force == null) || force === true) { // show
-                node.style.display = node._mQuery?.prevDisplay ?? ''
+            let prev = node.style.display
+            let dsp  = getComputedStyle(node).display
+            let isHidden = (prev == 'none' || dsp == 'none')
+            if (isHidden && (force == null || force === true)) { // show
+                node.style.display = node._mQuery?.prevDisplay ?? (prev == dsp ? '' : 'block')
                 this._save(node, 'prevDisplay', null)
-            } else { // hide
+            }
+            if (!isHidden && (force == null || force === false)) { // hide
                 if (dsp != 'none') this._save(node, 'prevDisplay', dsp)
-                node.style.display = 'none'
+                node.style.setProperty('display', 'none')
             }
         })
     }

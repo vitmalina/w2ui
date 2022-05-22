@@ -2214,6 +2214,7 @@ class w2grid extends w2base {
         w2tooltip.show({
             name  : this.name + '-search-overlay',
             anchor: query(this.box).find('#grid_'+ this.name +'_search_all').get(0),
+            position: 'bottom|top',
             html  : this.getSearchesHTML(),
             align : 'left',
             arrowSize: 12,

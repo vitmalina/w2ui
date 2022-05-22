@@ -21,7 +21,7 @@ var config = {
         padding: 4,
         panels: [
             { type: 'left', size: '50%', resizable: true, minSize: 300 },
-            { type: 'main', minSize: 300 }
+            { type: 'main', minSize: 300, style: 'overflow: hidden' }
         ]
     },
     grid: {
@@ -44,18 +44,17 @@ var config = {
             { recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
             { recid: 9, fname: 'Sergei', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
         ],
-        onClick: function(event) {
-            var grid = this;
-            var form = w2ui.form;
-            event.onComplete = function () {
-                var sel = grid.getSelection();
-                if (sel.length == 1) {
-                    form.recid  = sel[0];
-                    form.record = $.extend(true, {}, grid.get(sel[0]));
-                    form.refresh();
-                } else {
-                    form.clear();
-                }
+        async onClick(event) {
+            let grid = this
+            let form = w2ui.form
+            await event.complete // needs to wait for evnet complete cycle, so selection is right
+            let sel = grid.getSelection()
+            if (sel.length == 1) {
+                form.recid  = sel[0]
+                form.record = w2utils.clone(grid.get(sel[0]))
+                form.refresh()
+            } else {
+                form.clear()
             }
         }
     },
@@ -71,32 +70,32 @@ var config = {
             { field: 'sdate', type: 'date', html: { label: 'Date', attr: 'size="10"' } }
         ],
         actions: {
-            Reset: function () {
-                this.clear();
+            Reset() {
+                this.clear()
             },
-            Save: function () {
-                var errors = this.validate();
-                if (errors.length > 0) return;
+            Save() {
+                let errors = this.validate()
+                if (errors.length > 0) return
                 if (this.recid == 0) {
-                    w2ui.grid.add($.extend(true, { recid: w2ui.grid.records.length + 1 }, this.record));
-                    w2ui.grid.selectNone();
-                    this.clear();
+                    w2ui.grid.add(w2utils.extend({ recid: w2ui.grid.records.length + 1 }, this.record))
+                    w2ui.grid.selectNone()
+                    this.clear()
                 } else {
-                    w2ui.grid.set(this.recid, this.record);
-                    w2ui.grid.selectNone();
-                    this.clear();
+                    w2ui.grid.set(this.recid, this.record)
+                    w2ui.grid.selectNone()
+                    this.clear()
                 }
             }
         }
     }
 };
 
-$(function () {
+query(() => {
     // initialization in memory
-    $().w2layout(config.layout);
-    $().w2grid(config.grid);
-    $().w2form(config.form);
-});
+    let layout = new w2layout(config.layout)
+    let grid = new w2grid(config.grid)
+    let form = new w2form(config.form)
+})
 
 function openPopup() {
     w2popup.open({
@@ -104,15 +103,12 @@ function openPopup() {
         width: 900,
         height: 600,
         showMax: true,
-        body: '<div id="main" style="position: absolute; left: 2px; right: 2px; top: 0px; bottom: 3px;"></div>',
-        onToggle(event) {
-            event.done(() => { w2ui.layout.resize() })
-        }
+        body: '<div id="main" style="position: absolute; left: 2px; right: 2px; top: 0px; bottom: 3px;"></div>'
     })
     .then(e => {
-        $('#w2ui-popup #main').w2render('layout');
-        w2ui.layout.html('left', w2ui.grid);
-        w2ui.layout.html('main', w2ui.form);
+        w2ui.layout.render(query('#w2ui-popup #main')[0])
+        w2ui.layout.html('left', w2ui.grid)
+        w2ui.layout.html('main', w2ui.form)
     })
 }
 </script>

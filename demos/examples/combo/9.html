@@ -34,15 +34,13 @@ var config = {
                 ]
             }
         ],
-        onClick: function (event) {
+        onClick(event) {
             switch (event.target) {
                 case 'grid':
                     w2ui.layout.html('main', w2ui.grid);
                     break;
                 case 'html':
                     w2ui.layout.html('main', '<div style="padding: 10px">Some HTML</div>');
-                    $(w2ui.layout.el('main'))
-                        .removeClass('w2ui-grid')
                     break;
             }
         }
@@ -63,11 +61,11 @@ var config = {
     }
 };
 
-$(function () {
+query(() => {
     // initialization in memory
-    $().w2layout(config.layout);
-    $().w2sidebar(config.sidebar);
-    $().w2grid(config.grid);
+    new w2layout(config.layout)
+    new w2sidebar(config.sidebar)
+    new w2grid(config.grid)
 });
 
 function openPopup() {
@@ -76,13 +74,10 @@ function openPopup() {
         width: 800,
         height: 600,
         showMax: true,
-        body: '<div id="main" style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px;"></div>',
-        onToggle(event) {
-            event.done(() => { w2ui.layout.resize() })
-        }
+        body: '<div id="main" style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px;"></div>'
     })
     .then(() => {
-        $('#w2ui-popup #main').w2render('layout')
+        w2ui.layout.render(query('#w2ui-popup #main')[0])
         w2ui.layout.html('left', w2ui.sidebar)
         w2ui.layout.html('main', w2ui.grid)
     })

@@ -24,11 +24,14 @@ var config = {
                 tabs: {
                     active: 'tab0',
                     tabs: [{ id: 'tab0', text: 'Initial Tab' }],
-                    onClick: function (event) {
-                        w2ui.layout.html('main', 'Active tab: '+ event.target);
+                    onClick(event) {
+                        w2ui.layout.html('main', 'Active tab: '+ event.target)
                     },
-                    onClose: function (event) {
-                        this.click('tab0');
+                    onClose(event) {
+                        // if active tab closed
+                        if (event.detail.tab.id == this.active) {
+                            this.click('tab0')
+                        }
                     }
                 }
             }
@@ -44,22 +47,22 @@ var config = {
                 { id: 'item4', text: 'Item 4', icon: 'fa fa-list-alt' }
             ]}
         ],
-        onClick: function (event) {
-            var tabs = w2ui.layout_main_tabs;
+        onClick(event) {
+            let tabs = w2ui.layout_main_tabs
             if (tabs.get(event.target)) {
-                tabs.select(event.target);
-                w2ui.layout.html('main', 'Tab Selected');
+                tabs.click(event.target)
             } else {
-                tabs.add({ id: event.target, text: 'Tab '+ event.target, closable: true });
-                w2ui.layout.html('main', 'New tab added');
+                tabs.add({ id: event.target, text: 'Tab '+ event.target, closable: true })
+                tabs.click(event.target)
             }
         }
     }
-};
+}
 
-$(function () {
-    // initialization
-    $('#main').w2layout(config.layout);
-    w2ui.layout.html('left', $().w2sidebar(config.sidebar));
-});
+query(() => {
+    let layout = new w2layout(config.layout)
+    let sidebar = new w2sidebar(config.sidebar)
+    layout.render(query('#main')[0])
+    layout.html('left', sidebar)
+})
 </script>

@@ -35,12 +35,12 @@ var config = {
             { field: 'lname', text: 'Last Name', size: '200px', searchable: 'text' },
             { field: 'sdate', text: 'Date Range', size: '100%' }
         ],
-        onLoad: function(event) {
-            let data = JSON.parse(event.xhr.responseText)
+        onLoad(event) {
+            let data = JSON.parse(event.detail.xhr.responseText)
             data.records.forEach((rec, ind) => {
                 rec.recid = 'recid-' + (this.records.length + ind)
             })
-            event.xhr.responseText = data
+            event.detail.xhr.responseText = data
         }
     }
 };
@@ -50,7 +50,8 @@ function refreshGrid(auto) {
     w2ui.grid.skip(0);
 }
 
-$(function () {
-    $('#main').w2grid(config.grid);
+query(() => {
+    let grid = new w2grid(config.grid)
+    grid.render(query('#main')[0])
 });
 </script>
