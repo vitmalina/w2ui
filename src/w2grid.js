@@ -3173,6 +3173,7 @@ class w2grid extends w2base {
         value = edata.detail.value
         // default behaviour
         this.last.inEditMode = true
+        this.last.editColumn = column
         this.last._edit = { value: value, index: index, column: column, recid: recid }
         this.selectNone()
         this.select({ recid: recid, column: column })
@@ -3221,10 +3222,11 @@ class w2grid extends w2base {
         switch (edit.type) {
             case 'div': {
                 div.addClass('w2ui-editable')
-                    .html('<div id="grid_'+ this.name +'_edit_'+ recid +'_'+ column +'" class="w2ui-input w2ui-focus"'+
-                        '    contenteditable style="'+ font + addStyle + edit.style +'" autocorrect="off" autocomplete="off" spellcheck="false" '+
-                        '    field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" '+ edit.inTag +
-                        '></div>' + edit.outTag)
+                    .html(w2utils.stripSpaces(`<div id="grid_${this.name}_edit_${recid}_${column}" class="w2ui-input w2ui-focus"
+                        contenteditable autocorrect="off" autocomplete="off" spellcheck="false"
+                        style="${font + addStyle + edit.style}"
+                        field="${col.field}" recid="${recid}" column="${column}" ${edit.inTag}>
+                    </div>${edit.outTag}`))
                 input = div.find('div.w2ui-input').get(0)
                 input.innerText = (typeof val != 'object' ? val : '')
                 if (value != null) {
@@ -3236,10 +3238,10 @@ class w2grid extends w2base {
             }
             default: {
                 div.addClass('w2ui-editable')
-                    .html('<input id="grid_'+ this.name +'_edit_'+ recid +'_'+ column +'" autocorrect="off" autocomplete="off" spellcheck="false" type="text" '+
-                        '    style="'+ font + addStyle + edit.style +'" '+
-                        '    field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" class="w2ui-input"'+ edit.inTag +
-                        '/>' + edit.outTag)
+                    .html(w2utils.stripSpaces(`<input id="grid_${this.name}_edit_${recid}_${column}" class="w2ui-input"
+                        autocorrect="off" autocomplete="off" spellcheck="false" type="text"
+                        style="${font + addStyle + edit.style}"
+                        field="${col.field}" recid="${recid}" column="${column}" ${edit.inTag}>${edit.outTag}`))
                 input = div.find('input').get(0)
                 // issue #499
                 if (edit.type == 'number') {
@@ -3252,19 +3254,24 @@ class w2grid extends w2base {
 
                 // init w2field, attached to input._w2field
                 let doHide = (event) => {
+                    debugger
+                    let escKey = this.last._edit?.escKey
                     // trigger change on new value if selected from overlay
-                    if (this.last.inEditMode && dropTypes.includes(edit.type) // drop down types
+                    if (this.last.inEditMode && !escKey && dropTypes.includes(edit.type) // drop down types
                             && event.detail.overlay.anchor?.id == this.last._edit.input?.id) {
                         this.editChange()
-                        this.editDone()
+                        this.editDone(undefined, undefined, { keyCode: 13 }) // advance on select
                     }
                 }
-                new w2field(w2utils.extend({}, edit, {
+                let fld = new w2field(w2utils.extend({}, edit, {
                     el: input,
                     selected: val,
                     onSelect: doHide,
                     onHide: doHide
                 }))
+                if (edit.type == 'list') {
+                    // input = fld.helpers.search_focus
+                }
 
                 if (value == null) {
                     // if no new value, then select content
@@ -3314,6 +3321,13 @@ class w2grid extends w2base {
                         event.preventDefault()
                         break
                     case 27: // esc button exits edit mode, but if in a popup, it will also close the popup, hence
+                        // if tooltip is open - hide it
+                        let name = query(input).data('tooltipName')
+                        if (name && name.length > 0) {
+                            this.last._edit.escKey = true
+                            w2tooltip.hide(name[0])
+                            event.preventDefault()
+                        }
                         event.stopPropagation()
                         break
                 }
@@ -3339,12 +3353,22 @@ class w2grid extends w2base {
                             break
                         }
                         case 13: { // enter
-                            this.editChange(input, index, column, event)
-                            this.editDone(index, column, event)
+                            // check if any element is selected in drop down
+                            let selected = false
+                            let name = query(input).data('tooltipName')
+                            if (name && w2tooltip.get(name[0]).selected != null) {
+                                selected = true
+                            }
+                            // if tooltip is not open or no element is selected
+                            if (!name || !selected) {
+                                this.editChange(input, index, column, event)
+                                this.editDone(index, column, event)
+                            }
                             break
                         }
 
                         case 27: { // escape
+                            this.last._edit.escKey = false
                             let old = self.parseField(rec, col.field)
                             if (rec.w2ui?.changes?.[col.field] != null) old = rec.w2ui.changes[col.field]
                             if (input._prevValue != null) old = input._prevValue
@@ -3353,7 +3377,7 @@ class w2grid extends w2base {
                             } else {
                                 input.value = old != null ? old : ''
                             }
-                            input.blur()
+                            this.editDone(index, column, event)
                             setTimeout(() => { self.select({ recid: recid, column: column }) }, 1)
                             break
                         }
@@ -3872,7 +3896,7 @@ class w2grid extends w2base {
                         columns = [this.last._edit.column]
                     }
                     if (columns.length > 0) {
-                        obj.editField(recid, columns[0], null, event)
+                        obj.editField(recid, this.last.editColumn || columns[0], null, event)
                         cancel = true
                     }
                 }
