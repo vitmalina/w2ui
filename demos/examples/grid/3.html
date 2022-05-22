@@ -48,7 +48,7 @@ $(function () {
             { type: 'date', field: 'sdate', label: 'Start Date' }
         ],
         onExpand: function (event) {
-            $('#'+event.box_id).html('<div style="padding: 10px; height: 100px">Expanded content</div>');
+            $('#'+event.detail.box_id).html('<div style="padding: 10px; height: 100px">Expanded content</div>');
         }
     });
 });
