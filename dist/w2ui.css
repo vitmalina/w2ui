@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/13/2022, 6:32:27 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/21/2022, 9:40:52 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -157,7 +157,8 @@
 }
 input.w2ui-focus:not(button),
 textarea.w2ui-focus,
-select.w2ui-focus {
+select.w2ui-focus,
+div[contenteditable].w2ui-focus {
   outline-style: auto;
   outline-color: #72B2FF;
 }
@@ -2205,22 +2206,6 @@ textarea.w2ui-error {
   -o-user-select: text;
   user-select: text;
 }
-.w2ui-grid .w2ui-grid-body div.w2ui-input {
-  -webkit-user-select: text;
-  -moz-user-select: text;
-  -ms-user-select: text;
-  -o-user-select: text;
-  user-select: text;
-  background-color: white;
-  padding: 4px 2px;
-  border: 1px solid transparent;
-  width: 100%;
-  height: 100%;
-  pointer-events: auto;
-  outline: none;
-  white-space: pre;
-  overflow: hidden;
-}
 .w2ui-grid .w2ui-grid-body .w2ui-grid-columns,
 .w2ui-grid .w2ui-grid-body .w2ui-grid-fcolumns {
   overflow: hidden;
@@ -2451,7 +2436,7 @@ textarea.w2ui-error {
   color: #545961;
 }
 .w2ui-grid .w2ui-grid-body table td.w2ui-grid-data > div {
-  padding: 3px 5px;
+  padding: 5px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -2582,24 +2567,55 @@ textarea.w2ui-error {
   z-index: 1001;
   border: 1.5px solid #6299DA;
   pointer-events: auto;
+  padding: 2px !important;
+  margin: 0px !important;
+  background-color: white;
+}
+.w2ui-grid .w2ui-edit-box .w2ui-editable div.w2ui-input {
+  outline: none;
+  padding: 0.5px 1.5px !important;
+}
+.w2ui-grid .w2ui-edit-box .w2ui-editable input {
+  top: -2px !important;
+  padding: 1.5px !important;
 }
 .w2ui-grid .w2ui-editable {
   overflow: hidden;
   height: 100% !important;
   margin: 0 !important;
-  padding: 2px !important;
+  padding: 3.5px 2px 2px 2px !important;
 }
 .w2ui-grid .w2ui-editable input {
+  position: relative;
+  top: -1px;
   border: 0 !important;
-  border-color: transparent !important;
   border-radius: 0 !important;
-  margin: 0px !important;
-  padding: 3px 3px 4px 3px !important;
+  border-color: transparent !important;
+  padding: 3px !important;
   display: inline-block;
   width: 100% !important;
   height: 100% !important;
   pointer-events: auto !important;
-  outline: none !important;
+}
+.w2ui-grid .w2ui-editable div.w2ui-input {
+  position: relative;
+  top: -0.5px;
+  border: 0 transparent;
+  border-radius: 0 !important;
+  margin: 0px !important;
+  padding: 5px 3px !important;
+  display: inline-block;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: auto !important;
+  background-color: white;
+  white-space: pre;
+  overflow: hidden;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  -o-user-select: text;
+  user-select: text;
 }
 .w2ui-grid .w2ui-editable input.w2ui-select {
   outline: none !important;
@@ -2775,6 +2791,9 @@ textarea.w2ui-error {
 .w2ui-ss .w2ui-grid-body .w2ui-changed {
   background: inherit;
   /* do not show changed for spreadsheet */
+}
+.w2ui-ss .w2ui-grid-body .w2ui-editable input {
+  outline: none !important;
 }
 .w2ui-info-bubble table {
   font-family: OpenSans;

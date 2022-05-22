@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/15/2022, 11:03:01 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/21/2022, 9:40:52 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -622,11 +622,13 @@ class Query {
     css(key, value) {
         let css = key
         let len = arguments.length
-        if (len === 0 || (len ===1 && typeof key == 'string')) {
+        if (len === 0 || (len === 1 && typeof key == 'string')) {
             if (this[0]) {
+                let st = this[0].style
                 // do not do computedStyleMap as it is not what on immediate element
                 if (typeof key == 'string') {
-                    return this[0].style[key]
+                    let pri = st.getPropertyPriority(key)
+                    return st.getPropertyValue(key) + (pri ? '!' + pri : '')
                 } else {
                     return Object.fromEntries(
                         this[0].style.cssText
@@ -647,7 +649,8 @@ class Query {
             }
             this.each((el, ind) => {
                 Object.keys(css).forEach(key => {
-                    el.style[key] = css[key]
+                    let imp = String(css[key]).toLowerCase().includes('!important') ? 'important' : ''
+                    el.style.setProperty(key, String(css[key]).replace(/\!important/i, ''), imp)
                 })
             })
             return this
@@ -5371,11 +5374,11 @@ class MenuTooltip extends Tooltip {
         } else {
             // find items that are selected
             let selected = this.findChecked(options.items)
+            overlay.selected = parseInt($item.attr('index'))
             edata = this.trigger('select', { target: overlay.name, overlay, item, index, parentIndex, selected, keepOpen, el: $item[0] })
             if (edata.isCancelled === true) {
                 return
             }
-            overlay.selected = parseInt($item.attr('index'))
             if (item.keepOpen != null) {
                 keepOpen = item.keepOpen
             }
@@ -10041,6 +10044,7 @@ class w2layout extends w2base {
  *  - column.render(..., this) - added
  *  - observeResize for the box
  *  - remove edit.type == 'select'
+ *  - editDone(...)
  */
 
 class w2grid extends w2base {
@@ -12992,63 +12996,54 @@ class w2grid extends w2base {
         }
     }
     editField(recid, column, value, event) {
-        let obj = this, index, input
+        let self = this
         if (this.last.inEditMode === true) {
             // This is triggerign when user types fast
             if (event && event.keyCode == 13) {
-                index  = this.last._edit.index
-                column = this.last._edit.column
-                recid  = this.last._edit.recid
-                this.editChange({ type: 'custom', value: this.last._edit.value }, this.get(recid, true), column, event)
-                if (this.advanceOnEdit) {
-                    let next = event.shiftKey ? this.prevRow(index, column, 1) : this.nextRow(index, column, 1)
-                    if (next != null && next != index) {
-                        setTimeout(() => {
-                            if (this.selectType != 'row') {
-                                this.selectNone()
-                                this.select({ recid: this.records[next].recid, column: column })
-                            } else {
-                                this.editField(this.records[next].recid, column, null, event)
-                            }
-                        }, 1)
-                    }
-                }
-                this.last.inEditMode = false
+                let { index, column, value } = this.last._edit
+                this.editChange({ type: 'custom', value }, index, column, event)
+                this.editDone(index, column, event)
             } else {
-                // when 2 chars entered fast
-                let input = query(this.box).find('div.w2ui-edit-box .w2ui-input').get(0)
-                if (input && input.tagName == 'DIV') {
-                    input.text(input.text() + value)
-                    w2utils.setCursorPosition(input, input.text().length)
+                // when 2 chars entered fast (spreadsheet)
+                let input = query(this.box).find('div.w2ui-edit-box .w2ui-input')
+                if (input.length > 0) {
+                    if (input.get(0).tagName == 'DIV') {
+                        input.text(input.text() + value)
+                        w2utils.setCursorPosition(input.get(0), input.text().length)
+                    } else {
+                        input.val(input.val() + value)
+                        w2utils.setCursorPosition(input.get(0), input.val().length)
+                    }
                 }
             }
             return
         }
-        index = this.get(recid, true)
+        let index = this.get(recid, true)
         let edit = this.getCellEditable(index, column)
-        if (!edit) return
+        if (!edit || ['checkbox', 'check'].includes(edit.type)) return
         let rec = this.records[index]
         let col = this.columns[column]
         let prefix = (col.frozen === true ? '_f' : '_')
-        if (['enum', 'file'].indexOf(edit.type) != -1) {
-            console.log('ERROR: input types "enum" and "file" are not supported in inline editing.')
+        if (['list', 'enum', 'file'].indexOf(edit.type) != -1) {
+            console.log('ERROR: input types "list", "enum" and "file" are not supported in inline editing.')
             return
         }
         // event before
-        let edata = this.trigger('editField', { target: this.name, recid: recid, column: column, value: value,
-            index: index, originalEvent: event })
+        let edata = this.trigger('editField', { target: this.name, recid, column, value, index, originalEvent: event })
         if (edata.isCancelled === true) return
         value = edata.detail.value
         // default behaviour
         this.last.inEditMode = true
+        this.last.editColumn = column
         this.last._edit = { value: value, index: index, column: column, recid: recid }
         this.selectNone()
         this.select({ recid: recid, column: column })
-        if (['checkbox', 'check'].indexOf(edit.type) != -1) return
         // create input element
         let tr = query(this.box).find('#grid_'+ this.name + prefix +'rec_' + w2utils.escapeId(recid))
-        let el = tr.find('[col="'+ column +'"] > div')
-        // clear previous if any
+        let div = tr.find('[col="'+ column +'"] > div') // TD -> DIV
+        this.last._edit.tr = tr
+        this.last._edit.div = div
+        // clear previous if any (spreadsheet)
         query(this.box).find('div.w2ui-edit-box').remove()
         // for spreadsheet - insert into selection
         if (this.selectType != 'row') {
@@ -13059,56 +13054,56 @@ class w2grid extends w2base {
                 .prepend('<div style="position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px;"></div>')
                 .find('.w2ui-selection-resizer')
                 .remove()
-            el = query(this.box).find('#grid_'+ this.name + '_editable > div:first-child')
+            div = query(this.box).find('#grid_'+ this.name + '_editable > div:first-child')
         }
-        if (edit.inTag == null) edit.inTag = ''
-        if (edit.outTag == null) edit.outTag = ''
-        if (edit.style == null) edit.style = ''
-        if (edit.items == null) edit.items = []
-        let val = (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes[col.field] != null
+        edit.inTag  = edit.inTag ?? ''
+        edit.outTag = edit.outTag ?? ''
+        edit.style  = edit.style ?? ''
+        edit.items  = edit.items ?? []
+        let val = (rec.w2ui?.changes?.[col.field] != null
             ? w2utils.stripTags(rec.w2ui.changes[col.field])
-            : w2utils.stripTags(obj.parseField(rec, col.field)))
+            : w2utils.stripTags(self.parseField(rec, col.field)))
         if (val == null) val = ''
-        let old_value = (typeof val != 'object' ? val : '')
-        if (edata.detail.old_value != null) old_value = edata.detail.old_value
+        let prevValue = (typeof val != 'object' ? val : '')
+        if (edata.detail.prevValue != null) prevValue = edata.detail.prevValue
         if (value != null) val = value
         let addStyle = (col.style != null ? col.style + ';' : '')
-        if (typeof col.render == 'string' && ['number', 'int', 'float', 'money', 'percent', 'size'].indexOf(col.render.split(':')[0]) != -1) {
+        if (typeof col.render == 'string'
+                && ['number', 'int', 'float', 'money', 'percent', 'size'].includes(col.render.split(':')[0])) {
             addStyle += 'text-align: right;'
         }
-        // normalize items
+        // normalize items, if not yet normlized
         if (edit.items.length > 0 && !w2utils.isPlainObject(edit.items[0])) {
             edit.items = w2utils.normMenu(edit.items)
         }
+        let input
+        let dropTypes = ['date', 'time', 'datetime', 'color', 'list', 'combo']
+        let styles = getComputedStyle(tr.find('[col="'+ column +'"] > div').get(0))
+        let font = `font-family: ${styles['font-family']}; font-size: ${styles['font-size']};`
         switch (edit.type) {
             case 'div': {
-                let styles = getComputedStyle(tr.find('[col="'+ column +'"] > div').get(0))
-                let font = `font-family: ${styles['font-family']}'; font-size: ${styles['font-size']}`
-                el.addClass('w2ui-editable')
-                    .html('<div id="grid_'+ this.name +'_edit_'+ recid +'_'+ column +'" class="w2ui-input"'+
-                        '    contenteditable style="'+ font + addStyle + edit.style +'" autocorrect="off" autocomplete="off" spellcheck="false" '+
-                        '    field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" '+ edit.inTag +
-                        '></div>' + edit.outTag)
-                input = el.find('div.w2ui-input').get(0)
-                if (value == null) input.innerText = (typeof val != 'object' ? val : '')
-                // add blur listener
-                setTimeout(() => {
-                    let tmp = input
-                    query(tmp).on('blur', (event) => {
-                        obj.editChange.call(obj, input, index, column, event)
-                    })
-                }, 0)
+                div.addClass('w2ui-editable')
+                    .html(w2utils.stripSpaces(`<div id="grid_${this.name}_edit_${recid}_${column}" class="w2ui-input w2ui-focus"
+                        contenteditable autocorrect="off" autocomplete="off" spellcheck="false"
+                        style="${font + addStyle + edit.style}"
+                        field="${col.field}" recid="${recid}" column="${column}" ${edit.inTag}>
+                    </div>${edit.outTag}`))
+                input = div.find('div.w2ui-input').get(0)
+                input.innerText = (typeof val != 'object' ? val : '')
+                if (value != null) {
+                    w2utils.setCursorPosition(input, input.innerText.length)
+                } else {
+                    w2utils.setCursorPosition(input, 0, input.innerText.length)
+                }
                 break
             }
             default: {
-                let styles = getComputedStyle(tr.find('[col="'+ column +'"] > div').get(0))
-                let font = `font-family: ${styles['font-family']}'; font-size: ${styles['font-size']}`
-                el.addClass('w2ui-editable')
-                    .html('<input id="grid_'+ this.name +'_edit_'+ recid +'_'+ column +'" autocorrect="off" autocomplete="off" spellcheck="false" type="text" '+
-                        '    style="'+ font +'; '+ addStyle + edit.style +'" '+
-                        '    field="'+ col.field +'" recid="'+ recid +'" column="'+ column +'" class="w2ui-input"'+ edit.inTag +
-                        '/>' + edit.outTag)
-                input = el.find('input').get(0)
+                div.addClass('w2ui-editable')
+                    .html(w2utils.stripSpaces(`<input id="grid_${this.name}_edit_${recid}_${column}" class="w2ui-input"
+                        autocorrect="off" autocomplete="off" spellcheck="false" type="text"
+                        style="${font + addStyle + edit.style}"
+                        field="${col.field}" recid="${recid}" column="${column}" ${edit.inTag}>${edit.outTag}`))
+                input = div.find('input').get(0)
                 // issue #499
                 if (edit.type == 'number') {
                     val = w2utils.formatNumber(val)
@@ -13118,172 +13113,159 @@ class w2grid extends w2base {
                 }
                 input.value = (typeof val != 'object' ? val : '')
                 // init w2field, attached to input._w2field
-                new w2field(w2utils.extend(edit, { el: input, selected: val }))
-                input.value = (typeof val != 'object' ? val : '')
-                if (value == null) {
+                let doHide = (event) => {
+                    let escKey = this.last._edit?.escKey
+                    // check if any element is selected in drop down
+                    let selected = false
+                    let name = query(input).data('tooltipName')
+                    if (name && w2tooltip.get(name[0])?.selected != null) {
+                        selected = true
+                    }
+                    // trigger change on new value if selected from overlay
+                    if (this.last.inEditMode && !escKey && dropTypes.includes(edit.type) // drop down types
+                            && (event.detail.overlay.anchor?.id == this.last._edit.input?.id || edit.type == 'list')) {
+                        this.editChange()
+                        this.editDone(undefined, undefined, { keyCode: selected ? 13 : 0 }) // advance on select
+                    }
+                }
+                let fld = new w2field(w2utils.extend({}, edit, {
+                    el: input,
+                    selected: val,
+                    onSelect: doHide,
+                    onHide: doHide
+                }))
+                if (value == null && input) {
                     // if no new value, then select content
                     input.select()
                 }
-                // add blur listener
-                setTimeout(() => {
-                    // add blur listener
-                    let tmp = input
-                    if (edit.type == 'list') {
-                        // TODO: check
-                        let search = input._w2field.helpers.search_focus
-                        let value = val?.text ?? val
-                        tmp = search
-                        if (value !== '') {
-                            search.value = value
-                            w2utils.setCursorPosition(search, value.length)
-                            query(search).css({ opacity: 1 }).prev().css({ opacity: 1 })
-                        }
-                        query(input).on('change', (event) => {
-                            this.editChange(input, index, column, event)
-                        })
-                    } else {
-                        query(tmp)
-                            .on('blur', (event) => {
-                                this.editChange(input, index, column, event)
-                            })
-                    }
-                }, 10)
             }
         }
-        setTimeout(() => {
-            if (!input) input = el.find('input').get(0)
-            if (!this.last.inEditMode) return
-            el.find('input, select, div.w2ui-input')
-                .data('old_value', old_value)
-                .on('mousedown', function(event) {
-                    event.stopPropagation()
-                })
-                .on('click', function(event) {
-                    if (edit.type == 'div') {
-                        expand.call(el.find('div.w2ui-input')[0], null)
-                    } else {
-                        expand.call(el.find('input, select')[0], null)
+        Object.assign(this.last._edit, { input, edit })
+        query(input)
+            .off('.w2ui-editable')
+            .on('blur.w2ui-editable', (event) => {
+                if (this.last.inEditMode) {
+                    let type = this.last._edit.edit.type
+                    let name = query(input).data('tooltipName') // if popup is open
+                    if (dropTypes.includes(type) && name) {
+                        // drop downs finish edit when popover is closed
+                        return
                     }
-                })
-                .on('paste', function(event) {
-                    // clean paste to be plain text
-                    let e = event.originalEvent
-                    event.preventDefault()
-                    let text = e.clipboardData.getData('text/plain')
-                    document.execCommand('insertHTML', false, text)
-                })
-                .on('keydown', function(event) {
-                    let el  = this
-                    let val = (el.tagName.toUpperCase() == 'DIV' ? $(el).text() : $(el).val())
-                    switch (event.keyCode) {
-                        case 8: // backspace;
-                            if (edit.type == 'list' && !$(input).data('w2field')) { // cancel backspace when deleting element
-                                event.preventDefault()
-                            }
-                            break
-                        case 9:
-                        case 13:
-                            event.preventDefault()
-                            break
-                        case 27: // esc button exits edit mode, but if in a popup, it will also close the popup, hence
-                            event.stopPropagation()
-                            break
-                        case 37:
-                            if (w2utils.getCursorPosition(el) === 0) {
-                                event.preventDefault()
-                            }
-                            break
-                        case 39:
-                            if (w2utils.getCursorPosition(el) == val.length) {
-                                w2utils.setCursorPosition(el, val.length)
-                                event.preventDefault()
-                            }
-                            break
-                    }
-                    // need timeout so, this handler is executed last
-                    setTimeout(() => {
-                        switch (event.keyCode) {
-                            case 9: { // tab
-                                let next = event.shiftKey
-                                    ? obj.prevCell(index, column, true)
-                                    : obj.nextCell(index, column, true)
-                                if (next != null) {
-                                    let recid = obj.records[next.index].recid
-                                    el.blur()
-                                    setTimeout(() => {
-                                        if (obj.selectType != 'row') {
-                                            obj.selectNone()
-                                            obj.select({ recid, column: next.colIndex })
-                                        } else {
-                                            obj.editField(recid, next.colIndex, null, event)
-                                        }
-                                    }, 1)
-                                    if (event.preventDefault) event.preventDefault()
-                                }
-                                break
-                            }
-                            case 13: { // enter
-                                el.blur()
-                                if (obj.advanceOnEdit) {
-                                    let next = event.shiftKey ? obj.prevRow(index, column, 1) : obj.nextRow(index, column, 1)
-                                    if (next == null) next = index // keep the same
-                                    setTimeout(() => {
-                                        if (obj.selectType != 'row') {
-                                            obj.selectNone()
-                                            obj.select({ recid: obj.records[next].recid, column: column })
-                                        } else {
-                                            obj.editField(obj.records[next].recid, column, null, event)
-                                        }
-                                    }, 1)
-                                }
-                                if (el.tagName.toUpperCase() == 'DIV') {
-                                    event.preventDefault()
-                                }
-                                break
-                            }
-                            case 27: { // escape
-                                let old = obj.parseField(rec, col.field)
-                                if (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes[col.field] != null) old = rec.w2ui.changes[col.field]
-                                if ($(el).data('old_value') != null) old = $(el).data('old_value')
-                                if (el.tagName.toUpperCase() == 'DIV') {
-                                    $(el).text(old != null ? old : '')
-                                } else {
-                                    el.value = old != null ? old : ''
-                                }
-                                el.blur()
-                                setTimeout(() => { obj.select({ recid: recid, column: column }) }, 1)
-                                break
-                            }
-                        }
-                        // if input too small - expand
-                        expand.call(el, event)
-                    }, 1)
-                })
-                .on('keyup', function(event) {
-                    expand.call(this, event)
-                })
-            // focus and select
-            setTimeout(() => {
-                if (!obj.last.inEditMode) return
-                let input = el.find('.w2ui-input').get(0)
-                if (input) {
-                    input.focus()
-                    clearTimeout(obj.last.kbd_timer) // keep focus
-                    input.resize = expand
-                    expand.call(input, null)
+                    this.editChange(input, index, column, event)
+                    this.editDone()
                 }
-            }, 50)
-            // event after
-            edata.finish({ input: el.find('input, select, div.w2ui-input') })
-        }, 5) // needs to be 5-10
+            })
+            .on('mousedown.w2ui-editable', (event) => {
+                event.stopPropagation()
+            })
+            .on('click.w2ui-editable', (event) => {
+                expand.call(input, event)
+            })
+            .on('paste.w2ui-editable', (event) => {
+                // clean paste to be plain text
+                event.preventDefault()
+                let text = event.clipboardData.getData('text/plain')
+                document.execCommand('insertHTML', false, text)
+            })
+            .on('keyup.w2ui-editable', (event) => {
+                expand.call(input, event)
+            })
+            .on('keydown.w2ui-editable', (event) => {
+                switch (event.keyCode) {
+                    case 8: // backspace;
+                        if (edit.type == 'list' && !input._w2field) { // cancel backspace when deleting element
+                            event.preventDefault()
+                        }
+                        break
+                    case 9:
+                    case 13:
+                        event.preventDefault()
+                        break
+                    case 27: // esc button exits edit mode, but if in a popup, it will also close the popup, hence
+                        // if tooltip is open - hide it
+                        let name = query(input).data('tooltipName')
+                        if (name && name.length > 0) {
+                            this.last._edit.escKey = true
+                            w2tooltip.hide(name[0])
+                            event.preventDefault()
+                        }
+                        event.stopPropagation()
+                        break
+                }
+                // need timeout so, this handler is executed after key is processed by browser
+                setTimeout(() => {
+                    switch (event.keyCode) {
+                        case 9: { // tab
+                            let next = event.shiftKey
+                                ? self.prevCell(index, column, true)
+                                : self.nextCell(index, column, true)
+                            if (next != null) {
+                                let recid = self.records[next.index].recid
+                                this.editChange(input, index, column, event)
+                                this.editDone(index, column, event)
+                                if (self.selectType != 'row') {
+                                    self.selectNone()
+                                    self.select({ recid, column: next.colIndex })
+                                } else {
+                                    self.editField(recid, next.colIndex, null, event)
+                                }
+                                if (event.preventDefault) event.preventDefault()
+                            }
+                            break
+                        }
+                        case 13: { // enter
+                            // check if any element is selected in drop down
+                            let selected = false
+                            let name = query(input).data('tooltipName')
+                            if (name && w2tooltip.get(name[0]).selected != null) {
+                                selected = true
+                            }
+                            // if tooltip is not open or no element is selected
+                            if (!name || !selected) {
+                                this.editChange(input, index, column, event)
+                                this.editDone(index, column, event)
+                            }
+                            break
+                        }
+                        case 27: { // escape
+                            this.last._edit.escKey = false
+                            let old = self.parseField(rec, col.field)
+                            if (rec.w2ui?.changes?.[col.field] != null) old = rec.w2ui.changes[col.field]
+                            if (input._prevValue != null) old = input._prevValue
+                            if (input.tagName == 'DIV') {
+                                input.innerText = old != null ? old : ''
+                            } else {
+                                input.value = old != null ? old : ''
+                            }
+                            this.editDone(index, column, event)
+                            setTimeout(() => { self.select({ recid: recid, column: column }) }, 1)
+                            break
+                        }
+                    }
+                    // if input too small - expand
+                    expand(input)
+                }, 1)
+            })
+        // save previous value
+        if (input) input._prevValue = prevValue
+        // focus and select
+        setTimeout(() => {
+            if (!this.last.inEditMode) return
+            if (input) {
+                input.focus()
+                clearTimeout(this.last.kbd_timer) // keep focus
+                input.resize = expand
+                expand(input)
+            }
+        }, 50)
+        // event after
+        edata.finish({ input })
         return
-        function expand(event) {
+        function expand(input) {
             try {
-                let styles = getComputedStyle(this)
-                // query(this).css('margin-right', 0)
-                // console.log(styles['margin'], styles['padding'])
-                let val = (this.tagName.toUpperCase() == 'DIV' ? $(this).text() : this.value)
-                let editBox = query(obj.box).find('#grid_'+ obj.name + '_editable').get(0)
+                let styles = getComputedStyle(input)
+                let val = (input.tagName.toUpperCase() == 'DIV' ? input.innerText : input.value)
+                let editBox = query(self.box).find('#grid_'+ self.name + '_editable').get(0)
                 let style = `font-family: ${styles['font-family']}; font-size: ${styles['font-size']}; white-space: no-wrap;`
                 let width = w2utils.getStrWidth(val, style)
                 if (width + 20 > editBox.clientWidth) {
@@ -13293,60 +13275,66 @@ class w2grid extends w2base {
             }
         }
     }
-    editChange(el, index, column, event) {
-        // keep focus
-        setTimeout(() => {
-            let $input = $(this.box).find('#grid_'+ this.name + '_focus')
-            if (!$input.is(':focus')) $input.focus()
-        }, 10)
+    editChange(input, index, column, event) {
+        // if params are not specified
+        input = input ?? this.last._edit.input
+        index = index ?? this.last._edit.index
+        column = column ?? this.last._edit.column
+        event = event ?? {}
         // all other fields
         let summary = index < 0
         index       = index < 0 ? -index - 1 : index
         let records = summary ? this.summary : this.records
         let rec     = records[index]
         let col     = this.columns[column]
-        let tr      = $(this.box).find('#grid_'+ this.name + (col.frozen === true ? '_frec_' : '_rec_') + w2utils.escapeId(rec.recid))
-        let new_val = (el.tagName && el.tagName.toUpperCase() == 'DIV' ? $(el).text() : el.value)
-        let tmp     = $(el).data('w2field')
-        if (tmp) {
-            if (tmp.type == 'list') new_val = $(el).data('selected')
+        let new_val = (input?.tagName == 'DIV' ? input.innerText : input.value)
+        let fld     = input._w2field
+        if (fld) {
+            if (fld.type == 'list') {
+                new_val = fld.selected
+            }
             if (Object.keys(new_val).length === 0 || new_val == null) new_val = ''
-            if (!w2utils.isPlainObject(new_val)) new_val = tmp.clean(new_val)
+            if (!w2utils.isPlainObject(new_val)) new_val = fld.clean(new_val)
         }
-        if (el.type == 'checkbox') {
-            if (rec.w2ui && rec.w2ui.editable === false) el.checked = !el.checked
-            new_val = el.checked
+        if (input.type == 'checkbox') {
+            if (rec.w2ui && rec.w2ui.editable === false) input.checked = !input.checked
+            new_val = input.checked
         }
         let old_val = this.parseField(rec, col.field)
         let prev_val = (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes.hasOwnProperty(col.field) ? rec.w2ui.changes[col.field]: old_val)
         // change/restore event
         let edata = {
-            target: this.name, input_id: el.id, recid: rec.recid, index: index, column: column,
-            originalEvent: (event.originalEvent ? event.originalEvent : event),
-            value_new: new_val,
-            value_previous: prev_val,
-            value_original: old_val
+            target: this.name, input,
+            recid: rec.recid, index, column,
+            originalEvent: event,
+            value: {
+                new: new_val,
+                previous: prev_val,
+                original: old_val,
+            }
         }
-        if ($(event.target).data('old_value') != null) edata.value_previous = $(event.target).data('old_value')
-        // if (old_val == null) old_val = ''; -- do not uncomment, error otherwise
-        while (true) {
-            new_val = edata.value_new
+        if (event.target?._prevValue != null) edata.value.previous = event.target._prevValue
+        let count = 0 // just in case to avoid infinite loop
+        while (count < 20) {
+            count++
+            new_val = edata.value.new
             if ((typeof new_val != 'object' && String(old_val) != String(new_val)) ||
-                (typeof new_val == 'object' && new_val && new_val.id != old_val && (typeof old_val != 'object' || old_val == null || new_val.id != old_val.id))) {
+                (typeof new_val == 'object' && new_val && new_val.id != old_val
+                    && (typeof old_val != 'object' || old_val == null || new_val.id != old_val.id))) {
                 // change event
                 edata = this.trigger('change', edata)
                 if (edata.isCancelled !== true) {
-                    if (new_val !== edata.detail.value_new) {
+                    if (new_val !== edata.detail.value.new) {
                         // re-evaluate the type of change to be made
                         continue
                     }
                     // default action
-                    if ((edata.detail.value_new === '' || edata.detail.value_new == null) && (prev_val === '' || prev_val == null)) {
+                    if ((edata.detail.value.new === '' || edata.detail.value.new == null) && (prev_val === '' || prev_val == null)) {
                         // value did not change, was empty is empty
                     } else {
                         rec.w2ui = rec.w2ui ?? {}
                         rec.w2ui.changes = rec.w2ui.changes ?? {}
-                        rec.w2ui.changes[col.field] = edata.detail.value_new
+                        rec.w2ui.changes[col.field] = edata.detail.value.new
                     }
                     // event after
                     edata.finish()
@@ -13355,34 +13343,69 @@ class w2grid extends w2base {
                 // restore event
                 edata = this.trigger('restore', edata)
                 if (edata.isCancelled !== true) {
-                    if (new_val !== edata.value_new) {
+                    if (new_val !== edata.detail.value.new) {
                         // re-evaluate the type of change to be made
                         continue
                     }
                     // default action
-                    if (rec.w2ui && rec.w2ui.changes) delete rec.w2ui.changes[col.field]
-                    if (rec.w2ui && Object.keys(rec.w2ui.changes).length === 0) delete rec.w2ui.changes
+                    if (rec.w2ui?.changes) {
+                        delete rec.w2ui.changes[col.field]
+                        if (Object.keys(rec.w2ui.changes).length === 0) {
+                            delete rec.w2ui.changes
+                        }
+                    }
                     // event after
                     edata.finish()
                 }
             }
             break
         }
-        // refresh cell
-        let cell = $(tr).find('[col='+ column +']')
+    }
+    editDone(index, column, event) {
+        // if params are not specified
+        index = index ?? this.last._edit.index
+        column = column ?? this.last._edit.column
+        event = event ?? {}
+        // removal of input happens when TR is redrawn
+        if (this.advanceOnEdit && event.keyCode == 13) {
+            let next = event.shiftKey ? this.prevRow(index, column, 1) : this.nextRow(index, column, 1)
+            if (next == null) next = index // keep the same
+            setTimeout(() => {
+                if (this.selectType != 'row') {
+                    this.selectNone()
+                    this.select({ recid: this.records[next].recid, column: column })
+                } else {
+                    this.editField(this.records[next].recid, column, null, event)
+                }
+            }, 1)
+        }
+        let summary = index < 0
+        let cell = query(this.last._edit.tr).find('[col="'+ column +'"]')
+        let rec  = this.records[index]
+        let col  = this.columns[column]
+        // need to set before remove, as remove will trigger blur
+        this.last.inEditMode = false
+        this.last._edit = null
+        // remove - by updating cell data
         if (!summary) {
-            if (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes[col.field] != null) {
+            if (rec.w2ui?.changes?.[col.field] != null) {
                 cell.addClass('w2ui-changed')
             } else {
                 cell.removeClass('w2ui-changed')
             }
-            // update cell data
-            cell.replaceWith(this.getCellHTML(index, column, summary))
+            cell.replace(this.getCellHTML(index, column, summary))
         }
-        // remove
-        $(this.box).find('div.w2ui-edit-box').remove()
-        this.last.inEditMode = false
+        // remove - spreadsheet
+        query(this.box).find('div.w2ui-edit-box').remove()
+        // update toolbar buttons
         this.updateToolbar()
+        // keep grid in focus if needed
+        setTimeout(() => {
+            let input = query(this.box).find('#grid_'+ this.name + '_focus').get(0)
+            if (document.activeElement !== input && !this.last.inEditMode) {
+                input.focus()
+            }
+        }, 10)
     }
     'delete'(force) {
         // event before
@@ -13716,7 +13739,7 @@ class w2grid extends w2base {
                         columns = [this.last._edit.column]
                     }
                     if (columns.length > 0) {
-                        obj.editField(recid, columns[0], null, event)
+                        obj.editField(recid, this.last.editColumn || columns[0], null, event)
                         cancel = true
                     }
                 }
@@ -15263,10 +15286,12 @@ class w2grid extends w2base {
                 }
                 // if toolbar input is clicked
                 setTimeout(() => {
-                    if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(target.tagName.toUpperCase()) != -1) {
-                        $(target).focus()
-                    } else {
-                        if (!$input.is(':focus')) $input.focus()
+                    if (!obj.last.inEditMode) {
+                        if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(target.tagName.toUpperCase()) != -1) {
+                            $(target).focus()
+                        } else {
+                            if (!$input.is(':focus')) $input.focus()
+                        }
                     }
                 }, 50)
                 // disable click select for this condition
@@ -17778,21 +17803,8 @@ class w2grid extends w2base {
         let value = this.parseField(record, col.field)
         let className = '', style = '', attr = '', divAttr = ''
         // if change by inline editing
-        if (record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null) {
+        if (record?.w2ui?.changes?.[col.field] != null) {
             value = record.w2ui.changes[col.field]
-            if (value instanceof Object && Object.keys(col.editable).length > 0) { // if editable object
-                if (col.options && col.options.items) {
-                    let val = col.options.items.find((item) => { return item.id == value.id })
-                    if (val) {
-                        value = val.text
-                    } else {
-                        value = value.id
-                    }
-                } else {
-                    if (value.id != null && value.text == null) value = value.id
-                    if (value.text != null) value = value.text
-                }
-            }
         }
         // if there is a cell renderer
         if (col.render != null && ind !== -1) {
@@ -21357,14 +21369,14 @@ class w2field extends w2base {
         // color
         if (this.type === 'color') {
             if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
-            w2color.show({
+            w2color.show(w2utils.extend({
                 name: this.el.id + '_color',
                 anchor: this.el,
                 transparent: options.transparent,
                 advanced: options.advanced,
                 color: this.el.value,
                 liveUpdate: true
-            })
+            }, this.options))
             .select(event => {
                 let color = event.detail.color
                 query(this.el).val(color).trigger('input').trigger('change')
@@ -21498,9 +21510,8 @@ class w2field extends w2base {
                 break
             case 'percent':
                 ch = ch.replace(/%/g, '')
-                break
             case 'float':
-                if (loose && ['-', this.options.decimalSymbol, this.options.groupSymbol].includes(ch)) {
+                if (loose && ['-', '', this.options.decimalSymbol, this.options.groupSymbol].includes(ch)) {
                     isValid = true
                 } else {
                     isValid = w2utils.isFloat(ch.replace(this.options.numberRE, ''))
@@ -21554,10 +21565,11 @@ class w2field extends w2base {
                 'margin-top'     : (parseInt(styles['margin-top'], 10) + 2) + 'px',
                 'margin-bottom'  : (parseInt(styles['margin-bottom'], 10) + 1) + 'px',
                 'margin-left'    : styles['margin-left'],
-                'margin-right'   : 0
+                'margin-right'   : 0,
+                'z-index'        : 1,
             })
         // only if visible
-        query(this.el).css('padding-left', helper.clientWidth + 'px')
+        query(this.el).css('padding-left', helper.clientWidth + 'px !important')
         // remember helper
         this.helpers.prefix = helper
     }
@@ -21607,7 +21619,7 @@ class w2field extends w2base {
                     }
                 })
             pr += helper.clientWidth // width of the control
-            query(this.el).css('padding-right', pr + 'px')
+            query(this.el).css('padding-right', pr + 'px !important')
             this.helpers.arrow = helper
         }
         if (this.options.suffix !== '') {
@@ -21630,7 +21642,7 @@ class w2field extends w2base {
                     'margin-bottom'  : (parseInt(styles['margin-bottom'], 10) + 1) + 'px',
                     'transform'      : 'translateX(-100%)'
                 })
-            query(this.el).css('padding-right', helper.clientWidth + 'px')
+            query(this.el).css('padding-right', helper.clientWidth + 'px !important')
             this.helpers.suffix = helper
         }
     }
