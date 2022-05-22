@@ -91,23 +91,23 @@
 </style>
 
 <!--CODE-->
-<script>
+<script type="module">
 // General
-query('#w2int').each(el => new w2field({ el, type: 'int', autoFormat: false }))
-query('#w2float').each(el => new w2field({ el, type: 'float', autoFormat: false }));
-query('#w2hex').each(el => new w2field({ el, type: 'hex' }));
-query('#w2bin').each(el => new w2field({ el, type: 'bin' }));
-query('#w2color').each(el => new w2field({ el, type: 'color' }));
+new w2field({ el: query('#w2int')[0], type: 'int', autoFormat: false })
+new w2field({ el: query('#w2float')[0], type: 'float', autoFormat: false })
+new w2field({ el: query('#w2hex')[0], type: 'hex' })
+new w2field({ el: query('#w2bin')[0], type: 'bin' })
+new w2field({ el: query('#w2color')[0], type: 'color' })
 
 // US Format
-query('#us-int').each(el => new w2field('int', { el }));
-query('#us-float').each(el => new w2field('float', { el, precision: 3 }));
-query('#us-money').each(el => new w2field('money', { el }));
-query('#us-percent').each(el => new w2field('percent', { el, precision: 1, min: 0, max: 100 }));
+new w2field('int', { el: query('#us-int')[0] })
+new w2field('float', { el: query('#us-float')[0], precision: 3 })
+new w2field('money', { el: query('#us-money')[0] })
+new w2field('percent', { el: query('#us-percent')[0], precision: 1, min: 0, max: 100 })
 
 // EU Common Format
-query('#eu-int').each(el => new w2field('int', { el, autoFormat: true, groupSymbol: ' ' }));
-query('#eu-float').each(el => new w2field('float', { el, groupSymbol: ' ', precision: 3 }));
-query('#eu-money').each(el => new w2field('money', { el, groupSymbol: ' ', currencyPrefix: '', currencySuffix: '€' }));
-query('#eu-percent').each(el => new w2field('percent', { el, precision: 1, min: 0, max: 100 }));
+new w2field('int', { el: query('#eu-int')[0], autoFormat: true, groupSymbol: ' ' })
+new w2field('float', { el: query('#eu-float')[0], groupSymbol: ' ', precision: 3 })
+new w2field('money', { el: query('#eu-money')[0], groupSymbol: ' ', currencyPrefix: '', currencySuffix: '€' })
+new w2field('percent', { el: query('#eu-percent')[0], precision: 1, min: 0, max: 100 })
 </script>

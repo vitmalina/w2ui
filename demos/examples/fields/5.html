@@ -27,6 +27,6 @@
 </style>
 
 <!--CODE-->
-<script>
-query('#file').each(el => new w2field('file', { el }));
+<script type="module">
+new w2field('file', { el: query('#file')[0] })
 </script>

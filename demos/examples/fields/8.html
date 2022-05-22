@@ -21,7 +21,6 @@
 </style>
 
 <!--CODE-->
-<script>
-var el = new w2field('color')
-el.render(query('#color')[0])
+<script type="module">
+new w2field('color', { el: query('#color')[0] })
 </script>

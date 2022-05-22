@@ -295,8 +295,8 @@ class w2field extends w2base {
                     maxDropHeight   : 350, // max height for drop down menu
                     maxDropWidth    : null, // if null then auto set
                     match           : 'contains', // ['contains', 'is', 'begins', 'ends']
-                    align           : 'both', // same width as control
-                    altRows         : true, // alternate row color
+                    align           : '',    // align drop down related to search field
+                    altRows         : true,  // alternate row color
                     openOnFocus     : false, // if to show overlay onclick or when typing
                     markSearch      : false,
                     renderDrop      : null, // render function for drop down item
@@ -1508,7 +1508,7 @@ class w2field extends w2base {
         this.helpers.search_focus = query(helper).find('input').get(0)
         let styles = getComputedStyle(this.el)
         query(helper).css({
-                width           : this.el.clientWidth,
+                width           : this.el.clientWidth + 'px',
                 'margin-top'    : styles['margin-top'],
                 'margin-left'   : styles['margin-left'],
                 'margin-bottom' : styles['margin-bottom'],

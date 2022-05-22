@@ -93,27 +93,27 @@
 </style>
 
 <!--CODE-->
-<script>
+<script type="module">
 var month = (new Date()).getMonth() + 1;
 var year  = (new Date()).getFullYear();
 
 // US Format
-query('input[type=us-date]').each(el => new w2field('date', { el }));
-query('input[type=us-dateA]').each(el => new w2field('date', { el, format: 'm/d/yyyy', start:  month + '/5/' + year, end: month + '/25/' + year }));
-query('input[type=us-dateB]').each(el => new w2field('date', { el, format: 'm/d/yyyy', blockDates: [ month+'/12/' + year,month+'/13/' + year,month+'/14/' + year]}));
-query('input[type=us-date1]').each(el => new w2field('date', { el, format: 'm/d/yyyy', end: query('input[type=us-date2]')[0] }));
-query('input[type=us-date2]').each(el => new w2field('date', { el, format: 'm/d/yyyy', start: query('input[type=us-date1]')[0] }));
-query('input[type=us-time]').each(el => new w2field('time',  { el, format: 'h12' }));
-query('input[type=us-timeA]').each(el => new w2field('time', { el, format: 'h12', start: '8:00 am', end: '4:30 pm' }));
-query('input[type=us-datetime]').each(el => new w2field('datetime', { el }));
+new w2field('date', { el: query('input[type=us-date]')[0] })
+new w2field('date', { el: query('input[type=us-dateA]')[0], format: 'm/d/yyyy', start:  month + '/5/' + year, end: month + '/25/' + year })
+new w2field('date', { el: query('input[type=us-dateB]')[0], format: 'm/d/yyyy', blockDates: [ month+'/12/' + year,month+'/13/' + year,month+'/14/' + year]})
+new w2field('date', { el: query('input[type=us-date1]')[0], format: 'm/d/yyyy', end: query('input[type=us-date2]')[0] })
+new w2field('date', { el: query('input[type=us-date2]')[0], format: 'm/d/yyyy', start: query('input[type=us-date1]')[0] })
+new w2field('time', { el: query('input[type=us-time]')[0], format: 'h12' })
+new w2field('time', { el: query('input[type=us-timeA]')[0], format: 'h12', start: '8:00 am', end: '4:30 pm' })
+new w2field('datetime', { el: query('input[type=us-datetime]')[0] })
 
 // EU Common el, Format
-query('input[type=eu-date]').each(el => new w2field('date',  { el, format: 'd.m.yyyy' }));
-query('input[type=eu-dateA]').each(el => new w2field('date', { el, format: 'd.m.yyyy', start:  '5.' + month + '.' + year, end: '25.' + month + '.' + year }));
-query('input[type=eu-dateB]').each(el => new w2field('date', { el, format: 'd.m.yyyy', blockDates: ['12.' + month + '.' + year, '13.' + month + '.' + year, '14.' + month + '.' + year]}));
-query('input[type=eu-date1]').each(el => new w2field('date', { el, format: 'd.m.yyyy', end: query('input[type=eu-date2]')[0] }));
-query('input[type=eu-date2]').each(el => new w2field('date', { el, format: 'd.m.yyyy', start: query('input[type=eu-date1]')[0] }));
-query('input[type=eu-time]').each(el => new w2field('time',  { el, format: 'h24' }));
-query('input[type=eu-timeA]').each(el => new w2field('time', { el, format: 'h24', start: '8:00 am', end: '4:30 pm' }));
-query('input[type=eu-datetime]').each(el => new w2field('datetime', { el, format: 'dd.mm.yyyy|h24:mm' }));
+new w2field('date',  { el: query('input[type=eu-date]')[0], format: 'd.m.yyyy' })
+new w2field('date', { el: query('input[type=eu-dateA]')[0], format: 'd.m.yyyy', start:  '5.' + month + '.' + year, end: '25.' + month + '.' + year })
+new w2field('date', { el: query('input[type=eu-dateB]')[0], format: 'd.m.yyyy', blockDates: ['12.' + month + '.' + year, '13.' + month + '.' + year, '14.' + month + '.' + year]})
+new w2field('date', { el: query('input[type=eu-date1]')[0], format: 'd.m.yyyy', end: query('input[type=eu-date2]')[0] })
+new w2field('date', { el: query('input[type=eu-date2]')[0], format: 'd.m.yyyy', start: query('input[type=eu-date1]')[0] })
+new w2field('time',  { el: query('input[type=eu-time]')[0], format: 'h24' })
+new w2field('time', { el: query('input[type=eu-timeA]')[0], format: 'h24', start: '8:00 am', end: '4:30 pm' })
+new w2field('datetime', { el: query('input[type=eu-datetime]')[0], format: 'dd.mm.yyyy|h24:mm' })
 </script>

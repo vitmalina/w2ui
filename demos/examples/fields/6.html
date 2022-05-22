@@ -30,9 +30,9 @@
 </style>
 
 <!--CODE-->
-<script>
-query('#list').each(el => new w2field('list', {
-    el,
+<script type="module">
+new w2field('list', {
+    el: query('#list')[0],
     url: 'data/enum.json',
     onRequest(event) {
         console.log(`Request: ${event.url} Search: ${event.search}`)
@@ -40,10 +40,10 @@ query('#list').each(el => new w2field('list', {
     onLoad(event) {
         console.log('Response:', event.data)
     }
-}))
+})
 
-query('#enum').each(el => new w2field('enum', {
-    el,
+new w2field('enum', {
+    el: query('#enum')[0],
     url: 'data/enum.json',
     onRequest(event) {
         console.log(`Request: ${event.url} Search: ${event.search}`)
@@ -51,5 +51,5 @@ query('#enum').each(el => new w2field('enum', {
     onLoad(event) {
         console.log('Response:', event.data)
     }
-}))
+})
 </script>

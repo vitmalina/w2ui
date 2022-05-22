@@ -27,10 +27,7 @@
 </div>
 
 <!--CODE-->
-<script>
-var el = new w2field('money')
-el.render(query('#inp')[0])
-
-var el2 = new w2field('percent')
-el2.render(query('#inp2')[0])
+<script type="module">
+window.el = new w2field('money', { el: query('#inp')[0] })
+window.el2 = new w2field('percent', { el: query('#inp2')[0] })
 </script>
