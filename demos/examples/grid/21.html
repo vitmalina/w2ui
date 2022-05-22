@@ -61,16 +61,16 @@ $(function () {
             { field: 'time', text: 'time', size: '70px', sortable: true, resizable: true,
                 editable: { type: 'time' }
             },
-            { field: 'list', text: 'list', size: '50%', sortable: true, resizable: true,
+            { field: 'list', text: 'list', size: '50%', sortable: true, resizable: true, hidden: true,
                 editable: { type: 'list', items: people, showAll: true },
                 render: function (record, extra) {
                     return extra.value?.text || '';
                 }
             },
-            { field: 'combo', text: 'combo', size: '50%', sortable: true, resizable: true, hidden1: true,
+            { field: 'combo', text: 'combo', size: '150px', sortable: true, resizable: true, hidden1: true,
                 editable: { type: 'combo', items: people, filter: true }
             },
-            { field: 'div', text: 'div', size: '100px', sortable: true, resizable: true,
+            { field: 'div', text: 'div', size: '50%', sortable: true, resizable: true,
                 editable: { type: 'div' },
             },
             { field: 'check', text: 'check', size: '60px', sortable: true, resizable: true, style: 'text-align: center',
@@ -96,10 +96,10 @@ $(function () {
             }
         },
         records: [
-            { recid: 1, int: 100, money: 100, percent: 55, date: '1/1/2022', combo: 'John Cook', check: true },
+            { recid: 1, int: 100, money: 100, percent: 55, date: '1/1/2022', combo: 'Some Name', check: true },
             { recid: 2, int: 200, money: 454.40, percent: 15, date: '1/1/2022', combo: 'John Cook', check: false,
                 list: { id: 2, text: 'Steve Jobs' } },
-            { recid: 3, int: 350, money: 1040, percent: 98, date: '3/14/2022', combo: 'John Cook', check: true },
+            { recid: 3, int: 350, money: 1040, percent: 98, date: '3/14/2022', combo: 'Steven Johnson', check: true },
             { recid: 4, int: 350, money: 140, percent: 58, date: '1/31/2022', combo: 'John Cook', check: true,
                 list: { id: 4, text: 'Mark Newman' } },
             { recid: 5, int: 350, money: 500, percent: 78, date: '4/1/2022', check: false },

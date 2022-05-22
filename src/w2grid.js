@@ -3163,8 +3163,8 @@ class w2grid extends w2base {
         let rec = this.records[index]
         let col = this.columns[column]
         let prefix = (col.frozen === true ? '_f' : '_')
-        if (['enum', 'file'].indexOf(edit.type) != -1) {
-            console.log('ERROR: input types "enum" and "file" are not supported in inline editing.')
+        if (['list', 'enum', 'file'].indexOf(edit.type) != -1) {
+            console.log('ERROR: input types "list", "enum" and "file" are not supported in inline editing.')
             return
         }
         // event before
@@ -3254,13 +3254,18 @@ class w2grid extends w2base {
 
                 // init w2field, attached to input._w2field
                 let doHide = (event) => {
-                    debugger
                     let escKey = this.last._edit?.escKey
+                    // check if any element is selected in drop down
+                    let selected = false
+                    let name = query(input).data('tooltipName')
+                    if (name && w2tooltip.get(name[0])?.selected != null) {
+                        selected = true
+                    }
                     // trigger change on new value if selected from overlay
                     if (this.last.inEditMode && !escKey && dropTypes.includes(edit.type) // drop down types
-                            && event.detail.overlay.anchor?.id == this.last._edit.input?.id) {
+                            && (event.detail.overlay.anchor?.id == this.last._edit.input?.id || edit.type == 'list')) {
                         this.editChange()
-                        this.editDone(undefined, undefined, { keyCode: 13 }) // advance on select
+                        this.editDone(undefined, undefined, { keyCode: selected ? 13 : 0 }) // advance on select
                     }
                 }
                 let fld = new w2field(w2utils.extend({}, edit, {
@@ -3269,11 +3274,7 @@ class w2grid extends w2base {
                     onSelect: doHide,
                     onHide: doHide
                 }))
-                if (edit.type == 'list') {
-                    // input = fld.helpers.search_focus
-                }
-
-                if (value == null) {
+                if (value == null && input) {
                     // if no new value, then select content
                     input.select()
                 }
@@ -3285,7 +3286,8 @@ class w2grid extends w2base {
             .on('blur.w2ui-editable', (event) => {
                 if (this.last.inEditMode) {
                     let type = this.last._edit.edit.type
-                    if (dropTypes.includes(type)) {
+                    let name = query(input).data('tooltipName') // if popup is open
+                    if (dropTypes.includes(type) && name) {
                         // drop downs finish edit when popover is closed
                         return
                     }
@@ -3312,7 +3314,6 @@ class w2grid extends w2base {
                 switch (event.keyCode) {
                     case 8: // backspace;
                         if (edit.type == 'list' && !input._w2field) { // cancel backspace when deleting element
-                            // TODO: check
                             event.preventDefault()
                         }
                         break
@@ -3387,7 +3388,7 @@ class w2grid extends w2base {
                 }, 1)
             })
         // save previous value
-        input._prevValue = prevValue
+        if (input) input._prevValue = prevValue
         // focus and select
         setTimeout(() => {
             if (!this.last.inEditMode) return
@@ -3405,8 +3406,6 @@ class w2grid extends w2base {
         function expand(input) {
             try {
                 let styles = getComputedStyle(input)
-                // query(input).css('margin-right', 0)
-                // console.log(styles['margin'], styles['padding'])
                 let val = (input.tagName.toUpperCase() == 'DIV' ? input.innerText : input.value)
                 let editBox = query(self.box).find('#grid_'+ self.name + '_editable').get(0)
                 let style = `font-family: ${styles['font-family']}; font-size: ${styles['font-size']}; white-space: no-wrap;`
@@ -3434,7 +3433,6 @@ class w2grid extends w2base {
         let new_val = (input?.tagName == 'DIV' ? input.innerText : input.value)
         let fld     = input._w2field
         if (fld) {
-            // TODO: check
             if (fld.type == 'list') {
                 new_val = fld.selected
             }
@@ -8125,21 +8123,8 @@ class w2grid extends w2base {
         let value = this.parseField(record, col.field)
         let className = '', style = '', attr = '', divAttr = ''
         // if change by inline editing
-        if (record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null) {
+        if (record?.w2ui?.changes?.[col.field] != null) {
             value = record.w2ui.changes[col.field]
-            if (value instanceof Object && Object.keys(col.editable).length > 0) { // if editable object
-                if (col.options && col.options.items) {
-                    let val = col.options.items.find((item) => { return item.id == value.id })
-                    if (val) {
-                        value = val.text
-                    } else {
-                        value = value.id
-                    }
-                } else {
-                    if (value.id != null && value.text == null) value = value.id
-                    if (value.text != null) value = value.text
-                }
-            }
         }
         // if there is a cell renderer
         if (col.render != null && ind !== -1) {

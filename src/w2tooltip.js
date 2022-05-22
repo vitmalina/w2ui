@@ -1726,11 +1726,11 @@ class MenuTooltip extends Tooltip {
         } else {
             // find items that are selected
             let selected = this.findChecked(options.items)
+            overlay.selected = parseInt($item.attr('index'))
             edata = this.trigger('select', { target: overlay.name, overlay, item, index, parentIndex, selected, keepOpen, el: $item[0] })
             if (edata.isCancelled === true) {
                 return
             }
-            overlay.selected = parseInt($item.attr('index'))
             if (item.keepOpen != null) {
                 keepOpen = item.keepOpen
             }
