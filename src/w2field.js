@@ -374,7 +374,7 @@ class w2field extends w2base {
         this.addSuffix() // only will add if needed
         this.addSearch()
         this.addMultiSearch()
-        this.refresh()
+        // this.refresh() // do not call refresh, on change will trigger refresh (for list at list)
         // format initial value
         this.change(new Event('change'))
     }
@@ -458,16 +458,20 @@ class w2field extends w2base {
             if (focus.val() === '') {
                 focus.css('opacity', 0)
                 icon.css('opacity', 0)
-                if (this.selected && this.selected.id) {
+                if (this.selected?.id) {
                     let text = this.selected.text
                     let ind = this.findItemIndex(options.items, this.selected.id)
                     if (text != null) {
-                        query(this.el).val(w2utils.lang(text))
-                        query(this.helpers.search_focus).data({
-                            selected: text,
-                            selectedIndex: ind[0]
-                        })
+                        query(this.el)
+                            .val(w2utils.lang(text))
+                            .data({
+                                selected: text,
+                                selectedIndex: ind[0]
+                            })
                     }
+                } else {
+                    this.el.value = ''
+                    query(this.el).removeData('selected selectedIndex')
                 }
             } else {
                 focus.css('opacity', 1)
@@ -898,7 +902,11 @@ class w2field extends w2base {
         }
         // menu
         if (['list', 'combo', 'enum'].indexOf(this.type) !== -1) {
-            if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+            if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) {
+                // still add focus
+                query(this.el).addClass('has-focus')
+                return
+            }
             // regenerate items
             if (typeof this.options._items_fun == 'function') {
                 this.options.items = w2utils.normMenu.call(this, this.options._items_fun)
@@ -917,7 +925,7 @@ class w2field extends w2base {
             }
             this.resize()
             // update overlay if needed
-            if (this.options.openOnFocus !== false || query(this.el).hasClass('has-focus')) {
+            if (event.showMenu !== false && (this.options.openOnFocus !== false || query(this.el).hasClass('has-focus'))) {
                 setTimeout(() => { this.updateOverlay() }, 100) // execute at the end of event loop
             }
         }
@@ -1103,7 +1111,7 @@ class w2field extends w2base {
                         if (search.val() == '') {
                             this.selected = null
                             w2menu.hide(this.el.id + '_menu')
-                            this.refresh()
+                            query(this.el).val('').trigger('input').trigger('change')
                         }
                     } else {
                         let search = query(this.helpers.multi).find('input')
@@ -1137,14 +1145,10 @@ class w2field extends w2base {
     keyUp(event) {
         if (this.type == 'list') {
             let search = query(this.helpers.search_focus)
-            if (search.val() === '') {
-                query(search).css('opacity', 0)
-                query(this.el).attr('placeholder', this.tmp.pholder)
-                this.el.value = this.selected?.text ?? ''
-            } else {
-                query(search).css('opacity', 1)
+            if (search.val() !== '') {
                 query(this.el).attr('placeholder', '')
-                this.el.value = ''
+            } else {
+                query(this.el).attr('placeholder', this.tmp.pholder)
             }
             if (event.keyCode == 13) {
                 setTimeout(() => {
@@ -1160,6 +1164,7 @@ class w2field extends w2base {
                     this.updateOverlay()
                 }
             }
+            this.refresh()
         }
         if (this.type == 'combo') {
             this.updateOverlay()
@@ -1232,7 +1237,7 @@ class w2field extends w2base {
                 }
                 input = this.helpers.search_focus
             }
-            if (query(this.el).hasClass('has-focus')) {
+            if (query(this.el).hasClass('has-focus') && !this.el.readOnly && !this.el.disabled) {
                 let msgNoItems = w2utils.lang('No matches')
                 if (options.url != null && String(query(input).val()).length < options.minLength && this.tmp.emptySet !== true) {
                     msgNoItems = w2utils.lang('${count} letters or more...', { count: options.minLength })
@@ -1285,6 +1290,7 @@ class w2field extends w2base {
                             this.selected = event.detail.item
                             query(input).val('')
                             query(this.el).val(this.selected.text).trigger('input').trigger('change')
+                            this.focus({ showMenu: false })
                         } else {
                             let selected = this.selected
                             let newItem = event.detail?.item
@@ -1545,7 +1551,6 @@ class w2field extends w2base {
         query(helper).on('click', event => {
             query(event.target).find('input').focus()
         })
-        this.refresh()
     }
 
     // Used in enum/file

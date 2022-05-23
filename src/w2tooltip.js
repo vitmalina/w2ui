@@ -327,7 +327,7 @@ class Tooltip {
         overlay.box.overlay = overlay
         // event after
         if (edata) edata.finish()
-        return
+        return { overlay }
 
         function addWatchEvents(el) {
             let scope = 'tooltip-' + overlay.name
@@ -1220,7 +1220,7 @@ class MenuTooltip extends Tooltip {
             options.hideOn = prevHideOn
         }
         options.style += '; padding: 0;'
-        if (!Array.isArray(options.items) && typeof options.items != 'function') {
+        if (options.items == null) {
             options.items = []
         }
         options.html = this.getMenuHTML(options)
@@ -1231,6 +1231,8 @@ class MenuTooltip extends Tooltip {
                 let search = ''
                 // reset selected and active chain
                 overlay.selected = null
+                overlay.options.items = w2utils.normMenu(overlay.options.items)
+
                 if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
                     search = overlay.anchor.value
                     overlay.selected = overlay.anchor.dataset.selectedIndex
@@ -1327,11 +1329,11 @@ class MenuTooltip extends Tooltip {
         let parents  = selected.slice(0, selected.length-1).join('-')
         index = w2utils.isInt(index) ? parseInt(index) : 0
         // items
-        let items = w2utils.normMenu(options.items)
+        let items = options.items
         selected.forEach((id, ind) => {
             // do not go to the last one
             if (ind < selected.length - 1) {
-                items = w2utils.normMenu(items[id].items)
+                items = items[id].items
             }
         })
         return { last, index, items, item: items[index], parents }
@@ -1351,7 +1353,6 @@ class MenuTooltip extends Tooltip {
         if (items == null) {
             items = options.items
         }
-        items = w2utils.normMenu(items)
         if (!Array.isArray(items)) items = []
         let count = 0
         let icon = null
@@ -1539,7 +1540,7 @@ class MenuTooltip extends Tooltip {
         if (options.filter === false) {
             return
         }
-        if (items == null) items = options.items
+        if (items == null) items = overlay.options.items
         if (search == null) {
             if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
                 search = overlay.anchor.value
@@ -1588,7 +1589,8 @@ class MenuTooltip extends Tooltip {
             }
             if (item.hidden !== true) count++
         })
-        overlay.tmp.activeChain = null
+        overlay.tmp.activeChain = this.getActiveChain(name, items)
+        overlay.selected = null
         return count
     }
 
@@ -1620,13 +1622,13 @@ class MenuTooltip extends Tooltip {
 
     menuDown(overlay, event, index, parentIndex) {
         let options = overlay.options
-        let items   = w2utils.normMenu(options.items)
+        let items   = options.items
         let icon    = query(event.delegate).find('.w2ui-icon')
         let menu    = query(event.target).closest('.w2ui-menu:not(.w2ui-sub-menu)')
         if (typeof parentIndex == 'string' && parentIndex !== '') {
             let ids = parentIndex.split('-')
             ids.forEach(id => {
-                items = w2utils.normMenu(items[id].items)
+                items = items[id].items
             })
         }
         let item = items[index]
@@ -1675,7 +1677,7 @@ class MenuTooltip extends Tooltip {
 
     menuClick(overlay, event, index, parentIndex) {
         let options  = overlay.options
-        let items    = w2utils.normMenu(options.items)
+        let items    = options.items
         let $item    = query(event.delegate).closest('.w2ui-menu-item')
         let keepOpen = options.hideOn.includes('select') ? false : true
         if (event.shiftKey || event.metaKey || event.ctrlKey) {
@@ -1684,7 +1686,7 @@ class MenuTooltip extends Tooltip {
         if (typeof parentIndex == 'string' && parentIndex !== '') {
             let ids = parentIndex.split('-')
             ids.forEach(id => {
-                items = w2utils.normMenu(items[id].items)
+                items = items[id].items
             })
         } else {
             parentIndex = null
@@ -1874,7 +1876,7 @@ class MenuTooltip extends Tooltip {
         // filter
         if (filter && overlay.displayed && ((options.filter && event._searchType == 'filter')
                     || (options.search && event._searchType == 'search'))) {
-            let count = this.applyFilter(overlay.name, options.items, search)
+            let count = this.applyFilter(overlay.name, null, search)
             overlay.tmp.searchCount = count
             overlay.tmp.search = search
             // if selected is not in searched items

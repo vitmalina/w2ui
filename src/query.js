@@ -495,8 +495,10 @@ class Query {
     }
 
     removeData(key) {
+        if (typeof key == 'string') key = key.split(/[,\s]+/)
         this.each(node => {
-            delete node.dataset[key]
+            key.forEach(k => { delete node.dataset[k] })
+
         })
         return this
     }

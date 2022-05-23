@@ -18,44 +18,51 @@
     </div>
     <div class="w2ui-field">
         <label>Manager: </label>
-        <div><input id="field2" style="width: 300px"></div>
+        <div><input id="field2" style="width: 300px" placeholder="Select and employee first" readonly></div>
     </div>
 </div>
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#field1')
-        .w2field('list', {
-            url : 'data/enum.json'
-        })
-        .on('change', function () {
-            var $field2 = $('#field2');
-            var sel = $(this).data('selected');
-            var fld = $field2.data('w2field');  // before 1.4.1 -- var fld = $field.data('w2field');
-            if (sel && !$.isEmptyObject(sel)) {
-                $field2
-                    .attr('placeholder', '') // before 1.5.0 -- fld.options.placeholder = '';
-                    .prop('readonly', false);
+query(async () => {
+    let data = await fetch('data/enum.json').then(resp => resp.json()).then(data => data)
+    data.records.sort((a, b) => a.text.localeCompare(b.text))
+    let fld1 = new w2field({
+        type: 'list',
+        el: query('#field1')[0],
+        items: data.records,
+    })
+    query('#field1')
+        .on('change', (event) => {
+            let sel = fld1.get()
+            console.log('field1: ', sel)
+            if (sel) {
+                fld2.options.items = data.records
+                query('#field2')
+                    .removeAttr('placeholder')
+                    .prop('readonly', false)
+                    .removeAttr('readonly')
             } else {
-                $field2
+                fld2.options.items = []
+                fld2.tmp.pholder = 'Select empoyee first'
+                query('#field2')
                     .attr('placeholder', 'Select employee first')
-                    .prop('readonly', true); // before 1.5.0 -- fld.options.placeholder = 'Select employee first';
+                    .attr('readonly', true)
             }
-            $field2.data('selected', null);
-            fld.clearCache();
-            fld.refresh();
-        });
+            fld2.set(null)
+        })
 
-    $('#field2')
+    let fld2 = new w2field({
+        type: 'list',
+        el: query('#field2')[0],
+        items: []
+    })
+    query('#field2')
         .attr('placeholder', 'Select employee first')
         .prop('readonly', true)
-        .w2field('list', {
-            url: 'data/enum.json',
-            onRequest: function (event) {
-                var sel = $('#field1').data('selected');
-                event.postData['employee_id'] = sel.id;
-            }
-        });
+        .change((event) => {
+            let sel = event.target._w2field.selected
+            console.log('field2: ', sel)
+        })
 })
 </script>
