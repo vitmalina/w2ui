@@ -22,7 +22,7 @@ import { w2ui, w2base, query } from 'https://rawgit.com/vitmalina/w2ui/master/di
 class Control extends w2base {
     constructor(conf) {
         // custom code
-        super(conf)
+        super(conf.name)
     }
 
     render(box) {
@@ -36,7 +36,9 @@ class Control extends w2base {
         edata.finish()
     }
 }
+if (w2ui.some) {
+    delete w2ui.some
+}
 let myControl = new Control({ name: 'some' })
 myControl.render(query('#main'))
-console.log(w2ui)
 </script>

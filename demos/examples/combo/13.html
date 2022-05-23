@@ -19,21 +19,22 @@
 
 <!--CODE-->
 <script>
-$(() => {
+query(() => {
     let text = `The message for the tag can be quite big<br>
                 and contain any html.`
-    $("#span1").html(`
+    query("#span1").html(`
         <span ${w2utils.tooltip(text, { position: 'top|bottom', className: 'w2ui-light' })}>
             Light theme (move over me)
         </span>`)
 
-    $("#span2").html(`
+    query("#span2").html(`
         <span ${w2utils.tooltip(text, { position: 'top|bottom' })}>
             Old dark theme (move over me)
         </span>`)
     // grid
-    $('#grid').w2grid({
+    new w2grid({
         name: 'grid',
+        box: query('#grid')[0],
         show: { recordTitles: false },
         columns: [
             { field: 'fname', text: 'First Name', size: '30%',

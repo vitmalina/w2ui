@@ -57,10 +57,12 @@ function contextMenu(event, type) {
             { id: 'w2ui-icon-settings', text: 'w2ui-icon-settings', icon: 'w2ui-icon-settings' },
         ]
     }
-    $('body').w2menu({
+    w2menu.show({
+        name: 'context-menu',
         items,
+        anchor: query('body')[0],
         onSelect(event) {
-            $('#msg-log').html(event.detail.item.text)
+            query('#msg-log').html(event.detail.item.text)
             console.log('select', event);
         },
         originalEvent: event

@@ -73,7 +73,7 @@ class w2base {
             if (!w2utils.checkName(name)) return
             w2ui[name] = this
         }
-        this.debug    = false // if true, will trigger all events
+        this.debug = false // if true, will trigger all events
     }
 
     /**

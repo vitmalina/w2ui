@@ -12,7 +12,7 @@
 
 <!--CODE-->
 <script type="module">
-import { w2ui, w2layout, w2sidebar, w2grid } from 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.es6.js'
+// import { w2ui, w2layout, w2sidebar, w2grid, query } from 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.es6.js'
 import conf from 'https://rawgit.com/vitmalina/w2ui/master/demos/data/es6-conf.js'
 
 // register app globally
@@ -31,7 +31,7 @@ let grid1 = new w2grid(conf.grid1)
 let grid2 = new w2grid(conf.grid2)
 
 
-layout.render($('#main'))
+layout.render(query('#main')[0])
 layout.html('left', sidebar)
 layout.html('main', grid1)
 </script>

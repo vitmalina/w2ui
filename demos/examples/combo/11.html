@@ -37,10 +37,10 @@ var config = {
                 }
             }
         ],
-        onFlat: function (event) {
-            w2ui.layout.sizeTo('left', (event.goFlat ? 35 : 200), true);
+        onFlat(event) {
+            w2ui.layout.sizeTo('left', (event.detail.goFlat ? 35 : 200), true);
         },
-        onClick: function (event) {
+        onClick(event) {
             switch (event.target) {
                 case 'grid1':
                     w2ui.layout.html('main', w2ui.grid1);
@@ -50,10 +50,9 @@ var config = {
                     break;
                 case 'html':
                     w2ui.layout.html('main', '<div style="padding: 10px">Some HTML</div>');
-                    $(w2ui.layout.el('main'))
-                        .removeClass('w2ui-grid')
+                    query(w2ui.layout.el('main'))
                         .css({
-                            'border-left': '1px solid silver'
+                            'border-left': '1px solid #efefef'
                         });
                     break;
             }
@@ -94,12 +93,14 @@ var config = {
     }
 };
 
-$(function () {
+query(() => {
     // initialization
-    $('#main').w2layout(config.layout);
-    w2ui.layout.html('left', $().w2sidebar(config.sidebar));
-    w2ui.layout.html('main', $().w2grid(config.grid1));
-    // in memory initialization
-    $().w2grid(config.grid2);
-});
+    let layout = new w2layout(config.layout)
+    let sidebar = new w2sidebar(config.sidebar)
+    let grid1 = new w2grid(config.grid1)
+    let grid2 = new w2grid(config.grid2)
+    layout.render(query('#main')[0])
+    layout.html('left', sidebar)
+    layout.html('main', grid1)
+})
 </script>

@@ -14,7 +14,7 @@
  * == 2.0 changes
  *  - CSP - fixed inline events
  *  - transition returns a promise
- *  - nearly removed jQuery (toolip has reference)
+ *  - removed jQuery
  *  - refactores w2utils.message()
  *  - added w2utils.confirm()
  *  - added isPlainObject
@@ -1927,18 +1927,11 @@ class Utils {
             hideOn = options.hideOn
             delete options.hideOn
         }
-        if (options.overlay === true) {
-            isOverlay = true
-            delete options.overlay
-        }
+        if (!options.name) options.name = 'no-name';
         // base64 is needed to avoid '"<> and other special chars conflicts
-        actions = ` on${showOn}="jQuery(this).${isOverlay ? 'w2overlay' : 'w2tag'}(`
+        actions = ` on${showOn}="w2tooltip.show(this, `
                 + `JSON.parse(w2utils.base64decode('${this.base64encode(JSON.stringify(options))}')))" `
-                + `on${hideOn}="jQuery(this).${isOverlay ? 'w2overlay' : 'w2tag'}(`
-                + `${isOverlay && options.name != null
-                    ? `JSON.parse(w2utils.base64decode('${this.base64encode(JSON.stringify({ name: options.name }))}'))`
-                    : ''}`
-                + ')"'
+                + `on${hideOn}="w2tooltip.hide('${options.name}')"`;
         return actions
     }
 
