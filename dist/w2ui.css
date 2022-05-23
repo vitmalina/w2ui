@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/21/2022, 9:40:52 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/22/2022, 10:43:56 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -153,7 +153,6 @@
 .w2ui-readonly {
   background-color: #f1f1f1;
   color: #777;
-  outline: none;
 }
 input.w2ui-focus:not(button),
 textarea.w2ui-focus,
@@ -189,7 +188,6 @@ input:not([type=button]):not([type=submit]).w2ui-input[readonly],
 textarea.w2ui-input[readonly] {
   background-color: #f1f1f1;
   color: #777;
-  outline: none;
 }
 select.w2ui-input {
   color: black;
@@ -1899,7 +1897,6 @@ textarea.w2ui-error {
   background-image: none;
   background-color: #f1f1f1 !important;
   color: #777 !important;
-  outline: none!important;
 }
 /*************************************************
 * ---- Layout ----

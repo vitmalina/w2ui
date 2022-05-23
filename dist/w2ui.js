@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/21/2022, 9:40:52 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/22/2022, 10:43:56 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -67,7 +67,7 @@ class w2base {
             if (!w2utils.checkName(name)) return
             w2ui[name] = this
         }
-        this.debug    = false // if true, will trigger all events
+        this.debug = false // if true, will trigger all events
     }
     /**
      * Adds event listener, supports event phase and event scoping
@@ -843,8 +843,9 @@ class Query {
         }
     }
     removeData(key) {
+        if (typeof key == 'string') key = key.split(/[,\s]+/)
         this.each(node => {
-            delete node.dataset[key]
+            key.forEach(k => { delete node.dataset[k] })
         })
         return this
     }
@@ -856,13 +857,16 @@ class Query {
     }
     toggle(force) {
         return this.each(node => {
-            let dsp = node.style.display
-            if ((dsp == 'none' && force == null) || force === true) { // show
-                node.style.display = node._mQuery?.prevDisplay ?? ''
+            let prev = node.style.display
+            let dsp  = getComputedStyle(node).display
+            let isHidden = (prev == 'none' || dsp == 'none')
+            if (isHidden && (force == null || force === true)) { // show
+                node.style.display = node._mQuery?.prevDisplay ?? (prev == dsp ? '' : 'block')
                 this._save(node, 'prevDisplay', null)
-            } else { // hide
+            }
+            if (!isHidden && (force == null || force === false)) { // hide
                 if (dsp != 'none') this._save(node, 'prevDisplay', dsp)
-                node.style.display = 'none'
+                node.style.setProperty('display', 'none')
             }
         })
     }
@@ -916,7 +920,7 @@ query.html = (str) => { let frag = Query._fragment(str); return query(frag.child
  * == 2.0 changes
  *  - CSP - fixed inline events
  *  - transition returns a promise
- *  - nearly removed jQuery (toolip has reference)
+ *  - removed jQuery
  *  - refactores w2utils.message()
  *  - added w2utils.confirm()
  *  - added isPlainObject
@@ -2710,18 +2714,11 @@ class Utils {
             hideOn = options.hideOn
             delete options.hideOn
         }
-        if (options.overlay === true) {
-            isOverlay = true
-            delete options.overlay
-        }
+        if (!options.name) options.name = 'no-name';
         // base64 is needed to avoid '"<> and other special chars conflicts
-        actions = ` on${showOn}="jQuery(this).${isOverlay ? 'w2overlay' : 'w2tag'}(`
+        actions = ` on${showOn}="w2tooltip.show(this, `
                 + `JSON.parse(w2utils.base64decode('${this.base64encode(JSON.stringify(options))}')))" `
-                + `on${hideOn}="jQuery(this).${isOverlay ? 'w2overlay' : 'w2tag'}(`
-                + `${isOverlay && options.name != null
-                    ? `JSON.parse(w2utils.base64decode('${this.base64encode(JSON.stringify({ name: options.name }))}'))`
-                    : ''}`
-                + ')"'
+                + `on${hideOn}="w2tooltip.hide('${options.name}')"`;
         return actions
     }
     // determins if it is plain Object, not DOM element, nor a function, event, etc.
@@ -4022,7 +4019,7 @@ class Tooltip {
         overlay.box.overlay = overlay
         // event after
         if (edata) edata.finish()
-        return
+        return { overlay }
         function addWatchEvents(el) {
             let scope = 'tooltip-' + overlay.name
             let queryEl = el
@@ -4880,7 +4877,7 @@ class MenuTooltip extends Tooltip {
             options.hideOn = prevHideOn
         }
         options.style += '; padding: 0;'
-        if (!Array.isArray(options.items) && typeof options.items != 'function') {
+        if (options.items == null) {
             options.items = []
         }
         options.html = this.getMenuHTML(options)
@@ -4891,6 +4888,7 @@ class MenuTooltip extends Tooltip {
                 let search = ''
                 // reset selected and active chain
                 overlay.selected = null
+                overlay.options.items = w2utils.normMenu(overlay.options.items)
                 if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
                     search = overlay.anchor.value
                     overlay.selected = overlay.anchor.dataset.selectedIndex
@@ -4983,11 +4981,11 @@ class MenuTooltip extends Tooltip {
         let parents  = selected.slice(0, selected.length-1).join('-')
         index = w2utils.isInt(index) ? parseInt(index) : 0
         // items
-        let items = w2utils.normMenu(options.items)
+        let items = options.items
         selected.forEach((id, ind) => {
             // do not go to the last one
             if (ind < selected.length - 1) {
-                items = w2utils.normMenu(items[id].items)
+                items = items[id].items
             }
         })
         return { last, index, items, item: items[index], parents }
@@ -5006,7 +5004,6 @@ class MenuTooltip extends Tooltip {
         if (items == null) {
             items = options.items
         }
-        items = w2utils.normMenu(items)
         if (!Array.isArray(items)) items = []
         let count = 0
         let icon = null
@@ -5191,7 +5188,7 @@ class MenuTooltip extends Tooltip {
         if (options.filter === false) {
             return
         }
-        if (items == null) items = options.items
+        if (items == null) items = overlay.options.items
         if (search == null) {
             if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
                 search = overlay.anchor.value
@@ -5240,7 +5237,8 @@ class MenuTooltip extends Tooltip {
             }
             if (item.hidden !== true) count++
         })
-        overlay.tmp.activeChain = null
+        overlay.tmp.activeChain = this.getActiveChain(name, items)
+        overlay.selected = null
         return count
     }
     /**
@@ -5270,13 +5268,13 @@ class MenuTooltip extends Tooltip {
     }
     menuDown(overlay, event, index, parentIndex) {
         let options = overlay.options
-        let items   = w2utils.normMenu(options.items)
+        let items   = options.items
         let icon    = query(event.delegate).find('.w2ui-icon')
         let menu    = query(event.target).closest('.w2ui-menu:not(.w2ui-sub-menu)')
         if (typeof parentIndex == 'string' && parentIndex !== '') {
             let ids = parentIndex.split('-')
             ids.forEach(id => {
-                items = w2utils.normMenu(items[id].items)
+                items = items[id].items
             })
         }
         let item = items[index]
@@ -5324,7 +5322,7 @@ class MenuTooltip extends Tooltip {
     }
     menuClick(overlay, event, index, parentIndex) {
         let options  = overlay.options
-        let items    = w2utils.normMenu(options.items)
+        let items    = options.items
         let $item    = query(event.delegate).closest('.w2ui-menu-item')
         let keepOpen = options.hideOn.includes('select') ? false : true
         if (event.shiftKey || event.metaKey || event.ctrlKey) {
@@ -5333,7 +5331,7 @@ class MenuTooltip extends Tooltip {
         if (typeof parentIndex == 'string' && parentIndex !== '') {
             let ids = parentIndex.split('-')
             ids.forEach(id => {
-                items = w2utils.normMenu(items[id].items)
+                items = items[id].items
             })
         } else {
             parentIndex = null
@@ -5520,7 +5518,7 @@ class MenuTooltip extends Tooltip {
         // filter
         if (filter && overlay.displayed && ((options.filter && event._searchType == 'filter')
                     || (options.search && event._searchType == 'search'))) {
-            let count = this.applyFilter(overlay.name, options.items, search)
+            let count = this.applyFilter(overlay.name, null, search)
             overlay.tmp.searchCount = count
             overlay.tmp.search = search
             // if selected is not in searched items
@@ -8829,7 +8827,7 @@ class w2tabs extends w2base {
         let tab = this.get(id)
         if (tab == null || tab.disabled) return false
         // event before
-        let edata = this.trigger('close', { target: id, object: this.get(id), originalEvent: event })
+        let edata = this.trigger('close', { target: id, object: tab, tab, originalEvent: event })
         if (edata.isCancelled === true) return
         this.animateClose(id).then(() => {
             this.remove(id)
@@ -12107,6 +12105,7 @@ class w2grid extends w2base {
         w2tooltip.show({
             name  : this.name + '-search-overlay',
             anchor: query(this.box).find('#grid_'+ this.name +'_search_all').get(0),
+            position: 'bottom|top',
             html  : this.getSearchesHTML(),
             align : 'left',
             arrowSize: 12,
@@ -20492,8 +20491,8 @@ class w2field extends w2base {
                     maxDropHeight   : 350, // max height for drop down menu
                     maxDropWidth    : null, // if null then auto set
                     match           : 'contains', // ['contains', 'is', 'begins', 'ends']
-                    align           : 'both', // same width as control
-                    altRows         : true, // alternate row color
+                    align           : '',    // align drop down related to search field
+                    altRows         : true,  // alternate row color
                     openOnFocus     : false, // if to show overlay onclick or when typing
                     markSearch      : false,
                     renderDrop      : null, // render function for drop down item
@@ -20570,7 +20569,7 @@ class w2field extends w2base {
         this.addSuffix() // only will add if needed
         this.addSearch()
         this.addMultiSearch()
-        this.refresh()
+        // this.refresh() // do not call refresh, on change will trigger refresh (for list at list)
         // format initial value
         this.change(new Event('change'))
     }
@@ -20650,16 +20649,20 @@ class w2field extends w2base {
             if (focus.val() === '') {
                 focus.css('opacity', 0)
                 icon.css('opacity', 0)
-                if (this.selected && this.selected.id) {
+                if (this.selected?.id) {
                     let text = this.selected.text
                     let ind = this.findItemIndex(options.items, this.selected.id)
                     if (text != null) {
-                        query(this.el).val(w2utils.lang(text))
-                        query(this.helpers.search_focus).data({
-                            selected: text,
-                            selectedIndex: ind[0]
-                        })
+                        query(this.el)
+                            .val(w2utils.lang(text))
+                            .data({
+                                selected: text,
+                                selectedIndex: ind[0]
+                            })
                     }
+                } else {
+                    this.el.value = ''
+                    query(this.el).removeData('selected selectedIndex')
                 }
             } else {
                 focus.css('opacity', 1)
@@ -21077,7 +21080,11 @@ class w2field extends w2base {
         }
         // menu
         if (['list', 'combo', 'enum'].indexOf(this.type) !== -1) {
-            if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+            if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) {
+                // still add focus
+                query(this.el).addClass('has-focus')
+                return
+            }
             // regenerate items
             if (typeof this.options._items_fun == 'function') {
                 this.options.items = w2utils.normMenu.call(this, this.options._items_fun)
@@ -21096,7 +21103,7 @@ class w2field extends w2base {
             }
             this.resize()
             // update overlay if needed
-            if (this.options.openOnFocus !== false || query(this.el).hasClass('has-focus')) {
+            if (event.showMenu !== false && (this.options.openOnFocus !== false || query(this.el).hasClass('has-focus'))) {
                 setTimeout(() => { this.updateOverlay() }, 100) // execute at the end of event loop
             }
         }
@@ -21278,7 +21285,7 @@ class w2field extends w2base {
                         if (search.val() == '') {
                             this.selected = null
                             w2menu.hide(this.el.id + '_menu')
-                            this.refresh()
+                            query(this.el).val('').trigger('input').trigger('change')
                         }
                     } else {
                         let search = query(this.helpers.multi).find('input')
@@ -21311,14 +21318,10 @@ class w2field extends w2base {
     keyUp(event) {
         if (this.type == 'list') {
             let search = query(this.helpers.search_focus)
-            if (search.val() === '') {
-                query(search).css('opacity', 0)
-                query(this.el).attr('placeholder', this.tmp.pholder)
-                this.el.value = this.selected?.text ?? ''
-            } else {
-                query(search).css('opacity', 1)
+            if (search.val() !== '') {
                 query(this.el).attr('placeholder', '')
-                this.el.value = ''
+            } else {
+                query(this.el).attr('placeholder', this.tmp.pholder)
             }
             if (event.keyCode == 13) {
                 setTimeout(() => {
@@ -21334,6 +21337,7 @@ class w2field extends w2base {
                     this.updateOverlay()
                 }
             }
+            this.refresh()
         }
         if (this.type == 'combo') {
             this.updateOverlay()
@@ -21404,7 +21408,7 @@ class w2field extends w2base {
                 }
                 input = this.helpers.search_focus
             }
-            if (query(this.el).hasClass('has-focus')) {
+            if (query(this.el).hasClass('has-focus') && !this.el.readOnly && !this.el.disabled) {
                 let msgNoItems = w2utils.lang('No matches')
                 if (options.url != null && String(query(input).val()).length < options.minLength && this.tmp.emptySet !== true) {
                     msgNoItems = w2utils.lang('${count} letters or more...', { count: options.minLength })
@@ -21456,6 +21460,7 @@ class w2field extends w2base {
                             this.selected = event.detail.item
                             query(input).val('')
                             query(this.el).val(this.selected.text).trigger('input').trigger('change')
+                            this.focus({ showMenu: false })
                         } else {
                             let selected = this.selected
                             let newItem = event.detail?.item
@@ -21673,7 +21678,7 @@ class w2field extends w2base {
         this.helpers.search_focus = query(helper).find('input').get(0)
         let styles = getComputedStyle(this.el)
         query(helper).css({
-                width           : this.el.clientWidth,
+                width           : this.el.clientWidth + 'px',
                 'margin-top'    : styles['margin-top'],
                 'margin-left'   : styles['margin-left'],
                 'margin-bottom' : styles['margin-bottom'],
@@ -21710,7 +21715,6 @@ class w2field extends w2base {
         query(helper).on('click', event => {
             query(event.target).find('input').focus()
         })
-        this.refresh()
     }
     // Used in enum/file
     addMultiSearch() {
