@@ -18,6 +18,7 @@
             <button class="w2ui-btn" onclick="list1.setIndex(5)">Select 5th</button>
             <button class="w2ui-btn" onclick="list1.setIndex(Math.floor(Math.random() * 41))">Select Random</button>
             <button class="w2ui-btn" onclick="w2alert(JSON.stringify(list1.get()))">Get Selected</button>
+            <button class="w2ui-btn" onclick="list1.set(null)">Empty</button>
         </div>
     </div>
 </div>
@@ -32,6 +33,7 @@
             <button class="w2ui-btn" onclick="list2.setIndex(5)">Select 5th</button>
             <button class="w2ui-btn" onclick="list2.setIndex(Math.floor(Math.random() * 41), true)">Add Random</button>
             <button class="w2ui-btn" onclick="w2alert(JSON.stringify(list2.get()))">Get Selected</button>
+            <button class="w2ui-btn" onclick="list2.set()">Empty</button>
         </div>
     </div>
 </div>

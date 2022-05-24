@@ -1149,6 +1149,10 @@ class Utils {
                 options.on('close.prom', callBack)
                 return prom
             },
+            open(callBack) {
+                options.on('open.prom', callBack)
+                return prom
+            },
             then(callBack) {
                 options.on('open:after.prom', callBack)
                 return prom

@@ -25,7 +25,11 @@ $(function () {
             { field: 'recid', label: 'ID ', type: 'int' },
             { field: 'lname', label: 'Last Name', type: 'text' },
             { field: 'fname', label: 'First Name', type: 'text' },
-            { field: 'email', label: 'Email', type: 'list', options: { items: ['peter@gmail.com', 'jim@gmail.com', 'jdoe@gmail.com']} },
+            { field: 'email', label: 'Email', type: 'list',
+                options: { items: ['peter@gmail.com', 'jim@gmail.com', 'jdoe@gmail.com'] } },
+            { field: 'status', label: 'Status', type: 'enum', style: 'width1: 350px',
+                options: { items: ['active', 'selected', 'submitted'] }
+            },
             { field: 'sdate', label: 'Start Date', type: 'date' }
         ],
         columns: [
@@ -33,15 +37,16 @@ $(function () {
             { field: 'lname', text: 'Last Name', size: '30%', sortable: true },
             { field: 'fname', text: 'First Name', size: '30%', sortable: true },
             { field: 'email', text: 'Email', size: '40%' },
-            { field: 'sdate', text: 'Start Date', render: 'date:mm/dd/yyyy', size: '120px' }
+            { field: 'sdate', text: 'Start Date', render: 'date:mm/dd/yyyy', size: '120px' },
+            { field: 'status', text: 'Status', size: '120px' }
         ],
         records: [
-            { recid: 1, fname: 'Jane', lname: 'Doe', email: 'jdoe@gmail.com', sdate: 384052483664 },
-            { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: 1384052583664 },
-            { recid: 3, fname: 'Jin', lname: 'Franson', email: 'peter@gmail.com', sdate: 1383620688314 },
-            { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jim@gmail.com', sdate: 1384052463664 },
-            { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'peter@gmail.com', sdate: 1383793476323 },
-            { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: 1383620688314 },
+            { recid: 1, fname: 'Jane', lname: 'Doe', email: 'jdoe@gmail.com', sdate: 384052483664, status: ['active']},
+            { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: 1384052583664, status: ['active'] },
+            { recid: 3, fname: 'Jin', lname: 'Franson', email: 'peter@gmail.com', sdate: 1383620688314, status: ['active'] },
+            { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jim@gmail.com', sdate: 1384052463664, status: ['active'] },
+            { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'peter@gmail.com', sdate: 1383793476323, status: ['active', 'selected'] },
+            { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: 1383620688314, status: ['active'] },
             { recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jim@gmail.com', sdate: 1383361499126 },
             { recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: 1383793476323 },
             { recid: 9, fname: 'Sergei', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: 1383620688314 },

@@ -38,6 +38,7 @@
  *  - edit demo grid/21 - if you hit add record too fast, it breaks
  *  - refactor onSelect/onUselect - should be one event, when selection changes
  *  - saveSearches - save not working right
+ *  - inTag, outTag -- refactore to attr
  *
  * == DEMOS To create ==
  *  - batch for disabled buttons
@@ -79,6 +80,7 @@ import { w2ui, w2utils } from './w2utils.js'
 import { query } from './query.js'
 import { w2toolbar } from './w2toolbar.js'
 import { w2menu, w2tooltip } from './w2tooltip.js'
+import { w2field } from './w2field.js'
 
 class w2grid extends w2base {
     constructor(options) {
@@ -1931,13 +1933,14 @@ class w2grid extends w2base {
     }
 
     search(field, value) {
-        let url               = (typeof this.url != 'object' ? this.url : this.url.get)
-        let searchData        = []
-        let last_multi        = this.last.multi
-        let last_logic        = this.last.logic
-        let last_field        = this.last.field
-        let last_search       = this.last.search
+        let url = (typeof this.url != 'object' ? this.url : this.url.get)
+        let searchData = []
+        let last_multi = this.last.multi
+        let last_logic = this.last.logic
+        let last_field = this.last.field
+        let last_search = this.last.search
         let hasHiddenSearches = false
+        let overlay = query(`#w2overlay-${this.name}-search-overlay`)
         // add hidden searches
         for (let i = 0; i < this.searches.length; i++) {
             if (!this.searches[i].hidden || this.searches[i].value == null) continue
@@ -1952,27 +1955,27 @@ class w2grid extends w2base {
         // 1: search() - advanced search (reads from popup)
         if (arguments.length === 0) {
             this.focus() // otherwise search drop down covers searches
-            last_logic = $(this.box).find(`#grid_${this.name}_logic`).val()
+            last_logic = overlay.find(`#grid_${this.name}_logic`).val()
             last_search = ''
             // advanced search
             for (let i = 0; i < this.searches.length; i++) {
                 let search   = this.searches[i]
-                let operator = $(this.box).find('#grid_'+ this.name + '_operator_'+ i).val()
-                let field1   = $(this.box).find('#grid_'+ this.name + '_field_'+ i)
-                let field2   = $(this.box).find('#grid_'+ this.name + '_field2_'+ i)
+                let operator = overlay.find('#grid_'+ this.name + '_operator_'+ i).val()
+                let field1   = overlay.find('#grid_'+ this.name + '_field_'+ i)
+                let field2   = overlay.find('#grid_'+ this.name + '_field2_'+ i)
                 let value1   = field1.val()
                 let value2   = field2.val()
                 let svalue   = null
                 let text     = null
 
                 if (['int', 'float', 'money', 'currency', 'percent'].indexOf(search.type) != -1) {
-                    let fld1 = field1.data('w2field')
-                    let fld2 = field2.data('w2field')
+                    let fld1 = field1[0]._w2field
+                    let fld2 = field2[0]._w2field
                     if (fld1) value1 = fld1.clean(value1)
                     if (fld2) value2 = fld2.clean(value2)
                 }
                 if (['list', 'enum'].indexOf(search.type) != -1 || ['in', 'not in'].indexOf(operator) != -1) {
-                    value1 = field1.data('selected') || {}
+                    value1 = field1[0]._w2field.selected || {}
                     if (Array.isArray(value1)) {
                         svalue = []
                         for (let j = 0; j < value1.length; j++) {
@@ -2103,7 +2106,7 @@ class w2grid extends w2base {
                         }
                     }
                 } else {
-                    let el     = $(this.box).find('#grid_'+ this.name +'_search_all')
+                    let el = overlay.find('#grid_'+ this.name +'_search_all')
                     let search = this.getSearch(field)
                     if (search == null) search = { field: field, type: 'text' }
                     if (search.field == field) this.last.label = search.label
@@ -2112,8 +2115,8 @@ class w2grid extends w2base {
                         let val = value
                         if (['date', 'time', 'datetime'].indexOf(search.type) != -1) op = 'is'
                         if (['list', 'enum'].indexOf(search.type) != -1) {
-                            op      = 'is'
-                            let tmp = el.data('selected')
+                            op = 'is'
+                            let tmp = el._w2field.get()
                             if (tmp && Object.keys(tmp).length > 0) val = tmp.id; else val = ''
                         }
                         if (search.type == 'int' && value !== '') {
@@ -2200,6 +2203,7 @@ class w2grid extends w2base {
         edata.finish()
     }
 
+    // open advanced search popover
     searchOpen() {
         if (!this.box) return
         if (this.searches.length === 0) return
@@ -2212,21 +2216,32 @@ class w2grid extends w2base {
         $btn.addClass('checked')
         // show search
         w2tooltip.show({
-            name  : this.name + '-search-overlay',
+            name: this.name + '-search-overlay',
             anchor: query(this.box).find('#grid_'+ this.name +'_search_all').get(0),
             position: 'bottom|top',
-            html  : this.getSearchesHTML(),
-            align : 'left',
+            html: this.getSearchesHTML(),
+            align: 'left',
             arrowSize: 12,
-            class : 'w2ui-grid-search-advanced',
+            class: 'w2ui-grid-search-advanced',
             hideOn: ['doc-click']
         })
         .then(event => {
             this.initSearches()
             this.last.search_opened = true
-            query(`#w2overlay-${this.name}-search-overlay .w2ui-grid-search-advanced`)
+            let overlay = query(`#w2overlay-${this.name}-search-overlay`)
+            overlay
                 .data('gridName', this.name)
-            w2utils.bindEvents(query(`#w2overlay-${this.name}-search-overlay`).find('select, input, button'), this)
+                .off('.grid-search')
+                .on('click.grid-search', () => {
+                    // hide any tooltip opened by searches
+                    overlay.find('input, select').each(el => {
+                        let names = query(el).data('tooltipName')
+                        if (names) names.forEach(name => {
+                            w2tooltip.hide(name)
+                        })
+                    })
+                })
+            w2utils.bindEvents(overlay.find('select, input, button'), this)
             // init first field
             let sfields = query(`#w2overlay-${this.name}-search-overlay *[rel=search]`)
             if (sfields.length > 0) sfields[0].focus()
@@ -2243,6 +2258,7 @@ class w2grid extends w2base {
         w2tooltip.hide(this.name + '-search-overlay')
     }
 
+    // drop down with save searches
     searchSuggest(imediate, forceHide, input) {
         clearTimeout(this.last.kbd_timer)
         clearTimeout(this.last.overlay_timer)
@@ -2252,7 +2268,7 @@ class w2grid extends w2base {
             w2tooltip.hide(this.name + '-search-suggest')
             return
         }
-        if ($(`#w2overlay-${this.name}-search-suggest`).length > 0) {
+        if (query(`#w2overlay-${this.name}-search-suggest`).length > 0) {
             // already shown
             return
         }
@@ -2340,51 +2356,10 @@ class w2grid extends w2base {
         }
     }
 
+    // if clicked on a field in the search strip
     searchFieldDrop(ind, sd_ind, el) {
-        let grid = this
         let sf = this.searches[ind]
         let sd = this.searchData[sd_ind]
-        let operator = `<select id="grid_${this.name}_operator_${ind}" class="w2ui-input" style="padding: 1px 7px; font-size: 13px; height: 27px;"
-               onchange="w2ui['${this.name}'].initOperator(${ind})">${this.getOperators(sf.type, sf.operators)}</select>`
-        let value = ''
-        switch (sf.type) {
-            case 'text':
-            case 'alphanumeric':
-            case 'hex':
-            case 'color':
-            case 'list':
-            case 'combo':
-            case 'enum': {
-                let tmpStyle = 'width: 250px;'
-                if (['hex', 'color'].indexOf(sf.type) != -1) tmpStyle = 'width: 90px;'
-                value += '<input rel="search" type="text" id="grid_'+ this.name +'_field_'+ ind +'" name="'+ sf.field +'" '+
-                        '   class="w2ui-input" style="'+ tmpStyle + sf.style +'" '+ sf.inTag +'/>'
-                break
-            }
-            case 'int':
-            case 'float':
-            case 'money':
-            case 'currency':
-            case 'percent':
-            case 'date':
-            case 'time':
-            case 'datetime':
-                let tmpStyle = 'width: 80px'
-                if (sf.type == 'datetime') tmpStyle = 'width: 140px;'
-                value += '<input rel="search" type="text" class="w2ui-input" style="'+ tmpStyle + sf.style +'" id="grid_'+ this.name +'_field_'+ ind +'" name="'+ sf.field +'" '+ sf.inTag +'/>'+
-                        '<span id="grid_'+ this.name +'_extra1_'+ ind +'" style="padding-left: 5px; color: #6f6f6f; font-size: 10px"></span>'+
-                        '<span id="grid_'+ this.name +'_range_'+ ind +'" style="display: none">&#160;-&#160;&#160;'+
-                        '<input rel="search" type="text" class="w2ui-input" style="'+ tmpStyle + sf.style +'" id="grid_'+ this.name +'_field2_'+ ind +'" name="'+ sf.field +'" '+ sf.inTag +'/>'+
-                        '</span>'+
-                        '<span id="grid_'+ this.name +'_extra2_'+ ind +'" style="padding-left: 5px; color: #6f6f6f; font-size: 10px"></span>'
-                break
-
-            case 'select':
-                value += '<select rel="search" class="w2ui-input" style="'+ sf.style +'" id="grid_'+ this.name +'_field_'+ ind +'" '+
-                        ' name="'+ sf.field +'" '+ sf.inTag +'  onclick="event.stopPropagation();"></select>'
-                break
-
-        }
         let oper = sd.operator
         if (oper == 'more' && sd.type == 'date') oper = 'since'
         if (oper == 'less' && sd.type == 'date') oper = 'before'
@@ -2392,29 +2367,21 @@ class w2grid extends w2base {
         let val = sd.value
         if (Array.isArray(sd.value)) { // && Array.isArray(sf.options.items)) {
             sd.value.forEach(opt => {
-                options += `<li>${opt.text || opt}</li>`
+                options += `<span class="value">${opt.text || opt}</span>`
             })
             if (sd.type == 'date') {
                 options = ''
                 sd.value.forEach(opt => {
-                    options += `<li>${w2utils.formatDate(opt)}</li>`
+                    options += `<span class="value">${w2utils.formatDate(opt)}</span>`
                 })
             }
-            // sf.options.items.forEach(txt => {
-            //     let isSelected = (sd.svalue.indexOf(txt.toLowerCase()) != -1 ? true : false)
-            //     options += `<li><label><input type="checkbox" ${isSelected ? 'checked' : ''}>${txt}</label></li>`
-            // })
         } else {
             if (sd.type == 'date') {
                 val = w2utils.formatDateTime(val)
-                // if (oper.substr(0, 5) == 'more:') {
-                //     let tmp = Number(oper.substr(5))
-                //     val = w2utils.formatDateTime(new Date((new Date()).getTime() + tmp))
-                //     oper = 'since'
-                // }
             }
 
         }
+        w2tooltip.hide(this.name + '-search-props');
         w2tooltip.show({
             name: this.name + '-search-props',
             anchor: el,
@@ -2422,10 +2389,11 @@ class w2grid extends w2base {
             hideOn: 'doc-click',
             html: `
                 <div class="w2ui-grid-search-single">
+                    <span class="field">${sf.label}</span>
                     <span class="operator">${w2utils.lang(oper)}</span>
                     ${Array.isArray(sd.value)
-                        ? `<div class="options"> <ul>${options}</ul> </div>`
-                        : `<span>${val}</span>`
+                        ? `${options}`
+                        : `<span class="value">${val}</span>`
                     }
                     <div class="buttons">
                         <button id="remove" class="w2ui-btn">${w2utils.lang('Remove This Field')}</button>
@@ -2433,9 +2401,9 @@ class w2grid extends w2base {
                 </div>`
         }).then(event => {
             query(event.detail.overlay.box).find('#remove').on('click', () => {
-                grid.searchData.splice(`${sd_ind}`, 1)
-                grid.reload()
-                grid.localSearch()
+                this.searchData.splice(`${sd_ind}`, 1)
+                this.reload()
+                this.localSearch()
                 w2tooltip.hide(this.name + '-search-props')
             })
         })
@@ -2446,7 +2414,6 @@ class w2grid extends w2base {
         if (this.searchSelected) {
             value = this.searchSelected.name
         }
-        let grid = this
         // event before
         let edata = this.trigger('searchSave', { target: this.name, saveLocalStorage: true })
         if (edata.isCancelled === true) return
@@ -2461,107 +2428,100 @@ class w2grid extends w2base {
             buttons: `
                 <button id="grid-search-cancel" class="w2ui-btn">${w2utils.lang('Cancel')}</button>
                 <button id="grid-search-save" class="w2ui-btn w2ui-btn-blue" ${String(value).trim() == '' ? 'disabled': ''}>${w2utils.lang('Save')}</button>
-            `,
-            onOpen(event) {
-                setTimeout(() => {
-                    $(this.box).find('#grid-search-cancel').on('click', () => {
-                        grid.message()
+            `
+        }).open(async (event) => {
+            query(this.box).find('#grid-search-cancel').on('click', () => {
+                this.message()
+            })
+            query(this.box).find('#grid-search-save').on('click', () => {
+                let name = query(this.box).find('.w2ui-message .search-name').val()
+                // save in savedSearches
+                if (this.searchSelected) {
+                    let ind = this.savedSearches.findIndex(s => { return s.id == this.searchSelected.name ? true : false })
+                    Object.assign(this.savedSearches[ind], {
+                        id: name,
+                        text: name,
+                        logic: this.last.logic,
+                        data: w2utils.clone(this.searchData)
                     })
-                    $(this.box).find('#grid-search-save').on('click', () => {
-                        let name = $(grid.box).find('.w2ui-message .search-name').val()
-                        // save in savedSearches
-                        if (grid.searchSelected) {
-                            let ind = grid.savedSearches.findIndex(s => { return s.id == grid.searchSelected.name ? true : false })
-                            Object.assign(grid.savedSearches[ind], {
-                                id: name,
-                                text: name,
-                                logic: grid.last.logic,
-                                data: w2utils.clone(grid.searchData)
-                            })
-                        } else {
-                            grid.savedSearches.push({
-                                id: name,
-                                text: name,
-                                icon: 'w2ui-icon-search',
-                                remove: true,
-                                logic: grid.last.logic,
-                                data: grid.searchData
-                            })
+                } else {
+                    this.savedSearches.push({
+                        id: name,
+                        text: name,
+                        icon: 'w2ui-icon-search',
+                        remove: true,
+                        logic: this.last.logic,
+                        data: this.searchData
+                    })
+                }
+                // save local storage
+                if (w2utils.hasLocalStorage && this.useLocalStorage) {
+                    try {
+                        let tmp = JSON.parse(localStorage.w2ui || '{}')
+                        if (!tmp) tmp = {}
+                        if (!tmp.searches) tmp.searches = {}
+                        if (!Array.isArray(tmp.searches[(this.stateId || this.name)])) {
+                            tmp.searches[(this.stateId || this.name)] = []
                         }
-                        // save local storage
-                        if (w2utils.hasLocalStorage && grid.useLocalStorage) {
-                            try {
-                                let tmp = JSON.parse(localStorage.w2ui || '{}')
-                                if (!tmp) tmp = {}
-                                if (!tmp.searches) tmp.searches = {}
-                                if (!Array.isArray(tmp.searches[(grid.stateId || grid.name)])) {
-                                    tmp.searches[(grid.stateId || grid.name)] = []
-                                }
-                                let sdata = tmp.searches[(grid.stateId || grid.name)]
-                                let ind = sdata.findIndex(s => { return s.name == grid.searchSelected.name ? true : false })
-                                if (ind !== -1) {
-                                    Object.assign(sdata[ind], {
-                                        name,
-                                        logic: grid.last.logic,
-                                        data: grid.searchData
-                                    })
-
-                                } else {
-                                    sdata.push({
-                                        name,
-                                        logic: grid.last.logic,
-                                        data: grid.searchData
-                                    })
-                                }
-                                localStorage.w2ui = JSON.stringify(tmp)
-                            } catch (e) {
-                                delete localStorage.w2ui
-                                return null
-                            }
-                        }
-                        grid.message()
-                        // update on screen
-                        if (grid.searchSelected) {
-                            grid.searchSelected.name = name
-                            $(grid.box).find(`#grid_${grid.name}_search_name .name-text`).html(name)
-                        } else {
-                            grid.searchSelected = {
+                        let sdata = tmp.searches[(this.stateId || this.name)]
+                        let ind = sdata.findIndex(s => { return s.name == this.searchSelected.name ? true : false })
+                        if (ind !== -1) {
+                            Object.assign(sdata[ind], {
                                 name,
-                                logic: grid.last.logic,
-                                data: w2utils.clone(grid.searchData)
-                            }
-                            $(grid.box).find(`#grid_${grid.name}_search_all`).val(' ').prop('readOnly', true)
-                            $(grid.box).find(`#grid_${grid.name}_search_name`).show().find('.name-text').html(name)
+                                logic: this.last.logic,
+                                data: this.searchData
+                            })
+
+                        } else {
+                            sdata.push({
+                                name,
+                                logic: this.last.logic,
+                                data: this.searchData
+                            })
                         }
-                        edata.finish({ name })
-                    })
-                    let inputs = $(this.box).find('input, button')
-                    inputs.off('.message')
-                        .on('blur.message', function(evt) {
-                            // last input
-                            if (inputs.index(evt.target) + 1 === inputs.length) {
-                                inputs.get(0).focus()
-                                evt.preventDefault()
-                            }
-                        })
-                        .on('keydown.message', function(evt) {
-                            let val = String($(grid.box).find('.w2ui-message-body input').val()).trim()
-                            if (evt.keyCode == 13 && val != '') $(grid.box).find('#grid-search-save').click() // enter
-                            if (evt.keyCode == 27) grid.message() // esc
-                        })
-                    $(this.box).find('.w2ui-message-body input')
-                        .on('input', function(event) {
-                            let $save = $(this).closest('.w2ui-message').find('#grid-search-save')
-                            if (String($(this).val()).trim() === '') {
-                                $save.prop('disabled', true)
-                            } else {
-                                $save.prop('disabled', false)
-                            }
-                        })
-                        .val(value)
-                        .focus()
-                }, 25)
-            }
+                        localStorage.w2ui = JSON.stringify(tmp)
+                    } catch (e) {
+                        delete localStorage.w2ui
+                        return null
+                    }
+                }
+                this.message()
+                // update on screen
+                if (this.searchSelected) {
+                    this.searchSelected.name = name
+                    query(this.box).find(`#grid_${this.name}_search_name .name-text`).html(name)
+                } else {
+                    this.searchSelected = {
+                        name,
+                        logic: this.last.logic,
+                        data: w2utils.clone(this.searchData)
+                    }
+                    query(this.box).find(`#grid_${this.name}_search_all`).val(' ').prop('readOnly', true)
+                    query(this.box).find(`#grid_${this.name}_search_name`).show().find('.name-text').html(name)
+                }
+                edata.finish({ name })
+            })
+            let inputs = query(this.box).find('input, button')
+            inputs.off('.message')
+                .on('keydown.message', evt => {
+                    let val = String(query(this.box).find('.w2ui-message-body input').val()).trim()
+                    if (evt.keyCode == 13 && val != '') {
+                        query(this.box).find('#grid-search-save').trigger('click') // enter
+                    }
+                })
+            let first = query(this.box).find('.w2ui-message-body input')
+                .on('input', event => {
+                    let $save = query(this).closest('.w2ui-message').find('#grid-search-save')
+                    if (String(query(this).val()).trim() === '') {
+                        $save.prop('disabled', true)
+                    } else {
+                        $save.prop('disabled', false)
+                    }
+                })
+                .val(value)
+                .get(0)
+            await event.complete
+            first.focus()
         })
     }
 
@@ -2614,7 +2574,8 @@ class w2grid extends w2base {
         this.last.selection.columns = {}
         // -- clear all search field
         this.searchClose()
-        $(this.box).find('#grid_'+ this.name +'_search_all').val('').removeData('selected')
+        let all = query(this.box).find('#grid_'+ this.name +'_search_all').val('').get(0)
+        if (all._w2field) { all._w2field.reset() }
         // apply search
         if (!noRefresh) this.reload()
         // event after
@@ -5110,8 +5071,8 @@ class w2grid extends w2base {
 
     refreshSearch() {
         if (this.multiSearch && this.searchData.length > 0) {
-            if ($(this.box).find('.w2ui-grid-searches').length == 0) {
-                $(this.box).find('.w2ui-grid-toolbar')
+            if (query(this.box).find('.w2ui-grid-searches').length == 0) {
+                query(this.box).find('.w2ui-grid-toolbar')
                     .css('height', (this.last._toolbar_height + 35) + 'px')
                     .append(`<div id="grid_${this.name}_searches" class="w2ui-grid-searches"></div>`)
 
@@ -5170,22 +5131,22 @@ class w2grid extends w2base {
                 <button class="w2ui-btn grid-search-btn btn-remove"
                     data-click="searchReset">X</button>
             `
-            $(this.box).find(`#grid_${this.name}_searches`).html(searches)
-            $(this.box).find(`#grid_${this.name}_search_logic`).html(w2utils.lang(this.last.logic == 'AND' ? 'All' : 'Any'))
+            query(this.box).find(`#grid_${this.name}_searches`).html(searches)
+            query(this.box).find(`#grid_${this.name}_search_logic`).html(w2utils.lang(this.last.logic == 'AND' ? 'All' : 'Any'))
         } else {
-            $(this.box).find('.w2ui-grid-toolbar')
-                .css('height', this.last._toolbar_height)
+            query(this.box).find('.w2ui-grid-toolbar')
+                .css('height', this.last._toolbar_height + 'px')
                 .find('.w2ui-grid-searches')
                 .remove()
         }
         if (this.searchSelected) {
-            $(this.box).find(`#grid_${this.name}_search_all`).val(' ').prop('readOnly', true)
-            $(this.box).find(`#grid_${this.name}_search_name`).show().find('.name-text').html(this.searchSelected.name)
+            query(this.box).find(`#grid_${this.name}_search_all`).val(' ').prop('readOnly', true)
+            query(this.box).find(`#grid_${this.name}_search_name`).show().find('.name-text').html(this.searchSelected.name)
         } else {
-            $(this.box).find(`#grid_${this.name}_search_all`).prop('readOnly', false)
-            $(this.box).find(`#grid_${this.name}_search_name`).hide().find('.name-text').html('')
+            query(this.box).find(`#grid_${this.name}_search_all`).prop('readOnly', false)
+            query(this.box).find(`#grid_${this.name}_search_name`).hide().find('.name-text').html('')
         }
-        w2utils.bindEvents($(this.box).find(`#grid_${this.name}_searches .w2ui-action, #grid_${this.name}_searches button`), this)
+        w2utils.bindEvents(query(this.box).find(`#grid_${this.name}_searches .w2ui-action, #grid_${this.name}_searches button`), this)
     }
 
     refreshBody() {
@@ -6911,22 +6872,20 @@ class w2grid extends w2base {
 
     initOperator(ind) {
         let options
-        let search = this.searches[ind]
-        let sdata  = this.getSearchData(search.field)
-        let $rng   = $(this.box).find(`#grid_${this.name}_range_${ind}`)
-        let $fld1  = $(this.box).find(`#grid_${this.name}_field_${ind}`)
-        let $fld2  = $(this.box).find(`#grid_${this.name}_field2_${ind}`)
-        let $oper  = $(this.box).find(`#grid_${this.name}_operator_${ind}`)
-        let oper   = $oper.val()
+        let search  = this.searches[ind]
+        let sdata   = this.getSearchData(search.field)
+        let overlay = query(`#w2overlay-${this.name}-search-overlay`)
+        let $rng    = overlay.find(`#grid_${this.name}_range_${ind}`)
+        let $fld1   = overlay.find(`#grid_${this.name}_field_${ind}`)
+        let $fld2   = overlay.find(`#grid_${this.name}_field2_${ind}`)
+        let $oper   = overlay.find(`#grid_${this.name}_operator_${ind}`)
+        let oper    = $oper.val()
         $fld1.show()
         $rng.hide()
         // init based on operator value
         switch (oper) {
             case 'between':
                 $rng.show()
-                if ($.fn.w2field) {
-                    $fld2.w2field(search.type, search.options)
-                }
                 break
             case 'null':
             case 'not null':
@@ -6940,22 +6899,8 @@ class w2grid extends w2base {
         switch (search.type) {
             case 'text':
             case 'alphanumeric':
-                if (oper == 'in' || oper == 'not in') {
-                    let obj = $fld1.data('w2field')
-                    if (!obj || obj.type == 'clear') {
-                        $fld1.w2field('enum', search.options)
-                        if (sdata && Array.isArray(sdata.value)) {
-                            $fld1.data('selected', sdata.value)
-                        }
-                    }
-                } else {
-                    let sel = $fld1.data('selected')
-                    $fld1.w2field('clear')
-                    $fld1.removeData('w2field')
-                    if (Array.isArray(sel) && sel.length > 0 && sel[0].text) {
-                        $fld1.val(sel[0].text)
-                    }
-                }
+                let fld = $fld1[0]._w2field
+                if (fld) { fld.reset() }
                 break
 
             case 'int':
@@ -6968,14 +6913,15 @@ class w2grid extends w2base {
             case 'date':
             case 'time':
             case 'datetime':
-                if ($.fn.w2field) {
-                    $fld1.w2field(search.type, search.options)
-                    $fld2.w2field(search.type, search.options)
+                if (!$fld1[0]._w2field) {
+                    // init fields
+                    new w2field(search.type, { el: $fld1[0], ...search.options })
+                    new w2field(search.type, { el: $fld2[0], ...search.options })
+                    setTimeout(() => { // convert to date if it is number
+                        $fld1.trigger('keydown')
+                        $fld2.trigger('keydown')
+                    }, 1)
                 }
-                setTimeout(() => { // convert to date if it is number
-                    $fld1.keydown()
-                    $fld2.keydown()
-                }, 1)
                 break
 
             case 'list':
@@ -6985,11 +6931,11 @@ class w2grid extends w2base {
                 if (search.type == 'list') options.selected = {}
                 if (search.type == 'enum') options.selected = []
                 if (sdata) options.selected = sdata.value
-                if ($.fn.w2field) {
-                    $fld1.w2field(search.type, w2utils.extend({ openOnFocus: true }, options))
-                }
-                if (sdata && sdata.text != null) {
-                    $fld1.data('selected', {id: sdata.value, text: sdata.text})
+                if (!$fld1[0]._w2field) {
+                    let fld = new w2field(search.type, { el: $fld1[0], ...options })
+                    if (sdata && sdata.text != null) {
+                        fld.set({ id: sdata.value, text: sdata.text })
+                    }
                 }
                 break
 
@@ -7015,7 +6961,7 @@ class w2grid extends w2base {
     }
 
     initSearches() {
-        let obj = this
+        let overlay = query(`#w2overlay-${this.name}-search-overlay`)
         // init searches
         for (let ind = 0; ind < this.searches.length; ind++) {
             let search  = this.searches[ind]
@@ -7039,20 +6985,17 @@ class w2grid extends w2base {
             if (operators.indexOf(operator) == -1) {
                 operator = def
             }
-            $(this.box).find(`#grid_${this.name}_operator_${ind}`).val(operator)
+            overlay.find(`#grid_${this.name}_operator_${ind}`).val(operator)
             this.initOperator(ind)
             // populate field value
-            let $fld1 = $(this.box).find(`#grid_${this.name}_field_${ind}`)
-            let $fld2 = $(this.box).find(`#grid_${this.name}_field2_${ind}`)
+            let $fld1 = overlay.find(`#grid_${this.name}_field_${ind}`)
+            let $fld2 = overlay.find(`#grid_${this.name}_field2_${ind}`)
             if (sdata != null) {
-                if (sdata.type == 'int' && ['in', 'not in'].indexOf(sdata.operator) != -1) {
-                    $fld1.w2field('clear').val(sdata.value)
-                }
                 if (!Array.isArray(sdata.value)) {
                     if (sdata.value != null) $fld1.val(sdata.value).trigger('change')
                 } else {
-                    if (['in', 'not in'].indexOf(sdata.operator) != -1) {
-                        $fld1.val(sdata.value).trigger('change')
+                    if (['in', 'not in'].includes(sdata.operator)) {
+                        $fld1[0]._w2field.set(sdata.value)
                     } else {
                         $fld1.val(sdata.value[0]).trigger('change')
                         $fld2.val(sdata.value[1]).trigger('change')
@@ -7061,11 +7004,11 @@ class w2grid extends w2base {
             }
         }
         // add on change event
-        $(this.box).find(`#w2overlay-${this.name}-search-overlay .w2ui-grid-search-advanced *[rel=search]`)
-            .on('keypress', function(evnt) {
+        overlay.find(`.w2ui-grid-search-advanced *[rel=search]`)
+            .on('keypress', evnt => {
                 if (evnt.keyCode == 13) {
-                    obj.search()
-                    w2tooltip.hide(obj.name + '-search-overlay')
+                    this.search()
+                    w2tooltip.hide(this.name + '-search-overlay')
                 }
             })
     }

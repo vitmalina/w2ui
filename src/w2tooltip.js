@@ -291,6 +291,7 @@ class Tooltip {
             if (query(overlay.anchor).length > 0) {
                 overlay.tmp.originalCSS = query(overlay.anchor)[0].style.cssText
             }
+            this.resize(overlay.name)
         }
         if (options.anchorStyle) {
             overlay.anchor.style.cssText += ';' + options.anchorStyle

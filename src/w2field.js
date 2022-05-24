@@ -399,7 +399,8 @@ class w2field extends w2base {
                 if (overlay) overlay.options.selected = this.selected
                 query(this.el).trigger('input').trigger('change')
             } else {
-                let it = (this.type === 'enum' ? [val] : val)
+                if (val == null) val = []
+                let it = (this.type === 'enum' && !Array.isArray(val) ? [val] : val)
                 this.selected = it
                 query(this.el).trigger('input').trigger('change')
             }
@@ -754,7 +755,7 @@ class w2field extends w2base {
         query(this.el)
             .val(this.clean(query(this.el).val()))
             .removeClass('w2field')
-            .removeData() // removes all attached data
+            .removeData('selected selectedIndex')
             .off('.w2field') // remove only events added by w2field
         // remove helpers
         Object.keys(this.helpers).forEach(key => {

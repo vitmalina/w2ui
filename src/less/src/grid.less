@@ -155,7 +155,7 @@
                 border-radius: 15px;
                 padding: 4px 12px;
                 margin: 0px 4px;
-                color: #4ab0fd;
+                color: #4c9ad6;
                 font-size: 12px;
                 font-weight: bold;
                 background-color: #F5F9FE;
@@ -917,27 +917,39 @@
     }
 
     .w2ui-grid-search-single {
+        font-size: 12px;
+        padding-top: 10px;
+        .field {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            border: 1px solid #a9b6c2;
+            border-radius: 4px;
+            padding: 4px 12px;
+            margin: 0 2px;
+            color: #4295d4;
+            background-color: #F5F9FE;
+        }
         .operator {
             display: inline-block;
             color: black;
             background-color: #e6e6e6;
             border-radius: 4px;
-            margin: 8px 0 0 8px;
+            margin: 0 4px;
             padding: 6px 10px;
         }
-        .options {
-            padding: 10px 10px 10px 15px;
-            ul {
-                li {
-                    list-style-type: disc;
-                    margin-left: 25px;
-                    padding: 5px 5px 5px 0;
-                }
-            }
+        .value {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            border: 1px solid #a9b6c2;
+            border-radius: 4px;
+            margin: 0 2px;
+            padding: 4px 12px;
         }
         .buttons {
             text-align: left;
-            padding: 6px 10px 10px 10px;
+            padding: 15px 10px 10px 0px;
         }
     }
 
@@ -985,14 +997,14 @@
                     padding-left: 5px;
                     input[type=text] {
                         border-radius: 3px;
-                        padding: 3px;
+                        padding: 5px;
                         margin-right: 3px;
-                        height: 23px;
+                        height: 28px;
                     }
                     select {
-                        padding: 3px;
+                        padding: 0px 20px 5px 5px;
                         margin-right: 3px;
-                        height: 23px;
+                        height: 28px;
                     }
                 }
                 &.actions:nth-child(1) {
