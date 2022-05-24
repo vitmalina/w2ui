@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/22/2022, 10:43:56 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/24/2022, 8:24:17 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -2133,7 +2133,7 @@ textarea.w2ui-error {
   border-radius: 15px;
   padding: 4px 12px;
   margin: 0px 4px;
-  color: #4ab0fd;
+  color: #4c9ad6;
   font-size: 12px;
   font-weight: bold;
   background-color: #F5F9FE;
@@ -2817,25 +2817,41 @@ textarea.w2ui-error {
   border-bottom: 1px solid #e6e6e6;
   color: #444444;
 }
+.w2ui-overlay .w2ui-grid-search-single {
+  font-size: 12px;
+  padding-top: 10px;
+}
+.w2ui-overlay .w2ui-grid-search-single .field {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  border: 1px solid #a9b6c2;
+  border-radius: 4px;
+  padding: 4px 12px;
+  margin: 0 2px;
+  color: #4295d4;
+  background-color: #F5F9FE;
+}
 .w2ui-overlay .w2ui-grid-search-single .operator {
   display: inline-block;
   color: black;
   background-color: #e6e6e6;
   border-radius: 4px;
-  margin: 8px 0 0 8px;
+  margin: 0 4px;
   padding: 6px 10px;
 }
-.w2ui-overlay .w2ui-grid-search-single .options {
-  padding: 10px 10px 10px 15px;
-}
-.w2ui-overlay .w2ui-grid-search-single .options ul li {
-  list-style-type: disc;
-  margin-left: 25px;
-  padding: 5px 5px 5px 0;
+.w2ui-overlay .w2ui-grid-search-single .value {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  border: 1px solid #a9b6c2;
+  border-radius: 4px;
+  margin: 0 2px;
+  padding: 4px 12px;
 }
 .w2ui-overlay .w2ui-grid-search-single .buttons {
   text-align: left;
-  padding: 6px 10px 10px 10px;
+  padding: 15px 10px 10px 0px;
 }
 .w2ui-overlay .w2ui-grid-search-advanced {
   text-align: left;
@@ -2883,14 +2899,14 @@ textarea.w2ui-error {
 }
 .w2ui-overlay .w2ui-grid-search-advanced table td.value input[type=text] {
   border-radius: 3px;
-  padding: 3px;
+  padding: 5px;
   margin-right: 3px;
-  height: 23px;
+  height: 28px;
 }
 .w2ui-overlay .w2ui-grid-search-advanced table td.value select {
-  padding: 3px;
+  padding: 0px 20px 5px 5px;
   margin-right: 3px;
-  height: 23px;
+  height: 28px;
 }
 .w2ui-overlay .w2ui-grid-search-advanced table td.actions:nth-child(1) {
   padding: 25px 10px 10px 10px;
