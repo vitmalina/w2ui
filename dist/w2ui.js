@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/24/2022, 8:24:17 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/24/2022, 9:30:26 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -10049,6 +10049,7 @@ class w2layout extends w2base {
  *  - observeResize for the box
  *  - remove edit.type == 'select'
  *  - editDone(...)
+ *  - liveSearch
  */
 
 class w2grid extends w2base {
@@ -10170,6 +10171,7 @@ class w2grid extends w2base {
         this.lineNumberWidth   = 34
         this.keyboard          = true
         this.selectType        = 'row' // can be row|cell
+        this.liveSearch        = false // if true, it will auto search if typed in search_all
         this.multiSearch       = true
         this.multiSelect       = true
         this.multiSort         = true
@@ -12411,7 +12413,7 @@ class w2grid extends w2base {
         })
     }
     searchReset(noRefresh) {
-        let searchData        = []
+        let searchData = []
         let hasHiddenSearches = false
         // add hidden searches
         for (let i = 0; i < this.searches.length; i++) {
@@ -12428,11 +12430,13 @@ class w2grid extends w2base {
         let edata = this.trigger('search', { reset: true, target: this.name, searchData: searchData })
         if (edata.isCancelled === true) return
         // default action
-        this.searchData  = edata.detail.searchData
+        let input = query(this.box).find('#grid_'+ this.name +'_search_all')
+        this.searchData = edata.detail.searchData
         this.searchSelected = null
         this.last.search = ''
-        this.last.logic  = (hasHiddenSearches ? 'AND' : 'OR')
+        this.last.logic = (hasHiddenSearches ? 'AND' : 'OR')
         // --- do not reset to All Fields (I think)
+        input.next().hide() // advanced search button
         if (this.searches.length > 0) {
             if (!this.multiSearch || !this.show.searchAll) {
                 let tmp = 0
@@ -12448,6 +12452,7 @@ class w2grid extends w2base {
             } else {
                 this.last.field = 'all'
                 this.last.label = 'All Fields'
+                input.next().show() // advanced search button
             }
         }
         this.last.multi      = false
@@ -12459,7 +12464,7 @@ class w2grid extends w2base {
         this.last.selection.columns = {}
         // -- clear all search field
         this.searchClose()
-        let all = query(this.box).find('#grid_'+ this.name +'_search_all').val('').get(0)
+        let all = input.val('').get(0)
         if (all._w2field) { all._w2field.reset() }
         // apply search
         if (!noRefresh) this.reload()
@@ -15837,7 +15842,6 @@ class w2grid extends w2base {
         edata.finish()
     }
     initToolbar() {
-        let self = this
         // if it is already initiazlied
         if (this.toolbar.render != null) {
             return
@@ -15874,27 +15878,26 @@ class w2grid extends w2base {
                 id: 'w2ui-search',
                 type: 'html',
                 html,
-                onRefresh(event) {
-                    event.done(() => {
-                        let input = query(this.box).find(`#grid_${self.name}_search_all`)
-                        w2utils.bindEvents(query(this.box).find(`#grid_${self.name}_search_all, .w2ui-action`), self)
-                        input.on('change', function (event) {
-                            let val = this.value
-                            let sel = jQuery(this).data('selected')
-                            let fld = jQuery(this).data('w2field')
-                            if (fld) val = fld.clean(val)
-                            if (fld && fld.type == 'list' && sel && typeof sel.id == 'undefined') {
-                                self.searchReset()
-                            } else {
-                                self.search(self.last.field, val)
-                            }
-                            self.searchSuggest(true, true, this)
-                        })
-                            .on('keydown', function(event) {
-                                if (event.keyCode == 40) {
-                                    self.searchSuggest(true)
-                                }
-                            })
+                onRefresh: async (event) => {
+                    await event.complete
+                    let input = query(this.box).find(`#grid_${this.name}_search_all`)
+                    w2utils.bindEvents(query(this.box).find(`#grid_${this.name}_search_all, .w2ui-action`), this)
+                    input.on('change', event => {
+                        if (!this.liveSearch) {
+                            this.search(this.last.field, event.target.value)
+                            this.searchSuggest(true, true, this)
+                        }
+                    })
+                    .on('blur', () => { this.last.liveText = '' })
+                    .on('keyup', event => {
+                        let val = event.target.value
+                        if (this.liveSearch && this.last.liveText != val) {
+                            this.last.liveText = val
+                            this.search(this.last.field, val)
+                        }
+                        if (event.keyCode == 40) { // arrow down
+                            this.searchSuggest(true)
+                        }
                     })
                 }
             })
