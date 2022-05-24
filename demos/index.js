@@ -201,6 +201,7 @@ $(async function () {
                         { id: 'grid/33', text: 'Live Updates', icon: 'fa fa-table' },
                         { id: 'grid/34', text: 'Improved Searches', icon: 'fa fa-table' },
                         { id: 'grid/35', text: 'Saved Searches', icon: 'fa fa-table' },
+                        { id: 'grid/36', text: 'Live Search', icon: 'fa fa-table' },
                     ]
                 },
                 { id: 'toolbar', text: 'Toolbar Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
