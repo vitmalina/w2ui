@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/24/2022, 9:30:26 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/25/2022, 6:58:32 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -2182,6 +2182,19 @@ textarea.w2ui-error {
   position: relative;
   top: 2px;
   left: -3px;
+}
+.w2ui-grid .w2ui-grid-save-search {
+  padding-top: 30px;
+  text-align: center;
+}
+.w2ui-grid .w2ui-grid-save-search span {
+  width: 280px;
+  display: inline-block;
+  text-align: left;
+  padding-bottom: 4px;
+}
+.w2ui-grid .w2ui-grid-save-search .search-name {
+  width: 280px !important;
 }
 .w2ui-grid .w2ui-grid-body {
   position: absolute;
