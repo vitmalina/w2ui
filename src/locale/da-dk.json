@@ -96,7 +96,7 @@
         "Search took ${count} seconds": "Søgningen tog ${count} sekunder",
         "Search": "Søg",
         "Select Hour": "Vælg time",
-        "Select Minute": "Vølg minut",
+        "Select Minute": "Vælg minut",
         "selected": "valgt",
         "Server Response ${count} seconds": "Serveren svar ${count} sekunder",
         "Show/hide columns": "Vis/skjul kolonner",
