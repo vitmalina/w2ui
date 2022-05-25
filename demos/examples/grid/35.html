@@ -1,0 +1,50 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Default Searches</h1>
+        Click on the search input to see the default searches. User can also save his own search, which is saved into
+        local storage. First search, then you will see the Save button.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="grid" style="width: 100%; height: 350px; overflow: hidden;"></div>
+<br>
+<div style="clear:both; height: 10px;"></div>
+
+<!--CODE-->
+<script>
+query(() => {
+    let grid = new w2grid({
+        box: query('#grid')[0],
+        name: 'grid',
+        show: { toolbar: true, },
+        defaultSearches: [{
+            text: 'Search for Mark',
+            data: [
+                { field: 'fname', type: 'text', operator: 'contains', value: 'Mark' },
+                { field: 'lname', type: 'text', operator: 'contains', value: 'Mark' },
+            ],
+            logic: 'OR'
+        }, {
+            text: 'Search for "e"',
+            data: [
+                { field: 'fname', type: 'text', operator: 'contains', value: 'e' },
+                { field: 'lname', type: 'text', operator: 'contains', value: 'e' },
+            ],
+            logic: 'OR'
+        }],
+        columns: [
+            { field: 'lname', text: 'Last Name', size: '30%', searchable: { operator: 'contains' }, sortable: true },
+            { field: 'fname', text: 'First Name', size: '30%', searchable: { operator: 'contains' }, sortable: true },
+            { field: 'email', text: 'Email', size: '40%', sortable: true },
+            { field: 'sdate', text: 'Start Date', size: '120px', sortable: true }
+        ]
+    })
+    grid.load('data/list.json')
+});
+
+</script>
+
+<!--CODE-->
