@@ -739,7 +739,7 @@ button.w2ui-btn:disabled {
 .w2ui-colors .w2ui-color-tabs .w2ui-color-tab:hover {
   background-color: #e1e1e1;
 }
-.w2ui-colors .w2ui-color-tabs .w2ui-color-tab.selected {
+.w2ui-colors .w2ui-color-tabs .w2ui-color-tab.w2ui-selected {
   border-top-color: #0175ff;
 }
 .w2ui-colors .w2ui-color-tabs .w2ui-color-tab .w2ui-icon {
@@ -1214,8 +1214,8 @@ button.w2ui-btn:disabled {
   border: 1px solid #f5f5f5;
   background-color: #f9f7f7;
 }
-.w2ui-calendar .w2ui-cal-jump .w2ui-jump-month.selected,
-.w2ui-calendar .w2ui-cal-jump .w2ui-jump-year.selected {
+.w2ui-calendar .w2ui-cal-jump .w2ui-jump-month.w2ui-selected,
+.w2ui-calendar .w2ui-cal-jump .w2ui-jump-year.w2ui-selected {
   color: black;
   background-color: #f2f1f4;
   border: 1px solid #e6dbfb;
@@ -1249,13 +1249,13 @@ button.w2ui-btn:disabled {
   cursor: default;
   text-align: center;
 }
-.w2ui-calendar .w2ui-cal-days .w2ui-day.saturday,
-.w2ui-calendar .w2ui-cal-days .w2ui-day.sunday {
+.w2ui-calendar .w2ui-cal-days .w2ui-day.w2ui-saturday,
+.w2ui-calendar .w2ui-cal-days .w2ui-day.w2ui-sunday {
   border: 1px solid #fff;
   color: #c8493b;
   background-color: #f7f7f7;
 }
-.w2ui-calendar .w2ui-cal-days .w2ui-day.today {
+.w2ui-calendar .w2ui-cal-days .w2ui-day.w2ui-today {
   background-color: #e2f7cd;
 }
 .w2ui-calendar .w2ui-cal-days .w2ui-day:hover {
@@ -1266,15 +1266,15 @@ button.w2ui-btn:disabled {
   background-color: #eeebf3;
   border: 1px solid #cec2e5;
 }
-.w2ui-calendar .w2ui-cal-days .w2ui-day.selected {
+.w2ui-calendar .w2ui-cal-days .w2ui-day.w2ui-selected {
   border: 1px solid #8cb067;
 }
-.w2ui-calendar .w2ui-cal-days .w2ui-day.weekday {
+.w2ui-calendar .w2ui-cal-days .w2ui-day.w2ui-weekday {
   text-align: center;
   background-color: #f1f1f1;
   color: #958ea0;
 }
-.w2ui-calendar .w2ui-cal-days .w2ui-day.weekday:hover {
+.w2ui-calendar .w2ui-cal-days .w2ui-day.w2ui-weekday:hover {
   border: 1px solid #fff;
   background-color: #f1f1f1;
 }
@@ -1282,12 +1282,12 @@ button.w2ui-btn:disabled {
   color: #b5b5b5;
   background-color: #fff;
 }
-.w2ui-calendar .w2ui-cal-days .w2ui-day.blocked {
+.w2ui-calendar .w2ui-cal-days .w2ui-day.w2ui-blocked {
   color: #555;
   background-color: #fff;
   border: 1px solid #fff;
 }
-.w2ui-calendar .w2ui-cal-days .w2ui-day.blocked:after {
+.w2ui-calendar .w2ui-cal-days .w2ui-day.w2ui-blocked:after {
   content: " ";
   position: absolute;
   color: #b3b3b378;
@@ -1332,7 +1332,7 @@ button.w2ui-btn:disabled {
   background-color: #eeebf3;
   border: 1px solid #cec2e5;
 }
-.w2ui-cal-time .w2ui-cal-column span.blocked {
+.w2ui-cal-time .w2ui-cal-column span.w2ui-blocked {
   pointer-events: none;
   text-decoration: line-through;
   color: silver;

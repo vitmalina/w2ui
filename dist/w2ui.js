@@ -4557,8 +4557,8 @@ class ColorTooltip extends Tooltip {
         }
         let overlay = this.get(name)
         let tab = query(overlay.box).find(`.w2ui-color-tab:nth-child(${index})`)
-        query(overlay.box).find('.w2ui-color-tab').removeClass('selected')
-        query(tab).addClass('selected')
+        query(overlay.box).find('.w2ui-color-tab').removeClass('w2ui-selected')
+        query(tab).addClass('w2ui-selected')
         query(overlay.box)
             .find('.w2ui-tab-content')
             .hide()
@@ -5735,7 +5735,7 @@ class DateTooltip extends Tooltip {
         // events for dates
         query(overlay.box)
             .off('.calendar')
-            .on('click.calendar', { delegate: '.w2ui-day.date' }, event => {
+            .on('click.calendar', { delegate: '.w2ui-day.w2ui-date' }, event => {
                 if (options.type == 'datetime') {
                     overlay.newDate = query(event.target).attr('date')
                     query(overlay.box).find('.w2ui-overlay-body').html(this.getHourHTML(overlay.options).html)
@@ -5814,7 +5814,7 @@ class DateTooltip extends Tooltip {
         for (let i = 0; i < this.sdays.length; i++) {
             let isSat = (st == 'M' && i == 5) || (st != 'M' && i == 6) ? true : false
             let isSun = (st == 'M' && i == 6) || (st != 'M' && i == 0) ? true : false
-            weekDays += `<div class="w2ui-day weekday ${isSat ? 'sunday' : ''} ${isSun ? 'saturday' : ''}">${this.sdays[i]}</div>`
+            weekDays += `<div class="w2ui-day w2ui-weekday ${isSat ? 'w2ui-sunday' : ''} ${isSun ? 'w2ui-saturday' : ''}">${this.sdays[i]}</div>`
         }
         let html = `
             <div class="w2ui-cal-title">
@@ -5839,10 +5839,10 @@ class DateTooltip extends Tooltip {
         for (let ci = 0; ci < 42; ci++) {
             let className = []
             let dt = `${DT.getFullYear()}/${DT.getMonth()+1}/${DT.getDate()}`
-            if (DT.getDay() === 6) className.push('saturday')
-            if (DT.getDay() === 0) className.push('sunday')
+            if (DT.getDay() === 6) className.push('w2ui-saturday')
+            if (DT.getDay() === 0) className.push('w2ui-sunday')
             if (DT.getMonth() + 1 !== month) className.push('outside')
-            if (dt == this.today) className.push('today')
+            if (dt == this.today) className.push('w2ui-today')
             let dspDay = DT.getDate()
             let col    = ''
             let bgcol  = ''
@@ -5860,8 +5860,8 @@ class DateTooltip extends Tooltip {
                 col     = 'color: ' + tmp[1] + ';'
             }
             html += `<div class="w2ui-day ${this.inRange(tmp_dt, options, true)
-                            ? 'date ' + (tmp_dt_fmt == selected_dsp ? 'selected' : '')
-                            : 'blocked'
+                            ? 'w2ui-date ' + (tmp_dt_fmt == selected_dsp ? 'w2ui-selected' : '')
+                            : 'w2ui-blocked'
                         } ${className.join(' ')}"
                        style="${col + bgcol}" date="${tmp_dt_fmt}" data-date="${DT.getTime()}">
                             ${dspDay}
@@ -5909,7 +5909,7 @@ class DateTooltip extends Tooltip {
             }
             let valid = this.inRange(tm1, options) || this.inRange(tm2, options)
             tmp[Math.floor(a/8)] += `<span hour="${a}"
-                class="hour ${valid ? 'w2ui-time ' : 'blocked'}">${time}</span>`
+                class="hour ${valid ? 'w2ui-time ' : 'w2ui-blocked'}">${time}</span>`
         }
         let html = `<div class="w2ui-calendar">
             <div class="w2ui-time-title">${w2utils.lang('Select Hour')}</div>
@@ -5939,7 +5939,7 @@ class DateTooltip extends Tooltip {
                 let fm = options.format.split('|')[0].trim()
                 tm = w2utils.formatDate(dt, fm) + ' ' + tm
             }
-            tmp[ind] += `<span min="${a}" class="min ${(this.inRange(tm, options) ? 'w2ui-time ' : 'blocked')}">${time}</span>`
+            tmp[ind] += `<span min="${a}" class="min ${(this.inRange(tm, options) ? 'w2ui-time ' : 'w2ui-blocked')}">${time}</span>`
         }
         let html = `<div class="w2ui-calendar">
             <div class="w2ui-time-title">${w2utils.lang('Select Minute')}</div>
