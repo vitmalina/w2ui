@@ -37,7 +37,6 @@
  *  - status() - clears on next select, etc. Should not if it is off
  *  - edit demo grid/21 - if you hit add record too fast, it breaks
  *  - refactor onSelect/onUselect - should be one event, when selection changes
- *  - saveSearches - save not working right
  *  - inTag, outTag -- refactore to attr
  *
  * == DEMOS To create ==
@@ -46,7 +45,6 @@
  *  - resize on max content
  *  - context message
  *  - clipboard copy
- *  - save searches, custom searches
  *
  * == KNOWN ISSUES ==
  *  - reorder records with school - not correct
@@ -58,7 +56,8 @@
  * == 2.0 changes
  *  - toolbarInput - deprecated, toolbarSearch stays
  *  - searchSuggest
- *  - searchSave, searchSelected, savedSearches, useLocalStorage, searchFieldDrop
+ *  - searchSave, searchSelected, savedSearches, defaultSearches, useLocalStorage, searchFieldTooltip
+ *  - cache, cacheSave
  *  - onSearchSave, onSearchRemove, onSearchSelect
  *  - show.searchLogic
  *  - show.searchSave
@@ -100,7 +99,8 @@ class w2grid extends w2base {
         this.searchData   = []
         this.sortMap      = {} // re-map sort fields
         this.sortData     = []
-        this.savedSearches= []
+        this.savedSearches   = []
+        this.defaultSearches = []
         this.total        = 0 // server total
         this.recid        = null // field from records to be used as recid
 
@@ -447,28 +447,26 @@ class w2grid extends w2base {
                 }
             })
         }
+        // add icon to default searches if not defined
+        if (Array.isArray(this.defaultSearches)) {
+            this.defaultSearches.forEach((search, ind) => {
+                search.id = 'default-'+ ind
+                search.icon ??= 'w2ui-icon-search'
+            })
+        }
         // check if there are saved searches in localStorage
-        if (w2utils.hasLocalStorage && this.useLocalStorage) {
-            try {
-                let tmp = JSON.parse(localStorage.w2ui || '{}')
-                if (tmp && tmp.searches) {
-                    let saved = tmp.searches[this.stateId || this.name]
-                    if (Array.isArray(saved)) {
-                        saved.forEach(search => {
-                            this.savedSearches.push({
-                                id: search.name,
-                                text: search.name,
-                                icon: 'w2ui-icon-search',
-                                remove: true,
-                                logic: search.logic,
-                                data: search.data
-                            })
-                        })
-                    }
-                }
-            } catch (e) {
-
-            }
+        let data = this.cache('searches')
+        if (Array.isArray(data)) {
+            data.forEach(search => {
+                this.savedSearches.push({
+                    id: search.id ?? 'none',
+                    text: search.text ?? 'none',
+                    icon: 'w2ui-icon-search',
+                    remove: true,
+                    logic: search.logic ?? 'AND',
+                    data: search.data ?? []
+                })
+            })
         }
         // render if box specified
         if (this.box) this.render(this.box)
@@ -2260,106 +2258,8 @@ class w2grid extends w2base {
         w2tooltip.hide(this.name + '-search-overlay')
     }
 
-    // drop down with save searches
-    searchSuggest(imediate, forceHide, input) {
-        clearTimeout(this.last.kbd_timer)
-        clearTimeout(this.last.overlay_timer)
-        this.searchShowFields(true)
-        this.searchClose()
-        if (forceHide === true) {
-            w2tooltip.hide(this.name + '-search-suggest')
-            return
-        }
-        if (query(`#w2overlay-${this.name}-search-suggest`).length > 0) {
-            // already shown
-            return
-        }
-        if (!imediate) {
-            this.last.overlay_timer = setTimeout(() => { this.searchSuggest(true) }, 100)
-            return
-        }
-
-        let el = query(this.box).find(`#grid_${this.name}_search_all`).get(0)
-        if (Array.isArray(this.savedSearches) && this.savedSearches.length > 0) {
-            w2menu.show({
-                name: this.name + '-search-suggest',
-                anchor: el,
-                align: 'both',
-                items: this.savedSearches,
-                topHTML: `<div class="w2ui-grid-search-suggest">${w2utils.lang('Saved Searches')}</div>`,
-                hideOn: ['doc-click', 'sleect', 'remove'],
-                render(item) {
-                    let ret = item.text
-                    if (item.isDefault) ret = `<b>${ret}</b>`
-                    return ret
-                }
-            })
-            .select(event => {
-                let edata = this.trigger('searchSelect', {
-                    target: this.name,
-                    index: event.detail.index,
-                    item: event.detail.item
-                })
-                if (edata.isCancelled === true) {
-                    event.preventDefault()
-                    return
-                }
-                this.last.logic  = event.detail.item.logic || 'AND'
-                this.last.search = ''
-                this.last.label  = '[Multiple Fields]'
-                this.searchData  = w2utils.clone(event.detail.item.data)
-                this.searchSelected = {
-                    name: event.detail.item.id,
-                    logic: event.detail.item.logic,
-                    data: this.searchData
-                }
-                this.reload()
-                edata.finish()
-            })
-            .remove(event => {
-                let item = event.detail.item
-                let edata = this.trigger('searchRemove', { target: this.name, index: event.detail.index, item })
-                if (edata.isCancelled === true) {
-                    event.preventDefault()
-                    return
-                }
-                this.confirm(w2utils.lang('Do you want to delete search item "${item}"?', { item: item.text }))
-                    .yes(evt => {
-                        if (w2utils.hasLocalStorage && this.useLocalStorage) {
-                            try {
-                                let tmp = JSON.parse(localStorage.w2ui || '{}')
-                                if (tmp && tmp.searches) {
-                                    let searches = tmp.searches[(this.stateId || this.name)]
-                                    if (Array.isArray(searches)) {
-                                        let search = searches.findIndex((s, ind) => s.name == item.id ? true : false)
-                                        if (search !== null) {
-                                            searches.splice(search, 1)
-                                        }
-                                        localStorage.w2ui = JSON.stringify(tmp)
-                                    }
-                                }
-                            } catch (e) {
-
-                            }
-                        }
-                        // remove from searches
-                        let search = this.savedSearches.findIndex((s, ind) => s.name == item.id ? true : false)
-                        if (search !== null) {
-                            this.savedSearches.splice(search, 1)
-                        }
-                        evt.detail.self.close()
-                        // evt after
-                        edata.finish()
-                    })
-                    .no(evt => {
-                        evt.detail.self.close()
-                    })
-            })
-        }
-    }
-
     // if clicked on a field in the search strip
-    searchFieldDrop(ind, sd_ind, el) {
+    searchFieldTooltip(ind, sd_ind, el) {
         let sf = this.searches[ind]
         let sd = this.searchData[sd_ind]
         let oper = sd.operator
@@ -2411,11 +2311,94 @@ class w2grid extends w2base {
         })
     }
 
+    // drop down with save searches
+    searchSuggest(imediate, forceHide, input) {
+        clearTimeout(this.last.kbd_timer)
+        clearTimeout(this.last.overlay_timer)
+        this.searchShowFields(true)
+        this.searchClose()
+        if (forceHide === true) {
+            w2tooltip.hide(this.name + '-search-suggest')
+            return
+        }
+        if (query(`#w2overlay-${this.name}-search-suggest`).length > 0) {
+            // already shown
+            return
+        }
+        if (!imediate) {
+            this.last.overlay_timer = setTimeout(() => { this.searchSuggest(true) }, 100)
+            return
+        }
+
+        let el = query(this.box).find(`#grid_${this.name}_search_all`).get(0)
+        let searches = [
+            ...this.defaultSearches ?? [],
+            ...this.defaultSearches?.length > 0 && this.savedSearches?.length > 0 ? ['--'] : [],
+            ...this.savedSearches ?? []
+        ];
+        if (Array.isArray(searches) && searches.length > 0) {
+            w2menu.show({
+                name: this.name + '-search-suggest',
+                anchor: el,
+                align: 'both',
+                items: searches,
+                hideOn: ['doc-click', 'sleect', 'remove'],
+                render(item) {
+                    let ret = item.text
+                    if (item.isDefault) ret = `<b>${ret}</b>`
+                    return ret
+                }
+            })
+            .select(event => {
+                let edata = this.trigger('searchSelect', {
+                    target: this.name,
+                    index: event.detail.index,
+                    item: event.detail.item
+                })
+                if (edata.isCancelled === true) {
+                    event.preventDefault()
+                    return
+                }
+                this.last.logic  = event.detail.item.logic || 'AND'
+                this.last.search = ''
+                this.last.label  = '[Multiple Fields]'
+                this.searchData  = w2utils.clone(event.detail.item.data)
+                this.searchSelected = w2utils.clone(event.detail.item, { exclude: ['icon', 'remove'] })
+                this.reload()
+                edata.finish()
+            })
+            .remove(event => {
+                let item = event.detail.item
+                let edata = this.trigger('searchRemove', { target: this.name, index: event.detail.index, item })
+                if (edata.isCancelled === true) {
+                    event.preventDefault()
+                    return
+                }
+                this.confirm(w2utils.lang('Do you want to delete search "${item}"?', { item: item.text }))
+                    .yes(evt => {
+                        // remove from searches
+                        let search = this.savedSearches.findIndex((s) => s.id == item.id ? true : false)
+                        if (search !== -1) {
+                            this.savedSearches.splice(search, 1)
+                        }
+                        this.cacheSave('searches', this.savedSearches.map(s => w2utils.clone(s, { exclude: ['remove', 'icon'] })))
+                        evt.detail.self.close()
+                        // evt after
+                        edata.finish()
+                    })
+                    .no(evt => {
+                        evt.detail.self.close()
+                    })
+            })
+        }
+    }
+
     searchSave() {
         let value = ''
         if (this.searchSelected) {
-            value = this.searchSelected.name
+            value = this.searchSelected.text
         }
+        let ind = this.savedSearches.findIndex(s => { return s.id == this.searchSelected.id ? true : false })
         // event before
         let edata = this.trigger('searchSave', { target: this.name, saveLocalStorage: true })
         if (edata.isCancelled === true) return
@@ -2423,23 +2406,24 @@ class w2grid extends w2base {
         this.message({
             width: 350,
             height: 150,
-            body: `<div style="padding-top: 29px; text-align: center;">
-                <span style="width: 280px; display: inline-block; text-align: left; padding-bottom: 4px;">${w2utils.lang('Save Search')}</span>
-                <input class="search-name w2ui-input" placeholder="${w2utils.lang('Search name')}" style="width: 280px">
-            </div>`,
+            body: `<div class="w2ui-grid-save-search">
+                        <span>${w2utils.lang(ind != -1 ? 'Update Search' : 'Save New Search')}</span>
+                        <input class="search-name w2ui-input" placeholder="${w2utils.lang('Search name')}">
+                   </div>`,
             buttons: `
                 <button id="grid-search-cancel" class="w2ui-btn">${w2utils.lang('Cancel')}</button>
                 <button id="grid-search-save" class="w2ui-btn w2ui-btn-blue" ${String(value).trim() == '' ? 'disabled': ''}>${w2utils.lang('Save')}</button>
             `
         }).open(async (event) => {
-            query(this.box).find('#grid-search-cancel').on('click', () => {
+            query(event.detail.box).find('input, button').eq(0).val(value)
+            await event.complete
+            query(event.detail.box).find('#grid-search-cancel').on('click', () => {
                 this.message()
             })
-            query(this.box).find('#grid-search-save').on('click', () => {
-                let name = query(this.box).find('.w2ui-message .search-name').val()
+            query(event.detail.box).find('#grid-search-save').on('click', () => {
+                let name = query(event.detail.box).find('.w2ui-message .search-name').val()
                 // save in savedSearches
-                if (this.searchSelected) {
-                    let ind = this.savedSearches.findIndex(s => { return s.id == this.searchSelected.name ? true : false })
+                if (this.searchSelected && ind != -1) {
                     Object.assign(this.savedSearches[ind], {
                         id: name,
                         text: name,
@@ -2457,74 +2441,73 @@ class w2grid extends w2base {
                     })
                 }
                 // save local storage
-                if (w2utils.hasLocalStorage && this.useLocalStorage) {
-                    try {
-                        let tmp = JSON.parse(localStorage.w2ui || '{}')
-                        if (!tmp) tmp = {}
-                        if (!tmp.searches) tmp.searches = {}
-                        if (!Array.isArray(tmp.searches[(this.stateId || this.name)])) {
-                            tmp.searches[(this.stateId || this.name)] = []
-                        }
-                        let sdata = tmp.searches[(this.stateId || this.name)]
-                        let ind = sdata.findIndex(s => { return s.name == this.searchSelected.name ? true : false })
-                        if (ind !== -1) {
-                            Object.assign(sdata[ind], {
-                                name,
-                                logic: this.last.logic,
-                                data: this.searchData
-                            })
-
-                        } else {
-                            sdata.push({
-                                name,
-                                logic: this.last.logic,
-                                data: this.searchData
-                            })
-                        }
-                        localStorage.w2ui = JSON.stringify(tmp)
-                    } catch (e) {
-                        delete localStorage.w2ui
-                        return null
-                    }
-                }
+                this.cacheSave('searches', this.savedSearches.map(s => w2utils.clone(s, { exclude: ['remove', 'icon'] })))
                 this.message()
                 // update on screen
                 if (this.searchSelected) {
-                    this.searchSelected.name = name
+                    this.searchSelected.text = name
                     query(this.box).find(`#grid_${this.name}_search_name .name-text`).html(name)
                 } else {
                     this.searchSelected = {
-                        name,
+                        text: name,
                         logic: this.last.logic,
                         data: w2utils.clone(this.searchData)
                     }
-                    query(this.box).find(`#grid_${this.name}_search_all`).val(' ').prop('readOnly', true)
-                    query(this.box).find(`#grid_${this.name}_search_name`).show().find('.name-text').html(name)
+                    query(event.detail.box).find(`#grid_${this.name}_search_all`).val(' ').prop('readOnly', true)
+                    query(event.detail.box).find(`#grid_${this.name}_search_name`).show().find('.name-text').html(name)
                 }
                 edata.finish({ name })
             })
-            let inputs = query(this.box).find('input, button')
-            inputs.off('.message')
+            query(event.detail.box).find('input, button')
+                .off('.message')
                 .on('keydown.message', evt => {
-                    let val = String(query(this.box).find('.w2ui-message-body input').val()).trim()
+                    let val = String(query(event.detail.box).find('.w2ui-message-body input').val()).trim()
                     if (evt.keyCode == 13 && val != '') {
-                        query(this.box).find('#grid-search-save').trigger('click') // enter
+                        query(event.detail.box).find('#grid-search-save').trigger('click') // enter
+                    }
+                    if (evt.keyCode == 27) { // escape
+                        this.message()
                     }
                 })
-            let first = query(this.box).find('.w2ui-message-body input')
-                .on('input', event => {
-                    let $save = query(this).closest('.w2ui-message').find('#grid-search-save')
-                    if (String(query(this).val()).trim() === '') {
+                .eq(0)
+                .on('input.message', evt => {
+                    let $save = query(event.detail.box).closest('.w2ui-message').find('#grid-search-save')
+                    if (String(query(event.detail.box).val()).trim() === '') {
                         $save.prop('disabled', true)
                     } else {
                         $save.prop('disabled', false)
                     }
                 })
-                .val(value)
                 .get(0)
-            await event.complete
-            first.focus()
+                .focus()
         })
+    }
+
+    cache(type) {
+        if (w2utils.hasLocalStorage && this.useLocalStorage) {
+            try {
+                let data = JSON.parse(localStorage.w2ui || '{}')
+                data[(this.stateId || this.name)] ??= {}
+                return data[(this.stateId || this.name)][type]
+            } catch (e) {
+            }
+        }
+        return null
+    }
+
+    cacheSave(type, value) {
+        if (w2utils.hasLocalStorage && this.useLocalStorage) {
+            try {
+                let data = JSON.parse(localStorage.w2ui || '{}')
+                data[(this.stateId || this.name)] ??= {}
+                data[(this.stateId || this.name)][type] = value
+                localStorage.w2ui = JSON.stringify(data)
+                return true
+            } catch (e) {
+                delete localStorage.w2ui
+            }
+        }
+        return false
     }
 
     searchReset(noRefresh) {
@@ -5119,7 +5102,7 @@ class w2grid extends w2base {
                         display = `: ${oper} ${dsp}`
                     }
                 }
-                searches += `<span class="w2ui-action" data-click="searchFieldDrop|${ind}|${sd_ind}|this">
+                searches += `<span class="w2ui-action" data-click="searchFieldTooltip|${ind}|${sd_ind}|this">
                     ${sf ? sf.label : ''}
                     ${display}
                     <span class="icon-chevron-down"></span>
@@ -5146,7 +5129,7 @@ class w2grid extends w2base {
         }
         if (this.searchSelected) {
             query(this.box).find(`#grid_${this.name}_search_all`).val(' ').prop('readOnly', true)
-            query(this.box).find(`#grid_${this.name}_search_name`).show().find('.name-text').html(this.searchSelected.name)
+            query(this.box).find(`#grid_${this.name}_search_name`).show().find('.name-text').html(this.searchSelected.text)
         } else {
             query(this.box).find(`#grid_${this.name}_search_all`).prop('readOnly', false)
             query(this.box).find(`#grid_${this.name}_search_name`).hide().find('.name-text').html('')
@@ -8179,7 +8162,6 @@ class w2grid extends w2base {
     }
 
     stateSave(returnOnly) {
-        if (!w2utils.hasLocalStorage) return null
         let state = {
             columns: [],
             show: w2utils.clone(this.show),
@@ -8222,17 +8204,8 @@ class w2grid extends w2base {
             return
         }
         // save into local storage
-        if (returnOnly !== true && this.useLocalStorage) {
-            try {
-                let savedState = JSON.parse(localStorage.w2ui || '{}')
-                if (!savedState) savedState = {}
-                if (!savedState.states) savedState.states = {}
-                savedState.states[(this.stateId || this.name)] = state
-                localStorage.w2ui                              = JSON.stringify(savedState)
-            } catch (e) {
-                delete localStorage.w2ui
-                return null
-            }
+        if (returnOnly !== true) {
+            this.cacheSave('state', state)
         }
         // event after
         edata.finish()
@@ -8242,17 +8215,7 @@ class w2grid extends w2base {
     stateRestore(newState) {
         let url = (typeof this.url != 'object' ? this.url : this.url.get)
         if (!newState) {
-            if (!w2utils.hasLocalStorage && this.useLocalStorage) return false
-            // read it from local storage
-            try {
-                let tmp = JSON.parse(localStorage.w2ui || '{}')
-                if (!tmp) tmp = {}
-                if (!tmp.states) tmp.states = {}
-                newState = tmp.states[(this.stateId || this.name)]
-            } catch (e) {
-                delete localStorage.w2ui
-                return null
-            }
+            newState = this.cache('state')
         }
         // event before
         let edata = this.trigger({ phase: 'before', type: 'stateRestore', target: this.name, state: newState })
@@ -8261,11 +8224,11 @@ class w2grid extends w2base {
         }
         // default behavior
         if (w2utils.isPlainObject(newState)) {
-            w2utils.extend(this.show, newState.show)
-            w2utils.extend(this.last, newState.last)
+            w2utils.extend(this.show, newState.show ?? {})
+            w2utils.extend(this.last, newState.last ?? {})
             let sTop  = this.last.scrollTop
             let sLeft = this.last.scrollLeft
-            for (let c = 0; c < newState.columns.length; c++) {
+            for (let c = 0; c < newState.columns?.length; c++) {
                 let tmp       = newState.columns[c]
                 let col_index = this.getColumn(tmp.field, true)
                 if (col_index !== null) {
@@ -8275,9 +8238,13 @@ class w2grid extends w2base {
                 }
             }
             this.sortData.splice(0, this.sortData.length)
-            for (let c = 0; c < newState.sortData.length; c++) this.sortData.push(newState.sortData[c])
+            for (let c = 0; c < newState.sortData?.length; c++) {
+                this.sortData.push(newState.sortData[c])
+            }
             this.searchData.splice(0, this.searchData.length)
-            for (let c = 0; c < newState.searchData.length; c++) this.searchData.push(newState.searchData[c])
+            for (let c = 0; c < newState.searchData?.length; c++) {
+                this.searchData.push(newState.searchData[c])
+            }
             // apply sort and search
             setTimeout(() => {
                 // needs timeout as records need to be populated
@@ -8298,19 +8265,7 @@ class w2grid extends w2base {
 
     stateReset() {
         this.stateRestore(this.last.state)
-        // remove from local storage
-        if (w2utils.hasLocalStorage && this.useLocalStorage) {
-            try {
-                let tmp = JSON.parse(localStorage.w2ui || '{}')
-                if (tmp.states && tmp.states[(this.stateId || this.name)]) {
-                    delete tmp.states[(this.stateId || this.name)]
-                }
-                localStorage.w2ui = JSON.stringify(tmp)
-            } catch (e) {
-                delete localStorage.w2ui
-                return null
-            }
-        }
+        this.cacheSave('state', null)
     }
 
     parseField(obj, field) {

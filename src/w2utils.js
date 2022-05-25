@@ -1955,22 +1955,22 @@ class Utils {
     }
 
     // deep copy of an object or an array
-    clone(obj, options = { functions: true, elements: true }) {
+    clone(obj, options = { functions: true, elements: true, exclude: [] }) {
         let ret
         if (Array.isArray(obj)) {
             ret = Array.from(obj)
             ret.forEach((value, ind) => {
-                ret[ind] = this.clone(value)
+                ret[ind] = this.clone(value, options)
             })
         } else if (this.isPlainObject(obj)) {
             ret = {}
             Object.assign(ret, obj)
+            options.exclude.forEach(key => { delete ret[key] }) // delete excluded keys
             Object.keys(ret).forEach(key => {
-                ret[key] = this.clone(ret[key])
+                ret[key] = this.clone(ret[key], options)
             })
         } else {
             if (typeof obj == 'function' && !options.functions) {
-                debugger
                 // do not include functions in the clone
             } else if (obj instanceof HTMLElement && !options.elements) {
                 // do not include HTMLelements
