@@ -7844,7 +7844,7 @@ class w2grid extends w2base {
         if (col.info != null) {
             let infoIcon = 'w2ui-icon-info'
             if (typeof col.info.icon == 'function') {
-                infoIcon = col.info.icon(record)
+                infoIcon = col.info.icon(record, { self: this, index: ind, colIndex: col_ind, summary: !!summary })
             } else if (typeof col.info.icon == 'object') {
                 infoIcon = col.info.icon[this.parseField(record, col.field)] || ''
             } else if (typeof col.info.icon == 'string') {
@@ -7852,7 +7852,7 @@ class w2grid extends w2base {
             }
             let infoStyle = col.info.style || ''
             if (typeof col.info.style == 'function') {
-                infoStyle = col.info.style(record)
+                infoStyle = col.info.style(record, { self: this, index: ind, colIndex: col_ind, summary: !!summary })
             } else if (typeof col.info.style == 'object') {
                 infoStyle = col.info.style[this.parseField(record, col.field)] || ''
             } else if (typeof col.info.style == 'string') {
@@ -7860,7 +7860,7 @@ class w2grid extends w2base {
             }
             infoBubble += '<span class="w2ui-info '+ infoIcon +'" style="'+ infoStyle + '" '+
                 (col.info.showOn != null ? 'on' + col.info.showOn : 'onclick') +
-                '="event.stopPropagation(); w2ui[\''+ this.name + '\'].showBubble('+ ind +', '+ col_ind +')"'+
+                '="event.stopPropagation(); w2ui[\''+ this.name + '\'].showBubble('+ ind +', '+ col_ind +', '+ (!!summary) +')"'+
                 '></span>'
         }
         let data = value
@@ -7900,7 +7900,7 @@ class w2grid extends w2base {
         if (col.clipboardCopy){
             clipboardTxt  = (typeof col.clipboardCopy == 'string' ? col.clipboardCopy : w2utils.lang('Copy to clipboard'))
             clipboardIcon = `<span onmouseEnter="jQuery(this).w2tag('${clipboardTxt}', { name: '${this.name}-bubble', position: 'top|bottom' })"
-                onclick="w2ui['${this.name}'].clipboardCopy(${ind}, ${col_ind}); jQuery(this).w2tag(w2utils.lang('Copied'), { name: '${this.name}-bubble', position: 'top|bottom' }); event.stopPropagation();"
+                onclick="w2ui['${this.name}'].clipboardCopy(${ind}, ${col_ind}, ${!!summary}); jQuery(this).w2tag(w2utils.lang('Copied'), { name: '${this.name}-bubble', position: 'top|bottom' }); event.stopPropagation();"
                 onmouseLeave="jQuery(this).w2tag({ name: '${this.name}-bubble' })" class="w2ui-clipboard-copy w2ui-icon-paste"></span>`
         }
         // data
@@ -7923,7 +7923,9 @@ class w2grid extends w2base {
             let title
             if (obj.show.recordTitles) {
                 if (col.title != null) {
-                    if (typeof col.title == 'function') title = col.title.call(obj, record, ind, col_ind)
+                    if (typeof col.title == 'function') {
+                        title = col.title.call(obj, record, { self: this, index: ind, colIndex: col_ind, summary: !!summary })
+                    }
                     if (typeof col.title == 'string') title = col.title
                 } else {
                     title = w2utils.stripTags(String(cellData).replace(/"/g, '\'\''))
@@ -7933,18 +7935,18 @@ class w2grid extends w2base {
         }
     }
 
-    clipboardCopy(ind, col_ind) {
-        let rec = this.records[ind]
+    clipboardCopy(ind, col_ind, summary) {
+        let rec = summary ? this.summary[ind] : this.records[ind]
         let col = this.columns[col_ind]
         let txt = (col ? this.parseField(rec, col.field) : '')
         if (typeof col.clipboardCopy == 'function') {
-            txt = col.clipboardCopy(rec)
+            txt = col.clipboardCopy(rec, { self: this, index: ind, colIndex: col_ind, summary: !!summary })
         }
         $(this.box).find('#grid_' + this.name + '_focus').text(txt).select()
         document.execCommand('copy')
     }
 
-    showBubble(ind, col_ind) {
+    showBubble(ind, col_ind, summary) {
         let info = this.columns[col_ind].info
         if (!info) return
         let html = ''
@@ -7964,11 +7966,11 @@ class w2grid extends w2base {
         }
         let fields = info.fields
         if (typeof fields == 'function') {
-            fields = fields(rec, ind, col_ind) // custom renderer
+            fields = fields(rec, { self: this, index: ind, colIndex: col_ind, summary: !!summary }) // custom renderer
         }
         // generate html
         if (typeof info.render == 'function') {
-            html = info.render(rec, ind, col_ind)
+            html = info.render(rec, { self: this, index: ind, colIndex: col_ind, summary: !!summary })
 
         } else if (Array.isArray(fields)) {
             // display mentioned fields
@@ -8015,7 +8017,7 @@ class w2grid extends w2base {
                     }
                 }
                 if (typeof fld == 'function') {
-                    val = fld(rec, ind, col_ind)
+                    val = fld(rec,  { self: this, index: ind, colIndex: col_ind, summary: !!summary })
                 }
                 if (info.showEmpty !== true && (val == null || val == '')) continue
                 if (info.maxLength != null && typeof val == 'string' && val.length > info.maxLength) val = val.substr(0, info.maxLength) + '...'
@@ -8046,10 +8048,10 @@ class w2grid extends w2base {
         if (edit === false) return null
         if (edit == null || edit === true) {
             edit = (col && Object.keys(col.editable).length > 0 ? col.editable : null)
-            if (typeof(edit) === 'function') {
+            if (typeof edit === 'function') {
                 let value = this.getCellValue(ind, col_ind, false)
                 // same arguments as col.render()
-                edit = edit.call(this, rec, ind, col_ind, value)
+                edit = edit.call(this, rec,  { self: this, value, index: ind, colIndex: col_ind, summary: !!summary })
             }
         }
         return edit
@@ -8069,7 +8071,7 @@ class w2grid extends w2base {
             if (typeof col.render == 'function' && record != null) {
                 let html
                 try {
-                    html = col.render(record, { self: this, value: value, index: ind, colIndex: col_ind })
+                    html = col.render(record, { self: this, value, index: ind, colIndex: col_ind, summary: !!summary })
                 } catch (e) {
                     throw new Error(`Render function for column "${col.field}" in grid "${this.name}": -- ` + e.message)
                 }
