@@ -2020,8 +2020,8 @@ class DateTooltip extends Tooltip {
         }
         let checkJump = (event, dblclick) => {
             query(event.target).parent().find('.w2ui-jump-month, .w2ui-jump-year')
-                .removeClass('selected')
-            query(event.target).addClass('selected')
+                .removeClass('w2ui-selected')
+            query(event.target).addClass('w2ui-selected')
             let dt = new Date()
             let { jumpMonth, jumpYear } = overlay.tmp
             if (dblclick) {

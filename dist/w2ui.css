@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/25/2022, 9:48:48 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/25/2022, 12:00:15 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -1095,7 +1095,7 @@ button.w2ui-btn:disabled {
 .w2ui-calendar .w2ui-time-title {
   margin: 0px;
   padding: 7px 2px;
-  background-color: white;
+  background-color: #fafafa;
   border-top: 1px solid #fefefe;
   border-bottom: 1px solid #ddd;
   color: #555;
@@ -1271,12 +1271,12 @@ button.w2ui-btn:disabled {
 }
 .w2ui-calendar .w2ui-cal-days .w2ui-day.w2ui-weekday {
   text-align: center;
-  background-color: #f1f1f1;
-  color: #958ea0;
+  background-color: #fff;
+  color: #a99cc2;
 }
 .w2ui-calendar .w2ui-cal-days .w2ui-day.w2ui-weekday:hover {
   border: 1px solid #fff;
-  background-color: #f1f1f1;
+  background-color: #fff;
 }
 .w2ui-calendar .w2ui-cal-days .w2ui-day.outside {
   color: #b5b5b5;

@@ -491,7 +491,7 @@ class w2grid extends w2base {
             }
             added++
         }
-        let url = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = this.url?.get ?? this.url
         if (!url) {
             this.total = this.records.length
             this.localSort(false, true)
@@ -630,7 +630,7 @@ class w2grid extends w2base {
                 if (this.summary[r].recid == arguments[a]) { this.summary.splice(r, 1); removed++ }
             }
         }
-        let url = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = this.url?.get ?? this.url
         if (!url) {
             this.localSort(false, true)
             this.localSearch()
@@ -830,7 +830,7 @@ class w2grid extends w2base {
 
     localSort(silent, noResetRefresh) {
         let obj = this
-        let url = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = this.url?.get ?? this.url
         if (url) {
             console.log('ERROR: grid.localSort can only be used on local data source, grid.url should be empty.')
             return
@@ -1011,7 +1011,7 @@ class w2grid extends w2base {
 
     localSearch(silent) {
         let obj = this
-        let url = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = this.url?.get ?? this.url
         if (url) {
             console.log('ERROR: grid.localSearch can only be used on local data source, grid.url should be empty.')
             return
@@ -1792,7 +1792,7 @@ class w2grid extends w2base {
         let edata = this.trigger('select', { target: this.name, all: true })
         if (edata.isCancelled === true) return
         // default action
-        let url  = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = this.url?.get ?? this.url
         let sel  = this.last.selection
         let cols = []
         for (let i = 0; i < this.columns.length; i++) cols.push(i)
@@ -1933,7 +1933,7 @@ class w2grid extends w2base {
     }
 
     search(field, value) {
-        let url = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = this.url?.get ?? this.url
         let searchData = []
         let last_multi = this.last.multi
         let last_logic = this.last.logic
@@ -2651,6 +2651,7 @@ class w2grid extends w2base {
         this.summary         = []
         this.last.xhr_offset = 0 // need this for reload button to work on remote data set
         this.last.idCache    = {} // optimization to free memory
+        this.last.selection   = { indexes: [], columns: {} }
         this.reset(true)
         // refresh
         if (!noRefresh) this.refresh()
@@ -2661,17 +2662,16 @@ class w2grid extends w2base {
         // position
         this.last.scrollTop   = 0
         this.last.scrollLeft  = 0
-        this.last.selection   = { indexes: [], columns: {} }
         this.last.range_start = null
         this.last.range_end   = null
         // additional
-        $(this.box).find('#grid_'+ this.name +'_records').prop('scrollTop', 0)
+        query(this.box).find('#grid_'+ this.name +'_records').prop('scrollTop', 0)
         // refresh
         if (!noRefresh) this.refresh()
     }
 
     skip(offset, callBack) {
-        let url = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = this.url?.get ?? this.url
         if (url) {
             this.offset = parseInt(offset)
             if (this.offset > this.total) this.offset = this.total - this.limit
@@ -2695,7 +2695,7 @@ class w2grid extends w2base {
 
     reload(callBack) {
         let grid = this
-        let url  = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = this.url?.get ?? this.url
         grid.selectionSave()
         if (url) {
             // need to remember selection (not just last.selection object)
@@ -2713,8 +2713,8 @@ class w2grid extends w2base {
 
     request(cmd, add_params, url, callBack) {
         if (add_params == null) add_params = {}
-        if (url == '' || url == null) url = this.url
-        if (url == '' || url == null) return
+        if (!url) url = this.url
+        if (!url) return
         // build parameters list
         if (!w2utils.isInt(this.offset)) this.offset = 0
         if (!w2utils.isInt(this.last.xhr_offset)) this.last.xhr_offset = 0
@@ -2756,10 +2756,10 @@ class w2grid extends w2base {
         }
         // event before
         if (cmd == 'get') {
-            edata = this.trigger('request', { target: this.name, url: url, postData: params, httpHeaders: this.httpHeaders })
+            edata = this.trigger('request', { target: this.name, url, postData: params, httpHeaders: this.httpHeaders })
             if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: w2utils.lang('Request aborted.') }); return }
         } else {
-            edata = { url: url, postData: params, httpHeaders: this.httpHeaders }
+            edata = { url, postData: params, httpHeaders: this.httpHeaders }
         }
         // call server to get data
         if (this.last.xhr_offset === 0) {
@@ -2767,9 +2767,17 @@ class w2grid extends w2base {
         }
         if (this.last.xhr) try { this.last.xhr.abort() } catch (e) {}
         // URL
-        url = (typeof edata.detail.url != 'object' ? edata.detail.url : edata.detail.url.get)
-        if (cmd == 'save' && typeof edata.detail.url == 'object') url = edata.detail.url.save
-        if (cmd == 'delete' && typeof edata.detail.url == 'object') url = edata.detail.url.remove
+        url = edata.detail.url
+        switch (cmd) {
+            case 'save':
+                if (url?.save) url = url.save
+                break
+            case 'delete':
+                if (url?.remove) url = url.remove
+                break
+            default:
+                url = url?.get ?? url
+        }
         // process url with routeData
         if (Object.keys(this.routeData).length > 0) {
             let info = w2utils.parseRoute(url)
@@ -2971,7 +2979,7 @@ class w2grid extends w2base {
             this.error(w2utils.lang(this.msgAJAXerror))
         }
         // event after
-        let url = (typeof this.url != 'object' ? this.url : this.url.get)
+        let url = this.url?.get ?? this.url
         if (!url) {
             this.localSort()
             this.localSearch()
@@ -3057,7 +3065,7 @@ class w2grid extends w2base {
 
     save(callBack) {
         let changes = this.getChanges()
-        let url     = (typeof this.url != 'object' ? this.url : this.url.save)
+        let url = this.url?.save ?? this.url
         // event before
         let edata = this.trigger('save', { target: this.name, changes: changes })
         if (edata.isCancelled === true) {
