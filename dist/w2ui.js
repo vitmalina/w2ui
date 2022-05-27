@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/26/2022, 8:03:33 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/27/2022, 9:28:36 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -385,13 +385,13 @@ const w2locale = {
 }
 class Query {
     constructor(selector, context, previous) {
-        this.version = 0.4
+        this.version = 0.5
         this.context = context ?? document
         this.previous = previous ?? null
         let nodes = []
         if (Array.isArray(selector)) {
             nodes = selector
-        } else if (Query._isEl(selector)) {
+        } else if (selector instanceof Node) { // any html element
             nodes = [selector]
         } else if (selector instanceof Query) {
             nodes = selector.nodes
@@ -418,10 +418,6 @@ class Query {
             this[ind] = node
         })
     }
-    static _isEl(node) {
-        return (node instanceof Document || node instanceof DocumentFragment
-            || node instanceof HTMLElement || node instanceof Text)
-    }
     static _fragment(html) {
         let tmpl = document.createElement('template')
         tmpl.innerHTML = html
@@ -431,7 +427,6 @@ class Query {
         let nodes = []
         let len  = this.length
         if (len < 1) return
-        let isEl = Query._isEl(html)
         let self = this
         // TODO: need good unit test coverage for this function
         if (typeof html == 'string') {
@@ -451,7 +446,7 @@ class Query {
                 })
             })
             if (!single) html.remove()
-        } else if (isEl) {
+        } else if (html instanceof Node) { // any HTML element
             this.each(node => {
                 // if insert before a single node, just move new one, else clone and move it
                 let clone = (len === 1 ? html : Query._fragment(html.outerHTML))
@@ -1802,7 +1797,7 @@ class Utils {
             spinner: false
         }, options)
         // for backward compatibility
-        if (box && !(box instanceof HTMLElement) && box[0] instanceof HTMLElement) {
+        if (box?.[0] instanceof Node) {
             box = Array.isArray(box) ? box : box.get()
         }
         if (!options.msg && options.msg !== 0) options.msg = ''
@@ -1867,7 +1862,7 @@ class Utils {
     unlock(box, speed) {
         if (box == null) return
         // for backward compatibility
-        if (box && !(box instanceof HTMLElement) && box[0] instanceof HTMLElement) {
+        if (box?.[0] instanceof Node) {
             box = Array.isArray(box) ? box : box.get()
         }
         if (this.isInt(speed)) {
@@ -2739,9 +2734,14 @@ class Utils {
         let proto = Object.getPrototypeOf(value)
         return proto === null || proto === Object.prototype
     }
-    // deep copy of an object or an array
-    clone(obj, options = { functions: true, elements: true, exclude: [] }) {
+    /**
+     * Deep copy of an object or an array. Function, events and HTML elements will not be cloned,
+     * you can choose to include them or not, by default they are included.
+     * You can also exclude certain elements from final object if used with options: { exclude }
+     */
+    clone(obj, options) {
         let ret
+        options = Object.assign({ functions: true, elements: true, events: true, exclude: [] }, options ?? {})
         if (Array.isArray(obj)) {
             ret = Array.from(obj)
             ret.forEach((value, ind) => {
@@ -2750,15 +2750,19 @@ class Utils {
         } else if (this.isPlainObject(obj)) {
             ret = {}
             Object.assign(ret, obj)
-            options.exclude.forEach(key => { delete ret[key] }) // delete excluded keys
+            if (options.exclude) {
+                options.exclude.forEach(key => { delete ret[key] }) // delete excluded keys
+            }
             Object.keys(ret).forEach(key => {
                 ret[key] = this.clone(ret[key], options)
+                if (ret[key] === undefined) delete ret[key] // do not include undefined elements
             })
         } else {
-            if (typeof obj == 'function' && !options.functions) {
-                // do not include functions in the clone
-            } else if (obj instanceof HTMLElement && !options.elements) {
-                // do not include HTMLelements
+            if ((obj instanceof Function && !options.functions)
+                    || (obj instanceof Node && !options.elements)
+                    || (obj instanceof Event && !options.events)
+            ) {
+                // do not include these objects, otherwise include them uncloned
             } else {
                 // primitive variable or function, event, dom element, etc, -  all these are not cloned
                 ret = obj
@@ -2766,8 +2770,10 @@ class Utils {
         }
         return ret
     }
-    // deep extend an object or an array, if an array, it does concat, cloning objects in the process
-    // target, source1, source2, ...
+    /**
+     * Deep extend an object or an array, if an array, it does concat, cloning objects in the process
+     * target, source1, source2, ...
+     */
     extend(target, source) {
         if (Array.isArray(target)) {
             if (Array.isArray(source)) {
@@ -2775,6 +2781,8 @@ class Utils {
             } else {
                 throw new Error('Arrays can be extended with arrays only')
             }
+        } else if (target instanceof Node || target instanceof Event) {
+            throw new Error('HTML elmenents and events cannot be extended')
         } else if (target && typeof target == 'object' && source != null) {
             if (typeof source != 'object') {
                 throw new Error("Object can be extended with other objects only.")
@@ -2783,11 +2791,16 @@ class Utils {
                 if (target[key] != null && typeof target[key] == 'object'
                         && source[key] != null && typeof source[key] == 'object') {
                     let src = this.clone(source[key])
-                    // if an array needs to be extended with an objec, then convert it to empty object
-                    if (Array.isArray(target[key]) && this.isPlainObject(src)) {
-                        target[key] = {}
+                    // do not extend HTML elements and events, but overwrite them
+                    if (target[key] instanceof Node || target[key] instanceof Event) {
+                        target[key] = src
+                    } else {
+                        // if an array needs to be extended with an object, then convert it to empty object
+                        if (Array.isArray(target[key]) && this.isPlainObject(src)) {
+                            target[key] = {}
+                        }
+                        this.extend(target[key], src)
                     }
-                    this.extend(target[key], src)
                 } else {
                     target[key] = this.clone(source[key])
                 }
@@ -2870,7 +2883,7 @@ class Utils {
         // -- can have "event", "this", "stop", "stopPrevent", "alert" - as predefined objects
         if (selector.length == 0) return
         // for backward compatibility
-        if (selector && !(selector instanceof HTMLElement) && selector[0] instanceof HTMLElement) {
+        if (selector?.[0] instanceof Node) {
             selector = Array.isArray(selector) ? selector : selector.get()
         }
         query(selector).each((el) => {
@@ -11475,7 +11488,7 @@ class w2grid extends w2base {
     select() {
         if (arguments.length === 0) return 0
         let selected = 0
-        let sel      = this.last.selection
+        let sel = this.last.selection
         if (!this.multiSelect) this.selectNone()
         // if too many arguments > 150k, then it errors off
         let args = Array.from(arguments)
