@@ -1565,7 +1565,7 @@ class w2grid extends w2base {
     select() {
         if (arguments.length === 0) return 0
         let selected = 0
-        let sel      = this.last.selection
+        let sel = this.last.selection
         if (!this.multiSelect) this.selectNone()
         // if too many arguments > 150k, then it errors off
         let args = Array.from(arguments)

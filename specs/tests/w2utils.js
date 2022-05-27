@@ -563,9 +563,18 @@ QUnit.module('w2utils', () => {
         assert.equal(w2utils.clone(null), null,  "- null -" );
         assert.equal(w2utils.clone(undefined), undefined, "- undefined -" );
         //
-        let el = document.createElement('div')
+        let el1 = document.createElement('div')
         let el2 = document.createElement('input')
-        assert.deepEqual(w2utils.clone({ a: 1, el, el2 }), { a: 1, el, el2 }, "Dont clone HTML elements" );
+        let evt = new Event('custom')
+        let fun1 = () => {}
+        let fun2 = function () {}
+        assert.deepEqual(w2utils.clone({ a: 1, el1, el2 }), { a: 1, el1, el2 }, "Dont clone HTML elements" );
+        assert.deepEqual(w2utils.clone({ a: 1, evt }), { a: 1, evt }, "Dont clone HTML events" );
+        assert.deepEqual(w2utils.clone({ a: 1, fun1, fun2 }), { a: 1, fun1, fun2 }, "Dont clone functions" );
+        assert.deepEqual(w2utils.clone({ a: 1, el2 }, { elements: false }), { a: 1 }, "Dont include events if asked" );
+        assert.deepEqual(w2utils.clone({ a: 1, evt }, { events: false }), { a: 1 }, "Dont include events if asked" );
+        assert.deepEqual(w2utils.clone({ a: 1, fun1, fun2 }, { functions: false }), { a: 1 }, "Dont include functions if asked" );
+        assert.deepEqual(w2utils.clone({ a: 1, b: 2 }, { exclude: ['b'] }), { a: 1 }, "Exclude props" );
 
         values.forEach(val => {
             let res = w2utils.clone(val.source)
@@ -631,18 +640,29 @@ QUnit.module('w2utils', () => {
                 source: [{ a: 1 }, { c: { d: 6 }}],
                 expect: { a: 1, b: 5, c: { d: 6 }}
             },
+            {
+                target: { a: 1, e: new Event('e'), b: 5 },
+                source: [{ a: 1, e: new Event('e'), }, { c: { d: 6 }}],
+                expect: { a: 1, e: new Event('e'), b: 5, c: { d: 6 }}
+            },
         ];
         let error = function () {
             throw new Error("Object is not extendable, only {} or [] can be extended.")
         }
-        assert.throws(() => { w2utils.extend() }, "- no argument -" );
-        assert.throws(() => { w2utils.extend('') }, "- blank -" );
-        assert.throws(() => { w2utils.extend(null) }, "- null -" );
-        assert.throws(() => { w2utils.extend(undefined) }, "- undefined -" );
-        assert.throws(() => { w2utils.extend(1) }, "- number -" );
-        assert.throws(() => { w2utils.extend(true) }, "- bool -" );
-        assert.throws(() => { w2utils.extend('s') }, "- string -" );
-        assert.throws(() => { w2utils.extend(()=>{}) }, "- function -" );
+        assert.throws(() => { w2utils.extend('', {}) }, "- blank -" );
+        assert.throws(() => { w2utils.extend(null, {}) }, "- null -" );
+        assert.throws(() => { w2utils.extend(undefined, {}) }, "- undefined -" );
+        assert.throws(() => { w2utils.extend(1, {}) }, "- number -" );
+        assert.throws(() => { w2utils.extend(true, {}) }, "- bool -" );
+        assert.throws(() => { w2utils.extend('s', {}) }, "- string -" );
+        assert.throws(() => { w2utils.extend(()=>{}, {}) }, "- function -" );
+
+        let el1 = document.createElement('div')
+        let el2 = document.createElement('input')
+        let evt = new Event('custom')
+        let fun1 = () => {}
+        let fun2 = function () {}
+
 
         values.forEach(val => {
             if (val.expect === false) {
