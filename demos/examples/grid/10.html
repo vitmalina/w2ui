@@ -1,8 +1,11 @@
 <div class="content">
     <div id="example_title">
         <h1>Select/Unselect Records</h1>
-        It is important for any project to be able to work with selection easily. This example demonstrate the use of several methods
-        that allow you to select, unselect and get selected records from the grid.
+        This example demonstrate the use of several methods that allow you to select, unselect and get selected
+        records from the grid.
+        <br>
+        As of 2.0+ "unselect" event has been deprecated, however, every time a selection changes it will trigger a
+        "select" event.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -10,6 +13,8 @@
 
 <!--CODE-->
 <div id="grid" style="width: 100%; height: 250px;"></div>
+<br>
+<div id="log">Selection events will be here...</div>
 <br>
 <button class="w2ui-btn" onclick="w2ui.grid.selectAll();">Select All</button>
 <button class="w2ui-btn" onclick="w2ui.grid.selectNone();">Select None</button>
@@ -20,9 +25,10 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#grid').w2grid({
+query(() => {
+    new w2grid({
         name: 'grid',
+        box: query('#grid')[0],
         show: {
             selectColumn: true
         },
@@ -42,7 +48,14 @@ $(function () {
             { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
             { recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
             { recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
-        ]
-    });
-});
+        ],
+        onSelect(event) {
+            query('#log').html(`
+                <span style="color: #777">Multiple:</span> ${event.detail.multiple},
+                <span style="color: #777">All:</span> ${event.detail.all ?? 'false'},
+                <span style="color: #777">Recids:<span> ${event.detail.recids ?? []}
+            `)
+        }
+    })
+})
 </script>
