@@ -438,7 +438,7 @@ class w2form extends w2base {
             }
             case 'check':
             case 'checks': {
-                if (!Array.isArray(value)) value = [value]
+                value = (!Array.isArray(value) && value != null) ? [value] : []
                 value = value.map(val => val?.id ?? val) // convert if array of objects
                 let inputs = query(el).closest('div').find('input')
                 let items  = field.options.items
@@ -449,7 +449,6 @@ class w2form extends w2base {
             }
             case 'list':
             case 'combo':
-                // TODO: finish when w2field is refactored
                 let item = value
                 // find item in options.items, if any
                 if (item?.id == null) {
@@ -457,6 +456,7 @@ class w2form extends w2base {
                         if (it.id === value) item = it
                     })
                 }
+                // if item is found in field.options, update it in the this.records
                 if (item != value) {
                     this.setValue(field.name, item)
                 }
@@ -469,14 +469,10 @@ class w2form extends w2base {
                 break
             case 'enum':
             case 'file': {
-                // TODO: finish when w2field is refactored
-                let items = value
-                if (value !== '') {
-                    if (!Array.isArray(items)) items = [items]
-                    if (!Array.isArray(value)) value = [value]
-                } else {
-                    items = []
+                if (!Array.isArray(value)) {
+                    value = value != null ? [value] : []
                 }
+                let items = [...value]
                 // find item in options.items, if any
                 let updated = false
                 items.forEach((item, ind) => {
@@ -492,11 +488,6 @@ class w2form extends w2base {
                 if (updated) {
                     this.setValue(field.name, items)
                 }
-                // TODO: check
-                // if (!isFound && value != null && value.length !== 0) {
-                //     field.$el.data('find_selected', value) // HERE
-                //     sel = value
-                // }
                 field.w2field.selected = items
                 field.w2field.refresh()
                 break
@@ -524,7 +515,8 @@ class w2form extends w2base {
             case 'empty':
                 break
             default:
-                el.value = value
+                // regular text fields
+                el.value = value ?? ''
                 break
         }
     }
@@ -854,6 +846,15 @@ class w2form extends w2base {
                 let tmp = { nestedFields: true, record: data }
                 let val = this.getValue.call(tmp, fld.field)
                 if (val._order) delete val._order
+            }
+            if (fld.type == 'file') {
+                let tmp = { nestedFields: true, record: data }
+                let val = this.getValue.call(tmp, fld.field)
+                val.forEach(v => {
+                    delete v.file
+                    delete v.modified
+                })
+                this.setValue.call(tmp, fld.field, val)
             }
         })
         // return only records present in description
@@ -1704,7 +1705,6 @@ class w2form extends w2base {
         // init controls with record
         for (let f = 0; f < fields.length; f++) {
             let field = this.fields[fields[f]]
-            let value = this.getValue(field.name) ?? ''
             if (!field.el) continue
             if (!field.$el.hasClass('w2ui-input')) field.$el.addClass('w2ui-input')
             field.type = String(field.type).toLowerCase()
@@ -1892,8 +1892,8 @@ class w2form extends w2base {
                     }
                 })(this, field)
             }
-            // set value to all
-            this.setFieldValue(field.field, value)
+            // set value to HTML input field
+            this.setFieldValue(field.field, this.getValue(field.name))
             field.$el.trigger('change')
         }
         // event after

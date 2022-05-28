@@ -509,6 +509,7 @@ class w2field extends w2base {
             let html = ''
             if (Array.isArray(this.selected)) {
                 this.selected.forEach((it, ind) => {
+                    if (it == null) return
                     html += `
                         <div class="li-item" index="${ind}" style="max-width: ${parseInt(options.maxItemWidth)}px; ${it.style ? it.style : ''}">
                         ${
