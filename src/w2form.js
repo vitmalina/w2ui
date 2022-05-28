@@ -471,8 +471,12 @@ class w2form extends w2base {
             case 'file': {
                 // TODO: finish when w2field is refactored
                 let items = value
-                if (!Array.isArray(items)) items = [items]
-                if (!Array.isArray(value)) value = [value]
+                if (value !== '') {
+                    if (!Array.isArray(items)) items = [items]
+                    if (!Array.isArray(value)) value = [value]
+                } else {
+                    items = []
+                }
                 // find item in options.items, if any
                 let updated = false
                 items.forEach((item, ind) => {
