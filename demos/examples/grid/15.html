@@ -1,8 +1,9 @@
 <div class="content">
     <div id="example_title">
         <h1>Simple Search</h1>
-        The grid has two search options. (1) simple search - one search box that searches through predefined searches. (2) An advanced search - a search overlay with predefined search fields). The example below demonstrates a simple search.
-
+        One search box to type a phrase to search through selected search fields. You can click on the
+        magnifying glass to select a field you want to search on, but in this case it is always a single
+        field.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -10,12 +11,31 @@
 
 <!--CODE-->
 <div id="grid" style="width: 100%; height: 400px;"></div>
+<br>
+<div style="float: left">
+    Text operator:
+    <select class="w2ui-input" onchange="oper(this.value)">
+        <option value="is">is</option>
+        <option value="begins" selected>begins</option>
+        <option value="contains">contains</option>
+        <option value="ends">ends</option>
+    </select>
+</div>
+<br>
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#grid').w2grid({
+function oper(op) {
+    w2ui.grid.searches.forEach(search => {
+        if (search.type == 'text') search.operator = op
+    })
+    w2ui.grid.searchReset()
+}
+
+query(() => {
+    new w2grid({
         name: 'grid',
+        box: query('#grid')[0],
         show: {
             toolbar: true,
             footer: true
@@ -55,6 +75,6 @@ $(function () {
             { recid: 27, fname: 'Shashi', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
             { recid: 28, fname: 'Av', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
         ]
-    });
-});
+    })
+})
 </script>

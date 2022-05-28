@@ -22,9 +22,10 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#grid').w2grid({
+query(() => {
+    new w2grid({
         name: 'grid',
+        box: query('#grid')[0],
         header: 'List of Names',
         url: 'data/list.json',
         method: 'GET', // need this to avoid 412 error on Safari
@@ -47,11 +48,11 @@ $(function () {
             { type: 'text', field: 'lname', label: 'Last Name' },
             { type: 'date', field: 'sdate', label: 'Start Date' }
         ],
-        onExpand: function (event) {
-            $('#'+event.detail.box_id).html('<div style="padding: 10px; height: 100px">Expanded content</div>');
+        onExpand(event) {
+            query('#'+event.detail.box_id).html('<div style="padding: 10px; height: 100px">Expanded content</div>')
         }
-    });
-});
+    })
+})
 </script>
 
 <!--CODE-->

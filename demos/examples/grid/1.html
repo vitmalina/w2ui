@@ -12,9 +12,10 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#grid').w2grid({
+query(() => {
+    new w2grid({
         name: 'grid',
+        box: query('#grid')[0],
         url: 'data/list.json',
         method: 'GET', // need this to avoid 412 error on Safari
         columns: [
@@ -23,8 +24,8 @@ $(function () {
             { field: 'email', text: 'Email', size: '40%' },
             { field: 'sdate', text: 'Start Date', size: '120px' }
         ]
-    });
-});
+    })
+})
 </script>
 
 <!--CODE-->

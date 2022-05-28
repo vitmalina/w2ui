@@ -1,8 +1,16 @@
 <div class="content">
     <div id="example_title">
         <h1>Advanced Search</h1>
-        The grid has two search options. (1) simple search - one search box that searches through predefined searches. (2) An advanced
-        search - a search overlay with predefined search fields. The example below demonstrates an advanced search.
+        When advanced search is on, it will
+        <ul>
+            <li>allow to search on all/multiple fields</li>
+            <li>show a search drop down button to get to the advanced search</li>
+            <li>allow to use differnet types of search fields</li>
+            <li>allow to choose search operator</li>
+            <li>allow to do All (AND) or Any (OR) logic</li>
+            <li>show search bar when search is applied (2.0+)</li>
+            <li>save searches into local sotrage (2.0+)</li>
+        </ul>
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -10,12 +18,27 @@
 
 <!--CODE-->
 <div id="grid" style="width: 100%; height: 400px;"></div>
+<br>
+<div style="float: left">
+    <label style="position: relative; top: 3px; left: 10px">
+        <input type="checkbox" id="singleOrMulti" checked style="position: relative; top: 1px; left: -2px;" onclick="multi(this)">
+        Advanced Search
+    </label>
+</div>
+<br>
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#grid').w2grid({
+function multi(el) {
+    w2ui.grid.multiSearch = el.checked
+    w2ui.grid.searchReset()
+    w2ui.grid.refresh()
+}
+
+query(() => {
+    new w2grid({
         name: 'grid',
+        box: query('#grid')[0],
         show: {
             toolbar: true,
             footer: true
@@ -60,6 +83,6 @@ $(function () {
             { recid: 27, fname: 'Shashi', lname: 'Bahh', email: 'jim@gmail.com', sdate: 1384052483664 },
             { recid: 28, fname: 'Av', lname: 'Rachmaninov', email: 'jim@gmail.com', sdate: 1383620688314 }
         ]
-    });
-});
+    })
+})
 </script>

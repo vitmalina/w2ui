@@ -24,9 +24,10 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#grid').w2grid({
+query(() => {
+    new w2grid({
         name: 'grid',
+        box: query('#grid')[0],
         searches: [
             { field: 'fname', text: 'First Name', type: 'text' },
             { field: 'lname', text: 'Last Name', type: 'text' },
@@ -57,6 +58,6 @@ $(function () {
             { recid: 24, fname: 'Manny', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
             { recid: 25, fname: 'Ben', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
         ]
-    });
-});
+    })
+})
 </script>
