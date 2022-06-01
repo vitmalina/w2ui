@@ -42,7 +42,7 @@ $(async function () {
                 { id: 'utils', type: 'radio', text: 'Utils', icon: 'fa fa-star-o', route: 'utils/1' },
                 { type: 'spacer' },
                 { type: 'menu-radio', id: 'locale', icon: 'fa fa-language',
-                    text: function (item) {
+                    text(item) {
                         let el = this.get('locale:' + item.selected)
                         return el.text
                     },
@@ -79,23 +79,22 @@ $(async function () {
                     ]
                 },
             ],
-            onClick(event) {
-                if (event.subItem == null) return
-                event.done(function () {
-                    if (event.item.id === 'locale') {
-                        w2utils_locale = event.item.selected
-                        // change locale
-                        w2utils.locale(['https://rawgit.com/vitmalina/w2ui/master/src/locale/'+w2utils_locale+'.json', w2utils_locale]).then( () => {
-                            sessionStorage.w2ui_demo_locale = w2utils_locale
-                            location.reload() // reloading the page makes things so much easier than refreshing all the w2ui objects
-                            // Object.values(w2ui).forEach(obj => {
-                            //     if(obj instanceof w2base && !(obj instanceof w2layout)) {
-                            //         obj.refresh()
-                            //     }
-                            // })
-                        })
-                    }
-                })
+            async onClick(event) {
+                if (event.detail.subItem == null) return
+                await event.complete
+                if (event.detail.item.id === 'locale') {
+                    w2utils_locale = event.detail.item.selected
+                    // change locale
+                    w2utils.locale(['https://rawgit.com/vitmalina/w2ui/master/src/locale/'+w2utils_locale+'.json', w2utils_locale]).then( () => {
+                        sessionStorage.w2ui_demo_locale = w2utils_locale
+                        location.reload() // reloading the page makes things so much easier than refreshing all the w2ui objects
+                        // Object.values(w2ui).forEach(obj => {
+                        //     if(obj instanceof w2base && !(obj instanceof w2layout)) {
+                        //         obj.refresh()
+                        //     }
+                        // })
+                    })
+                }
             }
         },
 
@@ -391,7 +390,7 @@ $(async function () {
                     ]
                 },
             ],
-            onClick: function (event) {
+            onClick(event) {
                 let cmd = event.target
                 if (parseInt(cmd.substr(cmd.length-1)) != cmd.substr(cmd.length-1)) return
                 let tmp = w2ui.demo_sidebar.get(cmd)
