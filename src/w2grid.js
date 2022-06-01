@@ -2780,7 +2780,10 @@
             if (edit.outTag  == null) edit.outTag  = '';
             if (edit.style   == null) edit.style   = '';
             if (edit.items   == null) edit.items   = [];
-            var val = (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes[col.field] != null ? w2utils.stripTags(rec.w2ui.changes[col.field]) : w2utils.stripTags(rec[col.field]));
+            var val = (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes[col.field] != null
+                ? w2utils.stripTags(rec.w2ui.changes[col.field])
+                : w2utils.stripTags(this.parseField(rec, col.field))
+            );
             if (val == null) val = '';
             var old_value = (typeof val != 'object' ? val : '');
             if (edata.old_value != null) old_value = edata.old_value;
