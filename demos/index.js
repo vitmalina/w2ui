@@ -75,6 +75,7 @@ $(async function () {
                         'sk-sk',
                         'sl-si',
                         'tr-tr',
+                        'uk-ua',
                         'zh-cn'
                     ]
                 },
