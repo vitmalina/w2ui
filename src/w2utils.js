@@ -1575,8 +1575,15 @@ class Utils {
         }
         return this.execTemplate(translation, params)
     }
-
+    
     locale(locale, keepPhrases, noMerge) {
+        let cleanSettingsArrays = () => {
+            if(Array.isArray(this.settings.fullmonths) && this.settings.fullmonths.length > 12) { this.settings.fullmonths = this.settings.fullmonths.slice(-12) }
+            if(Array.isArray(this.settings.fulldays) && this.settings.fulldays.length > 7) { this.settings.fulldays = this.settings.fulldays.slice(-7) }
+            if(Array.isArray(this.settings.shortmonths) && this.settings.shortmonths.length > 12) { this.settings.shortmonths = this.settings.shortmonths.slice(-12) }
+            if(Array.isArray(this.settings.shortdays) && this.settings.shortdays.length > 7) { this.settings.shortdays = this.settings.shortdays.slice(-7) }
+        }
+
         return new Promise((resolve, reject) => {
             // if locale is an array we call this function recursively and merge the results
             if (Array.isArray(locale)) {
@@ -1597,6 +1604,7 @@ class Utils {
                         locale.forEach(file => {
                             this.settings = this.extend({}, this.settings, files[file])
                         })
+                        cleanSettingsArrays()
                         resolve()
                     })
                 return
@@ -1606,6 +1614,7 @@ class Utils {
             // if locale is an object, then merge it with w2utils.settings
             if (locale instanceof Object) {
                 this.settings = this.extend({}, this.settings, w2locale, locale)
+                cleanSettingsArrays()
                 return
             }
 
@@ -1625,6 +1634,7 @@ class Utils {
                             // clear phrases from language before merging
                             this.settings = this.extend({}, this.settings, w2locale, { phrases: {} }, data)
                         }
+                        cleanSettingsArrays()
                     }
                     resolve({ file: locale, data })
                 })
