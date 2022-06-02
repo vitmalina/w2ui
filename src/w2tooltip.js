@@ -2358,7 +2358,7 @@ class DateTooltip extends Tooltip {
             if (dt) {
                 let format = options.format.split('|').map(format => format.trim())
                 if (dateOnly) {
-                    let date = w2utils.formatDate(str, format[0])
+                    let date = w2utils.formatDate(dt, format[0])
                     let opts = w2utils.extend({}, options, { type: 'date', format: format[0] })
                     if (this.inRange(date, opts)) inRange = true
                 } else {
