@@ -584,16 +584,27 @@ QUnit.module('w2utils', () => {
     });
 
     QUnit.test("extend()", (assert) => {
+        let el1 = document.createElement('div')
+        let el2 = document.createElement('input')
+        let evt = new Event('custom')
+        let fun1 = () => {}
+        let fun2 = function () {}
+
         var values = [
             {
                 target: {},
-                source: [{}],
+                source: [{}, {}],
                 expect: {}
             },
             {
                 target: [],
-                source: [[1, 2, 3]],
-                expect: [1, 2, 3]
+                source: [[4,4], [1, 2, 5]],
+                expect: [1, 2, 5]
+            },
+            {
+                target: [1, 2, 3],
+                source: [[1, 1], [4, 5]],
+                expect: [4, 5]
             },
             {
                 target: [],
@@ -603,7 +614,7 @@ QUnit.module('w2utils', () => {
             {
                 target: [],
                 source: [[1, 2, 3], [4, 5, 1]],
-                expect: [1, 2, 3, 4, 5, 1]
+                expect: [4, 5, 1]
             },
             {
                 target: [],
@@ -613,7 +624,7 @@ QUnit.module('w2utils', () => {
             {
                 target: [],
                 source: [[{a: 1, b: 2}, { c: 3}], [{a: 1, b: 2}, { c: 3}]],
-                expect: [{a: 1, b: 2}, { c: 3}, {a: 1, b: 2}, { c: 3}]
+                expect: [{a: 1, b: 2}, { c: 3}]
             },
             {
                 target: {},
@@ -645,6 +656,11 @@ QUnit.module('w2utils', () => {
                 source: [{ a: 1, e: new Event('e'), }, { c: { d: 6 }}],
                 expect: { a: 1, e: new Event('e'), b: 5, c: { d: 6 }}
             },
+            {
+                target: { a: 1 },
+                source: [{ el1, el2, fun1, fun2, evt }, { b: 2 }],
+                expect: { a: 1, el1, el2, fun1, fun2, evt, b: 2 }
+            }
         ];
         let error = function () {
             throw new Error("Object is not extendable, only {} or [] can be extended.")
@@ -656,13 +672,6 @@ QUnit.module('w2utils', () => {
         assert.throws(() => { w2utils.extend(true, {}) }, "- bool -" );
         assert.throws(() => { w2utils.extend('s', {}) }, "- string -" );
         assert.throws(() => { w2utils.extend(()=>{}, {}) }, "- function -" );
-
-        let el1 = document.createElement('div')
-        let el2 = document.createElement('input')
-        let evt = new Event('custom')
-        let fun1 = () => {}
-        let fun2 = function () {}
-
 
         values.forEach(val => {
             if (val.expect === false) {
