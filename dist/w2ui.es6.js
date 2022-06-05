@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (6/1/2022, 8:52:28 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (6/5/2022, 10:08:30 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -904,16 +904,11 @@ query.html = (str) => { let frag = Query._fragment(str); return query(frag.child
  *  - Dependencies: mQuery, w2utils, w2base, w2locale
  *
  * == TODO ==
- *  - overlay should be displayed where more space (on top or on bottom)
- *  - add maxHeight for the w2menu
  *  - add w2utils.lang wrap for all captions in all buttons.
- *  - message.options - should have actions
- *  - cssPrefix should be deprecated
  *  - check transition (also with layout)
- *  - remove cssPrefix
  *
  * == 2.0 changes
- *  - CSP - fixed inline events
+ *  - CSP - fixed inline events (w2utils.tooltip still has it)
  *  - transition returns a promise
  *  - removed jQuery
  *  - refactores w2utils.message()
@@ -921,6 +916,7 @@ query.html = (str) => { let frag = Query._fragment(str); return query(frag.child
  *  - added isPlainObject
  *  - added stripSpaces
  *  - implemented marker
+ *  - cssPrefix - deprecated
  */
 
 // variable that holds all w2ui objects
@@ -2502,32 +2498,6 @@ class Utils {
             keys  : keys
         }
     }
-    cssPrefix(field, value, returnString) {
-        let css    = {}
-        let newCSS = {}
-        let ret    = ''
-        if (!(field instanceof Object)) {
-            css[field] = value
-        } else {
-            css = field
-            if (value === true) returnString = true
-        }
-        for (let c in css) {
-            newCSS[c]            = css[c]
-            newCSS['-webkit-'+c] = css[c]
-            newCSS['-moz-'+c]    = css[c].replace('-webkit-', '-moz-')
-            newCSS['-ms-'+c]     = css[c].replace('-webkit-', '-ms-')
-            newCSS['-o-'+c]      = css[c].replace('-webkit-', '-o-')
-        }
-        if (returnString === true) {
-            for (let c in newCSS) {
-                ret += c + ': ' + newCSS[c] + '; '
-            }
-        } else {
-            ret = newCSS
-        }
-        return ret
-    }
     getCursorPosition(input) {
         if (input == null) return null
         let caretOffset = 0
@@ -2771,12 +2741,13 @@ class Utils {
         return ret
     }
     /**
-     * Deep extend an object or an array, if an array, it does concat, cloning objects in the process
+     * Deep extend an object, if an array, it overwrrites it, cloning objects in the process
      * target, source1, source2, ...
      */
     extend(target, source) {
         if (Array.isArray(target)) {
             if (Array.isArray(source)) {
+                target.splice(0, target.length) // empty array but keep the reference
                 source.forEach(s => { target.push(this.clone(s)) })
             } else {
                 throw new Error('Arrays can be extended with arrays only')
@@ -5554,16 +5525,8 @@ class DateTooltip extends Tooltip {
     constructor() {
         super()
         let td = new Date()
-        this.months = w2utils.settings.fullmonths
-        this.smonths = w2utils.settings.shortmonths
         this.daysCount = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
         this.today = td.getFullYear() + '/' + (Number(td.getMonth()) + 1) + '/' + td.getDate()
-        this.days = w2utils.settings.fulldays.slice() // creates copy of the array
-        this.sdays = w2utils.settings.shortdays.slice() // creates copy of the array
-        if (w2utils.settings.weekStarts !== 'M') {
-            this.days.unshift(this.days.pop())
-            this.sdays.unshift(this.sdays.pop())
-        }
         this.defaults = w2utils.extend({}, this.defaults, {
             position      : 'top|bottom',
             class         : 'w2ui-calendar',
@@ -5804,6 +5767,12 @@ class DateTooltip extends Tooltip {
             })
     }
     getMonthHTML(options, month, year) {
+        let days = w2utils.settings.fulldays.slice() // creates copy of the array
+        let sdays = w2utils.settings.shortdays.slice() // creates copy of the array
+        if (w2utils.settings.weekStarts !== 'M') {
+            days.unshift(days.pop())
+            sdays.unshift(sdays.pop())
+        }
         let td = new Date()
         let dayLengthMil = 1000 * 60 * 60 * 24
         let selected = options.type === 'datetime'
@@ -5824,10 +5793,10 @@ class DateTooltip extends Tooltip {
         let weekDay = td.getDay()
         let weekDays = ''
         let st = w2utils.settings.weekStarts
-        for (let i = 0; i < this.sdays.length; i++) {
+        for (let i = 0; i < sdays.length; i++) {
             let isSat = (st == 'M' && i == 5) || (st != 'M' && i == 6) ? true : false
             let isSun = (st == 'M' && i == 6) || (st != 'M' && i == 0) ? true : false
-            weekDays += `<div class="w2ui-day w2ui-weekday ${isSat ? 'w2ui-sunday' : ''} ${isSun ? 'w2ui-saturday' : ''}">${this.sdays[i]}</div>`
+            weekDays += `<div class="w2ui-day w2ui-weekday ${isSat ? 'w2ui-sunday' : ''} ${isSun ? 'w2ui-saturday' : ''}">${sdays[i]}</div>`
         }
         let html = `
             <div class="w2ui-cal-title">
@@ -5837,7 +5806,7 @@ class DateTooltip extends Tooltip {
                 <div class="w2ui-cal-next">
                     <div></div>
                 </div>
-                ${this.months[month-1]}, ${year}
+                ${w2utils.settings.fullmonths[month-1]}, ${year}
                 <span class="arrow-down"></span>
             </div>
             <div class="w2ui-cal-days">
@@ -5891,8 +5860,8 @@ class DateTooltip extends Tooltip {
     getYearHTML() {
         let mhtml = ''
         let yhtml = ''
-        for (let m = 0; m < this.months.length; m++) {
-            mhtml += `<div class="w2ui-jump-month" name="${m+1}">${this.smonths[m]}</div>`
+        for (let m = 0; m < w2utils.settings.fullmonths.length; m++) {
+            mhtml += `<div class="w2ui-jump-month" name="${m+1}">${w2utils.settings.shortmonths[m]}</div>`
         }
         for (let y = w2utils.settings.dateStartYear; y <= w2utils.settings.dateEndYear; y++) {
             yhtml += `<div class="w2ui-jump-year" name="${y}">${y}</div>`
@@ -6005,11 +5974,11 @@ class DateTooltip extends Tooltip {
             if (dt) {
                 let format = options.format.split('|').map(format => format.trim())
                 if (dateOnly) {
-                    let date = w2utils.formatDate(str, format[0])
+                    let date = w2utils.formatDate(dt, format[0])
                     let opts = w2utils.extend({}, options, { type: 'date', format: format[0] })
                     if (this.inRange(date, opts)) inRange = true
                 } else {
-                    let time = w2utils.formatTime(str, format[1])
+                    let time = w2utils.formatTime(dt, format[1])
                     let opts =  { type: 'time', format: format[1], start: options.startTime, end: options.endTime }
                     if (this.inRange(time, opts)) inRange = true
                 }
@@ -15188,14 +15157,14 @@ class w2grid extends w2base {
             // restore css user-select
             if (obj.last.userSelect == 'text') {
                 obj.last.userSelect = ''
-                $(obj.box).find('.w2ui-grid-body').css(w2utils.cssPrefix('user-select', 'none'))
+                $(obj.box).find('.w2ui-grid-body').css('user-select', 'none')
             }
             // regular record select
             if (obj.selectType == 'row' && ($(event.target).parents().hasClass('w2ui-head') || $(event.target).hasClass('w2ui-head'))) return
             if (obj.last.move && obj.last.move.type == 'expand') return
             // if altKey - alow text selection
             if (event.altKey) {
-                $(obj.box).find('.w2ui-grid-body').css(w2utils.cssPrefix('user-select', 'text'))
+                $(obj.box).find('.w2ui-grid-body').css('user-select', 'text')
                 obj.selectNone()
                 obj.last.move       = { type: 'text-select' }
                 obj.last.userSelect = 'text'
