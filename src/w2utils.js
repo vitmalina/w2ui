@@ -3,16 +3,11 @@
  *  - Dependencies: mQuery, w2utils, w2base, w2locale
  *
  * == TODO ==
- *  - overlay should be displayed where more space (on top or on bottom)
- *  - add maxHeight for the w2menu
  *  - add w2utils.lang wrap for all captions in all buttons.
- *  - message.options - should have actions
- *  - cssPrefix should be deprecated
  *  - check transition (also with layout)
- *  - remove cssPrefix
  *
  * == 2.0 changes
- *  - CSP - fixed inline events
+ *  - CSP - fixed inline events (w2utils.tooltip still has it)
  *  - transition returns a promise
  *  - removed jQuery
  *  - refactores w2utils.message()
@@ -20,6 +15,7 @@
  *  - added isPlainObject
  *  - added stripSpaces
  *  - implemented marker
+ *  - cssPrefix - deprecated
  */
 
 import { w2base } from './w2base.js'
@@ -1712,33 +1708,6 @@ class Utils {
             path  : new RegExp('^' + path + '$', 'i'),
             keys  : keys
         }
-    }
-
-    cssPrefix(field, value, returnString) {
-        let css    = {}
-        let newCSS = {}
-        let ret    = ''
-        if (!(field instanceof Object)) {
-            css[field] = value
-        } else {
-            css = field
-            if (value === true) returnString = true
-        }
-        for (let c in css) {
-            newCSS[c]            = css[c]
-            newCSS['-webkit-'+c] = css[c]
-            newCSS['-moz-'+c]    = css[c].replace('-webkit-', '-moz-')
-            newCSS['-ms-'+c]     = css[c].replace('-webkit-', '-ms-')
-            newCSS['-o-'+c]      = css[c].replace('-webkit-', '-o-')
-        }
-        if (returnString === true) {
-            for (let c in newCSS) {
-                ret += c + ': ' + newCSS[c] + '; '
-            }
-        } else {
-            ret = newCSS
-        }
-        return ret
     }
 
     getCursorPosition(input) {

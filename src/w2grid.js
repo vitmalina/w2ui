@@ -5384,14 +5384,14 @@ class w2grid extends w2base {
             // restore css user-select
             if (obj.last.userSelect == 'text') {
                 obj.last.userSelect = ''
-                $(obj.box).find('.w2ui-grid-body').css(w2utils.cssPrefix('user-select', 'none'))
+                $(obj.box).find('.w2ui-grid-body').css('user-select', 'none')
             }
             // regular record select
             if (obj.selectType == 'row' && ($(event.target).parents().hasClass('w2ui-head') || $(event.target).hasClass('w2ui-head'))) return
             if (obj.last.move && obj.last.move.type == 'expand') return
             // if altKey - alow text selection
             if (event.altKey) {
-                $(obj.box).find('.w2ui-grid-body').css(w2utils.cssPrefix('user-select', 'text'))
+                $(obj.box).find('.w2ui-grid-body').css('user-select', 'text')
                 obj.selectNone()
                 obj.last.move       = { type: 'text-select' }
                 obj.last.userSelect = 'text'
