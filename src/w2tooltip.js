@@ -1896,16 +1896,8 @@ class DateTooltip extends Tooltip {
     constructor() {
         super()
         let td = new Date()
-        this.months = w2utils.settings.fullmonths
-        this.smonths = w2utils.settings.shortmonths
         this.daysCount = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
         this.today = td.getFullYear() + '/' + (Number(td.getMonth()) + 1) + '/' + td.getDate()
-        this.days = w2utils.settings.fulldays.slice() // creates copy of the array
-        this.sdays = w2utils.settings.shortdays.slice() // creates copy of the array
-        if (w2utils.settings.weekStarts !== 'M') {
-            this.days.unshift(this.days.pop())
-            this.sdays.unshift(this.sdays.pop())
-        }
         this.defaults = w2utils.extend({}, this.defaults, {
             position      : 'top|bottom',
             class         : 'w2ui-calendar',
@@ -2150,6 +2142,13 @@ class DateTooltip extends Tooltip {
     }
 
     getMonthHTML(options, month, year) {
+        let days = w2utils.settings.fulldays.slice() // creates copy of the array
+        let sdays = w2utils.settings.shortdays.slice() // creates copy of the array
+        if (w2utils.settings.weekStarts !== 'M') {
+            days.unshift(days.pop())
+            sdays.unshift(sdays.pop())
+        }
+
         let td = new Date()
         let dayLengthMil = 1000 * 60 * 60 * 24
         let selected = options.type === 'datetime'
@@ -2170,10 +2169,10 @@ class DateTooltip extends Tooltip {
         let weekDay = td.getDay()
         let weekDays = ''
         let st = w2utils.settings.weekStarts
-        for (let i = 0; i < this.sdays.length; i++) {
+        for (let i = 0; i < sdays.length; i++) {
             let isSat = (st == 'M' && i == 5) || (st != 'M' && i == 6) ? true : false
             let isSun = (st == 'M' && i == 6) || (st != 'M' && i == 0) ? true : false
-            weekDays += `<div class="w2ui-day w2ui-weekday ${isSat ? 'w2ui-sunday' : ''} ${isSun ? 'w2ui-saturday' : ''}">${this.sdays[i]}</div>`
+            weekDays += `<div class="w2ui-day w2ui-weekday ${isSat ? 'w2ui-sunday' : ''} ${isSun ? 'w2ui-saturday' : ''}">${sdays[i]}</div>`
         }
         let html = `
             <div class="w2ui-cal-title">
@@ -2183,7 +2182,7 @@ class DateTooltip extends Tooltip {
                 <div class="w2ui-cal-next">
                     <div></div>
                 </div>
-                ${this.months[month-1]}, ${year}
+                ${w2utils.settings.fullmonths[month-1]}, ${year}
                 <span class="arrow-down"></span>
             </div>
             <div class="w2ui-cal-days">
@@ -2239,8 +2238,8 @@ class DateTooltip extends Tooltip {
     getYearHTML() {
         let mhtml = ''
         let yhtml = ''
-        for (let m = 0; m < this.months.length; m++) {
-            mhtml += `<div class="w2ui-jump-month" name="${m+1}">${this.smonths[m]}</div>`
+        for (let m = 0; m < w2utils.settings.fullmonths.length; m++) {
+            mhtml += `<div class="w2ui-jump-month" name="${m+1}">${w2utils.settings.shortmonths[m]}</div>`
         }
         for (let y = w2utils.settings.dateStartYear; y <= w2utils.settings.dateEndYear; y++) {
             yhtml += `<div class="w2ui-jump-year" name="${y}">${y}</div>`
