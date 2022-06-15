@@ -177,7 +177,7 @@ class Utils {
     isFloat(val) {
         if (typeof val === 'string') {
             val = val.replace(this.settings.groupSymbol, '')
-                     .replace(this.settings.decimalSymbol, '.')
+                .replace(this.settings.decimalSymbol, '.')
         }
         return (typeof val === 'number' || (typeof val === 'string' && val !== '')) && !isNaN(Number(val))
     }
@@ -666,10 +666,10 @@ class Utils {
         let re = /([\0-\x1f\x7f]|^-?\d)|^-$|[^\0-\x1f\x7f-\uFFFF\w-]/g
         return (id + '').replace(re, (ch, asCodePoint) => {
             if (asCodePoint) {
-                if (ch === "\0") return "\uFFFD"
-                return ch.slice( 0, -1 ) + "\\" + ch.charCodeAt( ch.length - 1 ).toString( 16 ) + " "
+                if (ch === '\0') return '\uFFFD'
+                return ch.slice( 0, -1 ) + '\\' + ch.charCodeAt( ch.length - 1 ).toString( 16 ) + ' '
             }
-            return "\\" + ch
+            return '\\' + ch
         })
     }
 
@@ -678,7 +678,7 @@ class Utils {
         if (id === '' || id == null) return ''
         let re = /\\[\da-fA-F]{1,6}[\x20\t\r\n\f]?|\\([^\r\n\f])/g
         return id.replace(re, (escape, nonHex) => {
-            var high = "0x" + escape.slice( 1 ) - 0x10000
+            let high = '0x' + escape.slice( 1 ) - 0x10000
             return nonHex ? nonHex : high < 0
                     ? String.fromCharCode(high + 0x10000 )
                     : String.fromCharCode(high >> 10 | 0xD800, high & 0x3FF | 0xDC00)
@@ -1189,13 +1189,13 @@ class Utils {
         }
         // trim if any
         Array('html', 'body', 'buttons').forEach(param => {
-             options[param] = String(options[param] ?? '').trim()
+            options[param] = String(options[param] ?? '').trim()
         })
         if (options.body !== '' || options.buttons !== '') {
             options.html = `
                 <div class="w2ui-message-body">${options.body || ''}</div>
                 <div class="w2ui-message-buttons">${options.buttons || ''}</div>
-            `;
+            `
         }
         let styles  = getComputedStyle(where.box)
         let pWidth  = parseFloat(styles.width)
@@ -1203,7 +1203,7 @@ class Utils {
         let titleHeight = 0
         if (where.after) {
             styles = getComputedStyle(query(where.after).get(0))
-            titleHeight = parseInt(styles['display'] != 'none' ? parseInt(styles['height']) : 0)
+            titleHeight = parseInt(styles.display != 'none' ? parseInt(styles.height) : 0)
         }
         if (options.width > pWidth) options.width = pWidth - 10
         if (options.height > pHeight - titleHeight) options.height = pHeight - 10 - titleHeight
@@ -1232,9 +1232,9 @@ class Utils {
                 query(where.box).css('overflow', 'hidden')
                 if (where.owner) { // where.praram is used in the panel
                     where.owner.lock(where.param)
-                 } else {
+                } else {
                     this.lock(where.box)
-                 }
+                }
             }
             // send back previous messages
             query(where.box).find('.w2ui-message').css('z-index', 1390)
@@ -1313,7 +1313,7 @@ class Utils {
             clearTimeout(openTimer)
             if (query(options.box).hasClass('animating')) {
                 clearTimeout(closeTimer)
-                closeComplete.call(this, options);
+                closeComplete.call(this, options)
                 return
             }
             // default behavior
@@ -1485,11 +1485,11 @@ class Utils {
             switch (type) {
                 case 'width' :
                     ret = parseFloat(styles.width)
-                    if (styles.width === 'auto') ret = 0;
+                    if (styles.width === 'auto') ret = 0
                     break
                 case 'height' :
                     ret = parseFloat(styles.height)
-                    if (styles.height === 'auto') ret = 0;
+                    if (styles.height === 'auto') ret = 0
                     break
             }
         }
@@ -1531,9 +1531,9 @@ class Utils {
                 }
                 // escape regex special chars
                 str = str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&').replace(/&/g, '&amp;')
-                         .replace(/</g, '&gt;').replace(/>/g, '&lt;')
+                    .replace(/</g, '&gt;').replace(/>/g, '&lt;')
                 let regex  = new RegExp((ww ? '\\b' : '') + str + (ww ? '\\b' : '')+ '(?!([^<]+)?>)',
-                                        'i' + (!options.onlyFirst ? 'g' : '')) // only outside tags
+                    'i' + (!options.onlyFirst ? 'g' : '')) // only outside tags
                 el.innerHTML = el.innerHTML.replace(regex, replaceValue)
             })
         })
@@ -1900,11 +1900,11 @@ class Utils {
             hideOn = options.hideOn
             delete options.hideOn
         }
-        if (!options.name) options.name = 'no-name';
+        if (!options.name) options.name = 'no-name'
         // base64 is needed to avoid '"<> and other special chars conflicts
         actions = ` on${showOn}="w2tooltip.show(this, `
                 + `JSON.parse(w2utils.base64decode('${this.base64encode(JSON.stringify(options))}')))" `
-                + `on${hideOn}="w2tooltip.hide('${options.name}')"`;
+                + `on${hideOn}="w2tooltip.hide('${options.name}')"`
         return actions
     }
 
@@ -1977,7 +1977,7 @@ class Utils {
             throw new Error('HTML elmenents and events cannot be extended')
         } else if (target && typeof target == 'object' && source != null) {
             if (typeof source != 'object') {
-                throw new Error("Object can be extended with other objects only.")
+                throw new Error('Object can be extended with other objects only.')
             }
             Object.keys(source).forEach(key => {
                 if (target[key] != null && typeof target[key] == 'object'
@@ -1998,7 +1998,7 @@ class Utils {
                 }
             })
         } else if (source != null) {
-            throw new Error("Object is not extendable, only {} or [] can be extended.")
+            throw new Error('Object is not extendable, only {} or [] can be extended.')
         }
         // other arguments
         if (arguments.length > 2) {
@@ -2101,8 +2101,8 @@ class Utils {
                         if (key === 'undefined') key = undefined
                         if (key === 'null') key = null
                         if (parseFloat(key) == key) key = parseFloat(key)
-                        if (["'", '"', '`'].includes(key[0]) && ["'", '"', '`'].includes(key[key.length-1])) {
-                            key = key.substring(1, key.length-1);
+                        if (['\'', '"', '`'].includes(key[0]) && ['\'', '"', '`'].includes(key[key.length-1])) {
+                            key = key.substring(1, key.length-1)
                         }
                         return key
                     })

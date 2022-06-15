@@ -30,7 +30,8 @@ module.exports = {
         'indent': ['error', 4, {
             'SwitchCase': 1,
             'ignoredNodes': ['ConditionalExpression', 'TemplateLiteral1 > *'],
-            'FunctionDeclaration': {'parameters': 'first'}
+            'FunctionDeclaration': {'parameters': 'first'},
+            'MemberExpression': 1,
         }],
         'linebreak-style': ['error', 'unix'],
         'quotes': ['error', 'single'],
