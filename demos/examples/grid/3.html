@@ -27,8 +27,6 @@ query(() => {
         name: 'grid',
         box: query('#grid')[0],
         header: 'List of Names',
-        url: 'data/list.json',
-        method: 'GET', // need this to avoid 412 error on Safari
         reorderRows: true,
         show: {
             header: true,
@@ -37,6 +35,7 @@ query(() => {
             lineNumbers: true
         },
         columns: [
+            { field: 'recid', text: 'ID', size: '30px' },
             { field: 'fname', text: 'First Name', size: '30%' },
             { field: 'lname', text: 'Last Name', size: '30%' },
             { field: 'email', text: 'Email', size: '40%' },
@@ -52,6 +51,7 @@ query(() => {
             query('#'+event.detail.box_id).html('<div style="padding: 10px; height: 100px">Expanded content</div>')
         }
     })
+    w2ui.grid.load('data/list.json')
 })
 </script>
 
