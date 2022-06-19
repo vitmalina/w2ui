@@ -40,9 +40,9 @@ $(function () {
             var grid = this;
             // need timer for nicer visual effect that record was selected
             setTimeout(function () {
-                w2ui['grid2'].add( $.extend({}, grid.get(event.recid), { selected : false }) );
+                w2ui['grid2'].add( $.extend({}, grid.get(event.detail.recid), { selected : false }) );
                 grid.selectNone();
-                grid.remove(event.recid);
+                grid.remove(event.detail.recid);
             }, 150);
         }
     });
@@ -62,9 +62,9 @@ $(function () {
             var grid = this;
             // need timer for nicer visual effect that record was selected
             setTimeout(function () {
-                w2ui['grid1'].add( $.extend({}, grid.get(event.recid), { selected : false }) );
+                w2ui['grid1'].add( $.extend({}, grid.get(event.detail.recid), { selected : false }) );
                 grid.selectNone();
-                grid.remove(event.recid);
+                grid.remove(event.detail.recid);
             }, 150);
         }
     });

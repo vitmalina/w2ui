@@ -97,6 +97,7 @@ const w2locale = {
         'Refreshing...': '---',
         'Reload data in the list': '---',
         'Remove': '---',
+        'Remove This Field': '---',
         'Request aborted.': '---',
         'Required field': '---',
         'Reset': '---',
