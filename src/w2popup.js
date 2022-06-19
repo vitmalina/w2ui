@@ -15,6 +15,7 @@
  *  - deprecated onMsgOpen and onMsgClose
  *  - deprecated options.bgColor
  *  - rename focus -> setFocus
+ *  - added center() // will auto center on window resize
  */
 
 import { w2base } from './w2base.js'
@@ -41,7 +42,8 @@ class Dialog extends w2base {
             showClose: true,
             showMax: false,
             transition: null,
-            openMaximized: false
+            openMaximized: false,
+            moved: false
         }
         this.name       = 'popup'
         this.status     = 'closed' // string that describes current status
@@ -53,6 +55,13 @@ class Dialog extends w2base {
         this.onKeydown  = null
         this.onAction   = null
         this.onMove     = null
+        // event handler for resize
+        this.handleResize = (event) => {
+            // if it was moved by the user, do not auto resize
+            if (!this.options.moved) {
+                this.center(undefined, undefined, true)
+            }
+        }
     }
 
     /**
@@ -98,18 +107,8 @@ class Dialog extends w2base {
         options.width  = parseInt(options.width)
         options.height = parseInt(options.height)
 
-        let maxW, maxH, edata, msg, tmp
-        if (window.innerHeight == undefined) {
-            maxW = parseInt(document.documentElement.offsetWidth)
-            maxH = parseInt(document.documentElement.offsetHeight)
-        } else {
-            maxW = parseInt(window.innerWidth)
-            maxH = parseInt(window.innerHeight)
-        }
-        if (maxW - 10 < options.width) options.width = maxW - 10
-        if (maxH - 10 < options.height) options.height = maxH - 10
-        let top  = (maxH - options.height) / 2
-        let left = (maxW - options.width) / 2
+        let edata, msg, tmp
+        let { top, left } = this.center()
 
         let prom = {
             self: this,
@@ -305,7 +304,10 @@ class Dialog extends w2base {
         // save new options
         options._last_focus = document.activeElement
         // keyboard events
-        if (options.keyboard) query(document.body).on('keydown', this.keydown)
+        if (options.keyboard) {
+            query(document.body).on('keydown', this.keydown)
+        }
+        query(window).on('resize', this.handleResize)
         // initialize move
         tmp = {
             resizing : false,
@@ -352,6 +354,7 @@ class Dialog extends w2base {
                 'transition': 'none',
                 'transform' : 'translate3d('+ tmp.div_x +'px, '+ tmp.div_y +'px, 0px)'
             })
+            self.options.moved = true
             // event after
             edata.finish()
         }
@@ -484,6 +487,7 @@ class Dialog extends w2base {
         if (this.options.keyboard) {
             query(document.body).off('keydown', this.keydown)
         }
+        query(window).off('resize', this.handleResize)
     }
 
     toggle() {
@@ -498,7 +502,6 @@ class Dialog extends w2base {
     }
 
     max() {
-        let self = this
         if (this.options.maximized === true) return
         // trigger event
         let edata = this.trigger('max', { target: 'popup' })
@@ -516,7 +519,6 @@ class Dialog extends w2base {
     }
 
     min() {
-        let self = this
         if (this.options.maximized !== true) return
         let size = this.options.prevSize.split(':')
         // trigger event
@@ -525,9 +527,9 @@ class Dialog extends w2base {
         // default behavior
         w2popup.status = 'resizing'
         // do resize
+        this.options.maximized = false
         w2popup.resize(parseInt(size[0]), parseInt(size[1]), () => {
-            w2popup.status    = 'open'
-            this.options.maximized = false
+            w2popup.status = 'open'
             this.options.prevSize  = null
             edata.finish()
         })
@@ -601,12 +603,7 @@ class Dialog extends w2base {
         w2utils.unlock(query('#w2ui-popup'), speed)
     }
 
-    resize(width, height, callBack) {
-        let self = this
-        if (this.options.speed == null) this.options.speed = 0
-        width  = parseInt(width)
-        height = parseInt(height)
-        // calculate new position
+    center(width, height, force) {
         let maxW, maxH
         if (window.innerHeight == undefined) {
             maxW = parseInt(document.documentElement.offsetWidth)
@@ -615,11 +612,34 @@ class Dialog extends w2base {
             maxW = parseInt(window.innerWidth)
             maxH = parseInt(window.innerHeight)
         }
+        width = parseInt(width ?? this.options.width)
+        height = parseInt(height ?? this.options.height)
+        if (this.options.maximized === true) {
+            width = maxW
+            height = maxH
+        }
         if (maxW - 10 < width) width = maxW - 10
         if (maxH - 10 < height) height = maxH - 10
         let top  = (maxH - height) / 2
         let left = (maxW - width) / 2
-        // resize there
+        if (force) {
+            query('#w2ui-popup').css({
+                'transition': 'none',
+                'top'   : top + 'px',
+                'left'  : left + 'px',
+                'width' : width + 'px',
+                'height': height + 'px'
+            })
+            this.resizeMessages() // then messages resize nicely
+        }
+        return { top, left, width, height }
+    }
+
+    resize(newWidth, newHeight, callBack) {
+        let self = this
+        if (this.options.speed == null) this.options.speed = 0
+        // calculate new position
+        let { top, left, width, height } = this.center(newWidth, newHeight)
         let speed = this.options.speed
         query('#w2ui-popup').css({
             'transition': `${speed}s width, ${speed}s height, ${speed}s left, ${speed}s top`,
@@ -631,8 +651,6 @@ class Dialog extends w2base {
         let tmp_int = setInterval(() => { self.resizeMessages() }, 10) // then messages resize nicely
         setTimeout(() => {
             clearInterval(tmp_int)
-            this.options.width  = width
-            this.options.height = height
             self.resizeMessages()
             if (typeof callBack == 'function') callBack()
         }, (this.options.speed * 1000) + 50) // give extra 50 ms
@@ -642,7 +660,7 @@ class Dialog extends w2base {
     resizeMessages() {
         // see if there are messages and resize them
         query('#w2ui-popup .w2ui-message').each(msg => {
-            let mopt = query(msg).data('options')
+            let mopt = msg._msg_options
             let popup = query('#w2ui-popup')
             if (parseInt(mopt.width) < 10) mopt.width = 10
             if (parseInt(mopt.height) < 10) mopt.height = 10

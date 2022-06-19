@@ -6,7 +6,7 @@ class Query {
         let nodes = []
         if (Array.isArray(selector)) {
             nodes = selector
-        } else if (selector instanceof Node) { // any html element
+        } else if (selector instanceof Node || selector instanceof Window) { // any html element or Window
             nodes = [selector]
         } else if (selector instanceof Query) {
             nodes = selector.nodes
