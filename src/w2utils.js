@@ -1201,7 +1201,7 @@ class Utils {
         let pWidth  = parseFloat(styles.width)
         let pHeight = parseFloat(styles.height)
         let titleHeight = 0
-        if (where.after) {
+        if (query(where.after).length > 0) {
             styles = getComputedStyle(query(where.after).get(0))
             titleHeight = parseInt(styles.display != 'none' ? parseInt(styles.height) : 0)
         }
@@ -1253,7 +1253,7 @@ class Utils {
                     ${options.html}
                     <span name="hidden-last" tabindex="0" style="position: absolute; top: -100px"></span>
                 </div>`
-            if (where.after) {
+            if (query(where.after).length > 0) {
                 query(where.box).find(where.after).after(content)
             } else {
                 query(where.box).prepend(content)
