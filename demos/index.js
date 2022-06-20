@@ -423,7 +423,6 @@ $(async function () {
                     let json     = tmp[4] ? $.trim(tmp[4]) : ''
                     if (js.trim().substr(0, 21) == '<script type="module"') {
                         es6 = true
-                        w2ui_js  = '' // no need to link w2ui globally
                     }
                     js   = js.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '')
                     js   = $.trim(js)
