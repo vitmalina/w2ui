@@ -34,6 +34,8 @@ class w2event {
             this._resolve = resolve
             this._reject = reject
         })
+        // needed empty catch function so that promise will not show error in the console
+        this.complete.catch(() => {})
     }
 
     finish(detail) {

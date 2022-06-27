@@ -25,9 +25,10 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#grid').w2grid({
+query(() => {
+    new w2grid({
         name: 'grid',
+        box: query('#grid')[0],
         show: { selectColumn: true },
         multiSelect: false,
         columns: [
@@ -46,7 +47,11 @@ $(function () {
             { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
             { recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
             { recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
-        ]
+        ],
+        async onSelect(event) {
+            await event.complete
+            console.log('select', event.detail, this.getSelection())
+        }
     });
 });
 

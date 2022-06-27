@@ -35,7 +35,7 @@ var config = {
             lineNumbers: true
         },
         onColumnClick(event) {
-            this.selectNone();
+            this.selectNone(true);
             let sel = [];
             let column = this.getColumn(event.detail.field, true);
             for (let i = 0; i < this.total; i++) {
@@ -45,7 +45,6 @@ var config = {
             event.preventDefault();
         },
         onSelectionExtend(event) {
-            console.log(event)
             // do not use on done() as it would add many done handlers
             event.onComplete = () => {
                 console.log('Original:', event.detail.originalRange[0], '-', event.detail.originalRange[1]);
@@ -55,6 +54,10 @@ var config = {
         },
         onDelete(event) {
             event.detail.force = true;
+        },
+        async onSelect(event) {
+            await event.complete
+            console.log('select', event.detail, this.getSelection())
         }
     }
 };
