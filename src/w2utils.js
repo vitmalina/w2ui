@@ -1098,6 +1098,47 @@ class Utils {
      */
     message(where, options) {
         let closeTimer, openTimer, edata
+        let removeLast = () => {
+            let msgs = query(where?.box).find('.w2ui-message')
+            if (msgs.length == 0) return // no messages already
+            options = msgs.get(0)._msg_options || {}
+            if (typeof options?.close == 'function') {
+                options.close()
+            }
+        }
+        let closeComplete = (options) => {
+            let focus = options.box._msg_prevFocus
+            if (query(where.box).find('.w2ui-message').length <= 1) {
+                if (where.owner) {
+                    where.owner.unlock(where.param, 150)
+                } else {
+                    this.unlock(where.box, 150)
+                }
+            } else {
+                query(where.box).find(`#w2ui-message-${where.owner?.name}-${options.msgIndex-1}`).css('z-index', 1500)
+            }
+            if (focus) {
+                let msg = query(focus).closest('.w2ui-message')
+                if (msg.length > 0) {
+                    let opt = msg.get(0)._msg_options
+                    opt.setFocus(focus)
+                } else {
+                    focus.focus()
+                }
+            } else {
+                if (typeof where.owner?.focus == 'function') owner.focus()
+            }
+            query(options.box).remove()
+            if (options.msgIndex === 0) {
+                head.css('z-index', options.tmp.zIndex)
+                query(where.box).css('overflow', options.tmp.overflow)
+            }
+            // event after
+            if (options.trigger) {
+                edata.finish()
+            }
+        }
+
         if (typeof options == 'string') {
             options = {
                 width : (options.length < 300 ? 350 : 550),
@@ -1313,7 +1354,7 @@ class Utils {
             clearTimeout(openTimer)
             if (query(options.box).hasClass('animating')) {
                 clearTimeout(closeTimer)
-                closeComplete.call(this, options)
+                closeComplete(options)
                 return
             }
             // default behavior
@@ -1327,7 +1368,7 @@ class Utils {
                 // previous message
                 query(where.box).find(`#w2ui-message-${where.owner?.name}-${options.msgIndex-1}`).css('z-index', 1499)
             }
-            closeTimer = setTimeout(() => { closeComplete.call(this, options) }, 150)
+            closeTimer = setTimeout(() => { closeComplete(options) }, 150)
         }
         options.setFocus = (focus) => {
             // in message or popup
@@ -1369,50 +1410,7 @@ class Utils {
                     }, 1)
                 })
         }
-
         return prom
-
-        function removeLast() {
-            let msgs = query(where?.box).find('.w2ui-message')
-            if (msgs.length == 0) return // no messages already
-            options = msgs.get(0)._msg_options || {}
-            if (typeof options?.close == 'function') {
-                options.close()
-            }
-        }
-
-        function closeComplete(options) {
-            let focus = options.box._msg_prevFocus
-            if (query(where.box).find('.w2ui-message').length <= 1) {
-                if (where.owner) {
-                    where.owner.unlock(where.param, 150)
-                } else {
-                    this.unlock(where.box, 150)
-                }
-            } else {
-                query(where.box).find(`#w2ui-message-${where.owner?.name}-${options.msgIndex-1}`).css('z-index', 1500)
-            }
-            if (focus) {
-                let msg = query(focus).closest('.w2ui-message')
-                if (msg.length > 0) {
-                    let opt = msg.get(0)._msg_options
-                    opt.setFocus(focus)
-                } else {
-                    focus.focus()
-                }
-            } else {
-                if (typeof where.owner?.focus == 'function') owner.focus()
-            }
-            query(options.box).remove()
-            if (options.msgIndex === 0) {
-                head.css('z-index', options.tmp.zIndex)
-                query(where.box).css('overflow', options.tmp.overflow)
-            }
-            // event after
-            if (options.trigger) {
-                edata.finish()
-            }
-        }
     }
 
     confirm(where, options) {

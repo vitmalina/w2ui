@@ -2356,47 +2356,49 @@ class w2grid extends w2base {
                     return ret
                 }
             })
-                .select(event => {
-                    let edata = this.trigger('searchSelect', {
-                        target: this.name,
-                        index: event.detail.index,
-                        item: event.detail.item
+            .select(event => {
+                let edata = this.trigger('searchSelect', {
+                    target: this.name,
+                    index: event.detail.index,
+                    item: event.detail.item
+                })
+                if (edata.isCancelled === true) {
+                    event.preventDefault()
+                    return
+                }
+                event.detail.overlay.hide()
+                this.last.logic  = event.detail.item.logic || 'AND'
+                this.last.search = ''
+                this.last.label  = '[Multiple Fields]'
+                this.searchData  = w2utils.clone(event.detail.item.data)
+                this.searchSelected = w2utils.clone(event.detail.item, { exclude: ['icon', 'remove'] })
+                this.reload()
+                edata.finish()
+            })
+            .remove(event => {
+                let item = event.detail.item
+                let edata = this.trigger('searchRemove', { target: this.name, index: event.detail.index, item })
+                if (edata.isCancelled === true) {
+                    event.preventDefault()
+                    return
+                }
+                event.detail.overlay.hide()
+                this.confirm(w2utils.lang('Do you want to delete search "${item}"?', { item: item.text }))
+                    .yes(evt => {
+                    // remove from searches
+                        let search = this.savedSearches.findIndex((s) => s.id == item.id ? true : false)
+                        if (search !== -1) {
+                            this.savedSearches.splice(search, 1)
+                        }
+                        this.cacheSave('searches', this.savedSearches.map(s => w2utils.clone(s, { exclude: ['remove', 'icon'] })))
+                        evt.detail.self.close()
+                        // evt after
+                        edata.finish()
                     })
-                    if (edata.isCancelled === true) {
-                        event.preventDefault()
-                        return
-                    }
-                    this.last.logic  = event.detail.item.logic || 'AND'
-                    this.last.search = ''
-                    this.last.label  = '[Multiple Fields]'
-                    this.searchData  = w2utils.clone(event.detail.item.data)
-                    this.searchSelected = w2utils.clone(event.detail.item, { exclude: ['icon', 'remove'] })
-                    this.reload()
-                    edata.finish()
-                })
-                .remove(event => {
-                    let item = event.detail.item
-                    let edata = this.trigger('searchRemove', { target: this.name, index: event.detail.index, item })
-                    if (edata.isCancelled === true) {
-                        event.preventDefault()
-                        return
-                    }
-                    this.confirm(w2utils.lang('Do you want to delete search "${item}"?', { item: item.text }))
-                        .yes(evt => {
-                        // remove from searches
-                            let search = this.savedSearches.findIndex((s) => s.id == item.id ? true : false)
-                            if (search !== -1) {
-                                this.savedSearches.splice(search, 1)
-                            }
-                            this.cacheSave('searches', this.savedSearches.map(s => w2utils.clone(s, { exclude: ['remove', 'icon'] })))
-                            evt.detail.self.close()
-                            // evt after
-                            edata.finish()
-                        })
-                        .no(evt => {
-                            evt.detail.self.close()
-                        })
-                })
+                    .no(evt => {
+                        evt.detail.self.close()
+                    })
+            })
         }
     }
 
@@ -2405,7 +2407,7 @@ class w2grid extends w2base {
         if (this.searchSelected) {
             value = this.searchSelected.text
         }
-        let ind = this.savedSearches.findIndex(s => { return s.id == this.searchSelected.id ? true : false })
+        let ind = this.savedSearches.findIndex(s => { return s.id == this.searchSelected?.id ? true : false })
         // event before
         let edata = this.trigger('searchSave', { target: this.name, saveLocalStorage: true })
         if (edata.isCancelled === true) return
