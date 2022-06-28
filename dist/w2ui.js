@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (6/28/2022, 7:14:52 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (6/28/2022, 7:56:06 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -1911,6 +1911,46 @@ class Utils {
      */
     message(where, options) {
         let closeTimer, openTimer, edata
+        let removeLast = () => {
+            let msgs = query(where?.box).find('.w2ui-message')
+            if (msgs.length == 0) return // no messages already
+            options = msgs.get(0)._msg_options || {}
+            if (typeof options?.close == 'function') {
+                options.close()
+            }
+        }
+        let closeComplete = (options) => {
+            let focus = options.box._msg_prevFocus
+            if (query(where.box).find('.w2ui-message').length <= 1) {
+                if (where.owner) {
+                    where.owner.unlock(where.param, 150)
+                } else {
+                    this.unlock(where.box, 150)
+                }
+            } else {
+                query(where.box).find(`#w2ui-message-${where.owner?.name}-${options.msgIndex-1}`).css('z-index', 1500)
+            }
+            if (focus) {
+                let msg = query(focus).closest('.w2ui-message')
+                if (msg.length > 0) {
+                    let opt = msg.get(0)._msg_options
+                    opt.setFocus(focus)
+                } else {
+                    focus.focus()
+                }
+            } else {
+                if (typeof where.owner?.focus == 'function') owner.focus()
+            }
+            query(options.box).remove()
+            if (options.msgIndex === 0) {
+                head.css('z-index', options.tmp.zIndex)
+                query(where.box).css('overflow', options.tmp.overflow)
+            }
+            // event after
+            if (options.trigger) {
+                edata.finish()
+            }
+        }
         if (typeof options == 'string') {
             options = {
                 width : (options.length < 300 ? 350 : 550),
@@ -2126,7 +2166,7 @@ class Utils {
             clearTimeout(openTimer)
             if (query(options.box).hasClass('animating')) {
                 clearTimeout(closeTimer)
-                closeComplete.call(this, options)
+                closeComplete(options)
                 return
             }
             // default behavior
@@ -2140,7 +2180,7 @@ class Utils {
                 // previous message
                 query(where.box).find(`#w2ui-message-${where.owner?.name}-${options.msgIndex-1}`).css('z-index', 1499)
             }
-            closeTimer = setTimeout(() => { closeComplete.call(this, options) }, 150)
+            closeTimer = setTimeout(() => { closeComplete(options) }, 150)
         }
         options.setFocus = (focus) => {
             // in message or popup
@@ -2181,46 +2221,6 @@ class Utils {
                 })
         }
         return prom
-        function removeLast() {
-            let msgs = query(where?.box).find('.w2ui-message')
-            if (msgs.length == 0) return // no messages already
-            options = msgs.get(0)._msg_options || {}
-            if (typeof options?.close == 'function') {
-                options.close()
-            }
-        }
-        function closeComplete(options) {
-            let focus = options.box._msg_prevFocus
-            if (query(where.box).find('.w2ui-message').length <= 1) {
-                if (where.owner) {
-                    where.owner.unlock(where.param, 150)
-                } else {
-                    this.unlock(where.box, 150)
-                }
-            } else {
-                query(where.box).find(`#w2ui-message-${where.owner?.name}-${options.msgIndex-1}`).css('z-index', 1500)
-            }
-            if (focus) {
-                let msg = query(focus).closest('.w2ui-message')
-                if (msg.length > 0) {
-                    let opt = msg.get(0)._msg_options
-                    opt.setFocus(focus)
-                } else {
-                    focus.focus()
-                }
-            } else {
-                if (typeof where.owner?.focus == 'function') owner.focus()
-            }
-            query(options.box).remove()
-            if (options.msgIndex === 0) {
-                head.css('z-index', options.tmp.zIndex)
-                query(where.box).css('overflow', options.tmp.overflow)
-            }
-            // event after
-            if (options.trigger) {
-                edata.finish()
-            }
-        }
     }
     confirm(where, options) {
         if (typeof options == 'string') {
@@ -12248,47 +12248,49 @@ class w2grid extends w2base {
                     return ret
                 }
             })
-                .select(event => {
-                    let edata = this.trigger('searchSelect', {
-                        target: this.name,
-                        index: event.detail.index,
-                        item: event.detail.item
+            .select(event => {
+                let edata = this.trigger('searchSelect', {
+                    target: this.name,
+                    index: event.detail.index,
+                    item: event.detail.item
+                })
+                if (edata.isCancelled === true) {
+                    event.preventDefault()
+                    return
+                }
+                event.detail.overlay.hide()
+                this.last.logic  = event.detail.item.logic || 'AND'
+                this.last.search = ''
+                this.last.label  = '[Multiple Fields]'
+                this.searchData  = w2utils.clone(event.detail.item.data)
+                this.searchSelected = w2utils.clone(event.detail.item, { exclude: ['icon', 'remove'] })
+                this.reload()
+                edata.finish()
+            })
+            .remove(event => {
+                let item = event.detail.item
+                let edata = this.trigger('searchRemove', { target: this.name, index: event.detail.index, item })
+                if (edata.isCancelled === true) {
+                    event.preventDefault()
+                    return
+                }
+                event.detail.overlay.hide()
+                this.confirm(w2utils.lang('Do you want to delete search "${item}"?', { item: item.text }))
+                    .yes(evt => {
+                    // remove from searches
+                        let search = this.savedSearches.findIndex((s) => s.id == item.id ? true : false)
+                        if (search !== -1) {
+                            this.savedSearches.splice(search, 1)
+                        }
+                        this.cacheSave('searches', this.savedSearches.map(s => w2utils.clone(s, { exclude: ['remove', 'icon'] })))
+                        evt.detail.self.close()
+                        // evt after
+                        edata.finish()
                     })
-                    if (edata.isCancelled === true) {
-                        event.preventDefault()
-                        return
-                    }
-                    this.last.logic  = event.detail.item.logic || 'AND'
-                    this.last.search = ''
-                    this.last.label  = '[Multiple Fields]'
-                    this.searchData  = w2utils.clone(event.detail.item.data)
-                    this.searchSelected = w2utils.clone(event.detail.item, { exclude: ['icon', 'remove'] })
-                    this.reload()
-                    edata.finish()
-                })
-                .remove(event => {
-                    let item = event.detail.item
-                    let edata = this.trigger('searchRemove', { target: this.name, index: event.detail.index, item })
-                    if (edata.isCancelled === true) {
-                        event.preventDefault()
-                        return
-                    }
-                    this.confirm(w2utils.lang('Do you want to delete search "${item}"?', { item: item.text }))
-                        .yes(evt => {
-                        // remove from searches
-                            let search = this.savedSearches.findIndex((s) => s.id == item.id ? true : false)
-                            if (search !== -1) {
-                                this.savedSearches.splice(search, 1)
-                            }
-                            this.cacheSave('searches', this.savedSearches.map(s => w2utils.clone(s, { exclude: ['remove', 'icon'] })))
-                            evt.detail.self.close()
-                            // evt after
-                            edata.finish()
-                        })
-                        .no(evt => {
-                            evt.detail.self.close()
-                        })
-                })
+                    .no(evt => {
+                        evt.detail.self.close()
+                    })
+            })
         }
     }
     searchSave() {
@@ -12296,7 +12298,7 @@ class w2grid extends w2base {
         if (this.searchSelected) {
             value = this.searchSelected.text
         }
-        let ind = this.savedSearches.findIndex(s => { return s.id == this.searchSelected.id ? true : false })
+        let ind = this.savedSearches.findIndex(s => { return s.id == this.searchSelected?.id ? true : false })
         // event before
         let edata = this.trigger('searchSave', { target: this.name, saveLocalStorage: true })
         if (edata.isCancelled === true) return
