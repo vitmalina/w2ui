@@ -3746,7 +3746,7 @@ class w2grid extends w2base {
 
     columnDblClick(field, event) {
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'columnDblClick', target: this.name, field: field, originalEvent: event })
+        let edata = this.trigger('columnDblClick', { target: this.name, field: field, originalEvent: event })
         if (edata.isCancelled === true) return
         // event after
         edata.finish()
@@ -3754,7 +3754,7 @@ class w2grid extends w2base {
 
     focus(event) {
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'focus', target: this.name, originalEvent: event })
+        let edata = this.trigger('focus', { target: this.name, originalEvent: event })
         if (edata.isCancelled === true) return false
         // default behaviour
         this.hasFocus = true
@@ -3769,7 +3769,7 @@ class w2grid extends w2base {
 
     blur(event) {
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'blur', target: this.name, originalEvent: event })
+        let edata = this.trigger('blur', { target: this.name, originalEvent: event })
         if (edata.isCancelled === true) return false
         // default behaviour
         this.hasFocus = false
@@ -3785,7 +3785,7 @@ class w2grid extends w2base {
         let url = (typeof this.url != 'object' ? this.url : this.url.get)
         if (obj.keyboard !== true) return
         // trigger event
-        let edata = obj.trigger({ phase: 'before', type: 'keydown', target: obj.name, originalEvent: event })
+        let edata = obj.trigger('keydown', { target: obj.name, originalEvent: event })
         if (edata.isCancelled === true) return
         // default behavior
         if ($(this.box).find('>.w2ui-message').length > 0) {
@@ -4326,7 +4326,7 @@ class w2grid extends w2base {
         let index = this.get(recid, true)
         let rec   = this.records[index]
         // event before
-        let edata = this.trigger({ phase: 'before', target: this.name, type: 'dblClick', recid: recid, column: column, originalEvent: event })
+        let edata = this.trigger('dblClick', { target: this.name, recid: recid, column: column, originalEvent: event })
         if (edata.isCancelled === true) return
         // default action
         this.selectNone(true) // no need to trigger select event
@@ -4415,7 +4415,7 @@ class w2grid extends w2base {
         let edata
         if (Array.isArray(children)) {
             if (rec.w2ui.expanded === true || children.length === 0) return false // already shown
-            edata = this.trigger({ phase: 'before', type: 'expand', target: this.name, recid: recid })
+            edata = this.trigger('expand', { target: this.name, recid: recid })
             if (edata.isCancelled === true) return false
             rec.w2ui.expanded = true
             children.forEach((child) => {
@@ -4457,7 +4457,7 @@ class w2grid extends w2base {
                     '</tr>')
 
             // event before
-            edata = this.trigger({ phase: 'before', type: 'expand', target: this.name, recid: recid,
+            edata = this.trigger('expand', { target: this.name, recid: recid,
                 box_id: 'grid_'+ this.name +'_rec_'+ recid +'_expanded', fbox_id: 'grid_'+ this.name +'_frec_'+ id +'_expanded' })
             if (edata.isCancelled === true) {
                 $(this.box).find('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').remove()
@@ -4496,7 +4496,7 @@ class w2grid extends w2base {
         let edata
         if (Array.isArray(children)) {
             if (rec.w2ui.expanded !== true) return false // already hidden
-            edata = this.trigger({ phase: 'before', type: 'collapse', target: this.name, recid: recid })
+            edata = this.trigger('collapse', { target: this.name, recid: recid })
             if (edata.isCancelled === true) return false
             clearExpanded(rec)
             let stops = []
@@ -4527,7 +4527,7 @@ class w2grid extends w2base {
         } else {
             if ($(this.box).find('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').length === 0 || this.show.expandColumn !== true) return false
             // event before
-            edata = this.trigger({ phase: 'before', type: 'collapse', target: this.name, recid: recid,
+            edata = this.trigger('collapse', { target: this.name, recid: recid,
                 box_id: 'grid_'+ this.name +'_rec_'+ id +'_expanded', fbox_id: 'grid_'+ this.name +'_frec_'+ id +'_expanded' })
             if (edata.isCancelled === true) return false
             // default action
@@ -4560,7 +4560,7 @@ class w2grid extends w2base {
 
     sort(field, direction, multiField) { // if no params - clears sort
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'sort', target: this.name, field: field, direction: direction, multiField: multiField })
+        let edata = this.trigger('sort', { target: this.name, field: field, direction: direction, multiField: multiField })
         if (edata.isCancelled === true) return
         // check if needed to quit
         if (field != null) {
@@ -4671,7 +4671,7 @@ class w2grid extends w2base {
         let edata
         if (flag == null) {
             // before event
-            edata = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text,
+            edata = this.trigger('copy', { target: this.name, text: text,
                 cut: (oEvent.keyCode == 88 ? true : false), originalEvent: oEvent })
             if (edata.isCancelled === true) return ''
             text = edata.detail.text
@@ -4680,7 +4680,7 @@ class w2grid extends w2base {
             return text
         } else if (flag === false) { // only before event
             // before event
-            edata = this.trigger({ phase: 'before', type: 'copy', target: this.name, text: text,
+            edata = this.trigger('copy', { target: this.name, text: text,
                 cut: (oEvent.keyCode == 88 ? true : false), originalEvent: oEvent })
             if (edata.isCancelled === true) return ''
             text = edata.detail.text
@@ -4703,8 +4703,7 @@ class w2grid extends w2base {
         let ind = this.get(sel[0].recid, true)
         let col = sel[0].column
         // before event
-        let edata = this.trigger({ phase: 'before', type: 'paste', target: this.name, text: text,
-            index: ind, column: col, originalEvent: event })
+        let edata = this.trigger('paste', { target: this.name, text: text, index: ind, column: col, originalEvent: event })
         if (edata.isCancelled === true) return
         text = edata.detail.text
         // default action
@@ -4761,7 +4760,7 @@ class w2grid extends w2base {
             .css('width', $(this.box).width())
             .css('height', $(this.box).height())
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'resize', target: this.name })
+        let edata = this.trigger('resize', { target: this.name })
         if (edata.isCancelled === true) return
         // resize
         this.resizeBoxes()
@@ -4952,7 +4951,7 @@ class w2grid extends w2base {
         }
         if (!this.box) return
         // event before
-        let edata = this.trigger({ phase: 'before', target: this.name, type: 'refresh' })
+        let edata = this.trigger('refresh', { target: this.name })
         if (edata.isCancelled === true) return
         // -- header
         if (this.show.header) {
@@ -5248,7 +5247,7 @@ class w2grid extends w2base {
         if (!this.box) return
         let url = (typeof this.url != 'object' ? this.url : this.url.get)
         // event before
-        let edata = this.trigger({ phase: 'before', target: this.name, type: 'render', box: box })
+        let edata = this.trigger('render', { target: this.name, box: box })
         if (edata.isCancelled === true) return
         // reset needed if grid existed
         this.reset(true)
@@ -5584,7 +5583,7 @@ class w2grid extends w2base {
                         cols.push(ii)
                     }
                     if (mv.colRange != newRange) {
-                        edataCol = obj.trigger({ phase: 'before', type: 'columnSelect', target: obj.name, columns: cols, isCancelled: false }) // initial isCancelled
+                        edataCol = obj.trigger('columnSelect', { target: obj.name, columns: cols })
                         if (edataCol.isCancelled !== true) {
                             if (mv.colRange == null) obj.selectNone()
                             // highlight columns
@@ -5689,7 +5688,7 @@ class w2grid extends w2base {
                 if (obj.reorderRows == true && obj.last.move.reorder) {
                     if (mv.to != null) {
                         // event
-                        let edata = obj.trigger({ phase: 'before', target: obj.name, type: 'reorderRow', recid: mv.from, moveBefore: mv.to })
+                        let edata = obj.trigger('reorderRow', { target: obj.name, recid: mv.from, moveBefore: mv.to })
                         if (edata.isCancelled === true) {
                             resetRowReorder()
                             delete obj.last.move
@@ -5731,7 +5730,7 @@ class w2grid extends w2base {
 
     destroy() {
         // event before
-        let edata = this.trigger({ phase: 'before', target: this.name, type: 'destroy' })
+        let edata = this.trigger('destroy', { target: this.name })
         if (edata.isCancelled === true) return
         // remove all events
         $(this.box).off()
@@ -5868,7 +5867,7 @@ class w2grid extends w2base {
                 //start event for drag start
                 _dragData.columnHead  = origColumn = $(event.originalEvent.target).parents('.w2ui-head')
                 _dragData.originalPos = origColumnNumber = parseInt(origColumn.attr('col'), 10)
-                edata                 = obj.trigger({ type: 'columnDragStart', phase: 'before', originalEvent: event, origColumnNumber: origColumnNumber, target: origColumn[0] })
+                edata = obj.trigger('columnDragStart', { originalEvent: event, origColumnNumber: origColumnNumber, target: origColumn[0] })
                 if (edata.isCancelled === true) return false
 
                 columns = _dragData.columns = $(obj.box).find('.w2ui-head:not(.w2ui-head-last)')
@@ -5941,7 +5940,7 @@ class w2grid extends w2base {
                 ghosts = $(obj.box).find('.w2ui-grid-ghost')
 
             //start event for drag start
-            edata = obj.trigger({ type: 'columnDragEnd', phase: 'before', originalEvent: event, target: _dragData.columnHead[0] })
+            edata = obj.trigger('columnDragEnd', { originalEvent: event, target: _dragData.columnHead[0] })
             if (edata.isCancelled === true) return false
 
             selected     = obj.columns[ _dragData.originalPos ]
@@ -6261,7 +6260,7 @@ class w2grid extends w2base {
                     obj.columns[c].size = obj.columns[c].sizeCalculated
                 }
                 let edata = { phase: 'before', type: 'columnResize', target: obj.name, column: obj.last.tmp.col, field: obj.columns[obj.last.tmp.col].field }
-                edata     = obj.trigger(w2utils.extend(edata, { resizeBy: 0, originalEvent: event }))
+                edata = obj.trigger(w2utils.extend(edata, { resizeBy: 0, originalEvent: event }))
                 // set move event
                 let timer
                 let mouseMove = function(event) {
@@ -8199,7 +8198,7 @@ class w2grid extends w2base {
         for (let i = 0; i < this.sortData.length; i++) state.sortData.push(w2utils.clone(this.sortData[i]))
         for (let i = 0; i < this.searchData.length; i++) state.searchData.push(w2utils.clone(this.searchData[i]))
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'stateSave', target: this.name, state: state })
+        let edata = this.trigger('stateSave', { target: this.name, state: state })
         if (edata.isCancelled === true) {
             return
         }
@@ -8218,7 +8217,7 @@ class w2grid extends w2base {
             newState = this.cache('state')
         }
         // event before
-        let edata = this.trigger({ phase: 'before', type: 'stateRestore', target: this.name, state: newState })
+        let edata = this.trigger('stateRestore', { target: this.name, state: newState })
         if (edata.isCancelled === true) {
             return
         }
