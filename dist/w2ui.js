@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (6/28/2022, 7:56:06 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (6/30/2022, 6:16:19 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -426,6 +426,23 @@ class Query {
         tmpl.innerHTML = html
         return tmpl.content
     }
+    static _fixProp(name) {
+        let fixes = {
+            cellpadding: "cellPadding",
+            cellspacing: "cellSpacing",
+            class: "className",
+            colspan: "colSpan",
+            contenteditable: "contentEditable",
+            for: "htmlFor",
+            frameborder: "frameBorder",
+            maxlength: "maxLength",
+            readonly: "readOnly",
+            rowspan: "rowSpan",
+            tabindex: "tabIndex",
+            usemap: "useMap"
+        }
+        return fixes[name] ? fixes[name] : name
+    }
     _insert(method, html) {
         let nodes = []
         let len  = this.length
@@ -798,14 +815,14 @@ class Query {
             let obj = {}
             if (typeof name == 'object') obj = name; else obj[name] = value
             this.each(node => {
-                Object.entries(obj).forEach(([nm, val]) => { node[nm] = val })
+                Object.entries(obj).forEach(([nm, val]) => { node[Query._fixProp(nm)] = val })
             })
             return this
         }
     }
     removeProp() {
         this.each(node => {
-            Array.from(arguments).forEach(prop => { delete node[prop] })
+            Array.from(arguments).forEach(prop => { delete node[Query._fixProp(prop)] })
         })
         return this
     }
@@ -19765,13 +19782,13 @@ class w2form extends w2base {
                         field.$el.data('tabIndex', field.$el.prop('tabIndex'))
                     }
                     field.$el
-                        .prop('readonly', true)
-                        .prop('tabindex', -1)
+                        .prop('readOnly', true)
+                        .prop('tabIndex', -1)
                         .closest('.w2ui-field')
                         .addClass('w2ui-disabled')
                 } else {
                     field.$el
-                        .prop('readonly', false)
+                        .prop('readOnly', false)
                         .prop('tabIndex', field.$el.data('tabIndex'))
                         .closest('.w2ui-field')
                         .removeClass('w2ui-disabled')
