@@ -1672,13 +1672,13 @@ class w2form extends w2base {
                         field.$el.data('tabIndex', field.$el.prop('tabIndex'))
                     }
                     field.$el
-                        .prop('readonly', true)
-                        .prop('tabindex', -1)
+                        .prop('readOnly', true)
+                        .prop('tabIndex', -1)
                         .closest('.w2ui-field')
                         .addClass('w2ui-disabled')
                 } else {
                     field.$el
-                        .prop('readonly', false)
+                        .prop('readOnly', false)
                         .prop('tabIndex', field.$el.data('tabIndex'))
                         .closest('.w2ui-field')
                         .removeClass('w2ui-disabled')
