@@ -625,6 +625,7 @@ class w2form extends w2base {
             this.record   = {}
             this.original = null
             this.refresh()
+            this.hideErrors()
         }
     }
 
