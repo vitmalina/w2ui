@@ -76,7 +76,8 @@ $(async function () {
                         'sl-si',
                         'tr-tr',
                         'uk-ua',
-                        'zh-cn'
+                        'zh-cn',
+                        'zh-tw'
                     ]
                 },
             ],
