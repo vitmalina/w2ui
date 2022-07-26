@@ -56,7 +56,7 @@ function live(time) {
                     rec._sdate = rec.sdate
                 }
                 if (rnd > 0.5) {
-                    rec.w2ui = { style: 'color: green' }
+                    rec.w2ui = { style: 'color: ' + (Math.random() > 0.7 ? 'red' : 'green') }
                 } else {
                     rec.w2ui = { style: '' }
                 }

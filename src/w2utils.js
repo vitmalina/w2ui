@@ -1587,7 +1587,7 @@ class Utils {
                 Promise.allSettled(proms)
                     .then(res => {
                         // order of files is important to merge
-                        res.forEach(r => { files[r.value.file] = r.value.data })
+                        res.forEach(r => { if (r.value) files[r.value.file] = r.value.data })
                         locale.forEach(file => {
                             this.settings = this.extend({}, this.settings, files[file])
                         })
