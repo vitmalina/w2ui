@@ -924,7 +924,7 @@ class w2form extends w2base {
         dataType = 'HTTP'
         switch (dataType) {
             case 'HTTP':
-            case 'RESTULL': {
+            case 'RESTFULL': {
                 Object.keys(postParams).forEach(key => url.searchParams.append(key, postParams[key]))
                 break
             }
