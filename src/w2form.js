@@ -803,7 +803,7 @@ class w2form extends w2base {
     getChanges() {
         // TODO: not working on nested structures
         let diff = {}
-        if (this.original != null && typeof this.original == 'object' && Object.keys(this.record).length == 0) {
+        if (this.original != null && typeof this.original == 'object' && Object.keys(this.record).length !== 0) {
             diff = doDiff(this.record, this.original, {})
         }
         return diff
