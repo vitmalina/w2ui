@@ -4944,20 +4944,20 @@ class w2grid extends w2base {
         if (edata.isCancelled === true) return
         // -- header
         if (this.show.header) {
-            $(this.box).find('#grid_'+ this.name +'_header').html(w2utils.lang(this.header) +'&#160;').show()
+            query(this.box).find('#grid_'+ this.name +'_header').html(w2utils.lang(this.header) +'&#160;').show()
         } else {
-            $(this.box).find('#grid_'+ this.name +'_header').hide()
+            query(this.box).find('#grid_'+ this.name +'_header').hide()
         }
         // -- toolbar
         if (this.show.toolbar) {
-            $(this.box).find('#grid_'+ this.name +'_toolbar').show()
+            query(this.box).find('#grid_'+ this.name +'_toolbar').show()
         } else {
-            $(this.box).find('#grid_'+ this.name +'_toolbar').hide()
+            query(this.box).find('#grid_'+ this.name +'_toolbar').hide()
         }
         // -- make sure search is closed
         this.searchClose()
         // search placeholder
-        let el = $(this.box).find('#grid_'+ this.name +'_search_all')
+        let sInput = query(this.box).find('#grid_'+ this.name +'_search_all')
         if (!this.multiSearch && this.last.field == 'all' && this.searches.length > 0) {
             this.last.field = this.searches[0].field
             this.last.label = this.searches[0].label
@@ -4966,16 +4966,15 @@ class w2grid extends w2base {
             if (this.searches[s].field == this.last.field) this.last.label = this.searches[s].label
         }
         if (this.last.multi) {
-            el.attr('placeholder', '[' + w2utils.lang('Multiple Fields') + ']')
-            if ($.fn.w2field) el.w2field('clear')
+            sInput.attr('placeholder', '[' + w2utils.lang('Multiple Fields') + ']')
         } else {
-            el.attr('placeholder', w2utils.lang('Search') + ' ' + w2utils.lang(this.last.label, true))
+            sInput.attr('placeholder', w2utils.lang('Search') + ' ' + w2utils.lang(this.last.label, true))
         }
-        if (el.val() != this.last.search) {
+        if (sInput.val() != this.last.search) {
             let val = this.last.search
-            let tmp = el.data('w2field')
+            let tmp = sInput._w2field
             if (tmp) val = tmp.format(val)
-            el.val(val)
+            sInput.val(val)
         }
 
         this.refreshSearch()
@@ -4983,18 +4982,18 @@ class w2grid extends w2base {
 
         // -- footer
         if (this.show.footer) {
-            $(this.box).find('#grid_'+ this.name +'_footer').html(this.getFooterHTML()).show()
+            query(this.box).find('#grid_'+ this.name +'_footer').html(this.getFooterHTML()).show()
         } else {
-            $(this.box).find('#grid_'+ this.name +'_footer').hide()
+            query(this.box).find('#grid_'+ this.name +'_footer').hide()
         }
         // all selected?
         let sel = this.last.selection,
             areAllSelected = (this.records.length > 0 && sel.indexes.length == this.records.length),
             areAllSearchedSelected = (sel.indexes.length > 0 && this.searchData.length !== 0 && sel.indexes.length == this.last.searchIds.length)
         if (areAllSelected || areAllSearchedSelected) {
-            $(this.box).find('#grid_'+ this.name +'_check_all').prop('checked', true)
+            query(this.box).find('#grid_'+ this.name +'_check_all').prop('checked', true)
         } else {
-            $(this.box).find('#grid_'+ this.name +'_check_all').prop('checked', false)
+            query(this.box).find('#grid_'+ this.name +'_check_all').prop('checked', false)
         }
         // show number of selected
         this.status()
@@ -5020,7 +5019,8 @@ class w2grid extends w2base {
                 }
                 if (search.length > 0) {
                     search.forEach((item) => {
-                        $(this.box).find('td[col="'+ item.col +'"]').not('.w2ui-head').w2marker(item.search)
+                        let el = query(this.box).find('td[col="'+ item.col +'"]:not(.w2ui-head)')
+                        w2utils.marker(el, item.search)
                     })
                 }
             }, 50)
@@ -7584,7 +7584,8 @@ class w2grid extends w2base {
                 }
                 if (search.length > 0) {
                     search.forEach((item) => {
-                        $(obj.box).find('td[col="'+ item.col +'"]').not('.w2ui-head').w2marker(item.search)
+                        let el = query(obj.box).find('td[col="'+ item.col +'"]:not(.w2ui-head)')
+                        w2utils.marker(el, item.search)
                     })
                 }
             }, 50)
