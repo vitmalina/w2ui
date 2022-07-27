@@ -1,7 +1,7 @@
 # things
 - selectors
 - events
-- animation (scrollIntoView)
+- animation (scrollIntoView({ behavior: 'smooth' }), scroll({ top: 10, behavior: 'smooth' }))
 - dimentions (.position(), .height(), .width()) -> getBoundingClientRect
 - data()
 

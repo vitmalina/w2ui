@@ -1,6 +1,6 @@
 class Query {
     constructor(selector, context, previous) {
-        this.version = 0.5
+        this.version = 0.6
         this.context = context ?? document
         this.previous = previous ?? null
         let nodes = []
@@ -237,6 +237,11 @@ class Query {
         })
         let col = new Query(nodes, this.context, this)
         return selector ? col.filter(selector) : col
+    }
+
+    add(more) {
+        let nodes = more instanceof Query ? more.nodes : (Array.isArray(more) ? more : [more])
+        return new Query(this.nodes.concat(nodes), this.context, this) // must return a new collection
     }
 
     each(func) {
