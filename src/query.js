@@ -350,7 +350,7 @@ class Query {
         let ret = false
         this.each(node => {
             ret = ret || classes.every(className => {
-                return Array.from(node.classList).includes(className)
+                return Array.from(node.classList ?? []).includes(className)
             })
         })
         return ret
@@ -393,7 +393,7 @@ class Query {
             callback = options
             options = undefined
         }
-        events = events.split(/[,\s]+/) // separate by comma or space
+        events = (events ?? '').split(/[,\s]+/) // separate by comma or space
         events.forEach(eventName => {
             let [ event, scope ] = String(eventName).toLowerCase().split('.')
             this.each(node => {
@@ -402,12 +402,12 @@ class Query {
                         let evt = node._mQuery.events[i]
                         if (scope == null || scope === '') {
                             // if no scope, has to be exact match
-                            if (evt.event == event && evt.scope == scope && (evt.callback == callback || callback == null)) {
-                                node.removeEventListener(event, evt.callback, evt.options)
+                            if ((evt.event == event || event === '') && (evt.callback == callback || callback == null)) {
+                                node.removeEventListener(evt.event, evt.callback, evt.options)
                                 node._mQuery.events.splice(i, 1)
                             }
                         } else {
-                            if ((evt.event == event || event === '') && (evt.scope == scope || scope === '*')) {
+                            if ((evt.event == event || event === '') && evt.scope == scope) {
                                 node.removeEventListener(evt.event, evt.callback, evt.options)
                                 node._mQuery.events.splice(i, 1)
                             }

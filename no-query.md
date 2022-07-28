@@ -4,6 +4,8 @@
 - animation (scrollIntoView({ behavior: 'smooth' }), scroll({ top: 10, behavior: 'smooth' }))
 - dimentions (.position(), .height(), .width()) -> getBoundingClientRect
 - data()
+- $().scrollLeft -> $().prop('scrollLeft')
+- $().scrolTop -> $().prop('scrollTop')
 
 # selectors are not fully compatible
 
