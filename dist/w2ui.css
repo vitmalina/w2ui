@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (7/27/2022, 9:19:33 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (7/28/2022, 9:23:15 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -2345,6 +2345,12 @@ textarea.w2ui-error {
 .w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-load-more > div:hover {
   color: #438ba2;
   background-color: #f3f3f3;
+}
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-ghost-empty,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-ghost-empty {
+  background-color: #eee;
+  border-bottom: 1px dashed #aaa;
+  border-top: 1px dashed #aaa;
 }
 .w2ui-grid .w2ui-grid-body table {
   border-spacing: 0px;
