@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (7/28/2022, 9:51:38 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (8/8/2022, 12:46:22 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -11437,8 +11437,8 @@ class w2grid extends w2base {
                 divY   : 0,
                 recid  : sel[0].recid,
                 column : sel[0].column,
-                originalRange : [ w2utils.clone(sel[0]), w2utils.clone(sel[sel.length-1]) ],
-                newRange      : [ w2utils.clone(sel[0]), w2utils.clone(sel[sel.length-1]) ]
+                originalRange : [w2utils.clone(sel[0]), w2utils.clone(sel[sel.length-1]) ],
+                newRange      : [w2utils.clone(sel[0]), w2utils.clone(sel[sel.length-1]) ]
             }
             query('body')
                 .off('.w2ui-' + self.name)
@@ -12074,7 +12074,7 @@ class w2grid extends w2base {
                 }
             }
         }
-        // 3: search([ { field, value, [operator,] [type] }, { field, value, [operator,] [type] } ], logic) - submit whole structure
+        // 3: search([{ field, value, [operator,] [type] }, { field, value, [operator,] [type] } ], logic) - submit whole structure
         if (Array.isArray(field)) {
             let logic = 'AND'
             if (typeof value == 'string') {
@@ -14964,7 +14964,11 @@ class w2grid extends w2base {
             '</div>'+
             '<div id="grid_'+ this.name +'_columns" class="w2ui-grid-columns">'+
             '    <table><tbody>'+ colHTML[1] +'</tbody></table>'+
-            '</div>'
+            '</div>'+
+            `<div class="w2ui-intersection-marker" style="display: none; height: ${this.recordHeight-5}px">
+               <div class="top-marker"></div>
+               <div class="bottom-marker"></div>
+            </div>`
         let gridBody = query(this.box).find(`#grid_${this.name}_body`, this.box).html(bodyHTML)
         let records  = query(this.box).find(`#grid_${this.name}_records`, this.box)
         let frecords = query(this.box).find(`#grid_${this.name}_frecords`, this.box)
@@ -15588,112 +15592,82 @@ class w2grid extends w2base {
         this.toolbar.set('w2ui-column-on-off', { selected, items })
         return items
     }
-    /**
-     *
-     * @param box, grid object
-     * @returns {{remove: Function}} contains a closure around all events to ensure they are removed from the dom
-     */
     initColumnDrag(box) {
-        //throw error if using column groups
-        if (this.columnGroups && this.columnGroups.length) throw 'Draggable columns are not currently supported with column groups.'
-        let obj           = this
-        let _dragData     = {}
-        _dragData.lastInt = undefined
-        _dragData.pressed = false
-        _dragData.timeout = null
-        _dragData.columnHead = null
-        // attach original event listener
-        $(obj.box).off('mousedown.colDrag').on('mousedown.colDrag', dragColStart)
-        $(obj.box).off('mouseup.colDrag').on('mouseup.colDrag', catchMouseup)
-        function catchMouseup(){
-            _dragData.pressed = false
-            clearTimeout(_dragData.timeout)
+        // throw error if using column groups
+        if (this.columnGroups && this.columnGroups.length) {
+            throw 'Draggable columns are not currently supported with column groups.'
         }
-        /**
-         *
-         * @param event, mousedown
-         * @returns {boolean} false, preventsDefault
-         */
-        function dragColStart (event) {
-            if (_dragData.timeout) clearTimeout(_dragData.timeout)
-            let self          = this
+        let self = this
+        let _dragData = {
+            targetPos: null,
+            pressed: false,
+            columnHead: null
+        }
+        // attach original event listener
+        query(self.box)
+            .off('.colDrag')
+            .on('mousedown.colDrag', dragColStart)
+            .on('mouseup.colDrag', catchMouseup)
+        function catchMouseup() {
+            _dragData.pressed = false
+        }
+        function dragColStart(event) {
             _dragData.pressed = true
-            _dragData.timeout = setTimeout(() => {
-                // When dragging a column for reordering, a quick release and a secondary
-                // click may result in a bug where the column is ghosted to the screen,
-                // but can no longer be docked back into the header.  It simply floats and you
-                // can no longer interact with it.
-                // The erroneous event thats fired will have _dragData.numberPreColumnsPresent === 0
-                // populated, whereas a valid event will not.
-                // if we see the erroneous event, do not allow that second click to register, which results
-                // in the floating column remaining under the mouse's control.
-                if (!_dragData.pressed || _dragData.numberPreColumnsPresent === 0) return
-                let edata,
-                    columns,
-                    selectedCol,
-                    origColumn,
-                    origColumnNumber,
-                    invalidPreColumns = [ 'w2ui-col-number', 'w2ui-col-expand', 'w2ui-col-select' ],
-                    invalidPostColumns = [ 'w2ui-head-last' ],
-                    invalidColumns = invalidPreColumns.concat(invalidPostColumns),
-                    preColumnsSelector = '.w2ui-col-number, .w2ui-col-expand, .w2ui-col-select',
-                    preColHeadersSelector = '.w2ui-head.w2ui-col-number, .w2ui-head.w2ui-col-expand, .w2ui-head.w2ui-col-select'
-                // do nothing if it is not a header
-                if (!$(event.originalEvent.target).parents().hasClass('w2ui-head')) return
-                // do nothing if it is an invalid column
-                for (let i = 0, l = invalidColumns.length; i < l; i++){
-                    if ($(event.originalEvent.target).parents().hasClass(invalidColumns[ i ])) return
-                }
-                _dragData.numberPreColumnsPresent = $(obj.box).find(preColHeadersSelector).length
-                //start event for drag start
-                _dragData.columnHead  = origColumn = $(event.originalEvent.target).parents('.w2ui-head')
-                _dragData.originalPos = origColumnNumber = parseInt(origColumn.attr('col'), 10)
-                edata = obj.trigger('columnDragStart', { originalEvent: event, origColumnNumber: origColumnNumber, target: origColumn[0] })
-                if (edata.isCancelled === true) return false
-                columns = _dragData.columns = $(obj.box).find('.w2ui-head:not(.w2ui-head-last)')
-                // add events
-                $(document).on('mouseup', dragColEnd)
-                $(document).on('mousemove', dragColOver)
-                //_dragData.columns.css({ overflow: 'visible' }).children('div').css({ overflow: 'visible' });
-                //configure and style ghost image
-                _dragData.ghost = $(self).clone(true)
-                //hide other elements on ghost except the grid body
-                $(_dragData.ghost).find('[col]:not([col="' + _dragData.originalPos + '"]), .w2ui-toolbar, .w2ui-grid-header').remove()
-                $(_dragData.ghost).find(preColumnsSelector).remove()
-                $(_dragData.ghost).find('.w2ui-grid-body').css({ top: 0 })
-                selectedCol = $(_dragData.ghost).find('[col="' + _dragData.originalPos + '"]')
-                $(document.body).append(_dragData.ghost)
-                $(_dragData.ghost).css({
-                    width: 0,
-                    height: 0,
-                    margin: 0,
-                    position: 'fixed',
-                    zIndex: 999999,
-                    opacity: 0
-                }).addClass('.w2ui-grid-ghost').animate({
-                    width: selectedCol.width(),
-                    height: $(obj.box).find('.w2ui-grid-body').first().height(),
+            if (!_dragData.pressed || _dragData.numberPreColumnsPresent === 0) return
+            let edata,
+                columns,
+                origColumn,
+                origColumnNumber,
+                invalidPreColumns = ['w2ui-col-number', 'w2ui-col-expand', 'w2ui-col-select' ],
+                invalidPostColumns = ['w2ui-head-last' ],
+                invalidColumns = invalidPreColumns.concat(invalidPostColumns),
+                preColHeadersSelector = '.w2ui-head.w2ui-col-number, .w2ui-head.w2ui-col-expand, .w2ui-head.w2ui-col-select'
+            // do nothing if it is not a header
+            if (!query(event.target).parents().hasClass('w2ui-head')) return
+            // do nothing if it is an invalid column
+            for (let i = 0, l = invalidColumns.length; i < l; i++){
+                if (query(event.target).parents().hasClass(invalidColumns[i])) return
+            }
+            _dragData.numberPreColumnsPresent = query(self.box).find(preColHeadersSelector).length
+            //start event for drag start
+            _dragData.columnHead  = origColumn = query(event.target).parents('.w2ui-head')
+            _dragData.originalPos = origColumnNumber = parseInt(origColumn.attr('col'), 10)
+            edata = self.trigger('columnDragStart', { originalEvent: event, origColumnNumber: origColumnNumber, target: origColumn[0] })
+            if (edata.isCancelled === true) return false
+            columns = _dragData.columns = query(self.box).find('.w2ui-head:not(.w2ui-head-last)')
+            // add events
+            query(document).on('mouseup', dragColEnd)
+            query(document).on('mousemove', dragColOver)
+            let col = self.columns[_dragData.originalPos]
+            let colText = w2utils.lang(typeof col.text == 'function' ? col.text(col) : col.text)
+            _dragData.ghost = query.html(`<span col="${_dragData.originalPos}">${colText}</span>`)[0]
+            query(document.body).append(_dragData.ghost)
+            query(_dragData.ghost).css({
                     left : event.pageX,
                     top : event.pageY,
-                    opacity: 0.8
-                }, 0)
-                // establish current offsets
-                _dragData.offsets = []
-                for (let i = 0, l = columns.length; i < l; i++) {
-                    _dragData.offsets.push($(columns[ i ]).offset().left)
-                }
-                // conclude event
-                edata.finish()
-            }, 150)//end timeout wrapper
+                    opacity: 1,
+                    margin: '3px 0 0 20px',
+                    padding: '3px',
+                    'background-color': 'white',
+                    position: 'fixed',
+                    'z-index': 999999,
+                })
+                .addClass('.w2ui-grid-ghost')
+
+            // establish current offsets
+            _dragData.offsets = []
+            for (let i = 0, l = columns.length; i < l; i++) {
+                let rect = columns[i].getBoundingClientRect()
+                _dragData.offsets.push(rect.left)
+            }
+            // conclude event
+            edata.finish()
         }
         function dragColOver(event) {
             if (!_dragData.pressed) return
-            let cursorX = event.originalEvent.pageX,
-                cursorY = event.originalEvent.pageY,
-                offsets = _dragData.offsets,
-                lastWidth = $('.w2ui-head:not(.w2ui-head-last)').width()
-            _dragData.targetInt = Math.max(_dragData.numberPreColumnsPresent,targetIntersection(cursorX, offsets, lastWidth))
-            markIntersection(_dragData.targetInt)
+            let cursorX = event.pageX
+            let cursorY = event.pageY
+            markIntersection(event)
             trackGhost(cursorX, cursorY)
         }
         function dragColEnd(event) {
@@ -15702,105 +15676,51 @@ class w2grid extends w2base {
                 target,
                 selected,
                 columnConfig,
-                targetColumn,
-                ghosts = $(obj.box).find('.w2ui-grid-ghost')
-            //start event for drag start
-            edata = obj.trigger('columnDragEnd', { originalEvent: event, target: _dragData.columnHead[0] })
+                ghosts = query(self.box).find('.w2ui-grid-ghost')
+            // start event for drag start
+            edata = self.trigger('columnDragEnd', { originalEvent: event, target: _dragData.columnHead[0] })
             if (edata.isCancelled === true) return false
-            selected     = obj.columns[ _dragData.originalPos ]
-            columnConfig = obj.columns
-            targetColumn = $(_dragData.columns[ Math.min(_dragData.lastInt, _dragData.columns.length - 1) ])
-            target       = (_dragData.lastInt < _dragData.columns.length) ? parseInt(targetColumn.attr('col')) : columnConfig.length
-            if (target !== _dragData.originalPos + 1 && target !== _dragData.originalPos && targetColumn && targetColumn.length) {
-                $(_dragData.ghost).animate({
-                    top: $(obj.box).offset().top,
-                    left: targetColumn.offset().left,
-                    width: 0,
-                    height: 0,
-                    opacity: 0.2
-                }, 300, function() {
-                    $(this).remove()
-                    ghosts.remove()
-                })
-                columnConfig.splice(target, 0, w2utils.clone(selected))
+            selected  = self.columns[_dragData.originalPos]
+            columnConfig = self.columns
+            if (_dragData.originalPos != _dragData.targetPos) {
+                columnConfig.splice(_dragData.targetPos, 0, w2utils.clone(selected))
                 columnConfig.splice(columnConfig.indexOf(selected), 1)
-            } else {
-                $(_dragData.ghost).remove()
-                ghosts.remove()
             }
+            query(self.box).find('.w2ui-intersection-marker').hide()
+            query(_dragData.ghost).remove()
+            ghosts.remove()
             //_dragData.columns.css({ overflow: '' }).children('div').css({ overflow: '' });
-            $(document).off('mouseup', dragColEnd)
-            $(document).off('mousemove', dragColOver)
-            if (_dragData.marker) _dragData.marker.remove()
+            query(document).off('.colDrag')
             _dragData = {}
-            obj.refresh()
-            //conclude event
-            edata.finish({ targetColumnNumber: target - 1})
+            self.refresh()
+            edata.finish({ targetColumnNumber: target - 1 })
         }
-        function markIntersection(intersection){
-            if (!_dragData.marker && !_dragData.markerLeft) {
-                _dragData.marker     = $('<div class="col-intersection-marker">' +
-                    '<div class="top-marker"></div>' +
-                    '<div class="bottom-marker"></div>' +
-                    '</div>')
-                _dragData.markerLeft = $('<div class="col-intersection-marker">' +
-                    '<div class="top-marker"></div>' +
-                    '<div class="bottom-marker"></div>' +
-                    '</div>')
+        function markIntersection(event) {
+            // if mouse over is not over table
+            if (query(event.target).closest('td').length == 0) {
+                return
             }
-            if (!_dragData.lastInt || _dragData.lastInt !== intersection){
-                _dragData.lastInt = intersection
-                _dragData.marker.remove()
-                _dragData.markerLeft.remove()
-                $('.w2ui-head').removeClass('w2ui-col-intersection')
-                //if the current intersection is greater than the number of columns add the marker to the end of the last column only
-                if (intersection >= _dragData.columns.length) {
-                    $(_dragData.columns[ _dragData.columns.length - 1 ]).children('div:last').append(_dragData.marker.addClass('right').removeClass('left'))
-                    $(_dragData.columns[ _dragData.columns.length - 1 ]).addClass('w2ui-col-intersection')
-                } else if (intersection <= _dragData.numberPreColumnsPresent) {
-                    //if the current intersection is on the column numbers place marker on first available column only
-                    $(_dragData.columns[ _dragData.numberPreColumnsPresent ]).prepend(_dragData.marker.addClass('left').removeClass('right')).css({ position: 'relative' })
-                    $(_dragData.columns[ _dragData.numberPreColumnsPresent ]).prev().addClass('w2ui-col-intersection')
-                } else {
-                    //otherwise prepend the marker to the targeted column and append it to the previous column
-                    $(_dragData.columns[intersection]).children('div:last').prepend(_dragData.marker.addClass('left').removeClass('right'))
-                    $(_dragData.columns[intersection]).prev().children('div:last').append(_dragData.markerLeft.addClass('right').removeClass('left')).css({ position: 'relative' })
-                    $(_dragData.columns[intersection - 1]).addClass('w2ui-col-intersection')
-                }
-            }
-        }
-        function targetIntersection(cursorX, offsets, lastWidth){
-            if (cursorX <= offsets[0]) {
-                return 0
-            } else if (cursorX >= offsets[offsets.length - 1] + lastWidth) {
-                return offsets.length
-            } else {
-                for (let i = 0, l = offsets.length; i < l; i++) {
-                    let thisOffset = offsets[ i ]
-                    let nextOffset = offsets[ i + 1 ] || offsets[ i ] + lastWidth
-                    let midpoint   = (nextOffset - offsets[ i ]) / 2 + offsets[ i ]
-                    if (cursorX > thisOffset && cursorX <= midpoint) {
-                        return i
-                    } else if (cursorX > midpoint && cursorX <= nextOffset) {
-                        return i + 1
-                    }
-                }
-                return 0
-            }
+            let rect1 = query(self.box).find('.w2ui-grid-body').get(0).getBoundingClientRect()
+            let rect2 = query(event.target).closest('td').get(0).getBoundingClientRect()
+            query(self.box).find('.w2ui-intersection-marker')
+                .show()
+                .css({
+                    left: (rect2.left - rect1.left) + 'px'
+                })
+            _dragData.targetPos = parseInt(query(event.target).closest('td').attr('col'))
+            return
         }
         function trackGhost(cursorX, cursorY){
-            $(_dragData.ghost).css({
-                left: cursorX - 10,
-                top: cursorY - 10
+            query(_dragData.ghost).css({
+                left : (cursorX - 10) + 'px',
+                top  : (cursorY - 10) + 'px'
             })
         }
-        //return an object to remove drag if it has ever been enabled
+        // return an object to remove drag if it has ever been enabled
         return {
-            remove(){
-                $(obj.box).off('mousedown.colDrag', dragColStart)
-                $(obj.box).off('mouseup.colDrag', catchMouseup)
-                $(obj.box).find('.w2ui-head').removeAttr('draggable')
-                obj.last.columnDrag = false
+            remove() {
+                query(self.box).off('.colDrag')
+                self.last.columnDrag = false
             }
         }
     }
@@ -15977,7 +15897,7 @@ class w2grid extends w2base {
     }
     initResize() {
         let obj = this
-        $(this.box).find('.w2ui-resizer')
+        query(this.box).find('.w2ui-resizer')
             .off('.grid-col-resize')
             .on('click.grid-col-resize', function(event) {
                 if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true
@@ -15991,10 +15911,10 @@ class w2grid extends w2base {
                     y   : event.screenY,
                     gx  : event.screenX,
                     gy  : event.screenY,
-                    col : parseInt($(this).attr('name'))
+                    col : parseInt(query(this).attr('name'))
                 }
                 // find tds that will be resized
-                obj.last.tmp.tds = $(obj.box).find('#grid_'+ obj.name +'_body table tr:first-child td[col='+ obj.last.tmp.col +']')
+                obj.last.tmp.tds = query(obj.box).find('#grid_'+ obj.name +'_body table tr:first-child td[col="'+ obj.last.tmp.col +'"]')
                 if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true
                 if (event.preventDefault) event.preventDefault()
                 // fix sizes
@@ -16030,7 +15950,7 @@ class w2grid extends w2base {
                     obj.last.tmp.y = event.screenY
                 }
                 let mouseUp = function(event) {
-                    $(document).off('.grid-col-resize')
+                    query(document).off('.grid-col-resize')
                     obj.resizeRecords()
                     obj.scroll()
                     // event after
@@ -16038,13 +15958,13 @@ class w2grid extends w2base {
                     // need timeout to finish processing events
                     setTimeout(() => { obj.last.colResizing = false }, 1)
                 }
-                $(document)
+                query(document)
                     .off('.grid-col-resize')
                     .on('mousemove.grid-col-resize', mouseMove)
                     .on('mouseup.grid-col-resize', mouseUp)
             })
             .on('dblclick.grid-col-resize', function(event) {
-                let colId = parseInt($(this).attr('name')),
+                let colId = parseInt(query(this).attr('name')),
                     col = obj.columns[colId],
                     maxDiff = 0
                 if (col.autoResize === false) {
@@ -16052,7 +15972,7 @@ class w2grid extends w2base {
                 }
                 if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true
                 if (event.preventDefault) event.preventDefault()
-                $(obj.box).find('.w2ui-grid-records td[col="' + colId + '"] > div', obj.box).each(() => {
+                query(obj.box).find('.w2ui-grid-records td[col="' + colId + '"] > div', obj.box).each(() => {
                     let thisDiff = this.offsetWidth - this.scrollWidth
                     if (thisDiff < maxDiff) {
                         maxDiff = thisDiff - 3 // 3px buffer needed for Firefox
@@ -16071,22 +15991,22 @@ class w2grid extends w2base {
                 // event after
                 edata.finish({ originalEvent: event })
             })
-            .each((index, el) => {
-                let td = $(el).parent()
-                $(el).css({
-                    'height'      : td.height(),
-                    'margin-left' : (td.width() - 3) + 'px'
+            .each((el) => {
+                let td = query(el).get(0).parentNode
+                query(el).css({
+                    'height'      : td.clientHeight + 'px',
+                    'margin-left' : (td.clientWidth - 3) + 'px'
                 })
             })
     }
     resizeBoxes() {
         // elements
-        let header   = $(this.box).find('#grid_'+ this.name +'_header')
-        let toolbar  = $(this.box).find('#grid_'+ this.name +'_toolbar')
-        let fsummary = $(this.box).find('#grid_'+ this.name +'_fsummary')
-        let summary  = $(this.box).find('#grid_'+ this.name +'_summary')
-        let footer   = $(this.box).find(`#grid_${this.name}_footer`)
-        let body     = $(this.box).find(`#grid_${this.name}_body`)
+        let header   = query(this.box).find('#grid_'+ this.name +'_header')
+        let toolbar  = query(this.box).find('#grid_'+ this.name +'_toolbar')
+        let fsummary = query(this.box).find('#grid_'+ this.name +'_fsummary')
+        let summary  = query(this.box).find('#grid_'+ this.name +'_summary')
+        let footer   = query(this.box).find(`#grid_${this.name}_footer`)
+        let body     = query(this.box).find(`#grid_${this.name}_body`)
         if (this.show.header) {
             header.css({
                 top:   '0px',
@@ -16728,7 +16648,7 @@ class w2grid extends w2base {
             }
         }
         return [html1, html2]
-        function getGroups () {
+        function getGroups() {
             let html1 = '<tr>'
             let html2 = '<tr>'
             let tmpf  = ''
@@ -16822,7 +16742,7 @@ class w2grid extends w2base {
             html2 += '<td id="grid_'+ obj.name + '_column_end" class="w2ui-head" col="end"></td></tr>'
             return [html1, html2]
         }
-        function getColumns (main) {
+        function getColumns(main) {
             let html1 = '<tr>'
             let html2 = '<tr>'
             if (obj.show.lineNumbers) {

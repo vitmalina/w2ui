@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (7/28/2022, 9:23:15 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (8/8/2022, 12:45:19 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -2242,7 +2242,7 @@ textarea.w2ui-error {
   margin: 0px;
   width: 6px;
   height: 12px;
-  cursor: col-resize;
+  cursor: ew-resize;
 }
 .w2ui-grid .w2ui-grid-body .w2ui-grid-records,
 .w2ui-grid .w2ui-grid-body .w2ui-grid-frecords {
@@ -2346,8 +2346,8 @@ textarea.w2ui-error {
   color: #438ba2;
   background-color: #f3f3f3;
 }
-.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-ghost-empty,
-.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-ghost-empty {
+.w2ui-grid .w2ui-grid-body .w2ui-grid-records .w2ui-reoder-empty,
+.w2ui-grid .w2ui-grid-body .w2ui-grid-frecords .w2ui-reoder-empty {
   background-color: #eee;
   border-bottom: 1px dashed #aaa;
   border-top: 1px dashed #aaa;
@@ -2373,43 +2373,8 @@ textarea.w2ui-error {
   overflow: hidden;
   position: relative;
 }
-.w2ui-grid .w2ui-grid-body table .w2ui-head.w2ui-col-intersection {
-  border-right-color: #72B2FF;
-}
 .w2ui-grid .w2ui-grid-body table .w2ui-head.w2ui-reorder-cols-head:hover {
   cursor: move;
-}
-.w2ui-grid .w2ui-grid-body table .w2ui-head .col-intersection-marker {
-  padding: 0;
-  position: absolute;
-  height: 100%;
-  top: 0;
-}
-.w2ui-grid .w2ui-grid-body table .w2ui-head .col-intersection-marker.left {
-  left: 0;
-  margin-left: -5px;
-}
-.w2ui-grid .w2ui-grid-body table .w2ui-head .col-intersection-marker.right {
-  right: 0;
-  margin-right: -5px;
-}
-.w2ui-grid .w2ui-grid-body table .w2ui-head .col-intersection-marker .top-marker {
-  position: absolute;
-  top: 0;
-  height: 0;
-  width: 0;
-  border-top: 5px solid #72B2FF;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-}
-.w2ui-grid .w2ui-grid-body table .w2ui-head .col-intersection-marker .bottom-marker {
-  position: absolute;
-  bottom: 0;
-  height: 0;
-  width: 0;
-  border-bottom: 5px solid #72B2FF;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
 }
 .w2ui-grid .w2ui-grid-body table td {
   border-right: 1px solid #f1f1f1;
@@ -2525,6 +2490,40 @@ textarea.w2ui-error {
 }
 .w2ui-grid .w2ui-grid-body table .w2ui-row-selected {
   background-color: #e2e2e2 !important;
+}
+.w2ui-grid .w2ui-grid-body .w2ui-intersection-marker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin-left: -5px;
+  height: 26px;
+  width: 10px;
+}
+.w2ui-grid .w2ui-grid-body .w2ui-intersection-marker.left {
+  left: 0;
+  margin-left: -5px;
+}
+.w2ui-grid .w2ui-grid-body .w2ui-intersection-marker.right {
+  right: 0;
+  margin-right: 5px;
+}
+.w2ui-grid .w2ui-grid-body .w2ui-intersection-marker .top-marker {
+  position: absolute;
+  top: 0;
+  height: 0;
+  width: 0;
+  border-top: 5px solid #72B2FF;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+}
+.w2ui-grid .w2ui-grid-body .w2ui-intersection-marker .bottom-marker {
+  position: absolute;
+  bottom: 0;
+  height: 0;
+  width: 0;
+  border-bottom: 5px solid #72B2FF;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
 }
 .w2ui-grid .w2ui-grid-body div.w2ui-col-header {
   height: auto !important;
