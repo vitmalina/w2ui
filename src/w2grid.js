@@ -6126,7 +6126,7 @@ class w2grid extends w2base {
 
     initResize() {
         let obj = this
-        $(this.box).find('.w2ui-resizer')
+        query(this.box).find('.w2ui-resizer')
             .off('.grid-col-resize')
             .on('click.grid-col-resize', function(event) {
                 if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true
@@ -6140,10 +6140,10 @@ class w2grid extends w2base {
                     y   : event.screenY,
                     gx  : event.screenX,
                     gy  : event.screenY,
-                    col : parseInt($(this).attr('name'))
+                    col : parseInt(query(this).attr('name'))
                 }
                 // find tds that will be resized
-                obj.last.tmp.tds = $(obj.box).find('#grid_'+ obj.name +'_body table tr:first-child td[col='+ obj.last.tmp.col +']')
+                obj.last.tmp.tds = query(obj.box).find('#grid_'+ obj.name +'_body table tr:first-child td[col="'+ obj.last.tmp.col +'"]')
 
                 if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true
                 if (event.preventDefault) event.preventDefault()
@@ -6180,7 +6180,7 @@ class w2grid extends w2base {
                     obj.last.tmp.y = event.screenY
                 }
                 let mouseUp = function(event) {
-                    $(document).off('.grid-col-resize')
+                    query(document).off('.grid-col-resize')
                     obj.resizeRecords()
                     obj.scroll()
                     // event after
@@ -6189,13 +6189,13 @@ class w2grid extends w2base {
                     setTimeout(() => { obj.last.colResizing = false }, 1)
                 }
 
-                $(document)
+                query(document)
                     .off('.grid-col-resize')
                     .on('mousemove.grid-col-resize', mouseMove)
                     .on('mouseup.grid-col-resize', mouseUp)
             })
             .on('dblclick.grid-col-resize', function(event) {
-                let colId = parseInt($(this).attr('name')),
+                let colId = parseInt(query(this).attr('name')),
                     col = obj.columns[colId],
                     maxDiff = 0
 
@@ -6205,7 +6205,7 @@ class w2grid extends w2base {
 
                 if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true
                 if (event.preventDefault) event.preventDefault()
-                $(obj.box).find('.w2ui-grid-records td[col="' + colId + '"] > div', obj.box).each(() => {
+                query(obj.box).find('.w2ui-grid-records td[col="' + colId + '"] > div', obj.box).each(() => {
                     let thisDiff = this.offsetWidth - this.scrollWidth
                     if (thisDiff < maxDiff) {
                         maxDiff = thisDiff - 3 // 3px buffer needed for Firefox
@@ -6227,23 +6227,23 @@ class w2grid extends w2base {
                 // event after
                 edata.finish({ originalEvent: event })
             })
-            .each((index, el) => {
-                let td = $(el).parent()
-                $(el).css({
-                    'height'      : td.height(),
-                    'margin-left' : (td.width() - 3) + 'px'
+            .each((el) => {
+                let td = query(el).get(0).parentNode
+                query(el).css({
+                    'height'      : td.clientHeight + 'px',
+                    'margin-left' : (td.clientWidth - 3) + 'px'
                 })
             })
     }
 
     resizeBoxes() {
         // elements
-        let header   = $(this.box).find('#grid_'+ this.name +'_header')
-        let toolbar  = $(this.box).find('#grid_'+ this.name +'_toolbar')
-        let fsummary = $(this.box).find('#grid_'+ this.name +'_fsummary')
-        let summary  = $(this.box).find('#grid_'+ this.name +'_summary')
-        let footer   = $(this.box).find(`#grid_${this.name}_footer`)
-        let body     = $(this.box).find(`#grid_${this.name}_body`)
+        let header   = query(this.box).find('#grid_'+ this.name +'_header')
+        let toolbar  = query(this.box).find('#grid_'+ this.name +'_toolbar')
+        let fsummary = query(this.box).find('#grid_'+ this.name +'_fsummary')
+        let summary  = query(this.box).find('#grid_'+ this.name +'_summary')
+        let footer   = query(this.box).find(`#grid_${this.name}_footer`)
+        let body     = query(this.box).find(`#grid_${this.name}_body`)
 
         if (this.show.header) {
             header.css({
