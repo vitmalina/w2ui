@@ -6,6 +6,7 @@
 - data()
 - $().scrollLeft -> $().prop('scrollLeft')
 - $().scrolTop -> $().prop('scrollTop')
+- $().clone -> element.cloneNode()
 
 # selectors are not fully compatible
 
