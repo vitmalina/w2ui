@@ -1553,7 +1553,7 @@ class w2form extends w2base {
     }
 
     refresh() {
-        let time = (new Date()).getTime()
+        let time = Date.now()
         let self = this
         if (!this.box) return
         if (!this.isGenerated || !query(this.box).html()) return
@@ -1900,15 +1900,20 @@ class w2form extends w2base {
         // event after
         edata.finish()
         this.resize()
-        return (new Date()).getTime() - time
+        return Date.now() - time
     }
 
     render(box) {
-        let time = (new Date()).getTime()
+        let time = Date.now()
         let self = this
-        if (typeof box === 'object') {
-            // remove from previous box
-            if (query(this.box).find('#form_'+ this.name +'_tabs').length > 0) {
+        if (typeof box == 'string') box = query(box).get(0)
+        // event before
+        let edata = this.trigger('render', { target: this.name, box: box ?? this.box })
+        if (edata.isCancelled === true) return
+        // default action
+        if (box != null) {
+            // clean previous box
+            if (query(this.box).find('#form_'+ this.name +'_form').length > 0) {
                 query(this.box).removeAttr('name')
                     .removeClass('w2ui-reset w2ui-form')
                     .html('')
@@ -1917,9 +1922,7 @@ class w2form extends w2base {
         }
         if (!this.isGenerated && !this.formHTML) return
         if (!this.box) return
-        // event before
-        let edata = this.trigger('render', {  target: this.name, box: (box != null ? box : this.box) })
-        if (edata.isCancelled === true) return
+        // render form
         let html = '<div class="w2ui-form-box">' +
                     (this.header !== '' ? '<div class="w2ui-form-header">' + w2utils.lang(this.header) + '</div>' : '') +
                     '    <div id="form_'+ this.name +'_toolbar" class="w2ui-form-toolbar" style="display: none"></div>' +
@@ -1982,7 +1985,7 @@ class w2form extends w2base {
             }
             setFocus()
         }
-        return (new Date()).getTime() - time
+        return Date.now() - time
     }
 
     setFocus(focus) {

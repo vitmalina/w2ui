@@ -425,13 +425,16 @@ class w2layout extends w2base {
     }
 
     render(box) {
+        let time = Date.now()
         let self = this
+        if (typeof box == 'string') box = query(box).get(0)
         // if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
-        let time = (new Date()).getTime()
         // event before
-        let edata = this.trigger('render', { target: this.name, box: box })
+        let edata = this.trigger('render', { target: this.name, box: box ?? this.box })
         if (edata.isCancelled === true) return
+        // default action
         if (box != null) {
+            // clean previous box
             if (query(this.box).find('#layout_'+ this.name +'_panel_main').length > 0) {
                 query(this.box)
                     .removeAttr('name')
@@ -441,6 +444,7 @@ class w2layout extends w2base {
             this.box = box
         }
         if (!this.box) return false
+        // render layout
         query(this.box)
             .attr('name', this.name)
             .addClass('w2ui-layout')
@@ -472,7 +476,7 @@ class w2layout extends w2base {
             self.last.events = { resizeStart, mouseMove, mouseUp }
             this.resize()
         }, 0)
-        return (new Date()).getTime() - time
+        return Date.now() - time
 
         function resizeStart(type, evnt) {
             if (!self.box) return
@@ -668,7 +672,7 @@ class w2layout extends w2base {
         let self = this
         // if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
         if (panel == null) panel = null
-        let time = (new Date()).getTime()
+        let time = Date.now()
         // event before
         let edata = self.trigger('refresh', { target: (panel != null ? panel : self.name), object: self.get(panel) })
         if (edata.isCancelled === true) return
@@ -750,13 +754,13 @@ class w2layout extends w2base {
             for (let p1 = 0; p1 < this.panels.length; p1++) { self.refresh(this.panels[p1].type) }
         }
         edata.finish()
-        return (new Date()).getTime() - time
+        return Date.now() - time
     }
 
     resize() {
         // if (window.getSelection) window.getSelection().removeAllRanges();    // clear selection
         if (!this.box) return false
-        let time = (new Date()).getTime()
+        let time = Date.now()
         // event before
         let tmp   = this.last.resize
         let edata = this.trigger('resize', { target: this.name,
@@ -1091,7 +1095,7 @@ class w2layout extends w2base {
             query(this.box).find(tmp2 + 'content').css({ display: 'block' }).css({ top: tabHeight + 'px' })
         }
         edata.finish()
-        return (new Date()).getTime() - time
+        return Date.now() - time
     }
 
     destroy() {

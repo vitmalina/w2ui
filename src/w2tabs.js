@@ -323,7 +323,7 @@ class w2tabs extends w2base {
     }
 
     refresh(id) {
-        let time = (new Date()).getTime()
+        let time = Date.now()
         if (this.flow == 'up') {
             query(this.box).addClass('w2ui-tabs-up')
          } else {
@@ -356,17 +356,18 @@ class w2tabs extends w2base {
         // event after
         edata.finish()
         // this.resize();
-        return (new Date()).getTime() - time
+        return Date.now() - time
     }
 
     render(box) {
-        let time = (new Date()).getTime()
+        let time = Date.now()
+        if (typeof box == 'string') box = query(box).get(0)
         // event before
-        let edata = this.trigger('render', { target: this.name, box: box })
+        let edata = this.trigger('render', { target: this.name, box: box ?? this.box })
         if (edata.isCancelled === true) return
         // default action
-        // if (window.getSelection) window.getSelection().removeAllRanges(); // clear selection
         if (box != null) {
+            // clean previous box
             if (query(this.box).find('#tabs_'+ this.name + '_right').length > 0) {
                 query(this.box)
                     .removeAttr('name')
@@ -399,7 +400,7 @@ class w2tabs extends w2base {
         edata.finish()
         this.refresh()
         this.resize()
-        return (new Date()).getTime() - time
+        return Date.now() - time
     }
 
     initReorder(id, event) {
@@ -503,7 +504,7 @@ class w2tabs extends w2base {
     }
 
     resize() {
-        let time = (new Date()).getTime()
+        let time = Date.now()
         if (this.box == null) return
         // event before
         let edata = this.trigger('resize', { target: this.name })
@@ -527,7 +528,7 @@ class w2tabs extends w2base {
         }
         // event after
         edata.finish()
-        return (new Date()).getTime() - time
+        return Date.now() - time
     }
 
     destroy() {

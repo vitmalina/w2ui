@@ -464,12 +464,14 @@ class w2toolbar extends w2base {
     }
 
     render(box) {
-        let time = (new Date()).getTime()
+        let time = Date.now()
+        if (typeof box == 'string') box = query(box).get(0)
         // event before
-        let edata = this.trigger('render', { target: this.name, box: box })
+        let edata = this.trigger('render', { target: this.name, box: box ?? this.box })
         if (edata.isCancelled === true) return
-
+        // defaul action
         if (box != null) {
+            // clean previous box
             if (query(this.box).find('.w2ui-scroll-wrapper .w2ui-tb-right').length > 0) {
                 query(this.box)
                     .removeAttr('name')
@@ -525,11 +527,11 @@ class w2toolbar extends w2base {
         this.resize()
         // event after
         edata.finish()
-        return (new Date()).getTime() - time
+        return Date.now() - time
     }
 
     refresh(id) {
-        let time = (new Date()).getTime()
+        let time = Date.now()
         // event before
         let edata = this.trigger('refresh', { target: (id != null ? id : this.name), item: this.get(id) })
         if (edata.isCancelled === true) return
@@ -588,11 +590,11 @@ class w2toolbar extends w2base {
             edata2.finish()
         }
         edata.finish()
-        return (new Date()).getTime() - time
+        return Date.now() - time
     }
 
     resize() {
-        let time = (new Date()).getTime()
+        let time = Date.now()
         // event before
         let edata = this.trigger('resize', { target: this.name })
         if (edata.isCancelled === true) return
@@ -617,7 +619,7 @@ class w2toolbar extends w2base {
         })
         // event after
         edata.finish()
-        return (new Date()).getTime() - time
+        return Date.now() - time
     }
 
     destroy() {

@@ -5220,9 +5220,15 @@ class w2grid extends w2base {
     }
 
     render(box) {
-        let obj  = this
         let time = Date.now()
+        let obj  = this
+        if (typeof box == 'string') box = query(box).get(0)
+        // event before
+        let edata = this.trigger('render', { target: this.name, box: box ?? this.box })
+        if (edata.isCancelled === true) return
+        // default action
         if (box != null) {
+            // clean previous box
             if (query(this.box).find(`#grid_${this.name}_body`).length > 0) {
                 query(this.box)
                     .removeAttr('name')
@@ -5233,9 +5239,6 @@ class w2grid extends w2base {
         }
         if (!this.box) return
         let url = (typeof this.url != 'object' ? this.url : this.url.get)
-        // event before
-        let edata = this.trigger('render', { target: this.name, box: box })
-        if (edata.isCancelled === true) return
         // reset needed if grid existed
         this.reset(true)
         // --- default search field
@@ -7194,10 +7197,10 @@ class w2grid extends w2base {
         let frecords = $(this.box).find('#grid_'+ this.name +'_frecords')
         // sync scroll positions
         if (event) {
-            let sTop                                         = event.target.scrollTop
-            let sLeft                                        = event.target.scrollLeft
-            this.last.scrollTop                              = sTop
-            this.last.scrollLeft                             = sLeft
+            let sTop  = event.target.scrollTop
+            let sLeft = event.target.scrollLeft
+            this.last.scrollTop  = sTop
+            this.last.scrollLeft = sLeft
             $(this.box).find('#grid_'+ this.name +'_columns')[0].scrollLeft = sLeft
             $(this.box).find('#grid_'+ this.name +'_summary')[0].scrollLeft = sLeft
             frecords[0].scrollTop                            = sTop

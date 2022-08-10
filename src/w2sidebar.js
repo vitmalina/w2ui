@@ -802,13 +802,15 @@ class w2sidebar extends w2base {
     }
 
     render(box) {
-        let time = (new Date()).getTime()
+        let time = Date.now()
         let obj  = this
+        if (typeof box == 'string') box = query(box).get(0)
         // event before
-        let edata = this.trigger('render', { target: this.name, box: box })
+        let edata = this.trigger('render', { target: this.name, box: box ?? this.box })
         if (edata.isCancelled === true) return
         // default action
         if (box != null) {
+            // clean previous box
             if (query(this.box).find('.w2ui-sidebar-body').length > 0) {
                 query(this.box)
                     .removeAttr('name')
@@ -872,7 +874,7 @@ class w2sidebar extends w2base {
         edata.finish()
         // ---
         this.refresh()
-        return (new Date()).getTime() - time
+        return Date.now() - time
     }
 
     update(id, options) {
@@ -940,7 +942,7 @@ class w2sidebar extends w2base {
 
     refresh(id, noBinding) {
         if (this.box == null) return
-        let time = (new Date()).getTime()
+        let time = Date.now()
         // event before
         let edata = this.trigger('refresh', { target: (id != null ? id : this.name),
             fullRefresh: (id != null ? false : true) })
@@ -1029,7 +1031,7 @@ class w2sidebar extends w2base {
         }
         // event after
         edata.finish()
-        return (new Date()).getTime() - time
+        return Date.now() - time
 
         function getNodeHTML(nd) {
             let html = ''
@@ -1154,7 +1156,7 @@ class w2sidebar extends w2base {
     }
 
     resize() {
-        let time = (new Date()).getTime()
+        let time = Date.now()
         // event before
         let edata = this.trigger('resize', { target: this.name })
         if (edata.isCancelled === true) return
@@ -1167,7 +1169,7 @@ class w2sidebar extends w2base {
         })
         // event after
         edata.finish()
-        return (new Date()).getTime() - time
+        return Date.now() - time
     }
 
     destroy() {
