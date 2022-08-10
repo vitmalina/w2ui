@@ -438,7 +438,7 @@ class w2form extends w2base {
             }
             case 'check':
             case 'checks': {
-                value = (!Array.isArray(value) && value != null) ? [value] : []
+                value = (!Array.isArray(value) && value != null) ? [value] : value
                 value = value.map(val => val?.id ?? val) // convert if array of objects
                 let inputs = query(el).closest('div').find('input')
                 let items  = field.options.items
