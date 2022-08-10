@@ -16,7 +16,7 @@
 query(() => {
     new w2grid({
         name: 'grid',
-        box: query('#grid')[0],
+        box: '#grid',
         url: 'data/list2.json',
         method: 'GET', // need this to avoid 412 error on Safari
         columns: [

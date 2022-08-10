@@ -29,7 +29,7 @@ var instant = false;
 query(() => {
     let pstyle = 'border: 1px solid #efefef; padding: 5px;';
     new w2layout({
-        box: query('#layout')[0],
+        box: '#layout',
         name: 'layout',
         panels: [
             { type: 'top', size: 50, resizable: true, hidden: true, style: pstyle, html: 'top' },

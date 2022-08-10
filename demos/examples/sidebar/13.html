@@ -37,7 +37,7 @@
 var bp = []
 query(() => {
     new w2sidebar({
-        box: query('#sidebar')[0],
+        box: '#sidebar',
         name: 'sidebar',
         levelPadding: 20,
         line: 0,
@@ -98,6 +98,6 @@ query(() => {
     w2ui.sidebar.handle = w2utils.extend({}, nh)
     w2utils.extend(nh, { size: 0 })
     // ----
-    w2ui.sidebar.render(query('#sidebar')[0])
+    w2ui.sidebar.render('#sidebar')
 })
 </script>

@@ -54,7 +54,7 @@ var config = {
 
 query(() => {
     let tabs = new w2tabs(config.tabs)
-    tabs.render(query('#tabs')[0])
+    tabs.render('#tabs')
     query('#tab1').show()
 })
 </script>
