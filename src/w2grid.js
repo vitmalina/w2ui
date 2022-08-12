@@ -1357,8 +1357,8 @@ class w2grid extends w2base {
         let self = this
         let range, _left, _top
         let time = Date.now()
-        let rec1 = query(this.box).find('#grid_'+ this.name +'_frecords')
-        let rec2 = query(this.box).find('#grid_'+ this.name +'_records')
+        let rec1 = query(this.box).find(`#grid_${this.name}_frecords`)
+        let rec2 = query(this.box).find(`#grid_${this.name}_records`)
         for (let i = 0; i < this.ranges.length; i++) {
             let rg    = this.ranges[i]
             let first = rg.range[0]
@@ -2674,7 +2674,7 @@ class w2grid extends w2base {
         this.last.range_start = null
         this.last.range_end   = null
         // additional
-        query(this.box).find('#grid_'+ this.name +'_records').prop('scrollTop', 0)
+        query(this.box).find(`#grid_${this.name}_records`).prop('scrollTop', 0)
         // refresh
         if (!noRefresh) this.refresh()
     }
@@ -4225,7 +4225,7 @@ class w2grid extends w2base {
                 ind = this.get(sel[0], true)
             }
         }
-        let records = query(this.box).find('#grid_'+ this.name +'_records')
+        let records = query(this.box).find(`#grid_${this.name}_records`)
         let recWidth  = records[0].clientWidth
         let recHeight = records[0].clientHeight
         let recSTop   = records[0].scrollTop
@@ -4585,7 +4585,7 @@ class w2grid extends w2base {
             if (this.searchData.length > 0) this.localSearch(true)
             // reset vertical scroll
             this.last.scrollTop = 0
-            query(this.box).find('#grid_'+ this.name +'_records').prop('scrollTop', 0)
+            query(this.box).find(`#grid_${this.name}_records`).prop('scrollTop', 0)
             // event after
             edata.finish({ direction })
             this.refresh()
@@ -4944,9 +4944,9 @@ class w2grid extends w2base {
         if (edata.isCancelled === true) return
         // -- header
         if (this.show.header) {
-            query(this.box).find('#grid_'+ this.name +'_header').html(w2utils.lang(this.header) +'&#160;').show()
+            query(this.box).find(`#grid_${this.name}_header`).html(w2utils.lang(this.header) +'&#160;').show()
         } else {
-            query(this.box).find('#grid_'+ this.name +'_header').hide()
+            query(this.box).find(`#grid_${this.name}_header`).hide()
         }
         // -- toolbar
         if (this.show.toolbar) {
@@ -6241,10 +6241,10 @@ class w2grid extends w2base {
 
     resizeBoxes() {
         // elements
-        let header   = query(this.box).find('#grid_'+ this.name +'_header')
-        let toolbar  = query(this.box).find('#grid_'+ this.name +'_toolbar')
-        let fsummary = query(this.box).find('#grid_'+ this.name +'_fsummary')
-        let summary  = query(this.box).find('#grid_'+ this.name +'_summary')
+        let header   = query(this.box).find(`#grid_${this.name}_header`)
+        let toolbar  = query(this.box).find(`#grid_${this.name}_toolbar`)
+        let fsummary = query(this.box).find(`#grid_${this.name}_fsummary`)
+        let summary  = query(this.box).find(`#grid_${this.name}_summary`)
         let footer   = query(this.box).find(`#grid_${this.name}_footer`)
         let body     = query(this.box).find(`#grid_${this.name}_body`)
 
@@ -6290,58 +6290,61 @@ class w2grid extends w2base {
     resizeRecords() {
         let obj = this
         // remove empty records
-        $(this.box).find('.w2ui-empty-record').remove()
+        query(this.box).find('.w2ui-empty-record').remove()
         // -- Calculate Column size in PX
-        let box             = $(this.box)
-        let grid            = $(this.box).find('> div.w2ui-grid-box')
-        let header          = $(this.box).find('#grid_'+ this.name +'_header')
-        let toolbar         = $(this.box).find('#grid_'+ this.name +'_toolbar')
-        let summary         = $(this.box).find('#grid_'+ this.name +'_summary')
-        let fsummary        = $(this.box).find('#grid_'+ this.name +'_fsummary')
-        let footer          = $(this.box).find(`#grid_${this.name}_footer`)
-        let body            = $(this.box).find(`#grid_${this.name}_body`)
-        let columns         = $(this.box).find('#grid_'+ this.name +'_columns')
-        let fcolumns        = $(this.box).find('#grid_'+ this.name +'_fcolumns')
-        let records         = $(this.box).find('#grid_'+ this.name +'_records')
-        let frecords        = $(this.box).find('#grid_'+ this.name +'_frecords')
-        let scroll1         = $(this.box).find('#grid_'+ this.name +'_scroll1')
+        let box             = query(this.box)
+        let grid            = query(this.box).find(':scope > div.w2ui-grid-box')
+        let header          = query(this.box).find(`#grid_${this.name}_header`)
+        let toolbar         = query(this.box).find(`#grid_${this.name}_toolbar`)
+        let summary         = query(this.box).find(`#grid_${this.name}_summary`)
+        let fsummary        = query(this.box).find(`#grid_${this.name}_fsummary`)
+        let footer          = query(this.box).find(`#grid_${this.name}_footer`)
+        let body            = query(this.box).find(`#grid_${this.name}_body`)
+        let columns         = query(this.box).find(`#grid_${this.name}_columns`)
+        let fcolumns        = query(this.box).find(`#grid_${this.name}_fcolumns`)
+        let records         = query(this.box).find(`#grid_${this.name}_records`)
+        let frecords        = query(this.box).find(`#grid_${this.name}_frecords`)
+        let scroll1         = query(this.box).find(`#grid_${this.name}_scroll1`)
         let lineNumberWidth = String(this.total).length * 8 + 10
         if (lineNumberWidth < 34) lineNumberWidth = 34 // 3 digit width
         if (this.lineNumberWidth != null) lineNumberWidth = this.lineNumberWidth
 
         let bodyOverflowX = false
         let bodyOverflowY = false
-        let sWidth        = 0
+        let sWidth = 0
         for (let i = 0; i < this.columns.length; i++) {
             if (this.columns[i].frozen || this.columns[i].hidden) continue
             let cSize = parseInt(this.columns[i].sizeCalculated ? this.columns[i].sizeCalculated : this.columns[i].size)
-            sWidth   += cSize
+            sWidth += cSize
         }
-        if (records.width() < sWidth) bodyOverflowX = true
-        if (body.height() - columns.height() < $(records).find('>table').height() + (bodyOverflowX ? w2utils.scrollBarSize() : 0)) bodyOverflowY = true
+        if (records[0]?.clientWidth < sWidth) bodyOverflowX = true
+        if (body[0].clientHeight - (columns[0]?.clientHeight ?? 0)
+                < (query(records).find(':scope > table')[0]?.clientHeight ?? 0) + (bodyOverflowX ? w2utils.scrollBarSize() : 0)) {
+            bodyOverflowY = true
+        }
 
         // body might be expanded by data
         if (!this.fixedBody) {
             // allow it to render records, then resize
-            let calculatedHeight = w2utils.getSize(columns, 'height')
-                + w2utils.getSize($(this.box).find('#grid_'+ this.name +'_records table'), 'height')
+            let bodyHeight = w2utils.getSize(columns, 'height')
+                + w2utils.getSize(query(this.box).find('#grid_'+ this.name +'_records table'), 'height')
                 + (bodyOverflowX ? w2utils.scrollBarSize() : 0)
-            this.height = calculatedHeight
+            let calculatedHeight = bodyHeight
                 + (this.show.header ? w2utils.getSize(header, 'height') : 0)
                 + (this.show.toolbar ? w2utils.getSize(toolbar, 'height') : 0)
                 + (summary.css('display') != 'none' ? w2utils.getSize(summary, 'height') : 0)
                 + (this.show.footer ? w2utils.getSize(footer, 'height') : 0)
-            grid.css('height', this.height)
-            body.css('height', calculatedHeight)
-            box.css('height', w2utils.getSize(grid, 'height'))
+            grid.css('height', calculatedHeight + 'px')
+            body.css('height', bodyHeight + 'px')
+            box.css('height', w2utils.getSize(grid, 'height') + 'px')
         } else {
             // fixed body height
-            let calculatedHeight = grid.height()
+            let calculatedHeight = grid[0].clientHeight
                 - (this.show.header ? w2utils.getSize(header, 'height') : 0)
                 - (this.show.toolbar ? w2utils.getSize(toolbar, 'height') : 0)
                 - (summary.css('display') != 'none' ? w2utils.getSize(summary, 'height') : 0)
                 - (this.show.footer ? w2utils.getSize(footer, 'height') : 0)
-            body.css('height', calculatedHeight)
+            body.css('height', calculatedHeight + 'px')
         }
 
         let buffered = this.records.length
@@ -6350,7 +6353,9 @@ class w2grid extends w2base {
         // apply overflow
         if (!this.fixedBody) { bodyOverflowY = false }
         if (bodyOverflowX || bodyOverflowY) {
-            columns.find('> table > tbody > tr:nth-child(1) td.w2ui-head-last').css('width', w2utils.scrollBarSize()).show()
+            columns.find(':scope > table > tbody > tr:nth-child(1) td.w2ui-head-last')
+                .css('width', w2utils.scrollBarSize() + 'px')
+                .show()
             records.css({
                 top: ((this.columnGroups.length > 0 && this.show.columns ? 1 : 0) + w2utils.getSize(columns, 'height')) +'px',
                 '-webkit-overflow-scrolling': 'touch',
@@ -6358,7 +6363,7 @@ class w2grid extends w2base {
                 'overflow-y': (bodyOverflowY ? 'auto' : 'hidden')
             })
         } else {
-            columns.find('> table > tbody > tr:nth-child(1) td.w2ui-head-last').hide()
+            columns.find(':scope > table > tbody > tr:nth-child(1) td.w2ui-head-last').hide()
             records.css({
                 top: ((this.columnGroups.length > 0 && this.show.columns ? 1 : 0) + w2utils.getSize(columns, 'height')) +'px',
                 overflow: 'hidden'
@@ -6366,7 +6371,7 @@ class w2grid extends w2base {
             if (records.length > 0) { this.last.scrollTop = 0; this.last.scrollLeft = 0 } // if no scrollbars, always show top
         }
         if (bodyOverflowX) {
-            frecords.css('margin-bottom', w2utils.scrollBarSize())
+            frecords.css('margin-bottom', w2utils.scrollBarSize() + 'px')
             scroll1.show()
         } else {
             frecords.css('margin-bottom', 0)
@@ -6374,7 +6379,7 @@ class w2grid extends w2base {
         }
         frecords.css({ overflow: 'hidden', top: records.css('top') })
         if (this.show.emptyRecords && !bodyOverflowY) {
-            let max      = Math.floor(records.height() / this.recordHeight) - 1
+            let max = Math.floor((records[0]?.clientHeight ?? 0) / this.recordHeight) - 1
             let leftover = 0
             if (records[0]) leftover = records[0].scrollHeight - max * this.recordHeight
             if (leftover >= this.recordHeight) {
@@ -6408,12 +6413,12 @@ class w2grid extends w2base {
             }
             html1 += '<td class="w2ui-grid-data-last"></td> </tr>'
             html2 += '<td class="w2ui-grid-data-last" col="end"></td> </tr>'
-            $(grid.box).find('#grid_'+ grid.name +'_frecords > table').append(html1)
-            $(grid.box).find('#grid_'+ grid.name +'_records > table').append(html2)
+            query(grid.box).find('#grid_'+ grid.name +'_frecords > table').append(html1)
+            query(grid.box).find('#grid_'+ grid.name +'_records > table').append(html2)
         }
         let width_box, percent
         if (body.length > 0) {
-            let width_max = parseInt(body.width())
+            let width_max = parseInt(body[0].clientWidth)
                 - (bodyOverflowY ? w2utils.scrollBarSize() : 0)
                 - (this.show.lineNumbers ? lineNumberWidth : 0)
                 // - (this.show.orderColumn ? 26 : 0)
@@ -6446,9 +6451,9 @@ class w2grid extends w2base {
                 let col = this.columns[i]
                 if (col.hidden) continue
                 if (String(col.size).substr(String(col.size).length-2).toLowerCase() == 'px') {
-                    width_max                     -= parseFloat(col.size)
+                    width_max -= parseFloat(col.size)
                     this.columns[i].sizeCalculated = col.size
-                    this.columns[i].sizeType       = 'px'
+                    this.columns[i].sizeType = 'px'
                 } else {
                     percent                 += parseFloat(col.size)
                     this.columns[i].sizeType = '%'
@@ -6503,7 +6508,9 @@ class w2grid extends w2base {
                 i++
             }
         } else if (width_diff > 0) {
-            columns.find('> table > tbody > tr:nth-child(1) td.w2ui-head-last').css('width', w2utils.scrollBarSize()).show()
+            columns.find(':scope > table > tbody > tr:nth-child(1) td.w2ui-head-last')
+                .css('width', w2utils.scrollBarSize() + 'px')
+                .show()
         }
 
         // find width of frozen columns
@@ -6516,24 +6523,24 @@ class w2grid extends w2base {
             if (this.columns[i].hidden) continue
             if (this.columns[i].frozen) fwidth += parseInt(this.columns[i].sizeCalculated)
         }
-        fcolumns.css('width', fwidth)
-        frecords.css('width', fwidth)
-        fsummary.css('width', fwidth)
-        scroll1.css('width', fwidth)
-        columns.css('left', fwidth)
-        records.css('left', fwidth)
-        summary.css('left', fwidth)
+        fcolumns.css('width', fwidth + 'px')
+        frecords.css('width', fwidth + 'px')
+        fsummary.css('width', fwidth + 'px')
+        scroll1.css('width', fwidth + 'px')
+        columns.css('left', fwidth + 'px')
+        records.css('left', fwidth + 'px')
+        summary.css('left', fwidth + 'px')
 
         // resize columns
-        columns.find('> table > tbody > tr:nth-child(1) td')
-            .add(fcolumns.find('> table > tbody > tr:nth-child(1) td'))
-            .each((index, el) => {
+        columns.find(':scope > table > tbody > tr:nth-child(1) td')
+            .add(fcolumns.find(':scope > table > tbody > tr:nth-child(1) td'))
+            .each(el => {
                 // line numbers
-                if ($(el).hasClass('w2ui-col-number')) {
-                    $(el).css('width', lineNumberWidth)
+                if (query(el).hasClass('w2ui-col-number')) {
+                    query(el).css('width', lineNumberWidth + 'px')
                 }
                 // records
-                let ind = $(el).attr('col')
+                let ind = query(el).attr('col')
                 if (ind != null) {
                     if (ind == 'start') {
                         let width = 0
@@ -6541,45 +6548,45 @@ class w2grid extends w2base {
                             if (!obj.columns[i] || obj.columns[i].frozen || obj.columns[i].hidden) continue
                             width += parseInt(obj.columns[i].sizeCalculated)
                         }
-                        $(el).css('width', width + 'px')
+                        query(el).css('width', width + 'px')
                     }
-                    if (obj.columns[ind]) $(el).css('width', obj.columns[ind].sizeCalculated)
+                    if (obj.columns[ind]) query(el).css('width', obj.columns[ind].sizeCalculated) // already has px
                 }
                 // last column
-                if ($(el).hasClass('w2ui-head-last')) {
+                if (query(el).hasClass('w2ui-head-last')) {
                     if (obj.last.colEnd + 1 < obj.columns.length) {
                         let width = 0
                         for (let i = obj.last.colEnd + 1; i < obj.columns.length; i++) {
                             if (!obj.columns[i] || obj.columns[i].frozen || obj.columns[i].hidden) continue
                             width += parseInt(obj.columns[i].sizeCalculated)
                         }
-                        $(el).css('width', width + 'px')
+                        query(el).css('width', width + 'px')
                     } else {
-                        $(el).css('width', w2utils.scrollBarSize() + (width_diff > 0 && percent === 0 ? width_diff : 0) + 'px')
+                        query(el).css('width', w2utils.scrollBarSize() + (width_diff > 0 && percent === 0 ? width_diff : 0) + 'px')
                     }
                 }
             })
         // if there are column groups - hide first row (needed for sizing)
-        if (columns.find('> table > tbody > tr').length == 3) {
-            columns.find('> table > tbody > tr:nth-child(1) td')
-                .add(fcolumns.find('> table > tbody > tr:nth-child(1) td'))
+        if (columns.find(':scope > table > tbody > tr').length == 3) {
+            columns.find(':scope > table > tbody > tr:nth-child(1) td')
+                .add(fcolumns.find(':scope > table > tbody > tr:nth-child(1) td'))
                 .html('').css({
-                    'height' : '0px',
-                    'border' : '0px',
-                    'padding': '0px',
-                    'margin' : '0px'
+                    'height' : '0',
+                    'border' : '0',
+                    'padding': '0',
+                    'margin' : '0'
                 })
         }
         // resize records
-        records.find('> table > tbody > tr:nth-child(1) td')
-            .add(frecords.find('> table > tbody > tr:nth-child(1) td'))
-            .each((index, el) =>{
+        records.find(':scope > table > tbody > tr:nth-child(1) td')
+            .add(frecords.find(':scope > table > tbody > tr:nth-child(1) td'))
+            .each(el =>{
                 // line numbers
-                if ($(el).hasClass('w2ui-col-number')) {
-                    $(el).css('width', lineNumberWidth)
+                if (query(el).hasClass('w2ui-col-number')) {
+                    query(el).css('width', lineNumberWidth + 'px')
                 }
                 // records
-                let ind = $(el).attr('col')
+                let ind = query(el).attr('col')
                 if (ind != null) {
                     if (ind == 'start') {
                         let width = 0
@@ -6587,34 +6594,34 @@ class w2grid extends w2base {
                             if (!obj.columns[i] || obj.columns[i].frozen || obj.columns[i].hidden) continue
                             width += parseInt(obj.columns[i].sizeCalculated)
                         }
-                        $(el).css('width', width + 'px')
+                        query(el).css('width', width + 'px')
                     }
-                    if (obj.columns[ind]) $(el).css('width', obj.columns[ind].sizeCalculated)
+                    if (obj.columns[ind]) query(el).css('width', obj.columns[ind].sizeCalculated)
                 }
                 // last column
-                if ($(el).hasClass('w2ui-grid-data-last') && $(el).parents('.w2ui-grid-frecords').length === 0) { // not in frecords
+                if (query(el).hasClass('w2ui-grid-data-last') && query(el).parents('.w2ui-grid-frecords').length === 0) { // not in frecords
                     if (obj.last.colEnd + 1 < obj.columns.length) {
                         let width = 0
                         for (let i = obj.last.colEnd + 1; i < obj.columns.length; i++) {
                             if (!obj.columns[i] || obj.columns[i].frozen || obj.columns[i].hidden) continue
                             width += parseInt(obj.columns[i].sizeCalculated)
                         }
-                        $(el).css('width', width + 'px')
+                        query(el).css('width', width + 'px')
                     } else {
-                        $(el).css('width', (width_diff > 0 && percent === 0 ? width_diff : 0) + 'px')
+                        query(el).css('width', (width_diff > 0 && percent === 0 ? width_diff : 0) + 'px')
                     }
                 }
             })
         // resize summary
-        summary.find('> table > tbody > tr:nth-child(1) td')
-            .add(fsummary.find('> table > tbody > tr:nth-child(1) td'))
-            .each((index, el) => {
+        summary.find(':scope > table > tbody > tr:nth-child(1) td')
+            .add(fsummary.find(':scope > table > tbody > tr:nth-child(1) td'))
+            .each(el => {
                 // line numbers
-                if ($(el).hasClass('w2ui-col-number')) {
-                    $(el).css('width', lineNumberWidth)
+                if (query(el).hasClass('w2ui-col-number')) {
+                    query(el).css('width', lineNumberWidth + 'px')
                 }
                 // records
-                let ind = $(el).attr('col')
+                let ind = query(el).attr('col')
                 if (ind != null) {
                     if (ind == 'start') {
                         let width = 0
@@ -6622,22 +6629,22 @@ class w2grid extends w2base {
                             if (!obj.columns[i] || obj.columns[i].frozen || obj.columns[i].hidden) continue
                             width += parseInt(obj.columns[i].sizeCalculated)
                         }
-                        $(el).css('width', width + 'px')
+                        query(el).css('width', width + 'px')
                     }
-                    if (obj.columns[ind]) $(el).css('width', obj.columns[ind].sizeCalculated)
+                    if (obj.columns[ind]) query(el).css('width', obj.columns[ind].sizeCalculated)
                 }
                 // last column
-                if ($(el).hasClass('w2ui-grid-data-last') && $(el).parents('.w2ui-grid-frecords').length === 0) { // not in frecords
-                    $(el).css('width', w2utils.scrollBarSize() + (width_diff > 0 && percent === 0 ? width_diff : 0) + 'px')
+                if (query(el).hasClass('w2ui-grid-data-last') && query(el).parents('.w2ui-grid-frecords').length === 0) { // not in frecords
+                    query(el).css('width', w2utils.scrollBarSize() + (width_diff > 0 && percent === 0 ? width_diff : 0) + 'px')
                 }
             })
         this.initResize()
         this.refreshRanges()
         // apply last scroll if any
         if ((this.last.scrollTop || this.last.scrollLeft) && records.length > 0) {
-            columns.prop('scrollLeft', this.last.scrollLeft)
-            records.prop('scrollTop', this.last.scrollTop)
-            records.prop('scrollLeft', this.last.scrollLeft)
+            columns.prop('scrollLeft', this.last.scrollLeft + 'px')
+            records.prop('scrollTop', this.last.scrollTop + 'px')
+            records.prop('scrollLeft', this.last.scrollLeft + 'px')
         }
     }
 
@@ -7136,8 +7143,8 @@ class w2grid extends w2base {
         if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length
         // larger number works better with chrome, smaller with FF.
         if (buffered > this.vs_start) this.last.show_extra = this.vs_extra; else this.last.show_extra = this.vs_start
-        let records = $(this.box).find('#grid_'+ this.name +'_records')
-        let limit   = Math.floor((records.height() || 0) / this.recordHeight) + this.last.show_extra + 1
+        let records = query(this.box).find(`#grid_${this.name}_records`)
+        let limit   = Math.floor((records.get(0)?.clientHeight || 0) / this.recordHeight) + this.last.show_extra + 1
         if (!this.fixedBody || limit > buffered) limit = buffered
         // always need first record for resizing purposes
         let rec_html = this.getRecordHTML(-1, 0)
@@ -7193,17 +7200,17 @@ class w2grid extends w2base {
     scroll(event) {
         let obj      = this
         let url      = (typeof this.url != 'object' ? this.url : this.url.get)
-        let records  = $(this.box).find('#grid_'+ this.name +'_records')
-        let frecords = $(this.box).find('#grid_'+ this.name +'_frecords')
+        let records  = $(this.box).find(`#grid_${this.name}_records`)
+        let frecords = $(this.box).find(`#grid_${this.name}_frecords`)
         // sync scroll positions
         if (event) {
             let sTop  = event.target.scrollTop
             let sLeft = event.target.scrollLeft
             this.last.scrollTop  = sTop
             this.last.scrollLeft = sLeft
-            $(this.box).find('#grid_'+ this.name +'_columns')[0].scrollLeft = sLeft
-            $(this.box).find('#grid_'+ this.name +'_summary')[0].scrollLeft = sLeft
-            frecords[0].scrollTop                            = sTop
+            query(this.box).find(`#grid_${this.name}_columns`)[0].scrollLeft = sLeft
+            query(this.box).find(`#grid_${this.name}_summary`)[0].scrollLeft = sLeft
+            frecords[0].scrollTop = sTop
         }
         // hide bubble
         if (this.last.bubbleEl) {
@@ -7315,10 +7322,10 @@ class w2grid extends w2base {
                     let colHTML   = this.getColumnsHTML()
                     let recHTML   = this.getRecordsHTML()
                     let sumHTML   = this.getSummaryHTML()
-                    let $columns  = $box.find('#grid_'+ this.name +'_columns')
-                    let $records  = $box.find('#grid_'+ this.name +'_records')
-                    let $frecords = $box.find('#grid_'+ this.name +'_frecords')
-                    let $summary  = $box.find('#grid_'+ this.name +'_summary')
+                    let $columns  = $box.find(`#grid_${this.name}_columns`)
+                    let $records  = $box.find(`#grid_${this.name}_records`)
+                    let $frecords = $box.find(`#grid_${this.name}_frecords`)
+                    let $summary  = $box.find(`#grid_${this.name}_summary`)
                     $columns.find('tbody').html(colHTML[1])
                     $frecords.html(recHTML[0])
                     $records.prepend(recHTML[1])
@@ -7829,7 +7836,7 @@ class w2grid extends w2base {
         if (typeof col.clipboardCopy == 'function') {
             txt = col.clipboardCopy(rec, { self: this, index: ind, colIndex: col_ind, summary: !!summary })
         }
-        $(this.box).find('#grid_' + this.name + '_focus').text(txt).select()
+        query(this.box).find('#grid_' + this.name + '_focus').text(txt).get(0).select()
         document.execCommand('copy')
     }
 
@@ -8021,7 +8028,7 @@ class w2grid extends w2base {
 
     status(msg) {
         if (msg != null) {
-            $(this.box).find(`#grid_${this.name}_footer`).find('.w2ui-footer-left').html(msg)
+            query(this.box).find(`#grid_${this.name}_footer`).find('.w2ui-footer-left').html(msg)
         } else {
             // show number of selected
             let msgLeft = ''
@@ -8036,7 +8043,7 @@ class w2grid extends w2base {
                     msgLeft = w2utils.lang('Record ID') + ': '+ tmp + ' '
                 }
             }
-            $(this.box).find('#grid_'+ this.name +'_footer .w2ui-footer-left').html(msgLeft)
+            query(this.box).find('#grid_'+ this.name +'_footer .w2ui-footer-left').html(msgLeft)
         }
     }
 
@@ -8045,7 +8052,7 @@ class w2grid extends w2base {
         args.unshift(this.box)
         setTimeout(() => {
             // hide empty msg if any
-            $(this.box).find('#grid_'+ this.name +'_empty_msg').remove()
+            query(this.box).find('#grid_'+ this.name +'_empty_msg').remove()
             w2utils.lock(...args)
         }, 10)
     }
@@ -8053,7 +8060,7 @@ class w2grid extends w2base {
     unlock(speed) {
         setTimeout(() => {
             // do not unlock if there is a message
-            if ($(this.box).find('.w2ui-message').not('.w2ui-closing').length > 0) return
+            if (query(this.box).find('.w2ui-message').hasClass('w2ui-closing')) return
             w2utils.unlock(this.box, speed)
         }, 25) // needed timer so if server fast, it will not flash
     }
