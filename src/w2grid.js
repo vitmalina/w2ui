@@ -216,7 +216,7 @@ class w2grid extends w2base {
         this.disableCVS        = false // disable Column Virtual Scroll
         this.nestedFields      = true // use field name containing dots as separator to look into object
         this.vs_start          = 150
-        this.vs_extra          = 15
+        this.vs_extra          = 5
         this.style             = ''
         this.tabIndex          = null
         this.method            = null // if defined, then overwrites ajax method
@@ -6642,9 +6642,9 @@ class w2grid extends w2base {
         this.refreshRanges()
         // apply last scroll if any
         if ((this.last.scrollTop || this.last.scrollLeft) && records.length > 0) {
-            columns.prop('scrollLeft', this.last.scrollLeft + 'px')
-            records.prop('scrollTop', this.last.scrollTop + 'px')
-            records.prop('scrollLeft', this.last.scrollLeft + 'px')
+            columns.prop('scrollLeft', this.last.scrollLeft)
+            records.prop('scrollTop', this.last.scrollTop)
+            records.prop('scrollLeft', this.last.scrollLeft)
         }
     }
 
@@ -7200,8 +7200,8 @@ class w2grid extends w2base {
     scroll(event) {
         let obj      = this
         let url      = (typeof this.url != 'object' ? this.url : this.url.get)
-        let records  = $(this.box).find(`#grid_${this.name}_records`)
-        let frecords = $(this.box).find(`#grid_${this.name}_frecords`)
+        let records  = query(this.box).find(`#grid_${this.name}_records`)
+        let frecords = query(this.box).find(`#grid_${this.name}_frecords`)
         // sync scroll positions
         if (event) {
             let sTop  = event.target.scrollTop
@@ -7225,7 +7225,7 @@ class w2grid extends w2base {
             colStart = 0
             colEnd   = this.columns.length - 1
         } else {
-            let sWidth = records.width()
+            let sWidth = records.prop('clientWidth')
             let cLeft  = 0
             for (let i = 0; i < this.columns.length; i++) {
                 if (this.columns[i].frozen || this.columns[i].hidden) continue
@@ -7244,17 +7244,17 @@ class w2grid extends w2base {
             }
             // ---------
             if (colStart != this.last.colStart || colEnd != this.last.colEnd) {
-                let $box       = $(this.box)
+                let $box = query(this.box)
                 let deltaStart = Math.abs(colStart - this.last.colStart)
                 let deltaEnd   = Math.abs(colEnd - this.last.colEnd)
                 // add/remove columns for small jumps
                 if (deltaStart < 5 && deltaEnd < 5) {
-                    let $cfirst = $box.find('.w2ui-grid-columns #grid_'+ this.name +'_column_start')
-                    let $clast  = $box.find('.w2ui-grid-columns .w2ui-head-last')
-                    let $rfirst = $box.find('#grid_'+ this.name +'_records .w2ui-grid-data-spacer')
-                    let $rlast  = $box.find('#grid_'+ this.name +'_records .w2ui-grid-data-last')
-                    let $sfirst = $box.find('#grid_'+ this.name +'_summary .w2ui-grid-data-spacer')
-                    let $slast  = $box.find('#grid_'+ this.name +'_summary .w2ui-grid-data-last')
+                    let $cfirst = $box.find(`.w2ui-grid-columns #grid_${this.name}_column_start`)
+                    let $clast  = $box.find(`.w2ui-grid-columns .w2ui-head-last`)
+                    let $rfirst = $box.find(`#grid_${this.name}_records .w2ui-grid-data-spacer`)
+                    let $rlast  = $box.find(`#grid_${this.name}_records .w2ui-grid-data-last`)
+                    let $sfirst = $box.find(`#grid_${this.name}_summary .w2ui-grid-data-spacer`)
+                    let $slast  = $box.find(`#grid_${this.name}_summary .w2ui-grid-data-last`)
                     // remove on left
                     if (colStart > this.last.colStart) {
                         for (let i = this.last.colStart; i < colStart; i++) {
@@ -7278,17 +7278,17 @@ class w2grid extends w2base {
                             $cfirst.after(this.getColumnCellHTML(i)) // column
                             // record
                             $rfirst.each((ind, el) => {
-                                let index = $(el).parent().attr('index')
+                                let index = query(el).parent().attr('index')
                                 let td    = '<td class="w2ui-grid-data" col="'+ i +'" style="height: 0px"></td>' // width column
                                 if (index != null) td = this.getCellHTML(parseInt(index), i, false)
-                                $(el).after(td)
+                                query(el).after(td)
                             })
                             // summary
                             $sfirst.each((ind, el) => {
-                                let index = $(el).parent().attr('index')
+                                let index = query(el).parent().attr('index')
                                 let td    = '<td class="w2ui-grid-data" col="'+ i +'" style="height: 0px"></td>' // width column
                                 if (index != null) td = this.getCellHTML(parseInt(index), i, true)
-                                $(el).after(td)
+                                query(el).after(td)
                             })
                         }
                     }
@@ -7299,16 +7299,16 @@ class w2grid extends w2base {
                             $clast.before(this.getColumnCellHTML(i)) // column
                             // record
                             $rlast.each((ind, el) => {
-                                let index = $(el).parent().attr('index')
+                                let index = query(el).parent().attr('index')
                                 let td    = '<td class="w2ui-grid-data" col="'+ i +'" style="height: 0px"></td>' // width column
                                 if (index != null) td = this.getCellHTML(parseInt(index), i, false)
-                                $(el).before(td)
+                                query(el).before(td)
                             })
                             // summary
                             $slast.each((ind, el) => {
-                                let index = $(el).parent().attr('index') || -1
+                                let index = query(el).parent().attr('index') || -1
                                 let td    = this.getCellHTML(parseInt(index), i, true)
-                                $(el).before(td)
+                                query(el).before(td)
                             })
                         }
                     }
@@ -7332,7 +7332,7 @@ class w2grid extends w2base {
                     if (sumHTML != null) $summary.html(sumHTML[1])
                     // need timeout to clean up (otherwise scroll problem)
                     setTimeout(() => {
-                        $records.find('> table').not('table:first-child').remove()
+                        $records.find(':scope > table').filter(':not(table:first-child)').remove()
                         if ($summary[0]) $summary[0].scrollLeft = this.last.scrollLeft
                     }, 1)
                     this.resizeRecords()
@@ -7343,14 +7343,14 @@ class w2grid extends w2base {
         let buffered = this.records.length
         if (buffered > this.total && this.total !== -1) buffered = this.total
         if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length
-        if (buffered === 0 || records.length === 0 || records.height() === 0) return
+        if (buffered === 0 || records.length === 0 || records.prop('clientHeight') === 0) return
         if (buffered > this.vs_start) this.last.show_extra = this.vs_extra; else this.last.show_extra = this.vs_start
         // update footer
-        let t1 = Math.round(records[0].scrollTop / this.recordHeight + 1)
-        let t2 = t1 + (Math.round(records.height() / this.recordHeight) - 1)
+        let t1 = Math.round(records.prop('scrollTop') / this.recordHeight + 1)
+        let t2 = t1 + (Math.round(records.prop('clientHeight') / this.recordHeight) - 1)
         if (t1 > buffered) t1 = buffered
         if (t2 >= buffered - 1) t2 = buffered
-        $(this.box).find('#grid_'+ this.name + '_footer .w2ui-footer-right').html(
+        query(this.box).find('#grid_'+ this.name + '_footer .w2ui-footer-right').html(
             (this.show.statusRange
                 ? w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) +
                     (this.total != -1 ? ' ' + w2utils.lang('of') + ' ' + w2utils.formatNumber(this.total) : '')
@@ -7361,8 +7361,8 @@ class w2grid extends w2base {
         // only for local data source, else no extra records loaded
         if (!url && (!this.fixedBody || (this.total != -1 && this.total <= this.vs_start))) return
         // regular processing
-        let start = Math.floor(records[0].scrollTop / this.recordHeight) - this.last.show_extra
-        let end   = start + Math.floor(records.height() / this.recordHeight) + this.last.show_extra * 2 + 1
+        let start = Math.floor(records.prop('scrollTop') / this.recordHeight) - this.last.show_extra
+        let end   = start + Math.floor(records.prop('clientHeight') / this.recordHeight) + this.last.show_extra * 2 + 1
         // let div  = start - this.last.range_start;
         if (start < 1) start = 1
         if (end > this.total && this.total != -1) end = this.total
@@ -7398,7 +7398,7 @@ class w2grid extends w2base {
                 }
             }
             // add at bottom
-            tmp       = records.find('#grid_'+ this.name +'_rec_bottom').prev()
+            tmp = records.find('#grid_'+ this.name +'_rec_bottom').prev()
             rec_start = tmp.attr('line')
             if (rec_start == 'top') rec_start = start
             for (let i = parseInt(rec_start) + 1; i <= end; i++) {
@@ -7455,8 +7455,8 @@ class w2grid extends w2base {
         this.last.range_start = start
         this.last.range_end   = end
         // load more if needed
-        let s = Math.floor(records[0].scrollTop / this.recordHeight)
-        let e = s + Math.floor(records.height() / this.recordHeight)
+        let s = Math.floor(records.prop('scrollTop') / this.recordHeight)
+        let e = s + Math.floor(records.prop('clientHeight') / this.recordHeight)
         if (e + 10 > buffered && this.last.pull_more !== true && (buffered < this.total - this.offset || (this.total == -1 && this.last.xhr_hasMore))) {
             if (this.autoLoad === true) {
                 this.last.pull_more   = true
@@ -7464,13 +7464,13 @@ class w2grid extends w2base {
                 this.request('get')
             }
             // scroll function
-            let more = $(this.box).find('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more')
+            let more = query(this.box).find('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more')
             more.show()
                 .eq(1) // only main table
                 .off('.load-more')
                 .on('click.load-more', function() {
                     // show spinner
-                    $(this).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>')
+                    query(this).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>')
                     // load more
                     obj.last.pull_more   = true
                     obj.last.xhr_offset += obj.limit
@@ -7479,7 +7479,7 @@ class w2grid extends w2base {
                 .find('td')
                 .html(obj.autoLoad
                     ? '<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>'
-                    : '<div style="padding-top: 15px">'+ w2utils.lang('Load ${count} more...', {count: obj.limit}) + '</div>'
+                    : '<div style="padding-top: 15px">'+ w2utils.lang('Load ${count} more...', { count: obj.limit }) + '</div>'
                 )
         }
 
