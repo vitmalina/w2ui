@@ -22,11 +22,13 @@
 <script>
 var timeout
 
-$(function () {
-    $('#grid').w2grid({
+query(() => {
+    new w2grid({
         name: 'grid',
+        box: '#grid',
         show: {
-            lineNumbers: true
+            lineNumbers: true,
+            footer: true
         },
         url: 'data/list3.json',
         method: 'GET', // need this to avoid 412 error on Safari
@@ -68,7 +70,7 @@ function live(time) {
             if (stats.length > (1000 / time)) {
                 // calculate average time
                 let avg = Math.floor(Math.round(stats.reduce((prev, curr) => prev + curr) / stats.length * 10)) / 10
-                $('#log').html('Average update time: ' + avg + ' ms')
+                query('#log').html('Average update time: ' + avg + ' ms')
                 stats = []
             }
             stats.push(grid.update())

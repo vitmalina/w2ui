@@ -17,15 +17,14 @@ query(() => {
     new w2grid({
         name: 'grid',
         box: '#grid',
-        url: 'data/list.json',
-        method: 'GET', // need this to avoid 412 error on Safari
         columns: [
-            { field: 'fname', text: 'First Name', size: '30%', clipboardCopy: true },
-            { field: 'lname', text: 'Last Name', size: '30%', clipboardCopy: true },
+            { field: 'fname', text: 'First Name', size: '30%', searchable: 'text', clipboardCopy: true },
+            { field: 'lname', text: 'Last Name', size: '30%', searchable: 'text', clipboardCopy: true },
             { field: 'email', text: 'Email', size: '40%', clipboardCopy: true },
             { field: 'sdate', text: 'Start Date', size: '120px', clipboardCopy: true }
         ]
     })
+    w2ui.grid.load('data/list.json')
 })
 </script>
 

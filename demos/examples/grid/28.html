@@ -20,17 +20,38 @@ $(function () {
         columns: [
             { field: 'recid', text: 'ID', size: '100px', info: true },
             { field: 'fname', text: 'First Name', size: '150px', info: {} },
-            { field: 'lname', text: 'Last Name', size: '150px', info: { render: (rec, ind, col_ind) => { return '<i>' + rec.fname + '</i> <b>' + rec.lname + '</b>' }} },
+            { field: 'lname', text: 'Last Name', size: '150px',
+                info: {
+                    render: (rec, ind, col_ind) => { return '<i>' + rec.fname + '</i> <b>' + rec.lname + '</b>' }
+                }
+            },
             { field: 'email', text: 'Email', size: '200px', info: { maxLength: 10, showEmpty: true } },
-            { field: 'empty', text: 'Empty', size: '80px', info: { fields: ['sdate', 'email'], maxLength: 5, options: { position: 'top' }, style: 'color:#000' } },
-            { field: 'sdate', text: 'Start Date', size: '200px', info: { fields: {
-                'Person': (rec, ind, col_ind) => { return rec.fname + ' ' + rec.lname },
-                'Spacer': '---',
-                'Email' : 'email',
-                'Date'  : 'sdate',
-                'Extra' : (rec, ind, col_ind) => 'Extra info for record ' + ind
-            } } },
-            { field: 'number', text: 'Number', size: '100px', info: { fields: () => ['number', 'email'], showOn: 'mouseenter', hideOn: 'mouseleave', icon: 'w2ui-icon-search' } },
+            { field: 'empty', text: 'Empty', size: '80px',
+                info: {
+                    fields: ['sdate', 'email'],
+                    showOn: 'mouseenter',
+                    options: { position: 'top' },
+                    style: 'color: green'
+                }
+            },
+            { field: 'sdate', text: 'Start Date', size: '200px',
+                info: {
+                    fields: {
+                        'Person': (rec, ind, col_ind) => { return rec.fname + ' ' + rec.lname },
+                        'Spacer': '---',
+                        'Email' : 'email',
+                        'Date'  : 'sdate',
+                        'Extra' : (rec, ind, col_ind) => 'Extra info for record ' + ind
+                    },
+                    maxLength: 15
+                }
+            },
+            { field: 'number', text: 'Number', size: '100px',
+                info: {
+                    fields: () => ['number', 'email'],
+                    icon: 'w2ui-icon-search'
+                }
+            },
         ],
         "records": [
             { "recid": 1, "number": 123,  "fname": "John", "lname": "Doe", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },

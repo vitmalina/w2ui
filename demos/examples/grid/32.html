@@ -16,20 +16,19 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#grid').w2grid({
+query(() => {
+    new w2grid({
         name: 'grid',
-        header: 'List of Names',
-        url: 'data/list.json',
-        method: 'GET', // need this to avoid 412 error on Safari
+        box: '#grid',
         columns: [
-            { field: 'fname', text: 'First Name', size: '150px' },
-            { field: 'lname', text: 'Last Name', size: '150px' },
+            { field: 'fname', text: 'First Name', size: '150px', searchable: true },
+            { field: 'lname', text: 'Last Name', size: '150px', searchable: true },
             { field: 'email', text: 'Email', size: '200px' },
             { field: 'sdate', text: 'Start Date', size: '200px' }
         ],
-    });
-});
+    })
+    w2ui.grid.load('data/list.json')
+})
 
 function showMessage() {
     let grid = w2ui.grid
