@@ -213,6 +213,17 @@ class Tooltip {
         return ret
     }
 
+    update(name, html) {
+        let overlay = Tooltip.active[name]
+        if (overlay) {
+            overlay.needsUpdate = true
+            overlay.options.html = html
+            this.show(name)
+        } else {
+            console.log(`Tooltip "${name}" is not displayed. Cannot update it.`)
+        }
+    }
+
     show(name) {
         if (name instanceof HTMLElement || name instanceof Object) {
             let options = name
@@ -273,7 +284,8 @@ class Tooltip {
             if (edata.isCancelled === true) return
             // normal processing
             query('body').append(
-                `<div id="${overlay.id}" name="${name}" style="display: none;" class="w2ui-overlay"
+                // pointer-events will be re-enabled leter
+                `<div id="${overlay.id}" name="${name}" style="display: none; pointer-events: none" class="w2ui-overlay"
                         data-click="stop" data-focusin="stop">
                     <style></style>
                     <div class="w2ui-overlay-body ${options.class}" style="${options.style || ''}; ${overlayStyles}">
@@ -319,10 +331,14 @@ class Tooltip {
         Tooltip.observeRemove.observe(document.body, { subtree: true, childList: true })
         // then insert html and it will adjust
         query(overlay.box)
+            .css('opacity', 1)
             .find('.w2ui-overlay-body')
             .html(options.html)
-        // now, make visible, it has css opacity transition
-        setTimeout(() => { query(overlay.box).css('opacity', 1) }, 0)
+        /**
+         * pointer-events: none is needed to avoid cases when popup is shown right under the cursor
+         * or it will trigger onmouseout, onmouseleave and other events.
+         */
+        setTimeout(() => { query(overlay.box).css({ 'pointer-events': 'auto' }).data('ready', 'yes') }, 100)
         delete overlay.needsUpdate
         // expose overlay to DOM element
         overlay.box.overlay = overlay
@@ -592,8 +608,8 @@ class Tooltip {
         let extraLeft = (found == 'left' ? -options.margin : (found == 'right' ? options.margin : 0))
 
         // adjust for scrollbar
-        top = top + parseFloat(options.offsetY) + parseInt(extraTop)
-        left = left + parseFloat(options.offsetX) + parseInt(extraLeft)
+        top = Math.floor((top + parseFloat(options.offsetY) + parseInt(extraTop)) * 100) / 100
+        left = Math.floor((left + parseFloat(options.offsetX) + parseInt(extraLeft)) * 100) / 100
 
         return { left, top, arrow, adjust, width, height, pos: found }
 
@@ -1701,7 +1717,7 @@ class MenuTooltip extends Tooltip {
         }
         let edata
         if (query(event.target).hasClass('remove')) {
-            edata = this.trigger('remove', { target: overlay.name,
+            edata = this.trigger('remove', { originalEvent: event, target: overlay.name,
                         overlay, item, index, parentIndex, el: $item[0] })
             if (edata.isCancelled === true) {
                 return
@@ -1710,7 +1726,8 @@ class MenuTooltip extends Tooltip {
             $item.remove()
 
         } else if ($item.hasClass('has-sub-menu')) {
-            edata = this.trigger('subMenu', { target: overlay.name, overlay, item, index, parentIndex, el: $item[0] })
+            edata = this.trigger('subMenu', { originalEvent: event, target: overlay.name,
+                overlay, item, index, parentIndex, el: $item[0] })
             if (edata.isCancelled === true) {
                 return
             }
@@ -1730,7 +1747,8 @@ class MenuTooltip extends Tooltip {
             // find items that are selected
             let selected = this.findChecked(options.items)
             overlay.selected = parseInt($item.attr('index'))
-            edata = this.trigger('select', { target: overlay.name, overlay, item, index, parentIndex, selected, keepOpen, el: $item[0] })
+            edata = this.trigger('select', { originalEvent: event, target: overlay.name,
+                overlay, item, index, parentIndex, selected, keepOpen, el: $item[0] })
             if (edata.isCancelled === true) {
                 return
             }

@@ -43,8 +43,6 @@
  *  - batch for disabled buttons
  *  - naturla sort
  *  - resize on max content
- *  - context message
- *  - clipboard copy
  *
  * == KNOWN ISSUES ==
  *  - reorder records with school - not correct
@@ -298,8 +296,7 @@ class w2grid extends w2base {
                 overlay: { align: 'none' }
             },
             'search'   : { type: 'html', id: 'w2ui-search',
-                html: '<div class="w2ui-icon w2ui-icon-search w2ui-search-down" '+
-                      'onclick="let grid = w2ui[jQuery(this).parents(\'div.w2ui-grid\').attr(\'name\')]; grid.searchShowFields()"></div>'
+                html: '<div class="w2ui-icon w2ui-icon-search w2ui-search-down w2ui-action" data-click="searchShowFields"></div>'
             },
             'add'      : { type: 'button', id: 'w2ui-add', text: 'Add New', tooltip: 'Add new record', icon: 'w2ui-icon-plus' },
             'edit'     : { type: 'button', id: 'w2ui-edit', text: 'Edit', tooltip: 'Edit selected record', icon: 'w2ui-icon-pencil', batch: 1, disabled: true },
@@ -2626,7 +2623,7 @@ class w2grid extends w2base {
             anchor: query(this.box).find('#grid_'+ this.name +'_search_name').parent().find('.w2ui-search-down').get(0),
             items,
             align: 'none',
-            hideOn: ['doc-click']
+            hideOn: ['doc-click', 'select']
         })
             .select(event => {
                 this.searchInitInput(event.detail.item.search.field)
@@ -2838,7 +2835,7 @@ class w2grid extends w2base {
         this.last.xhr_cmd   = cmd
         this.last.xhr_start = Date.now()
         this.last.loaded    = false
-        this.last.xhr       = $.ajax(ajaxOptions)
+        this.last.xhr       = jQuery.ajax(ajaxOptions)
             .done((data, status, xhr) => {
                 this.requestComplete(status, xhr, cmd, callBack)
             })
@@ -3036,7 +3033,7 @@ class w2grid extends w2base {
 
                 // recursively look for changes in non-expanded children
                 if (rec.w2ui.expanded !== true && rec.w2ui.children && rec.w2ui.children.length) {
-                    $.merge(changes, this.getChanges(rec.w2ui.children))
+                    changes.push(...this.getChanges(rec.w2ui.children))
                 }
             }
         }
@@ -5131,6 +5128,7 @@ class w2grid extends w2base {
             '<div id="grid_'+ this.name +'_frecords" class="w2ui-grid-frecords" style="margin-bottom: '+ (w2utils.scrollBarSize() - 1) +'px;">'+
                 recHTML[0] +
             '</div>'+
+            // TODO: remove onscoll=
             '<div id="grid_'+ this.name +'_records" class="w2ui-grid-records" onscroll="w2ui[\''+ this.name +'\'].scroll(event);">' +
                 recHTML[1] +
             '</div>'+
@@ -5186,7 +5184,6 @@ class w2grid extends w2base {
             .on('mousewheel DOMMouseScroll ', (event) => {
                 event.preventDefault()
                 // TODO: improve, scroll is not smooth, if scrolled to the end, it takes a while to return
-
                 let scroll = gridBody.data('scroll')
                 let container = gridBody.find('.w2ui-grid-records')
                 let amount = typeof event.wheelDelta != null ? -event.wheelDelta : (event.detail || event.deltaY)
@@ -5199,6 +5196,97 @@ class w2grid extends w2base {
                 // make scroll amount dependent on visible rows
                 // amount *= (Math.round(records.prop('clientHeight') / self.recordHeight) - 1) * self.recordHeight / 4
                 container.get(0).scroll({ top: newScrollTop + amount, behavior: 'smooth' })
+            })
+
+        gridBody
+            .off('.body-global')
+            // header column click
+            .on('click.body-global dblclick.body-global contextmenu.body-global', { delegate: 'td.w2ui-head' }, event => {
+                let col_ind = query(event.delegate).attr('col')
+                let col = this.columns[col_ind] ?? { field: col_ind } // it could be line number
+                switch (event.type) {
+                    case 'click':
+                        this.columnClick(col.field, event)
+                        break
+                    case 'dblclick':
+                        this.columnDblClick(col.field, event)
+                        break
+                    case 'contextmenu':
+                        this.contextMenu(null, col_ind, event)
+                }
+            })
+            .on('mouseover.body-global', { delegate: '.w2ui-col-header' }, event => {
+                let col = query(event.delegate).parent().attr('col')
+                this.columnTooltipShow(col, event)
+                query(event.delegate)
+                    .off('.tooltip')
+                    .on('mouseleave.tooltip', () => {
+                        this.columnTooltipHide(col, event)
+                    })
+            })
+            // select all
+            .on('click.body-global', { delegate: 'input.w2ui-select-all' }, event => {
+                if (event.delegate.checked) { this.selectAll() } else { this.selectNone() }
+                event.stopPropagation()
+                clearTimeout(this.last.kbd_timer) // keep grid in focus
+            })
+            // tree-like grid (or expandable column) expand/collapse
+            .on('click.body-global', { delegate: '.w2ui-show-children, .w2ui-col-expand' }, event => {
+                event.stopPropagation()
+                this.toggle(query(event.target).parents('tr').attr('recid'))
+            })
+            // info bubbles
+            .on('click.body-global mouseover.body-global', { delegate: '.w2ui-info' }, event => {
+                let td = query(event.delegate).closest('td')
+                let tr = td.parent()
+                let col = this.columns[td.attr('col')]
+                if (['mouseenter', 'mouseover'].includes(col.info?.showOn?.toLowerCase()) && event.type == 'mouseover') {
+                    this.showBubble(tr.attr('index'), td.attr('col'), false)
+                        .then(() => {
+                            query(event.delegate)
+                                .off('.tooltip')
+                                .on('mouseleave.tooltip', () => { w2tooltip.hide(this.name + '-bubble') })
+                        })
+                } else if (event.type == 'click') {
+                    w2tooltip.hide(this.name + '-bubble')
+                    this.showBubble(tr.attr('index'), td.attr('col'), false)
+                }
+            })
+            // clipborad copy icon
+            .on('mouseover.body-global', { delegate: '.w2ui-clipboard-copy' }, event => {
+                if (event.delegate._tooltipShow) return
+                let td = query(event.delegate).parent()
+                let tr = td.parent()
+                let col = this.columns[td.attr('col')]
+
+                w2tooltip.show({
+                    name: this.name + '-bubble',
+                    anchor: event.delegate,
+                    html: w2utils.lang(typeof col.clipboardCopy == 'string' ? col.clipboardCopy : 'Copy to clipboard'),
+                    position: 'top|bottom',
+                    offsetY: -2
+                })
+                .hide(evt => {
+                    event.delegate._tooltipShow = false
+                    query(event.delegate).off('.tooltip')
+                })
+
+                query(event.delegate)
+                    .off('.tooltip')
+                    .on('mouseleave.tooltip', evt => {
+                        w2tooltip.hide(this.name + '-bubble')
+                    })
+                    .on('click.tooltip', evt => {
+                        evt.stopPropagation()
+                        w2tooltip.update(this.name + '-bubble', w2utils.lang('Copied'))
+                        // TODO: summary
+                        this.clipboardCopy(tr.attr('index'), td.attr('col'), false)
+                    })
+                event.delegate._tooltipShow = true
+            })
+            .on('click.body-global', { delegate: '.w2ui-editable-checkbox' }, event => {
+                let dt = query(event.delegate).data()
+                this.editChange.call(this, event.delegate, dt.changeind, dt.colind, event)
             })
 
         // show empty message
@@ -5762,23 +5850,17 @@ class w2grid extends w2base {
             items.push({ text: '--' })
         }
         // skip records
-        if (url && this.show.skipRecords) {
-            let skip =  `
-                ${w2utils.lang('Skip')}
-                <input id="${this.name}_skip" type="text" style="width: 60px" value="${his.offset}"
-                    onkeydown="if ([48,49,50,51,52,53,54,55,56,57,58,13,8,46,37,39].indexOf(event.keyCode) == -1) { event.preventDefault() }"
-                    onkeypress="if (event.keyCode == 13) {
-                        w2ui['${this.name}'].skip(this.value);
-                    }">
-                ${w2utils.lang('records')}
-            `
-            items.push({ id: '', test: skip, group: false, icon: 'w2ui-icon-empty' })
+        if (this.show.skipRecords) {
+            let skip = w2utils.lang('Skip') +
+                `<input id="${this.name}_skip" type="text" class="w2ui-input w2ui-grid-skip" value="${this.offset}">` +
+                w2utils.lang('records')
+            items.push({ id: 'w2ui-skip', text: skip, group: false, icon: 'w2ui-icon-empty' })
         }
         // save/restore state
         if (this.show.saveRestoreState) {
             items.push(
-                { id: 'stateSave', text: w2utils.lang('Save Grid State'), icon: 'w2ui-icon-empty', group: false },
-                { id: 'stateReset', text: w2utils.lang('Restore Default State'), icon: 'w2ui-icon-empty', group: false }
+                { id: 'w2ui-stateSave', text: w2utils.lang('Save Grid State'), icon: 'w2ui-icon-empty', group: false },
+                { id: 'w2ui-stateReset', text: w2utils.lang('Restore Default State'), icon: 'w2ui-icon-empty', group: false }
             )
         }
         let selected = []
@@ -6077,19 +6159,33 @@ class w2grid extends w2base {
                     edata2.finish()
                     break
                 case 'w2ui-column-on-off':
+                    // TODO: tap on columns will hide menu before opening, only in grid not in toolbar
                     if (event.detail.subItem) {
                         let id = event.detail.subItem.id
-                        if (['stateSave', 'stateReset'].includes(id)) {
-                            // TODO: check
-                            this[id]()
+                        if (['w2ui-stateSave', 'w2ui-stateReset'].includes(id)) {
+                            this[id.substring(5)]()
+                        } else if (id == 'w2ui-skip') {
+                            // empty
                         } else {
                             this.columnOnOff(event, event.detail.subItem.id)
                         }
                     } else {
-                        console.log(this.initColumnOnOff())
-                        this.initResize() // TODO: is it needed?
-                        this.resize()
-                    }
+                        this.initColumnOnOff()
+                        // init input control with records to skip
+                        setTimeout(() => {
+                            query(`#w2overlay-${this.name}_toolbar-drop .w2ui-grid-skip`)
+                                .off('.w2ui-grid')
+                                .on('click.w2ui-grid', evt => {
+                                    evt.stopPropagation()
+                                })
+                                .on('keypress', evt => {
+                                    if (evt.keyCode == 13) {
+                                        this.skip(evt.target.value)
+                                        this.toolbar.click('w2ui-column-on-off') // close menu
+                                    }
+                                })
+                        }, 100)
+                }
                     break
                 case 'w2ui-add':
                     // events
@@ -6230,7 +6326,7 @@ class w2grid extends w2base {
                 // event after
                 edata.finish({ originalEvent: event })
             })
-            .each((el) => {
+            .each(el => {
                 let td = query(el).get(0).parentNode
                 query(el).css({
                     'height'      : td.clientHeight + 'px',
@@ -6580,7 +6676,7 @@ class w2grid extends w2base {
         // resize records
         records.find(':scope > table > tbody > tr:nth-child(1) td')
             .add(frecords.find(':scope > table > tbody > tr:nth-child(1) td'))
-            .each(el =>{
+            .each(el => {
                 // line numbers
                 if (query(el).hasClass('w2ui-col-number')) {
                     query(el).css('width', lineNumberWidth + 'px')
@@ -6932,17 +7028,17 @@ class w2grid extends w2base {
             if (obj.columnGroups[obj.columnGroups.length-1].text != '') obj.columnGroups.push({ text: '' })
 
             if (obj.show.lineNumbers) {
-                html1 += '<td class="w2ui-head w2ui-col-number">'+
+                html1 += '<td class="w2ui-head w2ui-col-number" col="line-number">'+
                         '    <div>&#160;</div>'+
                         '</td>'
             }
             if (obj.show.selectColumn) {
-                html1 += '<td class="w2ui-head w2ui-col-select">'+
+                html1 += '<td class="w2ui-head w2ui-col-select" col="select">'+
                         '    <div style="height: 25px">&#160;</div>'+
                         '</td>'
             }
             if (obj.show.expandColumn) {
-                html1 += '<td class="w2ui-head w2ui-col-expand">'+
+                html1 += '<td class="w2ui-head w2ui-col-expand" col="expand">'+
                         '    <div style="height: 25px">&#160;</div>'+
                         '</td>'
             }
@@ -6986,11 +7082,8 @@ class w2grid extends w2base {
                         resizer = '<div class="w2ui-resizer" name="'+ ii +'"></div>'
                     }
                     let text = w2utils.lang(typeof col.text == 'function' ? col.text(col) : col.text)
-                    tmpf     = '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head '+ sortStyle +'" col="'+ ii + '" '+
-                           '    rowspan="2" colspan="'+ colspan +'" '+
-                           '    oncontextmenu = "w2ui[\''+ obj.name +'\'].contextMenu(null, '+ ii +', event);"'+
-                           '    onclick="w2ui[\''+ obj.name +'\'].columnClick(\''+ col.field +'\', event);"'+
-                           '    ondblclick="w2ui[\''+ obj.name +'\'].columnDblClick(\''+ col.field +'\', event);">'+
+                    tmpf = '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head '+ sortStyle +'" col="'+ ii + '" '+
+                           '    rowspan="2" colspan="'+ colspan +'">'+
                                resizer +
                            '    <div class="w2ui-col-group w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +'">'+
                            '        <div class="'+ sortStyle +'"></div>'+
@@ -7019,29 +7112,21 @@ class w2grid extends w2base {
             let html1 = '<tr>'
             let html2 = '<tr>'
             if (obj.show.lineNumbers) {
-                html1 += '<td class="w2ui-head w2ui-col-number" '+
-                        '       onclick="w2ui[\''+ obj.name +'\'].columnClick(\'line-number\', event);"'+
-                        '       ondblclick="w2ui[\''+ obj.name +'\'].columnDblClick(\'line-number\', event);">'+
+                html1 += '<td class="w2ui-head w2ui-col-number" col="line-number">'+
                         '    <div>#</div>'+
                         '</td>'
             }
             if (obj.show.selectColumn) {
-                html1 += '<td class="w2ui-head w2ui-col-select"'+
-                        '       onclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
+                html1 += '<td class="w2ui-head w2ui-col-select" col="select">'+
                         '    <div>'+
-                        '        <input type="checkbox" id="grid_'+ obj.name +'_check_all" tabindex="-1"'+
+                        '        <input type="checkbox" id="grid_'+ obj.name +'_check_all" class="w2ui-select-all" tabindex="-1"'+
                         '            style="' + (obj.multiSelect == false ? 'display: none;' : '') + '"'+
-                        '            onmousedown="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;"'+
-                        '            onclick="let grid = w2ui[\''+ obj.name +'\'];'+
-                        '               if (this.checked) grid.selectAll(); else grid.selectNone();'+
-                        '               if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;'+
-                        '               clearTimeout(grid.last.kbd_timer); /* keep focus */' +
-                        '            "/>'+
+                        '        >'+
                         '    </div>'+
                         '</td>'
             }
             if (obj.show.expandColumn) {
-                html1 += '<td class="w2ui-head w2ui-col-expand">'+
+                html1 += '<td class="w2ui-head w2ui-col-expand" col="expand">'+
                         '    <div>&#160;</div>'+
                         '</td>'
             }
@@ -7104,13 +7189,7 @@ class w2grid extends w2base {
             }
         }
         let text = w2utils.lang(typeof col.text == 'function' ? col.text(col) : col.text)
-        let tooltip = w2utils.lang(typeof col.tooltip == 'function' ? col.tooltip(col) : col.tooltip)
-        let html = '<td id="grid_'+ this.name + '_column_' + i +'" col="'+ i +'" class="w2ui-head '+ sortStyle + reorderCols + '" ' +
-                    '    onmouseEnter = "w2ui[\''+ this.name +'\'].columnTooltipShow(\''+ i +'\', event);"'+
-                    '    onmouseLeave  = "w2ui[\''+ this.name +'\'].columnTooltipHide(\''+ i +'\', event);"'+
-                    '    oncontextmenu = "w2ui[\''+ this.name +'\'].contextMenu(null, '+ i +', event);"'+
-                    '    onclick="w2ui[\''+ this.name +'\'].columnClick(\''+ col.field +'\', event);"'+
-                    '    ondblclick="w2ui[\''+ this.name +'\'].columnDblClick(\''+ col.field +'\', event);">'+
+        let html = '<td id="grid_'+ this.name + '_column_' + i +'" col="'+ i +'" class="w2ui-head '+ sortStyle + reorderCols + '">' +
                          (col.resizable !== false ? '<div class="w2ui-resizer" name="'+ i +'"></div>' : '') +
                     '    <div class="w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +' '+ (selected ? 'w2ui-col-selected' : '') +'">'+
                     '        <div class="'+ sortStyle +'"></div>'+
@@ -7277,14 +7356,14 @@ class w2grid extends w2base {
                             if (this.columns[i] && (this.columns[i].frozen || this.columns[i].hidden)) continue
                             $cfirst.after(this.getColumnCellHTML(i)) // column
                             // record
-                            $rfirst.each((ind, el) => {
+                            $rfirst.each(el => {
                                 let index = query(el).parent().attr('index')
                                 let td    = '<td class="w2ui-grid-data" col="'+ i +'" style="height: 0px"></td>' // width column
                                 if (index != null) td = this.getCellHTML(parseInt(index), i, false)
                                 query(el).after(td)
                             })
                             // summary
-                            $sfirst.each((ind, el) => {
+                            $sfirst.each(el => {
                                 let index = query(el).parent().attr('index')
                                 let td    = '<td class="w2ui-grid-data" col="'+ i +'" style="height: 0px"></td>' // width column
                                 if (index != null) td = this.getCellHTML(parseInt(index), i, true)
@@ -7298,14 +7377,14 @@ class w2grid extends w2base {
                             if (this.columns[i] && (this.columns[i].frozen || this.columns[i].hidden)) continue
                             $clast.before(this.getColumnCellHTML(i)) // column
                             // record
-                            $rlast.each((ind, el) => {
+                            $rlast.each(el => {
                                 let index = query(el).parent().attr('index')
                                 let td    = '<td class="w2ui-grid-data" col="'+ i +'" style="height: 0px"></td>' // width column
                                 if (index != null) td = this.getCellHTML(parseInt(index), i, false)
                                 query(el).before(td)
                             })
                             // summary
-                            $slast.each((ind, el) => {
+                            $slast.each(el => {
                                 let index = query(el).parent().attr('index') || -1
                                 let td    = this.getCellHTML(parseInt(index), i, true)
                                 query(el).before(td)
@@ -7517,11 +7596,11 @@ class w2grid extends w2base {
         if (ind == -1) {
             rec_html1 += '<tr line="0">'
             rec_html2 += '<tr line="0">'
-            if (this.show.lineNumbers) rec_html1 += '<td class="w2ui-col-number" style="height: 0px;"></td>'
-            if (this.show.selectColumn) rec_html1 += '<td class="w2ui-col-select" style="height: 0px;"></td>'
-            if (this.show.expandColumn) rec_html1 += '<td class="w2ui-col-expand" style="height: 0px;"></td>'
-            rec_html2 += '<td class="w2ui-grid-data w2ui-grid-data-spacer" col="start" style="height: 0px; width: 0px;"></td>'
-            if (this.show.orderColumn) rec_html2 += '<td class="w2ui-col-order" style="height: 0px;" col="order"></td>'
+            if (this.show.lineNumbers) rec_html1 += '<td class="w2ui-col-number" style="height: 0px"></td>'
+            if (this.show.selectColumn) rec_html1 += '<td class="w2ui-col-select" style="height: 0px"></td>'
+            if (this.show.expandColumn) rec_html1 += '<td class="w2ui-col-expand" style="height: 0px"></td>'
+            rec_html2 += '<td class="w2ui-grid-data w2ui-grid-data-spacer" col="start" style="height: 0px; width: 0px"></td>'
+            if (this.show.orderColumn) rec_html2 += '<td class="w2ui-col-order" style="height: 0px"></td>'
             for (let i = 0; i < this.columns.length; i++) {
                 let col = this.columns[i]
                 tmph    = '<td class="w2ui-grid-data" col="'+ i +'" style="height: 0px;"></td>'
@@ -7607,13 +7686,7 @@ class w2grid extends w2base {
             if (record.w2ui && record.w2ui.expanded == 'spinner') tmp_img = '<div class="w2ui-spinner" style="width: 16px; margin: -2px 2px;"></div>'
             rec_html1 +=
                     '<td id="grid_'+ this.name +'_cell_'+ ind +'_expand' + (summary ? '_s' : '') + '" class="w2ui-grid-data w2ui-col-expand">'+
-                        (summary !== true ?
-                        '    <div ondblclick="if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;" '+
-                        '            onclick="w2ui[\''+ this.name +'\'].toggle(jQuery(this).parents(\'tr\').attr(\'recid\')); '+
-                        '                if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true;">'+
-                        '        '+ tmp_img +' </div>'
-                        :
-                        '' ) +
+                        (summary !== true ? `<div>${tmp_img}</div>` : '' ) +
                     '</td>'
         }
         // insert empty first column
@@ -7721,17 +7794,15 @@ class w2grid extends w2base {
                     break
                 }
             }
-            if (record.w2ui.parent_recid){
+            if (record.w2ui.parent_recid) {
                 for (let i = 0; i < level; i++) {
                     infoBubble += '<span class="w2ui-show-children w2ui-icon-empty"></span>'
                 }
             }
-            infoBubble += '<span class="w2ui-show-children '+
-                    (record.w2ui.children.length > 0
-                        ? (record.w2ui.expanded ? 'w2ui-icon-collapse' : 'w2ui-icon-expand')
-                        : 'w2ui-icon-empty'
-                    ) +'" '+
-                ' onclick="event.stopPropagation(); w2ui[\''+ this.name + '\'].toggle(jQuery(this).parents(\'tr\').attr(\'recid\'))"></span>'
+            let className = record.w2ui.children.length > 0
+                ? (record.w2ui.expanded ? 'w2ui-icon-collapse' : 'w2ui-icon-expand')
+                : 'w2ui-icon-empty'
+            infoBubble += `<span class="w2ui-show-children ${className}"></span>`
         }
         // info bubble
         if (col.info === true) col.info = {}
@@ -7752,20 +7823,15 @@ class w2grid extends w2base {
             } else if (typeof col.info.style == 'string') {
                 infoStyle = col.info.style
             }
-            infoBubble += '<span class="w2ui-info '+ infoIcon +'" style="'+ infoStyle + '" '+
-                (col.info.showOn != null ? 'on' + col.info.showOn : 'onclick') +
-                '="event.stopPropagation(); w2ui[\''+ this.name + '\'].showBubble('+ ind +', '+ col_ind +', '+ (!!summary) +')"'+
-                '></span>'
+            infoBubble += `<span class="w2ui-info ${infoIcon}" style="${infoStyle}"></span>`
         }
         let data = value
         // if editable checkbox
         if (edit && ['checkbox', 'check'].indexOf(edit.type) != -1) {
             let changeInd = summary ? -(ind + 1) : ind
             divStyle += 'text-align: center;'
-            data  = '<input tabindex="-1" type="checkbox" '+ (data ? 'checked="checked"' : '') +' onclick="' +
-                    '    let obj = w2ui[\''+ this.name + '\']; '+
-                    '    obj.editChange.call(obj, this, '+ changeInd +', '+ col_ind +', event); ' +
-                    '"/>'
+            data  = `<input tabindex="-1" type="checkbox" class="w2ui-editable-checkbox"
+                            data-changeInd="${changeInd}" data-colInd="${col_ind}" ${data ? 'checked="checked"' : ''}>`
             infoBubble    = ''
         }
         data = `<div style="${divStyle}" ${getTitle(data)} ${divAttr}>${infoBubble}${String(data)}</div>`
@@ -7788,14 +7854,11 @@ class w2grid extends w2base {
             }
         }
         let isCellSelected = false
-        if (isRowSelected && $.inArray(col_ind, sel.columns[ind]) != -1) isCellSelected = true
+        if (isRowSelected && sel.columns[ind]?.includes(col_ind)) isCellSelected = true
         // clipboardCopy
         let clipboardTxt, clipboardIcon
         if (col.clipboardCopy){
-            clipboardTxt  = (typeof col.clipboardCopy == 'string' ? col.clipboardCopy : w2utils.lang('Copy to clipboard'))
-            clipboardIcon = `<span onmouseEnter="jQuery(this).w2tag('${clipboardTxt}', { name: '${this.name}-bubble', position: 'top|bottom' })"
-                onclick="w2ui['${this.name}'].clipboardCopy(${ind}, ${col_ind}, ${!!summary}); jQuery(this).w2tag(w2utils.lang('Copied'), { name: '${this.name}-bubble', position: 'top|bottom' }); event.stopPropagation();"
-                onmouseLeave="jQuery(this).w2tag({ name: '${this.name}-bubble' })" class="w2ui-clipboard-copy w2ui-icon-paste"></span>`
+            clipboardIcon = `<span class="w2ui-clipboard-copy w2ui-icon-paste"></span>`
         }
         // data
         data = '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') + ' ' + className +
@@ -7919,15 +7982,15 @@ class w2grid extends w2base {
             }
             html += '</table>'
         }
-        w2tooltip.show(w2utils.extend({
-            name: this.name + '-bubble',
-            html,
-            anchor: el.get(0),
-            position: 'top|bottom',
-            class: 'w2ui-info-bubble',
-            style: '',
-            hideOn: ['doc-click']
-        }, info.options ?? {}))
+        return w2tooltip.show(w2utils.extend({
+                name: this.name + '-bubble',
+                html,
+                anchor: el.get(0),
+                position: 'top|bottom',
+                class: 'w2ui-info-bubble',
+                style: '',
+                hideOn: ['doc-click']
+            }, info.options ?? {}))
             .hide(() => [
                 this.last.bubbleEl = null
             ])
@@ -8161,6 +8224,7 @@ class w2grid extends w2base {
                 this.last.scrollLeft = sLeft
                 this.refresh()
             }, 1)
+            console.log('INFO (w2ui): state restored for "${this.name}"')
         }
         // event after
         edata.finish()
@@ -8296,7 +8360,7 @@ class w2grid extends w2base {
                 || (sids.length > 0 && ind < sids[sids.length-numRows])) {
             ind += numRows
             if (sids.length > 0) while (true) {
-                if ($.inArray(ind, sids) != -1 || ind > this.records.length) break
+                if (sids.includes(ind) || ind > this.records.length) break
                 ind += numRows
             }
             // colspan
@@ -8323,7 +8387,7 @@ class w2grid extends w2base {
                 || (sids.length > 0 && ind > sids[0])) {
             ind -= numRows
             if (sids.length > 0) while (true) {
-                if ($.inArray(ind, sids) != -1 || ind < 0) break
+                if (sids.includes(ind) || ind < 0) break
                 ind -= numRows
             }
             // colspan
