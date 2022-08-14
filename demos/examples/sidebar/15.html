@@ -29,10 +29,9 @@ query(() => {
                     onchange="search(this.value)">
             </div>
         `,
-        onRefresh(event) {
-            event.done(() => {
-                $('#search').val(w2ui.sidebar.last_search).focus()
-            })
+        async onRefresh(event) {
+            await event.complete
+            query('#search').val(w2ui.sidebar.last_search).get(0).focus()
         }
     })
     let sb = w2ui.sidebar

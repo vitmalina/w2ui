@@ -11,26 +11,26 @@
 <!--CODE-->
 <button class="w2ui-btn" onclick="w2popup.load({ url: 'data/popup3.html' })">Open Popup</button>
 <script>
-    var last_index, last_trans;
+    let last_index, last_trans
     if (typeof last_trans == 'undefined') {
-        last_index = 2;
-        last_trans = '';
+        last_index = 2
+        last_trans = ''
     }
 
     function load() {
-        var trans = (last_trans == "" ? $('#trans option:nth-child('+ last_index +')').val() : $('#trans').val());
-        last_trans = $('#trans').val();
+        let trans = (last_trans == "" ? query('#trans option:nth-child('+ last_index +')').val() : query('#trans').val())
+        last_trans = query('#trans').val()
         w2popup.load({
             url: 'data/popup3.html',
             transition: trans,
-            onChange: function () {
-                $('#trans').val(last_trans);
+            async onOpen(event) {
+                await event.complete
+                query('#trans').val(last_trans)
             }
-        });
-        last_index++;
-        if (last_index > 11) last_index = 2;
+        })
+        last_index++
+        if (last_index > 11) last_index = 2
     }
 </script>
-
 
 <!--CODE-->

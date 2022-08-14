@@ -34,11 +34,11 @@ function showMessage() {
     let grid = w2ui.grid
     grid.message('Message <span id="ready"></span>')
         .then(() => {
-            $(grid.box).find('.w2ui-message #ready').html('- ready')
-            $('#log').html('Message is opened.')
+            query(grid.box).find('.w2ui-message #ready').html('- ready')
+            query('#log').html('Message is opened.')
         })
         .ok(() => {
-            $('#log').html('Ok is clicked.')
+            query('#log').html('Ok is clicked.')
         })
 }
 
@@ -46,14 +46,14 @@ function showConfirm() {
     let grid = w2ui.grid
     grid.confirm('Message <span id="ready"></span>')
         .then(() => {
-            $(grid.box).find('.w2ui-message #ready').html('- ready')
-            $('#log').html('Message is opened.')
+            query(grid.box).find('.w2ui-message #ready').html('- ready')
+            query('#log').html('Message is opened.')
         })
         .yes(() => {
-            $('#log').html('Yes clicked.')
+            query('#log').html('Yes clicked.')
         })
         .no(() => {
-            $('#log').html('No clicked.')
+            query('#log').html('No clicked.')
         })
 }
 </script>

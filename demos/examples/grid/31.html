@@ -49,12 +49,14 @@ query(() => {
         ]
     });
 
-    $('#grid_columnTooltip').w2field('list', {
-        items: ['normal', 'top', 'right', 'bottom', 'left', 'top|bottom', 'right|left'],
+    new w2field({
+        el: query('#grid_columnTooltip')[0],
+        type: 'list',
+        items: ['top', 'right', 'bottom', 'left', 'top|bottom', 'right|left'],
         selected: 'top|bottom'
     })
-    .on('change', function(event) {
-        w2ui.grid.columnTooltip = $(this).val()
+    query('#grid_columnTooltip').on('change', function(event) {
+        w2ui.grid.columnTooltip =query(this).val()
         w2ui.grid.refresh() // changing from/to 'normal' requires the column HTML to be rebuilt
     })
 })

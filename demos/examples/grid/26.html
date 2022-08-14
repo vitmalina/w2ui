@@ -52,7 +52,7 @@ query(() => {
             { recid: 19, fname: 'Sergei', lname: 'Rachmaninov', email: 'sergei@gmail.com', profit: 777, sdate: '2/23/2012' }
         ],
         onReorderRow(event) {
-            $('#log').html(`Record "${event.detail.recid}" moved before "${event.detail.moveBefore || event.detail.moveAfter}"`)
+            query('#log').html(`Record "${event.detail.recid}" moved before "${event.detail.moveBefore || event.detail.moveAfter}"`)
             console.log('move event', event)
         }
     })
