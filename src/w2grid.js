@@ -4,39 +4,18 @@
  *
  * == TODO ==
  *  - problem with .set() and arrays, array get extended too, but should be replaced
- *  - after edit stay on the same record option
- *  - if supplied array of ids, get should return array of records
  *  - allow functions in routeData (also add routeData to list/enum)
  *  - send parsed URL to the event if there is routeData
- *  - if you set searchData or sortData and call refresh() it should work
  *  - add selectType: 'none' so that no selection can be make but with mouse
  *  - focus/blur for selectType = cell not display grayed out selection
- *  - frozen columns
- *  - scrolling on frozen columns is not working only on regular columns
- *  - copy or large number of records is slow
- *  - reusable search component (see https://github.com/vitmalina/w2ui/issues/914#issuecomment-107340524)
  *  - allow enum in inline edit (see https://github.com/vitmalina/w2ui/issues/911#issuecomment-107341193)
  *  - if record has no recid, then it should be index in the array (should not be 0)
  *  - remote source, but localSort/localSearch
- *  - right click on columns
- *  - reload a single records (useful when need to update deep in buffered records)
- *  - need to update PHP example
- *  - return structure status -> replace with success
- *  - msg* - should be in prototype
- *  - search fields not finised
- *  - row reorder not finished
- *  - expendable grids are still working
- *  - moved a lot of properties into prototype
  *  - promise for request, load, save, etc.
- *  - remote date local sort/search
- *  - colDefaults -> col_template as in tabs, toolbar, etc
  *  - prepareData needs help page
- *  - separate columnRefresh, recordsRefresh, fullRefresh
  *  - onloadmore event (so it will be easy to implement remote data source with local sort)
- *  - avoid inline events, but allow w2ui-eaction
  *  - status() - clears on next select, etc. Should not if it is off
  *  - edit demo grid/21 - if you hit add record too fast, it breaks
- *  - refactor onSelect/onUselect - should be one event, when selection changes
  *  - inTag, outTag -- refactore to attr
  *
  * == DEMOS To create ==
@@ -224,7 +203,7 @@ class w2grid extends w2base {
         this.useLocalStorage   = true
 
         // default values for the column
-        this.colDefaults = {
+        this.colTemplate = {
             text           : '',    // column text (can be a function)
             field          : '',    // field name to map the column to a record
             size           : null,  // size of column in px or %
@@ -427,7 +406,7 @@ class w2grid extends w2base {
         // add searches
         if (Array.isArray(this.columns)) {
             this.columns.forEach((col, ind) => {
-                col = w2utils.extend({}, this.colDefaults, col)
+                col = w2utils.extend({}, this.colTemplate, col)
                 this.columns[ind] = col
                 let search = col.searchable
                 if (search == null || search === false || this.getSearch(col.field) != null) return
@@ -647,7 +626,7 @@ class w2grid extends w2base {
         }
         if (!Array.isArray(columns)) columns = [columns]
         for (let i = 0; i < columns.length; i++) {
-            let col = w2utils.extend({}, this.colDefaults, columns[i])
+            let col = w2utils.extend({}, this.colTemplate, columns[i])
             this.columns.splice(before, 0, col)
             // if column is searchable, add search field
             if (columns[i].searchable) {
@@ -5128,8 +5107,7 @@ class w2grid extends w2base {
             '<div id="grid_'+ this.name +'_frecords" class="w2ui-grid-frecords" style="margin-bottom: '+ (w2utils.scrollBarSize() - 1) +'px;">'+
                 recHTML[0] +
             '</div>'+
-            // TODO: remove onscoll=
-            '<div id="grid_'+ this.name +'_records" class="w2ui-grid-records" onscroll="w2ui[\''+ this.name +'\'].scroll(event);">' +
+            '<div id="grid_'+ this.name +'_records" class="w2ui-grid-records">' +
                 recHTML[1] +
             '</div>'+
             '<div id="grid_'+ this.name +'_scroll1" class="w2ui-grid-scroll1" style="height: '+ w2utils.scrollBarSize() +'px"></div>'+
@@ -5197,6 +5175,11 @@ class w2grid extends w2base {
                 // amount *= (Math.round(records.prop('clientHeight') / self.recordHeight) - 1) * self.recordHeight / 4
                 container.get(0).scroll({ top: newScrollTop + amount, behavior: 'smooth' })
             })
+        // scroll on records (and frozen records)
+        records.off('.body-global')
+            .on('scroll.body-global', { delegate: '.w2ui-grid-records' }, event => {
+                this.scroll(event)
+            })
 
         gridBody
             .off('.body-global')
@@ -5240,8 +5223,9 @@ class w2grid extends w2base {
                 let td = query(event.delegate).closest('td')
                 let tr = td.parent()
                 let col = this.columns[td.attr('col')]
+                let isSummary = tr.parents('.w2ui-grid-body').hasClass('.w2ui-grid-summary')
                 if (['mouseenter', 'mouseover'].includes(col.info?.showOn?.toLowerCase()) && event.type == 'mouseover') {
-                    this.showBubble(tr.attr('index'), td.attr('col'), false)
+                    this.showBubble(tr.attr('index'), td.attr('col'), isSummary)
                         .then(() => {
                             query(event.delegate)
                                 .off('.tooltip')
@@ -5249,7 +5233,7 @@ class w2grid extends w2base {
                         })
                 } else if (event.type == 'click') {
                     w2tooltip.hide(this.name + '-bubble')
-                    this.showBubble(tr.attr('index'), td.attr('col'), false)
+                    this.showBubble(tr.attr('index'), td.attr('col'), isSummary)
                 }
             })
             // clipborad copy icon
@@ -5258,6 +5242,7 @@ class w2grid extends w2base {
                 let td = query(event.delegate).parent()
                 let tr = td.parent()
                 let col = this.columns[td.attr('col')]
+                let isSummary = tr.parents('.w2ui-grid-body').hasClass('.w2ui-grid-summary')
 
                 w2tooltip.show({
                     name: this.name + '-bubble',
@@ -5280,7 +5265,7 @@ class w2grid extends w2base {
                         evt.stopPropagation()
                         w2tooltip.update(this.name + '-bubble', w2utils.lang('Copied'))
                         // TODO: summary
-                        this.clipboardCopy(tr.attr('index'), td.attr('col'), false)
+                        this.clipboardCopy(tr.attr('index'), td.attr('col'), isSummary)
                     })
                 event.delegate._tooltipShow = true
             })
@@ -8156,7 +8141,7 @@ class w2grid extends w2base {
                         prop_val = col[prop]
                     } else {
                         // use fallback or null
-                        prop_val = this.colDefaults[prop] || null
+                        prop_val = this.colTemplate[prop] || null
                     }
                     col_save_obj[prop] = prop_val
                 }
