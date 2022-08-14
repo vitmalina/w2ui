@@ -198,6 +198,7 @@ $(async function () {
                 },
                 { id: 'grid-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
+                        { id: 'grid/37', text: 'Context Menu', icon: 'fa fa-table' },
                         { id: 'grid/32', text: 'Context Messages', icon: 'fa fa-table' },
                         { id: 'grid/33', text: 'Live Updates', icon: 'fa fa-table' },
                         { id: 'grid/34', text: 'Live Search', icon: 'fa fa-table' },

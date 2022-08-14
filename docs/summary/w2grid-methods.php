@@ -106,13 +106,6 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.contextMenu">contextMenu</a> <span>- contextMenu(recid, [event])</span>
-</div>
-<div class="obj-property-desc">
-    Displays context menu under specified record.
-</div>
-
-<div class="obj-property">
     <a href="w2grid.copy">copy</a> <span>- copy()</span>
 </div>
 <div class="obj-property-desc">
@@ -404,13 +397,6 @@
 </div>
 <div class="obj-property-desc">
     Locks the grid.
-</div>
-
-<div class="obj-property">
-    <a href="w2grid.menuClick">menuClick</a> <span>- menuClick(recid, event)</span>
-</div>
-<div class="obj-property-desc">
-    Called when user clicks on a context menu item.
 </div>
 
 <div class="obj-property">

@@ -9,26 +9,15 @@
  *  - add selectType: 'none' so that no selection can be make but with mouse
  *  - focus/blur for selectType = cell not display grayed out selection
  *  - allow enum in inline edit (see https://github.com/vitmalina/w2ui/issues/911#issuecomment-107341193)
- *  - if record has no recid, then it should be index in the array (should not be 0)
  *  - remote source, but localSort/localSearch
  *  - promise for request, load, save, etc.
- *  - prepareData needs help page
  *  - onloadmore event (so it will be easy to implement remote data source with local sort)
  *  - status() - clears on next select, etc. Should not if it is off
- *  - edit demo grid/21 - if you hit add record too fast, it breaks
- *  - inTag, outTag -- refactore to attr
  *
  * == DEMOS To create ==
  *  - batch for disabled buttons
- *  - naturla sort
+ *  - natural sort
  *  - resize on max content
- *
- * == KNOWN ISSUES ==
- *  - reorder records with school - not correct
- *  - reorder columns not working
- *  - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
- *  - Shift-click/Ctrl-click/Ctrl-Shift-Click selection is not as robust as it should be
- *  - refactor reorderRow (not finished)
  *
  * == 2.0 changes
  *  - toolbarInput - deprecated, toolbarSearch stays
@@ -69,10 +58,10 @@ class w2grid extends w2base {
         this.columnGroups = [] // { span: int, text: 'string', main: true/false }
         this.records      = [] // { recid: int(required), field1: 'value1', ... fieldN: 'valueN', style: 'string',  changes: object }
         this.summary      = [] // array of summary records, same structure as records array
-        this.searches     = [] // { type, label, field, inTag, outTag, hidden }
+        this.searches     = [] // { type, label, field, attr, text, hidden }
         this.toolbar      = {} // if not empty object; then it is toolbar object
         this.ranges       = []
-        this.menu         = []
+        this.contextMenu  = []
         this.searchMap    = {} // re-map search fields
         this.searchData   = []
         this.sortMap      = {} // re-map sort fields
@@ -144,6 +133,7 @@ class w2grid extends w2base {
             header          : false,
             toolbar         : false,
             footer          : false,
+            columnMenu      : true,
             columnHeaders   : true,
             lineNumbers     : false,
             orderColumn     : false,
@@ -342,7 +332,7 @@ class w2grid extends w2base {
         this.onClick            = null
         this.onDblClick         = null
         this.onContextMenu      = null
-        this.onMenuClick        = null // when context menu item selected
+        this.onContextMenuClick = null // when context menu item selected
         this.onColumnClick      = null
         this.onColumnDblClick   = null
         this.onColumnResize     = null
@@ -3138,10 +3128,10 @@ class w2grid extends w2base {
                 .remove()
             div = query(this.box).find('#grid_'+ this.name + '_editable > div:first-child')
         }
-        edit.inTag  = edit.inTag ?? ''
-        edit.outTag = edit.outTag ?? ''
-        edit.style  = edit.style ?? ''
-        edit.items  = edit.items ?? []
+        edit.attr  = edit.attr ?? ''
+        edit.text  = edit.text ?? ''
+        edit.style = edit.style ?? ''
+        edit.items = edit.items ?? []
         let val = (rec.w2ui?.changes?.[col.field] != null
             ? w2utils.stripTags(rec.w2ui.changes[col.field])
             : w2utils.stripTags(self.parseField(rec, col.field)))
@@ -3168,8 +3158,8 @@ class w2grid extends w2base {
                     .html(w2utils.stripSpaces(`<div id="grid_${this.name}_edit_${recid}_${column}" class="w2ui-input w2ui-focus"
                         contenteditable autocorrect="off" autocomplete="off" spellcheck="false"
                         style="${font + addStyle + edit.style}"
-                        field="${col.field}" recid="${recid}" column="${column}" ${edit.inTag}>
-                    </div>${edit.outTag}`))
+                        field="${col.field}" recid="${recid}" column="${column}" ${edit.attr}>
+                    </div>${edit.text}`))
                 input = div.find('div.w2ui-input').get(0)
                 input.innerText = (typeof val != 'object' ? val : '')
                 if (value != null) {
@@ -3184,7 +3174,7 @@ class w2grid extends w2base {
                     .html(w2utils.stripSpaces(`<input id="grid_${this.name}_edit_${recid}_${column}" class="w2ui-input"
                         autocorrect="off" autocomplete="off" spellcheck="false" type="text"
                         style="${font + addStyle + edit.style}"
-                        field="${col.field}" recid="${recid}" column="${column}" ${edit.inTag}>${edit.outTag}`))
+                        field="${col.field}" recid="${recid}" column="${column}" ${edit.attr}>${edit.text}`))
                 input = div.find('input').get(0)
                 // issue #499
                 if (edit.type == 'number') {
@@ -4305,7 +4295,7 @@ class w2grid extends w2base {
         edata.finish()
     }
 
-    contextMenu(recid, column, event) {
+    showContextMenu(recid, column, event) {
         if (this.last.userSelect == 'text') return
         if (event == null) {
             event = { offsetX: 0, offsetY: 0, target: query(this.box).find(`#grid_${this.name}_rec_${recid}`)[0] }
@@ -4334,26 +4324,27 @@ class w2grid extends w2base {
         let edata = this.trigger('contextMenu', { target: this.name, originalEvent: event, recid, column })
         if (edata.isCancelled === true) return
         // default action
-        if (this.menu.length > 0) {
+        if (this.contextMenu.length > 0) {
             w2menu.show({
-                name: this.name + '-context-menu',
                 anchor: document.body,
-                originalEvent: event.originalEvent,
-                items: this.menu
+                originalEvent: event,
+                items: this.contextMenu
             })
-                .select((event) => {
-                    this.menuClick(recid, event)
-                })
+            .select((event) => {
+                clearTimeout(this.last.kbd_timer) // keep grid in focus
+                this.contextMenuClick(recid, event)
+            })
+            clearTimeout(this.last.kbd_timer) // keep grid in focus
         }
-        // cancel event
-        if (event.preventDefault) event.preventDefault()
+        // cancel browser context menu
+        event.preventDefault()
         // event after
         edata.finish()
     }
 
-    menuClick(recid, event) {
+    contextMenuClick(recid, event) {
         // event before
-        let edata = this.trigger('menuClick', { target: this.name, recid, originalEvent: event.detail.originalEvent,
+        let edata = this.trigger('contextMenuClick', { target: this.name, recid, originalEvent: event.detail.originalEvent,
             menuEvent: event, menuIndex: event.detail.index, menuItem: event.detail.item
         })
         if (edata.isCancelled === true) return
@@ -5152,7 +5143,7 @@ class w2grid extends w2base {
                 })
                 .on('contextmenu', { delegate: 'tr' }, (event) => {
                     let recid = query(event.delegate).attr('recid')
-                    this.contextMenu(recid, null, event)
+                    this.showContextMenu(recid, null, event)
                 })
         }
 
@@ -5195,7 +5186,41 @@ class w2grid extends w2base {
                         this.columnDblClick(col.field, event)
                         break
                     case 'contextmenu':
-                        this.contextMenu(null, col_ind, event)
+                        if (this.show.columnMenu) {
+                            w2menu.show({
+                                type: 'check',
+                                anchor: document.body,
+                                originalEvent: event,
+                                items: this.initColumnOnOff()
+                            })
+                            .then(() => {
+                                query(`#w2overlay-context-menu .w2ui-grid-skip`)
+                                    .off('.w2ui-grid')
+                                    .on('click.w2ui-grid', evt => {
+                                        evt.stopPropagation()
+                                    })
+                                    .on('keypress', evt => {
+                                        if (evt.keyCode == 13) {
+                                            this.skip(evt.target.value)
+                                            this.toolbar.click('w2ui-column-on-off') // close menu
+                                        }
+                                    })
+                            })
+                            .select((event) => {
+                                let id = event.detail.item.id
+                                if (['w2ui-stateSave', 'w2ui-stateReset'].includes(id)) {
+                                    this[id.substring(5)]()
+                                } else if (id == 'w2ui-skip') {
+                                    // empty
+                                } else {
+                                    this.columnOnOff(event, event.detail.item.id)
+                                }
+                                clearTimeout(this.last.kbd_timer) // keep grid in focus
+                            })
+                            clearTimeout(this.last.kbd_timer) // keep grid in focus
+                        }
+                        event.preventDefault()
+                        break
                 }
             })
             .on('mouseover.body-global', { delegate: '.w2ui-col-header' }, event => {
@@ -5817,7 +5842,6 @@ class w2grid extends w2base {
     // --- Internal Functions
 
     initColumnOnOff() {
-        if (!this.show.toolbarColumns) return
         let items = [
             { id: 'line-numbers', text: 'Line #', checked: this.show.lineNumbers }
         ]
@@ -6170,7 +6194,7 @@ class w2grid extends w2base {
                                     }
                                 })
                         }, 100)
-                }
+                    }
                     break
                 case 'w2ui-add':
                     // events
@@ -6746,8 +6770,8 @@ class w2grid extends w2base {
             let s  = this.searches[i]
             s.type = String(s.type).toLowerCase()
             if (s.hidden) continue
-            if (s.inTag == null) s.inTag = ''
-            if (s.outTag == null) s.outTag = ''
+            if (s.attr == null) s.attr = ''
+            if (s.text == null) s.text = ''
             if (s.style == null) s.style = ''
             if (s.type == null) s.type = 'text'
             if (s.label == null && s.caption != null) {
@@ -6775,7 +6799,7 @@ class w2grid extends w2base {
                     tmpStyle = 'width: 250px;'
                     if (['hex', 'color'].indexOf(s.type) != -1) tmpStyle = 'width: 90px;'
                     html += `<input rel="search" type="text" id="grid_${this.name}_field_${i}" name="${s.field}"
-                               class="w2ui-input" style="${tmpStyle + s.style}" ${s.inTag}>`
+                               class="w2ui-input" style="${tmpStyle + s.style}" ${s.attr}>`
                     break
 
                 case 'int':
@@ -6788,20 +6812,20 @@ class w2grid extends w2base {
                 case 'datetime':
                     tmpStyle = 'width: 90px;'
                     if (s.type == 'datetime') tmpStyle = 'width: 140px;'
-                    html += `<input id="grid_${this.name}_field_${i}" name="${s.field}" ${s.inTag} rel="search" type="text"
+                    html += `<input id="grid_${this.name}_field_${i}" name="${s.field}" ${s.attr} rel="search" type="text"
                                 class="w2ui-input" style="${tmpStyle + s.style}">
                             <span id="grid_${this.name}_range_${i}" style="display: none">&#160;-&#160;&#160;
-                                <input rel="search" type="text" class="w2ui-input" style="${tmpStyle + s.style}" id="grid_${this.name}_field2_${i}" name="${s.field}" ${s.inTag}>
+                                <input rel="search" type="text" class="w2ui-input" style="${tmpStyle + s.style}" id="grid_${this.name}_field2_${i}" name="${s.field}" ${s.attr}>
                             </span>`
                     break
 
                 case 'select':
                     html += `<select rel="search" class="w2ui-input" style="${s.style}" id="grid_${this.name}_field_${i}"
-                                name="${s.field}" ${s.inTag}></select>`
+                                name="${s.field}" ${s.attr}></select>`
                     break
 
             }
-            html += s.outTag +
+            html += s.text +
                     '    </td>' +
                     '</tr>'
         }

@@ -176,10 +176,11 @@ If this field is an object, then the record can be edited inline by the user.
 This object is of the following structure:
 <textarea class="javascript">
 editable = {
-    type    : 'text',  // type of the field (see below)
-    inTag   : '',      // text that will be inside &gt;input ...&lt; tag
-    style   : '',
-    ...                // you can pass additional properties to w2field object (for date, enum, etc.)
+    type  : 'text',  // type of the field (see below)
+    attr  : '',      // text that will be inside &gt;input ...&lt; tag
+    text  : '',      // text that will be outside &gt;input ...&lt; tag
+    style : '',
+    ...              // you can pass additional properties to w2field object (for date, enum, etc.)
 }
 </textarea>
 If the <i>editable</i> property is a function, it should return an object as described above. It will get same arguments as

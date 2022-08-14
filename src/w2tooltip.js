@@ -115,16 +115,16 @@ class Tooltip {
 
         // define tooltip
         let name = (options.name ? options.name : anchor.id)
+        if (anchor == document || anchor == document.body) {
+            anchor = document.body
+            name = 'context-menu'
+        }
         if (!name) {
             name = 'noname-' + Object.keys(Tooltip.active).length
             console.log('NOTICE: name property is not defined for tooltip, could lead to too many instances')
         }
         // clean name as it is used as id and css selector
         name = name.replace(/[\s\.#]/g, '_')
-        if (anchor == document || anchor == document.body) {
-            anchor = document.body
-            name = 'context-menu'
-        }
         if (Tooltip.active[name]) {
             overlay = Tooltip.active[name]
             overlay.prevOptions = overlay.options

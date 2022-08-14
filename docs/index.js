@@ -88,7 +88,7 @@ $(function () {
     // remove internal methods/props
     w2ui.docs.remove(
         'w2layout.panel',
-        'w2grid.isIOS', 'w2grid.editChange', 'w2grid.initColumnDrag', 'w2grid.prepareData',
+        'w2grid.isIOS', 'w2grid.editChange', 'w2grid.initColumnDrag',
         'w2toolbar.item',
         'w2sidebar.node',
         'w2tabs.tab',

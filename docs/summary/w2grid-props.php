@@ -22,7 +22,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.col_template">col_template</a> <span>- Object, default = {...} see below</span>
+    <a href="w2grid.colTemplate">colTemplate</a> <span>- Object, default = {...} see below</span>
 </div>
 <div class="obj-property-desc">
     Default values for the column
@@ -47,6 +47,20 @@
 </div>
 <div class="obj-property-desc">
     Array of column objects.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.contextMenu">contextMenu</a> <span>- Array, default = []</span>
+</div>
+<div class="obj-property-desc">
+    Array of object for context menu.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.contextMenuClick">contextMenuClick</a> <span>- menuClick(recid, event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when user clicks on a context menu item.
 </div>
 
 <div class="obj-property">
@@ -131,13 +145,6 @@
 </div>
 <div class="obj-property-desc">
     Indicates if result of the search should be highlighted.
-</div>
-
-<div class="obj-property">
-    <a href="w2grid.menu">menu</a> <span>- Array, default = []</span>
-</div>
-<div class="obj-property-desc">
-    Array of object for context menu.
 </div>
 
 <div class="obj-property">
@@ -334,6 +341,13 @@
 </div>
 <div class="obj-property-desc">
     Map of indicators which elements of the grid are visible.
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.showContextMenu">showContextMenu</a> <span>- contextMenu(recid, [event])</span>
+</div>
+<div class="obj-property-desc">
+    Displays context menu under specified record.
 </div>
 
 <div class="obj-property">

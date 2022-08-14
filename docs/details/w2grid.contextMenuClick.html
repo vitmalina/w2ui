@@ -1,7 +1,7 @@
 Called when user clicks on a context menu item.
 
 <div class="definition">
-     menuClick(recid, event)
+    contextMenuClick(recid, event)
 </div>
 
 <div class="arguments">
@@ -37,7 +37,7 @@ let grid = new w2grid({
         { field: 'sdate', text: 'Start Date', size: '120px' },
         { field: 'sdate', text: 'End Date', size: '120px' }
     ],
-    menu: [
+    contextMenu: [
         { id: 1, text: 'Select Item', icon: 'fa fa-star' },
         { id: 2, text: 'View Item', icon: 'fa fa-camera' },
         { id: 4, text: 'Delete Item', icon: 'fa fa-minus' }
@@ -50,7 +50,7 @@ let grid = new w2grid({
         { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
         { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
     ],
-    onMenuClick: function(event) {
+    onContextMenuClick: function(event) {
         console.log(event);
     }
 });
