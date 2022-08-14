@@ -277,6 +277,17 @@ let tasks = {
                 a.replace( /\\"/g, '"' )
         )
         const stringify = (obj, space=4) => expand( JSON.stringify( obj, replacer, space ) )
+
+        return gulp.src(['src/w2locale.js'])
+            .pipe(replace(/^export {/gm, 'module.exports = {'))
+            .pipe(concat('w2locale.cjs'))
+            .pipe(gulp.dest('src/'))
+            .on('end', () => {
+                process_locales()
+                del('./src/w2locale.cjs')
+                cb()
+            })
+
         function process_obj(m, o) {
             Object.keys(o).forEach(k => {
                 if(typeof m[k] === 'undefined') delete o[k]
@@ -287,6 +298,7 @@ let tasks = {
             }
             return Object.assign(m, o)
         }
+
         function process_locales() {
             const master = require('./src/w2locale.cjs').w2locale
             const dir_locales = './src/locale'
@@ -299,19 +311,10 @@ let tasks = {
                 })
             })
         }
-        gulp.src(['src/w2locale.js'])
-            .pipe(replace(/^export {/gm, 'module.exports = {'))
-            .pipe(concat('w2locale.cjs'))
-            .pipe(gulp.dest('src/'))
-            .on('end', () => {
-                process_locales()
-                del('./src/w2locale.cjs')
-                cb()
-            })
     },
 }
 
-exports.default = gulp.series(tasks.clean, tasks.less, tasks.locales, tasks.build_es6, tasks.build)
+exports.default = gulp.series(tasks.clean, tasks.less, tasks.build_es6, tasks.build)
 exports.build   = gulp.series(tasks.build_es6, tasks.build)
 exports.dev     = tasks.watch
 exports.clean   = tasks.clean
