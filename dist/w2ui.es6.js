@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (8/14/2022, 2:40:23 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (8/14/2022, 3:13:44 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -6393,6 +6393,7 @@ class w2toolbar extends w2base {
         // need to reassign back to keep it in config
         options.items = items
         // render if box specified
+        if (typeof this.box == 'string') this.box = query(this.box).get(0)
         if (this.box) this.render(this.box)
     }
     add(items) {
@@ -7277,6 +7278,7 @@ class w2sidebar extends w2base {
         // need to reassign back to keep it in config
         options.nodes = nodes
         // render if box specified
+        if (typeof this.box == 'string') this.box = query(this.box).get(0)
         if (this.box) this.render(this.box)
     }
     add(parent, nodes) {
@@ -8387,6 +8389,7 @@ class w2tabs extends w2base {
         // need to reassign back to keep it in config
         options.tabs = tabs
         // render if box specified
+        if (typeof this.box == 'string') this.box = query(this.box).get(0)
         if (this.box) this.render(this.box)
     }
     add(tab) {
@@ -9003,6 +9006,7 @@ class w2layout extends w2base {
             this.panels.push(w2utils.extend({}, this.panel_template, { type: tab, hidden: (tab !== 'main'), size: 50 }))
         })
         // render if box specified
+        if (typeof this.box == 'string') this.box = query(this.box).get(0)
         if (this.box) this.render(this.box)
         function initTabs(object, panel, tabs) {
             let pan = object.get(panel)
@@ -10444,6 +10448,7 @@ class w2grid extends w2base {
             })
         }
         // render if box specified
+        if (typeof this.box == 'string') this.box = query(this.box).get(0)
         if (this.box) this.render(this.box)
     }
     add(record, first) {
@@ -18330,6 +18335,7 @@ class w2form extends w2base {
             this.isGenerated = true
         }
         // render if box specified
+        if (typeof this.box == 'string') this.box = query(this.box).get(0)
         if (this.box) this.render(this.box)
         function _processFields(fields) {
             let newFields = []
@@ -18600,7 +18606,13 @@ class w2form extends w2base {
             }
             case 'check':
             case 'checks': {
-                value = (!Array.isArray(value) && value != null) ? [value] : []
+                if (!Array.isArray(value)) {
+                    if (value != null) {
+                        value = [value]
+                    } else {
+                        value = []
+                    }
+                }
                 value = value.map(val => val?.id ?? val) // convert if array of objects
                 let inputs = query(el).closest('div').find('input')
                 let items  = field.options.items
@@ -19807,7 +19819,7 @@ class w2form extends w2base {
                 } else {
                     field.$el
                         .prop('readOnly', false)
-                        .prop('tabIndex', field.$el.data('tabIndex'))
+                        .prop('tabIndex', field.$el.data('tabIndex') ?? field.$el.prop('tabIndex') ?? 0)
                         .closest('.w2ui-field')
                         .removeClass('w2ui-disabled')
                 }
