@@ -13,9 +13,10 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#grid').w2grid({
+query(() => {
+    new w2grid({
         name: 'grid',
+        box: '#grid',
         columns: [
             { field: 'fname', text: 'First Name', size: '150px', frozen: true },
             { field: 'lname', text: 'Last Name', size: '150px' },
@@ -42,6 +43,6 @@ $(function () {
             { "recid": 18, "fname": "Thomas", "lname": "Bahh", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
             { "recid": 19, "fname": "Sergei", "lname": "Rachmaninov", "email": "jdoe@gmail.com", "sdate": "4/3/2012" }
         ]
-    });
-});
+    })
+})
 </script>

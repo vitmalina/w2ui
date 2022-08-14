@@ -16,9 +16,10 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#grid1').w2grid({
+query(() => {
+    new w2grid({
         name: 'grid1',
+        box: '#grid1',
         header: 'Available',
         show: { header: true },
         columns: [
@@ -47,8 +48,9 @@ $(function () {
         }
     });
 
-    $('#grid2').w2grid({
+    new w2grid({
         name: 'grid2',
+        box: '#grid2',
         header: 'Selected',
         show: { header: true },
         columns: [

@@ -19,9 +19,10 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#grid').w2grid({
+query(() => {
+    new w2grid({
         name: 'grid',
+        box: '#grid',
         show: { footer: true },
         columns: [
             { field: 'lname', text: 'Last Name', size: '150px' },
@@ -39,6 +40,6 @@ $(function () {
             { recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
             { recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
         ]
-    });
-});
+    })
+})
 </script>

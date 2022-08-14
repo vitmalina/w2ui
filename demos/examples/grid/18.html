@@ -16,9 +16,10 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#grid1').w2grid({
+query(() => {
+    new w2grid({
         name: 'grid1',
+        box: '#grid1',
         header: 'Main',
         show: { header: true },
         columns: [
@@ -49,7 +50,9 @@ $(function () {
         }
     });
 
-    $('#grid2').w2grid({
+    new w2grid({
+        name: 'grid2',
+        box: '#grid2',
         header: 'Details',
         show: { header: true, columnHeaders: false },
         name: 'grid2',

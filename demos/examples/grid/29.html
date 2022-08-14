@@ -85,15 +85,16 @@ function styleToggle(recid) {
     }
     w2ui.grid.refreshRow(recid, ind)
 }
-$(function () {
+query(() => {
     w2utils.formatters.custom_centered = function(value, params, record) {
         if (!value) {
             return 'Bad Date!'
         }
         return '<div style="text-align: center">'+ value +'</div>'
     }
-    $('#grid').w2grid({
+    new w2grid({
         name: 'grid',
+        box: '#grid',
         show: {
             lineNumbers: true,
         },
@@ -122,6 +123,6 @@ $(function () {
             { recid: 8, fname: "Mike", lname: "Scotty", email: "mscotty@gmail.com", sdate: "11/11/2022", comment: "styled on button click with w2ui.style.column #" },
             { recid: 9, fname: "Pat", lname: "Tobson", email: "ptob@gmail.com", sdate: "12/12/2012", comment: "styled on button click with w2ui.class.column #" },
         ]
-    });
-});
+    })
+})
 </script>

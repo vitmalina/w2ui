@@ -19,9 +19,10 @@ Column tooltip position: <input id="grid_columnTooltip" />
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#grid').w2grid({
+query(() => {
+    new w2grid({
         name: 'grid',
+        box: '#grid',
         show: {
             lineNumbers: true,
             recordTitles: true
@@ -55,8 +56,8 @@ $(function () {
     .on('change', function(event) {
         w2ui.grid.columnTooltip = $(this).val()
         w2ui.grid.refresh() // changing from/to 'normal' requires the column HTML to be rebuilt
-    });
-});
+    })
+})
 
 function title_function(record, ind, col_ind){
     return `Title for column ${col_ind}, row ${ind}`

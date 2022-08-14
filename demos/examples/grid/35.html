@@ -17,7 +17,7 @@
 <script>
 query(() => {
     let grid = new w2grid({
-        box: query('#grid')[0],
+        box: '#grid',
         name: 'grid',
         show: { toolbar: true, },
         defaultSearches: [{
@@ -43,7 +43,7 @@ query(() => {
         ]
     })
     grid.load('data/list.json')
-});
+})
 
 </script>
 

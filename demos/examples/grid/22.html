@@ -12,9 +12,10 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#grid').w2grid({
+query(() => {
+    new w2grid({
         name: 'grid',
+        box: '#grid',
         header: 'List of Names',
         show: {
             toolbar: true
@@ -44,6 +45,6 @@ $(function () {
             { recid: 18, fname: 'Thomas', lname: 'Bahh', email: 'thomas@gmail.com', sdate: '4/31/2012' },
             { recid: 19, fname: 'Sergei', lname: 'Rachmaninov', email: 'sergei@gmail.com', sdate: '2/23/2012' }
         ]
-    });
-});
+    })
+})
 </script>

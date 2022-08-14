@@ -21,9 +21,10 @@
 
 <!--CODE-->
 <script>
-$(function () {
-    $('#grid').w2grid({
+query(() => {
+    new w2grid({
         name: 'grid',
+        box: '#grid',
         show: { lineNumbers: true },
         fixedBody: false,
         columns: [
@@ -46,21 +47,21 @@ $(function () {
             { recid: 11, fname: 'Jane', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
             { recid: 12, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
         ]
-    });
-});
+    })
+})
 
 function addRecord() {
-    var g = w2ui['grid'].records.length;
-    w2ui['grid'].add( { recid: g + 1, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' } );
+    var g = w2ui['grid'].records.length
+    w2ui.grid.add( { recid: g + 1, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' } )
 }
 
 function removeRecords() {
-    w2ui.grid.clear();
+    w2ui.grid.clear()
     w2ui.grid.records = [
         { recid: 1, fname: 'Jane', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
         { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
-    ];
-    w2ui.grid.total = 2;
-    w2ui.grid.refresh();
+    ]
+    w2ui.grid.total = 2
+    w2ui.grid.refresh()
 }
 </script>

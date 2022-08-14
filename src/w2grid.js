@@ -5289,7 +5289,6 @@ class w2grid extends w2base {
                     .on('click.tooltip', evt => {
                         evt.stopPropagation()
                         w2tooltip.update(this.name + '-bubble', w2utils.lang('Copied'))
-                        // TODO: summary
                         this.clipboardCopy(tr.attr('index'), td.attr('col'), isSummary)
                     })
                 event.delegate._tooltipShow = true

@@ -52,8 +52,8 @@ query(() => {
         query('#preview').html(`
             Event: ${event.type}
             <pre style="font-size: 12px; line-height: 1.4">${JSON.stringify(edata, null, 2)}</pre>
-        `);
-        console.log('Event: '+ event.type, 'Target: '+ event.target, event);
-    });
-});
+        `)
+        console.log('Event: '+ event.type, 'Target: '+ event.target, event)
+    })
+})
 </script>
