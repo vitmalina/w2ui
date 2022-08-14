@@ -43,6 +43,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2utils.clone">clone</a> <span>- clone(obj)</span>
+</div>
+<div class="obj-property-desc">
+    Clones an object or an array
+</div>
+
+<div class="obj-property">
     <a href="w2utils.cssPrefix">cssPrefix</a> <span>- w2utils.cssPrefix(prop, val, returnString)</span>
 </div>
 <div class="obj-property-desc">
@@ -82,6 +89,13 @@
 </div>
 <div class="obj-property-desc">
     Fills out a template with provided variables
+</div>
+
+<div class="obj-property">
+    <a href="w2utils.extend">extend</a> <span>- extend(target, source1, source2, ...)</span>
+</div>
+<div class="obj-property-desc">
+    Extends an object or an array
 </div>
 
 <div class="obj-property">
@@ -239,17 +253,17 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2utils.lang">lang</a> <span>- lang(phrase);</span>
+    <a href="w2utils.lang">lang</a> <span>- lang(phrase, params);</span>
 </div>
 <div class="obj-property-desc">
     Returns translation for the <span class="argument">phrase</span>.
 </div>
 
 <div class="obj-property">
-    <a href="w2utils.locale">locale</a> <span>- locale(locale);</span>
+    <a href="w2utils.locale">locale</a> <span>- locale(locale, [keepPhrases]);</span>
 </div>
 <div class="obj-property-desc">
-    Loads new locale
+    Loads a new locale.
 </div>
 
 <div class="obj-property">
@@ -257,13 +271,6 @@
 </div>
 <div class="obj-property-desc">
     Locks HTML element.
-</div>
-
-<div class="obj-property">
-    <a href="w2utils.md5">md5</a> <span>- md5(str)</span>
-</div>
-<div class="obj-property-desc">
-    Calculated md5 hash
 </div>
 
 <div class="obj-property">
@@ -320,6 +327,13 @@
 </div>
 <div class="obj-property-desc">
     Sets cursor position in an input or contentEditable element.
+</div>
+
+<div class="obj-property">
+    <a href="w2utils.sha256">sha256</a> <span>- sha256(str)</span>
+</div>
+<div class="obj-property-desc">
+    Calculated md5 hash
 </div>
 
 <div class="obj-property">

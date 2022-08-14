@@ -1,17 +1,10 @@
-<link rel="stylesheet" type="text/css" href="../summary.css"/>
+<link rel="stylesheet" type="text/css" href="../summary.css"/> 
 <div class="container">
 <div class="obj-property">
     <a href="w2form.action">action</a> <span>- action(action, [event])</span>
 </div>
 <div class="obj-property-desc">
     Called when user clicks form's button.
-</div>
-
-<div class="obj-property">
-    <a href="w2form.setFocus">setFocus</a> <span>- setFocus([focus])</span>
-</div>
-<div class="obj-property-desc">
-    Sets focus to a field.
 </div>
 
 <div class="obj-property">

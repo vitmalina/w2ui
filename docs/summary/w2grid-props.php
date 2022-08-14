@@ -22,7 +22,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.colDefaults">colDefaults</a> <span>- Object, default = {...} see below</span>
+    <a href="w2grid.col_template">col_template</a> <span>- Object, default = {...} see below</span>
 </div>
 <div class="obj-property-desc">
     Default values for the column

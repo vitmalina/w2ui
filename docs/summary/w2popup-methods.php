@@ -92,10 +92,10 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2popup.open">open</a> <span>- open(options);</span>
+    <a href="w2popup.open">open</a> <span>- open([message], [options]);</span>
 </div>
 <div class="obj-property-desc">
-    Opens new popup or transitions to new content.
+    Opens a new popup or transitions to new content.
 </div>
 
 <div class="obj-property">

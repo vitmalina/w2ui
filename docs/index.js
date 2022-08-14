@@ -12,50 +12,49 @@ $(function () {
     // init sidebar
     w2ui.layout.html('left', $().w2sidebar({
         name: 'docs',
-        img: null,
-        levelPadding: 22,
+        levelPadding: 20,
         nodes: [
-            { id: 'w2layout', text: 'w2layout', img: 'icon-folder', group1: true, expanded: true, nodes: [
+            { id: 'w2layout', text: 'w2layout', icon: 'w2ui-icon icon-folder', group1: true, expanded: true, nodes: [
                 { id: 'w2layout-events', text: 'Events', icon: 'fa fa-tag' },
                 { id: 'w2layout-props', text: 'Properties', icon: 'fa fa-star-o' },
                 { id: 'w2layout-methods', text: 'Methods', icon: 'fa fa-cog' }
             ]},
-            { id: 'w2grid', text: 'w2grid', img: 'icon-folder', group1: true, nodes: [
+            { id: 'w2grid', text: 'w2grid', icon: 'w2ui-icon icon-folder', group1: true, nodes: [
                 { id: 'w2grid-events', text: 'Events', icon: 'fa fa-tag' },
                 { id: 'w2grid-props', text: 'Properties', icon: 'fa fa-star-o' },
                 { id: 'w2grid-methods', text: 'Methods', icon: 'fa fa-cog' }
             ] },
-            { id: 'w2toolbar', text: 'w2toolbar', img: 'icon-folder', group1: true, nodes: [
+            { id: 'w2toolbar', text: 'w2toolbar', icon: 'w2ui-icon icon-folder', group1: true, nodes: [
                 { id: 'w2toolbar-events', text: 'Events', icon: 'fa fa-tag' },
                 { id: 'w2toolbar-props', text: 'Properties', icon: 'fa fa-star-o' },
                 { id: 'w2toolbar-methods', text: 'Methods', icon: 'fa fa-cog' }
             ] },
-            { id: 'w2sidebar', text: 'w2sidebar', img: 'icon-folder', group1: true, nodes: [
+            { id: 'w2sidebar', text: 'w2sidebar', icon: 'w2ui-icon icon-folder', group1: true, nodes: [
                 { id: 'w2sidebar-events', text: 'Events', icon: 'fa fa-tag' },
                 { id: 'w2sidebar-props', text: 'Properties', icon: 'fa fa-star-o' },
                 { id: 'w2sidebar-methods', text: 'Methods', icon: 'fa fa-cog' }
             ] },
-            { id: 'w2tabs', text: 'w2tabs', img: 'icon-folder', group1: true, nodes: [
+            { id: 'w2tabs', text: 'w2tabs', icon: 'w2ui-icon icon-folder', group1: true, nodes: [
                 { id: 'w2tabs-events', text: 'Events', icon: 'fa fa-tag' },
                 { id: 'w2tabs-props', text: 'Properties', icon: 'fa fa-star-o' },
                 { id: 'w2tabs-methods', text: 'Methods', icon: 'fa fa-cog' }
             ] },
-            { id: 'w2form', text: 'w2form', img: 'icon-folder', group1: true, nodes: [
+            { id: 'w2form', text: 'w2form', icon: 'w2ui-icon icon-folder', group1: true, nodes: [
                 { id: 'w2form-events', text: 'Events', icon: 'fa fa-tag' },
                 { id: 'w2form-props', text: 'Properties', icon: 'fa fa-star-o' },
                 { id: 'w2form-methods', text: 'Methods', icon: 'fa fa-cog' }
             ]},
-            { id: 'w2field', text: 'w2field', img: 'icon-folder', group1: true, nodes: [
+            { id: 'w2field', text: 'w2field', icon: 'w2ui-icon icon-folder', group1: true, nodes: [
                 { id: 'w2field-events', text: 'Events', icon: 'fa fa-tag' },
                 { id: 'w2field-props', text: 'Properties', icon: 'fa fa-star-o' },
                 { id: 'w2field-methods', text: 'Methods', icon: 'fa fa-cog' }
             ]},
-            { id: 'w2popup', text: 'w2popup', img: 'icon-folder', group1: true, nodes: [
+            { id: 'w2popup', text: 'w2popup', icon: 'w2ui-icon icon-folder', group1: true, nodes: [
                 { id: 'w2popup-events', text: 'Events', icon: 'fa fa-tag' },
                 { id: 'w2popup-props', text: 'Properties', icon: 'fa fa-star-o' },
                 { id: 'w2popup-methods', text: 'Methods', icon: 'fa fa-cog' }
             ] },
-            { id: 'w2utils', text: 'w2utils', img: 'icon-folder', group1: true, nodes: [
+            { id: 'w2utils', text: 'w2utils', icon: 'w2ui-icon icon-folder', group1: true, nodes: [
                 { id: 'w2utils-props', text: 'Properties', icon: 'fa fa-star-o' },
                 { id: 'w2utils-methods', text: 'Methods', icon: 'fa fa-cog' }
             ] }

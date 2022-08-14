@@ -57,6 +57,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2sidebar.last">last</a> <span>- Object</span>
+</div>
+<div class="obj-property-desc">
+    Runtime variables
+</div>
+
+<div class="obj-property">
     <a href="w2sidebar.levelPadding">levelPadding</a> <span>- Number, default = 12</span>
 </div>
 <div class="obj-property-desc">
@@ -124,13 +131,6 @@
 </div>
 <div class="obj-property-desc">
     Defines tabIndex for sidebar element.
-</div>
-
-<div class="obj-property">
-    <a href="w2sidebar.tmp">tmp</a> <span>- Object</span>
-</div>
-<div class="obj-property-desc">
-    Runtime variables
 </div>
 
 <div class="obj-property">

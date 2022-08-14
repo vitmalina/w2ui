@@ -197,7 +197,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.getCellValue">getCellValue</a> <span>- getCellValue(index, column_index, [summary])</span>
+    <a href="w2grid.getCellValue">getCellValue</a> <span>- getCellValue(index, column_index, [summary], [extra])</span>
 </div>
 <div class="obj-property-desc">
     Returns parse value for the cell.
@@ -428,14 +428,14 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.nextCell">nextCell</a> <span>- nextCell(col_ind, editable)</span>
+    <a href="w2grid.nextCell">nextCell</a> <span>- nextCell(index, colIndex, editable)</span>
 </div>
 <div class="obj-property-desc">
-    Returns next cell or null if it is last cell in the row.
+    Returns next cell or null if it is last cell in the grid.
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.nextRow">nextRow</a> <span>- nextRow(index, [col_index], [numRows=1])</span>
+    <a href="w2grid.nextRow">nextRow</a> <span>- nextRow(index, [colIndex], [numRows=1])</span>
 </div>
 <div class="obj-property-desc">
     Returns next row or null if it is the last row.
@@ -456,14 +456,14 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.prevCell">prevCell</a> <span>- prevCell(col_ind, editable)</span>
+    <a href="w2grid.prevCell">prevCell</a> <span>- prevCell(index, colIndex, editable)</span>
 </div>
 <div class="obj-property-desc">
-    Returns previous cell or null if it is first cell in the row.
+    Returns previous cell or null if it is first cell in the grid.
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.prevRow">prevRow</a> <span>- prevRow(index, [col_index], [numRows=1])</span>
+    <a href="w2grid.prevRow">prevRow</a> <span>- prevRow(index, [colIndex], [numRows=1])</span>
 </div>
 <div class="obj-property-desc">
     Returns previous row or null if it is the very first row.
@@ -491,7 +491,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.refreshRow">refreshRow</a> <span>- refreshRow(recid)</span>
+    <a href="w2grid.refreshRow">refreshRow</a> <span>- refreshRow(recid, [ind])</span>
 </div>
 <div class="obj-property-desc">
     Refreshes one row on the screen.
@@ -645,6 +645,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.selectNone">selectNone</a> <span>- selectNone(skipEevnt)</span>
+</div>
+<div class="obj-property-desc">
+    Unselects all selected records in the grid.
+</div>
+
+<div class="obj-property">
     <a href="w2grid.selectionRestore">selectionRestore</a> <span>- selectionRestore([noRefresh])</span>
 </div>
 <div class="obj-property-desc">
@@ -656,13 +663,6 @@
 </div>
 <div class="obj-property-desc">
     Remembers current selection
-</div>
-
-<div class="obj-property">
-    <a href="w2grid.selectNone">selectNone</a> <span>- selectNone()</span>
-</div>
-<div class="obj-property-desc">
-    Unselects all selected records in the grid.
 </div>
 
 <div class="obj-property">
@@ -785,7 +785,7 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.update">update</a> <span>- update(cells)</span>
+    <a href="w2grid.update">update</a> <span>- update(options)</span>
 </div>
 <div class="obj-property-desc">
     Updates specified cells

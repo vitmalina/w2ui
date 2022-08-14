@@ -15,6 +15,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2toolbar.last">last</a> <span>- tmp, default = {}</span>
+</div>
+<div class="obj-property-desc">
+    Object that holds some temporary variables.
+</div>
+
+<div class="obj-property">
     <a href="w2toolbar.right">right</a> <span>- Array of strings, default = ['']</span>
 </div>
 <div class="obj-property-desc">
@@ -26,13 +33,6 @@
 </div>
 <div class="obj-property-desc">
     Object with data for the route.
-</div>
-
-<div class="obj-property">
-    <a href="w2toolbar.tmp">tmp</a> <span>- tmp, default = {}</span>
-</div>
-<div class="obj-property-desc">
-    Object that holds some temporary variables.
 </div>
 
 <div class="obj-property">

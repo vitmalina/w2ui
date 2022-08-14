@@ -8,6 +8,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2form.applyFocus">applyFocus</a> <span>- setFocus([focus])</span>
+</div>
+<div class="obj-property-desc">
+    Sets focus to a field.
+</div>
+
+<div class="obj-property">
     <a href="w2form.autosize">autosize</a> <span>- Boolean, default = true</span>
 </div>
 <div class="obj-property-desc">

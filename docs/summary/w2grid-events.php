@@ -242,7 +242,7 @@
     <a href="w2grid.onSelect">onSelect</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">
-    Called when user selects a record.
+    Called when user selects or unselects a record.
 </div>
 
 <div class="obj-property">
@@ -285,13 +285,6 @@
 </div>
 <div class="obj-property-desc">
     Called when user clicks any button on the toolbar.
-</div>
-
-<div class="obj-property">
-    <a href="w2grid.onUnselect">onUnselect</a> <span>- function (event)</span>
-</div>
-<div class="obj-property-desc">
-    Called when user unselects a record.
 </div>
 
 </div>

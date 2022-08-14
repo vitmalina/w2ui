@@ -15,6 +15,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2tabs.last">last</a> <span>- Object, default = {}</span>
+</div>
+<div class="obj-property-desc">
+    Object with run-time variables
+</div>
+
+<div class="obj-property">
     <a href="w2tabs.reorder">reorder</a> <span>- Boolean, default = false</span>
 </div>
 <div class="obj-property-desc">
@@ -47,13 +54,6 @@
 </div>
 <div class="obj-property-desc">
     Array of tab objects.
-</div>
-
-<div class="obj-property">
-    <a href="w2tabs.tmp">tmp</a> <span>- Object, default = {}</span>
-</div>
-<div class="obj-property-desc">
-    Object with run-time variables
 </div>
 
 <div class="obj-property">
