@@ -435,6 +435,7 @@ class w2grid extends w2base {
             })
         }
         // render if box specified
+        if (typeof this.box == 'string') this.box = query(this.box).get(0)
         if (this.box) this.render(this.box)
     }
 

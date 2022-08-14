@@ -157,6 +157,7 @@ class w2form extends w2base {
         }
 
         // render if box specified
+        if (typeof this.box == 'string') this.box = query(this.box).get(0)
         if (this.box) this.render(this.box)
 
         function _processFields(fields) {
@@ -439,10 +440,11 @@ class w2form extends w2base {
             case 'check':
             case 'checks': {
                 if (!Array.isArray(value)) {
-                    if (value != null)
+                    if (value != null) {
                         value = [value]
-                    else
+                    } else {
                         value = []
+                    }
                 }
                 value = value.map(val => val?.id ?? val) // convert if array of objects
                 let inputs = query(el).closest('div').find('input')
@@ -1685,7 +1687,7 @@ class w2form extends w2base {
                 } else {
                     field.$el
                         .prop('readOnly', false)
-                        .prop('tabIndex', field.$el.data('tabIndex'))
+                        .prop('tabIndex', field.$el.data('tabIndex') ?? field.$el.prop('tabIndex') ?? 0)
                         .closest('.w2ui-field')
                         .removeClass('w2ui-disabled')
                 }

@@ -61,6 +61,7 @@ class w2tabs extends w2base {
         options.tabs = tabs
 
         // render if box specified
+        if (typeof this.box == 'string') this.box = query(this.box).get(0)
         if (this.box) this.render(this.box)
     }
 

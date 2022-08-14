@@ -73,6 +73,7 @@ class w2toolbar extends w2base {
         options.items = items
 
         // render if box specified
+        if (typeof this.box == 'string') this.box = query(this.box).get(0)
         if (this.box) this.render(this.box)
     }
 
