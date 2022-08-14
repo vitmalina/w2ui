@@ -10,7 +10,7 @@
 </div>
 
 <!--CODE-->
-<div id="grid" style="width: 100%; height: 350px;"></div>
+<div id="grid" style="width: 800px; height: 380px;"></div>
 
 <!--CODE-->
 <script>
@@ -19,23 +19,24 @@ query(() => {
         name: 'grid',
         box: '#grid',
         columns: [
-            { field: 'recid', text: 'ID', size: '100px', info: true },
-            { field: 'fname', text: 'First Name', size: '150px', info: {} },
-            { field: 'lname', text: 'Last Name', size: '150px',
+            { field: 'recid', text: 'ID', size: '70px', info: true },
+            { field: 'fname', text: 'First Name', size: '100px', info: {} },
+            { field: 'lname', text: 'Last Name', size: '100px',
                 info: {
                     render: (rec, ind, col_ind) => { return '<i>' + rec.fname + '</i> <b>' + rec.lname + '</b>' }
                 }
             },
-            { field: 'email', text: 'Email', size: '200px', info: { maxLength: 10, showEmpty: true } },
-            { field: 'empty', text: 'Empty', size: '80px',
+            { field: 'email', text: 'Email', size: '100%', info: { maxLength: 10, showEmpty: true } },
+            { field: 'empty', text: 'Empty', size: '120px',
                 info: {
                     fields: ['sdate', 'email'],
                     showOn: 'mouseenter',
                     options: { position: 'top' },
                     style: 'color: green'
-                }
+                },
+                render: () => '<span style="color: silver">Mouse over</span>'
             },
-            { field: 'sdate', text: 'Start Date', size: '200px',
+            { field: 'sdate', text: 'Start Date', size: '100px',
                 info: {
                     fields: {
                         'Person': (rec, ind, col_ind) => { return rec.fname + ' ' + rec.lname },
@@ -54,7 +55,7 @@ query(() => {
                 }
             },
         ],
-        "records": [
+        records: [
             { "recid": 1, "number": 123,  "fname": "John", "lname": "Doe", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
             { "recid": 2, "number": 0,    "fname": "Stuart", "lname": "Motzart", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
             { "recid": 3, "number": null, "fname": "Jin", "lname": "Franson", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
@@ -63,7 +64,10 @@ query(() => {
             { "recid": 6, "number": 126,  "fname": "Francis", "lname": "Gatos", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
             { "recid": 7, "number": 127,  "fname": "Mark", "lname": "Welldo", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
             { "recid": 8, "number": 128,  "fname": "Thomas", "lname": "Bahh", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
-            { "recid": 9, "number": 129,  "fname": "Sergei", "lname": "Rachmaninov", "email": "jdoe@gmail.com", "sdate": "4/3/2012" }
+        ],
+        summary: [
+            { "recid": 9, "number": 1,  "fname": "2", "lname": "3", "email": "4", "sdate": "5" },
+            { "recid": 10, "number": '--',  "fname": "--", "lname": "--", "email": "--", "sdate": "--" }
         ]
     })
 })

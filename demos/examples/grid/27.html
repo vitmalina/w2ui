@@ -9,7 +9,7 @@
 </div>
 
 <!--CODE-->
-<div id="grid" style="max-width: 350px; height: 350px;"></div>
+<div id="grid" style="max-width: 450px; height: 350px;"></div>
 
 <!--CODE-->
 <script>
@@ -17,6 +17,9 @@ query(() => {
     new w2grid({
         name: 'grid',
         box: '#grid',
+        show: {
+            lineNumbers: true
+        },
         columns: [
             { field: 'fname', text: 'First Name', size: '150px', frozen: true },
             { field: 'lname', text: 'Last Name', size: '150px' },

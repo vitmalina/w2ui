@@ -5149,7 +5149,8 @@ class w2grid extends w2base {
         }
 
         // enable scrolling on frozen records,
-        gridBody.data('scroll', { lastDelta: 0, lastTime: 0 })
+        gridBody
+            .data('scroll', { lastDelta: 0, lastTime: 0 })
             .find('.w2ui-grid-frecords')
             .on('mousewheel DOMMouseScroll ', (event) => {
                 event.preventDefault()
@@ -5173,7 +5174,7 @@ class w2grid extends w2base {
                 this.scroll(event)
             })
 
-        gridBody
+        query(this.box).find('.w2ui-grid-body') // gridBody
             .off('.body-global')
             // header column click
             .on('click.body-global dblclick.body-global contextmenu.body-global', { delegate: 'td.w2ui-head' }, event => {
@@ -5249,7 +5250,7 @@ class w2grid extends w2base {
                 let td = query(event.delegate).closest('td')
                 let tr = td.parent()
                 let col = this.columns[td.attr('col')]
-                let isSummary = tr.parents('.w2ui-grid-body').hasClass('.w2ui-grid-summary')
+                let isSummary = tr.parents('.w2ui-grid-body').hasClass('w2ui-grid-summary')
                 if (['mouseenter', 'mouseover'].includes(col.info?.showOn?.toLowerCase()) && event.type == 'mouseover') {
                     this.showBubble(tr.attr('index'), td.attr('col'), isSummary)
                         .then(() => {
@@ -5268,7 +5269,7 @@ class w2grid extends w2base {
                 let td = query(event.delegate).parent()
                 let tr = td.parent()
                 let col = this.columns[td.attr('col')]
-                let isSummary = tr.parents('.w2ui-grid-body').hasClass('.w2ui-grid-summary')
+                let isSummary = tr.parents('.w2ui-grid-body').hasClass('w2ui-grid-summary')
 
                 w2tooltip.show({
                     name: this.name + '-bubble',
@@ -7908,7 +7909,7 @@ class w2grid extends w2base {
         if (!info) return
         let html = ''
         let rec  = this.records[ind]
-        let el   = query(this.box).find('#grid_'+ this.name +'_data_'+ ind +'_'+ col_ind + ' .w2ui-info')
+        let el   = query(this.box).find(`${summary ? '.w2ui-grid-summary' : ''} #grid_${this.name}_data_${ind}_${col_ind} .w2ui-info`)
         if (this.last.bubbleEl) {
             w2tooltip.hide(this.name + '-bubble')
         }

@@ -8,7 +8,7 @@
 </div>
 
 <!--CODE-->
-<div id="grid" style="width: 800px; height: 250px"></div>
+<div id="grid" style="width: 600px; height: 250px"></div>
 <br>
 <button class="w2ui-btn" onclick="showMessage()">Show Message</button>
 <button class="w2ui-btn" onclick="showConfirm()">Show Confirmation (2.0+)</button>
@@ -21,10 +21,10 @@ query(() => {
         name: 'grid',
         box: '#grid',
         columns: [
-            { field: 'fname', text: 'First Name', size: '150px', searchable: true },
-            { field: 'lname', text: 'Last Name', size: '150px', searchable: true },
-            { field: 'email', text: 'Email', size: '200px' },
-            { field: 'sdate', text: 'Start Date', size: '200px' }
+            { field: 'fname', text: 'First Name', size: '120px', searchable: true },
+            { field: 'lname', text: 'Last Name', size: '120px', searchable: true },
+            { field: 'email', text: 'Email', size: '100%' },
+            { field: 'sdate', text: 'Start Date', size: '100px' }
         ],
     })
     w2ui.grid.load('data/list.json')

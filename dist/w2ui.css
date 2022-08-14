@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (8/14/2022, 2:40:23 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (8/14/2022, 10:36:46 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -2638,16 +2638,17 @@ textarea.w2ui-error {
 }
 .w2ui-grid .w2ui-grid-summary {
   position: absolute;
-  box-shadow: 0px -1px 4px #aaa;
+  border-top: 1px solid gainsboro;
+  box-shadow: 0px -1px 4px #f0eeee;
 }
 .w2ui-grid .w2ui-grid-summary table {
   color: inherit;
 }
 .w2ui-grid .w2ui-grid-summary table .w2ui-odd {
-  background-color: #EEF5EB;
+  background-color: #fff;
 }
 .w2ui-grid .w2ui-grid-summary table .w2ui-even {
-  background-color: #F8FFF5;
+  background-color: #fbfbfb;
 }
 .w2ui-grid .w2ui-grid-footer {
   position: absolute;

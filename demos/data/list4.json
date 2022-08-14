@@ -1,36 +1,3 @@
-<div class="content">
-    <div id="example_title">
-        <h1>Simple Grid</h1>
-        The grid below displays data loaded from a JSON fil list.json.
-    </div>
-    <div id="example_view"></div>
-    <div id="example_code"></div>
-</div>
-
-<!--CODE-->
-<div id="grid" style="width: 600px; height: 350px;"></div>
-
-<!--CODE-->
-<script>
-query(() => {
-    new w2grid({
-        name: 'grid',
-        box: '#grid',
-        url: 'data/list.json',
-        method: 'GET', // need this to avoid 412 error on Safari
-        columns: [
-            { field: 'fname', text: 'First Name', size: '30%' },
-            { field: 'lname', text: 'Last Name', size: '30%' },
-            { field: 'email', text: 'Email', size: '40%' },
-            { field: 'sdate', text: 'Start Date', size: '120px' }
-        ]
-    })
-})
-</script>
-
-<!--CODE-->
-
-<!--CODE-->
 {
     "total": 9,
     "records": [
@@ -43,5 +10,14 @@ query(() => {
         { "recid": 7, "fname": "Mark", "lname": "Welldo", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
         { "recid": 8, "fname": "Thomas", "lname": "Bahh", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
         { "recid": 9, "fname": "Sergei", "lname": "Rachmaninov", "email": "jdoe@gmail.com", "sdate": "4/3/2012" }
+    ],
+    "summary": [
+        { "recid": 10, "fname": "Total", "lname": 400,
+            "w2ui": {
+                "style": {
+                    "fname": "text-align: right"
+                }
+            }
+        }
     ]
 }

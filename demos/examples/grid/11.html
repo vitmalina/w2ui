@@ -9,8 +9,6 @@
 </div>
 
 <!--CODE-->
-<div id="grid" style="width: 100%; height: 200px"></div>
-<br>
 <button class="w2ui-btn" onclick="addRecord()">Add One Record</button>
 <button class="w2ui-btn" onclick="removeRecords()">Remove Appended Records</button>
 <label style="margin-left: 20px">
@@ -18,6 +16,9 @@
         if (this.checked) { grid.resize(null, '200px'); } else { grid.refresh(); }">
     Fixed Height
 </label>
+<div style="height: 20px"></div>
+
+<div id="grid" style="width: 800px; height: 200px"></div>
 
 <!--CODE-->
 <script>
@@ -41,11 +42,6 @@ query(() => {
             { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
             { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
             { recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 9, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 10, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 11, fname: 'Jane', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 12, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
         ]
     })
 })
@@ -56,12 +52,8 @@ function addRecord() {
 }
 
 function removeRecords() {
-    w2ui.grid.clear()
-    w2ui.grid.records = [
-        { recid: 1, fname: 'Jane', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-        { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
-    ]
-    w2ui.grid.total = 2
+    w2ui.grid.records.splice(7)
+    w2ui.grid.total = w2ui.grid.records.length
     w2ui.grid.refresh()
 }
 </script>

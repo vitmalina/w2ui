@@ -24,7 +24,7 @@
     background-color: yellow;
 }
 </style>
-<div id="grid" style="width: 100%; height: 350px;"></div>
+<div id="grid" style="width: 950px; height: 350px;"></div>
 <br>
 <button class="w2ui-btn" onclick="styleToggle(2)">Toggle #2</button>
 <button class="w2ui-btn" onclick="styleToggle(3)">Toggle #3</button>
@@ -99,8 +99,8 @@ query(() => {
             lineNumbers: true,
         },
         columns: [
-            { field: 'fname', text: 'First Name', size: '150px', info: true },
-            { field: 'lname', text: 'Last Name', size: '150px',
+            { field: 'fname', text: 'First Name', size: '120px', info: true },
+            { field: 'lname', text: 'Last Name', size: '120px',
                 render(record, extra) {
                     if (extra.value === 'W2ui') {
                         return '<a href="http://w2ui.com" target="_blank" title="Click Me!"><u>http://w2ui.com</u></a>'
@@ -108,8 +108,8 @@ query(() => {
                     return extra.value
                 }
             },
-            { field: 'email', text: 'Email', size: '200px' },
-            { field: 'sdate', text: 'Start Date', size: '200px', render: 'custom_centered' },
+            { field: 'email', text: 'Email', size: '150px' },
+            { field: 'sdate', text: 'Start Date', size: '100px', render: 'custom_centered' },
             { field: 'comment', text: 'Comment', size: '100%' },
         ],
         "records": [

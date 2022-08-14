@@ -9,7 +9,7 @@
 </div>
 
 <!--CODE-->
-<div id="grid" style="width: 100%; height: 350px;"></div>
+<div id="grid" style="width: 600px; height: 350px;"></div>
 
 <!--CODE-->
 <script>
@@ -20,9 +20,9 @@ query(() => {
         url: 'data/list2.json',
         method: 'GET', // need this to avoid 412 error on Safari
         columns: [
-            { field: 'fname', text: 'First Name', size: '30%' },
-            { field: 'lname', text: 'Last Name', size: '70%' },
-            { field: 'sdate', text: 'Dates', size: '120px', attr: "align=center" }
+            { field: 'fname', text: 'First Name', size: '200px' },
+            { field: 'lname', text: 'Last Name', size: '200px' },
+            { field: 'sdate', text: 'Dates', size: '100%', attr: "align=center" }
         ]
     })
 })
