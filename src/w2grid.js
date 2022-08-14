@@ -5887,7 +5887,7 @@ class w2grid extends w2base {
             throw 'Draggable columns are not currently supported with column groups.'
         }
         let self = this
-        let _dragData = {
+        let dragData = {
             targetPos: null,
             pressed: false,
             columnHead: null
@@ -5897,56 +5897,49 @@ class w2grid extends w2base {
         query(self.box)
             .off('.colDrag')
             .on('mousedown.colDrag', dragColStart)
-            .on('mouseup.colDrag', catchMouseup)
-
-        function catchMouseup() {
-            _dragData.pressed = false
-        }
 
         function dragColStart(event) {
-            _dragData.pressed = true
+            if (dragData.pressed || dragData.numberPreColumnsPresent === 0 || event.button !== 0) return
+            dragData.pressed = true
 
-            if (!_dragData.pressed || _dragData.numberPreColumnsPresent === 0) return
-
-            let edata,
-                columns,
-                origColumn,
-                origColumnNumber,
-                invalidPreColumns = ['w2ui-col-number', 'w2ui-col-expand', 'w2ui-col-select' ],
-                invalidPostColumns = ['w2ui-head-last' ],
-                invalidColumns = invalidPreColumns.concat(invalidPostColumns),
-                preColHeadersSelector = '.w2ui-head.w2ui-col-number, .w2ui-head.w2ui-col-expand, .w2ui-head.w2ui-col-select'
+            let edata, columns, origColumn,origColumnNumber
+            let invalidPreColumns = ['w2ui-col-number', 'w2ui-col-expand', 'w2ui-col-select']
+            let invalidPostColumns = ['w2ui-head-last']
+            let invalidColumns = invalidPreColumns.concat(invalidPostColumns)
+            let preColHeadersSelector = '.w2ui-head.w2ui-col-number, .w2ui-head.w2ui-col-expand, .w2ui-head.w2ui-col-select'
 
             // do nothing if it is not a header
             if (!query(event.target).parents().hasClass('w2ui-head')) return
 
             // do nothing if it is an invalid column
-            for (let i = 0, l = invalidColumns.length; i < l; i++){
+            for (let i = 0, l = invalidColumns.length; i < l; i++) {
                 if (query(event.target).parents().hasClass(invalidColumns[i])) return
             }
 
-            _dragData.numberPreColumnsPresent = query(self.box).find(preColHeadersSelector).length
+            dragData.numberPreColumnsPresent = query(self.box).find(preColHeadersSelector).length
 
             //start event for drag start
-            _dragData.columnHead  = origColumn = query(event.target).parents('.w2ui-head')
-            _dragData.originalPos = origColumnNumber = parseInt(origColumn.attr('col'), 10)
+            dragData.columnHead  = origColumn = query(event.target).parents('.w2ui-head')
+            dragData.originalPos = origColumnNumber = parseInt(origColumn.attr('col'), 10)
             edata = self.trigger('columnDragStart', { originalEvent: event, origColumnNumber: origColumnNumber, target: origColumn[0] })
             if (edata.isCancelled === true) return false
 
-            columns = _dragData.columns = query(self.box).find('.w2ui-head:not(.w2ui-head-last)')
+            columns = dragData.columns = query(self.box).find('.w2ui-head:not(.w2ui-head-last)')
 
             // add events
             query(document).on('mouseup', dragColEnd)
             query(document).on('mousemove', dragColOver)
 
-            let col = self.columns[_dragData.originalPos]
+            let col = self.columns[dragData.originalPos]
             let colText = w2utils.lang(typeof col.text == 'function' ? col.text(col) : col.text)
-            _dragData.ghost = query.html(`<span col="${_dragData.originalPos}">${colText}</span>`)[0]
+            dragData.ghost = query.html(`<span col="${dragData.originalPos}">${colText}</span>`)[0]
 
-            query(document.body).append(_dragData.ghost)
-            query(_dragData.ghost).css({
-                    left : event.pageX,
-                    top : event.pageY,
+            query(document.body).append(dragData.ghost)
+            query(dragData.ghost)
+                .css({
+                    display: 'none',
+                    left: event.pageX,
+                    top: event.pageY,
                     opacity: 1,
                     margin: '3px 0 0 20px',
                     padding: '3px',
@@ -5958,17 +5951,17 @@ class w2grid extends w2base {
 
 
             // establish current offsets
-            _dragData.offsets = []
+            dragData.offsets = []
             for (let i = 0, l = columns.length; i < l; i++) {
                 let rect = columns[i].getBoundingClientRect()
-                _dragData.offsets.push(rect.left)
+                dragData.offsets.push(rect.left)
             }
             // conclude event
             edata.finish()
         }
 
         function dragColOver(event) {
-            if (!_dragData.pressed) return
+            if (!dragData.pressed) return
 
             let cursorX = event.pageX
             let cursorY = event.pageY
@@ -5978,37 +5971,33 @@ class w2grid extends w2base {
         }
 
         function dragColEnd(event) {
-            _dragData.pressed = false
+            if (!dragData.pressed) return
+            dragData.pressed = false
 
-            let edata,
-                target,
-                selected,
-                columnConfig,
-                ghosts = query(self.box).find('.w2ui-grid-ghost')
+            let edata, target, selected, columnConfig
+            let ghosts = query(self.box).find('.w2ui-grid-ghost')
 
             // start event for drag start
-            edata = self.trigger('columnDragEnd', { originalEvent: event, target: _dragData.columnHead[0] })
+            edata = self.trigger('columnDragEnd', { originalEvent: event, target: dragData.columnHead[0] })
             if (edata.isCancelled === true) return false
 
-            selected  = self.columns[_dragData.originalPos]
+            selected = self.columns[dragData.originalPos]
             columnConfig = self.columns
 
-            if (_dragData.originalPos != _dragData.targetPos) {
-                columnConfig.splice(_dragData.targetPos, 0, w2utils.clone(selected))
+            if (dragData.originalPos != dragData.targetPos && dragData.targetPos != null) {
+                columnConfig.splice(dragData.targetPos, 0, w2utils.clone(selected))
                 columnConfig.splice(columnConfig.indexOf(selected), 1)
-
             }
             query(self.box).find('.w2ui-intersection-marker').hide()
-            query(_dragData.ghost).remove()
+            query(dragData.ghost).remove()
             ghosts.remove()
 
-            //_dragData.columns.css({ overflow: '' }).children('div').css({ overflow: '' });
-
+            // dragData.columns.css({ overflow: '' }).children('div').css({ overflow: '' });
             query(document).off('.colDrag')
-            _dragData = {}
+            dragData = {}
 
             self.refresh()
-            edata.finish({ targetColumnNumber: target - 1 })
+            edata.finish({ targetColumn: target - 1 })
         }
 
         function markIntersection(event) {
@@ -6023,15 +6012,17 @@ class w2grid extends w2base {
                 .css({
                     left: (rect2.left - rect1.left) + 'px'
                 })
-            _dragData.targetPos = parseInt(query(event.target).closest('td').attr('col'))
+            dragData.targetPos = parseInt(query(event.target).closest('td').attr('col'))
             return
         }
 
         function trackGhost(cursorX, cursorY){
-            query(_dragData.ghost).css({
-                left : (cursorX - 10) + 'px',
-                top  : (cursorY - 10) + 'px'
-            })
+            query(dragData.ghost)
+                .css({
+                    left : (cursorX - 10) + 'px',
+                    top  : (cursorY - 10) + 'px'
+                })
+                .show()
         }
 
         // return an object to remove drag if it has ever been enabled
