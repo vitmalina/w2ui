@@ -2735,7 +2735,7 @@ class w2grid extends w2base {
             edata = this.trigger('request', { target: this.name, url, postData: params, httpHeaders: this.httpHeaders })
             if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: w2utils.lang('Request aborted.') }); return }
         } else {
-            edata = { url, postData: params, httpHeaders: this.httpHeaders }
+            edata = { detail: { url, postData: params, httpHeaders: this.httpHeaders } }
         }
         // call server to get data
         if (this.last.xhr_offset === 0) {
