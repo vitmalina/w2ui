@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (8/23/2022, 8:14:15 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (8/23/2022, 8:42:11 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -11880,8 +11880,12 @@ class w2grid extends w2base {
             })
             hasHiddenSearches = true
         }
+        if (arguments.length === 0 && overlay.length === 0) {
+            field = this.searchData
+            value = this.last.logic
+        }
         // 1: search() - advanced search (reads from popup)
-        if (arguments.length === 0) {
+        if (arguments.length === 0 && overlay.length !== 0) {
             this.focus() // otherwise search drop down covers searches
             last_logic = overlay.find(`#grid_${this.name}_logic`).val()
             last_search = ''
@@ -12084,10 +12088,10 @@ class w2grid extends w2base {
             last_logic  = logic
             for (let i = 0; i < field.length; i++) {
                 let data = field[i]
-                if (typeof data.value == 'number') data.operator = this.defaultOperator.number
-                if (typeof data.value == 'string') data.operator = this.defaultOperator.text
-                if (Array.isArray(data.value)) data.operator = this.defaultOperator.enum
-                if (w2utils.isDate(data.value)) data.operator = this.defaultOperator.date
+                if (typeof data.value == 'number' && data.operator == null) data.operator = this.defaultOperator.number
+                if (typeof data.value == 'string' && data.operator == null) data.operator = this.defaultOperator.text
+                if (Array.isArray(data.value) && data.operator == null) data.operator = this.defaultOperator.enum
+                if (w2utils.isDate(data.value) && data.operator == null) data.operator = this.defaultOperator.date
                 // merge current field and search if any
                 searchData.push(data)
             }
