@@ -55,7 +55,7 @@ class w2grid extends w2base {
         this.name         = null
         this.box          = null // HTML element that hold this element
         this.columns      = [] // { field, text, size, attr, render, hidden, gridMinWidth, editable }
-        this.columnGroups = [] // { span: int, text: 'string', main: true/false }
+        this.columnGroups = [] // { span: int, text: 'string', main: true/false, style:'background-color:#xxxxxx' }
         this.records      = [] // { recid: int(required), field1: 'value1', ... fieldN: 'valueN', style: 'string',  changes: object }
         this.summary      = [] // array of summary records, same structure as records array
         this.searches     = [] // { type, label, field, attr, text, hidden }
@@ -7061,6 +7061,9 @@ class w2grid extends w2base {
                     console.log('NOTICE: grid column.caption property is deprecated, please use column.text. Column ->', col)
                     col.text = col.caption
                 }
+				colg.applystyle = ''; 
+				if (colg.style != null) colg.applystyle = ' style="' + colg.style + '" ';
+                                
                 let colspan = 0
                 for (let jj = ii; jj < ii + colg.span; jj++) {
                     if (obj.columns[jj] && !obj.columns[jj].hidden) {
@@ -7098,7 +7101,7 @@ class w2grid extends w2base {
                     let gText = w2utils.lang(typeof colg.text == 'function' ? colg.text(colg) : colg.text)
                     tmpf      = '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head" col="'+ ii + '" '+
                            '        colspan="'+ colspan +'">'+
-                           '    <div class="w2ui-col-group">'+
+                           '    <div class="w2ui-col-group"' + colg.applystyle + '>'+
                                (!gText ? '&#160;' : gText) +
                            '    </div>'+
                            '</td>'
