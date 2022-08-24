@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (8/14/2022, 11:01:06 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (8/23/2022, 8:14:15 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -11324,16 +11324,16 @@ class w2grid extends w2base {
             let index_ftop    = parseInt(query(this.box).find('#grid_'+ this.name +'_frec_top').next().attr('index'))
             let index_fbottom = parseInt(query(this.box).find('#grid_'+ this.name +'_frec_bottom').prev().attr('index'))
             if (td1.length === 0 && first.index < index_top && last.index > index_top) {
-                td1 = query(this.box).find('#grid_'+ this.name +'_rec_top').next().find('td[col='+ first.column +']')
+                td1 = query(this.box).find('#grid_'+ this.name +'_rec_top').next().find('td[col="'+ first.column +'"]')
             }
             if (td2.length === 0 && last.index > index_bottom && first.index < index_bottom) {
-                td2 = query(this.box).find('#grid_'+ this.name +'_rec_bottom').prev().find('td[col='+ _lastColumn +']')
+                td2 = query(this.box).find('#grid_'+ this.name +'_rec_bottom').prev().find('td[col="'+ _lastColumn +'"]')
             }
             if (td1f.length === 0 && first.index < index_ftop && last.index > index_ftop) { // frozen
-                td1f = query(this.box).find('#grid_'+ this.name +'_frec_top').next().find('td[col='+ first.column +']')
+                td1f = query(this.box).find('#grid_'+ this.name +'_frec_top').next().find('td[col="'+ first.column +'"]')
             }
             if (td2f.length === 0 && last.index > index_fbottom && first.index < index_fbottom) { // frozen
-                td2f = query(this.box).find('#grid_'+ this.name +'_frec_bottom').prev().find('td[col='+ last.column +']')
+                td2f = query(this.box).find('#grid_'+ this.name +'_frec_bottom').prev().find('td[col="'+ last.column +'"]')
             }
             // do not show selection cell if it is editable
             let edit = query(this.box).find('#grid_'+ this.name + '_editable')
@@ -11672,8 +11672,8 @@ class w2grid extends w2base {
                 if (!Array.isArray(s) || s.indexOf(col) == -1) continue
                 // default action
                 s.splice(s.indexOf(col), 1)
-                query(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid)).find(' > td[col='+ col +']').removeClass('w2ui-selected w2ui-inactive')
-                query(this.box).find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid)).find(' > td[col='+ col +']').removeClass('w2ui-selected w2ui-inactive')
+                query(this.box).find(`#grid_${this.name}_rec_${w2utils.escapeId(recid)} > td[col="${col}"]`).removeClass('w2ui-selected w2ui-inactive')
+                query(this.box).find(`#grid_${this.name}_frec_${w2utils.escapeId(recid)} > td[col="${col}"]`).removeClass('w2ui-selected w2ui-inactive')
                 // check if any row/column still selected
                 let isColSelected = false
                 let isRowSelected = false
@@ -11683,7 +11683,7 @@ class w2grid extends w2base {
                     if (tmp[i].recid == recid) isRowSelected = true
                 }
                 if (!isColSelected) {
-                    query(this.box).find('.w2ui-grid-columns td[col='+ col +'] .w2ui-col-header, .w2ui-grid-fcolumns td[col='+ col +'] .w2ui-col-header').removeClass('w2ui-col-selected')
+                    query(this.box).find(`.w2ui-grid-columns td[col="${col}"] .w2ui-col-header, .w2ui-grid-fcolumns td[col="${col}"] .w2ui-col-header`).removeClass('w2ui-col-selected')
                 }
                 if (!isRowSelected) {
                     query(this.box).find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid)).find('.w2ui-col-number').removeClass('w2ui-row-selected')
@@ -12666,7 +12666,7 @@ class w2grid extends w2base {
             edata = this.trigger('request', { target: this.name, url, postData: params, httpHeaders: this.httpHeaders })
             if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: w2utils.lang('Request aborted.') }); return }
         } else {
-            edata = { url, postData: params, httpHeaders: this.httpHeaders }
+            edata = { detail: { url, postData: params, httpHeaders: this.httpHeaders } }
         }
         // call server to get data
         if (this.last.xhr_offset === 0) {
@@ -13871,7 +13871,6 @@ class w2grid extends w2base {
                             obj.scrollIntoView(ind, prev, true)
                         }
                     } else {
-                        event.metaKey = false
                         obj.click({ recid: recid, column: prev }, event)
                         obj.scrollIntoView(ind, prev, true)
                     }
@@ -13925,7 +13924,6 @@ class w2grid extends w2base {
                             obj.scrollIntoView(ind, next, true)
                         }
                     } else {
-                        event.metaKey = false
                         obj.click({ recid: recid, column: next }, event)
                         obj.scrollIntoView(ind, next, true)
                     }
