@@ -82,45 +82,45 @@ class w2grid extends w2base {
                 indexes : [],
                 columns : {}
             },
-            _selection  : null,     // last result of selectionSave()
-            multi       : false,    // last multi flag, true when searching for multiple fields
-            scrollTop   : 0,        // last scrollTop position
-            scrollLeft  : 0,        // last scrollLeft position
-            colStart    : 0,        // for column virtual scrolling
-            colEnd      : 0,        // for column virtual scrolling
-            xhr         : null,     // last jquery xhr requests
-            xhr_cmd     : '',       // last xhr command, e.g. 'get'
-            xhr_offset  : null,     // last xhr offset, integer
-            xhr_start   : 0,        // timestamp of start of last xhr request
-            xhr_response: 0,        // time it took to complete the last xhr request in seconds
-            xhr_hasMore : false,    // flag to indicate if there are more items to pull from the server
-            pull_more   : false,
-            pull_refresh: true,
-            loaded      : false,    // loaded state of grid
-            range_start : null,     // last range start cell
-            range_end   : null,     // last range end cell
-            sel_ind     : null,     // last selected cell index
-            sel_col     : null,     // last selected column
-            sel_type    : null,     // last selection type, e.g. 'click' or 'key'
-            sel_recid   : null,     // last selected record id
-            idCache     : {},       // object, id cache for get()
-            move        : null,     // object, move details
-            cancelClick : null,     // boolean flag to indicate if the click event should be ignored, set during mouseMove()
-            inEditMode  : false,    // flag to indicate if we're currently in edit mode during inline editing
-            _edit       : null,     // object with details on the last edited cell, { value, index, column, recid }
-            kbd_timer   : null,     // last id of blur() timer
-            marker_timer: null,     // last id of markSearch() timer
-            click_time  : null,     // timestamp of last click
-            click_recid : null,     // last clicked record id
-            bubbleEl    : null,     // last bubble element
-            colResizing : false,    // flag to indicate that a column is currently being resized
-            tmp         : null,     // object with last column resizing details
-            copy_event  : null,     // last copy event
-            userSelect  : '',       // last user select type, e.g. 'text'
-            columnDrag  : false,    // false or an object with a remove() method
-            state       : null,     // last grid state
-            show_extra  : 0,        // last show extra for virtual scrolling
-            _toolbar_height: 0,     // height of grid's toolbar
+            saved_sel     : null,     // last result of selectionSave()
+            multi         : false,    // last multi flag, true when searching for multiple fields
+            scrollTop     : 0,        // last scrollTop position
+            scrollLeft    : 0,        // last scrollLeft position
+            colStart      : 0,        // for column virtual scrolling
+            colEnd        : 0,        // for column virtual scrolling
+            fetch         : null,     // last fetch promise
+            fetch_cmd     : '',       // last fetch command, e.g. 'get'
+            fetch_offset  : null,     // last fetch offset, integer
+            fetch_start   : 0,        // timestamp of start of last fetch request
+            fetch_response: 0,        // time it took to complete the last fetch request in seconds
+            fetch_hasMore : false,    // flag to indicate if there are more items to pull from the server
+            pull_more     : false,
+            pull_refresh  : true,
+            loaded        : false,    // loaded state of grid
+            range_start   : null,     // last range start cell
+            range_end     : null,     // last range end cell
+            sel_ind       : null,     // last selected cell index
+            sel_col       : null,     // last selected column
+            sel_type      : null,     // last selection type, e.g. 'click' or 'key'
+            sel_recid     : null,     // last selected record id
+            idCache       : {},       // object, id cache for get()
+            move          : null,     // object, move details
+            cancelClick   : null,     // boolean flag to indicate if the click event should be ignored, set during mouseMove()
+            inEditMode    : false,    // flag to indicate if we're currently in edit mode during inline editing
+            _edit         : null,     // object with details on the last edited cell, { value, index, column, recid }
+            kbd_timer     : null,     // last id of blur() timer
+            marker_timer  : null,     // last id of markSearch() timer
+            click_time    : null,     // timestamp of last click
+            click_recid   : null,     // last clicked record id
+            bubbleEl      : null,     // last bubble element
+            colResizing   : false,    // flag to indicate that a column is currently being resized
+            tmp           : null,     // object with last column resizing details
+            copy_event    : null,     // last copy event
+            userSelect    : '',       // last user select type, e.g. 'text'
+            columnDrag    : false,    // false or an object with a remove() method
+            state         : null,     // last grid state
+            show_extra    : 0,        // last show extra for virtual scrolling
+            toolbar_height: 0,        // height of grid's toolbar
         }
         this.header            = ''
         this.url               = ''
@@ -2170,7 +2170,7 @@ class w2grid extends w2base {
         this.searchClose()
         // apply search
         if (url) {
-            this.last.xhr_offset = 0
+            this.last.fetch_offset = 0
             this.reload()
         } else {
             // local search
@@ -2534,7 +2534,7 @@ class w2grid extends w2base {
             }
         }
         this.last.multi      = false
-        this.last.xhr_offset = 0
+        this.last.fetch_offset = 0
         // reset scrolling position
         this.last.scrollTop         = 0
         this.last.scrollLeft        = 0
@@ -2629,7 +2629,7 @@ class w2grid extends w2base {
         this.total           = 0
         this.records         = []
         this.summary         = []
-        this.last.xhr_offset = 0 // need this for reload button to work on remote data set
+        this.last.fetch_offset = 0 // need this for reload button to work on remote data set
         this.last.idCache    = {} // optimization to free memory
         this.last.selection   = { indexes: [], columns: {} }
         this.reset(true)
@@ -2670,7 +2670,7 @@ class w2grid extends w2base {
         }
         // default action
         this.clear(true)
-        this.request('get', {}, url, callBack)
+        return this.request('get', {}, url, callBack)
     }
 
     reload(callBack) {
@@ -2697,12 +2697,12 @@ class w2grid extends w2base {
         if (!url) return
         // build parameters list
         if (!w2utils.isInt(this.offset)) this.offset = 0
-        if (!w2utils.isInt(this.last.xhr_offset)) this.last.xhr_offset = 0
+        if (!w2utils.isInt(this.last.fetch_offset)) this.last.fetch_offset = 0
         // add list params
         let edata
         let params = {
             limit       : this.limit,
-            offset      : parseInt(this.offset) + parseInt(this.last.xhr_offset),
+            offset      : parseInt(this.offset) + parseInt(this.last.fetch_offset),
             searchLogic : this.last.logic,
             search: this.searchData.map((search) => {
                 let _search = w2utils.clone(search)
@@ -2742,10 +2742,10 @@ class w2grid extends w2base {
             edata = { detail: { url, postData: params, httpHeaders: this.httpHeaders } }
         }
         // call server to get data
-        if (this.last.xhr_offset === 0) {
+        if (this.last.fetch_offset === 0) {
             this.lock(w2utils.lang(this.msgRefresh), true)
         }
-        if (this.last.xhr) try { this.last.xhr.abort() } catch (e) {}
+        if (this.last.fetch) try { this.last.fetch.abort() } catch (e) {}
         // URL
         url = edata.detail.url
         switch (cmd) {
@@ -2806,10 +2806,10 @@ class w2grid extends w2base {
         }
         if (this.method) ajaxOptions.type = this.method
 
-        this.last.xhr_cmd   = cmd
-        this.last.xhr_start = Date.now()
+        this.last.fetch_cmd   = cmd
+        this.last.fetch_start = Date.now()
         this.last.loaded    = false
-        this.last.xhr       = jQuery.ajax(ajaxOptions)
+        this.last.fetch       = jQuery.ajax(ajaxOptions)
             .done((data, status, xhr) => {
                 this.requestComplete(status, xhr, cmd, callBack)
             })
@@ -2839,10 +2839,10 @@ class w2grid extends w2base {
 
     requestComplete(status, xhr, cmd, callBack) {
         this.unlock()
-        this.last.xhr_response = (Date.now() - this.last.xhr_start)/1000
+        this.last.fetch_response = (Date.now() - this.last.fetch_start)/1000
         setTimeout(() => {
             if (this.show.statusResponse) {
-                this.status(w2utils.lang('Server Response ${count} seconds', {count: this.last.xhr_response}))
+                this.status(w2utils.lang('Server Response ${count} seconds', {count: this.last.fetch_response}))
             }
         }, 10)
         this.last.pull_more    = false
@@ -2850,8 +2850,8 @@ class w2grid extends w2base {
 
         // event before
         let event_name = 'load'
-        if (this.last.xhr_cmd == 'save') event_name = 'save'
-        if (this.last.xhr_cmd == 'delete') event_name = 'delete'
+        if (this.last.fetch_cmd == 'save') event_name = 'save'
+        if (this.last.fetch_cmd == 'delete') event_name = 'delete'
         let edata = this.trigger(event_name, { target: this.name, xhr: xhr, status: status })
         if (edata.isCancelled === true) {
             if (typeof callBack == 'function') callBack({ status: 'error', message: w2utils.lang('Request aborted.') })
@@ -2892,16 +2892,16 @@ class w2grid extends w2base {
                 }
                 if (data.records.length == this.limit) {
                     let loaded            = this.records.length + data.records.length
-                    this.last.xhr_hasMore = (loaded == this.total ? false : true)
+                    this.last.fetch_hasMore = (loaded == this.total ? false : true)
                 } else {
-                    this.last.xhr_hasMore = false
-                    this.total            = this.offset + this.last.xhr_offset + data.records.length
+                    this.last.fetch_hasMore = false
+                    this.total            = this.offset + this.last.fetch_offset + data.records.length
                 }
-                if (!this.last.xhr_hasMore) {
+                if (!this.last.fetch_hasMore) {
                     // if no more records, then hide spinner
                     query(this.box).find('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more').hide()
                 }
-                if (this.last.xhr_offset === 0) {
+                if (this.last.fetch_offset === 0) {
                     this.records = []
                     this.summary = []
                 } else {
@@ -2909,7 +2909,7 @@ class w2grid extends w2base {
                         let grid = this
                         this.message(w2utils.lang(this.msgNeedReload))
                             .ok(() => {
-                                delete grid.last.xhr_offset
+                                delete grid.last.fetch_offset
                                 grid.reload()
                             })
                         return
@@ -2966,7 +2966,7 @@ class w2grid extends w2base {
         }
         this.total = parseInt(this.total)
         // do not refresh if loading on infinite scroll
-        if (this.last.xhr_offset === 0) {
+        if (this.last.fetch_offset === 0) {
             this.refresh()
         } else {
             this.scroll()
@@ -2981,7 +2981,7 @@ class w2grid extends w2base {
 
     error(msg) {
         // let the management of the error outside of the grid
-        let edata = this.trigger('error', { target: this.name, message: msg , xhr: this.last.xhr })
+        let edata = this.trigger('error', { target: this.name, message: msg , xhr: this.last.fetch })
         if (edata.isCancelled === true) {
             return
         }
@@ -4562,7 +4562,7 @@ class w2grid extends w2base {
         } else {
             // event after
             edata.finish({ direction })
-            this.last.xhr_offset = 0
+            this.last.fetch_offset = 0
             this.reload()
         }
     }
@@ -5017,7 +5017,7 @@ class w2grid extends w2base {
         if (this.multiSearch && this.searchData.length > 0) {
             if (query(this.box).find('.w2ui-grid-searches').length == 0) {
                 query(this.box).find('.w2ui-grid-toolbar')
-                    .css('height', (this.last._toolbar_height + 35) + 'px')
+                    .css('height', (this.last.toolbar_height + 35) + 'px')
                     .append(`<div id="grid_${this.name}_searches" class="w2ui-grid-searches"></div>`)
 
             }
@@ -5079,7 +5079,7 @@ class w2grid extends w2base {
             query(this.box).find(`#grid_${this.name}_search_logic`).html(w2utils.lang(this.last.logic == 'AND' ? 'All' : 'Any'))
         } else {
             query(this.box).find('.w2ui-grid-toolbar')
-                .css('height', this.last._toolbar_height + 'px')
+                .css('height', this.last.toolbar_height + 'px')
                 .find('.w2ui-grid-searches')
                 .remove()
         }
@@ -5380,7 +5380,7 @@ class w2grid extends w2base {
         // init toolbar
         this.initToolbar()
         if (this.toolbar != null) this.toolbar.render(query(this.box).find('#grid_'+ this.name +'_toolbar')[0])
-        this.last._toolbar_height = query(this.box).find(`#grid_${this.name}_toolbar`).prop('offsetHeight')
+        this.last.toolbar_height = query(this.box).find(`#grid_${this.name}_toolbar`).prop('offsetHeight')
         // re-init search_all
         if (this.last.field && this.last.field != 'all') {
             let sd = this.searchData
@@ -7539,10 +7539,10 @@ class w2grid extends w2base {
         // load more if needed
         let s = Math.floor(records.prop('scrollTop') / this.recordHeight)
         let e = s + Math.floor(records.prop('clientHeight') / this.recordHeight)
-        if (e + 10 > buffered && this.last.pull_more !== true && (buffered < this.total - this.offset || (this.total == -1 && this.last.xhr_hasMore))) {
+        if (e + 10 > buffered && this.last.pull_more !== true && (buffered < this.total - this.offset || (this.total == -1 && this.last.fetch_hasMore))) {
             if (this.autoLoad === true) {
                 this.last.pull_more   = true
-                this.last.xhr_offset += this.limit
+                this.last.fetch_offset += this.limit
                 this.request('get')
             }
             // scroll function
@@ -7555,7 +7555,7 @@ class w2grid extends w2base {
                     query(this).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>')
                     // load more
                     obj.last.pull_more   = true
-                    obj.last.xhr_offset += obj.limit
+                    obj.last.fetch_offset += obj.limit
                     obj.request('get')
                 })
                 .find('td')
@@ -8407,15 +8407,15 @@ class w2grid extends w2base {
     }
 
     selectionSave() {
-        this.last._selection = this.getSelection()
-        return this.last._selection
+        this.last.saved_sel = this.getSelection()
+        return this.last.saved_sel
     }
 
     selectionRestore(noRefresh) {
-        let time            = Date.now()
+        let time = Date.now()
         this.last.selection = { indexes: [], columns: {} }
-        let sel             = this.last.selection
-        let lst             = this.last._selection
+        let sel = this.last.selection
+        let lst = this.last.saved_sel
         if (lst) for (let i = 0; i < lst.length; i++) {
             if (w2utils.isPlainObject(lst[i])) {
                 // selectType: cell
@@ -8431,7 +8431,7 @@ class w2grid extends w2base {
                 if (tmp != null) sel.indexes.push(tmp)
             }
         }
-        delete this.last._selection
+        delete this.last.saved_sel
         if (noRefresh !== true) this.refresh()
         return Date.now() - time
     }
