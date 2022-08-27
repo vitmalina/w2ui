@@ -150,10 +150,13 @@ class w2form extends w2base {
                 .then(text => {
                     this.formHTML = text
                     this.isGenerated = true
+                    if (this.box) this.render(this.box)
                 })
         } else if (!this.formURL && !this.formHTML) {
             this.formHTML    = this.generateHTML()
             this.isGenerated = true
+        } else if (this.formHTML) {
+            this.isGenerated = true;
         }
 
         // render if box specified

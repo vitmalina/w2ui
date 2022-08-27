@@ -1,97 +1,24 @@
 <div class="w2ui-page page-0">
-    <div class="w2ui-field">
-        <label>Text:</label>
-        <div>
-            <input name="field_text" type="text" maxlength="100" style="width: 350px"/>
-        </div>
-    </div>
-    <div class="w2ui-field">
-        <label>Text (alpha-numeric):</label>
-        <div>
-            <input name="field_alpha" type="text" maxlength="100" style="width: 350px"/>
-        </div>
-    </div>
-    <div class="w2ui-field">
-        <label>Number (int):</label>
-        <div>
-            <input name="field_int" type="text" maxlength="100" size="16"/>
-        </div>
-    </div>
-    <div class="w2ui-field">
-        <label>Number (float):</label>
-        <div>
-            <input name="field_float" type="text" maxlength="100" size="16"/>
-        </div>
-    </div>
-    <div class="w2ui-field">
-        <label>Date:</label>
-        <div>
-            <input name="field_date" type="text" maxlength="100" size="16"/>
-        </div>
-    </div>
-    <div class="w2ui-field">
-        <label>List:</label>
-        <div>
-            <input name="field_list" type="text" style="width: 350px"/>
-        </div>
-    </div>
-    <div class="w2ui-field">
-        <label>Multi Select:</label>
-        <div>
-            <input name="field_enum" type="text" style="width: 350px"/>
-        </div>
-    </div>
-    <div class="w2ui-field">
-        <label>Text Area:</label>
-        <div>
-            <textarea name="field_textarea" type="text" style="width: 100%; height: 80px; resize: none"/>
-        </div>
-    </div>
-    <div class="w2ui-field">
-        <label>Select:</label>
-        <div>
-            <select name="field_select">
-                <option></option>
-                <option value="1">Item 1</option>
-                <option value="2">Item 2</option>
-                <option value="3">Item 3</option>
-                <option value="4">Item 4</option>
-                <option value="5">Item 5</option>
-                <option value="6">Item 6</option>
-            </select>
-        </div>
-    </div>
-    <div class="w2ui-field">
-        <label>Check:</label>
-        <div>
-            <label>
-                <input name="field_check" type="checkbox"/>
-                Some field
-            </label>
-        </div>
-    </div>
-    <div class="w2ui-field">
-        <label>Radio:</label>
-        <div>
-            <label>
-                <input name="field_radio" type="radio" value="1"/>
-                Item 1
-            </label>
-            <br>
-            <label>
-                <input name="field_radio" type="radio" value="2"/>
-                Item 2
-            </label>
-            <br>
-            <label>
-                <input name="field_radio" type="radio" value="3"/>
-                Item 3
-            </label>
+    <div class="w2ui-column-container">
+        <div class="w2ui-column col-0">
+            <div class="w2ui-field w2ui-span6">
+                <label>First Name</label>
+                <div><input id="first_name" name="first_name" class="w2ui-input" style="width: 300px" type="text" tabindex="1"></div>
+            </div>
+            <div class="w2ui-field w2ui-span6">
+                <label>Last Name</label>
+                <div><input id="last_name" name="last_name" class="w2ui-input" style="width: 300px" type="text" tabindex="2"></div>
+            </div>
+            <div class="w2ui-field w2ui-span6">
+                <label>Comments</label>
+                <div>
+                    <textarea id="comments" name="comments" class="w2ui-input" style="width: 300px; height: 60px" type="text" tabindex="3"></textarea>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
 <div class="w2ui-buttons">
-    <button class="w2ui-btn" name="reset">Reset</button>
-    <button class="w2ui-btn" name="save">Save</button>
+    <button name="reset" class="w2ui-btn " tabindex="4">Reset</button>
+    <button name="save" class="w2ui-btn w2ui-btn-blue" tabindex="5">Save</button>
 </div>
