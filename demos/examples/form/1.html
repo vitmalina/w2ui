@@ -42,7 +42,12 @@ query(() => {
     let form = new w2form({
         box: '#form',
         name: 'form',
-        url: 'server/post',
+        recid: 1,
+        url: {
+            get: 'data/form-simple.json',
+            save: 'server/post'
+        },
+        // url: 'server/post',
         record: {
             first_name: 'John',
             last_name: 'Doe'

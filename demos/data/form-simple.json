@@ -1,0 +1,9 @@
+{
+    "record": {
+        "first_name": "John",
+        "last_name": "Doe"
+    },
+    "rest": {
+        "msg": "any other form data"
+    }
+}

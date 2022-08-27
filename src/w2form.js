@@ -21,6 +21,7 @@
  *  - setFieldVallue(fieldName, value)
  *  - getValue(..., original) -- return original if any
  *  - added .hideErrors()
+ *  - reuqest, save, submit - return promises
  */
 
 import { w2base } from './w2base.js'
@@ -62,7 +63,8 @@ class w2form extends w2base {
         this.tabindexBase = 0 // this will be added to the auto numbering
         this.isGenerated  = false
         this.last         = {
-            xhr: null, // jquery xhr requests
+            fetchCtrl: null,    // last fetch AbortController
+            fetchOptions: null, // last fetch options
             errors: []
         }
         this.onRequest    = null
@@ -614,10 +616,11 @@ class w2form extends w2base {
         let url = (typeof this.url !== 'object' ? this.url : this.url.get)
         if (url && this.recid !== 0 && this.recid != null) {
             // this.clear();
-            this.request(callBack)
+            return this.request(callBack) // returns promise
         } else {
             // this.refresh(); // no need to refresh
             if (typeof callBack === 'function') callBack()
+            return new Promise(resolve => { resolve() }) // resolved promise
         }
     }
 
@@ -641,10 +644,13 @@ class w2form extends w2base {
 
     error(msg) {
         // let the management of the error outside of the form
-        let edata = this.trigger('error', { target: this.name, message: msg , xhr: this.last.xhr })
-        if (edata.isCancelled === true) {
-            return
-        }
+        let edata = this.trigger('error', {
+            target: this.name,
+            message: msg,
+            fetchCtrl: this.last.fetchCtrl,
+            fetchOptions: this.last.fetchOptions
+        })
+        if (edata.isCancelled === true) return
         // need a time out because message might be already up)
         setTimeout(() => { this.message(msg) }, 1)
         // event after
@@ -879,6 +885,8 @@ class w2form extends w2base {
 
     request(postData, callBack) { // if (1) param then it is call back if (2) then postData and callBack
         let self = this
+        let resolve, reject
+        let responseProm = new Promise((res, rej) => { resolve = res; reject = rej })
         // check for multiple params
         if (typeof postData === 'function') {
             callBack = postData
@@ -899,12 +907,7 @@ class w2form extends w2base {
         // event before
         let edata = this.trigger('request', { target: this.name, url: this.url, method: this.method,
             postData: params, httpHeaders: this.httpHeaders })
-        if (edata.isCancelled === true) {
-            if (typeof callBack === 'function') {
-                callBack({ error: true, message: w2utils.lang('Request aborted.') })
-            }
-            return
-        }
+        if (edata.isCancelled === true) return
         // default action
         this.record = {}
         this.original = null
@@ -912,8 +915,7 @@ class w2form extends w2base {
         this.lock(w2utils.lang(this.msgRefresh))
         let url = edata.detail.url
         if (typeof url === 'object' && url.get) url = url.get
-        // TODO: cancel previous fetch
-        if (this.last.xhr) try { this.last.xhr.abort() } catch (e) {}
+        if (this.last.fetchCtrl) try { this.last.fetchCtrl.abort() } catch (e) {}
         // process url with routeData
         if (Object.keys(this.routeData).length != 0) {
             let info = w2utils.parseRoute(url)
@@ -953,20 +955,25 @@ class w2form extends w2base {
         }
         if (this.method) fetchOptions.method = this.method
         if (edata.detail.method) fetchOptions.method = edata.detail.method
-        this.last.xhr = fetch(url, fetchOptions)
+        this.last.fetchCtrl = new AbortController()
+        fetchOptions.signal = this.last.fetchCtrl.signal
+        this.last.fetchOptions = fetchOptions
+        fetch(url, fetchOptions)
             .catch(processError)
             .then((resp) => {
-                self.unlock()
-                if (resp.status != 200) {
-                    processError(resp)
+                if (resp?.status != 200) {
+                    // if resp is undefined, it means request was aborted
+                    if (resp) processError(resp)
                     return
                 }
                 // event before
-                let edata = self.trigger('load', { target: self.name, xhr: this.last.xhr, data: resp })
-                if (edata.isCancelled === true) {
-                    if (typeof callBack === 'function') callBack({ error: true, message: w2utils.lang('Request aborted.') })
-                    return
-                }
+                let edata = self.trigger('load', {
+                    target: self.name,
+                    fetchCtrl: this.last.fetchCtrl,
+                    fetchOptions: this.last.fetchOptions,
+                    data: resp
+                })
+                if (edata.isCancelled === true) return
                 resp.json()
                     .catch(processError)
                     .then(data => {
@@ -983,21 +990,27 @@ class w2form extends w2base {
                             self.record = w2utils.clone(data.record)
                         }
                         // event after
+                        self.unlock();
                         edata.finish()
                         self.refresh()
                         self.setFocus()
                         // call back
                         if (typeof callBack === 'function') callBack(data)
+                        resolve(data)
                     })
             })
         // event after
         edata.finish()
-        return
+        return responseProm
 
         function processError(response) {
+            if (response.name === 'AbortError') {
+                // request was aborted by the form
+                return
+            }
             self.unlock()
             // trigger event
-            let edata2 = self.trigger('error', { response, xhr: self.last.xhr })
+            let edata2 = self.trigger('error', { response, fetchCtrl: self.last.fetchCtrl, fetchOptions: self.last.fetchOptions })
             if (edata2.isCancelled === true) return
             // default behavior
             if (response.status && response.status != 200) {
@@ -1010,6 +1023,7 @@ class w2form extends w2base {
             }
             // event after
             edata2.finish()
+            reject(response)
         }
     }
 
@@ -1019,6 +1033,8 @@ class w2form extends w2base {
 
     save(postData, callBack) {
         let self = this
+        let resolve, reject
+        let saveProm = new Promise((res, rej) => { resolve = res; reject = rej })
         // check for multiple params
         if (typeof postData === 'function') {
             callBack = postData
@@ -1060,8 +1076,7 @@ class w2form extends w2base {
         // default action
         let url = edata.detail.url
         if (typeof url === 'object' && url.save) url = url.save
-        // TODO: abort if called twice
-        // if (self.last.xhr) try { self.last.xhr.abort() } catch (e) {}
+        if (self.last.fetchCtrl) self.last.fetchCtrl.abort()
         // process url with routeData
         if (Object.keys(self.routeData).length > 0) {
             let info = w2utils.parseRoute(url)
@@ -1155,7 +1170,10 @@ class w2form extends w2base {
         }
         if (this.method) fetchOptions.method = this.method
         if (edata.detail.method) fetchOptions.method = edata.detail.method
-        this.last.xhr = fetch(url, fetchOptions)
+        this.last.fetchCtrl = new AbortController()
+        fetchOptions.signal = this.last.fetchCtrl.signal
+        this.last.fetchOptions = fetchOptions
+        fetch(url, fetchOptions)
             .catch(processError)
             .then(resp => {
                 self.unlock()
@@ -1164,7 +1182,12 @@ class w2form extends w2base {
                     return
                 }
                 // event before
-                let edata = self.trigger('save', { target: self.name, xhr: this.last.xhr, data: resp })
+                let edata = self.trigger('save', {
+                    target: self.name,
+                    fetchCtrl: this.last.fetchCtrl,
+                    fetchOptions: this.last.fetchOptions,
+                    data: resp
+                })
                 if (edata.isCancelled === true) return
                 // parse server response
                 resp.json()
@@ -1180,17 +1203,22 @@ class w2form extends w2base {
                         edata.finish()
                         self.refresh()
                         // call back
-                        if (typeof callBack === 'function') callBack(data, this.last.xhr)
+                        if (typeof callBack === 'function') callBack(data)
+                        resolve(data)
                     })
             })
         // event after
         edata.finish()
-        return
+        return saveProm
 
         function processError(response) {
+            if (response.name === 'AbortError') {
+                // request was aborted by the form
+                return
+            }
             self.unlock()
             // trigger event
-            let edata2 = self.trigger('error', { response, xhr: self.last.xhr })
+            let edata2 = self.trigger('error', { response, fetchCtrl: self.last.fetchCtrl, fetchOptions: self.last.fetchOptions })
             if (edata2.isCancelled === true) return
             // default behavior
             if (response.status && response.status != 200) {
@@ -1203,6 +1231,7 @@ class w2form extends w2base {
             }
             // event after
             edata2.finish()
+            reject()
         }
     }
 
