@@ -22,12 +22,15 @@ function openPopup () {
             fields: [
                 { field: 'first_name', type: 'text', required: true, html: { label: 'First Name' } },
                 { field: 'last_name', type: 'text', required: true, html: { label: 'Last Name' } },
-                { field: 'email', type: 'email', html: { label: 'Email', attr: 'style="width: 200px"' } }
+                { field: 'type', type: 'list',
+                    html: { label: 'Person Type' },
+                    options: { items: ['Employee', 'Contractor', 'Other'] }
+                }
             ],
             record: {
-                first_name    : 'John',
-                last_name     : 'Doe',
-                email         : 'jdoe@email.com'
+                first_name : 'John',
+                last_name  : 'Doe',
+                type       : 'Contractor'
             },
             actions: {
                 "Reset": function () { this.clear(); },

@@ -2055,7 +2055,7 @@ class Utils {
         if (Array.isArray(menu)) {
             menu.forEach((it, m) => {
                 if (typeof it === 'string' || typeof it === 'number') {
-                    menu[m] = { id: it, text: it }
+                    menu[m] = { id: it, text: String(it) }
                 } else if (it != null) {
                     if (it.caption != null && it.text == null) it.text = it.caption
                     if (it.text != null && it.id == null) it.id = it.text

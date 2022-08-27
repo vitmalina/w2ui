@@ -42,18 +42,12 @@ query(() => {
     let form = new w2form({
         box: '#form',
         name: 'form',
-        recid: 1,
-        url: {
-            get: 'data/form-simple.json',
-            save: 'server/post'
-        },
-        // url: 'server/post',
         record: {
             first_name: 'John',
             last_name: 'Doe'
         },
-        // formURL: 'data/form.html',
-        formHTML: query('#form').html(),
+        // formURL: 'data/form.html',    // you can load form from extenral file
+        formHTML: query('#form').html(), // or you can use form that is already in HTML
         fields: [
             { field: 'first_name', type: 'text', required: true },
             { field: 'last_name',  type: 'text', required: true },
@@ -61,12 +55,12 @@ query(() => {
         ],
         actions: {
             reset() {
-                this.clear();
+                this.clear()
             },
             save() {
-                this.save();
+                this.save()
             }
         }
-    });
-});
+    })
+})
 </script>
