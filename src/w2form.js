@@ -1176,8 +1176,8 @@ class w2form extends w2base {
             .catch(processError)
             .then(resp => {
                 self.unlock()
-                if (resp.status != 200) {
-                    processError(resp)
+                if (resp?.status != 200) {
+                    processError(resp ?? {})
                     return
                 }
                 // event before
@@ -1211,7 +1211,7 @@ class w2form extends w2base {
         return saveProm
 
         function processError(response) {
-            if (response.name === 'AbortError') {
+            if (response?.name === 'AbortError') {
                 // request was aborted by the form
                 return
             }

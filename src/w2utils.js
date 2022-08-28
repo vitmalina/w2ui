@@ -1139,11 +1139,11 @@ class Utils {
             }
         }
 
-        if (typeof options == 'string') {
+        if (typeof options == 'string' || typeof options == 'number') {
             options = {
-                width : (options.length < 300 ? 350 : 550),
-                height: (options.length < 300 ? 170: 250),
-                text  : options,
+                width : (String(options).length < 300 ? 350 : 550),
+                height: (String(options).length < 300 ? 170: 250),
+                text  : String(options),
             }
         }
         if (typeof options != 'object') {

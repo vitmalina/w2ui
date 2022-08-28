@@ -40,7 +40,7 @@
  *  - editDone(...)
  *  - liveSearch
  *  - deprecated onUnselect event
- *  - requestComplete(data, cmd, callBack, resolve, reject) - new argument list
+ *  - requestComplete(data, action, callBack, resolve, reject) - new argument list
  *  - msgAJAXError -> msgHTTPError
  */
 
@@ -90,15 +90,18 @@ class w2grid extends w2base {
             scrollLeft    : 0,        // last scrollLeft position
             colStart      : 0,        // for column virtual scrolling
             colEnd        : 0,        // for column virtual scrolling
-            fetch         : null,     // last fetch promise
-            fetch_cmd     : '',       // last fetch command, e.g. 'get'
-            fetch_offset  : null,     // last fetch offset, integer
-            fetch_start   : 0,        // timestamp of start of last fetch request
-            fetch_response: 0,        // time it took to complete the last fetch request in seconds
-            fetch_hasMore : false,    // flag to indicate if there are more items to pull from the server
+            fetch: {
+                action    : '',       // last fetch command, e.g. 'load'
+                offset    : null,     // last fetch offset, integer
+                start     : 0,        // timestamp of start of last fetch request
+                response  : 0,        // time it took to complete the last fetch request in seconds
+                options   : null,
+                controller: null,
+                loaded    : false,    // data is loaded from the server
+                hasMore   : false     // flag to indicate if there are more items to pull from the server
+            },
             pull_more     : false,
             pull_refresh  : true,
-            loaded        : false,    // loaded state of grid
             range_start   : null,     // last range start cell
             range_end     : null,     // last range end cell
             sel_ind       : null,     // last selected cell index
@@ -2172,7 +2175,7 @@ class w2grid extends w2base {
         this.searchClose()
         // apply search
         if (url) {
-            this.last.fetch_offset = 0
+            this.last.fetch.offset = 0
             this.reload()
         } else {
             // local search
@@ -2536,7 +2539,7 @@ class w2grid extends w2base {
             }
         }
         this.last.multi      = false
-        this.last.fetch_offset = 0
+        this.last.fetch.offset = 0
         // reset scrolling position
         this.last.scrollTop         = 0
         this.last.scrollLeft        = 0
@@ -2628,12 +2631,12 @@ class w2grid extends w2base {
 
     // clears records and related params
     clear(noRefresh) {
-        this.total           = 0
-        this.records         = []
-        this.summary         = []
-        this.last.fetch_offset = 0 // need this for reload button to work on remote data set
-        this.last.idCache    = {} // optimization to free memory
-        this.last.selection   = { indexes: [], columns: {} }
+        this.total   = 0
+        this.records = []
+        this.summary = []
+        this.last.fetch.offset = 0 // need this for reload button to work on remote data set
+        this.last.idCache   = {} // optimization to free memory
+        this.last.selection = { indexes: [], columns: {} }
         this.reset(true)
         // refresh
         if (!noRefresh) this.refresh()
@@ -2668,11 +2671,11 @@ class w2grid extends w2base {
     load(url, callBack) {
         if (url == null) {
             console.log('ERROR: You need to provide url argument when calling .load() method of "'+ this.name +'" object.')
-            return
+            return new Promise((resolve, reject) => { reject() })
         }
         // default action
         this.clear(true)
-        return this.request('get', {}, url, callBack)
+        return this.request('load', {}, url, callBack)
     }
 
     reload(callBack) {
@@ -2681,7 +2684,7 @@ class w2grid extends w2base {
         grid.selectionSave()
         if (url) {
             // need to remember selection (not just last.selection object)
-            this.load(url, () => {
+            return this.load(url, () => {
                 grid.selectionRestore()
                 if (typeof callBack == 'function') callBack()
             })
@@ -2690,25 +2693,25 @@ class w2grid extends w2base {
             this.localSearch()
             this.selectionRestore()
             if (typeof callBack == 'function') callBack({ status: 'success' })
+            return new Promise(resolve => { resolve() })
         }
     }
 
-    // TODO: check if it always returns a promise
-    request(cmd, postData, url, callBack) {
+    request(action, postData, url, callBack) {
         let self = this
         let resolve, reject
         let requestProm = new Promise((res, rej) => { resolve = res; reject = rej })
         if (postData == null) postData = {}
         if (!url) url = this.url
-        if (!url) return new Promise(resolve => { resolve() })
+        if (!url) return new Promise((resolve, reject) => { reject() })
         // build parameters list
         if (!w2utils.isInt(this.offset)) this.offset = 0
-        if (!w2utils.isInt(this.last.fetch_offset)) this.last.fetch_offset = 0
+        if (!w2utils.isInt(this.last.fetch.offset)) this.last.fetch.offset = 0
         // add list params
         let edata
         let params = {
             limit: this.limit,
-            offset: parseInt(this.offset) + parseInt(this.last.fetch_offset),
+            offset: parseInt(this.offset) + parseInt(this.last.fetch.offset),
             searchLogic: this.last.logic,
             search: this.searchData.map((search) => {
                 let _search = w2utils.clone(search)
@@ -2732,29 +2735,29 @@ class w2grid extends w2base {
         w2utils.extend(params, this.postData)
         w2utils.extend(params, postData)
         // other actions
-        if (cmd == 'delete' || cmd == 'save') {
+        if (action == 'delete' || action == 'save') {
             delete params.limit
             delete params.offset
-            params.action = cmd
-            if (cmd == 'delete') {
+            params.action = action
+            if (action == 'delete') {
                 params[this.recid || 'recid'] = this.getSelection()
             }
         }
         // event before
-        if (cmd == 'get') {
+        if (action == 'load') {
             edata = this.trigger('request', { target: this.name, url, postData: params, httpHeaders: this.httpHeaders })
-            if (edata.isCancelled === true) return
+            if (edata.isCancelled === true) return new Promise((resolve, reject) => { reject() })
         } else {
             edata = { detail: { url, postData: params, httpHeaders: this.httpHeaders } }
         }
         // call server to get data
-        if (this.last.fetch_offset === 0) {
+        if (this.last.fetch.offset === 0) {
             this.lock(w2utils.lang(this.msgRefresh), true)
         }
-        if (this.last.fetch) try { this.last.fetch.abort() } catch (e) {}
+        if (this.last.fetch.controller) try { this.last.fetch.controller.abort() } catch (e) {}
         // URL
         url = edata.detail.url
-        switch (cmd) {
+        switch (action) {
             case 'save':
                 if (url?.save) url = url.save
                 break
@@ -2803,46 +2806,49 @@ class w2grid extends w2base {
             }
         }
         if (['RESTFULL', 'RESTFULLJSON'].includes(dataType)) {
-            if (cmd == 'save') fetchOptions.method = 'PUT' // so far it is always update
-            if (cmd == 'delete') fetchOptions.method = 'DELETE'
+            if (action == 'save') fetchOptions.method = 'PUT' // so far it is always update
+            if (action == 'delete') fetchOptions.method = 'DELETE'
             fetchOptions.body = JSON.stringify(postParams)
         }
         if (this.method) fetchOptions.method = this.method
         if (edata.detail.method) fetchOptions.method = edata.detail.method
-        this.last.fetchCtrl = new AbortController()
-        fetchOptions.signal = this.last.fetchCtrl.signal
-        this.last.fetchOptions = fetchOptions
-        this.last.fetch_cmd = cmd
-        this.last.fetch_start = Date.now()
-        this.last.loaded = false
+        Object.assign(this.last.fetch, {
+            action: action,
+            options: fetchOptions,
+            controller: new AbortController(),
+            start: Date.now(),
+            loaded: false
+        })
+        fetchOptions.signal = this.last.fetch.controller.signal
         fetch(url, fetchOptions)
             .catch(processError)
             .then(resp => {
-                if (resp.status != 200) {
-                    processError(resp)
+                if (resp == null) return // request aborted
+                if (resp?.status != 200) {
+                    processError(resp ?? {})
                     return
                 }
                 self.unlock()
                 resp.json()
                     .catch(processError)
                     .then(data => {
-                        this.requestComplete(data, cmd, callBack, resolve, reject)
+                        this.requestComplete(data, action, callBack, resolve, reject)
                     })
             })
-        if (cmd == 'get') {
+        if (action == 'load') {
             // event after
             edata.finish()
         }
         return requestProm
 
-        function processError(resp) {
-            if (response.name === 'AbortError') {
+        function processError(response) {
+            if (response?.name === 'AbortError') {
                 // request was aborted by the grid
                 return
             }
             self.unlock()
             // trigger event
-            let edata2 = self.trigger('error', { response, fetchCtrl: self.last.fetchCtrl, fetchOptions: self.last.fetchOptions })
+            let edata2 = self.trigger('error', { response, lastFetch: self.last.fetch })
             if (edata2.isCancelled === true) return
             // default behavior
             if (response.status && response.status != 200) {
@@ -2851,20 +2857,20 @@ class w2grid extends w2base {
                 console.log('ERROR: Server communication failed.',
                     '\n   EXPECTED:', { total: 5, records: [{ recid: 1, field: 'value' }] },
                     '\n         OR:', { error: true, message: 'error message' })
-                self.requestComplete({ error: true, message: 'HTTP Request error', resp }, cmd, callBack, resolve, reject)
+                self.requestComplete({ error: true, message: 'HTTP Request error', response }, action, callBack, resolve, reject)
             }
             // event after
             edata2.finish()
         }
     }
 
-    requestComplete(data, cmd, callBack, resolve, reject) {
+    requestComplete(data, action, callBack, resolve, reject) {
         let error = data.error ?? false
         if (data.error == null && data.status === 'error') error = true
-        this.last.fetch_response = (Date.now() - this.last.fetch_start)/1000
+        this.last.fetch.response = (Date.now() - this.last.fetch.start)/1000
         setTimeout(() => {
             if (this.show.statusResponse) {
-                this.status(w2utils.lang('Server Response ${count} seconds', {count: this.last.fetch_response}))
+                this.status(w2utils.lang('Server Response ${count} seconds', {count: this.last.fetch.response}))
             }
         }, 10)
         this.last.pull_more = false
@@ -2872,10 +2878,11 @@ class w2grid extends w2base {
 
         // event before
         let event_name = 'load'
-        if (this.last.fetch_cmd == 'save') event_name = 'save'
-        if (this.last.fetch_cmd == 'delete') event_name = 'delete'
-        let edata = this.trigger(event_name, { target: this.name, error, data })
+        if (this.last.fetch.action == 'save') event_name = 'save'
+        if (this.last.fetch.action == 'delete') event_name = 'delete'
+        let edata = this.trigger(event_name, { target: this.name, error, data, lastFetch: this.last.fetch })
         if (edata.isCancelled === true) {
+            reject()
             return
         }
         // parse server response
@@ -2903,23 +2910,23 @@ class w2grid extends w2base {
             }
             if (data.error) {
                 this.error(data.message)
-            } else if (cmd == 'get') {
+            } else if (action == 'load') {
                 if (data.total == null) data.total = -1
                 if (data.records == null) {
                     data.records = []
                 }
                 if (data.records.length == this.limit) {
                     let loaded = this.records.length + data.records.length
-                    this.last.fetch_hasMore = (loaded == this.total ? false : true)
+                    this.last.fetch.hasMore = (loaded == this.total ? false : true)
                 } else {
-                    this.last.fetch_hasMore = false
-                    this.total = this.offset + this.last.fetch_offset + data.records.length
+                    this.last.fetch.hasMore = false
+                    this.total = this.offset + this.last.fetch.offset + data.records.length
                 }
-                if (!this.last.fetch_hasMore) {
+                if (!this.last.fetch.hasMore) {
                     // if no more records, then hide spinner
                     query(this.box).find('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more').hide()
                 }
-                if (this.last.fetch_offset === 0) {
+                if (this.last.fetch.offset === 0) {
                     this.records = []
                     this.summary = []
                 } else {
@@ -2927,10 +2934,10 @@ class w2grid extends w2base {
                         let grid = this
                         this.message(w2utils.lang(this.msgNeedReload))
                             .ok(() => {
-                                delete grid.last.fetch_offset
+                                delete grid.last.fetch.offset
                                 grid.reload()
                             })
-                        return
+                        return new Promise(resolve => { resolve() })
                     }
                 }
                 if (w2utils.isInt(data.total)) this.total = parseInt(data.total)
@@ -2963,10 +2970,9 @@ class w2grid extends w2base {
                         this.summary.push(rec)
                     })
                 }
-            } else if (cmd == 'delete') {
+            } else if (action == 'delete') {
                 this.reset() // unselect old selections
-                this.reload()
-                return
+                return this.reload()
             }
         } else {
             data = {
@@ -2984,7 +2990,7 @@ class w2grid extends w2base {
         }
         this.total = parseInt(this.total)
         // do not refresh if loading on infinite scroll
-        if (this.last.fetch_offset === 0) {
+        if (this.last.fetch.offset === 0) {
             this.refresh()
         } else {
             this.scroll()
@@ -2995,7 +3001,7 @@ class w2grid extends w2base {
         resolve(data)
         // after event
         edata.finish()
-        this.last.loaded = true
+        this.last.fetch.loaded = true
     }
 
     error(msg) {
@@ -4578,7 +4584,7 @@ class w2grid extends w2base {
         } else {
             // event after
             edata.finish({ direction })
-            this.last.fetch_offset = 0
+            this.last.fetch.offset = 0
             this.reload()
         }
     }
@@ -7555,11 +7561,11 @@ class w2grid extends w2base {
         // load more if needed
         let s = Math.floor(records.prop('scrollTop') / this.recordHeight)
         let e = s + Math.floor(records.prop('clientHeight') / this.recordHeight)
-        if (e + 10 > buffered && this.last.pull_more !== true && (buffered < this.total - this.offset || (this.total == -1 && this.last.fetch_hasMore))) {
+        if (e + 10 > buffered && this.last.pull_more !== true && (buffered < this.total - this.offset || (this.total == -1 && this.last.fetch.hasMore))) {
             if (this.autoLoad === true) {
                 this.last.pull_more   = true
-                this.last.fetch_offset += this.limit
-                this.request('get')
+                this.last.fetch.offset += this.limit
+                this.request('load')
             }
             // scroll function
             let more = query(this.box).find('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more')
@@ -7571,8 +7577,8 @@ class w2grid extends w2base {
                     query(this).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>')
                     // load more
                     obj.last.pull_more   = true
-                    obj.last.fetch_offset += obj.limit
-                    obj.request('get')
+                    obj.last.fetch.offset += obj.limit
+                    obj.request('load')
                 })
                 .find('td')
                 .html(obj.autoLoad
