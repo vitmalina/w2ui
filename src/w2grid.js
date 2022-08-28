@@ -40,6 +40,8 @@
  *  - editDone(...)
  *  - liveSearch
  *  - deprecated onUnselect event
+ *  - requestComplete(data, cmd, callBack, resolve, reject) - new argument list
+ *  - msgAJAXError -> msgHTTPError
  */
 
 import { w2base } from './w2base.js'
@@ -254,7 +256,7 @@ class w2grid extends w2base {
 
         this.msgDelete     = 'Are you sure you want to delete ${count} ${records}?'
         this.msgNotJSON    = 'Returned data is not in valid JSON format.'
-        this.msgAJAXerror  = 'AJAX error. See console for more details.'
+        this.msgHTTPError  = 'HTTP error. See console for more details.'
         this.msgRefresh    = 'Refreshing...'
         this.msgNeedReload = 'Your remote data source record count has changed, reloading from the first record.'
         this.msgEmpty      = '' // if not blank, then it is message when server returns no records
@@ -2691,19 +2693,23 @@ class w2grid extends w2base {
         }
     }
 
-    request(cmd, add_params, url, callBack) {
-        if (add_params == null) add_params = {}
+    // TODO: check if it always returns a promise
+    request(cmd, postData, url, callBack) {
+        let self = this
+        let resolve, reject
+        let requestProm = new Promise((res, rej) => { resolve = res; reject = rej })
+        if (postData == null) postData = {}
         if (!url) url = this.url
-        if (!url) return
+        if (!url) return new Promise(resolve => { resolve() })
         // build parameters list
         if (!w2utils.isInt(this.offset)) this.offset = 0
         if (!w2utils.isInt(this.last.fetch_offset)) this.last.fetch_offset = 0
         // add list params
         let edata
         let params = {
-            limit       : this.limit,
-            offset      : parseInt(this.offset) + parseInt(this.last.fetch_offset),
-            searchLogic : this.last.logic,
+            limit: this.limit,
+            offset: parseInt(this.offset) + parseInt(this.last.fetch_offset),
+            searchLogic: this.last.logic,
             search: this.searchData.map((search) => {
                 let _search = w2utils.clone(search)
                 if (this.searchMap && this.searchMap[_search.field]) _search.field = this.searchMap[_search.field]
@@ -2724,7 +2730,7 @@ class w2grid extends w2base {
         }
         // append other params
         w2utils.extend(params, this.postData)
-        w2utils.extend(params, add_params)
+        w2utils.extend(params, postData)
         // other actions
         if (cmd == 'delete' || cmd == 'save') {
             delete params.limit
@@ -2737,7 +2743,7 @@ class w2grid extends w2base {
         // event before
         if (cmd == 'get') {
             edata = this.trigger('request', { target: this.name, url, postData: params, httpHeaders: this.httpHeaders })
-            if (edata.isCancelled === true) { if (typeof callBack == 'function') callBack({ status: 'error', message: w2utils.lang('Request aborted.') }); return }
+            if (edata.isCancelled === true) return
         } else {
             edata = { detail: { url, postData: params, httpHeaders: this.httpHeaders } }
         }
@@ -2768,122 +2774,134 @@ class w2grid extends w2base {
                 }
             }
         }
+        url = new URL(url, location)
         // ajax options
-        let ajaxOptions = {
-            type     : 'GET',
-            url      : url,
-            data     : edata.detail.postData,
-            headers  : edata.detail.httpHeaders,
-            dataType : 'json' // expected data type from server
+        let fetchOptions = {
+            method : 'GET',
+            headers : edata.detail.httpHeaders,
         }
 
-        let dataType = this.dataType || w2utils.settings.dataType
+        let postParams = edata.detail.postData
+        let dataType = edata.detail.dataType ?? this.dataType ?? w2utils.settings.dataType
         switch (dataType) {
             case 'HTTP':
-                ajaxOptions.data = (typeof ajaxOptions.data == 'object' ? String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']') : ajaxOptions.data)
+            case 'RESTFULL': {
+                Object.keys(postParams).forEach(key => url.searchParams.append(key, postParams[key]))
                 break
+            }
             case 'HTTPJSON':
-                ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) }
+            case 'RESTFULLJSON': {
+                postParams = { request: JSON.stringify(postParams) }
+                Object.keys(postParams).forEach(key => url.searchParams.append(key, postParams[key]))
                 break
-            case 'RESTFULL':
-                ajaxOptions.type = 'GET'
-                if (cmd == 'save') ajaxOptions.type = 'PUT' // so far it is always update
-                if (cmd == 'delete') ajaxOptions.type = 'DELETE'
-                ajaxOptions.data = (typeof ajaxOptions.data == 'object' ? String($.param(ajaxOptions.data, false)).replace(/%5B/g, '[').replace(/%5D/g, ']') : ajaxOptions.data)
+            }
+            case 'JSON': {
+                fetchOptions.method = 'POST'
+                fetchOptions.body = JSON.stringify(postParams)
+                fetchOptions.headers.contentType = 'application/json'
                 break
-            case 'RESTFULLJSON':
-                ajaxOptions.type = 'GET'
-                if (cmd == 'save') ajaxOptions.type = 'PUT' // so far it is always update
-                if (cmd == 'delete') ajaxOptions.type = 'DELETE'
-                ajaxOptions.data        = JSON.stringify(ajaxOptions.data)
-                ajaxOptions.contentType = 'application/json'
-                break
-            case 'JSON':
-                ajaxOptions.type        = 'POST'
-                ajaxOptions.data        = JSON.stringify(ajaxOptions.data)
-                ajaxOptions.contentType = 'application/json'
-                break
+            }
         }
-        if (this.method) ajaxOptions.type = this.method
-
-        this.last.fetch_cmd   = cmd
+        if (['RESTFULL', 'RESTFULLJSON'].includes(dataType)) {
+            if (cmd == 'save') fetchOptions.method = 'PUT' // so far it is always update
+            if (cmd == 'delete') fetchOptions.method = 'DELETE'
+            fetchOptions.body = JSON.stringify(postParams)
+        }
+        if (this.method) fetchOptions.method = this.method
+        if (edata.detail.method) fetchOptions.method = edata.detail.method
+        this.last.fetchCtrl = new AbortController()
+        fetchOptions.signal = this.last.fetchCtrl.signal
+        this.last.fetchOptions = fetchOptions
+        this.last.fetch_cmd = cmd
         this.last.fetch_start = Date.now()
-        this.last.loaded    = false
-        this.last.fetch       = jQuery.ajax(ajaxOptions)
-            .done((data, status, xhr) => {
-                this.requestComplete(status, xhr, cmd, callBack)
-            })
-            .fail((xhr, status, error) => {
-                // trigger event
-                let errorObj = { status: status, error: error, rawResponseText: xhr.responseText }
-                let edata2   = this.trigger('error', { error: errorObj, xhr: xhr })
-                if (edata2.isCancelled === true) return
-                // default behavior
-                if (status != 'abort') { // it can be aborted by the grid itself
-                    let data
-                    try { data = typeof xhr.responseJSON === 'object' ? xhr.responseJSON : JSON.parse(xhr.responseText) } catch (e) {}
-                    console.log('ERROR: Server communication failed.',
-                        '\n   EXPECTED:', { status: 'success', total: 5, records: [{ recid: 1, field: 'value' }] },
-                        '\n         OR:', { status: 'error', message: 'error message' },
-                        '\n   RECEIVED:', typeof data == 'object' ? data : xhr.responseText)
-                    this.requestComplete('error', xhr, cmd, callBack)
+        this.last.loaded = false
+        fetch(url, fetchOptions)
+            .catch(processError)
+            .then(resp => {
+                if (resp.status != 200) {
+                    processError(resp)
+                    return
                 }
-                // event after
-                edata2.finish()
+                self.unlock()
+                resp.json()
+                    .catch(processError)
+                    .then(data => {
+                        this.requestComplete(data, cmd, callBack, resolve, reject)
+                    })
             })
         if (cmd == 'get') {
             // event after
             edata.finish()
         }
+        return requestProm
+
+        function processError(resp) {
+            if (response.name === 'AbortError') {
+                // request was aborted by the grid
+                return
+            }
+            self.unlock()
+            // trigger event
+            let edata2 = self.trigger('error', { response, fetchCtrl: self.last.fetchCtrl, fetchOptions: self.last.fetchOptions })
+            if (edata2.isCancelled === true) return
+            // default behavior
+            if (response.status && response.status != 200) {
+                self.error(response.status + ': ' + response.statusText)
+            } else {
+                console.log('ERROR: Server communication failed.',
+                    '\n   EXPECTED:', { total: 5, records: [{ recid: 1, field: 'value' }] },
+                    '\n         OR:', { error: true, message: 'error message' })
+                self.requestComplete({ error: true, message: 'HTTP Request error', resp }, cmd, callBack, resolve, reject)
+            }
+            // event after
+            edata2.finish()
+        }
     }
 
-    requestComplete(status, xhr, cmd, callBack) {
-        this.unlock()
+    requestComplete(data, cmd, callBack, resolve, reject) {
+        let error = data.error ?? false
+        if (data.error == null && data.status === 'error') error = true
         this.last.fetch_response = (Date.now() - this.last.fetch_start)/1000
         setTimeout(() => {
             if (this.show.statusResponse) {
                 this.status(w2utils.lang('Server Response ${count} seconds', {count: this.last.fetch_response}))
             }
         }, 10)
-        this.last.pull_more    = false
+        this.last.pull_more = false
         this.last.pull_refresh = true
 
         // event before
         let event_name = 'load'
         if (this.last.fetch_cmd == 'save') event_name = 'save'
         if (this.last.fetch_cmd == 'delete') event_name = 'delete'
-        let edata = this.trigger(event_name, { target: this.name, xhr: xhr, status: status })
+        let edata = this.trigger(event_name, { target: this.name, error, data })
         if (edata.isCancelled === true) {
-            if (typeof callBack == 'function') callBack({ status: 'error', message: w2utils.lang('Request aborted.') })
             return
         }
         // parse server response
-        let data
-        if (status != 'error') {
+        if (!error) {
             // default action
             if (typeof this.parser == 'function') {
-                data = this.parser(xhr.responseJSON)
+                data = this.parser(data)
                 if (typeof data != 'object') {
                     console.log('ERROR: Your parser did not return proper object')
                 }
             } else {
-                data = xhr.responseJSON
                 if (data == null) {
                     data = {
-                        status       : 'error',
-                        message      : w2utils.lang(this.msgNotJSON),
-                        responseText : xhr.responseText
+                        error: true,
+                        message: w2utils.lang(this.msgNotJSON),
                     }
                 } else if (Array.isArray(data)) {
                     // if it is plain array, assume these are records
                     data = {
-                        status  : 'success',
-                        records : data,
-                        total   : data.length
+                        error,
+                        records: data,
+                        total: data.length
                     }
                 }
             }
-            if (data.status == 'error') {
+            if (data.error) {
                 this.error(data.message)
             } else if (cmd == 'get') {
                 if (data.total == null) data.total = -1
@@ -2891,11 +2909,11 @@ class w2grid extends w2base {
                     data.records = []
                 }
                 if (data.records.length == this.limit) {
-                    let loaded            = this.records.length + data.records.length
+                    let loaded = this.records.length + data.records.length
                     this.last.fetch_hasMore = (loaded == this.total ? false : true)
                 } else {
                     this.last.fetch_hasMore = false
-                    this.total            = this.offset + this.last.fetch_offset + data.records.length
+                    this.total = this.offset + this.last.fetch_offset + data.records.length
                 }
                 if (!this.last.fetch_hasMore) {
                     // if no more records, then hide spinner
@@ -2952,11 +2970,11 @@ class w2grid extends w2base {
             }
         } else {
             data = {
-                status       : 'error',
-                message      : w2utils.lang(this.msgAJAXerror),
-                responseText : xhr.responseText
+                error, data,
+                message: w2utils.lang(this.msgHTTPError), // TODO: rename
             }
-            this.error(w2utils.lang(this.msgAJAXerror))
+            this.error(w2utils.lang(this.msgHTTPError))
+            reject(data)
         }
         // event after
         let url = this.url?.get ?? this.url
@@ -2974,6 +2992,7 @@ class w2grid extends w2base {
         }
         // call back
         if (typeof callBack == 'function') callBack(data) // need to be before event:after
+        resolve(data)
         // after event
         edata.finish()
         this.last.loaded = true
@@ -2981,7 +3000,7 @@ class w2grid extends w2base {
 
     error(msg) {
         // let the management of the error outside of the grid
-        let edata = this.trigger('error', { target: this.name, message: msg , xhr: this.last.fetch })
+        let edata = this.trigger('error', { target: this.name, message: msg })
         if (edata.isCancelled === true) {
             return
         }
@@ -3048,14 +3067,11 @@ class w2grid extends w2base {
         let url = this.url?.save ?? this.url
         // event before
         let edata = this.trigger('save', { target: this.name, changes: changes })
-        if (edata.isCancelled === true) {
-            if (url && typeof callBack == 'function') callBack({ status: 'error', message: w2utils.lang('Request aborted.') })
-            return
-        }
+        if (edata.isCancelled === true) return
         if (url) {
             this.request('save', { 'changes' : edata.detail.changes }, null,
                 (data) => {
-                    if (data.status !== 'error') {
+                    if (!data.error) {
                         // only merge changes, if save was successful
                         this.mergeChanges()
                     }

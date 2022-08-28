@@ -36,11 +36,11 @@ var config = {
             { field: 'sdate', text: 'Date Range', size: '100%' }
         ],
         onLoad(event) {
-            let data = JSON.parse(event.detail.xhr.responseText)
+            let data = w2utils.clone(event.detail.data)
             data.records.forEach((rec, ind) => {
                 rec.recid = 'recid-' + (this.records.length + ind)
             })
-            event.detail.xhr.responseText = data
+            event.detail.data = data
         }
     }
 };

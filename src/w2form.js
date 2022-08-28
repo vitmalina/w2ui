@@ -933,7 +933,6 @@ class w2form extends w2base {
         }
         let postParams = edata.detail.postData
         let dataType = edata.detail.dataType ?? this.dataType ?? w2utils.settings.dataType
-        dataType = 'HTTP'
         switch (dataType) {
             case 'HTTP':
             case 'RESTFULL': {
