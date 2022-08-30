@@ -819,7 +819,7 @@ class w2field extends w2base {
             // if default group symbol does not match - replase it
             let group = parseInt(1000).toLocaleString(w2utils.settings.locale, { useGrouping: true }).slice(1, 2)
             if (group !== this.options.groupSymbol) {
-                val = val.replace(new RegExp(group, 'g'), this.options.groupSymbol)
+                val = val.replace('/' + group + '/g', this.options.groupSymbol)
             }
         }
         return val
