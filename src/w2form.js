@@ -755,6 +755,7 @@ class w2form extends w2base {
             }
             if (field.options && field.hidden !== true && field.options.minLength > 0
                     && ['enum', 'list', 'combo'].indexOf(field.type) == -1 // since minLength is used there too
+                    && val != null
                     && this.getValue(field.field).length < field.options.minLength) {
                 errors.push({ field: field, error: w2utils.lang('Field should be at least ${count} characters.', {count: field.options.minLength}) })
             }
