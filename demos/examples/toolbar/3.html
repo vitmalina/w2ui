@@ -11,36 +11,36 @@
 <div id="toolbar"></div>
 
 <!--CODE-->
-<script>
-query(() => {
-    let btnCount = 0
-    new w2toolbar({
-        box: '#toolbar',
-        name: 'toolbar',
-        items: [
-            { type: 'button', id: 'insert', text: 'Insert', icon: 'w2ui-icon-plus' },
-            { type: 'button', id: 'append', text: 'Append', icon: 'w2ui-icon-check' },
-            { type: 'button', id: 'delete', text: 'Delete', icon: 'w2ui-icon-cross' },
-            { type: 'break',  id: 'break0' },
-            { type: 'break',  id: 'break1' }
-        ],
-        onClick: function (event) {
-            switch (event.target) {
-                case 'append':
-                    this.add({ type: 'button', id: 'button' + btnCount, text: 'button '+ btnCount, icon: 'w2ui-icon-info' });
-                    btnCount++;
-                    break;
-                case 'insert':
-                    this.insert('break0', { type: 'button', id: 'button' + btnCount, text: 'button '+ btnCount, icon: 'w2ui-icon-info' });
-                    btnCount++;
-                    break;
-                case 'delete':
-                    if (btnCount <= 0) return;
-                    btnCount--;
-                    this.remove('button'+ btnCount);
-                    break;
-            }
+<script type="module">
+import { w2toolbar } from '__W2UI_PATH__'
+
+let btnCount = 0
+new w2toolbar({
+    box: '#toolbar',
+    name: 'toolbar',
+    items: [
+        { type: 'button', id: 'insert', text: 'Insert', icon: 'w2ui-icon-plus' },
+        { type: 'button', id: 'append', text: 'Append', icon: 'w2ui-icon-check' },
+        { type: 'button', id: 'delete', text: 'Delete', icon: 'w2ui-icon-cross' },
+        { type: 'break',  id: 'break0' },
+        { type: 'break',  id: 'break1' }
+    ],
+    onClick(event) {
+        switch (event.target) {
+            case 'append':
+                this.add({ type: 'button', id: 'button' + btnCount, text: 'button '+ btnCount, icon: 'w2ui-icon-info' })
+                btnCount++
+                break
+            case 'insert':
+                this.insert('break0', { type: 'button', id: 'button' + btnCount, text: 'button '+ btnCount, icon: 'w2ui-icon-info' })
+                btnCount++
+                break
+            case 'delete':
+                if (btnCount <= 0) return
+                btnCount--
+                this.remove('button'+ btnCount)
+                break
         }
-    });
-});
+    }
+})
 </script>

@@ -11,22 +11,22 @@
 <div id="toolbar"></div>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2toolbar({
-        box: '#toolbar',
-        name: 'toolbar',
-        items: [
-            { type: 'button', id: 'show', text: 'Show', icon: 'w2ui-icon-plus' },
-            { type: 'button', id: 'hide', text: 'Hide', icon: 'w2ui-icon-cross' },
-            { type: 'break',  id: 'break0' },
-            { type: 'button', id: 'btn', text: 'Action Button', icon: 'w2ui-icon-info', hidden: true },
-            { type: 'button', id: 'btn2', text: 'Other Button', icon: 'w2ui-icon-paste' }
-        ],
-        onClick: function (event) {
-            if (event.target == 'show') this.show('btn');
-            if (event.target == 'hide') this.hide('btn');
-        }
-    });
-});
+<script type="module">
+import { w2toolbar } from '__W2UI_PATH__'
+
+new w2toolbar({
+    box: '#toolbar',
+    name: 'toolbar',
+    items: [
+        { type: 'button', id: 'show', text: 'Show', icon: 'w2ui-icon-plus' },
+        { type: 'button', id: 'hide', text: 'Hide', icon: 'w2ui-icon-cross' },
+        { type: 'break',  id: 'break0' },
+        { type: 'button', id: 'btn', text: 'Action Button', icon: 'w2ui-icon-info', hidden: true },
+        { type: 'button', id: 'btn2', text: 'Other Button', icon: 'w2ui-icon-paste' }
+    ],
+    onClick(event) {
+        if (event.target == 'show') this.show('btn')
+        if (event.target == 'hide') this.hide('btn')
+    }
+})
 </script>

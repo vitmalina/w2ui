@@ -12,134 +12,134 @@
 <div id="toolbar" style="width: 575px"></div>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2toolbar({
-        box: '#toolbar',
-        name: 'toolbar',
-        items: [
-            { type: 'menu', id: 'item1', text: 'Menu', icon: 'fa fa-table', count: 17, items: [
-                { text: 'Item 1', icon: 'fa fa-camera', count: 5 },
-                { text: 'Item 2', icon: 'fa fa-picture-o', disabled: true },
-                { text: 'Item 3', icon: 'fa fa-glass', count: 12 }
-            ]},
-            { type: 'break' },
-            { type: 'menu-radio', id: 'item2', icon: 'fa fa-star',
-                items: [
-                    { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
-                    { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
-                    { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 }
-                ]
-            },
-            { type: 'break' },
-            { type: 'menu-check', id: 'item3', text: 'Check', icon: 'fa fa-heart',
-                items: [
-                    { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
-                    { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
-                    { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 },
-                    { text: '--' },
-                    { id: 'id4', text: 'Item 4', icon: 'fa fa-glass' }
-                ]
-            },
-            { type: 'break' },
-            { type: 'drop',  id: 'item4', text: 'Dropdown', icon: 'fa fa-plus',
-                html: '<div style="padding: 10px; line-height: 1.5">You can put any HTML in the drop down.<br>Include tables, images, etc.</div>'
-            },
-            { type: 'break' },
-            { type: 'html',  id: 'item5',
-                html(item) {
-                    let html =
-                      '<div style="padding: 0px 10px; margin-top: -2px;">'+
-                      ' Field:'+
-                      '    <input size="20" placeholder="Change me" onchange="var el = w2ui.toolbar.set(\'item5\', { value: this.value });" '+
-                      '         style="padding: 6px; border-radius: 2px; border: 1px solid silver" value="'+ (item.value || '') +'"/>'+
-                      '</div>';
-                    return html;
-                }
-            },
-            { type: 'menu', id: 'item6', text: 'Menu', icon: 'fa fa-table', count: 17, items: [
-                { text: 'Item 1', icon: 'fa fa-camera', count: 5 },
-                { text: 'Item 2', icon: 'fa fa-picture-o', disabled: true },
-                { text: 'Item 3', icon: 'fa fa-glass', count: 12 }
-            ]},
-            { type: 'break' },
-            { type: 'menu-radio', id: 'item7', icon: 'fa fa-star',
-                items: [
-                    { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
-                    { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
-                    { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 }
-                ]
-            },
-            { type: 'break' },
-            { type: 'menu-check', id: 'item8', text: 'Check', icon: 'fa fa-heart',
-                items: [
-                    { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
-                    { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
-                    { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 },
-                    { text: '--' },
-                    { id: 'id4', text: 'Item 4', icon: 'fa fa-glass' }
-                ]
-            },
-            { type: 'break' },
-            { type: 'drop',  id: 'item9', text: 'Dropdown', icon: 'fa fa-plus',
-                html: '<div style="padding: 10px; line-height: 1.5">You can put any HTML in the drop down.<br>Include tables, images, etc.</div>'
-            },
-            { type: 'break' },
-            { type: 'html',  id: 'item10',
-                html(item) {
-                    let html =
-                      '<div style="padding: 0px 10px; margin-top: -2px;">'+
-                      ' Field:'+
-                      '    <input size="20" placeholder="Change me" onchange="var el = w2ui.toolbar.set(\'item10\', { value: this.value });" '+
-                      '         style="padding: 6px; border-radius: 2px; border: 1px solid silver" value="'+ (item.value || '') +'"/>'+
-                      '</div>';
-                    return html;
-                }
-            },
-            { type: 'menu', id: 'item11', text: 'Menu', icon: 'fa fa-table', count: 17, items: [
-                { text: 'Item 1', icon: 'fa fa-camera', count: 5 },
-                { text: 'Item 2', icon: 'fa fa-picture-o', disabled: true },
-                { text: 'Item 3', icon: 'fa fa-glass', count: 12 }
-            ]},
-            { type: 'break' },
-            { type: 'menu-radio', id: 'item12', icon: 'fa fa-star',
-                items: [
-                    { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
-                    { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
-                    { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 }
-                ]
-            },
-            { type: 'break' },
-            { type: 'menu-check', id: 'item13', text: 'Check', icon: 'fa fa-heart',
-                items: [
-                    { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
-                    { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
-                    { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 },
-                    { text: '--' },
-                    { id: 'id4', text: 'Item 4', icon: 'fa fa-glass' }
-                ]
-            },
-            { type: 'break' },
-            { type: 'drop',  id: 'item14', text: 'Dropdown', icon: 'fa fa-plus',
-                html: '<div style="padding: 10px; line-height: 1.5">You can put any HTML in the drop down.<br>Include tables, images, etc.</div>'
-            },
-            { type: 'break' },
-            { type: 'html',  id: 'item15',
-                html(item) {
-                    let html =
-                      '<div style="padding: 0px 10px; margin-top: -2px;">'+
-                      ' Field:'+
-                      '    <input size="20" placeholder="Change me" onchange="var el = w2ui.toolbar.set(\'item15\', { value: this.value });" '+
-                      '         style="padding: 6px; border-radius: 2px; border: 1px solid silver" value="'+ (item.value || '') +'"/>'+
-                      '</div>';
-                    return html;
-                }
-            },
-        ]
-    });
+<script type="module">
+import { w2ui, w2toolbar } from '__W2UI_PATH__'
 
-    w2ui.toolbar.on('*', (event) => {
-        console.log('EVENT: '+ event.type + ' TARGET: '+ event.target, event);
-    });
-});
+new w2toolbar({
+    box: '#toolbar',
+    name: 'toolbar',
+    items: [
+        { type: 'menu', id: 'item1', text: 'Menu', icon: 'fa fa-table', count: 17, items: [
+            { text: 'Item 1', icon: 'fa fa-camera', count: 5 },
+            { text: 'Item 2', icon: 'fa fa-picture-o', disabled: true },
+            { text: 'Item 3', icon: 'fa fa-glass', count: 12 }
+        ]},
+        { type: 'break' },
+        { type: 'menu-radio', id: 'item2', icon: 'fa fa-star',
+            items: [
+                { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
+                { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
+                { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 }
+            ]
+        },
+        { type: 'break' },
+        { type: 'menu-check', id: 'item3', text: 'Check', icon: 'fa fa-heart',
+            items: [
+                { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
+                { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
+                { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 },
+                { text: '--' },
+                { id: 'id4', text: 'Item 4', icon: 'fa fa-glass' }
+            ]
+        },
+        { type: 'break' },
+        { type: 'drop',  id: 'item4', text: 'Dropdown', icon: 'fa fa-plus',
+            html: '<div style="padding: 10px; line-height: 1.5">You can put any HTML in the drop down.<br>Include tables, images, etc.</div>'
+        },
+        { type: 'break' },
+        { type: 'html',  id: 'item5',
+            html(item) {
+                let html =
+                    '<div style="padding: 0px 10px; margin-top: -2px;">'+
+                    ' Field:'+
+                    '    <input size="20" placeholder="Change me" onchange="var el = w2ui.toolbar.set(\'item5\', { value: this.value });" '+
+                    '         style="padding: 6px; border-radius: 2px; border: 1px solid silver" value="'+ (item.value || '') +'"/>'+
+                    '</div>';
+                return html;
+            }
+        },
+        { type: 'menu', id: 'item6', text: 'Menu', icon: 'fa fa-table', count: 17, items: [
+            { text: 'Item 1', icon: 'fa fa-camera', count: 5 },
+            { text: 'Item 2', icon: 'fa fa-picture-o', disabled: true },
+            { text: 'Item 3', icon: 'fa fa-glass', count: 12 }
+        ]},
+        { type: 'break' },
+        { type: 'menu-radio', id: 'item7', icon: 'fa fa-star',
+            items: [
+                { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
+                { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
+                { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 }
+            ]
+        },
+        { type: 'break' },
+        { type: 'menu-check', id: 'item8', text: 'Check', icon: 'fa fa-heart',
+            items: [
+                { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
+                { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
+                { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 },
+                { text: '--' },
+                { id: 'id4', text: 'Item 4', icon: 'fa fa-glass' }
+            ]
+        },
+        { type: 'break' },
+        { type: 'drop',  id: 'item9', text: 'Dropdown', icon: 'fa fa-plus',
+            html: '<div style="padding: 10px; line-height: 1.5">You can put any HTML in the drop down.<br>Include tables, images, etc.</div>'
+        },
+        { type: 'break' },
+        { type: 'html',  id: 'item10',
+            html(item) {
+                let html =
+                    '<div style="padding: 0px 10px; margin-top: -2px;">'+
+                    ' Field:'+
+                    '    <input size="20" placeholder="Change me" onchange="var el = w2ui.toolbar.set(\'item10\', { value: this.value });" '+
+                    '         style="padding: 6px; border-radius: 2px; border: 1px solid silver" value="'+ (item.value || '') +'"/>'+
+                    '</div>';
+                return html;
+            }
+        },
+        { type: 'menu', id: 'item11', text: 'Menu', icon: 'fa fa-table', count: 17, items: [
+            { text: 'Item 1', icon: 'fa fa-camera', count: 5 },
+            { text: 'Item 2', icon: 'fa fa-picture-o', disabled: true },
+            { text: 'Item 3', icon: 'fa fa-glass', count: 12 }
+        ]},
+        { type: 'break' },
+        { type: 'menu-radio', id: 'item12', icon: 'fa fa-star',
+            items: [
+                { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
+                { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
+                { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 }
+            ]
+        },
+        { type: 'break' },
+        { type: 'menu-check', id: 'item13', text: 'Check', icon: 'fa fa-heart',
+            items: [
+                { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
+                { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
+                { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 },
+                { text: '--' },
+                { id: 'id4', text: 'Item 4', icon: 'fa fa-glass' }
+            ]
+        },
+        { type: 'break' },
+        { type: 'drop',  id: 'item14', text: 'Dropdown', icon: 'fa fa-plus',
+            html: '<div style="padding: 10px; line-height: 1.5">You can put any HTML in the drop down.<br>Include tables, images, etc.</div>'
+        },
+        { type: 'break' },
+        { type: 'html',  id: 'item15',
+            html(item) {
+                let html =
+                    '<div style="padding: 0px 10px; margin-top: -2px;">'+
+                    ' Field:'+
+                    '    <input size="20" placeholder="Change me" onchange="var el = w2ui.toolbar.set(\'item15\', { value: this.value });" '+
+                    '         style="padding: 6px; border-radius: 2px; border: 1px solid silver" value="'+ (item.value || '') +'"/>'+
+                    '</div>';
+                return html;
+            }
+        },
+    ]
+})
+
+w2ui.toolbar.on('*', (event) => {
+    console.log('EVENT: '+ event.type + ' TARGET: '+ event.target, event)
+})
 </script>

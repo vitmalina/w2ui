@@ -11,22 +11,22 @@
 <div id="toolbar"></div>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2toolbar({
-        box: '#toolbar',
-        name: 'toolbar',
-        items: [
-            { id: 'item1', type: 'color' },
-            { id: 'item3', type: 'text-color', transparent: false }
-        ],
-        onClick (event) {
-            event.done(() => {
-                if (event.detail.color) {
-                    console.log(event.detail.item.type, ':', event.detail.item.color);
-                }
-            });
-        }
-    });
-});
+<script type="module">
+import { w2toolbar } from '__W2UI_PATH__'
+
+new w2toolbar({
+    box: '#toolbar',
+    name: 'toolbar',
+    items: [
+        { id: 'item1', type: 'color' },
+        { id: 'item3', type: 'text-color', transparent: false }
+    ],
+    onClick(event) {
+        event.done(() => {
+            if (event.detail.color) {
+                console.log(event.detail.item.type, ':', event.detail.item.color);
+            }
+        })
+    }
+})
 </script>

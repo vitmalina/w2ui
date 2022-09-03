@@ -13,93 +13,93 @@
 Hold cmd (or shift) button to keep the menu open.
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2toolbar({
-        box: '#toolbar',
-        name: 'toolbar',
-        items: [
-            { type: 'menu-radio', id: 'item1', icon: 'fa fa-star',
-                text(item) {
-                    let el = item.get(item.selected);
-                    return 'Radio: ' + el.text;
+<script type="module">
+import { w2toolbar } from '__W2UI_PATH__'
+
+new w2toolbar({
+    box: '#toolbar',
+    name: 'toolbar',
+    items: [
+        { type: 'menu-radio', id: 'item1', icon: 'fa fa-star',
+            text(item) {
+                let el = item.get(item.selected);
+                return 'Radio: ' + el.text;
+            },
+            overlay: { position: 'bottom|top' },
+            selected: 'id3',
+            items: [
+                { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
+                { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
+                { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 }
+            ]
+        },
+        { type: 'break' },
+        { type: 'menu-check', id: 'item2', text: 'Check', icon: 'fa fa-heart',
+            overlay: { position: 'bottom|top' },
+            selected: ['id3', 'id4'],
+            onRefresh(event) {
+                event.detail.item.count = event.detail.item.selected.length;
+            },
+            items: [
+                { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
+                { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
+                { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 },
+                { text: '--' },
+                { id: 'id4', text: 'Item 4', icon: 'fa fa-glass' }
+            ]
+        },
+        { type: 'break' },
+        { type: 'menu-check', id: 'item3', text: 'Groups of Checks', icon: 'fa fa-heart',
+            overlay: { position: 'bottom|top' },
+            items: [
+                { text: '-- Group 1' },
+                { id: 'id1', text: 'Item 1', icon: 'fa fa-camera', group: 1 },
+                { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o', group: 1 },
+                { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', group: 1 },
+                { text: '-- Group 2' },
+                { id: 'id4', text: 'Item 4', icon: 'fa fa-camera', group: 2 },
+                { id: 'id5', text: 'Item 5', icon: 'fa fa-picture-o', group: 2 },
+                { id: 'id6', text: 'Item 6', icon: 'fa fa-glass', group: 2 },
+                { text: '--' },
+                { id: 'id-open', text: 'Keep Open', icon: 'fa fa-camera', group: 3, keepOpen: true },
+            ]
+        },
+        { type: 'break' },
+        { type: 'menu', id: 'item4', text: 'With Sub Menus', icon: 'fa fa-star',
+            items: [
+                { id: 'id1', text: 'Sub menu 1', icon: 'fa fa-star', expanded: true,
+                    items: [
+                        { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
+                        { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
+                        { id: 'id3', text: 'Item 3', icon: 'fa fa-glass' }
+                    ]
                 },
-                overlay: { position: 'bottom|top' },
-                selected: 'id3',
-                items: [
-                    { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
-                    { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
-                    { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 }
-                ]
-            },
-            { type: 'break' },
-            { type: 'menu-check', id: 'item2', text: 'Check', icon: 'fa fa-heart',
-                overlay: { position: 'bottom|top' },
-                selected: ['id3', 'id4'],
-                onRefresh(event) {
-                    event.detail.item.count = event.detail.item.selected.length;
+                { id: 'id1a', text: 'Regular', icon: 'fa fa-star' },
+                { id: 'id2a', text: 'Regular 2', icon: 'fa fa-star' },
+                { id: 'id2', text: 'Sub menu 2', icon: 'fa fa-star',
+                    items: [
+                        { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
+                        { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
+                    ]
                 },
-                items: [
-                    { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
-                    { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
-                    { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 },
-                    { text: '--' },
-                    { id: 'id4', text: 'Item 4', icon: 'fa fa-glass' }
-                ]
-            },
-            { type: 'break' },
-            { type: 'menu-check', id: 'item3', text: 'Groups of Checks', icon: 'fa fa-heart',
-                overlay: { position: 'bottom|top' },
-                items: [
-                    { text: '-- Group 1' },
-                    { id: 'id1', text: 'Item 1', icon: 'fa fa-camera', group: 1 },
-                    { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o', group: 1 },
-                    { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', group: 1 },
-                    { text: '-- Group 2' },
-                    { id: 'id4', text: 'Item 4', icon: 'fa fa-camera', group: 2 },
-                    { id: 'id5', text: 'Item 5', icon: 'fa fa-picture-o', group: 2 },
-                    { id: 'id6', text: 'Item 6', icon: 'fa fa-glass', group: 2 },
-                    { text: '--' },
-                    { id: 'id-open', text: 'Keep Open', icon: 'fa fa-camera', group: 3, keepOpen: true },
-                ]
-            },
-            { type: 'break' },
-            { type: 'menu', id: 'item4', text: 'With Sub Menus', icon: 'fa fa-star',
-                items: [
-                    { id: 'id1', text: 'Sub menu 1', icon: 'fa fa-star', expanded: true,
-                        items: [
-                            { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
-                            { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
-                            { id: 'id3', text: 'Item 3', icon: 'fa fa-glass' }
-                        ]
-                    },
-                    { id: 'id1a', text: 'Regular', icon: 'fa fa-star' },
-                    { id: 'id2a', text: 'Regular 2', icon: 'fa fa-star' },
-                    { id: 'id2', text: 'Sub menu 2', icon: 'fa fa-star',
-                        items: [
-                            { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
-                            { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
-                        ]
-                    },
-                    { id: 'id3', text: 'Sub menu 3', icon: 'fa fa-star',
-                        items: [
-                            { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
-                            { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
-                            { id: 'id3', text: 'Item 3', icon: 'fa fa-glass' }
-                        ]
-                    }
-                ]
-            },
-        ],
-        onClick(event) {
-            event.done(() => {
-                if (event.detail.subItem) {
-                    console.log('Subitmes selected:', event.detail.item.selected);
-                } else {
-                    console.log('Click:', event.detail.item.id)
+                { id: 'id3', text: 'Sub menu 3', icon: 'fa fa-star',
+                    items: [
+                        { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
+                        { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
+                        { id: 'id3', text: 'Item 3', icon: 'fa fa-glass' }
+                    ]
                 }
-            });
-        }
-    });
-});
+            ]
+        },
+    ],
+    onClick(event) {
+        event.done(() => {
+            if (event.detail.subItem) {
+                console.log('Subitmes selected:', event.detail.item.selected)
+            } else {
+                console.log('Click:', event.detail.item.id)
+            }
+        })
+    }
+})
 </script>

@@ -21,25 +21,25 @@
 <div id="toolbar"></div>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2toolbar({
-        box: '#toolbar',
-        name: 'toolbar',
-        items: [
-            { type: 'button', id: 'item1', text: 'Button', icon: 'w2ui-icon-colors' },
-            { type: 'break' },
-            { type: 'check', id: 'item2', text: 'Check 1', icon: 'w2ui-icon-check' },
-            { type: 'check', id: 'item3', text: 'Check 2', icon: 'w2ui-icon-check' },
-            { type: 'break' },
-            { type: 'radio', id: 'item4', group: '1', text: 'Radio 1', icon: 'w2ui-icon-info', checked: true },
-            { type: 'radio', id: 'item5', group: '1', text: 'Radio 2', icon: 'w2ui-icon-paste' },
-            { type: 'spacer' },
-            { type: 'button', id: 'item6', text: 'Button', icon: 'w2ui-icon-cross' }
-        ],
-        onClick: function (event) {
-            console.log('Target: '+ event.target, event);
-        }
-    });
-});
+<script type="module">
+import { w2toolbar } from '__W2UI_PATH__'
+
+new w2toolbar({
+    box: '#toolbar',
+    name: 'toolbar',
+    items: [
+        { type: 'button', id: 'item1', text: 'Button', icon: 'w2ui-icon-colors' },
+        { type: 'break' },
+        { type: 'check', id: 'item2', text: 'Check 1', icon: 'w2ui-icon-check' },
+        { type: 'check', id: 'item3', text: 'Check 2', icon: 'w2ui-icon-check' },
+        { type: 'break' },
+        { type: 'radio', id: 'item4', group: '1', text: 'Radio 1', icon: 'w2ui-icon-info', checked: true },
+        { type: 'radio', id: 'item5', group: '1', text: 'Radio 2', icon: 'w2ui-icon-paste' },
+        { type: 'spacer' },
+        { type: 'button', id: 'item6', text: 'Button', icon: 'w2ui-icon-cross' }
+    ],
+    onClick(event) {
+        console.log('Target: '+ event.target, event)
+    }
+})
 </script>

@@ -18,53 +18,53 @@
 <div id="toolbar"></div>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2toolbar({
-        box: '#toolbar',
-        name: 'toolbar',
-        items: [
-            { type: 'button', id: 'item1', icon: 'fa fa-star', text: 'Click Me',
-                counter: 0,
-                tooltip(item) {
-                    return 'Number of clicks: ' + item.counter;
-                },
-                onClick(event) {
-                    event.detail.item.counter++;
-                }
+<script type="module">
+import { w2toolbar } from '__W2UI_PATH__'
+
+new w2toolbar({
+    box: '#toolbar',
+    name: 'toolbar',
+    items: [
+        { type: 'button', id: 'item1', icon: 'fa fa-star', text: 'Click Me',
+            counter: 0,
+            tooltip(item) {
+                return 'Number of clicks: ' + item.counter;
             },
-            { type: 'break' },
-            { type: 'menu-radio', id: 'item2', icon: 'fa fa-star',
-                text(item) {
-                    let text = item.selected;
-                    let el   = this.get('item2:' + item.selected);
-                    return 'Radio: ' + el.text;
-                },
-                selected: 'id1',
-                items: [
-                    { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
-                    { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
-                    { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 }
-                ]
-            },
-            { type: 'break' },
-            { type: 'html',  id: 'item5',
-                html(item) {
-                    let html =
-                      '<div style="padding: 0px 10px; margin-top: -2px;">'+
-                      ' Field:'+
-                      '    <input size="20" placeholder="Change me" onchange="var el = w2ui.toolbar.set(\'item5\', { value: this.value });" '+
-                      '         class="w2ui-input" value="'+ (item.value || '') +'"/>'+
-                      '</div>';
-                    return html;
-                }
-            },
-            { type: 'break' },
-            { type: 'button', id: 'item6', icon: 'fa fa-star-o', text: 'Refresh',
-                tooltip: 'Click to refresh entire toolbar.<br>Note, input value is preserved.',
-                onClick(event) { this.refresh(); }
+            onClick(event) {
+                event.detail.item.counter++;
             }
-        ]
-    });
-});
+        },
+        { type: 'break' },
+        { type: 'menu-radio', id: 'item2', icon: 'fa fa-star',
+            text(item) {
+                let text = item.selected;
+                let el   = this.get('item2:' + item.selected);
+                return 'Radio: ' + el.text;
+            },
+            selected: 'id1',
+            items: [
+                { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
+                { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
+                { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 }
+            ]
+        },
+        { type: 'break' },
+        { type: 'html',  id: 'item5',
+            html(item) {
+                let html =
+                    '<div style="padding: 0px 10px; margin-top: -2px;">'+
+                    ' Field:'+
+                    '    <input size="20" placeholder="Change me" onchange="var el = w2ui.toolbar.set(\'item5\', { value: this.value });" '+
+                    '         class="w2ui-input" value="'+ (item.value || '') +'"/>'+
+                    '</div>';
+                return html;
+            }
+        },
+        { type: 'break' },
+        { type: 'button', id: 'item6', icon: 'fa fa-star-o', text: 'Refresh',
+            tooltip: 'Click to refresh entire toolbar.<br>Note, input value is preserved.',
+            onClick(event) { this.refresh() }
+        }
+    ]
+})
 </script>
