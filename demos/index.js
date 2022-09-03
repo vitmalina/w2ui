@@ -1,4 +1,6 @@
-$(async function () {
+import { query, w2utils, w2ui, w2toolbar, w2sidebar, w2layout } from '../src/w2compat.js'
+
+query(async function () {
     let w2utils_locale = sessionStorage.w2ui_demo_locale || w2utils.settings.locale.toLowerCase()
     // need await otherwise sometimes demos do not show
     await w2utils.locale(['https://rawgit.com/vitmalina/w2ui/master/src/locale/'+w2utils_locale+'.json', w2utils_locale])
@@ -18,7 +20,7 @@ $(async function () {
                     style: 'border: 0px; border-bottom: 1px solid #e4e4e4; background-color: #fff; color: #555;',
                     onRefresh(event) {
                         event.done(() => {
-                            $('#demo_toolbar').w2render(w2ui.demo_toolbar)
+                            w2ui.demo_toolbar.render('#demo_toolbar')
                         })
                     }
                 },
@@ -403,7 +405,7 @@ $(async function () {
                 // delete previously created items
                 for (let widget in w2ui) {
                     let nm = w2ui[widget].name
-                    if (['demo_layout', 'demo_sidebar', 'demo_toolbar'].indexOf(nm) == -1) $().w2destroy(nm)
+                    if (['demo_layout', 'demo_sidebar', 'demo_toolbar'].indexOf(nm) == -1) w2ui[nm].destroy()
                 }
                 // set hash
                 if (tmp.parent && tmp.parent.id != '') {
@@ -411,55 +413,46 @@ $(async function () {
                     document.location.hash = '/' + cmd
                 }
                 // load example
-                $.get('examples/'+ cmd +'.html', function (data) {
+                fetch('examples/'+ cmd +'.html').then(resp => resp.text()).then(data => {
                     let tmp = data.split('<!--CODE-->')
-                    let es6 = false
                     if (tmp.length == 1) {
                         alert('ERROR: cannot parse example.')
                         console.log('ERROR: cannot parse example.', data)
                         return
                     }
-                    let w2ui_js  = 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.js'
+                    let w2ui_js  = 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.es6.min.js'
                     let w2ui_css = 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css'
-                    let html     = tmp[1] ? $.trim(tmp[1]) : ''
-                    let js       = tmp[2] ? $.trim(tmp[2]) : ''
-                    let css      = tmp[3] ? $.trim(tmp[3]) : ''
-                    let json     = tmp[4] ? $.trim(tmp[4]) : ''
-                    if (js.trim().substr(0, 21) == '<script type="module"') {
-                        es6 = true
+                    if (document.location.hostname == 'localhost') {
+                        w2ui_js  = '../src/w2compat.js'
+                        w2ui_css = '../dist/w2ui.css'
                     }
-                    js   = js.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '')
-                    js   = $.trim(js)
-                    css  = css.replace(/^<style[^>]*>/, '').replace(/<\/style>$/, '')
-                    css  = $.trim(css)
+                    let html  = tmp[1] ? tmp[1].trim() : ''
+                    let js    = tmp[2] ? tmp[2].trim() : ''
+                    let css   = tmp[3] ? tmp[3].trim() : ''
+                    let json  = tmp[4] ? tmp[4].trim() : ''
                     json = json.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '')
-                    json = $.trim(json)
+                    js = js.replace(/__W2UI_PATH__/g, w2ui_js)
                     w2ui.demo_layout.html('main', tmp[0])
-                    $('#example_view').html(
-                        '<h2>Preview</h2>'+ html +
-                            `<script type="${es6 ? 'module' : 'text/javascript'}">${js}</script>`+
-                            '<style>' + css + '</style>')
+                    query('#example_view').html('<h2>Preview</h2>'+ html + js + css)
+
+                    // code example
                     let code = '<!DOCTYPE html>\n'+
                                '<html>\n'+
                                '<head>\n'+
                                '    <title>W2UI Demo: '+ cmd +'</title>\n'+
-                               (!es6
-                                   ? '    <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>\n'+
-                                     '    <script type="text/javascript" src="'+ w2ui_js +'"></script>\n'
-                                   : ''
-                               ) +
-                               '    <link rel="stylesheet" type="text/css" href="'+ w2ui_css +'" />\n'+
+                               '    <link rel="stylesheet" type="text/css" href="'+ w2ui_css +'">\n'+
                                '</head>\n'+
                                '<body>\n\n'+
-                               html + '\n\n'+
-                               (js != '' ? `<script type="${es6 ? 'module' : 'text/javascript'}">\n` + js + '\n</script>\n\n' : '') +
-                               (css != '' ? '<style>\n' + css + '</style>\n\n' : '') +
+                                    (html ? html + '\n\n' : '') +
+                                    (js ? js + '\n\n' : '') +
+                                    (css ? css + '\n\n' : '') +
                                '</body>\n'+
                                '</html>'
-                    $('#example_code').html('<a href="javascript:" onclick="$(this).next().show(); initCode(); $(this).hide();" class="btn-source">Show Source Code</a>'+
+                    query('#example_code').html('<a href="javascript:" id="showSourceCode" class="btn-source">Show Source Code</a>'+
                         '<div id="sourcecode" style="display: none;">'+
                         '<h2>Complete Code '+
-                        '<span style="font-weight: normal; padding-left: 10px;">- &nbsp;&nbsp;Copy & paste into your editor or <a href="javascript:" class="jsfiddle">fiddle with code online</a></span> </h2>'+
+                        '<span style="font-weight: normal; padding-left: 10px;">- &nbsp;'+
+                            '<a href="javascript:" class="jsfiddle">Open in jsFiddle.net</a></span> </h2>'+
                         '<textarea class="preview" id="code">'+
                             code.replace(/<textarea/gi, '&lt;textarea').replace(/<\/textarea>/gi, '&lt;/textarea&gt;') +
                         '</textarea>'+
@@ -470,31 +463,32 @@ $(async function () {
                             '')+
                         '</div>'+
                         '<div style="display: none">'+
-                        '<form id="fiddleForm" target="_blank" action="https://jsfiddle.net/api/post/jquery/3.4/" method="post">'+
+                        '<form id="fiddleForm" target="_blank" action="https://jsfiddle.net/api/post/library/pure/" method="post">'+
                         '    <textarea name="title">W2UI Demo: '+ cmd +'</textarea>'+
                         `    <textarea name="resources">${w2ui_css}${w2ui_js ? ',' + w2ui_js : ''}</textarea>`+
-                        '    <textarea name="js">'+ js +'</textarea>'+
+                        '    <textarea name="js">'+ js.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '') +'</textarea>'+
                         '    <textarea name="html">'+ html.replace(/<textarea/gi, '&lt;textarea').replace(/<\/textarea>/gi, '&lt;/textarea&gt;') +'</textarea>'+
-                        '    <textarea name="css">'+ css +'</textarea>'+
+                        '    <textarea name="css">'+ css.replace(/^<style[^>]*>/, '').replace(/<\/style>$/, '') +'</textarea>'+
                         '    <textarea name="wrap">l</textarea>'+
                         '</form>'+
                         '</div>')
-
-                    // $('.json').each((ind, el) => {
-                    //     _code(el, $.trim($(el).val()), 'json')
-                    // })
-                    $('.javascript').each((ind, el) => {
-                        _code(el, $.trim($(el).val()), 'javascript')
+                    query('.javascript').each(el => {
+                        _code(el, query(el).val().trim(), 'javascript')
                     })
-
+                    query('#showSourceCode').on('click', function (event) {
+                        query(this).next().show()
+                        initCode()
+                        query(this).hide()
+                    })
                 })
             }
         }
     }
     // init layout
-    $().w2toolbar(conf.demo_toolbar)
-    $().w2sidebar(conf.demo_sidebar)
-    $('#demo_layout').w2layout(conf.demo_layout)
+    new w2toolbar(conf.demo_toolbar)
+    new w2sidebar(conf.demo_sidebar)
+    new w2layout(conf.demo_layout)
+    w2ui.demo_layout.render('#demo_layout')
     // init sidebar
     w2ui.demo_layout.html('top', '<div style="padding: 18px 0 0 20px; font-size: 18px;">W2UI Demos</div><div id="demo_toolbar"></div>')
     w2ui.demo_layout.html('left', w2ui.demo_sidebar)
@@ -535,21 +529,19 @@ $(async function () {
 
 function initCode() {
     // CodeMirror
-    $('#example_code .preview').each((ind, el) => {
-        _code(el, $.trim($(el).val()), 'text/html')
+    query('#example_code .preview').each(el => {
+        _code(el, query(el).val().trim(), 'text/html')
     })
-    $('#example_code .json').each((ind, el) => {
-        _code(el, $.trim($(el).val()), 'json')
+    query('#example_code .json').each(el => {
+        _code(el, query(el).val().trim(), 'json')
     })
-    $('#example_code .jsfiddle').on('click', function () {
-        // $('#fiddleForm textarea[name=html]').val(html || '')
-        // $('#fiddleForm textarea[name=js]').val(js || '')
-        // $('#fiddleForm textarea[name=css]').val(css || '')
-        $('#fiddleForm').submit()
+    query('#example_code .jsfiddle').on('click', () => {
+        let form = query('#fiddleForm').get(0)
+        form.submit()
     })
 }
 function _code(el, code, lang) {
-    let cm = CodeMirror(
+    let cm = window.CodeMirror(
         function (elt) {
             el.parentNode.replaceChild(elt, el)
         }, {

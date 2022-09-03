@@ -78,7 +78,7 @@ var config = {
                 let errors = this.validate()
                 if (errors.length > 0) return
                 if (this.recid == 0) {
-                    w2ui.grid.add($.extend(true,  this.record,{ recid: w2ui.grid.records.length + 2 }))
+                    w2ui.grid.add(w2utils.extend(this.record, { recid: w2ui.grid.records.length + 2 }))
                     w2ui.grid.selectNone()
                     this.clear()
                 } else {

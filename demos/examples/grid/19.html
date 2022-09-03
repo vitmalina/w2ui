@@ -41,7 +41,7 @@ query(() => {
             var grid = this;
             // need timer for nicer visual effect that record was selected
             setTimeout(function () {
-                w2ui['grid2'].add( $.extend({}, grid.get(event.detail.recid), { selected : false }) );
+                w2ui.grid2.add(w2utils.extend({}, grid.get(event.detail.recid), { selected : false }) );
                 grid.selectNone();
                 grid.remove(event.detail.recid);
             }, 150);
@@ -64,7 +64,7 @@ query(() => {
             var grid = this;
             // need timer for nicer visual effect that record was selected
             setTimeout(function () {
-                w2ui['grid1'].add( $.extend({}, grid.get(event.detail.recid), { selected : false }) );
+                w2ui.grid1.add(w2utils.extend({}, grid.get(event.detail.recid), { selected : false }));
                 grid.selectNone();
                 grid.remove(event.detail.recid);
             }, 150);

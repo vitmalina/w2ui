@@ -53,7 +53,7 @@ function generate(nodes, id, options, count, subCount) {
     let icons = ['fa fa-home', 'fa fa-coffee', 'fa fa-comment-o', 'fa fa-star', 'fa fa-bug']
     let texts = ['Test', 'Label', 'Item', 'Simple', 'Formula', 'Single']
     for (let i=0; i<count; i++) {
-        let node = $.extend({
+        let node = w2utils.extend({
             id: id + '-' + i,
             expanded: true,
             text: texts[Math.floor(Math.random() * texts.length)],
