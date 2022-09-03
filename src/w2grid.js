@@ -2977,7 +2977,7 @@ class w2grid extends w2base {
         } else {
             data = {
                 error, data,
-                message: w2utils.lang(this.msgHTTPError), // TODO: rename
+                message: w2utils.lang(this.msgHTTPError),
             }
             this.error(w2utils.lang(this.msgHTTPError))
             reject(data)

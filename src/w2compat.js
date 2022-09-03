@@ -27,11 +27,9 @@ import { w2tooltip, w2color, w2menu, w2date, Tooltip } from './w2tooltip.js'
 
 // Register jQuery plugins
 (function($) {
-    // if jQuery is not defined, then exit
-    if (!$) return
 
     // register globals if needed
-    $.w2globals = function() {
+    let w2globals = function() {
         (function (win, obj) {
             Object.keys(obj).forEach(key => {
                 win[key] = obj[key]
@@ -46,8 +44,12 @@ import { w2tooltip, w2color, w2menu, w2date, Tooltip } from './w2tooltip.js'
     // if url has globals at the end, then register globals
     let param = String(import.meta.url).split('?')[1] || ''
     if (param == 'globals' || param.substr(0, 8) == 'globals=') {
-        $.w2globals()
+        w2globals()
     }
+
+    // if jQuery is not defined, then exit
+    if (!$) return
+    $.w2globals = w2globals
 
     $.fn.w2render = function(name) {
         if ($(this).length > 0) {
