@@ -1,6 +1,7 @@
+/* mQuery 0.7 (nightly) (9/3/2022, 8:23:49 AM), vitmalina@gmail.com */
 class Query {
     constructor(selector, context, previous) {
-        this.version = 0.6
+        this.version = 0.7
         this.context = context ?? document
         this.previous = previous ?? null
         let nodes = []
@@ -33,13 +34,39 @@ class Query {
             this[ind] = node
         })
     }
-
     static _fragment(html) {
         let tmpl = document.createElement('template')
         tmpl.innerHTML = html
+        tmpl.content.childNodes.forEach(node => {
+            let newNode = Query._scriptConvert(node)
+            if (newNode != node) {
+                tmpl.content.replaceChild(newNode, node)
+            }
+        })
         return tmpl.content
     }
-
+    // innerHTML, append, etc. script tags will not be executed unless they are proper script tags
+    static _scriptConvert(node) {
+        let convert = (txtNode) => {
+            let doc = txtNode.ownerDocument
+            let scNode = doc.createElement('script')
+            scNode.text = txtNode.text
+            let attrs = txtNode.attributes
+            for (let i = 0; i < attrs.length; i++) {
+                scNode.setAttribute(attrs[i].name, attrs[i].value);
+            }
+            return scNode
+        }
+        if (node.tagName == 'SCRIPT') {
+            node = convert(node)
+        }
+        if (node.querySelectorAll) {
+            node.querySelectorAll('script').forEach(textNode => {
+                textNode.parentNode.replaceChild(convert(textNode), textNode)
+            })
+        }
+        return node
+    }
     static _fixProp(name) {
         let fixes = {
             cellpadding: "cellPadding",
@@ -57,7 +84,6 @@ class Query {
         }
         return fixes[name] ? fixes[name] : name
     }
-
     _insert(method, html) {
         let nodes = []
         let len  = this.length
@@ -76,8 +102,9 @@ class Query {
                 this.each(node => {
                     // if insert before a single node, just move new one, else clone and move it
                     let clone = (single ? el : el.cloneNode(true))
-                    node[method](clone)
                     nodes.push(clone)
+                    node[method](clone)
+                    Query._scriptConvert(clone)
                 })
             })
             if (!single) html.remove()
@@ -97,7 +124,6 @@ class Query {
         }
         return self
     }
-
     _save(node, name, value) {
         node._mQuery = node._mQuery ?? {}
         if (Array.isArray(value)) {
@@ -109,7 +135,6 @@ class Query {
             delete node._mQuery[name];
         }
     }
-
     get(index) {
         if (index < 0) index = this.length + index
         let node = this[index]
@@ -121,19 +146,16 @@ class Query {
         }
         return this.nodes
     }
-
     eq(index) {
         if (index < 0) index = this.length + index
         let nodes = [this[index]]
         if (nodes[0] == null) nodes = []
         return new Query(nodes, this.context, this) // must return a new collection
     }
-
     then(fun) {
         let ret = fun(this)
         return ret != null ? ret : this
     }
-
     find(selector) {
         let nodes = []
         this.each(node => {
@@ -144,7 +166,6 @@ class Query {
         })
         return new Query(nodes, this.context, this) // must return a new collection
     }
-
     filter(selector) {
         let nodes = []
         this.each(node => {
@@ -157,7 +178,6 @@ class Query {
         })
         return new Query(nodes, this.context, this) // must return a new collection
     }
-
     next() {
         let nodes = []
         this.each(node => {
@@ -166,7 +186,6 @@ class Query {
         })
         return new Query(nodes, this.context, this) // must return a new collection
     }
-
     prev() {
         let nodes = []
         this.each(node => {
@@ -175,7 +194,6 @@ class Query {
         })
         return new Query(nodes, this.context, this) // must return a new collection
     }
-
     shadow(selector) {
         let nodes = []
         this.each(node => {
@@ -185,7 +203,6 @@ class Query {
         let col = new Query(nodes, this.context, this)
         return selector ? col.find(selector) : col
     }
-
     closest(selector) {
         let nodes = []
         this.each(node => {
@@ -196,7 +213,6 @@ class Query {
         })
         return new Query(nodes, this.context, this) // must return a new collection
     }
-
     host(all) {
         let nodes = []
         // find shadow root or body
@@ -217,11 +233,9 @@ class Query {
         })
         return new Query(nodes, this.context, this) // must return a new collection
     }
-
     parent(selector) {
         return this.parents(selector, true)
     }
-
     parents(selector, firstOnly) {
         let nodes = []
         let add = (node) => {
@@ -238,43 +252,34 @@ class Query {
         let col = new Query(nodes, this.context, this)
         return selector ? col.filter(selector) : col
     }
-
     add(more) {
         let nodes = more instanceof Query ? more.nodes : (Array.isArray(more) ? more : [more])
         return new Query(this.nodes.concat(nodes), this.context, this) // must return a new collection
     }
-
     each(func) {
         this.nodes.forEach((node, ind) => { func(node, ind, this) })
         return this
     }
-
     append(html) {
         return this._insert('append', html)
     }
-
     prepend(html) {
         return this._insert('prepend', html)
     }
-
     after(html) {
         return this._insert('after', html)
     }
-
     before(html) {
         return this._insert('before', html)
     }
-
     replace(html) {
         return this._insert('replaceWith', html)
     }
-
     remove() {
         // remove from dom, but keep in current query
         this.each(node => { node.remove() })
         return this
     }
-
     css(key, value) {
         let css = key
         let len = arguments.length
@@ -312,17 +317,14 @@ class Query {
             return this
         }
     }
-
     addClass(classes) {
         this.toggleClass(classes, true)
         return this
     }
-
     removeClass(classes) {
         this.toggleClass(classes, false)
         return this
     }
-
     toggleClass(classes, force) {
         // split by comma or space
         if (typeof classes == 'string') classes = classes.split(/[,\s]+/)
@@ -340,7 +342,6 @@ class Query {
         })
         return this
     }
-
     hasClass(classes) {
         // split by comma or space
         if (typeof classes == 'string') classes = classes.split(/[,\s]+/)
@@ -355,7 +356,6 @@ class Query {
         })
         return ret
     }
-
     on(events, options, callback) {
         if (typeof options == 'function') {
             callback = options
@@ -387,7 +387,6 @@ class Query {
         })
         return this
     }
-
     off(events, options, callback) {
         if (typeof options == 'function') {
             callback = options
@@ -418,7 +417,6 @@ class Query {
         })
         return this
     }
-
     trigger(name, options) {
         let event,
             mevent = ['click', 'dblclick', 'mousedown', 'mouseup', 'mousemove'],
@@ -436,7 +434,6 @@ class Query {
         this.each(node => { node.dispatchEvent(event) })
         return this
     }
-
     attr(name, value) {
         if (value === undefined && typeof name == 'string') {
             return this[0] ? this[0].getAttribute(name) : undefined
@@ -449,7 +446,6 @@ class Query {
             return this
         }
     }
-
     removeAttr() {
         this.each(node => {
             Array.from(arguments).forEach(attr => {
@@ -458,7 +454,6 @@ class Query {
         })
         return this
     }
-
     prop(name, value) {
         if (value === undefined && typeof name == 'string') {
             return this[0] ? this[0][name] : undefined
@@ -466,19 +461,23 @@ class Query {
             let obj = {}
             if (typeof name == 'object') obj = name; else obj[name] = value
             this.each(node => {
-                Object.entries(obj).forEach(([nm, val]) => { node[Query._fixProp(nm)] = val })
+                Object.entries(obj).forEach(([nm, val]) => {
+                    let prop = Query._fixProp(nm)
+                    node[prop] = val
+                    if (prop == 'innerHTML') {
+                        Query._scriptConvert(node)
+                    }
+                })
             })
             return this
         }
     }
-
     removeProp() {
         this.each(node => {
             Array.from(arguments).forEach(prop => { delete node[Query._fixProp(prop)] })
         })
         return this
     }
-
     data(key, value) {
         if (key instanceof Object) {
             Object.entries(key).forEach(item => { this.data(item[0], item[1]) })
@@ -510,24 +509,19 @@ class Query {
             return this
         }
     }
-
     removeData(key) {
         if (typeof key == 'string') key = key.split(/[,\s]+/)
         this.each(node => {
             key.forEach(k => { delete node.dataset[k] })
-
         })
         return this
     }
-
     show() {
         return this.toggle(true)
     }
-
     hide() {
         return this.toggle(false)
     }
-
     toggle(force) {
         return this.each(node => {
             let prev = node.style.display
@@ -543,27 +537,21 @@ class Query {
             }
         })
     }
-
     empty() {
         return this.html('')
     }
-
     html(html) {
         return this.prop('innerHTML', html)
     }
-
     text(text) {
         return this.prop('textContent', text)
     }
-
     val(value) {
         return this.prop('value', value) // must be prop
     }
-
     change() {
         return this.trigger('change')
     }
-
     click() {
         return this.trigger('click')
     }
@@ -583,5 +571,4 @@ let query = function (selector, context) {
 }
 // str -> doc-fragment
 query.html = (str) => { let frag = Query._fragment(str); return query(frag.children, frag)  }
-
 export { query as $, query as default, query, Query }
