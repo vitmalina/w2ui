@@ -16,10 +16,12 @@
 <br><br>
 
 <!--CODE-->
-<script>
+<script type="module">
+import { w2utils, w2field, query } from '__W2UI_PATH__'
+
 new w2field('color', { el: query('#str')[0] })
 
-function update() {
+window.update = function() {
     let val = query('#str').val()
     let parsed = w2utils.parseColor(val)
     if (parsed) {

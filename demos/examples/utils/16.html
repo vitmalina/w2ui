@@ -16,9 +16,9 @@
         placeholder="Type some text here..." contenteditable>This is content editable div, but it works on an input too</div>
 </div>
 <div style="margin-left: 410px">
-    <span style="display: inline-block; padding: 10px 0;">Styles</span><br>
+    <span style="display: inline-block; padding: 10px 0;">Input Styles</span><br>
     <input id="styles" onkeyup="update()" class="w2ui-input" style="width: 200px; font-size: 13px"
-        placeholder="and styles, if any...">
+        placeholder="and styles for the input, if any...">
 </div>
 <br><br>
 <button class="w2ui-btn" onclick="setPos(5); update()">Set cursor at pos 5</button>
@@ -30,22 +30,26 @@
     <div style="float: left; width: 130px;">Cursor Position</div> <div id="curpos" style="margin-left: 130px;">...</div>
 </div>
 
-<script>
-update()
+<!--CODE-->
+<script type="module">
+import { w2utils, query } from '__W2UI_PATH__'
 
-function update() {
+let originalStyles = query('#str').attr('style');
+
+window.update = function() {
     let input = query('#str').get(0)
     let styles = query('#styles').get(0)
+    query('#str').attr('style', originalStyles + '; ' +query('#styles').val());
 
     query('#swidth').html(w2utils.getStrWidth(input.innerHTML, styles.value) + 'px')
     query('#curpos').html(w2utils.getCursorPosition(input))
 }
 
-function setPos(start, end) {
+window.setPos = function(start, end) {
     let input = query('#str').get(0)
     input.focus()
     w2utils.setCursorPosition(input, start, end)
 }
-</script>
 
-<!--CODE-->
+update()
+</script>

@@ -25,10 +25,12 @@ You can sort any array in the following way:
 <span style="font-size: 13px; font-family: monaco, monospace">Array.sort(w2utils.naturalCompare)</span>
 
 <!--CODE-->
-<script>
+<script type="module">
+import { w2ui, query, w2grid } from '__W2UI_PATH__'
+
 query(() => {
     new w2grid({
-        box: query('#grid1')[0],
+        box: '#grid1',
         name: 'grid1',
         columns: [
             { field: 'fname', caption: 'First Name', size: '30%', sortable: true, sortMode: 'natural' },
@@ -47,7 +49,7 @@ query(() => {
         sortData: [{ field: 'fname', direction: 'asc' }]
     })
     new w2grid({
-        box: query('#grid2')[0],
+        box: '#grid2',
         name: 'grid2',
         columns: [
             { field: 'fname', caption: 'First Name', size: '30%', sortable: true },

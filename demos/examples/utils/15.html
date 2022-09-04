@@ -37,8 +37,109 @@
 </div>
 
 <!--CODE-->
-<script>
-var form
+<script type="module">
+import { query, w2tooltip, w2form } from '__W2UI_PATH__'
+
+// execute on document.ready
+let form = new w2form({
+    name: 'tooltip-form',
+    box: '#form',
+    // focus: -1,
+    style: 'border: 0; background-color: transparent',
+    fields: {
+        "Tooltip Properties": {
+            type: 'group',
+            style: 'background-color: #fcfcfc',
+            span: 4,
+            fields: {
+                html: {
+                    type: 'textarea',
+                    label: 'HTML',
+                    attr: 'style="width: 100%; height: 80px; resize: none"',
+                },
+                arrowSize: {
+                    type: 'int',
+                    label: 'Arrow Size',
+                    options: { min: 0, max: 40, arrow: false },
+                    attr: 'style="width: 60px"',
+                },
+                padding: {
+                    type: 'int',
+                    label: 'Padding',
+                    options: { min: 0, max: 100, arrow: false },
+                    attr: 'style="width: 60px"',
+                },
+                color: {
+                    type: 'color',
+                    label: 'Color',
+                    attr: 'style="width: 120px"',
+                },
+                "bg-color": {
+                    type: 'color',
+                    label: 'BG Color',
+                    attr: 'style="width: 120px"',
+                },
+                "border-size": {
+                    type: 'int',
+                    label: 'Border',
+                    options: { min: 0, max: 20, arrow: false },
+                    attr: 'style="width: 60px"',
+                    text: '%border-style% %border-color%'
+                },
+                "border-style": {
+                    type: 'list',
+                    label: '',
+                    attr: 'style="width: 70px"',
+                    options: { items: ['none', 'solid', 'dotted', 'dashed'] },
+                    anchor: '%border-style%'
+                },
+                "border-color": {
+                    type: 'color',
+                    label: '',
+                    attr: 'style="width: 90px"',
+                    anchor: '%border-color%'
+                },
+                position: {
+                    type: 'list',
+                    label: 'Position',
+                    attr: 'style="width: 120px"',
+                    options: {
+                        items: ['top|bottom', 'bottom|top', 'left|right', 'right|left', 'left', 'right', 'top', 'bottom']
+                    }
+                },
+                alignment: {
+                    type: 'list',
+                    label: 'Alignment',
+                    attr: 'style="width: 120px"',
+                    options: { items: ['none', 'left', 'right', 'both'] }
+                },
+            }
+        }
+    },
+    record: {
+        html: 'Tooltip html text<br>\n'+
+                'Can also be multiline',
+        arrowSize: 12,
+        padding: 10,
+        // position: 'right|left',
+        position: 'bottom|top',
+        alignment: 'none',
+        "border-size": 1,
+        "border-style": 'solid',
+        "border-color": 'ccc',
+        'color': '444',
+        'bg-color': ''
+    },
+    onInput(event) {
+        let fld = event.detail.field
+        let val = event.detail.value.current
+        event.done(() => { updateTooltip() })
+    }
+})
+// insert draggable element
+query(document.body).prepend('<span id="drag-me">Drag me to the corners</span>')
+updateTooltip()
+dragElement(query('#drag-me').get(0))
 
 function updateTooltip() {
     let rec = form.record
@@ -55,109 +156,6 @@ function updateTooltip() {
         align: rec.alignment.id
     })
 }
-
-// execute on document.ready
-query(() => {
-    form = new w2form({
-        name: 'tooltip-form',
-        // focus: -1,
-        style: 'border: 0; background-color: transparent',
-        fields: {
-            "Tooltip Properties": {
-                type: 'group',
-                style: 'background-color: #fcfcfc',
-                span: 4,
-                fields: {
-                    html: {
-                        type: 'textarea',
-                        label: 'HTML',
-                        attr: 'style="width: 100%; height: 80px; resize: none"',
-                    },
-                    arrowSize: {
-                        type: 'int',
-                        label: 'Arrow Size',
-                        options: { min: 0, max: 40, arrow: false },
-                        attr: 'style="width: 60px"',
-                    },
-                    padding: {
-                        type: 'int',
-                        label: 'Padding',
-                        options: { min: 0, max: 100, arrow: false },
-                        attr: 'style="width: 60px"',
-                    },
-                    color: {
-                        type: 'color',
-                        label: 'Color',
-                        attr: 'style="width: 120px"',
-                    },
-                    "bg-color": {
-                        type: 'color',
-                        label: 'BG Color',
-                        attr: 'style="width: 120px"',
-                    },
-                    "border-size": {
-                        type: 'int',
-                        label: 'Border',
-                        options: { min: 0, max: 20, arrow: false },
-                        attr: 'style="width: 60px"',
-                        text: '%border-style% %border-color%'
-                    },
-                    "border-style": {
-                        type: 'list',
-                        label: '',
-                        attr: 'style="width: 70px"',
-                        options: { items: ['none', 'solid', 'dotted', 'dashed'] },
-                        anchor: '%border-style%'
-                    },
-                    "border-color": {
-                        type: 'color',
-                        label: '',
-                        attr: 'style="width: 90px"',
-                        anchor: '%border-color%'
-                    },
-                    position: {
-                        type: 'list',
-                        label: 'Position',
-                        attr: 'style="width: 120px"',
-                        options: {
-                            items: ['top|bottom', 'bottom|top', 'left|right', 'right|left', 'left', 'right', 'top', 'bottom']
-                        }
-                    },
-                    alignment: {
-                        type: 'list',
-                        label: 'Alignment',
-                        attr: 'style="width: 120px"',
-                        options: { items: ['none', 'left', 'right', 'both'] }
-                    },
-                }
-            }
-        },
-        record: {
-            html: 'Tooltip html text<br>\n'+
-                  'Can also be multiline',
-            arrowSize: 12,
-            padding: 10,
-            // position: 'right|left',
-            position: 'bottom|top',
-            alignment: 'none',
-            "border-size": 1,
-            "border-style": 'solid',
-            "border-color": 'ccc',
-            'color': '444',
-            'bg-color': ''
-        },
-        onInput(event) {
-            let fld = event.detail.field
-            let val = event.detail.value.current
-            event.done(() => { updateTooltip() })
-        }
-    })
-    form.render(query('#form').get(0))
-    // insert draggable element
-    query(document.body).prepend('<span id="drag-me">Drag me to the corners</span>')
-    updateTooltip()
-    dragElement(document.querySelector('#drag-me'))
-})
 
 // make a div draggable
 function dragElement(elmnt) {

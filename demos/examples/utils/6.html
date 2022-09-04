@@ -25,9 +25,15 @@
 <div style="float: left; width: 130px;">Interval</div>       <div id="fInterval" style="margin-left: 130px;">...</div>
 
 <!--CODE-->
-<script>
-new w2field({ el: query('#str')[0], type: 'float', autoFormat: false });
-function update() {
+<script type="module">
+import { w2utils, w2field, query } from '__W2UI_PATH__'
+
+new w2field({
+    el: query('#str')[0],
+    type: 'float',
+    autoFormat: false
+});
+window.update = function () {
     var val = query('#str').val();
     if (w2utils.isFloat(val)) {
         query('#fNumber').html(w2utils.formatters['number'](val));

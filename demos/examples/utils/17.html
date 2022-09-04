@@ -49,27 +49,28 @@
 <button class="w2ui-btn" onclick="update()">Show Translation</button>
 <button class="w2ui-btn" onclick="update2()">Process Template w/ XX</button>
 
-<script>
-query(() => {
-    w2utils.locale({
-        name: 'ru-RU',
-        phrases: {
-            "Confirm you want to delete": "Подтвердите удаление",
-            "Should be less than ${max} characters": "Должно быть меньше чем ${max} символов"
-        }
-    })
+<!--CODE-->
+<script type="module">
+import { w2utils, query, w2alert } from '__W2UI_PATH__'
+
+w2utils.locale({
+    name: 'ru-RU',
+    phrases: {
+        "Confirm you want to delete": "Подтвердите удаление",
+        "Should be less than ${max} characters": "Должно быть меньше чем ${max} символов"
+    }
 })
 
-function update() {
+window.update = function() {
     let text = query('#text').val()
     let text2 = query('#text2').val()
     query('#trans').val(w2utils.lang(text))
     query('#trans2').val(w2utils.lang(text2, { max: 15 }))
 }
 
-function update2() {
+window.update2 = function() {
     let text2 = query('#text2').val()
-    w2alert(w2utils.execTemplate(text2, { max: 'XX' }))
+    w2alert(w2utils.execTemplate(text2, { max: Math.floor(Math.random() * 100) }))
 }
 </script>
 

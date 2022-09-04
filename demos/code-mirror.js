@@ -1,5 +1,4 @@
 import { query } from '../src/w2compat.js'
-window.query = query
 
 query(function () {
     query('head').append(

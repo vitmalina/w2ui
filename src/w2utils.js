@@ -977,7 +977,6 @@ class Utils {
             options.spinner = arguments[2]
         }
         options = this.extend({
-            // opacity: 0.3, // default comes from css
             spinner: false
         }, options)
         // for backward compatibility
@@ -1016,7 +1015,8 @@ class Utils {
         if (options.bgColor) {
             $lock.css({ 'background-color': options.bgColor })
         }
-        let opacity = $lock.css('opacity') || 0.3
+        let styles = getComputedStyle($lock.get(0))
+        let opacity = styles.opacity ?? 0.15
         $lock
             .on('mousedown', function() {
                 if (typeof options.onClick == 'function') {
@@ -1238,7 +1238,7 @@ class Utils {
                 <div class="w2ui-message-buttons">${options.buttons || ''}</div>
             `
         }
-        let styles  = getComputedStyle(where.box)
+        let styles  = getComputedStyle(query(where.box).get(0))
         let pWidth  = parseFloat(styles.width)
         let pHeight = parseFloat(styles.height)
         let titleHeight = 0

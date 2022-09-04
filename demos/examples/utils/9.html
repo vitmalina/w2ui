@@ -8,7 +8,7 @@
 </div>
 
 <!--CODE-->
-<input type="text" id="some-input" size="20" style="padding: 4px; border: 1px solid silver; height: 30px; width: 200px;">
+<input type="text" id="some-input" class="w2ui-input" style="width: 200px">
 <div style="height: 20px"></div>
 <div style="width: 200px; float: left">
     Position:
@@ -29,7 +29,7 @@
     </div>
 </div>
 <div style="clear: both">Hold shift or ctrl key (cmd on mac) to keep menu open</div>
-<div style="clear: both; height: 100px;"></div>
+<div style="clear: both; height: 10px;"></div>
 
 <button class="w2ui-btn" onclick="showMenu()">Show Menu</button>
 <button class="w2ui-btn" onclick="showMenu2()">Radio Menu</button>
@@ -37,19 +37,21 @@
 <button class="w2ui-btn" onclick="showMenu3()">Check Menu</button>
 
 <!--CODE-->
-<script>
-var align = 'left';
-var position = 'bottom'
+<script type="module">
+import { query, w2menu } from '__W2UI_PATH__'
 
-function setAlign(value) { align = value }
-function setPosition(value) { position = value }
+let align = 'left';
+let position = 'bottom'
 
-function showMenu() {
+window.setAlign = function(value) { align = value }
+window.setPosition = function(value) { position = value }
+
+window.showMenu = function() {
     w2menu.show({
         align,
         position,
         hideOn: ['doc-click', 'select'],
-        anchor: document.querySelector('#some-input'),
+        anchor: query('#some-input')[0],
         items: [
             { id: 1, text: 'Item 1', icon: 'fa fa-star' },
             { id: 'sub', text: 'Sub Menu', icon: 'fa fa-star',
@@ -66,17 +68,17 @@ function showMenu() {
         ]
     })
     .select((event) => {
-        document.querySelector('#some-input').value = event.detail.item.text
+        query('#some-input').val(event.detail.item.text)
     });
 }
 
-function showMenu2() {
+window.showMenu2 = function() {
     w2menu.show({
         type: 'radio',
         align,
         position,
         hideOn: ['doc-click', 'select'],
-        anchor: document.querySelector('#some-input'),
+        anchor: query('#some-input')[0],
         items: [
             { id: 1, text: 'Item 1', icon: 'fa fa-star' },
             { id: 2, text: 'Item 2', icon: 'fa fa-star-o' },
@@ -84,17 +86,17 @@ function showMenu2() {
         ]
     })
     .select((event) => {
-        document.querySelector('#some-input').value = event.detail.item.text
+        query('#some-input').val(event.detail.item.text)
     });
 }
 
-function showMenu3() {
+window.showMenu3 = function() {
     w2menu.show({
         type: 'check',
         align,
         position,
         hideOn: ['doc-click', 'select'],
-        anchor: document.querySelector('#some-input'),
+        anchor: query('#some-input')[0],
         items: [
             { id: 1, text: 'Item 1', icon: 'fa fa-star' },
             { id: 2, text: 'Item 2', icon: 'fa fa-star-o' },
@@ -109,17 +111,17 @@ function showMenu3() {
             prev += (prev != '' ? ', ' : '') + curr.text
             return prev
          }, '')
-        document.querySelector('#some-input').value = sel
+        query('#some-input').val(sel)
     });
 }
 
-function showMenu4() {
+window.showMenu4 = function() {
     w2menu.show({
         type: 'check',
         align,
         position,
         hideOn: ['doc-click', 'select'],
-        anchor: document.querySelector('#some-input'),
+        anchor: query('#some-input')[0],
         items: [
             { id: 1, text: 'Item 1', icon: 'fa fa-star', group: '1' },
             { id: 2, text: 'Item 2', icon: 'fa fa-star-o', group: '1' },
@@ -134,7 +136,7 @@ function showMenu4() {
             prev += (prev != '' ? ', ' : '') + curr.text
             return prev
          }, '')
-        document.querySelector('#some-input').value = sel
+        query('#some-input').val(sel)
     });
 }
 

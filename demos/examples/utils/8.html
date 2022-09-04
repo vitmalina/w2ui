@@ -38,8 +38,11 @@
 <button class="w2ui-btn" onclick="search(['the', 'a', 'an'], { wholeWord: true })">Articles (whole word only)</button>
 <button class="w2ui-btn" onclick="search()">Clear Markers</button>
 
-<script>
-function search(text, options = {}) {
-    w2utils.marker(document.querySelector('#text'), text, options)
+<!--CODE-->
+<script type="module">
+import { w2utils, query } from '__W2UI_PATH__'
+
+window.search = function(text, options = {}) {
+    w2utils.marker(query('#text'), text, options)
 }
 </script>

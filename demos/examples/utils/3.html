@@ -57,13 +57,26 @@
     <option value="pop-in">pop-in</option>
     <option value="pop-out">pop-out</option>
 </select>
-<button class="w2ui-btn" onclick="go()">Go</button>
+<button class="w2ui-btn" id="btn-go">Go</button>
 
 <!--CODE-->
-<script>
-var current = 'box1';
-function go() {
-    if (current == 'box1') { current = 'box2'; w2utils.transition(query('#box1')[0], query('#box2')[0], query('#trans').val()); return; }
-    if (current == 'box2') { current = 'box1'; w2utils.transition(query('#box2')[0], query('#box1')[0], query('#trans').val()); return; }
-}
+<script type="module">
+import { w2utils, query } from '__W2UI_PATH__'
+
+let current = 'box1'
+query('#btn-go').on('click', () => {
+    let box1 = query('#box1').get(0)
+    let box2 = query('#box2').get(0)
+    let trans = query('#trans').val()
+    if (current == 'box1') {
+         current = 'box2'
+         w2utils.transition(box1, box2, trans)
+         return
+        }
+    if (current == 'box2') {
+        current = 'box1'
+        w2utils.transition(box2, box1, trans)
+        return
+    }
+})
 </script>

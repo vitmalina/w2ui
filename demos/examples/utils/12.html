@@ -40,11 +40,13 @@
 <button class="w2ui-btn" onclick="unlock(true)">Unlock</button>
 
 <!--CODE-->
-<script>
-function lock(opts = {}) {
-    w2utils.lock(document.querySelector('#custom'), opts)
+<script type="module">
+import { w2utils, query } from '__W2UI_PATH__'
+
+window.lock = function(opts = {}) {
+    w2utils.lock(query('#custom'), opts)
 }
-function unlock() {
-    w2utils.unlock(document.querySelector('#custom'))
+window.unlock = function() {
+    w2utils.unlock(query('#custom'))
 }
 </script>

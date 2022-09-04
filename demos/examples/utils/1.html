@@ -9,7 +9,7 @@
 </div>
 
 <!--CODE-->
-<input id="str" type="text" size="20" onkeyup="update()" style="border: 1px solid silver; padding: 3px; height: 30px; width: 200px;">
+<input id="str" type="text" class="w2ui-input" style="width: 200px">
 <br><br>
 <div style="float: left; width: 150px;">isBin</div>          <div id="isBin" style="margin-left: 150px;">...</div>
 <div style="float: left; width: 150px;">isInt</div>          <div id="isInt" style="margin-left: 150px;">...</div>
@@ -28,7 +28,10 @@
 <div style="float: left; width: 150px;">interval</div>       <div id="goInterval" style="margin-left: 150px;">...</div>
 
 <!--CODE-->
-<script>
+<script type="module">
+import { w2utils, query } from '__W2UI_PATH__'
+
+query('#str').on('keyup', update)
 function update() {
 	query('#isBin').html(w2utils.isBin(query('#str')[0].value) ? 'Yes' : '-');
     query('#isInt').html(w2utils.isInt(query('#str')[0].value) ? 'Yes' : '-');

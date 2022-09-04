@@ -2,8 +2,8 @@
 import { w2tooltip } from '../src/w2tooltip.js'
 import { $, query } from '../src/query.js'
 
-window.query = query
-window.w2tooltip = w2tooltip
+// window.query = query
+// window.w2tooltip = w2tooltip
 
 class WebComp extends HTMLElement {
     constructor() {

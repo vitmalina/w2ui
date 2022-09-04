@@ -34,20 +34,22 @@
 </div>
 
 <div style="height: 20px;"></div>
-<button class="w2ui-btn" onclick="alert()">Alert</button>
-<button class="w2ui-btn" onclick="confirm()">Confirm</button>
+<button class="w2ui-btn" onclick="contextAlert()">Alert</button>
+<button class="w2ui-btn" onclick="contextConfirm()">Confirm</button>
 
 <!--CODE-->
-<script>
-function alert() {
-    w2utils.message({ box: document.querySelector('#custom') }, 'Some message')
+<script type="module">
+import { w2utils, query } from '__W2UI_PATH__'
+
+window.contextAlert = function() {
+    w2utils.message({ box: '#custom' }, 'Some message')
         .ok((event) => {
             console.log('Ok clicked',event)
         })
 }
 
-function confirm() {
-    w2utils.confirm({ box: document.querySelector('#custom') }, 'Some message')
+window.contextConfirm = function() {
+    w2utils.confirm({ box: '#custom' }, 'Some message')
         .action((event) => {
             console.log(event.detail.action + ' clicked', event.detail)
         })

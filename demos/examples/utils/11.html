@@ -25,38 +25,38 @@ You can sort any array in the following way:
 <span style="font-size: 13px; font-family: monaco, monospace">Array.sort(w2utils.i18nCompare)</span>
 
 <!--CODE-->
-<script>
-query(() => {
-    let records = [
-        'a', 'á', 'ä',
-        'e', 'è', 'ę́',
-        'i', 'î', 'i̧',
-        'n', 'ñ',
-        'o', 'ō', 'ö' , 'ø',
-        'u', 'ü',
-        'z'
-    ].map((char, recid) => { return { recid, char }});
+<script type="module">
+import { w2ui, query, w2grid } from '__W2UI_PATH__'
 
-    new w2grid({
-        box: query('#grid1')[0],
-        name: 'grid1',
-        columns: [
-            { field: 'char', caption: 'Character', size: '30%', sortable: true, sortMode: 'i18n' },
-        ],
-        records: records,
-        sortData: [{ field: 'char', direction: 'asc' }]
-    })
-    new w2grid({
-        box: query('#grid2')[0],
-        name: 'grid2',
-        columns: [
-            { field: 'char', caption: 'Character', size: '30%', sortable: true },
-        ],
-        records: records,
-        sortData: [{ field: 'char', direction: 'asc' }]
-    })
+let records = [
+    'a', 'á', 'ä',
+    'e', 'è', 'ę́',
+    'i', 'î', 'i̧',
+    'n', 'ñ',
+    'o', 'ō', 'ö' , 'ø',
+    'u', 'ü',
+    'z'
+].map((char, recid) => { return { recid, char }});
 
-    w2ui.grid1.localSort()
-    w2ui.grid2.localSort()
+new w2grid({
+    box: '#grid1',
+    name: 'grid1',
+    columns: [
+        { field: 'char', caption: 'Character', size: '30%', sortable: true, sortMode: 'i18n' },
+    ],
+    records: records,
+    sortData: [{ field: 'char', direction: 'asc' }]
 })
+new w2grid({
+    box: '#grid2',
+    name: 'grid2',
+    columns: [
+        { field: 'char', caption: 'Character', size: '30%', sortable: true },
+    ],
+    records: records,
+    sortData: [{ field: 'char', direction: 'asc' }]
+})
+
+w2ui.grid1.localSort()
+w2ui.grid2.localSort()
 </script>

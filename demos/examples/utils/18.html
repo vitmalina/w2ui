@@ -11,6 +11,20 @@
 <!--CODE-->
 <input id="encode" class="w2ui-input" value="id-width-hash#space dot.comma,slash\" style="width: 300px">
 <br><br>
-<button class="w2ui-btn" onclick="query('#encode').val(w2utils.escapeId(query('#encode')[0].value))">Escape ID</button>
-<button class="w2ui-btn" onclick="query('#encode').val(w2utils.unescapeId(query('#encode')[0].value))">Unescape ID</button>
+<button class="w2ui-btn" onclick="escape()">Escape ID</button>
+<button class="w2ui-btn" onclick="unescape()">Unescape ID</button>
+
 <!--CODE-->
+<script type="module">
+import { w2utils, query } from '__W2UI_PATH__'
+
+window.escape = function() {
+    let txt = query('#encode')[0].value
+    query('#encode').val(w2utils.escapeId(txt))
+}
+
+window.unescape = function() {
+    let txt = query('#encode')[0].value
+    query('#encode').val(w2utils.unescapeId(txt))
+}
+</script>

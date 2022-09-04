@@ -48,8 +48,11 @@
 <button class="w2ui-btn" onclick="clone()">Clone</button>
 <button class="w2ui-btn" onclick="extend()">Deep Extend</button>
 
-<script>
-var obj = {
+<!--CODE-->
+<script type="module">
+import { w2utils, w2popup } from '__W2UI_PATH__'
+
+let obj = {
     a: 'text',
     b: 1,
     body: document.body,
@@ -61,19 +64,20 @@ var obj = {
         }
     }
 }
-var obj2 = {
+let obj2 = {
     c: {
         number: 1,
         nested: { number: 3 }
     }
 }
-var obj3 = {
+let obj3 = {
     c: {
         number: 100,
         nested: { number2: 300 }
     }
 }
-function extend() {
+
+window.extend = function() {
     let rec = w2utils.extend({}, obj, obj2, obj3)
     console.log('With functions', rec)
     w2popup.open({
@@ -81,11 +85,13 @@ function extend() {
         with: 600,
         height: 400,
         body: `<pre>${JSON.stringify(rec, null, 4)}</pre>`,
-        buttons: '<button class="w2ui-btn" onclick="w2popup.close()">Ok</button>'
+        actions: {
+            Ok: w2popup.close
+        }
     })
 }
 
-function clone() {
+window.clone = function() {
     let cloned = w2utils.clone(obj, obj2, obj3)
     console.log('original !== cloned', obj !== cloned, cloned)
     w2popup.open({
@@ -93,7 +99,9 @@ function clone() {
         with: 600,
         height: 400,
         body: `<pre>${JSON.stringify(cloned, null, 4)}</pre>`,
-        buttons: '<button class="w2ui-btn" onclick="w2popup.close()">Ok</button>'
+        actions: {
+            Ok: w2popup.close
+        }
     })
 }
 </script>

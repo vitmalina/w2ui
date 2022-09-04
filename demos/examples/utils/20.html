@@ -28,16 +28,19 @@
     Hove over for tooltip
 </div>
 
-<script>
+<!--CODE-->
+<script type="module">
+import { w2utils, w2tooltip, query } from '__W2UI_PATH__'
+
 var owner = {
-    showTooltip(txt, event, obj) {
+    showTooltip(txt, event, el) {
         w2tooltip.show({
             name: 'custom-tooltip',
             anchor: query('#div')[0],
             html: txt,
             hideOn: [],
         })
-        console.log(event, obj)
+        console.log(event, el)
     },
     hideTooltip() {
         w2tooltip.hide('custom-tooltip')
