@@ -799,9 +799,9 @@ class Utils {
 
     transition(div_old, div_new, type, callBack) {
         return new Promise((resolve, reject) => {
-            let styles = div_old.computedStyleMap()
-            let width  = styles.get('width').value
-            let height = styles.get('height').value
+            let styles = getComputedStyle(div_old)
+            let width  = parseInt(styles.width)
+            let height = parseInt(styles.height)
             let time   = 0.5
 
             if (!div_old || !div_new) {

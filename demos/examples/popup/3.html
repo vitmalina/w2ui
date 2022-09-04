@@ -37,31 +37,40 @@
         This is body of popup #1. You can put any text or HTML inside the body (as well as title and buttons).
     </div>
     <div rel="buttons">
-        <button class="w2ui-btn" onclick="w2popup.close()">Close</button>
+        <button class="w2ui-btn w2ui-action" data-click="close">Close</button>
     </div>
 </div>
+
 <!--CODE-->
-<script>
-function popup1() {
+<script type="module">
+import { w2popup, w2utils, query } from '__W2UI_PATH__'
+
+window.popup1 = function() {
     w2popup.open({
         title:'Popup',
         text: 'from JSON structure'
     })
 }
 
-function popup2() {
-    w2popup.template(query('#popup1'))
+window.popup2 = function() {
+    w2popup.template(query('#popup1')).then(event => {
+        w2utils.bindEvents(query('#w2ui-popup .w2ui-action'), w2popup)
+    })
 }
 
-function popup3() {
-    w2popup.load('data/popup1.html')
+window.popup3 = function() {
+    w2popup.load('data/popup1.html').then(event => {
+        w2utils.bindEvents(query('#w2ui-popup .w2ui-action'), w2popup)
+    })
 }
 
-function popup4() {
+window.popup4 = function() {
     w2popup.load({
         url: 'data/popup1.html',
         showMax: true,
         openMaximized: true
+    }).then(event => {
+        w2utils.bindEvents(query('#w2ui-popup .w2ui-action'), w2popup)
     })
 }
 </script>

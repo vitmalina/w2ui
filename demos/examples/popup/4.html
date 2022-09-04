@@ -11,8 +11,10 @@
 <button class="w2ui-btn" onclick="popup()">Open Popup</button>
 
 <!--CODE-->
-<script>
-function popup() {
+<script type="module">
+import { w2popup } from '__W2UI_PATH__'
+
+window.popup = function() {
     w2popup.open({
         width: 500,
         height: 300,
@@ -29,7 +31,7 @@ function popup() {
         }
     });
 }
-function lock (msg) {
+window.lock = function(msg) {
     w2popup.lock(msg, true);
     setTimeout(function () { w2popup.unlock(); }, 1000);
 }

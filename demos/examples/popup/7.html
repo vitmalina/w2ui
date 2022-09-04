@@ -13,19 +13,21 @@
 <button class="w2ui-btn" onclick="showPrompt()">Prompt 1.5+</button>
 
 <!--CODE-->
-<script>
-function showAlert() {
+<script type="module">
+import { w2alert, w2confirm, w2prompt, w2utils } from '__W2UI_PATH__'
+
+window.showAlert = function() {
     w2alert('message')
-        .ok(() => { console.log('ok'); })
+        .ok(() => { console.log('ok') })
 }
 
-function showConfirm() {
+window.showConfirm = function() {
     w2confirm('message')
-        .yes(() => { console.log('yes'); })
-        .no(() => { console.log('no'); })
+        .yes(() => { console.log('yes') })
+        .no(() => { console.log('no') })
 }
 
-function showPrompt() {
+window.showPrompt = function() {
     w2prompt({
         title: w2utils.lang('Notification'),
         width: 400,
@@ -51,6 +53,6 @@ function showPrompt() {
     })
     .cancel((event) => {
         console.log('cancel')
-    });
+    })
 }
 </script>

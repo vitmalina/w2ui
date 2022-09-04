@@ -14,15 +14,17 @@
 <button class="w2ui-btn" onclick="popup2()">Popup with buttons and event listeners</button>
 
 <!--CODE-->
-<script>
-function popup1() {
+<script type="module">
+import { w2popup } from '__W2UI_PATH__'
+
+window.popup1 = function() {
     w2popup.open({
         title: 'Popup Title',
         text: 'This is text inside the popup'
-    });
+    })
 }
 
-function popup2() {
+window.popup2 = function() {
     w2popup.open({
         title: 'Popup Title',
         text: 'This is text inside the popup',

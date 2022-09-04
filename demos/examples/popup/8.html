@@ -11,9 +11,11 @@
 <button class="w2ui-btn" onclick="popup()">Open Popup</button>
 
 <!--CODE-->
-<script>
-var counter;
-function popup() {
+<script type="module">
+import { w2popup, w2alert, w2confirm, w2prompt } from '__W2UI_PATH__'
+let counter;
+
+window.popup = function() {
     w2popup.open({
         width: 580,
         height: 350,
@@ -47,7 +49,7 @@ function popup() {
     });
 }
 
-function show() {
+window.show = function() {
     w2popup.message({
         width: 350,
         height: 170,

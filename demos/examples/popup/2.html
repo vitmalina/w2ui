@@ -13,16 +13,18 @@
 <button class="w2ui-btn" onclick="popup2()">Popup with body only</button>
 
 <!--CODE-->
-<script>
-function popup1() {
+<script type="module">
+import { w2popup } from '__W2UI_PATH__'
+
+window.popup1 = function() {
     w2popup.open({
         title: 'Popup Title',
         body: '<div class="w2ui-centered">Popup BODY</div>',
         buttons: 'Popup Buttons',
         showMax: true
-    });
+    })
 }
-function popup2() {
+window.popup1 = function() {
     w2popup.open({
         text: 'Click anywhere outside the popup to hide it.'
     })

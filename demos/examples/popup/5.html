@@ -11,8 +11,10 @@
 <button class="w2ui-btn" onclick="popup()">Open Popup</button>
 
 <!--CODE-->
-<script>
-function popup() {
+<script type="module">
+import { w2popup } from '__W2UI_PATH__'
+
+window.popup = function() {
     w2popup.open({
         title: 'Popup Title',
         width: 800,
@@ -32,7 +34,7 @@ function popup() {
     })
 }
 
-function showMessage(text) {
+window.showMessage = function(text) {
     w2popup.message({
         text,
         width: 400,

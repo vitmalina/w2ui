@@ -73,7 +73,7 @@ class Dialog extends w2base {
      */
     open(options) {
         let self = this
-        if (w2popup.status == 'closing') {
+        if (w2popup.status == 'closing' || query('#w2ui-popup').hasClass('animating')) {
             // if called when previous is closing
             setTimeout(() => { self.open.call(self, options) }, 100)
             return
@@ -178,9 +178,14 @@ class Dialog extends w2base {
                         </div>`
             }
             // first insert just body
-            msg = `<div id="w2ui-popup" class="w2ui-popup w2ui-anim-open animating" style="left: ${left}px; top: ${top}px;
-                        width: ${parseInt(options.width)}px; height: ${parseInt(options.height)}px;
-                        transition: ${options.speed}s"></div>`
+            let styles = `
+                left: ${left}px;
+                top: ${top}px;
+                width: ${parseInt(options.width)}px;
+                height: ${parseInt(options.height)}px;
+                transition: ${options.speed}s
+            `
+            msg = `<div id="w2ui-popup" class="w2ui-popup w2ui-anim-open animating" style="${w2utils.stripSpaces(styles)}"></div>`
             query('body').append(msg)
             query('#w2ui-popup')[0]._w2popup = {
                 self: this,
@@ -190,11 +195,11 @@ class Dialog extends w2base {
                 closed: new Promise((resolve) => { this._promClosed = resolve }),
             }
             // then content
+            styles = `${!options.title ? 'top: 0px !important;' : ''} ${!options.buttons ? 'bottom: 0px !important;' : ''}`
             msg = `
                 <span name="hidden-first" tabindex="0" style="position: absolute; top: -100px"></span>
                 <div class="w2ui-popup-title" style="${!options.title ? 'display: none' : ''}">${btn}</div>
-                <div class="w2ui-box" style="${!options.title ? 'top: 0px !important;' : ''}
-                        ${!options.buttons ? 'bottom: 0px !important;' : ''}">
+                <div class="w2ui-box" style="${styles}">
                     <div class="w2ui-popup-body ${!options.title || ' w2ui-popup-no-title'}
                         ${!options.buttons || ' w2ui-popup-no-buttons'}" style="${options.style}">
                     </div>
@@ -279,6 +284,7 @@ class Dialog extends w2base {
             // transition
             let div_old = query('#w2ui-popup .w2ui-box')[0]
             let div_new = query('#w2ui-popup .w2ui-box-temp')[0]
+            query('#w2ui-popup').addClass('animating')
             w2utils.transition(div_old, div_new, options.transition, () => {
                 // clean up
                 query(div_old).remove()
@@ -290,6 +296,7 @@ class Dialog extends w2base {
                 }
                 // focus on first button
                 self.setFocus(options.focus)
+                query('#w2ui-popup').removeClass('animating')
             })
             // call event onOpen
             w2popup.status = 'open'
@@ -393,8 +400,8 @@ class Dialog extends w2base {
             w2popup.status = 'loading'
             let [url, selector] = String(options.url).split('#')
             if (url) {
-                fetch(url).then(res => { return res.text() }).then(html => {
-                    this.template(html, selector, options).then(() => { resolve() })
+                fetch(url).then(res => res.text()).then(html => {
+                    resolve(this.template(html, selector, options))
                 })
             }
         })
