@@ -14,20 +14,26 @@
     <span style="width: 60px; display: inline-block;">Money:</span>
     <input id="inp" style="width: 120px" value="12025">
     <button class="w2ui-btn" onclick="el.set(el.format(45015.56))">Set Formatted Value</button>
-    <button class="w2ui-btn" onclick="w2alert(el.get())">Get As-is Value</button>
-    <button class="w2ui-btn" onclick="w2alert(el.clean(el.get()))">Get Clean Value</button>
+    <button class="w2ui-btn" onclick="show(el.get())">Get As-is Value</button>
+    <button class="w2ui-btn" onclick="show(el.clean(el.get()))">Get Clean Value</button>
 </div>
 
 <div style="padding-top: 15px; margin-left: -5px;">
     <span style="width: 60px; display: inline-block;">Percent:</span>
     <input id="inp2" style="width: 120px" value="45.15">
     <button class="w2ui-btn" onclick="el2.set(el2.format(74.56))">Set Formatted Value</button>
-    <button class="w2ui-btn" onclick="w2alert(el2.get())">Get As-is Value</button>
-    <button class="w2ui-btn" onclick="w2alert(el2.clean(el2.get()))">Get Clean Value</button>
+    <button class="w2ui-btn" onclick="show(el2.get())">Get As-is Value</button>
+    <button class="w2ui-btn" onclick="show(el2.clean(el2.get()))">Get Clean Value</button>
 </div>
 
 <!--CODE-->
 <script type="module">
+import { w2field, query, w2alert } from '__W2UI_PATH__'
+
 window.el = new w2field('money', { el: query('#inp')[0] })
 window.el2 = new w2field('percent', { el: query('#inp2')[0] })
+
+window.show = function(txt) {
+    w2alert(txt)
+}
 </script>

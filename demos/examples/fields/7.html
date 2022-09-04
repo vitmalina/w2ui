@@ -9,7 +9,7 @@
 
 <!--CODE-->
 <div style="height: 20px"></div>
-<div class="w2ui-field">
+<div class="w2ui-field w2ui-span2">
     <label>List:</label>
     <div>
         <input id="list" style="width: 300px;">
@@ -17,13 +17,13 @@
             <button class="w2ui-btn" onclick="list1.set({ id: 'George Washington', text: 'George Washington' })">Select Washington</button>
             <button class="w2ui-btn" onclick="list1.setIndex(5)">Select 5th</button>
             <button class="w2ui-btn" onclick="list1.setIndex(Math.floor(Math.random() * 41))">Select Random</button>
-            <button class="w2ui-btn" onclick="w2alert(JSON.stringify(list1.get()))">Get Selected</button>
+            <button class="w2ui-btn" onclick="show('list1')">Get Selected</button>
             <button class="w2ui-btn" onclick="list1.set(null)">Empty</button>
         </div>
     </div>
 </div>
 <br>
-<div class="w2ui-field">
+<div class="w2ui-field w2ui-span2">
     <label>Multi:</label>
     <div>
         <input id="enum" style="width: 300px;">
@@ -32,7 +32,7 @@
             <button class="w2ui-btn" onclick="list2.set({ id: 'Thomas Jefferson', text: 'Thomas Jefferson' }, true)">Add Jeffereson</button>
             <button class="w2ui-btn" onclick="list2.setIndex(5)">Select 5th</button>
             <button class="w2ui-btn" onclick="list2.setIndex(Math.floor(Math.random() * 41), true)">Add Random</button>
-            <button class="w2ui-btn" onclick="w2alert(JSON.stringify(list2.get()))">Get Selected</button>
+            <button class="w2ui-btn" onclick="show('list2')">Get Selected</button>
             <button class="w2ui-btn" onclick="list2.set()">Empty</button>
         </div>
     </div>
@@ -50,7 +50,9 @@
 
 <!--CODE-->
 <script type="module">
-var people = ['George Washington', 'John Adams', 'Thomas Jefferson', 'James Buchanan', 'James Madison',
+import { w2field, query, w2alert } from '__W2UI_PATH__'
+
+let people = ['George Washington', 'John Adams', 'Thomas Jefferson', 'James Buchanan', 'James Madison',
     'Abraham Lincoln', 'James Monroe', 'Andrew Johnson', 'John Adams', 'Ulysses Grant', 'Andrew Jackson', 'Rutherford Hayes',
     'Martin Van Buren', 'James Garfield', 'William Harrison', 'Chester Arthur', 'John Tyler', 'Grover Cleveland',
     'James Polk', 'Benjamin Harrison', 'Zachary Taylor', 'Grover Cleveland', 'Millard Fillmore', 'William McKinley',
@@ -62,4 +64,8 @@ people.sort()
 // make it global as it is used in top scope
 window.list1 = new w2field('list', { el: query('#list')[0], items: people })
 window.list2 = new w2field('enum', { el: query('#enum')[0], items: people })
+
+window.show = function(type) {
+    w2alert(JSON.stringify(window[type].get()))
+}
 </script>

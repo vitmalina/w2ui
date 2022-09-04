@@ -94,8 +94,10 @@
 
 <!--CODE-->
 <script type="module">
-var month = (new Date()).getMonth() + 1;
-var year  = (new Date()).getFullYear();
+import { w2field, query } from '__W2UI_PATH__'
+
+let month = (new Date()).getMonth() + 1
+let year  = (new Date()).getFullYear()
 
 // US Format
 new w2field('date', { el: query('input[type=us-date]')[0] })
