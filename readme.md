@@ -1,5 +1,5 @@
 ## Road to 2.0
-The `master` branch has new, in-progress version of w2ui. You might want to consider [1.5 branch](https://github.com/vitmalina/w2ui/tree/w2ui-1.5) that is stable and supports older browsers. Here are the goals for the new version of w2ui.
+The `master` branch has a new, in-progress version of w2ui. You might want to consider [1.5 branch](https://github.com/vitmalina/w2ui/tree/w2ui-1.5) that is stable and supports older browsers. Here are the goals for the new version of w2ui.
 
 [Road to 2.0 discussion](https://github.com/vitmalina/w2ui/discussions/1955)
 
@@ -7,9 +7,9 @@ The `master` branch has new, in-progress version of w2ui. You might want to cons
 
 W2UI is a modern JavaScript UI library for building rich web applications. It aims to let you define your UI in a declarative way via JSON data structures.
 
-The library has a small footprint (115kb gziiped) and has only one dependency - jQuery, though, it is one of the goals of 2.0 to remoe jQuery as a dependency. W2UI can be used in vanila JS projects, ES6 modules, as well as in Angrular, React and Vue based projects.
+The library has a small footprint (115KB gzipped) and has only one dependency: jQuery (though removing it is a goal of 2.0). W2UI can be used in Vanilla JS projects, ES6 modules, as well as in Angular, React, and Vue based projects.
 
-The library implements following UI controls:
+The library implements the following UI controls:
 
 * **[w2grid](http://w2ui.com/web/docs/1.5/layout/grid)** - an advanced Grid component - *[demo](http://w2ui.com/web/demos/#/grid/1)*
 * **[w2toolbar](http://w2ui.com/web/docs/1.5/toolbar)** - a Toolbar component - *[demo](http://w2ui.com/web/demos/#/toolbar/1)*
@@ -30,17 +30,16 @@ Current development version is 2.0.
 
 [Getting Started Guide](http://w2ui.com/web/get-started)
 
-You can download latest stable version here: [http://w2ui.com](http://w2ui.com). If you want to use dev version, see `dist/` folder in the master branch.
+You can download latest stable version here: [http://w2ui.com](http://w2ui.com). If you want to use the dev version, see the `dist/` folder in the master branch.
 
 To start using the library you need to include into your page:
 
 - w2ui.js (or w2ui.min.js)
 - w2ui.css (or w2ui.min.css)
 
-All the controls and their css classes are defined inside of these two files. There is no image dependencies, some images
-are embedded into CSS file, as well as font icons.
+All the controls and their css classes are defined inside of these two files. There are no image dependencies. Some images and font icons are embedded into the CSS file.
 
-There is no requirement for a server side language. Node, Java, PHP, ASP, Perl or .NET all will work, as long as you can
+There is no requirement for a server side language. Node, Java, PHP, ASP, Perl or .NET will all work, as long as you can
 return JSON format from the server (or write a converter into JSON format on the client). Some server side example implementations
 can be found [here](https://github.com/vitmalina/w2ui/tree/master/server).
 
@@ -59,7 +58,7 @@ Please make sure that the same issue was not previously submitted by someone els
 
 ## Building
 
-It is a Node.JS repository, so, you need to have node installed to install all dependencies run
+It is a Node.JS repository, so you need to have node installed to install all dependencies and compile w2ui.
 
 ```
 npm install
@@ -80,7 +79,7 @@ It will bundle all necessary files into `dist/w2ui.min.js` and `dist/w2ui.min.cs
 - docs        - stand alone documentation, same as on w2ui.com
 - es6mods     - ES6 modules playground
 - libs        - external libs, some used in demos, etc.
-- server      - server api samles (to get you started)
+- server      - server api samples (to get you started)
 - specs       - test automation
 - src         - source JS files
   - less      - LESS files (source for css)
@@ -88,7 +87,7 @@ It will bundle all necessary files into `dist/w2ui.min.js` and `dist/w2ui.min.cs
 - test        - manual testing files
 ```
 
-## Who is Using It
+## Who Is Using W2UI
 
 [List of projects that use **`w2ui`**](https://github.com/vitmalina/w2ui/wiki/Projects-that-use-w2ui)!
 
@@ -96,9 +95,9 @@ If you're using **`w2ui`**, I'd love to hear about it, please email to `vitmalin
 
 ## Contributing
 
-Your contributions are welcome. However, few things you need to know before contribution:
+Your contributions are welcome. However, a few things you need to know before contributing:
 
-1. Please check out latest code before changing anything. It is harder to merge if your changes will not merge clean.
+1. Please check out the latest code before changing anything. It is harder to merge if your changes will not merge cleanly.
 2. If you are changing JS files - do all changes in /src folder
 3. If you are changing CSS files - do all changes in LESS in /src/less/src
 4. If you want to help with unit test - do all changes in /qa
