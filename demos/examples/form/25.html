@@ -12,30 +12,37 @@
 </div>
 
 <!--CODE-->
-<script>
-// this function triggers on document.ready
-query(() => {
-    let form = new w2form({
-        box: '#form',
-        name: 'form',
-        recid: 1, // if it is not defined, it will not load data from remote source
-        url: {
-            get: 'data/form-simple.json',
-            save: 'server/post'
+<script type="module">
+import { w2form, w2popup } from '__W2UI_PATH__'
+
+let form = new w2form({
+    box: '#form',
+    name: 'form',
+    recid: 1, // if it is not defined, it will not load data from remote source
+    url: {
+        get: 'data/form-simple.json',
+        save: 'server/post'
+    },
+    fields: [
+        { field: 'first_name', type: 'text', required: true, html: { label: 'First Name', attr: 'style="width: 300px"' } },
+        { field: 'last_name',  type: 'text', required: true, html: { label: 'Last Name', attr: 'style="width: 300px"' } },
+        { field: 'comments',   type: 'textarea', html: { label: 'Comments', attr: 'style="width: 300px; height: 60px"' } }
+    ],
+    actions: {
+        Reset() {
+            this.clear()
         },
-        fields: [
-            { field: 'first_name', type: 'text', required: true, html: { label: 'First Name', attr: 'style="width: 300px"' } },
-            { field: 'last_name',  type: 'text', required: true, html: { label: 'Last Name', attr: 'style="width: 300px"' } },
-            { field: 'comments',   type: 'textarea', html: { label: 'Comments', attr: 'style="width: 300px; height: 60px"' } }
-        ],
-        actions: {
-            Reset() {
-                this.clear()
-            },
-            Save() {
-                console.log(this.save())
+        Save() {
+            if (form.validate().length == 0) {
+                w2popup.open({
+                    title: 'Form Data',
+                    with: 600,
+                    height: 550,
+                    body: `<pre>${JSON.stringify(this.getCleanRecord(), null, 4)}</pre>`,
+                    actions: { Ok: w2popup.close }
+                })
             }
         }
-    })
+    }
 })
 </script>

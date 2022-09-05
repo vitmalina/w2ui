@@ -224,7 +224,7 @@ let form = new w2form({
                 this.clear();
             }
         },
-        save: function () {
+        Save() {
             var obj = this;
             this.save({}, function (data) {
                 if (data.status == 'error') {

@@ -11403,7 +11403,7 @@ w2utils.event = {
             return true;
         },
 
-        stateReset: function () {
+        stateReset() {
             var obj = this;
             this.stateRestore(this.last.state);
             // remove from local storage
@@ -11575,7 +11575,7 @@ w2utils.event = {
             return ret;
         },
 
-        selectionSave: function () {
+        selectionSave() {
             this.last._selection = this.getSelection();
             return this.last._selection;
         },
@@ -13355,7 +13355,7 @@ var w2popup = {};
             $('#w2ui-popup .w2ui-popup-buttons').html('');
         },
 
-        reset: function () {
+        Reset() {
             w2popup.open(w2popup.defaults);
         },
 
@@ -17548,7 +17548,7 @@ var w2prompt = function (label, title, callBack) {
             return (new Date()).getTime() - time;
         },
 
-        reset: function () {
+        Reset() {
             var type = this.type;
             this.clear();
             this.type = type;

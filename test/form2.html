@@ -90,10 +90,10 @@
                 // { field: 'field_upload', type: 'text', html: { page : 1 } }
             ],
             actions: {
-                Reset: function () {
+                Reset() {
                     this.clear();
                 },
-                Save: function () {
+                Save() {
                     var obj = this;
                     this.save({}, function (data) {
                         console.log(data);

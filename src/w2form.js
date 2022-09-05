@@ -779,7 +779,7 @@ class w2form extends w2base {
         if (errors.length <= 0) return
         // show errors
         this.goto(errors[0].field.page)
-        query(errors[0].field.$el).parents('.w2ui-field')[0].scrollIntoView(true)
+        query(errors[0].field.$el).parents('.w2ui-field')[0].scrollIntoView({ block: 'nearest', inline: 'nearest' })
         // show errors
         // show only for visible controls
         errors.forEach(error => {
@@ -866,7 +866,7 @@ class w2form extends w2base {
             }
             if (fld.type == 'file') {
                 let tmp = { nestedFields: true, record: data }
-                let val = this.getValue.call(tmp, fld.field)
+                let val = this.getValue.call(tmp, fld.field) ?? []
                 val.forEach(v => {
                     delete v.file
                     delete v.modified

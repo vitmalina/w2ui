@@ -13,8 +13,10 @@
 <br><br><br>
 
 <!--CODE-->
-<script>
-function openPopup () {
+<script type="module">
+import { w2form, query, w2ui, w2popup } from '__W2UI_PATH__'
+
+window.openPopup = function() {
     if (!w2ui.foo) {
         new w2form({
             name: 'foo',
@@ -33,8 +35,8 @@ function openPopup () {
                 type       : 'Contractor'
             },
             actions: {
-                "Reset": function () { this.clear(); },
-                "Save": function () { this.validate(); }
+                Reset() { this.clear() },
+                Save() { this.validate() }
             }
         });
     }

@@ -119,7 +119,7 @@ function showChanged() {
         with: 600,
         height: 550,
         body: `<pre>${JSON.stringify(w2ui.grid.getChanges(), null, 4)}</pre>`,
-        buttons: '<button class="w2ui-btn" onclick="w2popup.close()">Ok</button>'
+        actions: { Ok: w2popup.close }
     })
 }
 </script>

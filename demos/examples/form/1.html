@@ -36,31 +36,31 @@
 </div>
 
 <!--CODE-->
-<script>
+<script type="module">
+import { w2form, query } from '__W2UI_PATH__'
+
 // this function triggers on document.ready
-query(() => {
-    let form = new w2form({
-        box: '#form',
-        name: 'form',
-        record: {
-            first_name: 'John',
-            last_name: 'Doe'
+let form = new w2form({
+    box: '#form',
+    name: 'form',
+    record: {
+        first_name: 'John',
+        last_name: 'Doe'
+    },
+    // formURL: 'data/form.html',    // you can load form from extenral file
+    formHTML: query('#form').html(), // or you can use form that is already in HTML
+    fields: [
+        { field: 'first_name', type: 'text', required: true },
+        { field: 'last_name',  type: 'text', required: true },
+        { field: 'comments',   type: 'text'}
+    ],
+    actions: {
+        reset() {
+            this.clear()
         },
-        // formURL: 'data/form.html',    // you can load form from extenral file
-        formHTML: query('#form').html(), // or you can use form that is already in HTML
-        fields: [
-            { field: 'first_name', type: 'text', required: true },
-            { field: 'last_name',  type: 'text', required: true },
-            { field: 'comments',   type: 'text'}
-        ],
-        actions: {
-            reset() {
-                this.clear()
-            },
-            save() {
-                this.save()
-            }
+        save() {
+            this.save()
         }
-    })
+    }
 })
 </script>

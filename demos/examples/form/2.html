@@ -13,61 +13,61 @@
 <div id="form" style="width: 750px;"></div>
 
 <!--CODE-->
-<script>
-query(() => {
-    let form = new w2form({
-        box: '#form',
-        name: 'form',
-        header: 'Auto-Generated Form',
-        url: 'server/post',
-        fields: [
-            { field: 'first_name', type: 'text', required: true,
-                html: {
-                    label: 'First Name',
-                    attr: 'style="width: 300px"'
-                }
-            },
-            { field: 'last_name',  type: 'text', required: true,
-                html: {
-                    label: 'Last Name',
-                    attr: 'style="width: 300px"'
-                }
-            },
-            { field: 'comments', type: 'textarea',
-                html: {
-                    label: 'Comments',
-                    attr: 'style="width: 300px; height: 60px"'
-                }
+<script type="module">
+import { w2form, query, w2ui, w2popup, w2alert } from '__W2UI_PATH__'
+
+let form = new w2form({
+    box: '#form',
+    name: 'form',
+    header: 'Auto-Generated Form',
+    url: 'server/post',
+    fields: [
+        { field: 'first_name', type: 'text', required: true,
+            html: {
+                label: 'First Name',
+                attr: 'style="width: 300px"'
             }
-        ],
-        record: {
-            first_name: 'John',
-            last_name: 'Doe'
         },
-        actions: {
-            'Reset': function (event) {
-                this.clear();
-            },
-            'Save': function (event) {
-                if (w2ui.form.validate().length == 0) {
-                    w2popup.open({
-                        title: 'Form Data',
-                        with: 600,
-                        height: 550,
-                        body: `<pre>${JSON.stringify(this.getCleanRecord(), null, 4)}</pre>`,
-                        buttons: '<button class="w2ui-btn" onclick="w2popup.close()">Ok</button>'
-                    })
-                }
-            },
-            custom: {
-                text: '<span style="font-size: 16px">←</span> click to see data',
-                class: 'custom-class',
-                style: 'background-image: none; background-color: transparent; border: 0px; margin: 0 0 0 -10px;',
-                onClick() {
-                    w2alert('Not me!! The other button')
-                }
+        { field: 'last_name',  type: 'text', required: true,
+            html: {
+                label: 'Last Name',
+                attr: 'style="width: 300px"'
+            }
+        },
+        { field: 'comments', type: 'textarea',
+            html: {
+                label: 'Comments',
+                attr: 'style="width: 300px; height: 60px"'
             }
         }
-    });
+    ],
+    record: {
+        first_name: 'John',
+        last_name: 'Doe'
+    },
+    actions: {
+        Reset(event) {
+            this.clear();
+        },
+        Save(event) {
+            if (w2ui.form.validate().length == 0) {
+                w2popup.open({
+                    title: 'Form Data',
+                    with: 600,
+                    height: 550,
+                    body: `<pre>${JSON.stringify(this.getCleanRecord(), null, 4)}</pre>`,
+                    actions: { Ok: w2popup.close }
+                })
+            }
+        },
+        custom: {
+            text: '<span style="font-size: 16px">←</span> click to see data',
+            class: 'custom-class',
+            style: 'background-image: none; background-color: transparent; border: 0px; margin: 0 0 0 -10px;',
+            onClick() {
+                w2alert('Not me!! The other button')
+            }
+        }
+    }
 });
 </script>

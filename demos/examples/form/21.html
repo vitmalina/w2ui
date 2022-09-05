@@ -12,60 +12,60 @@
 <br>
 
 <!--CODE-->
-<script>
-query(() => {
-    let form = new w2form({
-        box: '#form',
-        name: 'form',
-        url: 'server/post',
-        fields: [
-            { field: 'first_name', type: 'text', required: true,
-                html: { label: 'First Name', attr: 'style="width: 200px"' }
-            },
-            { field: 'last_name',  type: 'text', required: true,
-                html: { label: 'Last Name', attr: 'style="width: 200px"' }
-            },
-            { field: 'comments', type: 'textarea',
-                html: { label: 'Comments', attr: 'style="width: 200px; height: 60px"' }
-            },
-            { field: 'city', type: 'text',
-                html: { label: 'City', attr: 'style="width: 200px"', column: 2, }
-            },
-            { field: 'state', type: 'text',
-                html: { label: 'State', attr: 'style="width: 50px"', column: 2, }
-            },
-            { field: 'zip', type: 'text',
-                html: { label: 'Zip Code', attr: 'style="width: 100px"', column: 2, }
-            },
-            { field: 'street', type: 'text',
-                html: { label: 'Street', attr: 'style="width: 200px"', column: 2, }
-            },
-        ],
-        onValidate(event) {
-            if (String(this.record.state).length != 2) {
-                // add custom error
-                event.detail.errors.push({
-                    error: 'Must be 2 characters long',
-                    field: this.get('state')
+<script type="module">
+import { w2form, w2ui, w2popup, w2alert } from '__W2UI_PATH__'
+
+let form = new w2form({
+    box: '#form',
+    name: 'form',
+    url: 'server/post',
+    fields: [
+        { field: 'first_name', type: 'text', required: true,
+            html: { label: 'First Name', attr: 'style="width: 200px"' }
+        },
+        { field: 'last_name',  type: 'text', required: true,
+            html: { label: 'Last Name', attr: 'style="width: 200px"' }
+        },
+        { field: 'comments', type: 'textarea',
+            html: { label: 'Comments', attr: 'style="width: 200px; height: 60px"' }
+        },
+        { field: 'city', type: 'text',
+            html: { label: 'City', attr: 'style="width: 200px"', column: 2, }
+        },
+        { field: 'state', type: 'text',
+            html: { label: 'State', attr: 'style="width: 50px"', column: 2, }
+        },
+        { field: 'zip', type: 'text',
+            html: { label: 'Zip Code', attr: 'style="width: 100px"', column: 2, }
+        },
+        { field: 'street', type: 'text',
+            html: { label: 'Street', attr: 'style="width: 200px"', column: 2, }
+        },
+    ],
+    onValidate(event) {
+        if (String(this.record.state).length != 2) {
+            // add custom error
+            event.detail.errors.push({
+                error: 'Must be 2 characters long',
+                field: this.get('state')
+            })
+        }
+    },
+    actions: {
+        Reset(event) {
+            this.clear()
+        },
+        Save(event) {
+            if (w2ui.form.validate().length == 0) {
+                w2popup.open({
+                    title: 'Form Data',
+                    with: 600,
+                    height: 550,
+                    body: `<pre>${JSON.stringify(this.getCleanRecord(), null, 4)}</pre>`,
+                    actions: { Ok: w2popup.close }
                 })
             }
-        },
-        actions: {
-            Reset(event) {
-                this.clear();
-            },
-            Save(event) {
-                if (w2ui.form.validate().length == 0) {
-                    w2popup.open({
-                        title: 'Form Data',
-                        with: 600,
-                        height: 550,
-                        body: `<pre>${JSON.stringify(this.getCleanRecord(), null, 4)}</pre>`,
-                        buttons: '<button class="w2ui-btn" onclick="w2popup.close()">Ok</button>'
-                    })
-                }
-            }
         }
-    })
+    }
 })
 </script>
