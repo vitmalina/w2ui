@@ -20,7 +20,7 @@ let toolbar = new w2toolbar({
         	tooltip: 'Check button'
         },
         { type: 'radio',  id: 'item4',  group: '1', text: 'Radio 2', icon: 'icon-add',
-        	tooltip: function (item) { return item.id; }
+        	tooltip(item) { return item.id; }
         }
     ]
 });

@@ -65,7 +65,7 @@ $(function () {
             { recid: 27, fname: 'Shashi', lname: 'bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
             { recid: 28, fname: 'Av', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
         ],
-        onClick: function (event) {
+        onClick(event) {
             var rec = this.get(event.recid);
             w2ui['form'].record = rec;
             w2ui['form'].refresh();

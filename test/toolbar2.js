@@ -10,7 +10,7 @@ let toolbar = new w2toolbar({
             tooltip: function () { return 'Timestamp: ' + (new Date()).getTime(); }
         }, {
             type: 'menu-radio', id: 'menu-stato',
-            text: function (item) {
+            text(item) {
                 return 'Status: ' + item.get(item.selected).text;
             },
             selected: 'ALL',
@@ -174,7 +174,7 @@ let toolbar = new w2toolbar({
         },
 
     ],
-    onClick: function (event) {
+    onClick(event) {
         console.log(event, this.get(event.target))
     }
 })
@@ -182,6 +182,6 @@ let toolbar = new w2toolbar({
 toolbar.render(query('#toolbar')[0])
 
 function changeTab() {
-    w2ui['tabs'].get('tab2').text = '<div style="width: 300px">new and long</div>';
-    w2ui['tabs'].refresh();
+    w2ui.tabs.get('tab2').text = '<div style="width: 300px">new and long</div>';
+    w2ui.tabs.refresh();
 }

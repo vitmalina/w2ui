@@ -36,7 +36,7 @@ jQuery(function () {
         // minLength: 1,
         // url: 'http://w2ui.com/web/pages/demo/infinite/index.php?request={"cmd":"get","selected":[],"limit":100,"offset":0}',
         recId: 'recid',
-        recText: function (item) { return item.fname + ' ' + item.lname },
+        recText(item) { return item.fname + ' ' + item.lname },
         items: function(el) {
             // console.log('Element', el)
             // console.log(this)
@@ -58,7 +58,7 @@ jQuery(function () {
     });
     jQuery('.list').w2field('list', {
         icon: 'fa fa-star',
-        onIconClick: function (event) {
+        onIconClick(event) {
             jQuery(event.el).w2overlay('<div style="padding: 10px">Message for the icon</div>');
             // console.log(event.el);
         },
@@ -69,7 +69,7 @@ jQuery(function () {
         minLength: 0,
         // url: 'http://w2ui.com/web/pages/demo/infinite/index.php?request={"cmd":"get","selected":[],"limit":100,"offset":0}',
         recId: 'recid',
-        recText: function (item) { return item.fname + ' ' + item.lname },
+        recText(item) { return item.fname + ' ' + item.lname },
         items: function(el) {
             // console.log('Element', el)
             // console.log(this)
@@ -118,7 +118,7 @@ jQuery(function () {
         //     return `Cannot find "${event.search}"`
         // },
         // minLength: 3,
-        recText: function (item) { return item.fname + ' ' + item.lname },
+        recText(item) { return item.fname + ' ' + item.lname },
         openOnFocus: true,
         items: [
             { id: 'item1', keepOpen: true, icon: 'fa fa-link', text: 'item 1' },
@@ -168,7 +168,7 @@ jQuery(function () {
         onError: function (event) {
             // console.log('enum error', event);
         },
-        onClick: function (event) {
+        onClick(event) {
             // console.log('enum click', event);
         },
         onMouseOver: function (event) {

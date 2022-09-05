@@ -15,7 +15,7 @@ $(function () {
             { id: 'tab2', text: 'List 1' },
             { id: 'tab3', text: 'List 2' }
         ],
-        onClick: function (event) {
+        onClick(event) {
             switch (event.target) {
                 case 'tab1':
                     $('#contents').w2render('form');

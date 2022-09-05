@@ -59,7 +59,7 @@ jQuery(function () {
                 ],
             }
         ],
-        onClick: function (event) {
+        onClick(event) {
             console.log(event, this.get(event.target))
         }
     });

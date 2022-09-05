@@ -52,7 +52,7 @@ let form = new w2form({
             { id: 'bt4', type: 'button', text: 'Reset', img: 'icon-page' },
             { id: 'bt5', type: 'button', text: 'Save', img: 'icon-page' }
         ],
-        onClick: function (event) {
+        onClick(event) {
             if (event.target == 'bt4') w2ui.form.clear();
             if (event.target == 'bt5') w2ui.form.save();
         }

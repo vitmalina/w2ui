@@ -9,35 +9,42 @@
 
 <!--CODE-->
 <div id="tabs" style="width: 600px;"></div>
+<div style="height: 10px"></div>
+
 <div id="content">&nbsp;</div>
-<br><br>
+<div style="height: 10px"></div>
+
 <div style="padding: 20px 0px">
-    <button class="w2ui-btn" onclick="w2ui['tabs'].scrollIntoView('tab10')">Scroll into view</button>
+    <button class="w2ui-btn" onclick="scrollTabs()">Scroll Active Tab Into View</button>
 </div>
 <!--CODE-->
-<script>
-query(() => {
-    new w2tabs({
-        box: '#tabs',
-        name: 'tabs',
-        tabs: [
-            { id: 'tab1', text: 'Tab 1 Text' },
-            { id: 'tab2', text: 'Tab 2 Text' },
-            { id: 'tab3', text: 'Tab 3 Text' },
-            { id: 'tab4', text: 'Tab 4 Text' },
-            { id: 'tab5', text: 'Tab 5 Text' },
-            { id: 'tab6', text: 'Tab 6 Text' },
-            { id: 'tab7', text: 'Tab 7 Text' },
-            { id: 'tab8', text: 'Tab 8 Text' },
-            { id: 'tab9', text: 'Tab 9 Text' },
-            { id: 'tab10', text: 'Tab 10 Text' },
-            { id: 'tab11', text: 'Tab 11 Text' },
-            { id: 'tab12', text: 'Tab 12 Text' },
-            { id: 'tab13', text: 'Tab 13 Text' },
-        ],
-        onClick: function(event) {
-            query("#content").html('Clicked: ' + event.tab.id + ' - ' + event.tab.text)
-        }
-    });
-});
+<script type="module">
+import { w2tabs, query } from '__W2UI_PATH__'
+
+let tabs = new w2tabs({
+    box: '#tabs',
+    name: 'tabs',
+    tabs: [
+        { id: 'tab1', text: 'Tab 1 Text' },
+        { id: 'tab2', text: 'Tab 2 Text' },
+        { id: 'tab3', text: 'Tab 3 Text' },
+        { id: 'tab4', text: 'Tab 4 Text' },
+        { id: 'tab5', text: 'Tab 5 Text' },
+        { id: 'tab6', text: 'Tab 6 Text' },
+        { id: 'tab7', text: 'Tab 7 Text' },
+        { id: 'tab8', text: 'Tab 8 Text' },
+        { id: 'tab9', text: 'Tab 9 Text' },
+        { id: 'tab10', text: 'Tab 10 Text' },
+        { id: 'tab11', text: 'Tab 11 Text' },
+        { id: 'tab12', text: 'Tab 12 Text' },
+        { id: 'tab13', text: 'Tab 13 Text' },
+    ],
+    onClick(event) {
+        query("#content").html('Clicked: ' + event.detail.tab.id + ' - ' + event.detail.tab.text)
+    }
+})
+
+window.scrollTabs = function() {
+    tabs.scrollIntoView(tabs.active)
+}
 </script>

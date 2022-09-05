@@ -55,7 +55,7 @@ export default {
             nodes: [
                 { id: 'level-1-1', text: function () { return  'Level 1.1' }, img1: 'icon-add', icon: 'fa fa-star', count: 1,
                     route: '/project',
-                    onClick: function (event) { console.log('item', event); }
+                    onClick(event) { console.log('item', event); }
                 },
                 { id: 'level-1-2', text: 'Level 1.2', img1: 'icon-save', icon: 'fa fa-camera', count: 'some',
                     route: '/project/:id'
@@ -110,7 +110,7 @@ export default {
                  ]
         }
     ],
-    onClick: function (event) {
+    onClick(event) {
         console.log('click', event.target, event);
     }
 }

@@ -24,7 +24,7 @@ let grid = new w2grid({
         { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
         { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
     ],
-    onClick: function(event) {
+    onClick(event) {
         console.log(event);
     }
 });

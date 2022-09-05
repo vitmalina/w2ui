@@ -8,7 +8,7 @@
 </div>
 
 <!--CODE-->
-<div id="tabs" style="width: 100%;"></div>
+<div id="tabs" style="width: 100%"></div>
 <br><br>
 <button class="w2ui-btn" onclick="addTab()">Insert 1 Tab</button>
 <button class="w2ui-btn" onclick="addTabs()">Insert 3 Tabs</button>
@@ -19,54 +19,52 @@
 <button class="w2ui-btn" onclick="removeTabs()">Remove All Inserted</button>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2tabs({
-        box: '#tabs',
-        name: 'tabs',
-        active: 'first',
-        tabs: [
-            { id: 'first', text: 'First Tab', style: 'background-color: #dcf6ff' }
-        ]
-    });
-});
+<script type="module">
+import { w2tabs, query } from '__W2UI_PATH__'
 
-var ind = 1;
+let ind = 1
+let tabs = new w2tabs({
+    box: '#tabs',
+    name: 'tabs',
+    active: 'first',
+    tabs: [
+        { id: 'first', text: 'First Tab', style: 'background-color: #dcf6ff' }
+    ]
+})
 
-function addTab() {
-    w2ui.tabs.insert('first', { id: 'tab'+ ind, text: 'Tab '+ ind, closable: true });
-    ind++;
+window.addTab = function() {
+    tabs.insert('first', { id: 'tab'+ ind, text: 'Tab '+ ind, closable: true })
+    ind++
 }
 
-function addTabs() {
-    w2ui.tabs.insert('first', [
+window.addTabs = function() {
+    tabs.insert('first', [
         { id: 'tab'+ ind, text: 'Tab '+ ind, closable: true },
         { id: 'tab'+ (ind+1), text: 'Tab '+ (ind+1), closable: true },
         { id: 'tab'+ (ind+2), text: 'Tab '+ (ind+2), closable: true }
-    ]);
-    ind += 3;
-}
-
-function add3() {
-    w2ui.tabs.add([
-        { id: 'tab'+ind, text: 'Tab '+ ind, closable: true },
-        { id: 'tab'+(ind+1), text: 'Tab '+ (ind+1), closable: true },
-        { id: 'tab'+(ind+2), text: 'Tab '+ (ind+2), closable: true }
-    ]);
+    ])
     ind += 3
 }
 
-function removeTab() {
-    if (ind == 1) return;
-    ind--;
-    w2ui.tabs.clickClose('tab'+ ind);
+window.add3 = function() {
+    tabs.add([
+        { id: 'tab'+ind, text: 'Tab '+ ind, closable: true },
+        { id: 'tab'+(ind+1), text: 'Tab '+ (ind+1), closable: true },
+        { id: 'tab'+(ind+2), text: 'Tab '+ (ind+2), closable: true }
+    ])
+    ind += 3
 }
 
-function removeTabs() {
-    let tb = w2ui.tabs;
-    let tabs = tb.get();
-    tabs.splice(tabs.indexOf('first'), 1);
-    tb.remove.apply(tb, tabs);
-    ind = 1;
+window.removeTab = function() {
+    if (ind == 1) return
+    ind--
+    tabs.clickClose('tab'+ ind)
+}
+
+window.removeTabs = function() {
+    let tb = tabs.get()
+    tb.splice(tb.indexOf('first'), 1)
+    tabs.remove.apply(tabs, tb)
+    ind = 1
 }
 </script>

@@ -37,7 +37,7 @@ query(() => {
             { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
             { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
         ],
-        onClick: function (event) {
+        onClick(event) {
             var grid = this;
             // need timer for nicer visual effect that record was selected
             setTimeout(function () {
@@ -60,7 +60,7 @@ query(() => {
             { field: 'email', text: 'Email', size: '40%' },
             { field: 'sdate', text: 'Start Date', size: '120px' }
         ],
-        onClick: function (event) {
+        onClick(event) {
             var grid = this;
             // need timer for nicer visual effect that record was selected
             setTimeout(function () {

@@ -37,7 +37,7 @@ query(() => {
             { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'kelly@gmail.com', sdate: '4/3/2012' },
             { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'frank@apple.com', sdate: '4/3/2012' }
         ],
-        onClick: function (event) {
+        onClick(event) {
             w2ui['grid2'].clear();
             var record = this.get(event.detail.recid);
             w2ui['grid2'].add([

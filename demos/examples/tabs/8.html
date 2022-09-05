@@ -13,43 +13,48 @@
 <br>
 Tooltip position:<br>
 <div style="padding: 10px">
-    <label><input type="radio" name="position" onclick="w2ui.tabs.tooltip = 'top'; w2ui.tabs.refresh()" checked>&nbsp;&nbsp;Top</label><br>
-    <label><input type="radio" name="position" onclick="w2ui.tabs.tooltip = 'bottom'; w2ui.tabs.refresh()">&nbsp;&nbsp;Bottom</label><br>
-    <label><input type="radio" name="position" onclick="w2ui.tabs.tooltip = 'left'; w2ui.tabs.refresh()">&nbsp;&nbsp;Left</label><br>
-    <label><input type="radio" name="position" onclick="w2ui.tabs.tooltip = 'right'; w2ui.tabs.refresh()">&nbsp;&nbsp;Right</label><br>
+    <label><input type="radio" name="position" onclick="setTooltip('top')" checked>&nbsp;&nbsp;Top</label><br>
+    <label><input type="radio" name="position" onclick="setTooltip('bottom')">&nbsp;&nbsp;Bottom</label><br>
+    <label><input type="radio" name="position" onclick="setTooltip('left')">&nbsp;&nbsp;Left</label><br>
+    <label><input type="radio" name="position" onclick="setTooltip('right')">&nbsp;&nbsp;Right</label><br>
 </div>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2tabs({
-        box: '#tabs',
-        name: 'tabs',
-        active: 'tab1',
-        tabs: [
-            { id: 'tab1', text: 'Tab 1', tooltip: 'Tab 1 tooltip text' },
-            { id: 'tab2', tooltip: 'Tab 2 tooltip text<br>Can be multi line',
-                count: 0,
-                text: function (item) {
-                    return 'Click me '+ item.count;
-                }
-            },
-            { id: 'tab3', text: 'Tab 4',
-                tooltip: function (item) {
-                    return 'Can be result of a function ' + (new Date()).getTime();
-                }
+<script type="module">
+import { w2tabs, query } from '__W2UI_PATH__'
+
+let tabs = new w2tabs({
+    box: '#tabs',
+    name: 'tabs',
+    active: 'tab1',
+    tabs: [
+        { id: 'tab1', text: 'Tab 1', tooltip: 'Tab 1 tooltip text' },
+        { id: 'tab2', tooltip: 'Tab 2 tooltip text<br>Can be multi line',
+            count: 0,
+            text(item) {
+                return 'Click me '+ item.count;
             }
-        ],
-        onClick: function (event) {
-            query('#selected-tab').html(event.target);
-            if (event.target == 'tab2') {
-                event.tab.count++;
-                this.refresh(event.target);
-            }
-            if (event.target == 'tab3') {
-                this.tooltipShow('tab3', null, true);
+        },
+        { id: 'tab3', text: 'Tab 4',
+            tooltip(item) {
+                return 'Can be result of a function ' + (new Date()).getTime();
             }
         }
-    });
-});
+    ],
+    onClick(event) {
+        query('#selected-tab').html(event.target);
+        if (event.target == 'tab2') {
+            event.detail.tab.count++;
+            this.refresh(event.target);
+        }
+        if (event.target == 'tab3') {
+            this.tooltipShow('tab3', null, true);
+        }
+    }
+})
+
+window.setTooltip = function (type) {
+    tabs.tooltip = type
+    tabs.refresh()
+}
 </script>

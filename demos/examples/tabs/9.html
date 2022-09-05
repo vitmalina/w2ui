@@ -13,51 +13,51 @@
 <div id="log" style="width: 100%;">Action: <span id="log2"></span></div>
 
 <!--CODE-->
-<script>
-query(() => {
-    let ind = 10
-    new w2tabs({
-        box: '#tabs',
-        name: 'tabs',
-        reorder: true,
-        tabs: [
-            { id: 'tab1', text: 'TOOLTIP', tooltip: 'This tab has a tooltip' },
-            { id: 'tab2', text: 'Tab 2', closable: true },
-            { id: 'tab3', text: 'Tab 3', closable: true },
-            { id: 'tab4', text: 'FIXED' },
-            { id: 'tab6', text: 'Tab 5' },
-            { id: 'tab7', text: 'Tab 6' },
-            { id: 'add', text: '+' },
-        ],
-        onClick(event) {
-            event.done(() => {
-                if (event.target == 'add') {
-                    let id = 'tab' + ind
-                    this.insert('add', { id: id, text: 'Tab ' + ind, closable: true })
-                    this.click(id)
-                    ind++
-                }
-            })
-        },
-        onReorder(event) {
+<script type="module">
+import { w2tabs, query } from '__W2UI_PATH__'
+
+let ind = 10
+new w2tabs({
+    box: '#tabs',
+    name: 'tabs',
+    reorder: true,
+    tabs: [
+        { id: 'tab1', text: 'TOOLTIP', tooltip: 'This tab has a tooltip' },
+        { id: 'tab2', text: 'Tab 2', closable: true },
+        { id: 'tab3', text: 'Tab 3', closable: true },
+        { id: 'tab4', text: 'FIXED' },
+        { id: 'tab6', text: 'Tab 5' },
+        { id: 'tab7', text: 'Tab 6' },
+        { id: 'add', text: '+' },
+    ],
+    onClick(event) {
+        event.done(() => {
             if (event.target == 'add') {
-                event.preventDefault()
-                return
+                let id = 'tab' + ind
+                this.insert('add', { id: id, text: 'Tab ' + ind, closable: true })
+                this.click(id)
+                ind++
             }
-            if (event.target == 'tab4') {
-                query("#log2").html('<span style="color: red">This tab cannot be dragged</span>')
-                event.preventDefault()
-                return
-            }
-            this.hide('add')
-            let tab = this.get(event.target)
-            query("#log2").html(`Dragging "${tab.text}"`)
-            event.done(() => {
-                query("#log2").html(`Moved "${tab.text}" from position "${event.indexFrom}" to "${event.indexTo}".`)
-                this.show('add')
-            })
-            console.log(event)
+        })
+    },
+    onReorder(event) {
+        if (event.target == 'add') {
+            event.preventDefault()
+            return
         }
-    });
-});
+        if (event.target == 'tab4') {
+            query("#log2").html('<span style="color: red">This tab cannot be dragged</span>')
+            event.preventDefault()
+            return
+        }
+        this.hide('add')
+        let tab = this.get(event.target)
+        query("#log2").html(`Dragging "${tab.text}"`)
+        event.done(() => {
+            query("#log2").html(`Moved "${tab.text}" from position "${event.indexFrom}" to "${event.indexTo}".`)
+            this.show('add')
+        })
+        console.log(event)
+    }
+})
 </script>

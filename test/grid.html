@@ -197,7 +197,7 @@ jQuery(function () {
                     //console.log('done', range);
                 }
             },
-            onClick: function (event) {
+            onClick(event) {
                 var sel = this.getSelection();
                 if (sel.length >= 1 && sel[0] == event.recid) {
                     event.preventDefault();

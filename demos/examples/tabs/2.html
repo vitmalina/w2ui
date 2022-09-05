@@ -11,22 +11,26 @@
 <div id="tabs" style="width: 100%;"></div>
 <br><br>
 
-<button class="w2ui-btn" onclick="w2ui.tabs.click('tab3')">Set Tab 3 Active</button>
-<button class="w2ui-btn" onclick="w2ui.tabs.click('tab4')">Set Tab 4 Active</button>
+<button class="w2ui-btn" onclick="setActive('tab3')">Set Tab 3 Active</button>
+<button class="w2ui-btn" onclick="setActive('tab4')">Set Tab 4 Active</button>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2tabs({
-        box: '#tabs',
-        name: 'tabs',
-        active: 'tab2',
-        tabs: [
-            { id: 'tab1', text: 'Tab 1' },
-            { id: 'tab2', text: 'Tab 2' },
-            { id: 'tab3', text: 'Tab 3' },
-            { id: 'tab4', text: 'Tab 4' }
-        ]
-    });
-});
+<script type="module">
+import { w2tabs } from '__W2UI_PATH__'
+
+let tabs = new w2tabs({
+    box: '#tabs',
+    name: 'tabs',
+    active: 'tab2',
+    tabs: [
+        { id: 'tab1', text: 'Tab 1' },
+        { id: 'tab2', text: 'Tab 2' },
+        { id: 'tab3', text: 'Tab 3' },
+        { id: 'tab4', text: 'Tab 4' }
+    ]
+})
+
+window.setActive = function(tab) {
+    tabs.click(tab)
+}
 </script>

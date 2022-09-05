@@ -35,7 +35,7 @@ $(function () {
             toolbarAdd: true
         },
         reorderRows: true,
-        onClick: function (event) {
+        onClick(event) {
             var tg = $(event.originalEvent.target);
             if (tg[0].tagName == 'DIV') tg = tg.parents('td');
             if (tg.hasClass('w2ui-col-select')) {
@@ -54,7 +54,7 @@ $(function () {
                     ]
                 }
             ],
-            onClick: function (event) {
+            onClick(event) {
                 console.log('click', event.target)
             }
         },

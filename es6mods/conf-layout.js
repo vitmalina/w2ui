@@ -16,7 +16,7 @@ export default {
                     { id: 'tab3', text: 'tab3', closable: true },
                     { id: 'tab4', text: 'tab4', closable: true }
                 ],
-                onClick: function (event) {
+                onClick(event) {
                     this.owner.html('main', '<div style="padding:10px">Tab: '+ event.target +'</div>', null);
                 }
             },
@@ -28,7 +28,7 @@ export default {
                     { type: 'radio',  id: 'item3', group: 1, text: 'Radio 1', img: 'icon-page' },
                     { type: 'radio',  id: 'item4', group: 1, text: 'Radio 2', img: 'icon-page' }
                 ],
-                onClick: function (event) {
+                onClick(event) {
                     this.owner.html('main', '<div style="padding:10px">Toolbar: '+ event.target +'</div>');
                 }
             }
@@ -43,7 +43,7 @@ export default {
                     { id: 'tab3', text: 'tab3', closable: true },
                     { id: 'tab4', text: 'tab4', closable: true }
                 ],
-                onClick: function (event) {
+                onClick(event) {
                     if (event.target == 'tab1') this.owner.html('main', '<div style="padding:10px">tab1</div>');
                     if (event.target == 'tab2') this.owner.html('main', '<div style="padding:10px">tab2</div>');
                 }

@@ -12,21 +12,21 @@
 <div id="selected-tab" style="padding: 10px 0px">tab1</div>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2tabs({
-        box: '#tabs',
-        name: 'tabs',
-        active: 'tab1',
-        tabs: [
-            { id: 'tab1', text: 'Tab 1' },
-            { id: 'tab2', text: 'Tab 2' },
-            { id: 'tab3', text: 'Tab 3' },
-            { id: 'tab4', text: 'Tab 4' }
-        ],
-        onClick: function (event) {
-            query('#selected-tab').html(event.target);
-        }
-    });
-});
+<script type="module">
+import { w2tabs, query } from '__W2UI_PATH__'
+
+new w2tabs({
+    box: '#tabs',
+    name: 'tabs',
+    active: 'tab1',
+    tabs: [
+        { id: 'tab1', text: 'Tab 1' },
+        { id: 'tab2', text: 'Tab 2' },
+        { id: 'tab3', text: 'Tab 3' },
+        { id: 'tab4', text: 'Tab 4' }
+    ],
+    onClick(event) {
+        query('#selected-tab').html(event.target);
+    }
+})
 </script>

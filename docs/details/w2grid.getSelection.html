@@ -44,7 +44,7 @@ console.log( grid.getSelection() );
 
 Please note if you try to get selection in onClick event, you need to:
 <textarea class="javascript">
-onClick: function (event) {
+onClick(event) {
     event.onComplete = function () {
         var sel = this.getSelection();
         console.log('selection:', sel);

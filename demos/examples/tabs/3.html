@@ -11,22 +11,22 @@
 <div id="tabs" style="width: 100%;"></div>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2tabs({
-        box: '#tabs',
-        name: 'tabs',
-        active: 'tab1',
-        tabs: [
-            { id: 'tab1', text: 'Tab 1' },
-            { id: 'tab2', text: 'Tab 2', closable: true },
-            { id: 'tab3', text: 'Tab 3', closable: true },
-            { id: 'tab4', text: 'Tab 4', closable: true },
-            { id: 'tab5', text: 'Tab 5', closable: true },
-            { id: 'tab6', text: 'Tab 6', closable: true },
-            { id: 'tab7', text: 'Tab 7', closable: true },
-            { id: 'tab8', text: 'Tab 8', closable: true }
-        ]
-    });
-});
+<script type="module">
+import { w2tabs } from '__W2UI_PATH__'
+
+new w2tabs({
+    box: '#tabs',
+    name: 'tabs',
+    active: 'tab1',
+    tabs: [
+        { id: 'tab1', text: 'Tab 1' },
+        { id: 'tab2', text: 'Tab 2', closable: true },
+        { id: 'tab3', text: 'Tab 3', closable: true },
+        { id: 'tab4', text: 'Tab 4', closable: true },
+        { id: 'tab5', text: 'Tab 5', closable: true },
+        { id: 'tab6', text: 'Tab 6', closable: true },
+        { id: 'tab7', text: 'Tab 7', closable: true },
+        { id: 'tab8', text: 'Tab 8', closable: true }
+    ]
+})
 </script>

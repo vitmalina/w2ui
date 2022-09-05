@@ -14,7 +14,7 @@ let toolbar = new w2toolbar({
         { type: 'radio',  id: 'item3',  group: '1', text: 'Radio 1', icon: 'icon-add' },
         { type: 'radio',  id: 'item4',  group: '1', text: 'Radio 2', icon: 'icon-add' }
     ],
-    onClick: function(event) {
+    onClick(event) {
         console.log('item '+ event.target + ' is clicked.');
     }
 });

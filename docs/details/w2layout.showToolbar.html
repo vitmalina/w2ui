@@ -38,7 +38,7 @@ let layout = new w2layout({
                     { id: 'bt2', type: 'button', text: 'Button 2', img: 'icon-page' },
                     { id: 'bt3', type: 'button', text: 'Button 3', img: 'icon-page' }
                 ],
-                onClick: function (event) {
+                onClick(event) {
                     console.log('event');
                 }
             }
