@@ -11,25 +11,30 @@
 <!--CODE-->
 <div id="sidebar" style="height: 300px; width: 200px; float: left"></div>
 <div style="margin-left: 220px;">
-    <button class="w2ui-btn" onclick="w2ui.sidebar.disable('level-1-2')"> Disable Level 1.2 </button>
-    <button class="w2ui-btn" onclick="w2ui.sidebar.enable('level-1-2')"> Enable Level 1.2 </button>
+    <button class="w2ui-btn" onclick="action('disable', ['level-1-2'])"> Disable Level 1.2 </button>
+    <button class="w2ui-btn" onclick="action('enable', ['level-1-2'])"> Enable Level 1.2 </button>
 </div>
 <div style="clear: both"/>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2sidebar({
-        box: '#sidebar',
-        name: 'sidebar',
-        nodes: [
-            { id: 'level-1', text: 'Level 1', img: 'icon-folder', expanded: true, group: true,
-              nodes: [ { id: 'level-1-1', text: 'Level 1.1', icon: 'fa fa-star-o' },
-                       { id: 'level-1-2', text: 'Level 1.2', icon: 'fa fa-star-o' },
-                       { id: 'level-1-3', text: 'Level 1.3', icon: 'fa fa-star-o' }
-                     ]
-            }
-        ]
-    });
-});
+<script type="module">
+import { w2sidebar } from '__W2UI_PATH__'
+
+let sidebar = new w2sidebar({
+    box: '#sidebar',
+    name: 'sidebar',
+    nodes: [
+        { id: 'level-1', text: 'Level 1', img: 'icon-folder', expanded: true, group: true,
+            nodes: [
+                { id: 'level-1-1', text: 'Level 1.1', icon: 'fa fa-star-o' },
+                { id: 'level-1-2', text: 'Level 1.2', icon: 'fa fa-star-o' },
+                { id: 'level-1-3', text: 'Level 1.3', icon: 'fa fa-star-o' }
+            ]
+        }
+    ]
+})
+
+window.action = function (method, ids) {
+    sidebar[method](...ids)
+}
 </script>

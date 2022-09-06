@@ -22,11 +22,11 @@ export default {
     onMenuClick: function (event) {
         console.log(event);
     },
-    onFocus: function (event) {
+    onFocus(event) {
         console.log('focus: ', this.name, event);
         // event.preventDefault();
     },
-    onBlur: function (event) {
+    onBlur(event) {
         console.log('blur: ', this.name, event);
         // event.preventDefault();
     },

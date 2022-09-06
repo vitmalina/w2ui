@@ -30,8 +30,8 @@ class Tooltip {
             anchorClass     : '',       // add class for anchor when tooltip is shown
             anchorStyle     : '',       // add style for anchor when tooltip is shown
             autoShow        : false,    // if autoShow true, then tooltip will show on mouseEnter and hide on mouseLeave
-            autoShowOn      : null,     // when options.auto = true, mouse event to show on
-            autoHideOn      : null,     // when options.auto = true, mouse event to hide on
+            autoShowOn      : null,     // when options.autoShow = true, mouse event to show on
+            autoHideOn      : null,     // when options.autoShow = true, mouse event to hide on
             arrowSize       : 8,        // size of the carret
             margin          : 0,        // extra margin from the anchor
             screenMargin    : 2,        // min margin from screen to tooltip

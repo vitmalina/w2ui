@@ -49,10 +49,10 @@ export default {
     onSelect: function (event) {
         // console.log('select', event);
     },
-    onFocus: function (event) {
+    onFocus(event) {
         console.log('focus');
     },
-    onBlur: function (event) {
+    onBlur(event) {
         console.log('blur');
     }
 }

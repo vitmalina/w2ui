@@ -33,71 +33,71 @@
 <div style="clear: both"/>
 
 <!--CODE-->
-<script>
-var bp = []
-query(() => {
-    new w2sidebar({
-        box: '#sidebar',
-        name: 'sidebar',
-        levelPadding: 20,
-        line: 0,
-        handle: {
-            size: 22,
-            style: `height: 22px; width: 22px; margin-top: 1px; margin-left: 0px`,
-            html: `<div onclick="w2ui.sidebar.setBreakPoint(this, event)"
-                ${w2utils.tooltip('Set break point', { className: 'w2ui-light', left: -6, position: 'top|bottom' })}></div>`
+<script type="module">
+import { w2sidebar, query } from '__W2UI_PATH__'
+
+let bp = []
+let sidebar = new w2sidebar({
+    box: '#sidebar',
+    name: 'sidebar',
+    levelPadding: 20,
+    line: 0,
+    handle: {
+        size: 22,
+        style: `height: 22px; width: 22px; margin-top: 1px; margin-left: 0px`,
+        html: `<div onclick="setBreakPoint(this, event)" class="break-point"></div>`, // can be a function
+        tooltip: 'Set break point' // cna be a function
+    },
+    nodes: [
+        { id: 'level-1-1', text: 'Level 1.1', icon: 'fa fa-folder-o', expanded: true,
+            nodes: [
+                { id: 'level-1-1-1', text: 'Level 1.1.1', icon: 'fa fa-star-o', count: 5 },
+                { id: 'level-1-1-2', text: 'Level 1.1.2', icon: 'fa fa-star-o', count: 6 },
+                { id: 'level-1-1-3', text: 'Level 1.1.3', icon: 'fa fa-star-o', count: 12 }
+            ]
         },
-        nodes: [
-            { id: 'level-1-1', text: 'Level 1.1', icon: 'fa fa-folder-o', expanded: true,
-                nodes: [
-                    { id: 'level-1-1-1', text: 'Level 1.1.1', icon: 'fa fa-star-o', count: 5 },
-                    { id: 'level-1-1-2', text: 'Level 1.1.2', icon: 'fa fa-star-o', count: 6 },
-                    { id: 'level-1-1-3', text: 'Level 1.1.3', icon: 'fa fa-star-o', count: 12 }
-                ]
-            },
-            { id: 'level-1-2', text: 'Level 1.2', icon: 'fa fa-folder-o', expanded: true,
-                nodes: [
-                    { id: 'level-1-2-1', text: 'Level 1.2.1', icon: 'fa fa-star-o' },
-                    { id: 'level-1-2-2', text: 'Level 1.2.2', icon: 'fa fa-star-o' },
-                    { id: 'level-1-2-3', text: 'Level 1.2.3', icon: 'fa fa-star-o' }
-                ]
-            },
-            { id: 'level-1-3', text: 'Level 1.3', icon: 'fa fa-folder-o', expanded: true,
-                nodes: [
-                    { id: 'level-1-3-1', text: 'Level 1.3.1', icon: 'fa fa-star-o' },
-                    { id: 'level-1-3-2', text: 'Level 1.3.2', icon: 'fa fa-star-o' },
-                    { id: 'level-1-3-3', text: 'Level 1.3.3', icon: 'fa fa-star-o' }
-                ]
-            }
-        ],
-        setBreakPoint(el) {
-            let stepId = query(el).closest('.w2ui-node').attr('id').substr(5)
-            if (bp.indexOf(stepId) != -1) {
-                bp.splice(bp.indexOf(stepId), 1)
-                query(el).removeClass('break-point')
-            } else {
-                bp.push(stepId)
-                query(el).addClass('break-point')
-            }
-            event.preventDefault()
-            event.stopPropagation()
+        { id: 'level-1-2', text: 'Level 1.2', icon: 'fa fa-folder-o', expanded: true,
+            nodes: [
+                { id: 'level-1-2-1', text: 'Level 1.2.1', icon: 'fa fa-star-o' },
+                { id: 'level-1-2-2', text: 'Level 1.2.2', icon: 'fa fa-star-o' },
+                { id: 'level-1-2-3', text: 'Level 1.2.3', icon: 'fa fa-star-o' }
+            ]
         },
-        onRefresh(event) {
-            event.done(() => {
-                let node = query('#node_' + event.target + ' .w2ui-node-handle > div')
-                if (bp.indexOf(event.target) == -1) {
-                    node.removeClass('break-point')
-                } else {
-                    node.addClass('break-point')
-                }
-            })
+        { id: 'level-1-3', text: 'Level 1.3', icon: 'fa fa-folder-o', expanded: true,
+            nodes: [
+                { id: 'level-1-3-1', text: 'Level 1.3.1', icon: 'fa fa-star-o' },
+                { id: 'level-1-3-2', text: 'Level 1.3.2', icon: 'fa fa-star-o' },
+                { id: 'level-1-3-3', text: 'Level 1.3.3', icon: 'fa fa-star-o' }
+            ]
         }
-    })
-    // to avoid 1.5.3 (and prior) bug with handle object
-    let nh = w2ui.sidebar.handle
-    w2ui.sidebar.handle = w2utils.extend({}, nh)
-    w2utils.extend(nh, { size: 0 })
-    // ----
-    w2ui.sidebar.render('#sidebar')
+    ],
+    setBreakPoint(el) {
+        let stepId = query(el).closest('.w2ui-node').attr('id').substr(5)
+        if (bp.indexOf(stepId) != -1) {
+            bp.splice(bp.indexOf(stepId), 1)
+            query(el).removeClass('break-point')
+        } else {
+            bp.push(stepId)
+            query(el).addClass('break-point')
+        }
+        event.preventDefault()
+        event.stopPropagation()
+    },
+    onRefresh(event) {
+        event.done(() => {
+            let node = query('#node_' + event.target + ' .w2ui-node-handle > div')
+            if (bp.indexOf(event.target) == -1) {
+                node.removeClass('break-point')
+            } else {
+                node.addClass('break-point')
+            }
+        })
+    }
 })
+
+sidebar.render('#sidebar')
+
+window.setBreakPoint = function (el, event) {
+    sidebar.setBreakPoint(el, event)
+}
 </script>

@@ -12,6 +12,7 @@
  *  - deprecarted obj.img, node.img
  *  - CSP - fixed inline events
  *  - observeResize for the box
+ *  - handleTooltip and handle.tooltip - text/function
  */
 
 import { w2base } from './w2base.js'
@@ -41,7 +42,7 @@ class w2sidebar extends w2base {
         this.levelPadding  = 12
         this.skipRefresh   = false
         this.tabIndex      = null // will only be set if > 0 and not null
-        this.handle        = { size: 0, style: '', html: '' },
+        this.handle        = { size: 0, style: '', html: '', tooltip: '' },
         this.onClick       = null // Fire when user click on Node Text
         this.onDblClick    = null // Fire when user dbl clicks
         this.onContextMenu = null
@@ -945,8 +946,11 @@ class w2sidebar extends w2base {
         if (this.box == null) return
         let time = Date.now()
         // event before
-        let edata = this.trigger('refresh', { target: (id != null ? id : this.name),
-            fullRefresh: (id != null ? false : true) })
+        let edata = this.trigger('refresh', {
+            target: (id != null ? id : this.name),
+            nodeId: (id != null ? id : null),
+            fullRefresh: (id != null ? false : true)
+        })
         if (edata.isCancelled === true) return
         // adjust top and bottom
         let flatHTML = ''
@@ -1109,7 +1113,10 @@ class w2sidebar extends w2base {
                         data-dblclick="dblClick|${nd.id}|event"
                         data-contextmenu="contextMenu|${nd.id}|event">
                         ${obj.handle.html
-                            ? `<div class="w2ui-node-handle" style="width: ${obj.handle.size}px; ${obj.handle.style}">
+                            ? `<div class="w2ui-node-handle w2ui-eaction" style="width: ${obj.handle.size}px; ${obj.handle.style}"
+                                    data-mouseenter="handleTooltip|this|${nd.id}"
+                                    data-mouseleave="handleTooltip|this"
+                                >
                                    ${typeof obj.handle.html == 'function' ? obj.handle.html.call(obj, nd) : obj.handle.html}
                               </div>`
                             : ''
@@ -1146,6 +1153,23 @@ class w2sidebar extends w2base {
                 name: this.name + '_tooltip',
                 html: w2utils.base64decode(text),
                 position: 'right|left'
+            })
+        } else {
+            w2tooltip.hide(this.name + '_tooltip')
+        }
+    }
+
+    handleTooltip(anchor, id) {
+        let text = this.handle.tooltip
+        if (typeof text == 'function') {
+            text = text(id)
+        }
+        if (text !== '' && id != null) {
+            w2tooltip.show({
+                anchor: anchor,
+                name: this.name + '_tooltip',
+                html: text,
+                position: 'top|bottom'
             })
         } else {
             w2tooltip.hide(this.name + '_tooltip')

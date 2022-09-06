@@ -18,40 +18,41 @@
 <div style="clear: both"/>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2sidebar({
-        box: '#sidebar',
-        name: 'sidebar',
-        nodes: [
-            { id: 'level-1', text: 'Level 1', expanded: true, group: true,
-              nodes: [ { id: 'level-1-1', text: 'Level 1.1', icon: 'fa fa-star-o' },
-                       { id: 'level-1-2', text: 'Level 1.2', icon: 'fa fa-star-o' },
-                       { id: 'level-1-3', text: 'Level 1.3', icon: 'fa fa-star-o' }
-                     ]
-            }
-        ]
-    });
-});
+<script type="module">
+import { w2sidebar } from '__W2UI_PATH__'
 
-function addItems() {
-    w2ui.sidebar.add([
+let sidebar = new w2sidebar({
+    box: '#sidebar',
+    name: 'sidebar',
+    nodes: [
+        { id: 'level-1', text: 'Level 1', expanded: true, group: true,
+            nodes: [
+                { id: 'level-1-1', text: 'Level 1.1', icon: 'fa fa-star-o' },
+                { id: 'level-1-2', text: 'Level 1.2', icon: 'fa fa-star-o' },
+                { id: 'level-1-3', text: 'Level 1.3', icon: 'fa fa-star-o' }
+            ]
+        }
+    ]
+})
+
+window.addItems = function() {
+    sidebar.add([
         { id: 'new-1', text: 'New Item 1', icon: 'w2ui-icon-check' },
         { id: 'new-2', text: 'New Item 2', icon: 'w2ui-icon-check' },
         { id: 'new-3', text: 'New Item 3', icon: 'w2ui-icon-check' }
     ]);
 }
 
-function insertItems() {
-    w2ui.sidebar.insert('level-1-2', null, [
+window.insertItems = function() {
+    sidebar.insert('level-1-2', null, [
         { id: 'new-4', text: 'New Item 4', icon: 'w2ui-icon-check' },
         { id: 'new-5', text: 'New Item 5', icon: 'w2ui-icon-check' },
         { id: 'new-6', text: 'New Item 6', icon: 'w2ui-icon-check' }
-    ]);
-    w2ui.sidebar.expand('level-1-2');
+    ])
+    sidebar.expand('level-1-2')
 }
 
-function removeItem() {
-    w2ui.sidebar.remove('new-1', 'new-2', 'new-3', 'new-4', 'new-5', 'new-6');
+window.removeItem = function() {
+    sidebar.remove('new-1', 'new-2', 'new-3', 'new-4', 'new-5', 'new-6')
 }
 </script>

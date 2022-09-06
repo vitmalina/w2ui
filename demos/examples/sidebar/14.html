@@ -21,23 +21,17 @@
 <div style="clear: both"/>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2sidebar({
-        box: '#sidebar',
-        name: 'sidebar',
-        levelPadding: 22,
-        nodes: [],
-    })
-    let sb = w2ui.sidebar
-    generate(sb.nodes, 'item', { icon: 'fa fa-folder-o' }, 5, 10)
-    generate(sb.nodes[0].nodes[1].nodes, 'sub', { expanded: false }, 3)
-    generate(sb.nodes[2].nodes[1].nodes, 'sb', { expanded: false }, 3)
-    sb.refresh()
+<script type="module">
+import { w2sidebar, w2utils, query } from '__W2UI_PATH__'
+
+let sb = new w2sidebar({
+    box: '#sidebar',
+    name: 'sidebar',
+    levelPadding: 22,
+    nodes: [],
 })
 
-function sort() {
-    let sb = w2ui.sidebar
+window.sort = function() {
     let options = {
         foldersFirst: query('#foldersFirst')[0].checked,
         caseSensitive: query('#caseSensitive')[0].checked,
@@ -49,7 +43,7 @@ function sort() {
 
 }
 
-function generate(nodes, id, options, count, subCount) {
+window.generate = function(nodes, id, options, count, subCount) {
     let icons = ['fa fa-home', 'fa fa-coffee', 'fa fa-comment-o', 'fa fa-star', 'fa fa-bug']
     let texts = ['Test', 'Label', 'Item', 'Simple', 'Formula', 'Single']
     for (let i=0; i<count; i++) {
@@ -66,4 +60,9 @@ function generate(nodes, id, options, count, subCount) {
         nodes.push(node)
     }
 }
+
+window.generate(sb.nodes, 'item', { icon: 'fa fa-folder-o' }, 5, 10)
+window.generate(sb.nodes[0].nodes[1].nodes, 'sub', { expanded: false }, 3)
+window.generate(sb.nodes[2].nodes[1].nodes, 'sb', { expanded: false }, 3)
+sb.refresh()
 </script>
