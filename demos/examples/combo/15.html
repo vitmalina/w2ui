@@ -1,7 +1,8 @@
 <div class="content">
     <div id="example_title">
         <h1>ES6 Modules</h1>
-        Staring with w2ui 2.0, you can use ES6 modules import syntax. Below is the example how to do it.
+        Staring with w2ui 2.0, you can use ES6 modules import syntax. All of the demos now use ES6 module syntax,
+        and the demo below is similar to the first demo, but loads config from a file.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -12,24 +13,16 @@
 
 <!--CODE-->
 <script type="module">
-// import { w2ui, w2layout, w2sidebar, w2grid, query } from 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.es6.js'
+import { w2layout, w2sidebar, w2grid, w2ui, query  } from '__W2UI_PATH__'
 import conf from 'https://rawgit.com/vitmalina/w2ui/master/demos/data/es6-conf.js'
 
 // register app globally
 window.app = { w2ui }
 
-if (w2ui.layout) {
-    w2ui.layout.destroy()
-    w2ui.sidebar.destroy()
-    w2ui.grid1.destroy()
-    w2ui.grid2.destroy()
-}
-
 let layout = new w2layout(conf.layout)
 let sidebar = new w2sidebar(conf.sidebar)
 let grid1 = new w2grid(conf.grid1)
 let grid2 = new w2grid(conf.grid2)
-
 
 layout.render(query('#main')[0])
 layout.html('left', sidebar)

@@ -433,7 +433,7 @@ class w2field extends w2base {
 
     refresh() {
         let options = this.options
-        let time    = (new Date()).getTime()
+        let time    = Date.now()
         let styles  = getComputedStyle(this.el)
         // enum
         if (this.type == 'list') {
@@ -683,7 +683,7 @@ class w2field extends w2base {
             }
             this.resize()
         }
-        return (new Date()).getTime() - time
+        return Date.now() - time
     }
 
     // resizing width of list, enum, file controls

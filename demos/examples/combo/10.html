@@ -23,7 +23,9 @@
 </div>
 
 <!--CODE-->
-<script>
+<script type="module">
+import { w2field, query } from '__W2UI_PATH__'
+
 query(async () => {
     let data = await fetch('data/enum.json').then(resp => resp.json()).then(data => data)
     data.records.sort((a, b) => a.text.localeCompare(b.text))

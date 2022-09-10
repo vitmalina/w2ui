@@ -32,7 +32,7 @@ query(() => {
     });
 });
 function showMessage(panel) {
-    w2ui.layout.message('main', `<div class="w2ui-centered">Some Text ${(new Date()).getTime()}</div>`)
+    w2ui.layout.message('main', `<div class="w2ui-centered">Some Text ${Date.now()}</div>`)
         .ok(event => { console.log('Ok btn', event.detail) })
 }
 

@@ -50,7 +50,7 @@ function showMessage(panel) {
         .message('main', {
             width: 300,
             height: 150,
-            body: '<div class="w2ui-centered">Some Text '+ (new Date()).getTime() +'</div>',
+            body: '<div class="w2ui-centered">Some Text '+ Date.now() +'</div>',
             buttons: '<button class="w2ui-btn" onclick="w2ui.layout.message(\'main\')">Ok</button>'
         })
         .then(event => {

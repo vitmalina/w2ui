@@ -11,9 +11,11 @@
 <div id="main" style="width: 100%; height: 400px;"></div>
 
 <!--CODE-->
-<script>
+<script type="module">
+import { w2layout, w2sidebar, w2grid, query } from '__W2UI_PATH__'
+
 // widget configuration
-var config = {
+let config = {
     layout: {
         name: 'layout',
         padding: 0,
@@ -38,23 +40,21 @@ var config = {
             }
         ],
         onFlat(event) {
-            w2ui.layout.sizeTo('left', (event.detail.goFlat ? 35 : 200), true);
+            layout.sizeTo('left', (event.detail.goFlat ? 35 : 200), true)
         },
         onClick(event) {
             switch (event.target) {
                 case 'grid1':
-                    w2ui.layout.html('main', w2ui.grid1);
-                    break;
+                    layout.html('main', grid1)
+                    break
                 case 'grid2':
-                    w2ui.layout.html('main', w2ui.grid2);
-                    break;
+                    layout.html('main', grid2)
+                    break
                 case 'html':
-                    w2ui.layout.html('main', '<div style="padding: 10px">Some HTML</div>');
-                    query(w2ui.layout.el('main'))
-                        .css({
-                            'border-left': '1px solid #efefef'
-                        });
-                    break;
+                    layout.html('main', '<div style="padding: 10px">Some HTML</div>')
+                    query(layout.el('main'))
+                        .css('border-left', '1px solid #efefef')
+                    break
             }
         }
     },
@@ -91,16 +91,14 @@ var config = {
             { recid: 3, state: 'Closed', title: 'Short title for the record', priority: 1 }
         ]
     }
-};
+}
 
-query(() => {
-    // initialization
-    let layout = new w2layout(config.layout)
-    let sidebar = new w2sidebar(config.sidebar)
-    let grid1 = new w2grid(config.grid1)
-    let grid2 = new w2grid(config.grid2)
-    layout.render(query('#main')[0])
-    layout.html('left', sidebar)
-    layout.html('main', grid1)
-})
+// initialization
+let layout = new w2layout(config.layout)
+let sidebar = new w2sidebar(config.sidebar)
+let grid1 = new w2grid(config.grid1)
+let grid2 = new w2grid(config.grid2)
+layout.render('#main')
+layout.html('left', sidebar)
+layout.html('main', grid1)
 </script>

@@ -18,7 +18,13 @@
 <div id="grid" style="width: 804px; height: 250px; margin-top: 10px"></div>
 
 <!--CODE-->
-<script>
+<script type="module">
+import { w2grid, w2utils, w2tooltip, query } from '__W2UI_PATH__'
+
+// need to expose this objects to global scope
+window.w2utils = w2utils
+window.w2tooltip = w2tooltip
+
 query(() => {
     let text = `The message for the tag can be quite big<br>
                 and contain any html.`
@@ -75,6 +81,6 @@ query(() => {
             { "recid": 8, "fname": "Thomas", "lname": "Bahh", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
             { "recid": 9, "fname": "Sergei", "lname": "Rachmaninov", "email": "jdoe@gmail.com", "sdate": "4/3/2012" }
         ]
-    });
+    })
 })
 </script>

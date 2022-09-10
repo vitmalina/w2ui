@@ -5,6 +5,7 @@
  * == TODO ==
  *  - add w2utils.lang wrap for all captions in all buttons.
  *  - check transition (also with layout)
+ *  - deprecate w2utils.tooltip
  *
  * == 2.0 changes
  *  - CSP - fixed inline events (w2utils.tooltip still has it)

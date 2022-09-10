@@ -17,15 +17,17 @@
 <!--CODE-->
 <div id="main" style="width: 100%; height: 300px; margin-bottom: 10px;"></div>
 <button class="w2ui-btn" onclick="mark()">Mark Range C3:D7</button>
-<button class="w2ui-btn" onclick="w2ui.grid.removeRange('range')">Remove Range</button>
+<button class="w2ui-btn" onclick="removeRange()">Remove Range</button>
 <button class="w2ui-btn" onclick="cellFormat(true)">Cell Format</button>
 <button class="w2ui-btn" onclick="cellFormat(false)">Remove Cell Format</button>
 <button class="w2ui-btn" onclick="frozenToggle(['a', 'b', 'c'])">Toggle columns ABC frozen</button>
 
 <!--CODE-->
-<script>
+<script type="module">
+import { w2grid, w2utils } from '__W2UI_PATH__'
+
 // widget configuration
-var config = {
+let config = {
     grid: {
         name: 'grid',
         selectType: 'cell',
@@ -60,71 +62,73 @@ var config = {
             console.log('select', event.detail, this.getSelection())
         }
     }
-};
+}
 
-query(() => {
-    // initialization
-    new w2grid(config.grid)
-    // create columns
-    var tmp = 'abcdefghijklmnoprst'
-    var values = {}
-    for (var i = 0; i < tmp.length; i++) {
-        w2ui.grid.columns.push({
-            field: tmp[i],
-            text: '<div style="text-align: center">' + tmp[i].toUpperCase() + '</div>',
-            size: '15%',
-            resizable: true,
-            sortable: true,
-            editable: { type: 'text', inTag: 'placeholder="Type..."' }
-        });
-        values[tmp[i]] = ''
-    }
-    // insert  records
-    for (var i = 0; i < 100; i++) {
-        w2ui.grid.records.push(w2utils.extend({ recid: i+1 }, values))
-    }
-    w2ui.grid.total = w2ui.grid.records.length
-    w2ui.grid.buffered = w2ui.grid.total
-    // init some values
-    var rec = w2ui.grid.records
-    w2utils.extend(rec[2], { c: 1, d: 67, f: 'some', g: 'text' })
-    w2utils.extend(rec[3], { c: 2, d: 35, f: 'more', g: 'text' })
-    w2utils.extend(rec[4], { c: 3, d: 17 })
-    w2utils.extend(rec[5], { c: 4, d: 84 })
-    w2utils.extend(rec[6], { c: 5, d: 14 })
-    w2utils.extend(rec[2], { i: 'Spans 2 columsn', w2ui: { colspan: { i: 2 }} })
-    w2utils.extend(rec[3], { i: 'Spans 3 columsn', w2ui: { colspan: { i: 3 }} })
-    // display grid
-    w2ui.grid.render(query('#main')[0])
-    w2ui.grid.focus()
-})
+// initialization
+let grid = new w2grid(config.grid)
+// create columns
+let tmp = 'abcdefghijklmnoprst'
+let values = {}
+for (let i = 0; i < tmp.length; i++) {
+    grid.columns.push({
+        field: tmp[i],
+        text: '<div style="text-align: center">' + tmp[i].toUpperCase() + '</div>',
+        size: '15%',
+        resizable: true,
+        sortable: true,
+        editable: { type: 'text', inTag: 'placeholder="Type..."' }
+    })
+    values[tmp[i]] = ''
+}
+// insert  records
+for (let i = 0; i < 100; i++) {
+    grid.records.push(w2utils.extend({ recid: i+1 }, values))
+}
+grid.total = grid.records.length
+grid.buffered = grid.total
+// init some values
+let rec = grid.records
+w2utils.extend(rec[2], { c: 1, d: 67, f: 'some', g: 'text' })
+w2utils.extend(rec[3], { c: 2, d: 35, f: 'more', g: 'text' })
+w2utils.extend(rec[4], { c: 3, d: 17 })
+w2utils.extend(rec[5], { c: 4, d: 84 })
+w2utils.extend(rec[6], { c: 5, d: 14 })
+w2utils.extend(rec[2], { i: 'Spans 2 columsn', w2ui: { colspan: { i: 2 }} })
+w2utils.extend(rec[3], { i: 'Spans 3 columsn', w2ui: { colspan: { i: 3 }} })
+// display grid
+grid.render('#main')
+grid.focus()
 
-function mark() {
-    w2ui.grid.addRange({
+window.mark = function() {
+    grid.addRange({
         name  : 'range',
         range : [{ "recid": 3, "column": 2 }, { "recid": 7, "column": 3 }],
         style : "border: 2px dotted green; background-color: rgba(100,400,100,0.2)"
-    });
+    })
 }
 
-function cellFormat(flag) {
-    var style = '';
-    var rec1 = w2ui.grid.get(3)
-    var rec2 = w2ui.grid.get(4)
+window.removeRange = function() {
+    grid.removeRange('range')
+}
+
+window.cellFormat = function(flag) {
+    let style = ''
+    let rec1 = grid.get(3)
+    let rec2 = grid.get(4)
     rec1.w2ui = rec1.w2ui || {}
     rec2.w2ui = rec2.w2ui || {}
     if (flag) {
-        rec1.w2ui.style = { 5: 'color: white; background-color: #8BC386', 6: 'color: black; background-color: #BFE6FF' };
-        rec2.w2ui.style = { 5: 'color: white; background-color: #8BC386', 6: 'color: black; background-color: #BFE6FF' };
+        rec1.w2ui.style = { 5: 'color: white; background-color: #8BC386', 6: 'color: black; background-color: #BFE6FF' }
+        rec2.w2ui.style = { 5: 'color: white; background-color: #8BC386', 6: 'color: black; background-color: #BFE6FF' }
     } else {
-        rec1.w2ui.style = { 5: '', 6: '' };
-        rec2.w2ui.style = { 5: '', 6: '' };
+        rec1.w2ui.style = { 5: '', 6: '' }
+        rec2.w2ui.style = { 5: '', 6: '' }
     }
-    w2ui.grid.refreshRow(rec1.recid);
-    w2ui.grid.refreshRow(rec2.recid);
+    grid.refreshRow(rec1.recid)
+    grid.refreshRow(rec2.recid)
 }
 
-function frozenToggle(fields) {
-    w2ui.grid.updateColumn(fields, { frozen(col) { return !col.frozen } })
+window.frozenToggle = function(fields) {
+    grid.updateColumn(fields, { frozen(col) { return !col.frozen } })
 }
 </script>

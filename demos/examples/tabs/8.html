@@ -37,7 +37,7 @@ let tabs = new w2tabs({
         },
         { id: 'tab3', text: 'Tab 4',
             tooltip(item) {
-                return 'Can be result of a function ' + (new Date()).getTime();
+                return 'Can be result of a function ' + Date.now();
             }
         }
     ],

@@ -22,15 +22,16 @@
 </div>
 
 <!--CODE-->
-<script>
-// widget configuration
-function contextMenu(event, type) {
+<script type="module">
+import { w2menu, query } from '__W2UI_PATH__'
+
+window.contextMenu = function(event, type) {
     let items = [
         { id: 'folder', text: 'Folder', icon: 'w2ui-icon-info', expanded: false,
             items: [
-                    { id: 'frist', text: 'First item', count: 4, icon: 'w2ui-icon-empty' },
-                    { id: 'second', text: 'Second item', count: 2, icon: 'w2ui-icon-empty' }
-                ]
+                { id: 'frist', text: 'First item', count: 4, icon: 'w2ui-icon-info' },
+                { id: 'second', text: 'Second item', count: 2, icon: 'w2ui-icon-info' }
+            ]
         },
         { id: 'page', text: 'Colors', icon: 'w2ui-icon-colors' },
         { text: '--' },

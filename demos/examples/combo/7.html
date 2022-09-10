@@ -8,12 +8,14 @@
 </div>
 
 <!--CODE-->
-<div id="main" style="width: 100%; height: 400px;"></div>
+<div id="main" style="width: 900px; height: 300px;"></div>
 
 <!--CODE-->
-<script>
+<script type="module">
+import { w2layout, w2sidebar, w2ui } from '__W2UI_PATH__'
+
 // widget configuration
-var config = {
+let config = {
     layout: {
         name: 'layout',
         padding: 0,
@@ -25,7 +27,7 @@ var config = {
                     active: 'tab0',
                     tabs: [{ id: 'tab0', text: 'Initial Tab' }],
                     onClick(event) {
-                        w2ui.layout.html('main', 'Active tab: '+ event.target)
+                        layout.html('main', 'Active tab: '+ event.target)
                     },
                     onClose(event) {
                         // if active tab closed
@@ -59,10 +61,8 @@ var config = {
     }
 }
 
-query(() => {
-    let layout = new w2layout(config.layout)
-    let sidebar = new w2sidebar(config.sidebar)
-    layout.render(query('#main')[0])
-    layout.html('left', sidebar)
-})
+let layout = new w2layout(config.layout)
+let sidebar = new w2sidebar(config.sidebar)
+layout.render('#main')
+layout.html('left', sidebar)
 </script>

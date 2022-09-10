@@ -14,9 +14,11 @@
 <div id="main" style="width: 100%; height: 400px;"></div>
 
 <!--CODE-->
-<script>
+<script type="module">
+import { w2grid } from '__W2UI_PATH__'
+
 // widget configuration
-var config = {
+let config = {
     grid: {
         name: 'grid',
         show: {
@@ -32,27 +34,26 @@ var config = {
             { field: 'sdate', text: 'Date', size: '120px', resizable: true, sortable: true, render: 'date' }
         ]
     }
-};
+}
 
-query(() => {
-    let time = (new Date()).getTime()
-    // initialization
-    let grid = new w2grid(config.grid)
-    // generate data
-    var fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia'];
-    var lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav'];
-    // add 25k records
-    for (var i = 0; i < 25000; i++) {
-        w2ui.grid.records.push({
-            recid : i+1,
-            personid: i+1,
-            fname: fname[Math.floor(Math.random() * fname.length)],
-            lname: lname[Math.floor(Math.random() * lname.length)],
-            email: 'vm@gmail.com', manager: '--',
-            snumber: Math.floor(Math.random() * 8000),
-            sdate: (new Date(Math.floor(Math.random() * 20000) * 100000000)).getTime()
-        });
-    }
-    grid.render(query('#main')[0])
-});
+let time = Date.now()
+// initialization
+let grid = new w2grid(config.grid)
+// generate data
+let fname = ['Vitali', 'Katsia', 'John', 'Peter', 'Sue', 'Olivia', 'Thomas', 'Sergei', 'Snehal', 'Avinash', 'Divia']
+let lname = ['Peterson', 'Rene', 'Johnson', 'Cuban', 'Twist', 'Sidorov', 'Vasiliev', 'Yadav', 'Vaishnav']
+// add 25k records
+for (let i = 0; i < 25000; i++) {
+    grid.records.push({
+        recid : i+1,
+        personid: i+1,
+        fname: fname[Math.floor(Math.random() * fname.length)],
+        lname: lname[Math.floor(Math.random() * lname.length)],
+        email: 'vm@gmail.com', manager: '--',
+        snumber: Math.floor(Math.random() * 8000),
+        sdate: (new Date(Math.floor(Math.random() * 20000) * 100000000)).getTime()
+    })
+}
+grid.render('#main')
+
 </script>

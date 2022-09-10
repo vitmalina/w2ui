@@ -7,6 +7,7 @@
  *  - remove jQuery dependency
  *  - layout.confirm - refactored
  *  - layout.message - refactored
+ *  - panel.removed
  */
 
 import { w2base } from './w2base.js'

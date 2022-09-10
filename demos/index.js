@@ -404,8 +404,13 @@ query(async function () {
                 document.title = tmp.parent.text + ': ' + tmp.text + ' | w2ui'
                 // delete previously created items
                 for (let widget in w2ui) {
-                    let nm = w2ui[widget].name
-                    if (['demo_layout', 'demo_sidebar', 'demo_toolbar'].indexOf(nm) == -1) w2ui[nm].destroy()
+                    let nm = w2ui[widget].name ?? widget
+                    if (['demo_layout', 'demo_sidebar', 'demo_toolbar'].indexOf(nm) == -1) {
+                        if (w2ui[nm].destroy) {
+                            w2ui[nm].destroy()
+                        }
+                        delete w2ui[nm]
+                    }
                 }
                 // set hash
                 if (tmp.parent && tmp.parent.id != '') {

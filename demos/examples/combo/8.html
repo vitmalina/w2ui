@@ -13,9 +13,11 @@
 </div>
 
 <!--CODE-->
-<script>
+<script type="module">
+import { w2layout, w2grid, w2form, w2popup, w2utils } from '__W2UI_PATH__'
+
 // widget configuration
-var config = {
+let config = {
     layout: {
         name: 'layout',
         padding: 4,
@@ -45,8 +47,6 @@ var config = {
             { recid: 9, fname: 'Sergei', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
         ],
         async onClick(event) {
-            let grid = this
-            let form = w2ui.form
             await event.complete // needs to wait for evnet complete cycle, so selection is right
             let sel = grid.getSelection()
             if (sel.length == 1) {
@@ -77,27 +77,25 @@ var config = {
                 let errors = this.validate()
                 if (errors.length > 0) return
                 if (this.recid == 0) {
-                    w2ui.grid.add(w2utils.extend({ recid: w2ui.grid.records.length + 1 }, this.record))
-                    w2ui.grid.selectNone()
+                    grid.add(w2utils.extend({ recid: grid.records.length + 1 }, this.record))
+                    grid.selectNone()
                     this.clear()
                 } else {
-                    w2ui.grid.set(this.recid, this.record)
-                    w2ui.grid.selectNone()
+                    grid.set(this.recid, this.record)
+                    grid.selectNone()
                     this.clear()
                 }
             }
         }
     }
-};
+}
 
-query(() => {
-    // initialization in memory
-    let layout = new w2layout(config.layout)
-    let grid = new w2grid(config.grid)
-    let form = new w2form(config.form)
-})
+// initialization in memory
+let layout = new w2layout(config.layout)
+let grid = new w2grid(config.grid)
+let form = new w2form(config.form)
 
-function openPopup() {
+window.openPopup = function() {
     w2popup.open({
         title: 'Popup',
         width: 900,
@@ -106,9 +104,9 @@ function openPopup() {
         body: '<div id="main" style="position: absolute; left: 2px; right: 2px; top: 0px; bottom: 3px;"></div>'
     })
     .then(e => {
-        w2ui.layout.render(query('#w2ui-popup #main')[0])
-        w2ui.layout.html('left', w2ui.grid)
-        w2ui.layout.html('main', w2ui.form)
+        layout.render('#w2ui-popup #main')
+        layout.html('left', grid)
+        layout.html('main', form)
     })
 }
 </script>

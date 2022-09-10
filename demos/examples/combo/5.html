@@ -17,12 +17,15 @@
 </label>
 
 <!--CODE-->
-<script>
+<script type="module">
+import { w2grid, w2utils } from '__W2UI_PATH__'
+
 // widget configuration
-var config = {
+let config = {
     grid: {
         name: 'grid',
-        url : 'data/list3.json',
+        box: '#main',
+        url: 'data/list3.json',
         show: {
             footer: true,
             toolbar: true,
@@ -43,15 +46,12 @@ var config = {
             event.detail.data = data
         }
     }
-};
-
-function refreshGrid(auto) {
-    w2ui.grid.autoLoad = auto;
-    w2ui.grid.skip(0);
 }
 
-query(() => {
-    let grid = new w2grid(config.grid)
-    grid.render(query('#main')[0])
-});
+window.refreshGrid = function(auto) {
+    grid.autoLoad = auto
+    grid.skip(0)
+}
+
+let grid = new w2grid(config.grid)
 </script>

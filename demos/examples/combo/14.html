@@ -17,7 +17,7 @@
 
 <!--CODE-->
 <script type="module">
-import { w2ui, w2base, query } from 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.es6.js'
+import { w2ui, w2base, query } from '__W2UI_PATH__'
 
 class Control extends w2base {
     constructor(conf) {
@@ -31,7 +31,7 @@ class Control extends w2base {
             return
         }
         this.box = box
-        query(box).html('my component')
+        query(box).html('<div style="background-color: lightgreen; width: 200px; border-radius: 3px; padding: 10px;">my component</div>')
         // event's on complete loop
         edata.finish()
     }

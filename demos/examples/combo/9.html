@@ -13,9 +13,11 @@
 </div>
 
 <!--CODE-->
-<script>
+<script type="module">
+import { w2layout, w2sidebar, w2grid, w2popup } from '__W2UI_PATH__'
+
 // widget configuration
-var config = {
+let config = {
     layout: {
         name: 'layout',
         padding: 0,
@@ -37,11 +39,11 @@ var config = {
         onClick(event) {
             switch (event.target) {
                 case 'grid':
-                    w2ui.layout.html('main', w2ui.grid);
-                    break;
+                    layout.html('main', grid)
+                    break
                 case 'html':
-                    w2ui.layout.html('main', '<div style="padding: 10px">Some HTML</div>');
-                    break;
+                    layout.html('main', '<div style="padding: 10px">Some HTML</div>')
+                    break
             }
         }
     },
@@ -59,16 +61,14 @@ var config = {
             { recid: 3, state: 'Closed', title: 'Short title for the record', priority: 1 }
         ]
     }
-};
+}
 
-query(() => {
-    // initialization in memory
-    new w2layout(config.layout)
-    new w2sidebar(config.sidebar)
-    new w2grid(config.grid)
-});
+// initialization in memory
+let layout = new w2layout(config.layout)
+let sidebar = new w2sidebar(config.sidebar)
+let grid = new w2grid(config.grid)
 
-function openPopup() {
+window.openPopup = function openPopup() {
     w2popup.open({
         title: 'Popup',
         width: 800,
@@ -77,9 +77,9 @@ function openPopup() {
         body: '<div id="main" style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px;"></div>'
     })
     .then(() => {
-        w2ui.layout.render(query('#w2ui-popup #main')[0])
-        w2ui.layout.html('left', w2ui.sidebar)
-        w2ui.layout.html('main', w2ui.grid)
+        layout.render('#w2ui-popup #main')
+        layout.html('left', sidebar)
+        layout.html('main', grid)
     })
 }
 </script>
