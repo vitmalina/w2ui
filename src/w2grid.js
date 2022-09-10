@@ -5326,6 +5326,7 @@ class w2grid extends w2base {
             .on('click.body-global', { delegate: '.w2ui-editable-checkbox' }, event => {
                 let dt = query(event.delegate).data()
                 this.editChange.call(this, event.delegate, dt.changeind, dt.colind, event)
+                this.updateToolbar()
             })
 
         // show empty message
