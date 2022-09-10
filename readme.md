@@ -3,11 +3,13 @@ The `master` branch has a new, in-progress version of w2ui. You might want to co
 
 [Road to 2.0 discussion](https://github.com/vitmalina/w2ui/discussions/1955)
 
+!! W2UI v.2 no longer requires jQuery as a dependency !!
+
 ## About W2UI
 
 W2UI is a modern JavaScript UI library for building rich web applications. It aims to let you define your UI in a declarative way via JSON data structures.
 
-The library has a small footprint (115KB gzipped) and has only one dependency: jQuery (though removing it is a goal of 2.0). W2UI can be used in Vanilla JS projects, ES6 modules, as well as in Angular, React, and Vue based projects.
+The library has a small footprint (120KB gzipped) and has NO DEPENDENCIES (as of v2.0). W2UI can be used in Vanilla JS projects, ES6 modules, as well as in Angular, React, and Vue based projects.
 
 The library implements the following UI controls:
 
