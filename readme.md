@@ -3,7 +3,7 @@ The `master` branch has a new, in-progress version of w2ui. You might want to co
 
 [Road to 2.0 discussion](https://github.com/vitmalina/w2ui/discussions/1955)
 
-**W2UI v.2 no longer requires jQuery as a dependency**. You can download it from the master branch and at the moment, it is stable enough to be considrered for a Release Candidate.
+**W2UI v.2 no longer requires jQuery as a dependency**. You can download it from the master branch and at the moment, it is stable enough to be considrered for a Release Candidate. All [demos](https://w2ui.com/web/demos) have been updated to work as ES6 modules without any dependencies.
 
 ## About W2UI
 
