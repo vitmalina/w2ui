@@ -10,34 +10,38 @@
 </div>
 
 <!--CODE-->
-<div id="layout" style="width: 100%; height: 400px;"></div>
+<div id="layout" style="width: 900px; height: 400px;"></div>
 
 <div style="height: 20px;"></div>
 
 <span style="display: inline-block; width: 50px;"> Left: </span>
-<button class="w2ui-btn" onclick="w2ui['layout'].html('left', 'This is some content set manually')">Set Content</button>
-<button class="w2ui-btn" onclick="w2ui['layout'].load('left', 'data/content1.html')">Load Content 1</button>
-<button class="w2ui-btn" onclick="w2ui['layout'].load('left', 'data/content2.html')">Load Content 2</button>
+<button class="w2ui-btn" onclick="action('html', 'left', 'This is some content set manually')">Set Content</button>
+<button class="w2ui-btn" onclick="action('load', 'left', 'data/content1.html')">Load Content 1</button>
+<button class="w2ui-btn" onclick="action('load', 'left', 'data/content2.html')">Load Content 2</button>
 
 <div style="height: 10px;"></div>
 
 <span style="display: inline-block; width: 50px;"> Main: </span>
-<button class="w2ui-btn" onclick="w2ui['layout'].html('main', 'This is some content set manually')">Set Content</button>
-<button class="w2ui-btn" onclick="w2ui['layout'].load('main', 'data/content1.html')">Load Content 1</button>
-<button class="w2ui-btn" onclick="w2ui['layout'].load('main', 'data/content2.html')">Load Content 2</button>
+<button class="w2ui-btn" onclick="action('html', 'main', 'This is some content set manually')">Set Content</button>
+<button class="w2ui-btn" onclick="action('load', 'main', 'data/content1.html')">Load Content 1</button>
+<button class="w2ui-btn" onclick="action('load', 'main', 'data/content2.html')">Load Content 2</button>
 
 <!--CODE-->
-<script>
-query(() => {
-    let pstyle = 'border: 1px solid #efefef; padding: 5px;';
-    new w2layout({
-        box: '#layout',
-        name: 'layout',
-        panels: [
-            { type: 'top', size: 50, style: pstyle, html: 'top', resizable: true },
-            { type: 'left', size: 300, style: pstyle, html: 'left', resizable: true },
-            { type: 'main', style: pstyle, html: 'main' }
-        ]
-    });
-});
+<script type="module">
+import { w2layout  } from '__W2UI_PATH__'
+
+let pstyle = 'border: 1px solid #efefef; padding: 5px'
+let layout = new w2layout({
+    box: '#layout',
+    name: 'layout',
+    panels: [
+        { type: 'top', size: 50, style: pstyle, html: 'top', resizable: true },
+        { type: 'left', size: 300, style: pstyle, html: 'left', resizable: true },
+        { type: 'main', style: pstyle, html: 'main' }
+    ]
+})
+
+window.action = function(method, param1, param2) {
+    layout[method](param1, param2)
+}
 </script>

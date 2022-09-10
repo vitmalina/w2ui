@@ -10,22 +10,22 @@
 </div>
 
 <!--CODE-->
-<div id="layout" style="width: 100%; height: 400px;"></div>
+<div id="layout" style="width: 900px; height: 400px;"></div>
 
 <!--CODE-->
-<script>
-query(() => {
-    let pstyle = 'border: 1px solid #efefef; padding: 5px;';
-    new w2layout({
-        box: '#layout',
-        name: 'layout',
-        padding: 4,
-        panels: [
-            { type: 'top', size: 50, resizable: true, style: pstyle, html: 'top' },
-            { type: 'left', size: 200, resizable: true, style: pstyle, html: 'left' },
-            { type: 'main', style: pstyle, html: 'main' },
-            { type: 'right', size: 200, resizable: true, style: pstyle, html: 'right' }
-        ]
-    });
-});
+<script type="module">
+import { w2layout  } from '__W2UI_PATH__'
+
+let pstyle = 'border: 1px solid #efefef; padding: 5px'
+new w2layout({
+    box: '#layout',
+    name: 'layout',
+    padding: 4,
+    panels: [
+        { type: 'top', size: 50, resizable: true, style: pstyle, html: 'top' },
+        { type: 'left', size: 200, resizable: true, style: pstyle, html: 'left' },
+        { type: 'main', style: pstyle, html: 'main' },
+        { type: 'right', size: 200, resizable: true, style: pstyle, html: 'right' }
+    ]
+})
 </script>

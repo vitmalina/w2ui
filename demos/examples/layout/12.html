@@ -15,23 +15,28 @@
 
 <div style="height: 20px;"></div>
 
-<button class="w2ui-btn" onclick="query('#layout').css('width', '700px'); w2ui.layout.resize()">width=700px</button>
-<button class="w2ui-btn" onclick="query('#layout').css('width', '100%'); w2ui.layout.resize()">width=100%</button>
+<button class="w2ui-btn" onclick="setSize('700px')">width=700px</button>
+<button class="w2ui-btn" onclick="setSize('100%')">width=100%</button>
 
 <!--CODE-->
-<script>
-query(() => {
-    let pstyle = 'border: 1px solid #efefef; padding: 5px;';
-    let pstyle2 = 'background-color: #efefbbad; border: 1px solid #efefef; padding: 5px;'
-    new w2layout({
-        box: '#layout',
-        name: 'layout',
-        padding: 5,
-        panels: [
-            { type: 'left', size: 200, resizable: true, style: pstyle, html: 'left' },
-            { type: 'main', style: pstyle2, html: 'main' },
-            { type: 'right', style: pstyle, size: -300, html: 'right', resizable: true }
-        ]
-    });
-});
+<script type="module">
+import { w2layout, query  } from '__W2UI_PATH__'
+
+let pstyle = 'border: 1px solid #efefef; padding: 5px'
+let pstyle2 = 'background-color: #efefbbad; border: 1px solid #efefef; padding: 5px'
+let layout = new w2layout({
+    box: '#layout',
+    name: 'layout',
+    padding: 5,
+    panels: [
+        { type: 'left', size: 200, resizable: true, style: pstyle, html: 'left' },
+        { type: 'main', style: pstyle2, html: 'main' },
+        { type: 'right', style: pstyle, size: -300, html: 'right', resizable: true }
+    ]
+})
+
+window.setSize = function (size) {
+    query('#layout').css('width', size)
+    layout.resize()
+}
 </script>

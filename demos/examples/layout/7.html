@@ -9,57 +9,66 @@
 </div>
 
 <!--CODE-->
-<div id="layout" style="width: 100%; height: 400px;"></div>
+<div id="layout" style="width: 900px; height: 400px;"></div>
 <div style="height: 20px;"></div>
 
 <div id="main">
     <span style="display: inline-block; width: 60px;"> Main: </span>
-    <button class="w2ui-btn" onclick="w2ui['layout'].toggle('top', window.instant)">Top</button>
-    <button class="w2ui-btn" onclick="w2ui['layout'].toggle('left', window.instant)">Left</button>
-    <button class="w2ui-btn" onclick="w2ui['layout'].toggle('right', window.instant)">Right</button>
-    <button class="w2ui-btn" onclick="w2ui['layout'].toggle('preview', window.instant)">Preview</button>
-    <button class="w2ui-btn" onclick="w2ui['layout'].toggle('bottom', window.instant)">Bottom</button>
+    <button class="w2ui-btn" onclick="action('toggle', 'top', window.instant)">Top</button>
+    <button class="w2ui-btn" onclick="action('toggle', 'left', window.instant)">Left</button>
+    <button class="w2ui-btn" onclick="action('toggle', 'right', window.instant)">Right</button>
+    <button class="w2ui-btn" onclick="action('toggle', 'preview', window.instant)">Preview</button>
+    <button class="w2ui-btn" onclick="action('toggle', 'bottom', window.instant)">Bottom</button>
 </div>
 
 <div style="height: 10px;"></div>
 <div id="nested">
     <span style="display: inline-block; width: 60px;"> Nested: </span>
-    <button class="w2ui-btn" onclick="w2ui['layout2'].toggle('top', window.instant)">Top</button>
-    <button class="w2ui-btn" onclick="w2ui['layout2'].toggle('left', window.instant)">Left</button>
-    <button class="w2ui-btn" onclick="w2ui['layout2'].toggle('right', window.instant)">Right</button>
-    <button class="w2ui-btn" onclick="w2ui['layout2'].toggle('preview', window.instant)">Preview</button>
-    <button class="w2ui-btn" onclick="w2ui['layout2'].toggle('bottom', window.instant)">Bottom</button>
+    <button class="w2ui-btn" onclick="action2('toggle', 'top', window.instant)">Top</button>
+    <button class="w2ui-btn" onclick="action2('toggle', 'left', window.instant)">Left</button>
+    <button class="w2ui-btn" onclick="action2('toggle', 'right', window.instant)">Right</button>
+    <button class="w2ui-btn" onclick="action2('toggle', 'preview', window.instant)">Preview</button>
+    <button class="w2ui-btn" onclick="action2('toggle', 'bottom', window.instant)">Bottom</button>
 </div>
 
 <!--CODE-->
-<script>
-query(() => {
-    let pstyle = 'border: 1px solid #efefef; padding: 5px;';
-    new w2layout({
-        box: '#layout',
-        name: 'layout',
-        panels: [
-            { type: 'top', size: 50, resizable: true, style: pstyle, html: 'top' },
-            { type: 'left', size: 200, resizable: true, style: pstyle, html: 'left' },
-            { type: 'main', style: 'background-color: white;', overflow: 'hidden' },
-            { type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle, html: 'preview' },
-            { type: 'right', size: 200, resizable: true, style: pstyle, html: 'right' },
-            { type: 'bottom', size: 50, resizable: true, hidden: true, style: pstyle, html: 'bottom' }
-        ]
-    });
-    pstyle = 'background-color: #efefbbad; border: 1px solid #efefef; padding: 5px;';
-    new w2layout({
-        name: 'layout2',
-        panels: [
-            { type: 'top', size: 40, resizable: true, style: pstyle, html: 'top' },
-            { type: 'left', size: 80, resizable: true, style: pstyle, html: 'left' },
-            { type: 'main', style: pstyle },
-            { type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle, html: 'preview' },
-            { type: 'right', size: 80, resizable: true, style: pstyle, html: 'right' },
-            { type: 'bottom', size: 40, resizable: true, hidden: true, style: pstyle, html: 'bottom' }
-        ]
-    });
+<script type="module">
+import { w2layout  } from '__W2UI_PATH__'
 
-    w2ui.layout.html('main', w2ui.layout2);
-});
+let pstyle = 'border: 1px solid #efefef; padding: 5px'
+let layout = new w2layout({
+    box: '#layout',
+    name: 'layout',
+    panels: [
+        { type: 'top', size: 50, resizable: true, style: pstyle, html: 'top' },
+        { type: 'left', size: 200, resizable: true, style: pstyle, html: 'left' },
+        { type: 'main', style: 'background-color: white;', overflow: 'hidden' },
+        { type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle, html: 'preview' },
+        { type: 'right', size: 200, resizable: true, style: pstyle, html: 'right' },
+        { type: 'bottom', size: 50, resizable: true, hidden: true, style: pstyle, html: 'bottom' }
+    ]
+})
+
+pstyle = 'background-color: #efefbbad; border: 1px solid #efefef; padding: 5px'
+let layout2 = new w2layout({
+    name: 'layout2',
+    panels: [
+        { type: 'top', size: 40, resizable: true, style: pstyle, html: 'top' },
+        { type: 'left', size: 80, resizable: true, style: pstyle, html: 'left' },
+        { type: 'main', style: pstyle },
+        { type: 'preview', size: '50%', resizable: true, hidden: true, style: pstyle, html: 'preview' },
+        { type: 'right', size: 80, resizable: true, style: pstyle, html: 'right' },
+        { type: 'bottom', size: 40, resizable: true, hidden: true, style: pstyle, html: 'bottom' }
+    ]
+})
+
+layout.html('main', layout2)
+
+window.action = function(method, param1, param2, param3) {
+    layout[method](param1, param2, param3)
+}
+
+window.action2 = function(method, param1, param2, param3) {
+    layout2[method](param1, param2, param3)
+}
 </script>

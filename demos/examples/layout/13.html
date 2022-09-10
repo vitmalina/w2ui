@@ -12,7 +12,7 @@
 </div>
 
 <!--CODE-->
-<div id="layout" style="width: 100%; height: 300px;"></div>
+<div id="layout" style="width: 900px; height: 300px;"></div>
 
 <div style="height: 20px;"></div>
 
@@ -21,34 +21,34 @@
 <span id="log"></span>
 
 <!--CODE-->
-<script>
-query(() => {
-    let pstyle = 'border: 1px solid #efefef; padding: 5px;';
-    new w2layout({
-        box: '#layout',
-        name: 'layout',
-        panels: [
-            { type: 'left', size: 200, resizable: true, style: pstyle, html: 'left' },
-            { type: 'main', style: pstyle, html: 'main',
-                callBack(event) {
-                    query('#log').html('Original content is removed')
-                }
+<script type="module">
+import { w2layout, query } from '__W2UI_PATH__'
+
+let pstyle = 'border: 1px solid #efefef; padding: 5px'
+let layout = new w2layout({
+    box: '#layout',
+    name: 'layout',
+    panels: [
+        { type: 'left', size: 200, resizable: true, style: pstyle, html: 'left' },
+        { type: 'main', style: pstyle, html: 'main',
+            callBack(event) {
+                query('#log').html('Original content is removed')
             }
-        ],
-        onChange(event) {
-            console.log('Content changed', event)
         }
-    })
+    ],
+    onChange(event) {
+        console.log('Content changed', event)
+    }
 })
 
-function content1() {
-    w2ui.layout
+window.content1 = function() {
+    layout
         .html('main', 'Content of the panel')
         .removed(removed)
 }
 
-function content2() {
-    w2ui.layout
+window.content2 = function() {
+    layout
         .html('main', 'Some other content')
         .removed(removed)
 }

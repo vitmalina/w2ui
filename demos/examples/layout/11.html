@@ -11,7 +11,7 @@
 </div>
 
 <!--CODE-->
-<div id="layout" style="width: 100%; height: 300px;"></div>
+<div id="layout" style="width: 900px; height: 300px;"></div>
 
 <div style="height: 20px;"></div>
 
@@ -19,25 +19,26 @@
 <button class="w2ui-btn" onclick="showConfirm('main')">Show Confirmation (2.0+)</button>
 
 <!--CODE-->
-<script>
-query(() => {
-    let pstyle = 'border: 1px solid #efefef; padding: 5px;';
-    new w2layout({
-        box: '#layout',
-        name: 'layout',
-        panels: [
-            { type: 'left', size: 200, resizable: true, style: pstyle, html: 'left' },
-            { type: 'main', style: pstyle, html: 'main' }
-        ]
-    });
-});
-function showMessage(panel) {
-    w2ui.layout.message('main', `<div class="w2ui-centered">Some Text ${Date.now()}</div>`)
+<script type="module">
+import { w2layout  } from '__W2UI_PATH__'
+
+let pstyle = 'border: 1px solid #efefef; padding: 5px'
+let layout = new w2layout({
+    box: '#layout',
+    name: 'layout',
+    panels: [
+        { type: 'left', size: 200, resizable: true, style: pstyle, html: 'left' },
+        { type: 'main', style: pstyle, html: 'main' }
+    ]
+})
+
+window.showMessage = function(panel) {
+    layout.message('main', `<div class="w2ui-centered">Some Text ${Date.now()}</div>`)
         .ok(event => { console.log('Ok btn', event.detail) })
 }
 
-function showConfirm(panel) {
-    w2ui.layout.confirm('main', 'Confirmation')
+window.showConfirm = function(panel) {
+    layout.confirm('main', 'Confirmation')
         .yes(event => { console.log('Yes btn', event.detail) })
         .no(event => { console.log('No btn', event.detail) })
 }

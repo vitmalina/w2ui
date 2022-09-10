@@ -16,39 +16,43 @@
 </div>
 
 <!--CODE-->
-<div id="layout" style="width: 100%; height: 400px;"></div>
+<div id="layout" style="width: 900px; height: 400px;"></div>
 
 <div style="height: 20px;"></div>
 
 <span style="display: inline-block; width: 50px;"> Main: </span>
-<button class="w2ui-btn" onclick="w2ui['layout'].html('main', 'This is some content set manually')">Set Content</button>
-<button class="w2ui-btn" onclick="w2ui['layout'].load('main', 'data/content1.html')">Load Content 1</button>
-<button class="w2ui-btn" onclick="w2ui['layout'].load('main', 'data/content2.html')">Load Content 2</button>
+<button class="w2ui-btn" onclick="action('html', 'main', 'This is some content set manually')">Set Content</button>
+<button class="w2ui-btn" onclick="action('load', 'main', 'data/content1.html')">Load Content 1</button>
+<button class="w2ui-btn" onclick="action('load', 'main', 'data/content2.html')">Load Content 2</button>
 
 <!--CODE-->
-<script>
-query(() => {
-    let pstyle = 'border: 1px solid #efefef; padding: 5px;';
-    new w2layout({
-        box: '#layout',
-        name: 'layout',
-        panels: [
-            { type: 'top', size: 50, resizable: true, style: pstyle, html: 'top' },
-            { type: 'left', size: 200, resizable: true, style: pstyle, html: 'left' },
-            { type: 'main', style: pstyle, html: 'main',
-                tabs: {
-                    active: 'tab1',
-                    tabs: [
-                        { id: 'tab1', text: 'Tab 1' },
-                        { id: 'tab2', text: 'Tab 2' },
-                        { id: 'tab3', text: 'Tab 3' }
-                    ],
-                    onClick (event) {
-                        this.owner.html('main', event.target);
-                    }
+<script type="module">
+import { w2layout  } from '__W2UI_PATH__'
+
+let pstyle = 'border: 1px solid #efefef; padding: 5px'
+let layout = new w2layout({
+    box: '#layout',
+    name: 'layout',
+    panels: [
+        { type: 'top', size: 50, resizable: true, style: pstyle, html: 'top' },
+        { type: 'left', size: 200, resizable: true, style: pstyle, html: 'left' },
+        { type: 'main', style: pstyle, html: 'main',
+            tabs: {
+                active: 'tab1',
+                tabs: [
+                    { id: 'tab1', text: 'Tab 1' },
+                    { id: 'tab2', text: 'Tab 2' },
+                    { id: 'tab3', text: 'Tab 3' }
+                ],
+                onClick (event) {
+                    this.owner.html('main', event.target);
                 }
             }
-        ]
-    });
-});
+        }
+    ]
+})
+
+window.action = function(method, param1, param2, param3) {
+    layout[method](param1, param2, param3)
+}
 </script>
