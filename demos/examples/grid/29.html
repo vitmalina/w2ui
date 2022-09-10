@@ -34,10 +34,52 @@
 <button class="w2ui-btn" onclick="styleToggle(9)">Toggle #9</button>
 
 <!--CODE-->
-<script>
-function styleToggle(recid) {
-    const ind = w2ui.grid.get(recid, true)
-    const record = w2ui.grid.records[ind]
+<script type="module">
+import { w2grid, w2utils } from '__W2UI_PATH__'
+
+w2utils.formatters.custom_centered = function(value, params, record) {
+    if (!value) {
+        return 'Bad Date!'
+    }
+    return '<div style="text-align: center">'+ value +'</div>'
+}
+
+let grid = new w2grid({
+    name: 'grid',
+    box: '#grid',
+    show: {
+        lineNumbers: true,
+    },
+    columns: [
+        { field: 'fname', text: 'First Name', size: '120px', info: true },
+        { field: 'lname', text: 'Last Name', size: '120px',
+            render(record, extra) {
+                if (extra.value === 'W2ui') {
+                    return '<a href="http://w2ui.com" target="_blank" title="Click Me!"><u>http://w2ui.com</u></a>'
+                }
+                return extra.value
+            }
+        },
+        { field: 'email', text: 'Email', size: '150px' },
+        { field: 'sdate', text: 'Start Date', size: '100px', render: 'custom_centered' },
+        { field: 'comment', text: 'Comment', size: '100%' },
+    ],
+    "records": [
+        { recid: 1, fname: "John", lname: "Doe", email: "jdoe@gmail.com", sdate: "4/3/2012", comment: "not styled" },
+        { recid: 2, fname: "Stuart", lname: "Motzart", email: "jdoe@gmail.com", sdate: "4/3/2012", comment: 'w2ui: { style: "background-color: #C2F5B4" }', w2ui: { style: "background-color: #C2F5B4" } },
+        { recid: 3, fname: "Jin", lname: "Franson", email: "jdoe@gmail.com", sdate: "4/3/2012", comment: 'w2ui: { class: "row" }', w2ui: { class: "row" } },
+        { recid: 4, fname: "Susan", lname: "Ottie", email: "jdoe@gmail.com", sdate: "4/3/2012", comment: 'w2ui: { style: { lname: "background: red;", email: "font-weight: bold;" } }', w2ui: { style: { lname: "background: red;", email: "font-weight: bold;" } } },
+        { recid: 5, fname: "Kelly", lname: "Silver", email: "jdoe@gmail.com", sdate: "4/3/2012", comment: 'w2ui: { class: { fname: "cell1", sdate: "cell2" } }', w2ui: { class: { fname: "cell1", sdate: "cell2" } } },
+        { recid: 6, fname: "Francis", lname: "W2ui", email: "jdoe@gmail.com", sdate: "4/3/2012", comment: '"Last Name" modified by column renderer' },
+        { recid: 7, fname: "Sergei", lname: "Rachmaninov", email: "jdoe@gmail.com", sdate: 0, comment: "not styled" },
+        { recid: 8, fname: "Mike", lname: "Scotty", email: "mscotty@gmail.com", sdate: "11/11/2022", comment: "styled on button click with w2ui.style.column #" },
+        { recid: 9, fname: "Pat", lname: "Tobson", email: "ptob@gmail.com", sdate: "12/12/2012", comment: "styled on button click with w2ui.class.column #" },
+    ]
+})
+
+window.styleToggle = function (recid) {
+    const ind = grid.get(recid, true)
+    const record = grid.records[ind]
     if(record.w2ui) {
         delete record.w2ui
     }
@@ -83,46 +125,6 @@ function styleToggle(recid) {
             }
         }
     }
-    w2ui.grid.refreshRow(recid, ind)
+    grid.refreshRow(recid, ind)
 }
-query(() => {
-    w2utils.formatters.custom_centered = function(value, params, record) {
-        if (!value) {
-            return 'Bad Date!'
-        }
-        return '<div style="text-align: center">'+ value +'</div>'
-    }
-    new w2grid({
-        name: 'grid',
-        box: '#grid',
-        show: {
-            lineNumbers: true,
-        },
-        columns: [
-            { field: 'fname', text: 'First Name', size: '120px', info: true },
-            { field: 'lname', text: 'Last Name', size: '120px',
-                render(record, extra) {
-                    if (extra.value === 'W2ui') {
-                        return '<a href="http://w2ui.com" target="_blank" title="Click Me!"><u>http://w2ui.com</u></a>'
-                    }
-                    return extra.value
-                }
-            },
-            { field: 'email', text: 'Email', size: '150px' },
-            { field: 'sdate', text: 'Start Date', size: '100px', render: 'custom_centered' },
-            { field: 'comment', text: 'Comment', size: '100%' },
-        ],
-        "records": [
-            { recid: 1, fname: "John", lname: "Doe", email: "jdoe@gmail.com", sdate: "4/3/2012", comment: "not styled" },
-            { recid: 2, fname: "Stuart", lname: "Motzart", email: "jdoe@gmail.com", sdate: "4/3/2012", comment: 'w2ui: { style: "background-color: #C2F5B4" }', w2ui: { style: "background-color: #C2F5B4" } },
-            { recid: 3, fname: "Jin", lname: "Franson", email: "jdoe@gmail.com", sdate: "4/3/2012", comment: 'w2ui: { class: "row" }', w2ui: { class: "row" } },
-            { recid: 4, fname: "Susan", lname: "Ottie", email: "jdoe@gmail.com", sdate: "4/3/2012", comment: 'w2ui: { style: { lname: "background: red;", email: "font-weight: bold;" } }', w2ui: { style: { lname: "background: red;", email: "font-weight: bold;" } } },
-            { recid: 5, fname: "Kelly", lname: "Silver", email: "jdoe@gmail.com", sdate: "4/3/2012", comment: 'w2ui: { class: { fname: "cell1", sdate: "cell2" } }', w2ui: { class: { fname: "cell1", sdate: "cell2" } } },
-            { recid: 6, fname: "Francis", lname: "W2ui", email: "jdoe@gmail.com", sdate: "4/3/2012", comment: '"Last Name" modified by column renderer' },
-            { recid: 7, fname: "Sergei", lname: "Rachmaninov", email: "jdoe@gmail.com", sdate: 0, comment: "not styled" },
-            { recid: 8, fname: "Mike", lname: "Scotty", email: "mscotty@gmail.com", sdate: "11/11/2022", comment: "styled on button click with w2ui.style.column #" },
-            { recid: 9, fname: "Pat", lname: "Tobson", email: "ptob@gmail.com", sdate: "12/12/2012", comment: "styled on button click with w2ui.class.column #" },
-        ]
-    })
-})
 </script>

@@ -12,20 +12,20 @@
 <div id="grid" style="width: 600px; height: 400px;"></div>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2grid({
-        name: 'grid',
-        box: '#grid',
-        columns: [
-            { field: 'fname', text: 'First Name', size: '120px', searchable: 'text', clipboardCopy: "Copy First Name to Clipboard" },
-            { field: 'lname', text: 'Last Name', size: '120px', searchable: 'text', clipboardCopy: true },
-            { field: 'email', text: 'Email', size: '40%', clipboardCopy: true },
-            { field: 'sdate', text: 'Start Date', size: '120px', clipboardCopy: true }
-        ],
-    })
-    w2ui.grid.load('data/list4.json')
+<script type="module">
+import { w2grid } from '__W2UI_PATH__'
+
+let grid = new w2grid({
+    name: 'grid',
+    box: '#grid',
+    columns: [
+        { field: 'fname', text: 'First Name', size: '120px', searchable: 'text', clipboardCopy: "Copy First Name to Clipboard" },
+        { field: 'lname', text: 'Last Name', size: '120px', searchable: 'text', clipboardCopy: true },
+        { field: 'email', text: 'Email', size: '40%', clipboardCopy: true },
+        { field: 'sdate', text: 'Start Date', size: '120px', clipboardCopy: true }
+    ],
 })
+grid.load('data/list4.json')
 </script>
 
 <!--CODE-->

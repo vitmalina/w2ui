@@ -10,49 +10,54 @@
 <!--CODE-->
 <div id="grid" style="width: 900px; height: 440px; overflow: hidden;"></div>
 <br>
-<button class="w2ui-btn" onclick="var obj = w2ui['grid']; obj.show.header = !obj.show.header; w2ui['grid'].refresh();">Header</button>
-<button class="w2ui-btn" onclick="var obj = w2ui['grid']; obj.show.toolbar = !obj.show.toolbar; w2ui['grid'].refresh();">Toolbar</button>
-<button class="w2ui-btn" onclick="var obj = w2ui['grid']; obj.show.columnHeaders = !obj.show.columnHeaders; w2ui['grid'].refresh();">Column Headers</button>
-<button class="w2ui-btn" onclick="var obj = w2ui['grid']; obj.show.footer = !obj.show.footer; w2ui['grid'].refresh();">Footer</button>
+<button class="w2ui-btn" onclick="action('header')">Header</button>
+<button class="w2ui-btn" onclick="action('toolbar')">Toolbar</button>
+<button class="w2ui-btn" onclick="action('columnHeaders')">Column Headers</button>
+<button class="w2ui-btn" onclick="action('footer')">Footer</button>
 <span style="padding: 10px; color: silver">|</span>
-<button class="w2ui-btn" onclick="var obj = w2ui['grid']; obj.show.lineNumbers = !obj.show.lineNumbers; w2ui['grid'].refresh();">Line Numbers</button>
-<button class="w2ui-btn" onclick="var obj = w2ui['grid']; obj.show.selectColumn = !obj.show.selectColumn; w2ui['grid'].refresh();">Select Column</button>
-<button class="w2ui-btn" onclick="var obj = w2ui['grid']; obj.show.expandColumn = !obj.show.expandColumn; w2ui['grid'].refresh();">Expand Column</button>
-<button class="w2ui-btn" onclick="var obj = w2ui['grid']; obj.show.orderColumn = !obj.show.orderColumn; w2ui['grid'].refresh();">Order Column (1.5+)</button>
+<button class="w2ui-btn" onclick="action('lineNumbers')">Line Numbers</button>
+<button class="w2ui-btn" onclick="action('selectColumn')">Select Column</button>
+<button class="w2ui-btn" onclick="action('expandColumn')">Expand Column</button>
+<button class="w2ui-btn" onclick="action('orderColumn')">Order Column (1.5+)</button>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2grid({
-        name: 'grid',
-        box: '#grid',
-        header: 'List of Names',
-        reorderRows: true,
-        show: {
-            header: true,
-            footer: true,
-            toolbar: true,
-            lineNumbers: true
-        },
-        columns: [
-            { field: 'recid', text: 'ID', size: '30px' },
-            { field: 'fname', text: 'First Name', size: '30%' },
-            { field: 'lname', text: 'Last Name', size: '30%' },
-            { field: 'email', text: 'Email', size: '40%' },
-            { field: 'sdate', text: 'Start Date', size: '120px' }
-        ],
-        searches: [
-            { type: 'int',  field: 'recid', label: 'ID' },
-            { type: 'text', field: 'fname', label: 'First Name' },
-            { type: 'text', field: 'lname', label: 'Last Name' },
-            { type: 'date', field: 'sdate', label: 'Start Date' }
-        ],
-        onExpand(event) {
-            query('#'+event.detail.box_id).html('<div style="padding: 10px; height: 100px">Expanded content</div>')
-        }
-    })
-    w2ui.grid.load('data/list.json')
+<script type="module">
+import { w2grid } from '__W2UI_PATH__'
+
+let grid = new w2grid({
+    name: 'grid',
+    box: '#grid',
+    header: 'List of Names',
+    reorderRows: true,
+    show: {
+        header: true,
+        footer: true,
+        toolbar: true,
+        lineNumbers: true
+    },
+    columns: [
+        { field: 'recid', text: 'ID', size: '30px' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' }
+    ],
+    searches: [
+        { type: 'int',  field: 'recid', label: 'ID' },
+        { type: 'text', field: 'fname', label: 'First Name' },
+        { type: 'text', field: 'lname', label: 'Last Name' },
+        { type: 'date', field: 'sdate', label: 'Start Date' }
+    ],
+    onExpand(event) {
+        query('#'+event.detail.box_id).html('<div style="padding: 10px; height: 100px">Expanded content</div>')
+    }
 })
+grid.load('data/list.json')
+
+window.action = function (param1) {
+    grid.show[param1] = !grid.show[param1]
+    grid.refresh()
+}
 </script>
 
 <!--CODE-->

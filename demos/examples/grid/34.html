@@ -12,13 +12,13 @@
 <br>
 <div style="float: left">
     <label style="position: relative; top: 3px; left: 10px">
-        <input type="checkbox" id="singleOrMulti" style="position: relative; top: 1px; left: -2px;" onclick="multi(this)">
+        <input type="checkbox" id="singleOrMulti" style="position: relative; top: 1px; left: -2px;" onclick="setMulti(this)">
         Multi Field Search
     </label>
 </div>
 <div style="float: left; margin-left: 30px; margin-top: 1px;">
     Operator:
-    <select class="w2ui-input" onchange="oper(this.value)">
+    <select class="w2ui-input" onchange="setOperator(this.value)">
         <option value="is">is</option>
         <option value="begins">begins</option>
         <option value="contains" selected>contains</option>
@@ -28,33 +28,33 @@
 <div style="clear:both; height: 10px;"></div>
 
 <!--CODE-->
-<script>
-query(() => {
-    let grid = new w2grid({
-        box: '#grid',
-        name: 'grid',
-        liveSearch: true,
-        multiSearch: false,
-        show: { toolbar: true, },
-        columns: [
-            { field: 'lname', text: 'Last Name', size: '30%', searchable: { operator: 'contains' }, sortable: true },
-            { field: 'fname', text: 'First Name', size: '30%', searchable: { operator: 'contains' }, sortable: true },
-            { field: 'email', text: 'Email', size: '40%', sortable: true },
-            { field: 'sdate', text: 'Start Date', size: '120px', sortable: true }
-        ]
-    })
-    grid.load('data/list.json')
-});
+<script type="module">
+import { w2grid } from '__W2UI_PATH__'
 
-function multi(el) {
-    w2ui.grid.multiSearch = el.checked
-    w2ui.grid.searchReset()
-    w2ui.grid.refresh()
+let grid = new w2grid({
+    box: '#grid',
+    name: 'grid',
+    liveSearch: true,
+    multiSearch: false,
+    show: { toolbar: true, },
+    columns: [
+        { field: 'lname', text: 'Last Name', size: '30%', searchable: { operator: 'contains' }, sortable: true },
+        { field: 'fname', text: 'First Name', size: '30%', searchable: { operator: 'contains' }, sortable: true },
+        { field: 'email', text: 'Email', size: '40%', sortable: true },
+        { field: 'sdate', text: 'Start Date', size: '120px', sortable: true }
+    ]
+})
+grid.load('data/list.json')
+
+window.setMulti = function(el) {
+    grid.multiSearch = el.checked
+    grid.searchReset()
+    grid.refresh()
 }
 
-function oper(op) {
-    w2ui.grid.searches.forEach(search => { search.operator = op })
-    w2ui.grid.searchReset()
+window.setOperator = function(op) {
+    grid.searches.forEach(search => { search.operator = op })
+    grid.searchReset()
 }
 </script>
 

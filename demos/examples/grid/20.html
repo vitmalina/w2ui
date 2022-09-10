@@ -10,33 +10,37 @@
 
 <!--CODE-->
 <div style="position: relative; height: 300px;">
-    <div id="grid1" style="position: absolute; left: 0px; width: 49.9%; height: 300px; border: 2px solid green;"></div>
-    <div id="grid2" style="position: absolute; right: 0px; width: 49.9%; height: 300px; border: 2px solid red;"></div>
+    <div id="grid1" style="display: inline-block; width: 500px; height: 300px; border: 2px solid green;"></div>
+    <div id="grid2" style="display: inline-block; width: 500px; height: 300px; border: 2px solid red;"></div>
 </div>
 <br>
-<button class="w2ui-btn" onclick="w2ui.grid.render('#grid1')">Render into Green Box</button>
-<button class="w2ui-btn" onclick="w2ui.grid.render('#grid2')">Render into Red Box</button>
+<button class="w2ui-btn" onclick="render('#grid1')">Render into Green Box</button>
+<button class="w2ui-btn" onclick="render('#grid2')">Render into Red Box</button>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2grid({
-        name: 'grid',
-        columns: [
-            { field: 'recid', text: 'ID', size: '50px', sortable: true, attr: 'align=center' },
-            { field: 'lname', text: 'Last Name', size: '30%', sortable: true },
-            { field: 'fname', text: 'First Name', size: '30%', sortable: true },
-            { field: 'email', text: 'Email', size: '40%' },
-            { field: 'sdate', text: 'Start Date', size: '120px' }
-        ],
-        records: [
-            { recid: 1, fname: 'Jane', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
-        ]
-    });
-});
+<script type="module">
+import { w2grid } from '__W2UI_PATH__'
+
+let grid = new w2grid({
+    name: 'grid',
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px', sortable: true, attr: 'align=center' },
+        { field: 'lname', text: 'Last Name', size: '30%', sortable: true },
+        { field: 'fname', text: 'First Name', size: '30%', sortable: true },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' }
+    ],
+    records: [
+        { recid: 1, fname: 'Jane', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
+    ]
+})
+
+window.render = function(box) {
+    grid.render(box)
+}
 </script>

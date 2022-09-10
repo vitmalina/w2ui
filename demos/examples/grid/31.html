@@ -15,50 +15,51 @@
 <!--CODE-->
 <div id="grid" style="width: 600px; height: 200px"></div>
 <br>
-Column tooltip position: <input id="grid_columnTooltip" />
+Column tooltip position: <input id="grid_columnTooltip" style="width: 100px">
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2grid({
-        name: 'grid',
-        box: '#grid',
-        show: {
-            lineNumbers: true,
-            recordTitles: true
-        },
-        columns: [
-            { field: 'lname', text: 'Last Name', size: '30%', tooltip: 'This is a column tooltip', title: 'This is a column title' },
-            { field: 'fname', text: 'First Name', size: '30%', tooltip: 'Another <u>column</u> <b>tooltip</b><br> with HTML', title: title_function },
-            { field: 'email', text: 'Email', size: '40%', tooltip: 'EMail' },
-            { field: 'sdate', text: 'Start Date', size: '90px', tooltip: 'Long tooltip to show how "right|left" works' }
-        ],
-        records: [
-            { recid: 1, fname: 'Jane', lname: 'Doe', email: 'Doe@gmail.com', sdate: '4/3/2012' },
-            { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'Motzart@gmail.com', sdate: '4/3/2013' },
-            { recid: 3, fname: 'Jin', lname: 'Franson', email: 'Franson@gmail.com', sdate: '4/3/2014' },
-            { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'Ottie@gmail.com', sdate: '4/3/2015' },
-            { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'Silver@gmail.com', sdate: '4/3/2016' },
-            { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'Gatos@gmail.com', sdate: '4/3/2017' },
-            { recid: 7, fname: 'Mark', lname: 'Welldo', email: 'Welldo@gmail.com', sdate: '4/3/2018' },
-            { recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'Bahh@gmail.com', sdate: '4/3/2019' },
-            { recid: 9, fname: 'Mark', lname: 'Welldo', email: 'Welldo@gmail.com', sdate: '4/3/2020' },
-            { recid: 10, fname: 'Thomas', lname: 'Bahh', email: 'Bahh@gmail.com', sdate: '4/3/2021' },
-            { recid: 11, fname: 'Jane', lname: 'Doe', email: 'Doe@gmail.com', sdate: '4/3/2022' },
-            { recid: 12, fname: 'Stuart', lname: 'Motzart', email: 'Motzart@gmail.com', sdate: '4/3/2023' }
-        ]
-    });
+<script type="module">
+import { w2grid, w2field, query } from '__W2UI_PATH__'
 
-    new w2field({
-        el: query('#grid_columnTooltip')[0],
-        type: 'list',
-        items: ['top', 'right', 'bottom', 'left', 'top|bottom', 'right|left'],
-        selected: 'top|bottom'
-    })
-    query('#grid_columnTooltip').on('change', function(event) {
-        w2ui.grid.columnTooltip =query(this).val()
-        w2ui.grid.refresh() // changing from/to 'normal' requires the column HTML to be rebuilt
-    })
+let grid = new w2grid({
+    name: 'grid',
+    box: '#grid',
+    show: {
+        lineNumbers: true,
+        recordTitles: true
+    },
+    columns: [
+        { field: 'lname', text: 'Last Name', size: '30%', tooltip: 'This is a column tooltip', title: 'This is a column title' },
+        { field: 'fname', text: 'First Name', size: '30%', tooltip: 'Another <u>column</u> <b>tooltip</b><br> with HTML', title: title_function },
+        { field: 'email', text: 'Email', size: '40%', tooltip: 'EMail' },
+        { field: 'sdate', text: 'Start Date', size: '90px', tooltip: 'Long tooltip to show how "right|left" works' }
+    ],
+    records: [
+        { recid: 1, fname: 'Jane', lname: 'Doe', email: 'Doe@gmail.com', sdate: '4/3/2012' },
+        { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'Motzart@gmail.com', sdate: '4/3/2013' },
+        { recid: 3, fname: 'Jin', lname: 'Franson', email: 'Franson@gmail.com', sdate: '4/3/2014' },
+        { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'Ottie@gmail.com', sdate: '4/3/2015' },
+        { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'Silver@gmail.com', sdate: '4/3/2016' },
+        { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'Gatos@gmail.com', sdate: '4/3/2017' },
+        { recid: 7, fname: 'Mark', lname: 'Welldo', email: 'Welldo@gmail.com', sdate: '4/3/2018' },
+        { recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'Bahh@gmail.com', sdate: '4/3/2019' },
+        { recid: 9, fname: 'Mark', lname: 'Welldo', email: 'Welldo@gmail.com', sdate: '4/3/2020' },
+        { recid: 10, fname: 'Thomas', lname: 'Bahh', email: 'Bahh@gmail.com', sdate: '4/3/2021' },
+        { recid: 11, fname: 'Jane', lname: 'Doe', email: 'Doe@gmail.com', sdate: '4/3/2022' },
+        { recid: 12, fname: 'Stuart', lname: 'Motzart', email: 'Motzart@gmail.com', sdate: '4/3/2023' }
+    ]
+});
+
+new w2field({
+    el: query('#grid_columnTooltip')[0],
+    type: 'list',
+    items: ['top', 'right', 'bottom', 'left', 'top|bottom', 'right|left'],
+    selected: 'top|bottom'
+})
+
+query('#grid_columnTooltip').on('change', function(event) {
+    grid.columnTooltip = query(this).val()
+    grid.refresh() // changing from/to 'normal' requires the column HTML to be rebuilt
 })
 
 function title_function(record, ind, col_ind){

@@ -13,33 +13,33 @@
 <div style="padding-top: 10px"><span style="color: gray">Selected Menu:</span> <span id="grid-log"></span></div>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2grid({
-        name: 'grid',
-        box: '#grid',
-        show: {
-            lineNumbers: true,
-        },
-        columns: [
-            { field: 'fname', text: 'First Name', size: '30%' },
-            { field: 'lname', text: 'Last Name', size: '30%' },
-            { field: 'email', text: 'Email', size: '40%' },
-            { field: 'sdate', text: 'Start Date', size: '120px' }
-        ],
-        contextMenu: [
-            { id: 'view', text: 'View', icon: 'w2ui-icon-info' },
-            { id: 'edit', text: 'Edit', icon: 'w2ui-icon-pencil' },
-            { text: '--' },
-            { id: 'delete', text: 'Delete', icon: 'w2ui-icon-cross' },
-        ],
-        onContextMenuClick(event) {
-            console.log(event)
-            query('#grid-log').html(event.detail.menuItem.text)
-        }
-    })
-    w2ui.grid.load('data/list.json')
+<script type="module">
+import { w2grid, w2field, query } from '__W2UI_PATH__'
+
+let grid = new w2grid({
+    name: 'grid',
+    box: '#grid',
+    show: {
+        lineNumbers: true,
+    },
+    columns: [
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' }
+    ],
+    contextMenu: [
+        { id: 'view', text: 'View', icon: 'w2ui-icon-info' },
+        { id: 'edit', text: 'Edit', icon: 'w2ui-icon-pencil' },
+        { text: '--' },
+        { id: 'delete', text: 'Delete', icon: 'w2ui-icon-cross' },
+    ],
+    onContextMenuClick(event) {
+        console.log(event)
+        query('#grid-log').html(event.detail.menuItem.text)
+    }
 })
+grid.load('data/list.json')
 </script>
 
 <!--CODE-->

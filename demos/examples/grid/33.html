@@ -19,33 +19,31 @@
 <span id="log"></span>
 
 <!--CODE-->
-<script>
-var timeout
+<script type="module">
+import { w2grid, query } from '__W2UI_PATH__'
 
-query(() => {
-    new w2grid({
-        name: 'grid',
-        box: '#grid',
-        show: {
-            lineNumbers: true,
-            footer: true
-        },
-        url: 'data/list3.json',
-        method: 'GET', // need this to avoid 412 error on Safari
-        limit: 50,
-        autoLoad: false,
-        columns: [
-            { field: 'fname', text: 'First Name', size: '200px' },
-            { field: 'lname', text: 'Last Name', size: '200px' },
-            { field: 'sdate', text: 'Start Date', size: '140px' },
-            { field: 'random', text: 'Random', size: '100%' },
-        ],
-    });
-    // w2ui.grid.load('data/list3.json')
-});
+let grid = new w2grid({
+    name: 'grid',
+    box: '#grid',
+    show: {
+        lineNumbers: true,
+        footer: true
+    },
+    url: 'data/list3.json',
+    method: 'GET', // need this to avoid 412 error on Safari
+    limit: 50,
+    autoLoad: false,
+    columns: [
+        { field: 'fname', text: 'First Name', size: '200px' },
+        { field: 'lname', text: 'Last Name', size: '200px' },
+        { field: 'sdate', text: 'Start Date', size: '140px' },
+        { field: 'random', text: 'Random', size: '100%' },
+    ],
+})
 
-function live(time) {
-    let grid = w2ui.grid
+let timeout
+
+window.live = function(time) {
     let stats = []
     clearInterval(timeout)
     if (time) {

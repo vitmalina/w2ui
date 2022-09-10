@@ -281,7 +281,7 @@ class w2grid extends w2base {
         this.operators = { // for search fields
             'text'    : ['is', 'begins', 'contains', 'ends'], // could have "in" and "not in"
             'number'  : ['=', 'between', '>', '<', '>=', '<='],
-            'date'    : ['is', 'between', { oper: 'less', text: 'before'}, { oper: 'more', text: 'after' }],
+            'date'    : ['is', { oper: 'less', text: 'before'}, { oper: 'more', text: 'since' }, 'between'],
             'list'    : ['is'],
             'hex'     : ['is', 'between'],
             'color'   : ['is', 'begins', 'contains', 'ends'],
@@ -1932,8 +1932,13 @@ class w2grid extends w2base {
             hasHiddenSearches = true
         }
         if (arguments.length === 0 && overlay.length === 0) {
-            field = this.searchData
-            value = this.last.logic
+            if (this.multiSearch) {
+                field = this.searchData
+                value = this.last.logic
+            } else {
+                field = this.last.field
+                value = this.last.search
+            }
         }
         // 1: search() - advanced search (reads from popup)
         if (arguments.length === 0 && overlay.length !== 0) {
@@ -2495,7 +2500,7 @@ class w2grid extends w2base {
         return false
     }
 
-    searchReset(noRefresh) {
+    searchReset(noReload) {
         let searchData = []
         let hasHiddenSearches = false
         // add hidden searches
@@ -2550,7 +2555,7 @@ class w2grid extends w2base {
         let all = input.val('').get(0)
         if (all._w2field) { all._w2field.reset() }
         // apply search
-        if (!noRefresh) this.reload()
+        if (!noReload) this.reload()
         // event after
         edata.finish()
     }
@@ -3756,7 +3761,7 @@ class w2grid extends w2base {
         query(this.box).removeClass('w2ui-inactive').find('.w2ui-inactive').removeClass('w2ui-inactive')
         setTimeout(() => {
             let txt = query(this.box).find(`#grid_${this.name}_focus`).get(0)
-            if (document.activeElement != txt) {
+            if (txt && document.activeElement != txt) {
                 txt.focus()
             }
         }, 10)
@@ -4445,8 +4450,7 @@ class w2grid extends w2base {
             // expand column
             let row1 = query(this.box).find('#grid_'+ this.name +'_rec_'+ recid +'_expanded')
             let row2 = query(this.box).find('#grid_'+ this.name +'_frec_'+ recid +'_expanded')
-            let innerHeight = row1.find(':scope div:first-child')[0].clientHeight
-            console.log(innerHeight)
+            let innerHeight = row1.find(':scope div:first-child')[0]?.clientHeight ?? 50
             if (row1[0].clientHeight < innerHeight) {
                 row1.css({ height: innerHeight + 'px' })
             }
@@ -6864,16 +6868,17 @@ class w2grid extends w2base {
         }
         let html = ''
         operators.forEach(oper => {
-            let text = oper
+            let displayText = oper
+            let operValue = oper
             if (Array.isArray(oper)) {
-                text = oper[1]
-                oper = oper[0]
-                if (text == null) text = oper
+                displayText = oper[1]
+                operValue = oper[0]
             } else if (w2utils.isPlainObject(oper)) {
-                text = oper.text
-                oper = oper.oper
+                displayText = oper.text
+                operValue = oper.oper
             }
-            html += `<option value="${oper}">${w2utils.lang(text)}</option>\n`
+            if (displayText == null) displayText = oper
+            html += `<option name="11" value="${operValue}">${w2utils.lang(displayText)}</option>\n`
         })
         return html
     }
@@ -6978,7 +6983,7 @@ class w2grid extends w2base {
             if (typeof search.options != 'object') search.options = {}
             // operators
             let operator  = search.operator
-            let operators = this.operators[this.operatorsMap[search.type]] || []
+            let operators = [...this.operators[this.operatorsMap[search.type]]] || [] // need a copy
             if (search.operators) operators = search.operators
             // normalize
             if (w2utils.isPlainObject(operator)) operator = operator.oper

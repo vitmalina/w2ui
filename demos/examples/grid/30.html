@@ -14,46 +14,46 @@
 <div id="preview"></div>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2grid({
-        name: 'grid',
-        box: query('#grid')[0],
-        header: 'List of Names',
-        url: 'data/list.json',
-        method: 'GET', // need this to avoid 412 error on Safari
-        show: {
-            header         : true,
-            toolbar     : true,
-            footer        : true,
-            lineNumbers    : true,
-            selectColumn: true,
-            expandColumn: true
-        },
-        columns: [
-            { field: 'fname', text: 'First Name', size: '150px', info: true },
-            { field: 'lname', text: 'Last Name', size: '150px' },
-            { field: 'email', text: 'Email', size: '200px' },
-            { field: 'sdate', text: 'Start Date', size: '200px' }
-        ],
-        searches: [
-            { type: 'int',  field: 'recid', label: 'ID' },
-            { type: 'text', field: 'fname', label: 'First Name' },
-            { type: 'text', field: 'lname', label: 'Last Name' },
-            { type: 'date', field: 'sdate', label: 'Start Date' }
-        ],
-        onExpand(event) {
-            query('#'+event.box_id).html('<div style="padding: 10px; height: 100px">Expanded content</div>');
-        }
-    });
-    // attach event listener for all events
-    w2ui.grid.on('*', (event) => {
-        let edata = w2utils.extend({}, event.detail)
-        query('#preview').html(`
-            Event: ${event.type}
-            <pre style="font-size: 12px; line-height: 1.4">${JSON.stringify(edata, null, 2)}</pre>
-        `)
-        console.log('Event: '+ event.type, 'Target: '+ event.target, event)
-    })
+<script type="module">
+import { w2grid, w2utils, query } from '__W2UI_PATH__'
+
+let grid = new w2grid({
+    name: 'grid',
+    box: query('#grid')[0],
+    header: 'List of Names',
+    url: 'data/list.json',
+    method: 'GET', // need this to avoid 412 error on Safari
+    show: {
+        header: true,
+        toolbar: true,
+        footer: true,
+        lineNumbers: true,
+        selectColumn: true,
+        expandColumn: true
+    },
+    columns: [
+        { field: 'fname', text: 'First Name', size: '150px', info: true },
+        { field: 'lname', text: 'Last Name', size: '150px' },
+        { field: 'email', text: 'Email', size: '200px' },
+        { field: 'sdate', text: 'Start Date', size: '200px' }
+    ],
+    searches: [
+        { type: 'int',  field: 'recid', label: 'ID' },
+        { type: 'text', field: 'fname', label: 'First Name' },
+        { type: 'text', field: 'lname', label: 'Last Name' },
+        { type: 'date', field: 'sdate', label: 'Start Date' }
+    ],
+    onExpand(event) {
+        query('#'+event.box_id).html('<div style="padding: 10px; height: 100px">Expanded content</div>');
+    }
+})
+// attach event listener for all events
+grid.on('*', (event) => {
+    let edata = w2utils.extend({}, event.detail)
+    query('#preview').html(`
+        Event: ${event.type}
+        <pre style="font-size: 12px; line-height: 1.4">${JSON.stringify(edata, null, 2)}</pre>
+    `)
+    console.log('Event: '+ event.type, 'Target: '+ event.target, event)
 })
 </script>

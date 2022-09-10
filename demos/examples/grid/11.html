@@ -12,8 +12,7 @@
 <button class="w2ui-btn" onclick="addRecord()">Add One Record</button>
 <button class="w2ui-btn" onclick="removeRecords()">Remove Appended Records</button>
 <label style="margin-left: 20px">
-    <input type="checkbox" id="fixedsize" onclick="var grid = w2ui.grid; grid.fixedBody = this.checked;
-        if (this.checked) { grid.resize(null, '200px'); } else { grid.refresh(); }">
+    <input type="checkbox" id="fixedsize" onclick="fixedSize(this)">
     Fixed Height
 </label>
 <div style="height: 20px"></div>
@@ -21,39 +20,48 @@
 <div id="grid" style="width: 800px; height: 200px"></div>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2grid({
-        name: 'grid',
-        box: '#grid',
-        show: { lineNumbers: true },
-        fixedBody: false,
-        columns: [
-            { field: 'lname', text: 'Last Name', size: '30%' },
-            { field: 'fname', text: 'First Name', size: '30%' },
-            { field: 'email', text: 'Email', size: '40%' },
-            { field: 'sdate', text: 'Start Date', size: '90px' }
-        ],
-        records: [
-            { recid: 1, fname: 'Jane', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-        ]
-    })
+<script type="module">
+import { w2grid } from '__W2UI_PATH__'
+
+let grid = new w2grid({
+    name: 'grid',
+    box: '#grid',
+    show: { lineNumbers: true },
+    fixedBody: false,
+    columns: [
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '90px' }
+    ],
+    records: [
+        { recid: 1, fname: 'Jane', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+    ]
 })
 
-function addRecord() {
-    var g = w2ui['grid'].records.length
-    w2ui.grid.add( { recid: g + 1, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' } )
+window.addRecord = function() {
+    let len = grid.records.length
+    grid.add( { recid: len + 1, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' } )
 }
 
-function removeRecords() {
-    w2ui.grid.records.splice(7)
-    w2ui.grid.total = w2ui.grid.records.length
-    w2ui.grid.refresh()
+window.removeRecords = function() {
+    grid.records.splice(7)
+    grid.total = grid.records.length
+    grid.refresh()
+}
+
+window.fixedSize = function (el) {
+    grid.fixedBody = el.checked
+    if (el.checked) {
+        grid.resize(null, '200px')
+    } else {
+        grid.refresh()
+    }
 }
 </script>

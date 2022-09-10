@@ -10,26 +10,26 @@
 <div id="grid" style="width: 700px; height: 400px;"></div>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2grid({
-        name: 'grid',
-        box: '#grid',
-        url: 'data/list.json',
-        show: {
-            footer: true,
-            lineNumbers : true,
-            selectColumn: true
-        },
-        reorderColumns: true,
-        columns: [
-            { field: 'recid', text: 'Recid', size: '50px', resizable: true, hidden: true },
-            { field: 'fname', text: 'First Name', size: '100px', resizable: true },
-            { field: 'lname', text: 'Last Name', size: '100px', resizable: true },
-            { field: 'email', text: 'Email', size: '100%', resizable: true },
-            { field: 'profit', text: 'Profit', size: '120px', render: 'money', resizable: true, render: () => 'empty' },
-            { field: 'sdate', text: 'Start Date', size: '120px', render: 'date', resizable: true }
-        ]
-    })
+<script type="module">
+import { w2grid } from '__W2UI_PATH__'
+
+let grid = new w2grid({
+    name: 'grid',
+    box: '#grid',
+    url: 'data/list.json',
+    show: {
+        footer: true,
+        lineNumbers : true,
+        selectColumn: true
+    },
+    reorderColumns: true,
+    columns: [
+        { field: 'recid', text: 'Recid', size: '50px', resizable: true, hidden: true },
+        { field: 'fname', text: 'First Name', size: '100px', resizable: true },
+        { field: 'lname', text: 'Last Name', size: '100px', resizable: true },
+        { field: 'email', text: 'Email', size: '100%', resizable: true },
+        { field: 'profit', text: 'Profit', size: '120px', render: 'money', resizable: true, render: () => 'empty' },
+        { field: 'sdate', text: 'Start Date', size: '120px', render: 'date', resizable: true }
+    ]
 })
 </script>

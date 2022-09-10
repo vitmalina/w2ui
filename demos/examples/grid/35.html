@@ -14,37 +14,36 @@
 <div style="clear:both; height: 10px;"></div>
 
 <!--CODE-->
-<script>
-query(() => {
-    let grid = new w2grid({
-        box: '#grid',
-        name: 'grid',
-        show: { toolbar: true, },
-        defaultSearches: [{
-            text: 'Search for Mark',
-            data: [
-                { field: 'fname', type: 'text', operator: 'contains', value: 'Mark' },
-                { field: 'lname', type: 'text', operator: 'contains', value: 'Mark' },
-            ],
-            logic: 'OR'
-        }, {
-            text: 'Search for "e"',
-            data: [
-                { field: 'fname', type: 'text', operator: 'contains', value: 'e' },
-                { field: 'lname', type: 'text', operator: 'contains', value: 'e' },
-            ],
-            logic: 'OR'
-        }],
-        columns: [
-            { field: 'lname', text: 'Last Name', size: '30%', searchable: { operator: 'contains' }, sortable: true },
-            { field: 'fname', text: 'First Name', size: '30%', searchable: { operator: 'contains' }, sortable: true },
-            { field: 'email', text: 'Email', size: '40%', sortable: true },
-            { field: 'sdate', text: 'Start Date', size: '120px', sortable: true }
-        ]
-    })
-    grid.load('data/list.json')
-})
+<script type="module">
+import { w2grid } from '__W2UI_PATH__'
 
+let grid = new w2grid({
+    box: '#grid',
+    name: 'grid',
+    show: { toolbar: true, },
+    defaultSearches: [{
+        text: 'Search for Mark',
+        data: [
+            { field: 'fname', type: 'text', operator: 'contains', value: 'Mark' },
+            { field: 'lname', type: 'text', operator: 'contains', value: 'Mark' },
+        ],
+        logic: 'OR'
+    }, {
+        text: 'Search for "e"',
+        data: [
+            { field: 'fname', type: 'text', operator: 'contains', value: 'e' },
+            { field: 'lname', type: 'text', operator: 'contains', value: 'e' },
+        ],
+        logic: 'OR'
+    }],
+    columns: [
+        { field: 'lname', text: 'Last Name', size: '30%', searchable: { operator: 'contains' }, sortable: true },
+        { field: 'fname', text: 'First Name', size: '30%', searchable: { operator: 'contains' }, sortable: true },
+        { field: 'email', text: 'Email', size: '40%', sortable: true },
+        { field: 'sdate', text: 'Start Date', size: '120px', sortable: true }
+    ]
+})
+grid.load('data/list.json')
 </script>
 
 <!--CODE-->

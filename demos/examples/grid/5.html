@@ -12,24 +12,28 @@
 <!--CODE-->
 <div id="grid" style="width: 800px; height: 350px; overflow: hidden;"></div>
 <br>
-<button class="w2ui-btn" onclick="w2ui.grid.load('data/list.json')">Load Data</button>
+<button class="w2ui-btn" onclick="loadData('data/list.json')">Load Data</button>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2grid({
-        name: 'grid',
-        box: '#grid',
-        show: { toolbar: true, },
-        method: 'GET', // need this to avoid 412 error on Safari
-        columns: [
-            { field: 'lname', text: 'Last Name', size: '30%', searchable: true, sortable: true },
-            { field: 'fname', text: 'First Name', size: '30%', searchable: true, sortable: true },
-            { field: 'email', text: 'Email', size: '40%', searchable: true, sortable: true },
-            { field: 'sdate', text: 'Start Date', size: '120px', searchable: true, sortable: true }
-        ]
-    })
+<script type="module">
+import { w2grid } from '__W2UI_PATH__'
+
+let grid = new w2grid({
+    name: 'grid',
+    box: '#grid',
+    show: { toolbar: true, },
+    method: 'GET', // need this to avoid 412 error on Safari
+    columns: [
+        { field: 'lname', text: 'Last Name', size: '30%', searchable: true, sortable: true },
+        { field: 'fname', text: 'First Name', size: '30%', searchable: true, sortable: true },
+        { field: 'email', text: 'Email', size: '40%', searchable: true, sortable: true },
+        { field: 'sdate', text: 'Start Date', size: '120px', searchable: true, sortable: true }
+    ]
 })
+
+window.loadData = function(url) {
+    grid.load(url)
+}
 </script>
 
 <!--CODE-->

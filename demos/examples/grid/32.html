@@ -15,23 +15,22 @@
 <span id="log"></span>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2grid({
-        name: 'grid',
-        box: '#grid',
-        columns: [
-            { field: 'fname', text: 'First Name', size: '120px', searchable: true },
-            { field: 'lname', text: 'Last Name', size: '120px', searchable: true },
-            { field: 'email', text: 'Email', size: '100%' },
-            { field: 'sdate', text: 'Start Date', size: '100px' }
-        ],
-    })
-    w2ui.grid.load('data/list.json')
-})
+<script type="module">
+import { w2grid, w2field, query } from '__W2UI_PATH__'
 
-function showMessage() {
-    let grid = w2ui.grid
+let grid = new w2grid({
+    name: 'grid',
+    box: '#grid',
+    columns: [
+        { field: 'fname', text: 'First Name', size: '120px', searchable: true },
+        { field: 'lname', text: 'Last Name', size: '120px', searchable: true },
+        { field: 'email', text: 'Email', size: '100%' },
+        { field: 'sdate', text: 'Start Date', size: '100px' }
+    ],
+})
+grid.load('data/list.json')
+
+window.showMessage = function() {
     grid.message('Message <span id="ready"></span>')
         .then(() => {
             query(grid.box).find('.w2ui-message #ready').html('- ready')
@@ -42,8 +41,7 @@ function showMessage() {
         })
 }
 
-function showConfirm() {
-    let grid = w2ui.grid
+window.showConfirm = function() {
     grid.confirm('Message <span id="ready"></span>')
         .then(() => {
             query(grid.box).find('.w2ui-message #ready').html('- ready')

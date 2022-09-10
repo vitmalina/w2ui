@@ -16,46 +16,55 @@
 <br>
 <div id="log">Selection events will be here...</div>
 <br>
-<button class="w2ui-btn" onclick="w2ui.grid.selectAll();">Select All</button>
-<button class="w2ui-btn" onclick="w2ui.grid.selectNone();">Select None</button>
-<button class="w2ui-btn" onclick="w2ui.grid.select(5);">Select a Record</button>
-<button class="w2ui-btn" onclick="w2ui.grid.unselect(5);">Deselect a Record</button>
-<button class="w2ui-btn" onclick="w2ui.grid.select(5,3,7);">Select Several</button>
-<button class="w2ui-btn" onclick="w2alert(w2ui.grid.getSelection());">Get Selection</button>
+<button class="w2ui-btn" onclick="action('selectAll')">Select All</button>
+<button class="w2ui-btn" onclick="action('selectNone')">Select None</button>
+<button class="w2ui-btn" onclick="action('select', 5)">Select a Record</button>
+<button class="w2ui-btn" onclick="action('unselect', 5)">Deselect a Record</button>
+<button class="w2ui-btn" onclick="action('select', [5, 3, 7])">Select Several</button>
+<button class="w2ui-btn" onclick="showSelection()">Get Selection</button>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2grid({
-        name: 'grid',
-        box: '#grid',
-        show: {
-            selectColumn: true
-        },
-        columns: [
-            { field: 'recid', text: 'ID', size: '30px', sortable: true, attr: 'align="center"' },
-            { field: 'lname', text: 'Last Name', size: '30%', sortable: true },
-            { field: 'fname', text: 'First Name', size: '30%', sortable: true },
-            { field: 'email', text: 'Email', size: '40%', sortable: true },
-            { field: 'sdate', text: 'Start Date', size: '90px', sortable: true }
-        ],
-        records: [
-            { recid: 1, fname: 'John', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
-        ],
-        onSelect(event) {
-            query('#log').html(`
-                <span style="color: #777">Multiple:</span> ${event.detail.multiple},
-                <span style="color: #777">All:</span> ${event.detail.all ?? 'false'},
-                <span style="color: #777">Recids:<span> ${event.detail.recids ?? []}
-            `)
-        }
-    })
+<script type="module">
+import { w2grid, w2alert, query } from '__W2UI_PATH__'
+
+let grid = new w2grid({
+    name: 'grid',
+    box: '#grid',
+    show: {
+        selectColumn: true
+    },
+    columns: [
+        { field: 'recid', text: 'ID', size: '30px', sortable: true, attr: 'align="center"' },
+        { field: 'lname', text: 'Last Name', size: '30%', sortable: true },
+        { field: 'fname', text: 'First Name', size: '30%', sortable: true },
+        { field: 'email', text: 'Email', size: '40%', sortable: true },
+        { field: 'sdate', text: 'Start Date', size: '90px', sortable: true }
+    ],
+    records: [
+        { recid: 1, fname: 'John', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
+    ],
+    onSelect(event) {
+        console.log(event)
+        query('#log').html(`
+            <span style="color: #777">Multiple:</span> ${event.detail.multiple},
+            <span style="color: #777">All:</span> ${event.detail.all ?? 'false'},
+            <span style="color: #777">Recids:<span> ${event.detail.recids ?? []}
+        `)
+    }
 })
+
+window.action = function (method, param1, param2, param3) {
+    grid[method](param1, param2, param3)
+}
+
+window.showSelection = function () {
+    w2alert(grid.getSelection())
+}
 </script>

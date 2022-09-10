@@ -13,68 +13,89 @@
 <div id="grid" style="width: 800px; height: 400px;"></div>
 <br>
 <div style="float: left">
-    Text operator:
-    <select class="w2ui-input" onchange="oper(this.value)">
+    TEXT operator
+    <select class="w2ui-input" onchange="textOperator(this.value)">
         <option value="is">is</option>
         <option value="begins" selected>begins</option>
         <option value="contains">contains</option>
         <option value="ends">ends</option>
     </select>
+    &nbsp;&nbsp;
+    NUMBER operator
+    <select class="w2ui-input" onchange="intOperator(this.value)">
+        <option value="=" selected>=</option>
+        <option value="between">between</option>
+        <option value=">">&gt;</option>
+        <option value="<">&lt;</option>
+        <option value=">=">&gt;=</option>
+        <option value="<=">&lt;=</option>
+    </select>
 </div>
 <br>
 
 <!--CODE-->
-<script>
-function oper(op) {
-    w2ui.grid.searches.forEach(search => {
+<script type="module">
+import { w2grid, w2utils } from '__W2UI_PATH__'
+
+let grid = new w2grid({
+    name: 'grid',
+    box: '#grid',
+    show: {
+        toolbar: true,
+        footer: true
+    },
+    multiSearch: false,
+    searches: [
+        { field: 'recid', label: 'ID ', type: 'int' },
+        { field: 'lname', label: 'Last Name', type: 'text' },
+        { field: 'fname', label: 'First Name', type: 'text' },
+        { field: 'email', label: 'Email', type: 'text' },
+        { field: 'sdate', label: 'Start Date', type: 'date' }
+    ],
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px', sortable: true, attr: 'align=center' },
+        { field: 'lname', text: 'Last Name', size: '30%', sortable: true },
+        { field: 'fname', text: 'First Name', size: '30%', sortable: true },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' }
+    ],
+    records: [
+        { recid: 1, fname: 'Jane', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 9, fname: 'Sergei', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 20, fname: 'Jill', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 21, fname: 'Frank', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 22, fname: 'Peter', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 23, fname: 'Andrew', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 24, fname: 'Manny', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 25, fname: 'Ben', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 26, fname: 'Doer', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 27, fname: 'Shashi', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 28, fname: 'Av', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
+    ]
+})
+
+grid.last.field = 'lname';
+
+window.textOperator = function (op) {
+    grid.searches.forEach(search => {
         if (search.type == 'text') search.operator = op
     })
-    w2ui.grid.searchReset()
+    // reapply search
+    grid.search()
 }
 
-query(() => {
-    new w2grid({
-        name: 'grid',
-        box: '#grid',
-        show: {
-            toolbar: true,
-            footer: true
-        },
-        multiSearch: false,
-        searches: [
-            { field: 'recid', label: 'ID ', type: 'int' },
-            { field: 'lname', label: 'Last Name', type: 'text' },
-            { field: 'fname', label: 'First Name', type: 'text' },
-            { field: 'email', label: 'Email', type: 'text' },
-            { field: 'sdate', label: 'Start Date', type: 'date' }
-        ],
-        columns: [
-            { field: 'recid', text: 'ID', size: '50px', sortable: true, attr: 'align=center' },
-            { field: 'lname', text: 'Last Name', size: '30%', sortable: true },
-            { field: 'fname', text: 'First Name', size: '30%', sortable: true },
-            { field: 'email', text: 'Email', size: '40%' },
-            { field: 'sdate', text: 'Start Date', size: '120px' }
-        ],
-        records: [
-            { recid: 1, fname: 'Jane', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 3, fname: 'Jin', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 7, fname: 'Mark', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 8, fname: 'Thomas', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 9, fname: 'Sergei', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 20, fname: 'Jill', lname: 'Doe', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 21, fname: 'Frank', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 22, fname: 'Peter', lname: 'Franson', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 23, fname: 'Andrew', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 24, fname: 'Manny', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 25, fname: 'Ben', lname: 'Gatos', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 26, fname: 'Doer', lname: 'Welldo', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 27, fname: 'Shashi', lname: 'Bahh', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
-            { recid: 28, fname: 'Av', lname: 'Rachmaninov', email: 'jdoe@gmail.com', sdate: '4/3/2012' }
-        ]
+window.intOperator = function (op) {
+    grid.searches.forEach(search => {
+        if (search.type == 'int') search.operator = op
     })
-})
+    // reapply search
+    grid.search()
+}
 </script>

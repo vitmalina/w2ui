@@ -13,62 +13,62 @@
 <div id="grid" style="width: 800px; height: 380px;"></div>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2grid({
-        name: 'grid',
-        box: '#grid',
-        columns: [
-            { field: 'recid', text: 'ID', size: '70px', info: true },
-            { field: 'fname', text: 'First Name', size: '100px', info: {} },
-            { field: 'lname', text: 'Last Name', size: '100px',
-                info: {
-                    render: (rec, ind, col_ind) => { return '<i>' + rec.fname + '</i> <b>' + rec.lname + '</b>' }
-                }
+<script type="module">
+import { w2grid } from '__W2UI_PATH__'
+
+let grid = new w2grid({
+    name: 'grid',
+    box: '#grid',
+    columns: [
+        { field: 'recid', text: 'ID', size: '70px', info: true },
+        { field: 'fname', text: 'First Name', size: '100px', info: {} },
+        { field: 'lname', text: 'Last Name', size: '100px',
+            info: {
+                render: (rec, ind, col_ind) => { return '<i>' + rec.fname + '</i> <b>' + rec.lname + '</b>' }
+            }
+        },
+        { field: 'email', text: 'Email', size: '100%', info: { maxLength: 10, showEmpty: true } },
+        { field: 'empty', text: 'Empty', size: '120px',
+            info: {
+                fields: ['sdate', 'email'],
+                showOn: 'mouseenter',
+                options: { position: 'top' },
+                style: 'color: green'
             },
-            { field: 'email', text: 'Email', size: '100%', info: { maxLength: 10, showEmpty: true } },
-            { field: 'empty', text: 'Empty', size: '120px',
-                info: {
-                    fields: ['sdate', 'email'],
-                    showOn: 'mouseenter',
-                    options: { position: 'top' },
-                    style: 'color: green'
+            render: () => '<span style="color: silver">Mouse over</span>'
+        },
+        { field: 'sdate', text: 'Start Date', size: '100px',
+            info: {
+                fields: {
+                    'Person': (rec, ind, col_ind) => { return rec.fname + ' ' + rec.lname },
+                    'Spacer': '---',
+                    'Email' : 'email',
+                    'Date'  : 'sdate',
+                    'Extra' : (rec, ind, col_ind) => 'Extra info for record ' + ind
                 },
-                render: () => '<span style="color: silver">Mouse over</span>'
-            },
-            { field: 'sdate', text: 'Start Date', size: '100px',
-                info: {
-                    fields: {
-                        'Person': (rec, ind, col_ind) => { return rec.fname + ' ' + rec.lname },
-                        'Spacer': '---',
-                        'Email' : 'email',
-                        'Date'  : 'sdate',
-                        'Extra' : (rec, ind, col_ind) => 'Extra info for record ' + ind
-                    },
-                    maxLength: 15
-                }
-            },
-            { field: 'number', text: 'Number', size: '100px',
-                info: {
-                    fields: () => ['number', 'email'],
-                    icon: 'w2ui-icon-search'
-                }
-            },
-        ],
-        records: [
-            { "recid": 1, "number": 123,  "fname": "John", "lname": "Doe", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
-            { "recid": 2, "number": 0,    "fname": "Stuart", "lname": "Motzart", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
-            { "recid": 3, "number": null, "fname": "Jin", "lname": "Franson", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
-            { "recid": 4, "number": 124,  "fname": "Susan", "lname": "Ottie", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
-            { "recid": 5, "number": 125,  "fname": "Kelly", "lname": "Silver", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
-            { "recid": 6, "number": 126,  "fname": "Francis", "lname": "Gatos", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
-            { "recid": 7, "number": 127,  "fname": "Mark", "lname": "Welldo", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
-            { "recid": 8, "number": 128,  "fname": "Thomas", "lname": "Bahh", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
-        ],
-        summary: [
-            { "recid": 9, "number": 1,  "fname": "2", "lname": "3", "email": "4", "sdate": "5" },
-            { "recid": 10, "number": '--',  "fname": "--", "lname": "--", "email": "--", "sdate": "--" }
-        ]
-    })
+                maxLength: 15
+            }
+        },
+        { field: 'number', text: 'Number', size: '100px',
+            info: {
+                fields: () => ['number', 'email'],
+                icon: 'w2ui-icon-search'
+            }
+        },
+    ],
+    records: [
+        { "recid": 1, "number": 123,  "fname": "John", "lname": "Doe", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+        { "recid": 2, "number": 0,    "fname": "Stuart", "lname": "Motzart", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+        { "recid": 3, "number": null, "fname": "Jin", "lname": "Franson", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+        { "recid": 4, "number": 124,  "fname": "Susan", "lname": "Ottie", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+        { "recid": 5, "number": 125,  "fname": "Kelly", "lname": "Silver", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+        { "recid": 6, "number": 126,  "fname": "Francis", "lname": "Gatos", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+        { "recid": 7, "number": 127,  "fname": "Mark", "lname": "Welldo", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+        { "recid": 8, "number": 128,  "fname": "Thomas", "lname": "Bahh", "email": "jdoe@gmail.com", "sdate": "4/3/2012" },
+    ],
+    summary: [
+        { "recid": 9, "number": 1,  "fname": "2", "lname": "3", "email": "4", "sdate": "5" },
+        { "recid": 10, "number": '--',  "fname": "--", "lname": "--", "email": "--", "sdate": "--" }
+    ]
 })
 </script>

@@ -12,19 +12,19 @@
 <div id="grid" style="width: 600px; height: 350px;"></div>
 
 <!--CODE-->
-<script>
-query(() => {
-    new w2grid({
-        name: 'grid',
-        box: '#grid',
-        url: 'data/list2.json',
-        method: 'GET', // need this to avoid 412 error on Safari
-        columns: [
-            { field: 'fname', text: 'First Name', size: '200px' },
-            { field: 'lname', text: 'Last Name', size: '200px' },
-            { field: 'sdate', text: 'Dates', size: '100%', attr: "align=center" }
-        ]
-    })
+<script type="module">
+import { w2grid } from '__W2UI_PATH__'
+
+let grid = new w2grid({
+    name: 'grid',
+    box: '#grid',
+    url: 'data/list2.json',
+    method: 'GET', // need this to avoid 412 error on Safari
+    columns: [
+        { field: 'fname', text: 'First Name', size: '200px' },
+        { field: 'lname', text: 'Last Name', size: '200px' },
+        { field: 'sdate', text: 'Dates', size: '100%', attr: "align=center" }
+    ]
 })
 </script>
 
