@@ -752,11 +752,12 @@ class w2form extends w2base {
                     && (val == null || val === '' || (Array.isArray(val) && val.length === 0)
                         || (w2utils.isPlainObject(val) && Object.keys(val).length == 0))) {
                 errors.push({ field: field, error: w2utils.lang('Required field') })
-            }
-            if (field.options && field.hidden !== true && field.options.minLength > 0
-                    && ['enum', 'list', 'combo'].indexOf(field.type) == -1 // since minLength is used there too
-                    && this.getValue(field.field).length < field.options.minLength) {
-                errors.push({ field: field, error: w2utils.lang('Field should be at least ${count} characters.', {count: field.options.minLength}) })
+            } else {
+                if (field.options && field.hidden !== true && field.options.minLength > 0
+                        && ['enum', 'list', 'combo'].indexOf(field.type) == -1 // since minLength is used there too
+                        && this.getValue(field.field).length < field.options.minLength) {
+                    errors.push({ field: field, error: w2utils.lang('Field should be at least ${count} characters.', {count: field.options.minLength}) })
+                }
             }
         }
         // event before
