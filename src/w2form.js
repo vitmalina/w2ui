@@ -748,15 +748,17 @@ class w2form extends w2base {
             }
             // === check required - if field is '0' it should be considered not empty
             let val = this.getValue(field.field)
-            if (field.required && field.hidden !== true && !['div', 'custom', 'html', 'empty'].includes(field.type)
+            if (field.hidden !== true && field.required
+                    && !['div', 'custom', 'html', 'empty'].includes(field.type)
                     && (val == null || val === '' || (Array.isArray(val) && val.length === 0)
                         || (w2utils.isPlainObject(val) && Object.keys(val).length == 0))) {
                 errors.push({ field: field, error: w2utils.lang('Required field') })
             }
-            if (field.options && field.hidden !== true && field.options.minLength > 0
-                    && ['enum', 'list', 'combo'].indexOf(field.type) == -1 // since minLength is used there too
-                    && (val == null || this.getValue(field.field).length < field.options.minLength)) {
-                errors.push({ field: field, error: w2utils.lang('Field should be at least ${count} characters.', {count: field.options.minLength}) })
+            if (field.hidden !== true && field.options?.minLength > 0
+                    && !['enum', 'list', 'combo'].includes(field.type) // since minLength is used there for other purpose
+                    && (val == null || val.length < field.options.minLength)) {
+                errors.push({ field: field, error: w2utils.lang('Field should be at least ${count} characters.',
+                    { count: field.options.minLength })})
             }
         }
         // event before
