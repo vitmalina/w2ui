@@ -2806,7 +2806,7 @@ class w2grid extends w2base {
             case 'JSON': {
                 fetchOptions.method = 'POST'
                 fetchOptions.body = JSON.stringify(postParams)
-                fetchOptions.headers.contentType = 'application/json'
+                fetchOptions.headers['Content-Type'] = 'application/json'
                 break
             }
         }
