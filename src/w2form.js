@@ -950,7 +950,7 @@ class w2form extends w2base {
             case 'JSON': {
                 fetchOptions.method = 'POST'
                 fetchOptions.body = JSON.stringify(postParams)
-                fetchOptions.headers.contentType = 'application/json'
+                fetchOptions.headers['Content-Type'] = 'application/json'
                 break
             }
         }
@@ -1131,10 +1131,10 @@ class w2form extends w2base {
                 break
             case 'RESTFULLJSON':
                 fetchOptions.body = JSON.stringify(fetchOptions.body)
-                fetchOptions.headers.contentType = 'application/json'
+                fetchOptions.headers['Content-Type'] = 'application/json'
                 break
             case 'JSON':
-                fetchOptions.headers.contentType = 'application/json'
+                fetchOptions.headers['Content-Type'] = 'application/json'
                 if (!self.multipart) {
                     fetchOptions.body = JSON.stringify(fetchOptions.body)
                 } else {
