@@ -42,6 +42,8 @@
  *  - deprecated onUnselect event
  *  - requestComplete(data, action, callBack, resolve, reject) - new argument list
  *  - msgAJAXError -> msgHTTPError
+ *  - deleted grid.method
+ *  - added grid.prepareParams
  */
 
 import { w2base } from './w2base.js'
@@ -191,7 +193,6 @@ class w2grid extends w2base {
         this.vs_extra          = 5
         this.style             = ''
         this.tabIndex          = null
-        this.method            = null // if defined, then overwrites ajax method
         this.dataType          = null // if defined, then overwrites w2utils.settings.dataType
         this.parser            = null
         this.advanceOnEdit     = true // automatically begin editing the next cell after submitting an inline edit?
@@ -2702,6 +2703,53 @@ class w2grid extends w2base {
         }
     }
 
+    prepareParams(url, fetchOptions) {
+        let dataType = this.dataType ?? w2utils.settings.dataType
+        let postParams = fetchOptions.body
+        switch (dataType) {
+            case 'HTTPJSON':
+                postParams = { request: postParams }
+                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
+                    fetchOptions.method = 'POST';
+                }
+                body2params()
+                break
+            case 'HTTP':
+                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
+                    fetchOptions.method = 'POST';
+                }
+                body2params()
+                break
+            case 'RESTFULL':
+                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
+                    fetchOptions.headers['Content-Type'] = 'application/json'
+                } else {
+                    body2params()
+                }
+                break
+            case 'JSON':
+                if (fetchOptions.method == 'GET') {
+                    postParams = { request: postParams }
+                    body2params()
+                } else {
+                    fetchOptions.headers['Content-Type'] = 'application/json'
+                    fetchOptions.method = 'POST'
+                }
+                break
+        }
+        fetchOptions.body = typeof fetchOptions.body == 'string' ? fetchOptions.body : JSON.stringify(fetchOptions.body);
+        return fetchOptions
+
+        function body2params() {
+            Object.keys(postParams).forEach(key => {
+                let param = postParams[key]
+                if (typeof param == 'object') param = JSON.stringify(param)
+                url.searchParams.append(key, param)
+            })
+            delete fetchOptions.body
+        }
+    }
+
     request(action, postData, url, callBack) {
         let self = this
         let resolve, reject
@@ -2750,10 +2798,16 @@ class w2grid extends w2base {
         }
         // event before
         if (action == 'load') {
-            edata = this.trigger('request', { target: this.name, url, postData: params, httpHeaders: this.httpHeaders })
+            edata = this.trigger('request', { target: this.name, url, postData: params, httpMethod: 'GET',
+                httpHeaders: this.httpHeaders })
             if (edata.isCancelled === true) return new Promise((resolve, reject) => { reject() })
         } else {
-            edata = { detail: { url, postData: params, httpHeaders: this.httpHeaders } }
+            edata = { detail: {
+                url,
+                postData: params,
+                httpMethod: action == 'save' ? 'PUT' : 'DELETE',
+                httpHeaders: this.httpHeaders
+            }}
         }
         // call server to get data
         if (this.last.fetch.offset === 0) {
@@ -2784,39 +2838,11 @@ class w2grid extends w2base {
         }
         url = new URL(url, location)
         // ajax options
-        let fetchOptions = {
-            method : 'GET',
-            headers : edata.detail.httpHeaders,
-        }
-
-        let postParams = edata.detail.postData
-        let dataType = edata.detail.dataType ?? this.dataType ?? w2utils.settings.dataType
-        switch (dataType) {
-            case 'HTTP':
-            case 'RESTFULL': {
-                Object.keys(postParams).forEach(key => url.searchParams.append(key, postParams[key]))
-                break
-            }
-            case 'HTTPJSON':
-            case 'RESTFULLJSON': {
-                postParams = { request: JSON.stringify(postParams) }
-                Object.keys(postParams).forEach(key => url.searchParams.append(key, postParams[key]))
-                break
-            }
-            case 'JSON': {
-                fetchOptions.method = 'POST'
-                fetchOptions.body = JSON.stringify(postParams)
-                fetchOptions.headers['Content-Type'] = 'application/json'
-                break
-            }
-        }
-        if (['RESTFULL', 'RESTFULLJSON'].includes(dataType)) {
-            if (action == 'save') fetchOptions.method = 'PUT' // so far it is always update
-            if (action == 'delete') fetchOptions.method = 'DELETE'
-            fetchOptions.body = JSON.stringify(postParams)
-        }
-        if (this.method) fetchOptions.method = this.method
-        if (edata.detail.method) fetchOptions.method = edata.detail.method
+        let fetchOptions = this.prepareParams(url, {
+            method: edata.detail.httpMethod,
+            headers: edata.detail.httpHeaders,
+            body: edata.detail.postData
+        })
         Object.assign(this.last.fetch, {
             action: action,
             options: fetchOptions,

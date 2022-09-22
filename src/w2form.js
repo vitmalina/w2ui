@@ -884,7 +884,7 @@ class w2form extends w2base {
     }
 
     prepareParams(url, fetchOptions) {
-        let dataType = fetchOptions.dataType ?? this.dataType ?? w2utils.settings.dataType
+        let dataType = this.dataType ?? w2utils.settings.dataType
         let postParams = fetchOptions.body
         switch (dataType) {
             case 'HTTPJSON':
@@ -938,7 +938,7 @@ class w2form extends w2base {
         // build parameters list
         let params = {}
         // add list params
-        params.cmd   = 'get'
+        params.action = 'get'
         params.recid = this.recid
         params.name  = this.name
         // append other params
@@ -1070,9 +1070,9 @@ class w2form extends w2base {
         // build parameters list
         let params = {}
         // add list params
-        params.cmd   = 'save'
+        params.action = 'save'
         params.recid = self.recid
-        params.name  = self.name
+        params.name = self.name
         // append other params
         w2utils.extend(params, self.postData)
         w2utils.extend(params, postData)
@@ -1101,7 +1101,6 @@ class w2form extends w2base {
             headers: edata.detail.httpHeaders,
             body: edata.detail.postData
         })
-
         this.last.fetchCtrl = new AbortController()
         fetchOptions.signal = this.last.fetchCtrl.signal
         this.last.fetchOptions = fetchOptions
