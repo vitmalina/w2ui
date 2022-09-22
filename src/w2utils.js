@@ -31,7 +31,7 @@ class Utils {
         this.version = '2.0.x'
         this.tmp = {}
         this.settings = this.extend({}, {
-            'dataType'       : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
+            'dataType'       : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, JSON (case sensitive)
             'dateStartYear'  : 1950,  // start year for date-picker
             'dateEndYear'    : 2030,  // end year for date picker
             'macButtonOrder' : false, // if true, Yes on the right side

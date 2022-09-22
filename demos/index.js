@@ -1,5 +1,6 @@
 import { query, w2utils, w2ui, w2toolbar, w2sidebar, w2layout } from '../src/w2compat.js'
 
+window.w2ui = w2ui // expose w2ui object for testing purposers
 query(async function () {
     let w2utils_locale = sessionStorage.w2ui_demo_locale || w2utils.settings.locale.toLowerCase()
     // need await otherwise sometimes demos do not show

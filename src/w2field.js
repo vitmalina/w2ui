@@ -218,13 +218,13 @@ class w2field extends w2base {
                 defaults = {
                     items           : [],
                     selected        : {},
-                    url             : null, // url to pull data from // TODO: implement
-                    recId           : null, // map retrieved data from url to id, can be string or function
-                    recText         : null, // map retrieved data from url to text, can be string or function
-                    method          : null, // default comes from w2utils.settings.dataType
-                    interval        : 350,  // number of ms to wait before sending server call on search
+                    url             : null,   // url to pull data from // TODO: implement
+                    recId           : null,   // map retrieved data from url to id, can be string or function
+                    recText         : null,   // map retrieved data from url to text, can be string or function
+                    method          : null,   // default httpMethod
+                    interval        : 350,    // number of ms to wait before sending server call on search
                     postData        : {},
-                    minLength       : 1,    // min number of chars when trigger search
+                    minLength       : 1,      // min number of chars when trigger search
                     cacheMax        : 250,
                     maxDropHeight   : 350,    // max height for drop down menu
                     maxDropWidth    : null,   // if null then auto set
@@ -280,42 +280,42 @@ class w2field extends w2base {
 
             case 'enum':
                 defaults = {
-                    items           : [], // id, text, tooltip, icon
+                    items           : [],    // id, text, tooltip, icon
                     selected        : [],
-                    max             : 0, // max number of selected items, 0 - unlimited
-                    url             : null, // not implemented
-                    recId           : null, // map retrieved data from url to id, can be string or function
-                    recText         : null, // map retrieved data from url to text, can be string or function
-                    interval        : 350, // number of ms to wait before sending server call on search
-                    method          : null, // default comes from w2utils.settings.dataType
+                    max             : 0,     // max number of selected items, 0 - unlimited
+                    url             : null,  // not implemented
+                    recId           : null,  // map retrieved data from url to id, can be string or function
+                    recText         : null,  // map retrieved data from url to text, can be string or function
+                    interval        : 350,   // number of ms to wait before sending server call on search
+                    method          : null,  // default httpMethod
                     postData        : {},
-                    minLength       : 1, // min number of chars when trigger search
+                    minLength       : 1,     // min number of chars when trigger search
                     cacheMax        : 250,
-                    maxItemWidth    : 250, // max width for a single item
-                    maxDropHeight   : 350, // max height for drop down menu
-                    maxDropWidth    : null, // if null then auto set
+                    maxItemWidth    : 250,   // max width for a single item
+                    maxDropHeight   : 350,   // max height for drop down menu
+                    maxDropWidth    : null,  // if null then auto set
                     match           : 'contains', // ['contains', 'is', 'begins', 'ends']
                     align           : '',    // align drop down related to search field
                     altRows         : true,  // alternate row color
                     openOnFocus     : false, // if to show overlay onclick or when typing
                     markSearch      : false,
-                    renderDrop      : null, // render function for drop down item
-                    renderItem      : null, // render selected item
-                    compare         : null, // compare function for filtering
-                    filter          : true, // alias for compare
-                    hideSelected    : true, // hide selected item from drop down
-                    style           : '',   // style for container div
-                    onSearch        : null, // when search needs to be performed
-                    onRequest       : null, // when request is submitted
-                    onLoad          : null, // when data is received
-                    onError         : null, // when data fails to load due to server error or other failure modes
-                    onClick         : null, // when an item is clicked
-                    onAdd           : null, // when an item is added
-                    onNew           : null, // when new item should be added
-                    onRemove        : null, // when an item is removed
-                    onMouseEnter    : null, // when an item is mouse over
-                    onMouseLeave    : null, // when an item is mouse out
-                    onScroll        : null  // when div with selected items is scrolled
+                    renderDrop      : null,  // render function for drop down item
+                    renderItem      : null,  // render selected item
+                    compare         : null,  // compare function for filtering
+                    filter          : true,  // alias for compare
+                    hideSelected    : true,  // hide selected item from drop down
+                    style           : '',    // style for container div
+                    onSearch        : null,  // when search needs to be performed
+                    onRequest       : null,  // when request is submitted
+                    onLoad          : null,  // when data is received
+                    onError         : null,  // when data fails to load due to server error or other failure modes
+                    onClick         : null,  // when an item is clicked
+                    onAdd           : null,  // when an item is added
+                    onNew           : null,  // when new item should be added
+                    onRemove        : null,  // when an item is removed
+                    onMouseEnter    : null,  // when an item is mouse over
+                    onMouseLeave    : null,  // when an item is mouse out
+                    onScroll        : null   // when div with selected items is scrolled
                 }
                 options  = w2utils.extend({}, defaults, options, { suffix: '' })
                 if (typeof options.items == 'function') {
@@ -332,22 +332,22 @@ class w2field extends w2base {
                 defaults     = {
                     selected      : [],
                     max           : 0,
-                    maxSize       : 0, // max size of all files, 0 - unlimited
-                    maxFileSize   : 0, // max size of a single file, 0 -unlimited
-                    maxItemWidth  : 250, // max width for a single item
-                    maxDropHeight : 350, // max height for drop down menu
+                    maxSize       : 0,    // max size of all files, 0 - unlimited
+                    maxFileSize   : 0,    // max size of a single file, 0 -unlimited
+                    maxItemWidth  : 250,  // max width for a single item
+                    maxDropHeight : 350,  // max height for drop down menu
                     maxDropWidth  : null, // if null then auto set
                     readContent   : true, // if true, it will readAsDataURL content of the file
                     silent        : true,
                     align         : 'both', // same width as control
                     altRows       : true, // alternate row color
                     renderItem    : null, // render selected item
-                    style         : '', // style for container div
+                    style         : '',   // style for container div
                     onClick       : null, // when an item is clicked
                     onAdd         : null, // when an item is added
                     onRemove      : null, // when an item is removed
                     onMouseEnter  : null, // when an item is mouse over
-                    onMouseLeave  : null // when an item is mouse out
+                    onMouseLeave  : null  // when an item is mouse out
                 }
                 options = w2utils.extend({}, defaults, options)
                 this.options = options

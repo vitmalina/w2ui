@@ -22,6 +22,9 @@
  *  - getValue(..., original) -- return original if any
  *  - added .hideErrors()
  *  - reuqest, save, submit - return promises
+ *  - added prepareParams
+ *  - this.recid = null if no record needs to be pulled
+ *  - remove form.multiplart
  */
 
 import { w2base } from './w2base.js'
@@ -44,12 +47,11 @@ class w2form extends w2base {
         this.formHTML     = '' // form HTML (might be loaded from the url)
         this.page         = 0 // current page
         this.pageStyle    = ''
-        this.recid        = 0 // can be null or 0
+        this.recid        = null // if not null, then load record
         this.fields       = []
         this.actions      = {}
         this.record       = {}
         this.original     = null
-        this.method       = null // only used when not null, otherwise set based on w2utils.settings.dataType
         this.dataType     = null // only used when not null, otherwise from w2utils.settings.dataType
         this.postData     = {}
         this.httpHeaders  = {}
@@ -59,7 +61,6 @@ class w2form extends w2base {
         this.focus        = 0 // focus first or other element
         this.autosize     = true // autosize, if false the container must have a height set
         this.nestedFields = true // use field name containing dots as separator to look into object
-        this.multipart    = false
         this.tabindexBase = 0 // this will be added to the auto numbering
         this.isGenerated  = false
         this.last         = {
@@ -93,9 +94,6 @@ class w2form extends w2base {
             'date', 'time', 'datetime', 'list', 'combo', 'enum', 'file']
         // mix in options
         w2utils.extend(this, options)
-
-        // When w2utils.settings.dataType is JSON, then we can convert the save request to multipart/form-data. So we can upload large files with the form
-        // The original body is JSON.stringified to __body
 
         // remember items
         let record   = options.record
@@ -614,7 +612,7 @@ class w2form extends w2base {
 
     reload(callBack) {
         let url = (typeof this.url !== 'object' ? this.url : this.url.get)
-        if (url && this.recid !== 0 && this.recid != null) {
+        if (url && this.recid != null) {
             // this.clear();
             return this.request(callBack) // returns promise
         } else {
@@ -634,8 +632,8 @@ class w2form extends w2base {
                 this.refresh(field)
             })
         } else {
-            this.recid    = 0
-            this.record   = {}
+            this.recid = null
+            this.record = {}
             this.original = null
             this.refresh()
             this.hideErrors()
@@ -885,6 +883,47 @@ class w2form extends w2base {
         return data
     }
 
+    prepareParams(url, fetchOptions) {
+        let dataType = fetchOptions.dataType ?? this.dataType ?? w2utils.settings.dataType
+        let postParams = fetchOptions.body
+        switch (dataType) {
+            case 'HTTPJSON':
+                postParams = { request: postParams }
+                body2params()
+                break
+            case 'HTTP':
+                body2params()
+                break
+            case 'RESTFULL':
+                if (fetchOptions.method == 'POST') {
+                    fetchOptions.headers['Content-Type'] = 'application/json'
+                } else {
+                    body2params()
+                }
+                break
+            case 'JSON':
+                if (fetchOptions.method == 'GET') {
+                    postParams = { request: postParams }
+                    body2params()
+                } else {
+                    fetchOptions.headers['Content-Type'] = 'application/json'
+                    fetchOptions.method = 'POST'
+                }
+                break
+        }
+        fetchOptions.body = typeof fetchOptions.body == 'string' ? fetchOptions.body : JSON.stringify(fetchOptions.body);
+        return fetchOptions
+
+        function body2params() {
+            Object.keys(postParams).forEach(key => {
+                let param = postParams[key]
+                if (typeof param == 'object') param = JSON.stringify(param)
+                url.searchParams.append(key, param)
+            })
+            delete fetchOptions.body
+        }
+    }
+
     request(postData, callBack) { // if (1) param then it is call back if (2) then postData and callBack
         let self = this
         let resolve, reject
@@ -896,7 +935,6 @@ class w2form extends w2base {
         }
         if (postData == null) postData = {}
         if (!this.url || (typeof this.url === 'object' && !this.url.get)) return
-        if (this.recid == null) this.recid = 0
         // build parameters list
         let params = {}
         // add list params
@@ -907,7 +945,7 @@ class w2form extends w2base {
         w2utils.extend(params, this.postData)
         w2utils.extend(params, postData)
         // event before
-        let edata = this.trigger('request', { target: this.name, url: this.url, method: this.method,
+        let edata = this.trigger('request', { target: this.name, url: this.url, httpMethod: 'GET',
             postData: params, httpHeaders: this.httpHeaders })
         if (edata.isCancelled === true) return
         // default action
@@ -929,33 +967,11 @@ class w2form extends w2base {
             }
         }
         url = new URL(url, location)
-        let fetchOptions = {
-            method: 'GET',
-            headers: edata.detail.httpHeaders
-        }
-        let postParams = edata.detail.postData
-        let dataType = edata.detail.dataType ?? this.dataType ?? w2utils.settings.dataType
-        switch (dataType) {
-            case 'HTTP':
-            case 'RESTFULL': {
-                Object.keys(postParams).forEach(key => url.searchParams.append(key, postParams[key]))
-                break
-            }
-            case 'HTTPJSON':
-            case 'RESTFULLJSON': {
-                postParams = { request: JSON.stringify(postParams) }
-                Object.keys(postParams).forEach(key => url.searchParams.append(key, postParams[key]))
-                break
-            }
-            case 'JSON': {
-                fetchOptions.method = 'POST'
-                fetchOptions.body = JSON.stringify(postParams)
-                fetchOptions.headers['Content-Type'] = 'application/json'
-                break
-            }
-        }
-        if (this.method) fetchOptions.method = this.method
-        if (edata.detail.method) fetchOptions.method = edata.detail.method
+        let fetchOptions = this.prepareParams(url, {
+            method: edata.detail.httpMethod,
+            headers: edata.detail.httpHeaders,
+            body: edata.detail.postData
+        })
         this.last.fetchCtrl = new AbortController()
         fetchOptions.signal = this.last.fetchCtrl.signal
         this.last.fetchOptions = fetchOptions
@@ -967,17 +983,17 @@ class w2form extends w2base {
                     if (resp) processError(resp)
                     return
                 }
-                // event before
-                let edata = self.trigger('load', {
-                    target: self.name,
-                    fetchCtrl: this.last.fetchCtrl,
-                    fetchOptions: this.last.fetchOptions,
-                    data: resp
-                })
-                if (edata.isCancelled === true) return
                 resp.json()
                     .catch(processError)
                     .then(data => {
+                        // event before
+                        let edata = self.trigger('load', {
+                            target: self.name,
+                            fetchCtrl: this.last.fetchCtrl,
+                            fetchOptions: this.last.fetchOptions,
+                            data: resp
+                        })
+                        if (edata.isCancelled === true) return
                         if (!data.record) {
                             data = {
                                 error: false,
@@ -1060,18 +1076,9 @@ class w2form extends w2base {
         // append other params
         w2utils.extend(params, self.postData)
         w2utils.extend(params, postData)
-        // clear up files
-        if (!self.multipart)
-            self.fields.forEach((item) => {
-                if (item.type === 'file' && Array.isArray(self.getValue(item.field))) {
-                    self.getValue(item.field).forEach((fitem) => {
-                        delete fitem.file
-                    })
-                }
-            })
         params.record = w2utils.clone(self.record)
         // event before
-        let edata = self.trigger('submit', { target: self.name, url: self.url, method: self.method,
+        let edata = self.trigger('submit', { target: self.name, url: self.url, httpMethod: 'POST',
             postData: params, httpHeaders: self.httpHeaders })
         if (edata.isCancelled === true) return
         // default action
@@ -1089,88 +1096,12 @@ class w2form extends w2base {
             }
         }
         url = new URL(url, location)
-        let fetchOptions = {
-            method: 'POST',
+        let fetchOptions = this.prepareParams(url, {
+            method: edata.detail.httpMethod,
             headers: edata.detail.httpHeaders,
             body: edata.detail.postData
-            // TODO: check multiplart save
-            // xhr() {
-            //     let xhr = new window.XMLHttpRequest()
-            //     // upload
-            //     xhr.upload.addEventListener('progress', function progress(evt) {
-            //         if (evt.lengthComputable) {
-            //             let edata3 = self.trigger('progress', { total: evt.total, loaded: evt.loaded, originalEvent: evt })
-            //             if (edata3.isCancelled === true) return
-            //             // only show % if it takes time
-            //             let percent = Math.round(evt.loaded / evt.total * 100)
-            //             if ((percent && percent != 100) || $(self.box).find('#'+ self.name + '_progress').text() != '') {
-            //                 $(self.box).find('#'+ self.name + '_progress').text(''+ percent + '%')
-            //             }
-            //             // event after
-            //             edata3.finish()
-            //         }
-            //     }, false)
-            //     return xhr
-            // }
-        }
-        let dataType = edata.detail.dataType ?? this.dataType ?? w2utils.settings.dataType
-        let postParams = edata.detail.postData
-        switch (dataType) {
-            case 'HTTP':
-                fetchOptions.type = 'GET'
-                Object.keys(postParams).forEach(key => url.searchParams.append(key, postParams[key]))
-                delete fetchOptions.body
-                break
-            case 'HTTPJSON':
-                fetchOptions.type = 'GET'
-                postParams = JSON.stringify({ request: postParams })
-                Object.keys(postParams).forEach(key => url.searchParams.append(key, postParams[key]))
-                delete fetchOptions.body
-                break
-            case 'RESTFULL':
-                break
-            case 'RESTFULLJSON':
-                fetchOptions.body = JSON.stringify(fetchOptions.body)
-                fetchOptions.headers['Content-Type'] = 'application/json'
-                break
-            case 'JSON':
-                fetchOptions.headers['Content-Type'] = 'application/json'
-                if (!self.multipart) {
-                    fetchOptions.body = JSON.stringify(fetchOptions.body)
-                } else {
-                    // TODO: check file upload processing
-                    function append(fd, dob, fob, p){
-                        if (p == null) p = ''
-                        function isObj(dob, fob, p){
-                            if (typeof dob === 'object' && dob instanceof File) fd.append(p, dob)
-                            if (typeof dob === 'object'){
-                                if (!!dob && dob.constructor === Array) {
-                                    for (let i = 0; i < dob.length; i++) {
-                                        let aux_fob = !!fob ? fob[i] : fob
-                                        isObj(dob[i], aux_fob, p+'['+i+']')
-                                    }
-                                } else {
-                                    append(fd, dob, fob, p)
-                                }
-                            }
-                        }
-                        for(let prop in dob){
-                            let aux_p   = p == '' ? prop : '${p}[${prop}]'
-                            let aux_fob = !!fob ? fob[prop] : fob
-                            isObj(dob[prop], aux_fob, aux_p)
-                        }
-                    }
-                    let fdata = new FormData()
-                    fdata.append('__body', JSON.stringify(fetchOptions.body))
-                    append(fdata, fetchOptions.body)
-                    fetchOptions.body = fdata
-                    // fetchOptions.contentType = false
-                    // fetchOptions.processData = false
-                }
-                break
-        }
-        if (this.method) fetchOptions.method = this.method
-        if (edata.detail.method) fetchOptions.method = edata.detail.method
+        })
+
         this.last.fetchCtrl = new AbortController()
         fetchOptions.signal = this.last.fetchCtrl.signal
         this.last.fetchOptions = fetchOptions
@@ -1182,18 +1113,18 @@ class w2form extends w2base {
                     processError(resp ?? {})
                     return
                 }
-                // event before
-                let edata = self.trigger('save', {
-                    target: self.name,
-                    fetchCtrl: this.last.fetchCtrl,
-                    fetchOptions: this.last.fetchOptions,
-                    data: resp
-                })
-                if (edata.isCancelled === true) return
                 // parse server response
                 resp.json()
                     .catch(processError)
                     .then(data => {
+                        // event before
+                        let edata = self.trigger('save', {
+                            target: self.name,
+                            fetchCtrl: this.last.fetchCtrl,
+                            fetchOptions: this.last.fetchOptions,
+                            data
+                        })
+                        if (edata.isCancelled === true) return
                         // server error, not due to network issues
                         if (data.error === true) {
                             self.error(w2utils.lang(data.message))
@@ -2004,8 +1935,8 @@ class w2form extends w2base {
         // after render actions
         this.resize()
         let url = (typeof this.url !== 'object' ? this.url : this.url.get)
-        if (url && this.recid !== 0 && this.recid != null) {
-            this.request()
+        if (url && this.recid != null) {
+            this.request().catch(error => this.refresh()) // even if there was error, still need refresh
         } else {
             this.refresh()
         }
