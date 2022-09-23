@@ -4141,7 +4141,7 @@ class w2grid extends w2base {
                     obj.selectNone(true) // no need to trigger select event
                     obj.click({ recid: obj.records[prev].recid, column: columns[0] }, event)
                 }
-                obj.scrollIntoView(prev, null, false, numRows != 1) // top align record
+                obj.scrollIntoView(prev, null, true, numRows != 1) // top align record
                 if (event.preventDefault) event.preventDefault()
             } else {
                 // if selected more then one, then select first
@@ -4188,7 +4188,7 @@ class w2grid extends w2base {
                     obj.selectNone(true) // no need to trigger select event
                     obj.click({ recid: obj.records[next].recid, column: columns[0] }, event)
                 }
-                obj.scrollIntoView(next, null, false, numRows != 1) // top align record
+                obj.scrollIntoView(next, null, true, numRows != 1) // top align record
                 cancel = true
             } else {
                 // if selected more then one, then select first
