@@ -5194,7 +5194,10 @@ class w2grid extends w2base {
             records.add(frecords)
                 .on('click', { delegate: 'tr' }, (event) => {
                     let recid = query(event.delegate).attr('recid')
-                    this.click(recid, event)
+                    // do not generate click if empty record is clicked
+                    if (recid != '-none-') {
+                        this.click(recid, event)
+                    }
                 })
                 .on('contextmenu', { delegate: 'tr' }, (event) => {
                     let recid = query(event.delegate).attr('recid')
