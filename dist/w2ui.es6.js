@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (9/10/2022, 11:11:37 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (9/22/2022, 7:37:22 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -987,7 +987,7 @@ class Utils {
         this.version = '2.0.x'
         this.tmp = {}
         this.settings = this.extend({}, {
-            'dataType'       : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, RESTFULLJSON, JSON (case sensitive)
+            'dataType'       : 'HTTPJSON', // can be HTTP, HTTPJSON, RESTFULL, JSON (case sensitive)
             'dateStartYear'  : 1950,  // start year for date-picker
             'dateEndYear'    : 2030,  // end year for date picker
             'macButtonOrder' : false, // if true, Yes on the right side
@@ -10140,6 +10140,8 @@ class w2layout extends w2base {
  *  - deprecated onUnselect event
  *  - requestComplete(data, action, callBack, resolve, reject) - new argument list
  *  - msgAJAXError -> msgHTTPError
+ *  - deleted grid.method
+ *  - added grid.prepareParams
  */
 
 class w2grid extends w2base {
@@ -10281,7 +10283,6 @@ class w2grid extends w2base {
         this.vs_extra          = 5
         this.style             = ''
         this.tabIndex          = null
-        this.method            = null // if defined, then overwrites ajax method
         this.dataType          = null // if defined, then overwrites w2utils.settings.dataType
         this.parser            = null
         this.advanceOnEdit     = true // automatically begin editing the next cell after submitting an inline edit?
@@ -12701,6 +12702,51 @@ class w2grid extends w2base {
             return new Promise(resolve => { resolve() })
         }
     }
+    prepareParams(url, fetchOptions) {
+        let dataType = this.dataType ?? w2utils.settings.dataType
+        let postParams = fetchOptions.body
+        switch (dataType) {
+            case 'HTTPJSON':
+                postParams = { request: postParams }
+                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
+                    fetchOptions.method = 'POST';
+                }
+                body2params()
+                break
+            case 'HTTP':
+                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
+                    fetchOptions.method = 'POST';
+                }
+                body2params()
+                break
+            case 'RESTFULL':
+                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
+                    fetchOptions.headers['Content-Type'] = 'application/json'
+                } else {
+                    body2params()
+                }
+                break
+            case 'JSON':
+                if (fetchOptions.method == 'GET') {
+                    postParams = { request: postParams }
+                    body2params()
+                } else {
+                    fetchOptions.headers['Content-Type'] = 'application/json'
+                    fetchOptions.method = 'POST'
+                }
+                break
+        }
+        fetchOptions.body = typeof fetchOptions.body == 'string' ? fetchOptions.body : JSON.stringify(fetchOptions.body);
+        return fetchOptions
+        function body2params() {
+            Object.keys(postParams).forEach(key => {
+                let param = postParams[key]
+                if (typeof param == 'object') param = JSON.stringify(param)
+                url.searchParams.append(key, param)
+            })
+            delete fetchOptions.body
+        }
+    }
     request(action, postData, url, callBack) {
         let self = this
         let resolve, reject
@@ -12749,10 +12795,16 @@ class w2grid extends w2base {
         }
         // event before
         if (action == 'load') {
-            edata = this.trigger('request', { target: this.name, url, postData: params, httpHeaders: this.httpHeaders })
+            edata = this.trigger('request', { target: this.name, url, postData: params, httpMethod: 'GET',
+                httpHeaders: this.httpHeaders })
             if (edata.isCancelled === true) return new Promise((resolve, reject) => { reject() })
         } else {
-            edata = { detail: { url, postData: params, httpHeaders: this.httpHeaders } }
+            edata = { detail: {
+                url,
+                postData: params,
+                httpMethod: action == 'save' ? 'PUT' : 'DELETE',
+                httpHeaders: this.httpHeaders
+            }}
         }
         // call server to get data
         if (this.last.fetch.offset === 0) {
@@ -12783,38 +12835,11 @@ class w2grid extends w2base {
         }
         url = new URL(url, location)
         // ajax options
-        let fetchOptions = {
-            method : 'GET',
-            headers : edata.detail.httpHeaders,
-        }
-        let postParams = edata.detail.postData
-        let dataType = edata.detail.dataType ?? this.dataType ?? w2utils.settings.dataType
-        switch (dataType) {
-            case 'HTTP':
-            case 'RESTFULL': {
-                Object.keys(postParams).forEach(key => url.searchParams.append(key, postParams[key]))
-                break
-            }
-            case 'HTTPJSON':
-            case 'RESTFULLJSON': {
-                postParams = { request: JSON.stringify(postParams) }
-                Object.keys(postParams).forEach(key => url.searchParams.append(key, postParams[key]))
-                break
-            }
-            case 'JSON': {
-                fetchOptions.method = 'POST'
-                fetchOptions.body = JSON.stringify(postParams)
-                fetchOptions.headers.contentType = 'application/json'
-                break
-            }
-        }
-        if (['RESTFULL', 'RESTFULLJSON'].includes(dataType)) {
-            if (action == 'save') fetchOptions.method = 'PUT' // so far it is always update
-            if (action == 'delete') fetchOptions.method = 'DELETE'
-            fetchOptions.body = JSON.stringify(postParams)
-        }
-        if (this.method) fetchOptions.method = this.method
-        if (edata.detail.method) fetchOptions.method = edata.detail.method
+        let fetchOptions = this.prepareParams(url, {
+            method: edata.detail.httpMethod,
+            headers: edata.detail.httpHeaders,
+            body: edata.detail.postData
+        })
         Object.assign(this.last.fetch, {
             action: action,
             options: fetchOptions,
@@ -15241,6 +15266,7 @@ class w2grid extends w2base {
             .on('click.body-global', { delegate: '.w2ui-editable-checkbox' }, event => {
                 let dt = query(event.delegate).data()
                 this.editChange.call(this, event.delegate, dt.changeind, dt.colind, event)
+                this.updateToolbar()
             })
         // show empty message
         if (this.records.length === 0 && this.msgEmpty) {
@@ -18280,6 +18306,7 @@ class w2grid extends w2base {
         }, options)
     }
 }
+
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: mQuery, w2utils, w2base, w2tabs, w2toolbar, w2tooltip, w2field
@@ -18304,6 +18331,9 @@ class w2grid extends w2base {
  *  - getValue(..., original) -- return original if any
  *  - added .hideErrors()
  *  - reuqest, save, submit - return promises
+ *  - added prepareParams
+ *  - this.recid = null if no record needs to be pulled
+ *  - remove form.multiplart
  */
 
 class w2form extends w2base {
@@ -18318,12 +18348,11 @@ class w2form extends w2base {
         this.formHTML     = '' // form HTML (might be loaded from the url)
         this.page         = 0 // current page
         this.pageStyle    = ''
-        this.recid        = 0 // can be null or 0
+        this.recid        = null // if not null, then load record
         this.fields       = []
         this.actions      = {}
         this.record       = {}
         this.original     = null
-        this.method       = null // only used when not null, otherwise set based on w2utils.settings.dataType
         this.dataType     = null // only used when not null, otherwise from w2utils.settings.dataType
         this.postData     = {}
         this.httpHeaders  = {}
@@ -18333,7 +18362,6 @@ class w2form extends w2base {
         this.focus        = 0 // focus first or other element
         this.autosize     = true // autosize, if false the container must have a height set
         this.nestedFields = true // use field name containing dots as separator to look into object
-        this.multipart    = false
         this.tabindexBase = 0 // this will be added to the auto numbering
         this.isGenerated  = false
         this.last         = {
@@ -18367,8 +18395,6 @@ class w2form extends w2base {
             'date', 'time', 'datetime', 'list', 'combo', 'enum', 'file']
         // mix in options
         w2utils.extend(this, options)
-        // When w2utils.settings.dataType is JSON, then we can convert the save request to multipart/form-data. So we can upload large files with the form
-        // The original body is JSON.stringified to __body
         // remember items
         let record   = options.record
         let original = options.original
@@ -18867,7 +18893,7 @@ class w2form extends w2base {
     }
     reload(callBack) {
         let url = (typeof this.url !== 'object' ? this.url : this.url.get)
-        if (url && this.recid !== 0 && this.recid != null) {
+        if (url && this.recid != null) {
             // this.clear();
             return this.request(callBack) // returns promise
         } else {
@@ -18886,8 +18912,8 @@ class w2form extends w2base {
                 this.refresh(field)
             })
         } else {
-            this.recid    = 0
-            this.record   = {}
+            this.recid = null
+            this.record = {}
             this.original = null
             this.refresh()
             this.hideErrors()
@@ -18996,15 +19022,17 @@ class w2form extends w2base {
             }
             // === check required - if field is '0' it should be considered not empty
             let val = this.getValue(field.field)
-            if (field.required && field.hidden !== true && !['div', 'custom', 'html', 'empty'].includes(field.type)
+            if (field.hidden !== true && field.required
+                    && !['div', 'custom', 'html', 'empty'].includes(field.type)
                     && (val == null || val === '' || (Array.isArray(val) && val.length === 0)
                         || (w2utils.isPlainObject(val) && Object.keys(val).length == 0))) {
                 errors.push({ field: field, error: w2utils.lang('Required field') })
             }
-            if (field.options && field.hidden !== true && field.options.minLength > 0
-                    && ['enum', 'list', 'combo'].indexOf(field.type) == -1 // since minLength is used there too
-                    && this.getValue(field.field).length < field.options.minLength) {
-                errors.push({ field: field, error: w2utils.lang('Field should be at least ${count} characters.', {count: field.options.minLength}) })
+            if (field.hidden !== true && field.options?.minLength > 0
+                    && !['enum', 'list', 'combo'].includes(field.type) // since minLength is used there for other purpose
+                    && (val == null || val.length < field.options.minLength)) {
+                errors.push({ field: field, error: w2utils.lang('Field should be at least ${count} characters.',
+                    { count: field.options.minLength })})
             }
         }
         // event before
@@ -19125,6 +19153,45 @@ class w2form extends w2base {
         }
         return data
     }
+    prepareParams(url, fetchOptions) {
+        let dataType = this.dataType ?? w2utils.settings.dataType
+        let postParams = fetchOptions.body
+        switch (dataType) {
+            case 'HTTPJSON':
+                postParams = { request: postParams }
+                body2params()
+                break
+            case 'HTTP':
+                body2params()
+                break
+            case 'RESTFULL':
+                if (fetchOptions.method == 'POST') {
+                    fetchOptions.headers['Content-Type'] = 'application/json'
+                } else {
+                    body2params()
+                }
+                break
+            case 'JSON':
+                if (fetchOptions.method == 'GET') {
+                    postParams = { request: postParams }
+                    body2params()
+                } else {
+                    fetchOptions.headers['Content-Type'] = 'application/json'
+                    fetchOptions.method = 'POST'
+                }
+                break
+        }
+        fetchOptions.body = typeof fetchOptions.body == 'string' ? fetchOptions.body : JSON.stringify(fetchOptions.body);
+        return fetchOptions
+        function body2params() {
+            Object.keys(postParams).forEach(key => {
+                let param = postParams[key]
+                if (typeof param == 'object') param = JSON.stringify(param)
+                url.searchParams.append(key, param)
+            })
+            delete fetchOptions.body
+        }
+    }
     request(postData, callBack) { // if (1) param then it is call back if (2) then postData and callBack
         let self = this
         let resolve, reject
@@ -19136,18 +19203,17 @@ class w2form extends w2base {
         }
         if (postData == null) postData = {}
         if (!this.url || (typeof this.url === 'object' && !this.url.get)) return
-        if (this.recid == null) this.recid = 0
         // build parameters list
         let params = {}
         // add list params
-        params.cmd   = 'get'
+        params.action = 'get'
         params.recid = this.recid
         params.name  = this.name
         // append other params
         w2utils.extend(params, this.postData)
         w2utils.extend(params, postData)
         // event before
-        let edata = this.trigger('request', { target: this.name, url: this.url, method: this.method,
+        let edata = this.trigger('request', { target: this.name, url: this.url, httpMethod: 'GET',
             postData: params, httpHeaders: this.httpHeaders })
         if (edata.isCancelled === true) return
         // default action
@@ -19169,33 +19235,11 @@ class w2form extends w2base {
             }
         }
         url = new URL(url, location)
-        let fetchOptions = {
-            method: 'GET',
-            headers: edata.detail.httpHeaders
-        }
-        let postParams = edata.detail.postData
-        let dataType = edata.detail.dataType ?? this.dataType ?? w2utils.settings.dataType
-        switch (dataType) {
-            case 'HTTP':
-            case 'RESTFULL': {
-                Object.keys(postParams).forEach(key => url.searchParams.append(key, postParams[key]))
-                break
-            }
-            case 'HTTPJSON':
-            case 'RESTFULLJSON': {
-                postParams = { request: JSON.stringify(postParams) }
-                Object.keys(postParams).forEach(key => url.searchParams.append(key, postParams[key]))
-                break
-            }
-            case 'JSON': {
-                fetchOptions.method = 'POST'
-                fetchOptions.body = JSON.stringify(postParams)
-                fetchOptions.headers.contentType = 'application/json'
-                break
-            }
-        }
-        if (this.method) fetchOptions.method = this.method
-        if (edata.detail.method) fetchOptions.method = edata.detail.method
+        let fetchOptions = this.prepareParams(url, {
+            method: edata.detail.httpMethod,
+            headers: edata.detail.httpHeaders,
+            body: edata.detail.postData
+        })
         this.last.fetchCtrl = new AbortController()
         fetchOptions.signal = this.last.fetchCtrl.signal
         this.last.fetchOptions = fetchOptions
@@ -19207,17 +19251,17 @@ class w2form extends w2base {
                     if (resp) processError(resp)
                     return
                 }
-                // event before
-                let edata = self.trigger('load', {
-                    target: self.name,
-                    fetchCtrl: this.last.fetchCtrl,
-                    fetchOptions: this.last.fetchOptions,
-                    data: resp
-                })
-                if (edata.isCancelled === true) return
                 resp.json()
                     .catch(processError)
                     .then(data => {
+                        // event before
+                        let edata = self.trigger('load', {
+                            target: self.name,
+                            fetchCtrl: this.last.fetchCtrl,
+                            fetchOptions: this.last.fetchOptions,
+                            data: resp
+                        })
+                        if (edata.isCancelled === true) return
                         if (!data.record) {
                             data = {
                                 error: false,
@@ -19291,24 +19335,15 @@ class w2form extends w2base {
         // build parameters list
         let params = {}
         // add list params
-        params.cmd   = 'save'
+        params.action = 'save'
         params.recid = self.recid
-        params.name  = self.name
+        params.name = self.name
         // append other params
         w2utils.extend(params, self.postData)
         w2utils.extend(params, postData)
-        // clear up files
-        if (!self.multipart)
-            self.fields.forEach((item) => {
-                if (item.type === 'file' && Array.isArray(self.getValue(item.field))) {
-                    self.getValue(item.field).forEach((fitem) => {
-                        delete fitem.file
-                    })
-                }
-            })
         params.record = w2utils.clone(self.record)
         // event before
-        let edata = self.trigger('submit', { target: self.name, url: self.url, method: self.method,
+        let edata = self.trigger('submit', { target: self.name, url: self.url, httpMethod: 'POST',
             postData: params, httpHeaders: self.httpHeaders })
         if (edata.isCancelled === true) return
         // default action
@@ -19326,88 +19361,11 @@ class w2form extends w2base {
             }
         }
         url = new URL(url, location)
-        let fetchOptions = {
-            method: 'POST',
+        let fetchOptions = this.prepareParams(url, {
+            method: edata.detail.httpMethod,
             headers: edata.detail.httpHeaders,
             body: edata.detail.postData
-            // TODO: check multiplart save
-            // xhr() {
-            //     let xhr = new window.XMLHttpRequest()
-            //     // upload
-            //     xhr.upload.addEventListener('progress', function progress(evt) {
-            //         if (evt.lengthComputable) {
-            //             let edata3 = self.trigger('progress', { total: evt.total, loaded: evt.loaded, originalEvent: evt })
-            //             if (edata3.isCancelled === true) return
-            //             // only show % if it takes time
-            //             let percent = Math.round(evt.loaded / evt.total * 100)
-            //             if ((percent && percent != 100) || $(self.box).find('#'+ self.name + '_progress').text() != '') {
-            //                 $(self.box).find('#'+ self.name + '_progress').text(''+ percent + '%')
-            //             }
-            //             // event after
-            //             edata3.finish()
-            //         }
-            //     }, false)
-            //     return xhr
-            // }
-        }
-        let dataType = edata.detail.dataType ?? this.dataType ?? w2utils.settings.dataType
-        let postParams = edata.detail.postData
-        switch (dataType) {
-            case 'HTTP':
-                fetchOptions.type = 'GET'
-                Object.keys(postParams).forEach(key => url.searchParams.append(key, postParams[key]))
-                delete fetchOptions.body
-                break
-            case 'HTTPJSON':
-                fetchOptions.type = 'GET'
-                postParams = JSON.stringify({ request: postParams })
-                Object.keys(postParams).forEach(key => url.searchParams.append(key, postParams[key]))
-                delete fetchOptions.body
-                break
-            case 'RESTFULL':
-                break
-            case 'RESTFULLJSON':
-                fetchOptions.body = JSON.stringify(fetchOptions.body)
-                fetchOptions.headers.contentType = 'application/json'
-                break
-            case 'JSON':
-                fetchOptions.headers.contentType = 'application/json'
-                if (!self.multipart) {
-                    fetchOptions.body = JSON.stringify(fetchOptions.body)
-                } else {
-                    // TODO: check file upload processing
-                    function append(fd, dob, fob, p){
-                        if (p == null) p = ''
-                        function isObj(dob, fob, p){
-                            if (typeof dob === 'object' && dob instanceof File) fd.append(p, dob)
-                            if (typeof dob === 'object'){
-                                if (!!dob && dob.constructor === Array) {
-                                    for (let i = 0; i < dob.length; i++) {
-                                        let aux_fob = !!fob ? fob[i] : fob
-                                        isObj(dob[i], aux_fob, p+'['+i+']')
-                                    }
-                                } else {
-                                    append(fd, dob, fob, p)
-                                }
-                            }
-                        }
-                        for(let prop in dob){
-                            let aux_p   = p == '' ? prop : '${p}[${prop}]'
-                            let aux_fob = !!fob ? fob[prop] : fob
-                            isObj(dob[prop], aux_fob, aux_p)
-                        }
-                    }
-                    let fdata = new FormData()
-                    fdata.append('__body', JSON.stringify(fetchOptions.body))
-                    append(fdata, fetchOptions.body)
-                    fetchOptions.body = fdata
-                    // fetchOptions.contentType = false
-                    // fetchOptions.processData = false
-                }
-                break
-        }
-        if (this.method) fetchOptions.method = this.method
-        if (edata.detail.method) fetchOptions.method = edata.detail.method
+        })
         this.last.fetchCtrl = new AbortController()
         fetchOptions.signal = this.last.fetchCtrl.signal
         this.last.fetchOptions = fetchOptions
@@ -19419,18 +19377,18 @@ class w2form extends w2base {
                     processError(resp ?? {})
                     return
                 }
-                // event before
-                let edata = self.trigger('save', {
-                    target: self.name,
-                    fetchCtrl: this.last.fetchCtrl,
-                    fetchOptions: this.last.fetchOptions,
-                    data: resp
-                })
-                if (edata.isCancelled === true) return
                 // parse server response
                 resp.json()
                     .catch(processError)
                     .then(data => {
+                        // event before
+                        let edata = self.trigger('save', {
+                            target: self.name,
+                            fetchCtrl: this.last.fetchCtrl,
+                            fetchOptions: this.last.fetchOptions,
+                            data
+                        })
+                        if (edata.isCancelled === true) return
                         // server error, not due to network issues
                         if (data.error === true) {
                             self.error(w2utils.lang(data.message))
@@ -20225,8 +20183,8 @@ class w2form extends w2base {
         // after render actions
         this.resize()
         let url = (typeof this.url !== 'object' ? this.url : this.url.get)
-        if (url && this.recid !== 0 && this.recid != null) {
-            this.request()
+        if (url && this.recid != null) {
+            this.request().catch(error => this.refresh()) // even if there was error, still need refresh
         } else {
             this.refresh()
         }
@@ -20503,13 +20461,13 @@ class w2field extends w2base {
                 defaults = {
                     items           : [],
                     selected        : {},
-                    url             : null, // url to pull data from // TODO: implement
-                    recId           : null, // map retrieved data from url to id, can be string or function
-                    recText         : null, // map retrieved data from url to text, can be string or function
-                    method          : null, // default comes from w2utils.settings.dataType
-                    interval        : 350,  // number of ms to wait before sending server call on search
+                    url             : null,   // url to pull data from // TODO: implement
+                    recId           : null,   // map retrieved data from url to id, can be string or function
+                    recText         : null,   // map retrieved data from url to text, can be string or function
+                    method          : null,   // default httpMethod
+                    interval        : 350,    // number of ms to wait before sending server call on search
                     postData        : {},
-                    minLength       : 1,    // min number of chars when trigger search
+                    minLength       : 1,      // min number of chars when trigger search
                     cacheMax        : 250,
                     maxDropHeight   : 350,    // max height for drop down menu
                     maxDropWidth    : null,   // if null then auto set
@@ -20564,42 +20522,42 @@ class w2field extends w2base {
                 break
             case 'enum':
                 defaults = {
-                    items           : [], // id, text, tooltip, icon
+                    items           : [],    // id, text, tooltip, icon
                     selected        : [],
-                    max             : 0, // max number of selected items, 0 - unlimited
-                    url             : null, // not implemented
-                    recId           : null, // map retrieved data from url to id, can be string or function
-                    recText         : null, // map retrieved data from url to text, can be string or function
-                    interval        : 350, // number of ms to wait before sending server call on search
-                    method          : null, // default comes from w2utils.settings.dataType
+                    max             : 0,     // max number of selected items, 0 - unlimited
+                    url             : null,  // not implemented
+                    recId           : null,  // map retrieved data from url to id, can be string or function
+                    recText         : null,  // map retrieved data from url to text, can be string or function
+                    interval        : 350,   // number of ms to wait before sending server call on search
+                    method          : null,  // default httpMethod
                     postData        : {},
-                    minLength       : 1, // min number of chars when trigger search
+                    minLength       : 1,     // min number of chars when trigger search
                     cacheMax        : 250,
-                    maxItemWidth    : 250, // max width for a single item
-                    maxDropHeight   : 350, // max height for drop down menu
-                    maxDropWidth    : null, // if null then auto set
+                    maxItemWidth    : 250,   // max width for a single item
+                    maxDropHeight   : 350,   // max height for drop down menu
+                    maxDropWidth    : null,  // if null then auto set
                     match           : 'contains', // ['contains', 'is', 'begins', 'ends']
                     align           : '',    // align drop down related to search field
                     altRows         : true,  // alternate row color
                     openOnFocus     : false, // if to show overlay onclick or when typing
                     markSearch      : false,
-                    renderDrop      : null, // render function for drop down item
-                    renderItem      : null, // render selected item
-                    compare         : null, // compare function for filtering
-                    filter          : true, // alias for compare
-                    hideSelected    : true, // hide selected item from drop down
-                    style           : '',   // style for container div
-                    onSearch        : null, // when search needs to be performed
-                    onRequest       : null, // when request is submitted
-                    onLoad          : null, // when data is received
-                    onError         : null, // when data fails to load due to server error or other failure modes
-                    onClick         : null, // when an item is clicked
-                    onAdd           : null, // when an item is added
-                    onNew           : null, // when new item should be added
-                    onRemove        : null, // when an item is removed
-                    onMouseEnter    : null, // when an item is mouse over
-                    onMouseLeave    : null, // when an item is mouse out
-                    onScroll        : null  // when div with selected items is scrolled
+                    renderDrop      : null,  // render function for drop down item
+                    renderItem      : null,  // render selected item
+                    compare         : null,  // compare function for filtering
+                    filter          : true,  // alias for compare
+                    hideSelected    : true,  // hide selected item from drop down
+                    style           : '',    // style for container div
+                    onSearch        : null,  // when search needs to be performed
+                    onRequest       : null,  // when request is submitted
+                    onLoad          : null,  // when data is received
+                    onError         : null,  // when data fails to load due to server error or other failure modes
+                    onClick         : null,  // when an item is clicked
+                    onAdd           : null,  // when an item is added
+                    onNew           : null,  // when new item should be added
+                    onRemove        : null,  // when an item is removed
+                    onMouseEnter    : null,  // when an item is mouse over
+                    onMouseLeave    : null,  // when an item is mouse out
+                    onScroll        : null   // when div with selected items is scrolled
                 }
                 options  = w2utils.extend({}, defaults, options, { suffix: '' })
                 if (typeof options.items == 'function') {
@@ -20615,22 +20573,22 @@ class w2field extends w2base {
                 defaults     = {
                     selected      : [],
                     max           : 0,
-                    maxSize       : 0, // max size of all files, 0 - unlimited
-                    maxFileSize   : 0, // max size of a single file, 0 -unlimited
-                    maxItemWidth  : 250, // max width for a single item
-                    maxDropHeight : 350, // max height for drop down menu
+                    maxSize       : 0,    // max size of all files, 0 - unlimited
+                    maxFileSize   : 0,    // max size of a single file, 0 -unlimited
+                    maxItemWidth  : 250,  // max width for a single item
+                    maxDropHeight : 350,  // max height for drop down menu
                     maxDropWidth  : null, // if null then auto set
                     readContent   : true, // if true, it will readAsDataURL content of the file
                     silent        : true,
                     align         : 'both', // same width as control
                     altRows       : true, // alternate row color
                     renderItem    : null, // render selected item
-                    style         : '', // style for container div
+                    style         : '',   // style for container div
                     onClick       : null, // when an item is clicked
                     onAdd         : null, // when an item is added
                     onRemove      : null, // when an item is removed
                     onMouseEnter  : null, // when an item is mouse over
-                    onMouseLeave  : null // when an item is mouse out
+                    onMouseLeave  : null  // when an item is mouse out
                 }
                 options = w2utils.extend({}, defaults, options)
                 this.options = options
