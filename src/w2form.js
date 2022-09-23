@@ -461,7 +461,8 @@ class w2form extends w2base {
             case 'combo':
                 let item = value
                 // find item in options.items, if any
-                if (item?.id == null) {
+                console.log(field.options)
+                if (item?.id == null && Array.isArray(field.options?.items)) {
                     field.options.items.forEach(it => {
                         if (it.id === value) item = it
                     })

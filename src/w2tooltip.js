@@ -1827,7 +1827,7 @@ class MenuTooltip extends Tooltip {
                     parents = ''
                     refreshIndex = true
                 }
-                if (Array.isArray(item.items) && item.items.length > 0 && item.expanded) {
+                if (Array.isArray(item?.items) && item.items.length > 0 && item.expanded) {
                     event.delegate = query(overlay.box).find(`.w2ui-menu-item[index="${index}"]`).get(0)
                     overlay.selected = index
                     this.menuClick(overlay, event, parseInt(index), parents)
@@ -1838,7 +1838,7 @@ class MenuTooltip extends Tooltip {
             case 39: { // right
                 if (!overlay.displayed) return
                 let { item, index, parents } = this.getCurrent(overlay.name)
-                if (Array.isArray(item.items) && item.items.length > 0 && !item.expanded) {
+                if (Array.isArray(item?.items) && item.items.length > 0 && !item.expanded) {
                     event.delegate = query(overlay.box).find('.w2ui-selected').get(0)
                     this.menuClick(overlay, event, parseInt(index), parents)
                 }
