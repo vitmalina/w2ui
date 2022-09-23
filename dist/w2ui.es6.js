@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (9/22/2022, 7:37:22 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (9/22/2022, 8:47:45 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -5541,7 +5541,7 @@ class MenuTooltip extends Tooltip {
                     parents = ''
                     refreshIndex = true
                 }
-                if (Array.isArray(item.items) && item.items.length > 0 && item.expanded) {
+                if (Array.isArray(item?.items) && item.items.length > 0 && item.expanded) {
                     event.delegate = query(overlay.box).find(`.w2ui-menu-item[index="${index}"]`).get(0)
                     overlay.selected = index
                     this.menuClick(overlay, event, parseInt(index), parents)
@@ -5552,7 +5552,7 @@ class MenuTooltip extends Tooltip {
             case 39: { // right
                 if (!overlay.displayed) return
                 let { item, index, parents } = this.getCurrent(overlay.name)
-                if (Array.isArray(item.items) && item.items.length > 0 && !item.expanded) {
+                if (Array.isArray(item?.items) && item.items.length > 0 && !item.expanded) {
                     event.delegate = query(overlay.box).find('.w2ui-selected').get(0)
                     this.menuClick(overlay, event, parseInt(index), parents)
                 }
@@ -14097,7 +14097,7 @@ class w2grid extends w2base {
                     obj.selectNone(true) // no need to trigger select event
                     obj.click({ recid: obj.records[prev].recid, column: columns[0] }, event)
                 }
-                obj.scrollIntoView(prev, null, false, numRows != 1) // top align record
+                obj.scrollIntoView(prev, null, true, numRows != 1) // top align record
                 if (event.preventDefault) event.preventDefault()
             } else {
                 // if selected more then one, then select first
@@ -14143,7 +14143,7 @@ class w2grid extends w2base {
                     obj.selectNone(true) // no need to trigger select event
                     obj.click({ recid: obj.records[next].recid, column: columns[0] }, event)
                 }
-                obj.scrollIntoView(next, null, false, numRows != 1) // top align record
+                obj.scrollIntoView(next, null, true, numRows != 1) // top align record
                 cancel = true
             } else {
                 // if selected more then one, then select first
@@ -15114,7 +15114,10 @@ class w2grid extends w2base {
             records.add(frecords)
                 .on('click', { delegate: 'tr' }, (event) => {
                     let recid = query(event.delegate).attr('recid')
-                    this.click(recid, event)
+                    // do not generate click if empty record is clicked
+                    if (recid != '-none-') {
+                        this.click(recid, event)
+                    }
                 })
                 .on('contextmenu', { delegate: 'tr' }, (event) => {
                     let recid = query(event.delegate).attr('recid')
@@ -15506,7 +15509,7 @@ class w2grid extends w2base {
                         if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) {
                             target.focus()
                         } else {
-                            if ($input.get(0) !== document.active) $input.get(0).focus()
+                            if ($input.get(0) !== document.active) $input.get(0).focus({ preventScroll: true })
                         }
                     }
                 }, 50)
@@ -18749,7 +18752,8 @@ class w2form extends w2base {
             case 'combo':
                 let item = value
                 // find item in options.items, if any
-                if (item?.id == null) {
+                console.log(field.options)
+                if (item?.id == null && Array.isArray(field.options?.items)) {
                     field.options.items.forEach(it => {
                         if (it.id === value) item = it
                     })

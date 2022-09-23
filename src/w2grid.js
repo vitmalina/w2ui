@@ -5599,7 +5599,7 @@ class w2grid extends w2base {
                         if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) {
                             target.focus()
                         } else {
-                            if ($input.get(0) !== document.active) $input.get(0).focus()
+                            if ($input.get(0) !== document.active) $input.get(0).focus({ preventScroll: true })
                         }
                     }
                 }, 50)
