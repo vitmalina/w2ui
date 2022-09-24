@@ -44,6 +44,7 @@
  *  - msgAJAXError -> msgHTTPError
  *  - deleted grid.method
  *  - added grid.prepareParams
+ *  - added mouseEnter/mouseLeave
  */
 
 import { w2base } from './w2base.js'
@@ -375,6 +376,8 @@ class w2grid extends w2base {
         this.onColumnDragStart  = null
         this.onColumnDragEnd    = null
         this.onResizerDblClick  = null
+        this.onMouseEnter       = null // mouse enter over record event
+        this.onMouseLeave       = null
 
         // need deep merge, should be extend, not objectAssign
         w2utils.extend(this, options)
@@ -3631,7 +3634,7 @@ class w2grid extends w2base {
             if (query(trg).attr('col') != null) column = parseInt(query(trg).attr('col'))
         }
         // event before
-        let edata = this.trigger('click', { target: this.name, recid: recid, column: column, originalEvent: event })
+        let edata = this.trigger('click', { target: this.name, recid, column, originalEvent: event })
         if (edata.isCancelled === true) return
         // default action
         let sel = this.getSelection()
@@ -5202,6 +5205,42 @@ class w2grid extends w2base {
                 .on('contextmenu', { delegate: 'tr' }, (event) => {
                     let recid = query(event.delegate).attr('recid')
                     this.showContextMenu(recid, null, event)
+                })
+                .on('mouseover', { delegate: 'tr' }, (event) => {
+                    this.last.rec_out = false
+                    let index = query(event.delegate).attr('index')
+                    let recid = query(event.delegate).attr('recid')
+                    if (index !== this.last.rec_over) {
+                        this.last.rec_over = index;
+                        // setTimeout is needed for correct event order enter/leave
+                        setTimeout(() => {
+                            delete this.last.rec_out
+                            let edata = this.trigger('mouseEnter', { target: this.name, originalEvent: event, index, recid })
+                            edata.finish()
+                        });
+                    }
+                })
+                .on('mouseout', { delegate: 'tr' }, (event) => {
+                    let index = query(event.delegate).attr('index')
+                    let recid = query(event.delegate).attr('recid')
+                    this.last.rec_out = true;
+                    // setTimeouts are needed for correct event order enter/leave
+                    setTimeout(() => {
+                        let recLeave = () => {
+                            let edata = this.trigger('mouseLeave', { target: this.name, originalEvent: event, index, recid })
+                            edata.finish()
+                        }
+                        if (index !== this.last.rec_over) {
+                            recLeave()
+                        }
+                        setTimeout(() => {
+                            if (this.last.rec_out) {
+                                delete this.last.rec_out
+                                delete this.last.rec_over
+                                recLeave()
+                            }
+                        })
+                    })
                 })
         }
 
