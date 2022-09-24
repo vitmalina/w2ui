@@ -59,7 +59,7 @@ class w2grid extends w2base {
         this.name         = null
         this.box          = null // HTML element that hold this element
         this.columns      = [] // { field, text, size, attr, render, hidden, gridMinWidth, editable }
-        this.columnGroups = [] // { span: int, text: 'string', main: true/false }
+        this.columnGroups = [] // { span: int, text: 'string', main: true/false, style: 'string' }
         this.records      = [] // { recid: int(required), field1: 'value1', ... fieldN: 'valueN', style: 'string',  changes: object }
         this.summary      = [] // array of summary records, same structure as records array
         this.searches     = [] // { type, label, field, attr, text, hidden }
@@ -7057,7 +7057,7 @@ class w2grid extends w2base {
     }
 
     getColumnsHTML() {
-        let obj   = this
+        let self = this
         let html1 = ''
         let html2 = ''
         if (this.show.columnHeaders) {
@@ -7080,38 +7080,38 @@ class w2grid extends w2base {
             let html2 = '<tr>'
             let tmpf  = ''
             // add empty group at the end
-            let tmp = obj.columnGroups.length - 1
-            if (obj.columnGroups[tmp].text == null && obj.columnGroups[tmp].caption != null) {
-                console.log('NOTICE: grid columnGroup.caption property is deprecated, please use columnGroup.text. Group -> ', obj.columnGroups[tmp])
-                obj.columnGroups[tmp].text = obj.columnGroups[tmp].caption
+            let tmp = self.columnGroups.length - 1
+            if (self.columnGroups[tmp].text == null && self.columnGroups[tmp].caption != null) {
+                console.log('NOTICE: grid columnGroup.caption property is deprecated, please use columnGroup.text. Group -> ', self.columnGroups[tmp])
+                self.columnGroups[tmp].text = self.columnGroups[tmp].caption
             }
-            if (obj.columnGroups[obj.columnGroups.length-1].text != '') obj.columnGroups.push({ text: '' })
+            if (self.columnGroups[self.columnGroups.length-1].text != '') self.columnGroups.push({ text: '' })
 
-            if (obj.show.lineNumbers) {
-                html1 += '<td class="w2ui-head w2ui-col-number" col="line-number">'+
-                        '    <div>&#160;</div>'+
-                        '</td>'
+            if (self.show.lineNumbers) {
+                html1 += '<td class="w2ui-head w2ui-col-number" col="line-number">' +
+                         '    <div>&#160;</div>' +
+                         '</td>'
             }
-            if (obj.show.selectColumn) {
-                html1 += '<td class="w2ui-head w2ui-col-select" col="select">'+
-                        '    <div style="height: 25px">&#160;</div>'+
-                        '</td>'
+            if (self.show.selectColumn) {
+                html1 += '<td class="w2ui-head w2ui-col-select" col="select">' +
+                         '    <div style="height: 25px">&#160;</div>' +
+                         '</td>'
             }
-            if (obj.show.expandColumn) {
-                html1 += '<td class="w2ui-head w2ui-col-expand" col="expand">'+
-                        '    <div style="height: 25px">&#160;</div>'+
-                        '</td>'
+            if (self.show.expandColumn) {
+                html1 += '<td class="w2ui-head w2ui-col-expand" col="expand">' +
+                         '    <div style="height: 25px">&#160;</div>' +
+                         '</td>'
             }
             let ii = 0
-            html2 += '<td id="grid_'+ obj.name + '_column_start" class="w2ui-head" col="start" style="border-right: 0"></td>'
-            if (obj.show.orderColumn) {
-                html2 += '<td class="w2ui-head w2ui-col-order" col="order">'+
-                        '    <div style="height: 25px">&#160;</div>'+
-                        '</td>'
+            html2 += `<td id="grid_${self.name}_column_start" class="w2ui-head" col="start" style="border-right: 0"></td>`
+            if (self.show.orderColumn) {
+                html2 += '<td class="w2ui-head w2ui-col-order" col="order">' +
+                         '    <div style="height: 25px">&#160;</div>' +
+                         '</td>'
             }
-            for (let i = 0; i<obj.columnGroups.length; i++) {
-                let colg = obj.columnGroups[i]
-                let col  = obj.columns[ii] || {}
+            for (let i = 0; i < self.columnGroups.length; i++) {
+                let colg = self.columnGroups[i]
+                let col  = self.columns[ii] || {}
                 if (colg.colspan != null) colg.span = colg.colspan
                 if (colg.span == null || colg.span != parseInt(colg.span)) colg.span = 1
                 if (col.text == null && col.caption != null) {
@@ -7120,102 +7120,97 @@ class w2grid extends w2base {
                 }
                 let colspan = 0
                 for (let jj = ii; jj < ii + colg.span; jj++) {
-                    if (obj.columns[jj] && !obj.columns[jj].hidden) {
+                    if (self.columns[jj] && !self.columns[jj].hidden) {
                         colspan++
                     }
                 }
-                if (i == obj.columnGroups.length-1) {
+                if (i == self.columnGroups.length-1) {
                     colspan = 100 // last column
                 }
                 if (colspan <= 0) {
                     // do nothing here, all columns in the group are hidden.
                 } else if (colg.main === true) {
                     let sortStyle = ''
-                    for (let si = 0; si < obj.sortData.length; si++) {
-                        if (obj.sortData[si].field == col.field) {
-                            if ((obj.sortData[si].direction || '').toLowerCase() === 'asc') sortStyle = 'w2ui-sort-up'
-                            if ((obj.sortData[si].direction || '').toLowerCase() === 'desc') sortStyle = 'w2ui-sort-down'
+                    for (let si = 0; si < self.sortData.length; si++) {
+                        if (self.sortData[si].field == col.field) {
+                            if ((self.sortData[si].direction || '').toLowerCase() === 'asc') sortStyle = 'w2ui-sort-up'
+                            if ((self.sortData[si].direction || '').toLowerCase() === 'desc') sortStyle = 'w2ui-sort-down'
                         }
                     }
                     let resizer = ''
                     if (col.resizable !== false) {
-                        resizer = '<div class="w2ui-resizer" name="'+ ii +'"></div>'
+                        resizer = `<div class="w2ui-resizer" name="${ii}"></div>`
                     }
                     let text = w2utils.lang(typeof col.text == 'function' ? col.text(col) : col.text)
-                    tmpf = '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head '+ sortStyle +'" col="'+ ii + '" '+
-                           '    rowspan="2" colspan="'+ colspan +'">'+
-                               resizer +
-                           '    <div class="w2ui-col-group w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +'">'+
-                           '        <div class="'+ sortStyle +'"></div>'+
-                                   (!text ? '&#160;' : text) +
+                    tmpf = `<td id="grid_${self.name}_column_${ii}" class="w2ui-head ${sortStyle}" col="${ii}" `+
+                           `    rowspan="2" colspan="${colspan}">`+ resizer +
+                           `    <div class="w2ui-col-group w2ui-col-header ${sortStyle ? 'w2ui-col-sorted' : ''}">` +
+                           `        <div class="${sortStyle}"></div>` + (!text ? '&#160;' : text) +
                            '    </div>'+
                            '</td>'
                     if (col && col.frozen) html1 += tmpf; else html2 += tmpf
                 } else {
                     let gText = w2utils.lang(typeof colg.text == 'function' ? colg.text(colg) : colg.text)
-                    tmpf      = '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head" col="'+ ii + '" '+
-                           '        colspan="'+ colspan +'">'+
-                           '    <div class="w2ui-col-group">'+
-                               (!gText ? '&#160;' : gText) +
-                           '    </div>'+
-                           '</td>'
+                    tmpf = `<td id="grid_${self.name}_column_${ii}" class="w2ui-head" col="${ii}" colspan="${colspan}">` +
+                           `    <div class="w2ui-col-group" style="${colg.style ?? ''}">${!gText ? '&#160;' : gText}</div>` +
+                           `</td>`
                     if (col && col.frozen) html1 += tmpf; else html2 += tmpf
                 }
                 ii += colg.span
             }
             html1 += '<td></td></tr>' // need empty column for border-right
-            html2 += '<td id="grid_'+ obj.name + '_column_end" class="w2ui-head" col="end"></td></tr>'
+            html2 += `<td id="grid_${self.name}_column_end" class="w2ui-head" col="end"></td></tr>`
             return [html1, html2]
         }
 
         function getColumns(main) {
             let html1 = '<tr>'
             let html2 = '<tr>'
-            if (obj.show.lineNumbers) {
-                html1 += '<td class="w2ui-head w2ui-col-number" col="line-number">'+
-                        '    <div>#</div>'+
+            if (self.show.lineNumbers) {
+                html1 += '<td class="w2ui-head w2ui-col-number" col="line-number">' +
+                        '    <div>#</div>' +
                         '</td>'
             }
-            if (obj.show.selectColumn) {
-                html1 += '<td class="w2ui-head w2ui-col-select" col="select">'+
-                        '    <div>'+
-                        '        <input type="checkbox" id="grid_'+ obj.name +'_check_all" class="w2ui-select-all" tabindex="-1"'+
-                        '            style="' + (obj.multiSelect == false ? 'display: none;' : '') + '"'+
-                        '        >'+
-                        '    </div>'+
+            if (self.show.selectColumn) {
+                html1 += '<td class="w2ui-head w2ui-col-select" col="select">' +
+                        '    <div>' +
+                        `        <input type="checkbox" id="grid_${self.name}_check_all" class="w2ui-select-all" tabindex="-1"` +
+                        `            style="${self.multiSelect == false ? 'display: none;' : ''}"` +
+                        '        >' +
+                        '    </div>' +
                         '</td>'
             }
-            if (obj.show.expandColumn) {
-                html1 += '<td class="w2ui-head w2ui-col-expand" col="expand">'+
-                        '    <div>&#160;</div>'+
+            if (self.show.expandColumn) {
+                html1 += '<td class="w2ui-head w2ui-col-expand" col="expand">' +
+                        '    <div>&#160;</div>' +
                         '</td>'
             }
             let ii = 0
             let id = 0
             let colg
-            html2 += '<td id="grid_'+ obj.name + '_column_start" class="w2ui-head" col="start" style="border-right: 0"></td>'
-            if (obj.show.orderColumn) {
+            html2 += `<td id="grid_${self.name}_column_start" class="w2ui-head" col="start" style="border-right: 0"></td>`
+            if (self.show.orderColumn) {
                 html2 += '<td class="w2ui-head w2ui-col-order" col="order">'+
                         '    <div>&#160;</div>'+
                         '</td>'
             }
-            for (let i = 0; i < obj.columns.length; i++) {
-                let col = obj.columns[i]
+            for (let i = 0; i < self.columns.length; i++) {
+                let col = self.columns[i]
                 if (col.text == null && col.caption != null) {
                     console.log('NOTICE: grid column.caption property is deprecated, please use column.text. Column -> ', col)
                     col.text = col.caption
                 }
                 if (col.size == null) col.size = '100%'
                 if (i == id) { // always true on first iteration
-                    colg = obj.columnGroups[ii++] || {}
+                    colg = self.columnGroups[ii++] || {}
                     id   = id + colg.span
                 }
-                if ((i < obj.last.colStart || i > obj.last.colEnd) && !col.frozen)
+                if ((i < self.last.colStart || i > self.last.colEnd) && !col.frozen)
                     continue
                 if (col.hidden)
                     continue
                 if (colg.main !== true || main) { // grouping of columns
-                    let colCellHTML = obj.getColumnCellHTML(i)
+                    let colCellHTML = self.getColumnCellHTML(i)
                     if (col && col.frozen) html1 += colCellHTML; else html2 += colCellHTML
                 }
             }
