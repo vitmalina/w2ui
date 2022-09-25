@@ -15,6 +15,7 @@
  *  - item.icon - can be class or <custom-icon-component> or <svg>
  *  - new w2tooltips and w2menu
  *  - scroll returns promise
+ *  - added onMouseEntter, onMouseLeave, onMouseDown, onMouseUp events
  */
 
 import { w2base } from './w2base.js'
@@ -32,6 +33,10 @@ class w2toolbar extends w2base {
         this.right         = '' // HTML text on the right of toolbar
         this.tooltip       = 'top|left'// can be top, bottom, left, right
         this.onClick       = null
+        this.onMouseDown   = null
+        this.onMouseUp     = null
+        this.onMouseEnter  = null // mouse enter the button event
+        this.onMouseLeave  = null
         this.onRender      = null
         this.onRefresh     = null
         this.onResize      = null
@@ -705,10 +710,10 @@ class w2toolbar extends w2base {
                         class="${classes.join(' ')} ${(item.class ? item.class : '')}"
                         ${!item.disabled
                             ? `data-click='["click","${item.id}"]'
-                               data-mouseenter='["mouseAction", "event", "this", "enter", "${item.id}"]'
-                               data-mouseleave='["mouseAction", "event", "this", "leave", "${item.id}"]'
-                               data-mousedown='["mouseAction", "event", "this", "down", "${item.id}"]'
-                               data-mouseup='["mouseAction", "event", "this", "up", "${item.id}"]'`
+                               data-mouseenter='["mouseAction", "event", "this", "Enter", "${item.id}"]'
+                               data-mouseleave='["mouseAction", "event", "this", "Leave", "${item.id}"]'
+                               data-mousedown='["mouseAction", "event", "this", "Down", "${item.id}"]'
+                               data-mouseup='["mouseAction", "event", "this", "Up", "${item.id}"]'`
                             : ''}
                     >
                         ${ icon }
@@ -888,23 +893,25 @@ class w2toolbar extends w2base {
 
     mouseAction(event, target, action, id) {
         let btn = this.get(id)
-        if (btn.disabled || btn.hidden) return
+        let edata = this.trigger('mouse' + action, { target: id, item: btn, object: btn, originalEvent: event })
+        if (edata.isCancelled === true || btn.disabled || btn.hidden) return
         switch (action) {
-            case 'enter':
+            case 'Enter':
                 query(target).addClass('over')
                 this.tooltipShow(id)
                 break
-            case 'leave':
+            case 'Leave':
                 query(target).removeClass('over down')
                 this.tooltipHide(id)
                 break
-            case 'down':
+            case 'Down':
                 query(target).addClass('down')
                 break
-            case 'up':
+            case 'Up':
                 query(target).removeClass('down')
                 break
         }
+        edata.finish();
     }
 }
 export { w2toolbar }

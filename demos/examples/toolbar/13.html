@@ -1,0 +1,66 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Toolbar Button Events</h1>
+        You can catch mouseEnter/mouseLeave/mouseDown/mouseUp events as follows
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="toolbar"></div>
+<div style="height: 40px"></div>
+
+<b>Event Log</b>
+<div style="height: 5px"></div>
+<div id="preview" style="height: 200px; width: 300px; overflow-y: auto; border: 1px solid #efefef; padding: 5px; padding-bottom: 15px;"></div>
+
+<div style="height: 5px"></div>
+<button class="w2ui-btn" onclick="clearLog()">Clear Log</button>
+<!--CODE-->
+<script type="module">
+import { w2ui, w2toolbar, w2utils, query } from '__W2UI_PATH__'
+
+let toolbar = new w2toolbar({
+    box: '#toolbar',
+    name: 'toolbar',
+    tooltip: 'top',
+    items: [
+        { type: 'button', id: 'item1', text: 'Button', icon: 'w2ui-icon-colors' },
+        { type: 'break' },
+        { type: 'check', id: 'item2', text: 'Check 1', icon: 'w2ui-icon-check' },
+        { type: 'check', id: 'item3', text: 'Check 2', icon: 'w2ui-icon-check' },
+        { type: 'break' },
+        { type: 'radio', id: 'item4', group: '1', text: 'Radio 1', icon: 'w2ui-icon-info', checked: true },
+        { type: 'radio', id: 'item5', group: '1', text: 'Radio 2', icon: 'w2ui-icon-paste' },
+        { type: 'break' },
+        { type: 'menu-radio', id: 'item6', icon: 'fa fa-star',
+            text(item) {
+                let text = item.selected;
+                let el   = this.get('item2:' + item.selected);
+                return 'Radio: ' + el.text;
+            },
+            selected: 'id1',
+            items: [
+                { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
+                { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
+                { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 }
+            ]
+        },
+
+    ]
+})
+
+// attach event listener for all events
+toolbar.on('*', (event) => {
+    query('#preview').append(`<div>
+        <span style="width: 100px; display: inline-block">${event.target}</span>
+        ${event.type}
+    </div>`)
+    query('#preview').prop('scrollTop', 100_000)
+})
+
+window.clearLog = function () {
+    query('#preview').html('')
+}
+</script>

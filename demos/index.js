@@ -231,6 +231,7 @@ query(async function () {
                 { id: 'toolbar-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'toolbar/12', text: 'Badge Control', icon: 'fa fa-hand-o-up' },
+                        { id: 'toolbar/13', text: 'Events', icon: 'fa fa-hand-o-up' },
                     ]
                 },
                 { id: 'sidebar', text: 'Sidebar Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,

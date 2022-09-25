@@ -13,6 +13,7 @@
  *  - CSP - fixed inline events
  *  - observeResize for the box
  *  - handleTooltip and handle.tooltip - text/function
+ *  - added onMouseEntter, onMouseLeave events
  */
 
 import { w2base } from './w2base.js'
@@ -45,6 +46,8 @@ class w2sidebar extends w2base {
         this.handle        = { size: 0, style: '', html: '', tooltip: '' },
         this.onClick       = null // Fire when user click on Node Text
         this.onDblClick    = null // Fire when user dbl clicks
+        this.onMouseEnter  = null // mouse enter/leave over an item
+        this.onMouseLeave  = null
         this.onContextMenu = null
         this.onMenuClick   = null // when context menu item selected
         this.onExpand      = null // Fire when node expands
@@ -1111,11 +1114,14 @@ class w2sidebar extends w2base {
                         style="position: relative; ${nd.hidden ? 'display: none;' : ''}"
                         data-click="click|${nd.id}|event"
                         data-dblclick="dblClick|${nd.id}|event"
-                        data-contextmenu="contextMenu|${nd.id}|event">
+                        data-contextmenu="contextMenu|${nd.id}|event"
+                        data-mouseEnter="mouseAction|Enter|this|${nd.id}|event"
+                        data-mouseLeave="mouseAction|Leave|this|${nd.id}|event"
+                    >
                         ${obj.handle.html
                             ? `<div class="w2ui-node-handle w2ui-eaction" style="width: ${obj.handle.size}px; ${obj.handle.style}"
-                                    data-mouseenter="handleTooltip|this|${nd.id}"
-                                    data-mouseleave="handleTooltip|this"
+                                    data-mouseEnter="mouseAction|Enter|this|${nd.id}|event|handle"
+                                    data-mouseLeave="mouseAction|Leave|this|${nd.id}|event|handle"
                                 >
                                    ${typeof obj.handle.html == 'function' ? obj.handle.html.call(obj, nd) : obj.handle.html}
                               </div>`
@@ -1128,14 +1134,14 @@ class w2sidebar extends w2base {
                     </div>
                     <div class="w2ui-node-sub" id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}"></div>`
                 if (obj.flat) {
-                    let tooltip = w2utils.base64encode(text + (nd.count || nd.count === 0 ? ' - <span class="w2ui-node-count">'+ nd.count +'</span>' : ''))
                     html = `
                         <div id="node_${nd.id}" class="${classes.join(' ')}" style="${nd.hidden ? 'display: none;' : ''}"
                             data-click="click|${nd.id}|event"
                             data-dblclick="dblClick|${nd.id}|event"
                             data-contextmenu="contextMenu|${nd.id}|event"
-                            data-mouseenter="tooltip|this|${tooltip}|${nd.id}"
-                            data-mouseleave="tooltip|this|">
+                            data-mouseEnter="mouseAction|Enter|this|${nd.id}|event|tooltip"
+                            data-mouseLeave="mouseAction|Leave|this|${nd.id}|event|tooltip"
+                        >
                             <div class="w2ui-node-data w2ui-node-flat">${tmp}</div>
                         </div>
                         <div class="w2ui-node-sub" id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}"></div>`
@@ -1145,13 +1151,27 @@ class w2sidebar extends w2base {
         }
     }
 
+    mouseAction(action, el, id, event, type) {
+        let node = this.get(id)
+        let text = w2utils.lang(typeof node.text == 'function' ? node.text.call(obj, node) : node.text)
+        let tooltip = text + (node.count || node.count === 0 ? ' - <span class="w2ui-node-count">'+ node.count +'</span>' : '')
+        let edata = this.trigger('mouse' + action, { target: id, node, tooltip, originalEvent: event })
+        if (type == 'tooltip') {
+            this.tooltip(el, tooltip, id)
+        }
+        if (type == 'handle') {
+            this.handleTooltip(el, id)
+        }
+        edata.finish()
+    }
+
     tooltip(el, text, id) {
         let $el = query(el).find('.w2ui-node-data')
         if (text !== '') {
             w2tooltip.show({
                 anchor: $el.get(0),
                 name: this.name + '_tooltip',
-                html: w2utils.base64decode(text),
+                html: text,
                 position: 'right|left'
             })
         } else {
