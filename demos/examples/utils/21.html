@@ -41,7 +41,7 @@ query('.notify-btn').on('click', event => {
             w2utils.notify('Error: cannot do this action', { error: true, where })
             break
         case "3":
-            w2utils.notify('Message was sent ${undo} and ${don\'t show again}', {
+            w2utils.notify('Message was sent ${undo} or ${don\'t show again}', {
                 actions: {
                     undo() {
                         w2alert('undo')
