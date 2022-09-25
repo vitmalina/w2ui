@@ -1,0 +1,48 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Tab Events</h1>
+        You can catch mouseEnter/mouseLeave/mouseDown/mouseUp events as follows
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="tabs" style="width: 100%;"></div>
+<div id="selected-tab" style="padding: 10px 0px">tab1</div>
+<br>
+<b>Event Log</b>
+<div style="height: 5px"></div>
+<div id="preview" style="height: 200px; width: 300px; overflow-y: auto; border: 1px solid #efefef; padding: 5px; padding-bottom: 15px;"></div>
+
+<div style="height: 5px"></div>
+<button class="w2ui-btn" onclick="clearLog()">Clear Log</button>
+
+<!--CODE-->
+<script type="module">
+import { w2tabs, query } from '__W2UI_PATH__'
+
+let tabs = new w2tabs({
+    box: '#tabs',
+    name: 'tabs',
+    active: 'tab1',
+    tabs: [
+        { id: 'tab1', text: 'Tab 1' },
+        { id: 'tab2', text: 'Tab 2' },
+        { id: 'tab3', text: 'Tab 4' }
+    ]
+})
+
+// attach event listener for all events
+tabs.on('*', (event) => {
+    query('#preview').append(`<div>
+        <span style="width: 100px; display: inline-block">${event.target}</span>
+        ${event.type}
+    </div>`)
+    query('#preview').prop('scrollTop', 100_000)
+})
+
+window.clearLog = function () {
+    query('#preview').html('')
+}
+</script>

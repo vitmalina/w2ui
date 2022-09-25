@@ -11,6 +11,7 @@
  *  - scroll, scrollIntoView return promise
  *  - animateInsert, animateClose - returns a promise
  *  - add, insert return a promise
+ *  - onMouseEnter, onMouseLeave, onMouseDown, onMouseUp
  */
 
 import { w2base } from './w2base.js'
@@ -33,6 +34,10 @@ class w2tabs extends w2base {
         this.right        = ''
         this.style        = ''
         this.onClick      = null
+        this.onMouseEnter = null // mouse enter and lease
+        this.onMouseLeave = null
+        this.onMouseDown  = null
+        this.onMouseUp    = null
         this.onClose      = null
         this.onRender     = null
         this.onRefresh    = null
@@ -260,6 +265,26 @@ class w2tabs extends w2base {
         }
     }
 
+    mouseAction(action, id, event) {
+        let tab = this.get(id)
+        let edata = this.trigger('mouse' + action, { target: id, tab, object: tab, originalEvent: event })
+        if (edata.isCancelled === true || tab.disabled || tab.hidden) return
+        switch (action) {
+            case 'Enter':
+                this.tooltipShow(id)
+                break
+            case 'Leave':
+                this.tooltipHide(id)
+                break
+            case 'Down':
+                this.initReorder(id, event)
+                break
+            case 'Up':
+                break
+        }
+        edata.finish()
+    }
+
     tooltipShow(id) {
         let item = this.get(id)
         let el = query(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(id)).get(0)
@@ -305,19 +330,17 @@ class w2tabs extends w2base {
         if (tab.disabled) { addStyle += 'opacity: 0.2;' }
         if (tab.closable && !tab.disabled) {
             closable = `<div class="w2ui-tab-close w2ui-eaction ${this.active === tab.id ? 'active' : ''}"
-                data-mouseenter='["tooltipShow", "${tab.id}"]'
-                data-mouseleave='["tooltipHide", "${tab.id}"]'
-                data-mousedown="stop"
-                data-mouseup='["clickClose", "${tab.id}", "event"]'>
+                data-mousedown="stop" data-mouseup="clickClose|${tab.id}|event">
             </div>`
         }
         return `
             <div id="tabs_${this.name}_tab_${tab.id}" style="${addStyle} ${tab.style}"
-               class="w2ui-tab w2ui-eaction ${this.active === tab.id ? 'active' : ''} ${tab.closable ? 'closable' : ''} ${tab.class ? tab.class : ''}"
-               data-mouseenter ='["tooltipShow", "${tab.id}"]'
-               data-mouseleave ='["tooltipHide", "${tab.id}"]'
-               data-mousedown  ='["initReorder", "${tab.id}", "event"]'
-               data-click      ='["click", "${tab.id}", "event"]'
+                class="w2ui-tab w2ui-eaction ${this.active === tab.id ? 'active' : ''} ${tab.closable ? 'closable' : ''} ${tab.class ? tab.class : ''}"
+                data-mouseenter="mouseAction|Enter|${tab.id}|event]"
+                data-mouseleave="mouseAction|Leave|${tab.id}|event]"
+                data-mousedown="mouseAction|Down|${tab.id}|event"
+                data-mouseup="mouseAction|Up|${tab.id}|event"
+                data-click="click|${tab.id}|event"
                >
                     ${w2utils.lang(text) + closable}
             </div>`
@@ -560,8 +583,8 @@ class w2tabs extends w2base {
         if (edata.isCancelled === true) return
         // default action
         query(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active)).removeClass('active')
-        query(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active)).removeClass('active')
         this.active = tab.id
+        query(this.box).find('#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(this.active)).addClass('active')
         // route processing
         if (typeof tab.route == 'string') {
             let route = tab.route !== '' ? String('/'+ tab.route).replace(/\/{2,}/g, '/') : ''
@@ -576,7 +599,6 @@ class w2tabs extends w2base {
         }
         // event after
         edata.finish()
-        this.refresh(id)
     }
 
     clickClose(id, event) {
