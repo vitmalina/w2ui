@@ -1478,7 +1478,6 @@ class Utils {
                         })
                 }
                 if (options.timeout > 0) {
-                    console.log('auto close')
                     this.tmp.notify_timer = setTimeout(() => {
                         query(options.where).find('#w2ui-notify').remove()
                         resolve()
