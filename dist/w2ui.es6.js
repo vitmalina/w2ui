@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (9/25/2022, 3:59:27 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (9/25/2022, 4:04:07 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -2344,7 +2344,6 @@ class Utils {
                         })
                 }
                 if (options.timeout > 0) {
-                    console.log('auto close')
                     this.tmp.notify_timer = setTimeout(() => {
                         query(options.where).find('#w2ui-notify').remove()
                         resolve()
