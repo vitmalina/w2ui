@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (9/22/2022, 8:47:45 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (9/25/2022, 8:54:06 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -6385,6 +6385,7 @@ search() {
  *  - item.icon - can be class or <custom-icon-component> or <svg>
  *  - new w2tooltips and w2menu
  *  - scroll returns promise
+ *  - added onMouseEntter, onMouseLeave, onMouseDown, onMouseUp events
  */
 
 class w2toolbar extends w2base {
@@ -6397,6 +6398,10 @@ class w2toolbar extends w2base {
         this.right         = '' // HTML text on the right of toolbar
         this.tooltip       = 'top|left'// can be top, bottom, left, right
         this.onClick       = null
+        this.onMouseDown   = null
+        this.onMouseUp     = null
+        this.onMouseEnter  = null // mouse enter the button event
+        this.onMouseLeave  = null
         this.onRender      = null
         this.onRefresh     = null
         this.onResize      = null
@@ -7039,10 +7044,10 @@ class w2toolbar extends w2base {
                         class="${classes.join(' ')} ${(item.class ? item.class : '')}"
                         ${!item.disabled
                             ? `data-click='["click","${item.id}"]'
-                               data-mouseenter='["mouseAction", "event", "this", "enter", "${item.id}"]'
-                               data-mouseleave='["mouseAction", "event", "this", "leave", "${item.id}"]'
-                               data-mousedown='["mouseAction", "event", "this", "down", "${item.id}"]'
-                               data-mouseup='["mouseAction", "event", "this", "up", "${item.id}"]'`
+                               data-mouseenter='["mouseAction", "event", "this", "Enter", "${item.id}"]'
+                               data-mouseleave='["mouseAction", "event", "this", "Leave", "${item.id}"]'
+                               data-mousedown='["mouseAction", "event", "this", "Down", "${item.id}"]'
+                               data-mouseup='["mouseAction", "event", "this", "Up", "${item.id}"]'`
                             : ''}
                     >
                         ${ icon }
@@ -7211,23 +7216,25 @@ class w2toolbar extends w2base {
     }
     mouseAction(event, target, action, id) {
         let btn = this.get(id)
-        if (btn.disabled || btn.hidden) return
+        let edata = this.trigger('mouse' + action, { target: id, item: btn, object: btn, originalEvent: event })
+        if (edata.isCancelled === true || btn.disabled || btn.hidden) return
         switch (action) {
-            case 'enter':
+            case 'Enter':
                 query(target).addClass('over')
                 this.tooltipShow(id)
                 break
-            case 'leave':
+            case 'Leave':
                 query(target).removeClass('over down')
                 this.tooltipHide(id)
                 break
-            case 'down':
+            case 'Down':
                 query(target).addClass('down')
                 break
-            case 'up':
+            case 'Up':
                 query(target).removeClass('down')
                 break
         }
+        edata.finish();
     }
 }
 /**
@@ -7245,6 +7252,7 @@ class w2toolbar extends w2base {
  *  - CSP - fixed inline events
  *  - observeResize for the box
  *  - handleTooltip and handle.tooltip - text/function
+ *  - added onMouseEntter, onMouseLeave events
  */
 
 class w2sidebar extends w2base {
@@ -7272,6 +7280,8 @@ class w2sidebar extends w2base {
         this.handle        = { size: 0, style: '', html: '', tooltip: '' },
         this.onClick       = null // Fire when user click on Node Text
         this.onDblClick    = null // Fire when user dbl clicks
+        this.onMouseEnter  = null // mouse enter/leave over an item
+        this.onMouseLeave  = null
         this.onContextMenu = null
         this.onMenuClick   = null // when context menu item selected
         this.onExpand      = null // Fire when node expands
@@ -8293,11 +8303,14 @@ class w2sidebar extends w2base {
                         style="position: relative; ${nd.hidden ? 'display: none;' : ''}"
                         data-click="click|${nd.id}|event"
                         data-dblclick="dblClick|${nd.id}|event"
-                        data-contextmenu="contextMenu|${nd.id}|event">
+                        data-contextmenu="contextMenu|${nd.id}|event"
+                        data-mouseEnter="mouseAction|Enter|this|${nd.id}|event"
+                        data-mouseLeave="mouseAction|Leave|this|${nd.id}|event"
+                    >
                         ${obj.handle.html
                             ? `<div class="w2ui-node-handle w2ui-eaction" style="width: ${obj.handle.size}px; ${obj.handle.style}"
-                                    data-mouseenter="handleTooltip|this|${nd.id}"
-                                    data-mouseleave="handleTooltip|this"
+                                    data-mouseEnter="mouseAction|Enter|this|${nd.id}|event|handle"
+                                    data-mouseLeave="mouseAction|Leave|this|${nd.id}|event|handle"
                                 >
                                    ${typeof obj.handle.html == 'function' ? obj.handle.html.call(obj, nd) : obj.handle.html}
                               </div>`
@@ -8310,14 +8323,14 @@ class w2sidebar extends w2base {
                     </div>
                     <div class="w2ui-node-sub" id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}"></div>`
                 if (obj.flat) {
-                    let tooltip = w2utils.base64encode(text + (nd.count || nd.count === 0 ? ' - <span class="w2ui-node-count">'+ nd.count +'</span>' : ''))
                     html = `
                         <div id="node_${nd.id}" class="${classes.join(' ')}" style="${nd.hidden ? 'display: none;' : ''}"
                             data-click="click|${nd.id}|event"
                             data-dblclick="dblClick|${nd.id}|event"
                             data-contextmenu="contextMenu|${nd.id}|event"
-                            data-mouseenter="tooltip|this|${tooltip}|${nd.id}"
-                            data-mouseleave="tooltip|this|">
+                            data-mouseEnter="mouseAction|Enter|this|${nd.id}|event|tooltip"
+                            data-mouseLeave="mouseAction|Leave|this|${nd.id}|event|tooltip"
+                        >
                             <div class="w2ui-node-data w2ui-node-flat">${tmp}</div>
                         </div>
                         <div class="w2ui-node-sub" id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}"></div>`
@@ -8326,13 +8339,26 @@ class w2sidebar extends w2base {
             return html
         }
     }
+    mouseAction(action, el, id, event, type) {
+        let node = this.get(id)
+        let text = w2utils.lang(typeof node.text == 'function' ? node.text.call(obj, node) : node.text)
+        let tooltip = text + (node.count || node.count === 0 ? ' - <span class="w2ui-node-count">'+ node.count +'</span>' : '')
+        let edata = this.trigger('mouse' + action, { target: id, node, tooltip, originalEvent: event })
+        if (type == 'tooltip') {
+            this.tooltip(el, tooltip, id)
+        }
+        if (type == 'handle') {
+            this.handleTooltip(el, id)
+        }
+        edata.finish()
+    }
     tooltip(el, text, id) {
         let $el = query(el).find('.w2ui-node-data')
         if (text !== '') {
             w2tooltip.show({
                 anchor: $el.get(0),
                 name: this.name + '_tooltip',
-                html: w2utils.base64decode(text),
+                html: text,
                 position: 'right|left'
             })
         } else {
@@ -10142,6 +10168,7 @@ class w2layout extends w2base {
  *  - msgAJAXError -> msgHTTPError
  *  - deleted grid.method
  *  - added grid.prepareParams
+ *  - added mouseEnter/mouseLeave
  */
 
 class w2grid extends w2base {
@@ -10150,7 +10177,7 @@ class w2grid extends w2base {
         this.name         = null
         this.box          = null // HTML element that hold this element
         this.columns      = [] // { field, text, size, attr, render, hidden, gridMinWidth, editable }
-        this.columnGroups = [] // { span: int, text: 'string', main: true/false }
+        this.columnGroups = [] // { span: int, text: 'string', main: true/false, style: 'string' }
         this.records      = [] // { recid: int(required), field1: 'value1', ... fieldN: 'valueN', style: 'string',  changes: object }
         this.summary      = [] // array of summary records, same structure as records array
         this.searches     = [] // { type, label, field, attr, text, hidden }
@@ -10458,6 +10485,8 @@ class w2grid extends w2base {
         this.onColumnDragStart  = null
         this.onColumnDragEnd    = null
         this.onResizerDblClick  = null
+        this.onMouseEnter       = null // mouse enter over record event
+        this.onMouseLeave       = null
         // need deep merge, should be extend, not objectAssign
         w2utils.extend(this, options)
         // check if there are records without recid
@@ -13610,7 +13639,7 @@ class w2grid extends w2base {
             if (query(trg).attr('col') != null) column = parseInt(query(trg).attr('col'))
         }
         // event before
-        let edata = this.trigger('click', { target: this.name, recid: recid, column: column, originalEvent: event })
+        let edata = this.trigger('click', { target: this.name, recid, column, originalEvent: event })
         if (edata.isCancelled === true) return
         // default action
         let sel = this.getSelection()
@@ -15122,6 +15151,42 @@ class w2grid extends w2base {
                 .on('contextmenu', { delegate: 'tr' }, (event) => {
                     let recid = query(event.delegate).attr('recid')
                     this.showContextMenu(recid, null, event)
+                })
+                .on('mouseover', { delegate: 'tr' }, (event) => {
+                    this.last.rec_out = false
+                    let index = query(event.delegate).attr('index')
+                    let recid = query(event.delegate).attr('recid')
+                    if (index !== this.last.rec_over) {
+                        this.last.rec_over = index;
+                        // setTimeout is needed for correct event order enter/leave
+                        setTimeout(() => {
+                            delete this.last.rec_out
+                            let edata = this.trigger('mouseEnter', { target: this.name, originalEvent: event, index, recid })
+                            edata.finish()
+                        });
+                    }
+                })
+                .on('mouseout', { delegate: 'tr' }, (event) => {
+                    let index = query(event.delegate).attr('index')
+                    let recid = query(event.delegate).attr('recid')
+                    this.last.rec_out = true;
+                    // setTimeouts are needed for correct event order enter/leave
+                    setTimeout(() => {
+                        let recLeave = () => {
+                            let edata = this.trigger('mouseLeave', { target: this.name, originalEvent: event, index, recid })
+                            edata.finish()
+                        }
+                        if (index !== this.last.rec_over) {
+                            recLeave()
+                        }
+                        setTimeout(() => {
+                            if (this.last.rec_out) {
+                                delete this.last.rec_out
+                                delete this.last.rec_over
+                                recLeave()
+                            }
+                        })
+                    })
                 })
         }
         // enable scrolling on frozen records,
@@ -16897,7 +16962,7 @@ class w2grid extends w2base {
             })
     }
     getColumnsHTML() {
-        let obj   = this
+        let self = this
         let html1 = ''
         let html2 = ''
         if (this.show.columnHeaders) {
@@ -16919,37 +16984,37 @@ class w2grid extends w2base {
             let html2 = '<tr>'
             let tmpf  = ''
             // add empty group at the end
-            let tmp = obj.columnGroups.length - 1
-            if (obj.columnGroups[tmp].text == null && obj.columnGroups[tmp].caption != null) {
-                console.log('NOTICE: grid columnGroup.caption property is deprecated, please use columnGroup.text. Group -> ', obj.columnGroups[tmp])
-                obj.columnGroups[tmp].text = obj.columnGroups[tmp].caption
+            let tmp = self.columnGroups.length - 1
+            if (self.columnGroups[tmp].text == null && self.columnGroups[tmp].caption != null) {
+                console.log('NOTICE: grid columnGroup.caption property is deprecated, please use columnGroup.text. Group -> ', self.columnGroups[tmp])
+                self.columnGroups[tmp].text = self.columnGroups[tmp].caption
             }
-            if (obj.columnGroups[obj.columnGroups.length-1].text != '') obj.columnGroups.push({ text: '' })
-            if (obj.show.lineNumbers) {
-                html1 += '<td class="w2ui-head w2ui-col-number" col="line-number">'+
-                        '    <div>&#160;</div>'+
-                        '</td>'
+            if (self.columnGroups[self.columnGroups.length-1].text != '') self.columnGroups.push({ text: '' })
+            if (self.show.lineNumbers) {
+                html1 += '<td class="w2ui-head w2ui-col-number" col="line-number">' +
+                         '    <div>&#160;</div>' +
+                         '</td>'
             }
-            if (obj.show.selectColumn) {
-                html1 += '<td class="w2ui-head w2ui-col-select" col="select">'+
-                        '    <div style="height: 25px">&#160;</div>'+
-                        '</td>'
+            if (self.show.selectColumn) {
+                html1 += '<td class="w2ui-head w2ui-col-select" col="select">' +
+                         '    <div style="height: 25px">&#160;</div>' +
+                         '</td>'
             }
-            if (obj.show.expandColumn) {
-                html1 += '<td class="w2ui-head w2ui-col-expand" col="expand">'+
-                        '    <div style="height: 25px">&#160;</div>'+
-                        '</td>'
+            if (self.show.expandColumn) {
+                html1 += '<td class="w2ui-head w2ui-col-expand" col="expand">' +
+                         '    <div style="height: 25px">&#160;</div>' +
+                         '</td>'
             }
             let ii = 0
-            html2 += '<td id="grid_'+ obj.name + '_column_start" class="w2ui-head" col="start" style="border-right: 0"></td>'
-            if (obj.show.orderColumn) {
-                html2 += '<td class="w2ui-head w2ui-col-order" col="order">'+
-                        '    <div style="height: 25px">&#160;</div>'+
-                        '</td>'
+            html2 += `<td id="grid_${self.name}_column_start" class="w2ui-head" col="start" style="border-right: 0"></td>`
+            if (self.show.orderColumn) {
+                html2 += '<td class="w2ui-head w2ui-col-order" col="order">' +
+                         '    <div style="height: 25px">&#160;</div>' +
+                         '</td>'
             }
-            for (let i = 0; i<obj.columnGroups.length; i++) {
-                let colg = obj.columnGroups[i]
-                let col  = obj.columns[ii] || {}
+            for (let i = 0; i < self.columnGroups.length; i++) {
+                let colg = self.columnGroups[i]
+                let col  = self.columns[ii] || {}
                 if (colg.colspan != null) colg.span = colg.colspan
                 if (colg.span == null || colg.span != parseInt(colg.span)) colg.span = 1
                 if (col.text == null && col.caption != null) {
@@ -16958,101 +17023,96 @@ class w2grid extends w2base {
                 }
                 let colspan = 0
                 for (let jj = ii; jj < ii + colg.span; jj++) {
-                    if (obj.columns[jj] && !obj.columns[jj].hidden) {
+                    if (self.columns[jj] && !self.columns[jj].hidden) {
                         colspan++
                     }
                 }
-                if (i == obj.columnGroups.length-1) {
+                if (i == self.columnGroups.length-1) {
                     colspan = 100 // last column
                 }
                 if (colspan <= 0) {
                     // do nothing here, all columns in the group are hidden.
                 } else if (colg.main === true) {
                     let sortStyle = ''
-                    for (let si = 0; si < obj.sortData.length; si++) {
-                        if (obj.sortData[si].field == col.field) {
-                            if ((obj.sortData[si].direction || '').toLowerCase() === 'asc') sortStyle = 'w2ui-sort-up'
-                            if ((obj.sortData[si].direction || '').toLowerCase() === 'desc') sortStyle = 'w2ui-sort-down'
+                    for (let si = 0; si < self.sortData.length; si++) {
+                        if (self.sortData[si].field == col.field) {
+                            if ((self.sortData[si].direction || '').toLowerCase() === 'asc') sortStyle = 'w2ui-sort-up'
+                            if ((self.sortData[si].direction || '').toLowerCase() === 'desc') sortStyle = 'w2ui-sort-down'
                         }
                     }
                     let resizer = ''
                     if (col.resizable !== false) {
-                        resizer = '<div class="w2ui-resizer" name="'+ ii +'"></div>'
+                        resizer = `<div class="w2ui-resizer" name="${ii}"></div>`
                     }
                     let text = w2utils.lang(typeof col.text == 'function' ? col.text(col) : col.text)
-                    tmpf = '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head '+ sortStyle +'" col="'+ ii + '" '+
-                           '    rowspan="2" colspan="'+ colspan +'">'+
-                               resizer +
-                           '    <div class="w2ui-col-group w2ui-col-header '+ (sortStyle ? 'w2ui-col-sorted' : '') +'">'+
-                           '        <div class="'+ sortStyle +'"></div>'+
-                                   (!text ? '&#160;' : text) +
+                    tmpf = `<td id="grid_${self.name}_column_${ii}" class="w2ui-head ${sortStyle}" col="${ii}" `+
+                           `    rowspan="2" colspan="${colspan}">`+ resizer +
+                           `    <div class="w2ui-col-group w2ui-col-header ${sortStyle ? 'w2ui-col-sorted' : ''}">` +
+                           `        <div class="${sortStyle}"></div>` + (!text ? '&#160;' : text) +
                            '    </div>'+
                            '</td>'
                     if (col && col.frozen) html1 += tmpf; else html2 += tmpf
                 } else {
                     let gText = w2utils.lang(typeof colg.text == 'function' ? colg.text(colg) : colg.text)
-                    tmpf      = '<td id="grid_'+ obj.name + '_column_' + ii +'" class="w2ui-head" col="'+ ii + '" '+
-                           '        colspan="'+ colspan +'">'+
-                           '    <div class="w2ui-col-group">'+
-                               (!gText ? '&#160;' : gText) +
-                           '    </div>'+
-                           '</td>'
+                    tmpf = `<td id="grid_${self.name}_column_${ii}" class="w2ui-head" col="${ii}" colspan="${colspan}">` +
+                           `    <div class="w2ui-col-group" style="${colg.style ?? ''}">${!gText ? '&#160;' : gText}</div>` +
+                           `</td>`
                     if (col && col.frozen) html1 += tmpf; else html2 += tmpf
                 }
                 ii += colg.span
             }
             html1 += '<td></td></tr>' // need empty column for border-right
-            html2 += '<td id="grid_'+ obj.name + '_column_end" class="w2ui-head" col="end"></td></tr>'
+            html2 += `<td id="grid_${self.name}_column_end" class="w2ui-head" col="end"></td></tr>`
             return [html1, html2]
         }
         function getColumns(main) {
             let html1 = '<tr>'
             let html2 = '<tr>'
-            if (obj.show.lineNumbers) {
-                html1 += '<td class="w2ui-head w2ui-col-number" col="line-number">'+
-                        '    <div>#</div>'+
+            if (self.show.lineNumbers) {
+                html1 += '<td class="w2ui-head w2ui-col-number" col="line-number">' +
+                        '    <div>#</div>' +
                         '</td>'
             }
-            if (obj.show.selectColumn) {
-                html1 += '<td class="w2ui-head w2ui-col-select" col="select">'+
-                        '    <div>'+
-                        '        <input type="checkbox" id="grid_'+ obj.name +'_check_all" class="w2ui-select-all" tabindex="-1"'+
-                        '            style="' + (obj.multiSelect == false ? 'display: none;' : '') + '"'+
-                        '        >'+
-                        '    </div>'+
+            if (self.show.selectColumn) {
+                html1 += '<td class="w2ui-head w2ui-col-select" col="select">' +
+                        '    <div>' +
+                        `        <input type="checkbox" id="grid_${self.name}_check_all" class="w2ui-select-all" tabindex="-1"` +
+                        `            style="${self.multiSelect == false ? 'display: none;' : ''}"` +
+                        '        >' +
+                        '    </div>' +
                         '</td>'
             }
-            if (obj.show.expandColumn) {
-                html1 += '<td class="w2ui-head w2ui-col-expand" col="expand">'+
-                        '    <div>&#160;</div>'+
+            if (self.show.expandColumn) {
+                html1 += '<td class="w2ui-head w2ui-col-expand" col="expand">' +
+                        '    <div>&#160;</div>' +
                         '</td>'
             }
             let ii = 0
             let id = 0
             let colg
-            html2 += '<td id="grid_'+ obj.name + '_column_start" class="w2ui-head" col="start" style="border-right: 0"></td>'
-            if (obj.show.orderColumn) {
+            html2 += `<td id="grid_${self.name}_column_start" class="w2ui-head" col="start" style="border-right: 0"></td>`
+            if (self.show.orderColumn) {
                 html2 += '<td class="w2ui-head w2ui-col-order" col="order">'+
                         '    <div>&#160;</div>'+
                         '</td>'
             }
-            for (let i = 0; i < obj.columns.length; i++) {
-                let col = obj.columns[i]
+            for (let i = 0; i < self.columns.length; i++) {
+                let col = self.columns[i]
                 if (col.text == null && col.caption != null) {
                     console.log('NOTICE: grid column.caption property is deprecated, please use column.text. Column -> ', col)
                     col.text = col.caption
                 }
                 if (col.size == null) col.size = '100%'
                 if (i == id) { // always true on first iteration
-                    colg = obj.columnGroups[ii++] || {}
+                    colg = self.columnGroups[ii++] || {}
                     id   = id + colg.span
                 }
-                if ((i < obj.last.colStart || i > obj.last.colEnd) && !col.frozen)
+                if ((i < self.last.colStart || i > self.last.colEnd) && !col.frozen)
                     continue
                 if (col.hidden)
                     continue
                 if (colg.main !== true || main) { // grouping of columns
-                    let colCellHTML = obj.getColumnCellHTML(i)
+                    let colCellHTML = self.getColumnCellHTML(i)
                     if (col && col.frozen) html1 += colCellHTML; else html2 += colCellHTML
                 }
             }
@@ -18752,7 +18812,6 @@ class w2form extends w2base {
             case 'combo':
                 let item = value
                 // find item in options.items, if any
-                console.log(field.options)
                 if (item?.id == null && Array.isArray(field.options?.items)) {
                     field.options.items.forEach(it => {
                         if (it.id === value) item = it
