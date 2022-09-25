@@ -2096,11 +2096,11 @@ class Utils {
                 if (typeof params == 'string') {
                     params = params.split('|').map(key => {
                         if (key === 'true') key = true
-                        if (key === 'false') key = false
-                        if (key === 'undefined') key = undefined
-                        if (key === 'null') key = null
-                        if (parseFloat(key) == key) key = parseFloat(key)
-                        if (['\'', '"', '`'].includes(key[0]) && ['\'', '"', '`'].includes(key[key.length-1])) {
+                        else if (key === 'false') key = false
+                        else if (key === 'undefined') key = undefined
+                        else if (key === 'null') key = null
+                        else if (parseFloat(key) == key) key = parseFloat(key)
+                        else if (['\'', '"', '`'].includes(key[0]) && ['\'', '"', '`'].includes(key[key.length-1])) {
                             key = key.substring(1, key.length-1)
                         }
                         return key
