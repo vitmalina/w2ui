@@ -281,7 +281,8 @@ query(async function () {
                 },
                 { id: 'tabs-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
-                        { id: 'tabs/10', text: 'Smooth Add/Remove', icon: 'fa fa-folder-o' }
+                        { id: 'tabs/10', text: 'Smooth Add/Remove', icon: 'fa fa-folder-o' },
+                        { id: 'tabs/11', text: 'Events', icon: 'fa fa-folder-o' }
                     ]
                 },
                 { id: 'forms', text: 'Forms Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
@@ -387,6 +388,7 @@ query(async function () {
                 { id: 'utils-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
                         { id: 'utils/15', text: 'Better Tooltips', icon: 'fa fa-star-o' },
+                        { id: 'utils/21', text: 'Notifications', icon: 'fa fa-star-o' },
                         { id: 'utils/11', text: 'International Compare', icon: 'fa fa-star-o' },
                         { id: 'utils/12', text: 'Lock/Unlock Content', icon: 'fa fa-star-o' },
                         { id: 'utils/13', text: 'Context Messages', icon: 'fa fa-star-o' },

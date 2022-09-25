@@ -1414,6 +1414,80 @@ class Utils {
         return prom
     }
 
+    /**
+     * Shows small notification message at the bottom of the page, or containter that you specify
+     * in options.where (could be element or a selector)
+     *
+     * w2utils.notify('Document saved')
+     * w2utils.notify('Mesage sent ${udon}', { actions: { undo: function () {...} }})
+     *
+     * @param {String/Object} options can be {
+     *      text: string,       // message, can be html
+     *      where: el/selector, // element or selector where to show, default is document.body
+     *      timeout: int,       // timeout when to hide, if 0 - indefinite
+     *      error: boolean,     // add error clases
+     *      class: string,      // additional class strings
+     *      actions: object     // object with action functions, it should correspot to templated text: '... ${action} ...'
+     *  }
+     * @returns promise
+     */
+     notify(text, options) {
+        return new Promise(resolve => {
+            if (typeof text == 'object') {
+                options = text
+                text = options.text
+            }
+            options = options || {}
+            options.where = options.where ?? document.body
+            options.timeout = options.timeout ?? 15_000 // 15 secodns or will be hidden on route change
+            if (typeof this.tmp.notify_resolve == 'function') {
+                this.tmp.notify_resolve()
+                query(this.tmp.notify_where).find('#w2ui-notify').remove()
+            }
+            this.tmp.notify_resolve = resolve
+            this.tmp.notify_where = options.where
+            clearTimeout(this.tmp.notify_timer)
+            if (text) {
+                if (typeof options.actions == 'object') {
+                    let actions = {}
+                    Object.keys(options.actions).forEach(action => {
+                        actions[action] = `<a class="w2ui-notify-link" value="${action}">${action}</a>`
+                    })
+                    text = this.execTemplate(text, actions)
+                }
+                let html = `
+                    <div id="w2ui-notify">
+                        <div class="${options.class} ${options.error ? 'w2ui-notify-error' : ''}">
+                            ${text}
+                            <span class="w2ui-notify-close w2ui-icon-cross"></span>
+                        </div>
+                    </div>`
+                query(options.where).append(html)
+                query(options.where).find('#w2ui-notify').find('.w2ui-notify-close')
+                    .on('click', event => {
+                        query(options.where).find('#w2ui-notify').remove()
+                        resolve()
+                    })
+                if (options.actions) {
+                    query(options.where).find('#w2ui-notify .w2ui-notify-link')
+                        .on('click', event => {
+                            let value = query(event.target).attr('value')
+                            options.actions[value]()
+                            query(options.where).find('#w2ui-notify').remove()
+                            resolve()
+                        })
+                }
+                if (options.timeout > 0) {
+                    console.log('auto close')
+                    this.tmp.notify_timer = setTimeout(() => {
+                        query(options.where).find('#w2ui-notify').remove()
+                        resolve()
+                    }, options.timeout)
+                }
+            }
+        })
+    }
+
     confirm(where, options) {
         if (typeof options == 'string') {
             options = { text: options }
