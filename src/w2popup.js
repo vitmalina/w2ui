@@ -73,7 +73,7 @@ class Dialog extends w2base {
      */
     open(options) {
         let self = this
-        if (w2popup.status == 'closing' || query('#w2ui-popup').hasClass('animating')) {
+        if (this.status == 'closing' || query('#w2ui-popup').hasClass('animating')) {
             // if called when previous is closing
             setTimeout(() => { self.open.call(self, options) }, 100)
             return
@@ -84,7 +84,7 @@ class Dialog extends w2base {
             options = w2utils.extend({
                 title: 'Notification',
                 body: `<div class="w2ui-centered">${options}</div>`,
-                actions: { Ok() { w2popup.close() }},
+                actions: { Ok() { self.close() }},
                 cancelAction: 'ok'
             }, arguments[1] ?? {})
         }
@@ -93,15 +93,15 @@ class Dialog extends w2base {
         this.options = options
         // if new - reset event handlers
         if (query('#w2ui-popup').length === 0) {
-            w2popup.off('*')
-            Object.keys(w2popup).forEach(key => {
-                if (key.startsWith('on') && key != 'on') w2popup[key] = null
+            this.off('*')
+            Object.keys(this).forEach(key => {
+                if (key.startsWith('on') && key != 'on') this[key] = null
             })
         }
         // reassign events
         Object.keys(options).forEach(key => {
             if (key.startsWith('on') && key != 'on' && options[key]) {
-                w2popup[key] = options[key]
+                this[key] = options[key]
             }
         })
         options.width  = parseInt(options.width)
@@ -160,11 +160,11 @@ class Dialog extends w2base {
             // trigger event
             edata = this.trigger('open', { target: 'popup', present: false })
             if (edata.isCancelled === true) return
-            w2popup.status = 'opening'
+            this.status = 'opening'
             // output message
             w2utils.lock(document.body, {
                 opacity: 0.3,
-                onClick: options.modal ? null : () => { w2popup.close() }
+                onClick: options.modal ? null : () => { this.close() }
             })
             let btn = ''
             if (options.showClose) {
@@ -218,14 +218,14 @@ class Dialog extends w2base {
                 query('#w2ui-popup')
                     .css('transition', options.speed + 's')
                     .removeClass('w2ui-anim-open')
-                w2utils.bindEvents('#w2ui-popup .w2ui-eaction', w2popup)
+                w2utils.bindEvents('#w2ui-popup .w2ui-eaction', this)
                 query('#w2ui-popup').find('.w2ui-popup-body').show()
                 this._promCreated()
             }, 1)
             // clean transform
             clearTimeout(this._timer)
             this._timer = setTimeout(() => {
-                w2popup.status = 'open'
+                this.status = 'open'
                 self.setFocus(options.focus)
                 // event after
                 edata.finish()
@@ -238,10 +238,10 @@ class Dialog extends w2base {
             edata = this.trigger('open', { target: 'popup', present: true })
             if (edata.isCancelled === true) return
             // check if size changed
-            w2popup.status = 'opening'
+            this.status = 'opening'
             if (old_options != null) {
                 if (!old_options.maximized && (old_options.width != options.width || old_options.height != options.height)) {
-                    w2popup.resize(options.width, options.height)
+                    this.resize(options.width, options.height)
                 }
                 options.prevSize  = options.width + 'px:' + options.height + 'px'
                 options.maximized = old_options.maximized
@@ -299,9 +299,9 @@ class Dialog extends w2base {
                 query('#w2ui-popup').removeClass('animating')
             })
             // call event onOpen
-            w2popup.status = 'open'
+            this.status = 'open'
             edata.finish()
-            w2utils.bindEvents('#w2ui-popup .w2ui-eaction', w2popup)
+            w2utils.bindEvents('#w2ui-popup .w2ui-eaction', this)
             query('#w2ui-popup').find('.w2ui-popup-body').show()
         }
 
@@ -312,7 +312,9 @@ class Dialog extends w2base {
         options._last_focus = document.activeElement
         // keyboard events
         if (options.keyboard) {
-            query(document.body).on('keydown', this.keydown)
+            query(document.body).on('keydown', (event) => {
+                this.keydown(event)
+            })
         }
         query(window).on('resize', this.handleResize)
         // initialize move
@@ -322,7 +324,7 @@ class Dialog extends w2base {
             mvStop   : mvStop
         }
         query('#w2ui-popup .w2ui-popup-title').on('mousedown', function(event) {
-            if (!w2popup.options.maximized) mvStart(event)
+            if (!self.options.maximized) mvStart(event)
         })
 
         return prom
@@ -330,7 +332,7 @@ class Dialog extends w2base {
         // handlers
         function mvStart(evt) {
             if (!evt) evt = window.event
-            w2popup.status = 'moving'
+            self.status = 'moving'
             let rect = query('#w2ui-popup').get(0).getBoundingClientRect()
             Object.assign(tmp, {
                 resizing: true,
@@ -340,7 +342,7 @@ class Dialog extends w2base {
                 pos_x   : rect.x,
                 pos_y   : rect.y,
             })
-            if (!tmp.isLocked) w2popup.lock({ opacity: 0 })
+            if (!tmp.isLocked) self.lock({ opacity: 0 })
             query(document.body)
                 .on('mousemove.w2ui-popup', tmp.mvMove)
                 .on('mouseup.w2ui-popup', tmp.mvStop)
@@ -354,7 +356,7 @@ class Dialog extends w2base {
             tmp.div_x = evt.screenX - tmp.x
             tmp.div_y = evt.screenY - tmp.y
             // trigger event
-            let edata = w2popup.trigger('move', { target: 'popup', div_x: tmp.div_x, div_y: tmp.div_y, originalEvent: evt })
+            let edata = self.trigger('move', { target: 'popup', div_x: tmp.div_x, div_y: tmp.div_y, originalEvent: evt })
             if (edata.isCancelled === true) return
             // default behavior
             query('#w2ui-popup').css({
@@ -369,7 +371,7 @@ class Dialog extends w2base {
         function mvStop(evt) {
             if (tmp.resizing != true) return
             if (!evt) evt = window.event
-            w2popup.status = 'open'
+            self.status = 'open'
             tmp.div_x      = (evt.screenX - tmp.x)
             tmp.div_y      = (evt.screenY - tmp.y)
             query('#w2ui-popup')
@@ -383,7 +385,7 @@ class Dialog extends w2base {
                 })
             tmp.resizing = false
             query(document.body).off('.w2ui-popup')
-            if (!tmp.isLocked) w2popup.unlock()
+            if (!tmp.isLocked) self.unlock()
         }
     }
 
@@ -397,7 +399,7 @@ class Dialog extends w2base {
                 reject('The url is not defined')
                 return
             }
-            w2popup.status = 'loading'
+            this.status = 'loading'
             let [url, selector] = String(options.url).split('#')
             if (url) {
                 fetch(url).then(res => res.text()).then(html => {
@@ -423,7 +425,7 @@ class Dialog extends w2base {
             buttons: query(html).find('[rel=buttons]').html(),
             style: query(html).find('[rel=body]').get(0).style.cssText,
         })
-        return w2popup.open(options)
+        return this.open(options)
     }
 
     action(action, event) {
@@ -442,17 +444,17 @@ class Dialog extends w2base {
     keydown(event) {
         if (this.options && !this.options.keyboard) return
         // trigger event
-        let edata = w2popup.trigger('keydown', { target: 'popup', originalEvent: event })
+        let edata = this.trigger('keydown', { target: 'popup', originalEvent: event })
         if (edata.isCancelled === true) return
         // default behavior
         switch (event.keyCode) {
             case 27:
                 event.preventDefault()
                 if (query('#w2ui-popup .w2ui-message').length == 0) {
-                    if (w2popup.options.cancelAction) {
-                        w2popup.action(w2popup.options.cancelAction)
+                    if (this.options.cancelAction) {
+                        this.action(this.options.cancelAction)
                     } else {
-                        w2popup.close()
+                        this.close()
                     }
                 }
                 break
@@ -465,14 +467,14 @@ class Dialog extends w2base {
         let self = this
         if (query('#w2ui-popup').length === 0 || this.status == 'closed') return
         if (this.status == 'opening') {
-            setTimeout(() => { w2popup.close() }, 100)
+            setTimeout(() => { this.close() }, 100)
             return
         }
         // trigger event
         let edata = this.trigger('close', { target: 'popup' })
         if (edata.isCancelled === true) return
         // default behavior
-        w2popup.status = 'closing'
+        this.status = 'closing'
         query('#w2ui-popup')
             .css('transition', this.options.speed + 's')
             .addClass('w2ui-anim-close animating')
@@ -484,8 +486,8 @@ class Dialog extends w2base {
             query('#w2ui-popup').remove()
             // restore active
             if (this.options._last_focus && this.options._last_focus.length > 0) this.options._last_focus.focus()
-            w2popup.status = 'closed'
-            w2popup.options = {}
+            this.status = 'closed'
+            this.options = {}
             // event after
             edata.finish()
             this._promClosed()
@@ -501,7 +503,7 @@ class Dialog extends w2base {
         let edata = this.trigger('toggle', { target: 'popup' })
         if (edata.isCancelled === true) return
         // default action
-        if (this.options.maximized === true) w2popup.min(); else w2popup.max()
+        if (this.options.maximized === true) this.min(); else this.max()
         // event after
         setTimeout(() => {
             edata.finish()
@@ -514,12 +516,12 @@ class Dialog extends w2base {
         let edata = this.trigger('max', { target: 'popup' })
         if (edata.isCancelled === true) return
         // default behavior
-        w2popup.status = 'resizing'
+        this.status = 'resizing'
         let rect = query('#w2ui-popup').get(0).getBoundingClientRect()
         this.options.prevSize = rect.width + ':' + rect.height
         // do resize
-        w2popup.resize(10000, 10000, () => {
-            w2popup.status    = 'open'
+        this.resize(10000, 10000, () => {
+            this.status    = 'open'
             this.options.maximized = true
             edata.finish()
         })
@@ -532,11 +534,11 @@ class Dialog extends w2base {
         let edata = this.trigger('min', { target: 'popup' })
         if (edata.isCancelled === true) return
         // default behavior
-        w2popup.status = 'resizing'
+        this.status = 'resizing'
         // do resize
         this.options.maximized = false
-        w2popup.resize(parseInt(size[0]), parseInt(size[1]), () => {
-            w2popup.status = 'open'
+        this.resize(parseInt(size[0]), parseInt(size[1]), () => {
+            this.status = 'open'
             this.options.prevSize  = null
             edata.finish()
         })
@@ -549,7 +551,7 @@ class Dialog extends w2base {
     }
 
     reset() {
-        w2popup.open(w2popup.defaults)
+        this.open(this.defaults)
     }
 
     message(options) {

@@ -2557,7 +2557,7 @@ class w2grid extends w2base {
         // -- clear all search field
         this.searchClose()
         let all = input.val('').get(0)
-        if (all._w2field) { all._w2field.reset() }
+        if (all?._w2field) { all._w2field.reset() }
         // apply search
         if (!noReload) this.reload()
         // event after
@@ -6512,7 +6512,7 @@ class w2grid extends w2base {
             sWidth += cSize
         }
         if (records[0]?.clientWidth < sWidth) bodyOverflowX = true
-        if (body[0].clientHeight - (columns[0]?.clientHeight ?? 0)
+        if (body[0]?.clientHeight - (columns[0]?.clientHeight ?? 0)
                 < (query(records).find(':scope > table')[0]?.clientHeight ?? 0) + (bodyOverflowX ? w2utils.scrollBarSize() : 0)) {
             bodyOverflowY = true
         }
@@ -6533,7 +6533,7 @@ class w2grid extends w2base {
             box.css('height', w2utils.getSize(grid, 'height') + 'px')
         } else {
             // fixed body height
-            let calculatedHeight = grid[0].clientHeight
+            let calculatedHeight = grid[0]?.clientHeight
                 - (this.show.header ? w2utils.getSize(header, 'height') : 0)
                 - (this.show.toolbar ? w2utils.getSize(toolbar, 'height') : 0)
                 - (summary.css('display') != 'none' ? w2utils.getSize(summary, 'height') : 0)
@@ -7381,9 +7381,11 @@ class w2grid extends w2base {
             let sLeft = event.target.scrollLeft
             this.last.scrollTop  = sTop
             this.last.scrollLeft = sLeft
-            query(this.box).find(`#grid_${this.name}_columns`)[0].scrollLeft = sLeft
-            query(this.box).find(`#grid_${this.name}_summary`)[0].scrollLeft = sLeft
-            frecords[0].scrollTop = sTop
+            let cols = query(this.box).find(`#grid_${this.name}_columns`)[0]
+            let summary = query(this.box).find(`#grid_${this.name}_summary`)[0]
+            if (cols) cols.scrollLeft = sLeft
+            if (summary) summary.scrollLeft = sLeft
+            if (frecords[0]) frecords[0].scrollTop = sTop
         }
         // hide bubble
         if (this.last.bubbleEl) {

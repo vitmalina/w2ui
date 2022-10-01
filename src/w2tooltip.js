@@ -9,6 +9,7 @@
  * - cleanup w2color less file
  * - remember state for drop menu
  * - events firing too many times
+ * - offsetX, offsetY should be based where it is shown
  */
 
 import { w2base } from './w2base.js'
@@ -1403,7 +1404,12 @@ class MenuTooltip extends Tooltip {
                 let subMenu_dsp = ''
                 if (typeof options.render === 'function') txt = options.render(mitem, options)
                 if (typeof txt == 'function') txt = txt(mitem, options)
-                if (icon) icon_dsp = '<div class="menu-icon"><span class="w2ui-icon '+ icon +'"></span></div>'
+                if (icon) {
+                    if (String(icon).slice(0, 1) !== '<') {
+                        icon = `<span class="${icon}"></span>`
+                    }
+                    icon_dsp = `<div class="menu-icon">${icon}</span></div>`
+                }
                 // render only if non-empty
                 if (mitem.type !== 'break' && txt != null && txt !== '' && String(txt).substr(0, 2) != '--') {
                     let classes = ['w2ui-menu-item']
@@ -1535,7 +1541,7 @@ class MenuTooltip extends Tooltip {
             }
         })
         // show empty message
-        if (overlay.tmp.searchCount == 0) {
+        if (overlay.tmp.searchCount == 0 || overlay.options?.items.length == 0) {
             if (query(overlay.box).find('.w2ui-no-items').length == 0) {
                 query(overlay.box).find('.w2ui-menu:not(.w2ui-sub-menu)').append(`
                     <div class="w2ui-no-items">
