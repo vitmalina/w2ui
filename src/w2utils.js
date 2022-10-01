@@ -1047,17 +1047,18 @@ class Utils {
 
     unlock(box, speed) {
         if (box == null) return
+        clearTimeout(box._prevUnlock)
         // for backward compatibility
         if (box?.[0] instanceof Node) {
             box = Array.isArray(box) ? box : box.get()
         }
-        if (this.isInt(speed)) {
+        if (this.isInt(speed) && speed > 0) {
             query(box).find('.w2ui-lock').css({
                 transition: (speed/1000) + 's',
                 opacity: 0,
             })
             query(box).find('.w2ui-lock-msg').remove()
-            setTimeout(() => {
+            box._prevUnlock = setTimeout(() => {
                 query(box).find('.w2ui-lock').remove()
             }, speed)
         } else {

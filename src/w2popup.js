@@ -16,6 +16,7 @@
  *  - deprecated options.bgColor
  *  - rename focus -> setFocus
  *  - added center() // will auto center on window resize
+ *  - close(immediate), also refactored if popup is closed when opening
  */
 
 import { w2base } from './w2base.js'
@@ -55,6 +56,7 @@ class Dialog extends w2base {
         this.onKeydown  = null
         this.onAction   = null
         this.onMove     = null
+        this.tmp        = {}
         // event handler for resize
         this.handleResize = (event) => {
             // if it was moved by the user, do not auto resize
@@ -75,8 +77,7 @@ class Dialog extends w2base {
         let self = this
         if (this.status == 'closing' || query('#w2ui-popup').hasClass('animating')) {
             // if called when previous is closing
-            setTimeout(() => { self.open.call(self, options) }, 100)
-            return
+            this.close(true)
         }
         // get old options and merge them
         let old_options = this.options
@@ -463,25 +464,11 @@ class Dialog extends w2base {
         edata.finish()
     }
 
-    close() {
-        let self = this
-        if (query('#w2ui-popup').length === 0 || this.status == 'closed') return
-        if (this.status == 'opening') {
-            setTimeout(() => { this.close() }, 100)
-            return
-        }
+    close(immediate) {
         // trigger event
         let edata = this.trigger('close', { target: 'popup' })
         if (edata.isCancelled === true) return
-        // default behavior
-        this.status = 'closing'
-        query('#w2ui-popup')
-            .css('transition', this.options.speed + 's')
-            .addClass('w2ui-anim-close animating')
-        w2utils.unlock(document.body, 300)
-        this._promClosing()
-
-        setTimeout(() => {
+        let cleanUp = () => {
             // return template
             query('#w2ui-popup').remove()
             // restore active
@@ -491,7 +478,32 @@ class Dialog extends w2base {
             // event after
             edata.finish()
             this._promClosed()
-        }, this.options.speed * 1000)
+        }
+        if (query('#w2ui-popup').length === 0 || this.status == 'closed') { // already closed
+            return
+        }
+        if (this.status == 'opening') { // if it is opening
+            immediate = true
+        }
+        if (this.status == 'closing' && immediate === true) {
+            cleanUp()
+            clearTimeout(this.tmp.closingTimer)
+            w2utils.unlock(document.body, 0)
+            return;
+        }
+        // default behavior
+        this.status = 'closing'
+        query('#w2ui-popup')
+            .css('transition', this.options.speed + 's')
+            .addClass('w2ui-anim-close animating')
+        w2utils.unlock(document.body, 300)
+        this._promClosing()
+
+        if (immediate) {
+            cleanUp()
+        } else {
+            this.tmp.closingTimer = setTimeout(cleanUp, this.options.speed * 1000)
+        }
         // remove keyboard events
         if (this.options.keyboard) {
             query(document.body).off('keydown', this.keydown)
@@ -579,7 +591,8 @@ class Dialog extends w2base {
                 : box.find(sel).get(focus)
             el?.focus()
         } else {
-            box.find('[name=hidden-first]').get(0).focus()
+            let el = box.find('[name=hidden-first]').get(0)
+            if (el) el.focus()
         }
         // keep focus/blur inside popup
         query(box).find(sel + ',[name=hidden-first],[name=hidden-last]')
