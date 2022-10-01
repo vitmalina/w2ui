@@ -6,10 +6,7 @@
  * - multiple tooltips to the same anchor
  *
  * TODO
- * - cleanup w2color less file
- * - remember state for drop menu
- * - events firing too many times
- * - offsetX, offsetY should be based where it is shown
+ * - load menu items from URL
  */
 
 import { w2base } from './w2base.js'
@@ -26,7 +23,7 @@ class Tooltip {
             style           : '',       // additional style for the overlay
             class           : '',       // add class for w2ui-tooltip-body
             position        : 'top|bottom',   // can be left, right, top, bottom
-            align           : '',       // can be: both:size=50, left, right, both, top, bottom
+            align           : '',       // can be: both, both:XX left, right, both, top, bottom
             anchor          : null,     // element it is attached to, if anchor is body, then it is context menu
             anchorClass     : '',       // add class for anchor when tooltip is shown
             anchorStyle     : '',       // add style for anchor when tooltip is shown
@@ -37,6 +34,7 @@ class Tooltip {
             margin          : 0,        // extra margin from the anchor
             screenMargin    : 2,        // min margin from screen to tooltip
             autoResize      : true,     // auto resize based on content size and available size
+            margin          : 1,        // distance from the anchor
             offsetX         : 0,        // delta for left coordinate
             offsetY         : 0,        // delta for top coordinate
             maxWidth        : null,     // max width
@@ -609,8 +607,8 @@ class Tooltip {
         let extraLeft = (found == 'left' ? -options.margin : (found == 'right' ? options.margin : 0))
 
         // adjust for scrollbar
-        top = Math.floor((top + parseFloat(options.offsetY) + parseInt(extraTop)) * 100) / 100
-        left = Math.floor((left + parseFloat(options.offsetX) + parseInt(extraLeft)) * 100) / 100
+        top = Math.floor((top + parseFloat(options.offsetY) + parseFloat(extraTop)) * 100) / 100
+        left = Math.floor((left + parseFloat(options.offsetX) + parseFloat(extraLeft)) * 100) / 100
 
         return { left, top, arrow, adjust, width, height, pos: found }
 
@@ -1284,6 +1282,24 @@ class MenuTooltip extends Tooltip {
         return ret
     }
 
+    update(name, items) {
+        let overlay = Tooltip.active[name]
+        if (overlay) {
+            let options = overlay.options
+            if (options.items != items) {
+                options.items = items
+            }
+            let menuHTML = this.getMenuHTML(options)
+            if (options.html != menuHTML) {
+                options.html = menuHTML
+                overlay.needsUpdate = true
+                this.show(name)
+            }
+        } else {
+            console.log(`Tooltip "${name}" is not displayed. Cannot update it.`)
+        }
+    }
+
     initControls(overlay) {
         query(overlay.box).find('.w2ui-menu:not(.w2ui-sub-menu)')
             .off('.w2menu')
@@ -1406,7 +1422,7 @@ class MenuTooltip extends Tooltip {
                 if (typeof txt == 'function') txt = txt(mitem, options)
                 if (icon) {
                     if (String(icon).slice(0, 1) !== '<') {
-                        icon = `<span class="${icon}"></span>`
+                        icon = `<span class="w2ui-icon ${icon}"></span>`
                     }
                     icon_dsp = `<div class="menu-icon">${icon}</span></div>`
                 }

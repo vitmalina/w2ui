@@ -591,6 +591,14 @@ class w2toolbar extends w2base {
                 }
             })
         }
+        if (['menu', 'menu-radio', 'menu-check'].includes(it.type) && it.checked) {
+            // check selected items
+            let selected = Array.isArray(it.selected) ? it.selected : [it.selected]
+            it.items.forEach((item) => {
+                if (selected.includes(item.id)) item.checked = true; else item.checked = false
+            })
+            w2menu.update(this.name + '-drop', it.items)
+        }
         // event after
         if (typeof it.onRefresh == 'function') {
             edata2.finish()
@@ -789,7 +797,6 @@ class w2toolbar extends w2base {
     }
 
     menuClick(event) {
-        let obj = this
         if (event.item && !event.item.disabled) {
             // event before
             let edata = this.trigger((event.remove !== true ? 'click' : 'remove'), {
@@ -834,9 +841,9 @@ class w2toolbar extends w2base {
                 } else if (it.group === false) {
                     // if group is false, then it is not part of checkboxes
                 } else {
-                    let unchecked = [];
-                    // recursive
-                    (function checkNested(items) {
+                    let unchecked = []
+                    let ind = item.selected.indexOf(it.id)
+                    let checkNested = (items) => {
                         items.forEach((sub) => {
                             if (sub.group === it.group) {
                                 let ind = item.selected.indexOf(sub.id)
@@ -847,8 +854,8 @@ class w2toolbar extends w2base {
                             }
                             if (Array.isArray(sub.items)) checkNested(sub.items)
                         })
-                    })(items)
-                    let ind = item.selected.indexOf(it.id)
+                    }
+                    checkNested(items)
                     if (ind == -1) {
                         item.selected.push(it.id)
                         it.checked = true
@@ -860,7 +867,7 @@ class w2toolbar extends w2base {
                 let info  = w2utils.parseRoute(route)
                 if (info.keys.length > 0) {
                     for (let k = 0; k < info.keys.length; k++) {
-                        if (obj.routeData[info.keys[k].name] == null) continue
+                        if (this.routeData[info.keys[k].name] == null) continue
                         route = route.replace((new RegExp(':'+ info.keys[k].name, 'g')), this.routeData[info.keys[k].name])
                     }
                 }
