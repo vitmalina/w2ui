@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (9/25/2022, 4:04:07 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/1/2022, 12:28:55 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -744,7 +744,7 @@ button.w2ui-btn:disabled {
 .w2ui-overlay .w2ui-overlay-body.w2ui-arrow-bottom:after {
   content: "";
   position: absolute;
-  top: calc(var(--tip-size, 8px) * -0.5 - 1px);
+  top: calc(var(--tip-size, 8px) * -0.5);
   left: 50%;
   transform: rotate(45deg) translateX(-50%);
   transform-origin: center left;
