@@ -1,0 +1,44 @@
+<h3>Extending w2ui</h3>
+Since v.2 w2ui provide an easy way to extend functionality of any widget or create custom ones. All widgets are written
+as classes that extend w2base class.
+
+<div style="height: 20px"></div>
+This base class only has the event flow functionality:
+<ul>
+	<li><b><a href="../common.on">on</a>(event, handler)</b> - method to add an event</li>
+	<li><b><a href="../common.off">off</a>(event, [handler])</b> - method to remove an event</li>
+	<li><b><a href="../common.trigger">trigger</a>(edata)</b> - method to trigger an event</li>
+	<li><b><a href="../common.handlers">handlers</a></b>, - an array of all event handlers defined for the class</li>
+</ul>
+
+That you can use it to add event listeners and trigger events.<br>
+See <a href="events" class="method">events</a> for additional information.
+<div style="height: 20px"></div>
+
+Below is an example how to create your own custom control.
+<textarea class="javascript">
+import { w2ui, w2base, query } from 'https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.es6.min.js'
+
+class Control extends w2base {
+    constructor(conf) {
+        // custom code
+        super(conf.name)
+    }
+
+    render(box) {
+        let edata = this.trigger('render', { box })
+        if (edata.cancelled) {
+            return
+        }
+        this.box = box
+        query(box).html('<div style="background-color: green; width: 200px;">my component</div>')
+        // event's on complete loop
+        edata.finish()
+    }
+}
+if (w2ui.some) {
+    delete w2ui.some
+}
+let myControl = new Control({ name: 'some' })
+myControl.render(query('#main'))
+</textarea>

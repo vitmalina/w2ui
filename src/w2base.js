@@ -1,13 +1,8 @@
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
- *  - there is a doc file ../details/w2base.html
  *  - on/off/trigger methods id not showing in help
  *  - refactored with event object
- *  - added "awai event.complete" syntax
- *
- * 2.0 Updates
- *  - on(), off() - can have events separated by comma or space
  */
 
 import { w2ui, w2utils } from './w2utils.js'

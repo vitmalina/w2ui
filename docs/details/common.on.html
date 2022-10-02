@@ -8,7 +8,7 @@ Adds event listener to a object.
     <table>
     <tr>
         <td>type</td>
-        <td><b>string</b>, name of the event</td>
+        <td><b>string</b>, name of the event, could have multiple if separated by space or comma</td>
     </tr>
     <tr>
         <td>handler</td>
@@ -51,31 +51,35 @@ let layout = new w2layout({
         { type: 'main', content: 'This is main panel' },
         { type: 'preview', size: 200 }
     ]
-});
+})
 </textarea>
 
 You can add an event listener in the following way:
 
 <textarea class="javascript">
 layout.on('refresh', event => {
-    console.log(event.detail.target, event);
-});
+    console.log(event.detail.target, event)
+})
+// or one handler for multiple events
+layout.on('refresh resize', event => {
+    console.log(event.detail.target, event)
+})
 </textarea>
 
 Or to execute at the end of event cycle:
 
 <textarea class="javascript">
 layout.on('refresh:after', event => {
-    console.log(event.detail.target, event);
-});
+    console.log(event.detail.target, event)
+})
 </textarea>
 
 You could also add event listener in the following way:
 
 <textarea class="javascript">
 layout.on({ type: 'refresh' }, event => {
-    console.log(event.target, event);
-});
+    console.log(event.target, event)
+})
 </textarea>
 
 The first way is simple, but the second and third way provides additional functionality. You can add any property
@@ -99,11 +103,11 @@ event = {
 While adding an event listener, you can provide a namespace for the event:
 <textarea class="javascript">
 layout.on('render.myplugin', event => {
-    console.log(event.target, event);
-});
+    console.log(event.target, event)
+})
 layout.on('refresh.myplugin', event => {
-    console.log(event.target, event);
-});
+    console.log(event.target, event)
+})
 </textarea>
 
 It provides a convenient way to remove event listeners without specifying all event and hendler functions
@@ -121,9 +125,9 @@ lowerCase first letter. For example, if the object has "onResize" event, you can
 
 You can attach event listener to all events if you do the following:
 <textarea class="javascript">
-w2ui.layout.on('*', event => {
+layout.on('*', event => {
     console.log(event.type, event);
-});
+})
 </textarea>
 
 There are several events that are common for all w2ui objects (except w2popup, w2field, w2utility, w2tooltip). They are:

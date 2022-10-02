@@ -8,7 +8,7 @@ Removes event listener from the object.
     <table>
     <tr>
         <td>type</td>
-        <td><b>string</b>, name of the event</td>
+        <td><b>string</b>, name of the event, could have multiple if separated by space or comma</td>
     </tr>
     <tr>
         <td>handler</td>
@@ -56,13 +56,14 @@ let layout = new w2layout({
 You can remove a specific event listener (note that the handler cannot be an anonymous function):
 
 <textarea class="javascript">
-layout.off('refresh', handler);
+layout.off('refresh', handler)
 </textarea>
 
 All listeners for the event:
 
 <textarea class="javascript">
-layout.off('refresh');
+layout.off('refresh')
+layout.off('refresh resize') // multiple events
 </textarea>
 
 All listeners for all events:
@@ -75,11 +76,11 @@ layout.off('*');
 While adding an event listener, you can provide a namespace for the event:
 <textarea class="javascript">
 layout.on('render.myplugin', event => {
-    console.log(event.target, event);
-});
+    console.log(event.target, event)
+})
 layout.on('refresh.myplugin', event => {
-    console.log(event.target, event);
-});
+    console.log(event.target, event)
+})
 </textarea>
 
 It provides a convenience to remove events listener in an easy way without specifying all events and functions
