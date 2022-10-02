@@ -10,21 +10,20 @@ However, it might be useful to iterate the array to see what event handlers have
 
 <textarea class="javascript">
 let layout = new w2layout({
-    name    : 'layout',
-    panels  : [
+    name: 'layout',
+    panels: [
         { type: 'top', size: 40 },
         { type: 'preview', size: 200 }
     ]
-});
+})
 
 // add event listener for all events
-w2ui.layout.on('*', function (target, eventData) {
-    console.log(target);
-    console.log(eventData);
+layout.on('*', event => {
+    console.log(event.detail, event)
 });
 
 // iterating through event handlers
-for (var i in w2ui.layout.handlers) {
-    console.log(w2ui.layout.handlers[i]);
+for (let i in layout.handlers) {
+    console.log(layout.handlers[i])
 }
 </textarea>

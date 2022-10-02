@@ -45,8 +45,8 @@ layout (for grid, toolbar, etc. it is exactly the same) defined as follows:
 
 <textarea class="javascript">
 let layout = new w2layout({
-    name    : 'layout',
-    panels  : [
+    name: 'layout',
+    panels: [
         { type: 'top', size: 40 },
         { type: 'main', content: 'This is main panel' },
         { type: 'preview', size: 200 }
@@ -57,23 +57,23 @@ let layout = new w2layout({
 You can add an event listener in the following way:
 
 <textarea class="javascript">
-w2ui.layout.on('refresh', function (event) {
-    console.log(event.target, event);
+layout.on('refresh', event => {
+    console.log(event.detail.target, event);
 });
 </textarea>
 
 Or to execute at the end of event cycle:
 
 <textarea class="javascript">
-w2ui.layout.on('refresh:after', function (event) {
-    console.log(event.target, event);
+layout.on('refresh:after', event => {
+    console.log(event.detail.target, event);
 });
 </textarea>
 
 You could also add event listener in the following way:
 
 <textarea class="javascript">
-w2ui.layout.on({ type : 'refresh' }, function (event) {
+layout.on({ type: 'refresh' }, event => {
     console.log(event.target, event);
 });
 </textarea>
@@ -88,45 +88,45 @@ may also contain additional parameters, for example when to trigger event before
 Below is the list of properties of event object:
 <textarea class="javascript">
 event = {
-    type        : '',         // event name or * for all events
-    execute     : 'before',   // when to execute the handler, can be before or after
-    target      : null,       // target of the event (target will be set when event is triggered)
-    onComplete  : null        // function(event) to execute after event is processed.
+    type: '',            // event name or * for all events
+    execute: 'before',   // when to execute the handler, can be before or after
+    target: null,        // target of the event (target will be set when event is triggered)
+    onComplete: null     // function(event) to execute after event is processed.
 }
 </textarea>
 
 <h4>Event Namespace</h4>
 While adding an event listener, you can provide a namespace for the event:
 <textarea class="javascript">
-w2ui.layout.on('render.myplugin', function (event) {
+layout.on('render.myplugin', event => {
     console.log(event.target, event);
 });
-w2ui.layout.on('refresh.myplugin', function (event) {
+layout.on('refresh.myplugin', event => {
     console.log(event.target, event);
 });
 </textarea>
 
-It provides you with a convenience to remove events listener in an easy way without specifying all events and functions
+It provides a convenient way to remove event listeners without specifying all event and hendler functions
 they were registered with:
 <textarea class="javascript">
-w2ui.layout.off('.myplugin')
+layout.off('.myplugin')
 </textarea>
 
 <h4>Event Names</h4>
 All event names can be found on the event page of corresponding w2ui object. In order to use them with
 <span class="argument">on()</span> and <span class="argument">off()</span> methods, you need to drop "on" prefix and
-lower case first letter. For example, if the object has "onResize" event, you can use it as "resize". If it was
+lowerCase first letter. For example, if the object has "onResize" event, you can use it as "resize". If it was
 "onColumnClick" it should be "columnClick".
 <div style="height: 10px"></div>
 
 You can attach event listener to all events if you do the following:
 <textarea class="javascript">
-w2ui.layout.on('*', function (event) {
+w2ui.layout.on('*', event => {
     console.log(event.type, event);
 });
 </textarea>
 
-There are several events that are common for all w2ui objects (except w2popup, w2field, w2utility). They are:
+There are several events that are common for all w2ui objects (except w2popup, w2field, w2utility, w2tooltip). They are:
 <ul>
     <li>onRender</li>
     <li>onRefresh</li>
@@ -135,7 +135,7 @@ There are several events that are common for all w2ui objects (except w2popup, w
 </ul>
 
 <h4>Event Handlers</h4>
-When any of the event is triggered and it has an event handler, the event handler function will receive one
+When an event is triggered, the event handler function will receive one
 argument - <span class="argument">event</span>, which is an object with useful data related to the event.
 <textarea class="javascript">
 function handler(event) {

@@ -41,49 +41,49 @@ Returns <i>undefined</i>.
 <h4>Description</h4>
 
 You can remove a specific listener for a specific event, all listener for a specific event, or all listener for all events. For example, if you
-have a layout (same for grid, toolbar, etc.) defined as follows:
+have a layout (same for grid, toolbar, etc.) defined in the following way:
 <textarea class="javascript">
 let layout = new w2layout({
-    name    : 'layout',
-    panels  : [
+    name: 'layout',
+    panels: [
         { type: 'top', size: 40 },
         { type: 'main', content: 'This is main panel' },
         { type: 'preview', size: 200 }
     ]
-});
+})
 </textarea>
 
 You can remove a specific event listener (note that the handler cannot be an anonymous function):
 
 <textarea class="javascript">
-w2ui.layout.off('refresh', handler);
+layout.off('refresh', handler);
 </textarea>
 
 All listeners for the event:
 
 <textarea class="javascript">
-w2ui.layout.off('refresh');
+layout.off('refresh');
 </textarea>
 
 All listeners for all events:
 
 <textarea class="javascript">
-w2ui.layout.off('*');
+layout.off('*');
 </textarea>
 
 <h4>Event Namespace</h4>
 While adding an event listener, you can provide a namespace for the event:
 <textarea class="javascript">
-w2ui.layout.on('render.myplugin', function (event) {
+layout.on('render.myplugin', event => {
     console.log(event.target, event);
 });
-w2ui.layout.on('refresh.myplugin', function (event) {
+layout.on('refresh.myplugin', event => {
     console.log(event.target, event);
 });
 </textarea>
 
-It provides you with a convenience to remove events listener in an easy way without specifying all events and functions
+It provides a convenience to remove events listener in an easy way without specifying all events and functions
 they were registered with:
 <textarea class="javascript">
-w2ui.layout.off('.myplugin')
+layout.off('.myplugin')
 </textarea>

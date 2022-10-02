@@ -18,28 +18,28 @@ Returns <i>object</i>.
 <h4>Description</h4>
 
 Internally, all w2ui widgets call trigger to execute event listeners. You can add your own events and trigger them with the
-trigger function. The trigger function should be called twice. First time before the default behavior is processed and the
-second time after it it processed. This is needed to accomplish the functionality provided by the event flow.
+trigger function. The trigger function has a specific life cycle, your first trigger the event and then you signal when event is
+completed. You trigger the event before the default behavior is processed and the signal completionafter it it processed. This
+is needed to comply with the event flow.
 <div style="height: 10px"></div>
 
 Here is an example how widgets trigger events:
 <textarea class="javascript">
 // event before
-var event = this.trigger({ phase: 'before', target: this.name, type: 'click', recid: recid, event: event });
+var edata = this.trigger('click', { target: this.name, recid: recid, event: event })
 if (event.cancelled === true) return false;
 
 // default action
 
 // event after
-this.trigger($.extend(event, { phase: 'after' }));
+edata.finish()
 </textarea>
 
-As you see from the example above, the default action can be cancelled by event handler calling 
-<span class="argument">event.preventDefault()</span>. There is no need to return <span class="argument">event</span> 
-object because JavaScript passes objects by reference and changing the 
+As you see from the example above, the default action can be cancelled by event handler calling
+<span class="argument">event.preventDefault()</span>. There is no need to return <span class="argument">event</span>
+object because JavaScript passes objects by reference and changing the
 <span class="argument">event</span> within the handler will change the original object.
 <div style="height: 10px"></div>
 
-You can also define <span class="argument">event.onComplete</span> as
-a call back when the default actions of the event are completed if you need to do some actions after event has
-been processed.
+You can optionally call <span class="argument">event.done(callBack)</span> to prive a funciton which will be executed
+at the end of event life cycle (after default behaviour is complete).
