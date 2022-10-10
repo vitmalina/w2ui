@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/10/2022, 12:10:45 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/10/2022, 1:43:34 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -125,10 +125,10 @@ class w2base {
             let count = 0
             // remove listener
             this.listeners = this.listeners.filter(curr => {
-                if (   (edata.type === '*' ||  edata.type === curr.edata.type)
-                    && (edata.execute === '' ||  edata.execute === curr.edata.execute)
-                    && (edata.scope === '' ||  edata.scope === curr.edata.scope)
-                    && (edata.handler == null ||  edata.handler === curr.edata.handler)
+                if ( (edata.type === '*' || edata.type === curr.edata.type)
+                    && (edata.execute === '' || edata.execute === curr.edata.execute)
+                    && (edata.scope === '' || edata.scope === curr.edata.scope)
+                    && (edata.handler == null || edata.handler === curr.edata.handler)
                 ) {
                     count++ // how many listeners removed
                     return false
@@ -167,7 +167,7 @@ class w2base {
                 console.log(`ERROR: Cannot find even handler for "${edata.type}" on "${edata.target}".`)
                 return
             }
-            console.log('NOTICE: This syntax "edata.trigger({ phase: \'after\' })" is outdated. Use edata.finish() instead.');
+            console.log('NOTICE: This syntax "edata.trigger({ phase: \'after\' })" is outdated. Use edata.finish() instead.')
         } else if (!(edata instanceof w2event)) {
             edata = new w2event(this, edata)
             this.activeEvents.push(edata)
@@ -196,10 +196,10 @@ class w2base {
                 if (tmp) args = tmp[1].split(/\s*,\s*/)
                 if (args.length === 2) {
                     item.handler.call(this, edata.target, edata) // old way for back compatibility
-                    if (this.debug) console.log(` - call (old)`, item.handler)
+                    if (this.debug) console.log(' - call (old)', item.handler)
                 } else {
                     item.handler.call(this, edata) // new way
-                    if (this.debug) console.log(` - call`, item.handler)
+                    if (this.debug) console.log(' - call', item.handler)
                 }
                 if (edata.isStopped === true || edata.stop === true) return edata // back compatibility edata.stop === true
             }
@@ -214,10 +214,10 @@ class w2base {
             if (tmp) args = tmp[1].split(/\s*,\s*/)
             if (args.length === 2) {
                 fun.call(this, edata.target, edata) // old way for back compatibility
-                if (this.debug) console.log(` - call: on[Event] (old)`, fun)
+                if (this.debug) console.log(' - call: on[Event] (old)', fun)
             } else {
                 fun.call(this, edata) // new way
-                if (this.debug) console.log(` - call: on[Event]`, fun)
+                if (this.debug) console.log(' - call: on[Event]', fun)
             }
             if (edata.isStopped === true || edata.stop === true) return edata // back compatibility edata.stop === true
         }
@@ -230,10 +230,10 @@ class w2base {
             if (tmp) args = tmp[1].split(/\s*,\s*/)
             if (args.length === 2) {
                 fun.call(this, edata.target, edata) // old way for back compatibility
-                if (this.debug) console.log(` - call: edata.object (old)`, fun)
+                if (this.debug) console.log(' - call: edata.object (old)', fun)
             } else {
                 fun.call(this, edata) // new way
-                if (this.debug) console.log(` - call: edata.object`, fun)
+                if (this.debug) console.log(' - call: edata.object', fun)
             }
             if (edata.isStopped === true || edata.stop === true) return edata
         }
@@ -243,7 +243,7 @@ class w2base {
             for (let i = 0; i < edata.listeners.length; i++) {
                 if (typeof edata.listeners[i] === 'function') {
                     edata.listeners[i].call(this, edata)
-                    if (this.debug) console.log(` - call: done`, fun)
+                    if (this.debug) console.log(' - call: done', fun)
                 }
             }
             edata._resolve(edata)
@@ -436,7 +436,7 @@ class Query {
             scNode.text = txtNode.text
             let attrs = txtNode.attributes
             for (let i = 0; i < attrs.length; i++) {
-                scNode.setAttribute(attrs[i].name, attrs[i].value);
+                scNode.setAttribute(attrs[i].name, attrs[i].value)
             }
             return scNode
         }
@@ -452,18 +452,18 @@ class Query {
     }
     static _fixProp(name) {
         let fixes = {
-            cellpadding: "cellPadding",
-            cellspacing: "cellSpacing",
-            class: "className",
-            colspan: "colSpan",
-            contenteditable: "contentEditable",
-            for: "htmlFor",
-            frameborder: "frameBorder",
-            maxlength: "maxLength",
-            readonly: "readOnly",
-            rowspan: "rowSpan",
-            tabindex: "tabIndex",
-            usemap: "useMap"
+            cellpadding: 'cellPadding',
+            cellspacing: 'cellSpacing',
+            class: 'className',
+            colspan: 'colSpan',
+            contenteditable: 'contentEditable',
+            for: 'htmlFor',
+            frameborder: 'frameBorder',
+            maxlength: 'maxLength',
+            readonly: 'readOnly',
+            rowspan: 'rowSpan',
+            tabindex: 'tabIndex',
+            usemap: 'useMap'
         }
         return fixes[name] ? fixes[name] : name
     }
@@ -515,7 +515,7 @@ class Query {
         } else if (value != null) {
             node._mQuery[name] = value
         } else {
-            delete node._mQuery[name];
+            delete node._mQuery[name]
         }
     }
     get(index) {
@@ -681,7 +681,7 @@ class Query {
                             .map(a => {
                                 return a.split(':').map(a => a.trim()) // trim strings
                             })
-                        )
+                    )
                 }
             } else {
                 return undefined
@@ -874,7 +874,7 @@ class Query {
                 let data = Object.assign({}, this[0].dataset)
                 Object.keys(data).forEach(key => {
                     if (data[key].startsWith('[') || data[key].startsWith('{')) {
-                        try { data[key] = JSON.parse(data[key]) } catch(e) {}
+                        try { data[key] = JSON.parse(data[key]) } catch (e) {}
                     }
                 })
                 return key ? data[key] : data
@@ -953,7 +953,7 @@ let query = function (selector, context) {
     }
 }
 // str -> doc-fragment
-query.html = (str) => { let frag = Query._fragment(str); return query(frag.children, frag)  }
+query.html = (str) => { let frag = Query._fragment(str); return query(frag.children, frag) }
 query.version = Query.version
 /**
  * Part of w2ui 2.0 library
@@ -1994,7 +1994,7 @@ class Utils {
                     focus.focus()
                 }
             } else {
-                if (typeof where.owner?.focus == 'function') owner.focus()
+                if (typeof where.owner?.focus == 'function') where.owner.focus()
             }
             query(options.box).remove()
             if (options.msgIndex === 0) {
@@ -2294,7 +2294,7 @@ class Utils {
      *  }
      * @returns promise
      */
-     notify(text, options) {
+    notify(text, options) {
         return new Promise(resolve => {
             if (typeof text == 'object') {
                 options = text
@@ -2794,10 +2794,9 @@ class Utils {
         }
     }
     tooltip(html, options) {
-        let actions,
-            showOn = 'mouseenter',
-            hideOn = 'mouseleave',
-            isOverlay = false
+        let actions
+        let showOn = 'mouseenter'
+        let hideOn = 'mouseleave'
         if (typeof html == 'object') {
             options = html
         }
@@ -3050,7 +3049,7 @@ class Utils {
         })
     }
 }
-var w2utils = new Utils() // needs to be functional/module scope variable
+var w2utils = new Utils() // eslint-disable-line -- needs to be functional/module scope variable
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: mQuery, w2utils, w2base
@@ -3195,9 +3194,9 @@ class Dialog extends w2base {
                 }
                 prom[btnAction] = function (callBack) {
                     self.on('action.buttons', (event) => {
-                            let target = event.detail.action[0].toLowerCase() + event.detail.action.substr(1).replace(/\s+/g, '')
-                            if (target == btnAction) callBack(event)
-                        })
+                        let target = event.detail.action[0].toLowerCase() + event.detail.action.substr(1).replace(/\s+/g, '')
+                        if (target == btnAction) callBack(event)
+                    })
                     return prom
                 }
             })
@@ -3449,7 +3448,7 @@ class Dialog extends w2base {
         let html
         try {
             html = query(data)
-        } catch(e) {
+        } catch (e) {
             html = query.html(data)
         }
         if (id) html = html.filter('#' + id)
@@ -3521,7 +3520,7 @@ class Dialog extends w2base {
             cleanUp()
             clearTimeout(this.tmp.closingTimer)
             w2utils.unlock(document.body, 0)
-            return;
+            return
         }
         // default behavior
         this.status = 'closing'
@@ -3744,7 +3743,7 @@ function w2alert(msg, title, callBack) {
     }
     prom.ok((event) => {
         if (typeof event.detail.self?.close == 'function') {
-            event.detail.self.close();
+            event.detail.self.close()
         }
         if (typeof callBack == 'function') callBack()
     })
@@ -3776,7 +3775,7 @@ function w2confirm(msg, title, callBack) {
         .off('.confirm')
         .on('action:after.confirm', (event) => {
             if (typeof event.detail.self?.close == 'function') {
-                event.detail.self.close();
+                event.detail.self.close()
             }
             if (typeof callBack == 'function') callBack(event.detail.action)
         })
@@ -3851,7 +3850,7 @@ function w2prompt(label, title, callBack) {
         })
         .on('action:after.prompt', (event) => {
             if (typeof event.detail.self?.close == 'function') {
-                event.detail.self.close();
+                event.detail.self.close()
             }
             if (typeof callBack == 'function') callBack(event.detail.action)
         })
@@ -4110,7 +4109,7 @@ class Tooltip {
             return
         } else if (overlay.box) {
             // if already present, update it
-            edata = this.trigger('update', {  target: name, overlay })
+            edata = this.trigger('update', { target: name, overlay })
             if (edata.isCancelled === true) {
                 // restore previous options
                 if (overlay.prevOptions) {
@@ -4701,23 +4700,23 @@ class ColorTooltip extends Tooltip {
         let pal = this.palette
         switch (direction) {
             case 'up':
-                index[0]--
+                this.index[0]--
                 break
             case 'down':
-                index[0]++
+                this.index[0]++
                 break
             case 'right':
-                index[1]++
+                this.index[1]++
                 break
             case 'left':
-                index[1]--
+                this.index[1]--
                 break
         }
-        if (index[0] < 0) index[0] = 0
-        if (index[0] > pal.length - 2) index[0] = pal.length - 2
-        if (index[1] < 0) index[1] = 0
-        if (index[1] > pal[0].length - 1) index[1] = pal[0].length - 1
-        return pal[index[0]][index[1]]
+        if (this.index[0] < 0) this.index[0] = 0
+        if (this.index[0] > pal.length - 2) this.index[0] = pal.length - 2
+        if (this.index[1] < 0) this.index[1] = 0
+        if (this.index[1] > pal[0].length - 1) this.index[1] = pal[0].length - 1
+        return pal[this.index[0]][this.index[1]]
     }
     tabClick(index, name) {
         if (typeof name != 'string') {
@@ -4862,7 +4861,7 @@ class ColorTooltip extends Tooltip {
         query(overlay.box).find('.palette, .rainbow, .alpha')
             .off('.w2color')
             .on(`${mDown}.w2color`, mouseDown)
-        return;
+        return
         function setColor(color, fullUpdate, initial) {
             if (color.h != null) hsv.h = color.h
             if (color.s != null) hsv.s = color.s
@@ -5541,7 +5540,7 @@ class MenuTooltip extends Tooltip {
         let edata
         if (query(event.target).hasClass('remove')) {
             edata = this.trigger('remove', { originalEvent: event, target: overlay.name,
-                        overlay, item, index, parentIndex, el: $item[0] })
+                overlay, item, index, parentIndex, el: $item[0] })
             if (edata.isCancelled === true) {
                 return
             }
@@ -5611,11 +5610,11 @@ class MenuTooltip extends Tooltip {
             case 8: { // delete
                 // if search empty and delete is clicked, do not filter nor show overlay
                 if (search === '' && !overlay.displayed) filter = false
-                break;
+                break
             }
             case 13: { // enter
                 if (!overlay.displayed || !overlay.selected) return
-                let { item, index, parents } = this.getCurrent(overlay.name)
+                let { index, parents } = this.getCurrent(overlay.name)
                 event.delegate = query(overlay.box).find('.w2ui-selected').get(0)
                 // reset active chain for folders
                 this.menuClick(overlay, event, parseInt(index), parents)
@@ -5951,13 +5950,13 @@ class DateTooltip extends Tooltip {
             })
             // click on hour
             .on('click.calendar', { delegate: '.w2ui-time.hour' }, event => {
-                let hour = query(event.target).attr('hour');
+                let hour = query(event.target).attr('hour')
                 let min  = this.str2min(options.value) % 60
                 if (overlay.tmp.initValue && !options.value) {
                     min = this.str2min(overlay.tmp.initValue) % 60
                 }
                 if (options.noMinutes) {
-                    overlay.newValue = this.min2str(hour * 60, options.format);
+                    overlay.newValue = this.min2str(hour * 60, options.format)
                     this.hide(overlay.name)
                 } else {
                     overlay.newValue = hour + ':' + min
@@ -5969,8 +5968,8 @@ class DateTooltip extends Tooltip {
             // click on minute
             .on('click.calendar', { delegate: '.w2ui-time.min' }, event => {
                 let hour = Math.floor(this.str2min(overlay.newValue) / 60)
-                let time = (hour * 60) + parseInt(query(event.target).attr('min'));
-                overlay.newValue = this.min2str(time, options.format);
+                let time = (hour * 60) + parseInt(query(event.target).attr('min'))
+                overlay.newValue = this.min2str(time, options.format)
                 this.hide(overlay.name)
             })
     }
@@ -6558,7 +6557,7 @@ class w2toolbar extends w2base {
     insert(id, items, skipRefresh) {
         if (!Array.isArray(items)) items = [items]
         items.forEach((item, idx, arr) => {
-            if(typeof item === 'string') {
+            if (typeof item === 'string') {
                 item = arr[idx] = { id: item, text: item }
             }
             // checks
@@ -6583,7 +6582,7 @@ class w2toolbar extends w2base {
                 if (!Array.isArray(newItem.selected)) newItem.selected = []
                 if (Array.isArray(newItem.items)) {
                     newItem.items.forEach(it => {
-                        if(typeof it === 'string') {
+                        if (typeof it === 'string') {
                             it = arr[idx] = { id: it, text: it }
                         }
                         if (it.checked && !newItem.selected.includes(it.id)) newItem.selected.push(it.id)
@@ -6594,7 +6593,7 @@ class w2toolbar extends w2base {
             } else if (newItem.type == 'menu-radio') {
                 if (Array.isArray(newItem.items)) {
                     newItem.items.forEach((it, idx, arr) => {
-                        if(typeof it === 'string') {
+                        if (typeof it === 'string') {
                             it = arr[idx] = { id: it, text: it }
                         }
                         if (it.checked && newItem.selected == null) newItem.selected = it.id; else it.checked = false
@@ -6835,13 +6834,13 @@ class w2toolbar extends w2base {
                                 })
                             }
                             w2menu.show(w2utils.extend({
-                                    items,
-                                }, it.overlay, {
-                                    type: menuType,
-                                    name : this.name + '-drop',
-                                    anchor: el[0],
-                                    data: { item: it, btn }
-                                }))
+                                items,
+                            }, it.overlay, {
+                                type: menuType,
+                                name : this.name + '-drop',
+                                anchor: el[0],
+                                data: { item: it, btn }
+                            }))
                                 .hide(hideDrop(it.id, btn))
                                 .remove(event => {
                                     this.menuClick({ name: this.name, remove: true, item: it, subItem: event.detail.item,
@@ -6854,12 +6853,12 @@ class w2toolbar extends w2base {
                         }
                         if (['color', 'text-color'].includes(it.type)) {
                             w2color.show(w2utils.extend({
-                                    color: it.color
-                                }, it.overlay, {
-                                    anchor: el[0],
-                                    name: this.name + '-drop',
-                                    data: { item: it, btn }
-                                }))
+                                color: it.color
+                            }, it.overlay, {
+                                anchor: el[0],
+                                name: this.name + '-drop',
+                                data: { item: it, btn }
+                            }))
                                 .hide(hideDrop(it.id, btn))
                                 .select(event => {
                                     if (event.detail.color != null) {
@@ -7217,7 +7216,7 @@ class w2toolbar extends w2base {
         // not for opened drop downs
         if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].includes(item.type)
             && item.checked == true) {
-                return
+            return
         }
         w2tooltip.show({
             anchor: el,
@@ -7348,7 +7347,7 @@ class w2toolbar extends w2base {
                 query(target).removeClass('down')
                 break
         }
-        edata.finish();
+        edata.finish()
     }
 }
 /**
@@ -8056,7 +8055,7 @@ class w2sidebar extends w2base {
             let nd = this.get(id)
             if (nd == null) return
             let item = query(this.box).find('#node_'+ w2utils.escapeId(id)).get(0)
-            item.scrollIntoView({ block: "center", inline: "center", behavior: instant ? 'atuo' : 'smooth' })
+            item.scrollIntoView({ block: 'center', inline: 'center', behavior: instant ? 'atuo' : 'smooth' })
             setTimeout(() => { this.resize(); resolve() }, instant ? 0 : 500)
         })
     }
@@ -8326,7 +8325,7 @@ class w2sidebar extends w2base {
                 this.refresh(subNode.id, true)
             } else {
                 // trigger event
-                let edata2 = this.trigger('refresh', {  target: subNode.id })
+                let edata2 = this.trigger('refresh', { target: subNode.id })
                 if (edata2.isCancelled === true) return
                 // event after
                 edata2.finish()
@@ -8455,7 +8454,7 @@ class w2sidebar extends w2base {
     }
     mouseAction(action, el, id, event, type) {
         let node = this.get(id)
-        let text = w2utils.lang(typeof node.text == 'function' ? node.text.call(obj, node) : node.text)
+        let text = w2utils.lang(typeof node.text == 'function' ? node.text.call(this, node) : node.text)
         let tooltip = text + (node.count || node.count === 0 ? ' - <span class="w2ui-node-count">'+ node.count +'</span>' : '')
         let edata = this.trigger('mouse' + action, { target: id, node, tooltip, originalEvent: event })
         if (type == 'tooltip') {
@@ -8867,9 +8866,9 @@ class w2tabs extends w2base {
         let time = Date.now()
         if (this.flow == 'up') {
             query(this.box).addClass('w2ui-tabs-up')
-         } else {
+        } else {
             query(this.box).removeClass('w2ui-tabs-up')
-         }
+        }
         // event before
         let edata = this.trigger('refresh', { target: (id != null ? id : this.name), object: this.get(id) })
         if (edata.isCancelled === true) return
@@ -9004,7 +9003,7 @@ class w2tabs extends w2base {
     }
     scroll(direction, instant) {
         return new Promise((resolve, reject) => {
-            let scrollBox  = query(this.box).find(`.w2ui-scroll-wrapper`)
+            let scrollBox  = query(this.box).find('.w2ui-scroll-wrapper')
             let scrollLeft = scrollBox.get(0).scrollLeft
             let right      = scrollBox.find('.w2ui-tabs-right').get(0)
             let width1     = scrollBox.parent().get(0).getBoundingClientRect().width
@@ -9032,7 +9031,7 @@ class w2tabs extends w2base {
             let tab = this.get(id)
             if (tab == null) return
             let tabEl = query(this.box).find('#tabs_' + this.name + '_tab_' + w2utils.escapeId(id)).get(0)
-            tabEl.scrollIntoView({ block: "start", inline: "center", behavior: instant ? 'atuo' : 'smooth' })
+            tabEl.scrollIntoView({ block: 'start', inline: 'center', behavior: instant ? 'atuo' : 'smooth' })
             setTimeout(() => { this.resize(); resolve() }, instant ? 0 : 500)
         })
     }
@@ -9856,9 +9855,9 @@ class w2layout extends w2base {
             if (p.show.toolbar) {
                 if (tmp.find('[name='+ p.toolbar.name +']').length === 0 && p.toolbar != null) {
                     p.toolbar.render(tmp.get(0))
-                 } else {
-                     p.toolbar.refresh()
-                 }
+                } else {
+                    p.toolbar.refresh()
+                }
             } else {
                 tmp.html('').removeClass('w2ui-toolbar').hide()
             }
@@ -11533,7 +11532,7 @@ class w2grid extends w2base {
     refreshRanges() {
         if (this.ranges.length === 0) return
         let self = this
-        let range, _left, _top
+        let range
         let time = Date.now()
         let rec1 = query(this.box).find(`#grid_${this.name}_frecords`)
         let rec2 = query(this.box).find(`#grid_${this.name}_records`)
@@ -12008,7 +12007,7 @@ class w2grid extends w2base {
     selectNone(skipEvent) {
         let time = Date.now()
         // event before
-        let edata;
+        let edata
         if (!skipEvent) {
             edata = this.trigger('select', { target: this.name, clicked: [] })
             if (edata.isCancelled === true) return
@@ -12873,13 +12872,13 @@ class w2grid extends w2base {
             case 'HTTPJSON':
                 postParams = { request: postParams }
                 if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
-                    fetchOptions.method = 'POST';
+                    fetchOptions.method = 'POST'
                 }
                 body2params()
                 break
             case 'HTTP':
                 if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
-                    fetchOptions.method = 'POST';
+                    fetchOptions.method = 'POST'
                 }
                 body2params()
                 break
@@ -12900,7 +12899,7 @@ class w2grid extends w2base {
                 }
                 break
         }
-        fetchOptions.body = typeof fetchOptions.body == 'string' ? fetchOptions.body : JSON.stringify(fetchOptions.body);
+        fetchOptions.body = typeof fetchOptions.body == 'string' ? fetchOptions.body : JSON.stringify(fetchOptions.body)
         return fetchOptions
         function body2params() {
             Object.keys(postParams).forEach(key => {
@@ -13408,7 +13407,7 @@ class w2grid extends w2base {
                         this.editDone(undefined, undefined, { keyCode: selected ? 13 : 0 }) // advance on select
                     }
                 }
-                let fld = new w2field(w2utils.extend({}, edit, {
+                new w2field(w2utils.extend({}, edit, {
                     el: input,
                     selected: val,
                     onSelect: doHide,
@@ -14944,7 +14943,7 @@ class w2grid extends w2base {
             } else {
                 let div = cell.children[0] // there is always a div inside a cell
                 // value, attr, style, className, divAttr -- all on TD level except divAttr
-                let { value, style, className, attr, divAtt } = self.getCellValue(index, column, false, true)
+                let { value, style, className } = self.getCellValue(index, column, false, true)
                 if (div.innerHTML != value) {
                     div.innerHTML = value
                 }
@@ -15292,19 +15291,19 @@ class w2grid extends w2base {
                     let index = query(event.delegate).attr('index')
                     let recid = query(event.delegate).attr('recid')
                     if (index !== this.last.rec_over) {
-                        this.last.rec_over = index;
+                        this.last.rec_over = index
                         // setTimeout is needed for correct event order enter/leave
                         setTimeout(() => {
                             delete this.last.rec_out
                             let edata = this.trigger('mouseEnter', { target: this.name, originalEvent: event, index, recid })
                             edata.finish()
-                        });
+                        })
                     }
                 })
                 .on('mouseout', { delegate: 'tr' }, (event) => {
                     let index = query(event.delegate).attr('index')
                     let recid = query(event.delegate).attr('recid')
-                    this.last.rec_out = true;
+                    this.last.rec_out = true
                     // setTimeouts are needed for correct event order enter/leave
                     setTimeout(() => {
                         let recLeave = () => {
@@ -15369,7 +15368,7 @@ class w2grid extends w2base {
                                 items: this.initColumnOnOff()
                             })
                             .then(() => {
-                                query(`#w2overlay-context-menu .w2ui-grid-skip`)
+                                query('#w2overlay-context-menu .w2ui-grid-skip')
                                     .off('.w2ui-grid')
                                     .on('click.w2ui-grid', evt => {
                                         evt.stopPropagation()
@@ -17191,7 +17190,7 @@ class w2grid extends w2base {
                     let gText = w2utils.lang(typeof colg.text == 'function' ? colg.text(colg) : colg.text)
                     tmpf = `<td id="grid_${self.name}_column_${ii}" class="w2ui-head" col="${ii}" colspan="${colspan}">` +
                            `    <div class="w2ui-col-group" style="${colg.style ?? ''}">${!gText ? '&#160;' : gText}</div>` +
-                           `</td>`
+                           '</td>'
                     if (col && col.frozen) html1 += tmpf; else html2 += tmpf
                 }
                 ii += colg.span
@@ -17416,7 +17415,7 @@ class w2grid extends w2base {
                 // add/remove columns for small jumps
                 if (deltaStart < 5 && deltaEnd < 5) {
                     let $cfirst = $box.find(`.w2ui-grid-columns #grid_${this.name}_column_start`)
-                    let $clast  = $box.find(`.w2ui-grid-columns .w2ui-head-last`)
+                    let $clast  = $box.find('.w2ui-grid-columns .w2ui-head-last')
                     let $rfirst = $box.find(`#grid_${this.name}_records .w2ui-grid-data-spacer`)
                     let $rlast  = $box.find(`#grid_${this.name}_records .w2ui-grid-data-last`)
                     let $sfirst = $box.find(`#grid_${this.name}_summary .w2ui-grid-data-spacer`)
@@ -17939,9 +17938,9 @@ class w2grid extends w2base {
         let isCellSelected = false
         if (isRowSelected && sel.columns[ind]?.includes(col_ind)) isCellSelected = true
         // clipboardCopy
-        let clipboardTxt, clipboardIcon
+        let clipboardIcon
         if (col.clipboardCopy){
-            clipboardIcon = `<span class="w2ui-clipboard-copy w2ui-icon-paste"></span>`
+            clipboardIcon = '<span class="w2ui-clipboard-copy w2ui-icon-paste"></span>'
         }
         // data
         data = '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') + ' ' + className +
@@ -18062,14 +18061,14 @@ class w2grid extends w2base {
             html += '</table>'
         }
         return w2tooltip.show(w2utils.extend({
-                name: this.name + '-bubble',
-                html,
-                anchor: el.get(0),
-                position: 'top|bottom',
-                class: 'w2ui-info-bubble',
-                style: '',
-                hideOn: ['doc-click']
-            }, info.options ?? {}))
+            name: this.name + '-bubble',
+            html,
+            anchor: el.get(0),
+            position: 'top|bottom',
+            class: 'w2ui-info-bubble',
+            style: '',
+            hideOn: ['doc-click']
+        }, info.options ?? {}))
             .hide(() => [
                 this.last.bubbleEl = null
             ])
@@ -18086,7 +18085,7 @@ class w2grid extends w2base {
             if (typeof edit === 'function') {
                 let value = this.getCellValue(ind, col_ind, false)
                 // same arguments as col.render()
-                edit = edit.call(this, rec, { self: this, value, index: ind, colIndex: col_ind, summary: !!summary })
+                edit = edit.call(this, rec, { self: this, value, index: ind, colIndex: col_ind })
             }
         }
         return edit
@@ -18618,7 +18617,7 @@ class w2form extends w2base {
                 let tmp = tabs[t]
                 if (typeof tmp === 'object') {
                     this.tabs.tabs.push(tmp)
-                    if(tmp.active === true) {
+                    if (tmp.active === true) {
                         this.tabs.active = tmp.id
                     }
                 } else {
@@ -18656,7 +18655,7 @@ class w2form extends w2base {
             this.formHTML    = this.generateHTML()
             this.isGenerated = true
         } else if (this.formHTML) {
-            this.isGenerated = true;
+            this.isGenerated = true
         }
         // render if box specified
         if (typeof this.box == 'string') this.box = query(this.box).get(0)
@@ -18912,7 +18911,7 @@ class w2form extends w2base {
         let field = this.get(name)
         if (field == null) return
         let el = field.el
-        switch(field.type) {
+        switch (field.type) {
             case 'toggle':
             case 'checkbox':
                 el.checked = value ? true : false
@@ -19381,7 +19380,7 @@ class w2form extends w2base {
                 }
                 break
         }
-        fetchOptions.body = typeof fetchOptions.body == 'string' ? fetchOptions.body : JSON.stringify(fetchOptions.body);
+        fetchOptions.body = typeof fetchOptions.body == 'string' ? fetchOptions.body : JSON.stringify(fetchOptions.body)
         return fetchOptions
         function body2params() {
             Object.keys(postParams).forEach(key => {
@@ -19475,7 +19474,7 @@ class w2form extends w2base {
                             self.record = w2utils.clone(data.record)
                         }
                         // event after
-                        self.unlock();
+                        self.unlock()
                         edata.finish()
                         self.refresh()
                         self.setFocus()
@@ -19640,7 +19639,7 @@ class w2form extends w2base {
     }
     lockPage(page, msg, spinner) {
         let $page = query(this.box).find('.page-' + page)
-        if($page.length){
+        if ($page.length){
             // page found
             w2utils.lock($page, msg, spinner)
             return true
@@ -19899,7 +19898,7 @@ class w2form extends w2base {
     }
     toggleGroup(groupName, show) {
         let el = query(this.box).find('.w2ui-group-title[data-group="' + w2utils.base64encode(groupName) + '"]')
-        if(el.length === 0) return
+        if (el.length === 0) return
         let el_next = query(el.prop('nextElementSibling'))
         if (typeof show === 'undefined') {
             show = (el_next.css('display') == 'none')
@@ -19941,7 +19940,7 @@ class w2form extends w2base {
         let { headerHeight, tbHeight, tabsHeight } = resizeElements()
         if (this.autosize) { // we don't need autosize every time
             let cHeight = query(this.box).get(0).clientHeight
-            if (cHeight === 0 || query(this.box).data('autosize') == "yes") {
+            if (cHeight === 0 || query(this.box).data('autosize') == 'yes') {
                 query(this.box).css({
                     height: headerHeight + tbHeight + tabsHeight + 15 // 15 is extra height
                         + (page.length > 0 ? w2utils.getSize(dpage, 'height') : 0)
@@ -20376,7 +20375,7 @@ class w2form extends w2base {
         }
         if (typeof this.tabs === 'object' && typeof this.tabs.render === 'function') {
             this.tabs.render(query(this.box).find('#form_'+ this.name +'_tabs')[0])
-            if(this.tabs.active) this.tabs.click(this.tabs.active)
+            if (this.tabs.active) this.tabs.click(this.tabs.active)
         }
         // event after
         edata.finish()
@@ -20407,19 +20406,18 @@ class w2form extends w2base {
         return Date.now() - time
     }
     setFocus(focus) {
-        if(typeof focus === 'undefined'){
+        if (typeof focus === 'undefined'){
             // no argument - use form's focus property
             focus = this.focus
         }
         let $input
         // focus field by index
         if (w2utils.isInt(focus)){
-            if(focus < 0) {
+            if (focus < 0) {
                 return
             }
-            let inputs = query(this.box).find(
-                    'div:not(.w2ui-field-helper) > input, select, textarea, ' +
-                    'div > label:nth-child(1) > [type=radio]')
+            let inputs = query(this.box)
+                .find('div:not(.w2ui-field-helper) > input, select, textarea, div > label:nth-child(1) > [type=radio]')
                 .filter(':not(.file-input)')
             // find visible (offsetParent == null for any element is not visible)
             while (inputs[focus].offsetParent == null && inputs.length >= focus) {
@@ -20804,12 +20802,12 @@ class w2field extends w2base {
             .css('box-sizing', 'border-box')
             .addClass('w2field w2ui-input')
             .off('.w2field')
-            .on('change.w2field',  (event) => { this.change(event) })
-            .on('click.w2field',   (event) => { this.click(event) })
-            .on('focus.w2field',   (event) => { this.focus(event) })
-            .on('blur.w2field',    (event) => { if (this.type !== 'list') this.blur(event) })
+            .on('change.w2field', (event) => { this.change(event) })
+            .on('click.w2field', (event) => { this.click(event) })
+            .on('focus.w2field', (event) => { this.focus(event) })
+            .on('blur.w2field', (event) => { if (this.type !== 'list') this.blur(event) })
             .on('keydown.w2field', (event) => { this.keyDown(event) })
-            .on('keyup.w2field',   (event) => { this.keyUp(event) })
+            .on('keyup.w2field', (event) => { this.keyUp(event) })
         // suffix and prefix need to be after styles
         this.addPrefix() // only will add if needed
         this.addSuffix() // only will add if needed
@@ -21121,7 +21119,7 @@ class w2field extends w2base {
     // resizing width of list, enum, file controls
     resize() {
         let width = this.el.clientWidth
-        let height = this.el.clientHeight
+        // let height = this.el.clientHeight
         // if (this.tmp.current_width == width && height > 0) return
         let styles = getComputedStyle(this.el)
         let focus  = this.helpers.search
@@ -21195,7 +21193,7 @@ class w2field extends w2base {
     }
     clean(val) {
         // issue #499
-        if(typeof val === 'number'){
+        if (typeof val === 'number'){
             return val
         }
         let options = this.options
@@ -21525,7 +21523,7 @@ class w2field extends w2base {
         }
         // list/enum
         if (['list', 'enum'].includes(this.type)) {
-            switch(key) {
+            switch (key) {
                 case 8: // delete
                 case 46: // backspace
                     if (this.type == 'list') {
@@ -21549,7 +21547,7 @@ class w2field extends w2base {
                     break
                 case 9: // tab key
                 case 16: // shift key (when shift+tab)
-                    break;
+                    break
                 case 27: // escape
                     w2menu.hide(this.el.id + '_menu')
                     this.refresh()
@@ -21773,7 +21771,7 @@ class w2field extends w2base {
             case 'money':
             case 'currency':
                 if (loose && ['-', this.options.decimalSymbol, this.options.groupSymbol, this.options.currencyPrefix,
-                              this.options.currencySuffix].includes(ch)) {
+                    this.options.currencySuffix].includes(ch)) {
                     isValid = true
                 } else {
                     isValid = w2utils.isFloat(ch.replace(this.options.moneyRE, ''))
@@ -21807,7 +21805,7 @@ class w2field extends w2base {
         helper = query(this.el).get(0).previousElementSibling
         query(helper)
             .css({
-                'color'          : styles['color'],
+                'color'          : styles.color,
                 'font-family'    : styles['font-family'],
                 'font-size'      : styles['font-size'],
                 'height'         : this.el.clientHeight + 'px',
@@ -21852,17 +21850,17 @@ class w2field extends w2base {
                 '</div>')
             helper = query(this.el).get(0).nextElementSibling
             query(helper).css({
-                    'color'         : styles['color'],
-                    'font-family'   : styles['font-family'],
-                    'font-size'     : styles['font-size'],
-                    'height'        : this.el.clientHeight + 'px',
-                    'padding'       : 0,
-                    'margin-top'    : (parseInt(styles['margin-top'], 10) + 1) + 'px',
-                    'margin-bottom' : 0,
-                    'border-left'   : '1px solid silver',
-                    'width'         : '16px',
-                    'transform'     : 'translateX(-100%)'
-                })
+                'color'         : styles.color,
+                'font-family'   : styles['font-family'],
+                'font-size'     : styles['font-size'],
+                'height'        : this.el.clientHeight + 'px',
+                'padding'       : 0,
+                'margin-top'    : (parseInt(styles['margin-top'], 10) + 1) + 'px',
+                'margin-bottom' : 0,
+                'border-left'   : '1px solid silver',
+                'width'         : '16px',
+                'transform'     : 'translateX(-100%)'
+            })
                 .on('mousedown', function(event) {
                     if (query(event.target).hasClass('arrow-up')) {
                         self.keyDown(event, { keyCode: 38 })
@@ -21883,7 +21881,7 @@ class w2field extends w2base {
             helper = query(this.el).get(0).nextElementSibling
             query(helper)
                 .css({
-                    'color'          : styles['color'],
+                    'color'          : styles.color,
                     'font-family'    : styles['font-family'],
                     'font-size'      : styles['font-size'],
                     'height'        : this.el.clientHeight + 'px',
@@ -21926,12 +21924,12 @@ class w2field extends w2base {
         this.helpers.search_focus = query(helper).find('input').get(0)
         let styles = getComputedStyle(this.el)
         query(helper).css({
-                width           : this.el.clientWidth + 'px',
-                'margin-top'    : styles['margin-top'],
-                'margin-left'   : styles['margin-left'],
-                'margin-bottom' : styles['margin-bottom'],
-                'margin-right'  : styles['margin-right']
-            })
+            width           : this.el.clientWidth + 'px',
+            'margin-top'    : styles['margin-top'],
+            'margin-left'   : styles['margin-left'],
+            'margin-bottom' : styles['margin-bottom'],
+            'margin-right'  : styles['margin-right']
+        })
             .find('input')
             .css({
                 cursor   : 'default',
@@ -21984,7 +21982,7 @@ class w2field extends w2base {
         `)
         if (this.tmp['min-height'] == null) {
             let min = this.tmp['min-height'] = parseInt((styles['min-height'] != 'none' ? styles['min-height'] : 0) || 0)
-            let current = parseInt(styles['height'])
+            let current = parseInt(styles.height)
             this.tmp['min-height'] = Math.max(min, current)
         }
         if (this.tmp['max-height'] == null && styles['max-height'] != 'none') {
@@ -22299,7 +22297,7 @@ class w2field extends w2base {
                 options = options ?? {}
                 options.html = text
             }
-            let tooltip = w2tooltip.show(el, options)
+            w2tooltip.show(el, options)
         })
     }
     $.fn.w2overlay = function(html, options) {
@@ -22317,7 +22315,7 @@ class w2field extends w2base {
                 class: 'w2ui-white',
                 hideOn: ['doc-click']
             })
-            let tooltip = w2tooltip.show(el, options)
+            w2tooltip.show(el, options)
         })
     }
     $.fn.w2menu = function(menu, options) {
@@ -22330,7 +22328,7 @@ class w2field extends w2base {
             } else {
                 options.items = menu
             }
-            let tooltip = w2menu.show(el, options)
+            w2menu.show(el, options)
         })
     }
     $.fn.w2color = function(options, callBack) {
