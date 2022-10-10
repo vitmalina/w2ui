@@ -136,7 +136,7 @@ class Dialog extends w2base {
                     options.buttons += `<button class="w2ui-btn w2ui-eaction" data-click='["action","${action}","event"]'>${action}</button>`
                 }
                 if (typeof handler == 'object') {
-                    options.buttons += `<button class="w2ui-btn w2ui-eaction ${handler.class || ''}" data-click='["action","${action}","event"]'
+                    options.buttons += `<button class="w2ui-btn w2ui-eaction ${handler.class || ''}" name="${action}" data-click='["action","${action}","event"]'
                         style="${handler.style}" ${handler.attrs}>${handler.text || action}</button>`
                     btnAction = Array.isArray(options.actions) ? handler.text : action
                 }
