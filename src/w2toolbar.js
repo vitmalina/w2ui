@@ -16,6 +16,7 @@
  *  - new w2tooltips and w2menu
  *  - scroll returns promise
  *  - added onMouseEntter, onMouseLeave, onMouseDown, onMouseUp events
+ *  - add(..., skipRefresh), insert(..., skipRefresh)
  */
 
 import { w2base } from './w2base.js'
@@ -73,7 +74,7 @@ class w2toolbar extends w2base {
         delete options.items
         Object.assign(this, options)
         // add item via method to makes sure item_template is applied
-        if (Array.isArray(items)) this.add(items)
+        if (Array.isArray(items)) this.add(items, true)
         // need to reassign back to keep it in config
         options.items = items
 
@@ -82,11 +83,11 @@ class w2toolbar extends w2base {
         if (this.box) this.render(this.box)
     }
 
-    add(items) {
-        this.insert(null, items)
+    add(items, skipRefresh) {
+        this.insert(null, items, skipRefresh)
     }
 
-    insert(id, items) {
+    insert(id, items, skipRefresh) {
         if (!Array.isArray(items)) items = [items]
         items.forEach((item, idx, arr) => {
             if(typeof item === 'string') {
@@ -140,10 +141,10 @@ class w2toolbar extends w2base {
                 let middle = this.get(id, true)
                 this.items = this.items.slice(0, middle).concat([newItem], this.items.slice(middle))
             }
-            newItem.line = newItem.line || 1
-            this.refresh(newItem.id)
+            newItem.line = newItem.line ?? 1
+            if (skipRefresh !== true) this.refresh(newItem.id)
         })
-        this.resize()
+        if (skipRefresh !== true) this.resize()
     }
 
     remove() {
@@ -207,12 +208,12 @@ class w2toolbar extends w2base {
         let btn = query(this.box).find(`#tb_${this.name}_item_${w2utils.escapeId(id)} .w2ui-tb-count > span`)
         if (btn.length > 0) {
             btn.removeClass()
-                .addClass(className || '')
+                .addClass(className ?? '')
                 .text(count)
-                .get(0).style.cssText = style || ''
+                .get(0).style.cssText = style ?? ''
             this.last.badge[id] = {
-                className: className || '',
-                style: style || ''
+                className: className ?? '',
+                style: style ?? ''
             }
             let item = this.get(id)
             item.count = count
@@ -508,7 +509,7 @@ class w2toolbar extends w2base {
                 html += `
                     <div class="w2ui-tb-line">
                         <div class="w2ui-scroll-wrapper w2ui-eaction" data-mousedown="resize">
-                            <div class="w2ui-tb-right">${this.right[line-1] || ''}</div>
+                            <div class="w2ui-tb-right">${this.right[line-1] ?? ''}</div>
                         </div>
                         <div class="w2ui-scroll-left w2ui-eaction" data-click='["scroll", "left", "${line}"]'></div>
                         <div class="w2ui-scroll-right w2ui-eaction" data-click='["scroll", "right", "${line}"]'></div>
@@ -730,8 +731,8 @@ class w2toolbar extends w2base {
                                     ${ w2utils.lang(text) }
                                     ${ item.count != null
                                         ? w2utils.stripSpaces(`<span class="w2ui-tb-count">
-                                                <span class="${this.last.badge[item.id] ? this.last.badge[item.id].className || '' : ''}"
-                                                    style="${this.last.badge[item.id] ? this.last.badge[item.id].style || '' : ''}"
+                                                <span class="${this.last.badge[item.id] ? this.last.badge[item.id].className ?? '' : ''}"
+                                                    style="${this.last.badge[item.id] ? this.last.badge[item.id].style ?? '' : ''}"
                                                 >${item.count}</span>
                                            </span>`)
                                         : ''

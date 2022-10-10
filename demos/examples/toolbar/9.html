@@ -19,7 +19,7 @@
 
 <!--CODE-->
 <script type="module">
-import { w2toolbar } from '__W2UI_PATH__'
+import { w2toolbar, query, w2alert } from '__W2UI_PATH__'
 
 new w2toolbar({
     box: '#toolbar',
@@ -51,13 +51,26 @@ new w2toolbar({
         { type: 'break' },
         { type: 'html',  id: 'item5',
             html(item) {
-                let html =
-                    '<div style="padding: 0px 10px; margin-top: -2px;">'+
-                    ' Field:'+
-                    '    <input size="20" placeholder="Change me" onchange="var el = w2ui.toolbar.set(\'item5\', { value: this.value });" '+
-                    '         class="w2ui-input" value="'+ (item.value || '') +'"/>'+
-                    '</div>';
+                let html = '<div style="padding: 5px">HTML as string</div>';
                 return html;
+            },
+            tooltip: 'some'
+        },
+        { type: 'break' },
+        { type: 'html', id: 'item5a',
+            async onRefresh(event) {
+                await event.complete
+                let fragment = query.html(`
+                    <span>As DOM Nodes: </span>
+                    <div style="display: inline-block; padding: 5px; border: 1px solid silver">Click Me</div>
+                    <input style="margin: 0px 3px; padding: 4px" value="${this.value ?? ''}">`)
+                fragment.filter('div').on('click', event => {
+                    w2alert('DIV Clicked')
+                })
+                fragment.filter('input').on('input', event => {
+                    this.value = event.target.value
+                })
+                query(this.box).find('#tb_toolbar_item_item5a').append(fragment)
             }
         },
         { type: 'break' },
