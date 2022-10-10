@@ -133,10 +133,10 @@ class w2base {
             let count = 0
             // remove listener
             this.listeners = this.listeners.filter(curr => {
-                if (   (edata.type === '*' ||  edata.type === curr.edata.type)
-                    && (edata.execute === '' ||  edata.execute === curr.edata.execute)
-                    && (edata.scope === '' ||  edata.scope === curr.edata.scope)
-                    && (edata.handler == null ||  edata.handler === curr.edata.handler)
+                if ( (edata.type === '*' || edata.type === curr.edata.type)
+                    && (edata.execute === '' || edata.execute === curr.edata.execute)
+                    && (edata.scope === '' || edata.scope === curr.edata.scope)
+                    && (edata.handler == null || edata.handler === curr.edata.handler)
                 ) {
                     count++ // how many listeners removed
                     return false
@@ -176,7 +176,7 @@ class w2base {
                 console.log(`ERROR: Cannot find even handler for "${edata.type}" on "${edata.target}".`)
                 return
             }
-            console.log('NOTICE: This syntax "edata.trigger({ phase: \'after\' })" is outdated. Use edata.finish() instead.');
+            console.log('NOTICE: This syntax "edata.trigger({ phase: \'after\' })" is outdated. Use edata.finish() instead.')
         } else if (!(edata instanceof w2event)) {
             edata = new w2event(this, edata)
             this.activeEvents.push(edata)
@@ -205,10 +205,10 @@ class w2base {
                 if (tmp) args = tmp[1].split(/\s*,\s*/)
                 if (args.length === 2) {
                     item.handler.call(this, edata.target, edata) // old way for back compatibility
-                    if (this.debug) console.log(` - call (old)`, item.handler)
+                    if (this.debug) console.log(' - call (old)', item.handler)
                 } else {
                     item.handler.call(this, edata) // new way
-                    if (this.debug) console.log(` - call`, item.handler)
+                    if (this.debug) console.log(' - call', item.handler)
                 }
                 if (edata.isStopped === true || edata.stop === true) return edata // back compatibility edata.stop === true
             }
@@ -223,10 +223,10 @@ class w2base {
             if (tmp) args = tmp[1].split(/\s*,\s*/)
             if (args.length === 2) {
                 fun.call(this, edata.target, edata) // old way for back compatibility
-                if (this.debug) console.log(` - call: on[Event] (old)`, fun)
+                if (this.debug) console.log(' - call: on[Event] (old)', fun)
             } else {
                 fun.call(this, edata) // new way
-                if (this.debug) console.log(` - call: on[Event]`, fun)
+                if (this.debug) console.log(' - call: on[Event]', fun)
             }
             if (edata.isStopped === true || edata.stop === true) return edata // back compatibility edata.stop === true
         }
@@ -239,10 +239,10 @@ class w2base {
             if (tmp) args = tmp[1].split(/\s*,\s*/)
             if (args.length === 2) {
                 fun.call(this, edata.target, edata) // old way for back compatibility
-                if (this.debug) console.log(` - call: edata.object (old)`, fun)
+                if (this.debug) console.log(' - call: edata.object (old)', fun)
             } else {
                 fun.call(this, edata) // new way
-                if (this.debug) console.log(` - call: edata.object`, fun)
+                if (this.debug) console.log(' - call: edata.object', fun)
             }
             if (edata.isStopped === true || edata.stop === true) return edata
         }
@@ -252,7 +252,7 @@ class w2base {
             for (let i = 0; i < edata.listeners.length; i++) {
                 if (typeof edata.listeners[i] === 'function') {
                     edata.listeners[i].call(this, edata)
-                    if (this.debug) console.log(` - call: done`, fun)
+                    if (this.debug) console.log(' - call: done', fun)
                 }
             }
             edata._resolve(edata)

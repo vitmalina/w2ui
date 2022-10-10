@@ -744,7 +744,7 @@ class w2sidebar extends w2base {
             let nd = this.get(id)
             if (nd == null) return
             let item = query(this.box).find('#node_'+ w2utils.escapeId(id)).get(0)
-            item.scrollIntoView({ block: "center", inline: "center", behavior: instant ? 'atuo' : 'smooth' })
+            item.scrollIntoView({ block: 'center', inline: 'center', behavior: instant ? 'atuo' : 'smooth' })
             setTimeout(() => { this.resize(); resolve() }, instant ? 0 : 500)
         })
     }
@@ -1021,7 +1021,7 @@ class w2sidebar extends w2base {
                 this.refresh(subNode.id, true)
             } else {
                 // trigger event
-                let edata2 = this.trigger('refresh', {  target: subNode.id })
+                let edata2 = this.trigger('refresh', { target: subNode.id })
                 if (edata2.isCancelled === true) return
                 // event after
                 edata2.finish()

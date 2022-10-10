@@ -118,7 +118,7 @@ class w2form extends w2base {
                 let tmp = tabs[t]
                 if (typeof tmp === 'object') {
                     this.tabs.tabs.push(tmp)
-                    if(tmp.active === true) {
+                    if (tmp.active === true) {
                         this.tabs.active = tmp.id
                     }
                 } else {
@@ -156,7 +156,7 @@ class w2form extends w2base {
             this.formHTML    = this.generateHTML()
             this.isGenerated = true
         } else if (this.formHTML) {
-            this.isGenerated = true;
+            this.isGenerated = true
         }
 
         // render if box specified
@@ -424,7 +424,7 @@ class w2form extends w2base {
         let field = this.get(name)
         if (field == null) return
         let el = field.el
-        switch(field.type) {
+        switch (field.type) {
             case 'toggle':
             case 'checkbox':
                 el.checked = value ? true : false
@@ -911,7 +911,7 @@ class w2form extends w2base {
                 }
                 break
         }
-        fetchOptions.body = typeof fetchOptions.body == 'string' ? fetchOptions.body : JSON.stringify(fetchOptions.body);
+        fetchOptions.body = typeof fetchOptions.body == 'string' ? fetchOptions.body : JSON.stringify(fetchOptions.body)
         return fetchOptions
 
         function body2params() {
@@ -1007,7 +1007,7 @@ class w2form extends w2base {
                             self.record = w2utils.clone(data.record)
                         }
                         // event after
-                        self.unlock();
+                        self.unlock()
                         edata.finish()
                         self.refresh()
                         self.setFocus()
@@ -1179,7 +1179,7 @@ class w2form extends w2base {
 
     lockPage(page, msg, spinner) {
         let $page = query(this.box).find('.page-' + page)
-        if($page.length){
+        if ($page.length){
             // page found
             w2utils.lock($page, msg, spinner)
             return true
@@ -1444,7 +1444,7 @@ class w2form extends w2base {
 
     toggleGroup(groupName, show) {
         let el = query(this.box).find('.w2ui-group-title[data-group="' + w2utils.base64encode(groupName) + '"]')
-        if(el.length === 0) return
+        if (el.length === 0) return
         let el_next = query(el.prop('nextElementSibling'))
         if (typeof show === 'undefined') {
             show = (el_next.css('display') == 'none')
@@ -1488,7 +1488,7 @@ class w2form extends w2base {
         let { headerHeight, tbHeight, tabsHeight } = resizeElements()
         if (this.autosize) { // we don't need autosize every time
             let cHeight = query(this.box).get(0).clientHeight
-            if (cHeight === 0 || query(this.box).data('autosize') == "yes") {
+            if (cHeight === 0 || query(this.box).data('autosize') == 'yes') {
                 query(this.box).css({
                     height: headerHeight + tbHeight + tabsHeight + 15 // 15 is extra height
                         + (page.length > 0 ? w2utils.getSize(dpage, 'height') : 0)
@@ -1927,7 +1927,7 @@ class w2form extends w2base {
         }
         if (typeof this.tabs === 'object' && typeof this.tabs.render === 'function') {
             this.tabs.render(query(this.box).find('#form_'+ this.name +'_tabs')[0])
-            if(this.tabs.active) this.tabs.click(this.tabs.active)
+            if (this.tabs.active) this.tabs.click(this.tabs.active)
         }
         // event after
         edata.finish()
@@ -1959,19 +1959,18 @@ class w2form extends w2base {
     }
 
     setFocus(focus) {
-        if(typeof focus === 'undefined'){
+        if (typeof focus === 'undefined'){
             // no argument - use form's focus property
             focus = this.focus
         }
         let $input
         // focus field by index
         if (w2utils.isInt(focus)){
-            if(focus < 0) {
+            if (focus < 0) {
                 return
             }
-            let inputs = query(this.box).find(
-                    'div:not(.w2ui-field-helper) > input, select, textarea, ' +
-                    'div > label:nth-child(1) > [type=radio]')
+            let inputs = query(this.box)
+                .find('div:not(.w2ui-field-helper) > input, select, textarea, div > label:nth-child(1) > [type=radio]')
                 .filter(':not(.file-input)')
             // find visible (offsetParent == null for any element is not visible)
             while (inputs[focus].offsetParent == null && inputs.length >= focus) {

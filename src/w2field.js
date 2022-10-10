@@ -363,12 +363,12 @@ class w2field extends w2base {
             .css('box-sizing', 'border-box')
             .addClass('w2field w2ui-input')
             .off('.w2field')
-            .on('change.w2field',  (event) => { this.change(event) })
-            .on('click.w2field',   (event) => { this.click(event) })
-            .on('focus.w2field',   (event) => { this.focus(event) })
-            .on('blur.w2field',    (event) => { if (this.type !== 'list') this.blur(event) })
+            .on('change.w2field', (event) => { this.change(event) })
+            .on('click.w2field', (event) => { this.click(event) })
+            .on('focus.w2field', (event) => { this.focus(event) })
+            .on('blur.w2field', (event) => { if (this.type !== 'list') this.blur(event) })
             .on('keydown.w2field', (event) => { this.keyDown(event) })
-            .on('keyup.w2field',   (event) => { this.keyUp(event) })
+            .on('keyup.w2field', (event) => { this.keyUp(event) })
         // suffix and prefix need to be after styles
         this.addPrefix() // only will add if needed
         this.addSuffix() // only will add if needed
@@ -767,7 +767,7 @@ class w2field extends w2base {
 
     clean(val) {
         // issue #499
-        if(typeof val === 'number'){
+        if (typeof val === 'number'){
             return val
         }
         let options = this.options
@@ -1105,7 +1105,7 @@ class w2field extends w2base {
         }
         // list/enum
         if (['list', 'enum'].includes(this.type)) {
-            switch(key) {
+            switch (key) {
                 case 8: // delete
                 case 46: // backspace
                     if (this.type == 'list') {
@@ -1129,7 +1129,7 @@ class w2field extends w2base {
                     break
                 case 9: // tab key
                 case 16: // shift key (when shift+tab)
-                    break;
+                    break
                 case 27: // escape
                     w2menu.hide(this.el.id + '_menu')
                     this.refresh()
@@ -1359,7 +1359,7 @@ class w2field extends w2base {
             case 'money':
             case 'currency':
                 if (loose && ['-', this.options.decimalSymbol, this.options.groupSymbol, this.options.currencyPrefix,
-                              this.options.currencySuffix].includes(ch)) {
+                    this.options.currencySuffix].includes(ch)) {
                     isValid = true
                 } else {
                     isValid = w2utils.isFloat(ch.replace(this.options.moneyRE, ''))
@@ -1394,7 +1394,7 @@ class w2field extends w2base {
         helper = query(this.el).get(0).previousElementSibling
         query(helper)
             .css({
-                'color'          : styles['color'],
+                'color'          : styles.color,
                 'font-family'    : styles['font-family'],
                 'font-size'      : styles['font-size'],
                 'height'         : this.el.clientHeight + 'px',
@@ -1440,17 +1440,17 @@ class w2field extends w2base {
                 '</div>')
             helper = query(this.el).get(0).nextElementSibling
             query(helper).css({
-                    'color'         : styles['color'],
-                    'font-family'   : styles['font-family'],
-                    'font-size'     : styles['font-size'],
-                    'height'        : this.el.clientHeight + 'px',
-                    'padding'       : 0,
-                    'margin-top'    : (parseInt(styles['margin-top'], 10) + 1) + 'px',
-                    'margin-bottom' : 0,
-                    'border-left'   : '1px solid silver',
-                    'width'         : '16px',
-                    'transform'     : 'translateX(-100%)'
-                })
+                'color'         : styles.color,
+                'font-family'   : styles['font-family'],
+                'font-size'     : styles['font-size'],
+                'height'        : this.el.clientHeight + 'px',
+                'padding'       : 0,
+                'margin-top'    : (parseInt(styles['margin-top'], 10) + 1) + 'px',
+                'margin-bottom' : 0,
+                'border-left'   : '1px solid silver',
+                'width'         : '16px',
+                'transform'     : 'translateX(-100%)'
+            })
                 .on('mousedown', function(event) {
                     if (query(event.target).hasClass('arrow-up')) {
                         self.keyDown(event, { keyCode: 38 })
@@ -1471,7 +1471,7 @@ class w2field extends w2base {
             helper = query(this.el).get(0).nextElementSibling
             query(helper)
                 .css({
-                    'color'          : styles['color'],
+                    'color'          : styles.color,
                     'font-family'    : styles['font-family'],
                     'font-size'      : styles['font-size'],
                     'height'        : this.el.clientHeight + 'px',
@@ -1516,12 +1516,12 @@ class w2field extends w2base {
         this.helpers.search_focus = query(helper).find('input').get(0)
         let styles = getComputedStyle(this.el)
         query(helper).css({
-                width           : this.el.clientWidth + 'px',
-                'margin-top'    : styles['margin-top'],
-                'margin-left'   : styles['margin-left'],
-                'margin-bottom' : styles['margin-bottom'],
-                'margin-right'  : styles['margin-right']
-            })
+            width           : this.el.clientWidth + 'px',
+            'margin-top'    : styles['margin-top'],
+            'margin-left'   : styles['margin-left'],
+            'margin-bottom' : styles['margin-bottom'],
+            'margin-right'  : styles['margin-right']
+        })
             .find('input')
             .css({
                 cursor   : 'default',
@@ -1575,7 +1575,7 @@ class w2field extends w2base {
         `)
         if (this.tmp['min-height'] == null) {
             let min = this.tmp['min-height'] = parseInt((styles['min-height'] != 'none' ? styles['min-height'] : 0) || 0)
-            let current = parseInt(styles['height'])
+            let current = parseInt(styles.height)
             this.tmp['min-height'] = Math.max(min, current)
         }
         if (this.tmp['max-height'] == null && styles['max-height'] != 'none') {

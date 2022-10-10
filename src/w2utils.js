@@ -1432,7 +1432,7 @@ class Utils {
      *  }
      * @returns promise
      */
-     notify(text, options) {
+    notify(text, options) {
         return new Promise(resolve => {
             if (typeof text == 'object') {
                 options = text

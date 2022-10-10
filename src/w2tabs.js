@@ -350,9 +350,9 @@ class w2tabs extends w2base {
         let time = Date.now()
         if (this.flow == 'up') {
             query(this.box).addClass('w2ui-tabs-up')
-         } else {
+        } else {
             query(this.box).removeClass('w2ui-tabs-up')
-         }
+        }
         // event before
         let edata = this.trigger('refresh', { target: (id != null ? id : this.name), object: this.get(id) })
         if (edata.isCancelled === true) return
@@ -492,7 +492,7 @@ class w2tabs extends w2base {
 
     scroll(direction, instant) {
         return new Promise((resolve, reject) => {
-            let scrollBox  = query(this.box).find(`.w2ui-scroll-wrapper`)
+            let scrollBox  = query(this.box).find('.w2ui-scroll-wrapper')
             let scrollLeft = scrollBox.get(0).scrollLeft
             let right      = scrollBox.find('.w2ui-tabs-right').get(0)
             let width1     = scrollBox.parent().get(0).getBoundingClientRect().width
@@ -522,7 +522,7 @@ class w2tabs extends w2base {
             let tab = this.get(id)
             if (tab == null) return
             let tabEl = query(this.box).find('#tabs_' + this.name + '_tab_' + w2utils.escapeId(id)).get(0)
-            tabEl.scrollIntoView({ block: "start", inline: "center", behavior: instant ? 'atuo' : 'smooth' })
+            tabEl.scrollIntoView({ block: 'start', inline: 'center', behavior: instant ? 'atuo' : 'smooth' })
             setTimeout(() => { this.resize(); resolve() }, instant ? 0 : 500)
         })
     }

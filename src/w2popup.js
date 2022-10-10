@@ -149,9 +149,9 @@ class Dialog extends w2base {
                 }
                 prom[btnAction] = function (callBack) {
                     self.on('action.buttons', (event) => {
-                            let target = event.detail.action[0].toLowerCase() + event.detail.action.substr(1).replace(/\s+/g, '')
-                            if (target == btnAction) callBack(event)
-                        })
+                        let target = event.detail.action[0].toLowerCase() + event.detail.action.substr(1).replace(/\s+/g, '')
+                        if (target == btnAction) callBack(event)
+                    })
                     return prom
                 }
             })
@@ -414,7 +414,7 @@ class Dialog extends w2base {
         let html
         try {
             html = query(data)
-        } catch(e) {
+        } catch (e) {
             html = query.html(data)
         }
         if (id) html = html.filter('#' + id)
@@ -489,7 +489,7 @@ class Dialog extends w2base {
             cleanUp()
             clearTimeout(this.tmp.closingTimer)
             w2utils.unlock(document.body, 0)
-            return;
+            return
         }
         // default behavior
         this.status = 'closing'
@@ -727,7 +727,7 @@ function w2alert(msg, title, callBack) {
     }
     prom.ok((event) => {
         if (typeof event.detail.self?.close == 'function') {
-            event.detail.self.close();
+            event.detail.self.close()
         }
         if (typeof callBack == 'function') callBack()
     })
@@ -760,7 +760,7 @@ function w2confirm(msg, title, callBack) {
         .off('.confirm')
         .on('action:after.confirm', (event) => {
             if (typeof event.detail.self?.close == 'function') {
-                event.detail.self.close();
+                event.detail.self.close()
             }
             if (typeof callBack == 'function') callBack(event.detail.action)
         })
@@ -836,7 +836,7 @@ function w2prompt(label, title, callBack) {
         })
         .on('action:after.prompt', (event) => {
             if (typeof event.detail.self?.close == 'function') {
-                event.detail.self.close();
+                event.detail.self.close()
             }
             if (typeof callBack == 'function') callBack(event.detail.action)
         })

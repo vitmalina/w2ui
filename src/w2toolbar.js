@@ -90,7 +90,7 @@ class w2toolbar extends w2base {
     insert(id, items, skipRefresh) {
         if (!Array.isArray(items)) items = [items]
         items.forEach((item, idx, arr) => {
-            if(typeof item === 'string') {
+            if (typeof item === 'string') {
                 item = arr[idx] = { id: item, text: item }
             }
             // checks
@@ -115,7 +115,7 @@ class w2toolbar extends w2base {
                 if (!Array.isArray(newItem.selected)) newItem.selected = []
                 if (Array.isArray(newItem.items)) {
                     newItem.items.forEach(it => {
-                        if(typeof it === 'string') {
+                        if (typeof it === 'string') {
                             it = arr[idx] = { id: it, text: it }
                         }
                         if (it.checked && !newItem.selected.includes(it.id)) newItem.selected.push(it.id)
@@ -126,7 +126,7 @@ class w2toolbar extends w2base {
             } else if (newItem.type == 'menu-radio') {
                 if (Array.isArray(newItem.items)) {
                     newItem.items.forEach((it, idx, arr) => {
-                        if(typeof it === 'string') {
+                        if (typeof it === 'string') {
                             it = arr[idx] = { id: it, text: it }
                         }
                         if (it.checked && newItem.selected == null) newItem.selected = it.id; else it.checked = false
@@ -382,13 +382,13 @@ class w2toolbar extends w2base {
                                 })
                             }
                             w2menu.show(w2utils.extend({
-                                    items,
-                                }, it.overlay, {
-                                    type: menuType,
-                                    name : this.name + '-drop',
-                                    anchor: el[0],
-                                    data: { item: it, btn }
-                                }))
+                                items,
+                            }, it.overlay, {
+                                type: menuType,
+                                name : this.name + '-drop',
+                                anchor: el[0],
+                                data: { item: it, btn }
+                            }))
                                 .hide(hideDrop(it.id, btn))
                                 .remove(event => {
                                     this.menuClick({ name: this.name, remove: true, item: it, subItem: event.detail.item,
@@ -401,12 +401,12 @@ class w2toolbar extends w2base {
                         }
                         if (['color', 'text-color'].includes(it.type)) {
                             w2color.show(w2utils.extend({
-                                    color: it.color
-                                }, it.overlay, {
-                                    anchor: el[0],
-                                    name: this.name + '-drop',
-                                    data: { item: it, btn }
-                                }))
+                                color: it.color
+                            }, it.overlay, {
+                                anchor: el[0],
+                                name: this.name + '-drop',
+                                data: { item: it, btn }
+                            }))
                                 .hide(hideDrop(it.id, btn))
                                 .select(event => {
                                     if (event.detail.color != null) {
@@ -781,7 +781,7 @@ class w2toolbar extends w2base {
         // not for opened drop downs
         if (['menu', 'menu-radio', 'menu-check', 'drop', 'color', 'text-color'].includes(item.type)
             && item.checked == true) {
-                return
+            return
         }
         w2tooltip.show({
             anchor: el,
@@ -919,7 +919,7 @@ class w2toolbar extends w2base {
                 query(target).removeClass('down')
                 break
         }
-        edata.finish();
+        edata.finish()
     }
 }
 export { w2toolbar }

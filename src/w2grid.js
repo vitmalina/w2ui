@@ -1821,7 +1821,7 @@ class w2grid extends w2base {
     selectNone(skipEvent) {
         let time = Date.now()
         // event before
-        let edata;
+        let edata
         if (!skipEvent) {
             edata = this.trigger('select', { target: this.name, clicked: [] })
             if (edata.isCancelled === true) return
@@ -2713,13 +2713,13 @@ class w2grid extends w2base {
             case 'HTTPJSON':
                 postParams = { request: postParams }
                 if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
-                    fetchOptions.method = 'POST';
+                    fetchOptions.method = 'POST'
                 }
                 body2params()
                 break
             case 'HTTP':
                 if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
-                    fetchOptions.method = 'POST';
+                    fetchOptions.method = 'POST'
                 }
                 body2params()
                 break
@@ -2740,7 +2740,7 @@ class w2grid extends w2base {
                 }
                 break
         }
-        fetchOptions.body = typeof fetchOptions.body == 'string' ? fetchOptions.body : JSON.stringify(fetchOptions.body);
+        fetchOptions.body = typeof fetchOptions.body == 'string' ? fetchOptions.body : JSON.stringify(fetchOptions.body)
         return fetchOptions
 
         function body2params() {
@@ -5211,19 +5211,19 @@ class w2grid extends w2base {
                     let index = query(event.delegate).attr('index')
                     let recid = query(event.delegate).attr('recid')
                     if (index !== this.last.rec_over) {
-                        this.last.rec_over = index;
+                        this.last.rec_over = index
                         // setTimeout is needed for correct event order enter/leave
                         setTimeout(() => {
                             delete this.last.rec_out
                             let edata = this.trigger('mouseEnter', { target: this.name, originalEvent: event, index, recid })
                             edata.finish()
-                        });
+                        })
                     }
                 })
                 .on('mouseout', { delegate: 'tr' }, (event) => {
                     let index = query(event.delegate).attr('index')
                     let recid = query(event.delegate).attr('recid')
-                    this.last.rec_out = true;
+                    this.last.rec_out = true
                     // setTimeouts are needed for correct event order enter/leave
                     setTimeout(() => {
                         let recLeave = () => {
@@ -5292,7 +5292,7 @@ class w2grid extends w2base {
                                 items: this.initColumnOnOff()
                             })
                             .then(() => {
-                                query(`#w2overlay-context-menu .w2ui-grid-skip`)
+                                query('#w2overlay-context-menu .w2ui-grid-skip')
                                     .off('.w2ui-grid')
                                     .on('click.w2ui-grid', evt => {
                                         evt.stopPropagation()
@@ -7192,7 +7192,7 @@ class w2grid extends w2base {
                     let gText = w2utils.lang(typeof colg.text == 'function' ? colg.text(colg) : colg.text)
                     tmpf = `<td id="grid_${self.name}_column_${ii}" class="w2ui-head" col="${ii}" colspan="${colspan}">` +
                            `    <div class="w2ui-col-group" style="${colg.style ?? ''}">${!gText ? '&#160;' : gText}</div>` +
-                           `</td>`
+                           '</td>'
                     if (col && col.frozen) html1 += tmpf; else html2 += tmpf
                 }
                 ii += colg.span
@@ -7425,7 +7425,7 @@ class w2grid extends w2base {
                 // add/remove columns for small jumps
                 if (deltaStart < 5 && deltaEnd < 5) {
                     let $cfirst = $box.find(`.w2ui-grid-columns #grid_${this.name}_column_start`)
-                    let $clast  = $box.find(`.w2ui-grid-columns .w2ui-head-last`)
+                    let $clast  = $box.find('.w2ui-grid-columns .w2ui-head-last')
                     let $rfirst = $box.find(`#grid_${this.name}_records .w2ui-grid-data-spacer`)
                     let $rlast  = $box.find(`#grid_${this.name}_records .w2ui-grid-data-last`)
                     let $sfirst = $box.find(`#grid_${this.name}_summary .w2ui-grid-data-spacer`)
@@ -7954,7 +7954,7 @@ class w2grid extends w2base {
         // clipboardCopy
         let clipboardTxt, clipboardIcon
         if (col.clipboardCopy){
-            clipboardIcon = `<span class="w2ui-clipboard-copy w2ui-icon-paste"></span>`
+            clipboardIcon = '<span class="w2ui-clipboard-copy w2ui-icon-paste"></span>'
         }
         // data
         data = '<td class="w2ui-grid-data'+ (isCellSelected ? ' w2ui-selected' : '') + ' ' + className +
@@ -8079,14 +8079,14 @@ class w2grid extends w2base {
             html += '</table>'
         }
         return w2tooltip.show(w2utils.extend({
-                name: this.name + '-bubble',
-                html,
-                anchor: el.get(0),
-                position: 'top|bottom',
-                class: 'w2ui-info-bubble',
-                style: '',
-                hideOn: ['doc-click']
-            }, info.options ?? {}))
+            name: this.name + '-bubble',
+            html,
+            anchor: el.get(0),
+            position: 'top|bottom',
+            class: 'w2ui-info-bubble',
+            style: '',
+            hideOn: ['doc-click']
+        }, info.options ?? {}))
             .hide(() => [
                 this.last.bubbleEl = null
             ])

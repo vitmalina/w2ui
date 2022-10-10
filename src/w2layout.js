@@ -733,9 +733,9 @@ class w2layout extends w2base {
             if (p.show.toolbar) {
                 if (tmp.find('[name='+ p.toolbar.name +']').length === 0 && p.toolbar != null) {
                     p.toolbar.render(tmp.get(0))
-                 } else {
-                     p.toolbar.refresh()
-                 }
+                } else {
+                    p.toolbar.refresh()
+                }
             } else {
                 tmp.html('').removeClass('w2ui-toolbar').hide()
             }
