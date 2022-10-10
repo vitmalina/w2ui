@@ -1153,7 +1153,7 @@ class w2sidebar extends w2base {
 
     mouseAction(action, el, id, event, type) {
         let node = this.get(id)
-        let text = w2utils.lang(typeof node.text == 'function' ? node.text.call(obj, node) : node.text)
+        let text = w2utils.lang(typeof node.text == 'function' ? node.text.call(this, node) : node.text)
         let tooltip = text + (node.count || node.count === 0 ? ' - <span class="w2ui-node-count">'+ node.count +'</span>' : '')
         let edata = this.trigger('mouse' + action, { target: id, node, tooltip, originalEvent: event })
         if (type == 'tooltip') {

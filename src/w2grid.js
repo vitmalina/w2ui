@@ -1331,7 +1331,7 @@ class w2grid extends w2base {
     refreshRanges() {
         if (this.ranges.length === 0) return
         let self = this
-        let range, _left, _top
+        let range
         let time = Date.now()
         let rec1 = query(this.box).find(`#grid_${this.name}_frecords`)
         let rec2 = query(this.box).find(`#grid_${this.name}_records`)
@@ -3262,7 +3262,7 @@ class w2grid extends w2base {
                         this.editDone(undefined, undefined, { keyCode: selected ? 13 : 0 }) // advance on select
                     }
                 }
-                let fld = new w2field(w2utils.extend({}, edit, {
+                new w2field(w2utils.extend({}, edit, {
                     el: input,
                     selected: val,
                     onSelect: doHide,
@@ -4853,7 +4853,7 @@ class w2grid extends w2base {
             } else {
                 let div = cell.children[0] // there is always a div inside a cell
                 // value, attr, style, className, divAttr -- all on TD level except divAttr
-                let { value, style, className, attr, divAtt } = self.getCellValue(index, column, false, true)
+                let { value, style, className } = self.getCellValue(index, column, false, true)
                 if (div.innerHTML != value) {
                     div.innerHTML = value
                 }
@@ -7952,7 +7952,7 @@ class w2grid extends w2base {
         let isCellSelected = false
         if (isRowSelected && sel.columns[ind]?.includes(col_ind)) isCellSelected = true
         // clipboardCopy
-        let clipboardTxt, clipboardIcon
+        let clipboardIcon
         if (col.clipboardCopy){
             clipboardIcon = '<span class="w2ui-clipboard-copy w2ui-icon-paste"></span>'
         }
@@ -8104,7 +8104,7 @@ class w2grid extends w2base {
             if (typeof edit === 'function') {
                 let value = this.getCellValue(ind, col_ind, false)
                 // same arguments as col.render()
-                edit = edit.call(this, rec, { self: this, value, index: ind, colIndex: col_ind, summary: !!summary })
+                edit = edit.call(this, rec, { self: this, value, index: ind, colIndex: col_ind })
             }
         }
         return edit

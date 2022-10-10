@@ -151,7 +151,7 @@ import { w2tooltip, w2color, w2menu, w2date, Tooltip } from './w2tooltip.js'
                 options = options ?? {}
                 options.html = text
             }
-            let tooltip = w2tooltip.show(el, options)
+            w2tooltip.show(el, options)
         })
     }
 
@@ -170,7 +170,7 @@ import { w2tooltip, w2color, w2menu, w2date, Tooltip } from './w2tooltip.js'
                 class: 'w2ui-white',
                 hideOn: ['doc-click']
             })
-            let tooltip = w2tooltip.show(el, options)
+            w2tooltip.show(el, options)
         })
     }
 
@@ -184,7 +184,7 @@ import { w2tooltip, w2color, w2menu, w2date, Tooltip } from './w2tooltip.js'
             } else {
                 options.items = menu
             }
-            let tooltip = w2menu.show(el, options)
+            w2menu.show(el, options)
         })
     }
 

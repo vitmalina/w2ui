@@ -261,7 +261,7 @@ class Tooltip {
             return
         } else if (overlay.box) {
             // if already present, update it
-            edata = this.trigger('update', {  target: name, overlay })
+            edata = this.trigger('update', { target: name, overlay })
             if (edata.isCancelled === true) {
                 // restore previous options
                 if (overlay.prevOptions) {
@@ -872,23 +872,23 @@ class ColorTooltip extends Tooltip {
         let pal = this.palette
         switch (direction) {
             case 'up':
-                index[0]--
+                this.index[0]--
                 break
             case 'down':
-                index[0]++
+                this.index[0]++
                 break
             case 'right':
-                index[1]++
+                this.index[1]++
                 break
             case 'left':
-                index[1]--
+                this.index[1]--
                 break
         }
-        if (index[0] < 0) index[0] = 0
-        if (index[0] > pal.length - 2) index[0] = pal.length - 2
-        if (index[1] < 0) index[1] = 0
-        if (index[1] > pal[0].length - 1) index[1] = pal[0].length - 1
-        return pal[index[0]][index[1]]
+        if (this.index[0] < 0) this.index[0] = 0
+        if (this.index[0] > pal.length - 2) this.index[0] = pal.length - 2
+        if (this.index[1] < 0) this.index[1] = 0
+        if (this.index[1] > pal[0].length - 1) this.index[1] = pal[0].length - 1
+        return pal[this.index[0]][this.index[1]]
     }
 
     tabClick(index, name) {
@@ -1039,7 +1039,7 @@ class ColorTooltip extends Tooltip {
         query(overlay.box).find('.palette, .rainbow, .alpha')
             .off('.w2color')
             .on(`${mDown}.w2color`, mouseDown)
-        return;
+        return
 
         function setColor(color, fullUpdate, initial) {
             if (color.h != null) hsv.h = color.h
@@ -1740,7 +1740,7 @@ class MenuTooltip extends Tooltip {
         let edata
         if (query(event.target).hasClass('remove')) {
             edata = this.trigger('remove', { originalEvent: event, target: overlay.name,
-                        overlay, item, index, parentIndex, el: $item[0] })
+                overlay, item, index, parentIndex, el: $item[0] })
             if (edata.isCancelled === true) {
                 return
             }
@@ -1813,11 +1813,11 @@ class MenuTooltip extends Tooltip {
             case 8: { // delete
                 // if search empty and delete is clicked, do not filter nor show overlay
                 if (search === '' && !overlay.displayed) filter = false
-                break;
+                break
             }
             case 13: { // enter
                 if (!overlay.displayed || !overlay.selected) return
-                let { item, index, parents } = this.getCurrent(overlay.name)
+                let { index, parents } = this.getCurrent(overlay.name)
                 event.delegate = query(overlay.box).find('.w2ui-selected').get(0)
                 // reset active chain for folders
                 this.menuClick(overlay, event, parseInt(index), parents)
@@ -2157,13 +2157,13 @@ class DateTooltip extends Tooltip {
             })
             // click on hour
             .on('click.calendar', { delegate: '.w2ui-time.hour' }, event => {
-                let hour = query(event.target).attr('hour');
+                let hour = query(event.target).attr('hour')
                 let min  = this.str2min(options.value) % 60
                 if (overlay.tmp.initValue && !options.value) {
                     min = this.str2min(overlay.tmp.initValue) % 60
                 }
                 if (options.noMinutes) {
-                    overlay.newValue = this.min2str(hour * 60, options.format);
+                    overlay.newValue = this.min2str(hour * 60, options.format)
                     this.hide(overlay.name)
                 } else {
                     overlay.newValue = hour + ':' + min
@@ -2175,8 +2175,8 @@ class DateTooltip extends Tooltip {
             // click on minute
             .on('click.calendar', { delegate: '.w2ui-time.min' }, event => {
                 let hour = Math.floor(this.str2min(overlay.newValue) / 60)
-                let time = (hour * 60) + parseInt(query(event.target).attr('min'));
-                overlay.newValue = this.min2str(time, options.format);
+                let time = (hour * 60) + parseInt(query(event.target).attr('min'))
+                overlay.newValue = this.min2str(time, options.format)
                 this.hide(overlay.name)
             })
     }

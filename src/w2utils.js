@@ -1128,7 +1128,7 @@ class Utils {
                     focus.focus()
                 }
             } else {
-                if (typeof where.owner?.focus == 'function') owner.focus()
+                if (typeof where.owner?.focus == 'function') where.owner.focus()
             }
             query(options.box).remove()
             if (options.msgIndex === 0) {
@@ -1954,10 +1954,9 @@ class Utils {
     }
 
     tooltip(html, options) {
-        let actions,
-            showOn = 'mouseenter',
-            hideOn = 'mouseleave',
-            isOverlay = false
+        let actions
+        let showOn = 'mouseenter'
+        let hideOn = 'mouseleave'
         if (typeof html == 'object') {
             options = html
         }
@@ -2221,5 +2220,5 @@ class Utils {
         })
     }
 }
-var w2utils = new Utils() // needs to be functional/module scope variable
+var w2utils = new Utils() // eslint-disable-line -- needs to be functional/module scope variable
 export { w2ui, w2utils, query }

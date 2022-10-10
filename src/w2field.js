@@ -689,7 +689,7 @@ class w2field extends w2base {
     // resizing width of list, enum, file controls
     resize() {
         let width = this.el.clientWidth
-        let height = this.el.clientHeight
+        // let height = this.el.clientHeight
         // if (this.tmp.current_width == width && height > 0) return
         let styles = getComputedStyle(this.el)
 

@@ -53,7 +53,7 @@ class Query {
             scNode.text = txtNode.text
             let attrs = txtNode.attributes
             for (let i = 0; i < attrs.length; i++) {
-                scNode.setAttribute(attrs[i].name, attrs[i].value);
+                scNode.setAttribute(attrs[i].name, attrs[i].value)
             }
             return scNode
         }
@@ -69,18 +69,18 @@ class Query {
     }
     static _fixProp(name) {
         let fixes = {
-            cellpadding: "cellPadding",
-            cellspacing: "cellSpacing",
-            class: "className",
-            colspan: "colSpan",
-            contenteditable: "contentEditable",
-            for: "htmlFor",
-            frameborder: "frameBorder",
-            maxlength: "maxLength",
-            readonly: "readOnly",
-            rowspan: "rowSpan",
-            tabindex: "tabIndex",
-            usemap: "useMap"
+            cellpadding: 'cellPadding',
+            cellspacing: 'cellSpacing',
+            class: 'className',
+            colspan: 'colSpan',
+            contenteditable: 'contentEditable',
+            for: 'htmlFor',
+            frameborder: 'frameBorder',
+            maxlength: 'maxLength',
+            readonly: 'readOnly',
+            rowspan: 'rowSpan',
+            tabindex: 'tabIndex',
+            usemap: 'useMap'
         }
         return fixes[name] ? fixes[name] : name
     }
@@ -132,7 +132,7 @@ class Query {
         } else if (value != null) {
             node._mQuery[name] = value
         } else {
-            delete node._mQuery[name];
+            delete node._mQuery[name]
         }
     }
     get(index) {
@@ -298,7 +298,7 @@ class Query {
                             .map(a => {
                                 return a.split(':').map(a => a.trim()) // trim strings
                             })
-                        )
+                    )
                 }
             } else {
                 return undefined
@@ -491,7 +491,7 @@ class Query {
                 let data = Object.assign({}, this[0].dataset)
                 Object.keys(data).forEach(key => {
                     if (data[key].startsWith('[') || data[key].startsWith('{')) {
-                        try { data[key] = JSON.parse(data[key]) } catch(e) {}
+                        try { data[key] = JSON.parse(data[key]) } catch (e) {}
                     }
                 })
                 return key ? data[key] : data
@@ -570,6 +570,6 @@ let query = function (selector, context) {
     }
 }
 // str -> doc-fragment
-query.html = (str) => { let frag = Query._fragment(str); return query(frag.children, frag)  }
+query.html = (str) => { let frag = Query._fragment(str); return query(frag.children, frag) }
 query.version = Query.version
 export { query as $, query as default, query, Query }

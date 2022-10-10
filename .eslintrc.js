@@ -1,11 +1,11 @@
 module.exports = {
     'env': {
         'browser': true,
-        'es2021': true
+        'es2022': true
     },
     // "extends": "eslint:recommended",
     'parserOptions': {
-        'ecmaVersion': 12,
+        'ecmaVersion': 2022,
         'sourceType': 'module'
     },
     plugins : [
