@@ -36,7 +36,11 @@ class Query {
     }
     static _fragment(html) {
         let tmpl = document.createElement('template')
-        tmpl.innerHTML = html
+        if(typeof html=="string"){
+            tmpl.innerHTML = html;
+        } else if(html instanceof Node ){
+            tmpl.appendChild(html);
+        } else throw new Error("Argument given is not an HTML string not an appendable element.");
         tmpl.content.childNodes.forEach(node => {
             let newNode = Query._scriptConvert(node)
             if (newNode != node) {
