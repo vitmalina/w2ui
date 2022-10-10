@@ -29,9 +29,9 @@ module.exports = {
     'rules': {
         'indent': ['error', 4, {
             'SwitchCase': 1,
-            'ignoredNodes': ['ConditionalExpression', 'TemplateLiteral1 > *'],
+            'ignoredNodes': ['ConditionalExpression', 'TemplateLiteral > *'],
             'FunctionDeclaration': {'parameters': 'first'},
-            'MemberExpression': 1,
+            'MemberExpression': 'off',
         }],
         'linebreak-style': ['error', 'unix'],
         'quotes': ['error', 'single'],
