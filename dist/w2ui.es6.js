@@ -1,14 +1,9 @@
-/* w2ui 2.0.x (nightly) (10/1/2022, 1:14:15 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (10/10/2022, 12:10:45 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
- *  - there is a doc file ../details/w2base.html
  *  - on/off/trigger methods id not showing in help
  *  - refactored with event object
- *  - added "awai event.complete" syntax
- *
- * 2.0 Updates
- *  - on(), off() - can have events separated by comma or space
  */
 
 class w2event {
@@ -386,10 +381,10 @@ const w2locale = {
         'Your remote data source record count has changed, reloading from the first record.': '---'
     }
 }
-/* mQuery 0.7 (nightly) (9/3/2022, 8:23:49 AM), vitmalina@gmail.com */
+/* mQuery 0.7 (nightly) (10/10/2022, 11:30:36 AM), vitmalina@gmail.com */
 class Query {
+    static version = 0.7
     constructor(selector, context, previous) {
-        this.version = 0.7
         this.context = context ?? document
         this.previous = previous ?? null
         let nodes = []
@@ -485,7 +480,7 @@ class Query {
                 node[method](clone)
             })
         } else if (html instanceof Query) {
-            let single = (len == 1 && html.length == 1)
+            let single = (len == 1) // if inserting into a single container, then move it there
             html.each(el => {
                 this.each(node => {
                     // if insert before a single node, just move new one, else clone and move it
@@ -959,6 +954,7 @@ let query = function (selector, context) {
 }
 // str -> doc-fragment
 query.html = (str) => { let frag = Query._fragment(str); return query(frag.children, frag)  }
+query.version = Query.version
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: mQuery, w2utils, w2base, w2locale
@@ -3186,7 +3182,7 @@ class Dialog extends w2base {
                     options.buttons += `<button class="w2ui-btn w2ui-eaction" data-click='["action","${action}","event"]'>${action}</button>`
                 }
                 if (typeof handler == 'object') {
-                    options.buttons += `<button class="w2ui-btn w2ui-eaction ${handler.class || ''}" data-click='["action","${action}","event"]'
+                    options.buttons += `<button class="w2ui-btn w2ui-eaction ${handler.class || ''}" name="${action}" data-click='["action","${action}","event"]'
                         style="${handler.style}" ${handler.attrs}>${handler.text || action}</button>`
                     btnAction = Array.isArray(options.actions) ? handler.text : action
                 }
@@ -6496,6 +6492,7 @@ search() {
  *  - new w2tooltips and w2menu
  *  - scroll returns promise
  *  - added onMouseEntter, onMouseLeave, onMouseDown, onMouseUp events
+ *  - add(..., skipRefresh), insert(..., skipRefresh)
  */
 
 class w2toolbar extends w2base {
@@ -6548,17 +6545,17 @@ class w2toolbar extends w2base {
         delete options.items
         Object.assign(this, options)
         // add item via method to makes sure item_template is applied
-        if (Array.isArray(items)) this.add(items)
+        if (Array.isArray(items)) this.add(items, true)
         // need to reassign back to keep it in config
         options.items = items
         // render if box specified
         if (typeof this.box == 'string') this.box = query(this.box).get(0)
         if (this.box) this.render(this.box)
     }
-    add(items) {
-        this.insert(null, items)
+    add(items, skipRefresh) {
+        this.insert(null, items, skipRefresh)
     }
-    insert(id, items) {
+    insert(id, items, skipRefresh) {
         if (!Array.isArray(items)) items = [items]
         items.forEach((item, idx, arr) => {
             if(typeof item === 'string') {
@@ -6612,10 +6609,10 @@ class w2toolbar extends w2base {
                 let middle = this.get(id, true)
                 this.items = this.items.slice(0, middle).concat([newItem], this.items.slice(middle))
             }
-            newItem.line = newItem.line || 1
-            this.refresh(newItem.id)
+            newItem.line = newItem.line ?? 1
+            if (skipRefresh !== true) this.refresh(newItem.id)
         })
-        this.resize()
+        if (skipRefresh !== true) this.resize()
     }
     remove() {
         let effected = 0
@@ -6675,12 +6672,12 @@ class w2toolbar extends w2base {
         let btn = query(this.box).find(`#tb_${this.name}_item_${w2utils.escapeId(id)} .w2ui-tb-count > span`)
         if (btn.length > 0) {
             btn.removeClass()
-                .addClass(className || '')
+                .addClass(className ?? '')
                 .text(count)
-                .get(0).style.cssText = style || ''
+                .get(0).style.cssText = style ?? ''
             this.last.badge[id] = {
-                className: className || '',
-                style: style || ''
+                className: className ?? '',
+                style: style ?? ''
             }
             let item = this.get(id)
             item.count = count
@@ -6961,7 +6958,7 @@ class w2toolbar extends w2base {
                 html += `
                     <div class="w2ui-tb-line">
                         <div class="w2ui-scroll-wrapper w2ui-eaction" data-mousedown="resize">
-                            <div class="w2ui-tb-right">${this.right[line-1] || ''}</div>
+                            <div class="w2ui-tb-right">${this.right[line-1] ?? ''}</div>
                         </div>
                         <div class="w2ui-scroll-left w2ui-eaction" data-click='["scroll", "left", "${line}"]'></div>
                         <div class="w2ui-scroll-right w2ui-eaction" data-click='["scroll", "right", "${line}"]'></div>
@@ -7174,8 +7171,8 @@ class w2toolbar extends w2base {
                                     ${ w2utils.lang(text) }
                                     ${ item.count != null
                                         ? w2utils.stripSpaces(`<span class="w2ui-tb-count">
-                                                <span class="${this.last.badge[item.id] ? this.last.badge[item.id].className || '' : ''}"
-                                                    style="${this.last.badge[item.id] ? this.last.badge[item.id].style || '' : ''}"
+                                                <span class="${this.last.badge[item.id] ? this.last.badge[item.id].className ?? '' : ''}"
+                                                    style="${this.last.badge[item.id] ? this.last.badge[item.id].style ?? '' : ''}"
                                                 >${item.count}</span>
                                            </span>`)
                                         : ''
