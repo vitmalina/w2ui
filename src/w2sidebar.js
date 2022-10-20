@@ -192,6 +192,7 @@ class w2sidebar extends w2base {
             if (ind == null) return
             if (node.parent.nodes[ind].selected) node.sidebar.unselect(node.id)
             node.parent.nodes.splice(ind, 1)
+            node.parent.collapsible = node.parent.nodes.length > 0
             effected++
         })
         if (!this.skipRefresh) {
