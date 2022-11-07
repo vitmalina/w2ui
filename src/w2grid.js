@@ -5896,6 +5896,11 @@ class w2grid extends w2base {
                                 obj.records.splice(ind2 - 1, 0, tmp)
                             }
                         }
+                        // clear sortData
+                        obj.sortData = []
+                        query(obj.box)
+                            .find(`#grid_${obj.name}_columns .w2ui-col-header`)
+                            .removeClass('w2ui-col-sorted')
                         resetRowReorder()
                         // event after
                         edata.finish()
@@ -6615,12 +6620,13 @@ class w2grid extends w2base {
             let width_max = parseInt(body[0].clientWidth)
                 - (bodyOverflowY ? w2utils.scrollBarSize() : 0)
                 - (this.show.lineNumbers ? lineNumberWidth : 0)
+                - (w2ui.grid.reorderRows ? 26 : 0)
                 // - (this.show.orderColumn ? 26 : 0)
                 - (this.show.selectColumn ? 26 : 0)
                 - (this.show.expandColumn ? 26 : 0)
                 - 1 // left is 1xp due to border width
-            width_box     = width_max
-            percent       = 0
+            width_box = width_max
+            percent   = 0
             // gridMinWidth processing
             let restart = false
             for (let i = 0; i < this.columns.length; i++) {
@@ -6649,7 +6655,7 @@ class w2grid extends w2base {
                     this.columns[i].sizeCalculated = col.size
                     this.columns[i].sizeType = 'px'
                 } else {
-                    percent                 += parseFloat(col.size)
+                    percent += parseFloat(col.size)
                     this.columns[i].sizeType = '%'
                     delete col.sizeCorrected
                 }
