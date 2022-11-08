@@ -6636,7 +6636,7 @@ class w2grid extends w2base {
             let width_max = parseInt(body[0].clientWidth)
                 - (bodyOverflowY ? w2utils.scrollBarSize() : 0)
                 - (this.show.lineNumbers ? lineNumberWidth : 0)
-                - (w2ui.grid.reorderRows ? 26 : 0)
+                - (this.reorderRows ? 26 : 0)
                 // - (this.show.orderColumn ? 26 : 0)
                 - (this.show.selectColumn ? 26 : 0)
                 - (this.show.expandColumn ? 26 : 0)
