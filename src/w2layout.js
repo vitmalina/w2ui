@@ -771,8 +771,14 @@ class w2layout extends w2base {
         if (this.padding < 0) this.padding = 0
 
         // layout itself
+        // width includes border and padding, we need to exclude that so panels
+        // are sized correctly
         let width  = w2utils.getSize(query(this.box), 'width')
+                    - ( w2utils.getSize(query(this.box), 'borderRight') + w2utils.getSize(query(this.box), 'borderLeft') +
+                        w2utils.getSize(query(this.box), 'paddingRight') + w2utils.getSize(query(this.box), 'paddingLeft') )
         let height = w2utils.getSize(query(this.box), 'height')
+                    - ( w2utils.getSize(query(this.box), 'borderTop') + w2utils.getSize(query(this.box), 'borderBottom') +
+                        w2utils.getSize(query(this.box), 'paddingTop') + w2utils.getSize(query(this.box), 'paddingBottom') )
         query(this.box).find(':scope > div')
             .css({
                 width: width + 'px',

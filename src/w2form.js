@@ -1504,6 +1504,11 @@ class w2form extends w2base {
 
         function resizeElements() {
             let rect = self.box.getBoundingClientRect()
+            // fixes issue where form box is too big in layout panel
+            rect.width = rect.width - ( w2utils.getSize(self.box, 'paddingRight') + w2utils.getSize(self.box, 'paddingLeft') +
+                                        w2utils.getSize(self.box, 'borderRight') + w2utils.getSize(self.box, 'borderLeft') )
+            rect.height = rect.height - ( w2utils.getSize(self.box, 'paddingTop') + w2utils.getSize(self.box, 'paddingBottom') +
+                                          w2utils.getSize(self.box, 'borderTop') + w2utils.getSize(self.box, 'borderBottom') )
             let headerHeight = (self.header !== '' ? w2utils.getSize(header, 'height') : 0)
             let tbHeight = (Array.isArray(self.toolbar?.items) && self.toolbar?.items?.length > 0)
                 ? w2utils.getSize(toolbar, 'height')
@@ -1516,7 +1521,9 @@ class w2form extends w2base {
             toolbar.css({ top: headerHeight + 'px' })
             tabs.css({ top: headerHeight + tbHeight + 'px' })
             page.css({ top: headerHeight + tbHeight + tabsHeight + 'px'})
-            page.css({ bottom: (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0) + 'px'})
+            page.css({ bottom: (buttons.length > 0
+                                ? w2utils.getSize(buttons, 'height') + w2utils.getSize(buttons, 'borderTop')
+                                : 0) + 'px'})
             // return some params
             return { width: rect.width, height: rect.height, headerHeight, tbHeight, tabsHeight }
         }
@@ -1644,12 +1651,14 @@ class w2form extends w2base {
                     }
                     field.$el
                         .prop('readOnly', true)
+                        .prop('disabled', true)
                         .prop('tabIndex', -1)
                         .closest('.w2ui-field')
                         .addClass('w2ui-disabled')
                 } else {
                     field.$el
                         .prop('readOnly', false)
+                        .prop('disabled', false)
                         .prop('tabIndex', field.$el.data('tabIndex') ?? field.$el.prop('tabIndex') ?? 0)
                         .closest('.w2ui-field')
                         .removeClass('w2ui-disabled')
