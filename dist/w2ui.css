@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (10/10/2022, 1:43:34 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (11/7/2022, 4:18:04 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -2431,9 +2431,6 @@ textarea.w2ui-error {
   text-overflow: ellipsis;
   overflow: hidden;
   position: relative;
-}
-.w2ui-grid .w2ui-grid-body table .w2ui-head.w2ui-reorder-cols-head:hover {
-  cursor: move;
 }
 .w2ui-grid .w2ui-grid-body table td {
   border-right: 1px solid #f1f1f1;

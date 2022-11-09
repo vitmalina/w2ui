@@ -5896,6 +5896,11 @@ class w2grid extends w2base {
                                 obj.records.splice(ind2 - 1, 0, tmp)
                             }
                         }
+                        // clear sortData
+                        obj.sortData = []
+                        query(obj.box)
+                            .find(`#grid_${obj.name}_columns .w2ui-col-header`)
+                            .removeClass('w2ui-col-sorted')
                         resetRowReorder()
                         // event after
                         edata.finish()
@@ -5986,9 +5991,19 @@ class w2grid extends w2base {
         }
         let self = this
         let dragData = {
-            targetPos: null,
             pressed: false,
+            targetPos: null,
             columnHead: null
+        }
+        let hasInvalidClass = (target, lastColumn) => {
+            let iClass = ['w2ui-col-number', 'w2ui-col-expand', 'w2ui-col-select']
+            if (lastColumn !== true) iClass.push('w2ui-head-last')
+            for (let i = 0; i < iClass.length; i++) {
+                if (query(target).closest('.w2ui-head').hasClass(iClass[i])) {
+                    return true
+                }
+            }
+            return false
         }
 
         // attach original event listener
@@ -5998,35 +6013,29 @@ class w2grid extends w2base {
 
         function dragColStart(event) {
             if (dragData.pressed || dragData.numberPreColumnsPresent === 0 || event.button !== 0) return
-            dragData.pressed = true
 
-            let edata, columns, origColumn,origColumnNumber
-            let invalidPreColumns = ['w2ui-col-number', 'w2ui-col-expand', 'w2ui-col-select']
-            let invalidPostColumns = ['w2ui-head-last']
-            let invalidColumns = invalidPreColumns.concat(invalidPostColumns)
+            let edata, columns, origColumn, origColumnNumber
             let preColHeadersSelector = '.w2ui-head.w2ui-col-number, .w2ui-head.w2ui-col-expand, .w2ui-head.w2ui-col-select'
 
             // do nothing if it is not a header
-            if (!query(event.target).parents().hasClass('w2ui-head')) return
+            if (!query(event.target).parents().hasClass('w2ui-head') || hasInvalidClass(event.target)) return
 
-            // do nothing if it is an invalid column
-            for (let i = 0, l = invalidColumns.length; i < l; i++) {
-                if (query(event.target).parents().hasClass(invalidColumns[i])) return
-            }
-
+            dragData.pressed = true
+            dragData.initialX = event.pageX
+            dragData.initialY = event.pageY
             dragData.numberPreColumnsPresent = query(self.box).find(preColHeadersSelector).length
 
-            //start event for drag start
-            dragData.columnHead  = origColumn = query(event.target).parents('.w2ui-head')
+            // start event for drag start
+            dragData.columnHead  = origColumn = query(event.target).closest('.w2ui-head')
             dragData.originalPos = origColumnNumber = parseInt(origColumn.attr('col'), 10)
-            edata = self.trigger('columnDragStart', { originalEvent: event, origColumnNumber: origColumnNumber, target: origColumn[0] })
+            edata = self.trigger('columnDragStart', { originalEvent: event, origColumnNumber, target: origColumn[0] })
             if (edata.isCancelled === true) return false
 
             columns = dragData.columns = query(self.box).find('.w2ui-head:not(.w2ui-head-last)')
 
             // add events
-            query(document).on('mouseup', dragColEnd)
-            query(document).on('mousemove', dragColOver)
+            query(document).on(`mouseup.colDrag`, dragColEnd)
+            query(document).on(`mousemove.colDrag`, dragColOver)
 
             let col = self.columns[dragData.originalPos]
             let colText = w2utils.lang(typeof col.text == 'function' ? col.text(col) : col.text)
@@ -6059,24 +6068,40 @@ class w2grid extends w2base {
         }
 
         function dragColOver(event) {
-            if (!dragData.pressed) return
-
+            if (!dragData.pressed || !dragData.columnHead) return
             let cursorX = event.pageX
             let cursorY = event.pageY
-
-            markIntersection(event)
+            if (!hasInvalidClass(event.target, true)) {
+                markIntersection(event)
+            }
             trackGhost(cursorX, cursorY)
         }
 
         function dragColEnd(event) {
-            if (!dragData.pressed) return
+            if (!dragData.pressed || !dragData.columnHead) return
             dragData.pressed = false
 
             let edata, target, selected, columnConfig
-            let ghosts = query(self.box).find('.w2ui-grid-ghost')
+            let finish = () => {
+                let ghosts = query(self.box).find('.w2ui-grid-ghost')
+                query(self.box).find('.w2ui-intersection-marker').hide()
+                query(dragData.ghost).remove()
+                ghosts.remove()
+
+                // dragData.columns.css({ overflow: '' }).children('div').css({ overflow: '' });
+                query(document).off('.colDrag')
+                dragData = {}
+            }
+
+            // if no move, then click event for sorting
+            if (event.pageX == dragData.initialX && event.pageY == dragData.initialY) {
+                self.columnClick(self.columns[dragData.originalPos].field, event)
+                finish()
+                return
+            }
 
             // start event for drag start
-            edata = self.trigger('columnDragEnd', { originalEvent: event, target: dragData.columnHead[0] })
+            edata = self.trigger('columnDragEnd', { originalEvent: event, target: dragData.columnHead[0], dragData })
             if (edata.isCancelled === true) return false
 
             selected = self.columns[dragData.originalPos]
@@ -6086,13 +6111,7 @@ class w2grid extends w2base {
                 columnConfig.splice(dragData.targetPos, 0, w2utils.clone(selected))
                 columnConfig.splice(columnConfig.indexOf(selected), 1)
             }
-            query(self.box).find('.w2ui-intersection-marker').hide()
-            query(dragData.ghost).remove()
-            ghosts.remove()
-
-            // dragData.columns.css({ overflow: '' }).children('div').css({ overflow: '' });
-            query(document).off('.colDrag')
-            dragData = {}
+            finish()
 
             self.refresh()
             edata.finish({ targetColumn: target - 1 })
@@ -6103,6 +6122,7 @@ class w2grid extends w2base {
             if (query(event.target).closest('td').length == 0) {
                 return
             }
+            // if mouse over invalid column
             let rect1 = query(self.box).find('.w2ui-grid-body').get(0).getBoundingClientRect()
             let rect2 = query(event.target).closest('td').get(0).getBoundingClientRect()
             query(self.box).find('.w2ui-intersection-marker')
@@ -6110,7 +6130,8 @@ class w2grid extends w2base {
                 .css({
                     left: (rect2.left - rect1.left) + 'px'
                 })
-            dragData.targetPos = parseInt(query(event.target).closest('td').attr('col'))
+            let td = query(event.target).closest('td')
+            dragData.targetPos = td.hasClass('w2ui-head-last') ? self.columns.length : parseInt(td.attr('col'))
             return
         }
 
@@ -6623,12 +6644,13 @@ class w2grid extends w2base {
             let width_max = parseInt(body[0].clientWidth)
                 - (bodyOverflowY ? w2utils.scrollBarSize() : 0)
                 - (this.show.lineNumbers ? lineNumberWidth : 0)
+                - (this.reorderRows ? 26 : 0)
                 // - (this.show.orderColumn ? 26 : 0)
                 - (this.show.selectColumn ? 26 : 0)
                 - (this.show.expandColumn ? 26 : 0)
                 - 1 // left is 1xp due to border width
-            width_box     = width_max
-            percent       = 0
+            width_box = width_max
+            percent   = 0
             // gridMinWidth processing
             let restart = false
             for (let i = 0; i < this.columns.length; i++) {
@@ -6657,7 +6679,7 @@ class w2grid extends w2base {
                     this.columns[i].sizeCalculated = col.size
                     this.columns[i].sizeType = 'px'
                 } else {
-                    percent                 += parseFloat(col.size)
+                    percent += parseFloat(col.size)
                     this.columns[i].sizeType = '%'
                     delete col.sizeCorrected
                 }
@@ -7273,7 +7295,7 @@ class w2grid extends w2base {
         let col = this.columns[i]
         if (col == null) return ''
         // reorder style
-        let reorderCols = (this.reorderColumns && (!this.columnGroups || !this.columnGroups.length)) ? ' w2ui-reorder-cols-head ' : ''
+        let reorderCols = (this.reorderColumns && (!this.columnGroups || !this.columnGroups.length)) ? ' w2ui-col-reorderable ' : ''
         // sort style
         let sortStyle = ''
         for (let si = 0; si < this.sortData.length; si++) {
