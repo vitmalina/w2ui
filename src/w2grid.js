@@ -4470,7 +4470,7 @@ class w2grid extends w2base {
 
             // event before
             edata = this.trigger('expand', { target: this.name, recid: recid,
-                box_id: 'grid_'+ this.name +'_rec_'+ recid +'_expanded', fbox_id: 'grid_'+ this.name +'_frec_'+ id +'_expanded' })
+                box_id: 'grid_'+ this.name +'_rec_'+ recid +'_expanded', fbox_id: 'grid_'+ this.name +'_frec_'+ recid +'_expanded' })
             if (edata.isCancelled === true) {
                 query(this.box).find('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').remove()
                 query(this.box).find('#grid_'+ this.name +'_frec_'+ id +'_expanded_row').remove()
@@ -4539,7 +4539,7 @@ class w2grid extends w2base {
             if (query(this.box).find('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').length === 0 || this.show.expandColumn !== true) return false
             // event before
             edata = this.trigger('collapse', { target: this.name, recid: recid,
-                box_id: 'grid_'+ this.name +'_rec_'+ id +'_expanded', fbox_id: 'grid_'+ this.name +'_frec_'+ id +'_expanded' })
+                box_id: 'grid_'+ this.name +'_rec_'+ recid +'_expanded', fbox_id: 'grid_'+ this.name +'_frec_'+ recid +'_expanded' })
             if (edata.isCancelled === true) return false
             // default action
             query(this.box).find('#grid_'+ this.name +'_rec_'+ id).removeAttr('expanded').removeClass('w2ui-expanded')
@@ -5638,7 +5638,7 @@ class w2grid extends w2base {
                         if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) {
                             target.focus()
                         } else {
-                            if ($input.get(0) !== document.active) $input.get(0).focus({ preventScroll: true })
+                            if ($input.get(0) !== document.active) $input.get(0)?.focus({ preventScroll: true })
                         }
                     }
                 }, 50)
@@ -6201,6 +6201,18 @@ class w2grid extends w2base {
                     await event.complete
                     let input = query(this.box).find(`#grid_${this.name}_search_all`)
                     w2utils.bindEvents(query(this.box).find(`#grid_${this.name}_search_all, .w2ui-action`), this)
+                    var obj = this
+                    // slow down live search calls
+                    let slowSearch = w2utils.debounce(function(event) {
+                            var val = event.target.value
+                            if (obj.liveSearch && obj.last.liveText != val) {
+                                obj.last.liveText = val
+                                obj.search(obj.last.field, val)
+                            }
+                            if (event.keyCode == 40) { // arrow down
+                                obj.searchSuggest(true)
+                            }
+                        }, 250)
                     input.on('change', event => {
                         if (!this.liveSearch) {
                             this.search(this.last.field, event.target.value)
@@ -6208,16 +6220,7 @@ class w2grid extends w2base {
                         }
                     })
                         .on('blur', () => { this.last.liveText = '' })
-                        .on('keyup', event => {
-                            let val = event.target.value
-                            if (this.liveSearch && this.last.liveText != val) {
-                                this.last.liveText = val
-                                this.search(this.last.field, val)
-                            }
-                            if (event.keyCode == 40) { // arrow down
-                                this.searchSuggest(true)
-                            }
-                        })
+                        .on('keyup', slowSearch)
                 }
             })
         }
@@ -6238,6 +6241,11 @@ class w2grid extends w2base {
                 }
                 this.toolbar.items.push(w2utils.extend({}, this.buttons.save))
             }
+            // fill in overwritten items with default buttons
+            // ids are w2ui-* but in this.buttons the map is just [add, edit, delete]
+            // must specify at least {id, name} in this.toolbar.items if you want to keep order
+            tb_items = tb_items.map(item => this.buttons[item.name]
+                                            ? w2utils.extend({}, this.buttons[item.name], item) : item)
         }
         // add original buttons
         this.toolbar.items.push(...tb_items)
