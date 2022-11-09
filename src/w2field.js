@@ -13,7 +13,6 @@
  *  - ENUM, LIST: should support wild chars
  *  - add selection of predefined times (used for appointments)
  *  - options.items - can be an array
- *  - options.msgSearch - message to search for user
  *  - options.msgNoItems - can be a function
  *  - REMOTE fields
  *
@@ -245,7 +244,8 @@ class w2field extends w2base {
                     prefix          : '',
                     suffix          : '',
                     openOnFocus     : false,  // if to show overlay onclick or when typing
-                    markSearch      : false
+                    markSearch      : false,
+                    msgSearch       : '',     // placeholder for search bar
                 }
                 if (typeof options.items == 'function') {
                     options._items_fun = options.items
@@ -264,6 +264,7 @@ class w2field extends w2base {
                         })
                     }
                 }
+                options.msgSearch = options.msgSearch || "Type to search..."
                 options = w2utils.extend({}, defaults, options)
                 this.options = options
                 if (!w2utils.isPlainObject(options.selected)) options.selected = {}
@@ -273,6 +274,7 @@ class w2field extends w2base {
                     .attr('autocomplete', 'off')
                     .attr('autocorrect', 'off')
                     .attr('spellcheck', 'false')
+                    .attr('placeholder', options.msgSearch)
                 if (options.selected.text != null) {
                     query(this.el).val(options.selected.text)
                 }
