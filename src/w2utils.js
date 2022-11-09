@@ -2224,17 +2224,16 @@ class Utils {
     }
 
     debounce(func, wait) {
-        let timeout;
-
+        let timeout
         return function executedFunction(...args) {
             const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
+                clearTimeout(timeout)
+                func(...args)
+            }
 
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
+            clearTimeout(timeout)
+            timeout = setTimeout(later, wait)
+        }
     }
 }
 var w2utils = new Utils() // eslint-disable-line -- needs to be functional/module scope variable
