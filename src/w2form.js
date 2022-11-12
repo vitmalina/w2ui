@@ -1477,7 +1477,6 @@ class w2form extends w2base {
         let edata = this.trigger('resize', { target: this.name })
         if (edata.isCancelled === true) return
         // default behaviour
-        let main    = query(this.box).find(':scope > div.w2ui-form-box')
         let header  = query(this.box).find(':scope > div .w2ui-form-header')
         let toolbar = query(this.box).find(':scope > div .w2ui-form-toolbar')
         let tabs    = query(this.box).find(':scope > div .w2ui-form-tabs')
@@ -1503,7 +1502,6 @@ class w2form extends w2base {
         edata.finish()
 
         function resizeElements() {
-            let rect = self.box.getBoundingClientRect()
             let headerHeight = (self.header !== '' ? w2utils.getSize(header, 'height') : 0)
             let tbHeight = (Array.isArray(self.toolbar?.items) && self.toolbar?.items?.length > 0)
                 ? w2utils.getSize(toolbar, 'height')
@@ -1512,13 +1510,14 @@ class w2form extends w2base {
                 ? w2utils.getSize(tabs, 'height')
                 : 0
             // resize elements
-            main.css({ width: rect.width + 'px', height: rect.height + 'px' })
             toolbar.css({ top: headerHeight + 'px' })
             tabs.css({ top: headerHeight + tbHeight + 'px' })
-            page.css({ top: headerHeight + tbHeight + tabsHeight + 'px'})
-            page.css({ bottom: (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0) + 'px'})
+            page.css({
+                top: headerHeight + tbHeight + tabsHeight + 'px',
+                bottom: (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0) + 'px'
+            })
             // return some params
-            return { width: rect.width, height: rect.height, headerHeight, tbHeight, tabsHeight }
+            return { headerHeight, tbHeight, tabsHeight }
         }
     }
 
