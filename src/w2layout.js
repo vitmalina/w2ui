@@ -773,11 +773,6 @@ class w2layout extends w2base {
         // layout itself
         let width  = w2utils.getSize(query(this.box), 'width')
         let height = w2utils.getSize(query(this.box), 'height')
-        query(this.box).find(':scope > div')
-            .css({
-                width: width + 'px',
-                height: height + 'px'
-            })
         let self = this
         // panels
         let pmain   = this.get('main')
