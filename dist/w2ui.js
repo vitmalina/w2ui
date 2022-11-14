@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (11/7/2022, 4:18:04 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (11/13/2022, 8:06:26 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -9894,11 +9894,6 @@ class w2layout extends w2base {
         // layout itself
         let width  = w2utils.getSize(query(this.box), 'width')
         let height = w2utils.getSize(query(this.box), 'height')
-        query(this.box).find(':scope > div')
-            .css({
-                width: width + 'px',
-                height: height + 'px'
-            })
         let self = this
         // panels
         let pmain   = this.get('main')
@@ -10395,7 +10390,6 @@ class w2grid extends w2base {
             columnMenu      : true,
             columnHeaders   : true,
             lineNumbers     : false,
-            orderColumn     : false,
             expandColumn    : false,
             selectColumn    : false,
             emptyRecords    : true,
@@ -14859,10 +14853,6 @@ class w2grid extends w2base {
         let time = Date.now()
         // make sure the box is right
         if (!this.box || query(this.box).attr('name') != this.name) return
-        // determine new width and height
-        query(this.box).find(':scope > div.w2ui-grid-box')
-            .css('width', query(this.box)[0].clientWidth + 'px')
-            .css('height', query(this.box)[0].clientHeight + 'px')
         // event before
         let edata = this.trigger('resize', { target: this.name })
         if (edata.isCancelled === true) return
@@ -16638,7 +16628,7 @@ class w2grid extends w2base {
             if (grid.show.selectColumn) html1 += '<td class="w2ui-grid-data w2ui-col-select"></td>'
             if (grid.show.expandColumn) html1 += '<td class="w2ui-grid-data w2ui-col-expand"></td>'
             html2 += '<td class="w2ui-grid-data-spacer" col="start" style="border-right: 0"></td>'
-            if (grid.show.orderColumn) html2 += '<td class="w2ui-grid-data w2ui-col-order" col="order"></td>'
+            if (grid.reorderRows) html2 += '<td class="w2ui-grid-data w2ui-col-order" col="order"></td>'
             for (let j = 0; j < grid.columns.length; j++) {
                 let col = grid.columns[j]
                 if ((col.hidden || j < grid.last.colStart || j > grid.last.colEnd) && !col.frozen) continue
@@ -16656,10 +16646,9 @@ class w2grid extends w2base {
                 - (bodyOverflowY ? w2utils.scrollBarSize() : 0)
                 - (this.show.lineNumbers ? lineNumberWidth : 0)
                 - (this.reorderRows ? 26 : 0)
-                // - (this.show.orderColumn ? 26 : 0)
                 - (this.show.selectColumn ? 26 : 0)
                 - (this.show.expandColumn ? 26 : 0)
-                - 1 // left is 1xp due to border width
+                - 1 // left is 1px due to border width
             width_box = width_max
             percent   = 0
             // gridMinWidth processing
@@ -16751,7 +16740,7 @@ class w2grid extends w2base {
         let fwidth = 1
         if (this.show.lineNumbers) fwidth += lineNumberWidth
         if (this.show.selectColumn) fwidth += 26
-        // if (this.show.orderColumn) fwidth += 26;
+        // if (this.reorderRows) fwidth += 26;
         if (this.show.expandColumn) fwidth += 26
         for (let i = 0; i < this.columns.length; i++) {
             if (this.columns[i].hidden) continue
@@ -17166,7 +17155,7 @@ class w2grid extends w2base {
             }
             let ii = 0
             html2 += `<td id="grid_${self.name}_column_start" class="w2ui-head" col="start" style="border-right: 0"></td>`
-            if (self.show.orderColumn) {
+            if (self.reorderRows) {
                 html2 += '<td class="w2ui-head w2ui-col-order" col="order">' +
                          '    <div style="height: 25px">&#160;</div>' +
                          '</td>'
@@ -17250,7 +17239,7 @@ class w2grid extends w2base {
             let id = 0
             let colg
             html2 += `<td id="grid_${self.name}_column_start" class="w2ui-head" col="start" style="border-right: 0"></td>`
-            if (self.show.orderColumn) {
+            if (self.reorderRows) {
                 html2 += '<td class="w2ui-head w2ui-col-order" col="order">'+
                         '    <div>&#160;</div>'+
                         '</td>'
@@ -17709,7 +17698,7 @@ class w2grid extends w2base {
             if (this.show.selectColumn) rec_html1 += '<td class="w2ui-col-select" style="height: 0px"></td>'
             if (this.show.expandColumn) rec_html1 += '<td class="w2ui-col-expand" style="height: 0px"></td>'
             rec_html2 += '<td class="w2ui-grid-data w2ui-grid-data-spacer" col="start" style="height: 0px; width: 0px"></td>'
-            if (this.show.orderColumn) rec_html2 += '<td class="w2ui-col-order" style="height: 0px"></td>'
+            if (this.reorderRows) rec_html2 += '<td class="w2ui-col-order" style="height: 0px"></td>'
             for (let i = 0; i < this.columns.length; i++) {
                 let col = this.columns[i]
                 tmph    = '<td class="w2ui-grid-data" col="'+ i +'" style="height: 0px;"></td>'
@@ -17791,7 +17780,7 @@ class w2grid extends w2base {
         if (this.show.expandColumn) {
             let tmp_img = ''
             if (record.w2ui && record.w2ui.expanded === true) tmp_img = '-'; else tmp_img = '+'
-            if (record.w2ui && (record.w2ui.expanded == 'none' || !Array.isArray(record.w2ui.children) || !record.w2ui.children.length)) tmp_img = ''
+            if (record.w2ui && (record.w2ui.expanded == 'none' || !Array.isArray(record.w2ui.children) || !record.w2ui.children.length)) tmp_img = '+'
             if (record.w2ui && record.w2ui.expanded == 'spinner') tmp_img = '<div class="w2ui-spinner" style="width: 16px; margin: -2px 2px;"></div>'
             rec_html1 +=
                     '<td id="grid_'+ this.name +'_cell_'+ ind +'_expand' + (summary ? '_s' : '') + '" class="w2ui-grid-data w2ui-col-expand">'+
@@ -17800,7 +17789,7 @@ class w2grid extends w2base {
         }
         // insert empty first column
         rec_html2 += '<td class="w2ui-grid-data-spacer" col="start" style="border-right: 0"></td>'
-        if (this.show.orderColumn) {
+        if (this.reorderRows) {
             rec_html2 +=
                     '<td id="grid_'+ this.name +'_cell_'+ ind +'_order' + (summary ? '_s' : '') + '" class="w2ui-grid-data w2ui-col-order" col="order">'+
                         (summary !== true ? '<div title="Drag to reorder">&nbsp;</div>' : '' ) +
@@ -18558,6 +18547,7 @@ class w2grid extends w2base {
  *  - added prepareParams
  *  - this.recid = null if no record needs to be pulled
  *  - remove form.multiplart
+ *  - this.method - for saving only
  */
 
 class w2form extends w2base {
@@ -18567,6 +18557,7 @@ class w2form extends w2base {
         this.header       = ''
         this.box          = null // HTML element that hold this element
         this.url          = ''
+        this.method       = null // if defined, it will be http method when saving
         this.routeData    = {} // data for dynamic routes
         this.formURL      = '' // url where to get form HTML
         this.formHTML     = '' // form HTML (might be loaded from the url)
@@ -19567,7 +19558,7 @@ class w2form extends w2base {
         w2utils.extend(params, postData)
         params.record = w2utils.clone(self.record)
         // event before
-        let edata = self.trigger('submit', { target: self.name, url: self.url, httpMethod: 'POST',
+        let edata = self.trigger('submit', { target: self.name, url: self.url, httpMethod: this.method ?? 'POST',
             postData: params, httpHeaders: self.httpHeaders })
         if (edata.isCancelled === true) return
         // default action
@@ -19954,7 +19945,6 @@ class w2form extends w2base {
         let edata = this.trigger('resize', { target: this.name })
         if (edata.isCancelled === true) return
         // default behaviour
-        let main    = query(this.box).find(':scope > div.w2ui-form-box')
         let header  = query(this.box).find(':scope > div .w2ui-form-header')
         let toolbar = query(this.box).find(':scope > div .w2ui-form-toolbar')
         let tabs    = query(this.box).find(':scope > div .w2ui-form-tabs')
@@ -19979,7 +19969,6 @@ class w2form extends w2base {
         // event after
         edata.finish()
         function resizeElements() {
-            let rect = self.box.getBoundingClientRect()
             let headerHeight = (self.header !== '' ? w2utils.getSize(header, 'height') : 0)
             let tbHeight = (Array.isArray(self.toolbar?.items) && self.toolbar?.items?.length > 0)
                 ? w2utils.getSize(toolbar, 'height')
@@ -19988,13 +19977,14 @@ class w2form extends w2base {
                 ? w2utils.getSize(tabs, 'height')
                 : 0
             // resize elements
-            main.css({ width: rect.width + 'px', height: rect.height + 'px' })
             toolbar.css({ top: headerHeight + 'px' })
             tabs.css({ top: headerHeight + tbHeight + 'px' })
-            page.css({ top: headerHeight + tbHeight + tabsHeight + 'px'})
-            page.css({ bottom: (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0) + 'px'})
+            page.css({
+                top: headerHeight + tbHeight + tabsHeight + 'px',
+                bottom: (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0) + 'px'
+            })
             // return some params
-            return { width: rect.width, height: rect.height, headerHeight, tbHeight, tabsHeight }
+            return { headerHeight, tbHeight, tabsHeight }
         }
     }
     refresh() {
