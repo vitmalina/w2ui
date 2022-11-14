@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (11/13/2022, 8:06:26 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (11/14/2022, 8:32:03 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -10299,6 +10299,7 @@ class w2layout extends w2base {
  *  - deleted grid.method
  *  - added grid.prepareParams
  *  - added mouseEnter/mouseLeave
+ *  - grid.show.columnReorder -> grid.reorderRows
  */
 
 class w2grid extends w2base {

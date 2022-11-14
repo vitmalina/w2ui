@@ -45,6 +45,7 @@
  *  - deleted grid.method
  *  - added grid.prepareParams
  *  - added mouseEnter/mouseLeave
+ *  - grid.show.columnReorder -> grid.reorderRows
  */
 
 import { w2base } from './w2base.js'
