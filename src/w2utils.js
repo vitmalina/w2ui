@@ -17,6 +17,7 @@
  *  - added stripSpaces
  *  - implemented marker
  *  - cssPrefix - deprecated
+ *  - w2utils.debounce
  */
 
 import { w2base } from './w2base.js'
@@ -1057,10 +1058,12 @@ class Utils {
                 transition: (speed/1000) + 's',
                 opacity: 0,
             })
-            query(box).find('.w2ui-lock-msg').remove()
-            box._prevUnlock = setTimeout(() => {
+            let _box = query(box).get(0)
+            clearTimeout(_box._prevUnlock)
+            _box._prevUnlock = setTimeout(() => {
                 query(box).find('.w2ui-lock').remove()
             }, speed)
+            query(box).find('.w2ui-lock-msg').remove()
         } else {
             query(box).find('.w2ui-lock').remove()
             query(box).find('.w2ui-lock-msg').remove()
