@@ -6220,21 +6220,21 @@ class w2grid extends w2base {
                     w2utils.bindEvents(query(this.box).find(`#grid_${this.name}_search_all, .w2ui-action`), this)
                     // slow down live search calls
                     let slowSearch = w2utils.debounce((event) => {
-                            let val = event.target.value
-                            if (this.liveSearch && this.last.liveText != val) {
-                                this.last.liveText = val
-                                this.search(this.last.field, val)
-                            }
-                            if (event.keyCode == 40) { // arrow down
-                                this.searchSuggest(true)
-                            }
-                        }, 250)
-                    input.on('change', event => {
-                        if (!this.liveSearch) {
-                            this.search(this.last.field, event.target.value)
-                            this.searchSuggest(true, true, this)
+                        let val = event.target.value
+                        if (this.liveSearch && this.last.liveText != val) {
+                            this.last.liveText = val
+                            this.search(this.last.field, val)
                         }
-                    })
+                        if (event.keyCode == 40) { // arrow down
+                            this.searchSuggest(true)
+                        }
+                    }, 250)
+                    input.on('change', event => {
+                            if (!this.liveSearch) {
+                                this.search(this.last.field, event.target.value)
+                                this.searchSuggest(true, true, this)
+                            }
+                        })
                         .on('blur', () => { this.last.liveText = '' })
                         .on('keyup', slowSearch)
                 }

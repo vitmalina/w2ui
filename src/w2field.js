@@ -25,6 +25,8 @@
  *  - deprecated "success" field for remote source response
  *  - CSP - fixed inline events
  *  - remove clear, use reset instead
+ *  - options.msgSearch
+ *  - options.msgNoItems
  */
 
 import query from './query.js'
@@ -233,19 +235,20 @@ class w2field extends w2base {
                     iconStyle       : '',
                     align           : 'both', // same width as control
                     altRows         : true,   // alternate row color
-                    onSearch        : null,   // when search needs to be performed
-                    onRequest       : null,   // when request is submitted
-                    onLoad          : null,   // when data is received
-                    onError         : null,   // when data fails to load due to server error or other failure modes
                     renderDrop      : null,   // render function for drop down item
                     compare         : null,   // compare function for filtering
                     filter          : true,   // weather to filter at all
                     hideSelected    : false,  // hide selected item from drop down
                     prefix          : '',
                     suffix          : '',
+                    msgNoItems      : 'No matches',
+                    msgSearch       : 'Type to search...',
                     openOnFocus     : false,  // if to show overlay onclick or when typing
                     markSearch      : false,
-                    msgSearch       : '',     // placeholder for search bar
+                    onSearch        : null,   // when search needs to be performed
+                    onRequest       : null,   // when request is submitted
+                    onLoad          : null,   // when data is received
+                    onError         : null    // when data fails to load due to server error or other failure modes
                 }
                 if (typeof options.items == 'function') {
                     options._items_fun = options.items
@@ -264,7 +267,6 @@ class w2field extends w2base {
                         })
                     }
                 }
-                options.msgSearch = options.msgSearch || "Type to search..."
                 options = w2utils.extend({}, defaults, options)
                 this.options = options
                 if (!w2utils.isPlainObject(options.selected)) options.selected = {}
@@ -274,7 +276,6 @@ class w2field extends w2base {
                     .attr('autocomplete', 'off')
                     .attr('autocorrect', 'off')
                     .attr('spellcheck', 'false')
-                    .attr('placeholder', options.msgSearch)
                 if (options.selected.text != null) {
                     query(this.el).val(options.selected.text)
                 }
@@ -307,6 +308,8 @@ class w2field extends w2base {
                     filter          : true,  // alias for compare
                     hideSelected    : true,  // hide selected item from drop down
                     style           : '',    // style for container div
+                    msgNoItems      : 'No matches',
+                    msgSearch       : 'Type to search...',
                     onSearch        : null,  // when search needs to be performed
                     onRequest       : null,  // when request is submitted
                     onLoad          : null,  // when data is received
@@ -1242,12 +1245,12 @@ class w2field extends w2base {
                 input = this.helpers.search_focus
             }
             if (query(this.el).hasClass('has-focus') && !this.el.readOnly && !this.el.disabled) {
-                let msgNoItems = w2utils.lang('No matches')
+                let msgNoItems = w2utils.lang(options.msgNoItems)
                 if (options.url != null && String(query(input).val()).length < options.minLength && this.tmp.emptySet !== true) {
                     msgNoItems = w2utils.lang('${count} letters or more...', { count: options.minLength })
                 }
                 if (options.url != null && query(input).val() === '' && this.tmp.emptySet !== true) {
-                    msgNoItems = w2utils.lang(options.msgSearch || 'Type to search...')
+                    msgNoItems = w2utils.lang(options.msgSearch)
                 }
                 // TODO: remote url
                 // if (options.url == null && options.items.length === 0) msgNoItems = w2utils.lang('Empty list')
