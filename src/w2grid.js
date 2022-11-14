@@ -144,7 +144,6 @@ class w2grid extends w2base {
             columnMenu      : true,
             columnHeaders   : true,
             lineNumbers     : false,
-            orderColumn     : false,
             expandColumn    : false,
             selectColumn    : false,
             emptyRecords    : true,
@@ -4766,10 +4765,6 @@ class w2grid extends w2base {
         let time = Date.now()
         // make sure the box is right
         if (!this.box || query(this.box).attr('name') != this.name) return
-        // determine new width and height
-        query(this.box).find(':scope > div.w2ui-grid-box')
-            .css('width', query(this.box)[0].clientWidth + 'px')
-            .css('height', query(this.box)[0].clientHeight + 'px')
         // event before
         let edata = this.trigger('resize', { target: this.name })
         if (edata.isCancelled === true) return
@@ -6222,16 +6217,15 @@ class w2grid extends w2base {
                     await event.complete
                     let input = query(this.box).find(`#grid_${this.name}_search_all`)
                     w2utils.bindEvents(query(this.box).find(`#grid_${this.name}_search_all, .w2ui-action`), this)
-                    var obj = this
                     // slow down live search calls
-                    let slowSearch = w2utils.debounce(function(event) {
-                            var val = event.target.value
-                            if (obj.liveSearch && obj.last.liveText != val) {
-                                obj.last.liveText = val
-                                obj.search(obj.last.field, val)
+                    let slowSearch = w2utils.debounce((event) => {
+                            let val = event.target.value
+                            if (this.liveSearch && this.last.liveText != val) {
+                                this.last.liveText = val
+                                this.search(this.last.field, val)
                             }
                             if (event.keyCode == 40) { // arrow down
-                                obj.searchSuggest(true)
+                                this.searchSuggest(true)
                             }
                         }, 250)
                     input.on('change', event => {
@@ -6627,7 +6621,7 @@ class w2grid extends w2base {
             if (grid.show.selectColumn) html1 += '<td class="w2ui-grid-data w2ui-col-select"></td>'
             if (grid.show.expandColumn) html1 += '<td class="w2ui-grid-data w2ui-col-expand"></td>'
             html2 += '<td class="w2ui-grid-data-spacer" col="start" style="border-right: 0"></td>'
-            if (grid.show.orderColumn) html2 += '<td class="w2ui-grid-data w2ui-col-order" col="order"></td>'
+            if (grid.reorderRows) html2 += '<td class="w2ui-grid-data w2ui-col-order" col="order"></td>'
             for (let j = 0; j < grid.columns.length; j++) {
                 let col = grid.columns[j]
                 if ((col.hidden || j < grid.last.colStart || j > grid.last.colEnd) && !col.frozen) continue
@@ -6645,10 +6639,9 @@ class w2grid extends w2base {
                 - (bodyOverflowY ? w2utils.scrollBarSize() : 0)
                 - (this.show.lineNumbers ? lineNumberWidth : 0)
                 - (this.reorderRows ? 26 : 0)
-                // - (this.show.orderColumn ? 26 : 0)
                 - (this.show.selectColumn ? 26 : 0)
                 - (this.show.expandColumn ? 26 : 0)
-                - 1 // left is 1xp due to border width
+                - 1 // left is 1px due to border width
             width_box = width_max
             percent   = 0
             // gridMinWidth processing
@@ -6741,7 +6734,7 @@ class w2grid extends w2base {
         let fwidth = 1
         if (this.show.lineNumbers) fwidth += lineNumberWidth
         if (this.show.selectColumn) fwidth += 26
-        // if (this.show.orderColumn) fwidth += 26;
+        // if (this.reorderRows) fwidth += 26;
         if (this.show.expandColumn) fwidth += 26
         for (let i = 0; i < this.columns.length; i++) {
             if (this.columns[i].hidden) continue
@@ -7173,7 +7166,7 @@ class w2grid extends w2base {
             }
             let ii = 0
             html2 += `<td id="grid_${self.name}_column_start" class="w2ui-head" col="start" style="border-right: 0"></td>`
-            if (self.show.orderColumn) {
+            if (self.reorderRows) {
                 html2 += '<td class="w2ui-head w2ui-col-order" col="order">' +
                          '    <div style="height: 25px">&#160;</div>' +
                          '</td>'
@@ -7258,7 +7251,7 @@ class w2grid extends w2base {
             let id = 0
             let colg
             html2 += `<td id="grid_${self.name}_column_start" class="w2ui-head" col="start" style="border-right: 0"></td>`
-            if (self.show.orderColumn) {
+            if (self.reorderRows) {
                 html2 += '<td class="w2ui-head w2ui-col-order" col="order">'+
                         '    <div>&#160;</div>'+
                         '</td>'
@@ -7726,7 +7719,7 @@ class w2grid extends w2base {
             if (this.show.selectColumn) rec_html1 += '<td class="w2ui-col-select" style="height: 0px"></td>'
             if (this.show.expandColumn) rec_html1 += '<td class="w2ui-col-expand" style="height: 0px"></td>'
             rec_html2 += '<td class="w2ui-grid-data w2ui-grid-data-spacer" col="start" style="height: 0px; width: 0px"></td>'
-            if (this.show.orderColumn) rec_html2 += '<td class="w2ui-col-order" style="height: 0px"></td>'
+            if (this.reorderRows) rec_html2 += '<td class="w2ui-col-order" style="height: 0px"></td>'
             for (let i = 0; i < this.columns.length; i++) {
                 let col = this.columns[i]
                 tmph    = '<td class="w2ui-grid-data" col="'+ i +'" style="height: 0px;"></td>'
@@ -7808,7 +7801,7 @@ class w2grid extends w2base {
         if (this.show.expandColumn) {
             let tmp_img = ''
             if (record.w2ui && record.w2ui.expanded === true) tmp_img = '-'; else tmp_img = '+'
-            if (record.w2ui && (record.w2ui.expanded == 'none' || !Array.isArray(record.w2ui.children) || !record.w2ui.children.length)) tmp_img = ''
+            if (record.w2ui && (record.w2ui.expanded == 'none' || !Array.isArray(record.w2ui.children) || !record.w2ui.children.length)) tmp_img = '+'
             if (record.w2ui && record.w2ui.expanded == 'spinner') tmp_img = '<div class="w2ui-spinner" style="width: 16px; margin: -2px 2px;"></div>'
             rec_html1 +=
                     '<td id="grid_'+ this.name +'_cell_'+ ind +'_expand' + (summary ? '_s' : '') + '" class="w2ui-grid-data w2ui-col-expand">'+
@@ -7817,7 +7810,7 @@ class w2grid extends w2base {
         }
         // insert empty first column
         rec_html2 += '<td class="w2ui-grid-data-spacer" col="start" style="border-right: 0"></td>'
-        if (this.show.orderColumn) {
+        if (this.reorderRows) {
             rec_html2 +=
                     '<td id="grid_'+ this.name +'_cell_'+ ind +'_order' + (summary ? '_s' : '') + '" class="w2ui-grid-data w2ui-col-order" col="order">'+
                         (summary !== true ? '<div title="Drag to reorder">&nbsp;</div>' : '' ) +

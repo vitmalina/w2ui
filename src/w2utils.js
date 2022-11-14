@@ -2223,16 +2223,11 @@ class Utils {
         })
     }
 
-    debounce(func, wait) {
+    debounce(func, wait = 250) {
         let timeout
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout)
-                func(...args)
-            }
-
+        return (...args) => {
             clearTimeout(timeout)
-            timeout = setTimeout(later, wait)
+            timeout = setTimeout(() => { func(this, args) }, wait)
         }
     }
 }

@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (11/7/2022, 4:18:04 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (11/13/2022, 8:06:26 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -1411,6 +1411,10 @@ button.w2ui-btn:disabled {
 .w2ui-form > div {
   position: absolute;
   overflow: hidden;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 .w2ui-form .w2ui-form-header {
   position: absolute;
@@ -1961,32 +1965,16 @@ textarea.w2ui-error {
 * ---- Layout ----
 */
 .w2ui-layout {
+  position: relative;
   overflow: hidden;
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -ms-box-sizing: border-box;
-  -o-box-sizing: border-box;
-  box-sizing: border-box;
-}
-.w2ui-layout * {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -ms-box-sizing: border-box;
-  -o-box-sizing: border-box;
-  box-sizing: border-box;
 }
 .w2ui-layout > div {
   position: absolute;
   overflow: hidden;
-  border: 0px;
-  margin: 0px;
-  padding: 0px;
-  outline: 0px;
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -ms-box-sizing: border-box;
-  -o-box-sizing: border-box;
-  box-sizing: border-box;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
 }
 .w2ui-layout > div .w2ui-panel {
   display: none;
@@ -2059,9 +2047,13 @@ textarea.w2ui-error {
   border-radius: 2px;
   overflow: hidden !important;
 }
-.w2ui-grid > div {
+.w2ui-grid > div.w2ui-grid-box {
   position: absolute;
   overflow: hidden;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
 }
 .w2ui-grid .w2ui-grid-header {
   position: absolute;
@@ -2518,7 +2510,7 @@ textarea.w2ui-error {
   overflow: hidden;
 }
 .w2ui-grid .w2ui-grid-body table .w2ui-col-select div input[type=checkbox] {
-  margin-top: 0px;
+  margin-top: 3px;
   margin-bottom: 0px;
   position: relative;
 }

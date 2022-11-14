@@ -1733,7 +1733,10 @@ class w2field extends w2base {
         if (edata.isCancelled === true) return
         // if errors and not silent
         if (options.silent !== true && errors.length > 0) {
-            w2tooltip.show(this.el, {html: 'Errors: ' + errors.join('<br>')})
+            w2tooltip.show({
+                anchor: this.el,
+                html: 'Errors: ' + errors.join('<br>')
+            })
             console.log('ERRORS (while adding files): ', errors)
             return
         }

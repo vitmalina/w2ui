@@ -25,6 +25,7 @@
  *  - added prepareParams
  *  - this.recid = null if no record needs to be pulled
  *  - remove form.multiplart
+ *  - this.method - for saving only
  */
 
 import { w2base } from './w2base.js'
@@ -42,6 +43,7 @@ class w2form extends w2base {
         this.header       = ''
         this.box          = null // HTML element that hold this element
         this.url          = ''
+        this.method       = null // if defined, it will be http method when saving
         this.routeData    = {} // data for dynamic routes
         this.formURL      = '' // url where to get form HTML
         this.formHTML     = '' // form HTML (might be loaded from the url)
@@ -1078,7 +1080,7 @@ class w2form extends w2base {
         w2utils.extend(params, postData)
         params.record = w2utils.clone(self.record)
         // event before
-        let edata = self.trigger('submit', { target: self.name, url: self.url, httpMethod: 'POST',
+        let edata = self.trigger('submit', { target: self.name, url: self.url, httpMethod: this.method ?? 'POST',
             postData: params, httpHeaders: self.httpHeaders })
         if (edata.isCancelled === true) return
         // default action
@@ -1477,7 +1479,6 @@ class w2form extends w2base {
         let edata = this.trigger('resize', { target: this.name })
         if (edata.isCancelled === true) return
         // default behaviour
-        let main    = query(this.box).find(':scope > div.w2ui-form-box')
         let header  = query(this.box).find(':scope > div .w2ui-form-header')
         let toolbar = query(this.box).find(':scope > div .w2ui-form-toolbar')
         let tabs    = query(this.box).find(':scope > div .w2ui-form-tabs')
@@ -1503,12 +1504,6 @@ class w2form extends w2base {
         edata.finish()
 
         function resizeElements() {
-            let rect = self.box.getBoundingClientRect()
-            // fixes issue where form box is too big in layout panel
-            rect.width = rect.width - ( w2utils.getSize(self.box, 'paddingRight') + w2utils.getSize(self.box, 'paddingLeft') +
-                                        w2utils.getSize(self.box, 'borderRight') + w2utils.getSize(self.box, 'borderLeft') )
-            rect.height = rect.height - ( w2utils.getSize(self.box, 'paddingTop') + w2utils.getSize(self.box, 'paddingBottom') +
-                                          w2utils.getSize(self.box, 'borderTop') + w2utils.getSize(self.box, 'borderBottom') )
             let headerHeight = (self.header !== '' ? w2utils.getSize(header, 'height') : 0)
             let tbHeight = (Array.isArray(self.toolbar?.items) && self.toolbar?.items?.length > 0)
                 ? w2utils.getSize(toolbar, 'height')
@@ -1517,15 +1512,14 @@ class w2form extends w2base {
                 ? w2utils.getSize(tabs, 'height')
                 : 0
             // resize elements
-            main.css({ width: rect.width + 'px', height: rect.height + 'px' })
             toolbar.css({ top: headerHeight + 'px' })
             tabs.css({ top: headerHeight + tbHeight + 'px' })
-            page.css({ top: headerHeight + tbHeight + tabsHeight + 'px'})
-            page.css({ bottom: (buttons.length > 0
-                                ? w2utils.getSize(buttons, 'height') + w2utils.getSize(buttons, 'borderTop')
-                                : 0) + 'px'})
+            page.css({
+                top: headerHeight + tbHeight + tabsHeight + 'px',
+                bottom: (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0) + 'px'
+            })
             // return some params
-            return { width: rect.width, height: rect.height, headerHeight, tbHeight, tabsHeight }
+            return { headerHeight, tbHeight, tabsHeight }
         }
     }
 
