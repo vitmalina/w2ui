@@ -13,7 +13,6 @@
  *  - ENUM, LIST: should support wild chars
  *  - add selection of predefined times (used for appointments)
  *  - options.items - can be an array
- *  - options.msgSearch - message to search for user
  *  - options.msgNoItems - can be a function
  *  - REMOTE fields
  *
@@ -245,7 +244,8 @@ class w2field extends w2base {
                     prefix          : '',
                     suffix          : '',
                     openOnFocus     : false,  // if to show overlay onclick or when typing
-                    markSearch      : false
+                    markSearch      : false,
+                    msgSearch       : '',     // placeholder for search bar
                 }
                 if (typeof options.items == 'function') {
                     options._items_fun = options.items
@@ -264,6 +264,7 @@ class w2field extends w2base {
                         })
                     }
                 }
+                options.msgSearch = options.msgSearch || "Type to search..."
                 options = w2utils.extend({}, defaults, options)
                 this.options = options
                 if (!w2utils.isPlainObject(options.selected)) options.selected = {}
@@ -273,6 +274,7 @@ class w2field extends w2base {
                     .attr('autocomplete', 'off')
                     .attr('autocorrect', 'off')
                     .attr('spellcheck', 'false')
+                    .attr('placeholder', options.msgSearch)
                 if (options.selected.text != null) {
                     query(this.el).val(options.selected.text)
                 }
@@ -492,7 +494,7 @@ class w2field extends w2base {
                 }, 1)
             }
             // if readonly or disabled
-            if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) {
+            if (query(this.el).prop('readOnly') || query(this.el).prop('disabled')) {
                 setTimeout(() => {
                     if (this.helpers.prefix) query(this.helpers.prefix).css('opacity', '0.6')
                     if (this.helpers.suffix) query(this.helpers.suffix).css('opacity', '0.6')
@@ -530,13 +532,13 @@ class w2field extends w2base {
                 div.attr('style', div.attr('style') + ';' + options.style)
             }
             query(this.el).css('z-index', '-1')
-            if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) {
+            if (query(this.el).prop('readOnly') || query(this.el).prop('disabled')) {
                 setTimeout(() => {
                     div[0].scrollTop = 0 // scroll to the top
                     div.addClass('w2ui-readonly')
                         .find('.li-item').css('opacity', '0.9')
                         .parent().find('.li-search').hide()
-                        .find('input').prop('readonly', true)
+                        .find('input').prop('readOnly', true)
                         .closest('.w2ui-multi-items')
                         .find('.w2ui-list-remove').hide()
                 }, 1)
@@ -545,7 +547,7 @@ class w2field extends w2base {
                     div.removeClass('w2ui-readonly')
                         .find('.li-item').css('opacity', '1')
                         .parent().find('.li-search').show()
-                        .find('input').prop('readonly', false)
+                        .find('input').prop('readOnly', false)
                         .closest('.w2ui-multi-items')
                         .find('.w2ui-list-remove').show()
                 }, 1)
@@ -592,7 +594,7 @@ class w2field extends w2base {
                     let edata
                     // default behavior
                     if (query(event.target).hasClass('w2ui-list-remove')) {
-                        if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+                        if (query(this.el).prop('readOnly') || query(this.el).prop('disabled')) return
                         // trigger event
                         edata = this.trigger('remove', { target: this.el, originalEvent: event, item })
                         if (edata.isCancelled === true) return
@@ -899,12 +901,12 @@ class w2field extends w2base {
         }
         // color, date, time
         if (['color', 'date', 'time', 'datetime'].indexOf(this.type) !== -1) {
-            if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+            if (query(this.el).prop('readOnly') || query(this.el).prop('disabled')) return
             this.updateOverlay()
         }
         // menu
         if (['list', 'combo', 'enum'].indexOf(this.type) !== -1) {
-            if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) {
+            if (query(this.el).prop('readOnly') || query(this.el).prop('disabled')) {
                 // still add focus
                 query(this.el).addClass('has-focus')
                 return
@@ -1015,7 +1017,7 @@ class w2field extends w2base {
         }
         // numeric
         if (['int', 'float', 'money', 'currency', 'percent'].includes(this.type)) {
-            if (!options.keyboard || query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+            if (!options.keyboard || query(this.el).prop('readOnly') || query(this.el).prop('disabled')) return
             val = parseFloat(query(this.el).val().replace(options.moneyRE, '')) || 0
             inc = options.step
             if (event.ctrlKey || event.metaKey) inc = options.step * 10
@@ -1040,7 +1042,7 @@ class w2field extends w2base {
         }
         // date/datetime
         if (['date', 'datetime'].includes(this.type)) {
-            if (!options.keyboard || query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+            if (!options.keyboard || query(this.el).prop('readOnly') || query(this.el).prop('disabled')) return
             let is = (this.type == 'date' ? w2utils.isDate : w2utils.isDateTime).bind(w2utils)
             let format = (this.type == 'date' ? w2utils.formatDate : w2utils.formatDateTime).bind(w2utils)
 
@@ -1081,7 +1083,7 @@ class w2field extends w2base {
         }
         // time
         if (this.type === 'time') {
-            if (!options.keyboard || query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+            if (!options.keyboard || query(this.el).prop('readOnly') || query(this.el).prop('disabled')) return
             inc = (event.ctrlKey || event.metaKey ? 60 : 1)
             val = query(this.el).val()
             let time = w2date.str2min(val) || w2date.str2min((new Date()).getHours() + ':' + ((new Date()).getMinutes() - 1))
@@ -1203,7 +1205,7 @@ class w2field extends w2base {
         let params
         // color
         if (this.type === 'color') {
-            if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+            if (query(this.el).prop('readOnly') || query(this.el).prop('disabled')) return
             w2color.show(w2utils.extend({
                 name: this.el.id + '_color',
                 anchor: this.el,
@@ -1318,7 +1320,7 @@ class w2field extends w2base {
         }
         // date
         if (['date', 'time', 'datetime'].includes(this.type)) {
-            if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+            if (query(this.el).prop('readOnly') || query(this.el).prop('disabled')) return
             w2date.show(w2utils.extend({
                 name: this.el.id + '_date',
                 anchor: this.el,
@@ -1600,7 +1602,7 @@ class w2field extends w2base {
                     <div class="li-search">
                         <input ${searchId} type="text" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"
                             tabindex="${tabIndex}"
-                            ${query(this.el).prop('readonly') ? 'readonly': '' }
+                            ${query(this.el).prop('readOnly') ? 'readonly': '' }
                             ${query(this.el).prop('disabled') ? 'disabled': '' }>
                     </div>
                 </div>
@@ -1613,15 +1615,14 @@ class w2field extends w2base {
                     <input name="attachment" class="file-input" type="file" tabindex="-1"'
                         style="width: 100%; height: 100%; opacity: 0" title=""
                         ${this.options.max !== 1 ? 'multiple' : ''}
-                        ${query(this.el).prop('readonly') ? 'readonly': ''}
-                        ${query(this.el).prop('disabled') ? 'disabled': ''}
+                        ${query(this.el).prop('readOnly') || query(this.el).prop('disabled') ? 'disabled': ''}
                         ${query(this.el).attr('accept') ? ' accept="'+ query(this.el).attr('accept') +'"': ''}>
                 </div>
                 <div class="w2ui-multi-items">
                     <div class="li-search" style="display: none">
                         <input ${searchId} type="text" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"
                             tabindex="${tabIndex}"
-                            ${query(this.el).prop('readonly') ? 'readonly': '' }
+                            ${query(this.el).prop('readOnly') ? 'readonly': '' }
                             ${query(this.el).prop('disabled') ? 'disabled': '' }>
                     </div>
                 </div>
@@ -1657,19 +1658,19 @@ class w2field extends w2base {
                 .off('.drag')
                 .on('click.drag', (event) => {
                     event.stopPropagation()
-                    if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+                    if (query(this.el).prop('readOnly') || query(this.el).prop('disabled')) return
                     this.focus(event)
                 })
                 .on('dragenter.drag', (event) => {
-                    if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+                    if (query(this.el).prop('readOnly') || query(this.el).prop('disabled')) return
                     div.addClass('w2ui-file-dragover')
                 })
                 .on('dragleave.drag', (event) => {
-                    if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+                    if (query(this.el).prop('readOnly') || query(this.el).prop('disabled')) return
                     div.removeClass('w2ui-file-dragover')
                 })
                 .on('drop.drag', (event) => {
-                    if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+                    if (query(this.el).prop('readOnly') || query(this.el).prop('disabled')) return
                     div.removeClass('w2ui-file-dragover')
                     let files = Array.from(event.dataTransfer.files)
                     files.forEach(file => { this.addFile(file) })
@@ -1732,7 +1733,10 @@ class w2field extends w2base {
         if (edata.isCancelled === true) return
         // if errors and not silent
         if (options.silent !== true && errors.length > 0) {
-            w2tooltip.show(this.el, 'Errors: ' + errors.join('<br>'))
+            w2tooltip.show({
+                anchor: this.el,
+                html: 'Errors: ' + errors.join('<br>')
+            })
             console.log('ERRORS (while adding files): ', errors)
             return
         }

@@ -771,6 +771,8 @@ class w2layout extends w2base {
         if (this.padding < 0) this.padding = 0
 
         // layout itself
+        // width includes border and padding, we need to exclude that so panels
+        // are sized correctly
         let width  = w2utils.getSize(query(this.box), 'width')
         let height = w2utils.getSize(query(this.box), 'height')
         let self = this

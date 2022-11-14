@@ -1564,6 +1564,9 @@ class Utils {
                     ret = parseFloat(styles.height)
                     if (styles.height === 'auto') ret = 0
                     break
+                default:
+                    ret = parseFloat(styles[type] ?? 0) || 0
+                    break
             }
         }
         return ret
@@ -2218,6 +2221,14 @@ class Utils {
                     })
             })
         })
+    }
+
+    debounce(func, wait = 250) {
+        let timeout
+        return (...args) => {
+            clearTimeout(timeout)
+            timeout = setTimeout(() => { func(...args) }, wait)
+        }
     }
 }
 var w2utils = new Utils() // eslint-disable-line -- needs to be functional/module scope variable
