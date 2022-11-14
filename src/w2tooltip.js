@@ -2229,6 +2229,11 @@ class DateTooltip extends Tooltip {
                 ${weekDays}
         `
         let DT = new Date(`${year}/${month}/1`) // first of month
+        /**
+         * Move to noon, instead of midnight. If not, then the date when time saving happens
+         * will be duplicated in the calendar
+         */
+        DT = new Date(DT.getTime() + dayLengthMil * 0.5)
         let weekday = DT.getDay()
         if (w2utils.settings.weekStarts == 'M') weekDay--
         if (weekday > 0) {
