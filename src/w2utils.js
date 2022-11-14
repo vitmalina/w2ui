@@ -2227,7 +2227,7 @@ class Utils {
         let timeout
         return (...args) => {
             clearTimeout(timeout)
-            timeout = setTimeout(() => { func(this, args) }, wait)
+            timeout = setTimeout(() => { func(...args) }, wait)
         }
     }
 }
