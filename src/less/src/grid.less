@@ -8,9 +8,13 @@
     border-radius: 2px;
     overflow: hidden !important;
 
-    > div {
+    > div.w2ui-grid-box {
         position: absolute;
         overflow: hidden;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
     }
 
     // ===== Grid Header =====
@@ -489,7 +493,7 @@
                     overflow: hidden;
                     input[type=checkbox] {
                         //margin: 3px 1px; //* needed for Opera on Mac */
-                        margin-top: 0px;
+                        margin-top: 3px;
                         margin-bottom: 0px;
                         position: relative;
                     }

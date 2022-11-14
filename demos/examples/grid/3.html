@@ -8,7 +8,7 @@
 </div>
 
 <!--CODE-->
-<div id="grid" style="width: 900px; height: 440px; overflow: hidden;"></div>
+<div id="grid" style="width: 900px; height: 340px; overflow: hidden;"></div>
 <br>
 <button class="w2ui-btn" onclick="action('header')">Header</button>
 <button class="w2ui-btn" onclick="action('toolbar')">Toolbar</button>
@@ -18,17 +18,17 @@
 <button class="w2ui-btn" onclick="action('lineNumbers')">Line Numbers</button>
 <button class="w2ui-btn" onclick="action('selectColumn')">Select Column</button>
 <button class="w2ui-btn" onclick="action('expandColumn')">Expand Column</button>
-<button class="w2ui-btn" onclick="action('orderColumn')">Order Column (1.5+)</button>
+<button class="w2ui-btn" onclick="action('reorderRows')">Order Column (1.5+)</button>
 
 <!--CODE-->
 <script type="module">
-import { w2grid } from '__W2UI_PATH__'
+import { w2grid, query } from '__W2UI_PATH__'
 
 let grid = new w2grid({
     name: 'grid',
     box: '#grid',
     header: 'List of Names',
-    reorderRows: true,
+    reorderRows: false,
     show: {
         header: true,
         footer: true,
@@ -55,7 +55,11 @@ let grid = new w2grid({
 grid.load('data/list.json')
 
 window.action = function (param1) {
-    grid.show[param1] = !grid.show[param1]
+    if (param1 == 'reorderRows') {
+        grid.reorderRows = !grid.reorderRows
+    } else {
+        grid.show[param1] = !grid.show[param1]
+    }
     grid.refresh()
 }
 </script>
