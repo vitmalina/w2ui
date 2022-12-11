@@ -42,6 +42,7 @@
  *  - deprecated onUnselect event
  *  - requestComplete(data, action, callBack, resolve, reject) - new argument list
  *  - msgAJAXError -> msgHTTPError
+ *  - aded msgServerError
  *  - deleted grid.method
  *  - added grid.prepareParams
  *  - added mouseEnter/mouseLeave
@@ -262,6 +263,7 @@ class w2grid extends w2base {
         this.msgDelete     = 'Are you sure you want to delete ${count} ${records}?'
         this.msgNotJSON    = 'Returned data is not in valid JSON format.'
         this.msgHTTPError  = 'HTTP error. See console for more details.'
+        this.msgServerError= 'Server error'
         this.msgRefresh    = 'Refreshing...'
         this.msgNeedReload = 'Your remote data source record count has changed, reloading from the first record.'
         this.msgEmpty      = '' // if not blank, then it is message when server returns no records
@@ -2892,7 +2894,7 @@ class w2grid extends w2base {
                 console.log('ERROR: Server communication failed.',
                     '\n   EXPECTED:', { total: 5, records: [{ recid: 1, field: 'value' }] },
                     '\n         OR:', { error: true, message: 'error message' })
-                self.requestComplete({ error: true, message: 'HTTP Request error', response }, action, callBack, resolve, reject)
+                self.requestComplete({ error: true, message: w2utils.lang(this.msgHTTPError), response }, action, callBack, resolve, reject)
             }
             // event after
             edata2.finish()
@@ -2902,10 +2904,10 @@ class w2grid extends w2base {
     requestComplete(data, action, callBack, resolve, reject) {
         let error = data.error ?? false
         if (data.error == null && data.status === 'error') error = true
-        this.last.fetch.response = (Date.now() - this.last.fetch.start)/1000
+        this.last.fetch.response = (Date.now() - this.last.fetch.start) / 1000
         setTimeout(() => {
             if (this.show.statusResponse) {
-                this.status(w2utils.lang('Server Response ${count} seconds', {count: this.last.fetch.response}))
+                this.status(w2utils.lang('Server Response ${count} seconds', { count: this.last.fetch.response }))
             }
         }, 10)
         this.last.pull_more = false
@@ -2943,9 +2945,7 @@ class w2grid extends w2base {
                     }
                 }
             }
-            if (data.error) {
-                this.error(data.message)
-            } else if (action == 'load') {
+            if (action == 'load') {
                 if (data.total == null) data.total = -1
                 if (data.records == null) {
                     data.records = []
@@ -3010,11 +3010,7 @@ class w2grid extends w2base {
                 return this.reload()
             }
         } else {
-            data = {
-                error, data,
-                message: w2utils.lang(this.msgHTTPError),
-            }
-            this.error(w2utils.lang(this.msgHTTPError))
+            this.error(w2utils.lang(data.message ?? this.msgServerError))
             reject(data)
         }
         // event after
@@ -5397,7 +5393,7 @@ class w2grid extends w2base {
         // show empty message
         if (this.records.length === 0 && this.msgEmpty) {
             query(this.box).find(`#grid_${this.name}_body`)
-                .append(`<div id="grid_${this.name}_empty_msg" class="w2ui-grid-empty-msg"><div>${this.msgEmpty}</div></div>`)
+                .append(`<div id="grid_${this.name}_empty_msg" class="w2ui-grid-empty-msg"><div>${w2utils.lang(this.msgEmpty)}</div></div>`)
         } else if (query(this.box).find(`#grid_${this.name}_empty_msg`).length > 0) {
             query(this.box).find(`#grid_${this.name}_empty_msg`).remove()
         }

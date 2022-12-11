@@ -87,6 +87,7 @@ class w2form extends w2base {
         this.onError      = null
         this.msgRefresh   = 'Loading...'
         this.msgSaving    = 'Saving...'
+        this.msgServerError = 'Server error'
         this.ALL_TYPES    = [ 'text', 'textarea', 'email', 'pass', 'password', 'int', 'float', 'money', 'currency',
             'percent', 'hex', 'alphanumeric', 'color', 'date', 'time', 'datetime', 'toggle', 'checkbox', 'radio',
             'check', 'checks', 'list', 'combo', 'enum', 'file', 'select', 'map', 'array', 'div', 'custom', 'html',
@@ -996,13 +997,17 @@ class w2form extends w2base {
                             data
                         })
                         if (edata.isCancelled === true) return
+                        // for backward compatibility
+                        if (data.error == null && data.status === 'error') {
+                            data.error = true
+                        }
                         // if data.record is not present, then assume that entire response is the record
                         if (!data.record) {
                             Object.assign(data, { record: w2utils.clone(data) })
                         }
                         // server response error, not due to network issues
                         if (data.error === true) {
-                            self.error(w2utils.lang(data.message))
+                            self.error(w2utils.lang(data.message ?? this.msgServerError))
                         } else {
                             self.record = w2utils.clone(data.record)
                         }
@@ -1126,7 +1131,7 @@ class w2form extends w2base {
                         if (edata.isCancelled === true) return
                         // server error, not due to network issues
                         if (data.error === true) {
-                            self.error(w2utils.lang(data.message))
+                            self.error(w2utils.lang(data.message ?? this.msgServerError))
                         } else {
                             self.original = null
                         }
