@@ -392,7 +392,7 @@ class w2grid extends w2base {
                 if (rec.recid == null) {
                     console.log('ERROR: Cannot add records without recid. (obj: '+ this.name +')')
                 }
-                if (rec.w2ui && rec.w2ui.summary === true) {
+                if (rec.w2ui?.summary === true) {
                     this.summary.push(rec)
                     remove.push(ind) // cannot remove here as it will mess up array walk thru
                 }
@@ -460,7 +460,7 @@ class w2grid extends w2base {
                 console.log('ERROR: Cannot add record without recid. (obj: '+ this.name +')')
                 continue
             }
-            if (rec.w2ui && rec.w2ui.summary === true) {
+            if (rec.w2ui?.summary === true) {
                 if (first) this.summary.unshift(rec); else this.summary.push(rec)
             } else {
                 if (first) this.records.unshift(rec); else this.records.push(rec)
@@ -854,7 +854,7 @@ class w2grid extends w2base {
         function preparePaths() {
             for (let i = 0; i < obj.records.length; i++) {
                 let rec = obj.records[i]
-                if (rec.w2ui && rec.w2ui.parent_recid != null) {
+                if (rec.w2ui?.parent_recid != null) {
                     rec.w2ui._path = getRecordPath(rec)
                 }
             }
@@ -864,7 +864,7 @@ class w2grid extends w2base {
         function cleanupPaths() {
             for (let i = 0; i < obj.records.length; i++) {
                 let rec = obj.records[i]
-                if (rec.w2ui && rec.w2ui.parent_recid != null) {
+                if (rec.w2ui?.parent_recid != null) {
                     rec.w2ui._path = null
                 }
             }
@@ -895,7 +895,7 @@ class w2grid extends w2base {
             // during actual sort, we should never reach this point
             let subrec = obj.get(rec.w2ui.parent_recid)
             if (!subrec) {
-                console.log('ERROR: no parent record: '+rec.w2ui.parent_recid)
+                console.log('ERROR: no parent record: ' + rec.w2ui.parent_recid)
                 return [rec]
             }
             return (getRecordPath(subrec).concat(rec))
@@ -1007,7 +1007,7 @@ class w2grid extends w2base {
                 let rec   = this.records[i]
                 let match = searchRecord(rec)
                 if (match) {
-                    if (rec && rec.w2ui) addParent(rec.w2ui.parent_recid)
+                    if (rec?.w2ui) addParent(rec.w2ui.parent_recid)
                     if (this.showExtraOnSearch > 0) {
                         let before = this.showExtraOnSearch
                         let after  = this.showExtraOnSearch
@@ -1201,7 +1201,7 @@ class w2grid extends w2base {
             if ((obj.last.logic == 'OR' && fl !== 0) ||
                 (obj.last.logic == 'AND' && fl == obj.searchData.length))
                 return true
-            if (rec.w2ui && rec.w2ui.children && rec.w2ui.expanded !== true) {
+            if (rec.w2ui?.children && rec.w2ui?.expanded !== true) {
                 // there are closed children, search them too.
                 for (let r = 0; r < rec.w2ui.children.length; r++) {
                     let subRec = rec.w2ui.children[r]
@@ -1220,8 +1220,9 @@ class w2grid extends w2base {
             }
             duplicateMap[recid] = true
             let rec = obj.records[i]
-            if (rec && rec.w2ui)
+            if (rec?.w2ui) {
                 addParent(rec.w2ui.parent_recid)
+            }
             obj.last.searchIds.push(i)
         }
     }
@@ -2984,7 +2985,7 @@ class w2grid extends w2base {
                         if (rec.recid == null) {
                             rec.recid = 'recid-' + this.records.length
                         }
-                        if (rec.w2ui && rec.w2ui.summary === true) {
+                        if (rec.w2ui?.summary === true) {
                             this.summary.push(rec)
                         } else {
                             this.records.push(rec)
@@ -3057,7 +3058,7 @@ class w2grid extends w2base {
 
         for (let r = 0; r < recordsBase.length; r++) {
             let rec = recordsBase[r]
-            if (rec.w2ui) {
+            if (rec?.w2ui) {
                 if (rec.w2ui.changes != null) {
                     let obj                    = {}
                     obj[this.recid || 'recid'] = rec.recid
@@ -3434,11 +3435,11 @@ class w2grid extends w2base {
             if (!w2utils.isPlainObject(new_val)) new_val = fld.clean(new_val)
         }
         if (input.type == 'checkbox') {
-            if (rec.w2ui && rec.w2ui.editable === false) input.checked = !input.checked
+            if (rec.w2ui?.editable === false) input.checked = !input.checked
             new_val = input.checked
         }
         let old_val = this.parseField(rec, col.field)
-        let prev_val = (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes.hasOwnProperty(col.field) ? rec.w2ui.changes[col.field]: old_val)
+        let prev_val = (rec.w2ui?.changes && rec.w2ui.changes.hasOwnProperty(col.field) ? rec.w2ui.changes[col.field]: old_val)
         // change/restore event
         let edata = {
             target: this.name, input,
@@ -3592,7 +3593,7 @@ class w2grid extends w2base {
                     let rec = this.records[ind]
                     if (ind != null && fld != 'recid') {
                         this.records[ind][fld] = ''
-                        if (rec.w2ui && rec.w2ui.changes) delete rec.w2ui.changes[fld]
+                        if (rec.w2ui?.changes) delete rec.w2ui.changes[fld]
                         // -- style should not be deleted
                         // if (rec.style != null && w2utils.isPlainObject(rec.style) && rec.style[recs[r].column]) {
                         //     delete rec.style[recs[r].column];
@@ -4414,14 +4415,14 @@ class w2grid extends w2base {
     toggle(recid) {
         let rec  = this.get(recid)
         if (rec == null) return
-        rec.w2ui = rec.w2ui || {}
+        rec.w2ui = rec.w2ui ?? {}
         if (rec.w2ui.expanded === true) return this.collapse(recid); else return this.expand(recid)
     }
 
     expand(recid, noRefresh) {
         let ind  = this.get(recid, true)
         let rec  = this.records[ind]
-        rec.w2ui = rec.w2ui || {}
+        rec.w2ui = rec.w2ui ?? {}
         let id   = w2utils.escapeId(recid)
         let children = rec.w2ui.children
         let edata
@@ -4431,7 +4432,7 @@ class w2grid extends w2base {
             if (edata.isCancelled === true) return false
             rec.w2ui.expanded = true
             children.forEach((child) => {
-                child.w2ui              = child.w2ui || {}
+                child.w2ui = child.w2ui ?? {}
                 child.w2ui.parent_recid = rec.recid
                 if (child.w2ui.children == null) child.w2ui.children = []
             })
@@ -4439,7 +4440,7 @@ class w2grid extends w2base {
             if (this.total !== -1) {
                 this.total += children.length
             }
-            let url     = (typeof this.url != 'object' ? this.url : this.url.get)
+            let url = (typeof this.url != 'object' ? this.url : this.url.get)
             if (!url) {
                 this.localSort(true, true)
                 if (this.searchData.length > 0) {
@@ -4753,7 +4754,7 @@ class w2grid extends w2base {
         edata.finish()
 
         function setCellPaste(rec, field, paste) {
-            rec.w2ui = rec.w2ui || {}
+            rec.w2ui = rec.w2ui ?? {}
             rec.w2ui.changes = rec.w2ui.changes || {}
             rec.w2ui.changes[field] = paste
         }
@@ -7801,9 +7802,9 @@ class w2grid extends w2base {
         }
         if (this.show.expandColumn) {
             let tmp_img = ''
-            if (record.w2ui && record.w2ui.expanded === true) tmp_img = '-'; else tmp_img = '+'
-            if (record.w2ui && (record.w2ui.expanded == 'none' || !Array.isArray(record.w2ui.children) || !record.w2ui.children.length)) tmp_img = '+'
-            if (record.w2ui && record.w2ui.expanded == 'spinner') tmp_img = '<div class="w2ui-spinner" style="width: 16px; margin: -2px 2px;"></div>'
+            if (record.w2ui?.expanded === true) tmp_img = '-'; else tmp_img = '+'
+            if ((record.w2ui?.expanded == 'none' || !Array.isArray(record.w2ui.children) || !record.w2ui.children.length)) tmp_img = '+'
+            if (record.w2ui?.expanded == 'spinner') tmp_img = '<div class="w2ui-spinner" style="width: 16px; margin: -2px 2px;"></div>'
             rec_html1 +=
                     '<td id="grid_'+ this.name +'_cell_'+ ind +'_expand' + (summary ? '_s' : '') + '" class="w2ui-grid-data w2ui-col-expand">'+
                         (summary !== true ? `<div>${tmp_img}</div>` : '' ) +
@@ -7885,20 +7886,20 @@ class w2grid extends w2base {
         let { value, style, className, attr, divAttr } = this.getCellValue(ind, col_ind, summary, true)
         let edit = (ind !== -1 ? this.getCellEditable(ind, col_ind) : '')
         let divStyle = 'max-height: '+ parseInt(this.recordHeight) +'px;' + (col.clipboardCopy ? 'margin-right: 20px' : '')
-        let isChanged = !summary && record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null
+        let isChanged = !summary && record?.w2ui?.changes && record.w2ui.changes[col.field] != null
         let sel = this.last.selection
         let isRowSelected = false
         let infoBubble    = ''
         if (sel.indexes.indexOf(ind) != -1) isRowSelected = true
         if (col_span == null) {
-            if (record && record.w2ui && record.w2ui.colspan && record.w2ui.colspan[col.field]) {
+            if (record?.w2ui?.colspan && record.w2ui.colspan[col.field]) {
                 col_span = record.w2ui.colspan[col.field]
             } else {
                 col_span = 1
             }
         }
         // expand icon
-        if (col_ind === 0 && record && record.w2ui && Array.isArray(record.w2ui.children)) {
+        if (col_ind === 0 && Array.isArray(record?.w2ui?.children)) {
             let level  = 0
             let subrec = this.get(record.w2ui.parent_recid, true)
             while (true) {
@@ -7963,7 +7964,7 @@ class w2grid extends w2base {
                 style += 'text-align: right;'
             }
         }
-        if (record && record.w2ui) {
+        if (record?.w2ui) {
             if (typeof record.w2ui.style == 'object') {
                 if (typeof record.w2ui.style[col_ind] == 'string') style += record.w2ui.style[col_ind] + ';'
                 if (typeof record.w2ui.style[col.field] == 'string') style += record.w2ui.style[col.field] + ';'
@@ -8418,7 +8419,7 @@ class w2grid extends w2base {
                 }
             }
 
-            if (rec.w2ui && rec.w2ui.children && rec.w2ui.expanded !== true) {
+            if (rec.w2ui?.children && rec.w2ui?.expanded !== true) {
                 // there are closed children, prepare them too.
                 for (let r = 0; r < rec.w2ui.children.length; r++) {
                     let subRec = rec.w2ui.children[r]
