@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (11/14/2022, 8:32:03 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/10/2022, 7:03:59 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -974,6 +974,7 @@ query.version = Query.version
  *  - added stripSpaces
  *  - implemented marker
  *  - cssPrefix - deprecated
+ *  - w2utils.debounce
  */
 
 // variable that holds all w2ui objects
@@ -1924,10 +1925,12 @@ class Utils {
                 transition: (speed/1000) + 's',
                 opacity: 0,
             })
-            query(box).find('.w2ui-lock-msg').remove()
-            box._prevUnlock = setTimeout(() => {
+            let _box = query(box).get(0)
+            clearTimeout(_box._prevUnlock)
+            _box._prevUnlock = setTimeout(() => {
                 query(box).find('.w2ui-lock').remove()
             }, speed)
+            query(box).find('.w2ui-lock-msg').remove()
         } else {
             query(box).find('.w2ui-lock').remove()
             query(box).find('.w2ui-lock-msg').remove()
@@ -2422,6 +2425,9 @@ class Utils {
                 case 'height' :
                     ret = parseFloat(styles.height)
                     if (styles.height === 'auto') ret = 0
+                    break
+                default:
+                    ret = parseFloat(styles[type] ?? 0) || 0
                     break
             }
         }
@@ -3047,6 +3053,13 @@ class Utils {
                     })
             })
         })
+    }
+    debounce(func, wait = 250) {
+        let timeout
+        return (...args) => {
+            clearTimeout(timeout)
+            timeout = setTimeout(() => { func(...args) }, wait)
+        }
     }
 }
 var w2utils = new Utils() // eslint-disable-line -- needs to be functional/module scope variable
@@ -5361,7 +5374,7 @@ class MenuTooltip extends Tooltip {
             }
         })
         // show empty message
-        if (overlay.tmp.searchCount == 0 || overlay.options?.items.length == 0) {
+        if (overlay.tmp.searchCount == 0 || overlay.options?.items?.length == 0) {
             if (query(overlay.box).find('.w2ui-no-items').length == 0) {
                 query(overlay.box).find('.w2ui-menu:not(.w2ui-sub-menu)').append(`
                     <div class="w2ui-no-items">
@@ -5446,7 +5459,7 @@ class MenuTooltip extends Tooltip {
         }
         if (items == null) items = overlay.options.items
         items.forEach((item, ind) => {
-            if (!item.hidden && !item.disabled && !item?.text.startsWith('--')) {
+            if (!item.hidden && !item.disabled && !item?.text?.startsWith('--')) {
                 res.push(parents.concat([ind]).join('-'))
                 if (Array.isArray(item.items) && item.items.length > 0 && item.expanded) {
                     parents.push(ind)
@@ -6020,6 +6033,11 @@ class DateTooltip extends Tooltip {
                 ${weekDays}
         `
         let DT = new Date(`${year}/${month}/1`) // first of month
+        /**
+         * Move to noon, instead of midnight. If not, then the date when time saving happens
+         * will be duplicated in the calendar
+         */
+        DT = new Date(DT.getTime() + dayLengthMil * 0.5)
         let weekday = DT.getDay()
         if (w2utils.settings.weekStarts == 'M') weekDay--
         if (weekday > 0) {
@@ -9892,6 +9910,8 @@ class w2layout extends w2base {
         if (edata.isCancelled === true) return
         if (this.padding < 0) this.padding = 0
         // layout itself
+        // width includes border and padding, we need to exclude that so panels
+        // are sized correctly
         let width  = w2utils.getSize(query(this.box), 'width')
         let height = w2utils.getSize(query(this.box), 'height')
         let self = this
@@ -10629,7 +10649,7 @@ class w2grid extends w2base {
                 if (rec.recid == null) {
                     console.log('ERROR: Cannot add records without recid. (obj: '+ this.name +')')
                 }
-                if (rec.w2ui && rec.w2ui.summary === true) {
+                if (rec.w2ui?.summary === true) {
                     this.summary.push(rec)
                     remove.push(ind) // cannot remove here as it will mess up array walk thru
                 }
@@ -10696,7 +10716,7 @@ class w2grid extends w2base {
                 console.log('ERROR: Cannot add record without recid. (obj: '+ this.name +')')
                 continue
             }
-            if (rec.w2ui && rec.w2ui.summary === true) {
+            if (rec.w2ui?.summary === true) {
                 if (first) this.summary.unshift(rec); else this.summary.push(rec)
             } else {
                 if (first) this.records.unshift(rec); else this.records.push(rec)
@@ -11067,7 +11087,7 @@ class w2grid extends w2base {
         function preparePaths() {
             for (let i = 0; i < obj.records.length; i++) {
                 let rec = obj.records[i]
-                if (rec.w2ui && rec.w2ui.parent_recid != null) {
+                if (rec.w2ui?.parent_recid != null) {
                     rec.w2ui._path = getRecordPath(rec)
                 }
             }
@@ -11076,7 +11096,7 @@ class w2grid extends w2base {
         function cleanupPaths() {
             for (let i = 0; i < obj.records.length; i++) {
                 let rec = obj.records[i]
-                if (rec.w2ui && rec.w2ui.parent_recid != null) {
+                if (rec.w2ui?.parent_recid != null) {
                     rec.w2ui._path = null
                 }
             }
@@ -11105,7 +11125,7 @@ class w2grid extends w2base {
             // during actual sort, we should never reach this point
             let subrec = obj.get(rec.w2ui.parent_recid)
             if (!subrec) {
-                console.log('ERROR: no parent record: '+rec.w2ui.parent_recid)
+                console.log('ERROR: no parent record: ' + rec.w2ui.parent_recid)
                 return [rec]
             }
             return (getRecordPath(subrec).concat(rec))
@@ -11211,7 +11231,7 @@ class w2grid extends w2base {
                 let rec   = this.records[i]
                 let match = searchRecord(rec)
                 if (match) {
-                    if (rec && rec.w2ui) addParent(rec.w2ui.parent_recid)
+                    if (rec?.w2ui) addParent(rec.w2ui.parent_recid)
                     if (this.showExtraOnSearch > 0) {
                         let before = this.showExtraOnSearch
                         let after  = this.showExtraOnSearch
@@ -11404,7 +11424,7 @@ class w2grid extends w2base {
             if ((obj.last.logic == 'OR' && fl !== 0) ||
                 (obj.last.logic == 'AND' && fl == obj.searchData.length))
                 return true
-            if (rec.w2ui && rec.w2ui.children && rec.w2ui.expanded !== true) {
+            if (rec.w2ui?.children && rec.w2ui?.expanded !== true) {
                 // there are closed children, search them too.
                 for (let r = 0; r < rec.w2ui.children.length; r++) {
                     let subRec = rec.w2ui.children[r]
@@ -11422,8 +11442,9 @@ class w2grid extends w2base {
             }
             duplicateMap[recid] = true
             let rec = obj.records[i]
-            if (rec && rec.w2ui)
+            if (rec?.w2ui) {
                 addParent(rec.w2ui.parent_recid)
+            }
             obj.last.searchIds.push(i)
         }
     }
@@ -13134,7 +13155,7 @@ class w2grid extends w2base {
                         if (rec.recid == null) {
                             rec.recid = 'recid-' + this.records.length
                         }
-                        if (rec.w2ui && rec.w2ui.summary === true) {
+                        if (rec.w2ui?.summary === true) {
                             this.summary.push(rec)
                         } else {
                             this.records.push(rec)
@@ -13204,7 +13225,7 @@ class w2grid extends w2base {
         }
         for (let r = 0; r < recordsBase.length; r++) {
             let rec = recordsBase[r]
-            if (rec.w2ui) {
+            if (rec?.w2ui) {
                 if (rec.w2ui.changes != null) {
                     let obj                    = {}
                     obj[this.recid || 'recid'] = rec.recid
@@ -13572,11 +13593,11 @@ class w2grid extends w2base {
             if (!w2utils.isPlainObject(new_val)) new_val = fld.clean(new_val)
         }
         if (input.type == 'checkbox') {
-            if (rec.w2ui && rec.w2ui.editable === false) input.checked = !input.checked
+            if (rec.w2ui?.editable === false) input.checked = !input.checked
             new_val = input.checked
         }
         let old_val = this.parseField(rec, col.field)
-        let prev_val = (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes.hasOwnProperty(col.field) ? rec.w2ui.changes[col.field]: old_val)
+        let prev_val = (rec.w2ui?.changes && rec.w2ui.changes.hasOwnProperty(col.field) ? rec.w2ui.changes[col.field]: old_val)
         // change/restore event
         let edata = {
             target: this.name, input,
@@ -13728,7 +13749,7 @@ class w2grid extends w2base {
                     let rec = this.records[ind]
                     if (ind != null && fld != 'recid') {
                         this.records[ind][fld] = ''
-                        if (rec.w2ui && rec.w2ui.changes) delete rec.w2ui.changes[fld]
+                        if (rec.w2ui?.changes) delete rec.w2ui.changes[fld]
                         // -- style should not be deleted
                         // if (rec.style != null && w2utils.isPlainObject(rec.style) && rec.style[recs[r].column]) {
                         //     delete rec.style[recs[r].column];
@@ -14515,13 +14536,13 @@ class w2grid extends w2base {
     toggle(recid) {
         let rec  = this.get(recid)
         if (rec == null) return
-        rec.w2ui = rec.w2ui || {}
+        rec.w2ui = rec.w2ui ?? {}
         if (rec.w2ui.expanded === true) return this.collapse(recid); else return this.expand(recid)
     }
     expand(recid, noRefresh) {
         let ind  = this.get(recid, true)
         let rec  = this.records[ind]
-        rec.w2ui = rec.w2ui || {}
+        rec.w2ui = rec.w2ui ?? {}
         let id   = w2utils.escapeId(recid)
         let children = rec.w2ui.children
         let edata
@@ -14531,7 +14552,7 @@ class w2grid extends w2base {
             if (edata.isCancelled === true) return false
             rec.w2ui.expanded = true
             children.forEach((child) => {
-                child.w2ui              = child.w2ui || {}
+                child.w2ui = child.w2ui ?? {}
                 child.w2ui.parent_recid = rec.recid
                 if (child.w2ui.children == null) child.w2ui.children = []
             })
@@ -14539,7 +14560,7 @@ class w2grid extends w2base {
             if (this.total !== -1) {
                 this.total += children.length
             }
-            let url     = (typeof this.url != 'object' ? this.url : this.url.get)
+            let url = (typeof this.url != 'object' ? this.url : this.url.get)
             if (!url) {
                 this.localSort(true, true)
                 if (this.searchData.length > 0) {
@@ -14568,7 +14589,7 @@ class w2grid extends w2base {
                 </tr>`)
             // event before
             edata = this.trigger('expand', { target: this.name, recid: recid,
-                box_id: 'grid_'+ this.name +'_rec_'+ recid +'_expanded', fbox_id: 'grid_'+ this.name +'_frec_'+ id +'_expanded' })
+                box_id: 'grid_'+ this.name +'_rec_'+ recid +'_expanded', fbox_id: 'grid_'+ this.name +'_frec_'+ recid +'_expanded' })
             if (edata.isCancelled === true) {
                 query(this.box).find('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').remove()
                 query(this.box).find('#grid_'+ this.name +'_frec_'+ id +'_expanded_row').remove()
@@ -14636,7 +14657,7 @@ class w2grid extends w2base {
             if (query(this.box).find('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').length === 0 || this.show.expandColumn !== true) return false
             // event before
             edata = this.trigger('collapse', { target: this.name, recid: recid,
-                box_id: 'grid_'+ this.name +'_rec_'+ id +'_expanded', fbox_id: 'grid_'+ this.name +'_frec_'+ id +'_expanded' })
+                box_id: 'grid_'+ this.name +'_rec_'+ recid +'_expanded', fbox_id: 'grid_'+ this.name +'_frec_'+ recid +'_expanded' })
             if (edata.isCancelled === true) return false
             // default action
             query(this.box).find('#grid_'+ this.name +'_rec_'+ id).removeAttr('expanded').removeClass('w2ui-expanded')
@@ -14843,7 +14864,7 @@ class w2grid extends w2base {
         // event after
         edata.finish()
         function setCellPaste(rec, field, paste) {
-            rec.w2ui = rec.w2ui || {}
+            rec.w2ui = rec.w2ui ?? {}
             rec.w2ui.changes = rec.w2ui.changes || {}
             rec.w2ui.changes[field] = paste
         }
@@ -15700,7 +15721,7 @@ class w2grid extends w2base {
                         if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) {
                             target.focus()
                         } else {
-                            if ($input.get(0) !== document.active) $input.get(0).focus({ preventScroll: true })
+                            if ($input.get(0) !== document.active) $input.get(0)?.focus({ preventScroll: true })
                         }
                     }
                 }, 50)
@@ -16250,23 +16271,25 @@ class w2grid extends w2base {
                     await event.complete
                     let input = query(this.box).find(`#grid_${this.name}_search_all`)
                     w2utils.bindEvents(query(this.box).find(`#grid_${this.name}_search_all, .w2ui-action`), this)
-                    input.on('change', event => {
-                        if (!this.liveSearch) {
-                            this.search(this.last.field, event.target.value)
-                            this.searchSuggest(true, true, this)
+                    // slow down live search calls
+                    let slowSearch = w2utils.debounce((event) => {
+                        let val = event.target.value
+                        if (this.liveSearch && this.last.liveText != val) {
+                            this.last.liveText = val
+                            this.search(this.last.field, val)
                         }
-                    })
-                        .on('blur', () => { this.last.liveText = '' })
-                        .on('keyup', event => {
-                            let val = event.target.value
-                            if (this.liveSearch && this.last.liveText != val) {
-                                this.last.liveText = val
-                                this.search(this.last.field, val)
-                            }
-                            if (event.keyCode == 40) { // arrow down
-                                this.searchSuggest(true)
+                        if (event.keyCode == 40) { // arrow down
+                            this.searchSuggest(true)
+                        }
+                    }, 250)
+                    input.on('change', event => {
+                            if (!this.liveSearch) {
+                                this.search(this.last.field, event.target.value)
+                                this.searchSuggest(true, true, this)
                             }
                         })
+                        .on('blur', () => { this.last.liveText = '' })
+                        .on('keyup', slowSearch)
                 }
             })
         }
@@ -16287,6 +16310,11 @@ class w2grid extends w2base {
                 }
                 this.toolbar.items.push(w2utils.extend({}, this.buttons.save))
             }
+            // fill in overwritten items with default buttons
+            // ids are w2ui-* but in this.buttons the map is just [add, edit, delete]
+            // must specify at least {id, name} in this.toolbar.items if you want to keep order
+            tb_items = tb_items.map(item => this.buttons[item.name]
+                                            ? w2utils.extend({}, this.buttons[item.name], item) : item)
         }
         // add original buttons
         this.toolbar.items.push(...tb_items)
@@ -17780,9 +17808,9 @@ class w2grid extends w2base {
         }
         if (this.show.expandColumn) {
             let tmp_img = ''
-            if (record.w2ui && record.w2ui.expanded === true) tmp_img = '-'; else tmp_img = '+'
-            if (record.w2ui && (record.w2ui.expanded == 'none' || !Array.isArray(record.w2ui.children) || !record.w2ui.children.length)) tmp_img = '+'
-            if (record.w2ui && record.w2ui.expanded == 'spinner') tmp_img = '<div class="w2ui-spinner" style="width: 16px; margin: -2px 2px;"></div>'
+            if (record.w2ui?.expanded === true) tmp_img = '-'; else tmp_img = '+'
+            if ((record.w2ui?.expanded == 'none' || !Array.isArray(record.w2ui.children) || !record.w2ui.children.length)) tmp_img = '+'
+            if (record.w2ui?.expanded == 'spinner') tmp_img = '<div class="w2ui-spinner" style="width: 16px; margin: -2px 2px;"></div>'
             rec_html1 +=
                     '<td id="grid_'+ this.name +'_cell_'+ ind +'_expand' + (summary ? '_s' : '') + '" class="w2ui-grid-data w2ui-col-expand">'+
                         (summary !== true ? `<div>${tmp_img}</div>` : '' ) +
@@ -17862,20 +17890,20 @@ class w2grid extends w2base {
         let { value, style, className, attr, divAttr } = this.getCellValue(ind, col_ind, summary, true)
         let edit = (ind !== -1 ? this.getCellEditable(ind, col_ind) : '')
         let divStyle = 'max-height: '+ parseInt(this.recordHeight) +'px;' + (col.clipboardCopy ? 'margin-right: 20px' : '')
-        let isChanged = !summary && record && record.w2ui && record.w2ui.changes && record.w2ui.changes[col.field] != null
+        let isChanged = !summary && record?.w2ui?.changes && record.w2ui.changes[col.field] != null
         let sel = this.last.selection
         let isRowSelected = false
         let infoBubble    = ''
         if (sel.indexes.indexOf(ind) != -1) isRowSelected = true
         if (col_span == null) {
-            if (record && record.w2ui && record.w2ui.colspan && record.w2ui.colspan[col.field]) {
+            if (record?.w2ui?.colspan && record.w2ui.colspan[col.field]) {
                 col_span = record.w2ui.colspan[col.field]
             } else {
                 col_span = 1
             }
         }
         // expand icon
-        if (col_ind === 0 && record && record.w2ui && Array.isArray(record.w2ui.children)) {
+        if (col_ind === 0 && Array.isArray(record?.w2ui?.children)) {
             let level  = 0
             let subrec = this.get(record.w2ui.parent_recid, true)
             while (true) {
@@ -17940,7 +17968,7 @@ class w2grid extends w2base {
                 style += 'text-align: right;'
             }
         }
-        if (record && record.w2ui) {
+        if (record?.w2ui) {
             if (typeof record.w2ui.style == 'object') {
                 if (typeof record.w2ui.style[col_ind] == 'string') style += record.w2ui.style[col_ind] + ';'
                 if (typeof record.w2ui.style[col.field] == 'string') style += record.w2ui.style[col.field] + ';'
@@ -18377,7 +18405,7 @@ class w2grid extends w2base {
                     }
                 }
             }
-            if (rec.w2ui && rec.w2ui.children && rec.w2ui.expanded !== true) {
+            if (rec.w2ui?.children && rec.w2ui?.expanded !== true) {
                 // there are closed children, prepare them too.
                 for (let r = 0; r < rec.w2ui.children.length; r++) {
                     let subRec = rec.w2ui.children[r]
@@ -19475,14 +19503,12 @@ class w2form extends w2base {
                             target: self.name,
                             fetchCtrl: this.last.fetchCtrl,
                             fetchOptions: this.last.fetchOptions,
-                            data: resp
+                            data
                         })
                         if (edata.isCancelled === true) return
+                        // if data.record is not present, then assume that entire response is the record
                         if (!data.record) {
-                            data = {
-                                error: false,
-                                record: data
-                            }
+                            Object.assign(data, { record: w2utils.clone(data) })
                         }
                         // server response error, not due to network issues
                         if (data.error === true) {
@@ -20110,12 +20136,14 @@ class w2form extends w2base {
                     }
                     field.$el
                         .prop('readOnly', true)
+                        .prop('disabled', true)
                         .prop('tabIndex', -1)
                         .closest('.w2ui-field')
                         .addClass('w2ui-disabled')
                 } else {
                     field.$el
                         .prop('readOnly', false)
+                        .prop('disabled', false)
                         .prop('tabIndex', field.$el.data('tabIndex') ?? field.$el.prop('tabIndex') ?? 0)
                         .closest('.w2ui-field')
                         .removeClass('w2ui-disabled')
@@ -20485,7 +20513,6 @@ class w2form extends w2base {
  *  - ENUM, LIST: should support wild chars
  *  - add selection of predefined times (used for appointments)
  *  - options.items - can be an array
- *  - options.msgSearch - message to search for user
  *  - options.msgNoItems - can be a function
  *  - REMOTE fields
  *
@@ -20498,6 +20525,8 @@ class w2form extends w2base {
  *  - deprecated "success" field for remote source response
  *  - CSP - fixed inline events
  *  - remove clear, use reset instead
+ *  - options.msgSearch
+ *  - options.msgNoItems
  */
 
 class w2field extends w2base {
@@ -20691,18 +20720,20 @@ class w2field extends w2base {
                     iconStyle       : '',
                     align           : 'both', // same width as control
                     altRows         : true,   // alternate row color
-                    onSearch        : null,   // when search needs to be performed
-                    onRequest       : null,   // when request is submitted
-                    onLoad          : null,   // when data is received
-                    onError         : null,   // when data fails to load due to server error or other failure modes
                     renderDrop      : null,   // render function for drop down item
                     compare         : null,   // compare function for filtering
                     filter          : true,   // weather to filter at all
                     hideSelected    : false,  // hide selected item from drop down
                     prefix          : '',
                     suffix          : '',
+                    msgNoItems      : 'No matches',
+                    msgSearch       : 'Type to search...',
                     openOnFocus     : false,  // if to show overlay onclick or when typing
-                    markSearch      : false
+                    markSearch      : false,
+                    onSearch        : null,   // when search needs to be performed
+                    onRequest       : null,   // when request is submitted
+                    onLoad          : null,   // when data is received
+                    onError         : null    // when data fails to load due to server error or other failure modes
                 }
                 if (typeof options.items == 'function') {
                     options._items_fun = options.items
@@ -20761,6 +20792,8 @@ class w2field extends w2base {
                     filter          : true,  // alias for compare
                     hideSelected    : true,  // hide selected item from drop down
                     style           : '',    // style for container div
+                    msgNoItems      : 'No matches',
+                    msgSearch       : 'Type to search...',
                     onSearch        : null,  // when search needs to be performed
                     onRequest       : null,  // when request is submitted
                     onLoad          : null,  // when data is received
@@ -20943,7 +20976,7 @@ class w2field extends w2base {
                 }, 1)
             }
             // if readonly or disabled
-            if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) {
+            if (query(this.el).prop('readOnly') || query(this.el).prop('disabled')) {
                 setTimeout(() => {
                     if (this.helpers.prefix) query(this.helpers.prefix).css('opacity', '0.6')
                     if (this.helpers.suffix) query(this.helpers.suffix).css('opacity', '0.6')
@@ -20981,13 +21014,13 @@ class w2field extends w2base {
                 div.attr('style', div.attr('style') + ';' + options.style)
             }
             query(this.el).css('z-index', '-1')
-            if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) {
+            if (query(this.el).prop('readOnly') || query(this.el).prop('disabled')) {
                 setTimeout(() => {
                     div[0].scrollTop = 0 // scroll to the top
                     div.addClass('w2ui-readonly')
                         .find('.li-item').css('opacity', '0.9')
                         .parent().find('.li-search').hide()
-                        .find('input').prop('readonly', true)
+                        .find('input').prop('readOnly', true)
                         .closest('.w2ui-multi-items')
                         .find('.w2ui-list-remove').hide()
                 }, 1)
@@ -20996,7 +21029,7 @@ class w2field extends w2base {
                     div.removeClass('w2ui-readonly')
                         .find('.li-item').css('opacity', '1')
                         .parent().find('.li-search').show()
-                        .find('input').prop('readonly', false)
+                        .find('input').prop('readOnly', false)
                         .closest('.w2ui-multi-items')
                         .find('.w2ui-list-remove').show()
                 }, 1)
@@ -21041,7 +21074,7 @@ class w2field extends w2base {
                     let edata
                     // default behavior
                     if (query(event.target).hasClass('w2ui-list-remove')) {
-                        if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+                        if (query(this.el).prop('readOnly') || query(this.el).prop('disabled')) return
                         // trigger event
                         edata = this.trigger('remove', { target: this.el, originalEvent: event, item })
                         if (edata.isCancelled === true) return
@@ -21337,12 +21370,12 @@ class w2field extends w2base {
         }
         // color, date, time
         if (['color', 'date', 'time', 'datetime'].indexOf(this.type) !== -1) {
-            if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+            if (query(this.el).prop('readOnly') || query(this.el).prop('disabled')) return
             this.updateOverlay()
         }
         // menu
         if (['list', 'combo', 'enum'].indexOf(this.type) !== -1) {
-            if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) {
+            if (query(this.el).prop('readOnly') || query(this.el).prop('disabled')) {
                 // still add focus
                 query(this.el).addClass('has-focus')
                 return
@@ -21450,7 +21483,7 @@ class w2field extends w2base {
         }
         // numeric
         if (['int', 'float', 'money', 'currency', 'percent'].includes(this.type)) {
-            if (!options.keyboard || query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+            if (!options.keyboard || query(this.el).prop('readOnly') || query(this.el).prop('disabled')) return
             val = parseFloat(query(this.el).val().replace(options.moneyRE, '')) || 0
             inc = options.step
             if (event.ctrlKey || event.metaKey) inc = options.step * 10
@@ -21475,7 +21508,7 @@ class w2field extends w2base {
         }
         // date/datetime
         if (['date', 'datetime'].includes(this.type)) {
-            if (!options.keyboard || query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+            if (!options.keyboard || query(this.el).prop('readOnly') || query(this.el).prop('disabled')) return
             let is = (this.type == 'date' ? w2utils.isDate : w2utils.isDateTime).bind(w2utils)
             let format = (this.type == 'date' ? w2utils.formatDate : w2utils.formatDateTime).bind(w2utils)
             daymil = 24*60*60*1000
@@ -21515,7 +21548,7 @@ class w2field extends w2base {
         }
         // time
         if (this.type === 'time') {
-            if (!options.keyboard || query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+            if (!options.keyboard || query(this.el).prop('readOnly') || query(this.el).prop('disabled')) return
             inc = (event.ctrlKey || event.metaKey ? 60 : 1)
             val = query(this.el).val()
             let time = w2date.str2min(val) || w2date.str2min((new Date()).getHours() + ':' + ((new Date()).getMinutes() - 1))
@@ -21634,7 +21667,7 @@ class w2field extends w2base {
         let params
         // color
         if (this.type === 'color') {
-            if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+            if (query(this.el).prop('readOnly') || query(this.el).prop('disabled')) return
             w2color.show(w2utils.extend({
                 name: this.el.id + '_color',
                 anchor: this.el,
@@ -21671,12 +21704,12 @@ class w2field extends w2base {
                 input = this.helpers.search_focus
             }
             if (query(this.el).hasClass('has-focus') && !this.el.readOnly && !this.el.disabled) {
-                let msgNoItems = w2utils.lang('No matches')
+                let msgNoItems = w2utils.lang(options.msgNoItems)
                 if (options.url != null && String(query(input).val()).length < options.minLength && this.tmp.emptySet !== true) {
                     msgNoItems = w2utils.lang('${count} letters or more...', { count: options.minLength })
                 }
                 if (options.url != null && query(input).val() === '' && this.tmp.emptySet !== true) {
-                    msgNoItems = w2utils.lang(options.msgSearch || 'Type to search...')
+                    msgNoItems = w2utils.lang(options.msgSearch)
                 }
                 // TODO: remote url
                 // if (options.url == null && options.items.length === 0) msgNoItems = w2utils.lang('Empty list')
@@ -21748,7 +21781,7 @@ class w2field extends w2base {
         }
         // date
         if (['date', 'time', 'datetime'].includes(this.type)) {
-            if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+            if (query(this.el).prop('readOnly') || query(this.el).prop('disabled')) return
             w2date.show(w2utils.extend({
                 name: this.el.id + '_date',
                 anchor: this.el,
@@ -22021,7 +22054,7 @@ class w2field extends w2base {
                     <div class="li-search">
                         <input ${searchId} type="text" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"
                             tabindex="${tabIndex}"
-                            ${query(this.el).prop('readonly') ? 'readonly': '' }
+                            ${query(this.el).prop('readOnly') ? 'readonly': '' }
                             ${query(this.el).prop('disabled') ? 'disabled': '' }>
                     </div>
                 </div>
@@ -22034,15 +22067,14 @@ class w2field extends w2base {
                     <input name="attachment" class="file-input" type="file" tabindex="-1"'
                         style="width: 100%; height: 100%; opacity: 0" title=""
                         ${this.options.max !== 1 ? 'multiple' : ''}
-                        ${query(this.el).prop('readonly') ? 'readonly': ''}
-                        ${query(this.el).prop('disabled') ? 'disabled': ''}
+                        ${query(this.el).prop('readOnly') || query(this.el).prop('disabled') ? 'disabled': ''}
                         ${query(this.el).attr('accept') ? ' accept="'+ query(this.el).attr('accept') +'"': ''}>
                 </div>
                 <div class="w2ui-multi-items">
                     <div class="li-search" style="display: none">
                         <input ${searchId} type="text" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"
                             tabindex="${tabIndex}"
-                            ${query(this.el).prop('readonly') ? 'readonly': '' }
+                            ${query(this.el).prop('readOnly') ? 'readonly': '' }
                             ${query(this.el).prop('disabled') ? 'disabled': '' }>
                     </div>
                 </div>
@@ -22075,19 +22107,19 @@ class w2field extends w2base {
                 .off('.drag')
                 .on('click.drag', (event) => {
                     event.stopPropagation()
-                    if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+                    if (query(this.el).prop('readOnly') || query(this.el).prop('disabled')) return
                     this.focus(event)
                 })
                 .on('dragenter.drag', (event) => {
-                    if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+                    if (query(this.el).prop('readOnly') || query(this.el).prop('disabled')) return
                     div.addClass('w2ui-file-dragover')
                 })
                 .on('dragleave.drag', (event) => {
-                    if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+                    if (query(this.el).prop('readOnly') || query(this.el).prop('disabled')) return
                     div.removeClass('w2ui-file-dragover')
                 })
                 .on('drop.drag', (event) => {
-                    if (query(this.el).prop('readonly') || query(this.el).prop('disabled')) return
+                    if (query(this.el).prop('readOnly') || query(this.el).prop('disabled')) return
                     div.removeClass('w2ui-file-dragover')
                     let files = Array.from(event.dataTransfer.files)
                     files.forEach(file => { this.addFile(file) })
@@ -22148,7 +22180,10 @@ class w2field extends w2base {
         if (edata.isCancelled === true) return
         // if errors and not silent
         if (options.silent !== true && errors.length > 0) {
-            w2tooltip.show(this.el, 'Errors: ' + errors.join('<br>'))
+            w2tooltip.show({
+                anchor: this.el,
+                html: 'Errors: ' + errors.join('<br>')
+            })
             console.log('ERRORS (while adding files): ', errors)
             return
         }
