@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (12/11/2022, 9:48:10 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/11/2022, 10:11:45 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -1855,8 +1855,9 @@ class Utils {
         }
         if (!options.msg && options.msg !== 0) options.msg = ''
         this.unlock(box)
+        let el = query(box).get(0)
         query(box).prepend(
-            '<div class="w2ui-lock"></div>'+
+            `<div class="w2ui-lock" style="height: ${el.scrollHeight}px; width: ${el.scrollWidth}px"></div>` +
             '<div class="w2ui-lock-msg"></div>'
         )
         let $lock = query(box).find('.w2ui-lock')

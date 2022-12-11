@@ -987,8 +987,9 @@ class Utils {
         }
         if (!options.msg && options.msg !== 0) options.msg = ''
         this.unlock(box)
+        let el = query(box).get(0)
         query(box).prepend(
-            '<div class="w2ui-lock"></div>'+
+            `<div class="w2ui-lock" style="height: ${el.scrollHeight}px; width: ${el.scrollWidth}px"></div>` +
             '<div class="w2ui-lock-msg"></div>'
         )
         let $lock = query(box).find('.w2ui-lock')
