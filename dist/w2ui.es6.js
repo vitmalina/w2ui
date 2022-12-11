@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (12/10/2022, 7:03:59 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/11/2022, 8:54:36 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -10316,6 +10316,7 @@ class w2layout extends w2base {
  *  - deprecated onUnselect event
  *  - requestComplete(data, action, callBack, resolve, reject) - new argument list
  *  - msgAJAXError -> msgHTTPError
+ *  - aded msgServerError
  *  - deleted grid.method
  *  - added grid.prepareParams
  *  - added mouseEnter/mouseLeave
@@ -10525,6 +10526,7 @@ class w2grid extends w2base {
         this.msgDelete     = 'Are you sure you want to delete ${count} ${records}?'
         this.msgNotJSON    = 'Returned data is not in valid JSON format.'
         this.msgHTTPError  = 'HTTP error. See console for more details.'
+        this.msgServerError= 'Server error'
         this.msgRefresh    = 'Refreshing...'
         this.msgNeedReload = 'Your remote data source record count has changed, reloading from the first record.'
         this.msgEmpty      = '' // if not blank, then it is message when server returns no records
@@ -13064,7 +13066,7 @@ class w2grid extends w2base {
                 console.log('ERROR: Server communication failed.',
                     '\n   EXPECTED:', { total: 5, records: [{ recid: 1, field: 'value' }] },
                     '\n         OR:', { error: true, message: 'error message' })
-                self.requestComplete({ error: true, message: 'HTTP Request error', response }, action, callBack, resolve, reject)
+                self.requestComplete({ error: true, message: w2utils.lang(this.msgHTTPError), response }, action, callBack, resolve, reject)
             }
             // event after
             edata2.finish()
@@ -13073,10 +13075,10 @@ class w2grid extends w2base {
     requestComplete(data, action, callBack, resolve, reject) {
         let error = data.error ?? false
         if (data.error == null && data.status === 'error') error = true
-        this.last.fetch.response = (Date.now() - this.last.fetch.start)/1000
+        this.last.fetch.response = (Date.now() - this.last.fetch.start) / 1000
         setTimeout(() => {
             if (this.show.statusResponse) {
-                this.status(w2utils.lang('Server Response ${count} seconds', {count: this.last.fetch.response}))
+                this.status(w2utils.lang('Server Response ${count} seconds', { count: this.last.fetch.response }))
             }
         }, 10)
         this.last.pull_more = false
@@ -13113,9 +13115,7 @@ class w2grid extends w2base {
                     }
                 }
             }
-            if (data.error) {
-                this.error(data.message)
-            } else if (action == 'load') {
+            if (action == 'load') {
                 if (data.total == null) data.total = -1
                 if (data.records == null) {
                     data.records = []
@@ -13180,11 +13180,7 @@ class w2grid extends w2base {
                 return this.reload()
             }
         } else {
-            data = {
-                error, data,
-                message: w2utils.lang(this.msgHTTPError),
-            }
-            this.error(w2utils.lang(this.msgHTTPError))
+            this.error(w2utils.lang(data.message ?? this.msgServerError))
             reject(data)
         }
         // event after
@@ -15486,7 +15482,7 @@ class w2grid extends w2base {
         // show empty message
         if (this.records.length === 0 && this.msgEmpty) {
             query(this.box).find(`#grid_${this.name}_body`)
-                .append(`<div id="grid_${this.name}_empty_msg" class="w2ui-grid-empty-msg"><div>${this.msgEmpty}</div></div>`)
+                .append(`<div id="grid_${this.name}_empty_msg" class="w2ui-grid-empty-msg"><div>${w2utils.lang(this.msgEmpty)}</div></div>`)
         } else if (query(this.box).find(`#grid_${this.name}_empty_msg`).length > 0) {
             query(this.box).find(`#grid_${this.name}_empty_msg`).remove()
         }
@@ -18124,7 +18120,7 @@ class w2grid extends w2base {
         let edit = (rec.w2ui ? rec.w2ui.editable : null)
         if (edit === false) return null
         if (edit == null || edit === true) {
-            edit = (col && Object.keys(col.editable).length > 0 ? col.editable : null)
+            edit = (Object.keys(col.editable ?? {}).length > 0 ? col.editable : null)
             if (typeof edit === 'function') {
                 let value = this.getCellValue(ind, col_ind, false)
                 // same arguments as col.render()
@@ -18630,6 +18626,7 @@ class w2form extends w2base {
         this.onError      = null
         this.msgRefresh   = 'Loading...'
         this.msgSaving    = 'Saving...'
+        this.msgServerError = 'Server error'
         this.ALL_TYPES    = [ 'text', 'textarea', 'email', 'pass', 'password', 'int', 'float', 'money', 'currency',
             'percent', 'hex', 'alphanumeric', 'color', 'date', 'time', 'datetime', 'toggle', 'checkbox', 'radio',
             'check', 'checks', 'list', 'combo', 'enum', 'file', 'select', 'map', 'array', 'div', 'custom', 'html',
@@ -19506,13 +19503,17 @@ class w2form extends w2base {
                             data
                         })
                         if (edata.isCancelled === true) return
+                        // for backward compatibility
+                        if (data.error == null && data.status === 'error') {
+                            data.error = true
+                        }
                         // if data.record is not present, then assume that entire response is the record
                         if (!data.record) {
                             Object.assign(data, { record: w2utils.clone(data) })
                         }
                         // server response error, not due to network issues
                         if (data.error === true) {
-                            self.error(w2utils.lang(data.message))
+                            self.error(w2utils.lang(data.message ?? this.msgServerError))
                         } else {
                             self.record = w2utils.clone(data.record)
                         }
@@ -19633,7 +19634,7 @@ class w2form extends w2base {
                         if (edata.isCancelled === true) return
                         // server error, not due to network issues
                         if (data.error === true) {
-                            self.error(w2utils.lang(data.message))
+                            self.error(w2utils.lang(data.message ?? this.msgServerError))
                         } else {
                             self.original = null
                         }
