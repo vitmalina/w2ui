@@ -993,14 +993,12 @@ class w2form extends w2base {
                             target: self.name,
                             fetchCtrl: this.last.fetchCtrl,
                             fetchOptions: this.last.fetchOptions,
-                            data: resp
+                            data
                         })
                         if (edata.isCancelled === true) return
+                        // if data.record is not present, then assume that entire response is the record
                         if (!data.record) {
-                            data = {
-                                error: false,
-                                record: data
-                            }
+                            Object.assign(data, { record: w2utils.clone(data) })
                         }
                         // server response error, not due to network issues
                         if (data.error === true) {
