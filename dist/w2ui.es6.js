@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (12/11/2022, 8:54:36 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/11/2022, 9:48:10 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -10321,6 +10321,7 @@ class w2layout extends w2base {
  *  - added grid.prepareParams
  *  - added mouseEnter/mouseLeave
  *  - grid.show.columnReorder -> grid.reorderRows
+ *  - updagte docs search.label (not search.text)
  */
 
 class w2grid extends w2base {
@@ -10885,7 +10886,7 @@ class w2grid extends w2base {
                 let stype = columns[i].searchable
                 let attr  = ''
                 if (columns[i].searchable === true) { stype = 'text'; attr = 'size="20"' }
-                this.addSearch({ field: columns[i].field, label: columns[i].label, type: stype, attr: attr })
+                this.addSearch({ field: columns[i].field, label: columns[i].text, type: stype, attr: attr })
             }
             before++
             added++

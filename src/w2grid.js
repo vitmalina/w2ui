@@ -47,6 +47,7 @@
  *  - added grid.prepareParams
  *  - added mouseEnter/mouseLeave
  *  - grid.show.columnReorder -> grid.reorderRows
+ *  - updagte docs search.label (not search.text)
  */
 
 import { w2base } from './w2base.js'
@@ -635,7 +636,7 @@ class w2grid extends w2base {
                 let stype = columns[i].searchable
                 let attr  = ''
                 if (columns[i].searchable === true) { stype = 'text'; attr = 'size="20"' }
-                this.addSearch({ field: columns[i].field, label: columns[i].label, type: stype, attr: attr })
+                this.addSearch({ field: columns[i].field, label: columns[i].text, type: stype, attr: attr })
             }
             before++
             added++
