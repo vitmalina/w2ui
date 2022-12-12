@@ -8342,7 +8342,7 @@ class w2grid extends w2base {
                 this.last.scrollLeft = sLeft
                 this.refresh()
             }, 1)
-            console.log('INFO (w2ui): state restored for "${this.name}"')
+            console.log(`INFO (w2ui): state restored for "${this.name}"`)
         }
         // event after
         edata.finish()
