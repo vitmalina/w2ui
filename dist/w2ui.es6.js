@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (12/11/2022, 10:11:45 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/12/2022, 10:01:31 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -1372,9 +1372,9 @@ class Utils {
     formatNumber(val, fraction, useGrouping) {
         if (val == null || val === '' || typeof val === 'object') return ''
         let options = {
-            minimumFractionDigits : fraction,
-            maximumFractionDigits : fraction,
-            useGrouping : useGrouping
+            minimumFractionDigits: parseInt(fraction),
+            maximumFractionDigits: parseInt(fraction),
+            useGrouping: !!useGrouping
         }
         if (fraction == null || fraction < 0) {
             options.minimumFractionDigits = 0
@@ -18335,7 +18335,7 @@ class w2grid extends w2base {
                 this.last.scrollLeft = sLeft
                 this.refresh()
             }, 1)
-            console.log('INFO (w2ui): state restored for "${this.name}"')
+            console.log(`INFO (w2ui): state restored for "${this.name}"`)
         }
         // event after
         edata.finish()
