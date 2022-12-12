@@ -17,38 +17,6 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *        - w2utils.event    - generic event object
 *  - Dependencies: jQuery
 *
-* == NICE TO HAVE ==
-*   - overlay should be displayed where more space (on top or on bottom)
-*   - write and article how to replace certain framework functions
-*   - add maxHeight for the w2menu
-*   - add time zone
-*   - TEST On IOS
-*   - $().w2marker() -- only unmarks first instance
-*   - subitems for w2menus()
-*   - add w2utils.lang wrap for all captions in all buttons.
-*   - $().w2date(), $().w2dateTime()
-*
-* == 1.5 change
-*   - parseColor(str) returns rgb
-*   - rgb2hsv, hsv2rgb
-*   - color.onSelect
-*   - color.html
-*   - refactored w2tag object, it has more potential with $().data('w2tag')
-*   - added w2utils.tooltip
-*   - w2tag options.hideOnFocus
-*   - w2tag options.maxWidth
-*   - w2tag options.auto - if set to true, then tag will show on mouseover
-*   - w2tag options.showOn, hideOn - if set to true, then tag will show on mouseover
-*   - w2tag options.className: 'w2ui-light' - for light color tag
-*   - w2menu options.items... remove t/f
-*   - w2menu options.items... keepOpen t/f
-*   - w2menu options.onRemove
-*   - w2menu options.hideOnRemove
-*   - w2menu - can not nest items, item.items and item.expanded
-*   - w2menu.options.topHTML
-*   - w2menu.options.menuStyle
-*   - naturalCompare
-*
 ************************************************/
 
 var w2utils = (function ($) {
@@ -427,9 +395,9 @@ var w2utils = (function ($) {
     function formatNumber (val, fraction, useGrouping) {
         if (val == null || val === '' || typeof val === 'object') return '';
         var options = {
-            minimumFractionDigits : fraction,
-            maximumFractionDigits : fraction,
-            useGrouping : useGrouping
+            minimumFractionDigits: parseInt(fraction),
+            maximumFractionDigits: parseInt(fraction),
+            useGrouping: !!useGrouping
         };
         if (fraction == null || fraction < 0) {
             options.minimumFractionDigits = 0;
@@ -3517,25 +3485,6 @@ w2utils.event = {
 *        - w2field        - various field controls
 *        - $().w2field    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils
-*
-* == NICE TO HAVE ==
-*   - upload (regular files)
-*   - BUG with prefix/postfix and arrows (test in different contexts)
-*   - multiple date selection
-*   - month selection, year selections
-*   - arrows no longer work (for int)
-*   - form to support custom types
-*   - rewrite suffix and prefix positioning with translateY()
-*   - prefix and suffix are slow (100ms or so)
-*   - MultiSelect - Allow Copy/Paste for single and multi values
-*   - add routeData to list/enum
-*   - for type: list -> read value from attr('value')
-*   - ENUM, LIST: should have same as grid (limit, offset, search, sort)
-*   - ENUM, LIST: should support wild chars
-*   - add selection of predefined times (used for appointments)
-*   - options.items - can be an array
-*   - options.msgSearch - message to search for user
-*   - options.msgNoItems - can be a function
 *
 ************************************************************************/
 

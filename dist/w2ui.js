@@ -17,38 +17,6 @@ var w2obj = w2obj || {}; // expose object to be able to overwrite default functi
 *        - w2utils.event    - generic event object
 *  - Dependencies: jQuery
 *
-* == NICE TO HAVE ==
-*   - overlay should be displayed where more space (on top or on bottom)
-*   - write and article how to replace certain framework functions
-*   - add maxHeight for the w2menu
-*   - add time zone
-*   - TEST On IOS
-*   - $().w2marker() -- only unmarks first instance
-*   - subitems for w2menus()
-*   - add w2utils.lang wrap for all captions in all buttons.
-*   - $().w2date(), $().w2dateTime()
-*
-* == 1.5 change
-*   - parseColor(str) returns rgb
-*   - rgb2hsv, hsv2rgb
-*   - color.onSelect
-*   - color.html
-*   - refactored w2tag object, it has more potential with $().data('w2tag')
-*   - added w2utils.tooltip
-*   - w2tag options.hideOnFocus
-*   - w2tag options.maxWidth
-*   - w2tag options.auto - if set to true, then tag will show on mouseover
-*   - w2tag options.showOn, hideOn - if set to true, then tag will show on mouseover
-*   - w2tag options.className: 'w2ui-light' - for light color tag
-*   - w2menu options.items... remove t/f
-*   - w2menu options.items... keepOpen t/f
-*   - w2menu options.onRemove
-*   - w2menu options.hideOnRemove
-*   - w2menu - can not nest items, item.items and item.expanded
-*   - w2menu.options.topHTML
-*   - w2menu.options.menuStyle
-*   - naturalCompare
-*
 ************************************************/
 
 var w2utils = (function ($) {
@@ -427,9 +395,9 @@ var w2utils = (function ($) {
     function formatNumber (val, fraction, useGrouping) {
         if (val == null || val === '' || typeof val === 'object') return '';
         var options = {
-            minimumFractionDigits : fraction,
-            maximumFractionDigits : fraction,
-            useGrouping : useGrouping
+            minimumFractionDigits: parseInt(fraction),
+            maximumFractionDigits: parseInt(fraction),
+            useGrouping: !!useGrouping
         };
         if (fraction == null || fraction < 0) {
             options.minimumFractionDigits = 0;
@@ -3518,164 +3486,6 @@ w2utils.event = {
 *        - $().w2grid    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2fields
 *
-* == TODO ==
-*   - column autosize based on largest content
-*   - reorder columns/records
-*   - problem with .set() and arrays, array get extended too, but should be replaced
-*   - after edit stay on the same record option
-*   - if supplied array of ids, get should return array of records
-*   - allow functions in routeData (also add routeData to list/enum)
-*   - implement global routeData and all elements read from there
-*   - send parsed URL to the event if there is routeData
-*   - if you set searchData or sortData and call refresh() it should work
-*   - add selectType: 'none' so that no selection can be make but with mouse
-*   - reorder records with frozen columns
-*   - focus/blur for selectType = cell not display grayed out selection
-*   - frozen columns
-        - load more only on the right side
-        - scrolling on frozen columns is not working only on regular columns
-*   - copy or large number of records is slow
-*   - reusable search component (see https://github.com/vitmalina/w2ui/issues/914#issuecomment-107340524)
-*   - allow enum in inline edit (see https://github.com/vitmalina/w2ui/issues/911#issuecomment-107341193)
-*   - if record has no recid, then it should be index in the aray (should not be 0)
-*   - remote source, but localSort/localSearch
-*   - gridMinWidth - should show/hide columns, when it is triggered, column can not be turned on at all
-*
-* == KNOWN ISSUES ==
-*   - bug: vs_start = 100 and more then 500 records, when scrolling empty sets
-*   - row drag and drop has bugs
-*   - Shift-click/Ctrl-click/Ctrl-Shift-Click selection is not as robust as it should be
-*
-* == 1.5 changes
-*   - $('#grid').w2grid() - if called w/o argument then it returns grid object
-*   - added statusRange     : true,
-*           statusBuffered  : false,
-*           statusRecordID  : true,
-*           statusSelection : true,
-*           statusResponse  : true,
-*           statusSort      : true,
-*           statusSearch    : true,
-*   - change selectAll() and selectNone() - return time it took
-*   - added vs_start and vs_extra
-*   - added update(cells) - updates only data in the grid (or cells)
-*   - add to docs onColumnDragStart, onColumnDragEnd
-*   - onSelect and onSelect should fire 1 time for selects with shift or selectAll(), selectNone()
-*   - record.w2ui.style[field_name]
-*   - use column field for style: { 1: 'color: red' }
-*   - added focus(), blur(), onFocus, onBlur
-*   - search.simple - if false, will not show up in simple search
-*   - search.operator - default operator to use with search field
-*   - search.operators - array of operators for the search
-*   - search.hidden - could not be cleared by the user
-*   - search.value - only for hidden searches
-*   - if .search(val) - search all fields
-*   - refactor reorderRow (not finished)
-*   - return JSON can now have summary array
-*   - frozen columns
-*   - added selectionSave, selectionRestore - for internal use
-*   - added additional search filter options for int, float, date, time
-*   - added getLineHTML
-*   - added lineNumberWidth
-*   - add searches.style
-*   - getColumn without params returns fields of all columns
-*   - getSearch without params returns fields of all searches
-*   - added column.tooltip
-*   - added hasFocus, refactored w2utils.keyboard
-*   - do not clear selection when clicked and it was not in focus
-*   - added record.w2ui.colspan
-*   - editable area extends with typing
-*   - removed onSubmit and onDeleted - now it uses onSave and onDelete
-*   - column.seachable - can be an object, which will create search
-*   - added null, not null filters
-*   - update(cells) - added argument cells
-*   - scrollIntoView(..., ..., instant) - added third argument
-*   - added onResizeDblClick
-*   - added onColumnDblClick
-*   - implemented showBubble
-*   - added show.searchAll
-*   - added show.searchHiddenMsg
-*   - added w2grid.operators
-*   - added w2grid.operatorsMap
-*   - move events into prototype
-*   - move rec.summary, rec.style, rec.editable -> into rec.w2ui.summary, rec.w2ui.style, rec.w2ui.editable
-*   - record: {
-        recid
-        field1
-        ...
-        fieldN
-        w2ui: {
-            colspan: { field: 5, ...}
-            editable: true/false
-            hideCheckBox: true/false,
-            changes: {
-                field: chagned_value,
-                ....
-            },
-            children: [
-                // similar to records array
-                // can have sub children
-            ]
-            parent_recid: (internally set, id of the parent record, when children are copied to records array)
-            summary: true/false
-            style: 'string' - for entire row OR { field: 'string', ...} - per field
-            class: 'string' - for entire row OR { field: 'string', ...} - per field
-        }
-    }
-*   - added this.show.toolbarInput
-*   - disableCVS
-*   - added nestedFields: use field name containing dots as separator to look into objects
-*   - grid.message
-*   - added noReset option to localSort()
-*   - onColumnSelect
-*   - need to update PHP example
-*   - added scrollToColumn(field)
-*   - textSearch: 'begins' (default), 'contains', 'is', ...
-*   - added refreshBody
-*   - added response.total = -1 (or not present) to indicate that number of records is unknown
-*   - message(.., callBack) - added callBack
-*   - grid.msgEmpty
-*   - field.render(..., data) -- added last argument which is what grid thinks should be there
-*   - field.render can return { html, class, style } as an object
-*   - onSearchOpen (onSearch will have mutli and reset flags)
-*   - added httpHeaders
-*   - col.editable can be a function which will be called with the same args as col.render()
-*   - col.clipboardCopy - display icon to copy to clipboard
-*   - clipboardCopy - new function on grid level
-*   - getCellEditable(index, col_ind) -- return an 'editable' descriptor if cell is really editable
-*   - added stateId
-*   - rec.w2ui.class (and rec.w2ui.class { fname: '...' })
-*   - columnTooltip
-*   - expendable grids are still working
-*   - added search.type = 'color'
-*   - added getFirst
-*   - added stateColProps
-*   - added stateColDefaults
-*   - deprecated search.caption -> search.label
-*   - deprecated column.caption -> column.text
-*   - deprecated columnGroup.caption -> columnGroup.text
-*   - moved a lot of properties into prototype
-*   - showExtraOnSearch
-*   - added sortMap, searchMap
-*   - added column.hideable
-*   - added updateColumn
-*   - column.info {
-        icon    : string|function|object,
-        style   : string|function|object,
-        render  : function,
-        fields  : array|object,
-        showOn  : 'mouseover|mouseenter|...',
-        hideOn  : 'mouseout|mouseleave|...',
-        options : {} - will be passed to w2tag (for example options.potions = 'top')
-    }
-*   - added msgDeleteBtn
-*   - grid.toolbar.item batch
-*   - order.column
-*   - fixed select/unselect, not it can take array of ids
-*   - menuClick - changed parameters
-*   - column.text can be a function
-*   - columnGroup.text can be a function
-*   - grid.tabIndex
-*
 ************************************************************************/
 
 (function ($) {
@@ -3683,20 +3493,20 @@ w2utils.event = {
 
         // public properties
         this.name         = null;
-        this.box          = null;     // HTML element that hold this element
-        this.columns      = [];       // { field, text, size, attr, render, hidden, gridMinWidth, editable }
-        this.columnGroups = [];       // { span: int, text: 'string', main: true/false }
-        this.records      = [];       // { recid: int(requied), field1: 'value1', ... fieldN: 'valueN', style: 'string',  changes: object }
-        this.summary      = [];       // arry of summary records, same structure as records array
-        this.searches     = [];       // { type, label, field, inTag, outTag, hidden }
-        this.sortMap      = {};       // remap sort Fields
-        this.toolbar      = {};       // if not empty object; then it is toolbar object
+        this.box          = null;   // HTML element that hold this element
+        this.columns      = [];     // { field, text, size, attr, render, hidden, gridMinWidth, editable }
+        this.columnGroups = [];     // { span: int, text: 'string', main: true/false }
+        this.records      = [];     // { recid: int(requied), field1: 'value1', ... fieldN: 'valueN', style: 'string',  changes: object }
+        this.summary      = [];     // arry of summary records, same structure as records array
+        this.searches     = [];     // { type, label, field, inTag, outTag, hidden }
+        this.sortMap      = {};     // remap sort Fields
+        this.toolbar      = {};     // if not empty object; then it is toolbar object
         this.ranges       = [];
         this.menu         = [];
         this.searchData   = [];
         this.sortData     = [];
-        this.total        = 0;        // server total
-        this.recid        = null;     // field from records to be used as recid
+        this.total        = 0;      // server total
+        this.recid        = null;   // field from records to be used as recid
 
         // internal
         this.last = {
@@ -3881,6 +3691,7 @@ w2utils.event = {
         method            : null,       // if defined, then overwrited ajax method
         dataType          : null,       // if defined, then overwrited w2utils.settings.dataType
         parser            : null,
+        editAutoAdvance   : true,       // automatically begin editing the next cell after submitting an inline edit?
 
         // these column properties will be saved in stateSave()
         stateColProps: {
@@ -6385,16 +6196,18 @@ w2utils.event = {
                     var column = this.last._edit.column;
                     var recid  = this.last._edit.recid;
                     this.editChange({ type: 'custom', value: this.last._edit.value }, this.get(recid, true), column, event);
-                    var next = event.shiftKey ? this.prevRow(index, column) : this.nextRow(index, column);
-                    if (next != null && next != index) {
-                        setTimeout(function () {
-                            if (obj.selectType != 'row') {
-                                obj.selectNone();
-                                obj.select({ recid: obj.records[next].recid, column: column });
-                            } else {
-                                obj.editField(obj.records[next].recid, column, null, event);
-                            }
-                        }, 1);
+                    if(this.editAutoAdvance) {
+                        var next = event.shiftKey ? this.prevRow(index, column) : this.nextRow(index, column);
+                        if (next != null && next != index) {
+                            setTimeout(function () {
+                                if (obj.selectType != 'row') {
+                                    obj.selectNone();
+                                    obj.select({ recid: obj.records[next].recid, column: column });
+                                } else {
+                                    obj.editField(obj.records[next].recid, column, null, event);
+                                }
+                            }, 1);
+                        }
                     }
                     this.last.inEditMode = false;
                 } else {
@@ -6448,7 +6261,10 @@ w2utils.event = {
             if (edit.outTag  == null) edit.outTag  = '';
             if (edit.style   == null) edit.style   = '';
             if (edit.items   == null) edit.items   = [];
-            var val = (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes[col.field] != null ? w2utils.stripTags(rec.w2ui.changes[col.field]) : w2utils.stripTags(rec[col.field]));
+            var val = (rec.w2ui && rec.w2ui.changes && rec.w2ui.changes[col.field] != null
+                ? w2utils.stripTags(rec.w2ui.changes[col.field])
+                : w2utils.stripTags(this.parseField(rec, col.field))
+            );
             if (val == null) val = '';
             var old_value = (typeof val != 'object' ? val : '');
             if (edata.old_value != null) old_value = edata.old_value;
@@ -6631,16 +6447,18 @@ w2utils.event = {
 
                                 case 13: // enter
                                     el.blur();
-                                    var next = event.shiftKey ? obj.prevRow(index, column) : obj.nextRow(index, column);
-                                    if (next != null && next != index) {
-                                        setTimeout(function () {
-                                            if (obj.selectType != 'row') {
-                                                obj.selectNone();
-                                                obj.select({ recid: obj.records[next].recid, column: column });
-                                            } else {
-                                                obj.editField(obj.records[next].recid, column, null, event);
-                                            }
-                                        }, 1);
+                                    if(obj.editAutoAdvance) {
+                                        var next = event.shiftKey ? obj.prevRow(index, column) : obj.nextRow(index, column);
+                                        if (next != null && next != index) {
+                                            setTimeout(function () {
+                                                if (obj.selectType != 'row') {
+                                                    obj.selectNone();
+                                                    obj.select({ recid: obj.records[next].recid, column: column });
+                                                } else {
+                                                    obj.editField(obj.records[next].recid, column, null, event);
+                                                }
+                                            }, 1);
+                                        }
                                     }
                                     if (el.tagName.toUpperCase() == 'DIV') {
                                         event.preventDefault();
@@ -8103,7 +7921,7 @@ w2utils.event = {
                 $(tr1).replaceWith(rec_html[0]);
                 $(tr2).replaceWith(rec_html[1]);
                 // apply style to row if it was changed in render functions
-                var st = (this.records[ind].w2ui ? this.records[ind].w2ui.style : '');
+                var st = (this.records[ind] && this.records[ind].w2ui ? this.records[ind].w2ui.style : '');
                 if (typeof st == 'string') {
                     var tr1 = $(this.box).find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid));
                     var tr2 = $(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid));
@@ -8613,7 +8431,7 @@ w2utils.event = {
                         var ghost = $('#grid_'+ obj.name + '_ghost');
                         var recs  = $(obj.box).find('.w2ui-grid-records');
                         ghost.css({
-                            top  : mv.pos.top + recs.scrollTop(),
+                            top  : mv.pos.top,
                             left : mv.pos.left,
                             "border-top"    : '1px solid #aaa',
                             "border-bottom" : '1px solid #aaa'
@@ -8655,7 +8473,7 @@ w2utils.event = {
                         var ghost_line = $('#grid_'+ obj.name + '_ghost_line');
                         if (pos) {
                             ghost_line.css({
-                                top  : pos.top + recs.scrollTop(),
+                                top  : pos.top,
                                 left : mv.pos.left,
                                 'border-top': '2px solid #769EFC'
                             });
@@ -8667,7 +8485,7 @@ w2utils.event = {
                     }
                     var ghost = $('#grid_'+ obj.name + '_ghost');
                     ghost.css({
-                        top  : mv.pos.top + mv.divY + recs.scrollTop(),
+                        top  : mv.pos.top + mv.divY,
                         left : mv.pos.left
                     });
                     return;
@@ -11665,17 +11483,6 @@ w2utils.event = {
 *        - $().w2layout    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2toolbar, w2tabs
 *
-* == changes
-*   - negative values for left, right panel
-*   - onResize for layout as well as onResizing
-*   - panel.callBack - one time
-*   - layout.html().replaced(function () {})
-*
-* == NICE TO HAVE ==
-*   - onResize for the panel
-*   - add more panel title positions (left=rotated, right=rotated, bottom)
-*   - bug: when you assign content before previous transition completed.
-*
 ************************************************************************/
 
 (function ($) {
@@ -12839,19 +12646,6 @@ w2utils.event = {
 *        - w2popup      - popup widget
 *        - $().w2popup  - jQuery wrapper
 *   - Dependencies: jQuery, w2utils
-*
-* == changes
-*   - added onMove event
-*   - w2prompt.options.ok_class, cancel_class
-*   - w2confirm.options.onOpen, w2confirm.options.onClose
-*   - w2prompt.options.onOpen, w2prompt.options.onClose
-*   - w2popup.actions, w2popup.action, w2popup.onAction
-*   - w2popup.onMsgOpen, w2popup.onMsgClose
-*   - options.multiple
-*
-* == NICE TO HAVE ==
-*   - hide overlay on esc
-*   - make popup width/height in %
 *
 ************************************************************************/
 
@@ -14157,18 +13951,6 @@ var w2prompt = function (label, title, callBack) {
 *        - $().w2tabs    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils
 *
-* == NICE TO HAVE ==
-*   - align = left, right, center ??
-*
-* == 1.5 changes ==
-*   - tab.caption - deprecated
-*   - getTabHTML()
-*   - refactored with display: flex
-*   - reorder
-*   - initReorder
-*   - dragMove
-*   - tmp
-*
 ************************************************************************/
 
 (function ($) {
@@ -14808,21 +14590,6 @@ var w2prompt = function (label, title, callBack) {
 *        - w2toolbar        - toolbar widget
 *        - $().w2toolbar    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2field
-*
-* == NICE TO HAVE ==
-*   - vertical toolbar
-*
-* == 1.5 changes ==
-*   - menu drop down can have groups now
-*   - item.caption - deprecated
-*   - item.text - can be a function
-*   - item.icon - can be a function
-*   - item.tooltip - can be a function
-*   - item.color
-*   - item.options
-*   - event.item.get - finds selected item
-*   - item.keepOpen, drop down will not close
-*   - item.type = 'new-line'
 *
 ************************************************************************/
 
@@ -15702,23 +15469,6 @@ var w2prompt = function (label, title, callBack) {
 *        - w2sidebar        - sidebar widget
 *        - $().w2sidebar    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils
-*
-* == NICE TO HAVE ==
-*   - add find() method to find nodes by a specific criteria (I want all nodes for exampe)
-*   - dbl click should be like it is in grid (with timer not HTML dbl click event)
-*   - reorder with dgrag and drop
-*   - node.style is misleading - should be there to apply color for example
-*   - add multiselect
-*   - node.caption - deprecated
-*   - node.text - can be a function
-*   - node.icon - can be a function
-*
-* == 1.5 changes
-*   - node.class - ne property
-*   - sb.levelPadding
-*   - sb.handle (for debugger points)
-*   - node.style
-*   - sb.updte()
 *
 ************************************************************************/
 
@@ -16790,25 +16540,6 @@ var w2prompt = function (label, title, callBack) {
 *        - w2field        - various field controls
 *        - $().w2field    - jQuery wrapper
 *   - Dependencies: jQuery, w2utils
-*
-* == NICE TO HAVE ==
-*   - upload (regular files)
-*   - BUG with prefix/postfix and arrows (test in different contexts)
-*   - multiple date selection
-*   - month selection, year selections
-*   - arrows no longer work (for int)
-*   - form to support custom types
-*   - rewrite suffix and prefix positioning with translateY()
-*   - prefix and suffix are slow (100ms or so)
-*   - MultiSelect - Allow Copy/Paste for single and multi values
-*   - add routeData to list/enum
-*   - for type: list -> read value from attr('value')
-*   - ENUM, LIST: should have same as grid (limit, offset, search, sort)
-*   - ENUM, LIST: should support wild chars
-*   - add selection of predefined times (used for appointments)
-*   - options.items - can be an array
-*   - options.msgSearch - message to search for user
-*   - options.msgNoItems - can be a function
 *
 ************************************************************************/
 
@@ -19599,50 +19330,6 @@ var w2prompt = function (label, title, callBack) {
 *        - w2form      - form widget
 *        - $().w2form  - jQuery wrapper
 *   - Dependencies: jQuery, w2utils, w2fields, w2tabs, w2toolbar
-*
-* == NICE TO HAVE ==
-*   - include delta on save
-*   - form should read <select> <options> into items
-*   - two way data bindings
-*   - nested groups (so fields can be deifned inside)
-*
-* == 1.5 changes
-*   - $('#form').w2form() - if called w/o argument then it returns form object
-*   - added onProgress
-*   - added field.html.style (for the whole field)
-*   - added enable/disable, show/hide
-*   - added field.disabled, field.hidden
-*   - when field is blank, set record.field = null
-*   - action: { caption: 'Limpiar', style: '', class: '', onClick: function () {} }
-*   - added ability to generate radio and select html in generateHTML()
-*   - refresh(field) - would refresh only one field
-*   - form.message
-*   - added field.html.column
-*   - added field types html, empty, custom
-*   - httpHeaders
-*   - method
-*   - onInput
-*   - added field.html.groupStyle, field.html.groupTitleStyle
-*   - added field.html.column = 'before' && field.html.column = 'after'
-*   - added field.html.anchor
-*   - changed this.clear(field1, field2,...)
-*   - added nestedFields: use field name containing dots as separator to look into objects
-*   - added getValue(), setValue()
-*   - added getChanges()
-*   - added getCleanRecord(strict)
-*   - added applyFocus()
-*   - deprecated field.name -> field.field
-*   - options.items - can be an array
-*   - added form.pageStyle
-*   - added html.span -1 - then label is displayed on top
-*   - added field.options.minLength, min/max for numebrs can be done with int/float - min/max
-*   - field.html.groupCollapsible, form.toggleGroup
-*   - added showErrors
-*   - added field.type = 'check'
-*   - new field type 'map', 'array' - same thing but map has unique keys also html: { key: { text: '111', attr: '222' }, value: {...}}
-*   - updateEmptyGroups
-*   - tabs below some fields
-*   - tabindexBase
 *
 ************************************************************************/
 
