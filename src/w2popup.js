@@ -64,6 +64,10 @@ class Dialog extends w2base {
                 this.center(undefined, undefined, true)
             }
         }
+        // event handler for key down
+        this.handleKeyDown = (event) => {
+            this.keydown(event)
+        }
     }
 
     /**
@@ -313,9 +317,7 @@ class Dialog extends w2base {
         options._last_focus = document.activeElement
         // keyboard events
         if (options.keyboard) {
-            query(document.body).on('keydown', (event) => {
-                this.keydown(event)
-            })
+            query(document.body).on('keydown', this.handleKeyDown)
         }
         query(window).on('resize', this.handleResize)
         // initialize move
@@ -469,6 +471,10 @@ class Dialog extends w2base {
         let edata = this.trigger('close', { target: 'popup' })
         if (edata.isCancelled === true) return
         let cleanUp = () => {
+            // unsubscribe events
+            if (this.options.keyboard) {
+                query(document.body).on('keydown', this.handleKeyDown)
+            }
             // return template
             query('#w2ui-popup').remove()
             // restore active
