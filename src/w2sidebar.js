@@ -966,7 +966,7 @@ class w2sidebar extends w2base {
             query(this.box).find('.w2ui-sidebar-body')
                 .css('top', query(this.box).find('.w2ui-sidebar-top').get(0)?.clientHeight + 'px')
             query(this.box).find('.w2ui-flat')
-                .off('clcik')
+                .off('click')
                 .on('click', event => { this.goFlat() })
         }
         if (id != null && this.bottomHTML !== '') {
