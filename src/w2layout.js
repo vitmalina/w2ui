@@ -854,6 +854,7 @@ class w2layout extends w2base {
                     })
                     .off('mousedown')
                     .on('mousedown', function(event) {
+                        event.preventDefault()
                         // event before
                         let edata = self.trigger('resizerClick', { target: 'top', originalEvent: event })
                         if (edata.isCancelled === true) return
@@ -900,6 +901,7 @@ class w2layout extends w2base {
                     })
                     .off('mousedown')
                     .on('mousedown', function(event) {
+                        event.preventDefault()
                         // event before
                         let edata = self.trigger('resizerClick', { target: 'left', originalEvent: event })
                         if (edata.isCancelled === true) return
@@ -946,6 +948,7 @@ class w2layout extends w2base {
                     })
                     .off('mousedown')
                     .on('mousedown', function(event) {
+                        event.preventDefault()
                         // event before
                         let edata = self.trigger('resizerClick', { target: 'right', originalEvent: event })
                         if (edata.isCancelled === true) return
@@ -991,6 +994,7 @@ class w2layout extends w2base {
                     })
                     .off('mousedown')
                     .on('mousedown', function(event) {
+                        event.preventDefault()
                         // event before
                         let edata = self.trigger('resizerClick', { target: 'bottom', originalEvent: event })
                         if (edata.isCancelled === true) return
@@ -1057,6 +1061,7 @@ class w2layout extends w2base {
                     })
                     .off('mousedown')
                     .on('mousedown', function(event) {
+                        event.preventDefault()
                         // event before
                         let edata = self.trigger('resizerClick', { target: 'preview', originalEvent: event })
                         if (edata.isCancelled === true) return
