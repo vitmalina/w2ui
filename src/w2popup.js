@@ -199,7 +199,8 @@ class Dialog extends w2base {
             styles = `${!options.title ? 'top: 0px !important;' : ''} ${!options.buttons ? 'bottom: 0px !important;' : ''}`
             msg = `
                 <span name="hidden-first" tabindex="0" style="position: absolute; top: -100px"></span>
-                <div class="w2ui-popup-title" style="${!options.title ? 'display: none' : ''}">${btn}</div>
+                <div class="w2ui-popup-title-btns">${btn}</div>
+                <div class="w2ui-popup-title" style="${!options.title ? 'display: none' : ''}"></div>
                 <div class="w2ui-box" style="${styles}">
                     <div class="w2ui-popup-body ${!options.title || ' w2ui-popup-no-title'}
                         ${!options.buttons || ' w2ui-popup-no-buttons'}" style="${options.style}">

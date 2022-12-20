@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (12/20/2022, 12:33:18 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/20/2022, 1:05:54 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -3012,6 +3012,31 @@ textarea.w2ui-error {
   opacity: 0;
   transform: scale(0.9);
 }
+.w2ui-popup .w2ui-popup-title-btns {
+  float: right;
+  margin: 10px 10px 0 0;
+  font-size: 17px;
+}
+.w2ui-popup .w2ui-popup-title-btns .w2ui-popup-button {
+  float: right;
+  width: 25px;
+  height: 23px;
+  cursor: pointer;
+  color: #888;
+  margin: 0 0 0 2px;
+  z-index: 301;
+  position: relative;
+}
+.w2ui-popup .w2ui-popup-title-btns .w2ui-popup-button span.w2ui-icon {
+  width: 24px;
+  height: 23px;
+}
+.w2ui-popup .w2ui-popup-title-btns .w2ui-popup-button.w2ui-popup-close:hover {
+  color: #222;
+}
+.w2ui-popup .w2ui-popup-title-btns .w2ui-popup-button.w2ui-popup-max:hover {
+  color: #222;
+}
 .w2ui-popup .w2ui-popup-title {
   padding: 10px;
   border-radius: 6px 6px 0px 0px;
@@ -3033,24 +3058,6 @@ textarea.w2ui-error {
   font-size: 17px;
   color: #555;
   z-index: 300;
-}
-.w2ui-popup .w2ui-popup-button {
-  float: right;
-  width: 25px;
-  height: 23px;
-  cursor: pointer;
-  color: #888;
-  margin: 0 0 0 5px;
-}
-.w2ui-popup .w2ui-popup-button span.w2ui-icon {
-  width: 24px;
-  height: 23px;
-}
-.w2ui-popup .w2ui-popup-button.w2ui-popup-close:hover {
-  color: #222;
-}
-.w2ui-popup .w2ui-popup-button.w2ui-popup-max:hover {
-  color: #222;
 }
 .w2ui-popup .w2ui-box,
 .w2ui-popup .w2ui-box-temp {

@@ -24,6 +24,32 @@
         transform: scale(0.9);
     }
 
+    .w2ui-popup-title-btns {
+        float: right;
+        margin: 10px 10px 0 0;
+        font-size: 17px;
+        .w2ui-popup-button {
+            float: right;
+            width: 25px;
+            height: 23px;
+            cursor: pointer;
+            color: #888;
+            margin: 0 0 0 2px;
+            z-index: 301;
+            position: relative;
+            span.w2ui-icon {
+                width: 24px;
+                height: 23px;
+            }
+            &.w2ui-popup-close:hover {
+                color: #222;
+            }
+            &.w2ui-popup-max:hover {
+                color: #222;
+            }
+        }
+    }
+
     .w2ui-popup-title {
         padding: 10px;
         border-radius: 6px 6px 0px 0px;
@@ -42,25 +68,6 @@
         font-size: 17px;
         color: #555;
         z-index: 300;
-    }
-
-    .w2ui-popup-button {
-        float: right;
-        width: 25px;
-        height: 23px;
-        cursor: pointer;
-        color: #888;
-        margin: 0 0 0 5px;
-        span.w2ui-icon {
-            width: 24px;
-            height: 23px;
-        }
-        &.w2ui-popup-close:hover {
-            color: #222;
-        }
-        &.w2ui-popup-max:hover {
-            color: #222;
-        }
     }
 
     .w2ui-box, .w2ui-box-temp { // w2ui-box & w2ui-box-temp needed for transitions
