@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (12/20/2022, 1:05:54 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (12/21/2022, 10:43:19 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -10003,6 +10003,7 @@ class w2layout extends w2base {
                     })
                     .off('mousedown')
                     .on('mousedown', function(event) {
+                        event.preventDefault()
                         // event before
                         let edata = self.trigger('resizerClick', { target: 'top', originalEvent: event })
                         if (edata.isCancelled === true) return
@@ -10049,6 +10050,7 @@ class w2layout extends w2base {
                     })
                     .off('mousedown')
                     .on('mousedown', function(event) {
+                        event.preventDefault()
                         // event before
                         let edata = self.trigger('resizerClick', { target: 'left', originalEvent: event })
                         if (edata.isCancelled === true) return
@@ -10095,6 +10097,7 @@ class w2layout extends w2base {
                     })
                     .off('mousedown')
                     .on('mousedown', function(event) {
+                        event.preventDefault()
                         // event before
                         let edata = self.trigger('resizerClick', { target: 'right', originalEvent: event })
                         if (edata.isCancelled === true) return
@@ -10140,6 +10143,7 @@ class w2layout extends w2base {
                     })
                     .off('mousedown')
                     .on('mousedown', function(event) {
+                        event.preventDefault()
                         // event before
                         let edata = self.trigger('resizerClick', { target: 'bottom', originalEvent: event })
                         if (edata.isCancelled === true) return
@@ -10205,6 +10209,7 @@ class w2layout extends w2base {
                     })
                     .off('mousedown')
                     .on('mousedown', function(event) {
+                        event.preventDefault()
                         // event before
                         let edata = self.trigger('resizerClick', { target: 'preview', originalEvent: event })
                         if (edata.isCancelled === true) return
