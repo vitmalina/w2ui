@@ -988,8 +988,15 @@ class Utils {
         if (!options.msg && options.msg !== 0) options.msg = ''
         this.unlock(box)
         let el = query(box).get(0)
+        let pWidth = el.scrollWidth
+        let pHeight = el.scrollHeight
+        // if it is body and only has absolute elements, its height will be 0, need to lock entire window
+        if (el.tagName == 'BODY') {
+            if (pWidth < innerWidth) pWidth = innerWidth
+            if (pHeight < innerHeight) pHeight = innerHeight
+        }
         query(box).prepend(
-            `<div class="w2ui-lock" style="height: ${el.scrollHeight}px; width: ${el.scrollWidth}px"></div>` +
+            `<div class="w2ui-lock" style="height: ${pHeight}px; width: ${pWidth}px"></div>` +
             '<div class="w2ui-lock-msg"></div>'
         )
         let $lock = query(box).find('.w2ui-lock')
@@ -1179,7 +1186,8 @@ class Utils {
                         }
                     }
                 })
-            options.setFocus(options.focus)
+            // timeout is needed because messages opens over 0.3 seconds
+            setTimeout(() => options.setFocus(options.focus), 300)
         })
         options.off('.prom')
         let prom = {
@@ -1296,9 +1304,9 @@ class Utils {
                             ? `data-click='["message", "${where.param}"]`
                             : 'data-click="message"'
                         : ''}>
-                    <span name="hidden-first" tabindex="0" style="position: absolute; top: -100px"></span>
+                    <span name="hidden-first" tabindex="0" style="position: absolute; top: 0; outline: none"></span>
                     ${options.html}
-                    <span name="hidden-last" tabindex="0" style="position: absolute; top: -100px"></span>
+                    <span name="hidden-last" tabindex="0" style="position: absolute; top: 0; outline: none"></span>
                 </div>`
             if (query(where.after).length > 0) {
                 query(where.box).find(where.after).after(content)
