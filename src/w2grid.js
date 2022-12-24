@@ -6028,8 +6028,8 @@ class w2grid extends w2base {
             columns = dragData.columns = query(self.box).find('.w2ui-head:not(.w2ui-head-last)')
 
             // add events
-            query(document).on(`mouseup.colDrag`, dragColEnd)
-            query(document).on(`mousemove.colDrag`, dragColOver)
+            query(document).on('mouseup.colDrag', dragColEnd)
+            query(document).on('mousemove.colDrag', dragColOver)
 
             let col = self.columns[dragData.originalPos]
             let colText = w2utils.lang(typeof col.text == 'function' ? col.text(col) : col.text)
@@ -6227,7 +6227,8 @@ class w2grid extends w2base {
                             this.searchSuggest(true)
                         }
                     }, 250)
-                    input.on('change', event => {
+                    input
+                        .on('change', event => {
                             if (!this.liveSearch) {
                                 this.search(this.last.field, event.target.value)
                                 this.searchSuggest(true, true, this)

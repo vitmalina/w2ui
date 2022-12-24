@@ -290,11 +290,11 @@ let tasks = {
 
         function process_obj(m, o) {
             Object.keys(o).forEach(k => {
-                if(typeof m[k] === 'undefined') delete o[k]
+                if (typeof m[k] === 'undefined') delete o[k]
             })
             for (const [k, v] of Object.entries(m)) {
-                if(typeof o[k] === 'undefined') o[k] = v
-                if(typeof v === 'object' && Object.keys(o[k]).length) o[k] = process_obj(v, o[k])
+                if (typeof o[k] === 'undefined') o[k] = v
+                if (typeof v === 'object' && Object.keys(o[k]).length) o[k] = process_obj(v, o[k])
             }
             return Object.assign(m, o)
         }
