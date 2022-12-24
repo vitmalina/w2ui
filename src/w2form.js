@@ -1600,10 +1600,12 @@ class w2form extends w2base {
                         let helper = field.el._w2field?.helpers?.multi
                         query(helper).removeClass('w2ui-error')
                     }
-                    if (this._previous != null) {
+                    if (typeof(this._previous) != 'undefined') {
                         value.previous = this._previous
                         delete this._previous
                     }
+                    else
+                        return
                     // event before
                     let edata2 = self.trigger('change', { target: this.name, field: this.name, value, originalEvent: event })
                     if (edata2.isCancelled === true) return
@@ -1623,8 +1625,8 @@ class w2form extends w2base {
                     }
                     let value = self.getFieldValue(field.field)
                     // save previous for change event
-                    if (this._previous == null) {
-                        this._previous = value.previous
+                    if (typeof(this._previous) == 'undefined') {
+                        this._previous = typeof(value.previous) == 'undefined' ? null : value.previous
                     }
                     // event before
                     let edata2 = self.trigger('input', { target: self.name, value, originalEvent: event })
