@@ -1,6 +1,6 @@
-context("1: Combo", () => {
-    context("1: Basic", () => {
-        test("9: Popup & Layout", () => {
+context('1: Combo', () => {
+    context('1: Basic', () => {
+        test('9: Popup & Layout', () => {
             bela
                 .ready('/w2ui/demos/#/combo/9')
                 .get('button:contains(Open Popup)')

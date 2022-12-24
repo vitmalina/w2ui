@@ -1,6 +1,6 @@
-context("2:Layout", () => {
-    context("0: Basic", () => {
-        test("7: Nested Layouts", () => {
+context('2:Layout', () => {
+    context('0: Basic', () => {
+        test('7: Nested Layouts', () => {
             let sel = {
                 left: '#nested button:contains(Left)',
                 right: '#nested button:contains(Right)',

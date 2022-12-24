@@ -1,6 +1,6 @@
-context("1: Combo", () => {
-    context("1: Basic", () => {
-        test("3: Spreadsheet Like Grid", () => {
+context('1: Combo', () => {
+    context('1: Basic', () => {
+        test('3: Spreadsheet Like Grid', () => {
             let range = '#grid_grid_range'
             bela
                 .ready('/w2ui/demos/#/combo/3')

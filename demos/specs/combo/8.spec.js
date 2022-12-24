@@ -1,6 +1,6 @@
-context("1: Combo", () => {
-    context("1: Basic", () => {
-        test("8: Popup & Grid", () => {
+context('1: Combo', () => {
+    context('1: Basic', () => {
+        test('8: Popup & Grid', () => {
             bela
                 .ready('/w2ui/demos/#/combo/8')
                 .begin('Open popup')

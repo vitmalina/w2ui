@@ -1,6 +1,6 @@
-context("1: Combo", () => {
-    context("1: Basic", () => {
-        test("10: Dependent Fields", () => {
+context('1: Combo', () => {
+    context('1: Basic', () => {
+        test('10: Dependent Fields', () => {
             bela
                 .ready('/w2ui/demos/#/combo/10')
                 .formFill('#tab-example', {

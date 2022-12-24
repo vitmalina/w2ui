@@ -1,6 +1,6 @@
-context("2:Layout", () => {
-    context("2.0+", () => {
-        test("14: Promises", () => {
+context('2:Layout', () => {
+    context('2.0+', () => {
+        test('14: Promises', () => {
             bela
                 .ready('/w2ui/demos/#/layout/14')
                 .begin('Click buttons')

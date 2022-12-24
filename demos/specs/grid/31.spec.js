@@ -1,6 +1,6 @@
-context("3:Grid", () => {
-    context("1.5", () => {
-        test("31:Column Tooltip & Title", () => {
+context('3:Grid', () => {
+    context('1.5', () => {
+        test('31:Column Tooltip & Title', () => {
             bela
                 .ready('/w2ui/demos/#/grid/31')
                 .grid('grid')

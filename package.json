@@ -12,7 +12,7 @@
   "style": "dist/w2ui.css",
   "scripts": {
     "start": "open http://localhost:3500; python3 -m http.server 3500",
-    "test": "eslint src --ext js"
+    "test": "eslint src demos --ext js"
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",

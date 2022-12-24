@@ -1,6 +1,6 @@
-context("1: Combo", () => {
-    context("1: Basic", () => {
-        test("7: Layout & Dynamic Tabs", () => {
+context('1: Combo', () => {
+    context('1: Basic', () => {
+        test('7: Layout & Dynamic Tabs', () => {
             let sel = {
                 item1: '#tabs_layout_main_tabs_tab_item1',
                 item2: '#tabs_layout_main_tabs_tab_item2',

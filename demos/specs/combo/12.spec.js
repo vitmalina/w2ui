@@ -1,6 +1,6 @@
-context("1: Combo", () => {
-    context("1.5", () => {
-        test("2:Context Menu", () => {
+context('1: Combo', () => {
+    context('1.5', () => {
+        test('2:Context Menu', () => {
             let sel = {
                 box1: '#example_view > div:nth-child(2)',
                 box2: '#example_view > div:nth-child(3)'

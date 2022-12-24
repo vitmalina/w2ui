@@ -1,6 +1,6 @@
-context("2:Layout", () => {
-    context("1.5+", () => {
-        test("12: Fixed Size Main Panel", () => {
+context('2:Layout', () => {
+    context('1.5+', () => {
+        test('12: Fixed Size Main Panel', () => {
             let main = '#layout_layout_panel_main .w2ui-panel-content'
             bela
                 .ready('/w2ui/demos/#/layout/12')
