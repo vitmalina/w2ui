@@ -1871,7 +1871,6 @@ class w2form extends w2base {
             }
             // set value to HTML input field
             this.setFieldValue(field.field, this.getValue(field.name))
-            field.$el.trigger('change')
         }
         // event after
         edata.finish()
