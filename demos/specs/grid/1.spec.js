@@ -1,6 +1,6 @@
-context("3:Grid", () => {
-    context("0: Basic", () => {
-        test("1: Simple grid", () => {
+context('3:Grid', () => {
+    context('0: Basic', () => {
+        test('1: Simple grid', () => {
             bela
                 .ready('/w2ui/demos/#/grid/1')
                 .grid('grid')

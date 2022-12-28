@@ -1,3 +1,4 @@
+let tmp = {}
 bela.custom.add('grid', { timeout: 15000 }, function(gridName, options={}) { // cannot be arrow function, as it has not this
     if (!gridName) {
         let names = ''
@@ -113,6 +114,7 @@ bela.custom.overwrite('should', function(param, options = {}) { // cannot be arr
                     if (value === true) value = '>0'
                     if (value === false) value = '==0'
                     if (!isNaN(value)) value = '==' + value
+                    /* eslint-disable-next-line */
                     if (eval(`${grid.records.length}${value}`) === true) {
                         res.success = true
                         res.msg = `record count ${value}`
@@ -153,11 +155,12 @@ bela.custom.overwrite('should', function(param, options = {}) { // cannot be arr
                 break
             }
             case 'have.selection': {
+                let sel = grid.getSelection()
                 if (value) {
                     if (value === true) value = '>0'
                     if (value === false) value = '==0'
                     if (!isNaN(value)) value = '==' + value
-                    let sel = grid.getSelection()
+                    /* eslint-disable-next-line */
                     if (eval(`${sel.length}${value}`) === true) {
                         res.success = true
                         res.msg = `selected ${value}`
@@ -204,7 +207,7 @@ bela.custom.overwrite('click', function(button, options = {}) { // cannot be arr
                 .wait(`#grid_${grid.name}_toolbar .w2ui-tb-button:has(.w2ui-tb-text:contains(${button}))`, 'not.to.have.class', 'disabled')
                     .tag('when clickable')
                 .get(`#grid_${grid.name}_toolbar .w2ui-tb-button .w2ui-tb-text:contains(${button})`)
-                .click(options).tag(`toolbar button`)
+                .click(options).tag('toolbar button')
         } else {
             return { success: false, error: 'Not sure what you want to click on this grid.'}
         }
@@ -275,7 +278,7 @@ bela.custom.add('search', function(field, options) { // cannot be arrow function
                 let sField = grid.getSearch(s0.field)
                 if (sField.label == field && s0.value == search) {
                     //empty
-                    bela.log("Already applied")
+                    bela.log('Already applied')
                 } else {
                     _search()
                 }
@@ -332,10 +335,9 @@ bela.custom.add('search', function(field, options) { // cannot be arrow function
             bela.tag('ALL="' + search + '"')
             if (grid.searchData.length > 0) {
                 let s0 = grid.searchData[0]
-                let sField = grid.getSearch(s0.field)
                 if (s0.value == search) {
                     // empty
-                    bela.log("Already applied")
+                    bela.log('Already applied')
                 } else {
                     _search2()
                 }
@@ -482,7 +484,7 @@ bela.custom.add('formFill', function(selector, data={}) { // cannot be arrow fun
                     .wait(10) // wait to appear
                     .get(`#w2ui-overlay tr[index=${index}]`)
                     .click()
-                    .wait(`#w2ui-overlay`, 'not.to.exist')
+                    .wait('#w2ui-overlay', 'not.to.exist')
                     .get(`${selector} #${fld}`)
                     .blur()
             } else {
@@ -494,7 +496,7 @@ bela.custom.add('formFill', function(selector, data={}) { // cannot be arrow fun
                     .wait(10) // wait to appear
                     .get(`#w2ui-overlay td.menu-text:contains(${select})`)
                     .click()
-                    .wait(`#w2ui-overlay`, 'not.to.exist')
+                    .wait('#w2ui-overlay', 'not.to.exist')
                     .get(`${selector} #${fld}`)
                     .blur()
             }

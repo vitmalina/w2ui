@@ -1,6 +1,6 @@
-context("3:Grid", () => {
-    context("0: Basic", () => {
-        test("9: Add Remove Records", () => {
+context('3:Grid', () => {
+    context('0: Basic', () => {
+        test('9: Add Remove Records', () => {
             bela
                 .ready('/w2ui/demos/#/grid/9')
                 .begin('Add One')

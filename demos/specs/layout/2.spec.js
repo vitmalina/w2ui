@@ -1,6 +1,6 @@
-context("2:Layout", () => {
-        context("0: Basic", () => {
-        test("2: Resizable Panels", () => {
+context('2:Layout', () => {
+    context('0: Basic', () => {
+        test('2: Resizable Panels', () => {
             bela
                 .ready('/w2ui/demos/#/layout/2')
                 .begin('Check panels')

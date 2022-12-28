@@ -1,7 +1,7 @@
-context("4:Toolbar", () => {
-    context("0: Basic", () => {
-        test("2: More Button Types", () => {
-            let menu_item = '#w2ui-overlay-toolbar .w2ui-menu-item';
+context('4:Toolbar', () => {
+    context('0: Basic', () => {
+        test('2: More Button Types', () => {
+            let menu_item = '#w2ui-overlay-toolbar .w2ui-menu-item'
             bela
                 .ready('/w2ui/demos/#/toolbar/2')
                 .get('#toolbar .w2ui-tb-button')

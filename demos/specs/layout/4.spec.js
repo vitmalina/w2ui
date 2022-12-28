@@ -1,6 +1,6 @@
-context("2:Layout", () => {
-    context("0: Basic", () => {
-        test("4: Load Content", () => {
+context('2:Layout', () => {
+    context('0: Basic', () => {
+        test('4: Load Content', () => {
             bela
                 .ready('/w2ui/demos/#/layout/4')
                 .begin('Manual content')

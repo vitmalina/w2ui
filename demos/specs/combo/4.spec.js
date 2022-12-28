@@ -1,6 +1,6 @@
-context("1: Combo", () => {
-    context("1: Basic", () => {
-        test("4: Virtual Scroll", () => {
+context('1: Combo', () => {
+    context('1: Basic', () => {
+        test('4: Virtual Scroll', () => {
             bela
                 .ready('/w2ui/demos/#/combo/4')
                 .begin('Check ghe grid')
@@ -14,6 +14,6 @@ context("1: Combo", () => {
                     .get('#grid_grid_records tr')
                     .should('have.length', 44) // records in the view
                 .end()
-      })
+        })
     })
 })

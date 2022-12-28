@@ -4366,12 +4366,8 @@ class w2grid extends w2base {
         if (this.selectType == 'row') {
             if (sel.indexOf(recid) == -1) this.click(recid)
         } else {
-            let $tmp = query(event.target)
-            if ($tmp[0].tagName.toUpperCase() != 'TD') $tmp = query(event.target).closest('td')
-            let selected = false
-            column = $tmp.attr('col')
             // check if any selected sel in the right row/column
-            for (let i = 0; i<sel.length; i++) {
+            for (let i = 0; i < sel.length; i++) {
                 if (sel[i].recid == recid || sel[i].column == column) selected = true
             }
             if (!selected && recid != null) this.click({ recid: recid, column: column })
@@ -5198,7 +5194,9 @@ class w2grid extends w2base {
                 })
                 .on('contextmenu', { delegate: 'tr' }, (event) => {
                     let recid = query(event.delegate).attr('recid')
-                    this.showContextMenu(recid, null, event)
+                    let td = query(event.target).closest('td')
+                    let column = parseInt(td.attr('col') ?? -1)
+                    this.showContextMenu(recid, column, event)
                 })
                 .on('mouseover', { delegate: 'tr' }, (event) => {
                     this.last.rec_out = false
@@ -6028,8 +6026,8 @@ class w2grid extends w2base {
             columns = dragData.columns = query(self.box).find('.w2ui-head:not(.w2ui-head-last)')
 
             // add events
-            query(document).on(`mouseup.colDrag`, dragColEnd)
-            query(document).on(`mousemove.colDrag`, dragColOver)
+            query(document).on('mouseup.colDrag', dragColEnd)
+            query(document).on('mousemove.colDrag', dragColOver)
 
             let col = self.columns[dragData.originalPos]
             let colText = w2utils.lang(typeof col.text == 'function' ? col.text(col) : col.text)
@@ -6227,7 +6225,8 @@ class w2grid extends w2base {
                             this.searchSuggest(true)
                         }
                     }, 250)
-                    input.on('change', event => {
+                    input
+                        .on('change', event => {
                             if (!this.liveSearch) {
                                 this.search(this.last.field, event.target.value)
                                 this.searchSuggest(true, true, this)

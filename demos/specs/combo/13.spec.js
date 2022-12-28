@@ -1,6 +1,6 @@
-context("1: Combo", () => {
-    context("1.5", () => {
-        test("3:Inline Tooltips", () => {
+context('1: Combo', () => {
+    context('1.5', () => {
+        test('3:Inline Tooltips', () => {
             let sel = {
                 box1: '#example_view #span1 > span',
                 box2: '#example_view #span2 > span',

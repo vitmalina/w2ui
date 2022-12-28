@@ -1,6 +1,6 @@
-context("1: Combo", () => {
-    context("1: Basic", () => {
-        test("6: Tabs With Content", () => {
+context('1: Combo', () => {
+    context('1: Basic', () => {
+        test('6: Tabs With Content', () => {
             bela
                 .ready('/w2ui/demos/#/combo/6')
                 .begin('Check tabs')
@@ -25,6 +25,6 @@ context("1: Combo", () => {
                     .get('#tab3')
                     .should('be.visible')
                 .end()
-      })
+        })
     })
 })

@@ -1,6 +1,6 @@
-context("1: Combo", () => {
-    context("1.5", () => {
-        test("1:Flat Sidebar", () => {
+context('1: Combo', () => {
+    context('1.5', () => {
+        test('1:Flat Sidebar', () => {
             let sb = '#layout_layout_panel_left .w2ui-sidebar'
             bela
                 .ready('/w2ui/demos/#/combo/11')

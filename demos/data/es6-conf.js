@@ -20,19 +20,19 @@ export default {
         onClick(event) {
             switch (event.target) {
                 case 'grid1':
-                    app.w2ui.layout.html('main', app.w2ui.grid1);
-                    break;
+                    app.w2ui.layout.html('main', app.w2ui.grid1)
+                    break
                 case 'grid2':
-                    app.w2ui.layout.html('main', app.w2ui.grid2);
-                    break;
+                    app.w2ui.layout.html('main', app.w2ui.grid2)
+                    break
                 case 'html':
-                    app.w2ui.layout.html('main', '<div style="padding: 10px">Some HTML</div>');
+                    app.w2ui.layout.html('main', '<div style="padding: 10px">Some HTML</div>')
                     $(app.w2ui.layout.el('main'))
                         .removeClass('w2ui-grid')
                         .css({
                             'border-left': '1px solid #efefef'
-                        });
-                    break;
+                        })
+                    break
             }
         }
     },

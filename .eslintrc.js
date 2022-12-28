@@ -24,7 +24,11 @@ module.exports = {
         'w2popup': 'readonly',
         'w2alert': 'readonly',
         'w2confirm': 'readonly',
-        'w2prompt': 'readonly'
+        'w2prompt': 'readonly',
+        'bela': 'readonly',
+        'context': 'readonly',
+        'test': 'readonly',
+        'chai': 'readonly'
     },
     'rules': {
         'indent': ['error', 4, {

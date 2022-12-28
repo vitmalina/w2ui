@@ -1,6 +1,6 @@
-context("2:Layout", () => {
-    context("0: Basic", () => {
-        test("6: Event Listeners", () => {
+context('2:Layout', () => {
+    context('0: Basic', () => {
+        test('6: Event Listeners', () => {
 
             function showHide(event, panel) {
                 let sel = {

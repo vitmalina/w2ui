@@ -1,6 +1,6 @@
-context("4:Toolbar", () => {
-    context("0: Basic", () => {
-        test("3: Add/Remove Buttons", () => {
+context('4:Toolbar', () => {
+    context('0: Basic', () => {
+        test('3: Add/Remove Buttons', () => {
             bela
                 .ready('/w2ui/demos/#/toolbar/3')
                 .get('#toolbar .w2ui-tb-button')

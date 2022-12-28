@@ -1,6 +1,6 @@
-context("3:Grid", () => {
-    context("0: Basic", () => {
-        test("8: Show/Hide Columns", () => {
+context('3:Grid', () => {
+    context('0: Basic', () => {
+        test('8: Show/Hide Columns', () => {
             bela
                 .ready('/w2ui/demos/#/grid/8')
                 .begin('First column')
