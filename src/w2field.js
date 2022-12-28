@@ -1395,7 +1395,7 @@ class w2field extends w2base {
         }
         // remove if already displayed
         if (this.helpers.prefix) query(this.helpers.prefix).remove()
-        query(this.el).before(`<div class="w2ui-field-helper">${this.options.prefix}</div>`)
+        query(this.el).before(`<div class="w2ui-field-helper w2ui-prefix">${this.options.prefix}</div>`)
         helper = query(this.el).get(0).previousElementSibling
         query(helper)
             .css({
@@ -1420,7 +1420,7 @@ class w2field extends w2base {
     }
 
     addSuffix() {
-        if (!this.options.prefix && !this.options.arrow) {
+        if (!this.options.suffix && !this.options.arrow) {
             return
         }
         let helper
@@ -1472,7 +1472,7 @@ class w2field extends w2base {
             // remove if already displayed
             if (this.helpers.suffix) query(this.helpers.suffix).remove()
             // add fresh
-            query(this.el).after(`<div class="w2ui-field-helper">${this.options.suffix}</div>`)
+            query(this.el).after(`<div class="w2ui-field-helper w2ui-suffix">${this.options.suffix}</div>`)
             helper = query(this.el).get(0).nextElementSibling
             query(helper)
                 .css({
