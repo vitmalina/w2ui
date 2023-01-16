@@ -21,15 +21,22 @@
 
 <!--CODE-->
 <script type="module">
-import { w2field, query } from '__W2UI_PATH__'
+import { w2field, query, w2alert } from '__W2UI_PATH__'
 
 class MyField extends w2field {
     constructor (type, options) {
         super(type, options)
         if (this.type == 'custom') {
             this.options.prefix = '<span style="color: gray;">@</span>'
-            this.options.suffix = '<button style="position: relative; top: -3px; padding: 0 5px;">GO</button>'
+            this.options.suffix = `<button style="position: relative; top: -3px; padding: 0 5px; pointer-events: all">GO</button>`
         }
+    }
+
+    render(box) {
+        super.render(box)
+        query(box).next().find('button').on('click', event => {
+            w2alert('To the sky!')
+        })
     }
 }
 
