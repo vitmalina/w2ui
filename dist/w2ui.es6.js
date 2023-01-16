@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (12/24/2022, 8:38:11 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (1/16/2023, 8:50:38 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -1583,97 +1583,12 @@ class Utils {
         })
     }
     base64encode(input) {
-        let output = ''
-        let chr1, chr2, chr3, enc1, enc2, enc3, enc4
-        let i      = 0
-        let keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
-        input      = utf8_encode(input)
-        while (i < input.length) {
-            chr1 = input.charCodeAt(i++)
-            chr2 = input.charCodeAt(i++)
-            chr3 = input.charCodeAt(i++)
-            enc1 = chr1 >> 2
-            enc2 = ((chr1 & 3) << 4) | (chr2 >> 4)
-            enc3 = ((chr2 & 15) << 2) | (chr3 >> 6)
-            enc4 = chr3 & 63
-            if (isNaN(chr2)) {
-                enc3 = enc4 = 64
-            } else if (isNaN(chr3)) {
-                enc4 = 64
-            }
-            output = output + keyStr.charAt(enc1) + keyStr.charAt(enc2) + keyStr.charAt(enc3) + keyStr.charAt(enc4)
-        }
-        function utf8_encode (string) {
-            string      = String(string).replace(/\r\n/g,'\n')
-            let utftext = ''
-            for (let n = 0; n < string.length; n++) {
-                let c = string.charCodeAt(n)
-                if (c < 128) {
-                    utftext += String.fromCharCode(c)
-                }
-                else if ((c > 127) && (c < 2048)) {
-                    utftext += String.fromCharCode((c >> 6) | 192)
-                    utftext += String.fromCharCode((c & 63) | 128)
-                }
-                else {
-                    utftext += String.fromCharCode((c >> 12) | 224)
-                    utftext += String.fromCharCode(((c >> 6) & 63) | 128)
-                    utftext += String.fromCharCode((c & 63) | 128)
-                }
-            }
-            return utftext
-        }
-        return output
+        // Fast Native support in Chrome since 2010
+        return btoa(input) // binary to ascii
     }
     base64decode(input) {
-        let output = ''
-        let chr1, chr2, chr3
-        let enc1, enc2, enc3, enc4
-        let i      = 0
-        let keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
-        input      = input.replace(/[^A-Za-z0-9\+\/\=]/g, '')
-        while (i < input.length) {
-            enc1   = keyStr.indexOf(input.charAt(i++))
-            enc2   = keyStr.indexOf(input.charAt(i++))
-            enc3   = keyStr.indexOf(input.charAt(i++))
-            enc4   = keyStr.indexOf(input.charAt(i++))
-            chr1   = (enc1 << 2) | (enc2 >> 4)
-            chr2   = ((enc2 & 15) << 4) | (enc3 >> 2)
-            chr3   = ((enc3 & 3) << 6) | enc4
-            output = output + String.fromCharCode(chr1)
-            if (enc3 !== 64) {
-                output = output + String.fromCharCode(chr2)
-            }
-            if (enc4 !== 64) {
-                output = output + String.fromCharCode(chr3)
-            }
-        }
-        output = utf8_decode(output)
-        function utf8_decode(utftext) {
-            let string = ''
-            let i      = 0
-            let c      = 0, c2, c3
-            while ( i < utftext.length ) {
-                c = utftext.charCodeAt(i)
-                if (c < 128) {
-                    string += String.fromCharCode(c)
-                    i++
-                }
-                else if ((c > 191) && (c < 224)) {
-                    c2      = utftext.charCodeAt(i+1)
-                    string += String.fromCharCode(((c & 31) << 6) | (c2 & 63))
-                    i      += 2
-                }
-                else {
-                    c2      = utftext.charCodeAt(i+1)
-                    c3      = utftext.charCodeAt(i+2)
-                    string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63))
-                    i      += 3
-                }
-            }
-            return string
-        }
-        return output
+        // Fast Native support in Chrome since 2010
+        return atob(input) // ascii to binary
     }
     async sha256(str) {
         const utf8 = new TextEncoder().encode(str)
@@ -14504,12 +14419,9 @@ class w2grid extends w2base {
         if (this.selectType == 'row') {
             if (sel.indexOf(recid) == -1) this.click(recid)
         } else {
-            let $tmp = query(event.target)
-            if ($tmp[0].tagName.toUpperCase() != 'TD') $tmp = query(event.target).closest('td')
             let selected = false
-            column = $tmp.attr('col')
             // check if any selected sel in the right row/column
-            for (let i = 0; i<sel.length; i++) {
+            for (let i = 0; i < sel.length; i++) {
                 if (sel[i].recid == recid || sel[i].column == column) selected = true
             }
             if (!selected && recid != null) this.click({ recid: recid, column: column })
@@ -15309,7 +15221,9 @@ class w2grid extends w2base {
                 })
                 .on('contextmenu', { delegate: 'tr' }, (event) => {
                     let recid = query(event.delegate).attr('recid')
-                    this.showContextMenu(recid, null, event)
+                    let td = query(event.target).closest('td')
+                    let column = parseInt(td.attr('col') ?? -1)
+                    this.showContextMenu(recid, column, event)
                 })
                 .on('mouseover', { delegate: 'tr' }, (event) => {
                     this.last.rec_out = false
@@ -20377,7 +20291,6 @@ class w2form extends w2base {
             }
             // set value to HTML input field
             this.setFieldValue(field.field, this.getValue(field.name))
-            field.$el.trigger('change')
         }
         // event after
         edata.finish()
@@ -21892,7 +21805,7 @@ class w2field extends w2base {
         this.helpers.prefix = helper
     }
     addSuffix() {
-        if (!this.options.prefix && !this.options.arrow) {
+        if (!this.options.suffix && !this.options.arrow) {
             return
         }
         let helper
