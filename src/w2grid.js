@@ -4366,6 +4366,7 @@ class w2grid extends w2base {
         if (this.selectType == 'row') {
             if (sel.indexOf(recid) == -1) this.click(recid)
         } else {
+            let selected = false
             // check if any selected sel in the right row/column
             for (let i = 0; i < sel.length; i++) {
                 if (sel[i].recid == recid || sel[i].column == column) selected = true
