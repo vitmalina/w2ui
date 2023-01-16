@@ -1420,7 +1420,7 @@ class w2field extends w2base {
     }
 
     addSuffix() {
-        if (!this.options.prefix && !this.options.arrow) {
+        if (!this.options.suffix && !this.options.arrow) {
             return
         }
         let helper
