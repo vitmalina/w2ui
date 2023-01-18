@@ -46,7 +46,7 @@
         "Empty list": "Пустой лист",
         "ends with": "заканчивается на",
         "ends": "заканчивается",
-        "Field should be at least ${count} characters.": "Поле должно быть хотябы ${count} символов.",
+        "Field should be at least ${count} characters.": "Поле должно быть как минимум ${count} символов.",
         "Hide": "Скрыть",
         "in": "в списке",
         "is not": "не равняется",
@@ -76,7 +76,7 @@
         "Notification": "Уведомление",
         "of": "из",
         "Ok": "OK",
-        "Opacity": "Opacity",
+        "Opacity": "Непрозрачность",
         "Record ID": "Запись",
         "record": "запись",
         "records": "записей",
@@ -105,10 +105,12 @@
         "Size": "Размер",
         "Skip": "Пропустить",
         "Sorting took ${count} seconds": "Сортировка заняла ${count} секунд",
+        "Today & Now": "Текущая дата и время",
+        "Today": "Текущая дата",
         "Type to search...": "Начните печатать...",
         "Type": "Тип",
         "Yes": "Да",
         "Yesterday": "Вчера",
-        "Your remote data source record count has changed, reloading from the first record.": "Количество записей на сервере изменился, перегрущаем с первой записи."
+        "Your remote data source record count has changed, reloading from the first record.": "Количество записей на сервере изменилось, перегружаем с первой записи."
     }
 }
