@@ -20533,7 +20533,7 @@ var w2prompt = function (label, title, callBack) {
             // event before
             var edata = this.trigger({ phase: 'before', target: this.name, type: 'refresh', page: this.page, field: field, fields: arguments });
             if (edata.isCancelled === true) return;
-            var fields = Array.from(this.fields.keys());
+            var fields = Object.keys(this.fields);
             if (arguments.length > 0) {
                 fields = Array.from(arguments)
                     .map(function (fld, ind) {
