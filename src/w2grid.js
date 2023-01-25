@@ -3561,9 +3561,9 @@ class w2grid extends w2base {
                 }),
                 width: 380,
                 height: 170,
-                yes_text: 'Delete',
+                yes_text: w2utils.lang('Delete'),
                 yes_class: 'w2ui-btn-red',
-                no_text: 'Cancel',
+                no_text: w2utils.lang('Cancel'),
             })
                 .yes(event => {
                     event.detail.self.close()
