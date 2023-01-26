@@ -9736,6 +9736,9 @@ w2utils.event = {
                 records.prop('scrollTop',  this.last.scrollTop);
                 records.prop('scrollLeft', this.last.scrollLeft);
             }
+            // Improved performance when scrolling through tables
+            columns.css('-ms-transform', 'translateZ(0)');
+            columns.css('transform', 'translateZ(0)');
         },
 
         getSearchesHTML: function () {
