@@ -5076,6 +5076,12 @@ class w2grid extends w2base {
                 let display
                 if (Array.isArray(sd.value)) {
                     display = `<span class="grid-search-count">${sd.value.length}</span>`
+                } else if (sf && sf.type == 'list') {
+                    const sd_value = sd.value
+                    const sd_text = sd.text
+
+                    display = !!sd_text && sd_text !== sd_value ? `: ${sd_text}` : `: ${sd_value}`
+                    
                 } else {
                     display = `: ${sd.value}`
                 }
