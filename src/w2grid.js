@@ -3155,8 +3155,8 @@ class w2grid extends w2base {
         let rec = this.records[index]
         let col = this.columns[column]
         let prefix = (col.frozen === true ? '_f' : '_')
-        if (['list', 'enum', 'file'].indexOf(edit.type) != -1) {
-            console.log('ERROR: input types "list", "enum" and "file" are not supported in inline editing.')
+        if (['enum', 'file'].indexOf(edit.type) != -1) {
+            console.log('ERROR: input types "enum" and "file" are not supported in inline editing.')
             return
         }
         // event before
@@ -3382,15 +3382,17 @@ class w2grid extends w2base {
         // save previous value
         if (input) input._prevValue = prevValue
         // focus and select
-        setTimeout(() => {
-            if (!this.last.inEditMode) return
-            if (input) {
-                input.focus()
-                clearTimeout(this.last.kbd_timer) // keep focus
-                input.resize = expand
-                expand(input)
-            }
-        }, 50)
+        if (edit.type != 'list') {
+            setTimeout(() => {
+                if (!this.last.inEditMode) return
+                if (input) {
+                    input.focus()
+                    clearTimeout(this.last.kbd_timer) // keep focus
+                    input.resize = expand
+                    expand(input)
+                }
+            }, 50)
+        }
         // event after
         edata.finish({ input })
         return
@@ -5041,7 +5043,7 @@ class w2grid extends w2base {
                 }
             }, 50)
         }
-        this.updateToolbar()
+        this.updateToolbar(this.last.selection)
         // event after
         edata.finish()
         this.resize()
@@ -7804,7 +7806,7 @@ class w2grid extends w2base {
         if (this.show.expandColumn) {
             let tmp_img = ''
             if (record.w2ui?.expanded === true) tmp_img = '-'; else tmp_img = '+'
-            if ((record.w2ui?.expanded == 'none' || !Array.isArray(record.w2ui.children) || !record.w2ui.children.length)) tmp_img = '+'
+            if ((record.w2ui?.expanded == 'none' || !Array.isArray(record.w2ui?.children) || !record.w2ui?.children.length)) tmp_img = '+'
             if (record.w2ui?.expanded == 'spinner') tmp_img = '<div class="w2ui-spinner" style="width: 16px; margin: -2px 2px;"></div>'
             rec_html1 +=
                     '<td id="grid_'+ this.name +'_cell_'+ ind +'_expand' + (summary ? '_s' : '') + '" class="w2ui-grid-data w2ui-col-expand">'+
