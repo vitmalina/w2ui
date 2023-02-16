@@ -7668,7 +7668,7 @@ class w2grid extends w2base {
             }
             // scroll function
             let more = query(this.box).find('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more')
-            more.showTr()
+            more.show()
                 .eq(1) // only main table
                 .off('.load-more')
                 .on('click.load-more', function() {
