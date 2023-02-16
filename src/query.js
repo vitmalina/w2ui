@@ -534,7 +534,12 @@ class Query {
             let dsp  = getComputedStyle(node).display
             let isHidden = (prev == 'none' || dsp == 'none')
             if (isHidden && (force == null || force === true)) { // show
-                node.style.display = node._mQuery?.prevDisplay ?? (prev == dsp && dsp != 'none' ? '' : 'block')
+                if( node instanceof HTMLTableRowElement ) {
+                    node.style.display = node._mQuery?.prevDisplay ?? (prev == dsp && dsp != 'none' ? '' : 'table-row')
+                }
+                else {
+                    node.style.display = node._mQuery?.prevDisplay ?? (prev == dsp && dsp != 'none' ? '' : 'block')
+                }
                 this._save(node, 'prevDisplay', null)
             }
             if (!isHidden && (force == null || force === false)) { // hide
