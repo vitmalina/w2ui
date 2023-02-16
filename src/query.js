@@ -519,12 +519,6 @@ class Query {
     show() {
         return this.toggle(true)
     }
-    showTr() {
-        return this.each(node => {
-            node.style.display = 'table-row'
-        })
-        return this
-    }
     hide() {
         return this.toggle(false)
     }
