@@ -1318,10 +1318,11 @@ class w2grid extends w2base {
 
     removeRange() {
         let removed = 0
+        let $box = query(this.box)
         for (let a = 0; a < arguments.length; a++) {
             let name = arguments[a]
-            query(this.box).find('#grid_'+ this.name +'_'+ name).remove()
-            query(this.box).find('#grid_'+ this.name +'_f'+ name).remove()
+            $box.find('#grid_'+ this.name +'_'+ name).remove()
+            $box.find('#grid_'+ this.name +'_f'+ name).remove()
             for (let r = this.ranges.length-1; r >= 0; r--) {
                 if (this.ranges[r].name == name) {
                     this.ranges.splice(r, 1)
@@ -1337,67 +1338,68 @@ class w2grid extends w2base {
         let self = this
         let range
         let time = Date.now()
-        let rec1 = query(this.box).find(`#grid_${this.name}_frecords`)
-        let rec2 = query(this.box).find(`#grid_${this.name}_records`)
+        let $box = query(this.box)
+        let rec1 = $box.find(`#grid_${this.name}_frecords`)
+        let rec2 = $box.find(`#grid_${this.name}_records`)
         for (let i = 0; i < this.ranges.length; i++) {
             let rg    = this.ranges[i]
             let first = rg.range[0]
             let last  = rg.range[1]
             if (first.index == null) first.index = this.get(first.recid, true)
             if (last.index == null) last.index = this.get(last.recid, true)
-            let td1  = query(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(first.recid) + ' td[col="'+ first.column +'"]')
-            let td2  = query(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(last.recid) + ' td[col="'+ last.column +'"]')
-            let td1f = query(this.box).find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(first.recid) + ' td[col="'+ first.column +'"]')
-            let td2f = query(this.box).find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(last.recid) + ' td[col="'+ last.column +'"]')
+            let td1  = $box.find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(first.recid) + ' td[col="'+ first.column +'"]')
+            let td2  = $box.find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(last.recid) + ' td[col="'+ last.column +'"]')
+            let td1f = $box.find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(first.recid) + ' td[col="'+ first.column +'"]')
+            let td2f = $box.find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(last.recid) + ' td[col="'+ last.column +'"]')
             let _lastColumn = last.column
             // adjustment due to column virtual scroll
             if (first.column < this.last.colStart && last.column > this.last.colStart) {
-                td1 = query(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(first.recid) + ' td[col="start"]')
+                td1 = $box.find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(first.recid) + ' td[col="start"]')
             }
             if (first.column < this.last.colEnd && last.column > this.last.colEnd) {
-                td2 = query(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(last.recid) + ' td[col="end"]')
+                td2 = $box.find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(last.recid) + ' td[col="end"]')
                 _lastColumn = '"end"'
             }
             // if virtual scrolling kicked in
-            let index_top     = parseInt(query(this.box).find('#grid_'+ this.name +'_rec_top').next().attr('index'))
-            let index_bottom  = parseInt(query(this.box).find('#grid_'+ this.name +'_rec_bottom').prev().attr('index'))
-            let index_ftop    = parseInt(query(this.box).find('#grid_'+ this.name +'_frec_top').next().attr('index'))
-            let index_fbottom = parseInt(query(this.box).find('#grid_'+ this.name +'_frec_bottom').prev().attr('index'))
+            let index_top     = parseInt($box.find('#grid_'+ this.name +'_rec_top').next().attr('index'))
+            let index_bottom  = parseInt($box.find('#grid_'+ this.name +'_rec_bottom').prev().attr('index'))
+            let index_ftop    = parseInt($box.find('#grid_'+ this.name +'_frec_top').next().attr('index'))
+            let index_fbottom = parseInt($box.find('#grid_'+ this.name +'_frec_bottom').prev().attr('index'))
             if (td1.length === 0 && first.index < index_top && last.index > index_top) {
-                td1 = query(this.box).find('#grid_'+ this.name +'_rec_top').next().find('td[col="'+ first.column +'"]')
+                td1 = $box.find('#grid_'+ this.name +'_rec_top').next().find('td[col="'+ first.column +'"]')
             }
             if (td2.length === 0 && last.index > index_bottom && first.index < index_bottom) {
-                td2 = query(this.box).find('#grid_'+ this.name +'_rec_bottom').prev().find('td[col="'+ _lastColumn +'"]')
+                td2 = $box.find('#grid_'+ this.name +'_rec_bottom').prev().find('td[col="'+ _lastColumn +'"]')
             }
             if (td1f.length === 0 && first.index < index_ftop && last.index > index_ftop) { // frozen
-                td1f = query(this.box).find('#grid_'+ this.name +'_frec_top').next().find('td[col="'+ first.column +'"]')
+                td1f = $box.find('#grid_'+ this.name +'_frec_top').next().find('td[col="'+ first.column +'"]')
             }
             if (td2f.length === 0 && last.index > index_fbottom && first.index < index_fbottom) { // frozen
-                td2f = query(this.box).find('#grid_'+ this.name +'_frec_bottom').prev().find('td[col="'+ last.column +'"]')
+                td2f = $box.find('#grid_'+ this.name +'_frec_bottom').prev().find('td[col="'+ last.column +'"]')
             }
 
             // do not show selection cell if it is editable
-            let edit = query(this.box).find('#grid_'+ this.name + '_editable')
+            let edit = $box.find('#grid_'+ this.name + '_editable')
             let tmp  = edit.find('.w2ui-input')
             let tmp1 = tmp.attr('recid')
             let tmp2 = tmp.attr('column')
             if (rg.name == 'selection' && rg.range[0].recid == tmp1 && rg.range[0].column == tmp2) continue
 
             // frozen regular columns range
-            range = query(this.box).find('#grid_'+ this.name +'_f'+ rg.name)
+            range = $box.find('#grid_'+ this.name +'_f'+ rg.name)
             if (td1f.length > 0 || td2f.length > 0) {
                 if (range.length === 0) {
                     rec1.append('<div id="grid_'+ this.name +'_f' + rg.name +'" class="w2ui-selection" style="'+ rg.style +'">'+
                                     (rg.name == 'selection' ? '<div id="grid_'+ this.name +'_resizer" class="w2ui-selection-resizer"></div>' : '')+
                                 '</div>')
-                    range = query(this.box).find('#grid_'+ this.name +'_f'+ rg.name)
+                    range = $box.find('#grid_'+ this.name +'_f'+ rg.name)
                 } else {
                     range.attr('style', rg.style)
                     range.find('.w2ui-selection-resizer').show()
                 }
                 if (td2f.length === 0) {
-                    td2f = query(this.box).find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(last.recid) +' td:last-child')
-                    if (td2f.length === 0) td2f = query(this.box).find('#grid_'+ this.name +'_frec_bottom td:first-child')
+                    td2f = $box.find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(last.recid) +' td:last-child')
+                    if (td2f.length === 0) td2f = $box.find('#grid_'+ this.name +'_frec_bottom td:first-child')
                     range.css('border-right', '0px')
                     range.find('.w2ui-selection-resizer').hide()
                 }
@@ -1420,19 +1422,19 @@ class w2grid extends w2base {
                 range.hide()
             }
             // regular columns range
-            range = query(this.box).find('#grid_'+ this.name +'_'+ rg.name)
+            range = $box.find('#grid_'+ this.name +'_'+ rg.name)
             if (td1.length > 0 || td2.length > 0) {
                 if (range.length === 0) {
                     rec2.append('<div id="grid_'+ this.name +'_' + rg.name +'" class="w2ui-selection" style="'+ rg.style +'">'+
                                     (rg.name == 'selection' ? '<div id="grid_'+ this.name +'_resizer" class="w2ui-selection-resizer"></div>' : '')+
                                 '</div>')
-                    range = query(this.box).find('#grid_'+ this.name +'_'+ rg.name)
+                    range = $box.find('#grid_'+ this.name +'_'+ rg.name)
                 } else {
                     range.attr('style', rg.style)
                 }
                 if (td1.length === 0) {
-                    td1 = query(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(first.recid) +' td:first-child')
-                    if (td1.length === 0) td1 = query(this.box).find('#grid_'+ this.name +'_rec_top td:first-child')
+                    td1 = $box.find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(first.recid) +' td:first-child')
+                    if (td1.length === 0) td1 = $box.find('#grid_'+ this.name +'_rec_top td:first-child')
                 }
                 if (td2f.length !== 0) {
                     range.css('border-left', '0px')
@@ -1458,7 +1460,7 @@ class w2grid extends w2base {
         }
 
         // add resizer events
-        query(this.box).find('.w2ui-selection-resizer')
+        $box.find('.w2ui-selection-resizer')
             .off('.resizer')
             .on('mousedown.resizer', mouseStart)
             .on('dblclick.resizer', (event) => {
@@ -1499,13 +1501,14 @@ class w2grid extends w2base {
             // find new cell
             let recid, column
             let tmp = event.target
-            if (tmp.tagName.toUpperCase() != 'TD') tmp = query(tmp).closest('td')[0]
-            if (query(tmp).attr('col') != null) column = parseInt(query(tmp).attr('col'))
+            let target = query(tmp);
+            if (tmp.tagName.toUpperCase() != 'TD') tmp = target.closest('td')[0]
+            if (target.attr('col') != null) column = parseInt(target.attr('col'))
             if (column == null) {
                 return
             }
-            tmp   = query(tmp).closest('tr')[0]
-            recid = self.records[query(tmp).attr('index')].recid
+            tmp   = target.closest('tr')[0]
+            recid = self.records[target.attr('index')].recid
             // new range
             if (mv.newRange[1].recid == recid && mv.newRange[1].column == column) return
             let prevNewRange = w2utils.clone(mv.newRange)
@@ -1569,6 +1572,7 @@ class w2grid extends w2base {
         let edata = this.trigger('select', tmp)
         if (edata.isCancelled === true) return 0
 
+        let $box = query(this.box)
         // default action
         if (this.selectType == 'row') {
             for (let a = 0; a < args.length; a++) {
@@ -1578,8 +1582,8 @@ class w2grid extends w2base {
                 let recEl1 = null
                 let recEl2 = null
                 if (this.searchData.length !== 0 || (index + 1 >= this.last.range_start && index + 1 <= this.last.range_end)) {
-                    recEl1 = query(this.box).find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid))
-                    recEl2 = query(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid))
+                    recEl1 = $box.find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid))
+                    recEl2 = $box.find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid))
                 }
                 if (this.selectType == 'row') {
                     if (sel.indexes.indexOf(index) != -1) continue
@@ -1615,8 +1619,8 @@ class w2grid extends w2base {
                 let recEl1 = null
                 let recEl2 = null
                 if (index + 1 >= this.last.range_start && index + 1 <= this.last.range_end) {
-                    recEl1 = query(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid))
-                    recEl2 = query(this.box).find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid))
+                    recEl1 = $box.find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid))
+                    recEl2 = $box.find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid))
                 }
                 let s = sel.columns[index] || []
                 // default action
@@ -1648,7 +1652,7 @@ class w2grid extends w2base {
             }
             // select columns (need here for speed)
             for (let c = 0; c < col_sel.length; c++) {
-                query(this.box).find('#grid_'+ this.name +'_column_'+ col_sel[c] +' .w2ui-col-header').addClass('w2ui-col-selected')
+                $box.find('#grid_'+ this.name +'_column_'+ col_sel[c] +' .w2ui-col-header').addClass('w2ui-col-selected')
             }
         }
         // need to sort new selection for speed
@@ -1657,9 +1661,9 @@ class w2grid extends w2base {
         let areAllSelected = (this.records.length > 0 && sel.indexes.length == this.records.length),
             areAllSearchedSelected = (sel.indexes.length > 0 && this.searchData.length !== 0 && sel.indexes.length == this.last.searchIds.length)
         if (areAllSelected || areAllSearchedSelected) {
-            query(this.box).find('#grid_'+ this.name +'_check_all').prop('checked', true)
+            $box.find('#grid_'+ this.name +'_check_all').prop('checked', true)
         } else {
-            query(this.box).find('#grid_'+ this.name +'_check_all').prop('checked', false)
+            $box.find('#grid_'+ this.name +'_check_all').prop('checked', false)
         }
         this.status()
         this.addRange('selection')
@@ -1694,13 +1698,15 @@ class w2grid extends w2base {
         let edata = this.trigger('select', tmp)
         if (edata.isCancelled === true) return 0
 
+        let $box = query(this.box)
+
         for (let a = 0; a < args.length; a++) {
             let recid  = typeof args[a] == 'object' ? args[a].recid : args[a]
             let record = this.get(recid)
             if (record == null) continue
             let index  = this.get(record.recid, true)
-            let recEl1 = query(this.box).find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid))
-            let recEl2 = query(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid))
+            let recEl1 = $box.find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid))
+            let recEl2 = $box.find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid))
             if (this.selectType == 'row') {
                 if (sel.indexes.indexOf(index) == -1) continue
                 // default action
@@ -1724,8 +1730,8 @@ class w2grid extends w2base {
                 if (!Array.isArray(s) || s.indexOf(col) == -1) continue
                 // default action
                 s.splice(s.indexOf(col), 1)
-                query(this.box).find(`#grid_${this.name}_rec_${w2utils.escapeId(recid)} > td[col="${col}"]`).removeClass('w2ui-selected w2ui-inactive')
-                query(this.box).find(`#grid_${this.name}_frec_${w2utils.escapeId(recid)} > td[col="${col}"]`).removeClass('w2ui-selected w2ui-inactive')
+                $box.find(`#grid_${this.name}_rec_${w2utils.escapeId(recid)} > td[col="${col}"]`).removeClass('w2ui-selected w2ui-inactive')
+                $box.find(`#grid_${this.name}_frec_${w2utils.escapeId(recid)} > td[col="${col}"]`).removeClass('w2ui-selected w2ui-inactive')
                 // check if any row/column still selected
                 let isColSelected = false
                 let isRowSelected = false
@@ -1735,10 +1741,10 @@ class w2grid extends w2base {
                     if (tmp[i].recid == recid) isRowSelected = true
                 }
                 if (!isColSelected) {
-                    query(this.box).find(`.w2ui-grid-columns td[col="${col}"] .w2ui-col-header, .w2ui-grid-fcolumns td[col="${col}"] .w2ui-col-header`).removeClass('w2ui-col-selected')
+                    $box.find(`.w2ui-grid-columns td[col="${col}"] .w2ui-col-header, .w2ui-grid-fcolumns td[col="${col}"] .w2ui-col-header`).removeClass('w2ui-col-selected')
                 }
                 if (!isRowSelected) {
-                    query(this.box).find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid)).find('.w2ui-col-number').removeClass('w2ui-row-selected')
+                    $box.find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid)).find('.w2ui-col-number').removeClass('w2ui-row-selected')
                 }
                 unselected++
                 if (s.length === 0) {
@@ -1752,9 +1758,9 @@ class w2grid extends w2base {
         let areAllSelected = (this.records.length > 0 && sel.indexes.length == this.records.length),
             areAllSearchedSelected = (sel.indexes.length > 0 && this.searchData.length !== 0 && sel.indexes.length == this.last.searchIds.length)
         if (areAllSelected || areAllSearchedSelected) {
-            query(this.box).find('#grid_'+ this.name +'_check_all').prop('checked', true)
+            $box.find('#grid_'+ this.name +'_check_all').prop('checked', true)
         } else {
-            query(this.box).find('#grid_'+ this.name +'_check_all').prop('checked', false)
+            $box.find('#grid_'+ this.name +'_check_all').prop('checked', false)
         }
         // show number of selected
         this.status()
@@ -1793,28 +1799,29 @@ class w2grid extends w2base {
         let edata = this.trigger('select', { target: this.name, multiple: true, all: true, clicked: sel })
         if (edata.isCancelled === true) return
 
+        let $box = query(this.box)
         this.last.selection = sel
         // add selected class
         if (this.selectType == 'row') {
-            query(this.box).find('.w2ui-grid-records tr:not(.w2ui-empty-record)')
+            $box.find('.w2ui-grid-records tr:not(.w2ui-empty-record)')
                 .addClass('w2ui-selected').find('.w2ui-col-number').addClass('w2ui-row-selected')
-            query(this.box).find('.w2ui-grid-frecords tr:not(.w2ui-empty-record)')
+            $box.find('.w2ui-grid-frecords tr:not(.w2ui-empty-record)')
                 .addClass('w2ui-selected').find('.w2ui-col-number').addClass('w2ui-row-selected')
-            query(this.box).find('input.w2ui-grid-select-check').prop('checked', true)
+            $box.find('input.w2ui-grid-select-check').prop('checked', true)
         } else {
-            query(this.box).find('.w2ui-grid-columns td .w2ui-col-header, .w2ui-grid-fcolumns td .w2ui-col-header').addClass('w2ui-col-selected')
-            query(this.box).find('.w2ui-grid-records tr .w2ui-col-number').addClass('w2ui-row-selected')
-            query(this.box).find('.w2ui-grid-records tr:not(.w2ui-empty-record)')
+            $box.find('.w2ui-grid-columns td .w2ui-col-header, .w2ui-grid-fcolumns td .w2ui-col-header').addClass('w2ui-col-selected')
+            $box.find('.w2ui-grid-records tr .w2ui-col-number').addClass('w2ui-row-selected')
+            $box.find('.w2ui-grid-records tr:not(.w2ui-empty-record)')
                 .find('.w2ui-grid-data:not(.w2ui-col-select)').addClass('w2ui-selected')
-            query(this.box).find('.w2ui-grid-frecords tr .w2ui-col-number').addClass('w2ui-row-selected')
-            query(this.box).find('.w2ui-grid-frecords tr:not(.w2ui-empty-record)')
+            $box.find('.w2ui-grid-frecords tr .w2ui-col-number').addClass('w2ui-row-selected')
+            $box.find('.w2ui-grid-frecords tr:not(.w2ui-empty-record)')
                 .find('.w2ui-grid-data:not(.w2ui-col-select)').addClass('w2ui-selected')
-            query(this.box).find('input.w2ui-grid-select-check').prop('checked', true)
+            $box.find('input.w2ui-grid-select-check').prop('checked', true)
         }
         // enable/disable toolbar buttons
         sel = this.getSelection(true)
         this.addRange('selection')
-        query(this.box).find('#grid_'+ this.name +'_check_all').prop('checked', true)
+        $box.find('#grid_'+ this.name +'_check_all').prop('checked', true)
         this.status()
         this.updateToolbar({ indexes: sel }, true)
         // event after
@@ -1830,26 +1837,27 @@ class w2grid extends w2base {
             edata = this.trigger('select', { target: this.name, clicked: [] })
             if (edata.isCancelled === true) return
         }
+        let $box = query(this.box)
         // default action
         let sel = this.last.selection
         // remove selected class
         if (this.selectType == 'row') {
-            query(this.box).find('.w2ui-grid-records tr.w2ui-selected').removeClass('w2ui-selected w2ui-inactive')
+            $box.find('.w2ui-grid-records tr.w2ui-selected').removeClass('w2ui-selected w2ui-inactive')
                 .find('.w2ui-col-number').removeClass('w2ui-row-selected')
-            query(this.box).find('.w2ui-grid-frecords tr.w2ui-selected').removeClass('w2ui-selected w2ui-inactive')
+            $box.find('.w2ui-grid-frecords tr.w2ui-selected').removeClass('w2ui-selected w2ui-inactive')
                 .find('.w2ui-col-number').removeClass('w2ui-row-selected')
-            query(this.box).find('input.w2ui-grid-select-check').prop('checked', false)
+            $box.find('input.w2ui-grid-select-check').prop('checked', false)
         } else {
-            query(this.box).find('.w2ui-grid-columns td .w2ui-col-header, .w2ui-grid-fcolumns td .w2ui-col-header').removeClass('w2ui-col-selected')
-            query(this.box).find('.w2ui-grid-records tr .w2ui-col-number').removeClass('w2ui-row-selected')
-            query(this.box).find('.w2ui-grid-frecords tr .w2ui-col-number').removeClass('w2ui-row-selected')
-            query(this.box).find('.w2ui-grid-data.w2ui-selected').removeClass('w2ui-selected w2ui-inactive')
-            query(this.box).find('input.w2ui-grid-select-check').prop('checked', false)
+            $box.find('.w2ui-grid-columns td .w2ui-col-header, .w2ui-grid-fcolumns td .w2ui-col-header').removeClass('w2ui-col-selected')
+            $box.find('.w2ui-grid-records tr .w2ui-col-number').removeClass('w2ui-row-selected')
+            $box.find('.w2ui-grid-frecords tr .w2ui-col-number').removeClass('w2ui-row-selected')
+            $box.find('.w2ui-grid-data.w2ui-selected').removeClass('w2ui-selected w2ui-inactive')
+            $box.find('input.w2ui-grid-select-check').prop('checked', false)
         }
         sel.indexes = []
         sel.columns = {}
         this.removeRange('selection')
-        query(this.box).find('#grid_'+ this.name +'_check_all').prop('checked', false)
+        $box.find('#grid_'+ this.name +'_check_all').prop('checked', false)
         this.status()
         this.updateToolbar(sel, false)
         // event after
@@ -3128,6 +3136,7 @@ class w2grid extends w2base {
 
     editField(recid, column, value, event) {
         let self = this
+        let $box = query(this.box)
         if (this.last.inEditMode === true) {
             // This is triggerign when user types fast
             if (event && event.keyCode == 13) {
@@ -3136,7 +3145,7 @@ class w2grid extends w2base {
                 this.editDone(index, column, event)
             } else {
                 // when 2 chars entered fast (spreadsheet)
-                let input = query(this.box).find('div.w2ui-edit-box .w2ui-input')
+                let input = $box.find('div.w2ui-edit-box .w2ui-input')
                 if (input.length > 0) {
                     if (input.get(0).tagName == 'DIV') {
                         input.text(input.text() + value)
@@ -3170,22 +3179,22 @@ class w2grid extends w2base {
         this.selectNone(true) // no need to trigger select event
         this.select({ recid: recid, column: column })
         // create input element
-        let tr = query(this.box).find('#grid_'+ this.name + prefix +'rec_' + w2utils.escapeId(recid))
+        let tr = $box.find('#grid_'+ this.name + prefix +'rec_' + w2utils.escapeId(recid))
         let div = tr.find('[col="'+ column +'"] > div') // TD -> DIV
         this.last._edit.tr = tr
         this.last._edit.div = div
         // clear previous if any (spreadsheet)
-        query(this.box).find('div.w2ui-edit-box').remove()
+        $box.find('div.w2ui-edit-box').remove()
         // for spreadsheet - insert into selection
         if (this.selectType != 'row') {
-            query(this.box).find('#grid_'+ this.name + prefix + 'selection')
+            $box.find('#grid_'+ this.name + prefix + 'selection')
                 .attr('id', 'grid_'+ this.name + '_editable')
                 .removeClass('w2ui-selection')
                 .addClass('w2ui-edit-box')
                 .prepend('<div style="position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px;"></div>')
                 .find('.w2ui-selection-resizer')
                 .remove()
-            div = query(this.box).find('#grid_'+ this.name + '_editable > div:first-child')
+            div = $box.find('#grid_'+ this.name + '_editable > div:first-child')
         }
         edit.attr  = edit.attr ?? ''
         edit.text  = edit.text ?? ''
@@ -4446,10 +4455,11 @@ class w2grid extends w2base {
             if (noRefresh !== true) this.refresh()
             edata.finish()
         } else {
-            if (query(this.box).find('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').length > 0 || this.show.expandColumn !== true) return false
+            let $box = query(this.box)
+            if ($box.find('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').length > 0 || this.show.expandColumn !== true) return false
             if (rec.w2ui.expanded == 'none') return false
             // insert expand row
-            query(this.box).find('#grid_'+ this.name +'_rec_'+ id).after(
+            $box.find('#grid_'+ this.name +'_rec_'+ id).after(
                 `<tr id="grid_${this.name}_rec_${recid}_expanded_row" class="w2ui-expanded-row">
                     <td colspan="100" class="w2ui-expanded2">
                         <div id="grid_${this.name}_rec_${recid}_expanded"></div>
@@ -4457,7 +4467,7 @@ class w2grid extends w2base {
                     <td class="w2ui-grid-data-last"></td>
                 </tr>`)
 
-            query(this.box).find('#grid_'+ this.name +'_frec_'+ id).after(
+            $box.find('#grid_'+ this.name +'_frec_'+ id).after(
                 `<tr id="grid_${this.name}_frec_${recid}_expanded_row" class="w2ui-expanded-row">
                     ${this.show.lineNumbers ? '<td class="w2ui-col-number"></td>' : ''}
                     <td class="w2ui-grid-data w2ui-expanded1" colspan="100">
@@ -4469,13 +4479,13 @@ class w2grid extends w2base {
             edata = this.trigger('expand', { target: this.name, recid: recid,
                 box_id: 'grid_'+ this.name +'_rec_'+ recid +'_expanded', fbox_id: 'grid_'+ this.name +'_frec_'+ recid +'_expanded' })
             if (edata.isCancelled === true) {
-                query(this.box).find('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').remove()
-                query(this.box).find('#grid_'+ this.name +'_frec_'+ id +'_expanded_row').remove()
+                $box.find('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').remove()
+                $box.find('#grid_'+ this.name +'_frec_'+ id +'_expanded_row').remove()
                 return false
             }
             // expand column
-            let row1 = query(this.box).find('#grid_'+ this.name +'_rec_'+ recid +'_expanded')
-            let row2 = query(this.box).find('#grid_'+ this.name +'_frec_'+ recid +'_expanded')
+            let row1 = $box.find('#grid_'+ this.name +'_rec_'+ recid +'_expanded')
+            let row2 = $box.find('#grid_'+ this.name +'_frec_'+ recid +'_expanded')
             let innerHeight = row1.find(':scope div:first-child')[0]?.clientHeight ?? 50
             if (row1[0].clientHeight < innerHeight) {
                 row1.css({ height: innerHeight + 'px' })
@@ -4484,9 +4494,9 @@ class w2grid extends w2base {
                 row2.css({ height: innerHeight + 'px' })
             }
             // default action
-            query(this.box).find('#grid_'+ this.name +'_rec_'+ id).attr('expanded', 'yes').addClass('w2ui-expanded')
-            query(this.box).find('#grid_'+ this.name +'_frec_'+ id).attr('expanded', 'yes').addClass('w2ui-expanded')
-            query(this.box).find('#grid_'+ this.name +'_cell_'+ this.get(recid, true) +'_expand div').html('-')
+            $box.find('#grid_'+ this.name +'_rec_'+ id).attr('expanded', 'yes').addClass('w2ui-expanded')
+            $box.find('#grid_'+ this.name +'_frec_'+ id).attr('expanded', 'yes').addClass('w2ui-expanded')
+            $box.find('#grid_'+ this.name +'_cell_'+ this.get(recid, true) +'_expand div').html('-')
             rec.w2ui.expanded = true
             // event after
             edata.finish()
@@ -4533,17 +4543,18 @@ class w2grid extends w2base {
             if (noRefresh !== true) this.refresh()
             edata.finish()
         } else {
-            if (query(this.box).find('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').length === 0 || this.show.expandColumn !== true) return false
+            let $box = query(this.box)
+            if ($box.find('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').length === 0 || this.show.expandColumn !== true) return false
             // event before
             edata = this.trigger('collapse', { target: this.name, recid: recid,
                 box_id: 'grid_'+ this.name +'_rec_'+ recid +'_expanded', fbox_id: 'grid_'+ this.name +'_frec_'+ recid +'_expanded' })
             if (edata.isCancelled === true) return false
             // default action
-            query(this.box).find('#grid_'+ this.name +'_rec_'+ id).removeAttr('expanded').removeClass('w2ui-expanded')
-            query(this.box).find('#grid_'+ this.name +'_frec_'+ id).removeAttr('expanded').removeClass('w2ui-expanded')
-            query(this.box).find('#grid_'+ this.name +'_cell_'+ this.get(recid, true) +'_expand div').html('+')
-            query(this.box).find('#grid_'+ this.name +'_rec_'+ id +'_expanded').css('height', '0px')
-            query(this.box).find('#grid_'+ this.name +'_frec_'+ id +'_expanded').css('height', '0px')
+            $box.find('#grid_'+ this.name +'_rec_'+ id).removeAttr('expanded').removeClass('w2ui-expanded')
+            $box.find('#grid_'+ this.name +'_frec_'+ id).removeAttr('expanded').removeClass('w2ui-expanded')
+            $box.find('#grid_'+ this.name +'_cell_'+ this.get(recid, true) +'_expand div').html('+')
+            $box.find('#grid_'+ this.name +'_rec_'+ id +'_expanded').css('height', '0px')
+            $box.find('#grid_'+ this.name +'_frec_'+ id +'_expanded').css('height', '0px')
             setTimeout(() => {
                 query(this.box).find('#grid_'+ this.name +'_rec_'+ id +'_expanded_row').remove()
                 query(this.box).find('#grid_'+ this.name +'_frec_'+ id +'_expanded_row').remove()
@@ -4917,8 +4928,9 @@ class w2grid extends w2base {
     }
 
     refreshRow(recid, ind = null) {
-        let tr1 = query(this.box).find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid))
-        let tr2 = query(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid))
+        let $box = query(this.box)
+        let tr1 = $box.find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid))
+        let tr2 = $box.find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid))
         if (tr1.length > 0) {
             if (ind == null) ind = this.get(recid, true)
             let line = tr1.attr('line')
@@ -4932,8 +4944,8 @@ class w2grid extends w2base {
             // apply style to row if it was changed in render functions
             let st = (this.records[ind].w2ui ? this.records[ind].w2ui.style : '')
             if (typeof st == 'string') {
-                tr1 = query(this.box).find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid))
-                tr2 = query(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid))
+                tr1 = $box.find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid))
+                tr2 = $box.find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid))
                 tr1.attr('custom_style', st)
                 tr2.attr('custom_style', st)
                 if (tr1.hasClass('w2ui-selected')) {
@@ -4960,22 +4972,23 @@ class w2grid extends w2base {
         // event before
         let edata = this.trigger('refresh', { target: this.name })
         if (edata.isCancelled === true) return
+        let $box = query(this.box)
         // -- header
         if (this.show.header) {
-            query(this.box).find(`#grid_${this.name}_header`).html(w2utils.lang(this.header) +'&#160;').show()
+            $box.find(`#grid_${this.name}_header`).html(w2utils.lang(this.header) +'&#160;').show()
         } else {
-            query(this.box).find(`#grid_${this.name}_header`).hide()
+            $box.find(`#grid_${this.name}_header`).hide()
         }
         // -- toolbar
         if (this.show.toolbar) {
-            query(this.box).find('#grid_'+ this.name +'_toolbar').show()
+            $box.find('#grid_'+ this.name +'_toolbar').show()
         } else {
-            query(this.box).find('#grid_'+ this.name +'_toolbar').hide()
+            $box.find('#grid_'+ this.name +'_toolbar').hide()
         }
         // -- make sure search is closed
         this.searchClose()
         // search placeholder
-        let sInput = query(this.box).find('#grid_'+ this.name +'_search_all')
+        let sInput = $box.find('#grid_'+ this.name +'_search_all')
         if (!this.multiSearch && this.last.field == 'all' && this.searches.length > 0) {
             this.last.field = this.searches[0].field
             this.last.label = this.searches[0].label
@@ -5000,18 +5013,18 @@ class w2grid extends w2base {
 
         // -- footer
         if (this.show.footer) {
-            query(this.box).find(`#grid_${this.name}_footer`).html(this.getFooterHTML()).show()
+            $box.find(`#grid_${this.name}_footer`).html(this.getFooterHTML()).show()
         } else {
-            query(this.box).find(`#grid_${this.name}_footer`).hide()
+            $box.find(`#grid_${this.name}_footer`).hide()
         }
         // all selected?
         let sel = this.last.selection,
             areAllSelected = (this.records.length > 0 && sel.indexes.length == this.records.length),
             areAllSearchedSelected = (sel.indexes.length > 0 && this.searchData.length !== 0 && sel.indexes.length == this.last.searchIds.length)
         if (areAllSelected || areAllSearchedSelected) {
-            query(this.box).find('#grid_'+ this.name +'_check_all').prop('checked', true)
+            $box.find('#grid_'+ this.name +'_check_all').prop('checked', true)
         } else {
-            query(this.box).find('#grid_'+ this.name +'_check_all').prop('checked', false)
+            $box.find('#grid_'+ this.name +'_check_all').prop('checked', false)
         }
         // show number of selected
         this.status()
@@ -5037,7 +5050,7 @@ class w2grid extends w2base {
                 }
                 if (search.length > 0) {
                     search.forEach((item) => {
-                        let el = query(this.box).find('td[col="'+ item.col +'"]:not(.w2ui-head)')
+                        let el = $box.find('td[col="'+ item.col +'"]:not(.w2ui-head)')
                         w2utils.marker(el, item.search)
                     })
                 }
@@ -5062,9 +5075,10 @@ class w2grid extends w2base {
     }
 
     refreshSearch() {
+        let $box = query(this.box)
         if (this.multiSearch && this.searchData.length > 0) {
-            if (query(this.box).find('.w2ui-grid-searches').length == 0) {
-                query(this.box).find('.w2ui-grid-toolbar')
+            if ($box.find('.w2ui-grid-searches').length == 0) {
+                $box.find('.w2ui-grid-toolbar')
                     .css('height', (this.last.toolbar_height + 35) + 'px')
                     .append(`<div id="grid_${this.name}_searches" class="w2ui-grid-searches"></div>`)
 
@@ -5125,22 +5139,22 @@ class w2grid extends w2base {
                 <button class="w2ui-btn grid-search-btn btn-remove"
                     data-click="searchReset">X</button>
             `
-            query(this.box).find(`#grid_${this.name}_searches`).html(searches)
-            query(this.box).find(`#grid_${this.name}_search_logic`).html(w2utils.lang(this.last.logic == 'AND' ? 'All' : 'Any'))
+            $box.find(`#grid_${this.name}_searches`).html(searches)
+            $box.find(`#grid_${this.name}_search_logic`).html(w2utils.lang(this.last.logic == 'AND' ? 'All' : 'Any'))
         } else {
-            query(this.box).find('.w2ui-grid-toolbar')
+            $box.find('.w2ui-grid-toolbar')
                 .css('height', this.last.toolbar_height + 'px')
                 .find('.w2ui-grid-searches')
                 .remove()
         }
         if (this.searchSelected) {
-            query(this.box).find(`#grid_${this.name}_search_all`).val(' ').prop('readOnly', true)
-            query(this.box).find(`#grid_${this.name}_search_name`).show().find('.name-text').html(this.searchSelected.text)
+            $box.find(`#grid_${this.name}_search_all`).val(' ').prop('readOnly', true)
+            $box.find(`#grid_${this.name}_search_name`).show().find('.name-text').html(this.searchSelected.text)
         } else {
-            query(this.box).find(`#grid_${this.name}_search_all`).prop('readOnly', false)
-            query(this.box).find(`#grid_${this.name}_search_name`).hide().find('.name-text').html('')
+            $box.find(`#grid_${this.name}_search_all`).prop('readOnly', false)
+            $box.find(`#grid_${this.name}_search_name`).hide().find('.name-text').html('')
         }
-        w2utils.bindEvents(query(this.box).find(`#grid_${this.name}_searches .w2ui-action, #grid_${this.name}_searches button`), this)
+        w2utils.bindEvents($box.find(`#grid_${this.name}_searches .w2ui-action, #grid_${this.name}_searches button`), this)
     }
 
     refreshBody() {
@@ -5167,18 +5181,19 @@ class w2grid extends w2base {
                <div class="bottom-marker"></div>
             </div>`
 
-        let gridBody = query(this.box).find(`#grid_${this.name}_body`, this.box).html(bodyHTML)
-        let records  = query(this.box).find(`#grid_${this.name}_records`, this.box)
-        let frecords = query(this.box).find(`#grid_${this.name}_frecords`, this.box)
+        let $box = query(this.box)
+        let gridBody = $box.find(`#grid_${this.name}_body`, this.box).html(bodyHTML)
+        let records  = $box.find(`#grid_${this.name}_records`, this.box)
+        let frecords = $box.find(`#grid_${this.name}_frecords`, this.box)
         if (this.selectType == 'row') {
             records.on('mouseover mouseout', { delegate: 'tr' }, (event) => {
                 let recid = query(event.delegate).attr('recid')
-                query(this.box).find(`#grid_${this.name}_frec_${w2utils.escapeId(recid)}`)
+                $box.find(`#grid_${this.name}_frec_${w2utils.escapeId(recid)}`)
                     .toggleClass('w2ui-record-hover', event.type == 'mouseover')
             })
             frecords.on('mouseover mouseout', { delegate: 'tr' }, (event) => {
                 let recid = query(event.delegate).attr('recid')
-                query(this.box).find(`#grid_${this.name}_rec_${w2utils.escapeId(recid)}`)
+                $box.find(`#grid_${this.name}_rec_${w2utils.escapeId(recid)}`)
                     .toggleClass('w2ui-record-hover', event.type == 'mouseover')
             })
         }
@@ -5267,7 +5282,8 @@ class w2grid extends w2base {
                 this.scroll(event)
             })
 
-        query(this.box).find('.w2ui-grid-body') // gridBody
+        let $box = query(this.box)
+        $box.find('.w2ui-grid-body') // gridBody
             .off('.body-global')
             // header column click
             .on('click.body-global dblclick.body-global contextmenu.body-global', { delegate: 'td.w2ui-head' }, event => {
@@ -5396,19 +5412,19 @@ class w2grid extends w2base {
 
         // show empty message
         if (this.records.length === 0 && this.msgEmpty) {
-            query(this.box).find(`#grid_${this.name}_body`)
+            $box.find(`#grid_${this.name}_body`)
                 .append(`<div id="grid_${this.name}_empty_msg" class="w2ui-grid-empty-msg"><div>${w2utils.lang(this.msgEmpty)}</div></div>`)
-        } else if (query(this.box).find(`#grid_${this.name}_empty_msg`).length > 0) {
-            query(this.box).find(`#grid_${this.name}_empty_msg`).remove()
+        } else if ($box.find(`#grid_${this.name}_empty_msg`).length > 0) {
+            $box.find(`#grid_${this.name}_empty_msg`).remove()
         }
         // show summary records
         if (this.summary.length > 0) {
             let sumHTML = this.getSummaryHTML()
-            query(this.box).find(`#grid_${this.name}_fsummary`).html(sumHTML[0]).show()
-            query(this.box).find(`#grid_${this.name}_summary`).html(sumHTML[1]).show()
+            $box.find(`#grid_${this.name}_fsummary`).html(sumHTML[0]).show()
+            $box.find(`#grid_${this.name}_summary`).html(sumHTML[1]).show()
         } else {
-            query(this.box).find(`#grid_${this.name}_fsummary`).hide()
-            query(this.box).find(`#grid_${this.name}_summary`).hide()
+            $box.find(`#grid_${this.name}_fsummary`).hide()
+            $box.find(`#grid_${this.name}_summary`).hide()
         }
     }
 
@@ -5431,6 +5447,7 @@ class w2grid extends w2base {
             this.box = box
         }
         if (!this.box) return
+        let tbox = query(this.box)
         let url = (typeof this.url != 'object' ? this.url : this.url.get)
         // reset needed if grid existed
         this.reset(true)
@@ -5453,8 +5470,7 @@ class w2grid extends w2base {
             }
         }
         // insert elements
-        query(this.box)
-            .attr('name', this.name)
+        tbox.attr('name', this.name)
             .addClass('w2ui-reset w2ui-grid w2ui-inactive')
             .html('<div class="w2ui-grid-box">'+
                   '    <div id="grid_'+ this.name +'_header" class="w2ui-grid-header"></div>'+
@@ -5467,19 +5483,19 @@ class w2grid extends w2base {
                             (this.tabIndex ? 'tabindex="' + this.tabIndex + '"' : '')+
                             (w2utils.isIOS ? 'readonly' : '') +'></textarea>'+ // readonly needed on android not to open keyboard
                   '</div>')
-        if (this.selectType != 'row') query(this.box).addClass('w2ui-ss')
-        if (query(this.box).length > 0) query(this.box)[0].style.cssText += this.style
+        if (this.selectType != 'row') tbox.addClass('w2ui-ss')
+        if (tbox.length > 0) tbox[0].style.cssText += this.style
         // init toolbar
         this.initToolbar()
-        if (this.toolbar != null) this.toolbar.render(query(this.box).find('#grid_'+ this.name +'_toolbar')[0])
-        this.last.toolbar_height = query(this.box).find(`#grid_${this.name}_toolbar`).prop('offsetHeight')
+        if (this.toolbar != null) this.toolbar.render(t$box.find('#grid_'+ this.name +'_toolbar')[0])
+        this.last.toolbar_height = t$box.find(`#grid_${this.name}_toolbar`).prop('offsetHeight')
         // re-init search_all
         if (this.last.field && this.last.field != 'all') {
             let sd = this.searchData
             setTimeout(() => { this.searchInitInput(this.last.field, (sd.length == 1 ? sd[0].value : null)) }, 1)
         }
         // init footer
-        query(this.box).find(`#grid_${this.name}_footer`).html(this.getFooterHTML())
+        t$box.find(`#grid_${this.name}_footer`).html(this.getFooterHTML())
         // refresh
         if (!this.last.state) this.last.state = this.stateSave(true) // initial default state
         this.stateRestore()
@@ -5496,7 +5512,7 @@ class w2grid extends w2base {
             this.reload()
         }
         // focus
-        query(this.box).find(`#grid_${this.name}_focus`)
+        t$box.find(`#grid_${this.name}_focus`)
             .on('focus', (event) => {
                 clearTimeout(this.last.kbd_timer)
                 if (!this.hasFocus) this.focus()
@@ -5547,7 +5563,7 @@ class w2grid extends w2base {
             })
         // init mouse events for mouse selection
         let edataCol // event for column select
-        query(this.box).off('mousedown.mouseStart').on('mousedown.mouseStart', mouseStart)
+        tbox.off('mousedown.mouseStart').on('mousedown.mouseStart', mouseStart)
         this.updateToolbar()
         // event after
         edata.finish()
@@ -5923,12 +5939,12 @@ class w2grid extends w2base {
         let edata = this.trigger('destroy', { target: this.name })
         if (edata.isCancelled === true) return
         // remove all events
-        query(this.box).off()
+        let $box = query(this.box)
+        box.off()
         // clean up
         if (typeof this.toolbar == 'object' && this.toolbar.destroy) this.toolbar.destroy()
-        if (query(this.box).find(`#grid_${this.name}_body`).length > 0) {
-            query(this.box)
-                .removeAttr('name')
+        if ($box.find(`#grid_${this.name}_body`).length > 0) {
+            box.removeAttr('name')
                 .removeClass('w2ui-reset w2ui-grid w2ui-inactive')
                 .html('')
         }
@@ -6460,13 +6476,14 @@ class w2grid extends w2base {
     }
 
     resizeBoxes() {
+        let $box = query(this.box)
         // elements
-        let header   = query(this.box).find(`#grid_${this.name}_header`)
-        let toolbar  = query(this.box).find(`#grid_${this.name}_toolbar`)
-        let fsummary = query(this.box).find(`#grid_${this.name}_fsummary`)
-        let summary  = query(this.box).find(`#grid_${this.name}_summary`)
-        let footer   = query(this.box).find(`#grid_${this.name}_footer`)
-        let body     = query(this.box).find(`#grid_${this.name}_body`)
+        let header   = $box.find(`#grid_${this.name}_header`)
+        let toolbar  = $box.find(`#grid_${this.name}_toolbar`)
+        let fsummary = $box.find(`#grid_${this.name}_fsummary`)
+        let summary  = $box.find(`#grid_${this.name}_summary`)
+        let footer   = $box.find(`#grid_${this.name}_footer`)
+        let body     = $box.find(`#grid_${this.name}_body`)
 
         if (this.show.header) {
             header.css({
@@ -6509,22 +6526,22 @@ class w2grid extends w2base {
 
     resizeRecords() {
         let obj = this
+        let $box = query(this.box)
         // remove empty records
-        query(this.box).find('.w2ui-empty-record').remove()
+        $box.find('.w2ui-empty-record').remove()
         // -- Calculate Column size in PX
-        let box             = query(this.box)
-        let grid            = query(this.box).find(':scope > div.w2ui-grid-box')
-        let header          = query(this.box).find(`#grid_${this.name}_header`)
-        let toolbar         = query(this.box).find(`#grid_${this.name}_toolbar`)
-        let summary         = query(this.box).find(`#grid_${this.name}_summary`)
-        let fsummary        = query(this.box).find(`#grid_${this.name}_fsummary`)
-        let footer          = query(this.box).find(`#grid_${this.name}_footer`)
-        let body            = query(this.box).find(`#grid_${this.name}_body`)
-        let columns         = query(this.box).find(`#grid_${this.name}_columns`)
-        let fcolumns        = query(this.box).find(`#grid_${this.name}_fcolumns`)
-        let records         = query(this.box).find(`#grid_${this.name}_records`)
-        let frecords        = query(this.box).find(`#grid_${this.name}_frecords`)
-        let scroll1         = query(this.box).find(`#grid_${this.name}_scroll1`)
+        let grid            = $box.find(':scope > div.w2ui-grid-box')
+        let header          = $box.find(`#grid_${this.name}_header`)
+        let toolbar         = $box.find(`#grid_${this.name}_toolbar`)
+        let summary         = $box.find(`#grid_${this.name}_summary`)
+        let fsummary        = $box.find(`#grid_${this.name}_fsummary`)
+        let footer          = $box.find(`#grid_${this.name}_footer`)
+        let body            = $box.find(`#grid_${this.name}_body`)
+        let columns         = $box.find(`#grid_${this.name}_columns`)
+        let fcolumns        = $box.find(`#grid_${this.name}_fcolumns`)
+        let records         = $box.find(`#grid_${this.name}_records`)
+        let frecords        = $box.find(`#grid_${this.name}_frecords`)
+        let scroll1         = $box.find(`#grid_${this.name}_scroll1`)
         let lineNumberWidth = String(this.total).length * 8 + 10
         if (lineNumberWidth < 34) lineNumberWidth = 34 // 3 digit width
         if (this.lineNumberWidth != null) lineNumberWidth = this.lineNumberWidth
@@ -6547,7 +6564,7 @@ class w2grid extends w2base {
         if (!this.fixedBody) {
             // allow it to render records, then resize
             let bodyHeight = w2utils.getSize(columns, 'height')
-                + w2utils.getSize(query(this.box).find('#grid_'+ this.name +'_records table'), 'height')
+                + w2utils.getSize($box.find('#grid_'+ this.name +'_records table'), 'height')
                 + (bodyOverflowX ? w2utils.scrollBarSize() : 0)
             let calculatedHeight = bodyHeight
                 + (this.show.header ? w2utils.getSize(header, 'height') : 0)
@@ -7400,17 +7417,18 @@ class w2grid extends w2base {
 
     scroll(event) {
         let obj      = this
+        let $box     = query(this.box)
         let url      = (typeof this.url != 'object' ? this.url : this.url.get)
-        let records  = query(this.box).find(`#grid_${this.name}_records`)
-        let frecords = query(this.box).find(`#grid_${this.name}_frecords`)
+        let records  = $box.find(`#grid_${this.name}_records`)
+        let frecords = $box.find(`#grid_${this.name}_frecords`)
         // sync scroll positions
         if (event) {
             let sTop  = event.target.scrollTop
             let sLeft = event.target.scrollLeft
             this.last.scrollTop  = sTop
             this.last.scrollLeft = sLeft
-            let cols = query(this.box).find(`#grid_${this.name}_columns`)[0]
-            let summary = query(this.box).find(`#grid_${this.name}_summary`)[0]
+            let cols = $box.find(`#grid_${this.name}_columns`)[0]
+            let summary = $box.find(`#grid_${this.name}_summary`)[0]
             if (cols) cols.scrollLeft = sLeft
             if (summary) summary.scrollLeft = sLeft
             if (frecords[0]) frecords[0].scrollTop = sTop
@@ -7447,7 +7465,6 @@ class w2grid extends w2base {
             }
             // ---------
             if (colStart != this.last.colStart || colEnd != this.last.colEnd) {
-                let $box = query(this.box)
                 let deltaStart = Math.abs(colStart - this.last.colStart)
                 let deltaEnd   = Math.abs(colEnd - this.last.colEnd)
                 // add/remove columns for small jumps
@@ -7553,7 +7570,7 @@ class w2grid extends w2base {
         let t2 = t1 + (Math.round(records.prop('clientHeight') / this.recordHeight) - 1)
         if (t1 > buffered) t1 = buffered
         if (t2 >= buffered - 1) t2 = buffered
-        query(this.box).find('#grid_'+ this.name + '_footer .w2ui-footer-right').html(
+        $box.find('#grid_'+ this.name + '_footer .w2ui-footer-right').html(
             (this.show.statusRange
                 ? w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) +
                     (this.total != -1 ? ' ' + w2utils.lang('of') + ' ' + w2utils.formatNumber(this.total) : '')
@@ -7667,7 +7684,7 @@ class w2grid extends w2base {
                 this.request('load')
             }
             // scroll function
-            let more = query(this.box).find('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more')
+            let more = $box.find('#grid_'+ this.name +'_rec_more, #grid_'+ this.name +'_frec_more')
             more.show()
                 .eq(1) // only main table
                 .off('.load-more')
