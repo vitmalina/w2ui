@@ -826,8 +826,8 @@ class w2sidebar extends w2base {
             this.box = box
         }
         if (!this.box) return
-        query(this.box)
-            .attr('name', this.name)
+        let $box = query(this.box)
+        $box.attr('name', this.name)
             .addClass('w2ui-reset w2ui-sidebar')
             .html(`<div>
                 <div class="w2ui-sidebar-top"></div>
@@ -837,15 +837,15 @@ class w2sidebar extends w2base {
                 <div class="w2ui-sidebar-body"></div>
                 <div class="w2ui-sidebar-bottom"></div>
             </div>`)
-        let rect = query(this.box).get(0).getBoundingClientRect()
-        query(this.box).find(':scope > div').css({
+        let rect = $box.get(0).getBoundingClientRect()
+        $box.find(':scope > div').css({
             width  : rect.width + 'px',
             height : rect.height + 'px'
         })
-        query(this.box).get(0).style.cssText += this.style
+        $box.get(0).style.cssText += this.style
         // focus
         let kbd_timer
-        query(this.box).find('#sidebar_'+ this.name + '_focus')
+        $box.find('#sidebar_'+ this.name + '_focus')
             .on('focus', function(event) {
                 clearTimeout(kbd_timer)
                 if (!obj.hasFocus) obj.focus(event)
@@ -860,7 +860,7 @@ class w2sidebar extends w2base {
                     w2ui[obj.name].keydown.call(w2ui[obj.name], event)
                 }
             })
-        query(this.box).off('mousedown')
+        $box.off('mousedown')
             .on('mousedown', function(event) {
                 // set focus to grid
                 setTimeout(() => {
@@ -961,23 +961,24 @@ class w2sidebar extends w2base {
         if (this.flatButton == true) {
             flatHTML = `<div class="w2ui-flat w2ui-flat-${(this.flat ? 'right' : 'left')}"></div>`
         }
+        let $box = query(this.box)
         if (id == null && (this.topHTML !== '' || flatHTML !== '')) {
-            query(this.box).find('.w2ui-sidebar-top').html(this.topHTML + flatHTML)
-            query(this.box).find('.w2ui-sidebar-body')
-                .css('top', query(this.box).find('.w2ui-sidebar-top').get(0)?.clientHeight + 'px')
-            query(this.box).find('.w2ui-flat')
+            $box.find('.w2ui-sidebar-top').html(this.topHTML + flatHTML)
+            $box.find('.w2ui-sidebar-body')
+                .css('top', $box.find('.w2ui-sidebar-top').get(0)?.clientHeight + 'px')
+            $box.find('.w2ui-flat')
                 .off('click')
                 .on('click', event => { this.goFlat() })
         }
         if (id != null && this.bottomHTML !== '') {
-            query(this.box).find('.w2ui-sidebar-bottom').html(this.bottomHTML)
-            query(this.box).find('.w2ui-sidebar-body')
-                .css('bottom', query(this.box).find('.w2ui-sidebar-bottom').get(0)?.clientHeight + 'px')
+            $box.find('.w2ui-sidebar-bottom').html(this.bottomHTML)
+            $box.find('.w2ui-sidebar-body')
+                .css('bottom', $box.find('.w2ui-sidebar-bottom').get(0)?.clientHeight + 'px')
         }
         // default action
-        query(this.box).find(':scope > div').removeClass('w2ui-sidebar-flat').addClass(this.flat ? 'w2ui-sidebar-flat' : '').css({
-            width : query(this.box).get(0)?.clientWidth + 'px',
-            height: query(this.box).get(0)?.clientHeight + 'px'
+        $box.find(':scope > div').removeClass('w2ui-sidebar-flat').addClass(this.flat ? 'w2ui-sidebar-flat' : '').css({
+            width : $box.get(0)?.clientWidth + 'px',
+            height: $box.get(0)?.clientHeight + 'px'
         })
         // if no parent - reset nodes
         if (this.nodes.length > 0 && this.nodes[0].parent == null) {
@@ -1000,24 +1001,24 @@ class w2sidebar extends w2base {
         let nodeHTML
         if (node !== this) {
             nodeHTML = getNodeHTML(node)
-            query(this.box).find(nodeId).before('<div id="sidebar_'+ this.name + '_tmp"></div>')
-            query(this.box).find(nodeId).remove()
-            query(this.box).find(nodeSubId).remove()
-            query(this.box).find('#sidebar_'+ this.name + '_tmp').before(nodeHTML)
-            query(this.box).find('#sidebar_'+ this.name + '_tmp').remove()
+            $box.find(nodeId).before('<div id="sidebar_'+ this.name + '_tmp"></div>')
+            $box.find(nodeId).remove()
+            $box.find(nodeSubId).remove()
+            $box.find('#sidebar_'+ this.name + '_tmp').before(nodeHTML)
+            $box.find('#sidebar_'+ this.name + '_tmp').remove()
         }
         // remember scroll position
-        let div = query(this.box).find(':scope > div').get(0)
+        let div = $box.find(':scope > div').get(0)
         let scroll = {
             top: div?.scrollTop,
             left: div?.scrollLeft
         }
         // refresh sub nodes
-        query(this.box).find(nodeSubId).html('')
+        $box.find(nodeSubId).html('')
         for (let i = 0; i < node.nodes.length; i++) {
             let subNode = node.nodes[i]
             nodeHTML = getNodeHTML(subNode)
-            query(this.box).find(nodeSubId).append(nodeHTML)
+            $box.find(nodeSubId).append(nodeHTML)
             if (subNode.nodes.length !== 0) {
                 this.refresh(subNode.id, true)
             } else {
@@ -1035,7 +1036,7 @@ class w2sidebar extends w2base {
         }
         // bind events
         if (!noBinding) {
-            let els = query(this.box).find(`${nodeId}.w2ui-eaction, ${nodeSubId} .w2ui-eaction`)
+            let els = $box.find(`${nodeId}.w2ui-eaction, ${nodeSubId} .w2ui-eaction`)
             w2utils.bindEvents(els, this)
         }
         // event after

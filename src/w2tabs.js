@@ -348,10 +348,11 @@ class w2tabs extends w2base {
 
     refresh(id) {
         let time = Date.now()
+        let $box = query(this.box)
         if (this.flow == 'up') {
-            query(this.box).addClass('w2ui-tabs-up')
+            $box.addClass('w2ui-tabs-up')
         } else {
-            query(this.box).removeClass('w2ui-tabs-up')
+            $box.removeClass('w2ui-tabs-up')
         }
         // event before
         let edata = this.trigger('refresh', { target: (id != null ? id : this.name), object: this.get(id) })
@@ -364,19 +365,19 @@ class w2tabs extends w2base {
         } else {
             // create or refresh only one item
             let selector = '#tabs_'+ this.name +'_tab_'+ w2utils.escapeId(id)
-            let $tab = query(this.box).find(selector)
+            let $tab = $box.find(selector)
             let tabHTML = this.getTabHTML(id)
             if ($tab.length === 0) {
-                query(this.box).find('#tabs_'+ this.name +'_right').before(tabHTML)
+                $box.find('#tabs_'+ this.name +'_right').before(tabHTML)
             } else {
-                if (query(this.box).find('.tab-animate-insert').length == 0) {
+                if ($box.find('.tab-animate-insert').length == 0) {
                     $tab.replace(tabHTML)
                 }
             }
-            w2utils.bindEvents(query(this.box).find(`${selector}, ${selector} .w2ui-eaction`), this)
+            w2utils.bindEvents($box.find(`${selector}, ${selector} .w2ui-eaction`), this)
         }
         // right html
-        query(this.box).find('#tabs_'+ this.name +'_right').html(this.right)
+        $box.find('#tabs_'+ this.name +'_right').html(this.right)
         // event after
         edata.finish()
         // this.resize();

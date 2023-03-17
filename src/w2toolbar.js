@@ -491,6 +491,7 @@ class w2toolbar extends w2base {
         if (!Array.isArray(this.right)) {
             this.right = [this.right]
         }
+        let $box = query(this.box)
         // render all buttons
         let html = ''
         let line = 0
@@ -518,14 +519,13 @@ class w2toolbar extends w2base {
             }
             it.line = line
         }
-        query(this.box)
-            .attr('name', this.name)
+        $box.attr('name', this.name)
             .addClass('w2ui-reset w2ui-toolbar')
             .html(html)
-        if (query(this.box).length > 0) {
-            query(this.box)[0].style.cssText += this.style
+        if ($box.length > 0) {
+            $box[0].style.cssText += this.style
         }
-        w2utils.bindEvents(query(this.box).find('.w2ui-tb-line .w2ui-eaction'), this)
+        w2utils.bindEvents($box.find('.w2ui-tb-line .w2ui-eaction'), this)
         // observe div resize
         this.last.observeResize = new ResizeObserver(() => { this.resize() })
         this.last.observeResize.observe(this.box)
@@ -559,30 +559,31 @@ class w2toolbar extends w2base {
             edata2 = this.trigger('refresh', { target: id, item: it, object: it })
             if (edata2.isCancelled === true) return
         }
+        let $box = query(this.box)
         let selector = `#tb_${this.name}_item_${w2utils.escapeId(it.id)}`
-        let btn  = query(this.box).find(selector)
+        let btn  = $box.find(selector)
         let html = this.getItemHTML(it)
         // hide tooltip
         this.tooltipHide(id)
 
         // if there is a spacer, then right HTML is not 100%
         if (it.type == 'spacer') {
-            query(this.box).find(`.w2ui-tb-line:nth-child(${it.line}`).find('.w2ui-tb-right').css('width', 'auto')
+            $box.find(`.w2ui-tb-line:nth-child(${it.line}`).find('.w2ui-tb-right').css('width', 'auto')
         }
 
         if (btn.length === 0) {
             let next = parseInt(this.get(id, true)) + 1
-            let $next = query(this.box).find(`#tb_${this.name}_item_${w2utils.escapeId(this.items[next] ? this.items[next].id : '')}`)
+            let $next = $box.find(`#tb_${this.name}_item_${w2utils.escapeId(this.items[next] ? this.items[next].id : '')}`)
             if ($next.length == 0) {
-                $next = query(this.box).find(`.w2ui-tb-line:nth-child(${it.line}`).find('.w2ui-tb-right').before(html)
+                $next = $box.find(`.w2ui-tb-line:nth-child(${it.line}`).find('.w2ui-tb-right').before(html)
             } else {
                 $next.after(html)
             }
-            w2utils.bindEvents(query(this.box).find(selector), this)
+            w2utils.bindEvents($box.find(selector), this)
         } else {
             // refresh
-            query(this.box).find(selector).replace(query.html(html))
-            let newBtn = query(this.box).find(selector).get(0)
+            $box.find(selector).replace(query.html(html))
+            let newBtn = $box.find(selector).get(0)
             w2utils.bindEvents(newBtn, this)
             // update overlay's anchor if changed
             let overlays = w2tooltip.get(true)

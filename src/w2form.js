@@ -1481,25 +1481,26 @@ class w2form extends w2base {
         // event before
         let edata = this.trigger('resize', { target: this.name })
         if (edata.isCancelled === true) return
+        let $box = query(this.box)
         // default behaviour
-        let header  = query(this.box).find(':scope > div .w2ui-form-header')
-        let toolbar = query(this.box).find(':scope > div .w2ui-form-toolbar')
-        let tabs    = query(this.box).find(':scope > div .w2ui-form-tabs')
-        let page    = query(this.box).find(':scope > div .w2ui-page')
-        let dpage   = query(this.box).find(':scope > div .w2ui-page.page-'+ this.page + ' > div')
-        let buttons = query(this.box).find(':scope > div .w2ui-buttons')
+        let header  = $box.find(':scope > div .w2ui-form-header')
+        let toolbar = $box.find(':scope > div .w2ui-form-toolbar')
+        let tabs    = $box.find(':scope > div .w2ui-form-tabs')
+        let page    = $box.find(':scope > div .w2ui-page')
+        let dpage   = $box.find(':scope > div .w2ui-page.page-'+ this.page + ' > div')
+        let buttons = $box.find(':scope > div .w2ui-buttons')
         // if no height, calculate it
         let { headerHeight, tbHeight, tabsHeight } = resizeElements()
         if (this.autosize) { // we don't need autosize every time
-            let cHeight = query(this.box).get(0).clientHeight
-            if (cHeight === 0 || query(this.box).data('autosize') == 'yes') {
-                query(this.box).css({
+            let cHeight = $box.get(0).clientHeight
+            if (cHeight === 0 || $box.data('autosize') == 'yes') {
+                $box.css({
                     height: headerHeight + tbHeight + tabsHeight + 15 // 15 is extra height
                         + (page.length > 0 ? w2utils.getSize(dpage, 'height') : 0)
                         + (buttons.length > 0 ? w2utils.getSize(buttons, 'height') : 0)
                         + 'px'
                 })
-                query(this.box).data('autosize', 'yes')
+                $box.data('autosize', 'yes')
             }
             resizeElements()
         }
@@ -1530,7 +1531,8 @@ class w2form extends w2base {
         let time = Date.now()
         let self = this
         if (!this.box) return
-        if (!this.isGenerated || !query(this.box).html()) return
+        let $box = query(this.box)
+        if (!this.isGenerated || !$box.html()) return
         // event before
         let edata = this.trigger('refresh', { target: this.name, page: this.page, field: arguments[0], fields: arguments })
         if (edata.isCancelled === true) return
@@ -1546,7 +1548,7 @@ class w2form extends w2base {
                 })
         } else {
             // update field.page with page it belongs too
-            query(this.box).find('input, textarea, select').each(el => {
+            $box.find('input, textarea, select').each(el => {
                 let name = (query(el).attr('name') != null ? query(el).attr('name') : query(el).attr('id'))
                 let field = this.get(name)
                 if (field) {
@@ -1560,23 +1562,23 @@ class w2form extends w2base {
                 }
             })
             // default action
-            query(this.box).find('.w2ui-page').hide()
-            query(this.box).find('.w2ui-page.page-' + this.page).show()
-            query(this.box).find('.w2ui-form-header').html(w2utils.lang(this.header))
+            $box.find('.w2ui-page').hide()
+            $box.find('.w2ui-page.page-' + this.page).show()
+            $box.find('.w2ui-form-header').html(w2utils.lang(this.header))
             // refresh tabs if needed
             if (typeof this.tabs === 'object' && Array.isArray(this.tabs.tabs) && this.tabs.tabs.length > 0) {
-                query(this.box).find('#form_'+ this.name +'_tabs').show()
+                $box.find('#form_'+ this.name +'_tabs').show()
                 this.tabs.active = this.tabs.tabs[this.page].id
                 this.tabs.refresh()
             } else {
-                query(this.box).find('#form_'+ this.name +'_tabs').hide()
+                $box.find('#form_'+ this.name +'_tabs').hide()
             }
             // refresh tabs if needed
             if (typeof this.toolbar === 'object' && Array.isArray(this.toolbar.items) && this.toolbar.items.length > 0) {
-                query(this.box).find('#form_'+ this.name +'_toolbar').show()
+                $box.find('#form_'+ this.name +'_toolbar').show()
                 this.toolbar.refresh()
             } else {
-                query(this.box).find('#form_'+ this.name +'_toolbar').hide()
+                $box.find('#form_'+ this.name +'_toolbar').hide()
             }
         }
         // refresh values of fields
@@ -1584,7 +1586,7 @@ class w2form extends w2base {
             let field = this.fields[fields[f]]
             if (field.name == null && field.field != null) field.name = field.field
             if (field.field == null && field.name != null) field.field = field.name
-            field.$el = query(this.box).find(`[name='${String(field.name).replace(/\\/g, '\\\\')}']`)
+            field.$el = $box.find(`[name='${String(field.name).replace(/\\/g, '\\\\')}']`)
             field.el  = field.$el.get(0)
             if (field.el) field.el.id = field.name
             // TODO: check
@@ -1663,7 +1665,7 @@ class w2form extends w2base {
             }
             // hidden
             let tmp = field.el
-            if (!tmp) tmp = query(this.box).find('#' + field.field)
+            if (!tmp) tmp = $box.find('#' + field.field)
             if (field.hidden) {
                 query(tmp).closest('.w2ui-field').hide()
             } else {
@@ -1671,7 +1673,7 @@ class w2form extends w2base {
             }
         }
         // attach actions on buttons
-        query(this.box).find('button, input[type=button]').each(el => {
+        $box.find('button, input[type=button]').each(el => {
             query(el).off('click').on('click', function(event) {
                 let action = this.value
                 if (this.id) action = this.id
@@ -1897,6 +1899,7 @@ class w2form extends w2base {
         }
         if (!this.isGenerated && !this.formHTML) return
         if (!this.box) return
+        let $box = query(this.box)
         // render form
         let html = '<div class="w2ui-form-box">' +
                     (this.header !== '' ? '<div class="w2ui-form-header">' + w2utils.lang(this.header) + '</div>' : '') +
@@ -1904,11 +1907,11 @@ class w2form extends w2base {
                     '    <div id="form_'+ this.name +'_tabs" class="w2ui-form-tabs" style="display: none"></div>' +
                         this.formHTML +
                     '</div>'
-        query(this.box).attr('name', this.name)
+        $box.attr('name', this.name)
             .addClass('w2ui-reset w2ui-form')
             .html(html)
-        if (query(this.box).length > 0) query(this.box)[0].style.cssText += this.style
-        w2utils.bindEvents(query(this.box).find('.w2ui-eaction'), this)
+        if ($box.length > 0) $box[0].style.cssText += this.style
+        w2utils.bindEvents($box.find('.w2ui-eaction'), this)
 
         // init toolbar regardless it is defined or not
         if (typeof this.toolbar.render !== 'function') {
@@ -1921,7 +1924,7 @@ class w2form extends w2base {
             })
         }
         if (typeof this.toolbar === 'object' && typeof this.toolbar.render === 'function') {
-            this.toolbar.render(query(this.box).find('#form_'+ this.name +'_toolbar')[0])
+            this.toolbar.render($box.find('#form_'+ this.name +'_toolbar')[0])
         }
         // init tabs regardless it is defined or not
         if (typeof this.tabs.render !== 'function') {
@@ -1931,7 +1934,7 @@ class w2form extends w2base {
             })
         }
         if (typeof this.tabs === 'object' && typeof this.tabs.render === 'function') {
-            this.tabs.render(query(this.box).find('#form_'+ this.name +'_tabs')[0])
+            this.tabs.render($box.find('#form_'+ this.name +'_tabs')[0])
             if (this.tabs.active) this.tabs.click(this.tabs.active)
         }
         // event after
