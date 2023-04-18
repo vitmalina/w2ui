@@ -18,6 +18,7 @@
  *  - implemented marker
  *  - cssPrefix - deprecated
  *  - w2utils.debounce
+ *  - w2utils.prepareParams
  */
 
 import { w2base } from './w2base.js'
@@ -2065,6 +2066,57 @@ class Utils {
             return w2utils.normMenu.call(this, newMenu)
         } else if (typeof menu === 'object') {
             return Object.keys(menu).map(key => { return { id: key, text: menu[key] } })
+        }
+    }
+
+    /**
+     * Takes Url object and fetchOptions and changes it in place applying selected user dataType. Since
+     * dataType is in w2utils. This method is used in grid, form and tooltip to prepare fetch parameters
+     */
+    prepareParams(url, fetchOptions, defDataType) {
+        let dataType = defDataType ?? w2utils.settings.dataType
+        let postParams = fetchOptions.body
+        switch (dataType) {
+            case 'HTTPJSON':
+                postParams = { request: postParams }
+                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
+                    fetchOptions.method = 'POST'
+                }
+                body2params()
+                break
+            case 'HTTP':
+                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
+                    fetchOptions.method = 'POST'
+                }
+                body2params()
+                break
+            case 'RESTFULL':
+                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
+                    fetchOptions.headers['Content-Type'] = 'application/json'
+                } else {
+                    body2params()
+                }
+                break
+            case 'JSON':
+                if (fetchOptions.method == 'GET') {
+                    postParams = { request: postParams }
+                    body2params()
+                } else {
+                    fetchOptions.headers['Content-Type'] = 'application/json'
+                    fetchOptions.method = 'POST'
+                }
+                break
+        }
+        fetchOptions.body = typeof fetchOptions.body == 'string' ? fetchOptions.body : JSON.stringify(fetchOptions.body)
+        return fetchOptions
+
+        function body2params() {
+            Object.keys(postParams).forEach(key => {
+                let param = postParams[key]
+                if (typeof param == 'object') param = JSON.stringify(param)
+                url.searchParams.append(key, param)
+            })
+            delete fetchOptions.body
         }
     }
 

@@ -22,7 +22,6 @@
  *  - getValue(..., original) -- return original if any
  *  - added .hideErrors()
  *  - reuqest, save, submit - return promises
- *  - added prepareParams
  *  - this.recid = null if no record needs to be pulled
  *  - remove form.multiplart
  *  - this.method - for saving only
@@ -886,47 +885,6 @@ class w2form extends w2base {
         return data
     }
 
-    prepareParams(url, fetchOptions) {
-        let dataType = this.dataType ?? w2utils.settings.dataType
-        let postParams = fetchOptions.body
-        switch (dataType) {
-            case 'HTTPJSON':
-                postParams = { request: postParams }
-                body2params()
-                break
-            case 'HTTP':
-                body2params()
-                break
-            case 'RESTFULL':
-                if (fetchOptions.method == 'POST') {
-                    fetchOptions.headers['Content-Type'] = 'application/json'
-                } else {
-                    body2params()
-                }
-                break
-            case 'JSON':
-                if (fetchOptions.method == 'GET') {
-                    postParams = { request: postParams }
-                    body2params()
-                } else {
-                    fetchOptions.headers['Content-Type'] = 'application/json'
-                    fetchOptions.method = 'POST'
-                }
-                break
-        }
-        fetchOptions.body = typeof fetchOptions.body == 'string' ? fetchOptions.body : JSON.stringify(fetchOptions.body)
-        return fetchOptions
-
-        function body2params() {
-            Object.keys(postParams).forEach(key => {
-                let param = postParams[key]
-                if (typeof param == 'object') param = JSON.stringify(param)
-                url.searchParams.append(key, param)
-            })
-            delete fetchOptions.body
-        }
-    }
-
     request(postData, callBack) { // if (1) param then it is call back if (2) then postData and callBack
         let self = this
         let resolve, reject
@@ -970,11 +928,11 @@ class w2form extends w2base {
             }
         }
         url = new URL(url, location)
-        let fetchOptions = this.prepareParams(url, {
+        let fetchOptions = w2utils.prepareParams(url, {
             method: edata.detail.httpMethod,
             headers: edata.detail.httpHeaders,
             body: edata.detail.postData
-        })
+        }, this.dataType)
         this.last.fetchCtrl = new AbortController()
         fetchOptions.signal = this.last.fetchCtrl.signal
         this.last.fetchOptions = fetchOptions
@@ -1101,11 +1059,11 @@ class w2form extends w2base {
             }
         }
         url = new URL(url, location)
-        let fetchOptions = this.prepareParams(url, {
+        let fetchOptions = w2utils.prepareParams(url, {
             method: edata.detail.httpMethod,
             headers: edata.detail.httpHeaders,
             body: edata.detail.postData
-        })
+        }, this.dataType)
         this.last.fetchCtrl = new AbortController()
         fetchOptions.signal = this.last.fetchCtrl.signal
         this.last.fetchOptions = fetchOptions
