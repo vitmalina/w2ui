@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (1/16/2023, 8:50:38 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/18/2023, 7:05:14 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -911,7 +911,12 @@ class Query {
             let dsp  = getComputedStyle(node).display
             let isHidden = (prev == 'none' || dsp == 'none')
             if (isHidden && (force == null || force === true)) { // show
-                node.style.display = node._mQuery?.prevDisplay ?? (prev == dsp && dsp != 'none' ? '' : 'block')
+                let def = node instanceof HTMLTableRowElement
+                    ? 'table-row'
+                    : node instanceof HTMLTableCellElement
+                        ? 'table-cell'
+                        : 'block'
+                node.style.display = node._mQuery?.prevDisplay ?? (prev == dsp && dsp != 'none' ? '' : def)
                 this._save(node, 'prevDisplay', null)
             }
             if (!isHidden && (force == null || force === false)) { // hide
@@ -975,6 +980,7 @@ query.version = Query.version
  *  - implemented marker
  *  - cssPrefix - deprecated
  *  - w2utils.debounce
+ *  - w2utils.prepareParams
  */
 
 // variable that holds all w2ui objects
@@ -2906,6 +2912,55 @@ class Utils {
             return Object.keys(menu).map(key => { return { id: key, text: menu[key] } })
         }
     }
+    /**
+     * Takes Url object and fetchOptions and changes it in place applying selected user dataType. Since
+     * dataType is in w2utils. This method is used in grid, form and tooltip to prepare fetch parameters
+     */
+    prepareParams(url, fetchOptions, defDataType) {
+        let dataType = defDataType ?? w2utils.settings.dataType
+        let postParams = fetchOptions.body
+        switch (dataType) {
+            case 'HTTPJSON':
+                postParams = { request: postParams }
+                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
+                    fetchOptions.method = 'POST'
+                }
+                body2params()
+                break
+            case 'HTTP':
+                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
+                    fetchOptions.method = 'POST'
+                }
+                body2params()
+                break
+            case 'RESTFULL':
+                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
+                    fetchOptions.headers['Content-Type'] = 'application/json'
+                } else {
+                    body2params()
+                }
+                break
+            case 'JSON':
+                if (fetchOptions.method == 'GET') {
+                    postParams = { request: postParams }
+                    body2params()
+                } else {
+                    fetchOptions.headers['Content-Type'] = 'application/json'
+                    fetchOptions.method = 'POST'
+                }
+                break
+        }
+        fetchOptions.body = typeof fetchOptions.body == 'string' ? fetchOptions.body : JSON.stringify(fetchOptions.body)
+        return fetchOptions
+        function body2params() {
+            Object.keys(postParams).forEach(key => {
+                let param = postParams[key]
+                if (typeof param == 'object') param = JSON.stringify(param)
+                url.searchParams.append(key, param)
+            })
+            delete fetchOptions.body
+        }
+    }
     bindEvents(selector, subject) {
         // format is
         // <div ... data-<event>='["<method>","param1","param2",...]'> -- should be valid JSON (no undefined)
@@ -3802,8 +3857,6 @@ let w2popup = new Dialog()
  * 2.0 Changes
  * - multiple tooltips to the same anchor
  *
- * TODO
- * - load menu items from URL
  */
 
 class Tooltip {
@@ -4021,7 +4074,12 @@ class Tooltip {
                 .off('.autoShow-' + ret.overlay.name)
                 .off('.autoHide-' + ret.overlay.name)
             // need a timer, so that events would be preperty set
-            setTimeout(() => { this.show(ret.overlay.name) }, 1)
+            setTimeout(() => {
+                this.show(ret.overlay.name)
+                if (this.initControls) {
+                    this.initControls(ret.overlay)
+                }
+            }, 1)
             return ret
         }
         let edata
@@ -5005,12 +5063,14 @@ class MenuTooltip extends Tooltip {
                 }
                 let actions = query(ret.overlay.box).find('.w2ui-eaction')
                 w2utils.bindEvents(actions, this)
-                let count = this.applyFilter(overlay.name, null, search)
-                overlay.tmp.searchCount = count
-                overlay.tmp.search = search
-                this.refreshSearch(overlay.name)
-                this.initControls(ret.overlay)
-                this.refreshIndex(overlay.name)
+                this.applyFilter(overlay.name, null, search)
+                    .then(data => {
+                        overlay.tmp.searchCount = data.count
+                        overlay.tmp.search = data.search
+                        this.refreshSearch(overlay.name)
+                        this.initControls(ret.overlay)
+                        this.refreshIndex(overlay.name)
+                    })
             }
         })
         overlay.on('hide:after.attach', event => {
@@ -5273,7 +5333,7 @@ class MenuTooltip extends Tooltip {
         query(overlay.box).find('.w2ui-no-items').hide()
         query(overlay.box).find('.w2ui-menu-item, .w2ui-menu-divider').each(el => {
             let cur = this.getCurrent(name, el.getAttribute('index'))
-            if (cur.item.hidden) {
+            if (cur.item?.hidden) {
                 query(el).hide()
             } else {
                 let search = overlay.tmp?.search
@@ -5310,17 +5370,18 @@ class MenuTooltip extends Tooltip {
         }
     }
     /**
-     * Loops through the items and markes item.hidden for those that need to be hidden.
-     * Return the number of visible items.
+     * Loops through the items and markes item.hidden = true for those that need to be hidden, and item.hidden = false
+     * for those that are visible. Return a promise (since items can be on the server) with the number of visible items.
      */
-    applyFilter(name, items, search) {
+    applyFilter(name, items, search, debounce) {
         let count = 0
         let overlay = Tooltip.active[name.replace(/[\s\.#]/g, '_')]
         let options = overlay.options
-        if (options.filter === false) {
-            return
-        }
-        if (items == null) items = overlay.options.items
+        let resolve, reject
+        let prom = new Promise((res, rej) => {
+            resolve = res
+            reject = rej
+        })
         if (search == null) {
             if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
                 search = overlay.anchor.value
@@ -5337,6 +5398,53 @@ class MenuTooltip extends Tooltip {
             } else if (options.selected?.id) {
                 selectedIds = [options.selected.id]
             }
+        }
+        overlay.tmp.activeChain = null
+        // if url is defined, get items from it
+        let remote = overlay.tmp.remote ?? { hasMore: true, emtpySet: false, search: null, total: -1 }
+        if (items == null && options.url && remote.hasMore && remote.search !== search) {
+            let proceed = true
+            // only when items == null because it is case of nested items
+            let msg = w2utils.lang('Loading...')
+            if (search.length < options.minLength && remote.emptySet !== true) {
+                msg = w2utils.lang('${count} letters or more...', { count: options.minLength })
+                proceed = false
+                if (search === '') {
+                    msg = w2utils.lang(options.msgSearch)
+                }
+            }
+            query(overlay.box).find('.w2ui-no-items').html(msg)
+            remote.search = search
+            options.items = []
+            overlay.tmp.remote = remote
+            if (proceed) {
+                this.request(overlay, search, debounce)
+                    .then(remoteItems => {
+                        this.update(name, remoteItems)
+                        this.applyFilter(name, null, search).then(data => {
+                            resolve(data)
+                        })
+                    })
+                    .catch(error => {
+                        console.log('Server Request error', error)
+                    })
+            }
+            return prom
+        }
+        let edata
+        // only trigger search event when data is present and for the top level
+        if (items == null) {
+            edata = this.trigger('search', { search, overlay, prom, resolve, reject })
+            if (edata.isCancelled === true) {
+                return prom
+            }
+        }
+        if (items == null) {
+            items = overlay.options.items
+        }
+        if (options.filter === false) {
+            resolve({ count: -1, search })
+            return prom
         }
         items.forEach(item => {
             let prefix = ''
@@ -5358,20 +5466,141 @@ class MenuTooltip extends Tooltip {
             // search nested items
             if (Array.isArray(item.items) && item.items.length > 0) {
                 delete item._noSearchInside
-                let subCount = this.applyFilter(name, item.items, search)
-                if (subCount > 0) {
-                    count += subCount
-                    if (item.hidden) item._noSearchInside = true
-                    // only expand items if search is not empty
-                    if (search) item.expanded = true
-                    item.hidden = false
-                }
+                this.applyFilter(name, item.items, search).then(data => {
+                    let subCount = data.count
+                    if (subCount > 0) {
+                        count += subCount
+                        if (item.hidden) item._noSearchInside = true
+                        // only expand items if search is not empty
+                        if (search) item.expanded = true
+                        item.hidden = false
+                    }
+                    })
             }
             if (item.hidden !== true) count++
         })
-        overlay.tmp.activeChain = this.getActiveChain(name, items)
-        overlay.selected = null
-        return count
+        resolve({ count, search })
+        edata?.finish()
+        return prom
+    }
+    request(overlay, search, debounce) {
+        let options = overlay.options
+        let remote = overlay.tmp.remote
+        let resolve, reject // promise functions
+        if ((options.items.length === 0 && remote.total !== 0)
+            || (remote.total == options.cacheMax && search.length > remote.search.length)
+            || (search.length >= remote.search.length && search.substr(0, remote.search.length) !== remote.search)
+            || (search.length < remote.search.length))
+        {
+            // Aabort previous request if any
+            if (remote.controller) {
+                remote.controller.abort()
+            }
+            remote.loading = true
+            clearTimeout(remote.timeout)
+            remote.timeout = setTimeout(() => {
+                let url = options.url
+                let postData = { search, max: options.cacheMax }
+                Object.assign(postData, options.postData)
+                // trigger event
+                let edata = this.trigger('request', {
+                    search, overlay, url, postData,
+                    httpMethod: options.method ?? 'GET',
+                    httpHeaders: {}
+                })
+                if (edata.isCancelled === true) return
+                // if event updated url and postData, use it
+                url = new URL(edata.detail.url, location)
+                let fetchOptions = w2utils.prepareParams(url, {
+                    method: edata.detail.httpMethod,
+                    headers: edata.detail.httpHeaders,
+                    body: edata.detail.postData
+                })
+                // Create new abort controller
+                remote.controller = new AbortController()
+                fetchOptions.signal = remote.controller.signal
+                // send request
+                fetch(url, fetchOptions)
+                    .then(resp => resp.json())
+                    .then(data => {
+                        remote.controller = null
+                        // trigger event
+                        let edata = overlay.trigger('load', { search: postData.search, overlay, data })
+                        if (edata.isCancelled === true) return
+                        // default behavior
+                        data = edata.detail.data
+                        if (typeof data === 'string') data = JSON.parse(data)
+                        // if server just returns array
+                        if (Array.isArray(data)) {
+                            data = { records: data }
+                        }
+                        // needed for backward compatibility
+                        if (data.records == null && data.items != null) {
+                            data.records = data.items
+                            delete data.items
+                        }
+                        // handles Golang marshal of empty arrays to null
+                        if (!data.error && data.records == null) {
+                            data.records = []
+                        }
+                        if (!Array.isArray(data.records)) {
+                            console.error('ERROR: server did not return proper data structure', '\n',
+                                ' - it should return', { records: [{ id: 1, text: 'item' }] }, '\n',
+                                ' - or just an array ', [{ id: 1, text: 'item' }], '\n',
+                                ' - or if errorr ', { error: true, message: 'error message' })
+                            return
+                        }
+                        // remove all extra items if more then needed for cache
+                        if (data.records.length > options.cacheMax) data.records.splice(options.cacheMax, 100000)
+                        // map id and text
+                        if (options.recId == null && options.recid != null) options.recId = options.recid // since lower-case recid is used in grid
+                        if (options.recId || options.recText) {
+                            data.records.forEach((item) => {
+                                if (typeof options.recId === 'string') item.id = item[options.recId]
+                                if (typeof options.recId === 'function') item.id = options.recId(item)
+                                if (typeof options.recText === 'string') item.text = item[options.recText]
+                                if (typeof options.recText === 'function') item.text = options.recText(item)
+                            })
+                        }
+                        // remember stats
+                        remote.loading = false
+                        remote.search = search
+                        remote.total = data.records.length
+                        remote.lastError = ''
+                        remote.emptySet = (search === '' && data.records.length === 0 ? true : false)
+                        // event after
+                        edata.finish()
+                        resolve(w2utils.normMenu(data.records))
+                    })
+                    .catch(error => {
+                        let edata = this.trigger('error', { overlay, search, error })
+                        if (edata.isCancelled === true) return
+                        // default behavior
+                        if (error?.name !== 'AbortError') {
+                            console.error('ERROR: Server communication failed.', '\n',
+                                ' - it should return', { records: [{ id: 1, text: 'item' }] }, '\n',
+                                ' - or just an array ', [{ id: 1, text: 'item' }], '\n',
+                                ' - or if errorr ', { error: true, message: 'error message' })
+                        }
+                        // reset stats
+                        remote.loading = false
+                        remote.search = ''
+                        remote.total = -1
+                        remote.emptySet = true
+                        remote.lastError = (edata.detail.error || 'Server communication failed')
+                        options.items = []
+                        // event after
+                        edata.finish()
+                        reject()
+                    })
+                // event after
+                edata.finish()
+            }, debounce ? (options.debounce ?? 350) : 0)
+        }
+        return new Promise((res, rej) => {
+            resolve = res
+            reject = rej
+        })
     }
     /**
      * Builds an array of item ids that sequencial in navigation with up/down keys.
@@ -5540,12 +5769,12 @@ class MenuTooltip extends Tooltip {
     }
     keyUp(overlay, event) {
         let options = overlay.options
-        let search  = event.target.value
-        let key     = event.keyCode
-        let filter  = true
+        let search = event.target.value
+        let filter = true
         let refreshIndex = false
-        switch (key) {
-            case 8: { // delete
+        switch (event.keyCode) {
+            case 46:  // delete
+            case 8: { // backspace
                 // if search empty and delete is clicked, do not filter nor show overlay
                 if (search === '' && !overlay.displayed) filter = false
                 break
@@ -5650,16 +5879,18 @@ class MenuTooltip extends Tooltip {
             }
         }
         // filter
-        if (filter && overlay.displayed && ((options.filter && event._searchType == 'filter')
-                    || (options.search && event._searchType == 'search'))) {
-            let count = this.applyFilter(overlay.name, null, search)
-            overlay.tmp.searchCount = count
-            overlay.tmp.search = search
-            // if selected is not in searched items
-            if (count === 0 || !this.getActiveChain(overlay.name).includes(overlay.selected)) {
-                overlay.selected = null
-            }
-            this.refreshSearch(overlay.name)
+        if (filter && overlay.displayed
+                && ((options.filter && event._searchType == 'filter') || (options.search && event._searchType == 'search'))) {
+            this.applyFilter(overlay.name, null, search, true)
+                .then(data => {
+                    overlay.tmp.searchCount = data.count
+                    overlay.tmp.search = data.search
+                    // if selected is not in searched items
+                    if (data.count === 0 || !this.getActiveChain(overlay.name).includes(overlay.selected)) {
+                        overlay.selected = null
+                    }
+                    this.refreshSearch(overlay.name)
+                })
         }
         if (refreshIndex) {
             this.refreshIndex(overlay.name)
@@ -6170,252 +6401,6 @@ let w2tooltip = new Tooltip()
 let w2menu    = new MenuTooltip()
 let w2color   = new ColorTooltip()
 let w2date    = new DateTooltip()
-
-/*
-// pull records from remote source for w2menu
-clearCache() {
-    let options          = this.options
-    options.items        = []
-    this.tmp.xhr_loading = false
-    this.tmp.xhr_search  = ''
-    this.tmp.xhr_total   = -1
-}
-request(interval) {
-    let obj     = this
-    let options = this.options
-    let search  = $(obj.el).val() || ''
-    // if no url - do nothing
-    if (!options.url) return
-    // --
-    if (obj.type === 'enum') {
-        let tmp = $(obj.helpers.multi).find('input')
-        if (tmp.length === 0) search = ''; else search = tmp.val()
-    }
-    if (obj.type === 'list') {
-        let tmp = $(obj.helpers.focus).find('input')
-        if (tmp.length === 0) search = ''; else search = tmp.val()
-    }
-    if (options.minLength !== 0 && search.length < options.minLength) {
-        options.items = [] // need to empty the list
-        this.updateOverlay()
-        return
-    }
-    if (interval == null) interval = options.interval
-    if (obj.tmp.xhr_search == null) obj.tmp.xhr_search = ''
-    if (obj.tmp.xhr_total == null) obj.tmp.xhr_total = -1
-    // check if need to search
-    if (options.url && $(obj.el).prop('readonly') !== true && $(obj.el).prop('disabled') !== true && (
-        (options.items.length === 0 && obj.tmp.xhr_total !== 0) ||
-            (obj.tmp.xhr_total == options.cacheMax && search.length > obj.tmp.xhr_search.length) ||
-            (search.length >= obj.tmp.xhr_search.length && search.substr(0, obj.tmp.xhr_search.length) !== obj.tmp.xhr_search) ||
-            (search.length < obj.tmp.xhr_search.length)
-    )) {
-        // empty list
-        if (obj.tmp.xhr) try { obj.tmp.xhr.abort() } catch (e) {}
-        obj.tmp.xhr_loading = true
-        obj.search()
-        // timeout
-        clearTimeout(obj.tmp.timeout)
-        obj.tmp.timeout = setTimeout(() => {
-            // trigger event
-            let url      = options.url
-            let postData = {
-                search : search,
-                max    : options.cacheMax
-            }
-            $.extend(postData, options.postData)
-            let edata = obj.trigger({ phase: 'before', type: 'request', search: search, target: obj.el, url: url, postData: postData })
-            if (edata.isCancelled === true) return
-            url             = edata.url
-            postData        = edata.postData
-            let ajaxOptions = {
-                type     : 'GET',
-                url      : url,
-                data     : postData,
-                dataType : 'JSON' // expected from server
-            }
-            if (options.method) ajaxOptions.type = options.method
-            if (w2utils.settings.dataType === 'JSON') {
-                ajaxOptions.type        = 'POST'
-                ajaxOptions.data        = JSON.stringify(ajaxOptions.data)
-                ajaxOptions.contentType = 'application/json'
-            }
-            if (w2utils.settings.dataType === 'HTTPJSON') {
-                ajaxOptions.data = { request: JSON.stringify(ajaxOptions.data) }
-            }
-            if (w2utils.settings.dataType === 'RESTFULLJSON') {
-                ajaxOptions.data = JSON.stringify(ajaxOptions.data)
-                ajaxOptions.contentType = 'application/json'
-            }
-            if (options.method != null) ajaxOptions.type = options.method
-            obj.tmp.xhr = $.ajax(ajaxOptions)
-                .done((data, status, xhr) => {
-                    // trigger event
-                    let edata2 = obj.trigger({ phase: 'before', type: 'load', target: obj.el, search: postData.search, data: data, xhr: xhr })
-                    if (edata2.isCancelled === true) return
-                    // default behavior
-                    data = edata2.data
-                    if (typeof data === 'string') data = JSON.parse(data)
-                    // if server just returns array
-                    if (Array.isArray(data)) {
-                        data = { records: data }
-                    }
-                    // needed for backward compatibility
-                    if (data.records == null && data.items != null) {
-                        data.records = data.items
-                        delete data.items
-                    }
-                    // handles Golang marshal of empty arrays to null
-                    if (data.status == 'success' && data.records == null) {
-                        data.records = []
-                    }
-                    if (!Array.isArray(data.records)) {
-                        console.error('ERROR: server did not return proper data structure', '\n',
-                            ' - it should return', { status: 'success', records: [{ id: 1, text: 'item' }] }, '\n',
-                            ' - or just an array ', [{ id: 1, text: 'item' }], '\n',
-                            ' - actual response', typeof data === 'object' ? data : xhr.responseText)
-                        return
-                    }
-                    // remove all extra items if more then needed for cache
-                    if (data.records.length > options.cacheMax) data.records.splice(options.cacheMax, 100000)
-                    // map id and text
-                    if (options.recId == null && options.recid != null) options.recId = options.recid // since lower-case recid is used in grid
-                    if (options.recId || options.recText) {
-                        data.records.forEach((item) => {
-                            if (typeof options.recId === 'string') item.id = item[options.recId]
-                            if (typeof options.recId === 'function') item.id = options.recId(item)
-                            if (typeof options.recText === 'string') item.text = item[options.recText]
-                            if (typeof options.recText === 'function') item.text = options.recText(item)
-                        })
-                    }
-                    // remember stats
-                    obj.tmp.xhr_loading = false
-                    obj.tmp.xhr_search  = search
-                    obj.tmp.xhr_total   = data.records.length
-                    obj.tmp.lastError   = ''
-                    options.items       = w2utils.normMenu(data.records)
-                    if (search === '' && data.records.length === 0) obj.tmp.emptySet = true; else obj.tmp.emptySet = false
-                    // preset item
-                    let find_selected = $(obj.el).data('find_selected')
-                    if (find_selected) {
-                        let sel
-                        if (Array.isArray(find_selected)) {
-                            sel = []
-                            find_selected.forEach((find) => {
-                                let isFound = false
-                                options.items.forEach((item) => {
-                                    if (item.id == find || (find && find.id == item.id)) {
-                                        sel.push($.extend(true, {}, item))
-                                        isFound = true
-                                    }
-                                })
-                                if (!isFound) sel.push(find)
-                            })
-                        } else {
-                            sel = find_selected
-                            options.items.forEach((item) => {
-                                if (item.id == find_selected || (find_selected && find_selected.id == item.id)) {
-                                    sel = item
-                                }
-                            })
-                        }
-                        $(obj.el).data('selected', sel).removeData('find_selected').trigger('input').trigger('change')
-                    }
-                    obj.search()
-                    // event after
-                    obj.trigger($.extend(edata2, { phase: 'after' }))
-                })
-                .fail((xhr, status, error) => {
-                    // trigger event
-                    let errorObj = { status: status, error: error, rawResponseText: xhr.responseText }
-                    let edata2   = obj.trigger({ phase: 'before', type: 'error', target: obj.el, search: search, error: errorObj, xhr: xhr })
-                    if (edata2.isCancelled === true) return
-                    // default behavior
-                    if (status !== 'abort') {
-                        let data
-                        try { data = JSON.parse(xhr.responseText) } catch (e) {}
-                        console.error('ERROR: server did not return proper data structure', '\n',
-                            ' - it should return', { status: 'success', records: [{ id: 1, text: 'item' }] }, '\n',
-                            ' - or just an array ', [{ id: 1, text: 'item' }], '\n',
-                            ' - actual response', typeof data === 'object' ? data : xhr.responseText)
-                    }
-                    // reset stats
-                    obj.tmp.xhr_loading = false
-                    obj.tmp.xhr_search  = search
-                    obj.tmp.xhr_total   = 0
-                    obj.tmp.emptySet    = true
-                    obj.tmp.lastError   = (edata2.error || 'Server communication failed')
-                    options.items       = []
-                    obj.clearCache()
-                    obj.search()
-                    obj.updateOverlay(false)
-                    // event after
-                    obj.trigger($.extend(edata2, { phase: 'after' }))
-                })
-            // event after
-            obj.trigger($.extend(edata, { phase: 'after' }))
-        }, interval)
-    }
-}
-search() {
-    let obj      = this
-    let options  = this.options
-    let search   = $(obj.el).val()
-    let target   = obj.el
-    let ids      = []
-    let selected = $(obj.el).data('selected')
-    if (obj.type === 'enum') {
-        target = $(obj.helpers.multi).find('input')
-        search = target.val()
-        for (let s in selected) { if (selected[s]) ids.push(selected[s].id) }
-    }
-    else if (obj.type === 'list') {
-        target = $(obj.helpers.focus).find('input')
-        search = target.val()
-        for (let s in selected) { if (selected[s]) ids.push(selected[s].id) }
-    }
-    let items = options.items
-    if (obj.tmp.xhr_loading !== true) {
-        let shown = 0
-        for (let i = 0; i < items.length; i++) {
-            let item = items[i]
-            if (options.compare != null) {
-                if (typeof options.compare === 'function') {
-                    item.hidden = (options.compare.call(this, item, search) === false ? true : false)
-                }
-            } else {
-                let prefix = ''
-                let suffix = ''
-                if (['is', 'begins'].indexOf(options.match) !== -1) prefix = '^'
-                if (['is', 'ends'].indexOf(options.match) !== -1) suffix = '$'
-                try {
-                    let re = new RegExp(prefix + search + suffix, 'i')
-                    if (re.test(item.text) || item.text === '...') item.hidden = false; else item.hidden = true
-                } catch (e) {}
-            }
-            if (options.filter === false) item.hidden = false
-            // do not show selected items
-            if (obj.type === 'enum' && $.inArray(item.id, ids) !== -1) item.hidden = true
-            if (item.hidden !== true) { shown++; delete item.hidden }
-        }
-        // preselect first item
-        options.index = []
-        options.spinner = false
-        setTimeout(() => {
-            if (options.markSearch && $('#w2ui-overlay .no-matches').length == 0) { // do not highlight when no items
-                $('#w2ui-overlay').w2marker(search)
-            }
-        }, 1)
-    } else {
-        items.splice(0, options.cacheMax)
-        options.spinner = true
-    }
-    // only update overlay when it is displayed already
-    if ($('#w2ui-overlay').length > 0) {
-        obj.updateOverlay()
-    }
-}
-*/
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: mQuery, w2utils, w2base, w2tooltip, w2color, w2menu
@@ -10248,7 +10233,6 @@ class w2layout extends w2base {
  *  - msgAJAXError -> msgHTTPError
  *  - aded msgServerError
  *  - deleted grid.method
- *  - added grid.prepareParams
  *  - added mouseEnter/mouseLeave
  *  - grid.show.columnReorder -> grid.reorderRows
  *  - updagte docs search.label (not search.text)
@@ -12815,51 +12799,6 @@ class w2grid extends w2base {
             return new Promise(resolve => { resolve() })
         }
     }
-    prepareParams(url, fetchOptions) {
-        let dataType = this.dataType ?? w2utils.settings.dataType
-        let postParams = fetchOptions.body
-        switch (dataType) {
-            case 'HTTPJSON':
-                postParams = { request: postParams }
-                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
-                    fetchOptions.method = 'POST'
-                }
-                body2params()
-                break
-            case 'HTTP':
-                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
-                    fetchOptions.method = 'POST'
-                }
-                body2params()
-                break
-            case 'RESTFULL':
-                if (['PUT', 'DELETE'].includes(fetchOptions.method)) {
-                    fetchOptions.headers['Content-Type'] = 'application/json'
-                } else {
-                    body2params()
-                }
-                break
-            case 'JSON':
-                if (fetchOptions.method == 'GET') {
-                    postParams = { request: postParams }
-                    body2params()
-                } else {
-                    fetchOptions.headers['Content-Type'] = 'application/json'
-                    fetchOptions.method = 'POST'
-                }
-                break
-        }
-        fetchOptions.body = typeof fetchOptions.body == 'string' ? fetchOptions.body : JSON.stringify(fetchOptions.body)
-        return fetchOptions
-        function body2params() {
-            Object.keys(postParams).forEach(key => {
-                let param = postParams[key]
-                if (typeof param == 'object') param = JSON.stringify(param)
-                url.searchParams.append(key, param)
-            })
-            delete fetchOptions.body
-        }
-    }
     request(action, postData, url, callBack) {
         let self = this
         let resolve, reject
@@ -12948,11 +12887,11 @@ class w2grid extends w2base {
         }
         url = new URL(url, location)
         // ajax options
-        let fetchOptions = this.prepareParams(url, {
+        let fetchOptions = w2utils.prepareParams(url, {
             method: edata.detail.httpMethod,
             headers: edata.detail.httpHeaders,
             body: edata.detail.postData
-        })
+        }, this.dataType)
         Object.assign(this.last.fetch, {
             action: action,
             options: fetchOptions,
@@ -13247,8 +13186,8 @@ class w2grid extends w2base {
         let rec = this.records[index]
         let col = this.columns[column]
         let prefix = (col.frozen === true ? '_f' : '_')
-        if (['list', 'enum', 'file'].indexOf(edit.type) != -1) {
-            console.log('ERROR: input types "list", "enum" and "file" are not supported in inline editing.')
+        if (['enum', 'file'].indexOf(edit.type) != -1) {
+            console.log('ERROR: input types "enum" and "file" are not supported in inline editing.')
             return
         }
         // event before
@@ -13472,15 +13411,17 @@ class w2grid extends w2base {
         // save previous value
         if (input) input._prevValue = prevValue
         // focus and select
-        setTimeout(() => {
-            if (!this.last.inEditMode) return
-            if (input) {
-                input.focus()
-                clearTimeout(this.last.kbd_timer) // keep focus
-                input.resize = expand
-                expand(input)
-            }
-        }, 50)
+        if (edit.type != 'list') {
+            setTimeout(() => {
+                if (!this.last.inEditMode) return
+                if (input) {
+                    input.focus()
+                    clearTimeout(this.last.kbd_timer) // keep focus
+                    input.resize = expand
+                    expand(input)
+                }
+            }, 50)
+        }
         // event after
         edata.finish({ input })
         return
@@ -13647,9 +13588,9 @@ class w2grid extends w2base {
                 }),
                 width: 380,
                 height: 170,
-                yes_text: 'Delete',
+                yes_text: w2utils.lang('Delete'),
                 yes_class: 'w2ui-btn-red',
-                no_text: 'Cancel',
+                no_text: w2utils.lang('Cancel'),
             })
                 .yes(event => {
                     event.detail.self.close()
@@ -15072,7 +15013,7 @@ class w2grid extends w2base {
                 }
             }, 50)
         }
-        this.updateToolbar()
+        this.updateToolbar(this.last.selection)
         // event after
         edata.finish()
         this.resize()
@@ -15104,6 +15045,8 @@ class w2grid extends w2base {
                 let display
                 if (Array.isArray(sd.value)) {
                     display = `<span class="grid-search-count">${sd.value.length}</span>`
+                } else if (sf && sf.type == 'list') {
+                    display = !!sd.text && sd.text !== sd.value ? `: ${sd.text}` : `: ${sd.value}`
                 } else {
                     display = `: ${sd.value}`
                 }
@@ -17738,7 +17681,7 @@ class w2grid extends w2base {
         if (this.show.expandColumn) {
             let tmp_img = ''
             if (record.w2ui?.expanded === true) tmp_img = '-'; else tmp_img = '+'
-            if ((record.w2ui?.expanded == 'none' || !Array.isArray(record.w2ui.children) || !record.w2ui.children.length)) tmp_img = '+'
+            if ((record.w2ui?.expanded == 'none' || !Array.isArray(record.w2ui?.children) || !record.w2ui?.children.length)) tmp_img = '+'
             if (record.w2ui?.expanded == 'spinner') tmp_img = '<div class="w2ui-spinner" style="width: 16px; margin: -2px 2px;"></div>'
             rec_html1 +=
                     '<td id="grid_'+ this.name +'_cell_'+ ind +'_expand' + (summary ? '_s' : '') + '" class="w2ui-grid-data w2ui-col-expand">'+
@@ -18502,7 +18445,6 @@ class w2grid extends w2base {
  *  - getValue(..., original) -- return original if any
  *  - added .hideErrors()
  *  - reuqest, save, submit - return promises
- *  - added prepareParams
  *  - this.recid = null if no record needs to be pulled
  *  - remove form.multiplart
  *  - this.method - for saving only
@@ -19327,45 +19269,6 @@ class w2form extends w2base {
         }
         return data
     }
-    prepareParams(url, fetchOptions) {
-        let dataType = this.dataType ?? w2utils.settings.dataType
-        let postParams = fetchOptions.body
-        switch (dataType) {
-            case 'HTTPJSON':
-                postParams = { request: postParams }
-                body2params()
-                break
-            case 'HTTP':
-                body2params()
-                break
-            case 'RESTFULL':
-                if (fetchOptions.method == 'POST') {
-                    fetchOptions.headers['Content-Type'] = 'application/json'
-                } else {
-                    body2params()
-                }
-                break
-            case 'JSON':
-                if (fetchOptions.method == 'GET') {
-                    postParams = { request: postParams }
-                    body2params()
-                } else {
-                    fetchOptions.headers['Content-Type'] = 'application/json'
-                    fetchOptions.method = 'POST'
-                }
-                break
-        }
-        fetchOptions.body = typeof fetchOptions.body == 'string' ? fetchOptions.body : JSON.stringify(fetchOptions.body)
-        return fetchOptions
-        function body2params() {
-            Object.keys(postParams).forEach(key => {
-                let param = postParams[key]
-                if (typeof param == 'object') param = JSON.stringify(param)
-                url.searchParams.append(key, param)
-            })
-            delete fetchOptions.body
-        }
-    }
     request(postData, callBack) { // if (1) param then it is call back if (2) then postData and callBack
         let self = this
         let resolve, reject
@@ -19409,11 +19312,11 @@ class w2form extends w2base {
             }
         }
         url = new URL(url, location)
-        let fetchOptions = this.prepareParams(url, {
+        let fetchOptions = w2utils.prepareParams(url, {
             method: edata.detail.httpMethod,
             headers: edata.detail.httpHeaders,
             body: edata.detail.postData
-        })
+        }, this.dataType)
         this.last.fetchCtrl = new AbortController()
         fetchOptions.signal = this.last.fetchCtrl.signal
         this.last.fetchOptions = fetchOptions
@@ -19537,11 +19440,11 @@ class w2form extends w2base {
             }
         }
         url = new URL(url, location)
-        let fetchOptions = this.prepareParams(url, {
+        let fetchOptions = w2utils.prepareParams(url, {
             method: edata.detail.httpMethod,
             headers: edata.detail.httpHeaders,
             body: edata.detail.postData
-        })
+        }, this.dataType)
         this.last.fetchCtrl = new AbortController()
         fetchOptions.signal = this.last.fetchCtrl.signal
         this.last.fetchOptions = fetchOptions
@@ -20481,10 +20384,6 @@ class w2field extends w2base {
         this.helpers     = {} // object or helper elements
         this.type        = options.type ?? 'text'
         this.options     = w2utils.clone(options)
-        this.onSearch    = options.onSearch ?? null
-        this.onRequest   = options.onRequest ?? null
-        this.onLoad      = options.onLoad ?? null
-        this.onError     = options.onError ?? null
         this.onClick     = options.onClick ?? null
         this.onAdd       = options.onAdd ?? null
         this.onNew       = options.onNew ?? null
@@ -20495,10 +20394,6 @@ class w2field extends w2base {
         this.tmp         = {} // temp object
         // clean up some options
         delete this.options.type
-        delete this.options.onSearch
-        delete this.options.onRequest
-        delete this.options.onLoad
-        delete this.options.onError
         delete this.options.onClick
         delete this.options.onMouseEnter
         delete this.options.onMouseLeave
@@ -20641,7 +20536,7 @@ class w2field extends w2base {
                     recId           : null,   // map retrieved data from url to id, can be string or function
                     recText         : null,   // map retrieved data from url to text, can be string or function
                     method          : null,   // default httpMethod
-                    interval        : 350,    // number of ms to wait before sending server call on search
+                    debounce        : 250,    // number of ms to wait before sending server call on search
                     postData        : {},
                     minLength       : 1,      // min number of chars when trigger search
                     cacheMax        : 250,
@@ -20706,7 +20601,7 @@ class w2field extends w2base {
                     url             : null,  // not implemented
                     recId           : null,  // map retrieved data from url to id, can be string or function
                     recText         : null,  // map retrieved data from url to text, can be string or function
-                    interval        : 350,   // number of ms to wait before sending server call on search
+                    debounce        : 250,   // number of ms to wait before sending server call on search
                     method          : null,  // default httpMethod
                     postData        : {},
                     minLength       : 1,     // min number of chars when trigger search
@@ -21535,10 +21430,7 @@ class w2field extends w2base {
                     this.refresh()
                     break
                 default: {
-                    // let overlay = w2menu.get(this.el.id + '_menu')
-                    // if (!overlay && !overlay?.displayed) {
-                    //     this.updateOverlay()
-                    // }
+                    // intentionally blank
                 }
             }
         }
@@ -21557,13 +21449,10 @@ class w2field extends w2base {
                     w2menu.hide(this.el.id + '_menu')
                     this.refresh()
                 }, 1)
-            } else {
-                // tab, shift+tab, esc, delete, backspace
-                if ([8, 9, 16, 27, 46].includes(event.keyCode)) {
-                    w2menu.hide(this.el.id + '_menu')
-                } else {
-                    this.updateOverlay()
-                }
+            }
+            // if arrows are clicked, it will show overlay
+            if ([38, 40].includes(event.keyCode) && !this.tmp.overlay.overlay.displayed) {
+                this.updateOverlay()
             }
             this.refresh()
         }
@@ -21577,11 +21466,23 @@ class w2field extends w2base {
                 `font-family: ${styles['font-family']}; font-size: ${styles['font-size']};`)
             search.css({ width: (width + 15) + 'px' })
             this.resize()
+            // if arrows are clicked, it will show overlay
+            if ([38, 40].includes(event.keyCode) && !this.tmp.overlay?.overlay?.displayed) {
+                this.updateOverlay()
+            }
         }
     }
     findItemIndex(items, id, parents) {
         let inds = []
         if (!parents) parents = []
+        if (['list', 'combo', 'enum'].includes(this.type) && this.options.url) {
+            // remove source, so get it from overlay
+            let overlay = w2menu.get(this.el.id + '_menu')
+            if (overlay) {
+                items = overlay.options.items
+                this.options.items = items
+            }
+        }
         items.forEach((item, ind) => {
             if (item.id === id) {
                 inds = parents.concat([ind])
@@ -21637,38 +21538,6 @@ class w2field extends w2base {
                 input = this.helpers.search_focus
             }
             if (query(this.el).hasClass('has-focus') && !this.el.readOnly && !this.el.disabled) {
-                let msgNoItems = w2utils.lang(options.msgNoItems)
-                if (options.url != null && String(query(input).val()).length < options.minLength && this.tmp.emptySet !== true) {
-                    msgNoItems = w2utils.lang('${count} letters or more...', { count: options.minLength })
-                }
-                if (options.url != null && query(input).val() === '' && this.tmp.emptySet !== true) {
-                    msgNoItems = w2utils.lang(options.msgSearch)
-                }
-                // TODO: remote url
-                // if (options.url == null && options.items.length === 0) msgNoItems = w2utils.lang('Empty list')
-                // if (options.msgNoItems != null) {
-                //     let eventData = {
-                //         search: query(input).val(),
-                //         options: w2utils.clone(options)
-                //     }
-                //     if (options.url) {
-                //         eventData.remote = {
-                //             url: options.url,
-                //             empty: this.tmp.emptySet ? true : false,
-                //             error: this.tmp.lastError,
-                //             minLength: options.minLength
-                //         }
-                //     }
-                //     msgNoItems = (typeof options.msgNoItems === 'function'
-                //         ? options.msgNoItems(eventData)
-                //         : options.msgNoItems)
-                // }
-                // if (this.tmp.lastError) {
-                //     msgNoItems = this.tmp.lastError
-                // }
-                // if (msgNoItems) {
-                //     msgNoItems = '<div class="no-matches" style="white-space: normal; line-height: 1.3">' + msgNoItems + '</div>'
-                // }
                 params = w2utils.extend({}, options, {
                     name: this.el.id + '_menu',
                     anchor: input,
@@ -21679,8 +21548,7 @@ class w2field extends w2base {
                     offsetY: 5,
                     maxHeight: options.maxDropHeight, // TODO: check
                     maxWidth: options.maxDropWidth,  // TODO: check
-                    minWidth: options.minDropWidth,  // TODO: check
-                    msgNoItems: msgNoItems,
+                    minWidth: options.minDropWidth   // TODO: check
                 })
                 this.tmp.overlay = w2menu.show(params)
                     .select(event => {

@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (12/24/2022, 8:38:11 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/18/2023, 7:05:14 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -2649,7 +2649,6 @@ textarea.w2ui-error {
   padding: 3.5px 2px 2px 2px !important;
 }
 .w2ui-grid .w2ui-editable input {
-  position: relative;
   top: -1px;
   border: 0 !important;
   border-radius: 0 !important;
@@ -2679,10 +2678,6 @@ textarea.w2ui-error {
   -ms-user-select: text;
   -o-user-select: text;
   user-select: text;
-}
-.w2ui-grid .w2ui-editable input.w2ui-select {
-  outline: none !important;
-  background: #fff;
 }
 .w2ui-grid .w2ui-grid-summary {
   position: absolute;
