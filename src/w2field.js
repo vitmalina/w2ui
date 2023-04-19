@@ -53,10 +53,6 @@ class w2field extends w2base {
         this.helpers     = {} // object or helper elements
         this.type        = options.type ?? 'text'
         this.options     = w2utils.clone(options)
-        this.onSearch    = options.onSearch ?? null
-        this.onRequest   = options.onRequest ?? null
-        this.onLoad      = options.onLoad ?? null
-        this.onError     = options.onError ?? null
         this.onClick     = options.onClick ?? null
         this.onAdd       = options.onAdd ?? null
         this.onNew       = options.onNew ?? null
@@ -67,10 +63,6 @@ class w2field extends w2base {
         this.tmp         = {} // temp object
         // clean up some options
         delete this.options.type
-        delete this.options.onSearch
-        delete this.options.onRequest
-        delete this.options.onLoad
-        delete this.options.onError
         delete this.options.onClick
         delete this.options.onMouseEnter
         delete this.options.onMouseLeave
@@ -223,7 +215,7 @@ class w2field extends w2base {
                     recId           : null,   // map retrieved data from url to id, can be string or function
                     recText         : null,   // map retrieved data from url to text, can be string or function
                     method          : null,   // default httpMethod
-                    interval        : 350,    // number of ms to wait before sending server call on search
+                    debounce        : 250,    // number of ms to wait before sending server call on search
                     postData        : {},
                     minLength       : 1,      // min number of chars when trigger search
                     cacheMax        : 250,
@@ -289,7 +281,7 @@ class w2field extends w2base {
                     url             : null,  // not implemented
                     recId           : null,  // map retrieved data from url to id, can be string or function
                     recText         : null,  // map retrieved data from url to text, can be string or function
-                    interval        : 350,   // number of ms to wait before sending server call on search
+                    debounce        : 250,   // number of ms to wait before sending server call on search
                     method          : null,  // default httpMethod
                     postData        : {},
                     minLength       : 1,     // min number of chars when trigger search
@@ -1140,10 +1132,7 @@ class w2field extends w2base {
                     this.refresh()
                     break
                 default: {
-                    // let overlay = w2menu.get(this.el.id + '_menu')
-                    // if (!overlay && !overlay?.displayed) {
-                    //     this.updateOverlay()
-                    // }
+                    // intentionally blank
                 }
             }
         }
@@ -1163,13 +1152,10 @@ class w2field extends w2base {
                     w2menu.hide(this.el.id + '_menu')
                     this.refresh()
                 }, 1)
-            } else {
-                // tab, shift+tab, esc, delete, backspace
-                if ([8, 9, 16, 27, 46].includes(event.keyCode)) {
-                    w2menu.hide(this.el.id + '_menu')
-                } else {
-                    this.updateOverlay()
-                }
+            }
+            // if arrows are clicked, it will show overlay
+            if ([38, 40].includes(event.keyCode) && !this.tmp.overlay.overlay.displayed) {
+                this.updateOverlay()
             }
             this.refresh()
         }
@@ -1183,12 +1169,24 @@ class w2field extends w2base {
                 `font-family: ${styles['font-family']}; font-size: ${styles['font-size']};`)
             search.css({ width: (width + 15) + 'px' })
             this.resize()
+            // if arrows are clicked, it will show overlay
+            if ([38, 40].includes(event.keyCode) && !this.tmp.overlay?.overlay?.displayed) {
+                this.updateOverlay()
+            }
         }
     }
 
     findItemIndex(items, id, parents) {
         let inds = []
         if (!parents) parents = []
+        if (['list', 'combo', 'enum'].includes(this.type) && this.options.url) {
+            // remove source, so get it from overlay
+            let overlay = w2menu.get(this.el.id + '_menu')
+            if (overlay) {
+                items = overlay.options.items
+                this.options.items = items
+            }
+        }
         items.forEach((item, ind) => {
             if (item.id === id) {
                 inds = parents.concat([ind])
@@ -1245,39 +1243,6 @@ class w2field extends w2base {
                 input = this.helpers.search_focus
             }
             if (query(this.el).hasClass('has-focus') && !this.el.readOnly && !this.el.disabled) {
-                let msgNoItems = w2utils.lang(options.msgNoItems)
-                if (options.url != null && String(query(input).val()).length < options.minLength && this.tmp.emptySet !== true) {
-                    msgNoItems = w2utils.lang('${count} letters or more...', { count: options.minLength })
-                }
-                if (options.url != null && query(input).val() === '' && this.tmp.emptySet !== true) {
-                    msgNoItems = w2utils.lang(options.msgSearch)
-                }
-                // TODO: remote url
-                // if (options.url == null && options.items.length === 0) msgNoItems = w2utils.lang('Empty list')
-                // if (options.msgNoItems != null) {
-                //     let eventData = {
-                //         search: query(input).val(),
-                //         options: w2utils.clone(options)
-                //     }
-                //     if (options.url) {
-                //         eventData.remote = {
-                //             url: options.url,
-                //             empty: this.tmp.emptySet ? true : false,
-                //             error: this.tmp.lastError,
-                //             minLength: options.minLength
-                //         }
-                //     }
-                //     msgNoItems = (typeof options.msgNoItems === 'function'
-                //         ? options.msgNoItems(eventData)
-                //         : options.msgNoItems)
-                // }
-                // if (this.tmp.lastError) {
-                //     msgNoItems = this.tmp.lastError
-                // }
-                // if (msgNoItems) {
-                //     msgNoItems = '<div class="no-matches" style="white-space: normal; line-height: 1.3">' + msgNoItems + '</div>'
-                // }
-
                 params = w2utils.extend({}, options, {
                     name: this.el.id + '_menu',
                     anchor: input,
@@ -1288,8 +1253,7 @@ class w2field extends w2base {
                     offsetY: 5,
                     maxHeight: options.maxDropHeight, // TODO: check
                     maxWidth: options.maxDropWidth,  // TODO: check
-                    minWidth: options.minDropWidth,  // TODO: check
-                    msgNoItems: msgNoItems,
+                    minWidth: options.minDropWidth   // TODO: check
                 })
                 this.tmp.overlay = w2menu.show(params)
                     .select(event => {

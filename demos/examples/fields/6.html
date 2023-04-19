@@ -36,11 +36,12 @@ import { w2field, query } from '__W2UI_PATH__'
 new w2field('list', {
     el: query('#list')[0],
     url: 'data/enum.json',
+    minLength: 0,
     onRequest(event) {
-        console.log(`Request: ${event.url} Search: ${event.search}`)
+        console.log(`Request: ${event.detail.url} Search: ${event.detail.search}`)
     },
     onLoad(event) {
-        console.log('Response:', event.data)
+        console.log('Response:', event.detail.data)
     }
 })
 
@@ -48,10 +49,10 @@ new w2field('enum', {
     el: query('#enum')[0],
     url: 'data/enum.json',
     onRequest(event) {
-        console.log(`Request: ${event.url} Search: ${event.search}`)
+        console.log(`Request: ${event.detail.url} Search: ${event.detail.search}`)
     },
     onLoad(event) {
-        console.log('Response:', event.data)
+        console.log('Response:', event.detail.data)
     }
 })
 </script>
