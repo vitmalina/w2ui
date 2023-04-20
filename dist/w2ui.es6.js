@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/18/2023, 7:05:14 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (4/20/2023, 8:03:53 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -5551,7 +5551,12 @@ class MenuTooltip extends Tooltip {
                             return
                         }
                         // remove all extra items if more then needed for cache
-                        if (data.records.length > options.cacheMax) data.records.splice(options.cacheMax, 100000)
+                        if (data.records.length >= options.cacheMax) {
+                            data.records.splice(options.cacheMax, data.records.length)
+                            remote.hasMore = true
+                        } else {
+                            remote.hasMore = false
+                        }
                         // map id and text
                         if (options.recId == null && options.recid != null) options.recId = options.recid // since lower-case recid is used in grid
                         if (options.recId || options.recText) {
