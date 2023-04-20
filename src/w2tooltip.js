@@ -1756,7 +1756,12 @@ class MenuTooltip extends Tooltip {
                             return
                         }
                         // remove all extra items if more then needed for cache
-                        if (data.records.length > options.cacheMax) data.records.splice(options.cacheMax, 100000)
+                        if (data.records.length >= options.cacheMax) {
+                            data.records.splice(options.cacheMax, data.records.length)
+                            remote.hasMore = true
+                        } else {
+                            remote.hasMore = false
+                        }
                         // map id and text
                         if (options.recId == null && options.recid != null) options.recId = options.recid // since lower-case recid is used in grid
                         if (options.recId || options.recText) {
