@@ -4340,7 +4340,7 @@ class w2grid extends w2base {
             })
             .select((event) => {
                 clearTimeout(this.last.kbd_timer) // keep grid in focus
-                this.contextMenuClick(recid, event)
+                this.contextMenuClick(recid, column, event)
             })
             clearTimeout(this.last.kbd_timer) // keep grid in focus
         }
@@ -4350,9 +4350,10 @@ class w2grid extends w2base {
         edata.finish()
     }
 
-    contextMenuClick(recid, event) {
+    contextMenuClick(recid, column, event) {
         // event before
-        let edata = this.trigger('contextMenuClick', { target: this.name, recid, originalEvent: event.detail.originalEvent,
+        let edata = this.trigger('contextMenuClick', {
+            target: this.name, recid, column, originalEvent: event.detail.originalEvent,
             menuEvent: event, menuIndex: event.detail.index, menuItem: event.detail.item
         })
         if (edata.isCancelled === true) return
