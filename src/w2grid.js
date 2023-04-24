@@ -7281,7 +7281,7 @@ class w2grid extends w2base {
         w2tooltip.show({
             name: this.name + '-column-tooltip',
             anchor: $el.get(0),
-            html: item.tooltip,
+            html: item?.tooltip,
             position: pos,
         })
     }
