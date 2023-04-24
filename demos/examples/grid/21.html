@@ -63,13 +63,13 @@ let grid = new w2grid({
         { field: 'time', text: 'time', size: '70px', sortable: true, resizable: true,
             editable: { type: 'time' }
         },
-        { field: 'list', text: 'list', size: '100px', sortable: true, resizable: true, hidden1: true,
+        { field: 'list', text: 'list', size: '100px', sortable: true, resizable: true,
             editable: { type: 'list', items: people, showAll: true, openOnFocus: true, align: 'left' },
-            render: function (record, extra) {
+            render(record, extra) {
                 return extra.value?.text || '';
             }
         },
-        { field: 'combo', text: 'combo', size: '150px', sortable: true, resizable: true, hidden1: true,
+        { field: 'combo', text: 'combo', size: '150px', sortable: true, resizable: true,
             editable: { type: 'combo', items: people, filter: true }
         },
         { field: 'div', text: 'div', size: '50%', sortable: true, resizable: true,
