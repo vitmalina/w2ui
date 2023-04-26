@@ -1,0 +1,54 @@
+Called when user right clicks on the column.
+
+<div class="definition">
+    columnContextMenu(field, [event])
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>field</td>
+        <td><b>string</b>, column field name</td>
+    </tr>
+    <tr>
+        <td>event</td>
+        <td><b>object</b>, <i>optional</i>, DOM Event Object</td>
+    </tr>
+    </table>
+</div>
+Returns <i>undefined</i>.
+
+<h4>Description</h4>
+
+This method is called when user right clicks on the column. The method emits the
+<a class="method" href="w2grid.onColumnContextMenu">.onColumnContextMenu</a> event and by default open a menu with predefined items.
+
+<div style="height: 10px"></div>
+
+If you have grid defined in the following way:
+<textarea class="javascript">
+let grid = new w2grid({
+    name : 'grid',
+    columns: [
+        { field: 'recid', text: 'ID', size: '50px' },
+        { field: 'lname', text: 'Last Name', size: '30%' },
+        { field: 'fname', text: 'First Name', size: '30%' },
+        { field: 'email', text: 'Email', size: '40%' },
+        { field: 'sdate', text: 'Start Date', size: '120px' },
+        { field: 'sdate', text: 'End Date', size: '120px' }
+    ],
+    records: [
+        { recid: 1, fname: 'John', lname: 'doe', email: 'vitali@gmail.com', sdate: '1/3/2012' },
+        { recid: 2, fname: 'Stuart', lname: 'Motzart', email: 'jdoe@gmail.com', sdate: '2/4/2012' },
+        { recid: 3, fname: 'Jin', lname: 'Franson', email: '--', sdate: '4/23/2012' },
+        { recid: 4, fname: 'Susan', lname: 'Ottie', email: 'jdoe@gmail.com', sdate: '5/3/2012' },
+        { recid: 5, fname: 'Kelly', lname: 'Silver', email: 'jdoe@gmail.com', sdate: '4/3/2012' },
+        { recid: 6, fname: 'Francis', lname: 'Gatos', email: 'vitali@gmail.com', sdate: '2/5/2012' }
+    ]
+});
+</textarea>
+
+You can emulate click on the column by:
+<textarea class="javascript">
+w2ui.grid.columnContextMenu('fname');
+</textarea>

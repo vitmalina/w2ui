@@ -3734,7 +3734,7 @@ class w2grid extends w2base {
         edata.finish()
     }
 
-    conlumnContextMenu(field, event) {
+    columnContextMenu(field, event) {
         let edata = this.trigger('columnContextMenu', {target: this.name, field: field, originalEvent: event })
         if (edata.isCancelled === true) return
         if (this.show.columnMenu) {
