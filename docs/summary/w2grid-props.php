@@ -57,13 +57,6 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2grid.contextMenuClick">contextMenuClick</a> <span>- menuClick(recid, event)</span>
-</div>
-<div class="obj-property-desc">
-    Called when user clicks on a context menu item.
-</div>
-
-<div class="obj-property">
     <a href="w2grid.dataType">dataType</a> <span>- String, default = null</span>
 </div>
 <div class="obj-property-desc">

@@ -71,6 +71,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.columnContextMenu">columnContextMenu</a> <span>- columnContextMenu(field, [event])</span>
+</div>
+<div class="obj-property-desc">
+    Called when user right clicks on the column.
+</div>
+
+<div class="obj-property">
     <a href="w2grid.columnDblClick">columnDblClick</a> <span>- columnDblClick(field, [event])</span>
 </div>
 <div class="obj-property-desc">
@@ -103,6 +110,13 @@
 </div>
 <div class="obj-property-desc">
     Shows a context confirmation dialog for the grid
+</div>
+
+<div class="obj-property">
+    <a href="w2grid.contextMenuClick">contextMenuClick</a> <span>- contextMenuClick(recid, column, event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when user clicks on a context menu item.
 </div>
 
 <div class="obj-property">
