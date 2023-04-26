@@ -12,8 +12,10 @@ npm pack
 2. Install package into target project
 ```
 cd ../..
-mkdir test
-npm install ../w2ui/dist/w2ui-1.5.0.tgz
+sudo mkdir test
+sudo chmod 0777 test
+cd test
+npm install ../w2ui/dist/w2ui-2.0.0.tgz
 ```
 
 Make sure all files are correct
