@@ -50,6 +50,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2grid.onColumnContextMenu">onColumnContextMenu</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when user right clicks a column.
+</div>
+
+<div class="obj-property">
     <a href="w2grid.onColumnDblClick">onColumnDblClick</a> <span>- function (event)</span>
 </div>
 <div class="obj-property-desc">
