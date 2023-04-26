@@ -331,55 +331,56 @@ class w2grid extends w2base {
         }
 
         // events
-        this.onAdd              = null
-        this.onEdit             = null
-        this.onRequest          = null // called on any server event
-        this.onLoad             = null
-        this.onDelete           = null
-        this.onSave             = null
-        this.onSelect           = null
-        this.onClick            = null
-        this.onDblClick         = null
-        this.onContextMenu      = null
-        this.onContextMenuClick = null // when context menu item selected
-        this.onColumnClick      = null
-        this.onColumnDblClick   = null
-        this.onColumnResize     = null
-        this.onColumnAutoResize = null
-        this.onSort             = null
-        this.onSearch           = null
-        this.onSearchOpen       = null
-        this.onChange           = null // called when editable record is changed
-        this.onRestore          = null // called when editable record is restored
-        this.onExpand           = null
-        this.onCollapse         = null
-        this.onError            = null
-        this.onKeydown          = null
-        this.onToolbar          = null // all events from toolbar
-        this.onColumnOnOff      = null
-        this.onCopy             = null
-        this.onPaste            = null
-        this.onSelectionExtend  = null
-        this.onEditField        = null
-        this.onRender           = null
-        this.onRefresh          = null
-        this.onReload           = null
-        this.onResize           = null
-        this.onDestroy          = null
-        this.onStateSave        = null
-        this.onStateRestore     = null
-        this.onFocus            = null
-        this.onBlur             = null
-        this.onReorderRow       = null
-        this.onSearchSave       = null
-        this.onSearchRemove     = null
-        this.onSearchSelect     = null
-        this.onColumnSelect     = null
-        this.onColumnDragStart  = null
-        this.onColumnDragEnd    = null
-        this.onResizerDblClick  = null
-        this.onMouseEnter       = null // mouse enter over record event
-        this.onMouseLeave       = null
+        this.onAdd               = null
+        this.onEdit              = null
+        this.onRequest           = null // called on any server event
+        this.onLoad              = null
+        this.onDelete            = null
+        this.onSave              = null
+        this.onSelect            = null
+        this.onClick             = null
+        this.onDblClick          = null
+        this.onContextMenu       = null
+        this.onContextMenuClick  = null // when context menu item selected
+        this.onColumnClick       = null
+        this.onColumnDblClick    = null
+        this.onColumnContextMenu = null
+        this.onColumnResize      = null
+        this.onColumnAutoResize  = null
+        this.onSort              = null
+        this.onSearch            = null
+        this.onSearchOpen        = null
+        this.onChange            = null // called when editable record is changed
+        this.onRestore           = null // called when editable record is restored
+        this.onExpand            = null
+        this.onCollapse          = null
+        this.onError             = null
+        this.onKeydown           = null
+        this.onToolbar           = null // all events from toolbar
+        this.onColumnOnOff       = null
+        this.onCopy              = null
+        this.onPaste             = null
+        this.onSelectionExtend   = null
+        this.onEditField         = null
+        this.onRender            = null
+        this.onRefresh           = null
+        this.onReload            = null
+        this.onResize            = null
+        this.onDestroy           = null
+        this.onStateSave         = null
+        this.onStateRestore      = null
+        this.onFocus             = null
+        this.onBlur              = null
+        this.onReorderRow        = null
+        this.onSearchSave        = null
+        this.onSearchRemove      = null
+        this.onSearchSelect      = null
+        this.onColumnSelect      = null
+        this.onColumnDragStart   = null
+        this.onColumnDragEnd     = null
+        this.onResizerDblClick   = null
+        this.onMouseEnter        = null // mouse enter over record event
+        this.onMouseLeave        = null
 
         // need deep merge, should be extend, not objectAssign
         w2utils.extend(this, options)
@@ -3733,6 +3734,46 @@ class w2grid extends w2base {
         edata.finish()
     }
 
+    conlumnContextMenu(field, event) {
+        let edata = this.trigger('columnContextMenu', {target: this.name, field: field, originalEvent: event })
+        if (edata.isCancelled === true) return
+        if (this.show.columnMenu) {
+            w2menu.show({
+                type: 'check',
+                anchor: document.body,
+                originalEvent: event,
+                items: this.initColumnOnOff()
+            })
+            .then(() => {
+                query('#w2overlay-context-menu .w2ui-grid-skip')
+                    .off('.w2ui-grid')
+                    .on('click.w2ui-grid', evt => {
+                        evt.stopPropagation()
+                    })
+                    .on('keypress', evt => {
+                        if (evt.keyCode == 13) {
+                            this.skip(evt.target.value)
+                            this.toolbar.click('w2ui-column-on-off') // close menu
+                        }
+                    })
+            })
+            .select((event) => {
+                let id = event.detail.item.id
+                if (['w2ui-stateSave', 'w2ui-stateReset'].includes(id)) {
+                    this[id.substring(5)]()
+                } else if (id == 'w2ui-skip') {
+                    // empty
+                } else {
+                    this.columnOnOff(event, event.detail.item.id)
+                }
+                clearTimeout(this.last.kbd_timer) // keep grid in focus
+            })
+            clearTimeout(this.last.kbd_timer) // keep grid in focus
+        }
+        event.preventDefault()
+        edata.finish()
+    }
+
     focus(event) {
         // event before
         let edata = this.trigger('focus', { target: this.name, originalEvent: event })
@@ -5234,41 +5275,9 @@ class w2grid extends w2base {
                         this.columnDblClick(col.field, event)
                         break
                     case 'contextmenu':
-                        if (this.show.columnMenu) {
-                            w2menu.show({
-                                type: 'check',
-                                anchor: document.body,
-                                originalEvent: event,
-                                items: this.initColumnOnOff()
-                            })
-                            .then(() => {
-                                query('#w2overlay-context-menu .w2ui-grid-skip')
-                                    .off('.w2ui-grid')
-                                    .on('click.w2ui-grid', evt => {
-                                        evt.stopPropagation()
-                                    })
-                                    .on('keypress', evt => {
-                                        if (evt.keyCode == 13) {
-                                            this.skip(evt.target.value)
-                                            this.toolbar.click('w2ui-column-on-off') // close menu
-                                        }
-                                    })
-                            })
-                            .select((event) => {
-                                let id = event.detail.item.id
-                                if (['w2ui-stateSave', 'w2ui-stateReset'].includes(id)) {
-                                    this[id.substring(5)]()
-                                } else if (id == 'w2ui-skip') {
-                                    // empty
-                                } else {
-                                    this.columnOnOff(event, event.detail.item.id)
-                                }
-                                clearTimeout(this.last.kbd_timer) // keep grid in focus
-                            })
-                            clearTimeout(this.last.kbd_timer) // keep grid in focus
-                        }
-                        event.preventDefault()
+                        this.columnContextMenu(col.field, event)
                         break
+
                 }
             })
             .on('mouseover.body-global', { delegate: '.w2ui-col-header' }, event => {
