@@ -993,7 +993,12 @@ class ColorTooltip extends Tooltip {
         setColor(hsv, true, true)
 
         // even for rgb, hsv inputs
-        query(overlay.box).find('input')
+        query(overlay.box)
+            .off('.w2color')
+            .on('contextmenu.w2color', event => {
+                event.preventDefault() // prevent browser context menu
+            })
+            .find('input')
             .off('.w2color')
             .on('change.w2color', (event) => {
                 let el = query(event.target)
@@ -1307,6 +1312,9 @@ class MenuTooltip extends Tooltip {
     initControls(overlay) {
         query(overlay.box).find('.w2ui-menu:not(.w2ui-sub-menu)')
             .off('.w2menu')
+            .on('contextmenu.w2menu', event => {
+                event.preventDefault() // prevent browser context menu
+            })
             .on('mouseDown.w2menu', { delegate: '.w2ui-menu-item' }, event => {
                 let dt = event.delegate.dataset
                 this.menuDown(overlay, event, dt.index, dt.parents)
@@ -2252,7 +2260,8 @@ class DateTooltip extends Tooltip {
         }
 
         // events for next/prev buttons and title
-        query(overlay.box).find('.w2ui-cal-title')
+        query(overlay.box)
+            .find('.w2ui-cal-title')
             .off('.calendar')
             // click on title
             .on('click.calendar', event => {
@@ -2307,6 +2316,9 @@ class DateTooltip extends Tooltip {
         // events for dates
         query(overlay.box)
             .off('.calendar')
+            .on('contextmenu.calendar', event => {
+                event.preventDefault() // prevent browser context menu
+            })
             .on('click.calendar', { delegate: '.w2ui-day.w2ui-date' }, event => {
                 if (options.type == 'datetime') {
                     overlay.newDate = query(event.target).attr('date')
