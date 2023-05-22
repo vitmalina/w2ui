@@ -862,12 +862,12 @@ class w2sidebar extends w2base {
             })
         query(this.box).off('mousedown')
             .on('mousedown', function(event) {
-                // set focus to grid
+                // set focus to sidebar
                 setTimeout(() => {
                     // if input then do not focus
                     if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName.toUpperCase()) == -1) {
                         let $input = query(obj.box).find('#sidebar_'+ obj.name + '_focus')
-                        if (document.activeElement != $input.get(0)) {
+                        if (document.activeElement != $input.get(0) && $input.length > 0) {
                             $input.get(0).focus()
                         }
                     }
