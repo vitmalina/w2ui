@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/26/2023, 11:04:17 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/22/2023, 2:38:44 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -4810,7 +4810,12 @@ class ColorTooltip extends Tooltip {
         }
         setColor(hsv, true, true)
         // even for rgb, hsv inputs
-        query(overlay.box).find('input')
+        query(overlay.box)
+            .off('.w2color')
+            .on('contextmenu.w2color', event => {
+                event.preventDefault() // prevent browser context menu
+            })
+            .find('input')
             .off('.w2color')
             .on('change.w2color', (event) => {
                 let el = query(event.target)
@@ -5110,6 +5115,9 @@ class MenuTooltip extends Tooltip {
     initControls(overlay) {
         query(overlay.box).find('.w2ui-menu:not(.w2ui-sub-menu)')
             .off('.w2menu')
+            .on('contextmenu.w2menu', event => {
+                event.preventDefault() // prevent browser context menu
+            })
             .on('mouseDown.w2menu', { delegate: '.w2ui-menu-item' }, event => {
                 let dt = event.delegate.dataset
                 this.menuDown(overlay, event, dt.index, dt.parents)
@@ -6037,7 +6045,8 @@ class DateTooltip extends Tooltip {
             }
         }
         // events for next/prev buttons and title
-        query(overlay.box).find('.w2ui-cal-title')
+        query(overlay.box)
+            .find('.w2ui-cal-title')
             .off('.calendar')
             // click on title
             .on('click.calendar', event => {
@@ -6092,6 +6101,9 @@ class DateTooltip extends Tooltip {
         // events for dates
         query(overlay.box)
             .off('.calendar')
+            .on('contextmenu.calendar', event => {
+                event.preventDefault() // prevent browser context menu
+            })
             .on('click.calendar', { delegate: '.w2ui-day.w2ui-date' }, event => {
                 if (options.type == 'datetime') {
                     overlay.newDate = query(event.target).attr('date')
@@ -8101,12 +8113,12 @@ class w2sidebar extends w2base {
             })
         query(this.box).off('mousedown')
             .on('mousedown', function(event) {
-                // set focus to grid
+                // set focus to sidebar
                 setTimeout(() => {
                     // if input then do not focus
                     if (['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName.toUpperCase()) == -1) {
                         let $input = query(obj.box).find('#sidebar_'+ obj.name + '_focus')
-                        if (document.activeElement != $input.get(0)) {
+                        if (document.activeElement != $input.get(0) && $input.length > 0) {
                             $input.get(0).focus()
                         }
                     }
