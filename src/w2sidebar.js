@@ -12,8 +12,12 @@
  *  - deprecarted obj.img, node.img
  *  - CSP - fixed inline events
  *  - observeResize for the box
- *  - handleTooltip and handle.tooltip - text/function
+ *  - updated handle
+ *  - this.handle = { text, tooltip, width, style }, both text and tooltip can be functions
+ *  - this.count = { text, tooltip }, both can be functions
+ *  - node count: { text: 5, tooltip: 'seeee' }, both can be functions
  *  - added onMouseEntter, onMouseLeave events
+ * -  added otherTooltip
  */
 
 import { w2base } from './w2base.js'
@@ -43,7 +47,7 @@ class w2sidebar extends w2base {
         this.levelPadding  = 12
         this.skipRefresh   = false
         this.tabIndex      = null // will only be set if > 0 and not null
-        this.handle        = { size: 0, style: '', html: '', tooltip: '' },
+        this.handle        = { width: 0, style: '', text: '', tooltip: '' },
         this.onClick       = null // Fire when user click on Node Text
         this.onDblClick    = null // Fire when user dbl clicks
         this.onMouseEnter  = null // mouse enter/leave over an item
@@ -949,6 +953,7 @@ class w2sidebar extends w2base {
     refresh(id, noBinding) {
         if (this.box == null) return
         let time = Date.now()
+        let self = this
         // event before
         let edata = this.trigger('refresh', {
             target: (id != null ? id : this.name),
@@ -1061,7 +1066,7 @@ class w2sidebar extends w2base {
             }
             if (Array.isArray(nd.nodes) && nd.nodes.length > 0) nd.collapsible = true
             if (nd.group) {
-                let text = w2utils.lang(typeof nd.text == 'function' ? nd.text.call(obj, nd) : nd.text)
+                let text = w2utils.lang(typeof nd.text == 'function' ? nd.text.call(obj, nd, level) : nd.text)
                 if (String(text).substr(0, 5) != '<span') {
                     text = `<span class="w2ui-group-text">${text}</span>`
                 }
@@ -1086,25 +1091,35 @@ class w2sidebar extends w2base {
                 }
             } else {
                 if (nd.selected && !nd.disabled) obj.selected = nd.id
-                tmp = ''
+                // icon or image
+                let image = ''
                 if (icon) {
-                    tmp = `
+                    image = `
                     <div class="w2ui-node-image">
-                        <span class="${typeof icon == 'function' ? icon.call(obj, nd) : icon}"></span>
+                        <span class="${typeof icon == 'function' ? icon.call(obj, nd, level) : icon}"></span>
                     </div>`
                 }
                 let expand = ''
-                let counts = (nd.count != null
-                    ? `<div class="w2ui-node-count ${obj.last.badge[nd.id] ? obj.last.badge[nd.id].className || '' : ''}"
-                            style="${obj.last.badge[nd.id] ? obj.last.badge[nd.id].style || '' : ''}">
-                                ${nd.count}
-                       </div>`
-                    : '')
+                let counts = ''
+                if (self.count != null || nd.count != null) {
+                    let txt = nd.count?.text ?? nd.count ?? self.count.text
+                    let last = obj.last.badge[nd.id]
+                    if (typeof txt == 'function') txt = txt.call(self, node, level)
+                    if (txt) {
+                        counts = `
+                            <div class="w2ui-node-count w2ui-eaction ${last?.className ?? ''}" style="${last?.style ?? ''}"
+                                data-mouseEnter="mouseAction|Enter|this|${nd.id}|event|count"
+                                data-mouseLeave="mouseAction|Leave|this|${nd.id}|event|count"
+                            >
+                                ${txt}
+                            </div>`
+                    }
+                }
                 if (nd.collapsible === true) {
                     expand = `<div class="w2ui-${nd.expanded ? 'expanded' : 'collapsed'}"><span></span></div>`
                 }
 
-                let text = w2utils.lang(typeof nd.text == 'function' ? nd.text.call(obj, nd) : nd.text)
+                let text = w2utils.lang(typeof nd.text == 'function' ? nd.text.call(obj, nd, level) : nd.text)
                 // array with classes
                 let classes = ['w2ui-node', `w2ui-level-${level}`, 'w2ui-eaction']
                 if (nd.selected) classes.push('w2ui-selected')
@@ -1119,18 +1134,18 @@ class w2sidebar extends w2base {
                         data-mouseEnter="mouseAction|Enter|this|${nd.id}|event"
                         data-mouseLeave="mouseAction|Leave|this|${nd.id}|event"
                     >
-                        ${obj.handle.html
-                            ? `<div class="w2ui-node-handle w2ui-eaction" style="width: ${obj.handle.size}px; ${obj.handle.style}"
+                        ${obj.handle.text
+                            ? `<div class="w2ui-node-handle w2ui-eaction" style="width: ${obj.handle.width}px; ${obj.handle.style}"
                                     data-mouseEnter="mouseAction|Enter|this|${nd.id}|event|handle"
                                     data-mouseLeave="mouseAction|Leave|this|${nd.id}|event|handle"
                                 >
-                                   ${typeof obj.handle.html == 'function' ? obj.handle.html.call(obj, nd) : obj.handle.html}
+                                   ${typeof obj.handle.text == 'function' ? obj.handle.text.call(obj, nd, level) ?? '' : obj.handle.text}
                               </div>`
                             : ''
                         }
-                      <div class="w2ui-node-data" style="margin-left: ${level * obj.levelPadding + obj.handle.size}px">
-                            ${expand} ${tmp} ${counts}
-                            <div class="w2ui-node-text w2ui-node-caption" style="${nd.style || ''}">${text}</div>
+                      <div class="w2ui-node-data" style="margin-left: ${level * obj.levelPadding + obj.handle.width}px">
+                            ${expand} ${image} ${counts}
+                            <div class="w2ui-node-text ${!image ? 'no-icon' : ''}" style="${nd.style || ''}">${text}</div>
                        </div>
                     </div>
                     <div class="w2ui-node-sub" id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}"></div>`
@@ -1143,7 +1158,7 @@ class w2sidebar extends w2base {
                             data-mouseEnter="mouseAction|Enter|this|${nd.id}|event|tooltip"
                             data-mouseLeave="mouseAction|Leave|this|${nd.id}|event|tooltip"
                         >
-                            <div class="w2ui-node-data w2ui-node-flat">${tmp}</div>
+                            <div class="w2ui-node-data w2ui-node-flat">${image}</div>
                         </div>
                         <div class="w2ui-node-sub" id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}"></div>`
                 }
@@ -1152,21 +1167,39 @@ class w2sidebar extends w2base {
         }
     }
 
-    mouseAction(action, el, id, event, type) {
-        let node = this.get(id)
-        let text = w2utils.lang(typeof node.text == 'function' ? node.text.call(this, node) : node.text)
-        let tooltip = text + (node.count || node.count === 0 ? ' - <span class="w2ui-node-count">'+ node.count +'</span>' : '')
-        let edata = this.trigger('mouse' + action, { target: id, node, tooltip, originalEvent: event })
+    mouseAction(action, anchor, nodeId, event, type) {
+        let edata
+        let node = this.get(nodeId)
         if (type == 'tooltip') {
-            this.tooltip(el, tooltip, id)
+            // this tooltip shows for flat sidebars
+            let text = w2utils.lang(typeof node.text == 'function' ? node.text.call(this, node) : node.text)
+            let tooltip = text + (node.count || node.count === 0 ? ' - <span class="w2ui-node-count">'+ node.count +'</span>' : '')
+            if (action == 'Leave') tooltip = ''
+            edata = this.trigger('mouse' + action, { target: node.id, node, tooltip, originalEvent: event })
+            this.tooltip(anchor, tooltip)
         }
         if (type == 'handle') {
-            this.handleTooltip(el, id)
+            let tooltip = this.handle.tooltip
+            if (typeof tooltip == 'function') {
+                tooltip = tooltip.call(this, node)
+            }
+            if (action == 'Leave') tooltip = ''
+            edata = this.trigger('mouse' + action, { target: node.id, node, tooltip, handle: true, originalEvent: event })
+            this.otherTooltip(anchor, tooltip)
         }
-        edata.finish()
+        if (type == 'count') {
+            let tooltip = node.count?.tooltip ?? this.count?.tooltip
+            if (typeof tooltip == 'function') {
+                tooltip = tooltip.call(this, node)
+            }
+            if (action == 'Leave') tooltip = ''
+            edata = this.trigger('mouse' + action, { target: node.id, node, tooltip, count: true, originalEvent: event })
+            this.otherTooltip(anchor, tooltip)
+        }
+        edata?.finish()
     }
 
-    tooltip(el, text, id) {
+    tooltip(el, text) {
         let $el = query(el).find('.w2ui-node-data')
         if (text !== '') {
             w2tooltip.show({
@@ -1180,14 +1213,10 @@ class w2sidebar extends w2base {
         }
     }
 
-    handleTooltip(anchor, id) {
-        let text = this.handle.tooltip
-        if (typeof text == 'function') {
-            text = text(id)
-        }
-        if (text !== '' && id != null) {
+    otherTooltip(el, text) {
+        if (text !== '') {
             w2tooltip.show({
-                anchor: anchor,
+                anchor: el,
                 name: this.name + '_tooltip',
                 html: text,
                 position: 'top|bottom'

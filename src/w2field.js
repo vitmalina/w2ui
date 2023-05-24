@@ -434,7 +434,8 @@ class w2field extends w2base {
         let styles  = getComputedStyle(this.el)
         // enum
         if (this.type == 'list') {
-            query(this.el).parent().css('white-space', 'nowrap') // needs this for arrow always to appear on the right side
+            // next line will not work in a form with span: -1
+            // query(this.el).parent().css('white-space', 'nowrap') // needs this for arrow always to appear on the right side
             // hide focus and show text
             if (this.helpers.prefix) this.helpers.prefix.hide()
             if (!this.helpers.search) return
