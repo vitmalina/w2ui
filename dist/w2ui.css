@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (4/26/2023, 11:04:17 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/23/2023, 5:10:20 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -3008,7 +3008,9 @@ textarea.w2ui-error {
   transform: scale(0.9);
 }
 .w2ui-popup .w2ui-popup-title-btns {
-  float: right;
+  position: absolute;
+  z-index: 1021;
+  right: 0;
   margin: 10px 10px 0 0;
   font-size: 17px;
 }

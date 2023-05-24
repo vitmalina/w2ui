@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/22/2023, 2:38:44 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/23/2023, 5:10:20 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -3194,6 +3194,17 @@ class Dialog extends w2base {
             })
         }
         // check if message is already displayed
+        let titleBtns = ''
+        if (options.showClose) {
+            titleBtns += `<div class="w2ui-popup-button w2ui-popup-close">
+                        <span class="w2ui-icon w2ui-icon-cross w2ui-eaction" data-mousedown="stop" data-click="close"></span>
+                    </div>`
+        }
+        if (options.showMax) {
+            titleBtns += `<div class="w2ui-popup-button w2ui-popup-max">
+                        <span class="w2ui-icon w2ui-icon-box w2ui-eaction" data-mousedown="stop" data-click="toggle"></span>
+                    </div>`
+        }
         if (query('#w2ui-popup').length === 0) {
             // trigger event
             edata = this.trigger('open', { target: 'popup', present: false })
@@ -3204,17 +3215,6 @@ class Dialog extends w2base {
                 opacity: 0.3,
                 onClick: options.modal ? null : () => { this.close() }
             })
-            let btn = ''
-            if (options.showClose) {
-                btn += `<div class="w2ui-popup-button w2ui-popup-close">
-                            <span class="w2ui-icon w2ui-icon-cross w2ui-eaction" data-mousedown="stop" data-click="close"></span>
-                        </div>`
-            }
-            if (options.showMax) {
-                btn += `<div class="w2ui-popup-button w2ui-popup-max">
-                            <span class="w2ui-icon w2ui-icon-box w2ui-eaction" data-mousedown="stop" data-click="toggle"></span>
-                        </div>`
-            }
             // first insert just body
             let styles = `
                 left: ${left}px;
@@ -3236,7 +3236,7 @@ class Dialog extends w2base {
             styles = `${!options.title ? 'top: 0px !important;' : ''} ${!options.buttons ? 'bottom: 0px !important;' : ''}`
             msg = `
                 <span name="hidden-first" tabindex="0" style="position: absolute; top: -100px"></span>
-                <div class="w2ui-popup-title-btns">${btn}</div>
+                <div class="w2ui-popup-title-btns">${titleBtns}</div>
                 <div class="w2ui-popup-title" style="${!options.title ? 'display: none' : ''}"></div>
                 <div class="w2ui-box" style="${styles}">
                     <div class="w2ui-popup-body ${!options.title || ' w2ui-popup-no-title'}
@@ -3298,23 +3298,21 @@ class Dialog extends w2base {
             if (options.title) {
                 query('#w2ui-popup .w2ui-popup-title')
                     .show()
-                    .html((options.showClose
-                        ? `<div class="w2ui-popup-button w2ui-popup-close">
-                                <span class="w2ui-icon w2ui-icon-cross w2ui-eaction" data-mousedown="stop" data-click="close"></span>
-                            </div>`
-                        : '') +
-                        (options.showMax
-                        ? `<div class="w2ui-popup-button w2ui-popup-max">
-                                <span class="w2ui-icon w2ui-icon-box w2ui-eaction" data-mousedown="stop" data-click="toggle"></span>
-                            </div>`
-                        : ''))
-                    .append(options.title)
-                query('#w2ui-popup .w2ui-popup-body').removeClass('w2ui-popup-no-title')
-                query('#w2ui-popup .w2ui-box, #w2ui-popup .w2ui-box-temp').css('top', '')
+                    .html(w2utils.lang(options.title))
+                    query('#w2ui-popup .w2ui-popup-body').removeClass('w2ui-popup-no-title')
+                    query('#w2ui-popup .w2ui-box, #w2ui-popup .w2ui-box-temp').css('top', '')
             } else {
                 query('#w2ui-popup .w2ui-popup-title').hide().html('')
                 query('#w2ui-popup .w2ui-popup-body').addClass('w2ui-popup-no-title')
                 query('#w2ui-popup .w2ui-box, #w2ui-popup .w2ui-box-temp').css('top', '0px')
+            }
+            if (titleBtns) {
+                query('#w2ui-popup .w2ui-popup-title-btns')
+                    .show()
+                    .html(titleBtns)
+            } else {
+                query('#w2ui-popup .w2ui-popup-title-btns')
+                    .hide()
             }
             // transition
             let div_old = query('#w2ui-popup .w2ui-box')[0]
