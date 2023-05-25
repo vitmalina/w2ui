@@ -6338,20 +6338,22 @@ class w2grid extends w2base {
                     if (obj.columns[c].sizeOriginal == null) obj.columns[c].sizeOriginal = obj.columns[c].size
                     obj.columns[c].size = obj.columns[c].sizeCalculated
                 }
-                let edata = { phase: 'before', type: 'columnResize', target: obj.name, column: obj.last.tmp.col, field: obj.columns[obj.last.tmp.col].field }
-                edata = obj.trigger(w2utils.extend(edata, { resizeBy: 0, originalEvent: event }))
+                let edata = obj.trigger('columnResize', {
+                    target: obj.name, resizeBy: 0, originalEvent: event,
+                    column: obj.last.tmp.col, field: obj.columns[obj.last.tmp.col].field
+                })
                 // set move event
                 let timer
                 let mouseMove = function(event) {
                     if (obj.last.colResizing != true) return
                     if (!event) event = window.event
                     // event before
-                    edata = obj.trigger(w2utils.extend(edata, { resizeBy: (event.screenX - obj.last.tmp.gx), originalEvent: event }))
-                    if (edata.isCancelled === true) { edata.isCancelled = false; return }
+                    edata = obj.trigger('columnResizeMove', w2utils.extend(edata.detail, { resizeBy: (event.screenX - obj.last.tmp.gx), originalEvent: event }))
+                    if (edata.isCancelled === true) { return }
                     // default action
-                    obj.last.tmp.x                     = (event.screenX - obj.last.tmp.x)
-                    obj.last.tmp.y                     = (event.screenY - obj.last.tmp.y)
-                    let newWidth                       = (parseInt(obj.columns[obj.last.tmp.col].size) + obj.last.tmp.x) + 'px'
+                    obj.last.tmp.x = (event.screenX - obj.last.tmp.x)
+                    obj.last.tmp.y = (event.screenY - obj.last.tmp.y)
+                    let newWidth   = (parseInt(obj.columns[obj.last.tmp.col].size) + obj.last.tmp.x) + 'px'
                     obj.columns[obj.last.tmp.col].size = newWidth
                     if (timer) clearTimeout(timer)
                     timer = setTimeout(() => {
@@ -6380,37 +6382,36 @@ class w2grid extends w2base {
                     .on('mouseup.grid-col-resize', mouseUp)
             })
             .on('dblclick.grid-col-resize', function(event) {
-                let colId = parseInt(query(this).attr('name')),
-                    col = obj.columns[colId],
-                    maxDiff = 0
-
+                let colId = parseInt(query(this).attr('name'))
+                let col = obj.columns[colId]
+                let maxWidth = 0
                 if (col.autoResize === false) {
                     return true
                 }
-
-                if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true
-                if (event.preventDefault) event.preventDefault()
-                query(obj.box).find('.w2ui-grid-records td[col="' + colId + '"] > div', obj.box).each(() => {
-                    let thisDiff = this.offsetWidth - this.scrollWidth
-                    if (thisDiff < maxDiff) {
-                        maxDiff = thisDiff - 3 // 3px buffer needed for Firefox
+                query(obj.box).find('.w2ui-grid-records td[col="' + colId + '"] > div', obj.box).each(el => {
+                    let style = getComputedStyle(el)
+                    let width = w2utils.getStrWidth(el.innerHTML, `font-family: ${style.fontFamily}; font-size: ${style.fontSize}`)
+                        + parseFloat(style.paddingLeft) + parseFloat(style.paddingRight) + 4 // add some extra because of the border
+                    if (maxWidth < width) {
+                        maxWidth = width
                     }
                 })
 
                 // event before
-                let edata = { phase: 'before', type: 'columnAutoResize', target: obj.name, column: col, field: col.field }
-                edata     = obj.trigger(w2utils.extend(edata, { resizeBy: Math.abs(maxDiff), originalEvent: event }))
-                if (edata.isCancelled === true) { edata.isCancelled = false; return }
+                let edata = obj.trigger('columnAtuoResize', { maxWidth, originalEvent: event, target: obj.name, column: col })
+                if (edata.isCancelled === true) { return }
 
-                if (maxDiff < 0) {
-                    col.size = Math.min(parseInt(col.size) + Math.abs(maxDiff), col.max || Infinity) + 'px'
+                if (maxWidth > 0) {
+                    col.size = Math.min(Math.abs(maxWidth), col.max || Infinity) + 'px'
                     obj.resizeRecords()
                     obj.resizeRecords() // Why do we have to call it twice in order to show the scrollbar?
                     obj.scroll()
                 }
-
+                // prevent default
+                event.stopPropagation()
+                event.preventDefault()
                 // event after
-                edata.finish({ originalEvent: event })
+                edata.finish()
             })
             .each(el => {
                 let td = query(el).get(0).parentNode
