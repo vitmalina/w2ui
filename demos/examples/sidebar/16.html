@@ -1,20 +1,41 @@
 <div class="content">
     <div id="example_title">
         <h1>Badge control</h1>
-        In order to update badge text and style, you can use setCount method.
+        There is a new property on the In order to update badge text and style, you can use setCount method.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
 </div>
 
 <!--CODE-->
-<div id="sidebar" style="height: 600px; width: 200px; float: left"></div>
+<div id="sidebar" style="height: 400px; width: 200px; float: left"></div>
 <div style="padding: 10px">
-    <button class="w2ui-btn" onclick="setCount('item1', 25, 'custom', 'color: red')">Set Count</button>
-    <button class="w2ui-btn" onclick="setCount('item1', 'text', 'custom', 'color: purple; border: 2px solid blue')">Set Text</button>
-    <button class="w2ui-btn" onclick="setCount('item1', '1')">Reset</button>
+    <button class="w2ui-btn" onclick="setCount('item1', 25)">Set Count</button>
+    <button class="w2ui-btn" onclick="setCount('item1', 'text', { className: 'custom', style: 'color: red; padding: 2px 5px; background-color: lightblue;' })">Set Text</button>
+    <button class="w2ui-btn" onclick="setCount('item1', 1)">Reset</button>
+</div>
+<div style="padding: 10px; float: left" id="logs">
+    Move over a node to see actions
 </div>
 <div style="clear: both"/>
+<style>
+.custom-action {
+    color: transparent;
+    text-shadow: none;
+    padding: 5px 2px;
+    border-radius: 2px;
+    margin-top: -4px;
+}
+.custom-action:hover {
+    background-color: #d3d3d3;
+}
+.w2ui-node .w2ui-node-badge {
+    margin-right: -5px !important;
+}
+.w2ui-node:hover .w2ui-node-badge .custom-action {
+    color: #777;
+}
+</style>
 
 <!--CODE-->
 <script type="module">
@@ -23,18 +44,43 @@ import { w2sidebar, w2utils, query } from '__W2UI_PATH__'
 let sidebar = new w2sidebar({
     box: '#sidebar',
     name: 'sidebar',
+    toggleAlign: 'left',
+    badge: {
+        text() {
+            return `
+                <span class="custom-action w2ui-icon-plus" data-action="add"></span>
+                <span class="custom-action w2ui-icon-cross" data-action="delete"></span>
+            `
+        },
+        tooltip(node, event) {
+            if (node.count) {
+                return `Node's count is "${node.count}"`
+            }
+        },
+        onClick(node, event) {
+            let action = query(event.target).attr('data-action')
+            query('#logs').html(`Node "${node.text}", action "${action}"`)
+        }
+    },
     nodes: [
         { id: 'level-1', text: 'Level 1', img: 'icon-folder', expanded: true, group: true,
             nodes: [
                 { id: 'item1', text: 'Item 1', icon: 'fa fa-star-o', count: 1 },
                 { id: 'item2', text: 'Item 2', icon: 'fa fa-star-o' },
-                { id: 'item3', text: 'Item 3', icon: 'fa fa-star-o' }
+                { id: 'item3', text: 'Item 3', icon: 'fa fa-star-o' },
+                { id: 'sum-item', text: 'Nested Items', icon1: 'fa fa-folder-o', expanded: true,
+                    nodes: [
+                        { id: 'sub-item1', text: 'Item 1', icon: 'fa fa-file-o' },
+                        { id: 'sub-item2', text: 'Item 2', icon: 'fa fa-file-o' },
+                        { id: 'sub-item3', text: 'Item 3', icon: 'fa fa-file-o' }
+                    ]
+                }
             ]
         }
     ]
 })
 
-window.setCount = function(id, count, className, style) {
-    sidebar.setCount(id, count, className, style)
+window.setCount = function(id, count, options) {
+    sidebar.setCount(id, count, options)
 }
 </script>

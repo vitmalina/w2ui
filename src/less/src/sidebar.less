@@ -211,19 +211,25 @@
                 }
             }
 
-            .w2ui-node-count {
+            .w2ui-node-badge {
+                display: flex;
+                flex-direction: row;
                 float: right;
-                border: 1px solid #F6FCF4;
-                border-radius: 20px;
                 width: auto;
-                padding: 2px 7px;
+                padding: 2px;
                 margin: 3px 4px -2px 0;
-                background-color: #F2F8F0;
                 color: #666;
-                box-shadow: 0px 0px 2px #474545;
                 text-shadow: 1px 1px 0px #FFF;
                 position: relative;
                 z-index: 2;
+                &.w2ui-node-count {
+                    padding: 2px 7px;
+                    border: 1px solid #F6FCF4;
+                    border-radius: 20px;
+                    box-shadow: 0px 0px 2px #474545;
+                    background-color: #F2F8F0;
+                    margin-right: 0px !important;
+                }
             }
 
             .w2ui-collapsed,
@@ -233,6 +239,11 @@
                 height: 18px;
                 position: relative;
                 z-index: 2;
+                margin-left: 5px;
+                &.w2ui-left-toggle {
+                    float: left;
+                    margin-left: -10px;
+                }
                 span {
                     border-color: transparent;
                     background-color: transparent;

@@ -1,7 +1,7 @@
 <div class="content">
     <div id="example_title">
-        <h1>Node handle</h1>
-        Node handles are used as some html element in from of each node. It can be a line number or a way to set a break point.
+        <h1>Node Handles</h1>
+        Node handles are markers for each node, often used as line references or breakpoints in debugging.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -12,20 +12,19 @@
 <div style="margin-left: 220px;">
 </div>
 <style>
-.w2ui-sidebar[name=sidebar] .w2ui-node-handle > div{
+.w2ui-sidebar[name=sidebar] .w2ui-node-handle > div {
     width: 11px;
     height: 11px;
     border-radius: 10px;
-    margin-left: 6px;
-    margin-top: 7px;
-    display: inline-block;
+    margin-left: 4px;
+    margin-top: 6px;
     background-color: #e1e1e1;
-    border: 1px solid transparent
+    border: 1px solid transparent;
 }
-.w2ui-sidebar[name=sidebar] .w2ui-sidebar-body .w2ui-node .w2ui-node-handle > div:hover {
+.w2ui-sidebar[name=sidebar] .w2ui-node-handle > div:hover {
     border: 1px solid #55ca2e
 }
-.w2ui-sidebar[name=sidebar] .w2ui-sidebar-body .w2ui-node .w2ui-node-handle > div.break-point {
+.w2ui-sidebar[name=sidebar] .w2ui-node-handle > div.bp-set {
     background-color: #55ca2e;
     border: 1px solid #55ca2e
 }
@@ -36,17 +35,19 @@
 <script type="module">
 import { w2sidebar, query } from '__W2UI_PATH__'
 
-let bp = []
+let bp = ['level-1-1-2', 'level-1-2-3', 'level-1-2-2']
 let sidebar = new w2sidebar({
     box: '#sidebar',
     name: 'sidebar',
-    levelPadding: 20,
-    line: 0,
     handle: {
-        size: 22,
-        style: `height: 22px; width: 22px; margin-top: 1px; margin-left: 0px`,
-        html: `<div onclick="setBreakPoint(this, event)" class="break-point"></div>`, // can be a function
-        tooltip: 'Set break point' // cna be a function
+        width: 20,
+        text: `<div class="break-point"></div>`, // can be a function
+        tooltip(node) {
+            return `Set at "${node.text}"`
+        },
+        onClick(node, event) {
+            this.setBreakPoint(event.target)
+        }
     },
     nodes: [
         { id: 'level-1-1', text: 'Level 1.1', icon: 'fa fa-folder-o', expanded: true,
@@ -75,10 +76,10 @@ let sidebar = new w2sidebar({
         let stepId = query(el).closest('.w2ui-node').attr('id').substr(5)
         if (bp.indexOf(stepId) != -1) {
             bp.splice(bp.indexOf(stepId), 1)
-            query(el).removeClass('break-point')
+            query(el).removeClass('bp-set')
         } else {
             bp.push(stepId)
-            query(el).addClass('break-point')
+            query(el).addClass('bp-set')
         }
         event.preventDefault()
         event.stopPropagation()
@@ -87,17 +88,13 @@ let sidebar = new w2sidebar({
         event.done(() => {
             let node = query('#node_' + event.target + ' .w2ui-node-handle > div')
             if (bp.indexOf(event.target) == -1) {
-                node.removeClass('break-point')
+                node.removeClass('bp-set')
             } else {
-                node.addClass('break-point')
+                node.addClass('bp-set')
             }
         })
     }
 })
 
 sidebar.render('#sidebar')
-
-window.setBreakPoint = function (el, event) {
-    sidebar.setBreakPoint(el, event)
-}
 </script>

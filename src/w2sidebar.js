@@ -13,11 +13,12 @@
  *  - CSP - fixed inline events
  *  - observeResize for the box
  *  - updated handle
- *  - this.handle = { text, tooltip, width, style }, both text and tooltip can be functions
- *  - this.count = { text, tooltip }, both can be functions
- *  - node count: { text: 5, tooltip: 'seeee' }, both can be functions
+ *  - this.handle = { text, tooltip, width, style, onClick }, text/tooltip can be functions
+ *  - this.badge = { text, tooltip, style, onClick }, text/tooltip can be functions
+ *  - node.count is just a text
  *  - added onMouseEntter, onMouseLeave events
  * -  added otherTooltip
+ * -  added toggleAlign
  */
 
 import { w2base } from './w2base.js'
@@ -45,9 +46,11 @@ class w2sidebar extends w2base {
         this.flat          = false
         this.hasFocus      = false
         this.levelPadding  = 12
+        this.toggleAlign   = 'right' // can be left or right
         this.skipRefresh   = false
         this.tabIndex      = null // will only be set if > 0 and not null
         this.handle        = { width: 0, style: '', text: '', tooltip: '' },
+        this.badge         = null
         this.onClick       = null // Fire when user click on Node Text
         this.onDblClick    = null // Fire when user dbl clicks
         this.onMouseEnter  = null // mouse enter/leave over an item
@@ -267,21 +270,21 @@ class w2sidebar extends w2base {
         }
     }
 
-    setCount(id, count, className, style) {
-        let btn = query(this.box).find(`#node_${w2utils.escapeId(id)} .w2ui-node-count`)
+    setCount(id, count, options = {}) {
+        let btn = query(this.box).find(`#node_${w2utils.escapeId(id)} .w2ui-node-badge`)
         if (btn.length > 0) {
             btn.removeClass()
-                .addClass(`w2ui-node-count ${className || ''}`)
+                .addClass(`w2ui-node-badge ${options.className ?? 'w2ui-node-count'}`)
                 .text(count)
-                .get(0).style.cssText = style || ''
+                .get(0).style.cssText = options.style || ''
             this.last.badge[id] = {
-                className: className || '',
-                style: style || ''
+                className: options.className ?? '',
+                style: options.style ?? ''
             }
             let item = this.get(id)
             item.count = count
         } else {
-            this.set(id, { count: count })
+            this.set(id, { count })
             this.setCount(...arguments) // to update styles
         }
     }
@@ -486,7 +489,6 @@ class w2sidebar extends w2base {
     }
 
     collapse(id) {
-        let self = this
         let nd = this.get(id)
         if (nd == null) return false
         // event before
@@ -500,12 +502,11 @@ class w2sidebar extends w2base {
         nd.expanded = false
         // event after
         edata.finish()
-        setTimeout(() => { self.refresh(id) }, 0)
+        this.refresh(id)
         return true
     }
 
     expand(id) {
-        let self = this
         let nd = this.get(id)
         // event before
         let edata = this.trigger('expand', { target: id, object: nd })
@@ -519,7 +520,7 @@ class w2sidebar extends w2base {
         nd.expanded = true
         // event after
         edata.finish()
-        self.refresh(id)
+        this.refresh(id)
         return true
     }
 
@@ -887,7 +888,7 @@ class w2sidebar extends w2base {
         return Date.now() - time
     }
 
-    update(id, options) {
+    update(id, options = {}) {
         // quick function to refresh just this item (not sub nodes)
         //  - icon, class, style, text, count
         let nd = this.get(id)
@@ -924,8 +925,15 @@ class w2sidebar extends w2base {
                 }
                 if (options.count) {
                     nd.count = options.count
-                    $el.find('.w2ui-node-count').html(nd.count)
-                    if ($el.find('.w2ui-node-count').length > 0) delete options.count
+                    // update counts
+                    let txt = nd.count ?? this.badge.text
+                    let style = this.badge.style
+                    let last = this.last.badge[nd.id]
+                    if (typeof txt == 'function') txt = txt.call(this, node, level)
+                    $el.find('.w2ui-node-badge')
+                        .html(txt)
+                        .attr('style', `${style}; ${last?.style ?? ''}`)
+                    if ($el.find('.w2ui-node-badge').length > 0) delete options.count
                 }
                 if (options.class && $el.length > 0) {
                     nd.class = options.class
@@ -1040,7 +1048,7 @@ class w2sidebar extends w2base {
         }
         // bind events
         if (!noBinding) {
-            let els = query(this.box).find(`${nodeId}.w2ui-eaction, ${nodeSubId} .w2ui-eaction`)
+            let els = query(this.box).find(`${nodeId}, ${nodeId} .w2ui-eaction, ${nodeSubId} .w2ui-eaction`)
             w2utils.bindEvents(els, this)
         }
         // event after
@@ -1101,22 +1109,25 @@ class w2sidebar extends w2base {
                 }
                 let expand = ''
                 let counts = ''
-                if (self.count != null || nd.count != null) {
-                    let txt = nd.count?.text ?? nd.count ?? self.count.text
+                if (self.badge != null || nd.count != null) {
+                    let txt = nd.count ?? self.badge?.text
+                    let style = self.badge?.style
                     let last = obj.last.badge[nd.id]
                     if (typeof txt == 'function') txt = txt.call(self, node, level)
                     if (txt) {
                         counts = `
-                            <div class="w2ui-node-count w2ui-eaction ${last?.className ?? ''}" style="${last?.style ?? ''}"
-                                data-mouseEnter="mouseAction|Enter|this|${nd.id}|event|count"
-                                data-mouseLeave="mouseAction|Leave|this|${nd.id}|event|count"
+                            <div class="w2ui-eaction w2ui-node-badge ${nd.count != null ? 'w2ui-node-count' : ''} ${last?.className ?? ''}"
+                                style="${style ?? ''};${last?.style ?? ''}"
+                                data-mouseEnter="mouseAction|Enter|this|${nd.id}|event|badge"
+                                data-mouseLeave="mouseAction|Leave|this|${nd.id}|event|badge"
+                                data-click="mouseAction|click|this|${nd.id}|event|badge"
                             >
                                 ${txt}
                             </div>`
                     }
                 }
                 if (nd.collapsible === true) {
-                    expand = `<div class="w2ui-${nd.expanded ? 'expanded' : 'collapsed'}"><span></span></div>`
+                    expand = `<div class="w2ui-${nd.expanded ? 'expanded' : 'collapsed'} ${self.toggleAlign == 'left' ? 'w2ui-left-toggle' : ''}"><span></span></div>`
                 }
 
                 let text = w2utils.lang(typeof nd.text == 'function' ? nd.text.call(obj, nd, level) : nd.text)
@@ -1138,6 +1149,7 @@ class w2sidebar extends w2base {
                             ? `<div class="w2ui-node-handle w2ui-eaction" style="width: ${obj.handle.width}px; ${obj.handle.style}"
                                     data-mouseEnter="mouseAction|Enter|this|${nd.id}|event|handle"
                                     data-mouseLeave="mouseAction|Leave|this|${nd.id}|event|handle"
+                                    data-click="mouseAction|click|this|${nd.id}|event|handle"
                                 >
                                    ${typeof obj.handle.text == 'function' ? obj.handle.text.call(obj, nd, level) ?? '' : obj.handle.text}
                               </div>`
@@ -1173,28 +1185,44 @@ class w2sidebar extends w2base {
         if (type == 'tooltip') {
             // this tooltip shows for flat sidebars
             let text = w2utils.lang(typeof node.text == 'function' ? node.text.call(this, node) : node.text)
-            let tooltip = text + (node.count || node.count === 0 ? ' - <span class="w2ui-node-count">'+ node.count +'</span>' : '')
+            let tooltip = text + (node.count || node.count === 0
+                ? ' - <span class="w2ui-node-badge w2ui-node-count">'+ node.count +'</span>'
+                : '')
             if (action == 'Leave') tooltip = ''
             edata = this.trigger('mouse' + action, { target: node.id, node, tooltip, originalEvent: event })
             this.tooltip(anchor, tooltip)
         }
         if (type == 'handle') {
-            let tooltip = this.handle.tooltip
-            if (typeof tooltip == 'function') {
-                tooltip = tooltip.call(this, node)
+            if (action == 'click') {
+                let onClick = this.handle.onClick
+                if (typeof onClick == 'function') {
+                    onClick.call(this, node, event)
+                }
+            } else {
+                let tooltip = this.handle.tooltip
+                if (typeof tooltip == 'function') {
+                    tooltip = tooltip.call(this, node, event)
+                }
+                if (action == 'Leave') tooltip = ''
+                edata = this.trigger('mouse' + action, { target: node.id, node, tooltip, handle: true, originalEvent: event })
+                this.otherTooltip(anchor, tooltip)
             }
-            if (action == 'Leave') tooltip = ''
-            edata = this.trigger('mouse' + action, { target: node.id, node, tooltip, handle: true, originalEvent: event })
-            this.otherTooltip(anchor, tooltip)
         }
-        if (type == 'count') {
-            let tooltip = node.count?.tooltip ?? this.count?.tooltip
-            if (typeof tooltip == 'function') {
-                tooltip = tooltip.call(this, node)
+        if (type == 'badge') {
+            if (action == 'click') {
+                let onClick = this.badge?.onClick
+                if (typeof onClick == 'function') {
+                    onClick.call(this, node, event)
+                }
+            } else {
+                let tooltip = this.badge?.tooltip
+                if (typeof tooltip == 'function') {
+                    tooltip = tooltip.call(this, node, event)
+                }
+                if (action == 'Leave') tooltip = ''
+                edata = this.trigger('mouse' + action, { target: node.id, node, tooltip, badge: true, originalEvent: event })
+                this.otherTooltip(anchor, tooltip)
             }
-            if (action == 'Leave') tooltip = ''
-            edata = this.trigger('mouse' + action, { target: node.id, node, tooltip, count: true, originalEvent: event })
-            this.otherTooltip(anchor, tooltip)
         }
         edata?.finish()
     }
