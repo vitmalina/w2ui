@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/23/2023, 5:10:20 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/24/2023, 11:21:01 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -252,10 +252,16 @@ input[type="checkbox"].w2ui-toggle + div {
   transition-property: background-color, box-shadow;
   box-shadow: inset 0 0 0 0px rgba(0, 0, 0, 0.4);
   margin-left: 2px;
+  margin-top: 3px;
+}
+input[type="checkbox"].w2ui-toggle.w2ui-small {
+  width: 30px;
+  height: 23px;
 }
 input[type="checkbox"].w2ui-toggle.w2ui-small + div {
   width: 30px;
   height: 16px;
+  margin-top: 5px;
 }
 input[type="checkbox"].w2ui-toggle:focus + div {
   box-shadow: 0px 0px 3px 2px #91baed;
@@ -3334,6 +3340,9 @@ textarea.w2ui-error {
   z-index: 1;
   font-size: 12px;
 }
+.w2ui-sidebar .w2ui-sidebar-body .w2ui-node-text.no-icon {
+  margin-left: 0px;
+}
 .w2ui-sidebar .w2ui-sidebar-body .w2ui-node-group {
   white-space: nowrap;
   overflow: hidden;
@@ -3372,19 +3381,25 @@ textarea.w2ui-error {
 .w2ui-sidebar .w2ui-sidebar-body .w2ui-node-data .w2ui-node-image.w2ui-icon {
   margin-top: 3px;
 }
-.w2ui-sidebar .w2ui-sidebar-body .w2ui-node-data .w2ui-node-count {
+.w2ui-sidebar .w2ui-sidebar-body .w2ui-node-data .w2ui-node-badge {
+  display: flex;
+  flex-direction: row;
   float: right;
-  border: 1px solid #F6FCF4;
-  border-radius: 20px;
   width: auto;
-  padding: 2px 7px;
+  padding: 2px;
   margin: 3px 4px -2px 0;
-  background-color: #F2F8F0;
   color: #666;
-  box-shadow: 0px 0px 2px #474545;
   text-shadow: 1px 1px 0px #FFF;
   position: relative;
   z-index: 2;
+}
+.w2ui-sidebar .w2ui-sidebar-body .w2ui-node-data .w2ui-node-badge.w2ui-node-count {
+  padding: 2px 7px;
+  border: 1px solid #F6FCF4;
+  border-radius: 20px;
+  box-shadow: 0px 0px 2px #474545;
+  background-color: #F2F8F0;
+  margin-right: 0px !important;
 }
 .w2ui-sidebar .w2ui-sidebar-body .w2ui-node-data .w2ui-collapsed,
 .w2ui-sidebar .w2ui-sidebar-body .w2ui-node-data .w2ui-expanded {
@@ -3393,6 +3408,12 @@ textarea.w2ui-error {
   height: 18px;
   position: relative;
   z-index: 2;
+  margin-left: 5px;
+}
+.w2ui-sidebar .w2ui-sidebar-body .w2ui-node-data .w2ui-collapsed.w2ui-left-toggle,
+.w2ui-sidebar .w2ui-sidebar-body .w2ui-node-data .w2ui-expanded.w2ui-left-toggle {
+  float: left;
+  margin-left: -10px;
 }
 .w2ui-sidebar .w2ui-sidebar-body .w2ui-node-data .w2ui-collapsed span,
 .w2ui-sidebar .w2ui-sidebar-body .w2ui-node-data .w2ui-expanded span {

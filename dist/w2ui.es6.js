@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (5/23/2023, 5:10:20 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (5/24/2023, 11:21:01 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -7307,8 +7307,13 @@ class w2toolbar extends w2base {
  *  - deprecarted obj.img, node.img
  *  - CSP - fixed inline events
  *  - observeResize for the box
- *  - handleTooltip and handle.tooltip - text/function
+ *  - updated handle
+ *  - this.handle = { text, tooltip, width, style, onClick }, text/tooltip can be functions
+ *  - this.badge = { text, tooltip, style, onClick }, text/tooltip can be functions
+ *  - node.count is just a text
  *  - added onMouseEntter, onMouseLeave events
+ * -  added otherTooltip
+ * -  added toggleAlign
  */
 
 class w2sidebar extends w2base {
@@ -7331,9 +7336,11 @@ class w2sidebar extends w2base {
         this.flat          = false
         this.hasFocus      = false
         this.levelPadding  = 12
+        this.toggleAlign   = 'right' // can be left or right
         this.skipRefresh   = false
         this.tabIndex      = null // will only be set if > 0 and not null
-        this.handle        = { size: 0, style: '', html: '', tooltip: '' },
+        this.handle        = { width: 0, style: '', text: '', tooltip: '' },
+        this.badge         = null
         this.onClick       = null // Fire when user click on Node Text
         this.onDblClick    = null // Fire when user dbl clicks
         this.onMouseEnter  = null // mouse enter/leave over an item
@@ -7546,21 +7553,21 @@ class w2sidebar extends w2base {
             return null
         }
     }
-    setCount(id, count, className, style) {
-        let btn = query(this.box).find(`#node_${w2utils.escapeId(id)} .w2ui-node-count`)
+    setCount(id, count, options = {}) {
+        let btn = query(this.box).find(`#node_${w2utils.escapeId(id)} .w2ui-node-badge`)
         if (btn.length > 0) {
             btn.removeClass()
-                .addClass(`w2ui-node-count ${className || ''}`)
+                .addClass(`w2ui-node-badge ${options.className ?? 'w2ui-node-count'}`)
                 .text(count)
-                .get(0).style.cssText = style || ''
+                .get(0).style.cssText = options.style || ''
             this.last.badge[id] = {
-                className: className || '',
-                style: style || ''
+                className: options.className ?? '',
+                style: options.style ?? ''
             }
             let item = this.get(id)
             item.count = count
         } else {
-            this.set(id, { count: count })
+            this.set(id, { count })
             this.setCount(...arguments) // to update styles
         }
     }
@@ -7751,7 +7758,6 @@ class w2sidebar extends w2base {
         if (this.get(id).expanded) return this.collapse(id); else return this.expand(id)
     }
     collapse(id) {
-        let self = this
         let nd = this.get(id)
         if (nd == null) return false
         // event before
@@ -7765,11 +7771,10 @@ class w2sidebar extends w2base {
         nd.expanded = false
         // event after
         edata.finish()
-        setTimeout(() => { self.refresh(id) }, 0)
+        this.refresh(id)
         return true
     }
     expand(id) {
-        let self = this
         let nd = this.get(id)
         // event before
         let edata = this.trigger('expand', { target: id, object: nd })
@@ -7783,7 +7788,7 @@ class w2sidebar extends w2base {
         nd.expanded = true
         // event after
         edata.finish()
-        self.refresh(id)
+        this.refresh(id)
         return true
     }
     collapseAll(parent) {
@@ -8131,7 +8136,7 @@ class w2sidebar extends w2base {
         this.refresh()
         return Date.now() - time
     }
-    update(id, options) {
+    update(id, options = {}) {
         // quick function to refresh just this item (not sub nodes)
         //  - icon, class, style, text, count
         let nd = this.get(id)
@@ -8168,8 +8173,15 @@ class w2sidebar extends w2base {
                 }
                 if (options.count) {
                     nd.count = options.count
-                    $el.find('.w2ui-node-count').html(nd.count)
-                    if ($el.find('.w2ui-node-count').length > 0) delete options.count
+                    // update counts
+                    let txt = nd.count ?? this.badge.text
+                    let style = this.badge.style
+                    let last = this.last.badge[nd.id]
+                    if (typeof txt == 'function') txt = txt.call(this, node, level)
+                    $el.find('.w2ui-node-badge')
+                        .html(txt)
+                        .attr('style', `${style}; ${last?.style ?? ''}`)
+                    if ($el.find('.w2ui-node-badge').length > 0) delete options.count
                 }
                 if (options.class && $el.length > 0) {
                     nd.class = options.class
@@ -8196,6 +8208,7 @@ class w2sidebar extends w2base {
     refresh(id, noBinding) {
         if (this.box == null) return
         let time = Date.now()
+        let self = this
         // event before
         let edata = this.trigger('refresh', {
             target: (id != null ? id : this.name),
@@ -8282,7 +8295,7 @@ class w2sidebar extends w2base {
         }
         // bind events
         if (!noBinding) {
-            let els = query(this.box).find(`${nodeId}.w2ui-eaction, ${nodeSubId} .w2ui-eaction`)
+            let els = query(this.box).find(`${nodeId}, ${nodeId} .w2ui-eaction, ${nodeSubId} .w2ui-eaction`)
             w2utils.bindEvents(els, this)
         }
         // event after
@@ -8307,7 +8320,7 @@ class w2sidebar extends w2base {
             }
             if (Array.isArray(nd.nodes) && nd.nodes.length > 0) nd.collapsible = true
             if (nd.group) {
-                let text = w2utils.lang(typeof nd.text == 'function' ? nd.text.call(obj, nd) : nd.text)
+                let text = w2utils.lang(typeof nd.text == 'function' ? nd.text.call(obj, nd, level) : nd.text)
                 if (String(text).substr(0, 5) != '<span') {
                     text = `<span class="w2ui-group-text">${text}</span>`
                 }
@@ -8332,24 +8345,37 @@ class w2sidebar extends w2base {
                 }
             } else {
                 if (nd.selected && !nd.disabled) obj.selected = nd.id
-                tmp = ''
+                // icon or image
+                let image = ''
                 if (icon) {
-                    tmp = `
+                    image = `
                     <div class="w2ui-node-image">
-                        <span class="${typeof icon == 'function' ? icon.call(obj, nd) : icon}"></span>
+                        <span class="${typeof icon == 'function' ? icon.call(obj, nd, level) : icon}"></span>
                     </div>`
                 }
                 let expand = ''
-                let counts = (nd.count != null
-                    ? `<div class="w2ui-node-count ${obj.last.badge[nd.id] ? obj.last.badge[nd.id].className || '' : ''}"
-                            style="${obj.last.badge[nd.id] ? obj.last.badge[nd.id].style || '' : ''}">
-                                ${nd.count}
-                       </div>`
-                    : '')
-                if (nd.collapsible === true) {
-                    expand = `<div class="w2ui-${nd.expanded ? 'expanded' : 'collapsed'}"><span></span></div>`
+                let counts = ''
+                if (self.badge != null || nd.count != null) {
+                    let txt = nd.count ?? self.badge?.text
+                    let style = self.badge?.style
+                    let last = obj.last.badge[nd.id]
+                    if (typeof txt == 'function') txt = txt.call(self, node, level)
+                    if (txt) {
+                        counts = `
+                            <div class="w2ui-eaction w2ui-node-badge ${nd.count != null ? 'w2ui-node-count' : ''} ${last?.className ?? ''}"
+                                style="${style ?? ''};${last?.style ?? ''}"
+                                data-mouseEnter="mouseAction|Enter|this|${nd.id}|event|badge"
+                                data-mouseLeave="mouseAction|Leave|this|${nd.id}|event|badge"
+                                data-click="mouseAction|click|this|${nd.id}|event|badge"
+                            >
+                                ${txt}
+                            </div>`
+                    }
                 }
-                let text = w2utils.lang(typeof nd.text == 'function' ? nd.text.call(obj, nd) : nd.text)
+                if (nd.collapsible === true) {
+                    expand = `<div class="w2ui-${nd.expanded ? 'expanded' : 'collapsed'} ${self.toggleAlign == 'left' ? 'w2ui-left-toggle' : ''}"><span></span></div>`
+                }
+                let text = w2utils.lang(typeof nd.text == 'function' ? nd.text.call(obj, nd, level) : nd.text)
                 // array with classes
                 let classes = ['w2ui-node', `w2ui-level-${level}`, 'w2ui-eaction']
                 if (nd.selected) classes.push('w2ui-selected')
@@ -8364,18 +8390,19 @@ class w2sidebar extends w2base {
                         data-mouseEnter="mouseAction|Enter|this|${nd.id}|event"
                         data-mouseLeave="mouseAction|Leave|this|${nd.id}|event"
                     >
-                        ${obj.handle.html
-                            ? `<div class="w2ui-node-handle w2ui-eaction" style="width: ${obj.handle.size}px; ${obj.handle.style}"
+                        ${obj.handle.text
+                            ? `<div class="w2ui-node-handle w2ui-eaction" style="width: ${obj.handle.width}px; ${obj.handle.style}"
                                     data-mouseEnter="mouseAction|Enter|this|${nd.id}|event|handle"
                                     data-mouseLeave="mouseAction|Leave|this|${nd.id}|event|handle"
+                                    data-click="mouseAction|click|this|${nd.id}|event|handle"
                                 >
-                                   ${typeof obj.handle.html == 'function' ? obj.handle.html.call(obj, nd) : obj.handle.html}
+                                   ${typeof obj.handle.text == 'function' ? obj.handle.text.call(obj, nd, level) ?? '' : obj.handle.text}
                               </div>`
                             : ''
                         }
-                      <div class="w2ui-node-data" style="margin-left: ${level * obj.levelPadding + obj.handle.size}px">
-                            ${expand} ${tmp} ${counts}
-                            <div class="w2ui-node-text w2ui-node-caption" style="${nd.style || ''}">${text}</div>
+                      <div class="w2ui-node-data" style="margin-left: ${level * obj.levelPadding + obj.handle.width}px">
+                            ${expand} ${image} ${counts}
+                            <div class="w2ui-node-text ${!image ? 'no-icon' : ''}" style="${nd.style || ''}">${text}</div>
                        </div>
                     </div>
                     <div class="w2ui-node-sub" id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}"></div>`
@@ -8388,7 +8415,7 @@ class w2sidebar extends w2base {
                             data-mouseEnter="mouseAction|Enter|this|${nd.id}|event|tooltip"
                             data-mouseLeave="mouseAction|Leave|this|${nd.id}|event|tooltip"
                         >
-                            <div class="w2ui-node-data w2ui-node-flat">${tmp}</div>
+                            <div class="w2ui-node-data w2ui-node-flat">${image}</div>
                         </div>
                         <div class="w2ui-node-sub" id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}"></div>`
                 }
@@ -8396,20 +8423,54 @@ class w2sidebar extends w2base {
             return html
         }
     }
-    mouseAction(action, el, id, event, type) {
-        let node = this.get(id)
-        let text = w2utils.lang(typeof node.text == 'function' ? node.text.call(this, node) : node.text)
-        let tooltip = text + (node.count || node.count === 0 ? ' - <span class="w2ui-node-count">'+ node.count +'</span>' : '')
-        let edata = this.trigger('mouse' + action, { target: id, node, tooltip, originalEvent: event })
+    mouseAction(action, anchor, nodeId, event, type) {
+        let edata
+        let node = this.get(nodeId)
         if (type == 'tooltip') {
-            this.tooltip(el, tooltip, id)
+            // this tooltip shows for flat sidebars
+            let text = w2utils.lang(typeof node.text == 'function' ? node.text.call(this, node) : node.text)
+            let tooltip = text + (node.count || node.count === 0
+                ? ' - <span class="w2ui-node-badge w2ui-node-count">'+ node.count +'</span>'
+                : '')
+            if (action == 'Leave') tooltip = ''
+            edata = this.trigger('mouse' + action, { target: node.id, node, tooltip, originalEvent: event })
+            this.tooltip(anchor, tooltip)
         }
         if (type == 'handle') {
-            this.handleTooltip(el, id)
+            if (action == 'click') {
+                let onClick = this.handle.onClick
+                if (typeof onClick == 'function') {
+                    onClick.call(this, node, event)
+                }
+            } else {
+                let tooltip = this.handle.tooltip
+                if (typeof tooltip == 'function') {
+                    tooltip = tooltip.call(this, node, event)
+                }
+                if (action == 'Leave') tooltip = ''
+                edata = this.trigger('mouse' + action, { target: node.id, node, tooltip, handle: true, originalEvent: event })
+                this.otherTooltip(anchor, tooltip)
+            }
         }
-        edata.finish()
+        if (type == 'badge') {
+            if (action == 'click') {
+                let onClick = this.badge?.onClick
+                if (typeof onClick == 'function') {
+                    onClick.call(this, node, event)
+                }
+            } else {
+                let tooltip = this.badge?.tooltip
+                if (typeof tooltip == 'function') {
+                    tooltip = tooltip.call(this, node, event)
+                }
+                if (action == 'Leave') tooltip = ''
+                edata = this.trigger('mouse' + action, { target: node.id, node, tooltip, badge: true, originalEvent: event })
+                this.otherTooltip(anchor, tooltip)
+            }
+        }
+        edata?.finish()
     }
-    tooltip(el, text, id) {
+    tooltip(el, text) {
         let $el = query(el).find('.w2ui-node-data')
         if (text !== '') {
             w2tooltip.show({
@@ -8422,14 +8483,10 @@ class w2sidebar extends w2base {
             w2tooltip.hide(this.name + '_tooltip')
         }
     }
-    handleTooltip(anchor, id) {
-        let text = this.handle.tooltip
-        if (typeof text == 'function') {
-            text = text(id)
-        }
-        if (text !== '' && id != null) {
+    otherTooltip(el, text) {
+        if (text !== '') {
             w2tooltip.show({
-                anchor: anchor,
+                anchor: el,
                 name: this.name + '_tooltip',
                 html: text,
                 position: 'top|bottom'
@@ -16316,20 +16373,22 @@ class w2grid extends w2base {
                     if (obj.columns[c].sizeOriginal == null) obj.columns[c].sizeOriginal = obj.columns[c].size
                     obj.columns[c].size = obj.columns[c].sizeCalculated
                 }
-                let edata = { phase: 'before', type: 'columnResize', target: obj.name, column: obj.last.tmp.col, field: obj.columns[obj.last.tmp.col].field }
-                edata = obj.trigger(w2utils.extend(edata, { resizeBy: 0, originalEvent: event }))
+                let edata = obj.trigger('columnResize', {
+                    target: obj.name, resizeBy: 0, originalEvent: event,
+                    column: obj.last.tmp.col, field: obj.columns[obj.last.tmp.col].field
+                })
                 // set move event
                 let timer
                 let mouseMove = function(event) {
                     if (obj.last.colResizing != true) return
                     if (!event) event = window.event
                     // event before
-                    edata = obj.trigger(w2utils.extend(edata, { resizeBy: (event.screenX - obj.last.tmp.gx), originalEvent: event }))
-                    if (edata.isCancelled === true) { edata.isCancelled = false; return }
+                    edata = obj.trigger('columnResizeMove', w2utils.extend(edata.detail, { resizeBy: (event.screenX - obj.last.tmp.gx), originalEvent: event }))
+                    if (edata.isCancelled === true) { return }
                     // default action
-                    obj.last.tmp.x                     = (event.screenX - obj.last.tmp.x)
-                    obj.last.tmp.y                     = (event.screenY - obj.last.tmp.y)
-                    let newWidth                       = (parseInt(obj.columns[obj.last.tmp.col].size) + obj.last.tmp.x) + 'px'
+                    obj.last.tmp.x = (event.screenX - obj.last.tmp.x)
+                    obj.last.tmp.y = (event.screenY - obj.last.tmp.y)
+                    let newWidth   = (parseInt(obj.columns[obj.last.tmp.col].size) + obj.last.tmp.x) + 'px'
                     obj.columns[obj.last.tmp.col].size = newWidth
                     if (timer) clearTimeout(timer)
                     timer = setTimeout(() => {
@@ -16357,32 +16416,34 @@ class w2grid extends w2base {
                     .on('mouseup.grid-col-resize', mouseUp)
             })
             .on('dblclick.grid-col-resize', function(event) {
-                let colId = parseInt(query(this).attr('name')),
-                    col = obj.columns[colId],
-                    maxDiff = 0
+                let colId = parseInt(query(this).attr('name'))
+                let col = obj.columns[colId]
+                let maxWidth = 0
                 if (col.autoResize === false) {
                     return true
                 }
-                if (event.stopPropagation) event.stopPropagation(); else event.cancelBubble = true
-                if (event.preventDefault) event.preventDefault()
-                query(obj.box).find('.w2ui-grid-records td[col="' + colId + '"] > div', obj.box).each(() => {
-                    let thisDiff = this.offsetWidth - this.scrollWidth
-                    if (thisDiff < maxDiff) {
-                        maxDiff = thisDiff - 3 // 3px buffer needed for Firefox
+                query(obj.box).find('.w2ui-grid-records td[col="' + colId + '"] > div', obj.box).each(el => {
+                    let style = getComputedStyle(el)
+                    let width = w2utils.getStrWidth(el.innerHTML, `font-family: ${style.fontFamily}; font-size: ${style.fontSize}`)
+                        + parseFloat(style.paddingLeft) + parseFloat(style.paddingRight) + 4 // add some extra because of the border
+                    if (maxWidth < width) {
+                        maxWidth = width
                     }
                 })
                 // event before
-                let edata = { phase: 'before', type: 'columnAutoResize', target: obj.name, column: col, field: col.field }
-                edata     = obj.trigger(w2utils.extend(edata, { resizeBy: Math.abs(maxDiff), originalEvent: event }))
-                if (edata.isCancelled === true) { edata.isCancelled = false; return }
-                if (maxDiff < 0) {
-                    col.size = Math.min(parseInt(col.size) + Math.abs(maxDiff), col.max || Infinity) + 'px'
+                let edata = obj.trigger('columnAtuoResize', { maxWidth, originalEvent: event, target: obj.name, column: col })
+                if (edata.isCancelled === true) { return }
+                if (maxWidth > 0) {
+                    col.size = Math.min(Math.abs(maxWidth), col.max || Infinity) + 'px'
                     obj.resizeRecords()
                     obj.resizeRecords() // Why do we have to call it twice in order to show the scrollbar?
                     obj.scroll()
                 }
+                // prevent default
+                event.stopPropagation()
+                event.preventDefault()
                 // event after
-                edata.finish({ originalEvent: event })
+                edata.finish()
             })
             .each(el => {
                 let td = query(el).get(0).parentNode
@@ -18471,6 +18532,7 @@ class w2grid extends w2base {
  *  - this.recid = null if no record needs to be pulled
  *  - remove form.multiplart
  *  - this.method - for saving only
+ *  - added field.html.class
  */
 
 class w2form extends w2base {
@@ -19593,7 +19655,7 @@ class w2form extends w2base {
             if (page == null) page = field.html.page
             if (column == null) column = field.html.column
             // input control
-            let input = `<input id="${field.field}" name="${field.field}" class="w2ui-input" type="text" ${field.html.attr + tabindex_str}>`
+            let input = `<input id="${field.field}" name="${field.field}" class="w2ui-input ${field.html.class ?? ''}" type="text" ${field.html.attr + tabindex_str}>`
             switch (field.type) {
                 case 'pass':
                 case 'password':
@@ -19602,7 +19664,7 @@ class w2form extends w2base {
                 case 'checkbox': {
                     input = `
                         <label class="w2ui-box-label">
-                            <input id="${field.field}" name="${field.field}" class="w2ui-input" type="checkbox" ${field.html.attr + tabindex_str}>
+                            <input id="${field.field}" name="${field.field}" class="w2ui-input ${field.html.class ?? ''}" type="checkbox" ${field.html.attr + tabindex_str}>
                             <span>${field.html.label}</span>
                         </label>`
                     break
@@ -19621,7 +19683,7 @@ class w2form extends w2base {
                     for (let i = 0; i < items.length; i++) {
                         input += `
                             <label class="w2ui-box-label">
-                                <input id="${field.field + i}" name="${field.field}" class="w2ui-input" type="checkbox"
+                                <input id="${field.field + i}" name="${field.field}" class="w2ui-input ${field.html.class ?? ''}" type="checkbox"
                                     ${field.html.attr + tabindex_str} data-value="${items[i].id}" data-index="${i}">
                                 <span>&#160;${items[i].text}</span>
                             </label>
@@ -19642,7 +19704,7 @@ class w2form extends w2base {
                     for (let i = 0; i < items.length; i++) {
                         input += `
                             <label class="w2ui-box-label">
-                                <input id="${field.field + i}" name="${field.field}" class="w2ui-input" type="radio"
+                                <input id="${field.field + i}" name="${field.field}" class="w2ui-input ${field.html.class ?? ''}" type="radio"
                                     ${field.html.attr + (i === 0 ? tabindex_str : '')}
                                     data-value="${items[i].id}" data-index="${i}">
                                 <span>&#160;${items[i].text}</span>
@@ -19652,7 +19714,7 @@ class w2form extends w2base {
                     break
                 }
                 case 'select': {
-                    input = `<select id="${field.field}" name="${field.field}" class="w2ui-input" ${field.html.attr + tabindex_str}>`
+                    input = `<select id="${field.field}" name="${field.field}" class="w2ui-input ${field.html.class ?? ''}" ${field.html.attr + tabindex_str}>`
                     // normalized options
                     if (field.options.items == null && field.html.items != null) field.options.items = field.html.items
                     let items = field.options.items
@@ -19668,10 +19730,11 @@ class w2form extends w2base {
                     break
                 }
                 case 'textarea':
-                    input = `<textarea id="${field.field}" name="${field.field}" class="w2ui-input" ${field.html.attr + tabindex_str}></textarea>`
+                    input = `<textarea id="${field.field}" name="${field.field}" class="w2ui-input ${field.html.class ?? ''}" ${field.html.attr + tabindex_str}></textarea>`
                     break
                 case 'toggle':
-                    input = `<input id="${field.field}" name="${field.field}" class="w2ui-input w2ui-toggle" type="checkbox" ${field.html.attr + tabindex_str}>
+                    input = `<input id="${field.field}" name="${field.field}" class="w2ui-input w2ui-toggle  ${field.html.class ?? ''}"
+                                type="checkbox" ${field.html.attr + tabindex_str}>
                             <div><div></div></div>`
                     break
                 case 'map':
@@ -19685,7 +19748,7 @@ class w2form extends w2base {
                     break
                 case 'div':
                 case 'custom':
-                    input = '<div id="'+ field.field +'" name="'+ field.field +'" '+ field.html.attr + tabindex_str + ' class="w2ui-input">'+
+                    input = `<div id="${field.field}" name="${field.field}" ${field.html.attr + tabindex_str} class="w2ui-input ${field.html.class ?? ''}">`+
                                 (field && field.html && field.html.html ? field.html.html : '') +
                             '</div>'
                     break
@@ -20066,12 +20129,12 @@ class w2form extends w2base {
                         let html = `
                             <div class="w2ui-map-field" style="margin-bottom: 5px" data-index="${cnt}">
                             ${field.type == 'map'
-                                ? `<input type="text" ${field.html.key.attr + attr} class="w2ui-input w2ui-map key">
+                                ? `<input type="text" ${field.html.key.attr + attr} class="w2ui-input ${field.html.class ?? ''} w2ui-map key">
                                     ${field.html.key.text || ''}
                                 `
                                 : ''
                             }
-                            <input type="text" ${field.html.value.attr + attr} class="w2ui-input w2ui-map value">
+                            <input type="text" ${field.html.value.attr + attr} class="w2ui-input ${field.html.class ?? ''} w2ui-map value">
                                 ${field.html.value.text || ''}
                             </div>`
                         div.append(html)
@@ -20772,7 +20835,8 @@ class w2field extends w2base {
         let styles  = getComputedStyle(this.el)
         // enum
         if (this.type == 'list') {
-            query(this.el).parent().css('white-space', 'nowrap') // needs this for arrow always to appear on the right side
+            // next line will not work in a form with span: -1
+            // query(this.el).parent().css('white-space', 'nowrap') // needs this for arrow always to appear on the right side
             // hide focus and show text
             if (this.helpers.prefix) this.helpers.prefix.hide()
             if (!this.helpers.search) return
