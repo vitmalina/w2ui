@@ -12,13 +12,6 @@
  *  - deprecarted obj.img, node.img
  *  - CSP - fixed inline events
  *  - observeResize for the box
- *  - updated handle
- *  - this.handle = { text, tooltip, width, style, onClick }, text/tooltip can be functions
- *  - this.badge = { text, tooltip, style, onClick }, text/tooltip can be functions
- *  - node.count is just a text
- *  - added onMouseEntter, onMouseLeave events
- * -  added otherTooltip
- * -  added toggleAlign
  */
 
 import { w2base } from './w2base.js'
@@ -84,6 +77,7 @@ class w2sidebar extends w2base {
             groupShowHide: true,
             collapsible: false,
             plus: false, // if true, plus will be shown even if there is no sub nodes
+            childOffset: 0,
             // events
             onClick: null,
             onDblClick: null,
@@ -1102,10 +1096,22 @@ class w2sidebar extends w2base {
                 // icon or image
                 let image = ''
                 if (icon) {
-                    image = `
-                    <div class="w2ui-node-image">
-                        <span class="${typeof icon == 'function' ? icon.call(obj, nd, level) : icon}"></span>
-                    </div>`
+                    if (icon instanceof Object) {
+                        let text = (typeof icon.text == 'function' ? (icon.text.call(obj, nd, level) ?? '') : icon.text)
+                        image = `
+                            <div class="w2ui-node-image w2ui-eaction" style="${obj.icon.style ?? ''}; pointer-events: all"
+                                data-mouseEnter="mouseAction|Enter|this|${nd.id}|event|icon"
+                                data-mouseLeave="mouseAction|Leave|this|${nd.id}|event|icon"
+                                data-click="mouseAction|click|this|${nd.id}|event|icon">
+                                    ${text}
+                            </div>
+                        `
+                    } else {
+                        image = `
+                            <div class="w2ui-node-image">
+                                <span class="${typeof icon == 'function' ? icon.call(obj, nd, level) : icon}"></span>
+                            </div>`
+                    }
                 }
                 let expand = ''
                 let counts = ''
@@ -1116,7 +1122,7 @@ class w2sidebar extends w2base {
                     if (typeof txt == 'function') txt = txt.call(self, node, level)
                     if (txt) {
                         counts = `
-                            <div class="w2ui-eaction w2ui-node-badge ${nd.count != null ? 'w2ui-node-count' : ''} ${last?.className ?? ''}"
+                            <div class="w2ui-node-badge w2ui-eaction ${nd.count != null ? 'w2ui-node-count' : ''} ${last?.className ?? ''}"
                                 style="${style ?? ''};${last?.style ?? ''}"
                                 data-mouseEnter="mouseAction|Enter|this|${nd.id}|event|badge"
                                 data-mouseLeave="mouseAction|Leave|this|${nd.id}|event|badge"
@@ -1155,7 +1161,7 @@ class w2sidebar extends w2base {
                               </div>`
                             : ''
                         }
-                      <div class="w2ui-node-data" style="margin-left: ${level * obj.levelPadding + obj.handle.width}px">
+                      <div class="w2ui-node-data" style="margin-left: ${(level * obj.levelPadding) + (nd.parent?.childOffset ?? 0) + obj.handle.width}px">
                             ${expand} ${image} ${counts}
                             <div class="w2ui-node-text ${!image ? 'no-icon' : ''}" style="${nd.style || ''}">${text}</div>
                        </div>
@@ -1205,6 +1211,22 @@ class w2sidebar extends w2base {
                 }
                 if (action == 'Leave') tooltip = ''
                 edata = this.trigger('mouse' + action, { target: node.id, node, tooltip, handle: true, originalEvent: event })
+                this.otherTooltip(anchor, tooltip)
+            }
+        }
+        if (type == 'icon') {
+            if (action == 'click') {
+                let onClick = this.icon.onClick
+                if (typeof onClick == 'function') {
+                    onClick.call(this, node, event)
+                }
+            } else {
+                let tooltip = this.icon.tooltip
+                if (typeof tooltip == 'function') {
+                    tooltip = tooltip.call(this, node, event)
+                }
+                if (action == 'Leave') tooltip = ''
+                edata = this.trigger('mouse' + action, { target: node.id, node, tooltip, icon: true, originalEvent: event })
                 this.otherTooltip(anchor, tooltip)
             }
         }
