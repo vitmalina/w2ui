@@ -1,7 +1,8 @@
 <div class="content">
     <div id="example_title">
-        <h1>Badge control</h1>
-        There is a new property on the In order to update badge text and style, you can use setCount method.
+        <h1>Node Badges</h1>
+        Each node can have a count, which is just a badge with soem text, or it can custom badges. In the example below it shows
+        how to add 2 new buttons for each node and how to catch events.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -70,9 +71,16 @@ let sidebar = new w2sidebar({
                 { id: 'item3', text: 'Item 3', icon: 'fa fa-star-o' },
                 { id: 'sum-item', text: 'Nested Items', icon1: 'fa fa-folder-o', expanded: true,
                     nodes: [
-                        { id: 'sub-item1', text: 'Item 1', icon: 'fa fa-file-o' },
+                        { id: 'sub-item1', text: 'Item 1', icon: 'fa fa-file-o', count: 10 },
                         { id: 'sub-item2', text: 'Item 2', icon: 'fa fa-file-o' },
                         { id: 'sub-item3', text: 'Item 3', icon: 'fa fa-file-o' }
+                    ]
+                },
+                { id: 'sum-item2', text: 'More Items', icon1: 'fa fa-folder-o', expanded: true,
+                    nodes: [
+                        { id: 'sub-item21', text: 'Item 1', icon: 'fa fa-file-o' },
+                        { id: 'sub-item22', text: 'Item 2', icon: 'fa fa-file-o' },
+                        { id: 'sub-item23', text: 'Item 3', icon: 'fa fa-file-o' }
                     ]
                 }
             ]

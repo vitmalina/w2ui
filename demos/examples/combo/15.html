@@ -14,10 +14,11 @@
 <!--CODE-->
 <script type="module">
 import { w2layout, w2sidebar, w2grid, w2ui, query  } from '__W2UI_PATH__'
-import conf from 'https://rawgit.com/vitmalina/w2ui/master/demos/data/es6-conf.js'
+import conf from './data/conf-es6.js'
 
 // register app globally
 window.app = { w2ui }
+window.query = query
 
 let layout = new w2layout(conf.layout)
 let sidebar = new w2sidebar(conf.sidebar)

@@ -1,0 +1,67 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Custom Icons</h1>
+        If you specify text for the icon, node's icon will be an image (take from icon font with the same class). However, you can also define
+        custom icons.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="sidebar" style="height: 400px; width: 200px; float: left"></div>
+<div style="padding: 10px">
+</div>
+<div style="clear: both"/>
+
+<!--CODE-->
+<script type="module">
+import { w2sidebar, w2utils, query } from '__W2UI_PATH__'
+
+let sidebar = new w2sidebar({
+    box: '#sidebar',
+    name: 'sidebar',
+    icon: {
+            style: `padding: 6px 0 0 6px`,
+            text(node) {
+                let color = Math.random() > 0.7 ? '#54cb84' : '#cdcdcd'
+                let text = `<div style="width: 11px; height: 11px; border-radius: 10px; background-color: ${color};"></div>`
+                return text
+            },
+            tooltip(node) {
+                return `Icon "${node.text}" tooltip`
+            },
+            onClick(node, event) {
+                console.log('Icon clicked', node)
+                event.stopPropagation()
+            }
+        },
+    nodes: [
+        { id: 'level-1', text: 'Level 1', expanded: true, group: true,
+            nodes: [
+                { id: 'item1', text: 'Item 1', count: 1 },
+                { id: 'item2', text: 'Item 2' },
+                { id: 'item3', text: 'Item 3' },
+                { id: 'sum-item', text: 'Nested Items', expanded: true,
+                    nodes: [
+                        { id: 'sub-item1', text: 'Item 1', count: 10 },
+                        { id: 'sub-item2', text: 'Item 2' },
+                        { id: 'sub-item3', text: 'Item 3' }
+                    ]
+                },
+            ]
+        },
+        { id: 'level-2', text: 'Level 2', expanded: true, group: true,
+            nodes: [
+                { id: 'sub-item21', text: 'Item 1', count: 'Text' },
+                { id: 'sub-item22', text: 'Item 2' },
+                { id: 'sub-item23', text: 'Item 3' }
+            ]
+        }
+    ]
+})
+
+window.setCount = function(id, count, options) {
+    sidebar.setCount(id, count, options)
+}
+</script>

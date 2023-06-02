@@ -130,6 +130,7 @@ query(async function () {
                 },
                 { id: 'combo-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
+                        { id: 'combo/16', text: 'Search & Result', icon: 'fa fa-star-o' },
                         { id: 'combo/14', text: 'Base UI Class', icon: 'fa fa-star-o' },
                         { id: 'combo/15', text: 'ES6 Modules', icon: 'fa fa-star-o' },
                     ]
@@ -252,14 +253,15 @@ query(async function () {
                         { id: 'sidebar/10', text: 'In/Out of Focus', icon: 'fa fa-hand-o-up' },
                         { id: 'sidebar/11', text: 'Tree Like Sidebars', icon: 'fa fa-hand-o-up' },
                         { id: 'sidebar/12', text: 'Level Padding', icon: 'fa fa-hand-o-up' },
-                        { id: 'sidebar/13', text: 'Node Handle', icon: 'fa fa-hand-o-up' },
                     ]
                 },
                 { id: 'sidebar-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
+                        { id: 'sidebar/17', text: 'Custom Icons', icon: 'fa fa-hand-o-up' },
+                        { id: 'sidebar/13', text: 'Node Handles', icon: 'fa fa-hand-o-up' },
+                        { id: 'sidebar/16', text: 'Node Badges', icon: 'fa fa-hand-o-up' },
                         { id: 'sidebar/14', text: 'Sort Nodes', icon: 'fa fa-hand-o-up' },
                         { id: 'sidebar/15', text: 'Search Nodes', icon: 'fa fa-hand-o-up' },
-                        { id: 'sidebar/16', text: 'Badge Control', icon: 'fa fa-hand-o-up' }
                     ]
                 },
                 { id: 'tabs', text: 'Tabs Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,

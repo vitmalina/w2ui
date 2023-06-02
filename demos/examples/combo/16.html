@@ -1,0 +1,31 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Search Form & Result Grid</h1>
+        Side bar with items on the left, search form in the middle and result grid on the right.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="main" style="width: 100%; height: 600px;"></div>
+
+<!--CODE-->
+<script type="module">
+import { w2layout, w2sidebar, w2grid, w2form, w2ui, query  } from '__W2UI_PATH__'
+import conf from './data/conf-search.js'
+
+// register app globally
+window.app = { w2ui }
+window.query = query
+
+let layout = new w2layout(conf.layout)
+let sidebar = new w2sidebar(conf.sidebar)
+let form = new w2form(conf.form)
+let grid = new w2grid(conf.grid)
+
+layout.render(query('#main')[0])
+layout.html('left', sidebar)
+// layout.html('main', form)
+// layout.html('right', grid)
+</script>

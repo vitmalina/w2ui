@@ -27,7 +27,7 @@ export default {
                     break
                 case 'html':
                     app.w2ui.layout.html('main', '<div style="padding: 10px">Some HTML</div>')
-                    $(app.w2ui.layout.el('main'))
+                    query(app.w2ui.layout.el('main'))
                         .removeClass('w2ui-grid')
                         .css({
                             'border-left': '1px solid #efefef'
