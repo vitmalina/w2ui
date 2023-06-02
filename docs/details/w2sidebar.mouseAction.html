@@ -1,0 +1,37 @@
+Called when mouse action needs to be processed.
+
+<div class="definition">
+    mouseAction(action, anchor, nodeId, event, [type])
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>action</td>
+        <td><b>string</b>, can be one of the following ['Enter', 'Leave', 'click']</td>
+    </tr>
+    <tr>
+        <td>anchor</td>
+        <td><b>HTML Element</b>, DOM Element</td>
+    </tr>
+    <tr>
+        <td>nodeId</td>
+        <td><b>string</b>, id of the node</td>
+    </tr>
+    <tr>
+        <td>event</td>
+        <td><b>Event</b>, Event Object</td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td><b>string</b> (optional), who called the element</td>
+    </tr>
+    </table>
+</div>
+
+Returns <i>undefined</i>.
+
+<h4>Description</h4>
+
+This method is used internally to show/hide tooltip on mouse enter or leave for node's icon, handle or badge. You can still overwrite it if you
+need to.

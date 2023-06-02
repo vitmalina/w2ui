@@ -70,4 +70,18 @@
     Called when user selects and item from the context menu.
 </div>
 
+<div class="obj-property">
+    <a href="w2sidebar.onMouseEnter">onMouseEnter</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when user moves over an item or item's icon, handle, badge or count
+</div>
+
+<div class="obj-property">
+    <a href="w2sidebar.onMouseLeave">onMouseLeave</a> <span>- function (event)</span>
+</div>
+<div class="obj-property-desc">
+    Called when user moves out of an item or item's icon, handle, badge or count
+</div>
+
 </div>

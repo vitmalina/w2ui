@@ -1,0 +1,41 @@
+Returns true if node is in visible area of the sidebear
+
+<div class="definition">
+    inView(id)
+</div>
+
+<div class="arguments">
+    <table>
+    <tr>
+        <td>id</td>
+        <td><b>string</b>, id of the sidebar node</td>
+    </tr>
+    </table>
+</div>
+Returns boolean.
+
+<h4>Description</h4>
+
+The node must exists in the <a class="method" href="w2sidebar.nodes">.nodes</a> array of the sidebar or its nested nodes. The node is
+identified by the <span class="property">.id</span> property. The method will return true is node is in visible arear of the sidebar.
+<div style="height: 10px"></div>
+
+If you have defined object in the following way:
+<textarea class="javascript">
+let sidebar = new w2sidebar({
+    name : 'sidebar',
+    img  : 'icon-page',
+    nodes: [
+        { id: 'id-1', text: 'Level 1', disabled: true },
+        { id: 'id-2', text: 'Level 2' },
+        { id: 'id-3', text: 'Level 3' }
+    ]
+});
+</textarea>
+
+You can:
+<textarea class="javascript">
+if (w2ui.sidebar.inView('id-1')) {
+    console.log('Node is visible')
+}
+</textarea>

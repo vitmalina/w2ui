@@ -111,6 +111,7 @@ $(function () {
             if (typeof obj[key] == 'function') methods.push(key); else props.push(key)
         })
         Object.keys(obj).forEach(key => {
+            if (['activeEvents', 'listeners', 'debug'].includes(key)) return // ignore common properties from w2base class
             if (props.indexOf(key) == -1) props.push(key)
         })
         methods.sort()

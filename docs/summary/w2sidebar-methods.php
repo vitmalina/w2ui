@@ -127,6 +127,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2sidebar.inView">inView</a> <span>- inView(id)</span>
+</div>
+<div class="obj-property-desc">
+    Returns true if node is in visible area of the sidebear
+</div>
+
+<div class="obj-property">
     <a href="w2sidebar.insert">insert</a> <span>- insert([parent], before, nodes)</span>
 </div>
 <div class="obj-property-desc">
@@ -152,6 +159,20 @@
 </div>
 <div class="obj-property-desc">
     Called when user select item from context menu.
+</div>
+
+<div class="obj-property">
+    <a href="w2sidebar.mouseAction">mouseAction</a> <span>- mouseAction(action, anchor, nodeId, event, [type])</span>
+</div>
+<div class="obj-property-desc">
+    Called when mouse action needs to be processed.
+</div>
+
+<div class="obj-property">
+    <a href="w2sidebar.otherTooltip">otherTooltip</a> <span>- otherTooltip(el, text)</span>
+</div>
+<div class="obj-property-desc">
+    Shows or hides tooltip for the node's icon, handle or badge.
 </div>
 
 <div class="obj-property">
@@ -204,6 +225,13 @@
 </div>
 
 <div class="obj-property">
+    <a href="w2sidebar.showPlus">showPlus</a> <span>- showPlus(el, color)</span>
+</div>
+<div class="obj-property-desc">
+    Shows or hides "Show/Hide" text on the right in the groups
+</div>
+
+<div class="obj-property">
     <a href="w2sidebar.sort">sort</a> <span>- sort([options], [nodes])</span>
 </div>
 <div class="obj-property-desc">
@@ -215,6 +243,13 @@
 </div>
 <div class="obj-property-desc">
     Toggles sidebar node with <span class="argument">id</span>.
+</div>
+
+<div class="obj-property">
+    <a href="w2sidebar.tooltip">tooltip</a> <span>- tooltip(el, text)</span>
+</div>
+<div class="obj-property-desc">
+    Shows or hides tooltip for the node.
 </div>
 
 <div class="obj-property">

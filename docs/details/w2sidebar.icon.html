@@ -1,19 +1,26 @@
 Default node icon.
 
 <div class="definition">
-    String, default = ''
+    String or object, default = ''
 </div>
 
 For any node if its <span class="argument">icon</span> property is not defined, then default <span class="argument">icon</span> will be used.
-The <span class="argument">icon</span> property is a css class for the icon span. See <a class="method" href="w2sidebar.nodes">.nodes</a> to see how to
+The <span class="argument">icon</span> property is a css class for the icon span.
 use icon for nodes.
 
 <textarea class="html">
 <span class="{icon}">...</span>
 </textarea>
 
-The difference between <span class="argument">img</span> and <span class="argument">icon</span> is that <span class="argument">img</span>
-uses a div and a background image. The <span class="argument">icon</span> property uses a span and icon fonts, such as font-awesome.
+The icon property can also be an object of the followin structure:
+<textarea class="javascript">
+{
+    text    : ''           // string or function, html of the badge
+    tooltip : '',          // string or function, tooltip for the badge
+    style   : '',          // style for the badge
+    onClick : function     // on click event badger
+}
+</textarea>
 <div style="height: 10px;"></div>
 
 You can define it during object creation:
@@ -35,3 +42,5 @@ Or any time after the object has been created:
 <textarea class="javascript">
 w2ui.sidebar.icon = 'fa fa-star';
 </textarea>
+
+See also <a class="method" href="w2sidebar.nodes">.nodes</a> to see how to

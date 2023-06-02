@@ -1,0 +1,57 @@
+Object that defineds node badge
+
+<div class="definition">
+    Object, default = {...} // see below
+</div>
+
+If the <span class="property">badge</span> property is defined, then item count a badge will be display on the right of the item.
+<div style="height: 10px"></div>
+
+The <span class="property">badge</span> property has the following structure:
+<textarea class="javascript">
+{
+    text    : ''           // string or function, html of the badge
+    tooltip : '',          // string or function, tooltip for the badge
+    style   : '',          // style for the badge
+    onClick : function     // on click event badger
+}
+</textarea>
+
+<div style="height: 10px"></div>
+
+You can define nodes during object creation:
+<textarea class="javascript">
+let sidebar = new w2sidebar({
+    name : 'sidebar',
+    img  : 'icon-page',
+    badge: {
+        text(node) {
+            return node.id
+        },
+        style: 'height: 22px; width: 20px; margin-top: 0px; margin-left: -15px;',
+        onClick(node) {
+            console.log('Badge clicked', event.detail)
+        }
+    },
+    nodes: [
+        { id: 'id-1', text: 'Level 1' },
+        { id: 'id-2', text: 'Level 2' },
+        { id: 'id-3', text: 'Level 3' }
+    ]
+})
+</textarea>
+
+or after the object has been created:
+
+<textarea class="javascript">
+w2ui.sidebar.badge = {
+    text(node) {
+        return node.id
+    },
+    style: 'height: 22px; width: 20px; margin-top: 0px; margin-left: -15px;',
+    onClick(node) {
+        console.log('Badge clicked', event.detail)
+    }
+}
+w2ui.sidebar.refresh()
+</textarea>

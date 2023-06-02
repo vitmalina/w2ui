@@ -10,9 +10,11 @@ If the <span class="property">handle</span> property is defined, then next to ea
 The <span class="property">handle</span> property has the following structure:
 <textarea class="javascript">
 {
-    size    : 0,    // the size of the handle, needed to calc node padding
-    style   : '',   // style for the handle
-    html : ''    // string or function, html of the handle
+    text    : ''           // string or function, html of the handle
+    tooltip : '',          // string or function, tooltip for the handle
+    width   : 0,           // the size of the handle, needed to calc node padding
+    style   : '',          // style for the handle
+    onClick : function     // on click event handler
 }
 </textarea>
 
@@ -24,25 +26,31 @@ let sidebar = new w2sidebar({
     name : 'sidebar',
     img  : 'icon-page',
     handle: {
-        size: 18,
+        text: '<div onclick="w2ui.steps.setBreakPoint(this, event)"></div>'
+        width: 18,
         style: 'height: 22px; width: 20px; margin-top: 0px; margin-left: -15px;',
-        html: '<div onclick="w2ui.steps.setBreakPoint(this, event)"></div>'
+        onClick(node) {
+            console.log('Handle clicked', event.detail)
+        }
     },
     nodes: [
         { id: 'id-1', text: 'Level 1' },
         { id: 'id-2', text: 'Level 2' },
         { id: 'id-3', text: 'Level 3' }
     ]
-});
+})
 </textarea>
 
 or after the object has been created:
 
 <textarea class="javascript">
 w2ui.sidebar.handle = {
-    size: 18,
+    text: '<div onclick="w2ui.steps.setBreakPoint(this, event)"></div>'
+    width: 18,
     style: 'height: 22px; width: 20px; margin-top: 0px; margin-left: -15px;',
-    html: '<div onclick="w2ui.steps.setBreakPoint(this, event)"></div>'
+    onClick(node) {
+        console.log('Handle clicked', event.detail)
+    }
 }
 w2ui.sidebar.refresh()
 </textarea>

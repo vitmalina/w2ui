@@ -1,6 +1,13 @@
 <link rel="stylesheet" type="text/css" href="../summary.css"/> 
 <div class="container">
 <div class="obj-property">
+    <a href="w2sidebar.badge">badge</a> <span>- Object, default = {...} // see below</span>
+</div>
+<div class="obj-property-desc">
+    Object that defineds node badge
+</div>
+
+<div class="obj-property">
     <a href="w2sidebar.bottomHTML">bottomHTML</a> <span>- String, default = ''</span>
 </div>
 <div class="obj-property-desc">
@@ -36,17 +43,10 @@
 </div>
 
 <div class="obj-property">
-    <a href="w2sidebar.icon">icon</a> <span>- String, default = ''</span>
+    <a href="w2sidebar.icon">icon</a> <span>- String or object, default = ''</span>
 </div>
 <div class="obj-property-desc">
     Default node icon.
-</div>
-
-<div class="obj-property">
-    <a href="w2sidebar.img">img</a> <span>- String, default = ''</span>
-</div>
-<div class="obj-property-desc">
-    Default node image.
 </div>
 
 <div class="obj-property">
@@ -131,6 +131,13 @@
 </div>
 <div class="obj-property-desc">
     Defines tabIndex for sidebar element.
+</div>
+
+<div class="obj-property">
+    <a href="w2sidebar.toggleAlign">toggleAlign</a> <span>- String, default = 'right'</span>
+</div>
+<div class="obj-property-desc">
+    Defines where expand icon is displayed.
 </div>
 
 <div class="obj-property">

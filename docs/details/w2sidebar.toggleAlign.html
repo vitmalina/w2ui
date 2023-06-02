@@ -1,0 +1,29 @@
+Defines where expand icon is displayed.
+
+<div class="definition">
+    String, default = 'right'
+</div>
+
+The <span class="argument">toggleAlign</span> property specifies where expand icon is displayed. It can be display either on left or
+right of the node.
+<div style="height: 10px;"></div>
+
+You can define it during object creation:
+<textarea class="javascript">
+let sidebar = new w2sidebar({
+    name : 'sidebar',
+    toggleAlign: 'left',
+    nodes: [
+        { id: 'id-1', text: 'Level 1' },
+        { id: 'id-2', text: 'Level 2' },
+        { id: 'id-3', text: 'Level 3' }
+    ]
+});
+</textarea>
+
+Or any time after the object has been created:
+
+<textarea class="javascript">
+w2ui.sidebar.toggleAlign = 'left';
+w2ui.sidebar.refresh();
+</textarea>
