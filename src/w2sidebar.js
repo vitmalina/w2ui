@@ -1142,6 +1142,10 @@ class w2sidebar extends w2base {
                 if (nd.selected) classes.push('w2ui-selected')
                 if (nd.disabled) classes.push('w2ui-disabled')
                 if (nd.class) classes.push(nd.class)
+                let nodeOffset = nd.parent?.childOffset ?? 0
+                if (level === 0 && nd.collapsible === true && self.toggleAlign == 'left') {
+                    nodeOffset += 12
+                }
                 html = `
                     <div id="node_${nd.id}" class="${classes.join(' ')}" data-level="${level}"
                         style="position: relative; ${nd.hidden ? 'display: none;' : ''}"
@@ -1161,7 +1165,7 @@ class w2sidebar extends w2base {
                               </div>`
                             : ''
                         }
-                      <div class="w2ui-node-data" style="margin-left: ${(level * obj.levelPadding) + (nd.parent?.childOffset ?? 0) + obj.handle.width}px">
+                      <div class="w2ui-node-data" style="margin-left: ${(level * obj.levelPadding) + nodeOffset + obj.handle.width}px">
                             ${expand} ${image} ${counts}
                             <div class="w2ui-node-text ${!image ? 'no-icon' : ''}" style="${nd.style || ''}">${text}</div>
                        </div>
