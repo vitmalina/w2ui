@@ -257,11 +257,11 @@ query(async function () {
                 },
                 { id: 'sidebar-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
-                        { id: 'sidebar/17', text: 'Custom Icons', icon: 'fa fa-hand-o-up' },
-                        { id: 'sidebar/13', text: 'Node Handles', icon: 'fa fa-hand-o-up' },
-                        { id: 'sidebar/16', text: 'Node Badges', icon: 'fa fa-hand-o-up' },
-                        { id: 'sidebar/14', text: 'Sort Nodes', icon: 'fa fa-hand-o-up' },
-                        { id: 'sidebar/15', text: 'Search Nodes', icon: 'fa fa-hand-o-up' },
+                        { id: 'sidebar/13', text: 'Custom Icons', icon: 'fa fa-hand-o-up' },
+                        { id: 'sidebar/14', text: 'Node Handles', icon: 'fa fa-hand-o-up' },
+                        { id: 'sidebar/15', text: 'Node Badges', icon: 'fa fa-hand-o-up' },
+                        { id: 'sidebar/16', text: 'Sort Nodes', icon: 'fa fa-hand-o-up' },
+                        { id: 'sidebar/17', text: 'Search Nodes', icon: 'fa fa-hand-o-up' },
                     ]
                 },
                 { id: 'tabs', text: 'Tabs Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,

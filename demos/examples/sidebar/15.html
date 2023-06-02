@@ -1,83 +1,94 @@
 <div class="content">
     <div id="example_title">
-        <h1>Search Nodes</h1>
-        The example below shows how to search nodes in the sidebar.
+        <h1>Node Badges</h1>
+        Each node can have a count, which is just a badge with soem text, or it can custom badges. In the example below it shows
+        how to add 2 new buttons for each node and how to catch events.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
 </div>
 
 <!--CODE-->
-<div id="sidebar" style="height: 600px; width: 200px; float: left"></div>
-<div style="margin-left: 220px;">
-    <button class="w2ui-btn" onclick="action('collapseAll')">Collapse All</button>
-    <button class="w2ui-btn" onclick="action('expandAll')">Expand All</button>
+<div id="sidebar" style="height: 400px; width: 200px; float: left"></div>
+<div style="padding: 10px">
+    <button class="w2ui-btn" onclick="setCount('item1', 25)">Set Count</button>
+    <button class="w2ui-btn" onclick="setCount('item1', 'text', { className: 'custom', style: 'color: red; padding: 2px 5px; background-color: lightblue;' })">Set Text</button>
+    <button class="w2ui-btn" onclick="setCount('item1', 1)">Reset</button>
+</div>
+<div style="padding: 10px; float: left" id="logs">
+    Move over a node to see actions
 </div>
 <div style="clear: both"/>
+<style>
+.custom-action {
+    color: transparent;
+    text-shadow: none;
+    padding: 5px 2px;
+    border-radius: 2px;
+    margin-top: -4px;
+}
+.custom-action:hover {
+    background-color: #d3d3d3;
+}
+.w2ui-node .w2ui-node-badge {
+    margin-right: -5px !important;
+}
+.w2ui-node:hover .w2ui-node-badge .custom-action {
+    color: #777;
+}
+</style>
 
 <!--CODE-->
 <script type="module">
 import { w2sidebar, w2utils, query } from '__W2UI_PATH__'
 
-let sb = new w2sidebar({
+let sidebar = new w2sidebar({
     box: '#sidebar',
     name: 'sidebar',
-    levelPadding: 22,
-    nodes: [],
-    topHTML: `
-        <div style="height: 36px; padding: 3px 2px; border-bottom: 1px solid silver">
-            <input id="search" style="width: 100%" class="w2ui-input" placeholder="Search nodes..."
-                onchange="search(this.value)">
-        </div>
-    `,
-    async onRefresh(event) {
-        await event.complete
-        if (event.detail.fullRefresh) {
-            if (query('#search').length > 0) {
-                query('#search').val(sb.last_search ?? '').get(0).focus()
+    toggleAlign: 'left',
+    badge: {
+        text() {
+            return `
+                <span class="custom-action w2ui-icon-plus" data-action="add"></span>
+                <span class="custom-action w2ui-icon-cross" data-action="delete"></span>
+            `
+        },
+        tooltip(node, event) {
+            if (node.count) {
+                return `Node's count is "${node.count}"`
             }
+        },
+        onClick(node, event) {
+            let action = query(event.target).attr('data-action')
+            query('#logs').html(`Node "${node.text}", action "${action}"`)
         }
-    }
+    },
+    nodes: [
+        { id: 'level-1', text: 'Level 1', img: 'icon-folder', expanded: true, group: true,
+            nodes: [
+                { id: 'item1', text: 'Item 1', icon: 'fa fa-star-o', count: 1 },
+                { id: 'item2', text: 'Item 2', icon: 'fa fa-star-o' },
+                { id: 'item3', text: 'Item 3', icon: 'fa fa-star-o' },
+                { id: 'sum-item', text: 'Nested Items', icon1: 'fa fa-folder-o', expanded: true,
+                    nodes: [
+                        { id: 'sub-item1', text: 'Item 1', icon: 'fa fa-file-o', count: 10 },
+                        { id: 'sub-item2', text: 'Item 2', icon: 'fa fa-file-o' },
+                        { id: 'sub-item3', text: 'Item 3', icon: 'fa fa-file-o' }
+                    ]
+                },
+                { id: 'sum-item2', text: 'More Items', icon1: 'fa fa-folder-o', expanded: true,
+                    nodes: [
+                        { id: 'sub-item21', text: 'Item 1', icon: 'fa fa-file-o' },
+                        { id: 'sub-item22', text: 'Item 2', icon: 'fa fa-file-o' },
+                        { id: 'sub-item23', text: 'Item 3', icon: 'fa fa-file-o' }
+                    ]
+                }
+            ]
+        }
+    ]
 })
 
-window.action = function(method) {
-    sb[method]()
+window.setCount = function(id, count, options) {
+    sidebar.setCount(id, count, options)
 }
-
-window.search = function(value) {
-    sb.last_search = value
-    let count = sb.search(value)
-    sb.expandAll()
-    query(sb.box).find('#empty-search').remove()
-    if (count == 0) {
-        query(sb.box)
-            .append('<div id="empty-search" style="font-size: 13px; color: #666; z-index: 1400; top: 45%; left: 50%; transform: translateX(-50%); width: 100%!important; text-align: center">No nodes found</div>')
-        w2utils.marker(sb.box)
-    } else {
-        w2utils.marker(sb.box, [value])
-    }
-}
-
-window.generate = function(nodes, id, options, count, subCount) {
-    let icons = ['fa fa-home', 'fa fa-coffee', 'fa fa-comment-o', 'fa fa-star', 'fa fa-bug']
-    let texts = ['Test', 'Label', 'Item', 'Simple', 'Formula', 'Single']
-    for (let i=0; i<count; i++) {
-        let node = w2utils.extend({
-            id: id + '-' + i,
-            expanded: false,
-            text: texts[Math.floor(Math.random() * texts.length)],
-            icon: icons[Math.floor(Math.random() * icons.length)],
-            nodes: []
-        }, options)
-        if (subCount > 0) {
-            generate(node.nodes, id + '-' + i, {}, Math.floor(Math.random() * subCount) + 2)
-        }
-        nodes.push(node)
-    }
-}
-
-window.generate(sb.nodes, 'item', { icon: 'fa fa-folder-o' }, 5, 10)
-window.generate(sb.nodes[0].nodes[1].nodes, 'sub', { expanded: false }, 3)
-window.generate(sb.nodes[2].nodes[1].nodes, 'sb', { expanded: false }, 3)
-sb.refresh()
 </script>
