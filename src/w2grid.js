@@ -5137,7 +5137,7 @@ class w2grid extends w2base {
                     }
                 }
                 searches += `<span class="w2ui-action" data-click="searchFieldTooltip|${ind}|${sd_ind}|this">
-                    ${sf ? sf.label : ''}
+                    ${sf ? sf.label ?? sf.field : ''}
                     ${display}
                     <span class="icon-chevron-down"></span>
                 </span>`
@@ -6872,7 +6872,7 @@ class w2grid extends w2base {
                 </select>`
 
             html += `<tr>
-                        <td class="caption">${(w2utils.lang(s.label) || '')}</td>
+                        <td class="caption">${(w2utils.lang(s.label ?? s.field) || '')}</td>
                         <td class="operator">${operator}</td>
                         <td class="value">`
 
