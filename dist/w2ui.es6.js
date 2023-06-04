@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (6/2/2023, 10:14:42 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (6/4/2023, 10:41:33 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -15246,7 +15246,7 @@ class w2grid extends w2base {
                     }
                 }
                 searches += `<span class="w2ui-action" data-click="searchFieldTooltip|${ind}|${sd_ind}|this">
-                    ${sf ? sf.label : ''}
+                    ${sf ? sf.label ?? sf.field : ''}
                     ${display}
                     <span class="icon-chevron-down"></span>
                 </span>`
@@ -16917,7 +16917,7 @@ class w2grid extends w2base {
                     ${this.getOperators(s.type, s.operators)}
                 </select>`
             html += `<tr>
-                        <td class="caption">${(w2utils.lang(s.label) || '')}</td>
+                        <td class="caption">${(w2utils.lang(s.label ?? s.field) || '')}</td>
                         <td class="operator">${operator}</td>
                         <td class="value">`
             let tmpStyle
