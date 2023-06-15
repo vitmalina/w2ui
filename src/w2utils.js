@@ -1434,7 +1434,7 @@ class Utils {
             let action = options['btn_' + name]
             if (action) {
                 btn[name] = {
-                    text: w2utils.lang(action.text ?? ''),
+                    text: w2utils.lang(action.text ?? btn[name] ?? ''),
                     class: action.class ?? '',
                     style: action.style ?? '',
                     attrs: action.attrs ?? ''

@@ -744,12 +744,19 @@ function w2confirm(msg, title, callBack) {
         options.body = `<div class="w2ui-centered w2ui-msg-text">${options.msg}</div>`,
         delete options.msg
     }
+    if (typeof title == 'function' && callBack == null) {
+        callBack = title
+        title = undefined
+    }
     w2utils.extend(options, {
         title: w2utils.lang(title ?? 'Confirmation'),
         showClose: false,
         modal: true,
         cancelAction: 'no'
     })
+    if (callBack == null && options.callBack != null) {
+        callBack = options.callBack
+    }
     w2utils.normButtons(options, { yes: 'Yes', no: 'No' })
     if (query('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
         prom = w2popup.message(options)
