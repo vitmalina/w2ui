@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (6/4/2023, 10:41:33 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (6/15/2023, 4:02:36 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -2308,7 +2308,7 @@ class Utils {
             let action = options['btn_' + name]
             if (action) {
                 btn[name] = {
-                    text: w2utils.lang(action.text ?? ''),
+                    text: w2utils.lang(action.text ?? btn[name] ?? ''),
                     class: action.class ?? '',
                     style: action.style ?? '',
                     attrs: action.attrs ?? ''
@@ -3750,12 +3750,19 @@ function w2confirm(msg, title, callBack) {
         options.body = `<div class="w2ui-centered w2ui-msg-text">${options.msg}</div>`,
         delete options.msg
     }
+    if (typeof title == 'function' && callBack == null) {
+        callBack = title
+        title = undefined
+    }
     w2utils.extend(options, {
         title: w2utils.lang(title ?? 'Confirmation'),
         showClose: false,
         modal: true,
         cancelAction: 'no'
     })
+    if (callBack == null && options.callBack != null) {
+        callBack = options.callBack
+    }
     w2utils.normButtons(options, { yes: 'Yes', no: 'No' })
     if (query('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
         prom = w2popup.message(options)
@@ -6435,6 +6442,7 @@ let w2date    = new DateTooltip()
  *  - scroll returns promise
  *  - added onMouseEntter, onMouseLeave, onMouseDown, onMouseUp events
  *  - add(..., skipRefresh), insert(..., skipRefresh)
+ *  - item.items can be a function
  */
 
 class w2toolbar extends w2base {
@@ -6778,6 +6786,7 @@ class w2toolbar extends w2base {
                             }
                             w2menu.show(w2utils.extend({
                                 items,
+                                align: it.text ? 'left' : 'none', // if there is no text, then no alignent
                             }, it.overlay, {
                                 type: menuType,
                                 name : this.name + '-drop',
@@ -6983,10 +6992,11 @@ class w2toolbar extends w2base {
         if (['menu', 'menu-radio', 'menu-check'].includes(it.type) && it.checked) {
             // check selected items
             let selected = Array.isArray(it.selected) ? it.selected : [it.selected]
-            it.items.forEach((item) => {
+            let items = typeof it.items == 'function' ? it.items(it) : [...it.items]
+            items.forEach((item) => {
                 if (selected.includes(item.id)) item.checked = true; else item.checked = false
             })
-            w2menu.update(this.name + '-drop', it.items)
+            w2menu.update(this.name + '-drop', items)
         }
         // event after
         if (typeof it.onRefresh == 'function') {
@@ -7108,23 +7118,21 @@ class w2toolbar extends w2base {
                             : ''}
                     >
                         ${ icon }
-                        ${ text != ''
-                            ? `<div class="w2ui-tb-text" style="${(item.style ? item.style : '')}">
-                                    ${ w2utils.lang(text) }
-                                    ${ item.count != null
-                                        ? w2utils.stripSpaces(`<span class="w2ui-tb-count">
-                                                <span class="${this.last.badge[item.id] ? this.last.badge[item.id].className ?? '' : ''}"
-                                                    style="${this.last.badge[item.id] ? this.last.badge[item.id].style ?? '' : ''}"
-                                                >${item.count}</span>
-                                           </span>`)
-                                        : ''
-                                    }
-                                    ${ arrow
-                                        ? '<span class="w2ui-tb-down"><span></span></span>'
-                                        : ''
-                                    }
-                                </div>`
-                            : ''}
+                        <div class="w2ui-tb-text" style="${(item.style ?? '')}; ${!text ? 'padding-left: 0; margin-left: 23px;' : ''}">
+                            ${ w2utils.lang(text) }
+                            ${ item.count != null
+                                ? w2utils.stripSpaces(`
+                                    <span class="w2ui-tb-count">
+                                        <span class="${this.last.badge[item.id] ? this.last.badge[item.id].className ?? '' : ''}"
+                                                style="${this.last.badge[item.id] ? this.last.badge[item.id].style ?? '' : ''}">${item.count}</span>
+                                    </span>`)
+                                : ''
+                            }
+                            ${ arrow
+                                ? `<span class="w2ui-tb-down" ${!text && !item.count ? 'style="margin-left: -3px"' : ''}><span></span></span>`
+                                : ''
+                            }
+                        </div>
                     </div>
                 `
                 break
@@ -9171,7 +9179,7 @@ class w2tabs extends w2base {
                 // first insert tab on the right to get its proper dimentions
                 query(this.box).find('#tabs_tabs_right').before($tab.get(0))
                 let $tmp  = query(this.box).find('#' + $tab.attr('id'))
-                let width = $tmp.get(0).clientWidth ?? 0
+                let width = $tmp.get(0)?.clientWidth ?? 0
                 // insert animation div
                 let $anim = query.html('<div class="tab-animate-insert" style="flex-shrink: 0; width: 0; transition: width 0.25s"></div>')
                 $before.before($anim)
@@ -18137,7 +18145,7 @@ class w2grid extends w2base {
             if (typeof col.render == 'function' && record != null) {
                 let html
                 try {
-                    html = col.render(record, { self: this, value, index: ind, colIndex: col_ind, summary: !!summary })
+                    html = col.render.call(this, record, { self: this, value, index: ind, colIndex: col_ind, summary: !!summary })
                 } catch (e) {
                     throw new Error(`Render function for column "${col.field}" in grid "${this.name}": -- ` + e.message)
                 }
@@ -22335,4 +22343,4 @@ if (global) {
     w2popup, w2alert, w2confirm, w2prompt, Dialog,
     w2tooltip, w2menu, w2color, w2date, Tooltip,
     w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field
-})
+});

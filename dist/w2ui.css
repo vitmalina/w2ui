@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (6/15/2023, 2:49:17 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (6/15/2023, 3:01:40 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -669,18 +669,20 @@ button.w2ui-btn:disabled {
 }
 .w2ui-overlay .w2ui-overlay-body {
   display: inline-block;
-  border: 1px solid #474747;
   border-radius: 4px;
   padding: 4px 8px;
   margin: 0px;
-  font-size: 12px;
+  font-size: 13px;
   font-family: OpenSans;
   color: white;
-  text-shadow: 0px 1px 1px #4a4a4a;
-  background-color: #777777;
+  border: 1px solid #303439;
+  background-color: #5d5f64;
+  text-shadow: 0px 1px 1px #222222;
   line-height: 1.4;
   letter-spacing: 0.1px;
   overflow: auto;
+  /* yellow */
+  /* bright white */
 }
 .w2ui-overlay .w2ui-overlay-body.w2ui-light {
   color: #3c3c3c;
@@ -1143,6 +1145,31 @@ button.w2ui-btn:disabled {
 .w2ui-menu .collapsed .menu-extra span:after {
   transform: rotateZ(90deg);
 }
+.w2ui-overlay .w2ui-overlay-body.w2ui-dark .w2ui-menu-item {
+  color: #d9d9d9;
+}
+.w2ui-overlay .w2ui-overlay-body.w2ui-dark .w2ui-menu-item:hover {
+  background-color: #51545a;
+}
+.w2ui-overlay .w2ui-overlay-body.w2ui-dark .w2ui-menu-item.w2ui-selected {
+  color: white;
+  background-color: #4bb8ff;
+  text-shadow: 0px 1px 1px #66686d;
+}
+.w2ui-overlay .w2ui-overlay-body.w2ui-dark .w2ui-menu-item.w2ui-disabled {
+  color: #a3a3a3;
+  background-color: inherit;
+}
+.w2ui-overlay .w2ui-overlay-body.w2ui-dark .w2ui-menu-item .menu-icon span {
+  color: inherit;
+}
+.w2ui-overlay .w2ui-overlay-body.w2ui-dark .w2ui-menu-item .menu-extra span {
+  border: 1px solid #aaaaaa;
+  background-color: #7b7b7b;
+  color: #fff;
+  box-shadow: 0px 0px 2px #000000;
+  text-shadow: 0px 0px 1px #141414;
+}
 /* date overlay */
 .w2ui-calendar {
   margin: 0px;
@@ -1368,7 +1395,7 @@ button.w2ui-btn:disabled {
 .w2ui-cal-time {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  background-color: white;
+  background-color: #d9d9d9;
   cursor: default;
 }
 .w2ui-cal-time .w2ui-cal-column {
