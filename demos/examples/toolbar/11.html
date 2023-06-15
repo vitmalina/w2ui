@@ -34,11 +34,15 @@ new w2toolbar({
             ]
         },
         { type: 'spacer' },
-        { type: 'menu-radio', id: 'item2', icon: 'fa fa-star',
+        { type: 'menu-radio', id: 'item2', icon: 'fa fa-star', overlay: { class: 'w2ui-dark' },
             items: [
                 { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
                 { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
-                { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 }
+                { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 },
+                { text: '--' },
+                { id: 'id4', text: 'Item 4', icon: 'fa fa-camera', disabled: true },
+                { id: 'id5', text: 'Item 5', icon: 'fa fa-picture-o' },
+                { id: 'id6', text: 'Item 6', icon: 'fa fa-glass' }
             ]
         },
         { type: 'new-line' },

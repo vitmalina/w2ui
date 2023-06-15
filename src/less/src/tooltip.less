@@ -11,27 +11,27 @@
 
     .w2ui-overlay-body {
         display: inline-block;
-        border: 1px solid #474747;
         border-radius: 4px;
         padding: 4px 8px;
         margin: 0px;
-        font-size: 12px;
+        font-size: 13px;
         font-family: OpenSans;
         color: white;
-        text-shadow: 0px 1px 1px #4a4a4a;
-        background-color: #777777;
+        border: 1px solid #303439;
+        background-color: #5d5f64;
+        text-shadow: 0px 1px 1px #222222;
         line-height: 1.4;
         letter-spacing: 0.1px;
         overflow: auto;
-
-        &.w2ui-light {
+        /* yellow */
+        &.w2ui-light { // default is .w2ui-dark, which is not a real class
             color: #3c3c3c;
             text-shadow: none;
             background-color: #fffde9;
             border: 1px solid #d2d2d2;
             box-shadow: 0px 1px 1px 1px #ffffff;
         }
-
+        /* bright white */
         &.w2ui-white {
             color: #3c3c3c;
             text-shadow: none;
@@ -39,7 +39,6 @@
             border: 1px solid #cccace;
             box-shadow: 0px 0px 1px 1px #ffffff;
         }
-
         &.w2ui-arrow-right:before {
             content: "";
             position: absolute;
@@ -533,6 +532,35 @@
     }
 }
 
+// dark menu
+.w2ui-overlay .w2ui-overlay-body.w2ui-dark {
+    .w2ui-menu-item {
+        color: #d9d9d9;
+        &:hover {
+            background-color: #51545a;
+        }
+        &.w2ui-selected {
+            color: white;
+            background-color: #4bb8ff;
+            text-shadow: 0px 1px 1px #66686d;
+        }
+        &.w2ui-disabled {
+            color: #a3a3a3;
+            background-color: inherit;
+        }
+        .menu-icon span {
+            color: inherit;
+        }
+        .menu-extra span {
+            border: 1px solid #aaaaaa;
+            background-color: #7b7b7b;
+            color: #fff;
+            box-shadow: 0px 0px 2px #000000;
+            text-shadow: 0px 0px 1px #141414;
+        }
+    }
+}
+
 /* date overlay */
 .w2ui-calendar {
     margin: 0px;
@@ -756,7 +784,7 @@
 .w2ui-cal-time {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    background-color: white;;
+    background-color: #d9d9d9;;
     cursor: default;
 
     .w2ui-cal-column {
