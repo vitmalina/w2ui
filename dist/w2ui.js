@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (6/16/2023, 11:27:45 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (6/16/2023, 11:56:37 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -4371,7 +4371,6 @@ class Tooltip {
         let anchor     = overlay.anchor.getBoundingClientRect()
         if (overlay.anchor == document.body) {
             // context menu
-            // context menu
             let evt = options.originalEvent
             while(evt.originalEvent) { evt = evt.originalEvent }
             let { x, y, width, height } = evt
@@ -5661,6 +5660,9 @@ class MenuTooltip extends Tooltip {
             ids.forEach(id => {
                 items = items[id].items
             })
+        }
+        if (typeof items == 'function') {
+            items = items({ overlay, index, parentIndex, event })
         }
         let item = items[index]
         if (item.disabled) {

@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (6/15/2023, 3:01:40 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (6/16/2023, 11:58:45 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -1169,6 +1169,11 @@ button.w2ui-btn:disabled {
   color: #fff;
   box-shadow: 0px 0px 2px #000000;
   text-shadow: 0px 0px 1px #141414;
+}
+.w2ui-overlay .w2ui-overlay-body.w2ui-dark .w2ui-sub-menu-box {
+  background-color: #596a77;
+  border-top: 1px solid #42484b;
+  border-bottom: 1px solid #42484b;
 }
 /* date overlay */
 .w2ui-calendar {
