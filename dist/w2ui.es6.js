@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (6/15/2023, 4:02:36 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (6/16/2023, 11:27:45 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -3861,6 +3861,7 @@ let w2popup = new Dialog()
  *
  * 2.0 Changes
  * - multiple tooltips to the same anchor
+ * - options.contextMenu
  *
  */
 
@@ -3876,6 +3877,7 @@ class Tooltip {
             position        : 'top|bottom',   // can be left, right, top, bottom
             align           : '',       // can be: both, both:XX left, right, both, top, bottom
             anchor          : null,     // element it is attached to, if anchor is body, then it is context menu
+            contextMenu     : false,    // if true, then it is context menu
             anchorClass     : '',       // add class for anchor when tooltip is shown
             anchorStyle     : '',       // add style for anchor when tooltip is shown
             autoShow        : false,    // if autoShow true, then tooltip will show on mouseEnter and hide on mouseLeave
@@ -3943,7 +3945,7 @@ class Tooltip {
         let self = this
         if (arguments.length == 0) {
             return
-        } else if (arguments.length == 1 && anchor.anchor) {
+        } else if (arguments.length == 1 && anchor instanceof Object) {
             options = anchor
             anchor = options.anchor
         } else if (arguments.length === 2 && typeof text === 'string') {
@@ -3960,7 +3962,7 @@ class Tooltip {
         delete options.anchor
         // define tooltip
         let name = (options.name ? options.name : anchor.id)
-        if (anchor == document || anchor == document.body) {
+        if (anchor == document || anchor == document.body || options.contextMenu) {
             anchor = document.body
             name = 'context-menu'
         }
@@ -4369,7 +4371,10 @@ class Tooltip {
         let anchor     = overlay.anchor.getBoundingClientRect()
         if (overlay.anchor == document.body) {
             // context menu
-            let { x, y, width, height } = options.originalEvent
+            // context menu
+            let evt = options.originalEvent
+            while(evt.originalEvent) { evt = evt.originalEvent }
+            let { x, y, width, height } = evt
             anchor = { left: x - 2, top: y - 4, width, height, arrow: 'none' }
         }
         let arrowSize = options.arrowSize
@@ -4597,7 +4602,7 @@ class ColorTooltip extends Tooltip {
     }
     attach(anchor, text) {
         let options
-        if (arguments.length == 1 && anchor.anchor) {
+        if (arguments.length == 1 && anchor instanceof Object) {
             options = anchor
             anchor = options.anchor
         } else if (arguments.length === 2 && text != null && typeof text === 'object') {
@@ -4919,6 +4924,7 @@ class ColorTooltip extends Tooltip {
             let el1 = query(overlay.box).find('.palette .value1')
             let el2 = query(overlay.box).find('.rainbow .value2')
             let el3 = query(overlay.box).find('.alpha .value2')
+            if (!el1[0] || !el2[0] || !el3[0]) return
             let offset1 = parseInt(el1[0].clientWidth) / 2
             let offset2 = parseInt(el2[0].clientWidth) / 2
             el1.css({
@@ -5042,7 +5048,7 @@ class MenuTooltip extends Tooltip {
     }
     attach(anchor, text) {
         let options
-        if (arguments.length == 1 && anchor.anchor) {
+        if (arguments.length == 1 && anchor instanceof Object) {
             options = anchor
             anchor = options.anchor
         } else if (arguments.length === 2 && text != null && typeof text === 'object') {
@@ -5942,7 +5948,7 @@ class DateTooltip extends Tooltip {
     }
     attach(anchor, text) {
         let options
-        if (arguments.length == 1 && anchor.anchor) {
+        if (arguments.length == 1 && anchor instanceof Object) {
             options = anchor
             anchor = options.anchor
         } else if (arguments.length === 2 && text != null && typeof text === 'object') {
@@ -7161,7 +7167,7 @@ class w2toolbar extends w2base {
         if (this.tooltip == null) return
         let el   = query(this.box).find('#tb_'+ this.name + '_item_'+ w2utils.escapeId(id)).get(0)
         let item = this.get(id)
-        let pos  = this.tooltip
+        let overlay = (typeof this.tooltip == 'string' ? { position: this.tooltip } : this.tooltip)
         let txt  = item.tooltip
         if (typeof txt == 'function') txt = txt.call(this, item)
         // not for opened drop downs
@@ -7173,7 +7179,7 @@ class w2toolbar extends w2base {
             anchor: el,
             name: this.name + '-tooltip',
             html: txt,
-            position: pos
+            ...overlay
         })
         return
     }
