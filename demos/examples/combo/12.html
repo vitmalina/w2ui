@@ -60,8 +60,8 @@ window.contextMenu = function(event, type) {
     }
     w2menu.show({
         name: 'context-menu',
+        contextMenu: true,
         items,
-        anchor: query('body')[0],
         onSelect(event) {
             query('#msg-log').html(event.detail.item.text)
             console.log('select', event);

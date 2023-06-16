@@ -4,6 +4,7 @@
  *
  * 2.0 Changes
  * - multiple tooltips to the same anchor
+ * - options.contextMenu
  *
  */
 
@@ -23,6 +24,7 @@ class Tooltip {
             position        : 'top|bottom',   // can be left, right, top, bottom
             align           : '',       // can be: both, both:XX left, right, both, top, bottom
             anchor          : null,     // element it is attached to, if anchor is body, then it is context menu
+            contextMenu     : false,    // if true, then it is context menu
             anchorClass     : '',       // add class for anchor when tooltip is shown
             anchorStyle     : '',       // add style for anchor when tooltip is shown
             autoShow        : false,    // if autoShow true, then tooltip will show on mouseEnter and hide on mouseLeave
@@ -94,7 +96,7 @@ class Tooltip {
         let self = this
         if (arguments.length == 0) {
             return
-        } else if (arguments.length == 1 && anchor.anchor) {
+        } else if (arguments.length == 1 && anchor instanceof Object) {
             options = anchor
             anchor = options.anchor
         } else if (arguments.length === 2 && typeof text === 'string') {
@@ -112,7 +114,7 @@ class Tooltip {
 
         // define tooltip
         let name = (options.name ? options.name : anchor.id)
-        if (anchor == document || anchor == document.body) {
+        if (anchor == document || anchor == document.body || options.contextMenu) {
             anchor = document.body
             name = 'context-menu'
         }
@@ -531,7 +533,10 @@ class Tooltip {
 
         if (overlay.anchor == document.body) {
             // context menu
-            let { x, y, width, height } = options.originalEvent
+            // context menu
+            let evt = options.originalEvent
+            while(evt.originalEvent) { evt = evt.originalEvent }
+            let { x, y, width, height } = evt
             anchor = { left: x - 2, top: y - 4, width, height, arrow: 'none' }
         }
         let arrowSize = options.arrowSize
@@ -769,7 +774,7 @@ class ColorTooltip extends Tooltip {
 
     attach(anchor, text) {
         let options
-        if (arguments.length == 1 && anchor.anchor) {
+        if (arguments.length == 1 && anchor instanceof Object) {
             options = anchor
             anchor = options.anchor
         } else if (arguments.length === 2 && text != null && typeof text === 'object') {
@@ -1232,7 +1237,7 @@ class MenuTooltip extends Tooltip {
 
     attach(anchor, text) {
         let options
-        if (arguments.length == 1 && anchor.anchor) {
+        if (arguments.length == 1 && anchor instanceof Object) {
             options = anchor
             anchor = options.anchor
         } else if (arguments.length === 2 && text != null && typeof text === 'object') {
@@ -2151,7 +2156,7 @@ class DateTooltip extends Tooltip {
 
     attach(anchor, text) {
         let options
-        if (arguments.length == 1 && anchor.anchor) {
+        if (arguments.length == 1 && anchor instanceof Object) {
             options = anchor
             anchor = options.anchor
         } else if (arguments.length === 2 && text != null && typeof text === 'object') {
