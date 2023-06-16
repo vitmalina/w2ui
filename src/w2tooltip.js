@@ -533,7 +533,6 @@ class Tooltip {
 
         if (overlay.anchor == document.body) {
             // context menu
-            // context menu
             let evt = options.originalEvent
             while(evt.originalEvent) { evt = evt.originalEvent }
             let { x, y, width, height } = evt
@@ -1464,7 +1463,7 @@ class MenuTooltip extends Tooltip {
                         } else if (Array.isArray(mitem.items)) {
                             _items = mitem.items
                         }
-                        count_dsp   = '<span></span>'
+                        count_dsp   = '<span style="background-color: transparent; border: transparent; box-shadow: none;"></span>' // used as drop arrow
                         subMenu_dsp = `
                             <div class="w2ui-sub-menu-box" style="${mitem.expanded ? '' : 'display: none'}">
                                 ${this.getMenuHTML(options, _items, true, parentIndex.concat(f))}
@@ -1863,6 +1862,9 @@ class MenuTooltip extends Tooltip {
             ids.forEach(id => {
                 items = items[id].items
             })
+        }
+        if (typeof items == 'function') {
+            items = items({ overlay, index, parentIndex, event })
         }
         let item = items[index]
         if (item.disabled) {

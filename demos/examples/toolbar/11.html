@@ -37,7 +37,15 @@ new w2toolbar({
         { type: 'menu-radio', id: 'item2', icon: 'fa fa-star', overlay: { class: 'w2ui-dark' },
             items: [
                 { id: 'id1', text: 'Item 1', icon: 'fa fa-camera' },
-                { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o' },
+                { id: 'id2', text: 'Item 2', icon: 'fa fa-picture-o',
+                    items: [
+                        { id: 'id1a', text: 'Item 1', icon: 'fa fa-camera' },
+                        { id: 'id2a', text: 'Item 2', icon: 'fa fa-picture-o' },
+                        { id: 'id3a', text: 'Item 3', icon: 'fa fa-glass', count: 12 },
+                        { text: '--' },
+                        { id: 'id4a', text: 'Item 4', icon: 'fa fa-glass' }
+                    ]
+                },
                 { id: 'id3', text: 'Item 3', icon: 'fa fa-glass', count: 12 },
                 { text: '--' },
                 { id: 'id4', text: 'Item 4', icon: 'fa fa-camera', disabled: true },
