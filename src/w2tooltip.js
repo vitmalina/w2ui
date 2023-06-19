@@ -5,7 +5,7 @@
  * 2.0 Changes
  * - multiple tooltips to the same anchor
  * - options.contextMenu
- *
+ * - options.prefilter - if true, it will show prefiltered items for w2menu, otherwise all
  */
 
 import { w2base } from './w2base.js'
@@ -1218,6 +1218,7 @@ class MenuTooltip extends Tooltip {
             menuStyle   : '',
             filter      : false,
             markSearch  : false,
+            prefilter   : false,
             match       : 'contains',   // is, begins, ends, contains
             search      : false,        // top search TODO: Check
             altRows     : false,
@@ -1272,7 +1273,9 @@ class MenuTooltip extends Tooltip {
                     .then(data => {
                         overlay.tmp.searchCount = data.count
                         overlay.tmp.search = data.search
-                        this.refreshSearch(overlay.name)
+                        if (options.prefilter) {
+                            this.refreshSearch(overlay.name)
+                        }
                         this.initControls(ret.overlay)
                         this.refreshIndex(overlay.name)
                     })
