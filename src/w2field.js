@@ -106,7 +106,7 @@ class w2field extends w2base {
             case 'percent':
             case 'alphanumeric':
             case 'bin':
-            case 'hex':
+            case 'hex': {
                 defaults = {
                     min: null,
                     max: null,
@@ -135,8 +135,8 @@ class w2field extends w2base {
                     options.keyboard = false
                 }
                 break
-
-            case 'color':
+            }
+            case 'color': {
                 defaults     = {
                     prefix      : '#',
                     suffix      : `<div style="width: ${(parseInt(getComputedStyle(this.el)['font-size'])) || 12}px">&#160;</div>`,
@@ -147,8 +147,8 @@ class w2field extends w2base {
                 this.options = w2utils.extend({}, defaults, options)
                 options = this.options // since object is re-created, need to re-assign
                 break
-
-            case 'date':
+            }
+            case 'date': {
                 defaults = {
                     format        : w2utils.settings.dateFormat, // date format
                     keyboard      : true,
@@ -166,8 +166,8 @@ class w2field extends w2base {
                     query(this.el).attr('placeholder', options.format)
                 }
                 break
-
-            case 'time':
+            }
+            case 'time': {
                 defaults     = {
                     format      : w2utils.settings.timeFormat,
                     keyboard    : true,
@@ -183,8 +183,8 @@ class w2field extends w2base {
                     query(this.el).attr('placeholder', options.format)
                 }
                 break
-
-            case 'datetime':
+            }
+            case 'datetime': {
                 defaults     = {
                     format        : w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat,
                     keyboard      : true,
@@ -205,9 +205,9 @@ class w2field extends w2base {
                     query(this.el).attr('placeholder', options.placeholder || options.format)
                 }
                 break
-
+            }
             case 'list':
-            case 'combo':
+            case 'combo': {
                 defaults = {
                     items           : [],
                     selected        : {},
@@ -272,8 +272,8 @@ class w2field extends w2base {
                     query(this.el).val(options.selected.text)
                 }
                 break
-
-            case 'enum':
+            }
+            case 'enum': {
                 defaults = {
                     items           : [],    // id, text, tooltip, icon
                     selected        : [],
@@ -324,8 +324,8 @@ class w2field extends w2base {
                 if (!Array.isArray(options.selected)) options.selected = []
                 this.selected = options.selected
                 break
-
-            case 'file':
+            }
+            case 'file': {
                 defaults     = {
                     selected      : [],
                     max           : 0,
@@ -354,6 +354,11 @@ class w2field extends w2base {
                     query(this.el).attr('placeholder', w2utils.lang('Attach files by dragging and dropping or Click to Select'))
                 }
                 break
+            }
+            default: {
+                console.log(`ERROR: field type "${this.type}" is not supported.`)
+                break
+            }
         }
         // attach events
         query(this.el)

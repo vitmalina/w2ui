@@ -1252,6 +1252,7 @@ class MenuTooltip extends Tooltip {
         if (options.items == null) {
             options.items = []
         }
+        options.items = w2utils.normMenu(options.items)
         options.html = this.getMenuHTML(options)
         let ret = super.attach(options)
         let overlay = ret.overlay
@@ -1260,7 +1261,6 @@ class MenuTooltip extends Tooltip {
                 let search = ''
                 // reset selected and active chain
                 overlay.selected = null
-                overlay.options.items = w2utils.normMenu(overlay.options.items)
 
                 if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
                     search = overlay.anchor.value

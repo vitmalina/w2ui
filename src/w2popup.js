@@ -749,7 +749,7 @@ function w2confirm(msg, title, callBack) {
         title = undefined
     }
     w2utils.extend(options, {
-        title: w2utils.lang(title ?? 'Confirmation'),
+        title: w2utils.lang(title ?? options.title ?? 'Confirmation'),
         showClose: false,
         modal: true,
         cancelAction: 'no'
@@ -796,7 +796,7 @@ function w2prompt(label, title, callBack) {
         )
     }
     w2utils.extend(options, {
-        title: w2utils.lang(title ?? 'Notification'),
+        title: w2utils.lang(title ?? options.title ?? 'Notification'),
         showClose: false,
         modal: true,
         cancelAction: 'cancel'
@@ -830,7 +830,7 @@ function w2prompt(label, title, callBack) {
                 change(evt) {
                     let edata = prom.self.trigger('change', { target: 'prompt', originalEvent: evt })
                     if (edata.isCancelled === true) return
-                    if (evt.keyCode == 13 && evt.ctrlKey) {
+                    if (evt.keyCode == 13 && (evt.ctrlKey || evt.metaKey || evt.target.tagName != 'TEXTAREA')) {
                         prom.self.action('Ok', evt)
                     }
                     if (evt.keyCode == 27) {

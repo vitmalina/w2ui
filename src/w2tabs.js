@@ -268,7 +268,7 @@ class w2tabs extends w2base {
     mouseAction(action, id, event) {
         let tab = this.get(id)
         let edata = this.trigger('mouse' + action, { target: id, tab, object: tab, originalEvent: event })
-        if (edata.isCancelled === true || tab.disabled || tab.hidden) return
+        if (edata.isCancelled === true || tab?.disabled || tab?.hidden) return
         switch (action) {
             case 'Enter':
                 this.tooltipShow(id)
@@ -286,14 +286,14 @@ class w2tabs extends w2base {
     }
 
     tooltipShow(id) {
-        let item = this.get(id)
+        let tab = this.get(id)
         let el = query(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(id)).get(0)
-        if (this.tooltip == null || item.disabled || this.last.reordering) {
+        if (this.tooltip == null || tab?.disabled || this.last.reordering) {
             return
         }
         let pos = this.tooltip
-        let txt = item.tooltip
-        if (typeof txt == 'function') txt = txt.call(this, item)
+        let txt = tab?.tooltip
+        if (typeof txt == 'function') txt = txt.call(this, tab)
         w2tooltip.show({
             anchor: el,
             name: this.name + '_tooltip',
