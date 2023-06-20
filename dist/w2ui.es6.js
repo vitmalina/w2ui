@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (6/16/2023, 11:56:37 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (6/20/2023, 10:52:07 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -3755,7 +3755,7 @@ function w2confirm(msg, title, callBack) {
         title = undefined
     }
     w2utils.extend(options, {
-        title: w2utils.lang(title ?? 'Confirmation'),
+        title: w2utils.lang(title ?? options.title ?? 'Confirmation'),
         showClose: false,
         modal: true,
         cancelAction: 'no'
@@ -3801,7 +3801,7 @@ function w2prompt(label, title, callBack) {
         )
     }
     w2utils.extend(options, {
-        title: w2utils.lang(title ?? 'Notification'),
+        title: w2utils.lang(title ?? options.title ?? 'Notification'),
         showClose: false,
         modal: true,
         cancelAction: 'cancel'
@@ -3835,7 +3835,7 @@ function w2prompt(label, title, callBack) {
                 change(evt) {
                     let edata = prom.self.trigger('change', { target: 'prompt', originalEvent: evt })
                     if (edata.isCancelled === true) return
-                    if (evt.keyCode == 13 && evt.ctrlKey) {
+                    if (evt.keyCode == 13 && (evt.ctrlKey || evt.metaKey || evt.target.tagName != 'TEXTAREA')) {
                         prom.self.action('Ok', evt)
                     }
                     if (evt.keyCode == 27) {
@@ -3862,7 +3862,7 @@ let w2popup = new Dialog()
  * 2.0 Changes
  * - multiple tooltips to the same anchor
  * - options.contextMenu
- *
+ * - options.prefilter - if true, it will show prefiltered items for w2menu, otherwise all
  */
 
 class Tooltip {
@@ -5030,6 +5030,7 @@ class MenuTooltip extends Tooltip {
             menuStyle   : '',
             filter      : false,
             markSearch  : false,
+            prefilter   : false,
             match       : 'contains',   // is, begins, ends, contains
             search      : false,        // top search TODO: Check
             altRows     : false,
@@ -5063,6 +5064,7 @@ class MenuTooltip extends Tooltip {
         if (options.items == null) {
             options.items = []
         }
+        options.items = w2utils.normMenu(options.items)
         options.html = this.getMenuHTML(options)
         let ret = super.attach(options)
         let overlay = ret.overlay
@@ -5071,7 +5073,6 @@ class MenuTooltip extends Tooltip {
                 let search = ''
                 // reset selected and active chain
                 overlay.selected = null
-                overlay.options.items = w2utils.normMenu(overlay.options.items)
                 if (['INPUT', 'TEXTAREA'].includes(overlay.anchor.tagName)) {
                     search = overlay.anchor.value
                     overlay.selected = overlay.anchor.dataset.selectedIndex
@@ -5082,7 +5083,9 @@ class MenuTooltip extends Tooltip {
                     .then(data => {
                         overlay.tmp.searchCount = data.count
                         overlay.tmp.search = data.search
-                        this.refreshSearch(overlay.name)
+                        if (options.prefilter) {
+                            this.refreshSearch(overlay.name)
+                        }
                         this.initControls(ret.overlay)
                         this.refreshIndex(overlay.name)
                     })
@@ -5268,7 +5271,7 @@ class MenuTooltip extends Tooltip {
                         } else if (Array.isArray(mitem.items)) {
                             _items = mitem.items
                         }
-                        count_dsp   = '<span></span>'
+                        count_dsp   = '<span style="background-color: transparent; border: transparent; box-shadow: none;"></span>' // used as drop arrow
                         subMenu_dsp = `
                             <div class="w2ui-sub-menu-box" style="${mitem.expanded ? '' : 'display: none'}">
                                 ${this.getMenuHTML(options, _items, true, parentIndex.concat(f))}
@@ -8833,7 +8836,7 @@ class w2tabs extends w2base {
     mouseAction(action, id, event) {
         let tab = this.get(id)
         let edata = this.trigger('mouse' + action, { target: id, tab, object: tab, originalEvent: event })
-        if (edata.isCancelled === true || tab.disabled || tab.hidden) return
+        if (edata.isCancelled === true || tab?.disabled || tab?.hidden) return
         switch (action) {
             case 'Enter':
                 this.tooltipShow(id)
@@ -8850,14 +8853,14 @@ class w2tabs extends w2base {
         edata.finish()
     }
     tooltipShow(id) {
-        let item = this.get(id)
+        let tab = this.get(id)
         let el = query(this.box).find('#tabs_'+ this.name + '_tab_'+ w2utils.escapeId(id)).get(0)
-        if (this.tooltip == null || item.disabled || this.last.reordering) {
+        if (this.tooltip == null || tab?.disabled || this.last.reordering) {
             return
         }
         let pos = this.tooltip
-        let txt = item.tooltip
-        if (typeof txt == 'function') txt = txt.call(this, item)
+        let txt = tab?.tooltip
+        if (typeof txt == 'function') txt = txt.call(this, tab)
         w2tooltip.show({
             anchor: el,
             name: this.name + '_tooltip',
@@ -20568,7 +20571,7 @@ class w2field extends w2base {
             case 'percent':
             case 'alphanumeric':
             case 'bin':
-            case 'hex':
+            case 'hex': {
                 defaults = {
                     min: null,
                     max: null,
@@ -20597,7 +20600,8 @@ class w2field extends w2base {
                     options.keyboard = false
                 }
                 break
-            case 'color':
+            }
+            case 'color': {
                 defaults     = {
                     prefix      : '#',
                     suffix      : `<div style="width: ${(parseInt(getComputedStyle(this.el)['font-size'])) || 12}px">&#160;</div>`,
@@ -20608,7 +20612,8 @@ class w2field extends w2base {
                 this.options = w2utils.extend({}, defaults, options)
                 options = this.options // since object is re-created, need to re-assign
                 break
-            case 'date':
+            }
+            case 'date': {
                 defaults = {
                     format        : w2utils.settings.dateFormat, // date format
                     keyboard      : true,
@@ -20626,7 +20631,8 @@ class w2field extends w2base {
                     query(this.el).attr('placeholder', options.format)
                 }
                 break
-            case 'time':
+            }
+            case 'time': {
                 defaults     = {
                     format      : w2utils.settings.timeFormat,
                     keyboard    : true,
@@ -20642,7 +20648,8 @@ class w2field extends w2base {
                     query(this.el).attr('placeholder', options.format)
                 }
                 break
-            case 'datetime':
+            }
+            case 'datetime': {
                 defaults     = {
                     format        : w2utils.settings.dateFormat + '|' + w2utils.settings.timeFormat,
                     keyboard      : true,
@@ -20663,8 +20670,9 @@ class w2field extends w2base {
                     query(this.el).attr('placeholder', options.placeholder || options.format)
                 }
                 break
+            }
             case 'list':
-            case 'combo':
+            case 'combo': {
                 defaults = {
                     items           : [],
                     selected        : {},
@@ -20729,7 +20737,8 @@ class w2field extends w2base {
                     query(this.el).val(options.selected.text)
                 }
                 break
-            case 'enum':
+            }
+            case 'enum': {
                 defaults = {
                     items           : [],    // id, text, tooltip, icon
                     selected        : [],
@@ -20780,7 +20789,8 @@ class w2field extends w2base {
                 if (!Array.isArray(options.selected)) options.selected = []
                 this.selected = options.selected
                 break
-            case 'file':
+            }
+            case 'file': {
                 defaults     = {
                     selected      : [],
                     max           : 0,
@@ -20809,6 +20819,11 @@ class w2field extends w2base {
                     query(this.el).attr('placeholder', w2utils.lang('Attach files by dragging and dropping or Click to Select'))
                 }
                 break
+            }
+            default: {
+                console.log(`ERROR: field type "${this.type}" is not supported.`)
+                break
+            }
         }
         // attach events
         query(this.el)
