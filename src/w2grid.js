@@ -447,6 +447,8 @@ class w2grid extends w2base {
                 })
             })
         }
+        // init toolbar
+        this.initToolbar()
         // render if box specified
         if (typeof this.box == 'string') this.box = query(this.box).get(0)
         if (this.box) this.render(this.box)
@@ -5465,8 +5467,7 @@ class w2grid extends w2base {
                   '</div>')
         if (this.selectType != 'row') query(this.box).addClass('w2ui-ss')
         if (query(this.box).length > 0) query(this.box)[0].style.cssText += this.style
-        // init toolbar
-        this.initToolbar()
+        // render toolbar
         if (this.toolbar != null) this.toolbar.render(query(this.box).find('#grid_'+ this.name +'_toolbar')[0])
         this.last.toolbar_height = query(this.box).find(`#grid_${this.name}_toolbar`).prop('offsetHeight')
         // re-init search_all

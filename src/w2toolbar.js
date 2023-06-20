@@ -887,10 +887,7 @@ class w2toolbar extends w2base {
         let obj = this
         if (event.item && !event.item.disabled) {
             // event before
-            let edata = this.trigger('click', {
-                target: event.item.id, item: event.item,
-                color: event.color, final: event.final, originalEvent: event.originalEvent
-            })
+            let edata = this.trigger('click', { target: event.item.id, item: event.item, color: event.color, final: true })
             if (edata.isCancelled === true) return
 
             // default behavior
