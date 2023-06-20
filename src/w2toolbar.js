@@ -18,6 +18,8 @@
  *  - added onMouseEntter, onMouseLeave, onMouseDown, onMouseUp events
  *  - add(..., skipRefresh), insert(..., skipRefresh)
  *  - item.items can be a function
+ *  - item.icon_style - style for the icon
+ *  - item.icon - can be a function
  */
 
 import { w2base } from './w2base.js'
@@ -682,7 +684,7 @@ class w2toolbar extends w2base {
                 icon = item.icon.call(this, item)
             }
             if (String(icon).slice(0, 1) !== '<') {
-                icon = `<span class="${icon}"></span>`
+                icon = `<span class="${icon}" ${item.icon_style ? `style="${item.icon_style}"` : ''}></span>`
             }
             icon = `<div class="w2ui-tb-icon">${icon}</div>`
         }
