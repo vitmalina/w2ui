@@ -718,7 +718,7 @@ class w2field extends w2base {
         let div = this.helpers.multi
         if (['enum', 'file'].includes(this.type) && div) {
             // adjust height
-            query(this.el).css('height', 'auto')
+            query(this.el).css('height', '')
             let cntHeight = query(div).find(':scope div.w2ui-multi-items').get(0).clientHeight + 5
             if (cntHeight < 20) cntHeight = 20
             // max height
@@ -745,7 +745,7 @@ class w2field extends w2base {
     reset() {
         // restore paddings
         if (this.tmp != null) {
-            query(this.el).css('height', 'auto')
+            query(this.el).css('height', '')
             Array('padding-left', 'padding-right', 'background-color', 'border-color').forEach(prop => {
                 if (this.tmp && this.tmp['old-'+ prop] != null) {
                     query(this.el).css(prop, this.tmp['old-' + prop])
