@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (6/20/2023, 10:52:07 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (6/25/2023, 4:11:25 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -696,7 +696,8 @@ button.w2ui-btn:disabled {
   text-shadow: none;
   background-color: #fafafa;
   border: 1px solid #cccace;
-  box-shadow: 0px 0px 1px 1px #ffffff;
+  box-shadow: 0px 0px 2px 0px #4b4b4b;
+  outline: 1px solid white;
 }
 .w2ui-overlay .w2ui-overlay-body.w2ui-arrow-right:before {
   content: "";
@@ -1055,22 +1056,28 @@ button.w2ui-btn:disabled {
   background-color: transparent;
   border-color: transparent;
   box-shadow: none;
-  padding: 0 5px;
+  padding: 0 4px 0 5px;
   border-radius: 3px;
   position: relative;
-  margin-top: -3px;
+  margin-top: -1px;
   display: block;
   height: 20px;
   width: 20px;
+  opacity: 0;
+  line-height: 1.3;
   text-align: center;
   user-select: none;
 }
 .w2ui-menu .w2ui-menu-item .menu-extra span.remove:hover {
   background-color: #f9e7e7;
+  border: 1px solid #f1c0c0;
   color: red;
 }
 .w2ui-menu .w2ui-menu-item .menu-extra span.remove:active {
   background-color: #ffd1d1;
+}
+.w2ui-menu .w2ui-menu-item:hover .menu-extra span.remove {
+  opacity: 1;
 }
 .w2ui-menu .w2ui-menu-divider {
   padding: 5px;
@@ -1404,7 +1411,7 @@ button.w2ui-btn:disabled {
 .w2ui-cal-time {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  background-color: #d9d9d9;
+  background-color: #ffffff;
   cursor: default;
 }
 .w2ui-cal-time .w2ui-cal-column {
@@ -2128,7 +2135,7 @@ textarea.w2ui-error {
   position: relative;
   width: 300px;
   left: 0px;
-  top: -4px;
+  top: -3px;
 }
 .w2ui-grid .w2ui-grid-toolbar .w2ui-grid-search-input .w2ui-search-down {
   position: absolute;
@@ -2173,9 +2180,8 @@ textarea.w2ui-error {
   border: 1px solid #e1e1e1 !important;
   color: #000 !important;
   background-color: #f1f1f1 !important;
-  padding: 1px 28px 0px 28px !important;
+  padding: 1px 28px 0px 24px !important;
   margin: 0px !important;
-  margin-top: 1px !important;
   font-size: 13px !important;
 }
 .w2ui-grid .w2ui-grid-toolbar .w2ui-grid-search-input .w2ui-search-all:focus {
@@ -3713,8 +3719,8 @@ textarea.w2ui-error {
   text-shadow: 1px 1px 0px #FFF;
 }
 .w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-button .w2ui-tb-text .w2ui-tb-down {
-  display: inline-block;
   width: 10px;
+  float: right;
 }
 .w2ui-toolbar .w2ui-scroll-wrapper .w2ui-tb-button .w2ui-tb-text .w2ui-tb-down > span {
   display: inline-block;

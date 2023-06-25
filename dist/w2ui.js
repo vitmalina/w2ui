@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (6/20/2023, 10:52:07 AM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (6/25/2023, 4:11:25 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -1419,11 +1419,12 @@ class Utils {
         if (this.isInt(dateStr)) dt = new Date(Number(dateStr)) // for unix timestamps
         if (this.isTime(dateStr)) {
             let tmp = this.isTime(dateStr, true)
-            dt      = new Date()
+            dt = new Date()
             dt.setHours(tmp.hours)
             dt.setMinutes(tmp.minutes)
         }
         if (String(dt) === 'Invalid Date') return ''
+        if (format == 'h12') format = 'hh:mi pm'
         let type = 'am'
         let hour = dt.getHours()
         let h24  = dt.getHours()
@@ -6454,6 +6455,8 @@ let w2date    = new DateTooltip()
  *  - added onMouseEntter, onMouseLeave, onMouseDown, onMouseUp events
  *  - add(..., skipRefresh), insert(..., skipRefresh)
  *  - item.items can be a function
+ *  - item.icon_style - style for the icon
+ *  - item.icon - can be a function
  */
 
 class w2toolbar extends w2base {
@@ -7083,7 +7086,7 @@ class w2toolbar extends w2base {
                 icon = item.icon.call(this, item)
             }
             if (String(icon).slice(0, 1) !== '<') {
-                icon = `<span class="${icon}"></span>`
+                icon = `<span class="${icon}" ${item.icon_style ? `style="${item.icon_style}"` : ''}></span>`
             }
             icon = `<div class="w2ui-tb-icon">${icon}</div>`
         }
@@ -7277,10 +7280,7 @@ class w2toolbar extends w2base {
         let obj = this
         if (event.item && !event.item.disabled) {
             // event before
-            let edata = this.trigger('click', {
-                target: event.item.id, item: event.item,
-                color: event.color, final: event.final, originalEvent: event.originalEvent
-            })
+            let edata = this.trigger('click', { target: event.item.id, item: event.item, color: event.color, final: true })
             if (edata.isCancelled === true) return
             // default behavior
             event.item.color = event.color
@@ -10736,6 +10736,8 @@ class w2grid extends w2base {
                 })
             })
         }
+        // init toolbar
+        this.initToolbar()
         // render if box specified
         if (typeof this.box == 'string') this.box = query(this.box).get(0)
         if (this.box) this.render(this.box)
@@ -11713,21 +11715,30 @@ class w2grid extends w2base {
                 if (edata.isCancelled === true) return
                 edata.finish()
             })
-        let edata = { target: this.name, originalRange: null, newRange: null }
+        // this variables are needed for selection expantion
+        let edata
+        let detail = { target: this.name, originalRange: null, newRange: null }
+        let letters = 'abcdefghijklmnopqrstuvwxyz'
         return Date.now() - time
         function mouseStart(event) {
             let sel = self.getSelection()
+            let first = sel[0]
+            let last = sel[sel.length-1]
             self.last.move = {
                 type   : 'expand',
                 x      : event.screenX,
                 y      : event.screenY,
                 divX   : 0,
                 divY   : 0,
-                recid  : sel[0].recid,
-                column : sel[0].column,
-                originalRange : [w2utils.clone(sel[0]), w2utils.clone(sel[sel.length-1]) ],
-                newRange      : [w2utils.clone(sel[0]), w2utils.clone(sel[sel.length-1]) ]
+                index  : first.index,
+                recid  : first.recid,
+                column : first.column,
+                name   : letters[first.column] + (first.index + 1) + ':' + letters[last.column] + (last.index + 1),
+                originalRange : [w2utils.clone(first), w2utils.clone(last) ],
+                newRange      : [w2utils.clone(first), w2utils.clone(last) ]
             }
+            detail.originalName  = self.last.move.name
+            detail.originalRange = self.last.move.originalRange
             query('body')
                 .off('.w2ui-' + self.name)
                 .on('mousemove.w2ui-' + self.name, mouseMove)
@@ -11741,28 +11752,31 @@ class w2grid extends w2base {
             mv.divX = (event.screenX - mv.x)
             mv.divY = (event.screenY - mv.y)
             // find new cell
-            let recid, column
+            let recid, index, column
             let tmp = event.target
             if (tmp.tagName.toUpperCase() != 'TD') tmp = query(tmp).closest('td')[0]
             if (query(tmp).attr('col') != null) column = parseInt(query(tmp).attr('col'))
             if (column == null) {
                 return
             }
-            tmp   = query(tmp).closest('tr')[0]
-            recid = self.records[query(tmp).attr('index')].recid
+            tmp = query(tmp).closest('tr')[0]
+            index = parseInt(query(tmp).attr('index'))
+            recid = self.records[index].recid
             // new range
-            if (mv.newRange[1].recid == recid && mv.newRange[1].column == column) return
-            let prevNewRange = w2utils.clone(mv.newRange)
-            mv.newRange      = [{ recid: mv.recid, column: mv.column }, { recid: recid, column: column }]
-            // event before
-            if (edata.detail) {
-                edata.detail.newRange = w2utils.clone(mv.newRange)
-                edata.detail.originalRange = w2utils.clone(mv.originalRange)
+            if (mv.newRange[1].recid == recid && mv.newRange[1].column == column) {
+                // if range did not change
+                return
             }
-            edata = self.trigger('selectionExtend', edata)
+            let prevNewRange = w2utils.clone(mv.newRange)
+            mv.newRange = [{ recid: mv.recid, index: mv.index, column: mv.column }, { recid, index, column }]
+            // remember update ranges
+            detail.newName = letters[mv.column] + (mv.index + 1) + ':' + letters[column] + (index + 1)
+            detail.newRange = w2utils.clone(mv.newRange)
+            // event before
+            edata = self.trigger('selectionExtend', detail)
             if (edata.isCancelled === true) {
                 mv.newRange = prevNewRange
-                edata.detail.newRange = prevNewRange
+                detail.newRange = prevNewRange
                 return
             } else {
                 // default behavior
@@ -13663,7 +13677,7 @@ class w2grid extends w2base {
             }, 1)
         }
         let summary = index < 0
-        let cell = query(this.last._edit.tr).find('[col="'+ column +'"]')
+        let cell = query(this.last._edit?.tr).find('[col="'+ column +'"]')
         let rec  = this.records[index]
         let col  = this.columns[column]
         // need to set before remove, as remove will trigger blur
@@ -15582,8 +15596,7 @@ class w2grid extends w2base {
                   '</div>')
         if (this.selectType != 'row') query(this.box).addClass('w2ui-ss')
         if (query(this.box).length > 0) query(this.box)[0].style.cssText += this.style
-        // init toolbar
-        this.initToolbar()
+        // render toolbar
         if (this.toolbar != null) this.toolbar.render(query(this.box).find('#grid_'+ this.name +'_toolbar')[0])
         this.last.toolbar_height = query(this.box).find(`#grid_${this.name}_toolbar`).prop('offsetHeight')
         // re-init search_all
@@ -16459,8 +16472,8 @@ class w2grid extends w2base {
                     if (obj.last.colResizing != true) return
                     if (!event) event = window.event
                     // event before
-                    edata = obj.trigger('columnResizeMove', w2utils.extend(edata.detail, { resizeBy: (event.screenX - obj.last.tmp.gx), originalEvent: event }))
-                    if (edata.isCancelled === true) { return }
+                    let edata2 = obj.trigger('columnResizeMove', w2utils.extend(edata.detail, { resizeBy: (event.screenX - obj.last.tmp.gx), originalEvent: event }))
+                    if (edata2.isCancelled === true) { return }
                     // default action
                     obj.last.tmp.x = (event.screenX - obj.last.tmp.x)
                     obj.last.tmp.y = (event.screenY - obj.last.tmp.y)
@@ -16476,6 +16489,8 @@ class w2grid extends w2base {
                     // reset
                     obj.last.tmp.x = event.screenX
                     obj.last.tmp.y = event.screenY
+                    // event after
+                    edata2.finish()
                 }
                 let mouseUp = function(event) {
                     query(document).off('.grid-col-resize')
@@ -21172,7 +21187,7 @@ class w2field extends w2base {
         let div = this.helpers.multi
         if (['enum', 'file'].includes(this.type) && div) {
             // adjust height
-            query(this.el).css('height', 'auto')
+            query(this.el).css('height', '')
             let cntHeight = query(div).find(':scope div.w2ui-multi-items').get(0).clientHeight + 5
             if (cntHeight < 20) cntHeight = 20
             // max height
@@ -21198,7 +21213,7 @@ class w2field extends w2base {
     reset() {
         // restore paddings
         if (this.tmp != null) {
-            query(this.el).css('height', 'auto')
+            query(this.el).css('height', '')
             Array('padding-left', 'padding-right', 'background-color', 'border-color').forEach(prop => {
                 if (this.tmp && this.tmp['old-'+ prop] != null) {
                     query(this.el).css(prop, this.tmp['old-' + prop])
