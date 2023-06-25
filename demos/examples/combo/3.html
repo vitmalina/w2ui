@@ -37,25 +37,24 @@ let config = {
             lineNumbers: true
         },
         onColumnClick(event) {
-            this.selectNone(true);
-            let sel = [];
-            let column = this.getColumn(event.detail.field, true);
+            this.selectNone(true)
+            let sel = []
+            let column = this.getColumn(event.detail.field, true)
             for (let i = 0; i < this.total; i++) {
-                sel.push({ recid: this.records[i].recid, column: column });
+                sel.push({ recid: this.records[i].recid, column: column })
             }
-            this.select(sel);
-            event.preventDefault();
+            this.select(sel)
+            event.preventDefault()
         },
-        onSelectionExtend(event) {
+        async onSelectionExtend(event) {
+            console.log('Expanded to:', event.detail.newName)
             // do not use on done() as it would add many done handlers
-            event.onComplete = () => {
-                console.log('Original:', event.detail.originalRange[0], '-', event.detail.originalRange[1]);
-                console.log('New:', event.detail.newRange[0], '-', event.detail.newRange[1]);
-                w2alert('Selection expanded (see more details in the console).');
-            }
+            await event.complete
+            console.log('Expantion FINISHED. Original:', event.detail.originalName, event.detail.originalRange, 'New:', event.detail.newName, event.detail.newRange)
+            w2utils.notify('Selection expanded (see more details in the console).')
         },
         onDelete(event) {
-            event.detail.force = true;
+            event.detail.force = true
         },
         async onSelect(event) {
             await event.complete
