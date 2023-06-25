@@ -510,11 +510,12 @@ class Utils {
         if (this.isInt(dateStr)) dt = new Date(Number(dateStr)) // for unix timestamps
         if (this.isTime(dateStr)) {
             let tmp = this.isTime(dateStr, true)
-            dt      = new Date()
+            dt = new Date()
             dt.setHours(tmp.hours)
             dt.setMinutes(tmp.minutes)
         }
         if (String(dt) === 'Invalid Date') return ''
+        if (format == 'h12') format = 'hh:mi pm'
 
         let type = 'am'
         let hour = dt.getHours()
