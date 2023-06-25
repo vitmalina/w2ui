@@ -431,22 +431,31 @@
                 background-color: transparent;
                 border-color: transparent;
                 box-shadow: none;
-                padding: 0 5px;
+                padding: 0 4px 0 5px;
                 border-radius: 3px;
                 position: relative;
-                margin-top: -3px;
+                margin-top: -1px;
                 display: block;
                 height: 20px;
                 width: 20px;
+                opacity: 0;
+                line-height: 1.3;
                 text-align: center;
                 user-select: none;
                 &:hover {
                     background-color: #f9e7e7;
+                    border: 1px solid #f1c0c0;
                     color: red;
                 }
                 &:active {
                     background-color: #ffd1d1;
                 }
+            }
+        }
+
+        &:hover {
+            .menu-extra span.remove {
+                opacity: 1;
             }
         }
     }
@@ -794,7 +803,7 @@
 .w2ui-cal-time {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    background-color: #d9d9d9;;
+    background-color: #ffffff;;
     cursor: default;
 
     .w2ui-cal-column {
