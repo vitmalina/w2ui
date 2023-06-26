@@ -731,21 +731,24 @@ class w2toolbar extends w2base {
                             : ''}
                     >
                         ${ icon }
-                        <div class="w2ui-tb-text" style="${(item.style ?? '')}; ${!text ? 'padding-left: 0; margin-left: 23px;' : ''}">
-                            ${ w2utils.lang(text) }
-                            ${ item.count != null
-                                ? w2utils.stripSpaces(`
-                                    <span class="w2ui-tb-count">
-                                        <span class="${this.last.badge[item.id] ? this.last.badge[item.id].className ?? '' : ''}"
-                                                style="${this.last.badge[item.id] ? this.last.badge[item.id].style ?? '' : ''}">${item.count}</span>
-                                    </span>`)
-                                : ''
-                            }
-                            ${ arrow
-                                ? `<span class="w2ui-tb-down" ${!text && !item.count ? 'style="margin-left: -3px"' : ''}><span></span></span>`
-                                : ''
-                            }
-                        </div>
+                        ${ (text != '' && text != null) || item.count != null || arrow
+                            ? `<div class="w2ui-tb-text" style="${(item.style ?? '')}; ${!text ? 'padding-left: 0; margin-left: 23px;' : ''}">
+                                    ${ w2utils.lang(text) }
+                                    ${ item.count != null
+                                        ? w2utils.stripSpaces(`
+                                            <span class="w2ui-tb-count">
+                                                <span class="${this.last.badge[item.id] ? this.last.badge[item.id].className ?? '' : ''}"
+                                                        style="${this.last.badge[item.id] ? this.last.badge[item.id].style ?? '' : ''}">${item.count}</span>
+                                            </span>`)
+                                        : ''
+                                    }
+                                    ${ arrow
+                                        ? `<span class="w2ui-tb-down" ${!text && !item.count ? 'style="margin-left: -3px"' : ''}><span></span></span>`
+                                        : ''
+                                    }
+                                </div>`
+                            : ''
+                        }
                     </div>
                 `
                 break
