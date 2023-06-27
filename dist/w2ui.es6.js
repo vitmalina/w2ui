@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (6/25/2023, 4:11:25 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (6/27/2023, 11:32:10 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -4445,10 +4445,14 @@ class Tooltip {
         }
         usePosition(found)
         if (isVertical) anchorAlignment()
+        // user offset
+        top += parseFloat(options.offsetY)
+        left += parseFloat(options.offsetX)
+        // make sure it is inside visible screen area
         screenAdjust()
+        // adjust for scrollbar
         let extraTop = (found == 'top' ? -options.margin : (found == 'bottom' ? options.margin : 0))
         let extraLeft = (found == 'left' ? -options.margin : (found == 'right' ? options.margin : 0))
-        // adjust for scrollbar
         top = Math.floor((top + parseFloat(options.offsetY) + parseFloat(extraTop)) * 100) / 100
         left = Math.floor((left + parseFloat(options.offsetX) + parseFloat(extraLeft)) * 100) / 100
         return { left, top, arrow, adjust, width, height, pos: found }
@@ -5731,7 +5735,7 @@ class MenuTooltip extends Tooltip {
             items = items({ overlay, index, parentIndex, event })
         }
         let item = items[index]
-        if (item.disabled && !query(event.target).hasClass('remove')) {
+        if (!item || (item.disabled && !query(event.target).hasClass('remove'))) {
             return
         }
         let edata
@@ -7132,21 +7136,24 @@ class w2toolbar extends w2base {
                             : ''}
                     >
                         ${ icon }
-                        <div class="w2ui-tb-text" style="${(item.style ?? '')}; ${!text ? 'padding-left: 0; margin-left: 23px;' : ''}">
-                            ${ w2utils.lang(text) }
-                            ${ item.count != null
-                                ? w2utils.stripSpaces(`
-                                    <span class="w2ui-tb-count">
-                                        <span class="${this.last.badge[item.id] ? this.last.badge[item.id].className ?? '' : ''}"
-                                                style="${this.last.badge[item.id] ? this.last.badge[item.id].style ?? '' : ''}">${item.count}</span>
-                                    </span>`)
-                                : ''
-                            }
-                            ${ arrow
-                                ? `<span class="w2ui-tb-down" ${!text && !item.count ? 'style="margin-left: -3px"' : ''}><span></span></span>`
-                                : ''
-                            }
-                        </div>
+                        ${ (text != '' && text != null) || item.count != null || arrow
+                            ? `<div class="w2ui-tb-text" style="${(item.style ?? '')}; ${!text ? 'padding-left: 0; margin-left: 23px;' : ''}">
+                                    ${ w2utils.lang(text) }
+                                    ${ item.count != null
+                                        ? w2utils.stripSpaces(`
+                                            <span class="w2ui-tb-count">
+                                                <span class="${this.last.badge[item.id] ? this.last.badge[item.id].className ?? '' : ''}"
+                                                        style="${this.last.badge[item.id] ? this.last.badge[item.id].style ?? '' : ''}">${item.count}</span>
+                                            </span>`)
+                                        : ''
+                                    }
+                                    ${ arrow
+                                        ? `<span class="w2ui-tb-down" ${!text && !item.count ? 'style="margin-left: -3px"' : ''}><span></span></span>`
+                                        : ''
+                                    }
+                                </div>`
+                            : ''
+                        }
                     </div>
                 `
                 break
@@ -15900,7 +15907,7 @@ class w2grid extends w2base {
                             for (let j = parseInt(tmp[0]); j <= parseInt(tmp[1]); j++) {
                                 query(obj.box).find('#grid_'+ obj.name +'_column_' + j + ' .w2ui-col-header').addClass('w2ui-col-selected')
                             }
-                            query(obj.box).find('.w2ui-col-number').not('.w2ui-head').addClass('w2ui-row-selected')
+                            query(obj.box).find('.w2ui-col-number:not(.w2ui-head)').addClass('w2ui-row-selected')
                             // show new range
                             mv.colRange = newRange
                             obj.removeRange('column-selection')

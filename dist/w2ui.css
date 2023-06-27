@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (6/25/2023, 4:11:25 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (6/27/2023, 11:32:10 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -3699,7 +3699,7 @@ textarea.w2ui-error {
   display: inline-block;
   height: 13px;
   width: 13px;
-  margin: 0 -1px -2px 0;
+  margin: 0 2px -2px 0;
   border-radius: 1px;
   border: 1px solid #fff;
   box-shadow: 0 0 1px #555;
