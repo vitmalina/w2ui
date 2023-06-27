@@ -5785,7 +5785,7 @@ class w2grid extends w2base {
                             for (let j = parseInt(tmp[0]); j <= parseInt(tmp[1]); j++) {
                                 query(obj.box).find('#grid_'+ obj.name +'_column_' + j + ' .w2ui-col-header').addClass('w2ui-col-selected')
                             }
-                            query(obj.box).find('.w2ui-col-number').not('.w2ui-head').addClass('w2ui-row-selected')
+                            query(obj.box).find('.w2ui-col-number:not(.w2ui-head)').addClass('w2ui-row-selected')
                             // show new range
                             mv.colRange = newRange
                             obj.removeRange('column-selection')

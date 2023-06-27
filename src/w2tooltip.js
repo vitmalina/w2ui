@@ -608,12 +608,17 @@ class Tooltip {
         }
         usePosition(found)
         if (isVertical) anchorAlignment()
+
+        // user offset
+        top += parseFloat(options.offsetY)
+        left += parseFloat(options.offsetX)
+
+        // make sure it is inside visible screen area
         screenAdjust()
 
+        // adjust for scrollbar
         let extraTop = (found == 'top' ? -options.margin : (found == 'bottom' ? options.margin : 0))
         let extraLeft = (found == 'left' ? -options.margin : (found == 'right' ? options.margin : 0))
-
-        // adjust for scrollbar
         top = Math.floor((top + parseFloat(options.offsetY) + parseFloat(extraTop)) * 100) / 100
         left = Math.floor((left + parseFloat(options.offsetX) + parseFloat(extraLeft)) * 100) / 100
 
@@ -1933,7 +1938,7 @@ class MenuTooltip extends Tooltip {
             items = items({ overlay, index, parentIndex, event })
         }
         let item = items[index]
-        if (item.disabled && !query(event.target).hasClass('remove')) {
+        if (!item || (item.disabled && !query(event.target).hasClass('remove'))) {
             return
         }
         let edata
