@@ -626,7 +626,8 @@ class w2toolbar extends w2base {
             let scrollBox  = box.find('.w2ui-scroll-wrapper').get(0)
             let $right     = box.find('.w2ui-tb-right')
             let boxWidth   = box.get(0).getBoundingClientRect().width
-            let itemsWidth = ($right.length > 0 ? $right[0].offsetLeft + $right[0].clientWidth : 0)
+            let right  = $right[0].getBoundingClientRect()
+            let itemsWidth = ($right.length > 0 ? right.width : 0)
             if (boxWidth < itemsWidth) {
                 // we have overflown content
                 if (scrollBox.scrollLeft > 0) {

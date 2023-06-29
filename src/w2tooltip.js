@@ -2,6 +2,9 @@
  * Part of w2ui 2.0 library
  * - Dependencies: mQuery, w2utils, w2base
  *
+ * TODO:
+ * - need help pages
+ *
  * 2.0 Changes
  * - multiple tooltips to the same anchor
  * - options.contextMenu
@@ -138,7 +141,8 @@ class Tooltip {
         } else {
             overlay = new w2base()
             Object.assign(overlay, {
-                id: 'w2overlay-' + name, name, options, anchor,
+                id: 'w2overlay-' + name,
+                name, options, anchor, self,
                 displayed: false,
                 tmp: {
                     observeResize: new ResizeObserver(() => {
@@ -619,8 +623,8 @@ class Tooltip {
         // adjust for scrollbar
         let extraTop = (found == 'top' ? -options.margin : (found == 'bottom' ? options.margin : 0))
         let extraLeft = (found == 'left' ? -options.margin : (found == 'right' ? options.margin : 0))
-        top = Math.floor((top + parseFloat(options.offsetY) + parseFloat(extraTop)) * 100) / 100
-        left = Math.floor((left + parseFloat(options.offsetX) + parseFloat(extraLeft)) * 100) / 100
+        top = Math.floor((top + parseFloat(extraTop)) * 100) / 100
+        left = Math.floor((left + parseFloat(extraLeft)) * 100) / 100
 
         return { left, top, arrow, adjust, width, height, pos: found }
 
@@ -1286,6 +1290,43 @@ class MenuTooltip extends Tooltip {
                     })
             }
         })
+        overlay.next = () => {
+            let chain = this.getActiveChain(overlay.name)
+            if (overlay.selected == null || overlay.selected?.length == 0) {
+                overlay.selected = chain[0]
+            } else {
+                let ind = chain.indexOf(overlay.selected)
+                // selected not in chain of items
+                if (ind == -1) {
+                    overlay.selected = chain[0]
+                }
+                // not the last item
+                if (ind < chain.length - 1) {
+                    overlay.selected = chain[ind + 1]
+                }
+            }
+            this.refreshIndex(overlay.name)
+        }
+        overlay.prev = () => {
+            let chain = this.getActiveChain(overlay.name)
+            if (overlay.selected == null || overlay.selected?.length == 0) {
+                overlay.selected = chain[chain.length-1]
+            } else {
+                let ind = chain.indexOf(overlay.selected)
+                // selected not in chain of items
+                if (ind == -1) {
+                    overlay.selected = chain[chain.length-1]
+                }
+                // not first item
+                if (ind > 0) {
+                    overlay.selected = chain[ind - 1]
+                }
+            }
+            this.refreshIndex(overlay.name)
+        }
+        overlay.click = () => {
+            $(overlay.box).find('.w2ui-selected').click()
+        }
         overlay.on('hide:after.attach', event => {
             w2tooltip.hide(overlay.name + '-tooltip')
         })
@@ -2075,22 +2116,8 @@ class MenuTooltip extends Tooltip {
                 if (!overlay.displayed) {
                     break
                 }
-                let chain = this.getActiveChain(overlay.name)
-                if (overlay.selected == null || overlay.selected?.length == 0) {
-                    overlay.selected = chain[chain.length-1]
-                } else {
-                    let ind = chain.indexOf(overlay.selected)
-                    // selected not in chain of items
-                    if (ind == -1) {
-                        overlay.selected = chain[chain.length-1]
-                    }
-                    // not first item
-                    if (ind > 0) {
-                        overlay.selected = chain[ind - 1]
-                    }
-                }
+                overlay.prev()
                 filter = false
-                refreshIndex = true
                 event.preventDefault()
                 break
             }
@@ -2098,22 +2125,8 @@ class MenuTooltip extends Tooltip {
                 if (!overlay.displayed) {
                     break
                 }
-                let chain = this.getActiveChain(overlay.name)
-                if (overlay.selected == null || overlay.selected?.length == 0) {
-                    overlay.selected = chain[0]
-                } else {
-                    let ind = chain.indexOf(overlay.selected)
-                    // selected not in chain of items
-                    if (ind == -1) {
-                        overlay.selected = chain[0]
-                    }
-                    // not the last item
-                    if (ind < chain.length - 1) {
-                        overlay.selected = chain[ind + 1]
-                    }
-                }
+                overlay.next()
                 filter = false
-                refreshIndex = true
                 event.preventDefault()
                 break
             }
