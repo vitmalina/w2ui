@@ -1119,7 +1119,7 @@ class w2sidebar extends w2base {
                     let txt = nd.count ?? self.badge?.text
                     let style = self.badge?.style
                     let last = obj.last.badge[nd.id]
-                    if (typeof txt == 'function') txt = txt.call(self, node, level)
+                    if (typeof txt == 'function') txt = txt.call(self, nd, level)
                     if (txt) {
                         counts = `
                             <div class="w2ui-node-badge w2ui-eaction ${nd.count != null ? 'w2ui-node-count' : ''} ${last?.className ?? ''}"
@@ -1132,16 +1132,17 @@ class w2sidebar extends w2base {
                             </div>`
                     }
                 }
-                if (nd.collapsible === true) {
-                    expand = `<div class="w2ui-${nd.expanded ? 'expanded' : 'collapsed'} ${self.toggleAlign == 'left' ? 'w2ui-left-toggle' : ''}"><span></span></div>`
-                }
-
-                let text = w2utils.lang(typeof nd.text == 'function' ? nd.text.call(obj, nd, level) : nd.text)
                 // array with classes
                 let classes = ['w2ui-node', `w2ui-level-${level}`, 'w2ui-eaction']
                 if (nd.selected) classes.push('w2ui-selected')
                 if (nd.disabled) classes.push('w2ui-disabled')
                 if (nd.class) classes.push(nd.class)
+                // collapsible
+                if (nd.collapsible === true) {
+                    expand = `<div class="w2ui-${nd.expanded ? 'expanded' : 'collapsed'} ${self.toggleAlign == 'left' ? 'w2ui-left-toggle' : ''}"><span></span></div>`
+                    classes.push('w2ui-has-children')
+                }
+                let text = w2utils.lang(typeof nd.text == 'function' ? nd.text.call(obj, nd, level) : nd.text)
                 let nodeOffset = nd.parent?.childOffset ?? 0
                 if (level === 0 && nd.collapsible === true && self.toggleAlign == 'left') {
                     nodeOffset += 12
@@ -1192,6 +1193,9 @@ class w2sidebar extends w2base {
     mouseAction(action, anchor, nodeId, event, type) {
         let edata
         let node = this.get(nodeId)
+        if (type == null) {
+            edata = this.trigger('mouse' + action, { target: node.id, node, originalEvent: event })
+        }
         if (type == 'tooltip') {
             // this tooltip shows for flat sidebars
             let text = w2utils.lang(typeof node.text == 'function' ? node.text.call(this, node) : node.text)
@@ -1199,7 +1203,6 @@ class w2sidebar extends w2base {
                 ? ' - <span class="w2ui-node-badge w2ui-node-count">'+ node.count +'</span>'
                 : '')
             if (action == 'Leave') tooltip = ''
-            edata = this.trigger('mouse' + action, { target: node.id, node, tooltip, originalEvent: event })
             this.tooltip(anchor, tooltip)
         }
         if (type == 'handle') {
@@ -1214,7 +1217,6 @@ class w2sidebar extends w2base {
                     tooltip = tooltip.call(this, node, event)
                 }
                 if (action == 'Leave') tooltip = ''
-                edata = this.trigger('mouse' + action, { target: node.id, node, tooltip, handle: true, originalEvent: event })
                 this.otherTooltip(anchor, tooltip)
             }
         }
@@ -1230,7 +1232,6 @@ class w2sidebar extends w2base {
                     tooltip = tooltip.call(this, node, event)
                 }
                 if (action == 'Leave') tooltip = ''
-                edata = this.trigger('mouse' + action, { target: node.id, node, tooltip, icon: true, originalEvent: event })
                 this.otherTooltip(anchor, tooltip)
             }
         }
@@ -1246,7 +1247,6 @@ class w2sidebar extends w2base {
                     tooltip = tooltip.call(this, node, event)
                 }
                 if (action == 'Leave') tooltip = ''
-                edata = this.trigger('mouse' + action, { target: node.id, node, tooltip, badge: true, originalEvent: event })
                 this.otherTooltip(anchor, tooltip)
             }
         }
