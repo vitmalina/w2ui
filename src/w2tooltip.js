@@ -116,7 +116,7 @@ class Tooltip {
         delete options.anchor
 
         // define tooltip
-        let name = (options.name ? options.name : anchor.id)
+        let name = (options.name ? options.name : anchor?.id)
         if (anchor == document || anchor == document.body || options.contextMenu) {
             anchor = document.body
             name = 'context-menu'
@@ -423,12 +423,13 @@ class Tooltip {
         }
         if (!overlay || !overlay.box) return
 
-        delete Tooltip.active[name]
         // event before
         let edata = this.trigger('hide', { target: name, overlay })
         if (edata.isCancelled === true) return
-        let scope = 'tooltip-' + overlay.name
+
         // normal processing
+        delete Tooltip.active[name]
+        let scope = 'tooltip-' + overlay.name
         overlay.tmp.observeResize?.disconnect()
         if (overlay.options.watchScroll) {
             query(overlay.options.watchScroll)

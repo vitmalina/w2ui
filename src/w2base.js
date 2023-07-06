@@ -3,9 +3,13 @@
  *  - Dependencies: w2utils
  *  - on/off/trigger methods id not showing in help
  *  - refactored with event object
+ *
+ * Chanes in 2.0.+
+ * - added unmount that cleans up the box
+ *
  */
 
-import { w2ui, w2utils } from './w2utils.js'
+import { w2ui, w2utils, query } from './w2utils.js'
 
 class w2event {
     constructor(owner, edata) {
@@ -261,6 +265,22 @@ class w2base {
             }
         }
         return edata
+    }
+
+    /**
+     * Removes all classes that start with w2ui-* and sets box to null. It is needed so that control will
+     * release the box to be used for other widgets
+     */
+    unmount() {
+        let remove = []
+        // find classes that start with "w2ui-*"
+        if (this.box instanceof HTMLElement) {
+            this.box.classList.forEach(cl => {
+                if (cl.startsWith('w2ui-')) remove.push(cl)
+            })
+        }
+        query(this.box).removeClass(remove)
+        this.box = null
     }
 }
 export { w2event, w2base }
