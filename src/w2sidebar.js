@@ -1290,12 +1290,14 @@ class w2sidebar extends w2base {
         let edata = this.trigger('resize', { target: this.name })
         if (edata.isCancelled === true) return
         // default action
-        let rect = query(this.box).get(0).getBoundingClientRect()
-        query(this.box).css('overflow', 'hidden') // container should have no overflow
-        query(this.box).find(':scope > div').css({
-            width  : rect.width + 'px',
-            height : rect.height + 'px'
-        })
+        if (this.box != null) {
+            let rect = query(this.box).get(0).getBoundingClientRect()
+            query(this.box).css('overflow', 'hidden') // container should have no overflow
+            query(this.box).find(':scope > div').css({
+                width  : rect.width + 'px',
+                height : rect.height + 'px'
+            })
+        }
         // event after
         edata.finish()
         return Date.now() - time
