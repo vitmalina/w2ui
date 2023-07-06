@@ -219,7 +219,7 @@ class w2sidebar extends w2base {
                 if (Object.keys(res).length != 0) {
                     // make sure nodes inserted correctly
                     let nodes = node.nodes
-                    w2utils.extend(parent.nodes[i], node, { nodes: [] })
+                    w2utils.extend(parent.nodes[i], node, (nodes != null ? { nodes: [] } : {}))
                     if (nodes != null) {
                         this.add(parent.nodes[i], nodes)
                     }
