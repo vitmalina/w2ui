@@ -4633,6 +4633,7 @@ class w2grid extends w2base {
         // check if needed to quit
         if (field != null) {
             // default action
+            var removeSort = false;
             let sortIndex = this.sortData.length
             for (let s = 0; s < this.sortData.length; s++) {
                 if (this.sortData[s].field == field) { sortIndex = s; break }
@@ -4646,17 +4647,19 @@ class w2grid extends w2base {
                     }
                     switch (this.sortData[sortIndex].direction.toLowerCase()) {
                         case 'asc' : direction = 'desc'; break
-                        case 'desc' : direction = 'asc'; break
+                        case 'desc' : this.sortData.splice(sortIndex, 1); removeSort = true; break
                         default : direction = 'asc'; break
                     }
                 }
             }
             if (this.multiSort === false) { this.sortData = []; sortIndex = 0 }
             if (multiField != true) { this.sortData = []; sortIndex = 0 }
-            // set new sort
-            if (this.sortData[sortIndex] == null) this.sortData[sortIndex] = {}
-            this.sortData[sortIndex].field     = field
-            this.sortData[sortIndex].direction = direction
+            if (!removeSort) {
+                // set new sort
+                if (this.sortData[sortIndex] == null) this.sortData[sortIndex] = {}
+                this.sortData[sortIndex].field     = field
+                this.sortData[sortIndex].direction = direction
+            }
         } else {
             this.sortData = []
         }
