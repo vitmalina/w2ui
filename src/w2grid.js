@@ -818,7 +818,19 @@ class w2grid extends w2base {
             console.log('ERROR: grid.localSort can only be used on local data source, grid.url should be empty.')
             return
         }
-        if (Object.keys(this.sortData).length === 0) return
+        if (Object.keys(this.sortData).length === 0) {
+            // restore original sorting
+            let os = this.last.originalSort
+            if (os) {
+                this.records.sort((a, b) => {
+                    let aInd = os.indexOf(a.recid)
+                    let bInd = os.indexOf(b.recid)
+                    // order cann be equal, so, no need to return 0
+                    return aInd > bInd ? 1 : -1
+                })
+            }
+            return
+        }
         let time = Date.now()
         // process date fields
         this.selectionSave()
@@ -3705,7 +3717,7 @@ class w2grid extends w2base {
         // default behaviour
         if (this.selectType == 'row') {
             let column = this.getColumn(field)
-            if (column && column.sortable) this.sort(field, null, (event && (event.ctrlKey || event.metaKey) ? true : false))
+            if (column && column.sortable) this.sort(field, null, (event && (event.ctrlKey || event.metaKey || event.shiftKey) ? true : false))
             if (edata.detail.field == 'line-number') {
                 if (this.getSelection().length >= this.records.length) {
                     this.selectNone()
@@ -3716,7 +3728,7 @@ class w2grid extends w2base {
         } else {
             if (event.altKey){
                 let column = this.getColumn(field)
-                if (column && column.sortable) this.sort(field, null, (event && (event.ctrlKey || event.metaKey) ? true : false))
+                if (column && column.sortable) this.sort(field, null, (event && (event.ctrlKey || event.metaKey || event.shiftKey) ? true : false))
             }
             // select entire column
             if (edata.detail.field == 'line-number') {
@@ -4628,37 +4640,53 @@ class w2grid extends w2base {
 
     sort(field, direction, multiField) { // if no params - clears sort
         // event before
-        let edata = this.trigger('sort', { target: this.name, field: field, direction: direction, multiField: multiField })
+        let edata = this.trigger('sort', { target: this.name, field, direction, multiField })
         if (edata.isCancelled === true) return
         // check if needed to quit
         if (field != null) {
             // default action
-            var removeSort = false;
             let sortIndex = this.sortData.length
             for (let s = 0; s < this.sortData.length; s++) {
-                if (this.sortData[s].field == field) { sortIndex = s; break }
+                if (this.sortData[s].field == field) {
+                    sortIndex = s
+                    break
+                }
             }
             if (direction == null) {
-                if (this.sortData[sortIndex] == null) {
+                direction = this.sortData[sortIndex]?.direction
+                if (direction == null) {
+                    // save original sort, so it can be restored
+                    if (this.last.originalSort == null) {
+                        this.last.originalSort = this.records.map(rec => rec.recid)
+                    }
                     direction = 'asc'
                 } else {
-                    if (this.sortData[sortIndex].direction == null) {
-                        this.sortData[sortIndex].direction = ''
-                    }
-                    switch (this.sortData[sortIndex].direction.toLowerCase()) {
-                        case 'asc' : direction = 'desc'; break
-                        case 'desc' : this.sortData.splice(sortIndex, 1); removeSort = true; break
-                        default : direction = 'asc'; break
+                    switch (direction.toLowerCase()) {
+                        case 'asc': {
+                            direction = 'desc'
+                            break
+                        }
+                        case 'desc': {
+                            direction = ''
+                            break
+                        }
+                        default: {
+                            direction = 'asc'
+                            break
+                        }
                     }
                 }
             }
-            if (this.multiSort === false) { this.sortData = []; sortIndex = 0 }
-            if (multiField != true) { this.sortData = []; sortIndex = 0 }
-            if (!removeSort) {
+            if (multiField != true) {
+                this.sortData = []
+                sortIndex = 0
+             }
+            if (direction === '') {
+                this.sortData.splice(sortIndex, 1)
+            } else {
                 // set new sort
-                if (this.sortData[sortIndex] == null) this.sortData[sortIndex] = {}
-                this.sortData[sortIndex].field     = field
-                this.sortData[sortIndex].direction = direction
+                this.sortData[sortIndex] ??= {}
+                Object.assign(this.sortData[sortIndex], { field, direction })
             }
         } else {
             this.sortData = []
