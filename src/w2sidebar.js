@@ -12,6 +12,7 @@
  *  - deprecarted obj.img, node.img
  *  - CSP - fixed inline events
  *  - observeResize for the box
+ *  - search(..., compare) - comparison function
  */
 
 import { w2base } from './w2base.js'
@@ -356,16 +357,22 @@ class w2sidebar extends w2base {
         })
     }
 
-    search(str) {
+    search(str, compare = null) {
         let count = 0
         let str2  = str.toLowerCase()
         this.each((node) => {
-            if (node.text.toLowerCase().indexOf(str2) === -1) {
-                node.hidden = true
+            let match = false
+            if (typeof compare == 'function') {
+                match = compare(str, node)
             } else {
+                match = !(node.text.toLowerCase().indexOf(str2) === -1)
+            }
+            if (match) {
                 count++
                 showParents(node)
                 node.hidden = false
+            } else {
+                node.hidden = true
             }
         })
         this.refresh()
