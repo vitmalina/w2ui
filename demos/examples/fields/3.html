@@ -76,14 +76,13 @@ new w2field('combo', {
 })
 
 query('#custom-btn').on('click', event => {
-    debugger
     w2menu.show({
         name: 'custom-menu',
         anchor: event.target,
         items: people,
-        offsetY: 5,
         onSelect(event) {
-            console.log('Selected: ', event.detail.item )
+            let anchor = event.detail.overlay.anchor
+            query(anchor).html('Selected: ' + event.detail.item.text)
         }
     })
 })
