@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (6/28/2023, 5:07:23 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (7/10/2023, 1:29:18 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -1171,10 +1171,8 @@ button.w2ui-btn:disabled {
   color: inherit;
 }
 .w2ui-overlay .w2ui-overlay-body.w2ui-dark .w2ui-menu-item .menu-extra span {
-  border: 1px solid #aaaaaa;
-  background-color: #7b7b7b;
-  color: #fff;
-  box-shadow: 0px 0px 2px #000000;
+  border: 1px solid transparent;
+  color: #d9d9d9;
   text-shadow: 0px 0px 1px #141414;
 }
 .w2ui-overlay .w2ui-overlay-body.w2ui-dark .w2ui-sub-menu-box {
@@ -2225,6 +2223,7 @@ textarea.w2ui-error {
   white-space: nowrap;
 }
 .w2ui-grid .w2ui-grid-toolbar .w2ui-grid-searches > span {
+  min-width: 48px;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
