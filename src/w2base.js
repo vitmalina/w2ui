@@ -263,6 +263,9 @@ class w2base {
             if (this.debug) {
                 console.log(`w2base: trigger "${edata.type}:${edata.phase}"`, edata)
             }
+            // clean up activeEvents
+            let ind = this.activeEvents.indexOf(edata)
+            if (ind !== -1) this.activeEvents.splice(ind, 1)
         }
         return edata
     }
