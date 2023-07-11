@@ -63,7 +63,7 @@ people.sort()
 new w2field('list', {
     el: query('input[type=list]')[0],
     items: people,
-    match: 'contain',
+    match: 'contains',
     markSearch: true,
     onSelect(event) {
         console.log('Selected:', event.detail.item)
@@ -72,13 +72,18 @@ new w2field('list', {
 new w2field('combo', {
     el: query('input[type=combo]')[0],
     items: people,
-    filter: false
+    match: 'contains',
+    markSearch: true
 })
 
 query('#custom-btn').on('click', event => {
     w2menu.show({
         name: 'custom-menu',
         anchor: event.target,
+        match: 'contains',
+        search: true,
+        markSearch: true,
+        filter: true,
         items: people,
         onSelect(event) {
             let anchor = event.detail.overlay.anchor
