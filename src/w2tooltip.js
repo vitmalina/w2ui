@@ -167,6 +167,7 @@ class Tooltip {
             options.autoShowOn = options.autoShowOn ?? 'mouseenter'
             options.autoHideOn = options.autoHideOn ?? 'mouseleave'
             options.autoShow = false
+            options._keep = true
         }
         if (options.autoShowOn) {
             let scope = 'autoShow-' + overlay.name
@@ -177,6 +178,7 @@ class Tooltip {
                     event.stopPropagation()
                 })
             delete options.autoShowOn
+            options._keep = true
         }
         if (options.autoHideOn) {
             let scope = 'autoHide-' + overlay.name
@@ -187,6 +189,7 @@ class Tooltip {
                     event.stopPropagation()
                 })
             delete options.autoHideOn
+            options._keep = true
         }
         overlay.off('.attach')
         let ret = {
@@ -427,7 +430,7 @@ class Tooltip {
         if (edata.isCancelled === true) return
 
         // normal processing
-        delete Tooltip.active[name]
+        if (!overlay.options._keep) delete Tooltip.active[name]
         let scope = 'tooltip-' + overlay.name
         overlay.tmp.observeResize?.disconnect()
         if (overlay.options.watchScroll) {
