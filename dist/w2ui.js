@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (7/10/2023, 7:50:06 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (7/12/2023, 1:48:34 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -254,6 +254,9 @@ class w2base {
             if (this.debug) {
                 console.log(`w2base: trigger "${edata.type}:${edata.phase}"`, edata)
             }
+            // clean up activeEvents
+            let ind = this.activeEvents.indexOf(edata)
+            if (ind !== -1) this.activeEvents.splice(ind, 1)
         }
         return edata
     }
@@ -3190,7 +3193,7 @@ class Dialog extends w2base {
                 let handler = options.actions[action]
                 let btnAction = action
                 if (typeof handler == 'function') {
-                    options.buttons += `<button class="w2ui-btn w2ui-eaction" data-click='["action","${action}","event"]'>${action}</button>`
+                    options.buttons += `<button class="w2ui-btn w2ui-eaction" name="${action}" data-click='["action","${action}","event"]'>${action}</button>`
                 }
                 if (typeof handler == 'object') {
                     options.buttons += `<button class="w2ui-btn w2ui-eaction ${handler.class || ''}" name="${action}" data-click='["action","${action}","event"]'
@@ -3198,7 +3201,7 @@ class Dialog extends w2base {
                     btnAction = Array.isArray(options.actions) ? handler.text : action
                 }
                 if (typeof handler == 'string') {
-                    options.buttons += `<button class="w2ui-btn w2ui-eaction" data-click='["action","${handler}","event"]'>${handler}</button>`
+                    options.buttons += `<button class="w2ui-btn w2ui-eaction" name="${action}" data-click='["action","${action}","event"]'>${handler}</button>`
                     btnAction = handler
                 }
                 if (typeof btnAction == 'string') {
@@ -3907,7 +3910,6 @@ class Tooltip {
             autoShowOn      : null,     // when options.autoShow = true, mouse event to show on
             autoHideOn      : null,     // when options.autoShow = true, mouse event to hide on
             arrowSize       : 8,        // size of the carret
-            margin          : 0,        // extra margin from the anchor
             screenMargin    : 2,        // min margin from screen to tooltip
             autoResize      : true,     // auto resize based on content size and available size
             margin          : 1,        // distance from the anchor
@@ -4036,6 +4038,7 @@ class Tooltip {
             options.autoShowOn = options.autoShowOn ?? 'mouseenter'
             options.autoHideOn = options.autoHideOn ?? 'mouseleave'
             options.autoShow = false
+            options._keep = true
         }
         if (options.autoShowOn) {
             let scope = 'autoShow-' + overlay.name
@@ -4046,6 +4049,7 @@ class Tooltip {
                     event.stopPropagation()
                 })
             delete options.autoShowOn
+            options._keep = true
         }
         if (options.autoHideOn) {
             let scope = 'autoHide-' + overlay.name
@@ -4056,6 +4060,7 @@ class Tooltip {
                     event.stopPropagation()
                 })
             delete options.autoHideOn
+            options._keep = true
         }
         overlay.off('.attach')
         let ret = {
@@ -4289,7 +4294,7 @@ class Tooltip {
         let edata = this.trigger('hide', { target: name, overlay })
         if (edata.isCancelled === true) return
         // normal processing
-        delete Tooltip.active[name]
+        if (!overlay.options._keep) delete Tooltip.active[name]
         let scope = 'tooltip-' + overlay.name
         overlay.tmp.observeResize?.disconnect()
         if (overlay.options.watchScroll) {
@@ -5318,6 +5323,10 @@ class MenuTooltip extends Tooltip {
                     }
                     icon_dsp = `<div class="menu-icon">${icon}</span></div>`
                 }
+                // for backward compatibility
+                if (mitem.removable == null && mitem.remove != null) {
+                    mitem.rmovable = mitem.remove
+                }
                 // render only if non-empty
                 if (mitem.type !== 'break' && txt != null && txt !== '' && String(txt).substr(0, 2) != '--') {
                     let classes = ['w2ui-menu-item']
@@ -5326,10 +5335,10 @@ class MenuTooltip extends Tooltip {
                     }
                     let colspan = 1
                     if (icon_dsp === '') colspan++
-                    if (mitem.count == null && mitem.hotkey == null && mitem.remove !== true && mitem.items == null) colspan++
+                    if (mitem.count == null && mitem.hotkey == null && mitem.removable !== true && mitem.items == null) colspan++
                     if (mitem.tooltip == null && mitem.hint != null) mitem.tooltip = mitem.hint // for backward compatibility
                     let count_dsp = ''
-                    if (mitem.remove === true) {
+                    if (mitem.removable === true) {
                         count_dsp = '<span class="remove">x</span>'
                     } else if (mitem.items != null) {
                         let _items = []
@@ -5983,10 +5992,11 @@ class DateTooltip extends Tooltip {
             position      : 'top|bottom',
             class         : 'w2ui-calendar',
             type          : 'date', // can be date/time/datetime
-            format        : '',
             value         : '', // initial date (in w2utils.settings format)
+            format        : '',
             start         : null,
             end           : null,
+            btnNow        : false,
             blockDates    : [], // array of blocked dates
             blockWeekdays : [], // blocked weekdays 0 - sunday, 1 - monday, etc
             colored       : {}, // ex: { '3/13/2022': 'bg-color|text-color' }
@@ -6927,7 +6937,11 @@ class w2toolbar extends w2base {
                     break
                 }
             }
-            setTimeout(() => { this.resize(); resolve() }, instant ? 0 : 500)
+            /**
+             * Timeout is needed because browser animates scroll. Also, I found that 500ms is not enough
+             * as it could take longer then that, but animation seems to be around 500ms
+             */
+            setTimeout(() => { this.resize(); resolve() }, instant ? 0 : 600)
         })
     }
     render(box) {
@@ -7077,8 +7091,8 @@ class w2toolbar extends w2base {
             let scrollBox  = box.find('.w2ui-scroll-wrapper').get(0)
             let $right     = box.find('.w2ui-tb-right')
             let boxWidth   = box.get(0).getBoundingClientRect().width
-            let right  = $right[0].getBoundingClientRect()
-            let itemsWidth = ($right.length > 0 ? right.width : 0)
+            // Do not use $right[0].getBoundingClientRect(). right box is the most left div
+            let itemsWidth = ($right.length > 0 ? $right[0].offsetLeft + $right[0].clientWidth : 0)
             if (boxWidth < itemsWidth) {
                 // we have overflown content
                 if (scrollBox.scrollLeft > 0) {
@@ -8471,7 +8485,7 @@ class w2sidebar extends w2base {
                 }
                 html = `
                     <div id="node_${nd.id}" class="${classes.join(' ')}" data-level="${level}"
-                        style="position: relative; ${nd.hidden ? 'display: none;' : ''}"
+                        style="${nd.hidden ? 'display: none;' : ''}"
                         data-click="click|${nd.id}|event"
                         data-dblclick="dblClick|${nd.id}|event"
                         data-contextmenu="contextMenu|${nd.id}|event"
@@ -12186,6 +12200,10 @@ class w2grid extends w2base {
     updateToolbar(sel) {
         let obj = this
         let cnt = sel && sel.indexes ? sel.indexes.length : 0
+        // if there is no toolbar
+        if (!this.toolbar.render) {
+            return
+        }
         this.toolbar.items.forEach((item) => {
             _checkItem(item, '')
             if (Array.isArray(item.items)) {
@@ -14070,12 +14088,12 @@ class w2grid extends w2base {
     columnAutoSize(colIndex) {
         let col = this.columns[colIndex]
         let el = query(`#grid_${this.name}_column_${colIndex} .w2ui-col-header`)[0]
+        if (col.autoResize === false || col.hidden === true || !el) {
+            return true;
+        }
         let style = getComputedStyle(el)
         let maxWidth = w2utils.getStrWidth(el.innerHTML, `font-family: ${style.fontFamily}; font-size: ${style.fontSize}`, true)
             + parseFloat(style.paddingLeft) + parseFloat(style.paddingRight) + 4
-        if (col.autoResize === false) {
-            return true
-        }
         query(this.box).find(`.w2ui-grid-records td[col="${colIndex}"] > div`, this.box).each(el => {
             let style = getComputedStyle(el)
             let width = w2utils.getStrWidth(el.innerHTML, `font-family: ${style.fontFamily}; font-size: ${style.fontSize}`, true)
@@ -14085,7 +14103,7 @@ class w2grid extends w2base {
             }
         })
         // event before
-        let edata = this.trigger('columnAtuoResize', { maxWidth, originalEvent: event, target: this.name, column: col })
+        let edata = this.trigger('columnAutoResize', { maxWidth, originalEvent: event, target: this.name, column: col })
         if (edata.isCancelled === true) { return }
         if (maxWidth > 0) {
             if (col.sizeOriginal == null) col.sizeOriginal = col.size
@@ -14650,10 +14668,12 @@ class w2grid extends w2base {
             event.offsetX = event.layerX - event.target.offsetLeft
             event.offsetY = event.layerY - event.target.offsetTop
         }
-        if (w2utils.isFloat(recid)) recid = parseFloat(recid)
+        // if (w2utils.isFloat(recid)) recid = parseFloat(recid)
         let sel = this.getSelection()
         if (this.selectType == 'row') {
-            if (sel.indexOf(recid) == -1) this.click(recid)
+            if (sel.indexOf(recid) == -1) {
+                this.click(recid)
+            }
         } else {
             let selected = false
             // check if any selected sel in the right row/column
@@ -14667,7 +14687,7 @@ class w2grid extends w2base {
         let edata = this.trigger('contextMenu', { target: this.name, originalEvent: event, recid, column })
         if (edata.isCancelled === true) return
         // default action
-        if (this.contextMenu.length > 0) {
+        if (this.contextMenu?.length > 0) {
             w2menu.show({
                 anchor: document.body,
                 originalEvent: event,
@@ -17529,7 +17549,7 @@ class w2grid extends w2base {
         }
         let h2 = (buffered - limit) * this.recordHeight
         html1 += '<tr id="grid_' + this.name + '_frec_bottom" rec="bottom" line="bottom" style="height: ' + h2 + 'px; vertical-align: top">' +
-                '    <td colspan="2000" style="border-right: 1px solid #D6D5D7;"></td>'+
+                '    <td colspan="2000" style="border: 0"></td>'+
                 '</tr>'+
                 '<tr id="grid_'+ this.name +'_frec_more" style="display: none; ">'+
                 '    <td colspan="2000" class="w2ui-load-more"></td>'+
@@ -19025,12 +19045,14 @@ class w2form extends w2base {
                         rec[fld] = value
                     }
                 })
+                this.setFieldValue(field, value)
                 return true
             } catch (event) {
                 return false
             }
         } else {
             this.record[field] = value
+            this.setFieldValue(field, value)
             return true
         }
     }
@@ -20241,7 +20263,7 @@ class w2form extends w2base {
                         this._previous = value.previous
                     }
                     // event before
-                    let edata2 = self.trigger('input', { target: self.name, value, originalEvent: event })
+                    let edata2 = self.trigger('input', { target: self.name, field, value, originalEvent: event })
                     if (edata2.isCancelled === true) return
                     // default action
                     self.setValue(this.name, value.current)
@@ -21494,13 +21516,13 @@ class w2field extends w2base {
                 if (!this.tmp.openedOnFocus) {
                     let name = this.el.id + '_menu'
                     let overlay = w2menu.get(name)
-                    if (overlay) {
+                    if (overlay?.displayed) {
                         w2menu.hide(name)
                     } else {
                         this.updateOverlay()
                     }
                 }
-                this.tmp.openedOnFocus = false
+                delete this.tmp.openedOnFocus
                 if (this.type == 'list') {
                     // since list has separate search input, in order to keep the overlay open, need to stop
                     event.stopPropagation()

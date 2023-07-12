@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (7/10/2023, 7:50:06 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (7/12/2023, 1:48:34 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -91,7 +91,7 @@
   font-size: 12px;
 }
 .w2ui-reset * {
-  color: default;
+  color: initial;
   line-height: 100%;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
