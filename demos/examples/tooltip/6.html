@@ -135,7 +135,7 @@ let form = new w2form({
     },
     record: {
         html: 'Tooltip html text<br>\n'+
-                'Can also be multiline',
+              'Can also be multiline',
         arrowSize: 12,
         padding: 10,
         // position: 'right|left',
@@ -151,6 +151,12 @@ let form = new w2form({
     onInput(event) {
         let fld = event.detail.field
         let val = event.detail.value.current
+        if (fld.name == 'theme') {
+            // reset colors, as it would interfere with the theme
+            this.setValue('color', '')
+            this.setValue('bg-color', '')
+            this.refresh('color', 'bg-color')
+        }
         event.done(() => { updateTooltip() })
     }
 })

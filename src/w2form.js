@@ -335,12 +335,14 @@ class w2form extends w2base {
                         rec[fld] = value
                     }
                 })
+                this.setFieldValue(field, value)
                 return true
             } catch (event) {
                 return false
             }
         } else {
             this.record[field] = value
+            this.setFieldValue(field, value)
             return true
         }
     }
@@ -1589,7 +1591,7 @@ class w2form extends w2base {
                         this._previous = value.previous
                     }
                     // event before
-                    let edata2 = self.trigger('input', { target: self.name, value, originalEvent: event })
+                    let edata2 = self.trigger('input', { target: self.name, field, value, originalEvent: event })
                     if (edata2.isCancelled === true) return
                     // default action
                     self.setValue(this.name, value.current)

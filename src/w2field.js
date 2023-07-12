@@ -895,13 +895,13 @@ class w2field extends w2base {
                 if (!this.tmp.openedOnFocus) {
                     let name = this.el.id + '_menu'
                     let overlay = w2menu.get(name)
-                    if (overlay) {
+                    if (overlay?.displayed) {
                         w2menu.hide(name)
                     } else {
                         this.updateOverlay()
                     }
                 }
-                this.tmp.openedOnFocus = false
+                delete this.tmp.openedOnFocus
                 if (this.type == 'list') {
                     // since list has separate search input, in order to keep the overlay open, need to stop
                     event.stopPropagation()
