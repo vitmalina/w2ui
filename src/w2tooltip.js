@@ -34,7 +34,6 @@ class Tooltip {
             autoShowOn      : null,     // when options.autoShow = true, mouse event to show on
             autoHideOn      : null,     // when options.autoShow = true, mouse event to hide on
             arrowSize       : 8,        // size of the carret
-            margin          : 0,        // extra margin from the anchor
             screenMargin    : 2,        // min margin from screen to tooltip
             autoResize      : true,     // auto resize based on content size and available size
             margin          : 1,        // distance from the anchor
@@ -1495,6 +1494,10 @@ class MenuTooltip extends Tooltip {
                     }
                     icon_dsp = `<div class="menu-icon">${icon}</span></div>`
                 }
+                // for backward compatibility
+                if (mitem.removable == null && mitem.remove != null) {
+                    mitem.rmovable = mitem.remove
+                }
                 // render only if non-empty
                 if (mitem.type !== 'break' && txt != null && txt !== '' && String(txt).substr(0, 2) != '--') {
                     let classes = ['w2ui-menu-item']
@@ -1503,10 +1506,10 @@ class MenuTooltip extends Tooltip {
                     }
                     let colspan = 1
                     if (icon_dsp === '') colspan++
-                    if (mitem.count == null && mitem.hotkey == null && mitem.remove !== true && mitem.items == null) colspan++
+                    if (mitem.count == null && mitem.hotkey == null && mitem.removable !== true && mitem.items == null) colspan++
                     if (mitem.tooltip == null && mitem.hint != null) mitem.tooltip = mitem.hint // for backward compatibility
                     let count_dsp = ''
-                    if (mitem.remove === true) {
+                    if (mitem.removable === true) {
                         count_dsp = '<span class="remove">x</span>'
                     } else if (mitem.items != null) {
                         let _items = []
@@ -2172,10 +2175,11 @@ class DateTooltip extends Tooltip {
             position      : 'top|bottom',
             class         : 'w2ui-calendar',
             type          : 'date', // can be date/time/datetime
-            format        : '',
             value         : '', // initial date (in w2utils.settings format)
+            format        : '',
             start         : null,
             end           : null,
+            btnNow        : false,
             blockDates    : [], // array of blocked dates
             blockWeekdays : [], // blocked weekdays 0 - sunday, 1 - monday, etc
             colored       : {}, // ex: { '3/13/2022': 'bg-color|text-color' }
