@@ -1,48 +1,62 @@
 <div class="content">
     <div id="example_title">
-        <h1>Text Markers</h1>
-        If you have some text and what to highlight, you can use the marker utility. It works arround HTML tags.
+        <h1>Notification</h1>
+        You can show notification that do not interrupt user flow with the new w2utils.notify() method
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
 </div>
 
 <!--CODE-->
-<div id="text" style="font-size: 16px; line-height: 1.6; color: #555">
-    <div>
-    Belarus,[a] officially the Republic of Belarus,[b] is a landlocked country in Eastern Europe. It is bordered by Russia to the
-    east and northeast, Ukraine to the south, Poland to the west, and Lithuania and Latvia to the northwest. Covering an area of
-    207,600 square kilometres (80,200 sq mi) and with a <i>population of 9.4 million</i>, Belarus is the thirteenth-largest and the
-    twentieth-most populous country in Europe. The country is administratively divided into seven regions. Minsk is the capital
-    and largest city.
-    </div>
-    <br>
-    <div>
-    Until the 20th century, different states at various times controlled the lands of modern-day Belarus, including Kievan Rus',
-    the Principality of Polotsk, the Grand Duchy of Lithuania, the Polish–Lithuanian Commonwealth, and the Russian Empire. In
-    the aftermath of the Russian Revolution in 1917, different states arose competing for legitimacy amidst the Civil War,
-    ultimately ending in the rise of the Byelorussian SSR, which became a founding constituent republic of the Soviet Union in
-    1922. After the Polish-Soviet War, Belarus lost almost half of its territory to Poland. Much of the borders of Belarus took
-    their modern shape in 1939, when some lands of the Second Polish Republic were reintegrated into it after the Soviet invasion
-    of Poland, and were finalized after World War II.[10][11][12] During World War II, military operations devastated Belarus,
-    which lost about a quarter of its population and half of its economic resources.[13] The republic was redeveloped in the
-    post-war years. In 1945, the Byelorussian SSR became a founding member of the United Nations, along with the Soviet Union.
+<div>
+    <button class="w2ui-btn notify-btn" value="1">Show a Notification</button>
+    <button class="w2ui-btn notify-btn" value="2">Show an Error</button>
+    <button class="w2ui-btn notify-btn" value="3">With actions</button>
+    <button class="w2ui-btn notify-btn" value="4">Quick one</button>
+</div>
+
+<div id="preview-box" style="width: 700px; height: 300px; border: 1px solid #efefef; position: relative;
+        margin-top: 20px; padding: 10px; color: #aaa; font-size: 17px">
+    <div class="w2ui-centered" style="line-height: 1.5">
+        By default notifications are in the document body, <br>
+        but they could be in any box, for example this one.
     </div>
 </div>
-<br><br>
-
-<input placeholder="Type string to search..." oninput="search(this.value)" class="w2ui-input" style="width: 200px">
-<br><br>
-
-<button class="w2ui-btn" onclick="search(['Belarus', 'republic'])">Mark Country</button>
-<button class="w2ui-btn" onclick="search(['the', 'a', 'an'], { wholeWord: true })">Articles (whole word only)</button>
-<button class="w2ui-btn" onclick="search()">Clear Markers</button>
+<label style="padding: 10px 0; display: inline-block">
+    <input id="in-the-box" type="checkbox" checked style="position: relative; top: 1px"> Show in the box above
+</label>
 
 <!--CODE-->
 <script type="module">
-import { w2utils, query } from '__W2UI_PATH__'
+import { w2utils, w2alert, query } from '__W2UI_PATH__'
 
-window.search = function(text, options = {}) {
-    w2utils.marker(query('#text'), text, options)
-}
+query('.notify-btn').on('click', event => {
+    let where = query('#in-the-box').prop('checked') ? '#preview-box' : undefined
+    switch(event.target.value) {
+        case "1":
+            w2utils.notify(`User notification started at ${new Date().toLocaleTimeString()}. Will auto close in 15 seconds.`, {
+                class: "custom-class", where })
+            break
+        case "2":
+            w2utils.notify('Error: cannot do this action', { error: true, where })
+            break
+        case "3":
+            w2utils.notify('Message was sent ${undo} or ${don\'t show again}', {
+                actions: {
+                    undo() {
+                        w2alert('undo')
+                    },
+                    "don't show again"() {
+                        w2alert("don't show again")
+                    }
+                },
+                where
+            })
+            break
+        case "4":
+            w2utils.notify('Message will auto close in 2 seconds', { timeout: 2000, where: query('#preview-box'), where })
+            break
+    }
+})
 </script>
+<!--CODE-->

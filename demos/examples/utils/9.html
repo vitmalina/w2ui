@@ -1,143 +1,62 @@
 <div class="content">
     <div id="example_title">
-        <h1>Menus</h1>
-        A menu is a particular type of overlay that has selectable items.
+        <h1>International Compare</h1>
+        There is a function, w2utils.i18nCompare, that can be used for language-sensitive sorting of arrays.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
 </div>
 
 <!--CODE-->
-<input type="text" id="some-input" class="w2ui-input" style="width: 200px">
-<div style="height: 20px"></div>
-<div style="width: 200px; float: left">
-    Position:
-    <div style="padding: 10px; margin-bottom: 20px; line-height: 2">
-        <label><input name="postion" type="radio" onclick="setPosition('left')"> &nbsp;left</label><br>
-        <label><input name="postion" type="radio" onclick="setPosition('right')"> &nbsp;right</label><br>
-        <label><input name="postion" type="radio" onclick="setPosition('top')"> &nbsp;top</label><br>
-        <label><input name="postion" type="radio" onclick="setPosition('bottom')" checked> &nbsp;bottom</label><br>
-    </div>
+<div style="width: 170px; float: left">
+    International Order
+    <div style="height: 10px"></div>
+    <div id="grid1" style="width: 150px; height: 260px;"></div>
 </div>
-<div style="width: 300px; float: left">
-    Anchor Alignment (only for TOP/BOTTOM):<br>
-    <div style="padding: 10px; margin-bottom: 20px; line-height: 2; float: left; width: 200px">
-        <label><input name="align" type="radio" onclick="setAlign('none')"> &nbsp;none</label><br>
-        <label><input name="align" type="radio" onclick="setAlign('left')" checked> &nbsp;left</label><br>
-        <label><input name="align" type="radio" onclick="setAlign('right')"> &nbsp;right</label><br>
-        <label><input name="align" type="radio" onclick="setAlign('both')"> &nbsp;both</label><br>
-    </div>
+<div style="width: 170px; float: left">
+    Default Order
+    <div style="height: 10px"></div>
+    <div id="grid2" style="width: 150px; height: 260px;"></div>
 </div>
-<div style="clear: both">Hold shift or ctrl key (cmd on mac) to keep menu open</div>
-<div style="clear: both; height: 10px;"></div>
+<div style="clear: both; height: 20px;"></div>
 
-<button class="w2ui-btn" onclick="showMenu()">Show Menu</button>
-<button class="w2ui-btn" onclick="showMenu2()">Radio Menu</button>
-<button class="w2ui-btn" onclick="showMenu4()">Groups of Radio</button>
-<button class="w2ui-btn" onclick="showMenu3()">Check Menu</button>
+You can sort any array in the following way:
+<div style="height: 10px;"></div>
+<span style="font-size: 13px; font-family: monaco, monospace">Array.sort(w2utils.i18nCompare)</span>
 
 <!--CODE-->
 <script type="module">
-import { query, w2menu } from '__W2UI_PATH__'
+import { w2ui, query, w2grid } from '__W2UI_PATH__'
 
-let align = 'left';
-let position = 'bottom'
+let records = [
+    'a', 'á', 'ä',
+    'e', 'è', 'ę́',
+    'i', 'î', 'i̧',
+    'n', 'ñ',
+    'o', 'ō', 'ö' , 'ø',
+    'u', 'ü',
+    'z'
+].map((char, recid) => { return { recid, char }});
 
-window.setAlign = function(value) { align = value }
-window.setPosition = function(value) { position = value }
+new w2grid({
+    box: '#grid1',
+    name: 'grid1',
+    columns: [
+        { field: 'char', caption: 'Character', size: '30%', sortable: true, sortMode: 'i18n' },
+    ],
+    records: records,
+    sortData: [{ field: 'char', direction: 'asc' }]
+})
+new w2grid({
+    box: '#grid2',
+    name: 'grid2',
+    columns: [
+        { field: 'char', caption: 'Character', size: '30%', sortable: true },
+    ],
+    records: records,
+    sortData: [{ field: 'char', direction: 'asc' }]
+})
 
-window.showMenu = function() {
-    w2menu.show({
-        align,
-        position,
-        hideOn: ['doc-click', 'select'],
-        anchor: query('#some-input')[0],
-        items: [
-            { id: 1, text: 'Item 1', icon: 'fa fa-star' },
-            { id: 'sub', text: 'Sub Menu', icon: 'fa fa-star',
-                items: [
-                    { id: 1, text: 'Item 1', icon: 'fa fa-star' },
-                    { id: 2, text: 'Item 2', icon: 'fa fa-star-o' },
-                    { id: 3, text: 'Item 3', icon: 'fa fa-camera' }
-                ]
-            },
-            { id: 2, text: 'Item 2', icon: 'fa fa-star-o' },
-            { id: 3, text: 'Item 3', icon: 'fa fa-camera' },
-            { text: '--' },
-            { id: 4, text: 'Item 4', icon: 'fa fa-table' },
-        ]
-    })
-    .select((event) => {
-        query('#some-input').val(event.detail.item.text)
-    });
-}
-
-window.showMenu2 = function() {
-    w2menu.show({
-        type: 'radio',
-        align,
-        position,
-        hideOn: ['doc-click', 'select'],
-        anchor: query('#some-input')[0],
-        items: [
-            { id: 1, text: 'Item 1', icon: 'fa fa-star' },
-            { id: 2, text: 'Item 2', icon: 'fa fa-star-o' },
-            { id: 3, text: 'Item 3', icon: 'fa fa-camera' },
-        ]
-    })
-    .select((event) => {
-        query('#some-input').val(event.detail.item.text)
-    });
-}
-
-window.showMenu3 = function() {
-    w2menu.show({
-        type: 'check',
-        align,
-        position,
-        hideOn: ['doc-click', 'select'],
-        anchor: query('#some-input')[0],
-        items: [
-            { id: 1, text: 'Item 1', icon: 'fa fa-star' },
-            { id: 2, text: 'Item 2', icon: 'fa fa-star-o' },
-            { id: 3, text: 'Item 3', icon: 'fa fa-camera' },
-            { id: 4, text: 'Item 4', icon: 'fa fa-star' },
-            { id: 5, text: 'Item 5', icon: 'fa fa-star-o' },
-            { id: 6, text: 'Item 6', icon: 'fa fa-camera' },
-        ]
-    })
-    .select((event) => {
-        let sel = event.detail.selected.reduce((prev, curr) => {
-            prev += (prev != '' ? ', ' : '') + curr.text
-            return prev
-         }, '')
-        query('#some-input').val(sel)
-    });
-}
-
-window.showMenu4 = function() {
-    w2menu.show({
-        type: 'check',
-        align,
-        position,
-        hideOn: ['doc-click', 'select'],
-        anchor: query('#some-input')[0],
-        items: [
-            { id: 1, text: 'Item 1', icon: 'fa fa-star', group: '1' },
-            { id: 2, text: 'Item 2', icon: 'fa fa-star-o', group: '1' },
-            { id: 3, text: 'Item 3', icon: 'fa fa-camera', group: '1' },
-            { text: '--' },
-            { id: 4, text: 'Item 4', icon: 'fa fa-table', group: '2' },
-            { id: 5, text: 'Item 5', icon: 'fa fa-table', group: '2' },
-        ]
-    })
-    .select((event) => {
-        let sel = event.detail.selected.reduce((prev, curr) => {
-            prev += (prev != '' ? ', ' : '') + curr.text
-            return prev
-         }, '')
-        query('#some-input').val(sel)
-    });
-}
-
+w2ui.grid1.localSort()
+w2ui.grid2.localSort()
 </script>

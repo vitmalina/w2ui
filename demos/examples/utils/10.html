@@ -1,74 +1,52 @@
 <div class="content">
     <div id="example_title">
-        <h1>Natural Compare</h1>
-        There is a function, w2utils.naturalCompare, that can be used for natural sorting of arrays. It can compare strings containing a mix of letters and numbers in the way a human being would sort order it.
+        <h1>Lock/Unlock Content</h1>
+        If you have an absolute (or relative) div, you can lock it by placing another div on top of it.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
 </div>
 
 <!--CODE-->
-<div style="width: 170px; float: left">
-    Natural Order
-    <div style="height: 10px"></div>
-    <div id="grid1" style="width: 150px; height: 260px;"></div>
+<style>
+    #custom {
+        position: relative;
+        width: 800px;
+        height: 350px;
+        font-size: 18px;
+        color: #777;
+        padding: 50px;
+        line-height: 1.5;
+        background-color: #f5f5f5;
+    }
+    #custom button {
+        margin-left: 0;
+    }
+</style>
+<div id="custom">
+    Belarus,[a] officially the Republic of Belarus,[b] is a landlocked country in Eastern Europe. It is bordered by Russia to the
+    east and northeast, Ukraine to the south, Poland to the west, and Lithuania and Latvia to the northwest. Covering an area of
+    207,600 square kilometres (80,200 sq mi) and with a <i>population of 9.4 million</i>, Belarus is the thirteenth-largest and the
+    twentieth-most populous country in Europe. The country is administratively divided into seven regions. Minsk is the capital
+    and largest city.
+    <div style="height: 20px"></div>
+    <button class="w2ui-btn">Action</button>
 </div>
-<div style="width: 170px; float: left">
-    Default Order
-    <div style="height: 10px"></div>
-    <div id="grid2" style="width: 150px; height: 260px;"></div>
-</div>
-<div style="clear: both; height: 20px;"></div>
+<div style="height: 20px;"></div>
 
-You can sort any array in the following way:
-<div style="height: 10px;"></div>
-<span style="font-size: 13px; font-family: monaco, monospace">Array.sort(w2utils.naturalCompare)</span>
+<button class="w2ui-btn" onclick="lock()">Lock</button>
+<button class="w2ui-btn" onclick="lock({ spinner: true })">Lock with Spinner</button>
+<button class="w2ui-btn" onclick="lock({ spinner: true, msg: 'Loading...' })">Lock with message</button>
+<button class="w2ui-btn" onclick="unlock(true)">Unlock</button>
 
 <!--CODE-->
 <script type="module">
-import { w2ui, query, w2grid } from '__W2UI_PATH__'
+import { w2utils, query } from '__W2UI_PATH__'
 
-query(() => {
-    new w2grid({
-        box: '#grid1',
-        name: 'grid1',
-        columns: [
-            { field: 'fname', caption: 'First Name', size: '30%', sortable: true, sortMode: 'natural' },
-        ],
-        records: [
-            { "recid": 1, "fname": "Image1.png" },
-            { "recid": 2, "fname": "Image2.png" },
-            { "recid": 3, "fname": "Image5.png" },
-            { "recid": 4, "fname": "image10.png" },
-            { "recid": 5, "fname": "image11.jpg" },
-            { "recid": 6, "fname": "image12.jpg" },
-            { "recid": 7, "fname": "image20.png" },
-            { "recid": 8, "fname": "image3.png" },
-            { "recid": 9, "fname": "image4.png"  }
-        ],
-        sortData: [{ field: 'fname', direction: 'asc' }]
-    })
-    new w2grid({
-        box: '#grid2',
-        name: 'grid2',
-        columns: [
-            { field: 'fname', caption: 'First Name', size: '30%', sortable: true },
-        ],
-        records: [
-            { "recid": 1, "fname": "Image1.png" },
-            { "recid": 2, "fname": "Image2.png" },
-            { "recid": 3, "fname": "Image5.png" },
-            { "recid": 4, "fname": "image10.png" },
-            { "recid": 5, "fname": "image11.jpg" },
-            { "recid": 6, "fname": "image12.jpg" },
-            { "recid": 7, "fname": "image20.png" },
-            { "recid": 8, "fname": "image3.png" },
-            { "recid": 9, "fname": "image4.png"  }
-        ],
-        sortData: [{ field: 'fname', direction: 'asc' }]
-    })
-
-    w2ui.grid1.localSort()
-    w2ui.grid2.localSort()
-})
+window.lock = function(opts = {}) {
+    w2utils.lock(query('#custom'), opts)
+}
+window.unlock = function() {
+    w2utils.unlock(query('#custom'))
+}
 </script>

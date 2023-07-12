@@ -1,57 +1,55 @@
 <div class="content">
     <div id="example_title">
-        <h1>Content Messages</h1>
-        Content messages only lock the content (div) you specify. This div needs to be position: relative|absolute.
+        <h1>String Utils</h1>
+        There are several useful utilities for working with string functions and inputs.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
 </div>
 
 <!--CODE-->
-<style>
-#custom {
-    position: relative;
-    width: 800px;
-    height: 350px;
-    font-size: 18px;
-    color: #777;
-    padding: 50px;
-    line-height: 1.5;
-    background-color: #f5f5f5;
-}
-#custom button {
-    margin-left: 0;
-}
-</style>
-<div id="custom">
-    Belarus,[a] officially the Republic of Belarus,[b] is a landlocked country in Eastern Europe. It is bordered by Russia to the
-    east and northeast, Ukraine to the south, Poland to the west, and Lithuania and Latvia to the northwest. Covering an area of
-    207,600 square kilometres (80,200 sq mi) and with a <i>population of 9.4 million</i>, Belarus is the thirteenth-largest and the
-    twentieth-most populous country in Europe. The country is administratively divided into seven regions. Minsk is the capital
-    and largest city.
-    <div style="height: 20px"></div>
-    <button class="w2ui-btn">Action</button>
+<div style="width: 410px; float: left">
+    <span style="display: inline-block; padding: 10px 0;">Input or contextEditable</span>
+    <div id="str" onkeyup="update()" onclick="update()" class="w2ui-input"
+        style="border: 1px solid #e0e0e0; border-radius: 3px; background-color: #f8fafa;
+            padding: 4px; width: 400px; font-size: 13px; display: inline-block"
+        placeholder="Type some text here..." contenteditable>This is content editable div, but it works on an input too</div>
 </div>
-
-<div style="height: 20px;"></div>
-<button class="w2ui-btn" onclick="contextAlert()">Alert</button>
-<button class="w2ui-btn" onclick="contextConfirm()">Confirm</button>
+<div style="margin-left: 410px">
+    <span style="display: inline-block; padding: 10px 0;">Input Styles</span><br>
+    <input id="styles" onkeyup="update()" class="w2ui-input" style="width: 200px; font-size: 13px"
+        placeholder="and styles for the input, if any...">
+</div>
+<br><br>
+<button class="w2ui-btn" onclick="setPos(5); update()">Set cursor at pos 5</button>
+<button class="w2ui-btn" onclick="setPos(25); update()">Set cursor at pos 25</button>
+<button class="w2ui-btn" onclick="setPos(8, 15); update()">Set cursor 8-15</button>
+<br><br>
+<div style="padding: 5px;">
+    <div style="float: left; width: 130px;">Text Width</div>    <div id="swidth" style="margin-left: 130px;">...</div>
+    <div style="float: left; width: 130px;">Cursor Position</div> <div id="curpos" style="margin-left: 130px;">...</div>
+</div>
 
 <!--CODE-->
 <script type="module">
 import { w2utils, query } from '__W2UI_PATH__'
 
-window.contextAlert = function() {
-    w2utils.message({ box: '#custom' }, 'Some message')
-        .ok((event) => {
-            console.log('Ok clicked',event)
-        })
+let originalStyles = query('#str').attr('style');
+
+window.update = function() {
+    let input = query('#str').get(0)
+    let styles = query('#styles').get(0)
+    query('#str').attr('style', originalStyles + '; ' +query('#styles').val());
+
+    query('#swidth').html(w2utils.getStrWidth(input.innerHTML, styles.value) + 'px')
+    query('#curpos').html(w2utils.getCursorPosition(input))
 }
 
-window.contextConfirm = function() {
-    w2utils.confirm({ box: '#custom' }, 'Some message')
-        .action((event) => {
-            console.log(event.detail.action + ' clicked', event.detail)
-        })
+window.setPos = function(start, end) {
+    let input = query('#str').get(0)
+    input.focus()
+    w2utils.setCursorPosition(input, start, end)
 }
+
+update()
 </script>

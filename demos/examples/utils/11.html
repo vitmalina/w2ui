@@ -1,62 +1,57 @@
 <div class="content">
     <div id="example_title">
-        <h1>International Compare</h1>
-        There is a function, w2utils.i18nCompare, that can be used for language-sensitive sorting of arrays.
+        <h1>Content Messages</h1>
+        Content messages only lock the content (div) you specify. This div needs to be position: relative|absolute.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
 </div>
 
 <!--CODE-->
-<div style="width: 170px; float: left">
-    International Order
-    <div style="height: 10px"></div>
-    <div id="grid1" style="width: 150px; height: 260px;"></div>
+<style>
+#custom {
+    position: relative;
+    width: 800px;
+    height: 350px;
+    font-size: 18px;
+    color: #777;
+    padding: 50px;
+    line-height: 1.5;
+    background-color: #f5f5f5;
+}
+#custom button {
+    margin-left: 0;
+}
+</style>
+<div id="custom">
+    Belarus,[a] officially the Republic of Belarus,[b] is a landlocked country in Eastern Europe. It is bordered by Russia to the
+    east and northeast, Ukraine to the south, Poland to the west, and Lithuania and Latvia to the northwest. Covering an area of
+    207,600 square kilometres (80,200 sq mi) and with a <i>population of 9.4 million</i>, Belarus is the thirteenth-largest and the
+    twentieth-most populous country in Europe. The country is administratively divided into seven regions. Minsk is the capital
+    and largest city.
+    <div style="height: 20px"></div>
+    <button class="w2ui-btn">Action</button>
 </div>
-<div style="width: 170px; float: left">
-    Default Order
-    <div style="height: 10px"></div>
-    <div id="grid2" style="width: 150px; height: 260px;"></div>
-</div>
-<div style="clear: both; height: 20px;"></div>
 
-You can sort any array in the following way:
-<div style="height: 10px;"></div>
-<span style="font-size: 13px; font-family: monaco, monospace">Array.sort(w2utils.i18nCompare)</span>
+<div style="height: 20px;"></div>
+<button class="w2ui-btn" onclick="contextAlert()">Alert</button>
+<button class="w2ui-btn" onclick="contextConfirm()">Confirm</button>
 
 <!--CODE-->
 <script type="module">
-import { w2ui, query, w2grid } from '__W2UI_PATH__'
+import { w2utils, query } from '__W2UI_PATH__'
 
-let records = [
-    'a', 'á', 'ä',
-    'e', 'è', 'ę́',
-    'i', 'î', 'i̧',
-    'n', 'ñ',
-    'o', 'ō', 'ö' , 'ø',
-    'u', 'ü',
-    'z'
-].map((char, recid) => { return { recid, char }});
+window.contextAlert = function() {
+    w2utils.message({ box: '#custom' }, 'Some message')
+        .ok((event) => {
+            console.log('Ok clicked',event)
+        })
+}
 
-new w2grid({
-    box: '#grid1',
-    name: 'grid1',
-    columns: [
-        { field: 'char', caption: 'Character', size: '30%', sortable: true, sortMode: 'i18n' },
-    ],
-    records: records,
-    sortData: [{ field: 'char', direction: 'asc' }]
-})
-new w2grid({
-    box: '#grid2',
-    name: 'grid2',
-    columns: [
-        { field: 'char', caption: 'Character', size: '30%', sortable: true },
-    ],
-    records: records,
-    sortData: [{ field: 'char', direction: 'asc' }]
-})
-
-w2ui.grid1.localSort()
-w2ui.grid2.localSort()
+window.contextConfirm = function() {
+    w2utils.confirm({ box: '#custom' }, 'Some message')
+        .action((event) => {
+            console.log(event.detail.action + ' clicked', event.detail)
+        })
+}
 </script>

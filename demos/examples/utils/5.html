@@ -1,80 +1,37 @@
 <div class="content">
     <div id="example_title">
-        <h1>Overlays</h1>
-        The same w2tooltip() object can be used for large maessage and it can have many customizations.
+        <h1>Color Utils</h1>
+        There are several function to work with colors.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
 </div>
 
 <!--CODE-->
-<input type="text" id="some-input" class="w2ui-input" style="width: 200px">
-<div style="height: 20px"></div>
-<div style="width: 200px; float: left">
-    Position:
-    <div style="padding: 10px; margin-bottom: 20px; line-height: 2">
-        <label><input name="postion" type="radio" onclick="setPosition('left')"> &nbsp;left</label><br>
-        <label><input name="postion" type="radio" onclick="setPosition('right')"> &nbsp;right</label><br>
-        <label><input name="postion" type="radio" onclick="setPosition('top')"> &nbsp;top</label><br>
-        <label><input name="postion" type="radio" onclick="setPosition('bottom')" checked> &nbsp;bottom</label><br>
-    </div>
-</div>
-<div style="width: 300px; float: left">
-    Anchor Alignment (only for TOP/BOTTOM):<br>
-    <div style="padding: 10px; margin-bottom: 20px; line-height: 2; float: left; width: 200px">
-        <label><input name="align" type="radio" onclick="setAlign('none')" checked> &nbsp;none</label><br>
-        <label><input name="align" type="radio" onclick="setAlign('left')"> &nbsp;left</label><br>
-        <label><input name="align" type="radio" onclick="setAlign('right')"> &nbsp;right</label><br>
-        <label><input name="align" type="radio" onclick="setAlign('both')"> &nbsp;both</label><br>
-    </div>
-</div>
-<div style="clear: both; height: 10px;"></div>
-
-<button class="w2ui-btn" onclick="showOverlay()">Show Overlay</button>
-<button class="w2ui-btn" onclick="showColor()">Color (2.0+)</button>
-<button class="w2ui-btn" onclick="showDate('date')">Date (2.0+)</button>
-<button class="w2ui-btn" onclick="showDate('time')">Time (2.0+)</button>
-<button class="w2ui-btn" onclick="showDate('datetime')">Date & Time (2.0+)</button>
+<input id="str" type="text" size="20" onchange="update()" style="border: 1px solid silver; padding: 6px; width: 120px;">
+<br><br>
+<div style="float: left; width: 130px;">Parse Color</div><div id="color1" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">RGB -> HSV</div> <div id="color2" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">HSV -> RGB</div> <div id="color3" style="margin-left: 130px;">...</div>
+<br><br>
 
 <!--CODE-->
 <script type="module">
-import { w2tooltip, w2color, w2date } from '__W2UI_PATH__'
+import { w2utils, w2field, query } from '__W2UI_PATH__'
 
-let align = 'none';
-let position = 'bottom';
+new w2field('color', { el: query('#str')[0] })
 
-window.setAlign = function(value) { align = value }
-window.setPosition = function(value) { position = value }
-
-window.showOverlay = function() {
-    w2tooltip.show({
-        align,
-        position,
-        name: 'tooltip-name',
-        anchor: document.querySelector('#some-input'),
-        html: '<div style="padding: 10px; line-height: 150%">'+
-            '    Multi line HTML msg<br>Multi line HTML msg<br>Multi line HTML msg<br>'+
-            '</div>'
-    });
-}
-
-window.showColor = function() {
-    w2color.show({
-        align,
-        position,
-        name: 'tooltip-name',
-        anchor: document.querySelector('#some-input')
-    })
-}
-
-window.showDate = function(type) {
-    w2date.show({
-        type,
-        align,
-        position,
-        name: 'tooltip-name',
-        anchor: document.querySelector('#some-input'),
-        blocked: []
-    })
+window.update = function() {
+    let val = query('#str').val()
+    let parsed = w2utils.parseColor(val)
+    if (parsed) {
+        query('#color1').html(JSON.stringify(parsed))
+        query('#color2').html(JSON.stringify(w2utils.rgb2hsv(parsed)))
+        query('#color3').html(JSON.stringify(w2utils.hsv2rgb(w2utils.rgb2hsv(parsed))))
+    } else {
+        query('#color1').html('...')
+        query('#color2').html('...')
+        query('#color3').html('...')
+    }
 }
 </script>

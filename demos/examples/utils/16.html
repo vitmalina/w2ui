@@ -1,55 +1,108 @@
 <div class="content">
     <div id="example_title">
-        <h1>String Utils</h1>
-        There are several useful utilities for working with string functions and inputs.
+        <h1>Clone and Extend</h1>
+        Native JS still does not support deep cloning of objects. Hence 2 more methods that allow that. It is safe to
+        run them agains unclonable items, such as a function or an HTML element. In this case it will keep
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
 </div>
 
 <!--CODE-->
-<div style="width: 410px; float: left">
-    <span style="display: inline-block; padding: 10px 0;">Input or contextEditable</span>
-    <div id="str" onkeyup="update()" onclick="update()" class="w2ui-input"
-        style="border: 1px solid #e0e0e0; border-radius: 3px; background-color: #f8fafa;
-            padding: 4px; width: 400px; font-size: 13px; display: inline-block"
-        placeholder="Type some text here..." contenteditable>This is content editable div, but it works on an input too</div>
-</div>
-<div style="margin-left: 410px">
-    <span style="display: inline-block; padding: 10px 0;">Input Styles</span><br>
-    <input id="styles" onkeyup="update()" class="w2ui-input" style="width: 200px; font-size: 13px"
-        placeholder="and styles for the input, if any...">
-</div>
+<style>
+#encode {
+    width: 600px;
+    height: 450px;
+    resize: vertical;
+}
+</style>
+<textarea id="encode" class="w2ui-input">
+{
+    a: 'text',
+    b: 1,
+    body: document.body,
+    func: () => { console.log(1) },
+    c: {
+        nested: {
+            a: 'nested-text',
+            b: 4
+        }
+    }
+}
+// extend with
+{
+    c: {
+        number: 1,
+        nested: { number: 3 }
+    }
+}
+// and then with
+{
+    c: {
+        number: 100,
+        nested: { number2: 300 }
+    }
+}
+</textarea>
 <br><br>
-<button class="w2ui-btn" onclick="setPos(5); update()">Set cursor at pos 5</button>
-<button class="w2ui-btn" onclick="setPos(25); update()">Set cursor at pos 25</button>
-<button class="w2ui-btn" onclick="setPos(8, 15); update()">Set cursor 8-15</button>
-<br><br>
-<div style="padding: 5px;">
-    <div style="float: left; width: 130px;">Text Width</div>    <div id="swidth" style="margin-left: 130px;">...</div>
-    <div style="float: left; width: 130px;">Cursor Position</div> <div id="curpos" style="margin-left: 130px;">...</div>
-</div>
+<button class="w2ui-btn" onclick="clone()">Clone</button>
+<button class="w2ui-btn" onclick="extend()">Deep Extend</button>
 
 <!--CODE-->
 <script type="module">
-import { w2utils, query } from '__W2UI_PATH__'
+import { w2utils, w2popup } from '__W2UI_PATH__'
 
-let originalStyles = query('#str').attr('style');
-
-window.update = function() {
-    let input = query('#str').get(0)
-    let styles = query('#styles').get(0)
-    query('#str').attr('style', originalStyles + '; ' +query('#styles').val());
-
-    query('#swidth').html(w2utils.getStrWidth(input.innerHTML, styles.value) + 'px')
-    query('#curpos').html(w2utils.getCursorPosition(input))
+let obj = {
+    a: 'text',
+    b: 1,
+    body: document.body,
+    func: () => { console.log(1) },
+    c: {
+        nested: {
+            a: 'nested-text',
+            b: 4
+        }
+    }
+}
+let obj2 = {
+    c: {
+        number: 1,
+        nested: { number: 3 }
+    }
+}
+let obj3 = {
+    c: {
+        number: 100,
+        nested: { number2: 300 }
+    }
 }
 
-window.setPos = function(start, end) {
-    let input = query('#str').get(0)
-    input.focus()
-    w2utils.setCursorPosition(input, start, end)
+window.extend = function() {
+    let rec = w2utils.extend({}, obj, obj2, obj3)
+    console.log('With functions', rec)
+    w2popup.open({
+        title: 'Result (w/o functions) - see console',
+        with: 600,
+        height: 400,
+        body: `<pre>${JSON.stringify(rec, null, 4)}</pre>`,
+        actions: {
+            Ok: w2popup.close
+        }
+    })
 }
 
-update()
+window.clone = function() {
+    let cloned = w2utils.clone(obj, obj2, obj3)
+    console.log('original !== cloned', obj !== cloned, cloned)
+    w2popup.open({
+        title: 'Result (w/o functions) - see console',
+        with: 600,
+        height: 400,
+        body: `<pre>${JSON.stringify(cloned, null, 4)}</pre>`,
+        actions: {
+            Ok: w2popup.close
+        }
+    })
+}
 </script>
+<!--CODE-->

@@ -1,37 +1,74 @@
 <div class="content">
     <div id="example_title">
-        <h1>Color Utils</h1>
-        There are several function to work with colors.
+        <h1>Natural Compare</h1>
+        There is a function, w2utils.naturalCompare, that can be used for natural sorting of arrays. It can compare strings containing a mix of letters and numbers in the way a human being would sort order it.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
 </div>
 
 <!--CODE-->
-<input id="str" type="text" size="20" onchange="update()" style="border: 1px solid silver; padding: 6px; width: 120px;">
-<br><br>
-<div style="float: left; width: 130px;">Parse Color</div><div id="color1" style="margin-left: 130px;">...</div>
-<div style="float: left; width: 130px;">RGB -> HSV</div> <div id="color2" style="margin-left: 130px;">...</div>
-<div style="float: left; width: 130px;">HSV -> RGB</div> <div id="color3" style="margin-left: 130px;">...</div>
-<br><br>
+<div style="width: 170px; float: left">
+    Natural Order
+    <div style="height: 10px"></div>
+    <div id="grid1" style="width: 150px; height: 260px;"></div>
+</div>
+<div style="width: 170px; float: left">
+    Default Order
+    <div style="height: 10px"></div>
+    <div id="grid2" style="width: 150px; height: 260px;"></div>
+</div>
+<div style="clear: both; height: 20px;"></div>
+
+You can sort any array in the following way:
+<div style="height: 10px;"></div>
+<span style="font-size: 13px; font-family: monaco, monospace">Array.sort(w2utils.naturalCompare)</span>
 
 <!--CODE-->
 <script type="module">
-import { w2utils, w2field, query } from '__W2UI_PATH__'
+import { w2ui, query, w2grid } from '__W2UI_PATH__'
 
-new w2field('color', { el: query('#str')[0] })
+query(() => {
+    new w2grid({
+        box: '#grid1',
+        name: 'grid1',
+        columns: [
+            { field: 'fname', caption: 'First Name', size: '30%', sortable: true, sortMode: 'natural' },
+        ],
+        records: [
+            { "recid": 1, "fname": "Image1.png" },
+            { "recid": 2, "fname": "Image2.png" },
+            { "recid": 3, "fname": "Image5.png" },
+            { "recid": 4, "fname": "image10.png" },
+            { "recid": 5, "fname": "image11.jpg" },
+            { "recid": 6, "fname": "image12.jpg" },
+            { "recid": 7, "fname": "image20.png" },
+            { "recid": 8, "fname": "image3.png" },
+            { "recid": 9, "fname": "image4.png"  }
+        ],
+        sortData: [{ field: 'fname', direction: 'asc' }]
+    })
+    new w2grid({
+        box: '#grid2',
+        name: 'grid2',
+        columns: [
+            { field: 'fname', caption: 'First Name', size: '30%', sortable: true },
+        ],
+        records: [
+            { "recid": 1, "fname": "Image1.png" },
+            { "recid": 2, "fname": "Image2.png" },
+            { "recid": 3, "fname": "Image5.png" },
+            { "recid": 4, "fname": "image10.png" },
+            { "recid": 5, "fname": "image11.jpg" },
+            { "recid": 6, "fname": "image12.jpg" },
+            { "recid": 7, "fname": "image20.png" },
+            { "recid": 8, "fname": "image3.png" },
+            { "recid": 9, "fname": "image4.png"  }
+        ],
+        sortData: [{ field: 'fname', direction: 'asc' }]
+    })
 
-window.update = function() {
-    let val = query('#str').val()
-    let parsed = w2utils.parseColor(val)
-    if (parsed) {
-        query('#color1').html(JSON.stringify(parsed))
-        query('#color2').html(JSON.stringify(w2utils.rgb2hsv(parsed)))
-        query('#color3').html(JSON.stringify(w2utils.hsv2rgb(w2utils.rgb2hsv(parsed))))
-    } else {
-        query('#color1').html('...')
-        query('#color2').html('...')
-        query('#color3').html('...')
-    }
-}
+    w2ui.grid1.localSort()
+    w2ui.grid2.localSort()
+})
 </script>

@@ -1,10 +1,8 @@
 <div class="content">
     <div id="example_title">
-        <h1>Localization</h1>
-        There are several function that help you localize your file. Among them <b>utils.settings</b>, which
-        allow to define custom date/time/currency formats, as well as, help with translated phrases. See /locale
-        folder for different langauge packs.
-        load
+        <h1>Event Binding</h1>
+        To comply with strictest CSP, you should not add inline event handlers. Sometimes it is useful to do so, especially
+        when you pass HTML arround. This is where binding becomes handy.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -12,66 +10,45 @@
 
 <!--CODE-->
 <style>
-.col1 {
-    width: 310px;
-    float: left
+#encode {
+    width: 600px;
+    height: 450px;
+    resize: vertical;
 }
-.col2 {
-    margin-left: 310px
-}
-.col1 span, .col2 span {
-    display: inline-block;
-    padding: 5px 0;
-}
-.col1 input, .col2 input  {
-    width: 300px;
-    font-size: 13px
+#div {
+    background-color: #f9f9f9;
+    border: 1px solid #efefef;
+    border-radius: 5px;
+    padding: 20px;
+    margin: 50px 0;
+    width: 200px;
 }
 </style>
-<div class="col1">
-    <span>Text</span><br>
-    <input id="text" class="w2ui-input" value="Confirm you want to delete">
+<div id="div" data-mouseenter="showTooltip|some text|event|this" data-mouseleave="hideTooltip">
+    Hove over for tooltip
 </div>
-<div class="col2">
-    <span>Translation</span><br>
-    <input id="trans" class="w2ui-input">
-</div>
-<br>
-<div class="col1">
-    <span>Text w/ variable</span><br>
-    <input id="text2" class="w2ui-input" value="Should be less than ${max} characters">
-</div>
-<div class="col2">
-    <span>Translation</span><br>
-    <input id="trans2" class="w2ui-input">
-</div>
-<br><br>
-<button class="w2ui-btn" onclick="update()">Show Translation</button>
-<button class="w2ui-btn" onclick="update2()">Process Template w/ XX</button>
 
 <!--CODE-->
 <script type="module">
-import { w2utils, query, w2alert } from '__W2UI_PATH__'
+import { w2utils, w2tooltip, query } from '__W2UI_PATH__'
 
-w2utils.locale({
-    name: 'ru-RU',
-    phrases: {
-        "Confirm you want to delete": "Подтвердите удаление",
-        "Should be less than ${max} characters": "Должно быть меньше чем ${max} символов"
+var owner = {
+    showTooltip(txt, event, el) {
+        w2tooltip.show({
+            name: 'custom-tooltip',
+            anchor: query('#div')[0],
+            html: txt,
+            hideOn: [],
+        })
+        console.log(event, el)
+    },
+    hideTooltip() {
+        w2tooltip.hide('custom-tooltip')
     }
+}
+query(() => {
+    // bind event on read
+    w2utils.bindEvents(query('#div'), owner)
 })
-
-window.update = function() {
-    let text = query('#text').val()
-    let text2 = query('#text2').val()
-    query('#trans').val(w2utils.lang(text))
-    query('#trans2').val(w2utils.lang(text2, { max: 15 }))
-}
-
-window.update2 = function() {
-    let text2 = query('#text2').val()
-    w2alert(w2utils.execTemplate(text2, { max: Math.floor(Math.random() * 100) }))
-}
 </script>
-
 <!--CODE-->

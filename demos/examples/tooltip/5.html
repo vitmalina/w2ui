@@ -1,0 +1,71 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Searchable Menu</h1>
+        You can attch menu to an input or a button. If it is not an input you can optionally show searchable input inside the tooltip.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<style>
+    .custom {
+        font-size: 16px;
+        padding: 10px;
+        background-color: #fcfcfc;
+        width: 600px;
+        color: #484848;
+    }
+    .tooltip {
+        display: inline-block;
+        padding: 3px 6px;
+        background-color: #f1f4dc;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+</style>
+
+<div style="height: 10px"></div>
+
+<button id="custom-btn" class="w2ui-btn">Click Me to Show Menu</button>
+
+<div style="height: 20px"></div>
+
+<!--CODE-->
+<script type="module">
+import { query, w2menu } from '__W2UI_PATH__'
+
+let people = [
+    'George Washington', 'John Adams', 'Thomas Jefferson', 'James Buchanan', 'James Madison',
+    'Abraham Lincoln', 'James Monroe', 'Andrew Johnson', 'John Adams', 'Ulysses Grant', 'Andrew Jackson',
+    'Rutherford Hayes', 'Martin Van Buren', 'James Garfield', 'William Harrison', 'Chester Arthur',
+    'John Tyler', 'Grover Cleveland', 'James Polk', 'Benjamin Harrison', 'Zachary Taylor', 'Grover Cleveland',
+    'Millard Fillmore', 'William McKinley', 'Franklin Pierce', 'Theodore Roosevelt', 'John Kennedy',
+    'William Howard', 'Lyndon Johnson', 'Woodrow Wilson', 'Richard Nixon', 'Warren Harding', 'Gerald Ford',
+    'Calvin Coolidge', 'James Carter', 'Herbert Hoover', 'Ronald Reagan', 'Franklin Roosevelt', 'George Bush',
+    'Harry Truman', 'William Clinton', 'Dwight Eisenhower', 'George W. Bush', 'Barack Obama'
+]
+people.sort()
+
+query('#custom-btn').on('click', event => {
+    w2menu.show({
+        name: 'custom-menu',
+        anchor: event.target,
+        match: 'contains',
+        search: true,
+        markSearch: true,
+        altRows: true,
+        filter: true,
+        items: people
+    })
+    .then(event => {
+        let box = event.detail.overlay.box
+        query(box).find('input').get(0).focus()
+    })
+    .select(event => {
+        let anchor = event.detail.overlay.anchor
+        query(anchor).html('Selected: ' + event.detail.item.text)
+    })
+})
+
+</script>

@@ -1,60 +1,70 @@
 <div class="content">
     <div id="example_title">
-        <h1>Tooltips</h1>
-        If you need to attach any overlay to an element or an input control - use w2tooltip. It can be a short or large message and
-        contain any HTML.
+        <h1>Formatters</h1>
+        You can use formatters to format display of a value. Internally formatters are used in grid as option for render function.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
 </div>
 
 <!--CODE-->
-<input type="text" id="some-input" class="w2ui-input" style="width: 200px;">
+<input id="str" type="text" size="20" onkeyup="update()" style="border: 1px solid silver; padding: 3px; height: 30px; width: 200px;">
+<br><br>
+<div style="float: left; width: 130px;">Number</div>         <div id="fNumber" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">Number (1.001)</div> <div id="fNumber2" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">Money</div>          <div id="fMoney" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">Percent</div>        <div id="fPercent" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">Size</div>           <div id="fSize" style="margin-left: 130px;">...</div>
 <div style="height: 20px"></div>
-<div style="width: 200px; float: left">
-    Position:
-    <div style="padding: 10px; margin-bottom: 20px; line-height: 2">
-        <label><input name="postion" type="radio" onclick="setPosition('left')"> &nbsp;left</label><br>
-        <label><input name="postion" type="radio" onclick="setPosition('right')"> &nbsp;right</label><br>
-        <label><input name="postion" type="radio" onclick="setPosition('top')" checked> &nbsp;top</label><br>
-        <label><input name="postion" type="radio" onclick="setPosition('bottom')"> &nbsp;bottom</label><br>
-    </div>
-</div>
-<div style="width: 300px; float: left">
-    Anchor Alignment (only for TOP/BOTTOM):<br>
-    <div style="padding: 10px; margin-bottom: 20px; line-height: 2; float: left; width: 200px">
-        <label><input name="align" type="radio" onclick="setAlign('none')" checked> &nbsp;none</label><br>
-        <label><input name="align" type="radio" onclick="setAlign('left')"> &nbsp;left</label><br>
-        <label><input name="align" type="radio" onclick="setAlign('right')"> &nbsp;right</label><br>
-        <label><input name="align" type="radio" onclick="setAlign('both')"> &nbsp;both</label><br>
-    </div>
-</div>
-<div style="clear: both; height: 10px;"></div>
-
-<button class="w2ui-btn" onclick="showTooltip({})">Dark Tooltip</button>
-<button class="w2ui-btn" onclick="showTooltip({class: 'w2ui-light' })">Light Tooltip</button>
-<button class="w2ui-btn" onclick="hideTooltip()">Hide Tooltip</button>
+<div style="float: left; width: 130px;">Date</div>           <div id="fDate" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">Time</div>           <div id="fTime" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">Date Time</div>      <div id="fDateTime" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">GMT Date Time</div>  <div id="fGMT" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">Time Stamp</div>     <div id="fTimeStamp" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">Age</div>            <div id="fAge" style="margin-left: 130px;">...</div>
+<div style="float: left; width: 130px;">Interval</div>       <div id="fInterval" style="margin-left: 130px;">...</div>
 
 <!--CODE-->
 <script type="module">
-import { w2utils, w2tooltip } from '__W2UI_PATH__'
+import { w2utils, w2field, query } from '__W2UI_PATH__'
 
-let align = 'none';
-let position = 'top';
-let message = 'The message for the <br> tooltip can be<br> quite big and <br>contain any HTML.'
-
-window.setAlign = function (value) { align = value }
-window.setPosition = function (value) { position = value }
-window.showTooltip = function (options) {
-    w2tooltip.show(w2utils.extend(options, {
-        align,
-        position,
-        name: 'tooltip-name',
-        anchor: document.querySelector('#some-input'),
-        html: message
-    }))
-}
-window.hideTooltip = function () {
-    w2tooltip.hide('tooltip-name')
+new w2field({
+    el: query('#str')[0],
+    type: 'float',
+    autoFormat: false
+});
+window.update = function () {
+    var val = query('#str').val();
+    if (w2utils.isFloat(val)) {
+        query('#fNumber').html(w2utils.formatters['number'](val));
+        query('#fNumber2').html(w2utils.formatters['number'](val, 3));
+        query('#fMoney').html(w2utils.formatters['money'](val));
+        query('#fPercent').html(w2utils.formatters['percent'](val));
+        query('#fSize').html(w2utils.formatters['size'](val));
+    } else {
+        query('#fNumber').html('--');
+        query('#fNumber2').html('--');
+        query('#fMoney').html('--');
+        query('#fPercent').html('--');
+        query('#fSize').html('--');
+    }
+    var dt = w2utils.isDate(val, null, true);
+    if (dt !== false) {
+        query('#fDate').html(w2utils.formatters['date'](val));
+        query('#fDateTime').html(w2utils.formatters['datetime'](val));
+        query('#fTime').html(w2utils.formatters['time'](val));
+        query('#fGMT').html(w2utils.formatters['gmt'](val));
+        query('#fTimeStamp').html(w2utils.formatters['timestamp'](val));
+        query('#fAge').html(w2utils.formatters['age'](val));
+        query('#fInterval').html(w2utils.formatters['interval'](val));
+    } else {
+        query('#fDate').html('--');
+        query('#fDateTime').html('--');
+        query('#fTime').html('--');
+        query('#fGMT').html('--');
+        query('#fTimeStamp').html('--');
+        query('#fAge').html('--');
+        query('#fInterval').html('--');
+    }
 }
 </script>

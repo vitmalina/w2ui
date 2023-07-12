@@ -1,0 +1,82 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Attach & Forget</h1>
+        You can attach tooltip to an anchor and it will show/hide on its own.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<style>
+    .custom {
+        font-size: 16px;
+        padding: 10px;
+        background-color: #fcfcfc;
+        width: 600px;
+        color: #484848;
+    }
+    .tooltip {
+        display: inline-block;
+        padding: 3px 6px;
+        background-color: #f1f4dc;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+</style>
+
+<div class="custom">
+    These tooltips will <span class="tooltip" data-tooltip="Tooltip text for 'show'"  data-show="hover">show</span> on mouse enter and
+    <span class="tooltip" data-tooltip="Tooltip for 'hide'" data-show="hover">hide</span> on mouse leave.
+    <div style="height: 20px"></div>
+
+    Howerver, this one will <span class="tooltip" data-tooltip="Release mouse" data-show="mouse">show</span> on mouse down and hide on mouse up.
+    <div style="height: 20px"></div>
+
+    Yet, this one will <span class="tooltip" data-tooltip="Click outside" data-show="click">show</span> on click and
+    <span class="tooltip" data-tooltip="Click outisde" data-show="click">hide</span> when clicked
+    anywhere in the document.
+</div>
+
+<div style="height: 20px"></div>
+
+<!--CODE-->
+<script type="module">
+import { query, w2tooltip } from '__W2UI_PATH__'
+
+query('.tooltip').each((el, ind) => {
+    // on mouse enter and leave
+    let show = query(el).attr('data-show')
+    switch (show) {
+        case 'hover': {
+            w2tooltip.attach({
+                html: query(el).attr('data-tooltip'),
+                name: 'custom-' + ind,
+                anchor: el,
+                autoShow: true
+            })
+            break
+        }
+        case 'mouse': {
+            w2tooltip.attach({
+                html: query(el).attr('data-tooltip'),
+                name: 'custom-' + ind,
+                anchor: el,
+                autoShowOn: 'mousedown', // can be any event, for example: mouseenter, mousedown, click
+                autoHideOn: 'mouseup'    // can be any event, for example: mouseenter, mousedown, click
+            })
+            break
+        }
+        case 'click': {
+            w2tooltip.attach({
+                html: query(el).attr('data-tooltip'),
+                name: 'custom-' + ind,
+                anchor: el,
+                autoShowOn: 'click',   // can be any event, for example: mouseenter, mousedown, click
+                hideOn: ['doc-click'],
+            })
+            break
+        }
+    }
+})
+</script>

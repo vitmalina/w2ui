@@ -1,0 +1,81 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Tooltips</h1>
+        Tooltips and overlays are supported since early versions of w2ui, however in v 2.0 it was completely rewritten. Now, it uses DOM<br>
+        observers instead of timeouts to make it fast an efficient.
+        <div style="height: 15px"></div>
+        A tooltip is a floating message attached to any HTML element (a.k.a. anchor). The message displayed inside tooltip can be any html<br>
+        text and it will dynamically calculate its width and height.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<style>
+    #some-div {
+        width: 200px;
+        text-align: center;
+        padding: 10px;
+        border: 1px solid #efefef;
+        border-radius: 4px;
+        background-color: #f8f8f5;
+    }
+</style>
+
+<div style="position: absolute; margin-left: 250px; margin-top: 25px;">
+    <button class="w2ui-btn" onclick="showTooltip()">Dark Theme (default)</button>
+    <button class="w2ui-btn" onclick="showTooltip({ class: 'w2ui-light' } )">Light Theme</button>
+    <button class="w2ui-btn" onclick="showTooltip({ class: 'w2ui-white' } )">White Theme</button>
+    <button class="w2ui-btn" onclick="hideTooltip()">Hide Tooltip</button>
+</div>
+
+<div style="height: 20px"></div>
+<div id="some-div" class="custom">Tooltip Anchor</div>
+<div style="height: 50px"></div>
+
+<div style="width: 200px; float: left">
+    Position:
+    <div style="padding: 10px; margin-bottom: 20px; line-height: 2">
+        <label><input name="postion" type="radio" onclick="setPosition('left')"> &nbsp;left</label><br>
+        <label><input name="postion" type="radio" onclick="setPosition('right')"> &nbsp;right</label><br>
+        <label><input name="postion" type="radio" onclick="setPosition('top')" checked> &nbsp;top</label><br>
+        <label><input name="postion" type="radio" onclick="setPosition('bottom')"> &nbsp;bottom</label><br>
+        <label><input name="postion" type="radio" onclick="setPosition('top|bottom')"> &nbsp;top or bottom</label><br>
+        <label><input name="postion" type="radio" onclick="setPosition('right|left')"> &nbsp;right or left</label><br>
+    </div>
+</div>
+<div style="width: 300px; float: left">
+    Anchor Alignment (only for TOP/BOTTOM):<br>
+    <div style="padding: 10px; margin-bottom: 20px; line-height: 2; float: left; width: 200px">
+        <label><input name="align" type="radio" onclick="setAlign('none')" checked> &nbsp;none</label><br>
+        <label><input name="align" type="radio" onclick="setAlign('left')"> &nbsp;left</label><br>
+        <label><input name="align" type="radio" onclick="setAlign('right')"> &nbsp;right</label><br>
+        <label><input name="align" type="radio" onclick="setAlign('both')"> &nbsp;both</label><br>
+    </div>
+</div>
+<div style="clear: both"></div>
+
+<!--CODE-->
+<script type="module">
+import { w2utils, w2tooltip } from '__W2UI_PATH__'
+
+let align = 'none';
+let position = 'top';
+let message = '<div style="padding: 4px">The message for the tooltip can be short <br> or long and contain any HTML.</div>'
+
+window.setAlign = function (value) { align = value }
+window.setPosition = function (value) { position = value }
+window.showTooltip = function (options = {}) {
+    w2tooltip.show(w2utils.extend(options, {
+        align,
+        position,
+        name: 'demo-tooltip',
+        anchor: document.querySelector('#some-div'),
+        html: message
+    }))
+}
+window.hideTooltip = function () {
+    w2tooltip.hide('demo-tooltip')
+}
+</script>

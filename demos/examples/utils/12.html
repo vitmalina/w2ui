@@ -1,52 +1,36 @@
 <div class="content">
     <div id="example_title">
-        <h1>Lock/Unlock Content</h1>
-        If you have an absolute (or relative) div, you can lock it by placing another div on top of it.
+        <h1>Modern Query (mQuery)</h1>
+        To manipulate DOM, w2ui uses small, embedable DOM manipulation library called
+        <a href="http://github.com/vitmalina/mquery" target="_blank">mQuery</a>.
+        <br>
+        It is easily embedable into any projects, as it is very tiny. And it already comes with w2ui.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
 </div>
 
 <!--CODE-->
-<style>
-    #custom {
-        position: relative;
-        width: 800px;
-        height: 350px;
-        font-size: 18px;
-        color: #777;
-        padding: 50px;
-        line-height: 1.5;
-        background-color: #f5f5f5;
-    }
-    #custom button {
-        margin-left: 0;
-    }
-</style>
-<div id="custom">
-    Belarus,[a] officially the Republic of Belarus,[b] is a landlocked country in Eastern Europe. It is bordered by Russia to the
-    east and northeast, Ukraine to the south, Poland to the west, and Lithuania and Latvia to the northwest. Covering an area of
-    207,600 square kilometres (80,200 sq mi) and with a <i>population of 9.4 million</i>, Belarus is the thirteenth-largest and the
-    twentieth-most populous country in Europe. The country is administratively divided into seven regions. Minsk is the capital
-    and largest city.
-    <div style="height: 20px"></div>
-    <button class="w2ui-btn">Action</button>
+<div style="height: 100px">
+    Selector: <input id="custom" class="w2ui-input" style="width: 200px" placeholder="Type any selector here..." value="span">
+    <br><br>
 </div>
-<div style="height: 20px;"></div>
 
-<button class="w2ui-btn" onclick="lock()">Lock</button>
-<button class="w2ui-btn" onclick="lock({ spinner: true })">Lock with Spinner</button>
-<button class="w2ui-btn" onclick="lock({ spinner: true, msg: 'Loading...' })">Lock with message</button>
-<button class="w2ui-btn" onclick="unlock(true)">Unlock</button>
+<div style="height: 10px;"></div>
+<button class="w2ui-btn" onclick="color()">Add .w2ui-marker</button>
+<button class="w2ui-btn" onclick="clearColor()">Clear</button>
 
 <!--CODE-->
 <script type="module">
-import { w2utils, query } from '__W2UI_PATH__'
+import { query } from '__W2UI_PATH__'
 
-window.lock = function(opts = {}) {
-    w2utils.lock(query('#custom'), opts)
+window.color = function() {
+    let selector = query('#custom').val()
+    query(selector).addClass('w2ui-marker')
 }
-window.unlock = function() {
-    w2utils.unlock(query('#custom'))
+
+window.clearColor = function() {
+    let selector = query('#custom').val()
+    query(selector).removeClass('w2ui-marker')
 }
 </script>
