@@ -1156,7 +1156,7 @@ class w2sidebar extends w2base {
                 }
                 html = `
                     <div id="node_${nd.id}" class="${classes.join(' ')}" data-level="${level}"
-                        style="position: relative; ${nd.hidden ? 'display: none;' : ''}"
+                        style="${nd.hidden ? 'display: none;' : ''}"
                         data-click="click|${nd.id}|event"
                         data-dblclick="dblClick|${nd.id}|event"
                         data-contextmenu="contextMenu|${nd.id}|event"

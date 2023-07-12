@@ -1890,6 +1890,10 @@ class w2grid extends w2base {
     updateToolbar(sel) {
         let obj = this
         let cnt = sel && sel.indexes ? sel.indexes.length : 0
+        // if there is no toolbar
+        if (!this.toolbar.render) {
+            return
+        }
         this.toolbar.items.forEach((item) => {
             _checkItem(item, '')
             if (Array.isArray(item.items)) {
@@ -3822,12 +3826,13 @@ class w2grid extends w2base {
     columnAutoSize(colIndex) {
         let col = this.columns[colIndex]
         let el = query(`#grid_${this.name}_column_${colIndex} .w2ui-col-header`)[0]
+        if (col.autoResize === false || col.hidden === true || !el) {
+            return true;
+        }
         let style = getComputedStyle(el)
         let maxWidth = w2utils.getStrWidth(el.innerHTML, `font-family: ${style.fontFamily}; font-size: ${style.fontSize}`, true)
             + parseFloat(style.paddingLeft) + parseFloat(style.paddingRight) + 4
-        if (col.autoResize === false) {
-            return true
-        }
+
         query(this.box).find(`.w2ui-grid-records td[col="${colIndex}"] > div`, this.box).each(el => {
             let style = getComputedStyle(el)
             let width = w2utils.getStrWidth(el.innerHTML, `font-family: ${style.fontFamily}; font-size: ${style.fontSize}`, true)
@@ -3838,7 +3843,7 @@ class w2grid extends w2base {
         })
 
         // event before
-        let edata = this.trigger('columnAtuoResize', { maxWidth, originalEvent: event, target: this.name, column: col })
+        let edata = this.trigger('columnAutoResize', { maxWidth, originalEvent: event, target: this.name, column: col })
         if (edata.isCancelled === true) { return }
 
         if (maxWidth > 0) {
@@ -4434,10 +4439,12 @@ class w2grid extends w2base {
             event.offsetX = event.layerX - event.target.offsetLeft
             event.offsetY = event.layerY - event.target.offsetTop
         }
-        if (w2utils.isFloat(recid)) recid = parseFloat(recid)
+        // if (w2utils.isFloat(recid)) recid = parseFloat(recid)
         let sel = this.getSelection()
         if (this.selectType == 'row') {
-            if (sel.indexOf(recid) == -1) this.click(recid)
+            if (sel.indexOf(recid) == -1) {
+                this.click(recid)
+            }
         } else {
             let selected = false
             // check if any selected sel in the right row/column
@@ -4451,7 +4458,7 @@ class w2grid extends w2base {
         let edata = this.trigger('contextMenu', { target: this.name, originalEvent: event, recid, column })
         if (edata.isCancelled === true) return
         // default action
-        if (this.contextMenu.length > 0) {
+        if (this.contextMenu?.length > 0) {
             w2menu.show({
                 anchor: document.body,
                 originalEvent: event,
@@ -7422,7 +7429,7 @@ class w2grid extends w2base {
         }
         let h2 = (buffered - limit) * this.recordHeight
         html1 += '<tr id="grid_' + this.name + '_frec_bottom" rec="bottom" line="bottom" style="height: ' + h2 + 'px; vertical-align: top">' +
-                '    <td colspan="2000" style="border-right: 1px solid #D6D5D7;"></td>'+
+                '    <td colspan="2000" style="border: 0"></td>'+
                 '</tr>'+
                 '<tr id="grid_'+ this.name +'_frec_more" style="display: none; ">'+
                 '    <td colspan="2000" class="w2ui-load-more"></td>'+
