@@ -2,9 +2,9 @@
     <div id="example_title">
         <h1>Resizable Columns</h1>
         To make any column resizable, just add resizable: true in it definition. The grid below demonstrates resizable columns.
-        <div style="height: 5px"></div>
-        Since version 2.0, you can double click on the column resizer to auto resize based on context. You can also use
-        grid.columnAutoSize(ind) to trigger it from the code.
+        <div style="height: 10px"></div>
+        Starting with v2.0, you can double click on the column resizer to auto resize based on context, or you can <br>call
+        <span class="method">columnAutoSize(ind)</span> to trigger column auto resize.
     </div>
     <div id="example_view"></div>
     <div id="example_code"></div>
@@ -12,6 +12,10 @@
 
 <!--CODE-->
 <div id="grid" style="width: 800px; height: 400px;"></div>
+
+<div style="height: 20px"></div>
+<button class="w2ui-btn" onclick="autoSize()">Auto Size All Columns (2.0+)</button>
+<button class="w2ui-btn" onclick="resetSize()">Reset Column Size</button>
 
 <!--CODE-->
 <script type="module">
@@ -47,4 +51,15 @@ let grid = new w2grid({
         { recid: 19, fname: 'Sergei', lname: 'Rachmaninov', email: 'sergei@gmail.com', sdate: '2/23/2012' }
     ]
 })
+window.autoSize = () => {
+    grid.columnAutoSize()
+}
+
+window.resetSize = () => {
+    grid.columns.forEach(col => {
+        col.size = col.sizeOriginal
+        delete col.sizeCalculated
+    })
+    grid.resizeRecords()
+}
 </script>
