@@ -1146,7 +1146,9 @@ class w2sidebar extends w2base {
                 if (nd.class) classes.push(nd.class)
                 // collapsible
                 if (nd.collapsible === true) {
-                    expand = `<div class="w2ui-${nd.expanded ? 'expanded' : 'collapsed'} ${self.toggleAlign == 'left' ? 'w2ui-left-toggle' : ''}"><span></span></div>`
+                    let toggleClasses = ['w2ui-sb-toggle', 'w2ui-eaction', (nd.expanded ? 'w2ui-expanded' : 'w2ui-collapsed')]
+                    if (self.toggleAlign == 'left') toggleClasses.push('w2ui-left-toggle')
+                    expand = `<div class="${toggleClasses.join(' ')}" data-click="toggle|${nd.id}"><span></span></div>`
                     classes.push('w2ui-has-children')
                 }
                 let text = w2utils.lang(typeof nd.text == 'function' ? nd.text.call(obj, nd, level) : nd.text)

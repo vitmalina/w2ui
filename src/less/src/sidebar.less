@@ -235,14 +235,18 @@
             .w2ui-collapsed,
             .w2ui-expanded {
                 float: right;
-                width: auto;
-                height: 18px;
+                width: 15px;
+                height: 25px;
                 position: relative;
                 z-index: 2;
-                margin-left: 5px;
+                padding-left: 5px;
+                border-radius: 4px;
+                &:hover {
+                    background-color: #e1e1e1
+                }
                 &.w2ui-left-toggle {
                     float: left;
-                    margin-left: -10px;
+                    margin-left: -14px;
                 }
                 span {
                     border-color: transparent;
