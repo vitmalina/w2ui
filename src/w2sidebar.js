@@ -13,6 +13,9 @@
  *  - CSP - fixed inline events
  *  - observeResize for the box
  *  - search(..., compare) - comparison function
+ *  - editable = true
+ *  - edit(id) - new method
+ *  - onEdit, onRename - new events
  */
 
 import { w2base } from './w2base.js'
@@ -35,6 +38,7 @@ class w2sidebar extends w2base {
         this.style         = ''
         this.topHTML       = ''
         this.bottomHTML    = ''
+        this.editable      = false
         this.flatButton    = false
         this.keyboard      = true
         this.flat          = false
@@ -61,6 +65,8 @@ class w2sidebar extends w2base {
         this.onFocus       = null
         this.onBlur        = null
         this.onFlat        = null
+        this.onEdit        = null
+        this.onRename      = null
         this.node_template = {
             id: null,
             text: '',
@@ -90,7 +96,9 @@ class w2sidebar extends w2base {
             sidebar: null
         }
         this.last = {
-            badge: {}
+            badge: {},
+            renaming: false,
+            move: null,     // object, move details
         }
         let nodes = options.nodes
         delete options.nodes
@@ -636,37 +644,43 @@ class w2sidebar extends w2base {
     }
 
     keydown(event) {
-        let obj = this
-        let nd  = obj.get(obj.selected)
-        if (obj.keyboard !== true) return
-        if (!nd) nd = obj.nodes[0]
+        let self = this
+        let nd  = self.get(this.selected)
+        if (this.keyboard !== true) return
+        if (!nd) nd = this.nodes[0]
         // trigger event
-        let edata = obj.trigger('keydown', { target: obj.name, originalEvent: event })
+        let edata = this.trigger('keydown', { target: this.name, originalEvent: event })
         if (edata.isCancelled === true) return
         // default behaviour
         if (event.keyCode == 13 || event.keyCode == 32) { // enter or space
-            if (nd.nodes.length > 0) obj.toggle(obj.selected)
+            if (event.keyCode == 13 && this.editable && !event.ctrlKey && !event.metaKey) {
+                this.edit(this.selected)
+            } else {
+                if (nd.nodes.length > 0) {
+                    this.toggle(this.selected)
+                }
+            }
         }
         if (event.keyCode == 37) { // left
             if (nd.nodes.length > 0 && nd.expanded) {
-                obj.collapse(obj.selected)
+                this.collapse(this.selected)
             } else {
                 selectNode(nd.parent)
-                if (!nd.parent.group) obj.collapse(nd.parent.id)
+                if (!nd.parent.group) this.collapse(nd.parent.id)
             }
         }
         if (event.keyCode == 39) { // right
-            if ((nd.nodes.length > 0 || nd.plus) && !nd.expanded) obj.expand(obj.selected)
+            if ((nd.nodes.length > 0 || nd.plus) && !nd.expanded) this.expand(this.selected)
         }
         if (event.keyCode == 38) { // up
-            if (obj.get(obj.selected) == null) {
+            if (this.get(this.selected) == null) {
                 selectNode(this.nodes[0] || null)
             } else {
                 selectNode(neighbor(nd, prev))
             }
         }
         if (event.keyCode == 40) { // down
-            if (obj.get(obj.selected) == null) {
+            if (this.get(this.selected) == null) {
                 selectNode(this.nodes[0] || null)
             } else {
                 selectNode(neighbor(nd, next))
@@ -682,8 +696,8 @@ class w2sidebar extends w2base {
 
         function selectNode(node, event) {
             if (node != null && !node.hidden && !node.disabled && !node.group) {
-                obj.click(node.id, event)
-                if (!obj.inView(node.id)) obj.scrollIntoView(node.id)
+                self.click(node.id, event)
+                if (!self.inView(node.id)) self.scrollIntoView(node.id)
             }
         }
 
@@ -698,7 +712,7 @@ class w2sidebar extends w2base {
         function next(node, noSubs) {
             if (node == null) return null
             let parent   = node.parent
-            let ind      = obj.get(node.id, true)
+            let ind      = self.get(node.id, true)
             let nextNode = null
             // jump inside
             if (node.expanded && node.nodes.length > 0 && noSubs !== true) {
@@ -718,7 +732,7 @@ class w2sidebar extends w2base {
         function prev(node) {
             if (node == null) return null
             let parent   = node.parent
-            let ind      = obj.get(node.id, true)
+            let ind      = self.get(node.id, true)
             let prevNode = (ind > 0) ? lastChild(parent.nodes[ind - 1]) : parent
             if (prevNode != null && (prevNode.hidden || prevNode.disabled || prevNode.group)) prevNode = prev(prevNode)
             return prevNode
@@ -762,9 +776,67 @@ class w2sidebar extends w2base {
         let edata = this.trigger('dblClick', { target: id, originalEvent: event, object: nd })
         if (edata.isCancelled === true) return
         // default action
-        this.toggle(id)
+        if (this.editable) {
+            this.edit(id)
+        } else {
+            this.toggle(id)
+        }
         // event after
         edata.finish()
+    }
+
+    edit(id) {
+        let self = this
+        let node = query(this.box).find('#node_'+ w2utils.escapeId(id))
+        let text = node.find('.w2ui-node-text')
+        // event before
+        let edata = this.trigger('edit', { id, node, textNode: text })
+        if (edata.isCancelled === true) {
+            return
+        }
+        this.last.renaming = true
+        node.addClass('w2ui-editing')
+        text.addClass('w2ui-focus')
+            .css('pointer-events', 'all')
+            .attr('contenteditable', 'plaintext-only')
+            .on('blur.node-editing', event => {
+                // timeout is needed to add to the end of the event loop
+                setTimeout(_rename, 0)
+            })
+            .on('keydown.node-editing', event => {
+                if (event.keyCode == 13) _rename(event)
+                if (event.keyCode == 27) _rename(event, true)
+            })
+            .get(0).focus()
+
+        let original = text.text()
+        // select everything inside
+        w2utils.setCursorPosition(text[0], 0, text.text().length)
+        // event after
+        edata.finish()
+
+        function _rename(event, cancel) {
+            let renameTo = text.text()
+            node.removeClass('w2ui-editing')
+            text.removeClass('w2ui-focus')
+                .css('pointer-events', 'none')
+                .removeAttr('contenteditable')
+                .off('.node-editing')
+            // send event if it was not cancelled
+            if (!cancel && self.last.renaming && original !== renameTo) {
+                let edata = self.trigger('rename', { id, text_previous: original, text_new: renameTo })
+                if (edata.isCancelled === true) {
+                    return
+                }
+                self.set(id, { text: renameTo })
+                edata.finish()
+            }
+            if (cancel) {
+                self.set(id, { text: original })
+            }
+            self.last.renaming = false
+            self.focus()
+        }
     }
 
     contextMenu(id, event) {
@@ -1161,6 +1233,7 @@ class w2sidebar extends w2base {
                         style="${nd.hidden ? 'display: none;' : ''}"
                         data-click="click|${nd.id}|event"
                         data-dblclick="dblClick|${nd.id}|event"
+                        data-mouseDown="mouseDown|${nd.id}|event"
                         data-contextmenu="contextMenu|${nd.id}|event"
                         data-mouseEnter="mouseAction|Enter|this|${nd.id}|event"
                         data-mouseLeave="mouseAction|Leave|this|${nd.id}|event"

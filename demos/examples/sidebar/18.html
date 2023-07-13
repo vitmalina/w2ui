@@ -1,0 +1,61 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Rename Nodes</h1>
+        There are 2 events to help you rename nodes: onEdit and onRename. First one is fired when user starts editing, and last one when
+        user successfully renames the node.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="sidebar" style="height: 400px; width: 200px; float: left"></div>
+<div style="padding: 10px; float: left; color: gray">
+    Double click on a node to rename it<br>
+    Or hit enter key on an active node
+</div>
+
+<div style="padding: 10px">
+</div>
+<div style="clear: both"/>
+
+<!--CODE-->
+<script type="module">
+import { w2sidebar, w2utils, query } from '__W2UI_PATH__'
+
+let sidebar = new w2sidebar({
+    box: '#sidebar',
+    name: 'sidebar',
+    editable: true,
+    onEdit(event) {
+        w2utils.notify()
+        console.log(`Start editing: ${event.detail.id}`, event)
+    },
+    onRename(event) {
+        w2utils.notify(`Rename "${event.detail.id}" from "${event.detail.text_previous}" to "${event.detail.text_new}"`)
+    },
+    nodes: [
+        { id: 'level-1', text: 'Level 1', expanded: true, group: true,
+            nodes: [
+                { id: 'item1', text: 'Item 1', icon: 'fa fa-home', count: 1 },
+                { id: 'item2', text: 'Item 2', icon: 'fa fa-coffee' },
+                { id: 'item3', text: 'Item 3', icon: 'fa fa-comment-o' },
+                { id: 'sum-item', text: 'Nested Items', icon: 'fa fa-star', expanded: true,
+                    nodes: [
+                        { id: 'sub-item1', text: 'Item 1', icon: 'fa fa-star-o', count: 10 },
+                        { id: 'sub-item2', text: 'Item 2', icon: 'fa fa-star-o' },
+                        { id: 'sub-item3', text: 'Item 3', icon: 'fa fa-star-o' }
+                    ]
+                },
+            ]
+        },
+        { id: 'level-2', text: 'Level 2', expanded: true, group: true,
+            nodes: [
+                { id: 'sub-item21', text: 'Item 1', icon: 'fa fa-comment-o', count: 'Text' },
+                { id: 'sub-item22', text: 'Item 2', icon: 'fa fa-comment-o' },
+                { id: 'sub-item23', text: 'Item 3', icon: 'fa fa-comment-o' }
+            ]
+        }
+    ]
+})
+</script>

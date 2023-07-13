@@ -54,7 +54,9 @@ window.search = function(value) {
             .append('<div id="empty-search" style="font-size: 13px; color: #666; z-index: 1400; top: 45%; left: 50%; transform: translateX(-50%); width: 100%!important; text-align: center">No nodes found</div>')
         w2utils.marker(sb.box)
     } else {
-        w2utils.marker(sb.box, [value])
+        let words = []
+        if (value !== '') words.push(value)
+        w2utils.marker(sb.box, words)
     }
 }
 
