@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (7/12/2023, 1:48:34 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (7/14/2023, 3:27:55 PM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -7391,6 +7391,14 @@ class w2toolbar extends w2base {
  *  - CSP - fixed inline events
  *  - observeResize for the box
  *  - search(..., compare) - comparison function
+ *  - editable = true
+ *  - edit(id) - new method
+ *  - onEdit, onRename - new events
+ *  - reorder = true - to allow reorder
+ *  - mouseDown - for reorder
+ *  - onReorder, onDragStart, onDragOver - events
+ *  - this.mutlti - for multi select
+ *  - onSelect, onUnselect - new events
  */
 
 class w2sidebar extends w2base {
@@ -7408,6 +7416,9 @@ class w2sidebar extends w2base {
         this.style         = ''
         this.topHTML       = ''
         this.bottomHTML    = ''
+        this.multi         = false
+        this.editable      = false
+        this.reorder       = false
         this.flatButton    = false
         this.keyboard      = true
         this.flat          = false
@@ -7419,6 +7430,8 @@ class w2sidebar extends w2base {
         this.handle        = { width: 0, style: '', text: '', tooltip: '' },
         this.badge         = null
         this.onClick       = null // Fire when user click on Node Text
+        this.onSelect      = null
+        this.onUnselect    = null
         this.onDblClick    = null // Fire when user dbl clicks
         this.onMouseEnter  = null // mouse enter/leave over an item
         this.onMouseLeave  = null
@@ -7434,6 +7447,11 @@ class w2sidebar extends w2base {
         this.onFocus       = null
         this.onBlur        = null
         this.onFlat        = null
+        this.onEdit        = null
+        this.onRename      = null
+        this.onReorder     = null
+        this.onDragStart   = null
+        this.onDragOver    = null
         this.node_template = {
             id: null,
             text: '',
@@ -7463,7 +7481,9 @@ class w2sidebar extends w2base {
             sidebar: null
         }
         this.last = {
-            badge: {}
+            badge: {},
+            renaming: false,
+            move: null,     // object, move details
         }
         let nodes = options.nodes
         delete options.nodes
@@ -7556,8 +7576,12 @@ class w2sidebar extends w2base {
         Array.from(arguments).forEach(arg => {
             node = this.get(arg)
             if (node == null) return
-            if (this.selected != null && this.selected === node.id) {
-                this.selected = null
+            if (this.selected != null) {
+                if (Array.isArray(this.selected)) {
+                    this.selected.splice(this.selected.indexOf(node.id), 1)
+                } else if (this.selected === node.id) {
+                    this.selected = null
+                }
             }
             let ind = this.get(node.parent, arg, true)
             if (ind == null) return
@@ -7798,11 +7822,31 @@ class w2sidebar extends w2base {
         }
         return effected
     }
-    select(id) {
+    select(id, event) {
+        if (Array.isArray(id)) {
+            [...id].forEach(id => this.select(id))
+            return
+        }
         let new_node = this.get(id)
         if (!new_node) return false
-        if (this.selected == id && new_node.selected) return false
-        this.unselect(this.selected)
+        let isShift = this.multi && (event?.shiftKey || event?.ctrlKey || event?.metaKey)
+        // event before
+        let edata = this.trigger('select', { target: id, id, node: new_node, originalEvent: event })
+        if (edata.isCancelled === true) {
+            return true
+        }
+        // if already selected
+        if (!this.multi && this.selected == id && new_node.selected) {
+            return false
+        }
+        if (!isShift) {
+            this.unselect(this.selected)
+        } else {
+            if (this.selected?.includes(id)) {
+                this.unselect(id)
+                return
+            }
+        }
         let $el = query(this.box).find('#node_'+ w2utils.escapeId(id))
         $el.addClass('w2ui-selected')
             .find('.w2ui-icon')
@@ -7811,21 +7855,45 @@ class w2sidebar extends w2base {
             if (!this.inView(id)) this.scrollIntoView(id)
         }
         new_node.selected = true
-        this.selected = id
+        if (isShift) {
+            if (!Array.isArray(this.selected)) {
+                this.selected = this.selected ? [this.selected] : []
+            }
+            this.selected.push(id)
+        } else {
+            this.selected = this.multi ? [id] : id
+        }
+        edata.finish()
         return true
     }
     unselect(id) {
         // if no arguments provided, unselect selected node
+        if (Array.isArray(id)) {
+            [...id].forEach(id => this.unselect(id))
+            return
+        }
         if (arguments.length === 0) {
             id = this.selected
         }
         let current = this.get(id)
         if (!current) return false
+        // event before
+        let edata = this.trigger('unselect', { target: id, id, node: current })
+        if (edata.isCancelled === true) {
+            return true
+        }
         current.selected = false
         query(this.box).find('#node_'+ w2utils.escapeId(id))
             .removeClass('w2ui-selected')
             .find('.w2ui-icon').removeClass('w2ui-icon-selected')
-        if (this.selected == id) this.selected = null
+        if (typeof this.selected == 'string' && this.selected == id) {
+            this.selected = null
+        }
+        if (this.multi && Array.isArray(this.selected)) {
+            let ind = this.selected.indexOf(id)
+            if (ind != -1) this.selected.splice(ind, 1)
+        }
+        edata.finish()
         return true
     }
     toggle(id) {
@@ -7845,7 +7913,7 @@ class w2sidebar extends w2base {
         let nd = this.get(id)
         if (nd == null) return false
         // event before
-        let edata = this.trigger('collapse', { target: id, object: nd })
+        let edata = this.trigger('collapse', { target: id, object: nd, node: nd })
         if (edata.isCancelled === true) return
         // default action
         query(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').hide()
@@ -7861,7 +7929,7 @@ class w2sidebar extends w2base {
     expand(id) {
         let nd = this.get(id)
         // event before
-        let edata = this.trigger('expand', { target: id, object: nd })
+        let edata = this.trigger('expand', { target: id, object: nd, node: nd })
         if (edata.isCancelled === true) return
         // default action
         query(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub')
@@ -7913,16 +7981,8 @@ class w2sidebar extends w2base {
         let nd  = this.get(id)
         if (nd == null) return
         if (nd.disabled || nd.group) return // should click event if already selected
-        // unselect all previously
-        query(obj.box).find('.w2ui-node.w2ui-selected').each(el => {
-            let oldID   = query(el).attr('id').replace('node_', '')
-            let oldNode = obj.get(oldID)
-            if (oldNode != null) oldNode.selected = false
-            query(el).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected')
-        })
         // select new one
         let newNode = query(obj.box).find('#node_'+ w2utils.escapeId(id))
-        let oldNode = query(obj.box).find('#node_'+ w2utils.escapeId(obj.selected))
         newNode.addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected')
         // need timeout to allow rendering
         setTimeout(() => {
@@ -7931,13 +7991,10 @@ class w2sidebar extends w2base {
             if (edata.isCancelled === true) {
                 // restore selection
                 newNode.removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected')
-                oldNode.addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected')
                 return
             }
             // default action
-            if (oldNode != null) oldNode.selected = false
-            obj.get(id).selected = true
-            obj.selected = id
+            this.select(id, event)
             // route processing
             if (typeof nd.route == 'string') {
                 let route = nd.route !== '' ? String('/'+ nd.route).replace(/\/{2,}/g, '/') : ''
@@ -7979,41 +8036,90 @@ class w2sidebar extends w2base {
         // event after
         edata.finish()
     }
+    next(node, noSubs) {
+        if (node == null) return null
+        let parent   = node.parent
+        let ind      = this.get(node.id, true)
+        let nextNode = null
+        // jump inside
+        if (node.expanded && node.nodes.length > 0 && noSubs !== true) {
+            let nd = node.nodes[0]
+            if (nd.hidden || nd.disabled || nd.group) nextNode = this.next(nd); else nextNode = nd
+        } else {
+            if (parent && ind + 1 < parent.nodes.length) {
+                nextNode = parent.nodes[ind + 1]
+            } else {
+                nextNode = this.next(parent, true) // jump to the parent
+            }
+        }
+        if (nextNode != null && (nextNode.hidden || nextNode.disabled || nextNode.group)) nextNode = this.next(nextNode)
+        return nextNode
+    }
+    prev(node) {
+        if (node == null) return null
+        let parent   = node.parent
+        let ind      = this.get(node.id, true)
+        let lastChild = (node) => {
+            if (node.expanded && node.nodes.length > 0) {
+                let nd = node.nodes[node.nodes.length - 1]
+                if (nd.hidden || nd.disabled || nd.group) return this.prev(nd); else return lastChild(nd)
+            }
+            return node
+        }
+        let prevNode = (ind > 0) ? lastChild(parent.nodes[ind - 1]) : parent
+        if (prevNode != null && (prevNode.hidden || prevNode.disabled || prevNode.group)) prevNode = this.prev(prevNode)
+        return prevNode
+    }
     keydown(event) {
-        let obj = this
-        let nd  = obj.get(obj.selected)
-        if (obj.keyboard !== true) return
-        if (!nd) nd = obj.nodes[0]
+        let self = this
+        let first = Array.isArray(this.selected) ? this.selected[0] : this.selected
+        let nd  = self.get(first)
+        if (this.keyboard !== true) return
+        if (!nd) nd = this.nodes[0]
+        // if user hits esc and there is active move
+        if (event.keyCode == 27) {
+            let mv = this.last.move
+            if (mv?.reorder && mv?.moved) {
+                mv.restore()
+                return
+            }
+        }
         // trigger event
-        let edata = obj.trigger('keydown', { target: obj.name, originalEvent: event })
+        let edata = this.trigger('keydown', { target: this.name, originalEvent: event })
         if (edata.isCancelled === true) return
         // default behaviour
         if (event.keyCode == 13 || event.keyCode == 32) { // enter or space
-            if (nd.nodes.length > 0) obj.toggle(obj.selected)
+            if (event.keyCode == 13 && this.editable && !event.ctrlKey && !event.metaKey) {
+                this.edit(first)
+            } else {
+                if (nd.nodes.length > 0) {
+                    this.toggle(first)
+                }
+            }
         }
         if (event.keyCode == 37) { // left
             if (nd.nodes.length > 0 && nd.expanded) {
-                obj.collapse(obj.selected)
+                this.collapse(first)
             } else {
                 selectNode(nd.parent)
-                if (!nd.parent.group) obj.collapse(nd.parent.id)
+                if (!nd.parent.group) this.collapse(nd.parent.id)
             }
         }
         if (event.keyCode == 39) { // right
-            if ((nd.nodes.length > 0 || nd.plus) && !nd.expanded) obj.expand(obj.selected)
+            if ((nd.nodes.length > 0 || nd.plus) && !nd.expanded) this.expand(first)
         }
         if (event.keyCode == 38) { // up
-            if (obj.get(obj.selected) == null) {
+            if (this.get(first) == null) {
                 selectNode(this.nodes[0] || null)
             } else {
-                selectNode(neighbor(nd, prev))
+                selectNode(neighbor(nd, this.prev))
             }
         }
         if (event.keyCode == 40) { // down
-            if (obj.get(obj.selected) == null) {
+            if (this.get(first) == null) {
                 selectNode(this.nodes[0] || null)
             } else {
-                selectNode(neighbor(nd, next))
+                selectNode(neighbor(nd, this.next))
             }
         }
         // cancel event if needed
@@ -8025,48 +8131,14 @@ class w2sidebar extends w2base {
         edata.finish()
         function selectNode(node, event) {
             if (node != null && !node.hidden && !node.disabled && !node.group) {
-                obj.click(node.id, event)
-                if (!obj.inView(node.id)) obj.scrollIntoView(node.id)
+                self.click(node.id, event)
+                if (!self.inView(node.id)) self.scrollIntoView(node.id)
             }
         }
         function neighbor(node, neighborFunc) {
-            node = neighborFunc(node)
+            node = neighborFunc.call(self, node)
             while (node != null && (node.hidden || node.disabled)) {
                 if (node.group) break; else node = neighborFunc(node)
-            }
-            return node
-        }
-        function next(node, noSubs) {
-            if (node == null) return null
-            let parent   = node.parent
-            let ind      = obj.get(node.id, true)
-            let nextNode = null
-            // jump inside
-            if (node.expanded && node.nodes.length > 0 && noSubs !== true) {
-                let t = node.nodes[0]
-                if (t.hidden || t.disabled || t.group) nextNode = next(t); else nextNode = t
-            } else {
-                if (parent && ind + 1 < parent.nodes.length) {
-                    nextNode = parent.nodes[ind + 1]
-                } else {
-                    nextNode = next(parent, true) // jump to the parent
-                }
-            }
-            if (nextNode != null && (nextNode.hidden || nextNode.disabled || nextNode.group)) nextNode = next(nextNode)
-            return nextNode
-        }
-        function prev(node) {
-            if (node == null) return null
-            let parent   = node.parent
-            let ind      = obj.get(node.id, true)
-            let prevNode = (ind > 0) ? lastChild(parent.nodes[ind - 1]) : parent
-            if (prevNode != null && (prevNode.hidden || prevNode.disabled || prevNode.group)) prevNode = prev(prevNode)
-            return prevNode
-        }
-        function lastChild(node) {
-            if (node.expanded && node.nodes.length > 0) {
-                let t = node.nodes[node.nodes.length - 1]
-                if (t.hidden || t.disabled || t.group) return prev(t); else return lastChild(t)
             }
             return node
         }
@@ -8084,7 +8156,7 @@ class w2sidebar extends w2base {
     }
     scrollIntoView(id, instant) {
         return new Promise((resolve, reject) => {
-            if (id == null) id = this.selected
+            if (id == null) id = Array.isArray(this.selected) ? this.selected[0] : this.selected
             let nd = this.get(id)
             if (nd == null) return
             let item = query(this.box).find('#node_'+ w2utils.escapeId(id)).get(0)
@@ -8098,13 +8170,220 @@ class w2sidebar extends w2base {
         let edata = this.trigger('dblClick', { target: id, originalEvent: event, object: nd })
         if (edata.isCancelled === true) return
         // default action
-        this.toggle(id)
+        if (this.editable) {
+            this.edit(id)
+        } else {
+            this.toggle(id)
+        }
         // event after
         edata.finish()
     }
+    /**
+     * This is needed for not reorder
+     */
+    mouseDown(id, event) {
+        let self = this
+        if (this.reorder) {
+            this.last.move = {
+                x: event.screenX,
+                y: event.screenY,
+                divX: 0,
+                divY: 0,
+                reorder: true,
+                moved: false
+            }
+            // display empty record and ghost record
+            let mv = this.last.move
+            let body = query(this.box).find('.w2ui-sidebar-body')
+            if (!mv.ghost) {
+                let node = query(this.box).find(`#node_${w2utils.escapeId(id)}`)
+                mv.offsetY = event.offsetY
+                mv.target = id
+                mv.pos = { top: node.get(0).offsetTop - 1, left: node.get(0).offsetLeft }
+                // ghost content
+                let clone = query(node.find('.w2ui-node-data').get(0).cloneNode(true))
+                mv.node = node
+                mv.nodeSub = node.next()
+                body.append('<div id="sidebar_'+ this.name + '_ghost" class="w2ui-node w2ui-ghost"></div>')
+                query(this.box).find('#sidebar_'+ this.name + '_ghost').append(clone)
+                mv.ghost = query(this.box).find('#sidebar_'+ this.name + '_ghost')
+                mv.ghost.css({ display: 'none' })
+                mv.restore = () => {
+                    mv.resetReorder()
+                    this.refresh()
+                }
+                mv.resetReorder = () => {
+                    this.last.move = null
+                    query(this.box).find(`#sidebar_${this.name}_ghost`).remove()
+                    query(document).off(`.w2ui-${this.name}-reorder`)
+                }
+            }
+            // add mouse move and stop events
+            query(document)
+                .on(`mousemove.w2ui-${this.name}-reorder`, _mouseMove)
+                .on(`mouseup.w2ui-${this.name}-reorder`, _mouseStop)
+        }
+        function _mouseMove(event) {
+            if (!event.target.tagName) {
+                // element has no tagName - most likely the target is the #document itself
+                // this can happen is you click+drag and move the mouse out of the DOM area,
+                // e.g. into the browser's toolbar area
+                return
+            }
+            let mv = self.last.move
+            mv.divX = (event.screenX - mv.x)
+            mv.divY = (event.screenY - mv.y)
+            if (Math.abs(mv.divX) <= 1 && Math.abs(mv.divY) <= 1) return // only if moved more then 1px
+            if (self.reorder == true && mv.reorder && !mv.moved) {
+                let edata = self.trigger('dragStart', { target: mv.target, moved: true, node: self.get(mv.target), mv, originalEvent: event })
+                if (edata.isCancelled === true) {
+                    mv.restore()
+                    return
+                }
+                let rect = mv.node.get(0).getBoundingClientRect()
+                mv.moved = true
+                mv.node.html('')
+                    .removeAttr('id', 'data-id')
+                    .addClass('w2ui-reorder-empty')
+                    .css({ height: rect.height + 'px' })
+                // if there are children
+                if (mv.node.next().css('display') !== 'none') {
+                    let rect = mv.node.next().get(0).getBoundingClientRect()
+                    mv.node.next()
+                        .html('<div class="w2ui-reorder-empty-sub"></div>')
+                        .css({ height: rect.height + 'px' })
+                }
+                mv.ghost.css({ display: 'block' })
+                // event after
+                edata.finish()
+            }
+            // move ghost mode
+            mv.ghost.css({
+                top: (mv.pos.top + mv.divY) + 'px',
+                left: 0
+            })
+            let over = query(event.target).closest('.w2ui-node, .w2ui-node-group')
+            // append to the end
+            if (query(event.target).hasClass('w2ui-sidebar-body') && event.layerY > 5 && !mv.append) {
+                let edata = self.trigger('dragOver', { target: mv.target, append: true, mv, originalEvent: event })
+                if (edata.isCancelled === true) {
+                    return
+                }
+                mv.ghost.before(mv.node)
+                mv.ghost.before(mv.nodeSub)
+                mv.append = true
+                mv.moveBefore = null
+                // event after
+                edata.finish()
+            }
+            let id = over.attr('data-id')
+            if (id != null && id != mv.moveBefore && !mv.append) {
+                mv.append = false
+                mv.moveBefore = id
+                // reorder nodes
+                let edata = self.trigger('dragOver', { target: mv.target, moveBefore: id, mv, originalEvent: event })
+                if (edata.isCancelled === true) {
+                    return
+                }
+                let el = query(self.box).find(`#node_${w2utils.escapeId(id)}`)
+                el.before(mv.node)
+                el.before(mv.nodeSub)
+                // event after
+                edata.finish()
+            }
+        }
+        function _mouseStop(event) {
+            let mv = self.last.move
+            mv.resetReorder()
+            if (mv.moved) {
+                if (((mv.moveBefore != null && mv.target != mv.moveBefore) || mv.append)) {
+                    let edata = self.trigger('reorder', { target: mv.target, moveBefore: mv.moveBefore, append: mv.append, originalEvent: event })
+                    if (edata.isCancelled === true) {
+                        self.refresh()
+                        return
+                    }
+                    // remove
+                    let target = self.get(mv.target)
+                    let targetInd = target.parent.nodes.indexOf(target)
+                    let cut = target.parent.nodes.splice(targetInd, 1)
+                    // insert
+                    if (mv.append) {
+                        self.nodes.push(...cut)
+                        cut.forEach(nd => nd.parent = self)
+                    } else {
+                        let before = self.get(mv.moveBefore)
+                        let beforeInd = before.parent.nodes.indexOf(before)
+                        cut.forEach(nd => nd.parent = before.parent)
+                        before.parent.nodes.splice(beforeInd, 0, ...cut)
+                    }
+                    // refresh
+                    self.refresh()
+                    // event after
+                    edata.finish()
+                } else {
+                    self.refresh()
+                }
+            }
+        }
+    }
+    edit(id) {
+        let self = this
+        let node = query(this.box).find('#node_'+ w2utils.escapeId(id))
+        let text = node.find('.w2ui-node-text')
+        // event before
+        let edata = this.trigger('edit', { target: id, el: node, textEl: text })
+        if (edata.isCancelled === true) {
+            return
+        }
+        this.last.renaming = true
+        node.addClass('w2ui-editing')
+        text.addClass('w2ui-focus')
+            .css('pointer-events', 'all')
+            .attr('contenteditable', 'plaintext-only')
+            .on('blur.node-editing', event => {
+                // timeout is needed to add to the end of the event loop
+                setTimeout(_rename, 0)
+            })
+            .on('keydown.node-editing', event => {
+                if (event.keyCode == 13) _rename(event)
+                if (event.keyCode == 27) _rename(event, true)
+            })
+            .get(0).focus()
+        let original = text.text()
+        // select everything inside
+        w2utils.setCursorPosition(text[0], 0, text.text().length)
+        // event after
+        edata.finish()
+        function _rename(event, cancel) {
+            let renameTo = text.text()
+            node.removeClass('w2ui-editing')
+            text.removeClass('w2ui-focus')
+                .css('pointer-events', 'none')
+                .removeAttr('contenteditable')
+                .off('.node-editing')
+            // send event if it was not cancelled
+            if (!cancel && self.last.renaming && original !== renameTo) {
+                let edata = self.trigger('rename', { target: id, text_previous: original, text_new: renameTo, originalEvent: event })
+                if (edata.isCancelled === true) {
+                    return
+                }
+                self.set(id, { text: renameTo })
+                edata.finish()
+            }
+            if (cancel) {
+                self.set(id, { text: original })
+            }
+            self.last.renaming = false
+            self.focus()
+        }
+    }
     contextMenu(id, event) {
         let nd = this.get(id)
-        if (id != this.selected) this.click(id)
+        if (Array.isArray(this.selected)) {
+            if (!this.selected.includes(id)) this.click(id)
+        } else {
+            if (id != this.selected) this.click(id)
+        }
         // event before
         let edata = this.trigger('contextMenu', { target: id, originalEvent: event, object: nd, allowOnDisabled: false })
         if (edata.isCancelled === true) return
@@ -8409,7 +8688,7 @@ class w2sidebar extends w2base {
                     text = `<span class="w2ui-group-text">${text}</span>`
                 }
                 html = `
-                    <div id="node_${nd.id}" data-level="${level}" style="${nd.hidden ? 'display: none' : ''}"
+                    <div id="node_${nd.id}" data-id="${nd.id}" data-level="${level}" style="${nd.hidden ? 'display: none' : ''}"
                         class="w2ui-node-group w2ui-level-${level} ${nd.class ? nd.class : ''} w2ui-eaction"
                         data-click="toggle|${nd.id}"
                         data-contextmenu="contextMenu|${nd.id}|event"
@@ -8424,7 +8703,7 @@ class w2sidebar extends w2base {
                 </div>`
                 if (obj.flat) {
                     html = `
-                        <div class="w2ui-node-group" id="node_${nd.id}"><span>&#160;</span></div>
+                        <div class="w2ui-node-group" id="node_${nd.id}" data-id="${nd.id}"><span>&#160;</span></div>
                         <div id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}"></div>`
                 }
             } else {
@@ -8475,7 +8754,9 @@ class w2sidebar extends w2base {
                 if (nd.class) classes.push(nd.class)
                 // collapsible
                 if (nd.collapsible === true) {
-                    expand = `<div class="w2ui-${nd.expanded ? 'expanded' : 'collapsed'} ${self.toggleAlign == 'left' ? 'w2ui-left-toggle' : ''}"><span></span></div>`
+                    let toggleClasses = ['w2ui-sb-toggle', 'w2ui-eaction', (nd.expanded ? 'w2ui-expanded' : 'w2ui-collapsed')]
+                    if (self.toggleAlign == 'left') toggleClasses.push('w2ui-left-toggle')
+                    expand = `<div class="${toggleClasses.join(' ')}" data-click="toggle|${nd.id}"><span></span></div>`
                     classes.push('w2ui-has-children')
                 }
                 let text = w2utils.lang(typeof nd.text == 'function' ? nd.text.call(obj, nd, level) : nd.text)
@@ -8484,10 +8765,11 @@ class w2sidebar extends w2base {
                     nodeOffset += 12
                 }
                 html = `
-                    <div id="node_${nd.id}" class="${classes.join(' ')}" data-level="${level}"
+                    <div id="node_${nd.id}" class="${classes.join(' ')}" data-id="${nd.id}" data-level="${level}"
                         style="${nd.hidden ? 'display: none;' : ''}"
                         data-click="click|${nd.id}|event"
                         data-dblclick="dblClick|${nd.id}|event"
+                        data-mouseDown="mouseDown|${nd.id}|event"
                         data-contextmenu="contextMenu|${nd.id}|event"
                         data-mouseEnter="mouseAction|Enter|this|${nd.id}|event"
                         data-mouseLeave="mouseAction|Leave|this|${nd.id}|event"
@@ -8510,7 +8792,7 @@ class w2sidebar extends w2base {
                     <div class="w2ui-node-sub" id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}"></div>`
                 if (obj.flat) {
                     html = `
-                        <div id="node_${nd.id}" class="${classes.join(' ')}" style="${nd.hidden ? 'display: none;' : ''}"
+                        <div id="node_${nd.id}" class="${classes.join(' ')}" data-id="${nd.id}" style="${nd.hidden ? 'display: none;' : ''}"
                             data-click="click|${nd.id}|event"
                             data-dblclick="dblClick|${nd.id}|event"
                             data-contextmenu="contextMenu|${nd.id}|event"
@@ -10399,7 +10681,6 @@ class w2layout extends w2base {
  * == DEMOS To create ==
  *  - batch for disabled buttons
  *  - natural sort
- *  - resize on max content
  *
  * == 2.0 changes
  *  - toolbarInput - deprecated, toolbarSearch stays
@@ -11720,7 +12001,8 @@ class w2grid extends w2base {
             // do not show selection cell if it is editable
             let edit = query(this.box).find('#grid_'+ this.name + '_editable')
             let tmp  = edit.find('.w2ui-input')
-            let tmp1 = tmp.attr('recid')
+            let tmp_ind = tmp.attr('index')
+            let tmp1 = this.records[tmp_ind].recid
             let tmp2 = tmp.attr('column')
             if (rg.name == 'selection' && rg.range[0].recid == tmp1 && rg.range[0].column == tmp2) continue
             // frozen regular columns range
@@ -14085,7 +14367,13 @@ class w2grid extends w2base {
         event.preventDefault()
         edata.finish()
     }
+    // if called w/o arguments, then will resize all columns
     columnAutoSize(colIndex) {
+        if (arguments.length == 0) {
+            // autoSize all columns
+            this.columns.forEach((col, i) => this.columnAutoSize(i))
+            return
+        }
         let col = this.columns[colIndex]
         let el = query(`#grid_${this.name}_column_${colIndex} .w2ui-col-header`)[0]
         if (col.autoResize === false || col.hidden === true || !el) {
@@ -14114,6 +14402,9 @@ class w2grid extends w2base {
         }
         // event after
         edata.finish()
+    }
+    columnAutoSizeAll() {
+        this.columns.forEach((col, ind) => this.columnAutoSize(ind))
     }
     focus(event) {
         // event before
@@ -14697,10 +14988,10 @@ class w2grid extends w2base {
                 clearTimeout(this.last.kbd_timer) // keep grid in focus
                 this.contextMenuClick(recid, column, event)
             })
-            clearTimeout(this.last.kbd_timer) // keep grid in focus
         }
         // cancel browser context menu
         event.preventDefault()
+        clearTimeout(this.last.kbd_timer) // keep grid in focus
         // event after
         edata.finish()
     }
@@ -15474,12 +15765,14 @@ class w2grid extends w2base {
         let frecords = query(this.box).find(`#grid_${this.name}_frecords`, this.box)
         if (this.selectType == 'row') {
             records.on('mouseover mouseout', { delegate: 'tr' }, (event) => {
-                let recid = query(event.delegate).attr('recid')
+                let ind = query(event.delegate).attr('index') // don't read recid directly as it could be a number or a string
+                let recid = this.records[ind]?.recid
                 query(this.box).find(`#grid_${this.name}_frec_${w2utils.escapeId(recid)}`)
                     .toggleClass('w2ui-record-hover', event.type == 'mouseover')
             })
             frecords.on('mouseover mouseout', { delegate: 'tr' }, (event) => {
-                let recid = query(event.delegate).attr('recid')
+                let ind = query(event.delegate).attr('index') // don't read recid directly as it could be a number or a string
+                let recid = this.records[ind]?.recid
                 query(this.box).find(`#grid_${this.name}_rec_${w2utils.escapeId(recid)}`)
                     .toggleClass('w2ui-record-hover', event.type == 'mouseover')
             })
@@ -15487,28 +15780,31 @@ class w2grid extends w2base {
         if (w2utils.isIOS) {
             records.append(frecords)
                 .on('click', { delegate: 'tr' }, (event) => {
-                    let recid = query(event.delegate).attr('recid')
+                    let index = query(event.delegate).attr('index') // don't read recid directly as it could be a number or a string
+                    let recid = this.records[index]?.recid
                     this.dblClick(recid, event)
                 })
         } else {
             records.add(frecords)
                 .on('click', { delegate: 'tr' }, (event) => {
-                    let recid = query(event.delegate).attr('recid')
-                    // do not generate click if empty record is clicked
+                    let index = query(event.delegate).attr('index') // don't read recid directly as it could be a number or a string
+                    let recid = this.records[index]?.recid
+                        // do not generate click if empty record is clicked
                     if (recid != '-none-') {
                         this.click(recid, event)
                     }
                 })
                 .on('contextmenu', { delegate: 'tr' }, (event) => {
-                    let recid = query(event.delegate).attr('recid')
+                    let index = query(event.delegate).attr('index') // don't read recid directly as it could be a number or a string
+                    let recid = this.records[index]?.recid
                     let td = query(event.target).closest('td')
                     let column = parseInt(td.attr('col') ?? -1)
                     this.showContextMenu(recid, column, event)
                 })
                 .on('mouseover', { delegate: 'tr' }, (event) => {
                     this.last.rec_out = false
-                    let index = query(event.delegate).attr('index')
-                    let recid = query(event.delegate).attr('recid')
+                    let index = query(event.delegate).attr('index') // don't read recid directly as it could be a number or a string
+                    let recid = this.records[index]?.recid
                     if (index !== this.last.rec_over) {
                         this.last.rec_over = index
                         // setTimeout is needed for correct event order enter/leave
@@ -15520,8 +15816,8 @@ class w2grid extends w2base {
                     }
                 })
                 .on('mouseout', { delegate: 'tr' }, (event) => {
-                    let index = query(event.delegate).attr('index')
-                    let recid = query(event.delegate).attr('recid')
+                    let index = query(event.delegate).attr('index') // don't read recid directly as it could be a number or a string
+                    let recid = this.records[index]?.recid
                     this.last.rec_out = true
                     // setTimeouts are needed for correct event order enter/leave
                     setTimeout(() => {
@@ -15601,7 +15897,8 @@ class w2grid extends w2base {
             // tree-like grid (or expandable column) expand/collapse
             .on('click.body-global', { delegate: '.w2ui-show-children, .w2ui-col-expand' }, event => {
                 event.stopPropagation()
-                this.toggle(query(event.target).parents('tr').attr('recid'))
+                let ind = query(event.target).parents('tr').attr('index')
+                this.toggle(this.records[ind].recid)
             })
             // info bubbles
             .on('click.body-global mouseover.body-global', { delegate: '.w2ui-info' }, event => {
@@ -15815,7 +16112,7 @@ class w2grid extends w2base {
         this.last.observeResize = new ResizeObserver(() => { this.resize() })
         this.last.observeResize.observe(this.box)
         return Date.now() - time
-        function mouseStart (event) {
+        function mouseStart(event) {
             if (event.which != 1) return // if not left mouse button
             // restore css user-select
             if (obj.last.userSelect == 'text') {
@@ -15847,6 +16144,8 @@ class w2grid extends w2base {
                     }
                     tmp = tmp.parentNode
                 }
+                let index = query(event.target).parents('tr').attr('index')
+                let recid = obj.records[index]?.recid
                 obj.last.move = {
                     x      : event.screenX,
                     y      : event.screenY,
@@ -15854,7 +16153,7 @@ class w2grid extends w2base {
                     divY   : 0,
                     focusX : pos.x,
                     focusY : pos.y,
-                    recid  : query(event.target).parents('tr').attr('recid'),
+                    recid  : recid,
                     column : parseInt(event.target.tagName.toUpperCase() == 'TD' ? query(event.target).attr('col') : query(event.target).parents('td').attr('col')),
                     type   : 'select',
                     ghost  : false,
@@ -15964,7 +16263,8 @@ class w2grid extends w2base {
             obj.last.cancelClick = true
             if (obj.reorderRows == true && obj.last.move.reorder) {
                 let tmp   = query(event.target).parents('tr')
-                let recid = tmp.attr('recid')
+                let ind  = tmp.attr('index')
+                let recid = obj.records[ind]?.recid
                 if (recid == '-none-') recid = 'bottom'
                 if (recid != mv.from) {
                     // let row1 = query(obj.box).find('#grid_'+ obj.name + '_rec_'+ mv.recid)
@@ -16002,7 +16302,8 @@ class w2grid extends w2base {
                 mv.start = false
             }
             let newSel = []
-            let recid  = (event.target.tagName.toUpperCase() == 'TR' ? query(event.target).attr('recid') : query(event.target).parents('tr').attr('recid'))
+            let ind = (event.target.tagName.toUpperCase() == 'TR' ? query(event.target).attr('index') : query(event.target).parents('tr').attr('index'))
+            let recid = obj.records[ind].recid
             if (recid == null) {
                 // select by dragging columns
                 if (obj.selectType == 'row') return
@@ -16107,7 +16408,7 @@ class w2grid extends w2base {
                 }
             }
         }
-        function mouseStop (event) {
+        function mouseStop(event) {
             let mv = obj.last.move
             setTimeout(() => { delete obj.last.cancelClick }, 1)
             if (query(event.target).parents().hasClass('.w2ui-head') || query(event.target).hasClass('.w2ui-head')) return

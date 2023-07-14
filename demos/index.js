@@ -42,7 +42,7 @@ query(async function () {
                 { id: 'form', type: 'radio', text: 'Forms', icon: 'fa fa-pencil-square-o', route: 'form/1' },
                 { id: 'fields', type: 'radio', text: 'Fields', icon: 'fa fa-pencil-square-o', route: 'fields/1' },
                 { id: 'popup', type: 'radio', text: 'Popup', icon: 'fa fa-list-alt', route: 'popup/1' },
-                { id: 'tooltip', type: 'radio', text: 'Tooltip', icon: 'fa fa-commenting-o', route: 'tooltip/1' },
+                { id: 'tooltip', type: 'radio', text: 'Tooltip', icon: 'fa fa-comment-o', route: 'tooltip/1' },
                 { id: 'utils', type: 'radio', text: 'Utils', icon: 'fa fa-star-o', route: 'utils/1' },
                 { type: 'spacer' },
                 { type: 'menu-radio', id: 'locale', icon: 'fa fa-language',
@@ -263,6 +263,8 @@ query(async function () {
                         { id: 'sidebar/15', text: 'Node Badges', icon: 'fa fa-hand-o-up' },
                         { id: 'sidebar/16', text: 'Sort Nodes', icon: 'fa fa-hand-o-up' },
                         { id: 'sidebar/17', text: 'Search Nodes', icon: 'fa fa-hand-o-up' },
+                        { id: 'sidebar/18', text: 'Rename Nodes', icon: 'fa fa-hand-o-up' },
+                        { id: 'sidebar/19', text: 'Reorder Nodes', icon: 'fa fa-hand-o-up' },
                     ]
                 },
                 { id: 'tabs', text: 'Tabs Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
@@ -372,16 +374,16 @@ query(async function () {
                 },
                 { id: 'tooltip', text: 'Tooltip Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
-                        { id: 'tooltip/1', text: 'Tooltips', icon: 'fa fa-commenting-o' },
-                        { id: 'tooltip/2', text: 'Attach & Forget', icon: 'fa fa-commenting-o' },
-                        { id: 'tooltip/3', text: 'Common Overlays', icon: 'fa fa-commenting-o' },
-                        { id: 'tooltip/4', text: 'Menu Overlay', icon: 'fa fa-commenting-o' },
+                        { id: 'tooltip/1', text: 'Tooltips', icon: 'fa fa-comment-o' },
+                        { id: 'tooltip/2', text: 'Attach & Forget', icon: 'fa fa-comment-o' },
+                        { id: 'tooltip/3', text: 'Common Overlays', icon: 'fa fa-comment-o' },
+                        { id: 'tooltip/4', text: 'Menu Overlay', icon: 'fa fa-comment-o' },
                     ]
                 },
                 { id: 'tooltip-2.0', text: 'Features 2.0+', img: 'icon-folder', group: true, expanded: true, hidden: true,
                     nodes: [
-                        { id: 'tooltip/5', text: 'Searchable Menu', icon: 'fa fa-commenting-o' },
-                        { id: 'tooltip/6', text: 'Advanced Controls', icon: 'fa fa-commenting-o' },
+                        { id: 'tooltip/5', text: 'Searchable Menu', icon: 'fa fa-comment-o' },
+                        { id: 'tooltip/6', text: 'Advanced Controls', icon: 'fa fa-comment-o' },
                     ]
                 },
                 { id: 'utils', text: 'Utils Basic', img: 'icon-folder', group: true, expanded: true, hidden: true,
