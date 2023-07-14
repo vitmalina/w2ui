@@ -19,6 +19,8 @@
  *  - reorder = true - to allow reorder
  *  - mouseDown - for reorder
  *  - onReorder, onDragStart, onDragOver - events
+ *  - this.mutlti - for multi select
+ *  - onSelect, onUnselect - new events
  */
 
 import { w2base } from './w2base.js'
@@ -41,6 +43,7 @@ class w2sidebar extends w2base {
         this.style         = ''
         this.topHTML       = ''
         this.bottomHTML    = ''
+        this.multi         = false
         this.editable      = false
         this.reorder       = false
         this.flatButton    = false
@@ -54,6 +57,8 @@ class w2sidebar extends w2base {
         this.handle        = { width: 0, style: '', text: '', tooltip: '' },
         this.badge         = null
         this.onClick       = null // Fire when user click on Node Text
+        this.onSelect      = null
+        this.onUnselect    = null
         this.onDblClick    = null // Fire when user dbl clicks
         this.onMouseEnter  = null // mouse enter/leave over an item
         this.onMouseLeave  = null
@@ -202,8 +207,12 @@ class w2sidebar extends w2base {
         Array.from(arguments).forEach(arg => {
             node = this.get(arg)
             if (node == null) return
-            if (this.selected != null && this.selected === node.id) {
-                this.selected = null
+            if (this.selected != null) {
+                if (Array.isArray(this.selected)) {
+                    this.selected.splice(this.selected.indexOf(node.id), 1)
+                } else if (this.selected === node.id) {
+                    this.selected = null
+                }
             }
             let ind = this.get(node.parent, arg, true)
             if (ind == null) return
@@ -458,11 +467,31 @@ class w2sidebar extends w2base {
         return effected
     }
 
-    select(id) {
+    select(id, event) {
+        if (Array.isArray(id)) {
+            [...id].forEach(id => this.select(id))
+            return
+        }
         let new_node = this.get(id)
         if (!new_node) return false
-        if (this.selected == id && new_node.selected) return false
-        this.unselect(this.selected)
+        let isShift = this.multi && (event?.shiftKey || event?.ctrlKey || event?.metaKey)
+        // event before
+        let edata = this.trigger('select', { target: id, id, node: new_node, originalEvent: event })
+        if (edata.isCancelled === true) {
+            return true
+        }
+        // if already selected
+        if (!this.multi && this.selected == id && new_node.selected) {
+            return false
+        }
+        if (!isShift) {
+            this.unselect(this.selected)
+        } else {
+            if (this.selected?.includes(id)) {
+                this.unselect(id)
+                return
+            }
+        }
         let $el = query(this.box).find('#node_'+ w2utils.escapeId(id))
         $el.addClass('w2ui-selected')
             .find('.w2ui-icon')
@@ -471,22 +500,46 @@ class w2sidebar extends w2base {
             if (!this.inView(id)) this.scrollIntoView(id)
         }
         new_node.selected = true
-        this.selected = id
+        if (isShift) {
+            if (!Array.isArray(this.selected)) {
+                this.selected = this.selected ? [this.selected] : []
+            }
+            this.selected.push(id)
+        } else {
+            this.selected = this.multi ? [id] : id
+        }
+        edata.finish()
         return true
     }
 
     unselect(id) {
         // if no arguments provided, unselect selected node
+        if (Array.isArray(id)) {
+            [...id].forEach(id => this.unselect(id))
+            return
+        }
         if (arguments.length === 0) {
             id = this.selected
         }
         let current = this.get(id)
         if (!current) return false
+        // event before
+        let edata = this.trigger('unselect', { target: id, id, node: current })
+        if (edata.isCancelled === true) {
+            return true
+        }
         current.selected = false
         query(this.box).find('#node_'+ w2utils.escapeId(id))
             .removeClass('w2ui-selected')
             .find('.w2ui-icon').removeClass('w2ui-icon-selected')
-        if (this.selected == id) this.selected = null
+        if (typeof this.selected == 'string' && this.selected == id) {
+            this.selected = null
+        }
+        if (this.multi && Array.isArray(this.selected)) {
+            let ind = this.selected.indexOf(id)
+            if (ind != -1) this.selected.splice(ind, 1)
+        }
+        edata.finish()
         return true
     }
 
@@ -581,16 +634,8 @@ class w2sidebar extends w2base {
         let nd  = this.get(id)
         if (nd == null) return
         if (nd.disabled || nd.group) return // should click event if already selected
-        // unselect all previously
-        query(obj.box).find('.w2ui-node.w2ui-selected').each(el => {
-            let oldID   = query(el).attr('id').replace('node_', '')
-            let oldNode = obj.get(oldID)
-            if (oldNode != null) oldNode.selected = false
-            query(el).removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected')
-        })
         // select new one
         let newNode = query(obj.box).find('#node_'+ w2utils.escapeId(id))
-        let oldNode = query(obj.box).find('#node_'+ w2utils.escapeId(obj.selected))
         newNode.addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected')
         // need timeout to allow rendering
         setTimeout(() => {
@@ -599,13 +644,10 @@ class w2sidebar extends w2base {
             if (edata.isCancelled === true) {
                 // restore selection
                 newNode.removeClass('w2ui-selected').find('.w2ui-icon').removeClass('w2ui-icon-selected')
-                oldNode.addClass('w2ui-selected').find('.w2ui-icon').addClass('w2ui-icon-selected')
                 return
             }
             // default action
-            if (oldNode != null) oldNode.selected = false
-            obj.get(id).selected = true
-            obj.selected = id
+            this.select(id, event)
             // route processing
             if (typeof nd.route == 'string') {
                 let route = nd.route !== '' ? String('/'+ nd.route).replace(/\/{2,}/g, '/') : ''
@@ -650,9 +692,46 @@ class w2sidebar extends w2base {
         edata.finish()
     }
 
+    next(node, noSubs) {
+        if (node == null) return null
+        let parent   = node.parent
+        let ind      = this.get(node.id, true)
+        let nextNode = null
+        // jump inside
+        if (node.expanded && node.nodes.length > 0 && noSubs !== true) {
+            let nd = node.nodes[0]
+            if (nd.hidden || nd.disabled || nd.group) nextNode = this.next(nd); else nextNode = nd
+        } else {
+            if (parent && ind + 1 < parent.nodes.length) {
+                nextNode = parent.nodes[ind + 1]
+            } else {
+                nextNode = this.next(parent, true) // jump to the parent
+            }
+        }
+        if (nextNode != null && (nextNode.hidden || nextNode.disabled || nextNode.group)) nextNode = this.next(nextNode)
+        return nextNode
+    }
+
+    prev(node) {
+        if (node == null) return null
+        let parent   = node.parent
+        let ind      = this.get(node.id, true)
+        let lastChild = (node) => {
+            if (node.expanded && node.nodes.length > 0) {
+                let nd = node.nodes[node.nodes.length - 1]
+                if (nd.hidden || nd.disabled || nd.group) return this.prev(nd); else return lastChild(nd)
+            }
+            return node
+        }
+        let prevNode = (ind > 0) ? lastChild(parent.nodes[ind - 1]) : parent
+        if (prevNode != null && (prevNode.hidden || prevNode.disabled || prevNode.group)) prevNode = this.prev(prevNode)
+        return prevNode
+    }
+
     keydown(event) {
         let self = this
-        let nd  = self.get(this.selected)
+        let first = Array.isArray(this.selected) ? this.selected[0] : this.selected
+        let nd  = self.get(first)
         if (this.keyboard !== true) return
         if (!nd) nd = this.nodes[0]
         // if user hits esc and there is active move
@@ -669,36 +748,36 @@ class w2sidebar extends w2base {
         // default behaviour
         if (event.keyCode == 13 || event.keyCode == 32) { // enter or space
             if (event.keyCode == 13 && this.editable && !event.ctrlKey && !event.metaKey) {
-                this.edit(this.selected)
+                this.edit(first)
             } else {
                 if (nd.nodes.length > 0) {
-                    this.toggle(this.selected)
+                    this.toggle(first)
                 }
             }
         }
         if (event.keyCode == 37) { // left
             if (nd.nodes.length > 0 && nd.expanded) {
-                this.collapse(this.selected)
+                this.collapse(first)
             } else {
                 selectNode(nd.parent)
                 if (!nd.parent.group) this.collapse(nd.parent.id)
             }
         }
         if (event.keyCode == 39) { // right
-            if ((nd.nodes.length > 0 || nd.plus) && !nd.expanded) this.expand(this.selected)
+            if ((nd.nodes.length > 0 || nd.plus) && !nd.expanded) this.expand(first)
         }
         if (event.keyCode == 38) { // up
-            if (this.get(this.selected) == null) {
+            if (this.get(first) == null) {
                 selectNode(this.nodes[0] || null)
             } else {
-                selectNode(neighbor(nd, prev))
+                selectNode(neighbor(nd, this.prev))
             }
         }
         if (event.keyCode == 40) { // down
-            if (this.get(this.selected) == null) {
+            if (this.get(first) == null) {
                 selectNode(this.nodes[0] || null)
             } else {
-                selectNode(neighbor(nd, next))
+                selectNode(neighbor(nd, this.next))
             }
         }
         // cancel event if needed
@@ -717,46 +796,9 @@ class w2sidebar extends w2base {
         }
 
         function neighbor(node, neighborFunc) {
-            node = neighborFunc(node)
+            node = neighborFunc.call(self, node)
             while (node != null && (node.hidden || node.disabled)) {
                 if (node.group) break; else node = neighborFunc(node)
-            }
-            return node
-        }
-
-        function next(node, noSubs) {
-            if (node == null) return null
-            let parent   = node.parent
-            let ind      = self.get(node.id, true)
-            let nextNode = null
-            // jump inside
-            if (node.expanded && node.nodes.length > 0 && noSubs !== true) {
-                let t = node.nodes[0]
-                if (t.hidden || t.disabled || t.group) nextNode = next(t); else nextNode = t
-            } else {
-                if (parent && ind + 1 < parent.nodes.length) {
-                    nextNode = parent.nodes[ind + 1]
-                } else {
-                    nextNode = next(parent, true) // jump to the parent
-                }
-            }
-            if (nextNode != null && (nextNode.hidden || nextNode.disabled || nextNode.group)) nextNode = next(nextNode)
-            return nextNode
-        }
-
-        function prev(node) {
-            if (node == null) return null
-            let parent   = node.parent
-            let ind      = self.get(node.id, true)
-            let prevNode = (ind > 0) ? lastChild(parent.nodes[ind - 1]) : parent
-            if (prevNode != null && (prevNode.hidden || prevNode.disabled || prevNode.group)) prevNode = prev(prevNode)
-            return prevNode
-        }
-
-        function lastChild(node) {
-            if (node.expanded && node.nodes.length > 0) {
-                let t = node.nodes[node.nodes.length - 1]
-                if (t.hidden || t.disabled || t.group) return prev(t); else return lastChild(t)
             }
             return node
         }
@@ -776,7 +818,7 @@ class w2sidebar extends w2base {
 
     scrollIntoView(id, instant) {
         return new Promise((resolve, reject) => {
-            if (id == null) id = this.selected
+            if (id == null) id = Array.isArray(this.selected) ? this.selected[0] : this.selected
             let nd = this.get(id)
             if (nd == null) return
             let item = query(this.box).find('#node_'+ w2utils.escapeId(id)).get(0)
@@ -1008,7 +1050,11 @@ class w2sidebar extends w2base {
 
     contextMenu(id, event) {
         let nd = this.get(id)
-        if (id != this.selected) this.click(id)
+        if (Array.isArray(this.selected)) {
+            if (!this.selected.includes(id)) this.click(id)
+        } else {
+            if (id != this.selected) this.click(id)
+        }
         // event before
         let edata = this.trigger('contextMenu', { target: id, originalEvent: event, object: nd, allowOnDisabled: false })
         if (edata.isCancelled === true) return
