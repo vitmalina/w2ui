@@ -128,10 +128,37 @@
                 display: none;
             }
 
+            &.w2ui-reorder-empty {
+                border: 1px dashed silver;
+                background-color: #fbfcfe;
+            }
+            &.w2ui-ghost {
+                position: absolute;
+                z-index: 999999;
+                pointer-events: none;
+                width: calc(100% - 4px);
+                opacity: 0.8;
+                background-color: #f3f3f3;
+                border-top: 1px dotted silver;
+                border-bottom: 1px dotted silver;
+                > * {
+                    pointer-events: none;
+                }
+            }
+
             // enable pointer events for all inputs inside node
             input, button {
                 pointer-events: auto;
             }
+        }
+
+        .w2ui-ghost-line {
+            position: absolute;
+            z-index: 999999;
+            pointer-events: none;
+            width: calc(100% - 4px);
+            background-color: #82a6ff;
+            height: 2px;
         }
 
         .w2ui-selected,
@@ -197,6 +224,12 @@
 
         .w2ui-node-sub {
             overflow: hidden;
+            .w2ui-reorder-empty-sub {
+                border: 1px dashed silver;
+                background-color: #fbfcfe;
+                height: calc(100% - 4px);
+                margin: 2px 4px;
+            }
         }
 
         .w2ui-node-data {

@@ -1,0 +1,78 @@
+<div class="content">
+    <div id="example_title">
+        <h1>Reorder Nodes</h1>
+        Just enable <span class="method">reorder</span> and catch the <span class="method">onReorder</span> event. There are also
+        events you can use to control what ndoes are draggabel and where you cannot drop.
+    </div>
+    <div id="example_view"></div>
+    <div id="example_code"></div>
+</div>
+
+<!--CODE-->
+<div id="sidebar" style="height: 500px; width: 200px; float: left"></div>
+<div id="log" style="float: left; padding-left: 10px; color: gray">
+    Drag nodes to reorder
+</div>
+<div style="padding: 10px">
+</div>
+<div style="clear: both"/>
+
+<!--CODE-->
+<script type="module">
+    import { w2sidebar, w2utils, query } from '__W2UI_PATH__'
+
+    let sidebar = new w2sidebar({
+        box: '#sidebar',
+        name: 'sidebar',
+        reorder: true,
+        onDragStart(event) {
+            if (event.detail.node.id == 'non-drag') {
+                query('#log').html('Cannot drag this node')
+                event.preventDefault()
+            } else {
+
+            }
+            w2utils.notify()
+        },
+        onDragOver(event) {
+            if (event.detail.append) {
+                query('#log').html('Append to the end')
+            } else {
+                query('#log').html(`Dragged before ${event.detail.moveBefore}`)
+            }
+        },
+        onReorder(event) {
+            if (event.detail.append) {
+                w2utils.notify(`Append node "${event.target}" to the end of the sidebar`)
+            } else {
+                w2utils.notify(`Move node "${event.target}" before "${event.detail.moveBefore}"`)
+            }
+        },
+        nodes: [
+            { id: 'top1', text: 'Top 1', icon: 'fa fa-home', count: 1 },
+            { id: 'top2', text: 'Top 2', icon: 'fa fa-coffee' },
+            { id: 'non-drag', text: `Cann't drag`, icon: 'fa fa-lock' },
+            { id: 'group-1', text: 'Group 1', expanded: true, group: true,
+                nodes: [
+                    { id: 'item1', text: 'Item 1', icon: 'fa fa-home', count: 1 },
+                    { id: 'item2', text: 'Item 2', icon: 'fa fa-coffee' },
+                    { id: 'item3', text: 'Item 3', icon: 'fa fa-comment-o' },
+                    { id: 'sum-item', text: 'Nested Items', icon: 'fa fa-star', expanded: true,
+                        nodes: [
+                            { id: 'sub-item1', text: 'Sub Item 1', icon: 'fa fa-star-o', count: 10 },
+                            { id: 'sub-item2', text: 'Sub Item 2', icon: 'fa fa-star-o' },
+                            { id: 'sub-item3', text: 'Sub Item 3', icon: 'fa fa-star-o' }
+                        ]
+                    },
+                ]
+            },
+            { id: 'group-2', text: 'Group 2', expanded: true, group: true,
+                nodes: [
+                    { id: 'sub-item21', text: 'Sub Item 21', icon: 'fa fa-comment-o', count: 'Text' },
+                    { id: 'sub-item22', text: 'Sub Item 22', icon: 'fa fa-comment-o' },
+                    { id: 'sub-item23', text: 'Sub Item 23', icon: 'fa fa-comment-o' }
+                ]
+            }
+        ]
+    })
+</script>

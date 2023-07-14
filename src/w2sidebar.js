@@ -16,6 +16,9 @@
  *  - editable = true
  *  - edit(id) - new method
  *  - onEdit, onRename - new events
+ *  - reorder = true - to allow reorder
+ *  - mouseDown - for reorder
+ *  - onReorder, onDragStart, onDragOver - events
  */
 
 import { w2base } from './w2base.js'
@@ -39,6 +42,7 @@ class w2sidebar extends w2base {
         this.topHTML       = ''
         this.bottomHTML    = ''
         this.editable      = false
+        this.reorder       = false
         this.flatButton    = false
         this.keyboard      = true
         this.flat          = false
@@ -67,6 +71,9 @@ class w2sidebar extends w2base {
         this.onFlat        = null
         this.onEdit        = null
         this.onRename      = null
+        this.onReorder     = null
+        this.onDragStart   = null
+        this.onDragOver    = null
         this.node_template = {
             id: null,
             text: '',
@@ -501,7 +508,7 @@ class w2sidebar extends w2base {
         let nd = this.get(id)
         if (nd == null) return false
         // event before
-        let edata = this.trigger('collapse', { target: id, object: nd })
+        let edata = this.trigger('collapse', { target: id, object: nd, node: nd })
         if (edata.isCancelled === true) return
         // default action
         query(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub').hide()
@@ -518,7 +525,7 @@ class w2sidebar extends w2base {
     expand(id) {
         let nd = this.get(id)
         // event before
-        let edata = this.trigger('expand', { target: id, object: nd })
+        let edata = this.trigger('expand', { target: id, object: nd, node: nd })
         if (edata.isCancelled === true) return
         // default action
         query(this.box).find('#node_'+ w2utils.escapeId(id) +'_sub')
@@ -648,6 +655,14 @@ class w2sidebar extends w2base {
         let nd  = self.get(this.selected)
         if (this.keyboard !== true) return
         if (!nd) nd = this.nodes[0]
+        // if user hits esc and there is active move
+        if (event.keyCode == 27) {
+            let mv = this.last.move
+            if (mv?.reorder && mv?.moved) {
+                mv.restore()
+                return
+            }
+        }
         // trigger event
         let edata = this.trigger('keydown', { target: this.name, originalEvent: event })
         if (edata.isCancelled === true) return
@@ -785,12 +800,164 @@ class w2sidebar extends w2base {
         edata.finish()
     }
 
+    /**
+     * This is needed for not reorder
+     */
+    mouseDown(id, event) {
+        let self = this
+        if (this.reorder) {
+            this.last.move = {
+                x: event.screenX,
+                y: event.screenY,
+                divX: 0,
+                divY: 0,
+                reorder: true,
+                moved: false
+            }
+            // display empty record and ghost record
+            let mv = this.last.move
+            let body = query(this.box).find('.w2ui-sidebar-body')
+            if (!mv.ghost) {
+                let node = query(this.box).find(`#node_${w2utils.escapeId(id)}`)
+                mv.offsetY = event.offsetY
+                mv.target = id
+                mv.pos = { top: node.get(0).offsetTop - 1, left: node.get(0).offsetLeft }
+                // ghost content
+                let clone = query(node.find('.w2ui-node-data').get(0).cloneNode(true))
+                mv.node = node
+                mv.nodeSub = node.next()
+                body.append('<div id="sidebar_'+ this.name + '_ghost" class="w2ui-node w2ui-ghost"></div>')
+                query(this.box).find('#sidebar_'+ this.name + '_ghost').append(clone)
+                mv.ghost = query(this.box).find('#sidebar_'+ this.name + '_ghost')
+                mv.ghost.css({ display: 'none' })
+                mv.restore = () => {
+                    mv.resetReorder()
+                    this.refresh()
+                }
+                mv.resetReorder = () => {
+                    this.last.move = null
+                    query(this.box).find(`#sidebar_${this.name}_ghost`).remove()
+                    query(document).off(`.w2ui-${this.name}-reorder`)
+                }
+            }
+            // add mouse move and stop events
+            query(document)
+                .on(`mousemove.w2ui-${this.name}-reorder`, _mouseMove)
+                .on(`mouseup.w2ui-${this.name}-reorder`, _mouseStop)
+        }
+
+        function _mouseMove(event) {
+            if (!event.target.tagName) {
+                // element has no tagName - most likely the target is the #document itself
+                // this can happen is you click+drag and move the mouse out of the DOM area,
+                // e.g. into the browser's toolbar area
+                return
+            }
+            let mv = self.last.move
+            mv.divX = (event.screenX - mv.x)
+            mv.divY = (event.screenY - mv.y)
+            if (Math.abs(mv.divX) <= 1 && Math.abs(mv.divY) <= 1) return // only if moved more then 1px
+
+            if (self.reorder == true && mv.reorder && !mv.moved) {
+                let edata = self.trigger('dragStart', { target: mv.target, moved: true, node: self.get(mv.target), mv, originalEvent: event })
+                if (edata.isCancelled === true) {
+                    mv.restore()
+                    return
+                }
+                let rect = mv.node.get(0).getBoundingClientRect()
+                mv.moved = true
+                mv.node.html('')
+                    .removeAttr('id', 'data-id')
+                    .addClass('w2ui-reorder-empty')
+                    .css({ height: rect.height + 'px' })
+                // if there are children
+                if (mv.node.next().css('display') !== 'none') {
+                    let rect = mv.node.next().get(0).getBoundingClientRect()
+                    mv.node.next()
+                        .html('<div class="w2ui-reorder-empty-sub"></div>')
+                        .css({ height: rect.height + 'px' })
+                }
+                mv.ghost.css({ display: 'block' })
+                // event after
+                edata.finish()
+            }
+            // move ghost mode
+            mv.ghost.css({
+                top: (mv.pos.top + mv.divY) + 'px',
+                left: 0
+            })
+            let over = query(event.target).closest('.w2ui-node, .w2ui-node-group')
+            // append to the end
+            if (query(event.target).hasClass('w2ui-sidebar-body') && event.layerY > 5 && !mv.append) {
+                let edata = self.trigger('dragOver', { target: mv.target, append: true, mv, originalEvent: event })
+                if (edata.isCancelled === true) {
+                    return
+                }
+                mv.ghost.before(mv.node)
+                mv.ghost.before(mv.nodeSub)
+                mv.append = true
+                mv.moveBefore = null
+                // event after
+                edata.finish()
+            }
+            let id = over.attr('data-id')
+            if (id != null && id != mv.moveBefore && !mv.append) {
+                mv.append = false
+                mv.moveBefore = id
+                // reorder nodes
+                let edata = self.trigger('dragOver', { target: mv.target, moveBefore: id, mv, originalEvent: event })
+                if (edata.isCancelled === true) {
+                    return
+                }
+                let el = query(self.box).find(`#node_${w2utils.escapeId(id)}`)
+                el.before(mv.node)
+                el.before(mv.nodeSub)
+                // event after
+                edata.finish()
+            }
+        }
+
+        function _mouseStop(event) {
+            let mv = self.last.move
+            mv.resetReorder()
+            if (mv.moved) {
+                if (((mv.moveBefore != null && mv.target != mv.moveBefore) || mv.append)) {
+                    let edata = self.trigger('reorder', { target: mv.target, moveBefore: mv.moveBefore, append: mv.append, originalEvent: event })
+                    if (edata.isCancelled === true) {
+                        self.refresh()
+                        return
+                    }
+                    // remove
+                    let target = self.get(mv.target)
+                    let targetInd = target.parent.nodes.indexOf(target)
+                    let cut = target.parent.nodes.splice(targetInd, 1)
+                    // insert
+                    if (mv.append) {
+                        self.nodes.push(...cut)
+                        cut.forEach(nd => nd.parent = self)
+                    } else {
+                        let before = self.get(mv.moveBefore)
+                        let beforeInd = before.parent.nodes.indexOf(before)
+                        cut.forEach(nd => nd.parent = before.parent)
+                        before.parent.nodes.splice(beforeInd, 0, ...cut)
+                    }
+                    // refresh
+                    self.refresh()
+                    // event after
+                    edata.finish()
+                } else {
+                    self.refresh()
+                }
+            }
+        }
+    }
+
     edit(id) {
         let self = this
         let node = query(this.box).find('#node_'+ w2utils.escapeId(id))
         let text = node.find('.w2ui-node-text')
         // event before
-        let edata = this.trigger('edit', { id, node, textNode: text })
+        let edata = this.trigger('edit', { target: id, el: node, textEl: text })
         if (edata.isCancelled === true) {
             return
         }
@@ -824,7 +991,7 @@ class w2sidebar extends w2base {
                 .off('.node-editing')
             // send event if it was not cancelled
             if (!cancel && self.last.renaming && original !== renameTo) {
-                let edata = self.trigger('rename', { id, text_previous: original, text_new: renameTo })
+                let edata = self.trigger('rename', { target: id, text_previous: original, text_new: renameTo, originalEvent: event })
                 if (edata.isCancelled === true) {
                     return
                 }
@@ -1152,7 +1319,7 @@ class w2sidebar extends w2base {
                     text = `<span class="w2ui-group-text">${text}</span>`
                 }
                 html = `
-                    <div id="node_${nd.id}" data-level="${level}" style="${nd.hidden ? 'display: none' : ''}"
+                    <div id="node_${nd.id}" data-id="${nd.id}" data-level="${level}" style="${nd.hidden ? 'display: none' : ''}"
                         class="w2ui-node-group w2ui-level-${level} ${nd.class ? nd.class : ''} w2ui-eaction"
                         data-click="toggle|${nd.id}"
                         data-contextmenu="contextMenu|${nd.id}|event"
@@ -1167,7 +1334,7 @@ class w2sidebar extends w2base {
                 </div>`
                 if (obj.flat) {
                     html = `
-                        <div class="w2ui-node-group" id="node_${nd.id}"><span>&#160;</span></div>
+                        <div class="w2ui-node-group" id="node_${nd.id}" data-id="${nd.id}"><span>&#160;</span></div>
                         <div id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}"></div>`
                 }
             } else {
@@ -1229,7 +1396,7 @@ class w2sidebar extends w2base {
                     nodeOffset += 12
                 }
                 html = `
-                    <div id="node_${nd.id}" class="${classes.join(' ')}" data-level="${level}"
+                    <div id="node_${nd.id}" class="${classes.join(' ')}" data-id="${nd.id}" data-level="${level}"
                         style="${nd.hidden ? 'display: none;' : ''}"
                         data-click="click|${nd.id}|event"
                         data-dblclick="dblClick|${nd.id}|event"
@@ -1256,7 +1423,7 @@ class w2sidebar extends w2base {
                     <div class="w2ui-node-sub" id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}"></div>`
                 if (obj.flat) {
                     html = `
-                        <div id="node_${nd.id}" class="${classes.join(' ')}" style="${nd.hidden ? 'display: none;' : ''}"
+                        <div id="node_${nd.id}" class="${classes.join(' ')}" data-id="${nd.id}" style="${nd.hidden ? 'display: none;' : ''}"
                             data-click="click|${nd.id}|event"
                             data-dblclick="dblClick|${nd.id}|event"
                             data-contextmenu="contextMenu|${nd.id}|event"

@@ -29,10 +29,10 @@ let sidebar = new w2sidebar({
     editable: true,
     onEdit(event) {
         w2utils.notify()
-        console.log(`Start editing: ${event.detail.id}`, event)
+        console.log(`Start editing: ${event.target}`, event)
     },
     onRename(event) {
-        w2utils.notify(`Rename "${event.detail.id}" from "${event.detail.text_previous}" to "${event.detail.text_new}"`)
+        w2utils.notify(`Rename "${event.target}" from "${event.detail.text_previous}" to "${event.detail.text_new}"`)
     },
     nodes: [
         { id: 'level-1', text: 'Level 1', expanded: true, group: true,
