@@ -21,6 +21,7 @@
  *  - onReorder, onDragStart, onDragOver - events
  *  - this.mutlti - for multi select
  *  - onSelect, onUnselect - new events
+ *  - prev(), next()
  */
 
 import { w2base } from './w2base.js'
@@ -467,30 +468,21 @@ class w2sidebar extends w2base {
         return effected
     }
 
-    select(id, event) {
+    select(id) {
         if (Array.isArray(id)) {
             [...id].forEach(id => this.select(id))
             return
         }
         let new_node = this.get(id)
         if (!new_node) return false
-        let isShift = this.multi && (event?.shiftKey || event?.ctrlKey || event?.metaKey)
         // event before
-        let edata = this.trigger('select', { target: id, id, node: new_node, originalEvent: event })
+        let edata = this.trigger('select', { target: id, id, node: new_node })
         if (edata.isCancelled === true) {
             return true
         }
         // if already selected
         if (!this.multi && this.selected == id && new_node.selected) {
             return false
-        }
-        if (!isShift) {
-            this.unselect(this.selected)
-        } else {
-            if (this.selected?.includes(id)) {
-                this.unselect(id)
-                return
-            }
         }
         let $el = query(this.box).find('#node_'+ w2utils.escapeId(id))
         $el.addClass('w2ui-selected')
@@ -500,7 +492,7 @@ class w2sidebar extends w2base {
             if (!this.inView(id)) this.scrollIntoView(id)
         }
         new_node.selected = true
-        if (isShift) {
+        if (this.multi) {
             if (!Array.isArray(this.selected)) {
                 this.selected = this.selected ? [this.selected] : []
             }
@@ -647,7 +639,25 @@ class w2sidebar extends w2base {
                 return
             }
             // default action
-            this.select(id, event)
+            if (this.multi) {
+                let isShift = (event?.shiftKey || event?.ctrlKey || event?.metaKey)
+                if (typeof this.selected == 'string') {
+                    this.selected = [this.selected]
+                }
+                if (!isShift) {
+                    let ids = this.selected.filter(sid => sid != id)
+                    this.unselect(ids)
+                } else {
+                    if (this.selected?.includes(id)) {
+                        this.unselect(id)
+                        return
+                    }
+                }
+                if (!this.selected.includes(id)) this.select(id)
+            } else if (this.selected !== id) {
+                if (this.selected) this.unselect(this.selected)
+                this.select(id)
+            }
             // route processing
             if (typeof nd.route == 'string') {
                 let route = nd.route !== '' ? String('/'+ nd.route).replace(/\/{2,}/g, '/') : ''
@@ -1024,6 +1034,8 @@ class w2sidebar extends w2base {
         // event after
         edata.finish()
 
+        return text.get(0) // return editable input
+
         function _rename(event, cancel) {
             let renameTo = text.text()
             node.removeClass('w2ui-editing')
@@ -1035,6 +1047,9 @@ class w2sidebar extends w2base {
             if (!cancel && self.last.renaming && original !== renameTo) {
                 let edata = self.trigger('rename', { target: id, text_previous: original, text_new: renameTo, originalEvent: event })
                 if (edata.isCancelled === true) {
+                    text.text(original)
+                    self.last.renaming = false
+                    self.focus()
                     return
                 }
                 self.set(id, { text: renameTo })

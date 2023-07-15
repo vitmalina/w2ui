@@ -1396,7 +1396,7 @@ class w2grid extends w2base {
             let edit = query(this.box).find('#grid_'+ this.name + '_editable')
             let tmp  = edit.find('.w2ui-input')
             let tmp_ind = tmp.attr('index')
-            let tmp1 = this.records[tmp_ind].recid
+            let tmp1 = this.records[tmp_ind]?.recid
             let tmp2 = tmp.attr('column')
             if (rg.name == 'selection' && rg.range[0].recid == tmp1 && rg.range[0].column == tmp2) continue
 
