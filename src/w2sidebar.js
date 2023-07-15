@@ -506,12 +506,12 @@ class w2sidebar extends w2base {
 
     unselect(id) {
         // if no arguments provided, unselect selected node
+        if (arguments.length === 0) {
+            id = this.selected
+        }
         if (Array.isArray(id)) {
             [...id].forEach(id => this.unselect(id))
             return
-        }
-        if (arguments.length === 0) {
-            id = this.selected
         }
         let current = this.get(id)
         if (!current) return false
@@ -645,7 +645,7 @@ class w2sidebar extends w2base {
                     this.selected = [this.selected]
                 }
                 if (!isShift) {
-                    let ids = this.selected.filter(sid => sid != id)
+                    let ids = this.selected?.filter(sid => sid != id)
                     this.unselect(ids)
                 } else {
                     if (this.selected?.includes(id)) {
@@ -653,7 +653,7 @@ class w2sidebar extends w2base {
                         return
                     }
                 }
-                if (!this.selected.includes(id)) this.select(id)
+                if (!this.selected?.includes(id)) this.select(id)
             } else if (this.selected !== id) {
                 if (this.selected) this.unselect(this.selected)
                 this.select(id)
