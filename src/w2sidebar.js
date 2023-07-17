@@ -939,6 +939,7 @@ class w2sidebar extends w2base {
                 left: 0
             })
             let over = query(event.target).closest('.w2ui-node, .w2ui-node-group')
+            let id = over.attr('data-id')
             // append to the end
             if (query(event.target).hasClass('w2ui-sidebar-body') && event.layerY > 5 && !mv.append) {
                 let edata = self.trigger('dragOver', { target: mv.target, append: true, mv, originalEvent: event })
@@ -951,9 +952,7 @@ class w2sidebar extends w2base {
                 mv.moveBefore = null
                 // event after
                 edata.finish()
-            }
-            let id = over.attr('data-id')
-            if (id != null && id != mv.moveBefore && !mv.append) {
+            } else if (id != null && id != mv.moveBefore) {
                 mv.append = false
                 mv.moveBefore = id
                 // reorder nodes
