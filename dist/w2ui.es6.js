@@ -1,4 +1,4 @@
-/* w2ui 2.0.x (nightly) (7/14/2023, 6:24:35 PM) (c) http://w2ui.com, vitmalina@gmail.com */
+/* w2ui 2.0.x (nightly) (7/17/2023, 11:51:12 AM) (c) http://w2ui.com, vitmalina@gmail.com */
 /**
  * Part of w2ui 2.0 library
  *  - Dependencies: w2utils
@@ -7860,12 +7860,12 @@ class w2sidebar extends w2base {
     }
     unselect(id) {
         // if no arguments provided, unselect selected node
+        if (arguments.length === 0) {
+            id = this.selected
+        }
         if (Array.isArray(id)) {
             [...id].forEach(id => this.unselect(id))
             return
-        }
-        if (arguments.length === 0) {
-            id = this.selected
         }
         let current = this.get(id)
         if (!current) return false
@@ -7992,7 +7992,7 @@ class w2sidebar extends w2base {
                     this.selected = [this.selected]
                 }
                 if (!isShift) {
-                    let ids = this.selected.filter(sid => sid != id)
+                    let ids = this.selected?.filter(sid => sid != id)
                     this.unselect(ids)
                 } else {
                     if (this.selected?.includes(id)) {
@@ -8000,7 +8000,7 @@ class w2sidebar extends w2base {
                         return
                     }
                 }
-                if (!this.selected.includes(id)) this.select(id)
+                if (!this.selected?.includes(id)) this.select(id)
             } else if (this.selected !== id) {
                 if (this.selected) this.unselect(this.selected)
                 this.select(id)
@@ -8273,6 +8273,7 @@ class w2sidebar extends w2base {
                 left: 0
             })
             let over = query(event.target).closest('.w2ui-node, .w2ui-node-group')
+            let id = over.attr('data-id')
             // append to the end
             if (query(event.target).hasClass('w2ui-sidebar-body') && event.layerY > 5 && !mv.append) {
                 let edata = self.trigger('dragOver', { target: mv.target, append: true, mv, originalEvent: event })
@@ -8285,9 +8286,7 @@ class w2sidebar extends w2base {
                 mv.moveBefore = null
                 // event after
                 edata.finish()
-            }
-            let id = over.attr('data-id')
-            if (id != null && id != mv.moveBefore && !mv.append) {
+            } else if (id != null && id != mv.moveBefore) {
                 mv.append = false
                 mv.moveBefore = id
                 // reorder nodes
@@ -10761,10 +10760,6 @@ class w2grid extends w2base {
             },
             saved_sel     : null,     // last result of selectionSave()
             multi         : false,    // last multi flag, true when searching for multiple fields
-            scrollTop     : 0,        // last scrollTop position
-            scrollLeft    : 0,        // last scrollLeft position
-            colStart      : 0,        // for column virtual scrolling
-            colEnd        : 0,        // for column virtual scrolling
             fetch: {
                 action    : '',       // last fetch command, e.g. 'load'
                 offset    : null,     // last fetch offset, integer
@@ -10775,10 +10770,17 @@ class w2grid extends w2base {
                 loaded    : false,    // data is loaded from the server
                 hasMore   : false     // flag to indicate if there are more items to pull from the server
             },
-            pull_more     : false,
-            pull_refresh  : true,
-            range_start   : null,     // last range start cell
-            range_end     : null,     // last range end cell
+            vscroll: {
+                scrollTop     : 0,    // last scrollTop position
+                scrollLeft    : 0,    // last scrollLeft position
+                recIndStart   : null, // record index for first record in DOM
+                recIndEnd     : null, // record index for last record in DOM
+                colIndStart   : 0,    // for column virtual scrolling
+                colIndEnd     : 0,    // for column virtual scrolling
+                pull_more     : false,
+                pull_refresh  : true,
+                show_extra    : 0,        // last show extra for virtual scrolling
+            },
             sel_ind       : null,     // last selected cell index
             sel_col       : null,     // last selected column
             sel_type      : null,     // last selection type, e.g. 'click' or 'key'
@@ -10799,7 +10801,6 @@ class w2grid extends w2base {
             userSelect    : '',       // last user select type, e.g. 'text'
             columnDrag    : false,    // false or an object with a remove() method
             state         : null,     // last grid state
-            show_extra    : 0,        // last show extra for virtual scrolling
             toolbar_height: 0,        // height of grid's toolbar
         }
         this.header            = ''
@@ -11138,12 +11139,19 @@ class w2grid extends w2base {
             this.total = this.records.length
             this.localSort(false, true)
             this.localSearch()
-            // do not call this.refresh(), this is unnecessary, heavy, and messes with the toolbar.
-            // this.refreshBody()
-            // this.resizeRecords()
-            this.refresh()
+            // only refresh if it is in virtual view
+            let indStart = this.records.length - record.length
+            let indEnd  = indStart + record.length
+            if (this.last.vscroll.recIndStart <= indEnd && this.last.vscroll.recIndEnd >= indStart) {
+                this.refresh()
+            } else {
+                // just update total if it it there
+                query(this.box)
+                    .find('#grid_'+ this.name + '_footer .w2ui-footer-right .w2ui-total')
+                    .html(w2utils.formatNumber(this.total))
+            }
         } else {
-            this.refresh() // ??  should it be reload?
+            this.refresh()
         }
         return added
     }
@@ -11154,8 +11162,8 @@ class w2grid extends w2base {
         // check if property is nested - needed for speed
         for (let o in obj) if (String(o).indexOf('.') != -1) hasDots = true
         // look for an item
-        let start = displayedOnly ? this.last.range_start : 0
-        let end   = displayedOnly ? this.last.range_end + 1: this.records.length
+        let start = displayedOnly ? this.last.vscroll.recIndStart : 0
+        let end   = displayedOnly ? this.last.vscroll.recIndEnd + 1: this.records.length
         if (end > this.records.length) end = this.records.length
         for (let i = start; i < end; i++) {
             let match = true
@@ -11455,7 +11463,7 @@ class w2grid extends w2base {
         let url = this.url?.get ?? this.url
         if (url) {
             console.log('ERROR: grid.localSort can only be used on local data source, grid.url should be empty.')
-            return
+            return 0 // time it took
         }
         if (Object.keys(this.sortData).length === 0) {
             // restore original sorting
@@ -11468,7 +11476,7 @@ class w2grid extends w2base {
                     return aInd > bInd ? 1 : -1
                 })
             }
-            return
+            return 0 // time it took
         }
         let time = Date.now()
         // process date fields
@@ -11988,10 +11996,10 @@ class w2grid extends w2base {
             let td2f = query(this.box).find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(last.recid) + ' td[col="'+ last.column +'"]')
             let _lastColumn = last.column
             // adjustment due to column virtual scroll
-            if (first.column < this.last.colStart && last.column > this.last.colStart) {
+            if (first.column < this.last.vscroll.colIndStart && last.column > this.last.vscroll.colIndStart) {
                 td1 = query(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(first.recid) + ' td[col="start"]')
             }
-            if (first.column < this.last.colEnd && last.column > this.last.colEnd) {
+            if (first.column < this.last.vscroll.colIndEnd && last.column > this.last.vscroll.colIndEnd) {
                 td2 = query(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(last.recid) + ' td[col="end"]')
                 _lastColumn = '"end"'
             }
@@ -12217,7 +12225,7 @@ class w2grid extends w2base {
                 if (index == null) continue
                 let recEl1 = null
                 let recEl2 = null
-                if (this.searchData.length !== 0 || (index + 1 >= this.last.range_start && index + 1 <= this.last.range_end)) {
+                if (this.searchData.length !== 0 || (index + 1 >= this.last.vscroll.recIndStart && index + 1 <= this.last.vscroll.recIndEnd)) {
                     recEl1 = query(this.box).find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid))
                     recEl2 = query(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid))
                 }
@@ -12254,7 +12262,7 @@ class w2grid extends w2base {
                 if (index == null) continue
                 let recEl1 = null
                 let recEl2 = null
-                if (index + 1 >= this.last.range_start && index + 1 <= this.last.range_end) {
+                if (index + 1 >= this.last.vscroll.recIndStart && index + 1 <= this.last.vscroll.recIndEnd) {
                     recEl1 = query(this.box).find('#grid_'+ this.name +'_rec_'+ w2utils.escapeId(recid))
                     recEl2 = query(this.box).find('#grid_'+ this.name +'_frec_'+ w2utils.escapeId(recid))
                 }
@@ -12824,8 +12832,8 @@ class w2grid extends w2base {
         this.last.search            = last_search
         this.last.multi             = last_multi
         this.last.logic             = edata.detail.searchLogic
-        this.last.scrollTop         = 0
-        this.last.scrollLeft        = 0
+        this.last.vscroll.scrollTop = 0
+        this.last.vscroll.scrollLeft = 0
         this.last.selection.indexes = []
         this.last.selection.columns = {}
         // -- clear all search field
@@ -13187,8 +13195,8 @@ class w2grid extends w2base {
         this.last.multi      = false
         this.last.fetch.offset = 0
         // reset scrolling position
-        this.last.scrollTop         = 0
-        this.last.scrollLeft        = 0
+        this.last.vscroll.scrollTop = 0
+        this.last.vscroll.scrollLeft = 0
         this.last.selection.indexes = []
         this.last.selection.columns = {}
         // -- clear all search field
@@ -13287,10 +13295,10 @@ class w2grid extends w2base {
     // clears scroll position, selection, ranges
     reset(noRefresh) {
         // position
-        this.last.scrollTop   = 0
-        this.last.scrollLeft  = 0
-        this.last.range_start = null
-        this.last.range_end   = null
+        this.last.vscroll.scrollTop = 0
+        this.last.vscroll.scrollLeft = 0
+        this.last.vscroll.recIndStart = null
+        this.last.vscroll.recIndEnd = null
         // additional
         query(this.box).find(`#grid_${this.name}_records`).prop('scrollTop', 0)
         // refresh
@@ -13487,8 +13495,8 @@ class w2grid extends w2base {
                 this.status(w2utils.lang('Server Response ${count} seconds', { count: this.last.fetch.response }))
             }
         }, 10)
-        this.last.pull_more = false
-        this.last.pull_refresh = true
+        this.last.vscroll.pull_more = false
+        this.last.vscroll.pull_refresh = true
         // event before
         let event_name = 'load'
         if (this.last.fetch.action == 'save') event_name = 'save'
@@ -14929,7 +14937,7 @@ class w2grid extends w2base {
         }
         if (!found)
             return
-        this.last.scrollLeft = sWidth+1
+        this.last.vscroll.scrollLeft = sWidth + 1
         this.scroll()
     }
 
@@ -15230,7 +15238,7 @@ class w2grid extends w2base {
             this.localSort(false, true)
             if (this.searchData.length > 0) this.localSearch(true)
             // reset vertical scroll
-            this.last.scrollTop = 0
+            this.last.vscroll.scrollTop = 0
             query(this.box).find(`#grid_${this.name}_records`).prop('scrollTop', 0)
             // event after
             edata.finish({ direction })
@@ -15419,7 +15427,7 @@ class w2grid extends w2base {
                 _update(rec, row1, row2, index, column)
             }
         } else {
-            for (let i = this.last.range_start-1; i <= this.last.range_end; i++) {
+            for (let i = this.last.vscroll.recIndStart - 1; i <= this.last.vscroll.recIndEnd; i++) {
                 let index = i
                 if (this.last.searchIds.length > 0) { // if search is applied
                     index = this.last.searchIds[i]
@@ -17108,7 +17116,7 @@ class w2grid extends w2base {
                 top: ((this.columnGroups.length > 0 && this.show.columns ? 1 : 0) + w2utils.getSize(columns, 'height')) +'px',
                 overflow: 'hidden'
             })
-            if (records.length > 0) { this.last.scrollTop = 0; this.last.scrollLeft = 0 } // if no scrollbars, always show top
+            if (records.length > 0) { this.last.vscroll.scrollTop = 0; this.last.vscroll.scrollLeft = 0 } // if no scrollbars, always show top
         }
         if (bodyOverflowX) {
             frecords.css('margin-bottom', w2utils.scrollBarSize() + 'px')
@@ -17146,7 +17154,7 @@ class w2grid extends w2base {
             if (grid.reorderRows) html2 += '<td class="w2ui-grid-data w2ui-col-order" col="order"></td>'
             for (let j = 0; j < grid.columns.length; j++) {
                 let col = grid.columns[j]
-                if ((col.hidden || j < grid.last.colStart || j > grid.last.colEnd) && !col.frozen) continue
+                if ((col.hidden || j < grid.last.vscroll.colIndStart || j > grid.last.vscroll.colIndEnd) && !col.frozen) continue
                 htmlp = '<td class="w2ui-grid-data" '+ (col.attr != null ? col.attr : '') +' col="'+ j +'"></td>'
                 if (col.frozen) html1 += htmlp; else html2 += htmlp
             }
@@ -17285,7 +17293,7 @@ class w2grid extends w2base {
                 if (ind != null) {
                     if (ind == 'start') {
                         let width = 0
-                        for (let i = 0; i < obj.last.colStart; i++) {
+                        for (let i = 0; i < obj.last.vscroll.colIndStart; i++) {
                             if (!obj.columns[i] || obj.columns[i].frozen || obj.columns[i].hidden) continue
                             width += parseInt(obj.columns[i].sizeCalculated)
                         }
@@ -17295,9 +17303,9 @@ class w2grid extends w2base {
                 }
                 // last column
                 if (query(el).hasClass('w2ui-head-last')) {
-                    if (obj.last.colEnd + 1 < obj.columns.length) {
+                    if (obj.last.vscroll.colIndEnd + 1 < obj.columns.length) {
                         let width = 0
-                        for (let i = obj.last.colEnd + 1; i < obj.columns.length; i++) {
+                        for (let i = obj.last.vscroll.colIndEnd + 1; i < obj.columns.length; i++) {
                             if (!obj.columns[i] || obj.columns[i].frozen || obj.columns[i].hidden) continue
                             width += parseInt(obj.columns[i].sizeCalculated)
                         }
@@ -17331,7 +17339,7 @@ class w2grid extends w2base {
                 if (ind != null) {
                     if (ind == 'start') {
                         let width = 0
-                        for (let i = 0; i < obj.last.colStart; i++) {
+                        for (let i = 0; i < obj.last.vscroll.colIndStart; i++) {
                             if (!obj.columns[i] || obj.columns[i].frozen || obj.columns[i].hidden) continue
                             width += parseInt(obj.columns[i].sizeCalculated)
                         }
@@ -17341,9 +17349,9 @@ class w2grid extends w2base {
                 }
                 // last column
                 if (query(el).hasClass('w2ui-grid-data-last') && query(el).parents('.w2ui-grid-frecords').length === 0) { // not in frecords
-                    if (obj.last.colEnd + 1 < obj.columns.length) {
+                    if (obj.last.vscroll.colIndEnd + 1 < obj.columns.length) {
                         let width = 0
-                        for (let i = obj.last.colEnd + 1; i < obj.columns.length; i++) {
+                        for (let i = obj.last.vscroll.colIndEnd + 1; i < obj.columns.length; i++) {
                             if (!obj.columns[i] || obj.columns[i].frozen || obj.columns[i].hidden) continue
                             width += parseInt(obj.columns[i].sizeCalculated)
                         }
@@ -17366,7 +17374,7 @@ class w2grid extends w2base {
                 if (ind != null) {
                     if (ind == 'start') {
                         let width = 0
-                        for (let i = 0; i < obj.last.colStart; i++) {
+                        for (let i = 0; i < obj.last.vscroll.colIndStart; i++) {
                             if (!obj.columns[i] || obj.columns[i].frozen || obj.columns[i].hidden) continue
                             width += parseInt(obj.columns[i].sizeCalculated)
                         }
@@ -17382,10 +17390,10 @@ class w2grid extends w2base {
         this.initResize()
         this.refreshRanges()
         // apply last scroll if any
-        if ((this.last.scrollTop || this.last.scrollLeft) && records.length > 0) {
-            columns.prop('scrollLeft', this.last.scrollLeft)
-            records.prop('scrollTop', this.last.scrollTop)
-            records.prop('scrollLeft', this.last.scrollLeft)
+        if ((this.last.vscroll.scrollTop || this.last.vscroll.scrollLeft) && records.length > 0) {
+            columns.prop('scrollLeft', this.last.vscroll.scrollLeft)
+            records.prop('scrollTop', this.last.vscroll.scrollTop)
+            records.prop('scrollLeft', this.last.vscroll.scrollLeft)
         }
         // Improved performance when scrolling through tables
         columns.css('will-change', 'scroll-position')
@@ -17776,7 +17784,7 @@ class w2grid extends w2base {
                     colg = self.columnGroups[ii++] || {}
                     id   = id + colg.span
                 }
-                if ((i < self.last.colStart || i > self.last.colEnd) && !col.frozen)
+                if ((i < self.last.vscroll.colIndStart || i > self.last.vscroll.colIndEnd) && !col.frozen)
                     continue
                 if (col.hidden)
                     continue
@@ -17842,9 +17850,9 @@ class w2grid extends w2base {
         let url      = (typeof this.url != 'object' ? this.url : this.url.get)
         if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length
         // larger number works better with chrome, smaller with FF.
-        if (buffered > this.vs_start) this.last.show_extra = this.vs_extra; else this.last.show_extra = this.vs_start
+        if (buffered > this.vs_start) this.last.vscroll.show_extra = this.vs_extra; else this.last.vscroll.show_extra = this.vs_start
         let records = query(this.box).find(`#grid_${this.name}_records`)
-        let limit   = Math.floor((records.get(0)?.clientHeight || 0) / this.recordHeight) + this.last.show_extra + 1
+        let limit   = Math.floor((records.get(0)?.clientHeight || 0) / this.recordHeight) + this.last.vscroll.show_extra + 1
         if (!this.fixedBody || limit > buffered) limit = buffered
         // always need first record for resizing purposes
         let rec_html = this.getRecordHTML(-1, 0)
@@ -17877,8 +17885,8 @@ class w2grid extends w2base {
                 '    <td colspan="2000" class="w2ui-load-more"></td>'+
                 '</tr>'+
                 '</tbody></table>'
-        this.last.range_start = 0
-        this.last.range_end   = limit
+        this.last.vscroll.recIndStart = 0
+        this.last.vscroll.recIndEnd   = limit
         return [html1, html2]
     }
     getSummaryHTML() {
@@ -17904,8 +17912,8 @@ class w2grid extends w2base {
         if (event) {
             let sTop  = event.target.scrollTop
             let sLeft = event.target.scrollLeft
-            this.last.scrollTop  = sTop
-            this.last.scrollLeft = sLeft
+            this.last.vscroll.scrollTop  = sTop
+            this.last.vscroll.scrollLeft = sLeft
             let cols = query(this.box).find(`#grid_${this.name}_columns`)[0]
             let summary = query(this.box).find(`#grid_${this.name}_summary`)[0]
             if (cols) cols.scrollLeft = sLeft
@@ -17930,8 +17938,8 @@ class w2grid extends w2base {
             for (let i = 0; i < this.columns.length; i++) {
                 if (this.columns[i].frozen || this.columns[i].hidden) continue
                 let cSize = parseInt(this.columns[i].sizeCalculated ? this.columns[i].sizeCalculated : this.columns[i].size)
-                if (cLeft + cSize + 30 > this.last.scrollLeft && colStart == null) colStart = i
-                if (cLeft + cSize - 30 > this.last.scrollLeft + sWidth && colEnd == null) colEnd = i
+                if (cLeft + cSize + 30 > this.last.vscroll.scrollLeft && colStart == null) colStart = i
+                if (cLeft + cSize - 30 > this.last.vscroll.scrollLeft + sWidth && colEnd == null) colEnd = i
                 cLeft += cSize
             }
             if (colEnd == null) colEnd = this.columns.length - 1
@@ -17943,10 +17951,10 @@ class w2grid extends w2base {
                 if (colStart > 0) colStart--; else colEnd++ // show at least one column
             }
             // ---------
-            if (colStart != this.last.colStart || colEnd != this.last.colEnd) {
+            if (colStart != this.last.vscroll.colIndStart || colEnd != this.last.vscroll.colIndEnd) {
                 let $box = query(this.box)
-                let deltaStart = Math.abs(colStart - this.last.colStart)
-                let deltaEnd   = Math.abs(colEnd - this.last.colEnd)
+                let deltaStart = Math.abs(colStart - this.last.vscroll.colIndStart)
+                let deltaEnd   = Math.abs(colEnd - this.last.vscroll.colIndEnd)
                 // add/remove columns for small jumps
                 if (deltaStart < 5 && deltaEnd < 5) {
                     let $cfirst = $box.find(`.w2ui-grid-columns #grid_${this.name}_column_start`)
@@ -17956,24 +17964,24 @@ class w2grid extends w2base {
                     let $sfirst = $box.find(`#grid_${this.name}_summary .w2ui-grid-data-spacer`)
                     let $slast  = $box.find(`#grid_${this.name}_summary .w2ui-grid-data-last`)
                     // remove on left
-                    if (colStart > this.last.colStart) {
-                        for (let i = this.last.colStart; i < colStart; i++) {
+                    if (colStart > this.last.vscroll.colIndStart) {
+                        for (let i = this.last.vscroll.colIndStart; i < colStart; i++) {
                             $box.find('#grid_'+ this.name +'_columns #grid_'+ this.name +'_column_'+ i).remove() // column
                             $box.find('#grid_'+ this.name +'_records td[col="'+ i +'"]').remove() // record
                             $box.find('#grid_'+ this.name +'_summary td[col="'+ i +'"]').remove() // summary
                         }
                     }
                     // remove on right
-                    if (colEnd < this.last.colEnd) {
-                        for (let i = this.last.colEnd; i > colEnd; i--) {
+                    if (colEnd < this.last.vscroll.colIndEnd) {
+                        for (let i = this.last.vscroll.colIndEnd; i > colEnd; i--) {
                             $box.find('#grid_'+ this.name +'_columns #grid_'+ this.name +'_column_'+ i).remove() // column
                             $box.find('#grid_'+ this.name +'_records td[col="'+ i +'"]').remove() // record
                             $box.find('#grid_'+ this.name +'_summary td[col="'+ i +'"]').remove() // summary
                         }
                     }
                     // add on left
-                    if (colStart < this.last.colStart) {
-                        for (let i = this.last.colStart - 1; i >= colStart; i--) {
+                    if (colStart < this.last.vscroll.colIndStart) {
+                        for (let i = this.last.vscroll.colIndStart - 1; i >= colStart; i--) {
                             if (this.columns[i] && (this.columns[i].frozen || this.columns[i].hidden)) continue
                             $cfirst.after(this.getColumnCellHTML(i)) // column
                             // record
@@ -17993,8 +18001,8 @@ class w2grid extends w2base {
                         }
                     }
                     // add on right
-                    if (colEnd > this.last.colEnd) {
-                        for (let i = this.last.colEnd + 1; i <= colEnd; i++) {
+                    if (colEnd > this.last.vscroll.colIndEnd) {
+                        for (let i = this.last.vscroll.colIndEnd + 1; i <= colEnd; i++) {
                             if (this.columns[i] && (this.columns[i].frozen || this.columns[i].hidden)) continue
                             $clast.before(this.getColumnCellHTML(i)) // column
                             // record
@@ -18012,12 +18020,12 @@ class w2grid extends w2base {
                             })
                         }
                     }
-                    this.last.colStart = colStart
-                    this.last.colEnd   = colEnd
+                    this.last.vscroll.colIndStart = colStart
+                    this.last.vscroll.colIndEnd   = colEnd
                     this.resizeRecords()
                 } else {
-                    this.last.colStart = colStart
-                    this.last.colEnd   = colEnd
+                    this.last.vscroll.colIndStart = colStart
+                    this.last.vscroll.colIndEnd   = colEnd
                     // dot not just call this.refresh();
                     let colHTML   = this.getColumnsHTML()
                     let recHTML   = this.getRecordsHTML()
@@ -18033,7 +18041,7 @@ class w2grid extends w2base {
                     // need timeout to clean up (otherwise scroll problem)
                     setTimeout(() => {
                         $records.find(':scope > table').filter(':not(table:first-child)').remove()
-                        if ($summary[0]) $summary[0].scrollLeft = this.last.scrollLeft
+                        if ($summary[0]) $summary[0].scrollLeft = this.last.vscroll.scrollLeft
                     }, 1)
                     this.resizeRecords()
                 }
@@ -18044,7 +18052,7 @@ class w2grid extends w2base {
         if (buffered > this.total && this.total !== -1) buffered = this.total
         if (this.searchData.length != 0 && !url) buffered = this.last.searchIds.length
         if (buffered === 0 || records.length === 0 || records.prop('clientHeight') === 0) return
-        if (buffered > this.vs_start) this.last.show_extra = this.vs_extra; else this.last.show_extra = this.vs_start
+        if (buffered > this.vs_start) this.last.vscroll.show_extra = this.vs_extra; else this.last.vscroll.show_extra = this.vs_start
         // update footer
         let t1 = Math.round(records.prop('scrollTop') / this.recordHeight + 1)
         let t2 = t1 + (Math.round(records.prop('clientHeight') / this.recordHeight) - 1)
@@ -18053,17 +18061,17 @@ class w2grid extends w2base {
         query(this.box).find('#grid_'+ this.name + '_footer .w2ui-footer-right').html(
             (this.show.statusRange
                 ? w2utils.formatNumber(this.offset + t1) + '-' + w2utils.formatNumber(this.offset + t2) +
-                    (this.total != -1 ? ' ' + w2utils.lang('of') + ' ' + w2utils.formatNumber(this.total) : '')
+                    (this.total != -1 ? ' ' + w2utils.lang('of') + ' <span class="w2ui-total">' + w2utils.formatNumber(this.total) + '</span>' : '')
                     : '') +
-            (url && this.show.statusBuffered ? ' ('+ w2utils.lang('buffered') + ' '+ w2utils.formatNumber(buffered) +
-                    (this.offset > 0 ? ', skip ' + w2utils.formatNumber(this.offset) : '') + ')' : '')
+            (url && this.show.statusBuffered ? ' ('+ w2utils.lang('buffered') + ' <span class="w2ui-buffered">'+ w2utils.formatNumber(buffered) + '</span>' +
+                    (this.offset > 0 ? ', skip <span class="w2ui-skip">' + w2utils.formatNumber(this.offset) : '') + '</span>)' : '')
         )
         // only for local data source, else no extra records loaded
         if (!url && (!this.fixedBody || (this.total != -1 && this.total <= this.vs_start))) return
         // regular processing
-        let start = Math.floor(records.prop('scrollTop') / this.recordHeight) - this.last.show_extra
-        let end   = start + Math.floor(records.prop('clientHeight') / this.recordHeight) + this.last.show_extra * 2 + 1
-        // let div  = start - this.last.range_start;
+        let start = Math.floor(records.prop('scrollTop') / this.recordHeight) - this.last.vscroll.show_extra
+        let end   = start + Math.floor(records.prop('clientHeight') / this.recordHeight) + this.last.vscroll.show_extra * 2 + 1
+        // let div  = start - this.last.vscroll.recIndStart;
         if (start < 1) start = 1
         if (end > this.total && this.total != -1) end = this.total
         let tr1  = records.find('#grid_'+ this.name +'_rec_top')
@@ -18082,9 +18090,9 @@ class w2grid extends w2base {
         let first = parseInt(tr1.next().attr('line'))
         let last  = parseInt(tr2.prev().attr('line'))
         let tmp, tmp1, tmp2, rec_start, rec_html
-        if (first < start || first == 1 || this.last.pull_refresh) { // scroll down
-            if (end <= last + this.last.show_extra - 2 && end != this.total) return
-            this.last.pull_refresh = false
+        if (first < start || first == 1 || this.last.vscroll.pull_refresh) { // scroll down
+            if (end <= last + this.last.vscroll.show_extra - 2 && end != this.total) return
+            this.last.vscroll.pull_refresh = false
             // remove from top
             while (true) {
                 tmp1 = frecords.find('#grid_'+ this.name +'_frec_top').next()
@@ -18114,7 +18122,7 @@ class w2grid extends w2base {
             markSearch()
             setTimeout(() => { this.refreshRanges() }, 0)
         } else { // scroll up
-            if (start >= first - this.last.show_extra + 2 && start > 1) return
+            if (start >= first - this.last.vscroll.show_extra + 2 && start > 1) return
             // remove from bottom
             while (true) {
                 tmp1 = frecords.find('#grid_'+ this.name +'_frec_bottom').prev()
@@ -18152,14 +18160,14 @@ class w2grid extends w2base {
         tr1f.css('height', h1 + 'px')
         tr2.css('height', h2 + 'px')
         tr2f.css('height', h2 + 'px')
-        this.last.range_start = start
-        this.last.range_end   = end
+        this.last.vscroll.recIndStart = start
+        this.last.vscroll.recIndEnd   = end
         // load more if needed
         let s = Math.floor(records.prop('scrollTop') / this.recordHeight)
         let e = s + Math.floor(records.prop('clientHeight') / this.recordHeight)
-        if (e + 10 > buffered && this.last.pull_more !== true && (buffered < this.total - this.offset || (this.total == -1 && this.last.fetch.hasMore))) {
+        if (e + 10 > buffered && this.last.vscroll.pull_more !== true && (buffered < this.total - this.offset || (this.total == -1 && this.last.fetch.hasMore))) {
             if (this.autoLoad === true) {
-                this.last.pull_more   = true
+                this.last.vscroll.pull_more   = true
                 this.last.fetch.offset += this.limit
                 this.request('load')
             }
@@ -18172,7 +18180,7 @@ class w2grid extends w2base {
                     // show spinner
                     query(this).find('td').html('<div><div style="width: 20px; height: 20px;" class="w2ui-spinner"></div></div>')
                     // load more
-                    obj.last.pull_more   = true
+                    obj.last.vscroll.pull_more   = true
                     obj.last.fetch.offset += obj.limit
                     obj.request('load')
                 })
@@ -18226,7 +18234,7 @@ class w2grid extends w2base {
                 if (col.frozen && !col.hidden) {
                     rec_html1 += tmph
                 } else {
-                    if (col.hidden || i < this.last.colStart || i > this.last.colEnd) continue
+                    if (col.hidden || i < this.last.vscroll.colIndStart || i > this.last.vscroll.colIndEnd) continue
                     rec_html2 += tmph
                 }
             }
@@ -18341,7 +18349,7 @@ class w2grid extends w2base {
                 }
             }
             // column virtual scroll
-            if ((col_ind < this.last.colStart || col_ind > this.last.colEnd) && !col.frozen) {
+            if ((col_ind < this.last.vscroll.colIndStart || col_ind > this.last.vscroll.colIndEnd) && !col.frozen) {
                 col_ind++
                 continue
             }
@@ -18744,8 +18752,8 @@ class w2grid extends w2base {
                 logic : this.last.logic,
                 label : this.last.label,
                 field : this.last.field,
-                scrollTop : this.last.scrollTop,
-                scrollLeft: this.last.scrollLeft
+                scrollTop : this.last.vscroll.scrollTop,
+                scrollLeft: this.last.vscroll.scrollLeft
             },
             sortData  : [],
             searchData: []
@@ -18798,8 +18806,8 @@ class w2grid extends w2base {
         if (w2utils.isPlainObject(newState)) {
             w2utils.extend(this.show, newState.show ?? {})
             w2utils.extend(this.last, newState.last ?? {})
-            let sTop  = this.last.scrollTop
-            let sLeft = this.last.scrollLeft
+            let sTop  = this.last.vscroll.scrollTop
+            let sLeft = this.last.vscroll.scrollLeft
             for (let c = 0; c < newState.columns?.length; c++) {
                 let tmp       = newState.columns[c]
                 let col_index = this.getColumn(tmp.field, true)
@@ -18825,8 +18833,8 @@ class w2grid extends w2base {
                     if (this.sortData.length > 0) this.localSort()
                     if (this.searchData.length > 0) this.localSearch()
                 }
-                this.last.scrollTop  = sTop
-                this.last.scrollLeft = sLeft
+                this.last.vscroll.scrollTop = sTop
+                this.last.vscroll.scrollLeft = sLeft
                 this.refresh()
             }, 1)
             console.log(`INFO (w2ui): state restored for "${this.name}"`)

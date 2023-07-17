@@ -110,7 +110,7 @@ class w2grid extends w2base {
                 colIndEnd     : 0,    // for column virtual scrolling
                 pull_more     : false,
                 pull_refresh  : true,
-                show_extra    : 0,        // last show extra for virtual scrolling
+                show_extra    : 0,    // last show extra for virtual scrolling
             },
             sel_ind       : null,     // last selected cell index
             sel_col       : null,     // last selected column
