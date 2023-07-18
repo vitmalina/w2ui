@@ -313,9 +313,11 @@ class Dialog extends w2base {
         options._last_focus = document.activeElement
         // keyboard events
         if (options.keyboard) {
-            query(document.body).on('keydown', (event) => {
-                this.keydown(event)
-            })
+            query(document.body)
+                .off('.w2popup')
+                .on('keydown.w2popup', (event) => {
+                    this.keydown(event)
+                })
         }
         query(window).on('resize', this.handleResize)
         // initialize move
@@ -717,7 +719,7 @@ function w2alert(msg, title, callBack) {
         title: w2utils.lang(title ?? 'Notification'),
         body: `<div class="w2ui-centered w2ui-msg-text">${msg}</div>`,
         showClose: false,
-        actions: ['Ok'],
+        actions: { ok: 'Ok' },
         cancelAction: 'ok'
     }
     if (query('#w2ui-popup').length > 0 && w2popup.status != 'closing') {
@@ -725,7 +727,7 @@ function w2alert(msg, title, callBack) {
     } else {
         prom = w2popup.open(options)
     }
-    prom.ok((event) => {
+    prom.ok(event => {
         if (typeof event.detail.self?.close == 'function') {
             event.detail.self.close()
         }
