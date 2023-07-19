@@ -1161,9 +1161,8 @@ class w2sidebar extends w2base {
                 }, 100)
             })
             .on('keydown', function(event) {
-                if (event.keyCode != 9) { // not tab
-                    w2ui[obj.name].keydown.call(w2ui[obj.name], event)
-                }
+                // do not cancel tab key (keyCode=9) so that event is dispatched to self
+                w2ui[obj.name].keydown.call(w2ui[obj.name], event)
             })
         query(this.box).off('mousedown')
             .on('mousedown', function(event) {
